@@ -11,6 +11,10 @@
 
     <repositories>
         <!-- jhipster-needle-maven-repository -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -232,6 +236,11 @@
             <artifactId>metrics-core</artifactId>
         </dependency>
         <!-- jhipster-needle-maven-add-dependency -->
+        <dependency>
+            <groupId>com.github.genome-nexus</groupId>
+            <artifactId>genome-nexus-java-api-client</artifactId>
+            <version>0709b8232b</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -485,7 +494,7 @@
                                 <arg>/entrypoint.sh</arg>
                             </entrypoint>
                             <ports>
-                                <port>8080</port>
+                                <port>9090</port>
                             </ports>
                             <environment>
                                 <SPRING_OUTPUT_ANSI_ENABLED>ALWAYS</SPRING_OUTPUT_ANSI_ENABLED>
