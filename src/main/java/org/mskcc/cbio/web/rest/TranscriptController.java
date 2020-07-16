@@ -1,5 +1,6 @@
 package org.mskcc.cbio.web.rest;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
 import org.genome_nexus.client.EnsemblControllerApi;
@@ -13,9 +14,12 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.*;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,13 +47,13 @@ public class TranscriptController {
         Optional<EnsemblTranscript> ensemblB = getEnsemblTranscript(hugoSymbol, transcriptComparisonVM.getTranscriptB());
 
         Optional<Sequence> sequenceA = Optional.empty();
-        if(ensemblA.isPresent()) {
+        if (ensemblA.isPresent()) {
             sequenceA = getProteinSequence(transcriptComparisonVM.getTranscriptA().getReferenceGenome(), ensemblA.get().getProteinId());
             result.setSequenceA(sequenceA.orElse(new Sequence()).getSeq());
         }
 
         Optional<Sequence> sequenceB = Optional.empty();
-        if(ensemblB.isPresent()) {
+        if (ensemblB.isPresent()) {
             sequenceB = getProteinSequence(transcriptComparisonVM.getTranscriptB().getReferenceGenome(), ensemblB.get().getProteinId());
             result.setSequenceB(sequenceB.orElse(new Sequence()).getSeq());
         }
@@ -66,7 +70,7 @@ public class TranscriptController {
     }
 
     @PostMapping("/match-transcript/{hugoSymbol}")
-    public ResponseEntity<EnsemblTranscript> authorize(
+    public ResponseEntity<TranscriptMatchResultVM> authorize(
         @PathVariable String hugoSymbol,
         @RequestBody MatchTranscriptVM matchTranscriptVM
     ) throws ApiException {
@@ -80,7 +84,7 @@ public class TranscriptController {
                 if (targetEnsemblTranscripts.size() == 0) {
                     throw new BadRequestException("The target reference genome does not have any ensembl transcripts.");
                 } else {
-                    return new ResponseEntity<>(pickEnsemblTranscript(matchTranscriptVM.getTargetReferenceGenome(), targetEnsemblTranscripts, _sequence.get()).orElse(null), HttpStatus.OK);
+                    return new ResponseEntity<>(pickEnsemblTranscript(matchTranscriptVM.getTargetReferenceGenome(), targetEnsemblTranscripts, _sequence.get()), HttpStatus.OK);
                 }
             } else {
                 throw new BadRequestException("The transcript is invalid");
@@ -105,9 +109,13 @@ public class TranscriptController {
         HttpEntity<String> entity = new HttpEntity<>(httpHeaders);
 
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Sequence> response = restTemplate.exchange(
-            urlService.getEnsemblSequenceGETUrl(referenceGenome, transcript), HttpMethod.GET, entity, Sequence.class);
-        return Optional.of(response.getBody());
+        try {
+            ResponseEntity<Sequence> response = restTemplate.exchange(
+                urlService.getEnsemblSequenceGETUrl(referenceGenome, transcript), HttpMethod.GET, entity, Sequence.class);
+            return Optional.of(response.getBody());
+        } catch (HttpClientErrorException exception) {
+            throw new BadRequestException("reference genome " + referenceGenome + ", transcript " + transcript + ": " + exception.getMessage());
+        }
     }
 
     private List<Sequence> getProteinSequences(REFERENCE_GENOME referenceGenome, List<String> transcripts) {
@@ -127,27 +135,37 @@ public class TranscriptController {
         HttpEntity<String> entity = new HttpEntity<>(jsonObject.toString(), httpHeaders);
 
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Sequence[]> response = restTemplate.postForEntity(
-            urlService.getEnsemblSequencePOSTUrl(referenceGenome), entity, Sequence[].class);
-        return Arrays.asList(response.getBody());
+        try {
+
+            ResponseEntity<Sequence[]> response = restTemplate.postForEntity(
+                urlService.getEnsemblSequencePOSTUrl(referenceGenome), entity, Sequence[].class);
+            return Arrays.asList(response.getBody());
+        } catch (HttpClientErrorException exception) {
+            throw new BadRequestException("reference genome " + referenceGenome + ", transcripts " + transcripts + ": " + exception.getMessage());
+        }
     }
 
-    private Optional<EnsemblTranscript> pickEnsemblTranscript(REFERENCE_GENOME referenceGenome, List<EnsemblTranscript> availableTranscripts, Sequence sequence) {
+    private TranscriptMatchResultVM pickEnsemblTranscript(REFERENCE_GENOME referenceGenome, List<EnsemblTranscript> availableTranscripts, Sequence sequence) {
+        TranscriptMatchResultVM transcriptMatchResultVM = new TranscriptMatchResultVM();
+
         List<EnsemblTranscript> sameLengthList = availableTranscripts.stream().filter(ensemblTranscript -> ensemblTranscript.getProteinLength() != null && ensemblTranscript.getProteinLength().equals(sequence.getSeq().length())).collect(Collectors.toList());
 
         List<Sequence> sequences = getProteinSequences(referenceGenome, sameLengthList.stream().map(EnsemblTranscript::getProteinId).collect(Collectors.toList()));
-        Optional<Sequence> sequenceSameLength = sequences.stream().filter(matchedSequence -> matchedSequence.getSeq().equals(sequence.getSeq())).findAny();
+        Optional<Sequence> sequenceSame = sequences.stream().filter(matchedSequence -> matchedSequence.getSeq().equals(sequence.getSeq())).findAny();
 
 
-        if (sequenceSameLength.isPresent()) {
-            Optional<EnsemblTranscript> sequenceOptional = availableTranscripts.stream().filter(ensemblTranscript -> {
-                if(ensemblTranscript.getProteinId() != null && ensemblTranscript.getProteinId().equals(sequenceSameLength.get().getId())) {
-                    return true;
-                }else {
-                    return false;
-                }
-            }).findAny();
-            return sequenceOptional;
+        if (sequenceSame.isPresent()) {
+            Optional<EnsemblTranscript> ensemblTranscript = getEnsemblTranscriptBySequence(availableTranscripts, sequence);
+            transcriptMatchResultVM.setEnsemblTranscript(ensemblTranscript.get());
+            transcriptMatchResultVM.setNote("Exact match");
+        } else if (sequences.size() > 0) {
+            // We should make some comparison with the original sequence for the same length
+            sequences.sort(Comparator.comparingInt(s -> getNumOfMismatchSameLengthSequences(sequence.getSeq(), s.getSeq())));
+            Sequence pickedSequence = sequences.iterator().next();
+
+            Optional<EnsemblTranscript> ensemblTranscript = getEnsemblTranscriptBySequence(availableTranscripts, pickedSequence);
+            transcriptMatchResultVM.setEnsemblTranscript(ensemblTranscript.get());
+            transcriptMatchResultVM.setNote("Same length, but mismatch: " + getNumOfMismatchSameLengthSequences(sequence.getSeq(), pickedSequence.getSeq()));
         } else {
             // we want to see whether there is any transcript includes the original sequence
             List<EnsemblTranscript> longerOnes = availableTranscripts.stream().filter(ensemblTranscript -> ensemblTranscript.getProteinLength() != null && ensemblTranscript.getProteinLength() > sequence.getSeq().length()).collect(Collectors.toList());
@@ -156,7 +174,38 @@ public class TranscriptController {
             List<Sequence> sequencesContains = longerSequences.stream().filter(matchedSequence -> matchedSequence.getSeq().contains(sequence.getSeq())).collect(Collectors.toList());
             sequencesContains.sort((s1, s2) -> s2.getSeq().length() - s1.getSeq().length());
 
-            return Optional.ofNullable(sequencesContains.size() > 0 ? longerOnes.iterator().next() : null);
+            if (sequencesContains.size() > 0) {
+                Sequence pickedSequence = sequencesContains.iterator().next();
+                Optional<EnsemblTranscript> ensemblTranscript = getEnsemblTranscriptBySequence(longerOnes, pickedSequence);
+                transcriptMatchResultVM.setEnsemblTranscript(ensemblTranscript.get());
+                transcriptMatchResultVM.setNote("Longer one found, length: " + pickedSequence.getSeq().length());
+
+            } else {
+                transcriptMatchResultVM.setNote("No matched sequence found");
+            }
         }
+        return transcriptMatchResultVM;
+    }
+
+    private Optional<EnsemblTranscript> getEnsemblTranscriptBySequence(List<EnsemblTranscript> availableEnsemblTranscripts, Sequence sequence) {
+        return availableEnsemblTranscripts.stream().filter(ensemblTranscript -> {
+            if (ensemblTranscript.getProteinId() != null && ensemblTranscript.getProteinId().equals(sequence.getId())) {
+                return true;
+            } else {
+                return false;
+            }
+        }).findAny();
+    }
+
+    private int getNumOfMismatchSameLengthSequences(String reference, String newSequence) {
+        int mismatch = 0;
+        for (int i = 0; i < reference.length(); i++) {
+            char r = reference.charAt(i);
+            char n = newSequence.charAt(i);
+            if (r != n) {
+                mismatch++;
+            }
+        }
+        return mismatch;
     }
 }
