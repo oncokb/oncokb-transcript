@@ -58,7 +58,9 @@ public class TranscriptController {
             result.setSequenceB(sequenceB.orElse(new Sequence()).getSeq());
         }
 
-        if (ensemblA.get().getProteinLength().equals(ensemblB.get().getProteinLength())) {
+        if (ensemblA.isPresent() &&
+            ensemblB.isPresent() &&
+            ensemblA.get().getProteinLength().equals(ensemblB.get().getProteinLength())) {
             // do a quick check whether the protein is the same
             if (sequenceA.isPresent() && sequenceB.isPresent()) {
                 if (sequenceA.get().getSeq().equals(sequenceB.get().getSeq())) {
@@ -96,7 +98,15 @@ public class TranscriptController {
 
     private List<EnsemblTranscript> getEnsemblTranscriptList(String hugoSymbol, REFERENCE_GENOME referenceGenome) throws ApiException {
         EnsemblControllerApi controllerApi = urlService.getEnsemblControllerApi(referenceGenome);
-        return controllerApi.fetchEnsemblTranscriptsGET(null, null, hugoSymbol);
+        Set<EnsemblTranscript> transcripts = new LinkedHashSet<>();
+        transcripts.add(getCanonicalEnsemblTranscript(hugoSymbol, referenceGenome));
+        transcripts.addAll(controllerApi.fetchEnsemblTranscriptsGET(null, null, hugoSymbol));
+        return new ArrayList<>(transcripts);
+    }
+
+    private EnsemblTranscript getCanonicalEnsemblTranscript(String hugoSymbol, REFERENCE_GENOME referenceGenome) throws ApiException {
+        EnsemblControllerApi controllerApi = urlService.getEnsemblControllerApi(referenceGenome);
+        return controllerApi.fetchCanonicalEnsemblTranscriptByHugoSymbolGET(hugoSymbol, "msk");
     }
 
     private Optional<EnsemblTranscript> getEnsemblTranscript(String hugoSymbol, TranscriptPairVM transcriptPairVM) throws ApiException {
