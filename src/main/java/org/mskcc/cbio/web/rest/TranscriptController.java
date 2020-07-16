@@ -9,13 +9,14 @@ import org.mskcc.cbio.service.UrlService;
 import org.mskcc.cbio.web.rest.errors.BadRequestException;
 import org.mskcc.cbio.web.rest.vm.*;
 import org.mskcc.cbio.web.rest.vm.ensembl.Sequence;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -41,18 +42,23 @@ public class TranscriptController {
         Optional<EnsemblTranscript> ensemblA = getEnsemblTranscript(hugoSymbol, transcriptComparisonVM.getTranscriptA());
         Optional<EnsemblTranscript> ensemblB = getEnsemblTranscript(hugoSymbol, transcriptComparisonVM.getTranscriptB());
 
-        if (ensemblA.isPresent() && ensemblB.isPresent()) {
-            Optional<Sequence> sequenceA = getProteinSequence(transcriptComparisonVM.getTranscriptA().getReferenceGenome(), ensemblA.get().getProteinId());
-            Optional<Sequence> sequenceB = getProteinSequence(transcriptComparisonVM.getTranscriptB().getReferenceGenome(), ensemblB.get().getProteinId());
+        Optional<Sequence> sequenceA = Optional.empty();
+        if(ensemblA.isPresent()) {
+            sequenceA = getProteinSequence(transcriptComparisonVM.getTranscriptA().getReferenceGenome(), ensemblA.get().getProteinId());
             result.setSequenceA(sequenceA.orElse(new Sequence()).getSeq());
-            result.setSequenceB(sequenceB.orElse(new Sequence()).getSeq());
+        }
 
-            if (ensemblA.get().getProteinLength().equals(ensemblB.get().getProteinLength())) {
-                // do a quick check whether the protein is the same
-                if (sequenceA.isPresent() && sequenceB.isPresent()) {
-                    if (sequenceA.get().getSeq().equals(sequenceB.get().getSeq())) {
-                        result.setMatch(true);
-                    }
+        Optional<Sequence> sequenceB = Optional.empty();
+        if(ensemblB.isPresent()) {
+            sequenceB = getProteinSequence(transcriptComparisonVM.getTranscriptB().getReferenceGenome(), ensemblB.get().getProteinId());
+            result.setSequenceB(sequenceB.orElse(new Sequence()).getSeq());
+        }
+
+        if (ensemblA.get().getProteinLength().equals(ensemblB.get().getProteinLength())) {
+            // do a quick check whether the protein is the same
+            if (sequenceA.isPresent() && sequenceB.isPresent()) {
+                if (sequenceA.get().getSeq().equals(sequenceB.get().getSeq())) {
+                    result.setMatch(true);
                 }
             }
         }
@@ -100,43 +106,57 @@ public class TranscriptController {
 
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<Sequence> response = restTemplate.exchange(
-            urlService.getEnsemblSequenceUrl(referenceGenome, transcript), HttpMethod.GET, entity, Sequence.class);
+            urlService.getEnsemblSequenceGETUrl(referenceGenome, transcript), HttpMethod.GET, entity, Sequence.class);
         return Optional.of(response.getBody());
     }
 
-    private Optional<EnsemblTranscript> pickEnsemblTranscript(REFERENCE_GENOME _referenceGenome, List<EnsemblTranscript> availableTranscripts, Sequence sequence) {
-        Optional<EnsemblTranscript> sameLength = availableTranscripts.stream().filter(ensemblTranscript -> {
-            if (ensemblTranscript.getProteinLength() != null && ensemblTranscript.getProteinLength().equals(sequence.getSeq().length())) {
-                Optional<Sequence> targetSequence = getProteinSequence(_referenceGenome, ensemblTranscript.getProteinId());
-                if (targetSequence.isPresent()) {
-                    return targetSequence.get().getSeq().equals(sequence.getSeq());
-                } else {
+    private List<Sequence> getProteinSequences(REFERENCE_GENOME referenceGenome, List<String> transcripts) {
+        if (transcripts.size() == 0) {
+            return new ArrayList<>();
+        }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        JSONObject jsonObject = new JSONObject();
+        JSONArray jsonArray = new JSONArray();
+        transcripts.stream().forEach(transcript -> jsonArray.put(transcript));
+        try {
+            jsonObject.put("ids", jsonArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        HttpEntity<String> entity = new HttpEntity<>(jsonObject.toString(), httpHeaders);
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Sequence[]> response = restTemplate.postForEntity(
+            urlService.getEnsemblSequencePOSTUrl(referenceGenome), entity, Sequence[].class);
+        return Arrays.asList(response.getBody());
+    }
+
+    private Optional<EnsemblTranscript> pickEnsemblTranscript(REFERENCE_GENOME referenceGenome, List<EnsemblTranscript> availableTranscripts, Sequence sequence) {
+        List<EnsemblTranscript> sameLengthList = availableTranscripts.stream().filter(ensemblTranscript -> ensemblTranscript.getProteinLength() != null && ensemblTranscript.getProteinLength().equals(sequence.getSeq().length())).collect(Collectors.toList());
+
+        List<Sequence> sequences = getProteinSequences(referenceGenome, sameLengthList.stream().map(EnsemblTranscript::getProteinId).collect(Collectors.toList()));
+        Optional<Sequence> sequenceSameLength = sequences.stream().filter(matchedSequence -> matchedSequence.getSeq().equals(sequence.getSeq())).findAny();
+
+
+        if (sequenceSameLength.isPresent()) {
+            Optional<EnsemblTranscript> sequenceOptional = availableTranscripts.stream().filter(ensemblTranscript -> {
+                if(ensemblTranscript.getProteinId() != null && ensemblTranscript.getProteinId().equals(sequenceSameLength.get().getId())) {
+                    return true;
+                }else {
                     return false;
                 }
-            } else {
-                return false;
-            }
-
-        }).findAny();
-
-        if (sameLength.isPresent()) {
-            return sameLength;
+            }).findAny();
+            return sequenceOptional;
         } else {
             // we want to see whether there is any transcript includes the original sequence
-            List<EnsemblTranscript> longerOnes = availableTranscripts.stream().filter(ensemblTranscript -> {
-                if (ensemblTranscript.getProteinLength() != null && ensemblTranscript.getProteinLength() > sequence.getSeq().length()) {
-                    Optional<Sequence> targetSequence = getProteinSequence(_referenceGenome, ensemblTranscript.getProteinId());
-                    if (targetSequence.isPresent()) {
-                        return targetSequence.get().getSeq().contains(sequence.getSeq());
-                    } else {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
-            }).collect(Collectors.toList());
-            longerOnes.sort(Comparator.comparingInt(EnsemblTranscript::getProteinLength).reversed());
-            return Optional.ofNullable(longerOnes.iterator().next());
+            List<EnsemblTranscript> longerOnes = availableTranscripts.stream().filter(ensemblTranscript -> ensemblTranscript.getProteinLength() != null && ensemblTranscript.getProteinLength() > sequence.getSeq().length()).collect(Collectors.toList());
+
+            List<Sequence> longerSequences = getProteinSequences(referenceGenome, longerOnes.stream().map(EnsemblTranscript::getProteinId).collect(Collectors.toList()));
+            List<Sequence> sequencesContains = longerSequences.stream().filter(matchedSequence -> matchedSequence.getSeq().contains(sequence.getSeq())).collect(Collectors.toList());
+            sequencesContains.sort((s1, s2) -> s2.getSeq().length() - s1.getSeq().length());
+
+            return Optional.ofNullable(sequencesContains.size() > 0 ? longerOnes.iterator().next() : null);
         }
     }
 }

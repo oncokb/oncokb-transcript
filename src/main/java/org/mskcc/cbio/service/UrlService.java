@@ -15,7 +15,7 @@ public class UrlService {
 
     public final String GN_37_URL = "https://www.genomenexus.org";
     public final String GN_38_URL = "https://grch38.genomenexus.org";
-    private final int GN_READ_TIMEOUT_OVERRIDE = 3000;
+    private final int GN_READ_TIMEOUT_OVERRIDE = 30000;
 
     private final EnsemblControllerApi ensemblControllerApi38;
     private final EnsemblControllerApi ensemblControllerApi37;
@@ -43,8 +43,12 @@ public class UrlService {
         }
     }
 
-    public String getEnsemblSequenceUrl(REFERENCE_GENOME referenceGenome, String transcript) {
+    public String getEnsemblSequenceGETUrl(REFERENCE_GENOME referenceGenome, String transcript) {
         return getEnsemblAPIUrl(referenceGenome) + "/sequence/id/" + transcript;
+    }
+
+    public String getEnsemblSequencePOSTUrl(REFERENCE_GENOME referenceGenome) {
+        return getEnsemblAPIUrl(referenceGenome) + "/sequence/id";
     }
 
     public String getEnsemblAPIUrl(REFERENCE_GENOME referenceGenome) {
