@@ -184,7 +184,7 @@ public class TranscriptController {
                 Sequence pickedSequence = sequencesContains.iterator().next();
                 Optional<EnsemblTranscript> ensemblTranscript = getEnsemblTranscriptBySequence(longerOnes, pickedSequence);
                 transcriptMatchResultVM.setTargetEnsemblTranscript(ensemblTranscript.get());
-                transcriptMatchResultVM.setNote("Longer one found, length: " + pickedSequence.getSeq().length());
+                transcriptMatchResultVM.setNote("Longer one found, length: " + ensemblTranscript.get().getProteinLength());
 
             } else {
                 transcriptMatchResultVM.setNote("No matched sequence found");
