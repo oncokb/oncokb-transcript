@@ -36,7 +36,7 @@ public class TranscriptController {
     }
 
     @PostMapping("/compare-transcript/{hugoSymbol}")
-    public ResponseEntity<TranscriptComparisonResultVM> authorize(
+    public ResponseEntity<TranscriptComparisonResultVM> compareTranscript(
         @PathVariable String hugoSymbol,
         @RequestBody TranscriptComparisonVM transcriptComparisonVM
     ) throws ApiException {
@@ -71,8 +71,29 @@ public class TranscriptController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @PostMapping("/compare-ensembl-transcript")
+    public ResponseEntity<TranscriptComparisonResultVM> compareEnsemblTranscript(
+        @RequestBody TranscriptComparisonVM transcriptComparisonVM
+    ) throws ApiException {
+        TranscriptComparisonResultVM result = new TranscriptComparisonResultVM();
+
+        Optional<Sequence> sequenceA = getProteinSequence(transcriptComparisonVM.getTranscriptA().getReferenceGenome(), transcriptComparisonVM.getTranscriptA().getTranscript());
+        result.setSequenceA(sequenceA.orElse(new Sequence()).getSeq());
+
+        Optional<Sequence> sequenceB = getProteinSequence(transcriptComparisonVM.getTranscriptB().getReferenceGenome(), transcriptComparisonVM.getTranscriptB().getTranscript());
+        result.setSequenceB(sequenceB.orElse(new Sequence()).getSeq());
+
+        // do a quick check whether the protein is the same
+        if (sequenceA.isPresent() && sequenceB.isPresent()) {
+            if (sequenceA.get().getSeq().equals(sequenceB.get().getSeq())) {
+                result.setMatch(true);
+            }
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
     @PostMapping("/match-transcript/{hugoSymbol}")
-    public ResponseEntity<TranscriptMatchResultVM> authorize(
+    public ResponseEntity<TranscriptMatchResultVM> matchTranscript(
         @PathVariable String hugoSymbol,
         @RequestBody MatchTranscriptVM matchTranscriptVM
     ) throws ApiException {
