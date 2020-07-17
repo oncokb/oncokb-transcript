@@ -7,7 +7,8 @@ import org.genome_nexus.client.EnsemblTranscript;
  */
 public class TranscriptMatchResultVM {
     String note;
-    EnsemblTranscript ensemblTranscript;
+    EnsemblTranscript originalEnsemblTranscript;
+    EnsemblTranscript targetEnsemblTranscript;
 
     public String getNote() {
         return note;
@@ -17,11 +18,19 @@ public class TranscriptMatchResultVM {
         this.note = note;
     }
 
-    public EnsemblTranscript getEnsemblTranscript() {
-        return ensemblTranscript;
+    public EnsemblTranscript getOriginalEnsemblTranscript() {
+        return originalEnsemblTranscript;
     }
 
-    public void setEnsemblTranscript(EnsemblTranscript ensemblTranscript) {
-        this.ensemblTranscript = ensemblTranscript;
+    public void setOriginalEnsemblTranscript(EnsemblTranscript originalEnsemblTranscript) {
+        this.originalEnsemblTranscript = originalEnsemblTranscript;
+    }
+
+    public EnsemblTranscript getTargetEnsemblTranscript() {
+        return targetEnsemblTranscript;
+    }
+
+    public void setTargetEnsemblTranscript(EnsemblTranscript targetEnsemblTranscript) {
+        this.targetEnsemblTranscript = targetEnsemblTranscript;
     }
 }
