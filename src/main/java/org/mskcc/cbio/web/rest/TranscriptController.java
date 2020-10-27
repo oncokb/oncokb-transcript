@@ -52,16 +52,24 @@ public class TranscriptController {
         Optional<EnsemblTranscript> ensemblA = getEnsemblTranscript(hugoSymbol, transcriptComparisonVM.getTranscriptA());
         Optional<EnsemblTranscript> ensemblB = getEnsemblTranscript(hugoSymbol, transcriptComparisonVM.getTranscriptB());
 
-        Optional<Sequence> sequenceA = Optional.empty();
+        Optional<Sequence> sequenceA = Optional.of(new Sequence());
         if (ensemblA.isPresent()) {
             sequenceA = getProteinSequence(transcriptComparisonVM.getTranscriptA().getReferenceGenome(), ensemblA.get().getProteinId());
-            result.setSequenceA(sequenceA.orElse(new Sequence()).getSeq());
         }
 
-        Optional<Sequence> sequenceB = Optional.empty();
+        Optional<Sequence> sequenceB = Optional.of(new Sequence());
+        ;
         if (ensemblB.isPresent()) {
             sequenceB = getProteinSequence(transcriptComparisonVM.getTranscriptB().getReferenceGenome(), ensemblB.get().getProteinId());
-            result.setSequenceB(sequenceB.orElse(new Sequence()).getSeq());
+        }
+
+        if (transcriptComparisonVM.getAlign()) {
+            AlignmentResult alignmentResult = alignmentService.calcOptimalAlignment(sequenceA.get().getSeq(), sequenceB.get().getSeq(), false);
+            result.setSequenceA(alignmentResult.getRefSeq());
+            result.setSequenceB(alignmentResult.getTargetSeq());
+        } else {
+            result.setSequenceA(sequenceA.get().getSeq());
+            result.setSequenceB(sequenceB.get().getSeq());
         }
 
         if (ensemblA.isPresent() &&
