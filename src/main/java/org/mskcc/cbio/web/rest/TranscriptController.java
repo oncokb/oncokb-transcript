@@ -155,6 +155,24 @@ public class TranscriptController {
         return new ResponseEntity<>(transcriptResultVM, HttpStatus.OK);
     }
 
+    @GetMapping("/get-sequence")
+    public ResponseEntity<String> getTranscript(
+        @RequestParam REFERENCE_GENOME referenceGenome,
+        @RequestParam String transcript
+    ) {
+        Optional<EnsemblTranscript> ensemblTranscriptOptional = getEnsemblTranscript(transcript, referenceGenome);
+        if (ensemblTranscriptOptional.isPresent() && ensemblTranscriptOptional.get().getProteinId() != null) {
+            Optional<Sequence> sequence = getProteinSequence(referenceGenome, ensemblTranscriptOptional.get().getProteinId());
+            if (sequence.isPresent()) {
+                return new ResponseEntity<>(sequence.get().getSeq(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+    }
+
     private TranscriptMatchResultVM matchTranscript(TranscriptPairVM transcript, REFERENCE_GENOME referenceGenome, String hugoSymbol) {
         // Find whether both transcript length are the same
         Optional<EnsemblTranscript> _ensemblTranscript = Optional.empty();
@@ -186,6 +204,16 @@ public class TranscriptController {
             transcriptMatchResultVM.setNote("The transcript is invalid");
         }
         return transcriptMatchResultVM;
+    }
+
+    private Optional<EnsemblTranscript> getEnsemblTranscript(String transcriptId, REFERENCE_GENOME referenceGenome) {
+        EnsemblControllerApi controllerApi = urlService.getEnsemblControllerApi(referenceGenome);
+        try {
+            return Optional.of(controllerApi.fetchEnsemblTranscriptByTranscriptIdGET(transcriptId));
+        } catch (ApiException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
     private List<EnsemblTranscript> getEnsemblTranscriptList(String hugoSymbol, REFERENCE_GENOME referenceGenome) {
