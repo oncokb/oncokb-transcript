@@ -170,57 +170,59 @@ public class TranscriptController {
 
     private int findMatchedIndex(String sequence, int proteinPosition) {
         int count = 0;
+        int matchedIndex = -1;
         for (int i = 0; i < sequence.length(); i++) {
-            if (sequence.indexOf(i) != "-".charAt(0)) {
+            if (sequence.charAt(i) != "_".charAt(0)) {
                 count++;
-                if (proteinPosition == count - 1) {
+                if (proteinPosition == count) {
+                    matchedIndex = i;
                     break;
                 }
             }
         }
 
-        return count - 1;
+        return matchedIndex;
     }
 
     private int findMatchedProteinPosition(String sequence, int index) {
         int count = 0;
-        for (int i = 0; i < sequence.substring(0, index).length(); i++) {
-            if (sequence.indexOf(i) != "-".charAt(0)) {
+        for (int i = 0; i < sequence.substring(0, index + 1).length(); i++) {
+            if (sequence.charAt(i) != "_".charAt(0)) {
                 count++;
             }
         }
-        return count - 1;
+        return count;
     }
 
     private final int PENALTY_THRESHOLD = 5;
 
     @GetMapping("/suggest-variant/{hugoSymbol}")
-    public ResponseEntity<TranscriptSuggestionVM> suggestVariant(
+    public ResponseEntity<AllReferenceTranscriptSuggestionVM> suggestVariant(
         @PathVariable String hugoSymbol,
         @RequestParam Integer proteinPosition,
         @RequestParam String curatedResidue,
         @RequestParam String grch37Transcript,
         @RequestParam String grch38Transcript
     ) {
-        TranscriptSuggestionVM transcriptSuggestionVM = new TranscriptSuggestionVM();
+        AllReferenceTranscriptSuggestionVM allReferenceTranscriptSuggestionVM = new AllReferenceTranscriptSuggestionVM();
 
         List<EnsemblTranscript> ensembl37Transcripts = getTranscriptsWithMatchedResidue(REFERENCE_GENOME.GRCH_37, getEnsemblTranscriptList(hugoSymbol, REFERENCE_GENOME.GRCH_37), proteinPosition, curatedResidue);
         List<EnsemblTranscript> ensembl38Transcripts = getTranscriptsWithMatchedResidue(REFERENCE_GENOME.GRCH_38, getEnsemblTranscriptList(hugoSymbol, REFERENCE_GENOME.GRCH_38), proteinPosition, curatedResidue);
 
         if (ensembl37Transcripts.size() == 0) {
-            transcriptSuggestionVM.setGrch37Note("No GRCh37 transcript has the curated residue");
+            allReferenceTranscriptSuggestionVM.getGrch37().setNote("No GRCh37 transcript has the curated residue");
         } else {
             Optional<EnsemblTranscript> ensemblTranscriptOptional = getEnsemblTranscript(grch37Transcript, REFERENCE_GENOME.GRCH_37);
             if (ensemblTranscriptOptional.isPresent()) {
                 if (ensembl37Transcripts.stream().filter(ensemblTranscript -> ensemblTranscript.getTranscriptId().equals(ensemblTranscriptOptional.get().getTranscriptId())).findAny().isPresent()) {
-                    transcriptSuggestionVM.setGrch37Note("Exact match");
+                    allReferenceTranscriptSuggestionVM.getGrch37().setNote("Exact match");
                 } else {
                     List<EnrichedAlignmentResult> alignmentResults = getAlignmentResult(REFERENCE_GENOME.GRCH_37, ensemblTranscriptOptional.get(), REFERENCE_GENOME.GRCH_37, ensembl37Transcripts);
                     List<EnrichedAlignmentResult> belowThresholdPenalty = alignmentResults.stream().filter(enrichedAlignmentResult -> enrichedAlignmentResult.getPenalty() <= PENALTY_THRESHOLD).collect(Collectors.toList());
                     if (belowThresholdPenalty.size() == 0) {
-                        transcriptSuggestionVM.setGrch37Note("No easy alignment has been performed.");
+                        allReferenceTranscriptSuggestionVM.getGrch37().setNote("No easy alignment has been performed.");
                     } else {
-                        transcriptSuggestionVM.setGrch37(
+                        allReferenceTranscriptSuggestionVM.getGrch37().setSuggestions(
                             belowThresholdPenalty.stream()
                                 .map(enrichedAlignmentResult -> {
                                     int matchedIndex = findMatchedIndex(enrichedAlignmentResult.getTargetSeq(), proteinPosition);
@@ -231,23 +233,23 @@ public class TranscriptController {
                     }
                 }
             } else {
-                transcriptSuggestionVM.setGrch37Note("Cannot find the GRCh37 transcript");
+                allReferenceTranscriptSuggestionVM.getGrch37().setNote("Cannot find the GRCh37 transcript");
             }
         }
         if (ensembl38Transcripts.size() == 0) {
-            transcriptSuggestionVM.setGrch38Note("No GRCh38 transcript has the curated residue");
+            allReferenceTranscriptSuggestionVM.getGrch38().setNote("No GRCh38 transcript has the curated residue");
         } else {
             Optional<EnsemblTranscript> ensemblTranscriptOptional = getEnsemblTranscript(grch38Transcript, REFERENCE_GENOME.GRCH_38);
             if (ensemblTranscriptOptional.isPresent()) {
                 if (ensembl38Transcripts.stream().filter(ensemblTranscript -> ensemblTranscript.getTranscriptId().equals(ensemblTranscriptOptional.get().getTranscriptId())).findAny().isPresent()) {
-                    transcriptSuggestionVM.setGrch38Note("Exact match");
+                    allReferenceTranscriptSuggestionVM.getGrch38().setNote("Exact match");
                 } else {
                     List<EnrichedAlignmentResult> alignmentResults = getAlignmentResult(REFERENCE_GENOME.GRCH_38, ensemblTranscriptOptional.get(), REFERENCE_GENOME.GRCH_38, ensembl38Transcripts);
                     List<EnrichedAlignmentResult> belowThresholdPenalty = alignmentResults.stream().filter(enrichedAlignmentResult -> enrichedAlignmentResult.getPenalty() <= PENALTY_THRESHOLD).collect(Collectors.toList());
                     if (belowThresholdPenalty.size() == 0) {
-                        transcriptSuggestionVM.setGrch38Note("No easy alignment has been performed.");
+                        allReferenceTranscriptSuggestionVM.getGrch38().setNote("No easy alignment has been performed.");
                     } else {
-                        transcriptSuggestionVM.setGrch38(
+                        allReferenceTranscriptSuggestionVM.getGrch38().setSuggestions(
                             belowThresholdPenalty.stream()
                                 .map(enrichedAlignmentResult -> {
                                     int matchedIndex = findMatchedIndex(enrichedAlignmentResult.getTargetSeq(), proteinPosition);
@@ -258,12 +260,48 @@ public class TranscriptController {
                     }
                 }
             } else {
-                transcriptSuggestionVM.setGrch38Note("Cannot find the GRCh38transcript");
+                allReferenceTranscriptSuggestionVM.getGrch38().setNote("Cannot find the GRCh38transcript");
             }
         }
 
+        return new ResponseEntity<>(allReferenceTranscriptSuggestionVM, HttpStatus.OK);
+    }
+
+    @GetMapping("/find-grch38-variant")
+    public ResponseEntity<TranscriptSuggestionVM> findGrch38Variant(
+        @RequestParam String referenceAminoAcid,
+        @RequestParam Integer proteinPosition,
+        @RequestParam String grch37ProteinId,
+        @RequestParam String grch38ProteinId
+    ) {
+        TranscriptSuggestionVM transcriptSuggestionVM = new TranscriptSuggestionVM();
+        transcriptSuggestionVM.setReferenceGenome(REFERENCE_GENOME.GRCH_38);
+        Optional<Sequence> grch37Sequence = getProteinSequence(REFERENCE_GENOME.GRCH_37, grch37ProteinId);
+        Optional<Sequence> grch38Sequence = getProteinSequence(REFERENCE_GENOME.GRCH_38, grch38ProteinId);
+
+        if (grch37Sequence.isPresent()) {
+            if (grch38Sequence.isPresent()) {
+                AlignmentResult alignmentResult = this.alignmentService.calcOptimalAlignment(grch37Sequence.get().getSeq(), grch38Sequence.get().getSeq(), false);
+                int matchedIndex = findMatchedIndex(alignmentResult.getRefSeq(), proteinPosition);
+                String refAA = String.valueOf(alignmentResult.getRefSeq().charAt(matchedIndex));
+                if (refAA.equals(referenceAminoAcid)) {
+                    int matchedProteinPosition = findMatchedProteinPosition(alignmentResult.getTargetSeq(), matchedIndex);
+                    transcriptSuggestionVM.setSuggestions(Collections.singletonList(alignmentResult.getTargetSeq().substring(matchedIndex, matchedIndex + 1) + matchedProteinPosition));
+                    if (alignmentResult.getPenalty() > PENALTY_THRESHOLD) {
+                        transcriptSuggestionVM.setNote("The suggestions come from an alignment that above penalty threshold 5. The penalty: " + alignmentResult.getPenalty());
+                    }
+                } else {
+                    transcriptSuggestionVM.setNote("GRCh37 reference does not match on the position " + proteinPosition + ". Given:" + referenceAminoAcid + " Actual:" + refAA);
+                }
+            } else {
+                transcriptSuggestionVM.setNote("GRCh38 protein id does not have sequence");
+            }
+        } else {
+            transcriptSuggestionVM.setNote("GRCh37 protein id does not have sequence");
+        }
         return new ResponseEntity<>(transcriptSuggestionVM, HttpStatus.OK);
     }
+
 
     private List<EnsemblTranscript> getTranscriptsWithMatchedResidue(REFERENCE_GENOME referenceGenome, List<EnsemblTranscript> transcripts, int proteinPosition, String expectedAllele) {
         return transcripts.stream()
