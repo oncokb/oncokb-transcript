@@ -3,7 +3,7 @@
     "promptValues": {
       "packageName": "org.mskcc.cbio"
     },
-    "jhipsterVersion": "6.9.1",
+    "jhipsterVersion": "7.0.0-beta.1",
     "applicationType": "monolith",
     "baseName": "transcript",
     "packageName": "org.mskcc.cbio",
@@ -33,6 +33,18 @@
     "dtoSuffix": "DTO",
     "otherModules": [],
     "enableTranslation": false,
-    "blueprints": []
+    "blueprints": [],
+    "clientFramework": "angularX",
+    "skipUserManagement": true,
+    "withAdminUi": true,
+    "clientTheme": "none",
+    "clientThemeVariant": "",
+    "skipServer": false,
+    "skipCheckLengthOfIdentifier": false,
+    "skipFakeData": false,
+    "pages": [],
+    "reactive": false,
+    "nativeLanguage": "en",
+    "languages": ["en", "fr"]
   }
 }
