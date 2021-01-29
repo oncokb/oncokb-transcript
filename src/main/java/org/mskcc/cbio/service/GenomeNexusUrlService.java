@@ -2,14 +2,15 @@ package org.mskcc.cbio.service;
 
 import org.genome_nexus.ApiClient;
 import org.genome_nexus.client.EnsemblControllerApi;
-import org.mskcc.cbio.web.rest.vm.REFERENCE_GENOME;
+import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
 import org.springframework.stereotype.Service;
 
 /**
  * Created by Hongxin Zhang on 7/15/20.
  */
 @Service
-public class UrlService {
+public class GenomeNexusUrlService {
+
     public final String ENSEMBL_37_API_URL = "https://grch37.rest.ensembl.org";
     public final String ENSEMBL_38_API_URL = "https://rest.ensembl.org";
 
@@ -20,7 +21,7 @@ public class UrlService {
     private final EnsemblControllerApi ensemblControllerApi38;
     private final EnsemblControllerApi ensemblControllerApi37;
 
-    public UrlService() {
+    public GenomeNexusUrlService() {
         this.ensemblControllerApi37 = getGNEnsemblControllerApi(GN_37_URL);
         this.ensemblControllerApi38 = getGNEnsemblControllerApi(GN_38_URL);
     }
@@ -32,30 +33,30 @@ public class UrlService {
         return new EnsemblControllerApi(client);
     }
 
-    public EnsemblControllerApi getEnsemblControllerApi(REFERENCE_GENOME referenceGenome) {
+    public EnsemblControllerApi getEnsemblControllerApi(ReferenceGenome referenceGenome) {
         switch (referenceGenome) {
-            case GRCH_37:
+            case GRCh37:
                 return this.ensemblControllerApi37;
-            case GRCH_38:
+            case GRCh38:
                 return this.ensemblControllerApi38;
             default:
                 return new EnsemblControllerApi();
         }
     }
 
-    public String getEnsemblSequenceGETUrl(REFERENCE_GENOME referenceGenome, String transcript) {
+    public String getEnsemblSequenceGETUrl(ReferenceGenome referenceGenome, String transcript) {
         return getEnsemblAPIUrl(referenceGenome) + "/sequence/id/" + transcript;
     }
 
-    public String getEnsemblSequencePOSTUrl(REFERENCE_GENOME referenceGenome) {
+    public String getEnsemblSequencePOSTUrl(ReferenceGenome referenceGenome) {
         return getEnsemblAPIUrl(referenceGenome) + "/sequence/id";
     }
 
-    public String getEnsemblAPIUrl(REFERENCE_GENOME referenceGenome) {
+    public String getEnsemblAPIUrl(ReferenceGenome referenceGenome) {
         switch (referenceGenome) {
-            case GRCH_37:
+            case GRCh37:
                 return ENSEMBL_37_API_URL;
-            case GRCH_38:
+            case GRCh38:
                 return ENSEMBL_38_API_URL;
             default:
                 return "";

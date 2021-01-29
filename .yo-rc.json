@@ -41,10 +41,12 @@
     "clientThemeVariant": "",
     "skipServer": false,
     "skipCheckLengthOfIdentifier": false,
-    "skipFakeData": false,
+    "skipFakeData": true,
     "pages": [],
     "reactive": false,
     "nativeLanguage": "en",
-    "languages": ["en", "fr"]
+    "languages": ["en", "fr"],
+    "entities": ["Sequence"],
+    "lastLiquibaseTimestamp": 1611932996000
   }
 }

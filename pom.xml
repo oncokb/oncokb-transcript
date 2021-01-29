@@ -315,6 +315,11 @@
             <artifactId>genome-nexus-java-api-client</artifactId>
             <version>0709b8232b</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.oncokb</groupId>
+            <artifactId>oncokb-java-api-client</artifactId>
+            <version>d6420c10dd</version>
+        </dependency>
     </dependencies>
 
     <build>

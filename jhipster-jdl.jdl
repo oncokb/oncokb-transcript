@@ -1,0 +1,18 @@
+
+entity Sequence {
+    entrezGeneId Integer required,
+    hugoSymbol String required,
+    referenceGenome ReferenceGenome required,
+    ensemblTranscriptId String,
+    ensemblProteinId String,
+    referenceSequenceId String,
+    proteinSequence TextBlob,
+    description String
+}
+
+enum ReferenceGenome {
+    GRCh37, GRCh38
+}
+
+service * with serviceClass
+
