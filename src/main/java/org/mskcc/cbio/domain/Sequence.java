@@ -19,11 +19,11 @@ public class Sequence implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "entrez_gene_id", nullable = false, unique = true)
+    @Column(name = "entrez_gene_id", nullable = false)
     private Integer entrezGeneId;
 
     @NotNull
-    @Column(name = "hugo_symbol", nullable = false, unique = true)
+    @Column(name = "hugo_symbol", nullable = false)
     private String hugoSymbol;
 
     @NotNull

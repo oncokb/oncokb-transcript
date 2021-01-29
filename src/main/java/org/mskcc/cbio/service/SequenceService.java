@@ -3,6 +3,7 @@ package org.mskcc.cbio.service;
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.cbio.domain.Sequence;
+import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
 import org.mskcc.cbio.repository.SequenceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,9 +117,9 @@ public class SequenceService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<Sequence> findByEnsembleTranscriptId(String ensembleTranscriptId) {
+    public Optional<Sequence> findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome referenceGenome, String ensembleTranscriptId) {
         log.debug("Request to get Sequence : {}", ensembleTranscriptId);
-        return sequenceRepository.findByEnsemblTranscriptId(ensembleTranscriptId);
+        return sequenceRepository.findByReferenceGenomeAndEnsemblTranscriptId(referenceGenome, ensembleTranscriptId);
     }
 
     /**

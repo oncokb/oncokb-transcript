@@ -2,6 +2,7 @@ package org.mskcc.cbio.repository;
 
 import java.util.Optional;
 import org.mskcc.cbio.domain.Sequence;
+import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
@@ -11,5 +12,5 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface SequenceRepository extends JpaRepository<Sequence, Long> {
-    Optional<Sequence> findByEnsemblTranscriptId(String ensemblTranscriptId);
+    Optional<Sequence> findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome referenceGenome, String ensemblTranscriptId);
 }

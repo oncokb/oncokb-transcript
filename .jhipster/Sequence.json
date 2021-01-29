@@ -1,0 +1,53 @@
+{
+  "name": "Sequence",
+  "fields": [
+    {
+      "fieldName": "entrezGeneId",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "hugoSymbol",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "referenceGenome",
+      "fieldType": "ReferenceGenome",
+      "fieldValues": "GRCh37,GRCh38",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "ensemblTranscriptId",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "ensemblProteinId",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "referenceSequenceId",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "proteinSequence",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [],
+  "entityTableName": "sequence",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20210129192153"
+}

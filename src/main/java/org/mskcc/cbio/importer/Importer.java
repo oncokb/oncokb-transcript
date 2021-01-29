@@ -2,6 +2,7 @@ package org.mskcc.cbio.importer;
 
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.client.EnsemblTranscript;
 import org.mskcc.cbio.TranscriptApp;
 import org.mskcc.cbio.domain.Sequence;
@@ -40,7 +41,10 @@ public class Importer {
         List<Gene> genes = oncoKbUrlService.getGenes();
         for (Gene gene : genes) {
             // Add grch37 sequence
-            if (!sequenceService.findByEnsembleTranscriptId(gene.getGrch37Isoform()).isPresent()) {
+            if (
+                sequenceService.findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome.GRCh37, gene.getGrch37Isoform()).isEmpty() &&
+                StringUtils.isNotEmpty(gene.getGrch37Isoform())
+            ) {
                 Optional<EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(
                     gene.getGrch37Isoform(),
                     ReferenceGenome.GRCh37
@@ -68,7 +72,10 @@ public class Importer {
             }
 
             // Add grch38 sequence
-            if (!sequenceService.findByEnsembleTranscriptId(gene.getGrch38Isoform()).isPresent()) {
+            if (
+                sequenceService.findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome.GRCh38, gene.getGrch38Isoform()).isEmpty() &&
+                StringUtils.isNotEmpty(gene.getGrch38Isoform())
+            ) {
                 Optional<EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(
                     gene.getGrch38Isoform(),
                     ReferenceGenome.GRCh38

@@ -97,8 +97,9 @@ public class TranscriptService {
     public Optional<EnsemblTranscript> getEnsemblTranscript(String transcriptId, ReferenceGenome referenceGenome) {
         EnsemblControllerApi controllerApi = genomeNexusUrlService.getEnsemblControllerApi(referenceGenome);
         try {
-            return Optional.of(controllerApi.fetchEnsemblTranscriptByTranscriptIdGET(transcriptId));
-        } catch (ApiException e) {
+            EnsemblTranscript ensemblTranscript = controllerApi.fetchEnsemblTranscriptByTranscriptIdGET(transcriptId);
+            return ensemblTranscript == null ? Optional.empty() : Optional.of(ensemblTranscript);
+        } catch (Exception e) {
             e.printStackTrace();
             return Optional.empty();
         }
