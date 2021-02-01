@@ -40,6 +40,12 @@
       "otherEntityName": "transcriptUsage",
       "otherEntityRelationshipName": "transcript",
       "relationshipName": "transcriptUsage"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "sequence",
+      "otherEntityRelationshipName": "transcript",
+      "relationshipName": "sequence"
     }
   ],
   "entityTableName": "transcript",

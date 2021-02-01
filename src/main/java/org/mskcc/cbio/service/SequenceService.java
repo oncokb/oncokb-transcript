@@ -48,10 +48,6 @@ public class SequenceService {
             .findById(sequence.getId())
             .map(
                 existingSequence -> {
-                    if (sequence.getTranscriptId() != null) {
-                        existingSequence.setTranscriptId(sequence.getTranscriptId());
-                    }
-
                     if (sequence.getSequenceType() != null) {
                         existingSequence.setSequenceType(sequence.getSequenceType());
                     }

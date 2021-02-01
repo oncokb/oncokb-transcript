@@ -2,10 +2,6 @@
   "name": "Sequence",
   "fields": [
     {
-      "fieldName": "transcriptId",
-      "fieldType": "String"
-    },
-    {
       "fieldName": "sequenceType",
       "fieldType": "SequenceType",
       "fieldValues": "PROTEIN,CDNA"
@@ -16,7 +12,14 @@
       "fieldTypeBlobContent": "text"
     }
   ],
-  "relationships": [],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "transcript",
+      "otherEntityRelationshipName": "sequence",
+      "relationshipName": "transcript"
+    }
+  ],
   "entityTableName": "sequence",
   "dto": "no",
   "pagination": "no",

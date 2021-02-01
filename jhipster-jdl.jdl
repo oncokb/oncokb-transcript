@@ -10,7 +10,6 @@ entity Transcript {
 }
 
 entity Sequence {
-	transcriptId String
     sequenceType SequenceType
     sequene TextBlob
 }

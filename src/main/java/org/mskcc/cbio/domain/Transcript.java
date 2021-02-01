@@ -50,6 +50,10 @@ public class Transcript implements Serializable {
     @JsonIgnoreProperties(value = { "transcript" }, allowSetters = true)
     private Set<TranscriptUsage> transcriptUsages = new HashSet<>();
 
+    @OneToMany(mappedBy = "transcript")
+    @JsonIgnoreProperties(value = { "transcript" }, allowSetters = true)
+    private Set<Sequence> sequences = new HashSet<>();
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
@@ -184,6 +188,37 @@ public class Transcript implements Serializable {
             transcriptUsages.forEach(i -> i.setTranscript(this));
         }
         this.transcriptUsages = transcriptUsages;
+    }
+
+    public Set<Sequence> getSequences() {
+        return this.sequences;
+    }
+
+    public Transcript sequences(Set<Sequence> sequences) {
+        this.setSequences(sequences);
+        return this;
+    }
+
+    public Transcript addSequence(Sequence sequence) {
+        this.sequences.add(sequence);
+        sequence.setTranscript(this);
+        return this;
+    }
+
+    public Transcript removeSequence(Sequence sequence) {
+        this.sequences.remove(sequence);
+        sequence.setTranscript(null);
+        return this;
+    }
+
+    public void setSequences(Set<Sequence> sequences) {
+        if (this.sequences != null) {
+            this.sequences.forEach(i -> i.setTranscript(null));
+        }
+        if (sequences != null) {
+            sequences.forEach(i -> i.setTranscript(this));
+        }
+        this.sequences = sequences;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

@@ -33,9 +33,6 @@ import org.springframework.util.Base64Utils;
 @WithMockUser
 class SequenceResourceIT {
 
-    private static final String DEFAULT_TRANSCRIPT_ID = "AAAAAAAAAA";
-    private static final String UPDATED_TRANSCRIPT_ID = "BBBBBBBBBB";
-
     private static final SequenceType DEFAULT_SEQUENCE_TYPE = SequenceType.PROTEIN;
     private static final SequenceType UPDATED_SEQUENCE_TYPE = SequenceType.CDNA;
 
@@ -60,7 +57,7 @@ class SequenceResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Sequence createEntity(EntityManager em) {
-        Sequence sequence = new Sequence().transcriptId(DEFAULT_TRANSCRIPT_ID).sequenceType(DEFAULT_SEQUENCE_TYPE).sequene(DEFAULT_SEQUENE);
+        Sequence sequence = new Sequence().sequenceType(DEFAULT_SEQUENCE_TYPE).sequene(DEFAULT_SEQUENE);
         return sequence;
     }
 
@@ -71,7 +68,7 @@ class SequenceResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Sequence createUpdatedEntity(EntityManager em) {
-        Sequence sequence = new Sequence().transcriptId(UPDATED_TRANSCRIPT_ID).sequenceType(UPDATED_SEQUENCE_TYPE).sequene(UPDATED_SEQUENE);
+        Sequence sequence = new Sequence().sequenceType(UPDATED_SEQUENCE_TYPE).sequene(UPDATED_SEQUENE);
         return sequence;
     }
 
@@ -93,7 +90,6 @@ class SequenceResourceIT {
         List<Sequence> sequenceList = sequenceRepository.findAll();
         assertThat(sequenceList).hasSize(databaseSizeBeforeCreate + 1);
         Sequence testSequence = sequenceList.get(sequenceList.size() - 1);
-        assertThat(testSequence.getTranscriptId()).isEqualTo(DEFAULT_TRANSCRIPT_ID);
         assertThat(testSequence.getSequenceType()).isEqualTo(DEFAULT_SEQUENCE_TYPE);
         assertThat(testSequence.getSequene()).isEqualTo(DEFAULT_SEQUENE);
     }
@@ -128,7 +124,6 @@ class SequenceResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(sequence.getId().intValue())))
-            .andExpect(jsonPath("$.[*].transcriptId").value(hasItem(DEFAULT_TRANSCRIPT_ID)))
             .andExpect(jsonPath("$.[*].sequenceType").value(hasItem(DEFAULT_SEQUENCE_TYPE.toString())))
             .andExpect(jsonPath("$.[*].sequene").value(hasItem(DEFAULT_SEQUENE.toString())));
     }
@@ -145,7 +140,6 @@ class SequenceResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(sequence.getId().intValue()))
-            .andExpect(jsonPath("$.transcriptId").value(DEFAULT_TRANSCRIPT_ID))
             .andExpect(jsonPath("$.sequenceType").value(DEFAULT_SEQUENCE_TYPE.toString()))
             .andExpect(jsonPath("$.sequene").value(DEFAULT_SEQUENE.toString()));
     }
@@ -169,7 +163,7 @@ class SequenceResourceIT {
         Sequence updatedSequence = sequenceRepository.findById(sequence.getId()).get();
         // Disconnect from session so that the updates on updatedSequence are not directly saved in db
         em.detach(updatedSequence);
-        updatedSequence.transcriptId(UPDATED_TRANSCRIPT_ID).sequenceType(UPDATED_SEQUENCE_TYPE).sequene(UPDATED_SEQUENE);
+        updatedSequence.sequenceType(UPDATED_SEQUENCE_TYPE).sequene(UPDATED_SEQUENE);
 
         restSequenceMockMvc
             .perform(
@@ -181,7 +175,6 @@ class SequenceResourceIT {
         List<Sequence> sequenceList = sequenceRepository.findAll();
         assertThat(sequenceList).hasSize(databaseSizeBeforeUpdate);
         Sequence testSequence = sequenceList.get(sequenceList.size() - 1);
-        assertThat(testSequence.getTranscriptId()).isEqualTo(UPDATED_TRANSCRIPT_ID);
         assertThat(testSequence.getSequenceType()).isEqualTo(UPDATED_SEQUENCE_TYPE);
         assertThat(testSequence.getSequene()).isEqualTo(UPDATED_SEQUENE);
     }
@@ -213,7 +206,7 @@ class SequenceResourceIT {
         Sequence partialUpdatedSequence = new Sequence();
         partialUpdatedSequence.setId(sequence.getId());
 
-        partialUpdatedSequence.sequenceType(UPDATED_SEQUENCE_TYPE);
+        partialUpdatedSequence.sequene(UPDATED_SEQUENE);
 
         restSequenceMockMvc
             .perform(
@@ -227,9 +220,8 @@ class SequenceResourceIT {
         List<Sequence> sequenceList = sequenceRepository.findAll();
         assertThat(sequenceList).hasSize(databaseSizeBeforeUpdate);
         Sequence testSequence = sequenceList.get(sequenceList.size() - 1);
-        assertThat(testSequence.getTranscriptId()).isEqualTo(DEFAULT_TRANSCRIPT_ID);
-        assertThat(testSequence.getSequenceType()).isEqualTo(UPDATED_SEQUENCE_TYPE);
-        assertThat(testSequence.getSequene()).isEqualTo(DEFAULT_SEQUENE);
+        assertThat(testSequence.getSequenceType()).isEqualTo(DEFAULT_SEQUENCE_TYPE);
+        assertThat(testSequence.getSequene()).isEqualTo(UPDATED_SEQUENE);
     }
 
     @Test
@@ -244,7 +236,7 @@ class SequenceResourceIT {
         Sequence partialUpdatedSequence = new Sequence();
         partialUpdatedSequence.setId(sequence.getId());
 
-        partialUpdatedSequence.transcriptId(UPDATED_TRANSCRIPT_ID).sequenceType(UPDATED_SEQUENCE_TYPE).sequene(UPDATED_SEQUENE);
+        partialUpdatedSequence.sequenceType(UPDATED_SEQUENCE_TYPE).sequene(UPDATED_SEQUENE);
 
         restSequenceMockMvc
             .perform(
@@ -258,7 +250,6 @@ class SequenceResourceIT {
         List<Sequence> sequenceList = sequenceRepository.findAll();
         assertThat(sequenceList).hasSize(databaseSizeBeforeUpdate);
         Sequence testSequence = sequenceList.get(sequenceList.size() - 1);
-        assertThat(testSequence.getTranscriptId()).isEqualTo(UPDATED_TRANSCRIPT_ID);
         assertThat(testSequence.getSequenceType()).isEqualTo(UPDATED_SEQUENCE_TYPE);
         assertThat(testSequence.getSequene()).isEqualTo(UPDATED_SEQUENE);
     }

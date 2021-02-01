@@ -72,7 +72,7 @@ public class Importer {
                     );
                     if (sequenceOptional.isPresent()) {
                         Sequence sequence = new Sequence();
-                        sequence.setTranscriptId(ensemblTranscript.getProteinId());
+                        sequence.setTranscript(grch37Transcript);
                         sequence.setSequenceType(SequenceType.PROTEIN);
                         sequence.setSequene(sequenceOptional.get().getSeq());
                         sequenceService.save(sequence);
@@ -109,7 +109,7 @@ public class Importer {
                     );
                     if (sequenceOptional.isPresent()) {
                         Sequence sequence = new Sequence();
-                        sequence.setTranscriptId(ensemblTranscript.getProteinId());
+                        sequence.setTranscript(grch38Transcript);
                         sequence.setSequenceType(SequenceType.PROTEIN);
                         sequence.setSequene(sequenceOptional.get().getSeq());
                         sequenceService.save(sequence);

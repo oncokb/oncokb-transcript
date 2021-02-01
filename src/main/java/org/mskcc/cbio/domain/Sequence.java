@@ -1,5 +1,6 @@
 package org.mskcc.cbio.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import javax.persistence.*;
 import org.mskcc.cbio.domain.enumeration.SequenceType;
@@ -17,9 +18,6 @@ public class Sequence implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "transcript_id")
-    private String transcriptId;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "sequence_type")
     private SequenceType sequenceType;
@@ -27,6 +25,10 @@ public class Sequence implements Serializable {
     @Lob
     @Column(name = "sequene")
     private String sequene;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "transcriptUsages", "sequences" }, allowSetters = true)
+    private Transcript transcript;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
@@ -40,19 +42,6 @@ public class Sequence implements Serializable {
     public Sequence id(Long id) {
         this.id = id;
         return this;
-    }
-
-    public String getTranscriptId() {
-        return this.transcriptId;
-    }
-
-    public Sequence transcriptId(String transcriptId) {
-        this.transcriptId = transcriptId;
-        return this;
-    }
-
-    public void setTranscriptId(String transcriptId) {
-        this.transcriptId = transcriptId;
     }
 
     public SequenceType getSequenceType() {
@@ -81,6 +70,19 @@ public class Sequence implements Serializable {
         this.sequene = sequene;
     }
 
+    public Transcript getTranscript() {
+        return this.transcript;
+    }
+
+    public Sequence transcript(Transcript transcript) {
+        this.setTranscript(transcript);
+        return this;
+    }
+
+    public void setTranscript(Transcript transcript) {
+        this.transcript = transcript;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -105,7 +107,6 @@ public class Sequence implements Serializable {
     public String toString() {
         return "Sequence{" +
             "id=" + getId() +
-            ", transcriptId='" + getTranscriptId() + "'" +
             ", sequenceType='" + getSequenceType() + "'" +
             ", sequene='" + getSequene() + "'" +
             "}";
