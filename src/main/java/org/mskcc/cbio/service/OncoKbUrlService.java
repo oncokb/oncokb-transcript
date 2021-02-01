@@ -7,7 +7,6 @@ import org.oncokb.ApiClient;
 import org.oncokb.ApiException;
 import org.oncokb.client.Gene;
 import org.oncokb.client.GenesApi;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
