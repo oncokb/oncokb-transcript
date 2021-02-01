@@ -23,21 +23,21 @@ import tech.jhipster.config.JHipsterConstants;
 
 @SpringBootApplication
 @EnableConfigurationProperties({ LiquibaseProperties.class, ApplicationProperties.class })
-public class TranscriptApp {
+public class OncokbTranscriptApp {
 
     @Autowired
     private Importer importer;
 
-    private static final Logger log = LoggerFactory.getLogger(TranscriptApp.class);
+    private static final Logger log = LoggerFactory.getLogger(OncokbTranscriptApp.class);
 
     private final Environment env;
 
-    public TranscriptApp(Environment env) {
+    public OncokbTranscriptApp(Environment env) {
         this.env = env;
     }
 
     /**
-     * Initializes transcript.
+     * Initializes oncokb-transcript.
      * <p>
      * Spring profiles can be configured with a program argument --spring.profiles.active=your-active-profile
      * <p>
@@ -75,7 +75,7 @@ public class TranscriptApp {
      * @param args the command line arguments.
      */
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(TranscriptApp.class);
+        SpringApplication app = new SpringApplication(OncokbTranscriptApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
         Environment env = app.run(args).getEnvironment();
         logApplicationStartup(env);

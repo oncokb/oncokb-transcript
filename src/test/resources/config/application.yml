@@ -18,10 +18,10 @@ spring:
     # Uncomment the following line to enable tests against production database type rather than H2, using Testcontainers
     #active: testcontainers
   application:
-    name: transcript
+    name: oncokb-transcript
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:h2:mem:transcript;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:oncokb-transcript;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     name:
     username:
     password:
@@ -61,13 +61,13 @@ spring:
       password: test
   task:
     execution:
-      thread-name-prefix: transcript-task-
+      thread-name-prefix: oncokb-transcript-task-
       pool:
         core-size: 1
         max-size: 50
         queue-capacity: 10000
     scheduling:
-      thread-name-prefix: transcript-scheduling-
+      thread-name-prefix: oncokb-transcript-scheduling-
       pool:
         size: 1
   thymeleaf:
@@ -85,7 +85,7 @@ server:
 
 jhipster:
   clientApp:
-    name: 'transcriptApp'
+    name: 'oncokbTranscriptApp'
   logging:
     # To test json console appender
     use-json-format: false

@@ -4,7 +4,7 @@ import org.mskcc.cbio.config.model.OncoKbConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Properties specific to Transcript.
+ * Properties specific to OncoKB Transcript.
  * <p>
  * Properties are configured in the {@code application.yml} file.
  * See {@link tech.jhipster.config.JHipsterProperties} for a good example.

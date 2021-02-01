@@ -1,8 +1,8 @@
 {
-  "name": "transcript",
+  "name": "oncokb-transcript",
   "version": "0.0.0",
   "private": true,
-  "description": "Description for transcript",
+  "description": "Description for oncokb-transcript",
   "license": "UNLICENSED",
   "scripts": {
     "backend:doc:test": "./mvnw -ntp javadoc:javadoc --batch-mode",

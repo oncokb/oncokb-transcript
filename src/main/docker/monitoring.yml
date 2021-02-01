@@ -1,7 +1,7 @@
 # This configuration is intended for development purpose, it's **your** responsibility to harden it for production
 version: '3.8'
 services:
-  transcript-prometheus:
+  oncokb-transcript-prometheus:
     image: prom/prometheus:v2.24.0
     volumes:
       - ./prometheus/:/etc/prometheus/
@@ -14,7 +14,7 @@ services:
     # On MacOS, remove next line and replace localhost by host.docker.internal in prometheus/prometheus.yml and
     # grafana/provisioning/datasources/datasource.yml
     network_mode: 'host' # to test locally running service
-  transcript-grafana:
+  oncokb-transcript-grafana:
     image: grafana/grafana:7.3.7
     volumes:
       - ./grafana/provisioning/:/etc/grafana/provisioning/

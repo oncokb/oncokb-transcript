@@ -43,7 +43,7 @@ services:
       - JHIPSTER_SLEEP=30 # gives time for other services to boot before the application
       - SPRING_SECURITY_USER_PASSWORD=admin
       - JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET=my-secret-key-which-should-be-changed-in-production-and-be-base64-encoded
-      - SPRING_CLOUD_DISCOVERY_CLIENT_SIMPLE_INSTANCES_TRANSCRIPT_0_URI=http://host.docker.internal:9090
+      - SPRING_CLOUD_DISCOVERY_CLIENT_SIMPLE_INSTANCES_ONCOKB-TRANSCRIPT_0_URI=http://host.docker.internal:9090
     # If you want to expose these ports outside your dev PC,
     # remove the "127.0.0.1:" prefix
     ports:

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.client.EnsemblTranscript;
-import org.mskcc.cbio.TranscriptApp;
 import org.mskcc.cbio.domain.Sequence;
 import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
 import org.mskcc.cbio.service.OncoKbUrlService;

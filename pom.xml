@@ -6,10 +6,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.mskcc.cbio</groupId>
-    <artifactId>transcript</artifactId>
+    <artifactId>oncokb-transcript</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>Transcript</name>
+    <name>OncoKB Transcript</name>
 
     <repositories>
         <!-- jhipster-needle-maven-repository -->
@@ -579,7 +579,7 @@
                             <image>adoptopenjdk:11-jre-hotspot</image>
                         </from>
                         <to>
-                            <image>transcript:latest</image>
+                            <image>oncokb-transcript:latest</image>
                         </to>
                         <container>
                             <entrypoint>
@@ -616,8 +616,8 @@
                         <changeLogFile>${project.basedir}/src/main/resources/config/liquibase/master.xml</changeLogFile>
                         <diffChangeLogFile>${project.basedir}/src/main/resources/config/liquibase/changelog/${maven.build.timestamp}_changelog.xml</diffChangeLogFile>
                         <driver>com.mysql.cj.jdbc.Driver</driver>
-                        <url>jdbc:mysql://localhost:3306/transcript</url>
-                        <defaultSchemaName>transcript</defaultSchemaName>
+                        <url>jdbc:mysql://localhost:3306/oncokb-transcript</url>
+                        <defaultSchemaName>oncokb-transcript</defaultSchemaName>
                         <username>root</username>
                         <password></password>
                         <referenceUrl>hibernate:spring:org.mskcc.cbio.domain?dialect=org.hibernate.dialect.MySQL8Dialect&amp;hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&amp;hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy</referenceUrl>
