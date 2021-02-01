@@ -4,8 +4,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.cbio.domain.Sequence;
 import org.mskcc.cbio.service.SequenceService;
 import org.mskcc.cbio.web.rest.errors.BadRequestAlertException;
@@ -45,7 +43,7 @@ public class SequenceResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/sequences")
-    public ResponseEntity<Sequence> createSequence(@Valid @RequestBody Sequence sequence) throws URISyntaxException {
+    public ResponseEntity<Sequence> createSequence(@RequestBody Sequence sequence) throws URISyntaxException {
         log.debug("REST request to save Sequence : {}", sequence);
         if (sequence.getId() != null) {
             throw new BadRequestAlertException("A new sequence cannot already have an ID", ENTITY_NAME, "idexists");
@@ -67,7 +65,7 @@ public class SequenceResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/sequences")
-    public ResponseEntity<Sequence> updateSequence(@Valid @RequestBody Sequence sequence) throws URISyntaxException {
+    public ResponseEntity<Sequence> updateSequence(@RequestBody Sequence sequence) throws URISyntaxException {
         log.debug("REST request to update Sequence : {}", sequence);
         if (sequence.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -90,7 +88,7 @@ public class SequenceResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/sequences", consumes = "application/merge-patch+json")
-    public ResponseEntity<Sequence> partialUpdateSequence(@NotNull @RequestBody Sequence sequence) throws URISyntaxException {
+    public ResponseEntity<Sequence> partialUpdateSequence(@RequestBody Sequence sequence) throws URISyntaxException {
         log.debug("REST request to update Sequence partially : {}", sequence);
         if (sequence.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");

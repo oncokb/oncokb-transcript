@@ -1,6 +1,8 @@
 package org.mskcc.cbio.service;
 
 import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
@@ -8,31 +10,150 @@ import org.genome_nexus.client.EnsemblControllerApi;
 import org.genome_nexus.client.EnsemblTranscript;
 import org.mskcc.cbio.domain.AlignmentResult;
 import org.mskcc.cbio.domain.EnrichedAlignmentResult;
+import org.mskcc.cbio.domain.Transcript;
 import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
+import org.mskcc.cbio.repository.TranscriptRepository;
 import org.mskcc.cbio.web.rest.vm.MissMatchPairVM;
 import org.mskcc.cbio.web.rest.vm.TranscriptMatchResultVM;
 import org.mskcc.cbio.web.rest.vm.TranscriptPairVM;
 import org.mskcc.cbio.web.rest.vm.ensembl.Sequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * Created by Hongxin Zhang on 1/27/21.
+ * Service Implementation for managing {@link Transcript}.
  */
 @Service
+@Transactional
 public class TranscriptService {
 
     private final GenomeNexusUrlService genomeNexusUrlService;
     private final AlignmentService alignmentService;
 
-    public TranscriptService(GenomeNexusUrlService genomeNexusUrlService, AlignmentService alignmentService) {
+    private final Logger log = LoggerFactory.getLogger(TranscriptService.class);
+
+    private final TranscriptRepository transcriptRepository;
+
+    public TranscriptService(
+        GenomeNexusUrlService genomeNexusUrlService,
+        AlignmentService alignmentService,
+        TranscriptRepository transcriptRepository
+    ) {
         this.genomeNexusUrlService = genomeNexusUrlService;
         this.alignmentService = alignmentService;
+        this.transcriptRepository = transcriptRepository;
+    }
+
+    /**
+     * Save a transcript.
+     *
+     * @param transcript the entity to save.
+     * @return the persisted entity.
+     */
+    public Transcript save(Transcript transcript) {
+        log.debug("Request to save Transcript : {}", transcript);
+        return transcriptRepository.save(transcript);
+    }
+
+    /**
+     * Partially update a transcript.
+     *
+     * @param transcript the entity to update partially.
+     * @return the persisted entity.
+     */
+    public Optional<Transcript> partialUpdate(Transcript transcript) {
+        log.debug("Request to partially update Transcript : {}", transcript);
+
+        return transcriptRepository
+            .findById(transcript.getId())
+            .map(
+                existingTranscript -> {
+                    if (transcript.getEntrezGeneId() != null) {
+                        existingTranscript.setEntrezGeneId(transcript.getEntrezGeneId());
+                    }
+
+                    if (transcript.getHugoSymbol() != null) {
+                        existingTranscript.setHugoSymbol(transcript.getHugoSymbol());
+                    }
+
+                    if (transcript.getReferenceGenome() != null) {
+                        existingTranscript.setReferenceGenome(transcript.getReferenceGenome());
+                    }
+
+                    if (transcript.getEnsemblTranscriptId() != null) {
+                        existingTranscript.setEnsemblTranscriptId(transcript.getEnsemblTranscriptId());
+                    }
+
+                    if (transcript.getEnsemblProteinId() != null) {
+                        existingTranscript.setEnsemblProteinId(transcript.getEnsemblProteinId());
+                    }
+
+                    if (transcript.getReferenceSequenceId() != null) {
+                        existingTranscript.setReferenceSequenceId(transcript.getReferenceSequenceId());
+                    }
+
+                    if (transcript.getDescription() != null) {
+                        existingTranscript.setDescription(transcript.getDescription());
+                    }
+
+                    return existingTranscript;
+                }
+            )
+            .map(transcriptRepository::save);
+    }
+
+    /**
+     * Get all the transcripts.
+     *
+     * @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<Transcript> findAll() {
+        log.debug("Request to get all Transcripts");
+        return transcriptRepository.findAll();
+    }
+
+    /**
+     * Get one transcript by id.
+     *
+     * @param id the id of the entity.
+     * @return the entity.
+     */
+    @Transactional(readOnly = true)
+    public Optional<Transcript> findOne(Long id) {
+        log.debug("Request to get Transcript : {}", id);
+        return transcriptRepository.findById(id);
+    }
+
+    /**
+     * Delete the transcript by id.
+     *
+     * @param id the id of the entity.
+     */
+    public void delete(Long id) {
+        log.debug("Request to delete Transcript : {}", id);
+        transcriptRepository.deleteById(id);
+    }
+
+    /**
+     * Get one sequence by ensemble transcript id.
+     *
+     * @param ensembleTranscriptId the ensembleTranscriptId of the entity.
+     * @return the entity.
+     */
+    @Transactional(readOnly = true)
+    public Optional<Transcript> findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome referenceGenome, String ensembleTranscriptId) {
+        log.debug("Request to get Sequence : {}", ensembleTranscriptId);
+        return transcriptRepository.findByReferenceGenomeAndEnsemblTranscriptId(referenceGenome, ensembleTranscriptId);
     }
 
     public List<EnsemblTranscript> getTranscriptsWithMatchedResidue(

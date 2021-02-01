@@ -3,7 +3,6 @@ package org.mskcc.cbio.service;
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.cbio.domain.Sequence;
-import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
 import org.mskcc.cbio.repository.SequenceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,36 +48,16 @@ public class SequenceService {
             .findById(sequence.getId())
             .map(
                 existingSequence -> {
-                    if (sequence.getEntrezGeneId() != null) {
-                        existingSequence.setEntrezGeneId(sequence.getEntrezGeneId());
+                    if (sequence.getTranscriptId() != null) {
+                        existingSequence.setTranscriptId(sequence.getTranscriptId());
                     }
 
-                    if (sequence.getHugoSymbol() != null) {
-                        existingSequence.setHugoSymbol(sequence.getHugoSymbol());
+                    if (sequence.getSequenceType() != null) {
+                        existingSequence.setSequenceType(sequence.getSequenceType());
                     }
 
-                    if (sequence.getReferenceGenome() != null) {
-                        existingSequence.setReferenceGenome(sequence.getReferenceGenome());
-                    }
-
-                    if (sequence.getEnsemblTranscriptId() != null) {
-                        existingSequence.setEnsemblTranscriptId(sequence.getEnsemblTranscriptId());
-                    }
-
-                    if (sequence.getEnsemblProteinId() != null) {
-                        existingSequence.setEnsemblProteinId(sequence.getEnsemblProteinId());
-                    }
-
-                    if (sequence.getReferenceSequenceId() != null) {
-                        existingSequence.setReferenceSequenceId(sequence.getReferenceSequenceId());
-                    }
-
-                    if (sequence.getProteinSequence() != null) {
-                        existingSequence.setProteinSequence(sequence.getProteinSequence());
-                    }
-
-                    if (sequence.getDescription() != null) {
-                        existingSequence.setDescription(sequence.getDescription());
+                    if (sequence.getSequene() != null) {
+                        existingSequence.setSequene(sequence.getSequene());
                     }
 
                     return existingSequence;
@@ -108,18 +87,6 @@ public class SequenceService {
     public Optional<Sequence> findOne(Long id) {
         log.debug("Request to get Sequence : {}", id);
         return sequenceRepository.findById(id);
-    }
-
-    /**
-     * Get one sequence by ensemble transcript id.
-     *
-     * @param ensembleTranscriptId the ensembleTranscriptId of the entity.
-     * @return the entity.
-     */
-    @Transactional(readOnly = true)
-    public Optional<Sequence> findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome referenceGenome, String ensembleTranscriptId) {
-        log.debug("Request to get Sequence : {}", ensembleTranscriptId);
-        return sequenceRepository.findByReferenceGenomeAndEnsemblTranscriptId(referenceGenome, ensembleTranscriptId);
     }
 
     /**

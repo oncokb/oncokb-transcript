@@ -7,20 +7,32 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <!--
-        Added the entity Sequence.
+        Added the entity Transcript.
     -->
-    <changeSet id="20210129192153-1" author="jhipster">
-        <createTable tableName="sequence">
+    <changeSet id="20210201194018-1" author="jhipster">
+        <createTable tableName="transcript">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="transcript_id" type="varchar(255)">
+            <column name="entrez_gene_id" type="integer">
+                <constraints nullable="false" />
+            </column>
+            <column name="hugo_symbol" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="reference_genome" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="ensembl_transcript_id" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="sequence_type" type="varchar(255)">
+            <column name="ensembl_protein_id" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="sequene" type="${clobType}">
+            <column name="reference_sequence_id" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="description" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->

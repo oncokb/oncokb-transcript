@@ -5,16 +5,18 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.client.EnsemblTranscript;
 import org.mskcc.cbio.domain.Sequence;
+import org.mskcc.cbio.domain.Transcript;
+import org.mskcc.cbio.domain.TranscriptUsage;
 import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
+import org.mskcc.cbio.domain.enumeration.SequenceType;
+import org.mskcc.cbio.domain.enumeration.UsageSource;
 import org.mskcc.cbio.service.OncoKbUrlService;
 import org.mskcc.cbio.service.SequenceService;
 import org.mskcc.cbio.service.TranscriptService;
+import org.mskcc.cbio.service.TranscriptUsageService;
 import org.oncokb.ApiException;
 import org.oncokb.client.Gene;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,16 +34,19 @@ public class Importer {
     @Autowired
     private TranscriptService transcriptService;
 
+    @Autowired
+    private TranscriptUsageService transcriptUsageService;
+
     public void generalImport() throws ApiException {
         this.importOncoKbSequences();
     }
 
     private void importOncoKbSequences() throws ApiException {
         List<Gene> genes = oncoKbUrlService.getGenes();
-        for (Gene gene : genes) {
+        for (Gene gene : genes.subList(0, 5)) {
             // Add grch37 sequence
             if (
-                sequenceService.findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome.GRCh37, gene.getGrch37Isoform()).isEmpty() &&
+                transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome.GRCh37, gene.getGrch37Isoform()).isEmpty() &&
                 StringUtils.isNotEmpty(gene.getGrch37Isoform())
             ) {
                 Optional<EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(
@@ -50,29 +55,34 @@ public class Importer {
                 );
                 if (ensemblTranscriptOptional.isPresent()) {
                     EnsemblTranscript ensemblTranscript = ensemblTranscriptOptional.get();
-                    Sequence grch37Sequence = new Sequence();
-                    grch37Sequence.setHugoSymbol(gene.getHugoSymbol());
-                    grch37Sequence.setEntrezGeneId(gene.getEntrezGeneId());
-                    grch37Sequence.setReferenceGenome(ReferenceGenome.GRCh37);
+                    Transcript grch37Transcript = new Transcript();
+                    grch37Transcript.setHugoSymbol(gene.getHugoSymbol());
+                    grch37Transcript.setEntrezGeneId(gene.getEntrezGeneId());
+                    grch37Transcript.setReferenceGenome(ReferenceGenome.GRCh37);
 
-                    grch37Sequence.setEnsemblTranscriptId(ensemblTranscript.getTranscriptId());
-                    grch37Sequence.setEnsemblProteinId(ensemblTranscript.getProteinId());
-                    grch37Sequence.setReferenceSequenceId(ensemblTranscript.getRefseqMrnaId());
+                    grch37Transcript.setEnsemblTranscriptId(ensemblTranscript.getTranscriptId());
+                    grch37Transcript.setEnsemblProteinId(ensemblTranscript.getProteinId());
+                    grch37Transcript.setReferenceSequenceId(ensemblTranscript.getRefseqMrnaId());
+                    transcriptService.save(grch37Transcript);
+                    addTranscriptUsage(grch37Transcript);
 
                     Optional<org.mskcc.cbio.web.rest.vm.ensembl.Sequence> sequenceOptional = transcriptService.getProteinSequence(
                         ReferenceGenome.GRCh37,
                         ensemblTranscript.getProteinId()
                     );
                     if (sequenceOptional.isPresent()) {
-                        grch37Sequence.setProteinSequence(sequenceOptional.get().getSeq());
+                        Sequence sequence = new Sequence();
+                        sequence.setTranscriptId(ensemblTranscript.getProteinId());
+                        sequence.setSequenceType(SequenceType.PROTEIN);
+                        sequence.setSequene(sequenceOptional.get().getSeq());
+                        sequenceService.save(sequence);
                     }
-                    sequenceService.save(grch37Sequence);
                 }
             }
 
             // Add grch38 sequence
             if (
-                sequenceService.findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome.GRCh38, gene.getGrch38Isoform()).isEmpty() &&
+                transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome.GRCh38, gene.getGrch38Isoform()).isEmpty() &&
                 StringUtils.isNotEmpty(gene.getGrch38Isoform())
             ) {
                 Optional<EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(
@@ -81,25 +91,38 @@ public class Importer {
                 );
                 if (ensemblTranscriptOptional.isPresent()) {
                     EnsemblTranscript ensemblTranscript = ensemblTranscriptOptional.get();
-                    Sequence grch38Sequence = new Sequence();
-                    grch38Sequence.setHugoSymbol(gene.getHugoSymbol());
-                    grch38Sequence.setEntrezGeneId(gene.getEntrezGeneId());
-                    grch38Sequence.setReferenceGenome(ReferenceGenome.GRCh38);
+                    Transcript grch38Transcript = new Transcript();
+                    grch38Transcript.setHugoSymbol(gene.getHugoSymbol());
+                    grch38Transcript.setEntrezGeneId(gene.getEntrezGeneId());
+                    grch38Transcript.setReferenceGenome(ReferenceGenome.GRCh38);
 
-                    grch38Sequence.setEnsemblTranscriptId(ensemblTranscript.getTranscriptId());
-                    grch38Sequence.setEnsemblProteinId(ensemblTranscript.getProteinId());
-                    grch38Sequence.setReferenceSequenceId(ensemblTranscript.getRefseqMrnaId());
+                    grch38Transcript.setEnsemblTranscriptId(ensemblTranscript.getTranscriptId());
+                    grch38Transcript.setEnsemblProteinId(ensemblTranscript.getProteinId());
+                    grch38Transcript.setReferenceSequenceId(ensemblTranscript.getRefseqMrnaId());
+                    transcriptService.save(grch38Transcript);
+
+                    addTranscriptUsage(grch38Transcript);
 
                     Optional<org.mskcc.cbio.web.rest.vm.ensembl.Sequence> sequenceOptional = transcriptService.getProteinSequence(
                         ReferenceGenome.GRCh38,
                         ensemblTranscript.getProteinId()
                     );
                     if (sequenceOptional.isPresent()) {
-                        grch38Sequence.setProteinSequence(sequenceOptional.get().getSeq());
+                        Sequence sequence = new Sequence();
+                        sequence.setTranscriptId(ensemblTranscript.getProteinId());
+                        sequence.setSequenceType(SequenceType.PROTEIN);
+                        sequence.setSequene(sequenceOptional.get().getSeq());
+                        sequenceService.save(sequence);
                     }
-                    sequenceService.save(grch38Sequence);
                 }
             }
         }
+    }
+
+    private void addTranscriptUsage(Transcript transcript) {
+        TranscriptUsage transcriptUsage = new TranscriptUsage();
+        transcriptUsage.setTranscript(transcript);
+        transcriptUsage.setSource(UsageSource.ONCOKB);
+        transcriptUsageService.save(transcriptUsage);
     }
 }

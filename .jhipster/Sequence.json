@@ -2,41 +2,18 @@
   "name": "Sequence",
   "fields": [
     {
-      "fieldName": "entrezGeneId",
-      "fieldType": "Integer",
-      "fieldValidateRules": ["required"]
-    },
-    {
-      "fieldName": "hugoSymbol",
-      "fieldType": "String",
-      "fieldValidateRules": ["required"]
-    },
-    {
-      "fieldName": "referenceGenome",
-      "fieldType": "ReferenceGenome",
-      "fieldValues": "GRCh37,GRCh38",
-      "fieldValidateRules": ["required"]
-    },
-    {
-      "fieldName": "ensemblTranscriptId",
+      "fieldName": "transcriptId",
       "fieldType": "String"
     },
     {
-      "fieldName": "ensemblProteinId",
-      "fieldType": "String"
+      "fieldName": "sequenceType",
+      "fieldType": "SequenceType",
+      "fieldValues": "PROTEIN,CDNA"
     },
     {
-      "fieldName": "referenceSequenceId",
-      "fieldType": "String"
-    },
-    {
-      "fieldName": "proteinSequence",
+      "fieldName": "sequene",
       "fieldType": "byte[]",
       "fieldTypeBlobContent": "text"
-    },
-    {
-      "fieldName": "description",
-      "fieldType": "String"
     }
   ],
   "relationships": [],

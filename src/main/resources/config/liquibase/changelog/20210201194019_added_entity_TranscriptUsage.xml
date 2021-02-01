@@ -7,20 +7,17 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <!--
-        Added the entity Sequence.
+        Added the entity TranscriptUsage.
     -->
-    <changeSet id="20210129192153-1" author="jhipster">
-        <createTable tableName="sequence">
+    <changeSet id="20210201194019-1" author="jhipster">
+        <createTable tableName="transcript_usage">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="transcript_id" type="varchar(255)">
+            <column name="source" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="sequence_type" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
-            <column name="sequene" type="${clobType}">
+            <column name="transcript_id" type="bigint">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->

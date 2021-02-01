@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.cbio.IntegrationTest;
 import org.mskcc.cbio.domain.Sequence;
-import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
+import org.mskcc.cbio.domain.enumeration.SequenceType;
 import org.mskcc.cbio.repository.SequenceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,29 +33,14 @@ import org.springframework.util.Base64Utils;
 @WithMockUser
 class SequenceResourceIT {
 
-    private static final Integer DEFAULT_ENTREZ_GENE_ID = 1;
-    private static final Integer UPDATED_ENTREZ_GENE_ID = 2;
+    private static final String DEFAULT_TRANSCRIPT_ID = "AAAAAAAAAA";
+    private static final String UPDATED_TRANSCRIPT_ID = "BBBBBBBBBB";
 
-    private static final String DEFAULT_HUGO_SYMBOL = "AAAAAAAAAA";
-    private static final String UPDATED_HUGO_SYMBOL = "BBBBBBBBBB";
+    private static final SequenceType DEFAULT_SEQUENCE_TYPE = SequenceType.PROTEIN;
+    private static final SequenceType UPDATED_SEQUENCE_TYPE = SequenceType.CDNA;
 
-    private static final ReferenceGenome DEFAULT_REFERENCE_GENOME = ReferenceGenome.GRCh37;
-    private static final ReferenceGenome UPDATED_REFERENCE_GENOME = ReferenceGenome.GRCh38;
-
-    private static final String DEFAULT_ENSEMBL_TRANSCRIPT_ID = "AAAAAAAAAA";
-    private static final String UPDATED_ENSEMBL_TRANSCRIPT_ID = "BBBBBBBBBB";
-
-    private static final String DEFAULT_ENSEMBL_PROTEIN_ID = "AAAAAAAAAA";
-    private static final String UPDATED_ENSEMBL_PROTEIN_ID = "BBBBBBBBBB";
-
-    private static final String DEFAULT_REFERENCE_SEQUENCE_ID = "AAAAAAAAAA";
-    private static final String UPDATED_REFERENCE_SEQUENCE_ID = "BBBBBBBBBB";
-
-    private static final String DEFAULT_PROTEIN_SEQUENCE = "AAAAAAAAAA";
-    private static final String UPDATED_PROTEIN_SEQUENCE = "BBBBBBBBBB";
-
-    private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
-    private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
+    private static final String DEFAULT_SEQUENE = "AAAAAAAAAA";
+    private static final String UPDATED_SEQUENE = "BBBBBBBBBB";
 
     @Autowired
     private SequenceRepository sequenceRepository;
@@ -75,15 +60,7 @@ class SequenceResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Sequence createEntity(EntityManager em) {
-        Sequence sequence = new Sequence()
-            .entrezGeneId(DEFAULT_ENTREZ_GENE_ID)
-            .hugoSymbol(DEFAULT_HUGO_SYMBOL)
-            .referenceGenome(DEFAULT_REFERENCE_GENOME)
-            .ensemblTranscriptId(DEFAULT_ENSEMBL_TRANSCRIPT_ID)
-            .ensemblProteinId(DEFAULT_ENSEMBL_PROTEIN_ID)
-            .referenceSequenceId(DEFAULT_REFERENCE_SEQUENCE_ID)
-            .proteinSequence(DEFAULT_PROTEIN_SEQUENCE)
-            .description(DEFAULT_DESCRIPTION);
+        Sequence sequence = new Sequence().transcriptId(DEFAULT_TRANSCRIPT_ID).sequenceType(DEFAULT_SEQUENCE_TYPE).sequene(DEFAULT_SEQUENE);
         return sequence;
     }
 
@@ -94,15 +71,7 @@ class SequenceResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Sequence createUpdatedEntity(EntityManager em) {
-        Sequence sequence = new Sequence()
-            .entrezGeneId(UPDATED_ENTREZ_GENE_ID)
-            .hugoSymbol(UPDATED_HUGO_SYMBOL)
-            .referenceGenome(UPDATED_REFERENCE_GENOME)
-            .ensemblTranscriptId(UPDATED_ENSEMBL_TRANSCRIPT_ID)
-            .ensemblProteinId(UPDATED_ENSEMBL_PROTEIN_ID)
-            .referenceSequenceId(UPDATED_REFERENCE_SEQUENCE_ID)
-            .proteinSequence(UPDATED_PROTEIN_SEQUENCE)
-            .description(UPDATED_DESCRIPTION);
+        Sequence sequence = new Sequence().transcriptId(UPDATED_TRANSCRIPT_ID).sequenceType(UPDATED_SEQUENCE_TYPE).sequene(UPDATED_SEQUENE);
         return sequence;
     }
 
@@ -124,14 +93,9 @@ class SequenceResourceIT {
         List<Sequence> sequenceList = sequenceRepository.findAll();
         assertThat(sequenceList).hasSize(databaseSizeBeforeCreate + 1);
         Sequence testSequence = sequenceList.get(sequenceList.size() - 1);
-        assertThat(testSequence.getEntrezGeneId()).isEqualTo(DEFAULT_ENTREZ_GENE_ID);
-        assertThat(testSequence.getHugoSymbol()).isEqualTo(DEFAULT_HUGO_SYMBOL);
-        assertThat(testSequence.getReferenceGenome()).isEqualTo(DEFAULT_REFERENCE_GENOME);
-        assertThat(testSequence.getEnsemblTranscriptId()).isEqualTo(DEFAULT_ENSEMBL_TRANSCRIPT_ID);
-        assertThat(testSequence.getEnsemblProteinId()).isEqualTo(DEFAULT_ENSEMBL_PROTEIN_ID);
-        assertThat(testSequence.getReferenceSequenceId()).isEqualTo(DEFAULT_REFERENCE_SEQUENCE_ID);
-        assertThat(testSequence.getProteinSequence()).isEqualTo(DEFAULT_PROTEIN_SEQUENCE);
-        assertThat(testSequence.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testSequence.getTranscriptId()).isEqualTo(DEFAULT_TRANSCRIPT_ID);
+        assertThat(testSequence.getSequenceType()).isEqualTo(DEFAULT_SEQUENCE_TYPE);
+        assertThat(testSequence.getSequene()).isEqualTo(DEFAULT_SEQUENE);
     }
 
     @Test
@@ -154,57 +118,6 @@ class SequenceResourceIT {
 
     @Test
     @Transactional
-    void checkEntrezGeneIdIsRequired() throws Exception {
-        int databaseSizeBeforeTest = sequenceRepository.findAll().size();
-        // set the field null
-        sequence.setEntrezGeneId(null);
-
-        // Create the Sequence, which fails.
-
-        restSequenceMockMvc
-            .perform(post("/api/sequences").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(sequence)))
-            .andExpect(status().isBadRequest());
-
-        List<Sequence> sequenceList = sequenceRepository.findAll();
-        assertThat(sequenceList).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
-    void checkHugoSymbolIsRequired() throws Exception {
-        int databaseSizeBeforeTest = sequenceRepository.findAll().size();
-        // set the field null
-        sequence.setHugoSymbol(null);
-
-        // Create the Sequence, which fails.
-
-        restSequenceMockMvc
-            .perform(post("/api/sequences").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(sequence)))
-            .andExpect(status().isBadRequest());
-
-        List<Sequence> sequenceList = sequenceRepository.findAll();
-        assertThat(sequenceList).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
-    void checkReferenceGenomeIsRequired() throws Exception {
-        int databaseSizeBeforeTest = sequenceRepository.findAll().size();
-        // set the field null
-        sequence.setReferenceGenome(null);
-
-        // Create the Sequence, which fails.
-
-        restSequenceMockMvc
-            .perform(post("/api/sequences").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(sequence)))
-            .andExpect(status().isBadRequest());
-
-        List<Sequence> sequenceList = sequenceRepository.findAll();
-        assertThat(sequenceList).hasSize(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
     void getAllSequences() throws Exception {
         // Initialize the database
         sequenceRepository.saveAndFlush(sequence);
@@ -215,14 +128,9 @@ class SequenceResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(sequence.getId().intValue())))
-            .andExpect(jsonPath("$.[*].entrezGeneId").value(hasItem(DEFAULT_ENTREZ_GENE_ID)))
-            .andExpect(jsonPath("$.[*].hugoSymbol").value(hasItem(DEFAULT_HUGO_SYMBOL)))
-            .andExpect(jsonPath("$.[*].referenceGenome").value(hasItem(DEFAULT_REFERENCE_GENOME.toString())))
-            .andExpect(jsonPath("$.[*].ensemblTranscriptId").value(hasItem(DEFAULT_ENSEMBL_TRANSCRIPT_ID)))
-            .andExpect(jsonPath("$.[*].ensemblProteinId").value(hasItem(DEFAULT_ENSEMBL_PROTEIN_ID)))
-            .andExpect(jsonPath("$.[*].referenceSequenceId").value(hasItem(DEFAULT_REFERENCE_SEQUENCE_ID)))
-            .andExpect(jsonPath("$.[*].proteinSequence").value(hasItem(DEFAULT_PROTEIN_SEQUENCE.toString())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)));
+            .andExpect(jsonPath("$.[*].transcriptId").value(hasItem(DEFAULT_TRANSCRIPT_ID)))
+            .andExpect(jsonPath("$.[*].sequenceType").value(hasItem(DEFAULT_SEQUENCE_TYPE.toString())))
+            .andExpect(jsonPath("$.[*].sequene").value(hasItem(DEFAULT_SEQUENE.toString())));
     }
 
     @Test
@@ -237,14 +145,9 @@ class SequenceResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(sequence.getId().intValue()))
-            .andExpect(jsonPath("$.entrezGeneId").value(DEFAULT_ENTREZ_GENE_ID))
-            .andExpect(jsonPath("$.hugoSymbol").value(DEFAULT_HUGO_SYMBOL))
-            .andExpect(jsonPath("$.referenceGenome").value(DEFAULT_REFERENCE_GENOME.toString()))
-            .andExpect(jsonPath("$.ensemblTranscriptId").value(DEFAULT_ENSEMBL_TRANSCRIPT_ID))
-            .andExpect(jsonPath("$.ensemblProteinId").value(DEFAULT_ENSEMBL_PROTEIN_ID))
-            .andExpect(jsonPath("$.referenceSequenceId").value(DEFAULT_REFERENCE_SEQUENCE_ID))
-            .andExpect(jsonPath("$.proteinSequence").value(DEFAULT_PROTEIN_SEQUENCE.toString()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION));
+            .andExpect(jsonPath("$.transcriptId").value(DEFAULT_TRANSCRIPT_ID))
+            .andExpect(jsonPath("$.sequenceType").value(DEFAULT_SEQUENCE_TYPE.toString()))
+            .andExpect(jsonPath("$.sequene").value(DEFAULT_SEQUENE.toString()));
     }
 
     @Test
@@ -266,15 +169,7 @@ class SequenceResourceIT {
         Sequence updatedSequence = sequenceRepository.findById(sequence.getId()).get();
         // Disconnect from session so that the updates on updatedSequence are not directly saved in db
         em.detach(updatedSequence);
-        updatedSequence
-            .entrezGeneId(UPDATED_ENTREZ_GENE_ID)
-            .hugoSymbol(UPDATED_HUGO_SYMBOL)
-            .referenceGenome(UPDATED_REFERENCE_GENOME)
-            .ensemblTranscriptId(UPDATED_ENSEMBL_TRANSCRIPT_ID)
-            .ensemblProteinId(UPDATED_ENSEMBL_PROTEIN_ID)
-            .referenceSequenceId(UPDATED_REFERENCE_SEQUENCE_ID)
-            .proteinSequence(UPDATED_PROTEIN_SEQUENCE)
-            .description(UPDATED_DESCRIPTION);
+        updatedSequence.transcriptId(UPDATED_TRANSCRIPT_ID).sequenceType(UPDATED_SEQUENCE_TYPE).sequene(UPDATED_SEQUENE);
 
         restSequenceMockMvc
             .perform(
@@ -286,14 +181,9 @@ class SequenceResourceIT {
         List<Sequence> sequenceList = sequenceRepository.findAll();
         assertThat(sequenceList).hasSize(databaseSizeBeforeUpdate);
         Sequence testSequence = sequenceList.get(sequenceList.size() - 1);
-        assertThat(testSequence.getEntrezGeneId()).isEqualTo(UPDATED_ENTREZ_GENE_ID);
-        assertThat(testSequence.getHugoSymbol()).isEqualTo(UPDATED_HUGO_SYMBOL);
-        assertThat(testSequence.getReferenceGenome()).isEqualTo(UPDATED_REFERENCE_GENOME);
-        assertThat(testSequence.getEnsemblTranscriptId()).isEqualTo(UPDATED_ENSEMBL_TRANSCRIPT_ID);
-        assertThat(testSequence.getEnsemblProteinId()).isEqualTo(UPDATED_ENSEMBL_PROTEIN_ID);
-        assertThat(testSequence.getReferenceSequenceId()).isEqualTo(UPDATED_REFERENCE_SEQUENCE_ID);
-        assertThat(testSequence.getProteinSequence()).isEqualTo(UPDATED_PROTEIN_SEQUENCE);
-        assertThat(testSequence.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testSequence.getTranscriptId()).isEqualTo(UPDATED_TRANSCRIPT_ID);
+        assertThat(testSequence.getSequenceType()).isEqualTo(UPDATED_SEQUENCE_TYPE);
+        assertThat(testSequence.getSequene()).isEqualTo(UPDATED_SEQUENE);
     }
 
     @Test
@@ -323,10 +213,7 @@ class SequenceResourceIT {
         Sequence partialUpdatedSequence = new Sequence();
         partialUpdatedSequence.setId(sequence.getId());
 
-        partialUpdatedSequence
-            .hugoSymbol(UPDATED_HUGO_SYMBOL)
-            .ensemblTranscriptId(UPDATED_ENSEMBL_TRANSCRIPT_ID)
-            .referenceSequenceId(UPDATED_REFERENCE_SEQUENCE_ID);
+        partialUpdatedSequence.sequenceType(UPDATED_SEQUENCE_TYPE);
 
         restSequenceMockMvc
             .perform(
@@ -340,14 +227,9 @@ class SequenceResourceIT {
         List<Sequence> sequenceList = sequenceRepository.findAll();
         assertThat(sequenceList).hasSize(databaseSizeBeforeUpdate);
         Sequence testSequence = sequenceList.get(sequenceList.size() - 1);
-        assertThat(testSequence.getEntrezGeneId()).isEqualTo(DEFAULT_ENTREZ_GENE_ID);
-        assertThat(testSequence.getHugoSymbol()).isEqualTo(UPDATED_HUGO_SYMBOL);
-        assertThat(testSequence.getReferenceGenome()).isEqualTo(DEFAULT_REFERENCE_GENOME);
-        assertThat(testSequence.getEnsemblTranscriptId()).isEqualTo(UPDATED_ENSEMBL_TRANSCRIPT_ID);
-        assertThat(testSequence.getEnsemblProteinId()).isEqualTo(DEFAULT_ENSEMBL_PROTEIN_ID);
-        assertThat(testSequence.getReferenceSequenceId()).isEqualTo(UPDATED_REFERENCE_SEQUENCE_ID);
-        assertThat(testSequence.getProteinSequence()).isEqualTo(DEFAULT_PROTEIN_SEQUENCE);
-        assertThat(testSequence.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testSequence.getTranscriptId()).isEqualTo(DEFAULT_TRANSCRIPT_ID);
+        assertThat(testSequence.getSequenceType()).isEqualTo(UPDATED_SEQUENCE_TYPE);
+        assertThat(testSequence.getSequene()).isEqualTo(DEFAULT_SEQUENE);
     }
 
     @Test
@@ -362,15 +244,7 @@ class SequenceResourceIT {
         Sequence partialUpdatedSequence = new Sequence();
         partialUpdatedSequence.setId(sequence.getId());
 
-        partialUpdatedSequence
-            .entrezGeneId(UPDATED_ENTREZ_GENE_ID)
-            .hugoSymbol(UPDATED_HUGO_SYMBOL)
-            .referenceGenome(UPDATED_REFERENCE_GENOME)
-            .ensemblTranscriptId(UPDATED_ENSEMBL_TRANSCRIPT_ID)
-            .ensemblProteinId(UPDATED_ENSEMBL_PROTEIN_ID)
-            .referenceSequenceId(UPDATED_REFERENCE_SEQUENCE_ID)
-            .proteinSequence(UPDATED_PROTEIN_SEQUENCE)
-            .description(UPDATED_DESCRIPTION);
+        partialUpdatedSequence.transcriptId(UPDATED_TRANSCRIPT_ID).sequenceType(UPDATED_SEQUENCE_TYPE).sequene(UPDATED_SEQUENE);
 
         restSequenceMockMvc
             .perform(
@@ -384,14 +258,9 @@ class SequenceResourceIT {
         List<Sequence> sequenceList = sequenceRepository.findAll();
         assertThat(sequenceList).hasSize(databaseSizeBeforeUpdate);
         Sequence testSequence = sequenceList.get(sequenceList.size() - 1);
-        assertThat(testSequence.getEntrezGeneId()).isEqualTo(UPDATED_ENTREZ_GENE_ID);
-        assertThat(testSequence.getHugoSymbol()).isEqualTo(UPDATED_HUGO_SYMBOL);
-        assertThat(testSequence.getReferenceGenome()).isEqualTo(UPDATED_REFERENCE_GENOME);
-        assertThat(testSequence.getEnsemblTranscriptId()).isEqualTo(UPDATED_ENSEMBL_TRANSCRIPT_ID);
-        assertThat(testSequence.getEnsemblProteinId()).isEqualTo(UPDATED_ENSEMBL_PROTEIN_ID);
-        assertThat(testSequence.getReferenceSequenceId()).isEqualTo(UPDATED_REFERENCE_SEQUENCE_ID);
-        assertThat(testSequence.getProteinSequence()).isEqualTo(UPDATED_PROTEIN_SEQUENCE);
-        assertThat(testSequence.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testSequence.getTranscriptId()).isEqualTo(UPDATED_TRANSCRIPT_ID);
+        assertThat(testSequence.getSequenceType()).isEqualTo(UPDATED_SEQUENCE_TYPE);
+        assertThat(testSequence.getSequene()).isEqualTo(UPDATED_SEQUENE);
     }
 
     @Test

@@ -2,8 +2,7 @@ package org.mskcc.cbio.domain;
 
 import java.io.Serializable;
 import javax.persistence.*;
-import javax.validation.constraints.*;
-import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
+import org.mskcc.cbio.domain.enumeration.SequenceType;
 
 /**
  * A Sequence.
@@ -18,34 +17,16 @@ public class Sequence implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Column(name = "entrez_gene_id", nullable = false)
-    private Integer entrezGeneId;
+    @Column(name = "transcript_id")
+    private String transcriptId;
 
-    @NotNull
-    @Column(name = "hugo_symbol", nullable = false)
-    private String hugoSymbol;
-
-    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "reference_genome", nullable = false)
-    private ReferenceGenome referenceGenome;
-
-    @Column(name = "ensembl_transcript_id")
-    private String ensemblTranscriptId;
-
-    @Column(name = "ensembl_protein_id")
-    private String ensemblProteinId;
-
-    @Column(name = "reference_sequence_id")
-    private String referenceSequenceId;
+    @Column(name = "sequence_type")
+    private SequenceType sequenceType;
 
     @Lob
-    @Column(name = "protein_sequence")
-    private String proteinSequence;
-
-    @Column(name = "description")
-    private String description;
+    @Column(name = "sequene")
+    private String sequene;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
@@ -61,108 +42,43 @@ public class Sequence implements Serializable {
         return this;
     }
 
-    public Integer getEntrezGeneId() {
-        return this.entrezGeneId;
+    public String getTranscriptId() {
+        return this.transcriptId;
     }
 
-    public Sequence entrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
+    public Sequence transcriptId(String transcriptId) {
+        this.transcriptId = transcriptId;
         return this;
     }
 
-    public void setEntrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
+    public void setTranscriptId(String transcriptId) {
+        this.transcriptId = transcriptId;
     }
 
-    public String getHugoSymbol() {
-        return this.hugoSymbol;
+    public SequenceType getSequenceType() {
+        return this.sequenceType;
     }
 
-    public Sequence hugoSymbol(String hugoSymbol) {
-        this.hugoSymbol = hugoSymbol;
+    public Sequence sequenceType(SequenceType sequenceType) {
+        this.sequenceType = sequenceType;
         return this;
     }
 
-    public void setHugoSymbol(String hugoSymbol) {
-        this.hugoSymbol = hugoSymbol;
+    public void setSequenceType(SequenceType sequenceType) {
+        this.sequenceType = sequenceType;
     }
 
-    public ReferenceGenome getReferenceGenome() {
-        return this.referenceGenome;
+    public String getSequene() {
+        return this.sequene;
     }
 
-    public Sequence referenceGenome(ReferenceGenome referenceGenome) {
-        this.referenceGenome = referenceGenome;
+    public Sequence sequene(String sequene) {
+        this.sequene = sequene;
         return this;
     }
 
-    public void setReferenceGenome(ReferenceGenome referenceGenome) {
-        this.referenceGenome = referenceGenome;
-    }
-
-    public String getEnsemblTranscriptId() {
-        return this.ensemblTranscriptId;
-    }
-
-    public Sequence ensemblTranscriptId(String ensemblTranscriptId) {
-        this.ensemblTranscriptId = ensemblTranscriptId;
-        return this;
-    }
-
-    public void setEnsemblTranscriptId(String ensemblTranscriptId) {
-        this.ensemblTranscriptId = ensemblTranscriptId;
-    }
-
-    public String getEnsemblProteinId() {
-        return this.ensemblProteinId;
-    }
-
-    public Sequence ensemblProteinId(String ensemblProteinId) {
-        this.ensemblProteinId = ensemblProteinId;
-        return this;
-    }
-
-    public void setEnsemblProteinId(String ensemblProteinId) {
-        this.ensemblProteinId = ensemblProteinId;
-    }
-
-    public String getReferenceSequenceId() {
-        return this.referenceSequenceId;
-    }
-
-    public Sequence referenceSequenceId(String referenceSequenceId) {
-        this.referenceSequenceId = referenceSequenceId;
-        return this;
-    }
-
-    public void setReferenceSequenceId(String referenceSequenceId) {
-        this.referenceSequenceId = referenceSequenceId;
-    }
-
-    public String getProteinSequence() {
-        return this.proteinSequence;
-    }
-
-    public Sequence proteinSequence(String proteinSequence) {
-        this.proteinSequence = proteinSequence;
-        return this;
-    }
-
-    public void setProteinSequence(String proteinSequence) {
-        this.proteinSequence = proteinSequence;
-    }
-
-    public String getDescription() {
-        return this.description;
-    }
-
-    public Sequence description(String description) {
-        this.description = description;
-        return this;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public void setSequene(String sequene) {
+        this.sequene = sequene;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
@@ -189,14 +105,9 @@ public class Sequence implements Serializable {
     public String toString() {
         return "Sequence{" +
             "id=" + getId() +
-            ", entrezGeneId=" + getEntrezGeneId() +
-            ", hugoSymbol='" + getHugoSymbol() + "'" +
-            ", referenceGenome='" + getReferenceGenome() + "'" +
-            ", ensemblTranscriptId='" + getEnsemblTranscriptId() + "'" +
-            ", ensemblProteinId='" + getEnsemblProteinId() + "'" +
-            ", referenceSequenceId='" + getReferenceSequenceId() + "'" +
-            ", proteinSequence='" + getProteinSequence() + "'" +
-            ", description='" + getDescription() + "'" +
+            ", transcriptId='" + getTranscriptId() + "'" +
+            ", sequenceType='" + getSequenceType() + "'" +
+            ", sequene='" + getSequene() + "'" +
             "}";
     }
 }

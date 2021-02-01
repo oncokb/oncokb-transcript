@@ -46,7 +46,7 @@
     "reactive": false,
     "nativeLanguage": "en",
     "languages": ["en", "fr"],
-    "entities": ["Sequence"],
-    "lastLiquibaseTimestamp": 1611948113000
+    "entities": ["Sequence", "Transcript", "TranscriptUsage"],
+    "lastLiquibaseTimestamp": 1612208419000
   }
 }
