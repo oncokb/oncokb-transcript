@@ -18,8 +18,8 @@ import tech.jhipster.web.util.ResponseUtil;
 /**
  * REST controller for managing {@link org.mskcc.cbio.domain.TranscriptUsage}.
  */
-@RestController
-@RequestMapping("/api")
+//@RestController
+//@RequestMapping("/api")
 public class TranscriptUsageResource {
 
     private final Logger log = LoggerFactory.getLogger(TranscriptUsageResource.class);
@@ -42,7 +42,7 @@ public class TranscriptUsageResource {
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new transcriptUsage, or with status {@code 400 (Bad Request)} if the transcriptUsage has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PostMapping("/transcript-usages")
+    //    @PostMapping("/transcript-usages")
     public ResponseEntity<TranscriptUsage> createTranscriptUsage(@RequestBody TranscriptUsage transcriptUsage) throws URISyntaxException {
         log.debug("REST request to save TranscriptUsage : {}", transcriptUsage);
         if (transcriptUsage.getId() != null) {
@@ -64,7 +64,7 @@ public class TranscriptUsageResource {
      * or with status {@code 500 (Internal Server Error)} if the transcriptUsage couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PutMapping("/transcript-usages")
+    //    @PutMapping("/transcript-usages")
     public ResponseEntity<TranscriptUsage> updateTranscriptUsage(@RequestBody TranscriptUsage transcriptUsage) throws URISyntaxException {
         log.debug("REST request to update TranscriptUsage : {}", transcriptUsage);
         if (transcriptUsage.getId() == null) {
@@ -87,7 +87,7 @@ public class TranscriptUsageResource {
      * or with status {@code 500 (Internal Server Error)} if the transcriptUsage couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/transcript-usages", consumes = "application/merge-patch+json")
+    //    @PatchMapping(value = "/transcript-usages", consumes = "application/merge-patch+json")
     public ResponseEntity<TranscriptUsage> partialUpdateTranscriptUsage(@RequestBody TranscriptUsage transcriptUsage)
         throws URISyntaxException {
         log.debug("REST request to update TranscriptUsage partially : {}", transcriptUsage);
@@ -108,7 +108,7 @@ public class TranscriptUsageResource {
      *
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of transcriptUsages in body.
      */
-    @GetMapping("/transcript-usages")
+    //    @GetMapping("/transcript-usages")
     public List<TranscriptUsage> getAllTranscriptUsages() {
         log.debug("REST request to get all TranscriptUsages");
         return transcriptUsageService.findAll();
@@ -120,7 +120,7 @@ public class TranscriptUsageResource {
      * @param id the id of the transcriptUsage to retrieve.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the transcriptUsage, or with status {@code 404 (Not Found)}.
      */
-    @GetMapping("/transcript-usages/{id}")
+    //    @GetMapping("/transcript-usages/{id}")
     public ResponseEntity<TranscriptUsage> getTranscriptUsage(@PathVariable Long id) {
         log.debug("REST request to get TranscriptUsage : {}", id);
         Optional<TranscriptUsage> transcriptUsage = transcriptUsageService.findOne(id);
@@ -133,7 +133,7 @@ public class TranscriptUsageResource {
      * @param id the id of the transcriptUsage to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
-    @DeleteMapping("/transcript-usages/{id}")
+    //    @DeleteMapping("/transcript-usages/{id}")
     public ResponseEntity<Void> deleteTranscriptUsage(@PathVariable Long id) {
         log.debug("REST request to delete TranscriptUsage : {}", id);
         transcriptUsageService.delete(id);
