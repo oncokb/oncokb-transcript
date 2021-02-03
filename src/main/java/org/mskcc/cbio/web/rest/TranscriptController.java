@@ -2,6 +2,7 @@ package org.mskcc.cbio.web.rest;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.swing.text.html.Option;
 import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
 import org.genome_nexus.client.EnsemblControllerApi;
@@ -9,7 +10,9 @@ import org.genome_nexus.client.EnsemblTranscript;
 import org.mskcc.cbio.config.ApplicationProperties;
 import org.mskcc.cbio.domain.AlignmentResult;
 import org.mskcc.cbio.domain.EnrichedAlignmentResult;
+import org.mskcc.cbio.domain.Transcript;
 import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
+import org.mskcc.cbio.domain.enumeration.UsageSource;
 import org.mskcc.cbio.service.AlignmentService;
 import org.mskcc.cbio.service.GenomeNexusUrlService;
 import org.mskcc.cbio.service.TranscriptService;
@@ -432,5 +435,22 @@ public class TranscriptController {
             transcriptSuggestionVM.setNote("GRCh37 protein id does not have sequence");
         }
         return new ResponseEntity<>(transcriptSuggestionVM, HttpStatus.OK);
+    }
+
+    @GetMapping("/update-transcript-usage")
+    public ResponseEntity<Void> updateTranscriptUsage(
+        @RequestParam UsageSource usageSource,
+        @RequestParam int entrezGeneId,
+        @RequestParam ReferenceGenome referenceGenome,
+        @RequestParam String newTranscript
+    ) {
+        Optional<Transcript> transcriptOptional = transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(
+            referenceGenome,
+            newTranscript
+        );
+        if (transcriptOptional.isEmpty()) {} else {
+            Optional<Transcript> transcript = transcriptService.findByReferenceGenomeAndEntrezGeneId(referenceGenome, entrezGeneId);
+        }
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }

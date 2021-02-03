@@ -145,15 +145,28 @@ public class TranscriptService {
     }
 
     /**
-     * Get one sequence by ensemble transcript id.
+     * Get trancript by reference genome and ensembleTranscriptId
      *
-     * @param ensembleTranscriptId the ensembleTranscriptId of the entity.
-     * @return the entity.
+     * @param referenceGenome
+     * @param ensembleTranscriptId
+     * @return
      */
     @Transactional(readOnly = true)
     public Optional<Transcript> findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome referenceGenome, String ensembleTranscriptId) {
         log.debug("Request to get Sequence : {}", ensembleTranscriptId);
         return transcriptRepository.findByReferenceGenomeAndEnsemblTranscriptId(referenceGenome, ensembleTranscriptId);
+    }
+
+    /**
+     * Get trancript by reference genome and entrezGeneId
+     *
+     * @param referenceGenome
+     * @param entrezGeneId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public Optional<Transcript> findByReferenceGenomeAndEntrezGeneId(ReferenceGenome referenceGenome, int entrezGeneId) {
+        return transcriptRepository.findByReferenceGenomeAndEntrezGeneId(referenceGenome, entrezGeneId);
     }
 
     public List<EnsemblTranscript> getTranscriptsWithMatchedResidue(
