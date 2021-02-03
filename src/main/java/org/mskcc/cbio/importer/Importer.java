@@ -74,7 +74,7 @@ public class Importer {
                         Sequence sequence = new Sequence();
                         sequence.setTranscript(grch37Transcript);
                         sequence.setSequenceType(SequenceType.PROTEIN);
-                        sequence.setSequene(sequenceOptional.get().getSeq());
+                        sequence.setSequence(sequenceOptional.get().getSeq());
                         sequenceService.save(sequence);
                     }
                 }
@@ -111,7 +111,7 @@ public class Importer {
                         Sequence sequence = new Sequence();
                         sequence.setTranscript(grch38Transcript);
                         sequence.setSequenceType(SequenceType.PROTEIN);
-                        sequence.setSequene(sequenceOptional.get().getSeq());
+                        sequence.setSequence(sequenceOptional.get().getSeq());
                         sequenceService.save(sequence);
                     }
                 }

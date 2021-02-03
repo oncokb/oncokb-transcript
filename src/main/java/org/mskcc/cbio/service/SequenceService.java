@@ -52,8 +52,8 @@ public class SequenceService {
                         existingSequence.setSequenceType(sequence.getSequenceType());
                     }
 
-                    if (sequence.getSequene() != null) {
-                        existingSequence.setSequene(sequence.getSequene());
+                    if (sequence.getSequence() != null) {
+                        existingSequence.setSequence(sequence.getSequence());
                     }
 
                     return existingSequence;

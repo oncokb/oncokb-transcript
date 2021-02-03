@@ -11,7 +11,7 @@ entity Transcript {
 
 entity Sequence {
     sequenceType SequenceType
-    sequene TextBlob
+    sequence TextBlob
 }
 
 entity TranscriptUsage {

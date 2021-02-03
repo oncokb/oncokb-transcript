@@ -7,7 +7,7 @@
       "fieldValues": "PROTEIN,CDNA"
     },
     {
-      "fieldName": "sequene",
+      "fieldName": "sequence",
       "fieldType": "byte[]",
       "fieldTypeBlobContent": "text"
     }

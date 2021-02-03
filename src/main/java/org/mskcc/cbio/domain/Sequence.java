@@ -23,8 +23,8 @@ public class Sequence implements Serializable {
     private SequenceType sequenceType;
 
     @Lob
-    @Column(name = "sequene")
-    private String sequene;
+    @Column(name = "sequence")
+    private String sequence;
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "transcriptUsages", "sequences" }, allowSetters = true)
@@ -57,17 +57,17 @@ public class Sequence implements Serializable {
         this.sequenceType = sequenceType;
     }
 
-    public String getSequene() {
-        return this.sequene;
+    public String getSequence() {
+        return this.sequence;
     }
 
-    public Sequence sequene(String sequene) {
-        this.sequene = sequene;
+    public Sequence sequence(String sequence) {
+        this.sequence = sequence;
         return this;
     }
 
-    public void setSequene(String sequene) {
-        this.sequene = sequene;
+    public void setSequence(String sequence) {
+        this.sequence = sequence;
     }
 
     public Transcript getTranscript() {
@@ -108,7 +108,7 @@ public class Sequence implements Serializable {
         return "Sequence{" +
             "id=" + getId() +
             ", sequenceType='" + getSequenceType() + "'" +
-            ", sequene='" + getSequene() + "'" +
+            ", sequence='" + getSequence() + "'" +
             "}";
     }
 }

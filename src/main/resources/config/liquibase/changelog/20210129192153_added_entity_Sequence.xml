@@ -17,7 +17,7 @@
             <column name="sequence_type" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="sequene" type="${clobType}">
+            <column name="sequence" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="transcript_id" type="bigint">
