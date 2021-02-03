@@ -14,11 +14,41 @@
 # ===================================================================
 
 spring:
+  profiles:
+    # Uncomment the following line to enable tests against production database type rather than H2, using Testcontainers
+    #active: testcontainers
   application:
-    name: transcript
+    name: oncokb-transcript
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:h2:mem:oncokb-transcript;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    name:
+    username:
+    password:
+    hikari:
+      auto-commit: false
   jackson:
     serialization:
       write-durations-as-timestamps: false
+  jpa:
+    database-platform: tech.jhipster.domain.util.FixedH2Dialect
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+    properties:
+      hibernate.id.new_generator_mappings: true
+      hibernate.connection.provider_disables_autocommit: true
+      hibernate.cache.use_second_level_cache: false
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: false
+      hibernate.hbm2ddl.auto: validate
+      hibernate.jdbc.time_zone: UTC
+      hibernate.query.fail_on_pagination_over_collection_fetch: true
+  liquibase:
+    contexts: test
   mail:
     host: localhost
   main:
@@ -31,13 +61,13 @@ spring:
       password: test
   task:
     execution:
-      thread-name-prefix: transcript-task-
+      thread-name-prefix: oncokb-transcript-task-
       pool:
         core-size: 1
         max-size: 50
         queue-capacity: 10000
     scheduling:
-      thread-name-prefix: transcript-scheduling-
+      thread-name-prefix: oncokb-transcript-scheduling-
       pool:
         size: 1
   thymeleaf:
@@ -55,7 +85,7 @@ server:
 
 jhipster:
   clientApp:
-    name: 'transcriptApp'
+    name: 'oncokbTranscriptApp'
   logging:
     # To test json console appender
     use-json-format: false
@@ -71,11 +101,6 @@ jhipster:
         base64-secret: NGUwNTlhNDNhOWQ2ZGJlMmEzODczOWJjYWM2MWY4NDAwOTM4YTBmNGFjM2UxNjczZDU2YWZjZjc3MjdkNmU4YjVhZmIwYzI1NDhjMDFkZThiYmE5Mjc5MjM0MGVhODU5MGFhMTAyOTE0M2I3ODA1MGUzZWFhYWUwNWY2ZDgyNjQ=
         # Token is valid 24 hours
         token-validity-in-seconds: 86400
-  metrics:
-    logs: # Reports metrics in the logs
-      enabled: true
-      report-frequency: 60 # in seconds
-
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

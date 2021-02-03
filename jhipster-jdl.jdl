@@ -1,0 +1,38 @@
+
+entity Transcript {
+    entrezGeneId Integer required,
+    hugoSymbol String required,
+    referenceGenome ReferenceGenome required,
+    ensemblTranscriptId String,
+    ensemblProteinId String,
+    referenceSequenceId String,
+    description String
+}
+
+entity Sequence {
+    sequenceType SequenceType
+    sequence TextBlob
+}
+
+entity TranscriptUsage {
+	source UsageSource
+}
+
+enum SequenceType {
+	PROTEIN, CDNA
+}
+enum ReferenceGenome {
+    GRCh37, GRCh38
+}
+
+enum UsageSource {
+ 	ONCOKB
+}
+
+relationship ManyToOne {
+	TranscriptUsage to Transcript
+    Sequence to Transcript
+}
+
+service * with serviceClass
+

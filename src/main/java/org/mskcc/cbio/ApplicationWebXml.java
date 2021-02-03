@@ -1,9 +1,8 @@
 package org.mskcc.cbio;
 
-import io.github.jhipster.config.DefaultProfileUtil;
-
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import tech.jhipster.config.DefaultProfileUtil;
 
 /**
  * This is a helper Java class that provides an alternative to creating a {@code web.xml}.
@@ -15,6 +14,6 @@ public class ApplicationWebXml extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
         // set a default to use when no profile is configured.
         DefaultProfileUtil.addDefaultProfile(application.application());
-        return application.sources(TranscriptApp.class);
+        return application.sources(OncokbTranscriptApp.class);
     }
 }

@@ -2,20 +2,22 @@ package org.mskcc.cbio.web.rest.vm;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
 
 /**
  * Created by Hongxin Zhang on 7/15/20.
  */
 public class TranscriptSuggestionVM {
-    REFERENCE_GENOME referenceGenome;
+
+    ReferenceGenome referenceGenome;
     String note = "";
     List<String> suggestions = new ArrayList<>();
 
-    public REFERENCE_GENOME getReferenceGenome() {
+    public ReferenceGenome getReferenceGenome() {
         return referenceGenome;
     }
 
-    public void setReferenceGenome(REFERENCE_GENOME referenceGenome) {
+    public void setReferenceGenome(ReferenceGenome referenceGenome) {
         this.referenceGenome = referenceGenome;
     }
 

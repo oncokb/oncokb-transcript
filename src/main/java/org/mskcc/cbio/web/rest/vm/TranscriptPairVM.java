@@ -1,17 +1,20 @@
 package org.mskcc.cbio.web.rest.vm;
 
+import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
+
 /**
  * Created by Hongxin Zhang on 7/15/20.
  */
 public class TranscriptPairVM {
-    REFERENCE_GENOME referenceGenome;
+
+    ReferenceGenome referenceGenome;
     String transcript;
 
-    public REFERENCE_GENOME getReferenceGenome() {
+    public ReferenceGenome getReferenceGenome() {
         return referenceGenome;
     }
 
-    public void setReferenceGenome(REFERENCE_GENOME referenceGenome) {
+    public void setReferenceGenome(ReferenceGenome referenceGenome) {
         this.referenceGenome = referenceGenome;
     }
 
