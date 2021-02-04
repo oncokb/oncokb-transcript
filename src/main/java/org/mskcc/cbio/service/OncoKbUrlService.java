@@ -28,10 +28,14 @@ public class OncoKbUrlService {
 
         ApiClient client = new ApiClient();
         client.setReadTimeout(ONCOKB_READ_TIMEOUT_OVERRIDE);
-        client.setBasePath(
-            StringUtils.isEmpty(applicationProperties.getOncokb().getUrl()) ? ONCOKB_API_URL : applicationProperties.getOncokb().getUrl()
-        );
-        client.setApiKey(applicationProperties.getOncokb().getApiKey());
+        if (applicationProperties.getOncokb() != null) {
+            client.setBasePath(
+                StringUtils.isEmpty(applicationProperties.getOncokb().getUrl())
+                    ? ONCOKB_API_URL
+                    : applicationProperties.getOncokb().getUrl()
+            );
+            client.setApiKey(applicationProperties.getOncokb().getApiKey());
+        }
         client.setApiKeyPrefix("Bearer");
 
         this.apiClient = client;

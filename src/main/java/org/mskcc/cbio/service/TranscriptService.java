@@ -177,12 +177,12 @@ public class TranscriptService {
     }
 
     @Transactional(readOnly = true)
-    public List<Transcript> findByReferenceGenomeAndHugoSymbolAndUsageSource(
+    public List<Transcript> findByReferenceGenomeAndEnsemblTranscriptIAndSource(
         ReferenceGenome referenceGenome,
-        String hugoSymbol,
+        String ensemblTranscriptId,
         UsageSource usageSource
     ) {
-        return transcriptRepository.findByReferenceGenomeAndHugoSymbolAndSource(referenceGenome, hugoSymbol, usageSource);
+        return transcriptRepository.findByReferenceGenomeAndEnsemblTranscriptIAndSource(referenceGenome, ensemblTranscriptId, usageSource);
     }
 
     public List<EnsemblTranscript> getTranscriptsWithMatchedResidue(

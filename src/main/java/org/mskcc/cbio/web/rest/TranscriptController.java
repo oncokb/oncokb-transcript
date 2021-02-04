@@ -441,27 +441,23 @@ public class TranscriptController {
         return new ResponseEntity<>(transcriptSuggestionVM, HttpStatus.OK);
     }
 
-    @GetMapping("/update-transcript-usage")
+    @PostMapping("/update-transcript-usage")
     public ResponseEntity<Void> updateTranscriptUsage(
         @RequestParam UsageSource usageSource,
         @RequestParam String hugoSymbol,
         @RequestParam int entrezGeneId,
         @RequestParam ReferenceGenome referenceGenome,
-        @RequestParam String newTranscript
+        @RequestParam String ensemblTranscriptId
     ) {
-        // add the new transcript
-        Optional<Transcript> transcriptOptional = transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(
+        // find whether the transcript has been used
+        List<Transcript> matchedTranscript = transcriptService.findByReferenceGenomeAndEnsemblTranscriptIAndSource(
             referenceGenome,
-            newTranscript
+            ensemblTranscriptId,
+            usageSource
         );
-        if (transcriptOptional.isEmpty()) {
-            Optional<EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(newTranscript, referenceGenome);
-            if (ensemblTranscriptOptional.isPresent()) {
-                Transcript transcript = new Transcript(referenceGenome, ensemblTranscriptOptional.get(), hugoSymbol, entrezGeneId);
-                transcriptOptional = Optional.of(transcriptService.save(transcript));
-            } else {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
+
+        if (matchedTranscript.size() > 0) {
+            return new ResponseEntity<>(HttpStatus.OK);
         }
 
         // update old transcript usage
@@ -474,6 +470,24 @@ public class TranscriptController {
             // delete all usage
             for (TranscriptUsage transcriptUsage : usedTranscriptUsages) {
                 transcriptUsageService.delete(transcriptUsage.getId());
+            }
+        }
+
+        // add the new transcript if it does not exist
+        Optional<Transcript> transcriptOptional = transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(
+            referenceGenome,
+            ensemblTranscriptId
+        );
+        if (transcriptOptional.isEmpty()) {
+            Optional<EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(
+                ensemblTranscriptId,
+                referenceGenome
+            );
+            if (ensemblTranscriptOptional.isPresent()) {
+                Transcript transcript = new Transcript(referenceGenome, ensemblTranscriptOptional.get(), hugoSymbol, entrezGeneId);
+                transcriptOptional = Optional.of(transcriptService.save(transcript));
+            } else {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
         }
 

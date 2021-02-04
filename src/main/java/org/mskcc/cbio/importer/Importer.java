@@ -34,6 +34,9 @@ public class Importer {
     @Autowired
     private TranscriptService transcriptService;
 
+    @Autowired
+    private TranscriptUsageService transcriptUsageService;
+
     public void generalImport() throws ApiException {
         this.importOncoKbSequences();
     }
@@ -58,8 +61,8 @@ public class Importer {
                         gene.getHugoSymbol(),
                         gene.getEntrezGeneId()
                     );
-                    addTranscriptUsage(grch37Transcript);
                     transcriptService.save(grch37Transcript);
+                    addTranscriptUsage(grch37Transcript);
                 }
             }
 
@@ -80,8 +83,8 @@ public class Importer {
                         gene.getHugoSymbol(),
                         gene.getEntrezGeneId()
                     );
-                    addTranscriptUsage(grch38Transcript);
                     transcriptService.save(grch38Transcript);
+                    addTranscriptUsage(grch38Transcript);
                 }
             }
         }
@@ -91,6 +94,6 @@ public class Importer {
         TranscriptUsage transcriptUsage = new TranscriptUsage();
         transcriptUsage.setSource(UsageSource.ONCOKB);
         transcriptUsage.setTranscript(transcript);
-        transcript.getTranscriptUsages().add(transcriptUsage);
+        transcriptUsageService.save(transcriptUsage);
     }
 }
