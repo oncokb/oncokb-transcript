@@ -34,9 +34,6 @@ public class Importer {
     @Autowired
     private TranscriptService transcriptService;
 
-    @Autowired
-    private TranscriptUsageService transcriptUsageService;
-
     public void generalImport() throws ApiException {
         this.importOncoKbSequences();
     }
@@ -55,28 +52,14 @@ public class Importer {
                 );
                 if (ensemblTranscriptOptional.isPresent()) {
                     EnsemblTranscript ensemblTranscript = ensemblTranscriptOptional.get();
-                    Transcript grch37Transcript = new Transcript();
-                    grch37Transcript.setHugoSymbol(gene.getHugoSymbol());
-                    grch37Transcript.setEntrezGeneId(gene.getEntrezGeneId());
-                    grch37Transcript.setReferenceGenome(ReferenceGenome.GRCh37);
-
-                    grch37Transcript.setEnsemblTranscriptId(ensemblTranscript.getTranscriptId());
-                    grch37Transcript.setEnsemblProteinId(ensemblTranscript.getProteinId());
-                    grch37Transcript.setReferenceSequenceId(ensemblTranscript.getRefseqMrnaId());
-                    transcriptService.save(grch37Transcript);
-                    addTranscriptUsage(grch37Transcript);
-
-                    Optional<org.mskcc.cbio.web.rest.vm.ensembl.Sequence> sequenceOptional = transcriptService.getProteinSequence(
+                    Transcript grch37Transcript = new Transcript(
                         ReferenceGenome.GRCh37,
-                        ensemblTranscript.getProteinId()
+                        ensemblTranscript,
+                        gene.getHugoSymbol(),
+                        gene.getEntrezGeneId()
                     );
-                    if (sequenceOptional.isPresent()) {
-                        Sequence sequence = new Sequence();
-                        sequence.setTranscript(grch37Transcript);
-                        sequence.setSequenceType(SequenceType.PROTEIN);
-                        sequence.setSequence(sequenceOptional.get().getSeq());
-                        sequenceService.save(sequence);
-                    }
+                    addTranscriptUsage(grch37Transcript);
+                    transcriptService.save(grch37Transcript);
                 }
             }
 
@@ -91,29 +74,14 @@ public class Importer {
                 );
                 if (ensemblTranscriptOptional.isPresent()) {
                     EnsemblTranscript ensemblTranscript = ensemblTranscriptOptional.get();
-                    Transcript grch38Transcript = new Transcript();
-                    grch38Transcript.setHugoSymbol(gene.getHugoSymbol());
-                    grch38Transcript.setEntrezGeneId(gene.getEntrezGeneId());
-                    grch38Transcript.setReferenceGenome(ReferenceGenome.GRCh38);
-
-                    grch38Transcript.setEnsemblTranscriptId(ensemblTranscript.getTranscriptId());
-                    grch38Transcript.setEnsemblProteinId(ensemblTranscript.getProteinId());
-                    grch38Transcript.setReferenceSequenceId(ensemblTranscript.getRefseqMrnaId());
-                    transcriptService.save(grch38Transcript);
-
-                    addTranscriptUsage(grch38Transcript);
-
-                    Optional<org.mskcc.cbio.web.rest.vm.ensembl.Sequence> sequenceOptional = transcriptService.getProteinSequence(
+                    Transcript grch38Transcript = new Transcript(
                         ReferenceGenome.GRCh38,
-                        ensemblTranscript.getProteinId()
+                        ensemblTranscript,
+                        gene.getHugoSymbol(),
+                        gene.getEntrezGeneId()
                     );
-                    if (sequenceOptional.isPresent()) {
-                        Sequence sequence = new Sequence();
-                        sequence.setTranscript(grch38Transcript);
-                        sequence.setSequenceType(SequenceType.PROTEIN);
-                        sequence.setSequence(sequenceOptional.get().getSeq());
-                        sequenceService.save(sequence);
-                    }
+                    addTranscriptUsage(grch38Transcript);
+                    transcriptService.save(grch38Transcript);
                 }
             }
         }
@@ -121,8 +89,8 @@ public class Importer {
 
     private void addTranscriptUsage(Transcript transcript) {
         TranscriptUsage transcriptUsage = new TranscriptUsage();
-        transcriptUsage.setTranscript(transcript);
         transcriptUsage.setSource(UsageSource.ONCOKB);
-        transcriptUsageService.save(transcriptUsage);
+        transcriptUsage.setTranscript(transcript);
+        transcript.getTranscriptUsages().add(transcriptUsage);
     }
 }

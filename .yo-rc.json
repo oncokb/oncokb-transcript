@@ -10,7 +10,7 @@
     "packageFolder": "org/mskcc/cbio",
     "serverPort": "9090",
     "authenticationType": "jwt",
-    "cacheProvider": "redis",
+    "cacheProvider": "ehcache",
     "enableHibernateCache": false,
     "websocket": false,
     "databaseType": "sql",

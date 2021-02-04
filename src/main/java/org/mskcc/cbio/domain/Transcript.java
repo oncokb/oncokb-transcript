@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.genome_nexus.client.EnsemblTranscript;
 import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
 
 /**
@@ -46,13 +47,25 @@ public class Transcript implements Serializable {
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "transcript")
+    @OneToMany(mappedBy = "transcript", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "transcript" }, allowSetters = true)
     private Set<TranscriptUsage> transcriptUsages = new HashSet<>();
 
-    @OneToMany(mappedBy = "transcript")
+    @OneToMany(mappedBy = "transcript", cascade = CascadeType.REMOVE)
     @JsonIgnoreProperties(value = { "transcript" }, allowSetters = true)
     private Set<Sequence> sequences = new HashSet<>();
+
+    public Transcript() {}
+
+    public Transcript(ReferenceGenome referenceGenome, EnsemblTranscript ensemblTranscript, String hugoSymbol, int entrezGeneId) {
+        this.setHugoSymbol(hugoSymbol);
+        this.setEntrezGeneId(entrezGeneId);
+        this.setReferenceGenome(referenceGenome);
+
+        this.setEnsemblTranscriptId(ensemblTranscript.getTranscriptId());
+        this.setEnsemblProteinId(ensemblTranscript.getProteinId());
+        this.setReferenceSequenceId(ensemblTranscript.getRefseqMrnaId());
+    }
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {

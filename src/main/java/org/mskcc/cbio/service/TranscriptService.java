@@ -12,6 +12,8 @@ import org.mskcc.cbio.domain.AlignmentResult;
 import org.mskcc.cbio.domain.EnrichedAlignmentResult;
 import org.mskcc.cbio.domain.Transcript;
 import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
+import org.mskcc.cbio.domain.enumeration.SequenceType;
+import org.mskcc.cbio.domain.enumeration.UsageSource;
 import org.mskcc.cbio.repository.TranscriptRepository;
 import org.mskcc.cbio.web.rest.vm.MissMatchPairVM;
 import org.mskcc.cbio.web.rest.vm.TranscriptMatchResultVM;
@@ -38,6 +40,7 @@ public class TranscriptService {
 
     private final GenomeNexusUrlService genomeNexusUrlService;
     private final AlignmentService alignmentService;
+    private final SequenceService sequenceService;
 
     private final Logger log = LoggerFactory.getLogger(TranscriptService.class);
 
@@ -46,10 +49,12 @@ public class TranscriptService {
     public TranscriptService(
         GenomeNexusUrlService genomeNexusUrlService,
         AlignmentService alignmentService,
+        SequenceService sequenceService,
         TranscriptRepository transcriptRepository
     ) {
         this.genomeNexusUrlService = genomeNexusUrlService;
         this.alignmentService = alignmentService;
+        this.sequenceService = sequenceService;
         this.transcriptRepository = transcriptRepository;
     }
 
@@ -61,7 +66,21 @@ public class TranscriptService {
      */
     public Transcript save(Transcript transcript) {
         log.debug("Request to save Transcript : {}", transcript);
-        return transcriptRepository.save(transcript);
+        Transcript savedTranscript = transcriptRepository.save(transcript);
+
+        // save sequence automatically when a new transcript saved
+        Optional<org.mskcc.cbio.web.rest.vm.ensembl.Sequence> sequenceOptional = getProteinSequence(
+            savedTranscript.getReferenceGenome(),
+            savedTranscript.getEnsemblProteinId()
+        );
+        if (sequenceOptional.isPresent()) {
+            org.mskcc.cbio.domain.Sequence sequence = new org.mskcc.cbio.domain.Sequence();
+            sequence.setTranscript(savedTranscript);
+            sequence.setSequenceType(SequenceType.PROTEIN);
+            sequence.setSequence(sequenceOptional.get().getSeq());
+            sequenceService.save(sequence);
+        }
+        return savedTranscript;
     }
 
     /**
@@ -157,16 +176,13 @@ public class TranscriptService {
         return transcriptRepository.findByReferenceGenomeAndEnsemblTranscriptId(referenceGenome, ensembleTranscriptId);
     }
 
-    /**
-     * Get trancript by reference genome and entrezGeneId
-     *
-     * @param referenceGenome
-     * @param entrezGeneId
-     * @return
-     */
     @Transactional(readOnly = true)
-    public Optional<Transcript> findByReferenceGenomeAndEntrezGeneId(ReferenceGenome referenceGenome, int entrezGeneId) {
-        return transcriptRepository.findByReferenceGenomeAndEntrezGeneId(referenceGenome, entrezGeneId);
+    public List<Transcript> findByReferenceGenomeAndHugoSymbolAndUsageSource(
+        ReferenceGenome referenceGenome,
+        String hugoSymbol,
+        UsageSource usageSource
+    ) {
+        return transcriptRepository.findByReferenceGenomeAndHugoSymbolAndSource(referenceGenome, hugoSymbol, usageSource);
     }
 
     public List<EnsemblTranscript> getTranscriptsWithMatchedResidue(

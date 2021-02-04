@@ -11,11 +11,13 @@ import org.mskcc.cbio.config.ApplicationProperties;
 import org.mskcc.cbio.domain.AlignmentResult;
 import org.mskcc.cbio.domain.EnrichedAlignmentResult;
 import org.mskcc.cbio.domain.Transcript;
+import org.mskcc.cbio.domain.TranscriptUsage;
 import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
 import org.mskcc.cbio.domain.enumeration.UsageSource;
 import org.mskcc.cbio.service.AlignmentService;
 import org.mskcc.cbio.service.GenomeNexusUrlService;
 import org.mskcc.cbio.service.TranscriptService;
+import org.mskcc.cbio.service.TranscriptUsageService;
 import org.mskcc.cbio.web.rest.vm.*;
 import org.mskcc.cbio.web.rest.vm.ensembl.Sequence;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
@@ -36,16 +38,18 @@ public class TranscriptController {
     private final GenomeNexusUrlService genomeNexusUrlService;
     private final AlignmentService alignmentService;
     private final TranscriptService transcriptService;
+    private final TranscriptUsageService transcriptUsageService;
 
     public TranscriptController(
-        ApplicationProperties applicationProperties,
         GenomeNexusUrlService genomeNexusUrlService,
         AlignmentService alignmentService,
-        TranscriptService transcriptService
+        TranscriptService transcriptService,
+        TranscriptUsageService transcriptUsageService
     ) {
         this.genomeNexusUrlService = genomeNexusUrlService;
         this.alignmentService = alignmentService;
         this.transcriptService = transcriptService;
+        this.transcriptUsageService = transcriptUsageService;
     }
 
     @PostMapping("/compare-transcript/{hugoSymbol}")
@@ -440,17 +444,45 @@ public class TranscriptController {
     @GetMapping("/update-transcript-usage")
     public ResponseEntity<Void> updateTranscriptUsage(
         @RequestParam UsageSource usageSource,
+        @RequestParam String hugoSymbol,
         @RequestParam int entrezGeneId,
         @RequestParam ReferenceGenome referenceGenome,
         @RequestParam String newTranscript
     ) {
+        // add the new transcript
         Optional<Transcript> transcriptOptional = transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(
             referenceGenome,
             newTranscript
         );
-        if (transcriptOptional.isEmpty()) {} else {
-            Optional<Transcript> transcript = transcriptService.findByReferenceGenomeAndEntrezGeneId(referenceGenome, entrezGeneId);
+        if (transcriptOptional.isEmpty()) {
+            Optional<EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(newTranscript, referenceGenome);
+            if (ensemblTranscriptOptional.isPresent()) {
+                Transcript transcript = new Transcript(referenceGenome, ensemblTranscriptOptional.get(), hugoSymbol, entrezGeneId);
+                transcriptOptional = Optional.of(transcriptService.save(transcript));
+            } else {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
         }
+
+        // update old transcript usage
+        List<TranscriptUsage> usedTranscriptUsages = transcriptUsageService.findByReferenceGenomeAndHugoSymbolAndUsageSource(
+            referenceGenome,
+            hugoSymbol,
+            usageSource
+        );
+        if (usedTranscriptUsages.size() > 0) {
+            // delete all usage
+            for (TranscriptUsage transcriptUsage : usedTranscriptUsages) {
+                transcriptUsageService.delete(transcriptUsage.getId());
+            }
+        }
+
+        // update new transcript usage
+        TranscriptUsage transcriptUsage = new TranscriptUsage();
+        transcriptUsage.setSource(usageSource);
+        transcriptUsage.setTranscript(transcriptOptional.get());
+        transcriptUsageService.save(transcriptUsage);
+
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }

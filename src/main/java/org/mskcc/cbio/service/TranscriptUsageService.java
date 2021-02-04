@@ -2,7 +2,10 @@ package org.mskcc.cbio.service;
 
 import java.util.List;
 import java.util.Optional;
+import org.mskcc.cbio.domain.Transcript;
 import org.mskcc.cbio.domain.TranscriptUsage;
+import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
+import org.mskcc.cbio.domain.enumeration.UsageSource;
 import org.mskcc.cbio.repository.TranscriptUsageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +82,15 @@ public class TranscriptUsageService {
     public Optional<TranscriptUsage> findOne(Long id) {
         log.debug("Request to get TranscriptUsage : {}", id);
         return transcriptUsageRepository.findById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TranscriptUsage> findByReferenceGenomeAndHugoSymbolAndUsageSource(
+        ReferenceGenome referenceGenome,
+        String hugoSymbol,
+        UsageSource usageSource
+    ) {
+        return transcriptUsageRepository.findByReferenceGenomeAndHugoSymbolAndSource(referenceGenome, hugoSymbol, usageSource);
     }
 
     /**

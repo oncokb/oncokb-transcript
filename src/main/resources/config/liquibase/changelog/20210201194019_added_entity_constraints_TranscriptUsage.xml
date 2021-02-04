@@ -7,12 +7,14 @@
         Added the constraints for entity TranscriptUsage.
     -->
     <changeSet id="20210201194019-2" author="jhipster">
-        
+
         <addForeignKeyConstraint baseColumnNames="transcript_id"
                                  baseTableName="transcript_usage"
                                  constraintName="fk_transcript_usage__transcript_id"
                                  referencedColumnNames="id"
                                  referencedTableName="transcript"/>
+
+<!--        <addUniqueConstraint tableName="transcript_usage" columnNames="transcript_id,source"/>-->
 
     </changeSet>
 </databaseChangeLog>
