@@ -2,10 +2,17 @@ package org.mskcc.cbio.web.rest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.mskcc.cbio.domain.Sequence;
+import org.mskcc.cbio.domain.Transcript;
+import org.mskcc.cbio.domain.enumeration.ReferenceGenome;
+import org.mskcc.cbio.domain.enumeration.SequenceType;
+import org.mskcc.cbio.domain.enumeration.UsageSource;
 import org.mskcc.cbio.service.SequenceService;
+import org.mskcc.cbio.service.TranscriptService;
 import org.mskcc.cbio.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +37,11 @@ public class SequenceResource {
     private String applicationName;
 
     private final SequenceService sequenceService;
+    private final TranscriptService transcriptService;
 
-    public SequenceResource(SequenceService sequenceService) {
+    public SequenceResource(SequenceService sequenceService, TranscriptService transcriptService) {
         this.sequenceService = sequenceService;
+        this.transcriptService = transcriptService;
     }
 
     /**
@@ -111,6 +120,23 @@ public class SequenceResource {
     public List<Sequence> getAllSequences() {
         log.debug("REST request to get all Sequences");
         return sequenceService.findAll();
+    }
+
+    @GetMapping("/sequences-by-usage-source")
+    public List<Sequence> getAllSequences(@RequestParam ReferenceGenome referenceGenome, @RequestParam UsageSource usageSource) {
+        List<Transcript> transcripts = transcriptService.findByReferenceGenomeAndAndSource(referenceGenome, usageSource);
+        List<Sequence> sequences = new ArrayList<>();
+        transcripts.forEach(
+            transcript ->
+                sequences.addAll(
+                    transcript
+                        .getSequences()
+                        .stream()
+                        .filter(sequence -> sequence.getSequenceType().equals(SequenceType.PROTEIN))
+                        .collect(Collectors.toList())
+                )
+        );
+        return sequences;
     }
 
     /**

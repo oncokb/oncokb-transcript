@@ -51,7 +51,7 @@ public class Transcript implements Serializable {
     @JsonIgnoreProperties(value = { "transcript" }, allowSetters = true)
     private Set<TranscriptUsage> transcriptUsages = new HashSet<>();
 
-    @OneToMany(mappedBy = "transcript", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "transcript", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "transcript" }, allowSetters = true)
     private Set<Sequence> sequences = new HashSet<>();
 

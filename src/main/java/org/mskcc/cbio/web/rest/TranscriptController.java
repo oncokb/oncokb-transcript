@@ -441,7 +441,7 @@ public class TranscriptController {
         return new ResponseEntity<>(transcriptSuggestionVM, HttpStatus.OK);
     }
 
-    @PostMapping("/update-transcript-usage")
+    @PostMapping("/update-transcript-usage-source")
     public ResponseEntity<Void> updateTranscriptUsage(
         @RequestParam UsageSource usageSource,
         @RequestParam String hugoSymbol,
@@ -450,7 +450,7 @@ public class TranscriptController {
         @RequestParam String ensemblTranscriptId
     ) {
         // find whether the transcript has been used
-        List<Transcript> matchedTranscript = transcriptService.findByReferenceGenomeAndEnsemblTranscriptIAndSource(
+        List<Transcript> matchedTranscript = transcriptService.findByReferenceGenomeAndEnsemblTranscriptAndSource(
             referenceGenome,
             ensemblTranscriptId,
             usageSource

@@ -177,12 +177,22 @@ public class TranscriptService {
     }
 
     @Transactional(readOnly = true)
-    public List<Transcript> findByReferenceGenomeAndEnsemblTranscriptIAndSource(
+    public List<Transcript> findByReferenceGenomeAndAndSource(ReferenceGenome referenceGenome, UsageSource usageSource) {
+        return transcriptRepository.findByReferenceGenomeAndAndSource(referenceGenome, usageSource);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Transcript> findByReferenceGenomeAndEnsemblTranscriptAndSource(
         ReferenceGenome referenceGenome,
         String ensemblTranscriptId,
         UsageSource usageSource
     ) {
-        return transcriptRepository.findByReferenceGenomeAndEnsemblTranscriptIAndSource(referenceGenome, ensemblTranscriptId, usageSource);
+        return transcriptRepository.findByReferenceGenomeAndEnsemblTranscriptAndSource(referenceGenome, ensemblTranscriptId, usageSource);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Transcript> findByReferenceGenome(ReferenceGenome referenceGenome) {
+        return transcriptRepository.findByReferenceGenome(referenceGenome);
     }
 
     public List<EnsemblTranscript> getTranscriptsWithMatchedResidue(
