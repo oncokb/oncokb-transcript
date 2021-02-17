@@ -1,13 +1,13 @@
 {
   "generator-jhipster": {
     "promptValues": {
-      "packageName": "org.mskcc.cbio"
+      "packageName": "org.mskcc.oncokb.transcript"
     },
     "jhipsterVersion": "7.0.0-beta.1",
     "applicationType": "monolith",
     "baseName": "oncokb-transcript",
-    "packageName": "org.mskcc.cbio",
-    "packageFolder": "org/mskcc/cbio",
+    "packageName": "org.mskcc.oncokb.transcript",
+    "packageFolder": "org/mskcc/oncokb/transcript",
     "serverPort": "9090",
     "authenticationType": "jwt",
     "cacheProvider": "ehcache",

@@ -17,7 +17,7 @@ logging:
   level:
     ROOT: INFO
     tech.jhipster: INFO
-    org.mskcc.cbio: INFO
+    org.mskcc.oncokb.transcript: INFO
 
 management:
   metrics:

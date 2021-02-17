@@ -18,7 +18,7 @@ logging:
     ROOT: INFO
     tech.jhipster: INFO
     org.hibernate.SQL: INFO
-    org.mskcc.cbio: INFO
+    org.mskcc.oncokb.transcript: INFO
 
 spring:
   profiles:
