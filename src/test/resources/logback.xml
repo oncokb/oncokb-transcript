@@ -4,7 +4,7 @@
 <configuration scan="true">
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <logger name="org.mskcc.cbio" level="INFO"/>
+    <logger name="org.mskcc.oncokb.transcript" level="INFO"/>
 
     <logger name="tech.jhipster" level="WARN"/>
 
@@ -19,6 +19,7 @@
     <logger name="org.testcontainers" level="WARN"/>
     <logger name="io.undertow" level="WARN"/>
     <logger name="io.undertow.websockets.jsr" level="ERROR"/>
+    <logger name="org.ehcache" level="WARN"/>
     <logger name="org.apache" level="WARN"/>
     <logger name="org.apache.catalina.startup.DigesterFactory" level="OFF"/>
     <logger name="org.bson" level="WARN"/>
