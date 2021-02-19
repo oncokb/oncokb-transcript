@@ -64,10 +64,10 @@ public class OncokbTranscriptApp {
         }
     }
 
-    @PostConstruct
-    public void importOncoKbSequence() throws ApiException {
-        importer.generalImport();
-    }
+    //    @PostConstruct
+    //    public void importOncoKbSequence() throws ApiException {
+    //        importer.generalImport();
+    //    }
 
     /**
      * Main method, used to run the application.

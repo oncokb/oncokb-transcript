@@ -43,7 +43,7 @@ public class Importer {
 
     private void importOncoKbSequences() throws ApiException {
         List<Gene> genes = oncoKbUrlService.getGenes();
-        for (Gene gene : genes.subList(0, 5)) {
+        for (Gene gene : genes) {
             // Add grch37 sequence
             if (
                 transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome.GRCh37, gene.getGrch37Isoform()).isEmpty() &&
