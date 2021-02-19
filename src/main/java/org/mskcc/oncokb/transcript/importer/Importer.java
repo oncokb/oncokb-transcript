@@ -43,10 +43,12 @@ public class Importer {
 
     private void importOncoKbSequences() throws ApiException {
         List<Gene> genes = oncoKbUrlService.getGenes();
-        for (Gene gene : genes.subList(0, 5)) {
+        for (Gene gene : genes) {
             // Add grch37 sequence
             if (
-                transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome.GRCh37, gene.getGrch37Isoform()).isEmpty() &&
+                !transcriptService
+                    .findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome.GRCh37, gene.getGrch37Isoform())
+                    .isPresent() &&
                 StringUtils.isNotEmpty(gene.getGrch37Isoform())
             ) {
                 Optional<EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(
@@ -68,7 +70,9 @@ public class Importer {
 
             // Add grch38 sequence
             if (
-                transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome.GRCh38, gene.getGrch38Isoform()).isEmpty() &&
+                !transcriptService
+                    .findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome.GRCh38, gene.getGrch38Isoform())
+                    .isPresent() &&
                 StringUtils.isNotEmpty(gene.getGrch38Isoform())
             ) {
                 Optional<EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(

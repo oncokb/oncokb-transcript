@@ -478,7 +478,7 @@ public class TranscriptController {
             referenceGenome,
             ensemblTranscriptId
         );
-        if (transcriptOptional.isEmpty()) {
+        if (!transcriptOptional.isPresent()) {
             Optional<EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(
                 ensemblTranscriptId,
                 referenceGenome

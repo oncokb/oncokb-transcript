@@ -25,7 +25,7 @@
     "embeddableLaunchScript": false,
     "useSass": true,
     "clientPackageManager": "npm",
-    "skipClient": true,
+    "skipClient": false,
     "creationTimestamp": 1592938365904,
     "testFrameworks": [],
     "jhiPrefix": "jhi",

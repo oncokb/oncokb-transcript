@@ -13,16 +13,16 @@ class ArchTest {
     void servicesAndRepositoriesShouldNotDependOnWebLayer() {
         JavaClasses importedClasses = new ClassFileImporter()
             .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
-            .importPackages("org.mskcc.cbio");
+            .importPackages("org.mskcc.oncokb.transcript");
 
         noClasses()
             .that()
-            .resideInAnyPackage("org.mskcc.cbio.service..")
+            .resideInAnyPackage("org.mskcc.oncokb.transcript.service..")
             .or()
-            .resideInAnyPackage("org.mskcc.cbio.repository..")
+            .resideInAnyPackage("org.mskcc.oncokb.transcript.repository..")
             .should()
             .dependOnClassesThat()
-            .resideInAnyPackage("..org.mskcc.cbio.web..")
+            .resideInAnyPackage("..org.mskcc.oncokb.transcript.web..")
             .because("Services and repositories should not depend on web layer")
             .check(importedClasses);
     }
