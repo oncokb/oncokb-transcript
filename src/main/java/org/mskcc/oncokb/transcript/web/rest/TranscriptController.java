@@ -2,12 +2,8 @@ package org.mskcc.oncokb.transcript.web.rest;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.swing.text.html.Option;
-import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
-import org.genome_nexus.client.EnsemblControllerApi;
 import org.genome_nexus.client.EnsemblTranscript;
-import org.mskcc.oncokb.transcript.config.ApplicationProperties;
 import org.mskcc.oncokb.transcript.domain.AlignmentResult;
 import org.mskcc.oncokb.transcript.domain.EnrichedAlignmentResult;
 import org.mskcc.oncokb.transcript.domain.Transcript;
@@ -20,13 +16,8 @@ import org.mskcc.oncokb.transcript.service.TranscriptService;
 import org.mskcc.oncokb.transcript.service.TranscriptUsageService;
 import org.mskcc.oncokb.transcript.web.rest.vm.*;
 import org.mskcc.oncokb.transcript.web.rest.vm.ensembl.Sequence;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * Controller to authenticate users.
