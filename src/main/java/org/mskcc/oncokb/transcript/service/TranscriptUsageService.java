@@ -2,7 +2,6 @@ package org.mskcc.oncokb.transcript.service;
 
 import java.util.List;
 import java.util.Optional;
-import org.mskcc.oncokb.transcript.domain.Transcript;
 import org.mskcc.oncokb.transcript.domain.TranscriptUsage;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.transcript.domain.enumeration.UsageSource;
