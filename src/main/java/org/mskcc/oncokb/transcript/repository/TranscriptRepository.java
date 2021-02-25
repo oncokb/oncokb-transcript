@@ -16,7 +16,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TranscriptRepository extends JpaRepository<Transcript, Long> {
     @Query("select t from Transcript t join t.transcriptUsages tu where t.referenceGenome= ?1 and tu.source= ?2")
-    List<Transcript> findByReferenceGenomeAndAndSource(ReferenceGenome referenceGenome, UsageSource source);
+    List<Transcript> findByReferenceGenomeAndSource(ReferenceGenome referenceGenome, UsageSource source);
+
+    @Query("select t from Transcript t join t.transcriptUsages tu where t.referenceGenome= ?1 and tu.source= ?2 and t.hugoSymbol=?3")
+    List<Transcript> findByReferenceGenomeAndSourceAndHugoSymbol(ReferenceGenome referenceGenome, UsageSource source, String hugoSymbol);
 
     @Query(
         "select t from Transcript t join t.transcriptUsages tu where t.referenceGenome= ?1 and t.ensemblTranscriptId=?2 and tu.source= ?3"
