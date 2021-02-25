@@ -176,8 +176,17 @@ public class TranscriptService {
     }
 
     @Transactional(readOnly = true)
-    public List<Transcript> findByReferenceGenomeAndAndSource(ReferenceGenome referenceGenome, UsageSource usageSource) {
-        return transcriptRepository.findByReferenceGenomeAndAndSource(referenceGenome, usageSource);
+    public List<Transcript> findByReferenceGenomeAndSource(ReferenceGenome referenceGenome, UsageSource usageSource) {
+        return transcriptRepository.findByReferenceGenomeAndSource(referenceGenome, usageSource);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Transcript> findByReferenceGenomeAndSourceAndHugoSymbol(
+        ReferenceGenome referenceGenome,
+        UsageSource usageSource,
+        String hugoSymbol
+    ) {
+        return transcriptRepository.findByReferenceGenomeAndSourceAndHugoSymbol(referenceGenome, usageSource, hugoSymbol);
     }
 
     @Transactional(readOnly = true)

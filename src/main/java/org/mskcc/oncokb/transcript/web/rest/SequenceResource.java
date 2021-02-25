@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.transcript.domain.Sequence;
 import org.mskcc.oncokb.transcript.domain.Transcript;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
@@ -123,8 +124,17 @@ public class SequenceResource {
     }
 
     @GetMapping("/sequences-by-usage-source")
-    public List<Sequence> getAllSequences(@RequestParam ReferenceGenome referenceGenome, @RequestParam UsageSource usageSource) {
-        List<Transcript> transcripts = transcriptService.findByReferenceGenomeAndAndSource(referenceGenome, usageSource);
+    public List<Sequence> getAllSequences(
+        @RequestParam ReferenceGenome referenceGenome,
+        @RequestParam UsageSource usageSource,
+        @RequestParam(required = false) String hugoSymbol
+    ) {
+        List<Transcript> transcripts;
+        if (StringUtils.isEmpty(hugoSymbol)) {
+            transcripts = transcriptService.findByReferenceGenomeAndSource(referenceGenome, usageSource);
+        } else {
+            transcripts = transcriptService.findByReferenceGenomeAndSourceAndHugoSymbol(referenceGenome, usageSource, hugoSymbol);
+        }
         List<Sequence> sequences = new ArrayList<>();
         transcripts.forEach(
             transcript ->
