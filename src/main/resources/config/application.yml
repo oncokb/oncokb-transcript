@@ -79,6 +79,9 @@ spring:
   output:
     ansi:
       console-available: true
+  jackson:
+    mapper:
+      accept-case-insensitive-enums: true
 
 server:
   servlet:

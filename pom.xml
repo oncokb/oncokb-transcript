@@ -7,7 +7,7 @@
 
     <groupId>org.mskcc.oncokb.transcript</groupId>
     <artifactId>oncokb-transcript</artifactId>
-    <version>0.0.1-alpha.3</version>
+    <version>0.0.1-alpha.5</version>
     <packaging>jar</packaging>
     <name>OncoKB Transcript</name>
 
@@ -28,7 +28,7 @@
     <properties>
         <!-- Build properties -->
         <maven.version>3.3.9</maven.version>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
         <node.version>v14.15.0</node.version>
         <npm.version>6.14.11</npm.version>
 
@@ -336,6 +336,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

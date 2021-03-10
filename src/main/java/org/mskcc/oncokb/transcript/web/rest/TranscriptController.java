@@ -16,6 +16,8 @@ import org.mskcc.oncokb.transcript.service.TranscriptService;
 import org.mskcc.oncokb.transcript.service.TranscriptUsageService;
 import org.mskcc.oncokb.transcript.web.rest.vm.*;
 import org.mskcc.oncokb.transcript.web.rest.vm.ensembl.Sequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api")
 public class TranscriptController {
+
+    private final Logger log = LoggerFactory.getLogger(TranscriptController.class);
 
     private final GenomeNexusUrlService genomeNexusUrlService;
     private final AlignmentService alignmentService;
@@ -47,13 +51,19 @@ public class TranscriptController {
     public ResponseEntity<TranscriptComparisonResultVM> compareTranscript(
         @PathVariable String hugoSymbol,
         @RequestBody TranscriptComparisonVM transcriptComparisonVM
-    ) throws ApiException {
+    ) throws Exception {
         TranscriptComparisonResultVM result = new TranscriptComparisonResultVM();
 
         // Find whether both transcript length are the same
         Optional<EnsemblTranscript> ensemblA = transcriptService.getEnsemblTranscript(hugoSymbol, transcriptComparisonVM.getTranscriptA());
         Optional<EnsemblTranscript> ensemblB = transcriptService.getEnsemblTranscript(hugoSymbol, transcriptComparisonVM.getTranscriptB());
 
+        if (ensemblA.isEmpty()) {
+            return new ResponseEntity("TranscriptA does not exist.", HttpStatus.BAD_REQUEST);
+        }
+        if (ensemblB.isEmpty()) {
+            return new ResponseEntity("TranscriptB does not exist.", HttpStatus.BAD_REQUEST);
+        }
         Optional<Sequence> sequenceA = Optional.of(new Sequence());
         if (ensemblA.isPresent()) {
             sequenceA =
