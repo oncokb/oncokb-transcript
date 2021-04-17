@@ -64,7 +64,7 @@ class LoginModal extends React.Component<ILoginModalProps> {
             <div className="mt-1">&nbsp;</div>
           </ModalBody>
           <ModalFooter>
-            <Button color="secondary" onClick={handleClose} tabIndex="1">
+            <Button color="secondary" onClick={handleClose} tabIndex={1}>
               Cancel
             </Button>{' '}
             <Button color="primary" type="submit" data-cy="submit">
