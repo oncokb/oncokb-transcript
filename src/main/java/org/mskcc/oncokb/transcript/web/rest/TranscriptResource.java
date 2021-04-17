@@ -3,10 +3,12 @@ package org.mskcc.oncokb.transcript.web.rest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.transcript.domain.Transcript;
+import org.mskcc.oncokb.transcript.repository.TranscriptRepository;
 import org.mskcc.oncokb.transcript.service.TranscriptService;
 import org.mskcc.oncokb.transcript.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
@@ -33,8 +35,11 @@ public class TranscriptResource {
 
     private final TranscriptService transcriptService;
 
-    public TranscriptResource(TranscriptService transcriptService) {
+    private final TranscriptRepository transcriptRepository;
+
+    public TranscriptResource(TranscriptService transcriptService, TranscriptRepository transcriptRepository) {
         this.transcriptService = transcriptService;
+        this.transcriptRepository = transcriptRepository;
     }
 
     /**
@@ -58,20 +63,32 @@ public class TranscriptResource {
     }
 
     /**
-     * {@code PUT  /transcripts} : Updates an existing transcript.
+     * {@code PUT  /transcripts/:id} : Updates an existing transcript.
      *
+     * @param id the id of the transcript to save.
      * @param transcript the transcript to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated transcript,
      * or with status {@code 400 (Bad Request)} if the transcript is not valid,
      * or with status {@code 500 (Internal Server Error)} if the transcript couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PutMapping("/transcripts")
-    public ResponseEntity<Transcript> updateTranscript(@Valid @RequestBody Transcript transcript) throws URISyntaxException {
-        log.debug("REST request to update Transcript : {}", transcript);
+    @PutMapping("/transcripts/{id}")
+    public ResponseEntity<Transcript> updateTranscript(
+        @PathVariable(value = "id", required = false) final Long id,
+        @Valid @RequestBody Transcript transcript
+    ) throws URISyntaxException {
+        log.debug("REST request to update Transcript : {}, {}", id, transcript);
         if (transcript.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
+        if (!Objects.equals(id, transcript.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!transcriptRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+
         Transcript result = transcriptService.save(transcript);
         return ResponseEntity
             .ok()
@@ -80,8 +97,9 @@ public class TranscriptResource {
     }
 
     /**
-     * {@code PATCH  /transcripts} : Updates given fields of an existing transcript.
+     * {@code PATCH  /transcripts/:id} : Partial updates given fields of an existing transcript, field will ignore if it is null
      *
+     * @param id the id of the transcript to save.
      * @param transcript the transcript to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated transcript,
      * or with status {@code 400 (Bad Request)} if the transcript is not valid,
@@ -89,11 +107,21 @@ public class TranscriptResource {
      * or with status {@code 500 (Internal Server Error)} if the transcript couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/transcripts", consumes = "application/merge-patch+json")
-    public ResponseEntity<Transcript> partialUpdateTranscript(@NotNull @RequestBody Transcript transcript) throws URISyntaxException {
-        log.debug("REST request to update Transcript partially : {}", transcript);
+    @PatchMapping(value = "/transcripts/{id}", consumes = "application/merge-patch+json")
+    public ResponseEntity<Transcript> partialUpdateTranscript(
+        @PathVariable(value = "id", required = false) final Long id,
+        @NotNull @RequestBody Transcript transcript
+    ) throws URISyntaxException {
+        log.debug("REST request to partial update Transcript partially : {}, {}", id, transcript);
         if (transcript.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, transcript.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!transcriptRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
         Optional<Transcript> result = transcriptService.partialUpdate(transcript);

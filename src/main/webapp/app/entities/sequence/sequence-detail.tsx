@@ -20,10 +20,12 @@ export const SequenceDetail = (props: ISequenceDetailProps) => {
   return (
     <Row>
       <Col md="8">
-        <h2 data-cy="sequenceDetailsHeading">
-          Sequence [<strong>{sequenceEntity.id}</strong>]
-        </h2>
+        <h2 data-cy="sequenceDetailsHeading">Sequence</h2>
         <dl className="jh-entity-details">
+          <dt>
+            <span id="id">ID</span>
+          </dt>
+          <dd>{sequenceEntity.id}</dd>
           <dt>
             <span id="sequenceType">Sequence Type</span>
           </dt>

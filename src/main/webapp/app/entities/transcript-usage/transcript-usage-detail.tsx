@@ -20,10 +20,12 @@ export const TranscriptUsageDetail = (props: ITranscriptUsageDetailProps) => {
   return (
     <Row>
       <Col md="8">
-        <h2 data-cy="transcriptUsageDetailsHeading">
-          TranscriptUsage [<strong>{transcriptUsageEntity.id}</strong>]
-        </h2>
+        <h2 data-cy="transcriptUsageDetailsHeading">TranscriptUsage</h2>
         <dl className="jh-entity-details">
+          <dt>
+            <span id="id">ID</span>
+          </dt>
+          <dd>{transcriptUsageEntity.id}</dd>
           <dt>
             <span id="source">Source</span>
           </dt>

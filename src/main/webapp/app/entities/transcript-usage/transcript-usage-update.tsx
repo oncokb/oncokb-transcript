@@ -17,7 +17,6 @@ import { mapIdList } from 'app/shared/util/entity-utils';
 export interface ITranscriptUsageUpdateProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
 export const TranscriptUsageUpdate = (props: ITranscriptUsageUpdateProps) => {
-  const [transcriptId, setTranscriptId] = useState('0');
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
   const { transcriptUsageEntity, transcripts, loading, updating } = props;
@@ -47,6 +46,7 @@ export const TranscriptUsageUpdate = (props: ITranscriptUsageUpdateProps) => {
       const entity = {
         ...transcriptUsageEntity,
         ...values,
+        transcript: transcripts.find(it => it.id.toString() === values.transcriptId.toString()),
       };
 
       if (isNew) {
@@ -95,7 +95,7 @@ export const TranscriptUsageUpdate = (props: ITranscriptUsageUpdateProps) => {
               </AvGroup>
               <AvGroup>
                 <Label for="transcript-usage-transcript">Transcript</Label>
-                <AvInput id="transcript-usage-transcript" data-cy="transcript" type="select" className="form-control" name="transcript.id">
+                <AvInput id="transcript-usage-transcript" data-cy="transcript" type="select" className="form-control" name="transcriptId">
                   <option value="" key="0" />
                   {transcripts
                     ? transcripts.map(otherEntity => (

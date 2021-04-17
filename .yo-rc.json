@@ -3,7 +3,7 @@
     "promptValues": {
       "packageName": "org.mskcc.oncokb.transcript"
     },
-    "jhipsterVersion": "7.0.0-beta.1",
+    "jhipsterVersion": "7.0.1",
     "applicationType": "monolith",
     "baseName": "oncokb-transcript",
     "packageName": "org.mskcc.oncokb.transcript",

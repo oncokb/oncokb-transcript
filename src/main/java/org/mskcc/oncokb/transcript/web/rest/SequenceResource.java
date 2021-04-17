@@ -3,8 +3,10 @@ package org.mskcc.oncokb.transcript.web.rest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.mskcc.oncokb.transcript.domain.Sequence;
+import org.mskcc.oncokb.transcript.repository.SequenceRepository;
 import org.mskcc.oncokb.transcript.service.SequenceService;
 import org.mskcc.oncokb.transcript.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
@@ -31,8 +33,11 @@ public class SequenceResource {
 
     private final SequenceService sequenceService;
 
-    public SequenceResource(SequenceService sequenceService) {
+    private final SequenceRepository sequenceRepository;
+
+    public SequenceResource(SequenceService sequenceService, SequenceRepository sequenceRepository) {
         this.sequenceService = sequenceService;
+        this.sequenceRepository = sequenceRepository;
     }
 
     /**
@@ -56,20 +61,32 @@ public class SequenceResource {
     }
 
     /**
-     * {@code PUT  /sequences} : Updates an existing sequence.
+     * {@code PUT  /sequences/:id} : Updates an existing sequence.
      *
+     * @param id the id of the sequence to save.
      * @param sequence the sequence to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated sequence,
      * or with status {@code 400 (Bad Request)} if the sequence is not valid,
      * or with status {@code 500 (Internal Server Error)} if the sequence couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PutMapping("/sequences")
-    public ResponseEntity<Sequence> updateSequence(@RequestBody Sequence sequence) throws URISyntaxException {
-        log.debug("REST request to update Sequence : {}", sequence);
+    @PutMapping("/sequences/{id}")
+    public ResponseEntity<Sequence> updateSequence(
+        @PathVariable(value = "id", required = false) final Long id,
+        @RequestBody Sequence sequence
+    ) throws URISyntaxException {
+        log.debug("REST request to update Sequence : {}, {}", id, sequence);
         if (sequence.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
+        if (!Objects.equals(id, sequence.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!sequenceRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+
         Sequence result = sequenceService.save(sequence);
         return ResponseEntity
             .ok()
@@ -78,8 +95,9 @@ public class SequenceResource {
     }
 
     /**
-     * {@code PATCH  /sequences} : Updates given fields of an existing sequence.
+     * {@code PATCH  /sequences/:id} : Partial updates given fields of an existing sequence, field will ignore if it is null
      *
+     * @param id the id of the sequence to save.
      * @param sequence the sequence to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated sequence,
      * or with status {@code 400 (Bad Request)} if the sequence is not valid,
@@ -87,11 +105,21 @@ public class SequenceResource {
      * or with status {@code 500 (Internal Server Error)} if the sequence couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/sequences", consumes = "application/merge-patch+json")
-    public ResponseEntity<Sequence> partialUpdateSequence(@RequestBody Sequence sequence) throws URISyntaxException {
-        log.debug("REST request to update Sequence partially : {}", sequence);
+    @PatchMapping(value = "/sequences/{id}", consumes = "application/merge-patch+json")
+    public ResponseEntity<Sequence> partialUpdateSequence(
+        @PathVariable(value = "id", required = false) final Long id,
+        @RequestBody Sequence sequence
+    ) throws URISyntaxException {
+        log.debug("REST request to partial update Sequence partially : {}, {}", id, sequence);
         if (sequence.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, sequence.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!sequenceRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
         Optional<Sequence> result = sequenceService.partialUpdate(sequence);

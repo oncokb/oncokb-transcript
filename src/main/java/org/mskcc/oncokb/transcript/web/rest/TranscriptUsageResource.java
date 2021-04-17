@@ -3,8 +3,10 @@ package org.mskcc.oncokb.transcript.web.rest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.mskcc.oncokb.transcript.domain.TranscriptUsage;
+import org.mskcc.oncokb.transcript.repository.TranscriptUsageRepository;
 import org.mskcc.oncokb.transcript.service.TranscriptUsageService;
 import org.mskcc.oncokb.transcript.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
@@ -31,8 +33,11 @@ public class TranscriptUsageResource {
 
     private final TranscriptUsageService transcriptUsageService;
 
-    public TranscriptUsageResource(TranscriptUsageService transcriptUsageService) {
+    private final TranscriptUsageRepository transcriptUsageRepository;
+
+    public TranscriptUsageResource(TranscriptUsageService transcriptUsageService, TranscriptUsageRepository transcriptUsageRepository) {
         this.transcriptUsageService = transcriptUsageService;
+        this.transcriptUsageRepository = transcriptUsageRepository;
     }
 
     /**
@@ -56,20 +61,32 @@ public class TranscriptUsageResource {
     }
 
     /**
-     * {@code PUT  /transcript-usages} : Updates an existing transcriptUsage.
+     * {@code PUT  /transcript-usages/:id} : Updates an existing transcriptUsage.
      *
+     * @param id the id of the transcriptUsage to save.
      * @param transcriptUsage the transcriptUsage to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated transcriptUsage,
      * or with status {@code 400 (Bad Request)} if the transcriptUsage is not valid,
      * or with status {@code 500 (Internal Server Error)} if the transcriptUsage couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PutMapping("/transcript-usages")
-    public ResponseEntity<TranscriptUsage> updateTranscriptUsage(@RequestBody TranscriptUsage transcriptUsage) throws URISyntaxException {
-        log.debug("REST request to update TranscriptUsage : {}", transcriptUsage);
+    @PutMapping("/transcript-usages/{id}")
+    public ResponseEntity<TranscriptUsage> updateTranscriptUsage(
+        @PathVariable(value = "id", required = false) final Long id,
+        @RequestBody TranscriptUsage transcriptUsage
+    ) throws URISyntaxException {
+        log.debug("REST request to update TranscriptUsage : {}, {}", id, transcriptUsage);
         if (transcriptUsage.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
+        if (!Objects.equals(id, transcriptUsage.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!transcriptUsageRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+
         TranscriptUsage result = transcriptUsageService.save(transcriptUsage);
         return ResponseEntity
             .ok()
@@ -78,8 +95,9 @@ public class TranscriptUsageResource {
     }
 
     /**
-     * {@code PATCH  /transcript-usages} : Updates given fields of an existing transcriptUsage.
+     * {@code PATCH  /transcript-usages/:id} : Partial updates given fields of an existing transcriptUsage, field will ignore if it is null
      *
+     * @param id the id of the transcriptUsage to save.
      * @param transcriptUsage the transcriptUsage to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated transcriptUsage,
      * or with status {@code 400 (Bad Request)} if the transcriptUsage is not valid,
@@ -87,12 +105,21 @@ public class TranscriptUsageResource {
      * or with status {@code 500 (Internal Server Error)} if the transcriptUsage couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/transcript-usages", consumes = "application/merge-patch+json")
-    public ResponseEntity<TranscriptUsage> partialUpdateTranscriptUsage(@RequestBody TranscriptUsage transcriptUsage)
-        throws URISyntaxException {
-        log.debug("REST request to update TranscriptUsage partially : {}", transcriptUsage);
+    @PatchMapping(value = "/transcript-usages/{id}", consumes = "application/merge-patch+json")
+    public ResponseEntity<TranscriptUsage> partialUpdateTranscriptUsage(
+        @PathVariable(value = "id", required = false) final Long id,
+        @RequestBody TranscriptUsage transcriptUsage
+    ) throws URISyntaxException {
+        log.debug("REST request to partial update TranscriptUsage partially : {}, {}", id, transcriptUsage);
         if (transcriptUsage.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, transcriptUsage.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!transcriptUsageRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
         Optional<TranscriptUsage> result = transcriptUsageService.partialUpdate(transcriptUsage);

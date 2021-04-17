@@ -5,7 +5,16 @@ import promiseMiddleware from 'redux-promise-middleware';
 import thunk from 'redux-thunk';
 import sinon from 'sinon';
 
-import reducer, { ACTION_TYPES, createEntity, deleteEntity, getEntities, getEntity, updateEntity, reset } from './sequence.reducer';
+import reducer, {
+  ACTION_TYPES,
+  createEntity,
+  deleteEntity,
+  getEntities,
+  getEntity,
+  updateEntity,
+  partialUpdate,
+  reset,
+} from './sequence.reducer';
 import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
 import { ISequence, defaultValue } from 'app/shared/model/sequence.model';
 
@@ -63,7 +72,12 @@ describe('Entities reducer tests', () => {
 
     it('should set state to updating', () => {
       testMultipleTypes(
-        [REQUEST(ACTION_TYPES.CREATE_SEQUENCE), REQUEST(ACTION_TYPES.UPDATE_SEQUENCE), REQUEST(ACTION_TYPES.DELETE_SEQUENCE)],
+        [
+          REQUEST(ACTION_TYPES.CREATE_SEQUENCE),
+          REQUEST(ACTION_TYPES.UPDATE_SEQUENCE),
+          REQUEST(ACTION_TYPES.PARTIAL_UPDATE_SEQUENCE),
+          REQUEST(ACTION_TYPES.DELETE_SEQUENCE),
+        ],
         {},
         state => {
           expect(state).toMatchObject({
@@ -97,6 +111,7 @@ describe('Entities reducer tests', () => {
           FAILURE(ACTION_TYPES.FETCH_SEQUENCE),
           FAILURE(ACTION_TYPES.CREATE_SEQUENCE),
           FAILURE(ACTION_TYPES.UPDATE_SEQUENCE),
+          FAILURE(ACTION_TYPES.PARTIAL_UPDATE_SEQUENCE),
           FAILURE(ACTION_TYPES.DELETE_SEQUENCE),
         ],
         'error message',
@@ -178,6 +193,7 @@ describe('Entities reducer tests', () => {
       axios.get = sinon.stub().returns(Promise.resolve(resolvedObject));
       axios.post = sinon.stub().returns(Promise.resolve(resolvedObject));
       axios.put = sinon.stub().returns(Promise.resolve(resolvedObject));
+      axios.patch = sinon.stub().returns(Promise.resolve(resolvedObject));
       axios.delete = sinon.stub().returns(Promise.resolve(resolvedObject));
     });
 
@@ -224,7 +240,7 @@ describe('Entities reducer tests', () => {
           payload: resolvedObject,
         },
       ];
-      await store.dispatch(createEntity({ id: 1 })).then(() => expect(store.getActions()).toEqual(expectedActions));
+      await store.dispatch(createEntity({ id: 456 })).then(() => expect(store.getActions()).toEqual(expectedActions));
     });
 
     it('dispatches ACTION_TYPES.UPDATE_SEQUENCE actions', async () => {
@@ -237,7 +253,20 @@ describe('Entities reducer tests', () => {
           payload: resolvedObject,
         },
       ];
-      await store.dispatch(updateEntity({ id: 1 })).then(() => expect(store.getActions()).toEqual(expectedActions));
+      await store.dispatch(updateEntity({ id: 456 })).then(() => expect(store.getActions()).toEqual(expectedActions));
+    });
+
+    it('dispatches ACTION_TYPES.PARTIAL_UPDATE_SEQUENCE actions', async () => {
+      const expectedActions = [
+        {
+          type: REQUEST(ACTION_TYPES.PARTIAL_UPDATE_SEQUENCE),
+        },
+        {
+          type: SUCCESS(ACTION_TYPES.PARTIAL_UPDATE_SEQUENCE),
+          payload: resolvedObject,
+        },
+      ];
+      await store.dispatch(partialUpdate({ id: 1 })).then(() => expect(store.getActions()).toEqual(expectedActions));
     });
 
     it('dispatches ACTION_TYPES.DELETE_SEQUENCE actions', async () => {

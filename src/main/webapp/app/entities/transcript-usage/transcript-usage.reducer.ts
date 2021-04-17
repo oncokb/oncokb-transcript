@@ -11,6 +11,7 @@ export const ACTION_TYPES = {
   FETCH_TRANSCRIPTUSAGE: 'transcriptUsage/FETCH_TRANSCRIPTUSAGE',
   CREATE_TRANSCRIPTUSAGE: 'transcriptUsage/CREATE_TRANSCRIPTUSAGE',
   UPDATE_TRANSCRIPTUSAGE: 'transcriptUsage/UPDATE_TRANSCRIPTUSAGE',
+  PARTIAL_UPDATE_TRANSCRIPTUSAGE: 'transcriptUsage/PARTIAL_UPDATE_TRANSCRIPTUSAGE',
   DELETE_TRANSCRIPTUSAGE: 'transcriptUsage/DELETE_TRANSCRIPTUSAGE',
   RESET: 'transcriptUsage/RESET',
 };
@@ -41,6 +42,7 @@ export default (state: TranscriptUsageState = initialState, action): TranscriptU
     case REQUEST(ACTION_TYPES.CREATE_TRANSCRIPTUSAGE):
     case REQUEST(ACTION_TYPES.UPDATE_TRANSCRIPTUSAGE):
     case REQUEST(ACTION_TYPES.DELETE_TRANSCRIPTUSAGE):
+    case REQUEST(ACTION_TYPES.PARTIAL_UPDATE_TRANSCRIPTUSAGE):
       return {
         ...state,
         errorMessage: null,
@@ -51,6 +53,7 @@ export default (state: TranscriptUsageState = initialState, action): TranscriptU
     case FAILURE(ACTION_TYPES.FETCH_TRANSCRIPTUSAGE):
     case FAILURE(ACTION_TYPES.CREATE_TRANSCRIPTUSAGE):
     case FAILURE(ACTION_TYPES.UPDATE_TRANSCRIPTUSAGE):
+    case FAILURE(ACTION_TYPES.PARTIAL_UPDATE_TRANSCRIPTUSAGE):
     case FAILURE(ACTION_TYPES.DELETE_TRANSCRIPTUSAGE):
       return {
         ...state,
@@ -73,6 +76,7 @@ export default (state: TranscriptUsageState = initialState, action): TranscriptU
       };
     case SUCCESS(ACTION_TYPES.CREATE_TRANSCRIPTUSAGE):
     case SUCCESS(ACTION_TYPES.UPDATE_TRANSCRIPTUSAGE):
+    case SUCCESS(ACTION_TYPES.PARTIAL_UPDATE_TRANSCRIPTUSAGE):
       return {
         ...state,
         updating: false,
@@ -124,7 +128,15 @@ export const createEntity: ICrudPutAction<ITranscriptUsage> = entity => async di
 export const updateEntity: ICrudPutAction<ITranscriptUsage> = entity => async dispatch => {
   const result = await dispatch({
     type: ACTION_TYPES.UPDATE_TRANSCRIPTUSAGE,
-    payload: axios.put(apiUrl, cleanEntity(entity)),
+    payload: axios.put(`${apiUrl}/${entity.id}`, cleanEntity(entity)),
+  });
+  return result;
+};
+
+export const partialUpdate: ICrudPutAction<ITranscriptUsage> = entity => async dispatch => {
+  const result = await dispatch({
+    type: ACTION_TYPES.PARTIAL_UPDATE_TRANSCRIPTUSAGE,
+    payload: axios.patch(`${apiUrl}/${entity.id}`, cleanEntity(entity)),
   });
   return result;
 };

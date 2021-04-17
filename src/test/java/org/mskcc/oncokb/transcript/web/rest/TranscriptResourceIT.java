@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,6 +50,12 @@ class TranscriptResourceIT {
 
     private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
     private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
+
+    private static final String ENTITY_API_URL = "/api/transcripts";
+    private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
+
+    private static Random random = new Random();
+    private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
 
     @Autowired
     private TranscriptRepository transcriptRepository;
@@ -107,9 +115,7 @@ class TranscriptResourceIT {
         int databaseSizeBeforeCreate = transcriptRepository.findAll().size();
         // Create the Transcript
         restTranscriptMockMvc
-            .perform(
-                post("/api/transcripts").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(transcript))
-            )
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(transcript)))
             .andExpect(status().isCreated());
 
         // Validate the Transcript in the database
@@ -135,9 +141,7 @@ class TranscriptResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restTranscriptMockMvc
-            .perform(
-                post("/api/transcripts").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(transcript))
-            )
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(transcript)))
             .andExpect(status().isBadRequest());
 
         // Validate the Transcript in the database
@@ -155,9 +159,7 @@ class TranscriptResourceIT {
         // Create the Transcript, which fails.
 
         restTranscriptMockMvc
-            .perform(
-                post("/api/transcripts").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(transcript))
-            )
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(transcript)))
             .andExpect(status().isBadRequest());
 
         List<Transcript> transcriptList = transcriptRepository.findAll();
@@ -174,9 +176,7 @@ class TranscriptResourceIT {
         // Create the Transcript, which fails.
 
         restTranscriptMockMvc
-            .perform(
-                post("/api/transcripts").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(transcript))
-            )
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(transcript)))
             .andExpect(status().isBadRequest());
 
         List<Transcript> transcriptList = transcriptRepository.findAll();
@@ -193,9 +193,7 @@ class TranscriptResourceIT {
         // Create the Transcript, which fails.
 
         restTranscriptMockMvc
-            .perform(
-                post("/api/transcripts").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(transcript))
-            )
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(transcript)))
             .andExpect(status().isBadRequest());
 
         List<Transcript> transcriptList = transcriptRepository.findAll();
@@ -210,7 +208,7 @@ class TranscriptResourceIT {
 
         // Get all the transcriptList
         restTranscriptMockMvc
-            .perform(get("/api/transcripts?sort=id,desc"))
+            .perform(get(ENTITY_API_URL + "?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(transcript.getId().intValue())))
@@ -231,7 +229,7 @@ class TranscriptResourceIT {
 
         // Get the transcript
         restTranscriptMockMvc
-            .perform(get("/api/transcripts/{id}", transcript.getId()))
+            .perform(get(ENTITY_API_URL_ID, transcript.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(transcript.getId().intValue()))
@@ -248,12 +246,12 @@ class TranscriptResourceIT {
     @Transactional
     void getNonExistingTranscript() throws Exception {
         // Get the transcript
-        restTranscriptMockMvc.perform(get("/api/transcripts/{id}", Long.MAX_VALUE)).andExpect(status().isNotFound());
+        restTranscriptMockMvc.perform(get(ENTITY_API_URL_ID, Long.MAX_VALUE)).andExpect(status().isNotFound());
     }
 
     @Test
     @Transactional
-    void updateTranscript() throws Exception {
+    void putNewTranscript() throws Exception {
         // Initialize the database
         transcriptRepository.saveAndFlush(transcript);
 
@@ -274,7 +272,7 @@ class TranscriptResourceIT {
 
         restTranscriptMockMvc
             .perform(
-                put("/api/transcripts")
+                put(ENTITY_API_URL_ID, updatedTranscript.getId())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(updatedTranscript))
             )
@@ -295,13 +293,54 @@ class TranscriptResourceIT {
 
     @Test
     @Transactional
-    void updateNonExistingTranscript() throws Exception {
+    void putNonExistingTranscript() throws Exception {
         int databaseSizeBeforeUpdate = transcriptRepository.findAll().size();
+        transcript.setId(count.incrementAndGet());
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restTranscriptMockMvc
-            .perform(put("/api/transcripts").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(transcript)))
+            .perform(
+                put(ENTITY_API_URL_ID, transcript.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(transcript))
+            )
             .andExpect(status().isBadRequest());
+
+        // Validate the Transcript in the database
+        List<Transcript> transcriptList = transcriptRepository.findAll();
+        assertThat(transcriptList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void putWithIdMismatchTranscript() throws Exception {
+        int databaseSizeBeforeUpdate = transcriptRepository.findAll().size();
+        transcript.setId(count.incrementAndGet());
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restTranscriptMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, count.incrementAndGet())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(transcript))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Transcript in the database
+        List<Transcript> transcriptList = transcriptRepository.findAll();
+        assertThat(transcriptList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void putWithMissingIdPathParamTranscript() throws Exception {
+        int databaseSizeBeforeUpdate = transcriptRepository.findAll().size();
+        transcript.setId(count.incrementAndGet());
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restTranscriptMockMvc
+            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(transcript)))
+            .andExpect(status().isMethodNotAllowed());
 
         // Validate the Transcript in the database
         List<Transcript> transcriptList = transcriptRepository.findAll();
@@ -329,7 +368,7 @@ class TranscriptResourceIT {
 
         restTranscriptMockMvc
             .perform(
-                patch("/api/transcripts")
+                patch(ENTITY_API_URL_ID, partialUpdatedTranscript.getId())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedTranscript))
             )
@@ -371,7 +410,7 @@ class TranscriptResourceIT {
 
         restTranscriptMockMvc
             .perform(
-                patch("/api/transcripts")
+                patch(ENTITY_API_URL_ID, partialUpdatedTranscript.getId())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedTranscript))
             )
@@ -392,17 +431,60 @@ class TranscriptResourceIT {
 
     @Test
     @Transactional
-    void partialUpdateTranscriptShouldThrown() throws Exception {
-        // Update the transcript without id should throw
-        Transcript partialUpdatedTranscript = new Transcript();
+    void patchNonExistingTranscript() throws Exception {
+        int databaseSizeBeforeUpdate = transcriptRepository.findAll().size();
+        transcript.setId(count.incrementAndGet());
 
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restTranscriptMockMvc
             .perform(
-                patch("/api/transcripts")
+                patch(ENTITY_API_URL_ID, transcript.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedTranscript))
+                    .content(TestUtil.convertObjectToJsonBytes(transcript))
             )
             .andExpect(status().isBadRequest());
+
+        // Validate the Transcript in the database
+        List<Transcript> transcriptList = transcriptRepository.findAll();
+        assertThat(transcriptList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithIdMismatchTranscript() throws Exception {
+        int databaseSizeBeforeUpdate = transcriptRepository.findAll().size();
+        transcript.setId(count.incrementAndGet());
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restTranscriptMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, count.incrementAndGet())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(transcript))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Transcript in the database
+        List<Transcript> transcriptList = transcriptRepository.findAll();
+        assertThat(transcriptList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithMissingIdPathParamTranscript() throws Exception {
+        int databaseSizeBeforeUpdate = transcriptRepository.findAll().size();
+        transcript.setId(count.incrementAndGet());
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restTranscriptMockMvc
+            .perform(
+                patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(transcript))
+            )
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the Transcript in the database
+        List<Transcript> transcriptList = transcriptRepository.findAll();
+        assertThat(transcriptList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test
@@ -415,7 +497,7 @@ class TranscriptResourceIT {
 
         // Delete the transcript
         restTranscriptMockMvc
-            .perform(delete("/api/transcripts/{id}", transcript.getId()).accept(MediaType.APPLICATION_JSON))
+            .perform(delete(ENTITY_API_URL_ID, transcript.getId()).accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

@@ -11,6 +11,7 @@ export const ACTION_TYPES = {
   FETCH_TRANSCRIPT: 'transcript/FETCH_TRANSCRIPT',
   CREATE_TRANSCRIPT: 'transcript/CREATE_TRANSCRIPT',
   UPDATE_TRANSCRIPT: 'transcript/UPDATE_TRANSCRIPT',
+  PARTIAL_UPDATE_TRANSCRIPT: 'transcript/PARTIAL_UPDATE_TRANSCRIPT',
   DELETE_TRANSCRIPT: 'transcript/DELETE_TRANSCRIPT',
   RESET: 'transcript/RESET',
 };
@@ -41,6 +42,7 @@ export default (state: TranscriptState = initialState, action): TranscriptState 
     case REQUEST(ACTION_TYPES.CREATE_TRANSCRIPT):
     case REQUEST(ACTION_TYPES.UPDATE_TRANSCRIPT):
     case REQUEST(ACTION_TYPES.DELETE_TRANSCRIPT):
+    case REQUEST(ACTION_TYPES.PARTIAL_UPDATE_TRANSCRIPT):
       return {
         ...state,
         errorMessage: null,
@@ -51,6 +53,7 @@ export default (state: TranscriptState = initialState, action): TranscriptState 
     case FAILURE(ACTION_TYPES.FETCH_TRANSCRIPT):
     case FAILURE(ACTION_TYPES.CREATE_TRANSCRIPT):
     case FAILURE(ACTION_TYPES.UPDATE_TRANSCRIPT):
+    case FAILURE(ACTION_TYPES.PARTIAL_UPDATE_TRANSCRIPT):
     case FAILURE(ACTION_TYPES.DELETE_TRANSCRIPT):
       return {
         ...state,
@@ -73,6 +76,7 @@ export default (state: TranscriptState = initialState, action): TranscriptState 
       };
     case SUCCESS(ACTION_TYPES.CREATE_TRANSCRIPT):
     case SUCCESS(ACTION_TYPES.UPDATE_TRANSCRIPT):
+    case SUCCESS(ACTION_TYPES.PARTIAL_UPDATE_TRANSCRIPT):
       return {
         ...state,
         updating: false,
@@ -124,7 +128,15 @@ export const createEntity: ICrudPutAction<ITranscript> = entity => async dispatc
 export const updateEntity: ICrudPutAction<ITranscript> = entity => async dispatch => {
   const result = await dispatch({
     type: ACTION_TYPES.UPDATE_TRANSCRIPT,
-    payload: axios.put(apiUrl, cleanEntity(entity)),
+    payload: axios.put(`${apiUrl}/${entity.id}`, cleanEntity(entity)),
+  });
+  return result;
+};
+
+export const partialUpdate: ICrudPutAction<ITranscript> = entity => async dispatch => {
+  const result = await dispatch({
+    type: ACTION_TYPES.PARTIAL_UPDATE_TRANSCRIPT,
+    payload: axios.patch(`${apiUrl}/${entity.id}`, cleanEntity(entity)),
   });
   return result;
 };

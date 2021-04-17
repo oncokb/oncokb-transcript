@@ -17,7 +17,6 @@ import { mapIdList } from 'app/shared/util/entity-utils';
 export interface ISequenceUpdateProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
 export const SequenceUpdate = (props: ISequenceUpdateProps) => {
-  const [transcriptId, setTranscriptId] = useState('0');
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
   const { sequenceEntity, transcripts, loading, updating } = props;
@@ -57,6 +56,7 @@ export const SequenceUpdate = (props: ISequenceUpdateProps) => {
       const entity = {
         ...sequenceEntity,
         ...values,
+        transcript: transcripts.find(it => it.id.toString() === values.transcriptId.toString()),
       };
 
       if (isNew) {
@@ -112,7 +112,7 @@ export const SequenceUpdate = (props: ISequenceUpdateProps) => {
               </AvGroup>
               <AvGroup>
                 <Label for="sequence-transcript">Transcript</Label>
-                <AvInput id="sequence-transcript" data-cy="transcript" type="select" className="form-control" name="transcript.id">
+                <AvInput id="sequence-transcript" data-cy="transcript" type="select" className="form-control" name="transcriptId">
                   <option value="" key="0" />
                   {transcripts
                     ? transcripts.map(otherEntity => (

@@ -5,7 +5,16 @@ import promiseMiddleware from 'redux-promise-middleware';
 import thunk from 'redux-thunk';
 import sinon from 'sinon';
 
-import reducer, { ACTION_TYPES, createEntity, deleteEntity, getEntities, getEntity, updateEntity, reset } from './transcript-usage.reducer';
+import reducer, {
+  ACTION_TYPES,
+  createEntity,
+  deleteEntity,
+  getEntities,
+  getEntity,
+  updateEntity,
+  partialUpdate,
+  reset,
+} from './transcript-usage.reducer';
 import { REQUEST, SUCCESS, FAILURE } from 'app/shared/reducers/action-type.util';
 import { ITranscriptUsage, defaultValue } from 'app/shared/model/transcript-usage.model';
 
@@ -66,6 +75,7 @@ describe('Entities reducer tests', () => {
         [
           REQUEST(ACTION_TYPES.CREATE_TRANSCRIPTUSAGE),
           REQUEST(ACTION_TYPES.UPDATE_TRANSCRIPTUSAGE),
+          REQUEST(ACTION_TYPES.PARTIAL_UPDATE_TRANSCRIPTUSAGE),
           REQUEST(ACTION_TYPES.DELETE_TRANSCRIPTUSAGE),
         ],
         {},
@@ -101,6 +111,7 @@ describe('Entities reducer tests', () => {
           FAILURE(ACTION_TYPES.FETCH_TRANSCRIPTUSAGE),
           FAILURE(ACTION_TYPES.CREATE_TRANSCRIPTUSAGE),
           FAILURE(ACTION_TYPES.UPDATE_TRANSCRIPTUSAGE),
+          FAILURE(ACTION_TYPES.PARTIAL_UPDATE_TRANSCRIPTUSAGE),
           FAILURE(ACTION_TYPES.DELETE_TRANSCRIPTUSAGE),
         ],
         'error message',
@@ -182,6 +193,7 @@ describe('Entities reducer tests', () => {
       axios.get = sinon.stub().returns(Promise.resolve(resolvedObject));
       axios.post = sinon.stub().returns(Promise.resolve(resolvedObject));
       axios.put = sinon.stub().returns(Promise.resolve(resolvedObject));
+      axios.patch = sinon.stub().returns(Promise.resolve(resolvedObject));
       axios.delete = sinon.stub().returns(Promise.resolve(resolvedObject));
     });
 
@@ -228,7 +240,7 @@ describe('Entities reducer tests', () => {
           payload: resolvedObject,
         },
       ];
-      await store.dispatch(createEntity({ id: 1 })).then(() => expect(store.getActions()).toEqual(expectedActions));
+      await store.dispatch(createEntity({ id: 456 })).then(() => expect(store.getActions()).toEqual(expectedActions));
     });
 
     it('dispatches ACTION_TYPES.UPDATE_TRANSCRIPTUSAGE actions', async () => {
@@ -241,7 +253,20 @@ describe('Entities reducer tests', () => {
           payload: resolvedObject,
         },
       ];
-      await store.dispatch(updateEntity({ id: 1 })).then(() => expect(store.getActions()).toEqual(expectedActions));
+      await store.dispatch(updateEntity({ id: 456 })).then(() => expect(store.getActions()).toEqual(expectedActions));
+    });
+
+    it('dispatches ACTION_TYPES.PARTIAL_UPDATE_TRANSCRIPTUSAGE actions', async () => {
+      const expectedActions = [
+        {
+          type: REQUEST(ACTION_TYPES.PARTIAL_UPDATE_TRANSCRIPTUSAGE),
+        },
+        {
+          type: SUCCESS(ACTION_TYPES.PARTIAL_UPDATE_TRANSCRIPTUSAGE),
+          payload: resolvedObject,
+        },
+      ];
+      await store.dispatch(partialUpdate({ id: 1 })).then(() => expect(store.getActions()).toEqual(expectedActions));
     });
 
     it('dispatches ACTION_TYPES.DELETE_TRANSCRIPTUSAGE actions', async () => {

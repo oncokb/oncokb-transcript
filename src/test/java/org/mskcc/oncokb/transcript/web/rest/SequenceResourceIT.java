@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +36,12 @@ class SequenceResourceIT {
 
     private static final String DEFAULT_SEQUENCE = "AAAAAAAAAA";
     private static final String UPDATED_SEQUENCE = "BBBBBBBBBB";
+
+    private static final String ENTITY_API_URL = "/api/sequences";
+    private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
+
+    private static Random random = new Random();
+    private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
 
     @Autowired
     private SequenceRepository sequenceRepository;
@@ -79,7 +87,7 @@ class SequenceResourceIT {
         int databaseSizeBeforeCreate = sequenceRepository.findAll().size();
         // Create the Sequence
         restSequenceMockMvc
-            .perform(post("/api/sequences").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(sequence)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(sequence)))
             .andExpect(status().isCreated());
 
         // Validate the Sequence in the database
@@ -100,7 +108,7 @@ class SequenceResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restSequenceMockMvc
-            .perform(post("/api/sequences").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(sequence)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(sequence)))
             .andExpect(status().isBadRequest());
 
         // Validate the Sequence in the database
@@ -116,7 +124,7 @@ class SequenceResourceIT {
 
         // Get all the sequenceList
         restSequenceMockMvc
-            .perform(get("/api/sequences?sort=id,desc"))
+            .perform(get(ENTITY_API_URL + "?sort=id,desc"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(sequence.getId().intValue())))
@@ -132,7 +140,7 @@ class SequenceResourceIT {
 
         // Get the sequence
         restSequenceMockMvc
-            .perform(get("/api/sequences/{id}", sequence.getId()))
+            .perform(get(ENTITY_API_URL_ID, sequence.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(sequence.getId().intValue()))
@@ -144,12 +152,12 @@ class SequenceResourceIT {
     @Transactional
     void getNonExistingSequence() throws Exception {
         // Get the sequence
-        restSequenceMockMvc.perform(get("/api/sequences/{id}", Long.MAX_VALUE)).andExpect(status().isNotFound());
+        restSequenceMockMvc.perform(get(ENTITY_API_URL_ID, Long.MAX_VALUE)).andExpect(status().isNotFound());
     }
 
     @Test
     @Transactional
-    void updateSequence() throws Exception {
+    void putNewSequence() throws Exception {
         // Initialize the database
         sequenceRepository.saveAndFlush(sequence);
 
@@ -163,7 +171,9 @@ class SequenceResourceIT {
 
         restSequenceMockMvc
             .perform(
-                put("/api/sequences").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(updatedSequence))
+                put(ENTITY_API_URL_ID, updatedSequence.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(updatedSequence))
             )
             .andExpect(status().isOk());
 
@@ -177,13 +187,54 @@ class SequenceResourceIT {
 
     @Test
     @Transactional
-    void updateNonExistingSequence() throws Exception {
+    void putNonExistingSequence() throws Exception {
         int databaseSizeBeforeUpdate = sequenceRepository.findAll().size();
+        sequence.setId(count.incrementAndGet());
 
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restSequenceMockMvc
-            .perform(put("/api/sequences").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(sequence)))
+            .perform(
+                put(ENTITY_API_URL_ID, sequence.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(sequence))
+            )
             .andExpect(status().isBadRequest());
+
+        // Validate the Sequence in the database
+        List<Sequence> sequenceList = sequenceRepository.findAll();
+        assertThat(sequenceList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void putWithIdMismatchSequence() throws Exception {
+        int databaseSizeBeforeUpdate = sequenceRepository.findAll().size();
+        sequence.setId(count.incrementAndGet());
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restSequenceMockMvc
+            .perform(
+                put(ENTITY_API_URL_ID, count.incrementAndGet())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(sequence))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Sequence in the database
+        List<Sequence> sequenceList = sequenceRepository.findAll();
+        assertThat(sequenceList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void putWithMissingIdPathParamSequence() throws Exception {
+        int databaseSizeBeforeUpdate = sequenceRepository.findAll().size();
+        sequence.setId(count.incrementAndGet());
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restSequenceMockMvc
+            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(sequence)))
+            .andExpect(status().isMethodNotAllowed());
 
         // Validate the Sequence in the database
         List<Sequence> sequenceList = sequenceRepository.findAll();
@@ -206,7 +257,7 @@ class SequenceResourceIT {
 
         restSequenceMockMvc
             .perform(
-                patch("/api/sequences")
+                patch(ENTITY_API_URL_ID, partialUpdatedSequence.getId())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedSequence))
             )
@@ -236,7 +287,7 @@ class SequenceResourceIT {
 
         restSequenceMockMvc
             .perform(
-                patch("/api/sequences")
+                patch(ENTITY_API_URL_ID, partialUpdatedSequence.getId())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedSequence))
             )
@@ -252,17 +303,58 @@ class SequenceResourceIT {
 
     @Test
     @Transactional
-    void partialUpdateSequenceShouldThrown() throws Exception {
-        // Update the sequence without id should throw
-        Sequence partialUpdatedSequence = new Sequence();
+    void patchNonExistingSequence() throws Exception {
+        int databaseSizeBeforeUpdate = sequenceRepository.findAll().size();
+        sequence.setId(count.incrementAndGet());
 
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restSequenceMockMvc
             .perform(
-                patch("/api/sequences")
+                patch(ENTITY_API_URL_ID, sequence.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedSequence))
+                    .content(TestUtil.convertObjectToJsonBytes(sequence))
             )
             .andExpect(status().isBadRequest());
+
+        // Validate the Sequence in the database
+        List<Sequence> sequenceList = sequenceRepository.findAll();
+        assertThat(sequenceList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithIdMismatchSequence() throws Exception {
+        int databaseSizeBeforeUpdate = sequenceRepository.findAll().size();
+        sequence.setId(count.incrementAndGet());
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restSequenceMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, count.incrementAndGet())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(sequence))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Sequence in the database
+        List<Sequence> sequenceList = sequenceRepository.findAll();
+        assertThat(sequenceList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithMissingIdPathParamSequence() throws Exception {
+        int databaseSizeBeforeUpdate = sequenceRepository.findAll().size();
+        sequence.setId(count.incrementAndGet());
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restSequenceMockMvc
+            .perform(patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(sequence)))
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the Sequence in the database
+        List<Sequence> sequenceList = sequenceRepository.findAll();
+        assertThat(sequenceList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test
@@ -275,7 +367,7 @@ class SequenceResourceIT {
 
         // Delete the sequence
         restSequenceMockMvc
-            .perform(delete("/api/sequences/{id}", sequence.getId()).accept(MediaType.APPLICATION_JSON))
+            .perform(delete(ENTITY_API_URL_ID, sequence.getId()).accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
