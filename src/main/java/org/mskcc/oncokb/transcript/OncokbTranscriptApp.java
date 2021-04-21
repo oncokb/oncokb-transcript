@@ -64,10 +64,13 @@ public class OncokbTranscriptApp {
         }
     }
 
-    //    @PostConstruct
-    //    public void importOncoKbSequence() throws ApiException {
-    //        importer.generalImport();
-    //    }
+    @PostConstruct
+    public void importOncoKbSequence() throws ApiException {
+        Collection<String> activeProfiles = Arrays.asList(env.getDefaultProfiles());
+        if (activeProfiles.contains("importer")) {
+            importer.generalImport();
+        }
+    }
 
     /**
      * Main method, used to run the application.

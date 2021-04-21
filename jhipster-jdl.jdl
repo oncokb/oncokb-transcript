@@ -29,6 +29,30 @@ enum UsageSource {
  	ONCOKB
 }
 
+entity Drug {
+    name TextBlob
+    code String
+    semanticType String
+}
+
+entity DrugSynonym {
+    name TextBlob
+}
+
+entity Info {
+    type InfoType unique required
+    value String
+    lastUpdated Instant
+}
+
+enum InfoType {
+    NCIT_VERSION
+}
+
+relationship OneToMany {
+	Drug to DrugSynonym
+}
+
 relationship ManyToOne {
 	TranscriptUsage to Transcript
     Sequence to Transcript
