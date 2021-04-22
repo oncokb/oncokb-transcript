@@ -114,18 +114,21 @@ public class GzipUtils {
     public static void getZipContent(InputStream is, OutputStream os) throws IOException {
         ZipInputStream zin = new ZipInputStream(is);
         ZipEntry ze = zin.getNextEntry();
-        byte[] bytes = new byte[(int) ze.getSize()];
-        os.write(bytes);
+        writeToOutputStream(zin, os, (int) ze.getSize());
     }
 
     public static void getGZipContent(InputStream is, OutputStream os) throws IOException {
         InputStream fis = new GZIPInputStream(is);
+        writeToOutputStream(fis, os, BUFFER);
+    }
+
+    private static void writeToOutputStream(InputStream is, OutputStream os, int bufferSize) throws IOException {
+        byte[] buffer = new byte[bufferSize];
         int len = 0;
-        byte[] buffer = new byte[BUFFER];
-        while ((len = fis.read(buffer)) != -1) {
+        while ((len = is.read(buffer)) != -1) {
             os.write(buffer, 0, len);
         }
         os.flush();
-        fis.close();
+        is.close();
     }
 }

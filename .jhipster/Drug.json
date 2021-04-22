@@ -12,7 +12,8 @@
     },
     {
       "fieldName": "semanticType",
-      "fieldType": "String"
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
     }
   ],
   "relationships": [

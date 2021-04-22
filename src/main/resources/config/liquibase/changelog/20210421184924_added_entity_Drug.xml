@@ -20,7 +20,7 @@
             <column name="code" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="semantic_type" type="varchar(255)">
+            <column name="semantic_type" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->

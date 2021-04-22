@@ -11,6 +11,7 @@ import java.net.URL;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.transcript.domain.Drug;
 import org.mskcc.oncokb.transcript.domain.DrugSynonym;
 import org.mskcc.oncokb.transcript.domain.Info;
@@ -33,7 +34,7 @@ public class NcitService {
     private final String NCIT_README = NCIT_DOWNLOAD_URL + "ReadMe.txt";
     private final String NCIT_DATA_FILE = NCIT_DOWNLOAD_URL + "Thesaurus.FLAT.zip";
 
-    private final String SYNONYMS_SEPARATOR_REGEX = "\\|\\|";
+    private final String SYNONYMS_SEPARATOR_REGEX = "\\|";
 
     @Autowired
     private DrugRepository drugRepository;
@@ -83,23 +84,33 @@ public class NcitService {
             if (line.startsWith("Code")) continue;
 
             String[] parts = line.split("\t");
-            if (parts.length >= 2) {
+            if (parts.length >= 6) {
                 String code = parts[0];
-                String name = parts[1];
-                String synonyms = parts.length >= 3 ? parts[2] : null;
-                String semanticType = parts.length >= 5 ? parts[4] : null;
                 Optional<Drug> matchedDrugOptional = drugRepository.findOneByCode(code);
                 if (matchedDrugOptional.isPresent()) {
                     continue;
                 }
+
+                List<String> synonyms = Arrays
+                    .asList((parts[3] == null ? "" : parts[3]).split(SYNONYMS_SEPARATOR_REGEX))
+                    .stream()
+                    .map(synonym -> synonym.trim())
+                    .distinct()
+                    .collect(Collectors.toList());
+                String name = parts[5];
+                if (StringUtils.isEmpty(name) && synonyms.size() > 0) {
+                    name = synonyms.get(0);
+                }
+                String semanticType = parts.length >= 8 ? parts[7] : null;
+
                 Drug drug = new Drug();
                 drug.setCode(code);
                 drug.setName(name);
                 drug.setSemanticType(semanticType);
                 if (synonyms != null) {
-                    Set<DrugSynonym> synonymSet = Arrays
-                        .stream(synonyms.split(SYNONYMS_SEPARATOR_REGEX))
-                        .distinct()
+                    synonyms.remove(name);
+                    Set<DrugSynonym> synonymSet = synonyms
+                        .stream()
                         .map(
                             synonym -> {
                                 DrugSynonym drugSynonym = new DrugSynonym();

@@ -19,7 +19,7 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
 
   const { drugEntity, loading, updating } = props;
 
-  const { name } = drugEntity;
+  const { name, semanticType } = drugEntity;
 
   const handleClose = () => {
     props.history.push('/drug');
@@ -99,7 +99,7 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
                 <Label id="semanticTypeLabel" for="drug-semanticType">
                   Semantic Type
                 </Label>
-                <AvField id="drug-semanticType" data-cy="semanticType" type="text" name="semanticType" />
+                <AvInput id="drug-semanticType" data-cy="semanticType" type="textarea" name="semanticType" />
               </AvGroup>
               <Button tag={Link} id="cancel-save" to="/drug" replace color="info">
                 <FontAwesomeIcon icon="arrow-left" />

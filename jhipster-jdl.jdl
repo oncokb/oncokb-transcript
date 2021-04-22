@@ -32,7 +32,7 @@ enum UsageSource {
 entity Drug {
     name TextBlob
     code String
-    semanticType String
+    semanticType TextBlob
 }
 
 entity DrugSynonym {

@@ -26,6 +26,7 @@ public class Drug implements Serializable {
     @Column(name = "code")
     private String code;
 
+    @Lob
     @Column(name = "semantic_type")
     private String semanticType;
 
