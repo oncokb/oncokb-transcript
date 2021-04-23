@@ -17,7 +17,7 @@ public interface DrugRepository extends JpaRepository<Drug, Long> {
     Optional<Drug> findOneByName(String name);
 
     @Query(
-        "select d from Drug d join t.drugSynonyms ds where lower(d.name) like lower(concat('%', ?1,'%')) or lower(d.code) like lower(concat('%', ?1,'%')) or lower(ds.name) like lower(concat('%', ?1,'%'))"
+        "select d from Drug d join d.drugSynonyms ds where lower(d.name) like lower(concat('%', ?1,'%')) or lower(d.code) like lower(concat('%', ?1,'%')) or lower(ds.name) like lower(concat('%', ?1,'%'))"
     )
     List<Drug> searchDrug(String query);
 }
