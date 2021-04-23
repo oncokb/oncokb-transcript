@@ -30,7 +30,7 @@ public class Drug implements Serializable {
     @Column(name = "semantic_type")
     private String semanticType;
 
-    @OneToMany(mappedBy = "drug")
+    @OneToMany(mappedBy = "drug", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
     private Set<DrugSynonym> drugSynonyms = new HashSet<>();
 

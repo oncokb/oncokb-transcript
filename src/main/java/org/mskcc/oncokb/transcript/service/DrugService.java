@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.transcript.service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.transcript.domain.Drug;
@@ -92,7 +93,9 @@ public class DrugService {
     }
 
     public List<Drug> searchDrug(String query) {
-        return drugRepository.searchDrug(query);
+        List<Drug> result = drugRepository.searchDrug(query);
+        result.sort(new DrugComp(query));
+        return result;
     }
 
     /**
@@ -103,5 +106,48 @@ public class DrugService {
     public void delete(Long id) {
         log.debug("Request to delete Drug : {}", id);
         drugRepository.deleteById(id);
+    }
+}
+
+class DrugComp implements Comparator<Drug> {
+
+    private String keyword;
+
+    public DrugComp(String keyword) {
+        this.keyword = keyword.toLowerCase();
+    }
+
+    @Override
+    public int compare(Drug e1, Drug e2) {
+        if (e1.getName().equalsIgnoreCase(keyword)) {
+            return -1;
+        }
+        if (e2.getName().equalsIgnoreCase(keyword)) {
+            return 1;
+        }
+        if (e1.getName().equalsIgnoreCase(keyword)) {
+            return -1;
+        }
+        if (e2.getName().equalsIgnoreCase(keyword)) {
+            return 1;
+        }
+        Integer index1 = e1.getName().indexOf(this.keyword);
+        Integer index2 = e2.getName().indexOf(this.keyword);
+        if (index1.equals(index2)) {
+            index1 = e1.getCode().indexOf(this.keyword);
+            index2 = e2.getCode().indexOf(this.keyword);
+            if (index1.equals(index2)) {
+                // In this moment, these are the matches from the synonyms. The order does not matter, so alphabetically sort base on drug name
+                return e1.getName().compareTo(e2.getName());
+            } else {
+                if (index1.equals(-1)) return 1;
+                if (index2.equals(-1)) return -1;
+                return index1 - index2;
+            }
+        } else {
+            if (index1.equals(-1)) return 1;
+            if (index2.equals(-1)) return -1;
+            return index1 - index2;
+        }
     }
 }
