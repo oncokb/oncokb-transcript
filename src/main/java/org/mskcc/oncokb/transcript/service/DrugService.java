@@ -87,6 +87,14 @@ public class DrugService {
         return drugRepository.findById(id);
     }
 
+    public Optional<Drug> findByCode(String code) {
+        return drugRepository.findOneByCode(code);
+    }
+
+    public List<Drug> searchDrug(String query) {
+        return drugRepository.searchDrug(query);
+    }
+
     /**
      * Delete the drug by id.
      *
