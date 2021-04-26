@@ -87,9 +87,6 @@ public class NcitService {
             if (parts.length >= 6) {
                 String code = parts[0];
                 Optional<Drug> matchedDrugOptional = drugRepository.findOneByCode(code);
-                if (matchedDrugOptional.isPresent()) {
-                    continue;
-                }
 
                 List<String> synonyms = Arrays
                     .asList((parts[3] == null ? "" : parts[3]).split(SYNONYMS_SEPARATOR_REGEX))
@@ -103,27 +100,51 @@ public class NcitService {
                 }
                 String semanticType = parts.length >= 8 ? parts[7] : null;
 
-                Drug drug = new Drug();
-                drug.setCode(code);
-                drug.setName(name);
-                drug.setSemanticType(semanticType);
-                if (synonyms != null) {
-                    synonyms.remove(name);
-                    Set<DrugSynonym> synonymSet = synonyms
+                if (matchedDrugOptional.isPresent()) {
+                    Drug drug = matchedDrugOptional.get();
+
+                    Set<String> existSynonyms = drug.getSynonyms().stream().map(synonym -> synonym.getName()).collect(Collectors.toSet());
+                    existSynonyms.add(drug.getName());
+                    synonyms
                         .stream()
-                        .map(
+                        .forEach(
                             synonym -> {
-                                DrugSynonym drugSynonym = new DrugSynonym();
-                                drugSynonym.setName(synonym.trim());
-                                drugSynonym.setDrug(drug);
-                                return drugSynonym;
+                                if (!existSynonyms.contains(synonym)) {
+                                    DrugSynonym drugSynonym = new DrugSynonym();
+                                    drugSynonym.setDrug(drug);
+                                    drugSynonym.setName(synonym);
+                                    drugSynonymRepository.save(drugSynonym);
+                                }
                             }
-                        )
-                        .collect(Collectors.toSet());
-                    drug.setSynonyms(synonymSet);
+                        );
+
+                    if (!Objects.equals(drug.getSemanticType(), semanticType)) {
+                        drug.setSemanticType(semanticType);
+                        drugRepository.save(drug);
+                    }
+                } else {
+                    Drug drug = new Drug();
+                    drug.setCode(code);
+                    drug.setName(name);
+                    drug.setSemanticType(semanticType);
+                    if (synonyms != null) {
+                        synonyms.remove(name);
+                        Set<DrugSynonym> synonymSet = synonyms
+                            .stream()
+                            .map(
+                                synonym -> {
+                                    DrugSynonym drugSynonym = new DrugSynonym();
+                                    drugSynonym.setName(synonym.trim());
+                                    drugSynonym.setDrug(drug);
+                                    return drugSynonym;
+                                }
+                            )
+                            .collect(Collectors.toSet());
+                        drug.setSynonyms(synonymSet);
+                    }
+                    drugRepository.save(drug);
+                    drugSynonymRepository.saveAll(drug.getSynonyms());
                 }
-                drugRepository.save(drug);
-                drugSynonymRepository.saveAll(drug.getSynonyms());
             }
         }
     }
