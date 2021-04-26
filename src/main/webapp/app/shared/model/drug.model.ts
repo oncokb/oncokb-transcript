@@ -5,7 +5,7 @@ export interface IDrug {
   name?: string | null;
   code?: string | null;
   semanticType?: string | null;
-  drugSynonyms?: IDrugSynonym[] | null;
+  synonyms?: IDrugSynonym[] | null;
 }
 
 export const defaultValue: Readonly<IDrug> = {};

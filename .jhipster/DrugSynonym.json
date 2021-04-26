@@ -11,7 +11,7 @@
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "drug",
-      "otherEntityRelationshipName": "drugSynonym",
+      "otherEntityRelationshipName": "synonyms",
       "relationshipName": "drug"
     }
   ],

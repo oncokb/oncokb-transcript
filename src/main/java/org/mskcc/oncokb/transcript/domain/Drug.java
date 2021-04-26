@@ -32,7 +32,7 @@ public class Drug implements Serializable {
 
     @OneToMany(mappedBy = "drug", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
-    private Set<DrugSynonym> drugSynonyms = new HashSet<>();
+    private Set<DrugSynonym> synonyms = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
@@ -87,35 +87,35 @@ public class Drug implements Serializable {
         this.semanticType = semanticType;
     }
 
-    public Set<DrugSynonym> getDrugSynonyms() {
-        return this.drugSynonyms;
+    public Set<DrugSynonym> getSynonyms() {
+        return this.synonyms;
     }
 
-    public Drug drugSynonyms(Set<DrugSynonym> drugSynonyms) {
-        this.setDrugSynonyms(drugSynonyms);
+    public Drug synonyms(Set<DrugSynonym> drugSynonyms) {
+        this.setSynonyms(drugSynonyms);
         return this;
     }
 
-    public Drug addDrugSynonym(DrugSynonym drugSynonym) {
-        this.drugSynonyms.add(drugSynonym);
+    public Drug addSynonyms(DrugSynonym drugSynonym) {
+        this.synonyms.add(drugSynonym);
         drugSynonym.setDrug(this);
         return this;
     }
 
-    public Drug removeDrugSynonym(DrugSynonym drugSynonym) {
-        this.drugSynonyms.remove(drugSynonym);
+    public Drug removeSynonyms(DrugSynonym drugSynonym) {
+        this.synonyms.remove(drugSynonym);
         drugSynonym.setDrug(null);
         return this;
     }
 
-    public void setDrugSynonyms(Set<DrugSynonym> drugSynonyms) {
-        if (this.drugSynonyms != null) {
-            this.drugSynonyms.forEach(i -> i.setDrug(null));
+    public void setSynonyms(Set<DrugSynonym> drugSynonyms) {
+        if (this.synonyms != null) {
+            this.synonyms.forEach(i -> i.setDrug(null));
         }
         if (drugSynonyms != null) {
             drugSynonyms.forEach(i -> i.setDrug(this));
         }
-        this.drugSynonyms = drugSynonyms;
+        this.synonyms = drugSynonyms;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

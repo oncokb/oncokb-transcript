@@ -50,7 +50,7 @@ enum InfoType {
 }
 
 relationship OneToMany {
-	Drug to DrugSynonym
+	Drug{synonyms} to DrugSynonym
 }
 
 relationship ManyToOne {

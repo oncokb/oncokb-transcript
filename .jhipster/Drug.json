@@ -21,7 +21,7 @@
       "relationshipType": "one-to-many",
       "otherEntityName": "drugSynonym",
       "otherEntityRelationshipName": "drug",
-      "relationshipName": "drugSynonym"
+      "relationshipName": "synonyms"
     }
   ],
   "entityTableName": "drug",

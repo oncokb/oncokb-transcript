@@ -120,10 +120,10 @@ public class NcitService {
                             }
                         )
                         .collect(Collectors.toSet());
-                    drug.setDrugSynonyms(synonymSet);
+                    drug.setSynonyms(synonymSet);
                 }
                 drugRepository.save(drug);
-                drugSynonymRepository.saveAll(drug.getDrugSynonyms());
+                drugSynonymRepository.saveAll(drug.getSynonyms());
             }
         }
     }
