@@ -1,8 +1,10 @@
 package org.mskcc.oncokb.transcript.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.transcript.domain.Info;
+import org.mskcc.oncokb.transcript.domain.enumeration.InfoType;
 import org.mskcc.oncokb.transcript.repository.InfoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,5 +97,20 @@ public class InfoService {
     public void delete(Long id) {
         log.debug("Request to delete Info : {}", id);
         infoRepository.deleteById(id);
+    }
+
+    public void updateInfo(InfoType infoType, String newValue, Instant newLastUpdated) {
+        Optional<Info> infoRecord = this.infoRepository.findOneByType(infoType);
+        if (infoRecord.isPresent()) {
+            infoRecord.get().setValue(newValue);
+            infoRecord.get().setLastUpdated(newLastUpdated);
+            this.infoRepository.save(infoRecord.get());
+        } else {
+            Info info = new Info();
+            info.setType(infoType);
+            info.setValue(newValue);
+            info.setLastUpdated(newLastUpdated);
+            this.infoRepository.save(info);
+        }
     }
 }

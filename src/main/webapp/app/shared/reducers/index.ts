@@ -29,6 +29,14 @@ import drugSynonym, {
 import info, {
   InfoState
 } from 'app/entities/info/info.reducer';
+// prettier-ignore
+import gene, {
+  GeneState
+} from 'app/entities/gene/gene.reducer';
+// prettier-ignore
+import geneAlias, {
+  GeneAliasState
+} from 'app/entities/gene-alias/gene-alias.reducer';
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
 export interface IRootState {
@@ -41,6 +49,8 @@ export interface IRootState {
   readonly drug: DrugState;
   readonly drugSynonym: DrugSynonymState;
   readonly info: InfoState;
+  readonly gene: GeneState;
+  readonly geneAlias: GeneAliasState;
   /* jhipster-needle-add-reducer-type - JHipster will add reducer type here */
   readonly loadingBar: any;
 }
@@ -55,6 +65,8 @@ const rootReducer = combineReducers<IRootState>({
   drug,
   drugSynonym,
   info,
+  gene,
+  geneAlias,
   /* jhipster-needle-add-reducer-combine - JHipster will add reducer here */
   loadingBar,
 });

@@ -43,7 +43,7 @@ public class NcitService {
     private DrugSynonymRepository drugSynonymRepository;
 
     @Autowired
-    private InfoRepository infoRepository;
+    private InfoService infoService;
 
     public String updateNcitDrugs() throws IOException, ApiException {
         String ncitVersion = getNcitLatestVersion();
@@ -51,7 +51,7 @@ public class NcitService {
             throw new ApiException("The NCIT README file has no content. Link to the README: " + NCIT_README);
         } else {
             saveNcitData();
-            this.updateNcitVersion(ncitVersion);
+            this.infoService.updateInfo(InfoType.NCIT_VERSION, ncitVersion, Instant.now());
             return ncitVersion;
         }
     }
@@ -146,21 +146,6 @@ public class NcitService {
                     drugSynonymRepository.saveAll(drug.getSynonyms());
                 }
             }
-        }
-    }
-
-    private void updateNcitVersion(String ncitVersion) {
-        Optional<Info> infoRecord = infoRepository.findOneByType(InfoType.NCIT_VERSION);
-        if (infoRecord.isPresent()) {
-            infoRecord.get().setValue(ncitVersion);
-            infoRecord.get().setLastUpdated(Instant.now());
-            infoRepository.save(infoRecord.get());
-        } else {
-            Info info = new Info();
-            info.setType(InfoType.NCIT_VERSION);
-            info.setValue(ncitVersion);
-            info.setLastUpdated(Instant.now());
-            infoRepository.save(info);
         }
     }
 }

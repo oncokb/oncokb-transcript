@@ -7,20 +7,20 @@ import { translate } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootState } from 'app/shared/reducers';
 
-import { getEntity, updateEntity, createEntity, reset } from './info.reducer';
-import { IInfo } from 'app/shared/model/info.model';
+import { getEntity, updateEntity, createEntity, reset } from './gene.reducer';
+import { IGene } from 'app/shared/model/gene.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
 
-export interface IInfoUpdateProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
+export interface IGeneUpdateProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
-export const InfoUpdate = (props: IInfoUpdateProps) => {
+export const GeneUpdate = (props: IGeneUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
-  const { infoEntity, loading, updating } = props;
+  const { geneEntity, loading, updating } = props;
 
   const handleClose = () => {
-    props.history.push('/info');
+    props.history.push('/gene');
   };
 
   useEffect(() => {
@@ -38,11 +38,9 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
   }, [props.updateSuccess]);
 
   const saveEntity = (event, errors, values) => {
-    values.lastUpdated = convertDateTimeToServer(values.lastUpdated);
-
     if (errors.length === 0) {
       const entity = {
-        ...infoEntity,
+        ...geneEntity,
         ...values,
       };
 
@@ -58,8 +56,8 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.info.home.createOrEditLabel" data-cy="InfoCreateUpdateHeading">
-            Create or edit a Info
+          <h2 id="oncokbTranscriptApp.gene.home.createOrEditLabel" data-cy="GeneCreateUpdateHeading">
+            Create or edit a Gene
           </h2>
         </Col>
       </Row>
@@ -68,50 +66,26 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
           {loading ? (
             <p>Loading...</p>
           ) : (
-            <AvForm model={isNew ? {} : infoEntity} onSubmit={saveEntity}>
+            <AvForm model={isNew ? {} : geneEntity} onSubmit={saveEntity}>
               {!isNew ? (
                 <AvGroup>
-                  <Label for="info-id">ID</Label>
-                  <AvInput id="info-id" type="text" className="form-control" name="id" required readOnly />
+                  <Label for="gene-id">ID</Label>
+                  <AvInput id="gene-id" type="text" className="form-control" name="id" required readOnly />
                 </AvGroup>
               ) : null}
               <AvGroup>
-                <Label id="typeLabel" for="info-type">
-                  Type
+                <Label id="entrezGeneIdLabel" for="gene-entrezGeneId">
+                  Entrez Gene Id
                 </Label>
-                <AvInput
-                  id="info-type"
-                  data-cy="type"
-                  type="select"
-                  className="form-control"
-                  name="type"
-                  value={(!isNew && infoEntity.type) || 'NCIT_VERSION'}
-                >
-                  <option value="NCIT_VERSION">NCIT_VERSION</option>
-                  <option value="GENE_LAST_UPDATED">GENE_LAST_UPDATED</option>
-                </AvInput>
+                <AvField id="gene-entrezGeneId" data-cy="entrezGeneId" type="string" className="form-control" name="entrezGeneId" />
               </AvGroup>
               <AvGroup>
-                <Label id="valueLabel" for="info-value">
-                  Value
+                <Label id="hugoSymbolLabel" for="gene-hugoSymbol">
+                  Hugo Symbol
                 </Label>
-                <AvField id="info-value" data-cy="value" type="text" name="value" />
+                <AvField id="gene-hugoSymbol" data-cy="hugoSymbol" type="text" name="hugoSymbol" />
               </AvGroup>
-              <AvGroup>
-                <Label id="lastUpdatedLabel" for="info-lastUpdated">
-                  Last Updated
-                </Label>
-                <AvInput
-                  id="info-lastUpdated"
-                  data-cy="lastUpdated"
-                  type="datetime-local"
-                  className="form-control"
-                  name="lastUpdated"
-                  placeholder={'YYYY-MM-DD HH:mm'}
-                  value={isNew ? displayDefaultDateTime() : convertDateTimeFromServer(props.infoEntity.lastUpdated)}
-                />
-              </AvGroup>
-              <Button tag={Link} id="cancel-save" to="/info" replace color="info">
+              <Button tag={Link} id="cancel-save" to="/gene" replace color="info">
                 <FontAwesomeIcon icon="arrow-left" />
                 &nbsp;
                 <span className="d-none d-md-inline">Back</span>
@@ -130,10 +104,10 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
 };
 
 const mapStateToProps = (storeState: IRootState) => ({
-  infoEntity: storeState.info.entity,
-  loading: storeState.info.loading,
-  updating: storeState.info.updating,
-  updateSuccess: storeState.info.updateSuccess,
+  geneEntity: storeState.gene.entity,
+  loading: storeState.gene.loading,
+  updating: storeState.gene.updating,
+  updateSuccess: storeState.gene.updateSuccess,
 });
 
 const mapDispatchToProps = {
@@ -146,4 +120,4 @@ const mapDispatchToProps = {
 type StateProps = ReturnType<typeof mapStateToProps>;
 type DispatchProps = typeof mapDispatchToProps;
 
-export default connect(mapStateToProps, mapDispatchToProps)(InfoUpdate);
+export default connect(mapStateToProps, mapDispatchToProps)(GeneUpdate);

@@ -10,6 +10,8 @@ import TranscriptUsage from './transcript-usage';
 import Drug from './drug';
 import DrugSynonym from './drug-synonym';
 import Info from './info';
+import Gene from './gene';
+import GeneAlias from './gene-alias';
 /* jhipster-needle-add-route-import - JHipster will add routes here */
 
 const Routes = ({ match }) => (
@@ -22,6 +24,8 @@ const Routes = ({ match }) => (
       <ErrorBoundaryRoute path={`${match.url}drug`} component={Drug} />
       <ErrorBoundaryRoute path={`${match.url}drug-synonym`} component={DrugSynonym} />
       <ErrorBoundaryRoute path={`${match.url}info`} component={Info} />
+      <ErrorBoundaryRoute path={`${match.url}gene`} component={Gene} />
+      <ErrorBoundaryRoute path={`${match.url}gene-alias`} component={GeneAlias} />
       {/* jhipster-needle-add-route-path - JHipster will add routes here */}
     </Switch>
   </div>
