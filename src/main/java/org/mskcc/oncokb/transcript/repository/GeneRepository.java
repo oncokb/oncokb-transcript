@@ -12,4 +12,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface GeneRepository extends JpaRepository<Gene, Long> {
     Optional<Gene> findByEntrezGeneId(Integer entrezGeneId);
+
+    Optional<Gene> findByHugoSymbol(String hugoSymbol);
 }

@@ -17,6 +17,7 @@ import org.mskcc.oncokb.transcript.domain.Gene;
 import org.mskcc.oncokb.transcript.domain.GeneAlias;
 import org.mskcc.oncokb.transcript.domain.Info;
 import org.mskcc.oncokb.transcript.domain.enumeration.InfoType;
+import org.mskcc.oncokb.transcript.repository.GeneAliasRepository;
 import org.mskcc.oncokb.transcript.repository.GeneRepository;
 import org.mskcc.oncokb.transcript.repository.InfoRepository;
 import org.slf4j.Logger;
@@ -39,10 +40,12 @@ public class GeneService {
     private final String SYNONYM_SEPARATOR = "\\|";
 
     private final GeneRepository geneRepository;
+    private final GeneAliasRepository geneAliasRepository;
     private final InfoService infoService;
 
-    public GeneService(GeneRepository geneRepository, InfoService infoService) {
+    public GeneService(GeneRepository geneRepository, GeneAliasRepository geneAliasRepository, InfoService infoService) {
         this.geneRepository = geneRepository;
+        this.geneAliasRepository = geneAliasRepository;
         this.infoService = infoService;
     }
 
@@ -116,6 +119,23 @@ public class GeneService {
         geneRepository.deleteById(id);
     }
 
+    public Optional<Gene> findGeneByEntrezGeneId(Integer entrezGeneId) {
+        return geneRepository.findByEntrezGeneId(entrezGeneId);
+    }
+
+    public Optional<Gene> findGeneByHugoSymbol(String hugoSymbol) {
+        return geneRepository.findByHugoSymbol(hugoSymbol);
+    }
+
+    public Optional<Gene> findGeneByAlias(String alias) {
+        Optional<GeneAlias> geneAliasOptional = geneAliasRepository.findByName(alias);
+        if (geneAliasOptional.isPresent()) {
+            return Optional.of(geneAliasOptional.get().getGene());
+        } else {
+            return Optional.empty();
+        }
+    }
+
     public void updatePortalGenes() throws IOException {
         List<String[]> portalGenes = getPortalGenes();
         for (var i = 0; i < portalGenes.size(); i++) {
@@ -125,19 +145,21 @@ public class GeneService {
             Gene gene = new Gene();
             gene.setEntrezGeneId(entrezGeneId);
             gene.setHugoSymbol(line[1]);
-            gene.setGeneAliases(
-                Arrays
-                    .stream(line[5].split(SYNONYM_SEPARATOR))
-                    .filter(synonym -> StringUtils.isNotEmpty(synonym.trim()))
-                    .map(
-                        synonym -> {
-                            GeneAlias geneAlias = new GeneAlias();
-                            geneAlias.setName(synonym.trim());
-                            return geneAlias;
-                        }
-                    )
-                    .collect(Collectors.toSet())
-            );
+            if (line.length > 5) {
+                gene.setGeneAliases(
+                    Arrays
+                        .stream(line[5].split(SYNONYM_SEPARATOR))
+                        .filter(synonym -> StringUtils.isNotEmpty(synonym.trim()))
+                        .map(
+                            synonym -> {
+                                GeneAlias geneAlias = new GeneAlias();
+                                geneAlias.setName(synonym.trim());
+                                return geneAlias;
+                            }
+                        )
+                        .collect(Collectors.toSet())
+                );
+            }
 
             Optional<Gene> geneOptional = geneRepository.findByEntrezGeneId(entrezGeneId);
             if (geneOptional.isPresent()) {
@@ -162,7 +184,8 @@ public class GeneService {
             .map(line -> line.split("\t"))
             .filter(
                 line -> {
-                    if (line.length > 5) {
+                    // as long as gene has entrez gene id and hugo symbol, we import
+                    if (line.length >= 2) {
                         return StringUtils.isNumeric(line[0]);
                     } else {
                         return false;

@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.transcript.repository;
 
+import java.util.Optional;
 import org.mskcc.oncokb.transcript.domain.GeneAlias;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
@@ -9,4 +10,6 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface GeneAliasRepository extends JpaRepository<GeneAlias, Long> {}
+public interface GeneAliasRepository extends JpaRepository<GeneAlias, Long> {
+    Optional<GeneAlias> findByName(String name);
+}
