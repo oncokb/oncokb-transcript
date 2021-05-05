@@ -33,7 +33,7 @@ public class GeneController {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the gene, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/find-gene/{symbol}")
-    public ResponseEntity<Gene> getGene(@PathVariable String symbol) {
+    public ResponseEntity<Gene> findGeneBySymbol(@PathVariable String symbol) {
         log.debug("REST request to find Gene : {}", symbol);
         Optional<Gene> gene;
         if (StringUtils.isNumeric(symbol)) {
