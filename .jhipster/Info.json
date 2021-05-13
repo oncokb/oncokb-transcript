@@ -4,7 +4,7 @@
     {
       "fieldName": "type",
       "fieldType": "InfoType",
-      "fieldValues": "NCIT_VERSION",
+      "fieldValues": "NCIT_VERSION,GENE_LAST_UPDATED",
       "fieldValidateRules": ["unique", "required"]
     },
     {

@@ -7,20 +7,22 @@ import { translate } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootState } from 'app/shared/reducers';
 
-import { getEntity, updateEntity, createEntity, reset } from './info.reducer';
-import { IInfo } from 'app/shared/model/info.model';
+import { IGene } from 'app/shared/model/gene.model';
+import { getEntities as getGenes } from 'app/entities/gene/gene.reducer';
+import { getEntity, updateEntity, createEntity, reset } from './gene-alias.reducer';
+import { IGeneAlias } from 'app/shared/model/gene-alias.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
 
-export interface IInfoUpdateProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
+export interface IGeneAliasUpdateProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
-export const InfoUpdate = (props: IInfoUpdateProps) => {
+export const GeneAliasUpdate = (props: IGeneAliasUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
-  const { infoEntity, loading, updating } = props;
+  const { geneAliasEntity, genes, loading, updating } = props;
 
   const handleClose = () => {
-    props.history.push('/info');
+    props.history.push('/gene-alias');
   };
 
   useEffect(() => {
@@ -29,6 +31,8 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
     } else {
       props.getEntity(props.match.params.id);
     }
+
+    props.getGenes();
   }, []);
 
   useEffect(() => {
@@ -38,12 +42,11 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
   }, [props.updateSuccess]);
 
   const saveEntity = (event, errors, values) => {
-    values.lastUpdated = convertDateTimeToServer(values.lastUpdated);
-
     if (errors.length === 0) {
       const entity = {
-        ...infoEntity,
+        ...geneAliasEntity,
         ...values,
+        gene: genes.find(it => it.id.toString() === values.geneId.toString()),
       };
 
       if (isNew) {
@@ -58,8 +61,8 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.info.home.createOrEditLabel" data-cy="InfoCreateUpdateHeading">
-            Create or edit a Info
+          <h2 id="oncokbTranscriptApp.geneAlias.home.createOrEditLabel" data-cy="GeneAliasCreateUpdateHeading">
+            Create or edit a GeneAlias
           </h2>
         </Col>
       </Row>
@@ -68,50 +71,33 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
           {loading ? (
             <p>Loading...</p>
           ) : (
-            <AvForm model={isNew ? {} : infoEntity} onSubmit={saveEntity}>
+            <AvForm model={isNew ? {} : geneAliasEntity} onSubmit={saveEntity}>
               {!isNew ? (
                 <AvGroup>
-                  <Label for="info-id">ID</Label>
-                  <AvInput id="info-id" type="text" className="form-control" name="id" required readOnly />
+                  <Label for="gene-alias-id">ID</Label>
+                  <AvInput id="gene-alias-id" type="text" className="form-control" name="id" required readOnly />
                 </AvGroup>
               ) : null}
               <AvGroup>
-                <Label id="typeLabel" for="info-type">
-                  Type
+                <Label id="nameLabel" for="gene-alias-name">
+                  Name
                 </Label>
-                <AvInput
-                  id="info-type"
-                  data-cy="type"
-                  type="select"
-                  className="form-control"
-                  name="type"
-                  value={(!isNew && infoEntity.type) || 'NCIT_VERSION'}
-                >
-                  <option value="NCIT_VERSION">NCIT_VERSION</option>
-                  <option value="GENE_LAST_UPDATED">GENE_LAST_UPDATED</option>
+                <AvField id="gene-alias-name" data-cy="name" type="text" name="name" />
+              </AvGroup>
+              <AvGroup>
+                <Label for="gene-alias-gene">Gene</Label>
+                <AvInput id="gene-alias-gene" data-cy="gene" type="select" className="form-control" name="geneId">
+                  <option value="" key="0" />
+                  {genes
+                    ? genes.map(otherEntity => (
+                        <option value={otherEntity.id} key={otherEntity.id}>
+                          {otherEntity.id}
+                        </option>
+                      ))
+                    : null}
                 </AvInput>
               </AvGroup>
-              <AvGroup>
-                <Label id="valueLabel" for="info-value">
-                  Value
-                </Label>
-                <AvField id="info-value" data-cy="value" type="text" name="value" />
-              </AvGroup>
-              <AvGroup>
-                <Label id="lastUpdatedLabel" for="info-lastUpdated">
-                  Last Updated
-                </Label>
-                <AvInput
-                  id="info-lastUpdated"
-                  data-cy="lastUpdated"
-                  type="datetime-local"
-                  className="form-control"
-                  name="lastUpdated"
-                  placeholder={'YYYY-MM-DD HH:mm'}
-                  value={isNew ? displayDefaultDateTime() : convertDateTimeFromServer(props.infoEntity.lastUpdated)}
-                />
-              </AvGroup>
-              <Button tag={Link} id="cancel-save" to="/info" replace color="info">
+              <Button tag={Link} id="cancel-save" to="/gene-alias" replace color="info">
                 <FontAwesomeIcon icon="arrow-left" />
                 &nbsp;
                 <span className="d-none d-md-inline">Back</span>
@@ -130,13 +116,15 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
 };
 
 const mapStateToProps = (storeState: IRootState) => ({
-  infoEntity: storeState.info.entity,
-  loading: storeState.info.loading,
-  updating: storeState.info.updating,
-  updateSuccess: storeState.info.updateSuccess,
+  genes: storeState.gene.entities,
+  geneAliasEntity: storeState.geneAlias.entity,
+  loading: storeState.geneAlias.loading,
+  updating: storeState.geneAlias.updating,
+  updateSuccess: storeState.geneAlias.updateSuccess,
 });
 
 const mapDispatchToProps = {
+  getGenes,
   getEntity,
   updateEntity,
   createEntity,
@@ -146,4 +134,4 @@ const mapDispatchToProps = {
 type StateProps = ReturnType<typeof mapStateToProps>;
 type DispatchProps = typeof mapDispatchToProps;
 
-export default connect(mapStateToProps, mapDispatchToProps)(InfoUpdate);
+export default connect(mapStateToProps, mapDispatchToProps)(GeneAliasUpdate);

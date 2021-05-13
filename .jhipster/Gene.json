@@ -1,0 +1,31 @@
+{
+  "name": "Gene",
+  "fields": [
+    {
+      "fieldName": "entrezGeneId",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "hugoSymbol",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "geneAlias",
+      "otherEntityRelationshipName": "gene",
+      "relationshipName": "geneAlias"
+    }
+  ],
+  "entityTableName": "gene",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20210503173531"
+}
