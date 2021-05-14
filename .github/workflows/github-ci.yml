@@ -11,6 +11,7 @@ jobs:
           node-version: "12.16"
       - uses: actions/setup-java@v2
         with:
+          distribution: 'adopt'
           java-version: '11'
       - name: Install node.js packages
         run: npm install
