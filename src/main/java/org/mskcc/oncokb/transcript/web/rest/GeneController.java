@@ -39,7 +39,7 @@ public class GeneController {
     @GetMapping("/find-gene/{symbol}")
     public ResponseEntity<Gene> findGeneBySymbol(@PathVariable String symbol) {
         log.debug("REST request to find Gene : {}", symbol);
-        return ResponseUtil.wrapOrNotFound(getGeneBySymbol(symbol));
+        return new ResponseEntity<>(getGeneBySymbol(symbol).orElse(null), HttpStatus.OK);
     }
 
     @PostMapping("/find-gene")
