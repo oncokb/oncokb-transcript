@@ -4,25 +4,24 @@ import static org.mskcc.oncokb.transcript.util.FileUtils.readTrimmedLinesStream;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.swing.text.html.Option;
 import org.apache.commons.lang3.StringUtils;
+import org.mskcc.oncokb.transcript.config.CacheKeys;
+import org.mskcc.oncokb.transcript.config.cache.CacheNameResolver;
 import org.mskcc.oncokb.transcript.domain.Gene;
 import org.mskcc.oncokb.transcript.domain.GeneAlias;
-import org.mskcc.oncokb.transcript.domain.Info;
 import org.mskcc.oncokb.transcript.domain.enumeration.InfoType;
 import org.mskcc.oncokb.transcript.repository.GeneAliasRepository;
 import org.mskcc.oncokb.transcript.repository.GeneRepository;
-import org.mskcc.oncokb.transcript.repository.InfoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,11 +41,21 @@ public class GeneService {
     private final GeneRepository geneRepository;
     private final GeneAliasRepository geneAliasRepository;
     private final InfoService infoService;
+    private final CacheNameResolver cacheNameResolver;
+    private final CacheManager cacheManager;
 
-    public GeneService(GeneRepository geneRepository, GeneAliasRepository geneAliasRepository, InfoService infoService) {
+    public GeneService(
+        GeneRepository geneRepository,
+        GeneAliasRepository geneAliasRepository,
+        InfoService infoService,
+        CacheNameResolver cacheNameResolver,
+        CacheManager cacheManager
+    ) {
         this.geneRepository = geneRepository;
         this.geneAliasRepository = geneAliasRepository;
         this.infoService = infoService;
+        this.cacheNameResolver = cacheNameResolver;
+        this.cacheManager = cacheManager;
     }
 
     /**
@@ -124,11 +133,11 @@ public class GeneService {
     }
 
     public Optional<Gene> findGeneByHugoSymbol(String hugoSymbol) {
-        return geneRepository.findByHugoSymbol(hugoSymbol);
+        return geneRepository.findByHugoSymbol(hugoSymbol.toLowerCase());
     }
 
     public Optional<Gene> findGeneByAlias(String alias) {
-        Optional<GeneAlias> geneAliasOptional = geneAliasRepository.findByName(alias);
+        Optional<GeneAlias> geneAliasOptional = geneAliasRepository.findByName(alias.toLowerCase());
         if (geneAliasOptional.isPresent()) {
             return Optional.of(geneAliasOptional.get().getGene());
         } else {
@@ -137,7 +146,10 @@ public class GeneService {
     }
 
     public void updatePortalGenes() throws IOException {
-        List<String[]> portalGenes = getPortalGenes();
+        List<String[]> portalGenes = getPortalGenes()
+            .stream()
+            .filter(gene -> gene[1].equalsIgnoreCase("BRAF"))
+            .collect(Collectors.toList());
         for (var i = 0; i < portalGenes.size(); i++) {
             String[] line = portalGenes.get(i);
             Integer entrezGeneId = Integer.parseInt(line[0]);
@@ -161,11 +173,12 @@ public class GeneService {
                 );
             }
 
-            Optional<Gene> geneOptional = geneRepository.findByEntrezGeneId(entrezGeneId);
+            Optional<Gene> geneOptional = this.findGeneByEntrezGeneId(entrezGeneId);
             if (geneOptional.isPresent()) {
                 geneRepository.delete(geneOptional.get());
             }
             this.geneRepository.save(gene);
+            this.clearGeneCaches(gene);
             if (i % 1000 == 0) {
                 System.out.println(i);
             }
@@ -193,5 +206,25 @@ public class GeneService {
                 }
             )
             .collect(Collectors.toList());
+    }
+
+    private void clearGeneCaches(Gene gene) {
+        if (gene.getEntrezGeneId() != null) {
+            Objects
+                .requireNonNull(cacheManager.getCache(this.cacheNameResolver.getCacheName(CacheKeys.GENES_BY_ENTREZ_GENE_ID)))
+                .evict(gene.getEntrezGeneId());
+        }
+        if (gene.getHugoSymbol() != null) {
+            Objects
+                .requireNonNull(cacheManager.getCache(this.cacheNameResolver.getCacheName(CacheKeys.GENES_BY_HUGO_SYMBOL)))
+                .evict(gene.getHugoSymbol().toLowerCase());
+        }
+        if (!gene.getGeneAliases().isEmpty()) {
+            for (GeneAlias alias : gene.getGeneAliases()) {
+                Objects
+                    .requireNonNull(cacheManager.getCache(this.cacheNameResolver.getCacheName(CacheKeys.GENE_ALIASES_BY_NAME)))
+                    .evict(alias.getName().toLowerCase());
+            }
+        }
     }
 }

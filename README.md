@@ -18,6 +18,26 @@ npm install
 
 We use npm scripts and [Webpack][] as our build system.
 
+If you are using redis as a cache, you will have to launch a cache server.
+To start your cache server, run:
+
+```
+docker-compose -f src/main/docker/redis.yml up -d
+```
+
+The cache can also be turned off by adding to the application yaml:
+
+```
+spring:
+    cache:
+        type: none
+```
+
+See [here](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-caching.html#boot-features-caching-provider-none) for details.
+
+**WARNING**: If you using second level hibernate cache and disabling the spring cache, you have to disable the second level hibernate cache as well since they are using
+the same CacheManager.
+
 Run the following commands in two separate terminals to create a blissful development experience where your browser
 auto-refreshes when files change on your hard drive.
 
