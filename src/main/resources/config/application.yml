@@ -147,3 +147,5 @@ jhipster:
 # ===================================================================
 
 # application:
+application:
+  name: oncokb-transcript

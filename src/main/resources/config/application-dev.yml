@@ -15,10 +15,10 @@
 
 logging:
   level:
-    ROOT: INFO
-    tech.jhipster: INFO
-    org.hibernate.SQL: INFO
-    org.mskcc.oncokb.transcript: INFO
+    ROOT: DEBUG
+    tech.jhipster: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.mskcc.oncokb.transcript: DEBUG
 
 spring:
   devtools:
@@ -62,9 +62,12 @@ server:
 
 jhipster:
   cache: # Cache configuration
-    ehcache: # Ehcache configuration
-      time-to-live-seconds: 3600 # By default objects stay 1 hour in the cache
-      max-entries: 100 # Number of objects in each cache entry
+    redis: # Redis configuration
+      expiration: 3600 # By default objects stay 1 hour (in seconds) in the cache
+      server: redis://oncokb-public-redis-password@localhost:6379
+      cluster: false
+      # server: redis://localhost:6379,redis://localhost:16379,redis://localhost:26379
+      # cluster: true
   # CORS is only enabled by default with the "dev" profile
   cors:
     # Allow Ionic for JHipster by default (* no longer allowed in Spring Boot 2.4+)
@@ -101,3 +104,8 @@ jhipster:
 application:
   oncokb:
     api-key:
+  redis:
+    type: single
+    address: redis://localhost:6379
+    password: oncokb-public-redis-password
+    expiration: 3600 # By default objects stay 1 hour (in seconds) in the cache

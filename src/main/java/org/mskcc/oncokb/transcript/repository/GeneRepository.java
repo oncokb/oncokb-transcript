@@ -2,6 +2,7 @@ package org.mskcc.oncokb.transcript.repository;
 
 import java.util.Optional;
 import org.mskcc.oncokb.transcript.domain.Gene;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +12,9 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface GeneRepository extends JpaRepository<Gene, Long> {
+    @Cacheable(cacheResolver = "geneCacheResolver")
     Optional<Gene> findByEntrezGeneId(Integer entrezGeneId);
 
+    @Cacheable(cacheResolver = "geneCacheResolver")
     Optional<Gene> findByHugoSymbol(String hugoSymbol);
 }
