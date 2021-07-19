@@ -3,7 +3,6 @@ import './header.scss';
 import React, { useState } from 'react';
 
 import { Navbar, Nav, NavbarToggler, Collapse } from 'reactstrap';
-
 import LoadingBar from 'react-redux-loading-bar';
 
 import { Home, Brand } from './header-components';
