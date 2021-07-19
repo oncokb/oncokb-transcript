@@ -255,7 +255,7 @@ class GeneResourceIT {
         Gene partialUpdatedGene = new Gene();
         partialUpdatedGene.setId(gene.getId());
 
-        partialUpdatedGene.hugoSymbol(UPDATED_HUGO_SYMBOL);
+        partialUpdatedGene.entrezGeneId(UPDATED_ENTREZ_GENE_ID);
 
         restGeneMockMvc
             .perform(
@@ -269,8 +269,8 @@ class GeneResourceIT {
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeUpdate);
         Gene testGene = geneList.get(geneList.size() - 1);
-        assertThat(testGene.getEntrezGeneId()).isEqualTo(DEFAULT_ENTREZ_GENE_ID);
-        assertThat(testGene.getHugoSymbol()).isEqualTo(UPDATED_HUGO_SYMBOL);
+        assertThat(testGene.getEntrezGeneId()).isEqualTo(UPDATED_ENTREZ_GENE_ID);
+        assertThat(testGene.getHugoSymbol()).isEqualTo(DEFAULT_HUGO_SYMBOL);
     }
 
     @Test

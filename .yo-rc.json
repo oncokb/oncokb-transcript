@@ -3,7 +3,7 @@
     "promptValues": {
       "packageName": "org.mskcc.oncokb.transcript"
     },
-    "jhipsterVersion": "7.0.1",
+    "jhipsterVersion": "7.1.0",
     "applicationType": "monolith",
     "baseName": "oncokb-transcript",
     "packageName": "org.mskcc.oncokb.transcript",
@@ -47,6 +47,7 @@
     "nativeLanguage": "en",
     "languages": ["en", "fr"],
     "entities": ["Sequence", "Transcript", "TranscriptUsage", "Drug", "DrugSynonym", "Info", "Gene", "GeneAlias"],
-    "lastLiquibaseTimestamp": 1620063332000
+    "lastLiquibaseTimestamp": 1620063332000,
+    "devServerPort": 9060
   }
 }

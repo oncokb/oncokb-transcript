@@ -263,7 +263,7 @@ class DrugResourceIT {
         Drug partialUpdatedDrug = new Drug();
         partialUpdatedDrug.setId(drug.getId());
 
-        partialUpdatedDrug.code(UPDATED_CODE).semanticType(UPDATED_SEMANTIC_TYPE);
+        partialUpdatedDrug.name(UPDATED_NAME).semanticType(UPDATED_SEMANTIC_TYPE);
 
         restDrugMockMvc
             .perform(
@@ -277,8 +277,8 @@ class DrugResourceIT {
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
         Drug testDrug = drugList.get(drugList.size() - 1);
-        assertThat(testDrug.getName()).isEqualTo(DEFAULT_NAME);
-        assertThat(testDrug.getCode()).isEqualTo(UPDATED_CODE);
+        assertThat(testDrug.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testDrug.getCode()).isEqualTo(DEFAULT_CODE);
         assertThat(testDrug.getSemanticType()).isEqualTo(UPDATED_SEMANTIC_TYPE);
     }
 

@@ -257,7 +257,7 @@ class SequenceResourceIT {
         Sequence partialUpdatedSequence = new Sequence();
         partialUpdatedSequence.setId(sequence.getId());
 
-        partialUpdatedSequence.sequence(UPDATED_SEQUENCE);
+        partialUpdatedSequence.sequenceType(UPDATED_SEQUENCE_TYPE);
 
         restSequenceMockMvc
             .perform(
@@ -271,8 +271,8 @@ class SequenceResourceIT {
         List<Sequence> sequenceList = sequenceRepository.findAll();
         assertThat(sequenceList).hasSize(databaseSizeBeforeUpdate);
         Sequence testSequence = sequenceList.get(sequenceList.size() - 1);
-        assertThat(testSequence.getSequenceType()).isEqualTo(DEFAULT_SEQUENCE_TYPE);
-        assertThat(testSequence.getSequence()).isEqualTo(UPDATED_SEQUENCE);
+        assertThat(testSequence.getSequenceType()).isEqualTo(UPDATED_SEQUENCE_TYPE);
+        assertThat(testSequence.getSequence()).isEqualTo(DEFAULT_SEQUENCE);
     }
 
     @Test

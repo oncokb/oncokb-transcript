@@ -249,6 +249,8 @@ class DrugSynonymResourceIT {
         DrugSynonym partialUpdatedDrugSynonym = new DrugSynonym();
         partialUpdatedDrugSynonym.setId(drugSynonym.getId());
 
+        partialUpdatedDrugSynonym.name(UPDATED_NAME);
+
         restDrugSynonymMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, partialUpdatedDrugSynonym.getId())
@@ -261,7 +263,7 @@ class DrugSynonymResourceIT {
         List<DrugSynonym> drugSynonymList = drugSynonymRepository.findAll();
         assertThat(drugSynonymList).hasSize(databaseSizeBeforeUpdate);
         DrugSynonym testDrugSynonym = drugSynonymList.get(drugSynonymList.size() - 1);
-        assertThat(testDrugSynonym.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(testDrugSynonym.getName()).isEqualTo(UPDATED_NAME);
     }
 
     @Test
