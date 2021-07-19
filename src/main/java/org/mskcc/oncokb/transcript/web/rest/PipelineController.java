@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.transcript.web.rest;
 
+import org.mskcc.oncokb.transcript.service.AactService;
 import org.mskcc.oncokb.transcript.service.GeneService;
 import org.mskcc.oncokb.transcript.service.NcitService;
 import org.slf4j.Logger;
@@ -17,12 +18,14 @@ public class PipelineController {
 
     NcitService ncitService;
     GeneService geneService;
+    AactService aactService;
 
     private final Logger log = LoggerFactory.getLogger(PipelineController.class);
 
-    public PipelineController(NcitService ncitService, GeneService geneService) {
+    public PipelineController(NcitService ncitService, GeneService geneService, AactService aactService) {
         this.ncitService = ncitService;
         this.geneService = geneService;
+        this.aactService = aactService;
     }
 
     @PostMapping("/update-ncit")
@@ -34,6 +37,12 @@ public class PipelineController {
     @PostMapping("/update-gene")
     public ResponseEntity<Void> updatePortalGene() throws Exception {
         geneService.updatePortalGenes();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/update-clinical-trials")
+    public ResponseEntity<Void> updateClinicalTrials() throws Exception {
+        aactService.fetchLatestTrials();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

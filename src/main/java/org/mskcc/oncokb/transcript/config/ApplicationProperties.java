@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.transcript.config;
 
+import org.mskcc.oncokb.transcript.config.model.AactConfig;
 import org.mskcc.oncokb.transcript.config.model.OncoKbConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -14,11 +15,21 @@ public class ApplicationProperties extends org.mskcc.oncokb.meta.model.applicati
 
     private OncoKbConfig oncokb;
 
+    private AactConfig aact;
+
     public OncoKbConfig getOncokb() {
         return oncokb;
     }
 
     public void setOncokb(OncoKbConfig oncokb) {
         this.oncokb = oncokb;
+    }
+
+    public AactConfig getAact() {
+        return aact;
+    }
+
+    public void setAact(AactConfig aact) {
+        this.aact = aact;
     }
 }

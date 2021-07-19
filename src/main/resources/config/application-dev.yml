@@ -104,6 +104,9 @@ jhipster:
 application:
   oncokb:
     api-key:
+  aact:
+    username:
+    password:
   redis:
     type: single
     address: redis://localhost:6379
