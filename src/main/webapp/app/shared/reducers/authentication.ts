@@ -14,11 +14,11 @@ export const initialState = {
   loginError: false, // Errors returned from server side
   showModalLogin: false,
   account: {} as any,
-  errorMessage: (null as unknown) as string, // Errors returned from server side
-  redirectMessage: (null as unknown) as string,
+  errorMessage: null as unknown as string, // Errors returned from server side
+  redirectMessage: null as unknown as string,
   sessionHasBeenFetched: false,
-  idToken: (null as unknown) as string,
-  logoutUrl: (null as unknown) as string,
+  idToken: null as unknown as string,
+  logoutUrl: null as unknown as string,
 };
 
 export type AuthenticationState = Readonly<typeof initialState>;
@@ -47,24 +47,22 @@ export const authenticate = createAsyncThunk(
   }
 );
 
-export const login: (username: string, password: string, rememberMe?: boolean) => AppThunk = (
-  username,
-  password,
-  rememberMe = false
-) => async dispatch => {
-  const result = await dispatch(authenticate({ username, password, rememberMe }));
-  const response = result.payload as AxiosResponse;
-  const bearerToken = response?.headers?.authorization;
-  if (bearerToken && bearerToken.slice(0, 7) === 'Bearer ') {
-    const jwt = bearerToken.slice(7, bearerToken.length);
-    if (rememberMe) {
-      Storage.local.set(AUTH_TOKEN_KEY, jwt);
-    } else {
-      Storage.session.set(AUTH_TOKEN_KEY, jwt);
+export const login: (username: string, password: string, rememberMe?: boolean) => AppThunk =
+  (username, password, rememberMe = false) =>
+  async dispatch => {
+    const result = await dispatch(authenticate({ username, password, rememberMe }));
+    const response = result.payload as AxiosResponse;
+    const bearerToken = response?.headers?.authorization;
+    if (bearerToken && bearerToken.slice(0, 7) === 'Bearer ') {
+      const jwt = bearerToken.slice(7, bearerToken.length);
+      if (rememberMe) {
+        Storage.local.set(AUTH_TOKEN_KEY, jwt);
+      } else {
+        Storage.session.set(AUTH_TOKEN_KEY, jwt);
+      }
     }
-  }
-  dispatch(getSession());
-};
+    dispatch(getSession());
+  };
 
 export const clearAuthToken = () => {
   if (Storage.local.get(AUTH_TOKEN_KEY)) {
