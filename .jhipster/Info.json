@@ -1,0 +1,31 @@
+{
+  "name": "Info",
+  "fields": [
+    {
+      "fieldName": "type",
+      "fieldType": "InfoType",
+      "fieldValues": "NCIT_VERSION,GENE_LAST_UPDATED",
+      "fieldValidateRules": ["unique", "required"]
+    },
+    {
+      "fieldName": "value",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "lastUpdated",
+      "fieldType": "Instant"
+    }
+  ],
+  "relationships": [],
+  "entityTableName": "info",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20210421184926",
+  "skipClient": true
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Sequence",
+  "fields": [
+    {
+      "fieldName": "sequenceType",
+      "fieldType": "SequenceType",
+      "fieldValues": "PROTEIN,CDNA"
+    },
+    {
+      "fieldName": "sequence",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "transcript",
+      "otherEntityRelationshipName": "sequence",
+      "relationshipName": "transcript"
+    }
+  ],
+  "entityTableName": "sequence",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20210129192153",
+  "skipClient": true
+}
