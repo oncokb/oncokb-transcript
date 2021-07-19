@@ -70,4 +70,5 @@ relationship ManyToOne {
 }
 
 service * with serviceClass
+skipClient *
 

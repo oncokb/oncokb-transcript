@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.transcript.IntegrationTest;
 import org.mskcc.oncokb.transcript.domain.TranscriptUsage;
 import org.mskcc.oncokb.transcript.domain.enumeration.UsageSource;
@@ -26,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Integration tests for the {@link TranscriptUsageResource} REST controller.
  */
 @IntegrationTest
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class TranscriptUsageResourceIT {

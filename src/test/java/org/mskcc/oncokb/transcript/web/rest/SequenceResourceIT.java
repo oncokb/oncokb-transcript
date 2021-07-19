@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.transcript.IntegrationTest;
 import org.mskcc.oncokb.transcript.domain.Sequence;
 import org.mskcc.oncokb.transcript.domain.enumeration.SequenceType;
@@ -27,6 +30,7 @@ import org.springframework.util.Base64Utils;
  * Integration tests for the {@link SequenceResource} REST controller.
  */
 @IntegrationTest
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class SequenceResourceIT {
@@ -253,7 +257,7 @@ class SequenceResourceIT {
         Sequence partialUpdatedSequence = new Sequence();
         partialUpdatedSequence.setId(sequence.getId());
 
-        partialUpdatedSequence.sequence(UPDATED_SEQUENCE);
+        partialUpdatedSequence.sequenceType(UPDATED_SEQUENCE_TYPE);
 
         restSequenceMockMvc
             .perform(
@@ -267,8 +271,8 @@ class SequenceResourceIT {
         List<Sequence> sequenceList = sequenceRepository.findAll();
         assertThat(sequenceList).hasSize(databaseSizeBeforeUpdate);
         Sequence testSequence = sequenceList.get(sequenceList.size() - 1);
-        assertThat(testSequence.getSequenceType()).isEqualTo(DEFAULT_SEQUENCE_TYPE);
-        assertThat(testSequence.getSequence()).isEqualTo(UPDATED_SEQUENCE);
+        assertThat(testSequence.getSequenceType()).isEqualTo(UPDATED_SEQUENCE_TYPE);
+        assertThat(testSequence.getSequence()).isEqualTo(DEFAULT_SEQUENCE);
     }
 
     @Test

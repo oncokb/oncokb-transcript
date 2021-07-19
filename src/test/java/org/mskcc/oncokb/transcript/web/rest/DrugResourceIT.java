@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.transcript.IntegrationTest;
 import org.mskcc.oncokb.transcript.domain.Drug;
 import org.mskcc.oncokb.transcript.repository.DrugRepository;
@@ -26,6 +29,7 @@ import org.springframework.util.Base64Utils;
  * Integration tests for the {@link DrugResource} REST controller.
  */
 @IntegrationTest
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class DrugResourceIT {
@@ -259,7 +263,7 @@ class DrugResourceIT {
         Drug partialUpdatedDrug = new Drug();
         partialUpdatedDrug.setId(drug.getId());
 
-        partialUpdatedDrug.code(UPDATED_CODE).semanticType(UPDATED_SEMANTIC_TYPE);
+        partialUpdatedDrug.name(UPDATED_NAME).semanticType(UPDATED_SEMANTIC_TYPE);
 
         restDrugMockMvc
             .perform(
@@ -273,8 +277,8 @@ class DrugResourceIT {
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
         Drug testDrug = drugList.get(drugList.size() - 1);
-        assertThat(testDrug.getName()).isEqualTo(DEFAULT_NAME);
-        assertThat(testDrug.getCode()).isEqualTo(UPDATED_CODE);
+        assertThat(testDrug.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testDrug.getCode()).isEqualTo(DEFAULT_CODE);
         assertThat(testDrug.getSemanticType()).isEqualTo(UPDATED_SEMANTIC_TYPE);
     }
 

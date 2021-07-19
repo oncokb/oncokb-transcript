@@ -29,5 +29,6 @@
   "readOnly": false,
   "embedded": false,
   "applications": "*",
-  "changelogDate": "20210129192153"
+  "changelogDate": "20210129192153",
+  "skipClient": true
 }
