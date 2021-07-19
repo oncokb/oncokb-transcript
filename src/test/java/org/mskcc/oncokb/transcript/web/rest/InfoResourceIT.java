@@ -13,6 +13,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.transcript.IntegrationTest;
 import org.mskcc.oncokb.transcript.domain.Info;
 import org.mskcc.oncokb.transcript.domain.enumeration.InfoType;
@@ -28,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Integration tests for the {@link InfoResource} REST controller.
  */
 @IntegrationTest
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class InfoResourceIT {
@@ -278,6 +282,8 @@ class InfoResourceIT {
         Info partialUpdatedInfo = new Info();
         partialUpdatedInfo.setId(info.getId());
 
+        partialUpdatedInfo.type(UPDATED_TYPE).value(UPDATED_VALUE);
+
         restInfoMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, partialUpdatedInfo.getId())
@@ -290,8 +296,8 @@ class InfoResourceIT {
         List<Info> infoList = infoRepository.findAll();
         assertThat(infoList).hasSize(databaseSizeBeforeUpdate);
         Info testInfo = infoList.get(infoList.size() - 1);
-        assertThat(testInfo.getType()).isEqualTo(DEFAULT_TYPE);
-        assertThat(testInfo.getValue()).isEqualTo(DEFAULT_VALUE);
+        assertThat(testInfo.getType()).isEqualTo(UPDATED_TYPE);
+        assertThat(testInfo.getValue()).isEqualTo(UPDATED_VALUE);
         assertThat(testInfo.getLastUpdated()).isEqualTo(DEFAULT_LAST_UPDATED);
     }
 

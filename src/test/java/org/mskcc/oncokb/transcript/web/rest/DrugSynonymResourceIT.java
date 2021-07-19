@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.transcript.IntegrationTest;
 import org.mskcc.oncokb.transcript.domain.DrugSynonym;
 import org.mskcc.oncokb.transcript.repository.DrugSynonymRepository;
@@ -26,6 +29,7 @@ import org.springframework.util.Base64Utils;
  * Integration tests for the {@link DrugSynonymResource} REST controller.
  */
 @IntegrationTest
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class DrugSynonymResourceIT {
@@ -245,6 +249,8 @@ class DrugSynonymResourceIT {
         DrugSynonym partialUpdatedDrugSynonym = new DrugSynonym();
         partialUpdatedDrugSynonym.setId(drugSynonym.getId());
 
+        partialUpdatedDrugSynonym.name(UPDATED_NAME);
+
         restDrugSynonymMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, partialUpdatedDrugSynonym.getId())
@@ -257,7 +263,7 @@ class DrugSynonymResourceIT {
         List<DrugSynonym> drugSynonymList = drugSynonymRepository.findAll();
         assertThat(drugSynonymList).hasSize(databaseSizeBeforeUpdate);
         DrugSynonym testDrugSynonym = drugSynonymList.get(drugSynonymList.size() - 1);
-        assertThat(testDrugSynonym.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(testDrugSynonym.getName()).isEqualTo(UPDATED_NAME);
     }
 
     @Test

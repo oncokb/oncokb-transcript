@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.transcript.IntegrationTest;
 import org.mskcc.oncokb.transcript.domain.Transcript;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
@@ -26,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Integration tests for the {@link TranscriptResource} REST controller.
  */
 @IntegrationTest
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class TranscriptResourceIT {
@@ -359,12 +363,7 @@ class TranscriptResourceIT {
         Transcript partialUpdatedTranscript = new Transcript();
         partialUpdatedTranscript.setId(transcript.getId());
 
-        partialUpdatedTranscript
-            .entrezGeneId(UPDATED_ENTREZ_GENE_ID)
-            .hugoSymbol(UPDATED_HUGO_SYMBOL)
-            .referenceGenome(UPDATED_REFERENCE_GENOME)
-            .ensemblTranscriptId(UPDATED_ENSEMBL_TRANSCRIPT_ID)
-            .description(UPDATED_DESCRIPTION);
+        partialUpdatedTranscript.referenceGenome(UPDATED_REFERENCE_GENOME).referenceSequenceId(UPDATED_REFERENCE_SEQUENCE_ID);
 
         restTranscriptMockMvc
             .perform(
@@ -378,13 +377,13 @@ class TranscriptResourceIT {
         List<Transcript> transcriptList = transcriptRepository.findAll();
         assertThat(transcriptList).hasSize(databaseSizeBeforeUpdate);
         Transcript testTranscript = transcriptList.get(transcriptList.size() - 1);
-        assertThat(testTranscript.getEntrezGeneId()).isEqualTo(UPDATED_ENTREZ_GENE_ID);
-        assertThat(testTranscript.getHugoSymbol()).isEqualTo(UPDATED_HUGO_SYMBOL);
+        assertThat(testTranscript.getEntrezGeneId()).isEqualTo(DEFAULT_ENTREZ_GENE_ID);
+        assertThat(testTranscript.getHugoSymbol()).isEqualTo(DEFAULT_HUGO_SYMBOL);
         assertThat(testTranscript.getReferenceGenome()).isEqualTo(UPDATED_REFERENCE_GENOME);
-        assertThat(testTranscript.getEnsemblTranscriptId()).isEqualTo(UPDATED_ENSEMBL_TRANSCRIPT_ID);
+        assertThat(testTranscript.getEnsemblTranscriptId()).isEqualTo(DEFAULT_ENSEMBL_TRANSCRIPT_ID);
         assertThat(testTranscript.getEnsemblProteinId()).isEqualTo(DEFAULT_ENSEMBL_PROTEIN_ID);
-        assertThat(testTranscript.getReferenceSequenceId()).isEqualTo(DEFAULT_REFERENCE_SEQUENCE_ID);
-        assertThat(testTranscript.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testTranscript.getReferenceSequenceId()).isEqualTo(UPDATED_REFERENCE_SEQUENCE_ID);
+        assertThat(testTranscript.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
     }
 
     @Test
