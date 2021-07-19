@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity ClinicalTrial.
+    -->
+    <changeSet id="20210719201530-1" author="jhipster">
+        <createTable tableName="clinical_trial">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nct_id" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="phase" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="principal_investigator" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="status" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="status_last_updated" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="brief_title" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+        <dropDefaultValue tableName="clinical_trial" columnName="status_last_updated" columnDataType="${datetimeType}"/>
+    </changeSet>
+
+    <changeSet id="20210719201530-1-relations" author="jhipster">
+
+        <createTable tableName="rel_clinical_trial__site">
+            <column name="site_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="clinical_trial_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="clinical_trial_id, site_id" tableName="rel_clinical_trial__site"/>
+
+        <createTable tableName="rel_clinical_trial__arm">
+            <column name="arm_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="clinical_trial_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="clinical_trial_id, arm_id" tableName="rel_clinical_trial__arm"/>
+    </changeSet>
+
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
+</databaseChangeLog>

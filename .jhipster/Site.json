@@ -1,0 +1,57 @@
+{
+  "name": "Site",
+  "fields": [
+    {
+      "fieldName": "address",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "city",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "country",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "email",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "phone",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "state",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "coordinates",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "clinicalTrial",
+      "otherEntityRelationshipName": "site",
+      "relationshipName": "clinicalTrial",
+      "ownerSide": false
+    }
+  ],
+  "entityTableName": "site",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "skipClient": true,
+  "changelogDate": "20210719201529"
+}

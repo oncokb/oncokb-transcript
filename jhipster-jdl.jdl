@@ -59,6 +59,30 @@ entity GeneAlias {
     name String
 }
 
+entity Arm {
+	description TextBlob
+}
+
+entity Site {
+	address String
+	city String
+	country String
+	email String
+	name String
+	phone String
+	state String
+	coordinates String
+}
+
+entity ClinicalTrial {
+	nctId String
+	phase String
+	principalInvestigator String
+	status String
+    statusLastUpdated Instant
+    briefTitle String
+}
+
 relationship OneToMany {
 	Drug{synonyms} to DrugSynonym
 	Gene to GeneAlias
@@ -67,6 +91,12 @@ relationship OneToMany {
 relationship ManyToOne {
 	TranscriptUsage to Transcript
     Sequence to Transcript
+}
+
+relationship ManyToMany {
+	ClinicalTrial to Site
+	ClinicalTrial to Arm
+	Drug to Arm
 }
 
 service * with serviceClass

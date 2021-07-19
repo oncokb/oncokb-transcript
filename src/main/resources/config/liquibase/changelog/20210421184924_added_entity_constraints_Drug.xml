@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+    <!--
+        Added the constraints for entity Drug.
+    -->
+    <changeSet id="20210421184924-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="drug_id"
+                                 baseTableName="rel_drug__arm"
+                                 constraintName="fk_rel_drug__arm__drug_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="drug"/>
+
+        <addForeignKeyConstraint baseColumnNames="arm_id"
+                                 baseTableName="rel_drug__arm"
+                                 constraintName="fk_rel_drug__arm__arm_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="arm"/>
+    </changeSet>
+</databaseChangeLog>

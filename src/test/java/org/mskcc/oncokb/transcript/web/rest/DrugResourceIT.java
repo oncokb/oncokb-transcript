@@ -2,9 +2,11 @@ package org.mskcc.oncokb.transcript.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -17,8 +19,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.transcript.IntegrationTest;
 import org.mskcc.oncokb.transcript.domain.Drug;
 import org.mskcc.oncokb.transcript.repository.DrugRepository;
+import org.mskcc.oncokb.transcript.service.DrugService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -51,6 +56,12 @@ class DrugResourceIT {
 
     @Autowired
     private DrugRepository drugRepository;
+
+    @Mock
+    private DrugRepository drugRepositoryMock;
+
+    @Mock
+    private DrugService drugServiceMock;
 
     @Autowired
     private EntityManager em;
@@ -138,6 +149,24 @@ class DrugResourceIT {
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
             .andExpect(jsonPath("$.[*].code").value(hasItem(DEFAULT_CODE)))
             .andExpect(jsonPath("$.[*].semanticType").value(hasItem(DEFAULT_SEMANTIC_TYPE.toString())));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllDrugsWithEagerRelationshipsIsEnabled() throws Exception {
+        when(drugServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restDrugMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(drugServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllDrugsWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(drugServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restDrugMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(drugServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test

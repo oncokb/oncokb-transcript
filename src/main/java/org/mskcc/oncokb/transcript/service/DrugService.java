@@ -7,6 +7,8 @@ import org.mskcc.oncokb.transcript.domain.Drug;
 import org.mskcc.oncokb.transcript.repository.DrugRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,7 +75,26 @@ public class DrugService {
     @Transactional(readOnly = true)
     public List<Drug> findAll() {
         log.debug("Request to get all Drugs");
-        return drugRepository.findAll();
+        return drugRepository.findAllWithEagerRelationships();
+    }
+
+    /**
+     * Get all the drugs with eager load of many-to-many relationships.
+     *
+     * @return the list of entities.
+     */
+    public Page<Drug> findAllWithEagerRelationships(Pageable pageable) {
+        return drugRepository.findAllWithEagerRelationships(pageable);
+    }
+
+    public Optional<Drug> findByCode(String code) {
+        return drugRepository.findOneByCode(code);
+    }
+
+    public List<Drug> searchDrug(String query) {
+        List<Drug> result = drugRepository.searchDrug(query);
+        result.sort(new DrugComp(query));
+        return result;
     }
 
     /**
@@ -85,17 +106,7 @@ public class DrugService {
     @Transactional(readOnly = true)
     public Optional<Drug> findOne(Long id) {
         log.debug("Request to get Drug : {}", id);
-        return drugRepository.findById(id);
-    }
-
-    public Optional<Drug> findByCode(String code) {
-        return drugRepository.findOneByCode(code);
-    }
-
-    public List<Drug> searchDrug(String query) {
-        List<Drug> result = drugRepository.searchDrug(query);
-        result.sort(new DrugComp(query));
-        return result;
+        return drugRepository.findOneWithEagerRelationships(id);
     }
 
     /**

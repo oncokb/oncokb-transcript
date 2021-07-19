@@ -34,6 +34,11 @@ public class Drug implements Serializable {
     @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
     private Set<DrugSynonym> synonyms = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(name = "rel_drug__arm", joinColumns = @JoinColumn(name = "drug_id"), inverseJoinColumns = @JoinColumn(name = "arm_id"))
+    @JsonIgnoreProperties(value = { "clinicalTrials", "drugs" }, allowSetters = true)
+    private Set<Arm> arms = new HashSet<>();
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
@@ -116,6 +121,31 @@ public class Drug implements Serializable {
             drugSynonyms.forEach(i -> i.setDrug(this));
         }
         this.synonyms = drugSynonyms;
+    }
+
+    public Set<Arm> getArms() {
+        return this.arms;
+    }
+
+    public Drug arms(Set<Arm> arms) {
+        this.setArms(arms);
+        return this;
+    }
+
+    public Drug addArm(Arm arm) {
+        this.arms.add(arm);
+        arm.getDrugs().add(this);
+        return this;
+    }
+
+    public Drug removeArm(Arm arm) {
+        this.arms.remove(arm);
+        arm.getDrugs().remove(this);
+        return this;
+    }
+
+    public void setArms(Set<Arm> arms) {
+        this.arms = arms;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

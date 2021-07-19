@@ -7,38 +7,18 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <!--
-        Added the entity Drug.
+        Added the entity Arm.
     -->
-    <changeSet id="20210421184924-1" author="jhipster">
-        <createTable tableName="drug">
+    <changeSet id="20210719201528-1" author="jhipster">
+        <createTable tableName="arm">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="name" type="${clobType}">
-                <constraints nullable="true" />
-            </column>
-            <column name="code" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
-            <column name="semantic_type" type="${clobType}">
+            <column name="description" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-    </changeSet>
-
-    <changeSet id="20210421184924-1-relations" author="jhipster">
-
-        <createTable tableName="rel_drug__arm">
-            <column name="arm_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="drug_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-
-        <addPrimaryKey columnNames="drug_id, arm_id" tableName="rel_drug__arm"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

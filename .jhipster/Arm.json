@@ -1,0 +1,37 @@
+{
+  "name": "Arm",
+  "fields": [
+    {
+      "fieldName": "description",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "clinicalTrial",
+      "otherEntityRelationshipName": "arm",
+      "relationshipName": "clinicalTrial",
+      "ownerSide": false
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "drug",
+      "otherEntityRelationshipName": "arm",
+      "relationshipName": "drug",
+      "ownerSide": false
+    }
+  ],
+  "entityTableName": "arm",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "skipClient": true,
+  "changelogDate": "20210719201528"
+}
