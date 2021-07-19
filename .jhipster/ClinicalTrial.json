@@ -1,0 +1,56 @@
+{
+  "name": "ClinicalTrial",
+  "fields": [
+    {
+      "fieldName": "nctId",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "phase",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "principalInvestigator",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "statusLastUpdated",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "briefTitle",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "site",
+      "otherEntityRelationshipName": "clinicalTrial",
+      "relationshipName": "site",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "arm",
+      "otherEntityRelationshipName": "clinicalTrial",
+      "relationshipName": "arm",
+      "ownerSide": true
+    }
+  ],
+  "entityTableName": "clinical_trial",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "skipClient": true,
+  "changelogDate": "20210719201530"
+}

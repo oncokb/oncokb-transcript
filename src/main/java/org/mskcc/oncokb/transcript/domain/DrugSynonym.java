@@ -22,7 +22,7 @@ public class DrugSynonym implements Serializable {
     private String name;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "synonyms" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "synonyms", "arms" }, allowSetters = true)
     private Drug drug;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

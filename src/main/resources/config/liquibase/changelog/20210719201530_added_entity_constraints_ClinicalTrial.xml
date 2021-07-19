@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+    <!--
+        Added the constraints for entity ClinicalTrial.
+    -->
+    <changeSet id="20210719201530-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="clinical_trial_id"
+                                 baseTableName="rel_clinical_trial__site"
+                                 constraintName="fk_rel_clinical_trial__site__clinical_trial_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="clinical_trial"/>
+
+        <addForeignKeyConstraint baseColumnNames="site_id"
+                                 baseTableName="rel_clinical_trial__site"
+                                 constraintName="fk_rel_clinical_trial__site__site_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="site"/>
+
+        <addForeignKeyConstraint baseColumnNames="clinical_trial_id"
+                                 baseTableName="rel_clinical_trial__arm"
+                                 constraintName="fk_rel_clinical_trial__arm__clinical_trial_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="clinical_trial"/>
+
+        <addForeignKeyConstraint baseColumnNames="arm_id"
+                                 baseTableName="rel_clinical_trial__arm"
+                                 constraintName="fk_rel_clinical_trial__arm__arm_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="arm"/>
+    </changeSet>
+</databaseChangeLog>

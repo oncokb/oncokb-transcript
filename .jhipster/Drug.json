@@ -22,6 +22,13 @@
       "otherEntityName": "drugSynonym",
       "otherEntityRelationshipName": "drug",
       "relationshipName": "synonyms"
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "arm",
+      "otherEntityRelationshipName": "drug",
+      "relationshipName": "arm",
+      "ownerSide": true
     }
   ],
   "entityTableName": "drug",
