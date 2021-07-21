@@ -111,4 +111,12 @@ public class SiteService {
         log.debug("Request to delete Site : {}", id);
         siteRepository.deleteById(id);
     }
+
+    Optional<Site> findOneByNameAndCityAndCountry(String name, String city, String country) {
+        return siteRepository.findOneByNameAndCityAndCountry(name, city, country);
+    }
+
+    Optional<Site> findOneByCoordinates(String coordinates) {
+        return siteRepository.findOneByCoordinates(coordinates);
+    }
 }
