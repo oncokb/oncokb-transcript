@@ -107,6 +107,8 @@ application:
   aact:
     username:
     password:
+  google-cloud:
+    api-key:
   redis:
     type: single
     address: redis://localhost:6379

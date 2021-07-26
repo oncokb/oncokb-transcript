@@ -1,6 +1,7 @@
 package org.mskcc.oncokb.transcript.config;
 
 import org.mskcc.oncokb.transcript.config.model.AactConfig;
+import org.mskcc.oncokb.transcript.config.model.GoogleCloudConfig;
 import org.mskcc.oncokb.transcript.config.model.OncoKbConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -17,6 +18,8 @@ public class ApplicationProperties extends org.mskcc.oncokb.meta.model.applicati
 
     private AactConfig aact;
 
+    private GoogleCloudConfig googleCloud;
+
     public OncoKbConfig getOncokb() {
         return oncokb;
     }
@@ -31,5 +34,13 @@ public class ApplicationProperties extends org.mskcc.oncokb.meta.model.applicati
 
     public void setAact(AactConfig aact) {
         this.aact = aact;
+    }
+
+    public GoogleCloudConfig getGoogleCloud() {
+        return googleCloud;
+    }
+
+    public void setGoogleCloud(GoogleCloudConfig googleCloud) {
+        this.googleCloud = googleCloud;
     }
 }
