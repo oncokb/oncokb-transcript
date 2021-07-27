@@ -28,14 +28,8 @@ public class Site implements Serializable {
     @Column(name = "country")
     private String country;
 
-    @Column(name = "email")
-    private String email;
-
     @Column(name = "name")
     private String name;
-
-    @Column(name = "phone")
-    private String phone;
 
     @Column(name = "state")
     private String state;
@@ -100,19 +94,6 @@ public class Site implements Serializable {
         this.country = country;
     }
 
-    public String getEmail() {
-        return this.email;
-    }
-
-    public Site email(String email) {
-        this.email = email;
-        return this;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getName() {
         return this.name;
     }
@@ -124,19 +105,6 @@ public class Site implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getPhone() {
-        return this.phone;
-    }
-
-    public Site phone(String phone) {
-        this.phone = phone;
-        return this;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
     }
 
     public String getState() {
@@ -223,9 +191,7 @@ public class Site implements Serializable {
             ", address='" + getAddress() + "'" +
             ", city='" + getCity() + "'" +
             ", country='" + getCountry() + "'" +
-            ", email='" + getEmail() + "'" +
             ", name='" + getName() + "'" +
-            ", phone='" + getPhone() + "'" +
             ", state='" + getState() + "'" +
             ", coordinates='" + getCoordinates() + "'" +
             "}";

@@ -23,13 +23,7 @@
             <column name="country" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="email" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
             <column name="name" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
-            <column name="phone" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <column name="state" type="varchar(255)">

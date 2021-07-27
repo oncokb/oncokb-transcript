@@ -57,14 +57,8 @@ public class SiteService {
                     if (site.getCountry() != null) {
                         existingSite.setCountry(site.getCountry());
                     }
-                    if (site.getEmail() != null) {
-                        existingSite.setEmail(site.getEmail());
-                    }
                     if (site.getName() != null) {
                         existingSite.setName(site.getName());
-                    }
-                    if (site.getPhone() != null) {
-                        existingSite.setPhone(site.getPhone());
                     }
                     if (site.getState() != null) {
                         existingSite.setState(site.getState());

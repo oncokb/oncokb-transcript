@@ -67,9 +67,7 @@ entity Site {
 	address String
 	city String
 	country String
-	email String
 	name String
-	phone String
 	state String
 	coordinates String
 }

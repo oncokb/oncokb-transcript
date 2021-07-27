@@ -14,15 +14,7 @@
       "fieldType": "String"
     },
     {
-      "fieldName": "email",
-      "fieldType": "String"
-    },
-    {
       "fieldName": "name",
-      "fieldType": "String"
-    },
-    {
-      "fieldName": "phone",
       "fieldType": "String"
     },
     {

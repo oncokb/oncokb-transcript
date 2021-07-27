@@ -42,14 +42,8 @@ class SiteResourceIT {
     private static final String DEFAULT_COUNTRY = "AAAAAAAAAA";
     private static final String UPDATED_COUNTRY = "BBBBBBBBBB";
 
-    private static final String DEFAULT_EMAIL = "AAAAAAAAAA";
-    private static final String UPDATED_EMAIL = "BBBBBBBBBB";
-
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
-
-    private static final String DEFAULT_PHONE = "AAAAAAAAAA";
-    private static final String UPDATED_PHONE = "BBBBBBBBBB";
 
     private static final String DEFAULT_STATE = "AAAAAAAAAA";
     private static final String UPDATED_STATE = "BBBBBBBBBB";
@@ -85,9 +79,7 @@ class SiteResourceIT {
             .address(DEFAULT_ADDRESS)
             .city(DEFAULT_CITY)
             .country(DEFAULT_COUNTRY)
-            .email(DEFAULT_EMAIL)
             .name(DEFAULT_NAME)
-            .phone(DEFAULT_PHONE)
             .state(DEFAULT_STATE)
             .coordinates(DEFAULT_COORDINATES);
         return site;
@@ -104,9 +96,7 @@ class SiteResourceIT {
             .address(UPDATED_ADDRESS)
             .city(UPDATED_CITY)
             .country(UPDATED_COUNTRY)
-            .email(UPDATED_EMAIL)
             .name(UPDATED_NAME)
-            .phone(UPDATED_PHONE)
             .state(UPDATED_STATE)
             .coordinates(UPDATED_COORDINATES);
         return site;
@@ -133,9 +123,7 @@ class SiteResourceIT {
         assertThat(testSite.getAddress()).isEqualTo(DEFAULT_ADDRESS);
         assertThat(testSite.getCity()).isEqualTo(DEFAULT_CITY);
         assertThat(testSite.getCountry()).isEqualTo(DEFAULT_COUNTRY);
-        assertThat(testSite.getEmail()).isEqualTo(DEFAULT_EMAIL);
         assertThat(testSite.getName()).isEqualTo(DEFAULT_NAME);
-        assertThat(testSite.getPhone()).isEqualTo(DEFAULT_PHONE);
         assertThat(testSite.getState()).isEqualTo(DEFAULT_STATE);
         assertThat(testSite.getCoordinates()).isEqualTo(DEFAULT_COORDINATES);
     }
@@ -173,9 +161,7 @@ class SiteResourceIT {
             .andExpect(jsonPath("$.[*].address").value(hasItem(DEFAULT_ADDRESS)))
             .andExpect(jsonPath("$.[*].city").value(hasItem(DEFAULT_CITY)))
             .andExpect(jsonPath("$.[*].country").value(hasItem(DEFAULT_COUNTRY)))
-            .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].phone").value(hasItem(DEFAULT_PHONE)))
             .andExpect(jsonPath("$.[*].state").value(hasItem(DEFAULT_STATE)))
             .andExpect(jsonPath("$.[*].coordinates").value(hasItem(DEFAULT_COORDINATES)));
     }
@@ -195,9 +181,7 @@ class SiteResourceIT {
             .andExpect(jsonPath("$.address").value(DEFAULT_ADDRESS))
             .andExpect(jsonPath("$.city").value(DEFAULT_CITY))
             .andExpect(jsonPath("$.country").value(DEFAULT_COUNTRY))
-            .andExpect(jsonPath("$.email").value(DEFAULT_EMAIL))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
-            .andExpect(jsonPath("$.phone").value(DEFAULT_PHONE))
             .andExpect(jsonPath("$.state").value(DEFAULT_STATE))
             .andExpect(jsonPath("$.coordinates").value(DEFAULT_COORDINATES));
     }
@@ -225,9 +209,7 @@ class SiteResourceIT {
             .address(UPDATED_ADDRESS)
             .city(UPDATED_CITY)
             .country(UPDATED_COUNTRY)
-            .email(UPDATED_EMAIL)
             .name(UPDATED_NAME)
-            .phone(UPDATED_PHONE)
             .state(UPDATED_STATE)
             .coordinates(UPDATED_COORDINATES);
 
@@ -246,9 +228,7 @@ class SiteResourceIT {
         assertThat(testSite.getAddress()).isEqualTo(UPDATED_ADDRESS);
         assertThat(testSite.getCity()).isEqualTo(UPDATED_CITY);
         assertThat(testSite.getCountry()).isEqualTo(UPDATED_COUNTRY);
-        assertThat(testSite.getEmail()).isEqualTo(UPDATED_EMAIL);
         assertThat(testSite.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testSite.getPhone()).isEqualTo(UPDATED_PHONE);
         assertThat(testSite.getState()).isEqualTo(UPDATED_STATE);
         assertThat(testSite.getCoordinates()).isEqualTo(UPDATED_COORDINATES);
     }
@@ -321,13 +301,7 @@ class SiteResourceIT {
         Site partialUpdatedSite = new Site();
         partialUpdatedSite.setId(site.getId());
 
-        partialUpdatedSite
-            .city(UPDATED_CITY)
-            .country(UPDATED_COUNTRY)
-            .name(UPDATED_NAME)
-            .phone(UPDATED_PHONE)
-            .state(UPDATED_STATE)
-            .coordinates(UPDATED_COORDINATES);
+        partialUpdatedSite.city(UPDATED_CITY).country(UPDATED_COUNTRY).state(UPDATED_STATE).coordinates(UPDATED_COORDINATES);
 
         restSiteMockMvc
             .perform(
@@ -344,9 +318,7 @@ class SiteResourceIT {
         assertThat(testSite.getAddress()).isEqualTo(DEFAULT_ADDRESS);
         assertThat(testSite.getCity()).isEqualTo(UPDATED_CITY);
         assertThat(testSite.getCountry()).isEqualTo(UPDATED_COUNTRY);
-        assertThat(testSite.getEmail()).isEqualTo(DEFAULT_EMAIL);
-        assertThat(testSite.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testSite.getPhone()).isEqualTo(UPDATED_PHONE);
+        assertThat(testSite.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testSite.getState()).isEqualTo(UPDATED_STATE);
         assertThat(testSite.getCoordinates()).isEqualTo(UPDATED_COORDINATES);
     }
@@ -367,9 +339,7 @@ class SiteResourceIT {
             .address(UPDATED_ADDRESS)
             .city(UPDATED_CITY)
             .country(UPDATED_COUNTRY)
-            .email(UPDATED_EMAIL)
             .name(UPDATED_NAME)
-            .phone(UPDATED_PHONE)
             .state(UPDATED_STATE)
             .coordinates(UPDATED_COORDINATES);
 
@@ -388,9 +358,7 @@ class SiteResourceIT {
         assertThat(testSite.getAddress()).isEqualTo(UPDATED_ADDRESS);
         assertThat(testSite.getCity()).isEqualTo(UPDATED_CITY);
         assertThat(testSite.getCountry()).isEqualTo(UPDATED_COUNTRY);
-        assertThat(testSite.getEmail()).isEqualTo(UPDATED_EMAIL);
         assertThat(testSite.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testSite.getPhone()).isEqualTo(UPDATED_PHONE);
         assertThat(testSite.getState()).isEqualTo(UPDATED_STATE);
         assertThat(testSite.getCoordinates()).isEqualTo(UPDATED_COORDINATES);
     }
