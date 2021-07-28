@@ -23,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Base64Utils;
 
 /**
  * Integration tests for the {@link SiteResource} REST controller.
@@ -50,6 +51,9 @@ class SiteResourceIT {
 
     private static final String DEFAULT_COORDINATES = "AAAAAAAAAA";
     private static final String UPDATED_COORDINATES = "BBBBBBBBBB";
+
+    private static final String DEFAULT_GOOGLE_MAP_RESULT = "AAAAAAAAAA";
+    private static final String UPDATED_GOOGLE_MAP_RESULT = "BBBBBBBBBB";
 
     private static final String ENTITY_API_URL = "/api/sites";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -81,7 +85,8 @@ class SiteResourceIT {
             .country(DEFAULT_COUNTRY)
             .name(DEFAULT_NAME)
             .state(DEFAULT_STATE)
-            .coordinates(DEFAULT_COORDINATES);
+            .coordinates(DEFAULT_COORDINATES)
+            .googleMapResult(DEFAULT_GOOGLE_MAP_RESULT);
         return site;
     }
 
@@ -98,7 +103,8 @@ class SiteResourceIT {
             .country(UPDATED_COUNTRY)
             .name(UPDATED_NAME)
             .state(UPDATED_STATE)
-            .coordinates(UPDATED_COORDINATES);
+            .coordinates(UPDATED_COORDINATES)
+            .googleMapResult(UPDATED_GOOGLE_MAP_RESULT);
         return site;
     }
 
@@ -126,6 +132,7 @@ class SiteResourceIT {
         assertThat(testSite.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testSite.getState()).isEqualTo(DEFAULT_STATE);
         assertThat(testSite.getCoordinates()).isEqualTo(DEFAULT_COORDINATES);
+        assertThat(testSite.getGoogleMapResult()).isEqualTo(DEFAULT_GOOGLE_MAP_RESULT);
     }
 
     @Test
@@ -148,6 +155,108 @@ class SiteResourceIT {
 
     @Test
     @Transactional
+    void checkAddressIsRequired() throws Exception {
+        int databaseSizeBeforeTest = siteRepository.findAll().size();
+        // set the field null
+        site.setAddress(null);
+
+        // Create the Site, which fails.
+
+        restSiteMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(site)))
+            .andExpect(status().isBadRequest());
+
+        List<Site> siteList = siteRepository.findAll();
+        assertThat(siteList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkCityIsRequired() throws Exception {
+        int databaseSizeBeforeTest = siteRepository.findAll().size();
+        // set the field null
+        site.setCity(null);
+
+        // Create the Site, which fails.
+
+        restSiteMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(site)))
+            .andExpect(status().isBadRequest());
+
+        List<Site> siteList = siteRepository.findAll();
+        assertThat(siteList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkCountryIsRequired() throws Exception {
+        int databaseSizeBeforeTest = siteRepository.findAll().size();
+        // set the field null
+        site.setCountry(null);
+
+        // Create the Site, which fails.
+
+        restSiteMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(site)))
+            .andExpect(status().isBadRequest());
+
+        List<Site> siteList = siteRepository.findAll();
+        assertThat(siteList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkNameIsRequired() throws Exception {
+        int databaseSizeBeforeTest = siteRepository.findAll().size();
+        // set the field null
+        site.setName(null);
+
+        // Create the Site, which fails.
+
+        restSiteMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(site)))
+            .andExpect(status().isBadRequest());
+
+        List<Site> siteList = siteRepository.findAll();
+        assertThat(siteList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkStateIsRequired() throws Exception {
+        int databaseSizeBeforeTest = siteRepository.findAll().size();
+        // set the field null
+        site.setState(null);
+
+        // Create the Site, which fails.
+
+        restSiteMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(site)))
+            .andExpect(status().isBadRequest());
+
+        List<Site> siteList = siteRepository.findAll();
+        assertThat(siteList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkCoordinatesIsRequired() throws Exception {
+        int databaseSizeBeforeTest = siteRepository.findAll().size();
+        // set the field null
+        site.setCoordinates(null);
+
+        // Create the Site, which fails.
+
+        restSiteMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(site)))
+            .andExpect(status().isBadRequest());
+
+        List<Site> siteList = siteRepository.findAll();
+        assertThat(siteList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllSites() throws Exception {
         // Initialize the database
         siteRepository.saveAndFlush(site);
@@ -163,7 +272,8 @@ class SiteResourceIT {
             .andExpect(jsonPath("$.[*].country").value(hasItem(DEFAULT_COUNTRY)))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].state").value(hasItem(DEFAULT_STATE)))
-            .andExpect(jsonPath("$.[*].coordinates").value(hasItem(DEFAULT_COORDINATES)));
+            .andExpect(jsonPath("$.[*].coordinates").value(hasItem(DEFAULT_COORDINATES)))
+            .andExpect(jsonPath("$.[*].googleMapResult").value(hasItem(DEFAULT_GOOGLE_MAP_RESULT.toString())));
     }
 
     @Test
@@ -183,7 +293,8 @@ class SiteResourceIT {
             .andExpect(jsonPath("$.country").value(DEFAULT_COUNTRY))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.state").value(DEFAULT_STATE))
-            .andExpect(jsonPath("$.coordinates").value(DEFAULT_COORDINATES));
+            .andExpect(jsonPath("$.coordinates").value(DEFAULT_COORDINATES))
+            .andExpect(jsonPath("$.googleMapResult").value(DEFAULT_GOOGLE_MAP_RESULT.toString()));
     }
 
     @Test
@@ -211,7 +322,8 @@ class SiteResourceIT {
             .country(UPDATED_COUNTRY)
             .name(UPDATED_NAME)
             .state(UPDATED_STATE)
-            .coordinates(UPDATED_COORDINATES);
+            .coordinates(UPDATED_COORDINATES)
+            .googleMapResult(UPDATED_GOOGLE_MAP_RESULT);
 
         restSiteMockMvc
             .perform(
@@ -231,6 +343,7 @@ class SiteResourceIT {
         assertThat(testSite.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testSite.getState()).isEqualTo(UPDATED_STATE);
         assertThat(testSite.getCoordinates()).isEqualTo(UPDATED_COORDINATES);
+        assertThat(testSite.getGoogleMapResult()).isEqualTo(UPDATED_GOOGLE_MAP_RESULT);
     }
 
     @Test
@@ -301,7 +414,12 @@ class SiteResourceIT {
         Site partialUpdatedSite = new Site();
         partialUpdatedSite.setId(site.getId());
 
-        partialUpdatedSite.city(UPDATED_CITY).country(UPDATED_COUNTRY).state(UPDATED_STATE).coordinates(UPDATED_COORDINATES);
+        partialUpdatedSite
+            .city(UPDATED_CITY)
+            .country(UPDATED_COUNTRY)
+            .state(UPDATED_STATE)
+            .coordinates(UPDATED_COORDINATES)
+            .googleMapResult(UPDATED_GOOGLE_MAP_RESULT);
 
         restSiteMockMvc
             .perform(
@@ -321,6 +439,7 @@ class SiteResourceIT {
         assertThat(testSite.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testSite.getState()).isEqualTo(UPDATED_STATE);
         assertThat(testSite.getCoordinates()).isEqualTo(UPDATED_COORDINATES);
+        assertThat(testSite.getGoogleMapResult()).isEqualTo(UPDATED_GOOGLE_MAP_RESULT);
     }
 
     @Test
@@ -341,7 +460,8 @@ class SiteResourceIT {
             .country(UPDATED_COUNTRY)
             .name(UPDATED_NAME)
             .state(UPDATED_STATE)
-            .coordinates(UPDATED_COORDINATES);
+            .coordinates(UPDATED_COORDINATES)
+            .googleMapResult(UPDATED_GOOGLE_MAP_RESULT);
 
         restSiteMockMvc
             .perform(
@@ -361,6 +481,7 @@ class SiteResourceIT {
         assertThat(testSite.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testSite.getState()).isEqualTo(UPDATED_STATE);
         assertThat(testSite.getCoordinates()).isEqualTo(UPDATED_COORDINATES);
+        assertThat(testSite.getGoogleMapResult()).isEqualTo(UPDATED_GOOGLE_MAP_RESULT);
     }
 
     @Test

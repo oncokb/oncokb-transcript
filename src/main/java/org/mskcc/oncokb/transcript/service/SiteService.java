@@ -66,6 +66,9 @@ public class SiteService {
                     if (site.getCoordinates() != null) {
                         existingSite.setCoordinates(site.getCoordinates());
                     }
+                    if (site.getGoogleMapResult() != null) {
+                        existingSite.setGoogleMapResult(site.getGoogleMapResult());
+                    }
 
                     return existingSite;
                 }
@@ -106,8 +109,12 @@ public class SiteService {
         siteRepository.deleteById(id);
     }
 
-    Optional<Site> findOneByNameAndCityAndCountry(String name, String city, String country) {
-        return siteRepository.findOneByNameAndCityAndCountry(name, city, country);
+    Optional<Site> findOneByNameAndCityAndStateAndCountry(String name, String city, String state, String country) {
+        return siteRepository.findOneByNameAndCityAndStateAndCountry(name, city, state, country);
+    }
+
+    Optional<Site> findOneByCityAndStateAndCountryAndNameIsEmpty(String city, String state, String country) {
+        return siteRepository.findOneByNameAndCityAndStateAndCountry("", city, state, country);
     }
 
     Optional<Site> findOneByCoordinates(String coordinates) {

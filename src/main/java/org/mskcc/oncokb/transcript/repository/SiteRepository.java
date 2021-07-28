@@ -8,9 +8,9 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the Site entity.
  */
-@SuppressWarnings("unused")
 @Repository
 public interface SiteRepository extends JpaRepository<Site, Long> {
-    Optional<Site> findOneByNameAndCityAndCountry(String name, String city, String Country);
+    Optional<Site> findOneByNameAndCityAndStateAndCountry(String name, String city, String state, String Country);
+    Optional<Site> findOneByNameEqualsAndCityAndStateAndCountry(String name, String city, String state, String Country);
     Optional<Site> findOneByCoordinates(String coordinates);
 }

@@ -64,12 +64,13 @@ entity Arm {
 }
 
 entity Site {
-	address String
-	city String
-	country String
-	name String
-	state String
-	coordinates String
+	address String required
+	city String required
+	country String required
+	name String required
+	state String required
+	coordinates String required
+	googleMapResult TextBlob required
 }
 
 entity ClinicalTrial {

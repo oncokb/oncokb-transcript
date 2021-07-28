@@ -5,9 +5,12 @@ import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.google.gson.Gson;
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.errors.ApiException;
+import com.google.maps.model.AddressComponent;
+import com.google.maps.model.AddressComponentType;
 import com.google.maps.model.GeocodingResult;
 import jodd.util.StringUtil;
 import org.mskcc.oncokb.transcript.OncokbTranscriptApp;
@@ -75,6 +78,10 @@ public class AactService {
 
         // Step 5 - Get sites
         Set<String> oneNctId = new HashSet<>();
+        Iterator<String> itr = nctIds.stream().iterator();
+        for (int i = 0; i < 50; i++) {
+            oneNctId.add(itr.next());
+        }
         oneNctId.add(nctIds.stream().findFirst().get());
         getSites(oneNctId);
         // Step 6 - Update info table
@@ -125,13 +132,14 @@ public class AactService {
         String OVERALL_STATUS_KEY = "OVERALL_STATUS";
         String LAST_KNOWN_STATUS_KEY = "LAST_KNOWN_STATUS";
         String PHASE_KEY = "PHASE";
-        String[] keys = new String[] { NCT_ID_KEY, STUDY_TYPE_KEY, BRIEF_TITLE_KEY, OVERALL_STATUS_KEY, LAST_KNOWN_STATUS_KEY, PHASE_KEY };
+        String OVERALL_STATUS_RECRUITING="Recruiting";
+        String[] keys = new String[]{NCT_ID_KEY, STUDY_TYPE_KEY, BRIEF_TITLE_KEY, OVERALL_STATUS_KEY, LAST_KNOWN_STATUS_KEY, PHASE_KEY};
         ResultSet resultSet = stm.executeQuery(
             "select " +
-            String.join(",", keys) +
-            " from studies where nct_id in (" +
-            String.join(",", wrapSqlStringInClause(new ArrayList<>(nctIds))) +
-            ")"
+                String.join(",", keys) +
+                " from studies where overall_status = '" + OVERALL_STATUS_RECRUITING + "' and nct_id in (" +
+                String.join(",", wrapSqlStringInClause(new ArrayList<>(nctIds))) +
+                ")"
         );
 
         Set<String> trials = new HashSet<>();
@@ -150,59 +158,47 @@ public class AactService {
         return lat + "," + lon;
     }
 
-    private Optional<GeocodingResult> getCoordinates(String address) throws IOException, InterruptedException, ApiException {
+    private GeocodingResult[] getCoordinates(String address) throws IOException, InterruptedException, ApiException {
         GeoApiContext context = new GeoApiContext.Builder()
             .apiKey(applicationProperties.getGoogleCloud().getApiKey())
             .build();
-        GeocodingResult[] results = GeocodingApi.geocode(context, address).await();
-        return Optional.ofNullable(Arrays.stream(results).iterator().next());
+        return GeocodingApi.geocode(context, address).await();
     }
 
     private void getSites(Set<String> nctIds) throws Exception {
+        saveCityLevelSites(nctIds);
+    }
+
+    private void saveCityLevelSites(Set<String> nctIds) throws Exception {
         String nctIdList = String.join(",", wrapSqlStringInClause(new ArrayList<>(nctIds)));
         Statement stm = getAactConnection().createStatement();
         ResultSet resultSet = stm.executeQuery(
-            "select f.nct_id as \"nct_id\", f.name as \"name\", f.city as \"city\", f.state as \"state\", f.zip as \"zip\", f.country as \"country\", fi.name as \"pi_name\", fc.email as \"pi_email\", fc.phone as \"pi_phone\"\n" +
-            "        from facilities f,\n" +
-            "             facility_contacts fc,\n" +
-            "             facility_investigators fi\n" +
-            "        where f.id = fc.facility_id\n" +
-            "          and f.id = fi.facility_id\n" +
-            "          and fc.contact_type = 'primary'\n" +
-            "          and f.nct_id in (" +
-            nctIdList +
-            ")"
+            "select distinct city, state, country\n" +
+                "        from facilities\n" +
+                "        where nct_id in (" +
+                nctIdList +
+                ")"
         );
 
-        Set<String> trials = new HashSet<>();
         while (resultSet.next()) {
-            List<String> queryParams = new ArrayList<>();
-
-            String fName = resultSet.getString("name");
-            buildQuery(queryParams, fName);
-
-            String city = resultSet.getString("city");
-            buildQuery(queryParams, city);
-
-            String state = resultSet.getString("state");
-            buildQuery(queryParams, state);
-
-
+            String city = Optional.ofNullable(resultSet.getString("city")).orElse("");
+            String state = Optional.ofNullable(resultSet.getString("state")).orElse("");
             String country = Optional.ofNullable(resultSet.getString("country")).orElse("");
-            buildQuery(queryParams, country);
 
-
-            Optional<Site> siteOptional = siteService.findOneByNameAndCityAndCountry(fName, city, country);
+            Optional<Site> siteOptional = siteService.findOneByCityAndStateAndCountryAndNameIsEmpty(city, state, country);
             if (siteOptional.isEmpty()) {
                 Site site = new Site();
-                site.setCountry(country);
                 site.setCity(city);
-                site.setName(fName);
                 site.setState(state);
+                site.setCountry(country);
 
-                Optional<GeocodingResult> mapResult = getCoordinates(String.join(",", queryParams));
-                if (mapResult.isPresent()) {
-                    site.setCoordinates(getCoordinatesString(Optional.ofNullable(mapResult.get().geometry.location.lat).orElse(null), Optional.ofNullable(mapResult.get().geometry.location.lng).orElse(null)));
+                GeocodingResult[] mapResult = queryGoogleMapGeocoding("", country, city, state);
+                if (mapResult != null) {
+                    site.setGoogleMapResult(new Gson().toJson(mapResult));
+                    Optional<GeocodingResult> pickedResult = pickGeocoding(mapResult, country);
+                    if (pickedResult.isPresent()) {
+                        site.setCoordinates(getCoordinatesString(Optional.ofNullable(pickedResult.get().geometry.location.lat).orElse(null), Optional.ofNullable(pickedResult.get().geometry.location.lng).orElse(null)));
+                    }
                 }
                 log.warn(site.toString());
                 siteService.save(site);
@@ -210,16 +206,27 @@ public class AactService {
         }
         resultSet.close();
         stm.close();
-        /*
-        select f.*, fi.name, fc.email, fc.phone
-        from facilities f,
-             facility_contacts fc,
-             facility_investigators fi
-        where f.id = fc.facility_id
-          and f.id = fi.facility_id
-          and fc.contact_type = 'primary'
-          and f.nct_id = 'NCT02465060';
-        */
+    }
+
+    private GeocodingResult[] queryGoogleMapGeocoding(String name, String city, String state, String country) throws IOException, InterruptedException, ApiException {
+        List<String> queryParams = new ArrayList<>();
+        queryParams.add(name);
+        queryParams.add(city);
+        queryParams.add(state);
+        queryParams.add(country);
+        return getCoordinates(String.join(",", queryParams.stream().filter(param -> StringUtil.isNotEmpty(param)).collect(Collectors.toList())));
+    }
+
+    private Optional<GeocodingResult> pickGeocoding(GeocodingResult[] result, String country) {
+        List<GeocodingResult> resultWithCoordinates = Arrays.stream(result).filter(item -> item.geometry != null && item.geometry.location != null).collect(Collectors.toList());
+        for (GeocodingResult item : resultWithCoordinates) {
+            Optional<AddressComponent> countryComponent = Arrays.stream(item.addressComponents).filter(addressComponent -> Arrays.stream(addressComponent.types).anyMatch(addressComponentType -> addressComponentType.equals(AddressComponentType.COUNTRY))).findFirst();
+            if (countryComponent.isPresent() && countryComponent.get().longName.equalsIgnoreCase(country)) {
+                return Optional.of(item);
+            }
+        }
+        log.warn("Cannot find the geocoding matching the country {}", country);
+        return Optional.empty();
     }
 
 

@@ -1,10 +1,12 @@
 package org.mskcc.oncokb.transcript.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
 /**
  * A Site.
@@ -19,26 +21,36 @@ public class Site implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "address")
-    private String address;
+    @NotNull
+    @Column(name = "address", nullable = false)
+    private String address = "";
 
-    @Column(name = "city")
-    private String city;
+    @NotNull
+    @Column(name = "city", nullable = false)
+    private String city = "";
 
-    @Column(name = "country")
-    private String country;
+    @NotNull
+    @Column(name = "country", nullable = false)
+    private String country = "";
 
-    @Column(name = "name")
-    private String name;
+    @NotNull
+    @Column(name = "name", nullable = false)
+    private String name = "";
 
-    @Column(name = "state")
-    private String state;
+    @NotNull
+    @Column(name = "state", nullable = false)
+    private String state = "";
 
-    @Column(name = "coordinates")
-    private String coordinates;
+    @NotNull
+    @Column(name = "coordinates", nullable = false)
+    private String coordinates = "";
+
+    @Lob
+    @Column(name = "google_map_result", nullable = false)
+    private String googleMapResult = "";
 
     @ManyToMany(mappedBy = "sites")
-    @JsonIgnoreProperties(value = { "sites", "arms" }, allowSetters = true)
+    @JsonIgnoreProperties(value = {"sites", "arms"}, allowSetters = true)
     private Set<ClinicalTrial> clinicalTrials = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -133,6 +145,19 @@ public class Site implements Serializable {
         this.coordinates = coordinates;
     }
 
+    public String getGoogleMapResult() {
+        return this.googleMapResult;
+    }
+
+    public Site googleMapResult(String googleMapResult) {
+        this.googleMapResult = googleMapResult;
+        return this;
+    }
+
+    public void setGoogleMapResult(String googleMapResult) {
+        this.googleMapResult = googleMapResult;
+    }
+
     public Set<ClinicalTrial> getClinicalTrials() {
         return this.clinicalTrials;
     }
@@ -194,6 +219,7 @@ public class Site implements Serializable {
             ", name='" + getName() + "'" +
             ", state='" + getState() + "'" +
             ", coordinates='" + getCoordinates() + "'" +
+            ", googleMapResult='" + getGoogleMapResult() + "'" +
             "}";
     }
 }

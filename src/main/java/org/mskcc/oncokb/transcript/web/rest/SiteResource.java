@@ -5,6 +5,8 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.transcript.domain.Site;
 import org.mskcc.oncokb.transcript.repository.SiteRepository;
 import org.mskcc.oncokb.transcript.service.SiteService;
@@ -48,7 +50,7 @@ public class SiteResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/sites")
-    public ResponseEntity<Site> createSite(@RequestBody Site site) throws URISyntaxException {
+    public ResponseEntity<Site> createSite(@Valid @RequestBody Site site) throws URISyntaxException {
         log.debug("REST request to save Site : {}", site);
         if (site.getId() != null) {
             throw new BadRequestAlertException("A new site cannot already have an ID", ENTITY_NAME, "idexists");
@@ -71,7 +73,7 @@ public class SiteResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/sites/{id}")
-    public ResponseEntity<Site> updateSite(@PathVariable(value = "id", required = false) final Long id, @RequestBody Site site)
+    public ResponseEntity<Site> updateSite(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody Site site)
         throws URISyntaxException {
         log.debug("REST request to update Site : {}, {}", id, site);
         if (site.getId() == null) {
@@ -104,8 +106,10 @@ public class SiteResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/sites/{id}", consumes = "application/merge-patch+json")
-    public ResponseEntity<Site> partialUpdateSite(@PathVariable(value = "id", required = false) final Long id, @RequestBody Site site)
-        throws URISyntaxException {
+    public ResponseEntity<Site> partialUpdateSite(
+        @PathVariable(value = "id", required = false) final Long id,
+        @NotNull @RequestBody Site site
+    ) throws URISyntaxException {
         log.debug("REST request to partial update Site partially : {}, {}", id, site);
         if (site.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
