@@ -11,6 +11,7 @@ import com.google.maps.GeocodingApi;
 import com.google.maps.errors.ApiException;
 import com.google.maps.model.AddressComponent;
 import com.google.maps.model.AddressComponentType;
+import com.google.maps.model.ComponentFilter;
 import com.google.maps.model.GeocodingResult;
 import jodd.util.StringUtil;
 import org.mskcc.oncokb.transcript.OncokbTranscriptApp;
@@ -19,7 +20,10 @@ import org.mskcc.oncokb.transcript.config.model.AactConfig;
 import org.mskcc.oncokb.transcript.domain.Site;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PreDestroy;
 
 @Service
 public class AactService {
@@ -28,6 +32,7 @@ public class AactService {
 
     ApplicationProperties applicationProperties;
     SiteService siteService;
+    GeoApiContext geoApiContext;
 
     final String AACT_URL = "aact-db.ctti-clinicaltrials.org";
     final int AACT_PORT = 5432;
@@ -37,6 +42,15 @@ public class AactService {
     public AactService(ApplicationProperties applicationProperties, SiteService siteService) throws Exception {
         this.applicationProperties = applicationProperties;
         this.siteService = siteService;
+
+        geoApiContext = new GeoApiContext.Builder()
+            .apiKey(applicationProperties.getGoogleCloud().getApiKey())
+            .build();
+    }
+
+    @PreDestroy
+    public void preDestroy() throws IOException {
+        geoApiContext.close();
     }
 
     private Connection getAactConnection() throws Exception {
@@ -62,7 +76,7 @@ public class AactService {
         Set<String> nctIds = getNctIdsByMeshTerms(filteredTerms);
 
         // Step 3 - Get the trials using the list above
-        getTrials(nctIds);
+        nctIds = getTrials(nctIds);
 
         // Step 4 - Get interventions -> arm
 
@@ -77,13 +91,7 @@ public class AactService {
         */
 
         // Step 5 - Get sites
-        Set<String> oneNctId = new HashSet<>();
-        Iterator<String> itr = nctIds.stream().iterator();
-        for (int i = 0; i < 50; i++) {
-            oneNctId.add(itr.next());
-        }
-        oneNctId.add(nctIds.stream().findFirst().get());
-        getSites(oneNctId);
+        getSites(nctIds);
         // Step 6 - Update info table
     }
 
@@ -132,7 +140,7 @@ public class AactService {
         String OVERALL_STATUS_KEY = "OVERALL_STATUS";
         String LAST_KNOWN_STATUS_KEY = "LAST_KNOWN_STATUS";
         String PHASE_KEY = "PHASE";
-        String OVERALL_STATUS_RECRUITING="Recruiting";
+        String OVERALL_STATUS_RECRUITING = "Recruiting";
         String[] keys = new String[]{NCT_ID_KEY, STUDY_TYPE_KEY, BRIEF_TITLE_KEY, OVERALL_STATUS_KEY, LAST_KNOWN_STATUS_KEY, PHASE_KEY};
         ResultSet resultSet = stm.executeQuery(
             "select " +
@@ -158,13 +166,6 @@ public class AactService {
         return lat + "," + lon;
     }
 
-    private GeocodingResult[] getCoordinates(String address) throws IOException, InterruptedException, ApiException {
-        GeoApiContext context = new GeoApiContext.Builder()
-            .apiKey(applicationProperties.getGoogleCloud().getApiKey())
-            .build();
-        return GeocodingApi.geocode(context, address).await();
-    }
-
     private void getSites(Set<String> nctIds) throws Exception {
         saveCityLevelSites(nctIds);
     }
@@ -185,6 +186,11 @@ public class AactService {
             String state = Optional.ofNullable(resultSet.getString("state")).orElse("");
             String country = Optional.ofNullable(resultSet.getString("country")).orElse("");
 
+            Map<String, String> countryMapping = new HashMap<>();
+            countryMapping.put("russian federation", "Russia");
+            countryMapping.put("korea, republic of", "South Korea");
+            country = countryMapping.containsKey(country.toLowerCase()) ? countryMapping.get(country.toLowerCase()) : country;
+
             Optional<Site> siteOptional = siteService.findOneByCityAndStateAndCountryAndNameIsEmpty(city, state, country);
             if (siteOptional.isEmpty()) {
                 Site site = new Site();
@@ -192,7 +198,8 @@ public class AactService {
                 site.setState(state);
                 site.setCountry(country);
 
-                GeocodingResult[] mapResult = queryGoogleMapGeocoding("", country, city, state);
+                log.info("Querying google map for {}, {}, {}", city, state, country);
+                GeocodingResult[] mapResult = queryGoogleMapGeocoding("", city, state, country);
                 if (mapResult != null) {
                     site.setGoogleMapResult(new Gson().toJson(mapResult));
                     Optional<GeocodingResult> pickedResult = pickGeocoding(mapResult, country);
@@ -200,7 +207,6 @@ public class AactService {
                         site.setCoordinates(getCoordinatesString(Optional.ofNullable(pickedResult.get().geometry.location.lat).orElse(null), Optional.ofNullable(pickedResult.get().geometry.location.lng).orElse(null)));
                     }
                 }
-                log.warn(site.toString());
                 siteService.save(site);
             }
         }
@@ -213,11 +219,18 @@ public class AactService {
         queryParams.add(name);
         queryParams.add(city);
         queryParams.add(state);
-        queryParams.add(country);
-        return getCoordinates(String.join(",", queryParams.stream().filter(param -> StringUtil.isNotEmpty(param)).collect(Collectors.toList())));
+        return GeocodingApi
+            .newRequest(geoApiContext)
+            .address(String.join(",", queryParams.stream().filter(param -> StringUtil.isNotEmpty(param)).collect(Collectors.toList())))
+            .components(ComponentFilter.country(country))
+            .await();
     }
 
-    private Optional<GeocodingResult> pickGeocoding(GeocodingResult[] result, String country) {
+    private Optional<GeocodingResult> pickGeocoding(GeocodingResult[] result, String country) throws Exception {
+        if (StringUtil.isEmpty(country)) {
+            throw new Exception("country needs to be specified");
+        }
+        country = country.toLowerCase();
         List<GeocodingResult> resultWithCoordinates = Arrays.stream(result).filter(item -> item.geometry != null && item.geometry.location != null).collect(Collectors.toList());
         for (GeocodingResult item : resultWithCoordinates) {
             Optional<AddressComponent> countryComponent = Arrays.stream(item.addressComponents).filter(addressComponent -> Arrays.stream(addressComponent.types).anyMatch(addressComponentType -> addressComponentType.equals(AddressComponentType.COUNTRY))).findFirst();
