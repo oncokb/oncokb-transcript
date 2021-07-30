@@ -26,17 +26,14 @@ public class ClinicalTrial implements Serializable {
     @Column(name = "phase")
     private String phase;
 
-    @Column(name = "principal_investigator")
-    private String principalInvestigator;
-
     @Column(name = "status")
     private String status;
 
-    @Column(name = "status_last_updated")
-    private Instant statusLastUpdated;
-
     @Column(name = "brief_title")
     private String briefTitle;
+
+    @Column(name = "last_updated")
+    private Instant lastUpdated;
 
     @ManyToMany
     @JoinTable(
@@ -96,19 +93,6 @@ public class ClinicalTrial implements Serializable {
         this.phase = phase;
     }
 
-    public String getPrincipalInvestigator() {
-        return this.principalInvestigator;
-    }
-
-    public ClinicalTrial principalInvestigator(String principalInvestigator) {
-        this.principalInvestigator = principalInvestigator;
-        return this;
-    }
-
-    public void setPrincipalInvestigator(String principalInvestigator) {
-        this.principalInvestigator = principalInvestigator;
-    }
-
     public String getStatus() {
         return this.status;
     }
@@ -122,19 +106,6 @@ public class ClinicalTrial implements Serializable {
         this.status = status;
     }
 
-    public Instant getStatusLastUpdated() {
-        return this.statusLastUpdated;
-    }
-
-    public ClinicalTrial statusLastUpdated(Instant statusLastUpdated) {
-        this.statusLastUpdated = statusLastUpdated;
-        return this;
-    }
-
-    public void setStatusLastUpdated(Instant statusLastUpdated) {
-        this.statusLastUpdated = statusLastUpdated;
-    }
-
     public String getBriefTitle() {
         return this.briefTitle;
     }
@@ -146,6 +117,19 @@ public class ClinicalTrial implements Serializable {
 
     public void setBriefTitle(String briefTitle) {
         this.briefTitle = briefTitle;
+    }
+
+    public Instant getLastUpdated() {
+        return this.lastUpdated;
+    }
+
+    public ClinicalTrial lastUpdated(Instant lastUpdated) {
+        this.lastUpdated = lastUpdated;
+        return this;
+    }
+
+    public void setLastUpdated(Instant lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
 
     public Set<Site> getSites() {
@@ -224,10 +208,9 @@ public class ClinicalTrial implements Serializable {
             "id=" + getId() +
             ", nctId='" + getNctId() + "'" +
             ", phase='" + getPhase() + "'" +
-            ", principalInvestigator='" + getPrincipalInvestigator() + "'" +
             ", status='" + getStatus() + "'" +
-            ", statusLastUpdated='" + getStatusLastUpdated() + "'" +
             ", briefTitle='" + getBriefTitle() + "'" +
+            ", lastUpdated='" + getLastUpdated() + "'" +
             "}";
     }
 }

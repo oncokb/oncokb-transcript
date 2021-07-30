@@ -10,20 +10,16 @@
       "fieldType": "String"
     },
     {
-      "fieldName": "principalInvestigator",
-      "fieldType": "String"
-    },
-    {
       "fieldName": "status",
       "fieldType": "String"
     },
     {
-      "fieldName": "statusLastUpdated",
-      "fieldType": "Instant"
-    },
-    {
       "fieldName": "briefTitle",
       "fieldType": "String"
+    },
+    {
+      "fieldName": "lastUpdated",
+      "fieldType": "Instant"
     }
   ],
   "relationships": [

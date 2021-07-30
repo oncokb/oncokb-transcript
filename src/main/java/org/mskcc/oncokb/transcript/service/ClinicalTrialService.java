@@ -56,17 +56,14 @@ public class ClinicalTrialService {
                     if (clinicalTrial.getPhase() != null) {
                         existingClinicalTrial.setPhase(clinicalTrial.getPhase());
                     }
-                    if (clinicalTrial.getPrincipalInvestigator() != null) {
-                        existingClinicalTrial.setPrincipalInvestigator(clinicalTrial.getPrincipalInvestigator());
-                    }
                     if (clinicalTrial.getStatus() != null) {
                         existingClinicalTrial.setStatus(clinicalTrial.getStatus());
                     }
-                    if (clinicalTrial.getStatusLastUpdated() != null) {
-                        existingClinicalTrial.setStatusLastUpdated(clinicalTrial.getStatusLastUpdated());
-                    }
                     if (clinicalTrial.getBriefTitle() != null) {
                         existingClinicalTrial.setBriefTitle(clinicalTrial.getBriefTitle());
+                    }
+                    if (clinicalTrial.getLastUpdated() != null) {
+                        existingClinicalTrial.setLastUpdated(clinicalTrial.getLastUpdated());
                     }
 
                     return existingClinicalTrial;

@@ -46,17 +46,14 @@ class ClinicalTrialResourceIT {
     private static final String DEFAULT_PHASE = "AAAAAAAAAA";
     private static final String UPDATED_PHASE = "BBBBBBBBBB";
 
-    private static final String DEFAULT_PRINCIPAL_INVESTIGATOR = "AAAAAAAAAA";
-    private static final String UPDATED_PRINCIPAL_INVESTIGATOR = "BBBBBBBBBB";
-
     private static final String DEFAULT_STATUS = "AAAAAAAAAA";
     private static final String UPDATED_STATUS = "BBBBBBBBBB";
 
-    private static final Instant DEFAULT_STATUS_LAST_UPDATED = Instant.ofEpochMilli(0L);
-    private static final Instant UPDATED_STATUS_LAST_UPDATED = Instant.now().truncatedTo(ChronoUnit.MILLIS);
-
     private static final String DEFAULT_BRIEF_TITLE = "AAAAAAAAAA";
     private static final String UPDATED_BRIEF_TITLE = "BBBBBBBBBB";
+
+    private static final Instant DEFAULT_LAST_UPDATED = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_LAST_UPDATED = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
     private static final String ENTITY_API_URL = "/api/clinical-trials";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -91,10 +88,9 @@ class ClinicalTrialResourceIT {
         ClinicalTrial clinicalTrial = new ClinicalTrial()
             .nctId(DEFAULT_NCT_ID)
             .phase(DEFAULT_PHASE)
-            .principalInvestigator(DEFAULT_PRINCIPAL_INVESTIGATOR)
             .status(DEFAULT_STATUS)
-            .statusLastUpdated(DEFAULT_STATUS_LAST_UPDATED)
-            .briefTitle(DEFAULT_BRIEF_TITLE);
+            .briefTitle(DEFAULT_BRIEF_TITLE)
+            .lastUpdated(DEFAULT_LAST_UPDATED);
         return clinicalTrial;
     }
 
@@ -108,10 +104,9 @@ class ClinicalTrialResourceIT {
         ClinicalTrial clinicalTrial = new ClinicalTrial()
             .nctId(UPDATED_NCT_ID)
             .phase(UPDATED_PHASE)
-            .principalInvestigator(UPDATED_PRINCIPAL_INVESTIGATOR)
             .status(UPDATED_STATUS)
-            .statusLastUpdated(UPDATED_STATUS_LAST_UPDATED)
-            .briefTitle(UPDATED_BRIEF_TITLE);
+            .briefTitle(UPDATED_BRIEF_TITLE)
+            .lastUpdated(UPDATED_LAST_UPDATED);
         return clinicalTrial;
     }
 
@@ -135,10 +130,9 @@ class ClinicalTrialResourceIT {
         ClinicalTrial testClinicalTrial = clinicalTrialList.get(clinicalTrialList.size() - 1);
         assertThat(testClinicalTrial.getNctId()).isEqualTo(DEFAULT_NCT_ID);
         assertThat(testClinicalTrial.getPhase()).isEqualTo(DEFAULT_PHASE);
-        assertThat(testClinicalTrial.getPrincipalInvestigator()).isEqualTo(DEFAULT_PRINCIPAL_INVESTIGATOR);
         assertThat(testClinicalTrial.getStatus()).isEqualTo(DEFAULT_STATUS);
-        assertThat(testClinicalTrial.getStatusLastUpdated()).isEqualTo(DEFAULT_STATUS_LAST_UPDATED);
         assertThat(testClinicalTrial.getBriefTitle()).isEqualTo(DEFAULT_BRIEF_TITLE);
+        assertThat(testClinicalTrial.getLastUpdated()).isEqualTo(DEFAULT_LAST_UPDATED);
     }
 
     @Test
@@ -173,10 +167,9 @@ class ClinicalTrialResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(clinicalTrial.getId().intValue())))
             .andExpect(jsonPath("$.[*].nctId").value(hasItem(DEFAULT_NCT_ID)))
             .andExpect(jsonPath("$.[*].phase").value(hasItem(DEFAULT_PHASE)))
-            .andExpect(jsonPath("$.[*].principalInvestigator").value(hasItem(DEFAULT_PRINCIPAL_INVESTIGATOR)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
-            .andExpect(jsonPath("$.[*].statusLastUpdated").value(hasItem(DEFAULT_STATUS_LAST_UPDATED.toString())))
-            .andExpect(jsonPath("$.[*].briefTitle").value(hasItem(DEFAULT_BRIEF_TITLE)));
+            .andExpect(jsonPath("$.[*].briefTitle").value(hasItem(DEFAULT_BRIEF_TITLE)))
+            .andExpect(jsonPath("$.[*].lastUpdated").value(hasItem(DEFAULT_LAST_UPDATED.toString())));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -211,10 +204,9 @@ class ClinicalTrialResourceIT {
             .andExpect(jsonPath("$.id").value(clinicalTrial.getId().intValue()))
             .andExpect(jsonPath("$.nctId").value(DEFAULT_NCT_ID))
             .andExpect(jsonPath("$.phase").value(DEFAULT_PHASE))
-            .andExpect(jsonPath("$.principalInvestigator").value(DEFAULT_PRINCIPAL_INVESTIGATOR))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS))
-            .andExpect(jsonPath("$.statusLastUpdated").value(DEFAULT_STATUS_LAST_UPDATED.toString()))
-            .andExpect(jsonPath("$.briefTitle").value(DEFAULT_BRIEF_TITLE));
+            .andExpect(jsonPath("$.briefTitle").value(DEFAULT_BRIEF_TITLE))
+            .andExpect(jsonPath("$.lastUpdated").value(DEFAULT_LAST_UPDATED.toString()));
     }
 
     @Test
@@ -239,10 +231,9 @@ class ClinicalTrialResourceIT {
         updatedClinicalTrial
             .nctId(UPDATED_NCT_ID)
             .phase(UPDATED_PHASE)
-            .principalInvestigator(UPDATED_PRINCIPAL_INVESTIGATOR)
             .status(UPDATED_STATUS)
-            .statusLastUpdated(UPDATED_STATUS_LAST_UPDATED)
-            .briefTitle(UPDATED_BRIEF_TITLE);
+            .briefTitle(UPDATED_BRIEF_TITLE)
+            .lastUpdated(UPDATED_LAST_UPDATED);
 
         restClinicalTrialMockMvc
             .perform(
@@ -258,10 +249,9 @@ class ClinicalTrialResourceIT {
         ClinicalTrial testClinicalTrial = clinicalTrialList.get(clinicalTrialList.size() - 1);
         assertThat(testClinicalTrial.getNctId()).isEqualTo(UPDATED_NCT_ID);
         assertThat(testClinicalTrial.getPhase()).isEqualTo(UPDATED_PHASE);
-        assertThat(testClinicalTrial.getPrincipalInvestigator()).isEqualTo(UPDATED_PRINCIPAL_INVESTIGATOR);
         assertThat(testClinicalTrial.getStatus()).isEqualTo(UPDATED_STATUS);
-        assertThat(testClinicalTrial.getStatusLastUpdated()).isEqualTo(UPDATED_STATUS_LAST_UPDATED);
         assertThat(testClinicalTrial.getBriefTitle()).isEqualTo(UPDATED_BRIEF_TITLE);
+        assertThat(testClinicalTrial.getLastUpdated()).isEqualTo(UPDATED_LAST_UPDATED);
     }
 
     @Test
@@ -332,11 +322,7 @@ class ClinicalTrialResourceIT {
         ClinicalTrial partialUpdatedClinicalTrial = new ClinicalTrial();
         partialUpdatedClinicalTrial.setId(clinicalTrial.getId());
 
-        partialUpdatedClinicalTrial
-            .nctId(UPDATED_NCT_ID)
-            .phase(UPDATED_PHASE)
-            .statusLastUpdated(UPDATED_STATUS_LAST_UPDATED)
-            .briefTitle(UPDATED_BRIEF_TITLE);
+        partialUpdatedClinicalTrial.nctId(UPDATED_NCT_ID).phase(UPDATED_PHASE).lastUpdated(UPDATED_LAST_UPDATED);
 
         restClinicalTrialMockMvc
             .perform(
@@ -352,10 +338,9 @@ class ClinicalTrialResourceIT {
         ClinicalTrial testClinicalTrial = clinicalTrialList.get(clinicalTrialList.size() - 1);
         assertThat(testClinicalTrial.getNctId()).isEqualTo(UPDATED_NCT_ID);
         assertThat(testClinicalTrial.getPhase()).isEqualTo(UPDATED_PHASE);
-        assertThat(testClinicalTrial.getPrincipalInvestigator()).isEqualTo(DEFAULT_PRINCIPAL_INVESTIGATOR);
         assertThat(testClinicalTrial.getStatus()).isEqualTo(DEFAULT_STATUS);
-        assertThat(testClinicalTrial.getStatusLastUpdated()).isEqualTo(UPDATED_STATUS_LAST_UPDATED);
-        assertThat(testClinicalTrial.getBriefTitle()).isEqualTo(UPDATED_BRIEF_TITLE);
+        assertThat(testClinicalTrial.getBriefTitle()).isEqualTo(DEFAULT_BRIEF_TITLE);
+        assertThat(testClinicalTrial.getLastUpdated()).isEqualTo(UPDATED_LAST_UPDATED);
     }
 
     @Test
@@ -373,10 +358,9 @@ class ClinicalTrialResourceIT {
         partialUpdatedClinicalTrial
             .nctId(UPDATED_NCT_ID)
             .phase(UPDATED_PHASE)
-            .principalInvestigator(UPDATED_PRINCIPAL_INVESTIGATOR)
             .status(UPDATED_STATUS)
-            .statusLastUpdated(UPDATED_STATUS_LAST_UPDATED)
-            .briefTitle(UPDATED_BRIEF_TITLE);
+            .briefTitle(UPDATED_BRIEF_TITLE)
+            .lastUpdated(UPDATED_LAST_UPDATED);
 
         restClinicalTrialMockMvc
             .perform(
@@ -392,10 +376,9 @@ class ClinicalTrialResourceIT {
         ClinicalTrial testClinicalTrial = clinicalTrialList.get(clinicalTrialList.size() - 1);
         assertThat(testClinicalTrial.getNctId()).isEqualTo(UPDATED_NCT_ID);
         assertThat(testClinicalTrial.getPhase()).isEqualTo(UPDATED_PHASE);
-        assertThat(testClinicalTrial.getPrincipalInvestigator()).isEqualTo(UPDATED_PRINCIPAL_INVESTIGATOR);
         assertThat(testClinicalTrial.getStatus()).isEqualTo(UPDATED_STATUS);
-        assertThat(testClinicalTrial.getStatusLastUpdated()).isEqualTo(UPDATED_STATUS_LAST_UPDATED);
         assertThat(testClinicalTrial.getBriefTitle()).isEqualTo(UPDATED_BRIEF_TITLE);
+        assertThat(testClinicalTrial.getLastUpdated()).isEqualTo(UPDATED_LAST_UPDATED);
     }
 
     @Test

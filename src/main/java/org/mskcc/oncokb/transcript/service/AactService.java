@@ -176,7 +176,7 @@ public class AactService {
                     clinicalTrial.setPhase(phase);
                     clinicalTrial.setStatus(overallStatus);
                     if (lastUpdateOptional.isPresent()) {
-                        clinicalTrial.setStatusLastUpdated(lastUpdateOptional.get().toInstant());
+                        clinicalTrial.setLastUpdated(lastUpdateOptional.get().toInstant());
                     }
                     clinicalTrialService.save(clinicalTrial);
                 } else {
@@ -185,7 +185,7 @@ public class AactService {
                     clinicalTrial.setPhase(phase);
                     clinicalTrial.setStatus(overallStatus);
                     if (lastUpdateOptional.isPresent()) {
-                        clinicalTrial.setStatusLastUpdated(lastUpdateOptional.get().toInstant());
+                        clinicalTrial.setLastUpdated(lastUpdateOptional.get().toInstant());
                     }
                     clinicalTrialService.partialUpdate(clinicalTrial);
                 }
