@@ -34,6 +34,9 @@ import org.springframework.util.Base64Utils;
 @WithMockUser
 class SiteResourceIT {
 
+    private static final String DEFAULT_AACT_QUERY = "AAAAAAAAAA";
+    private static final String UPDATED_AACT_QUERY = "BBBBBBBBBB";
+
     private static final String DEFAULT_ADDRESS = "AAAAAAAAAA";
     private static final String UPDATED_ADDRESS = "BBBBBBBBBB";
 
@@ -80,6 +83,7 @@ class SiteResourceIT {
      */
     public static Site createEntity(EntityManager em) {
         Site site = new Site()
+            .aactQuery(DEFAULT_AACT_QUERY)
             .address(DEFAULT_ADDRESS)
             .city(DEFAULT_CITY)
             .country(DEFAULT_COUNTRY)
@@ -98,6 +102,7 @@ class SiteResourceIT {
      */
     public static Site createUpdatedEntity(EntityManager em) {
         Site site = new Site()
+            .aactQuery(UPDATED_AACT_QUERY)
             .address(UPDATED_ADDRESS)
             .city(UPDATED_CITY)
             .country(UPDATED_COUNTRY)
@@ -126,6 +131,7 @@ class SiteResourceIT {
         List<Site> siteList = siteRepository.findAll();
         assertThat(siteList).hasSize(databaseSizeBeforeCreate + 1);
         Site testSite = siteList.get(siteList.size() - 1);
+        assertThat(testSite.getAactQuery()).isEqualTo(DEFAULT_AACT_QUERY);
         assertThat(testSite.getAddress()).isEqualTo(DEFAULT_ADDRESS);
         assertThat(testSite.getCity()).isEqualTo(DEFAULT_CITY);
         assertThat(testSite.getCountry()).isEqualTo(DEFAULT_COUNTRY);
@@ -151,6 +157,23 @@ class SiteResourceIT {
         // Validate the Site in the database
         List<Site> siteList = siteRepository.findAll();
         assertThat(siteList).hasSize(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    @Transactional
+    void checkAactQueryIsRequired() throws Exception {
+        int databaseSizeBeforeTest = siteRepository.findAll().size();
+        // set the field null
+        site.setAactQuery(null);
+
+        // Create the Site, which fails.
+
+        restSiteMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(site)))
+            .andExpect(status().isBadRequest());
+
+        List<Site> siteList = siteRepository.findAll();
+        assertThat(siteList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -267,6 +290,7 @@ class SiteResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(site.getId().intValue())))
+            .andExpect(jsonPath("$.[*].aactQuery").value(hasItem(DEFAULT_AACT_QUERY)))
             .andExpect(jsonPath("$.[*].address").value(hasItem(DEFAULT_ADDRESS)))
             .andExpect(jsonPath("$.[*].city").value(hasItem(DEFAULT_CITY)))
             .andExpect(jsonPath("$.[*].country").value(hasItem(DEFAULT_COUNTRY)))
@@ -288,6 +312,7 @@ class SiteResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(site.getId().intValue()))
+            .andExpect(jsonPath("$.aactQuery").value(DEFAULT_AACT_QUERY))
             .andExpect(jsonPath("$.address").value(DEFAULT_ADDRESS))
             .andExpect(jsonPath("$.city").value(DEFAULT_CITY))
             .andExpect(jsonPath("$.country").value(DEFAULT_COUNTRY))
@@ -317,6 +342,7 @@ class SiteResourceIT {
         // Disconnect from session so that the updates on updatedSite are not directly saved in db
         em.detach(updatedSite);
         updatedSite
+            .aactQuery(UPDATED_AACT_QUERY)
             .address(UPDATED_ADDRESS)
             .city(UPDATED_CITY)
             .country(UPDATED_COUNTRY)
@@ -337,6 +363,7 @@ class SiteResourceIT {
         List<Site> siteList = siteRepository.findAll();
         assertThat(siteList).hasSize(databaseSizeBeforeUpdate);
         Site testSite = siteList.get(siteList.size() - 1);
+        assertThat(testSite.getAactQuery()).isEqualTo(UPDATED_AACT_QUERY);
         assertThat(testSite.getAddress()).isEqualTo(UPDATED_ADDRESS);
         assertThat(testSite.getCity()).isEqualTo(UPDATED_CITY);
         assertThat(testSite.getCountry()).isEqualTo(UPDATED_COUNTRY);
@@ -415,8 +442,9 @@ class SiteResourceIT {
         partialUpdatedSite.setId(site.getId());
 
         partialUpdatedSite
+            .address(UPDATED_ADDRESS)
             .city(UPDATED_CITY)
-            .country(UPDATED_COUNTRY)
+            .name(UPDATED_NAME)
             .state(UPDATED_STATE)
             .coordinates(UPDATED_COORDINATES)
             .googleMapResult(UPDATED_GOOGLE_MAP_RESULT);
@@ -433,10 +461,11 @@ class SiteResourceIT {
         List<Site> siteList = siteRepository.findAll();
         assertThat(siteList).hasSize(databaseSizeBeforeUpdate);
         Site testSite = siteList.get(siteList.size() - 1);
-        assertThat(testSite.getAddress()).isEqualTo(DEFAULT_ADDRESS);
+        assertThat(testSite.getAactQuery()).isEqualTo(DEFAULT_AACT_QUERY);
+        assertThat(testSite.getAddress()).isEqualTo(UPDATED_ADDRESS);
         assertThat(testSite.getCity()).isEqualTo(UPDATED_CITY);
-        assertThat(testSite.getCountry()).isEqualTo(UPDATED_COUNTRY);
-        assertThat(testSite.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(testSite.getCountry()).isEqualTo(DEFAULT_COUNTRY);
+        assertThat(testSite.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testSite.getState()).isEqualTo(UPDATED_STATE);
         assertThat(testSite.getCoordinates()).isEqualTo(UPDATED_COORDINATES);
         assertThat(testSite.getGoogleMapResult()).isEqualTo(UPDATED_GOOGLE_MAP_RESULT);
@@ -455,6 +484,7 @@ class SiteResourceIT {
         partialUpdatedSite.setId(site.getId());
 
         partialUpdatedSite
+            .aactQuery(UPDATED_AACT_QUERY)
             .address(UPDATED_ADDRESS)
             .city(UPDATED_CITY)
             .country(UPDATED_COUNTRY)
@@ -475,6 +505,7 @@ class SiteResourceIT {
         List<Site> siteList = siteRepository.findAll();
         assertThat(siteList).hasSize(databaseSizeBeforeUpdate);
         Site testSite = siteList.get(siteList.size() - 1);
+        assertThat(testSite.getAactQuery()).isEqualTo(UPDATED_AACT_QUERY);
         assertThat(testSite.getAddress()).isEqualTo(UPDATED_ADDRESS);
         assertThat(testSite.getCity()).isEqualTo(UPDATED_CITY);
         assertThat(testSite.getCountry()).isEqualTo(UPDATED_COUNTRY);

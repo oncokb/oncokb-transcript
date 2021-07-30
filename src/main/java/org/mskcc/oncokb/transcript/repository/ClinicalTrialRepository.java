@@ -29,4 +29,6 @@ public interface ClinicalTrialRepository extends JpaRepository<ClinicalTrial, Lo
         "select clinicalTrial from ClinicalTrial clinicalTrial left join fetch clinicalTrial.sites left join fetch clinicalTrial.arms where clinicalTrial.id =:id"
     )
     Optional<ClinicalTrial> findOneWithEagerRelationships(@Param("id") Long id);
+
+    Optional<ClinicalTrial> findOneByNctId(String nctId);
 }

@@ -116,4 +116,8 @@ public class ClinicalTrialService {
         log.debug("Request to delete ClinicalTrial : {}", id);
         clinicalTrialRepository.deleteById(id);
     }
+
+    public Optional<ClinicalTrial> findOneByNctId(String nctId) {
+        return clinicalTrialRepository.findOneByNctId(nctId);
+    }
 }

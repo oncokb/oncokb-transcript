@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.transcript.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.transcript.domain.Site;
@@ -8,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.mskcc.oncokb.transcript.config.Constants.SITE_AACT_QUERY_SEPARATOR;
 
 /**
  * Service Implementation for managing {@link Site}.
@@ -22,6 +25,15 @@ public class SiteService {
 
     public SiteService(SiteRepository siteRepository) {
         this.siteRepository = siteRepository;
+    }
+
+    public String generateAactQuery(String name, String city, String state, String country) {
+        List<String> query = new ArrayList<>();
+        query.add(name);
+        query.add(city);
+        query.add(state);
+        query.add(country);
+        return String.join(SITE_AACT_QUERY_SEPARATOR, query);
     }
 
     /**
@@ -48,6 +60,9 @@ public class SiteService {
             .findById(site.getId())
             .map(
                 existingSite -> {
+                    if (site.getAactQuery() != null) {
+                        existingSite.setAactQuery(site.getAactQuery());
+                    }
                     if (site.getAddress() != null) {
                         existingSite.setAddress(site.getAddress());
                     }
@@ -113,8 +128,13 @@ public class SiteService {
         return siteRepository.findOneByNameAndCityAndStateAndCountry(name, city, state, country);
     }
 
-    Optional<Site> findOneByCityAndStateAndCountryAndNameIsEmpty(String city, String state, String country) {
-        return siteRepository.findOneByNameAndCityAndStateAndCountry("", city, state, country);
+    Optional<Site> findOneByAactQuery(String name, String city, String state, String country) {
+        String aactQuery = generateAactQuery(name, city, state, country);
+        return siteRepository.findOneByAactQuery(aactQuery);
+    }
+
+    List<Site> findAllWithEmptyCoordinates() {
+        return siteRepository.findAllByCoordinatesEquals("");
     }
 
     Optional<Site> findOneByCoordinates(String coordinates) {

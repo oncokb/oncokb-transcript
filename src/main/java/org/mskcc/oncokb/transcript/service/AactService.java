@@ -3,6 +3,7 @@ package org.mskcc.oncokb.transcript.service;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
@@ -17,6 +18,7 @@ import jodd.util.StringUtil;
 import org.mskcc.oncokb.transcript.OncokbTranscriptApp;
 import org.mskcc.oncokb.transcript.config.ApplicationProperties;
 import org.mskcc.oncokb.transcript.config.model.AactConfig;
+import org.mskcc.oncokb.transcript.domain.ClinicalTrial;
 import org.mskcc.oncokb.transcript.domain.Site;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,8 @@ public class AactService {
 
     ApplicationProperties applicationProperties;
     SiteService siteService;
+    ClinicalTrialService clinicalTrialService;
+    OncoKbUrlService oncoKbUrlService;
     GeoApiContext geoApiContext;
 
     final String AACT_URL = "aact-db.ctti-clinicaltrials.org";
@@ -39,9 +43,11 @@ public class AactService {
     final String AACT_DB_NAME = "aact";
     final String AACT_CONNECTION_STR = "jdbc:postgresql://" + AACT_URL + ":" + AACT_PORT + "/" + AACT_DB_NAME;
 
-    public AactService(ApplicationProperties applicationProperties, SiteService siteService) throws Exception {
+    public AactService(ApplicationProperties applicationProperties, SiteService siteService, OncoKbUrlService oncoKbUrlService, ClinicalTrialService clinicalTrialService) throws Exception {
         this.applicationProperties = applicationProperties;
         this.siteService = siteService;
+        this.oncoKbUrlService = oncoKbUrlService;
+        this.clinicalTrialService = clinicalTrialService;
 
         geoApiContext = new GeoApiContext.Builder()
             .apiKey(applicationProperties.getGoogleCloud().getApiKey())
@@ -135,31 +141,60 @@ public class AactService {
     private Set<String> getTrials(Set<String> nctIds) throws Exception {
         Statement stm = getAactConnection().createStatement();
         String NCT_ID_KEY = "NCT_ID";
-        String STUDY_TYPE_KEY = "STUDY_TYPE";
         String BRIEF_TITLE_KEY = "BRIEF_TITLE";
         String OVERALL_STATUS_KEY = "OVERALL_STATUS";
-        String LAST_KNOWN_STATUS_KEY = "LAST_KNOWN_STATUS";
         String PHASE_KEY = "PHASE";
-        String OVERALL_STATUS_RECRUITING = "Recruiting";
-        String[] keys = new String[]{NCT_ID_KEY, STUDY_TYPE_KEY, BRIEF_TITLE_KEY, OVERALL_STATUS_KEY, LAST_KNOWN_STATUS_KEY, PHASE_KEY};
+        String UPDATED_AT_KEY = "UPDATE_AT";
+
+        String OVERALL_STATUS_RECRUITING_FILTER = "Recruiting";
+        String STUDY_TYPE_FILTER = "Interventional";
+
+        String[] keys = new String[]{NCT_ID_KEY, BRIEF_TITLE_KEY, OVERALL_STATUS_KEY, PHASE_KEY, UPDATED_AT_KEY};
         ResultSet resultSet = stm.executeQuery(
             "select " +
                 String.join(",", keys) +
-                " from studies where overall_status = '" + OVERALL_STATUS_RECRUITING + "' and nct_id in (" +
-                String.join(",", wrapSqlStringInClause(new ArrayList<>(nctIds))) +
-                ")"
+                " from studies where" +
+                " overall_status = '" + OVERALL_STATUS_RECRUITING_FILTER + "'" +
+                " and study_type = " + STUDY_TYPE_FILTER +
+                " and nct_id in (" + String.join(",", wrapSqlStringInClause(new ArrayList<>(nctIds))) + ")"
+
         );
 
-        Set<String> trials = new HashSet<>();
+        Set<String> trialIds = new HashSet<>();
         while (resultSet.next()) {
-            String trialId = resultSet.getString(NCT_ID_KEY);
-            if (StringUtil.isNotEmpty(trialId)) {
-                trials.add(trialId);
+            Optional<String> trialIdOptional = Optional.ofNullable(resultSet.getString(NCT_ID_KEY));
+            String briefTitle = Optional.ofNullable(resultSet.getString(BRIEF_TITLE_KEY)).orElse("");
+            String phase = Optional.ofNullable(resultSet.getString(PHASE_KEY)).orElse("");
+            String overallStatus = Optional.ofNullable(resultSet.getString(OVERALL_STATUS_KEY)).orElse("");
+            Optional<Date> lastUpdateOptional = Optional.ofNullable(resultSet.getDate(UPDATED_AT_KEY));
+
+            if (trialIdOptional.isPresent()) {
+                Optional<ClinicalTrial> clinicalTrialOptional = clinicalTrialService.findOneByNctId(trialIdOptional.get());
+                if (clinicalTrialOptional.isEmpty()) {
+                    ClinicalTrial clinicalTrial = new ClinicalTrial();
+                    clinicalTrial.setBriefTitle(briefTitle);
+                    clinicalTrial.setPhase(phase);
+                    clinicalTrial.setStatus(overallStatus);
+                    if (lastUpdateOptional.isPresent()) {
+                        clinicalTrial.setStatusLastUpdated(lastUpdateOptional.get().toInstant());
+                    }
+                    clinicalTrialService.save(clinicalTrial);
+                } else {
+                    ClinicalTrial clinicalTrial = clinicalTrialOptional.get();
+                    clinicalTrial.setBriefTitle(briefTitle);
+                    clinicalTrial.setPhase(phase);
+                    clinicalTrial.setStatus(overallStatus);
+                    if (lastUpdateOptional.isPresent()) {
+                        clinicalTrial.setStatusLastUpdated(lastUpdateOptional.get().toInstant());
+                    }
+                    clinicalTrialService.partialUpdate(clinicalTrial);
+                }
+                trialIds.add(trialIdOptional.get());
             }
         }
         resultSet.close();
         stm.close();
-        return trials;
+        return trialIds;
     }
 
     private String getCoordinatesString(Double lat, Double lon) {
@@ -167,7 +202,14 @@ public class AactService {
     }
 
     private void getSites(Set<String> nctIds) throws Exception {
+        // Back fill sites info if the coordinates is empty. The data may have been updated in the database so that the coordinates can be filled after querying the Google Map
+        updateSitesWithEmptyCoordinates();
+
+        // Include new city level sites
         saveCityLevelSites(nctIds);
+
+        // Include new AACT sites
+        saveAllAactSites(nctIds);
     }
 
     private void saveCityLevelSites(Set<String> nctIds) throws Exception {
@@ -186,12 +228,7 @@ public class AactService {
             String state = Optional.ofNullable(resultSet.getString("state")).orElse("");
             String country = Optional.ofNullable(resultSet.getString("country")).orElse("");
 
-            Map<String, String> countryMapping = new HashMap<>();
-            countryMapping.put("russian federation", "Russia");
-            countryMapping.put("korea, republic of", "South Korea");
-            country = countryMapping.containsKey(country.toLowerCase()) ? countryMapping.get(country.toLowerCase()) : country;
-
-            Optional<Site> siteOptional = siteService.findOneByCityAndStateAndCountryAndNameIsEmpty(city, state, country);
+            Optional<Site> siteOptional = siteService.findOneByAactQuery("", city, state, country);
             if (siteOptional.isEmpty()) {
                 Site site = new Site();
                 site.setCity(city);
@@ -207,11 +244,85 @@ public class AactService {
                         site.setCoordinates(getCoordinatesString(Optional.ofNullable(pickedResult.get().geometry.location.lat).orElse(null), Optional.ofNullable(pickedResult.get().geometry.location.lng).orElse(null)));
                     }
                 }
+                site.setAactQuery(siteService.generateAactQuery("", city, state, country));
                 siteService.save(site);
+            }
+        }
+
+        List<Site> sites = siteService.findAllWithEmptyCoordinates();
+        if (sites.size() > 0) {
+            oncoKbUrlService.sendMailToDev("Sites without coordinates exist", "There are " + sites.size() + " site(s) without coordinates, please update accordingly.");
+        }
+        resultSet.close();
+        stm.close();
+    }
+
+    private void saveAllAactSites(Set<String> nctIds) throws Exception {
+        String nctIdList = String.join(",", wrapSqlStringInClause(new ArrayList<>(nctIds)));
+        Statement stm = getAactConnection().createStatement();
+        ResultSet resultSet = stm.executeQuery(
+            "select nct_id, name, city, state, country\n" +
+                "        from facilities\n" +
+                "        where nct_id in (" +
+                nctIdList +
+                ")"
+        );
+
+        Map<String, Set<Site>> nctSites = new HashMap<>();
+        while (resultSet.next()) {
+            String nctId = Optional.ofNullable(resultSet.getString("nct_id")).orElse("");
+            String name = Optional.ofNullable(resultSet.getString("name")).orElse("");
+            String city = Optional.ofNullable(resultSet.getString("city")).orElse("");
+            String state = Optional.ofNullable(resultSet.getString("state")).orElse("");
+            String country = Optional.ofNullable(resultSet.getString("country")).orElse("");
+
+            Optional<Site> citySiteOptional = siteService.findOneByAactQuery("", city, state, country);
+            if (citySiteOptional.isEmpty()) {
+                log.warn("The site does not have a mapped city level site. The site is name: {}.", name);
+            } else {
+                Site citySite = citySiteOptional.get();
+                Site site = new Site();
+                site.setName(name);
+                site.setCity(citySite.getCity());
+                site.setState(citySite.getState());
+                site.setCountry(citySite.getCountry());
+                site.setCoordinates(citySite.getCoordinates());
+                site.setAactQuery(siteService.generateAactQuery(name, city, state, country));
+                siteService.save(site);
+
+                if (!nctSites.containsKey(nctId)) {
+                    nctSites.put(nctId, new HashSet<>());
+                }
+                nctSites.get(nctId).add(site);
+            }
+        }
+
+        for (Map.Entry<String, Set<Site>> mapEntry : nctSites.entrySet()) {
+            Optional<ClinicalTrial> clinicalTrialOptional = clinicalTrialService.findOneByNctId(mapEntry.getKey());
+            if (clinicalTrialOptional.isPresent()) {
+                clinicalTrialOptional.get().setSites(mapEntry.getValue());
+            } else {
+                log.error("The NCT ID {} is not available, but at this stage, it really should.", mapEntry.getKey());
             }
         }
         resultSet.close();
         stm.close();
+    }
+
+    private void updateSitesWithEmptyCoordinates() throws Exception {
+        List<Site> siteToBeUpdated = siteService.findAllWithEmptyCoordinates();
+
+        for(Site site : siteToBeUpdated) {
+            GeocodingResult[] mapResult = queryGoogleMapGeocoding("", site.getCity(), site.getState(), site.getCountry());
+            if (mapResult != null) {
+                site.setGoogleMapResult(new Gson().toJson(mapResult));
+                Optional<GeocodingResult> pickedResult = pickGeocoding(mapResult, site.getCountry());
+                if (pickedResult.isPresent()) {
+                    site.setCoordinates(getCoordinatesString(Optional.ofNullable(pickedResult.get().geometry.location.lat).orElse(null), Optional.ofNullable(pickedResult.get().geometry.location.lng).orElse(null)));
+                }
+            }
+            siteService.partialUpdate(site);
+        }
     }
 
     private GeocodingResult[] queryGoogleMapGeocoding(String name, String city, String state, String country) throws IOException, InterruptedException, ApiException {

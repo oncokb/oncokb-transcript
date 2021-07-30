@@ -2,6 +2,11 @@
   "name": "Site",
   "fields": [
     {
+      "fieldName": "aactQuery",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
       "fieldName": "address",
       "fieldType": "String",
       "fieldValidateRules": ["required"]

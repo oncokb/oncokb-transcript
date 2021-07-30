@@ -64,6 +64,7 @@ entity Arm {
 }
 
 entity Site {
+    aactQuery String required
 	address String required
 	city String required
 	country String required
@@ -76,10 +77,9 @@ entity Site {
 entity ClinicalTrial {
 	nctId String
 	phase String
-	principalInvestigator String
 	status String
-    statusLastUpdated Instant
     briefTitle String
+    lastUpdated Instant
 }
 
 relationship OneToMany {

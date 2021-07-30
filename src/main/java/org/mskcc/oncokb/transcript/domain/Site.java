@@ -22,6 +22,10 @@ public class Site implements Serializable {
     private Long id;
 
     @NotNull
+    @Column(name = "aact_query", nullable = false)
+    private String aactQuery = "";
+
+    @NotNull
     @Column(name = "address", nullable = false)
     private String address = "";
 
@@ -65,6 +69,19 @@ public class Site implements Serializable {
     public Site id(Long id) {
         this.id = id;
         return this;
+    }
+
+    public String getAactQuery() {
+        return this.aactQuery;
+    }
+
+    public Site aactQuery(String aactQuery) {
+        this.aactQuery = aactQuery;
+        return this;
+    }
+
+    public void setAactQuery(String aactQuery) {
+        this.aactQuery = aactQuery;
     }
 
     public String getAddress() {
@@ -213,6 +230,7 @@ public class Site implements Serializable {
     public String toString() {
         return "Site{" +
             "id=" + getId() +
+            ", aactQuery='" + getAactQuery() + "'" +
             ", address='" + getAddress() + "'" +
             ", city='" + getCity() + "'" +
             ", country='" + getCountry() + "'" +
