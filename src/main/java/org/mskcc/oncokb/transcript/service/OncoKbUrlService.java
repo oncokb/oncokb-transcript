@@ -7,7 +7,6 @@ import org.oncokb.ApiClient;
 import org.oncokb.ApiException;
 import org.oncokb.client.Gene;
 import org.oncokb.client.GenesApi;
-import org.oncokb.client.MailsControllerApi;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -46,11 +45,5 @@ public class OncoKbUrlService {
     public List<Gene> getGenes() throws ApiException {
         GenesApi genesApi = new GenesApi(this.apiClient);
         return genesApi.genesGetUsingGET(null);
-    }
-
-    @Async
-    public void sendMailToDev(String subject, String content) throws ApiException {
-        MailsControllerApi mailsControllerApi = new MailsControllerApi(this.apiClient);
-        mailsControllerApi.getSendToDevUsingGET(content, subject);
     }
 }

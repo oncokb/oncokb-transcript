@@ -30,6 +30,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Base64Utils;
 
 /**
  * Integration tests for the {@link ClinicalTrialResource} REST controller.
@@ -168,7 +169,7 @@ class ClinicalTrialResourceIT {
             .andExpect(jsonPath("$.[*].nctId").value(hasItem(DEFAULT_NCT_ID)))
             .andExpect(jsonPath("$.[*].phase").value(hasItem(DEFAULT_PHASE)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS)))
-            .andExpect(jsonPath("$.[*].briefTitle").value(hasItem(DEFAULT_BRIEF_TITLE)))
+            .andExpect(jsonPath("$.[*].briefTitle").value(hasItem(DEFAULT_BRIEF_TITLE.toString())))
             .andExpect(jsonPath("$.[*].lastUpdated").value(hasItem(DEFAULT_LAST_UPDATED.toString())));
     }
 
@@ -205,7 +206,7 @@ class ClinicalTrialResourceIT {
             .andExpect(jsonPath("$.nctId").value(DEFAULT_NCT_ID))
             .andExpect(jsonPath("$.phase").value(DEFAULT_PHASE))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS))
-            .andExpect(jsonPath("$.briefTitle").value(DEFAULT_BRIEF_TITLE))
+            .andExpect(jsonPath("$.briefTitle").value(DEFAULT_BRIEF_TITLE.toString()))
             .andExpect(jsonPath("$.lastUpdated").value(DEFAULT_LAST_UPDATED.toString()));
     }
 

@@ -29,6 +29,7 @@ public class ClinicalTrial implements Serializable {
     @Column(name = "status")
     private String status;
 
+    @Lob
     @Column(name = "brief_title")
     private String briefTitle;
 

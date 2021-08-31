@@ -23,7 +23,7 @@
             <column name="status" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="brief_title" type="varchar(255)">
+            <column name="brief_title" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="last_updated" type="${datetimeType}">

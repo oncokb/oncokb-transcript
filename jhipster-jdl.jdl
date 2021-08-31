@@ -78,7 +78,7 @@ entity ClinicalTrial {
 	nctId String
 	phase String
 	status String
-    briefTitle String
+    briefTitle TextBlob
     lastUpdated Instant
 }
 

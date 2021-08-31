@@ -2,6 +2,7 @@ package org.mskcc.oncokb.transcript.service;
 
 import java.io.IOException;
 import java.sql.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -35,7 +36,6 @@ public class AactService {
     ApplicationProperties applicationProperties;
     SiteService siteService;
     ClinicalTrialService clinicalTrialService;
-    OncoKbUrlService oncoKbUrlService;
     GeoApiContext geoApiContext;
 
     final String AACT_URL = "aact-db.ctti-clinicaltrials.org";
@@ -43,10 +43,9 @@ public class AactService {
     final String AACT_DB_NAME = "aact";
     final String AACT_CONNECTION_STR = "jdbc:postgresql://" + AACT_URL + ":" + AACT_PORT + "/" + AACT_DB_NAME;
 
-    public AactService(ApplicationProperties applicationProperties, SiteService siteService, OncoKbUrlService oncoKbUrlService, ClinicalTrialService clinicalTrialService) throws Exception {
+    public AactService(ApplicationProperties applicationProperties, SiteService siteService, ClinicalTrialService clinicalTrialService) throws Exception {
         this.applicationProperties = applicationProperties;
         this.siteService = siteService;
-        this.oncoKbUrlService = oncoKbUrlService;
         this.clinicalTrialService = clinicalTrialService;
 
         geoApiContext = new GeoApiContext.Builder()
@@ -144,7 +143,7 @@ public class AactService {
         String BRIEF_TITLE_KEY = "BRIEF_TITLE";
         String OVERALL_STATUS_KEY = "OVERALL_STATUS";
         String PHASE_KEY = "PHASE";
-        String UPDATED_AT_KEY = "UPDATE_AT";
+        String UPDATED_AT_KEY = "UPDATED_AT";
 
         String OVERALL_STATUS_RECRUITING_FILTER = "Recruiting";
         String STUDY_TYPE_FILTER = "Interventional";
@@ -155,7 +154,7 @@ public class AactService {
                 String.join(",", keys) +
                 " from studies where" +
                 " overall_status = '" + OVERALL_STATUS_RECRUITING_FILTER + "'" +
-                " and study_type = " + STUDY_TYPE_FILTER +
+                " and study_type = '" + STUDY_TYPE_FILTER + "'" +
                 " and nct_id in (" + String.join(",", wrapSqlStringInClause(new ArrayList<>(nctIds))) + ")"
 
         );
@@ -172,11 +171,12 @@ public class AactService {
                 Optional<ClinicalTrial> clinicalTrialOptional = clinicalTrialService.findOneByNctId(trialIdOptional.get());
                 if (clinicalTrialOptional.isEmpty()) {
                     ClinicalTrial clinicalTrial = new ClinicalTrial();
+                    clinicalTrial.setNctId(trialIdOptional.get());
                     clinicalTrial.setBriefTitle(briefTitle);
                     clinicalTrial.setPhase(phase);
                     clinicalTrial.setStatus(overallStatus);
                     if (lastUpdateOptional.isPresent()) {
-                        clinicalTrial.setLastUpdated(lastUpdateOptional.get().toInstant());
+                        clinicalTrial.setLastUpdated(Instant.ofEpochMilli(lastUpdateOptional.get().getTime()));
                     }
                     clinicalTrialService.save(clinicalTrial);
                 } else {
@@ -185,7 +185,7 @@ public class AactService {
                     clinicalTrial.setPhase(phase);
                     clinicalTrial.setStatus(overallStatus);
                     if (lastUpdateOptional.isPresent()) {
-                        clinicalTrial.setLastUpdated(lastUpdateOptional.get().toInstant());
+                        clinicalTrial.setLastUpdated(Instant.ofEpochMilli(lastUpdateOptional.get().getTime()));
                     }
                     clinicalTrialService.partialUpdate(clinicalTrial);
                 }
@@ -203,7 +203,7 @@ public class AactService {
 
     private void getSites(Set<String> nctIds) throws Exception {
         // Back fill sites info if the coordinates is empty. The data may have been updated in the database so that the coordinates can be filled after querying the Google Map
-        updateSitesWithEmptyCoordinates();
+        updateCityLevelSitesWithEmptyCoordinates();
 
         // Include new city level sites
         saveCityLevelSites(nctIds);
@@ -231,6 +231,12 @@ public class AactService {
             Optional<Site> siteOptional = siteService.findOneByAactQuery("", city, state, country);
             if (siteOptional.isEmpty()) {
                 Site site = new Site();
+                site.setAactQuery(siteService.generateAactQuery("", city, state, country));
+
+                country = cleanUpCountry(country);
+                state = cleanUpState(state);
+                city = cleanUpCity(city);
+
                 site.setCity(city);
                 site.setState(state);
                 site.setCountry(country);
@@ -244,17 +250,57 @@ public class AactService {
                         site.setCoordinates(getCoordinatesString(Optional.ofNullable(pickedResult.get().geometry.location.lat).orElse(null), Optional.ofNullable(pickedResult.get().geometry.location.lng).orElse(null)));
                     }
                 }
-                site.setAactQuery(siteService.generateAactQuery("", city, state, country));
                 siteService.save(site);
             }
         }
 
-        List<Site> sites = siteService.findAllWithEmptyCoordinates();
-        if (sites.size() > 0) {
-            oncoKbUrlService.sendMailToDev("Sites without coordinates exist", "There are " + sites.size() + " site(s) without coordinates, please update accordingly.");
-        }
+//        List<Site> sites = siteService.findAllWithEmptyCoordinates();
+//        if (sites.size() > 0) {
+//            oncoKbUrlService.sendMailToDev("Sites without coordinates exist", "There are " + sites.size() + " site(s) without coordinates, please update accordingly.");
+//        }
         resultSet.close();
         stm.close();
+    }
+
+    private String cleanUpCountry(String country) {
+        if (StringUtil.isEmpty(country)) {
+            return "";
+        }
+        Map<String, String> map = new HashMap<>();
+        map.put("korea, republic of", "South Korea");
+        map.put("russian federation", "Russia");
+
+        if (map.containsKey(country.toLowerCase())) {
+            return map.get(country.toLowerCase());
+        }
+        return country;
+    }
+
+    private String cleanUpState(String state) {
+        if (StringUtil.isEmpty(state)) {
+            return "";
+        }
+        Map<String, String> map = new HashMap<>();
+        map.put("other", "");
+        map.put("n/a = not applicable", "");
+
+        if (map.containsKey(state.toLowerCase())) {
+            return map.get(state.toLowerCase());
+        }
+        return state;
+    }
+
+    private String cleanUpCity(String city) {
+        if (StringUtil.isEmpty(city)) {
+            return "";
+        }
+        Map<String, String> map = new HashMap<>();
+        map.put("multiple locations", "");
+
+        if (map.containsKey(city.toLowerCase())) {
+            return map.get(city.toLowerCase());
+        }
+        return city;
     }
 
     private void saveAllAactSites(Set<String> nctIds) throws Exception {
@@ -288,6 +334,7 @@ public class AactService {
                 site.setCountry(citySite.getCountry());
                 site.setCoordinates(citySite.getCoordinates());
                 site.setAactQuery(siteService.generateAactQuery(name, city, state, country));
+
                 siteService.save(site);
 
                 if (!nctSites.containsKey(nctId)) {
@@ -309,8 +356,8 @@ public class AactService {
         stm.close();
     }
 
-    private void updateSitesWithEmptyCoordinates() throws Exception {
-        List<Site> siteToBeUpdated = siteService.findAllWithEmptyCoordinates();
+    private void updateCityLevelSitesWithEmptyCoordinates() throws Exception {
+        List<Site> siteToBeUpdated = siteService.findAllWithEmptyCoordinatesAndEmptyName();
 
         for(Site site : siteToBeUpdated) {
             GeocodingResult[] mapResult = queryGoogleMapGeocoding("", site.getCity(), site.getState(), site.getCountry());

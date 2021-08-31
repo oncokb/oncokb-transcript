@@ -133,8 +133,8 @@ public class SiteService {
         return siteRepository.findOneByAactQuery(aactQuery);
     }
 
-    List<Site> findAllWithEmptyCoordinates() {
-        return siteRepository.findAllByCoordinatesEquals("");
+    List<Site> findAllWithEmptyCoordinatesAndEmptyName() {
+        return siteRepository.findAllByCoordinatesEqualsAndNameEquals("", "");
     }
 
     Optional<Site> findOneByCoordinates(String coordinates) {

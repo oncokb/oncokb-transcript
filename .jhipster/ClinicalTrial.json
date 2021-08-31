@@ -15,7 +15,8 @@
     },
     {
       "fieldName": "briefTitle",
-      "fieldType": "String"
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
     },
     {
       "fieldName": "lastUpdated",
