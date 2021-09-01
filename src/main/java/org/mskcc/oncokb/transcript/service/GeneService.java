@@ -21,6 +21,8 @@ import org.mskcc.oncokb.transcript.repository.GeneAliasRepository;
 import org.mskcc.oncokb.transcript.repository.GeneRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,20 +44,20 @@ public class GeneService {
     private final GeneAliasRepository geneAliasRepository;
     private final InfoService infoService;
     private final CacheNameResolver cacheNameResolver;
-    private final CacheManager cacheManager;
+    private final Optional<CacheManager> optionalCacheManager;
 
     public GeneService(
         GeneRepository geneRepository,
         GeneAliasRepository geneAliasRepository,
         InfoService infoService,
         CacheNameResolver cacheNameResolver,
-        CacheManager cacheManager
+        Optional<CacheManager> optionalCacheManager
     ) {
         this.geneRepository = geneRepository;
         this.geneAliasRepository = geneAliasRepository;
         this.infoService = infoService;
         this.cacheNameResolver = cacheNameResolver;
-        this.cacheManager = cacheManager;
+        this.optionalCacheManager = optionalCacheManager;
     }
 
     /**
@@ -209,21 +211,29 @@ public class GeneService {
     }
 
     private void clearGeneCaches(Gene gene) {
-        if (gene.getEntrezGeneId() != null) {
-            Objects
-                .requireNonNull(cacheManager.getCache(this.cacheNameResolver.getCacheName(CacheKeys.GENES_BY_ENTREZ_GENE_ID)))
-                .evict(gene.getEntrezGeneId());
-        }
-        if (gene.getHugoSymbol() != null) {
-            Objects
-                .requireNonNull(cacheManager.getCache(this.cacheNameResolver.getCacheName(CacheKeys.GENES_BY_HUGO_SYMBOL)))
-                .evict(gene.getHugoSymbol().toLowerCase());
-        }
-        if (!gene.getGeneAliases().isEmpty()) {
-            for (GeneAlias alias : gene.getGeneAliases()) {
+        if (this.optionalCacheManager.isPresent()) {
+            if (gene.getEntrezGeneId() != null) {
                 Objects
-                    .requireNonNull(cacheManager.getCache(this.cacheNameResolver.getCacheName(CacheKeys.GENE_ALIASES_BY_NAME)))
-                    .evict(alias.getName().toLowerCase());
+                    .requireNonNull(
+                        this.optionalCacheManager.get().getCache(this.cacheNameResolver.getCacheName(CacheKeys.GENES_BY_ENTREZ_GENE_ID))
+                    )
+                    .evict(gene.getEntrezGeneId());
+            }
+            if (gene.getHugoSymbol() != null) {
+                Objects
+                    .requireNonNull(
+                        this.optionalCacheManager.get().getCache(this.cacheNameResolver.getCacheName(CacheKeys.GENES_BY_HUGO_SYMBOL))
+                    )
+                    .evict(gene.getHugoSymbol().toLowerCase());
+            }
+            if (!gene.getGeneAliases().isEmpty()) {
+                for (GeneAlias alias : gene.getGeneAliases()) {
+                    Objects
+                        .requireNonNull(
+                            this.optionalCacheManager.get().getCache(this.cacheNameResolver.getCacheName(CacheKeys.GENE_ALIASES_BY_NAME))
+                        )
+                        .evict(alias.getName().toLowerCase());
+                }
             }
         }
     }

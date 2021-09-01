@@ -13,6 +13,7 @@ import org.redisson.config.Config;
 import org.redisson.jcache.configuration.RedissonConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.cache.JCacheManagerCustomizer;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.info.GitProperties;
 import org.springframework.cache.CacheManager;
@@ -25,6 +26,7 @@ import tech.jhipster.config.cache.PrefixedKeyGenerator;
 
 @Configuration
 @EnableCaching
+@ConditionalOnProperty(prefix = "application.redis", name = "enabled", havingValue = "true")
 public class CacheConfiguration {
 
     private GitProperties gitProperties;
