@@ -331,7 +331,7 @@
         <dependency>
             <groupId>com.github.oncokb</groupId>
             <artifactId>oncokb-meta</artifactId>
-            <version>49fd530a58</version>
+            <version>4f57f6d0fa</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
