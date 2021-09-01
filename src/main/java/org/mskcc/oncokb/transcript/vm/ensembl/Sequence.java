@@ -1,4 +1,4 @@
-package org.mskcc.oncokb.transcript.web.rest.vm.ensembl;
+package org.mskcc.oncokb.transcript.vm.ensembl;
 
 /**
  * Created by Hongxin Zhang on 7/15/20.

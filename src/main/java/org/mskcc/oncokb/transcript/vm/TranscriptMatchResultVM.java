@@ -1,4 +1,4 @@
-package org.mskcc.oncokb.transcript.web.rest.vm;
+package org.mskcc.oncokb.transcript.vm;
 
 import org.genome_nexus.client.EnsemblTranscript;
 
