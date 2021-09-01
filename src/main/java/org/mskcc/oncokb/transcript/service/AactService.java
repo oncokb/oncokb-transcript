@@ -43,6 +43,7 @@ public class AactService {
     final String AACT_DB_NAME = "aact";
     final String AACT_CONNECTION_STR = "jdbc:postgresql://" + AACT_URL + ":" + AACT_PORT + "/" + AACT_DB_NAME;
 
+    Map<String, String> locationCleanUpInCommon = new HashMap<>();
     public AactService(ApplicationProperties applicationProperties, SiteService siteService, ClinicalTrialService clinicalTrialService) throws Exception {
         this.applicationProperties = applicationProperties;
         this.siteService = siteService;
@@ -51,6 +52,10 @@ public class AactService {
         geoApiContext = new GeoApiContext.Builder()
             .apiKey(applicationProperties.getGoogleCloud().getApiKey())
             .build();
+
+        // add keywords that are common among city/state/country that need to be mapped to other values
+        locationCleanUpInCommon.put("Please Select", "");
+        locationCleanUpInCommon.put("Please Select An Option Below", "");
     }
 
     @PreDestroy
@@ -266,7 +271,7 @@ public class AactService {
         if (StringUtil.isEmpty(country)) {
             return "";
         }
-        Map<String, String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>(locationCleanUpInCommon);
         map.put("korea, republic of", "South Korea");
         map.put("russian federation", "Russia");
 
@@ -280,7 +285,7 @@ public class AactService {
         if (StringUtil.isEmpty(state)) {
             return "";
         }
-        Map<String, String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>(locationCleanUpInCommon);
         map.put("other", "");
         map.put("n/a = not applicable", "");
 
@@ -294,7 +299,7 @@ public class AactService {
         if (StringUtil.isEmpty(city)) {
             return "";
         }
-        Map<String, String> map = new HashMap<>();
+        Map<String, String> map = new HashMap<>(locationCleanUpInCommon);
         map.put("multiple locations", "");
 
         if (map.containsKey(city.toLowerCase())) {
