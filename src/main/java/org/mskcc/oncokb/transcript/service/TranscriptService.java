@@ -18,10 +18,10 @@ import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.transcript.domain.enumeration.SequenceType;
 import org.mskcc.oncokb.transcript.domain.enumeration.UsageSource;
 import org.mskcc.oncokb.transcript.repository.TranscriptRepository;
-import org.mskcc.oncokb.transcript.web.rest.vm.MissMatchPairVM;
-import org.mskcc.oncokb.transcript.web.rest.vm.TranscriptMatchResultVM;
-import org.mskcc.oncokb.transcript.web.rest.vm.TranscriptPairVM;
-import org.mskcc.oncokb.transcript.web.rest.vm.ensembl.Sequence;
+import org.mskcc.oncokb.transcript.vm.MissMatchPairVM;
+import org.mskcc.oncokb.transcript.vm.TranscriptMatchResultVM;
+import org.mskcc.oncokb.transcript.vm.TranscriptPairVM;
+import org.mskcc.oncokb.transcript.vm.ensembl.Sequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -68,7 +68,7 @@ public class TranscriptService {
         Transcript savedTranscript = transcriptRepository.save(transcript);
 
         // save sequence automatically when a new transcript saved
-        Optional<org.mskcc.oncokb.transcript.web.rest.vm.ensembl.Sequence> sequenceOptional = getProteinSequence(
+        Optional<org.mskcc.oncokb.transcript.vm.ensembl.Sequence> sequenceOptional = getProteinSequence(
             savedTranscript.getReferenceGenome(),
             savedTranscript.getEnsemblProteinId()
         );

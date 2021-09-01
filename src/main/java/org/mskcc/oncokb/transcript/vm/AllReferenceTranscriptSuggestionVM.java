@@ -1,7 +1,4 @@
-package org.mskcc.oncokb.transcript.web.rest.vm;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.mskcc.oncokb.transcript.vm;
 
 /**
  * Created by Hongxin Zhang on 7/15/20.

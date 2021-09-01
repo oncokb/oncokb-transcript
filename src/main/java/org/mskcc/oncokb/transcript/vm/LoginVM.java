@@ -1,4 +1,4 @@
-package org.mskcc.oncokb.transcript.web.rest.vm;
+package org.mskcc.oncokb.transcript.vm;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
