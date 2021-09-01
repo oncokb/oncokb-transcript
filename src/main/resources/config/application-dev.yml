@@ -105,6 +105,7 @@ application:
   oncokb:
     api-key:
   redis:
+    enabled: false
     type: single
     address: redis://localhost:6379
     password: oncokb-public-redis-password
