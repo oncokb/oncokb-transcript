@@ -4,7 +4,7 @@
     {
       "fieldName": "aactQuery",
       "fieldType": "String",
-      "fieldValidateRules": ["required"]
+      "fieldValidateRules": ["required", "unique"]
     },
     {
       "fieldName": "address",

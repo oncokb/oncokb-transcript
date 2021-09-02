@@ -1,7 +1,6 @@
 package org.mskcc.oncokb.transcript.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,7 +21,7 @@ public class Site implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "aact_query", nullable = false)
+    @Column(name = "aact_query", nullable = false, unique = true)
     private String aactQuery = "";
 
     @NotNull
@@ -54,7 +53,7 @@ public class Site implements Serializable {
     private String googleMapResult = "";
 
     @ManyToMany(mappedBy = "sites")
-    @JsonIgnoreProperties(value = {"sites", "arms"}, allowSetters = true)
+    @JsonIgnoreProperties(value = { "sites", "arms" }, allowSetters = true)
     private Set<ClinicalTrial> clinicalTrials = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

@@ -64,7 +64,7 @@ entity Arm {
 }
 
 entity Site {
-    aactQuery String required
+    aactQuery String required unique
 	address String required
 	city String required
 	country String required
