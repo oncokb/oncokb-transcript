@@ -93,6 +93,15 @@ public class ClinicalTrialService {
     }
 
     /**
+     * Get all clinical trial NCT IDs
+     *
+     * @return the list of NCT IDs
+     */
+    public List<String> findAllNctIds() {
+        return clinicalTrialRepository.findAllNctIds();
+    }
+
+    /**
      * Get one clinicalTrial by id.
      *
      * @param id the id of the entity.

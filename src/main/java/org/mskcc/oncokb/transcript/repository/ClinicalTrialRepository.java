@@ -25,6 +25,9 @@ public interface ClinicalTrialRepository extends JpaRepository<ClinicalTrial, Lo
     )
     List<ClinicalTrial> findAllWithEagerRelationships();
 
+    @Query("select distinct nctId from ClinicalTrial")
+    List<String> findAllNctIds();
+
     @Query(
         "select clinicalTrial from ClinicalTrial clinicalTrial left join fetch clinicalTrial.sites left join fetch clinicalTrial.arms where clinicalTrial.id =:id"
     )
