@@ -65,8 +65,8 @@ public class OncokbTranscriptApp {
     }
 
     @PostConstruct
-    public void importOncoKbSequence() throws ApiException {
-        Collection<String> activeProfiles = Arrays.asList(env.getDefaultProfiles());
+    public void importOncoKbSequence() throws Exception {
+        Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
         if (activeProfiles.contains("importer")) {
             importer.generalImport();
         }

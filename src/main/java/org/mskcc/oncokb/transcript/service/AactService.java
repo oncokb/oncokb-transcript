@@ -1,12 +1,5 @@
 package org.mskcc.oncokb.transcript.service;
 
-import java.io.IOException;
-import java.sql.*;
-import java.time.Instant;
-import java.util.*;
-import java.util.Date;
-import java.util.stream.Collectors;
-
 import com.google.gson.Gson;
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
@@ -15,6 +8,13 @@ import com.google.maps.model.AddressComponent;
 import com.google.maps.model.AddressComponentType;
 import com.google.maps.model.ComponentFilter;
 import com.google.maps.model.GeocodingResult;
+import java.io.IOException;
+import java.sql.*;
+import java.time.Instant;
+import java.util.*;
+import java.util.Date;
+import java.util.stream.Collectors;
+import javax.annotation.PreDestroy;
 import jodd.util.StringUtil;
 import org.mskcc.oncokb.transcript.OncokbTranscriptApp;
 import org.mskcc.oncokb.transcript.config.ApplicationProperties;
@@ -25,8 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PreDestroy;
 
 @Service
 public class AactService {
@@ -44,14 +42,14 @@ public class AactService {
     final String AACT_CONNECTION_STR = "jdbc:postgresql://" + AACT_URL + ":" + AACT_PORT + "/" + AACT_DB_NAME;
 
     Map<String, String> locationCleanUpInCommon = new HashMap<>();
-    public AactService(ApplicationProperties applicationProperties, SiteService siteService, ClinicalTrialService clinicalTrialService) throws Exception {
+
+    public AactService(ApplicationProperties applicationProperties, SiteService siteService, ClinicalTrialService clinicalTrialService)
+        throws Exception {
         this.applicationProperties = applicationProperties;
         this.siteService = siteService;
         this.clinicalTrialService = clinicalTrialService;
 
-        geoApiContext = new GeoApiContext.Builder()
-            .apiKey(applicationProperties.getGoogleCloud().getApiKey())
-            .build();
+        geoApiContext = new GeoApiContext.Builder().apiKey(applicationProperties.getGoogleCloud().getApiKey()).build();
 
         // add keywords that are common among city/state/country that need to be mapped to other values
         locationCleanUpInCommon.put("Please Select", "");
@@ -153,15 +151,20 @@ public class AactService {
         String OVERALL_STATUS_RECRUITING_FILTER = "Recruiting";
         String STUDY_TYPE_FILTER = "Interventional";
 
-        String[] keys = new String[]{NCT_ID_KEY, BRIEF_TITLE_KEY, OVERALL_STATUS_KEY, PHASE_KEY, UPDATED_AT_KEY};
+        String[] keys = new String[] { NCT_ID_KEY, BRIEF_TITLE_KEY, OVERALL_STATUS_KEY, PHASE_KEY, UPDATED_AT_KEY };
         ResultSet resultSet = stm.executeQuery(
             "select " +
-                String.join(",", keys) +
-                " from studies where" +
-                " overall_status = '" + OVERALL_STATUS_RECRUITING_FILTER + "'" +
-                " and study_type = '" + STUDY_TYPE_FILTER + "'" +
-                " and nct_id in (" + String.join(",", wrapSqlStringInClause(new ArrayList<>(nctIds))) + ")"
-
+            String.join(",", keys) +
+            " from studies where" +
+            " overall_status = '" +
+            OVERALL_STATUS_RECRUITING_FILTER +
+            "'" +
+            " and study_type = '" +
+            STUDY_TYPE_FILTER +
+            "'" +
+            " and nct_id in (" +
+            String.join(",", wrapSqlStringInClause(new ArrayList<>(nctIds))) +
+            ")"
         );
 
         Set<String> trialIds = new HashSet<>();
@@ -208,7 +211,7 @@ public class AactService {
 
     private void getSites(Set<String> nctIds) throws Exception {
         // Back fill sites info if the coordinates is empty. The data may have been updated in the database so that the coordinates can be filled after querying the Google Map
-        updateCityLevelSitesWithEmptyCoordinates();
+        //        updateCityLevelSitesWithEmptyCoordinates();
 
         // Include new city level sites
         saveCityLevelSites(nctIds);
@@ -221,11 +224,7 @@ public class AactService {
         String nctIdList = String.join(",", wrapSqlStringInClause(new ArrayList<>(nctIds)));
         Statement stm = getAactConnection().createStatement();
         ResultSet resultSet = stm.executeQuery(
-            "select distinct city, state, country\n" +
-                "        from facilities\n" +
-                "        where nct_id in (" +
-                nctIdList +
-                ")"
+            "select distinct city, state, country\n" + "        from facilities\n" + "        where nct_id in (" + nctIdList + ")"
         );
 
         while (resultSet.next()) {
@@ -252,17 +251,22 @@ public class AactService {
                     site.setGoogleMapResult(new Gson().toJson(mapResult));
                     Optional<GeocodingResult> pickedResult = pickGeocoding(mapResult, country);
                     if (pickedResult.isPresent()) {
-                        site.setCoordinates(getCoordinatesString(Optional.ofNullable(pickedResult.get().geometry.location.lat).orElse(null), Optional.ofNullable(pickedResult.get().geometry.location.lng).orElse(null)));
+                        site.setCoordinates(
+                            getCoordinatesString(
+                                Optional.ofNullable(pickedResult.get().geometry.location.lat).orElse(null),
+                                Optional.ofNullable(pickedResult.get().geometry.location.lng).orElse(null)
+                            )
+                        );
                     }
                 }
                 siteService.save(site);
             }
         }
 
-//        List<Site> sites = siteService.findAllWithEmptyCoordinates();
-//        if (sites.size() > 0) {
-//            oncoKbUrlService.sendMailToDev("Sites without coordinates exist", "There are " + sites.size() + " site(s) without coordinates, please update accordingly.");
-//        }
+        //        List<Site> sites = siteService.findAllWithEmptyCoordinates();
+        //        if (sites.size() > 0) {
+        //            oncoKbUrlService.sendMailToDev("Sites without coordinates exist", "There are " + sites.size() + " site(s) without coordinates, please update accordingly.");
+        //        }
         resultSet.close();
         stm.close();
     }
@@ -312,11 +316,7 @@ public class AactService {
         String nctIdList = String.join(",", wrapSqlStringInClause(new ArrayList<>(nctIds)));
         Statement stm = getAactConnection().createStatement();
         ResultSet resultSet = stm.executeQuery(
-            "select nct_id, name, city, state, country\n" +
-                "        from facilities\n" +
-                "        where nct_id in (" +
-                nctIdList +
-                ")"
+            "select nct_id, name, city, state, country\n" + "        from facilities\n" + "        where nct_id in (" + nctIdList + ")"
         );
 
         Map<String, Set<Site>> nctSites = new HashMap<>();
@@ -364,20 +364,26 @@ public class AactService {
     private void updateCityLevelSitesWithEmptyCoordinates() throws Exception {
         List<Site> siteToBeUpdated = siteService.findAllWithEmptyCoordinatesAndEmptyName();
 
-        for(Site site : siteToBeUpdated) {
+        for (Site site : siteToBeUpdated) {
             GeocodingResult[] mapResult = queryGoogleMapGeocoding("", site.getCity(), site.getState(), site.getCountry());
             if (mapResult != null) {
                 site.setGoogleMapResult(new Gson().toJson(mapResult));
                 Optional<GeocodingResult> pickedResult = pickGeocoding(mapResult, site.getCountry());
                 if (pickedResult.isPresent()) {
-                    site.setCoordinates(getCoordinatesString(Optional.ofNullable(pickedResult.get().geometry.location.lat).orElse(null), Optional.ofNullable(pickedResult.get().geometry.location.lng).orElse(null)));
+                    site.setCoordinates(
+                        getCoordinatesString(
+                            Optional.ofNullable(pickedResult.get().geometry.location.lat).orElse(null),
+                            Optional.ofNullable(pickedResult.get().geometry.location.lng).orElse(null)
+                        )
+                    );
                 }
             }
             siteService.partialUpdate(site);
         }
     }
 
-    private GeocodingResult[] queryGoogleMapGeocoding(String name, String city, String state, String country) throws IOException, InterruptedException, ApiException {
+    private GeocodingResult[] queryGoogleMapGeocoding(String name, String city, String state, String country)
+        throws IOException, InterruptedException, ApiException {
         List<String> queryParams = new ArrayList<>();
         queryParams.add(name);
         queryParams.add(city);
@@ -394,9 +400,20 @@ public class AactService {
             throw new Exception("country needs to be specified");
         }
         country = country.toLowerCase();
-        List<GeocodingResult> resultWithCoordinates = Arrays.stream(result).filter(item -> item.geometry != null && item.geometry.location != null).collect(Collectors.toList());
+        List<GeocodingResult> resultWithCoordinates = Arrays
+            .stream(result)
+            .filter(item -> item.geometry != null && item.geometry.location != null)
+            .collect(Collectors.toList());
         for (GeocodingResult item : resultWithCoordinates) {
-            Optional<AddressComponent> countryComponent = Arrays.stream(item.addressComponents).filter(addressComponent -> Arrays.stream(addressComponent.types).anyMatch(addressComponentType -> addressComponentType.equals(AddressComponentType.COUNTRY))).findFirst();
+            Optional<AddressComponent> countryComponent = Arrays
+                .stream(item.addressComponents)
+                .filter(
+                    addressComponent ->
+                        Arrays
+                            .stream(addressComponent.types)
+                            .anyMatch(addressComponentType -> addressComponentType.equals(AddressComponentType.COUNTRY))
+                )
+                .findFirst();
             if (countryComponent.isPresent() && countryComponent.get().longName.equalsIgnoreCase(country)) {
                 return Optional.of(item);
             }
@@ -404,7 +421,6 @@ public class AactService {
         log.warn("Cannot find the geocoding matching the country {}", country);
         return Optional.empty();
     }
-
 
     private void buildQuery(List<String> queryParams, String value) {
         if (StringUtil.isNotEmpty(value)) {

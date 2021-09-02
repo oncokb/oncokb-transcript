@@ -10,10 +10,7 @@ import org.mskcc.oncokb.transcript.domain.TranscriptUsage;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.transcript.domain.enumeration.SequenceType;
 import org.mskcc.oncokb.transcript.domain.enumeration.UsageSource;
-import org.mskcc.oncokb.transcript.service.OncoKbUrlService;
-import org.mskcc.oncokb.transcript.service.SequenceService;
-import org.mskcc.oncokb.transcript.service.TranscriptService;
-import org.mskcc.oncokb.transcript.service.TranscriptUsageService;
+import org.mskcc.oncokb.transcript.service.*;
 import org.oncokb.ApiException;
 import org.oncokb.client.Gene;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +32,14 @@ public class Importer {
     private TranscriptService transcriptService;
 
     @Autowired
+    private AactService aactService;
+
+    @Autowired
     private TranscriptUsageService transcriptUsageService;
 
-    public void generalImport() throws ApiException {
-        this.importOncoKbSequences();
+    public void generalImport() throws Exception {
+        //        this.importOncoKbSequences();
+        this.aactService.fetchLatestTrials();
     }
 
     private void importOncoKbSequences() throws ApiException {
