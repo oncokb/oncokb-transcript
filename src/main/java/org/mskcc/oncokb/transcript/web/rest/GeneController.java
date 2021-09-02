@@ -2,18 +2,14 @@ package org.mskcc.oncokb.transcript.web.rest;
 
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
-import org.genome_nexus.ApiException;
 import org.mskcc.oncokb.transcript.domain.Gene;
 import org.mskcc.oncokb.transcript.repository.GeneRepository;
 import org.mskcc.oncokb.transcript.service.GeneService;
-import org.mskcc.oncokb.transcript.web.rest.vm.MatchTranscriptVM;
-import org.mskcc.oncokb.transcript.web.rest.vm.TranscriptMatchResultVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tech.jhipster.web.util.ResponseUtil;
 
 @RestController
 @RequestMapping("/api")

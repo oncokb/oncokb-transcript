@@ -16,4 +16,4 @@ jobs:
       - name: Install node.js packages
         run: npm install
       - name: Package application
-        run: ./mvnw -ntp package -Pprod -DskipTests
+        run: ./mvnw -ntp package -Pprod
