@@ -17,6 +17,7 @@ public class Gene implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "entrez_gene_id")
@@ -30,17 +31,18 @@ public class Gene implements Serializable {
     private Set<GeneAlias> geneAliases = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public Gene id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Gene id(Long id) {
-        this.id = id;
-        return this;
     }
 
     public Integer getEntrezGeneId() {
@@ -48,7 +50,7 @@ public class Gene implements Serializable {
     }
 
     public Gene entrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
+        this.setEntrezGeneId(entrezGeneId);
         return this;
     }
 
@@ -61,7 +63,7 @@ public class Gene implements Serializable {
     }
 
     public Gene hugoSymbol(String hugoSymbol) {
-        this.hugoSymbol = hugoSymbol;
+        this.setHugoSymbol(hugoSymbol);
         return this;
     }
 
@@ -71,6 +73,16 @@ public class Gene implements Serializable {
 
     public Set<GeneAlias> getGeneAliases() {
         return this.geneAliases;
+    }
+
+    public void setGeneAliases(Set<GeneAlias> geneAliases) {
+        if (this.geneAliases != null) {
+            this.geneAliases.forEach(i -> i.setGene(null));
+        }
+        if (geneAliases != null) {
+            geneAliases.forEach(i -> i.setGene(this));
+        }
+        this.geneAliases = geneAliases;
     }
 
     public Gene geneAliases(Set<GeneAlias> geneAliases) {
@@ -88,16 +100,6 @@ public class Gene implements Serializable {
         this.geneAliases.remove(geneAlias);
         geneAlias.setGene(null);
         return this;
-    }
-
-    public void setGeneAliases(Set<GeneAlias> geneAliases) {
-        if (this.geneAliases != null) {
-            this.geneAliases.forEach(i -> i.setGene(null));
-        }
-        if (geneAliases != null) {
-            geneAliases.forEach(i -> i.setGene(this));
-        }
-        this.geneAliases = geneAliases;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

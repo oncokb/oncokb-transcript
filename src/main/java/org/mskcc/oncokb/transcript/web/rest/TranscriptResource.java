@@ -107,7 +107,7 @@ public class TranscriptResource {
      * or with status {@code 500 (Internal Server Error)} if the transcript couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/transcripts/{id}", consumes = "application/merge-patch+json")
+    @PatchMapping(value = "/transcripts/{id}", consumes = { "application/json", "application/merge-patch+json" })
     public ResponseEntity<Transcript> partialUpdateTranscript(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody Transcript transcript

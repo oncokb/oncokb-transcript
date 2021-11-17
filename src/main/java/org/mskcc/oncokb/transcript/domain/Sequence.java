@@ -16,6 +16,7 @@ public class Sequence implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
@@ -31,17 +32,18 @@ public class Sequence implements Serializable {
     private Transcript transcript;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public Sequence id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Sequence id(Long id) {
-        this.id = id;
-        return this;
     }
 
     public SequenceType getSequenceType() {
@@ -49,7 +51,7 @@ public class Sequence implements Serializable {
     }
 
     public Sequence sequenceType(SequenceType sequenceType) {
-        this.sequenceType = sequenceType;
+        this.setSequenceType(sequenceType);
         return this;
     }
 
@@ -62,7 +64,7 @@ public class Sequence implements Serializable {
     }
 
     public Sequence sequence(String sequence) {
-        this.sequence = sequence;
+        this.setSequence(sequence);
         return this;
     }
 
@@ -74,13 +76,13 @@ public class Sequence implements Serializable {
         return this.transcript;
     }
 
+    public void setTranscript(Transcript transcript) {
+        this.transcript = transcript;
+    }
+
     public Sequence transcript(Transcript transcript) {
         this.setTranscript(transcript);
         return this;
-    }
-
-    public void setTranscript(Transcript transcript) {
-        this.transcript = transcript;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

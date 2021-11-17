@@ -46,21 +46,19 @@ public class InfoService {
 
         return infoRepository
             .findById(info.getId())
-            .map(
-                existingInfo -> {
-                    if (info.getType() != null) {
-                        existingInfo.setType(info.getType());
-                    }
-                    if (info.getValue() != null) {
-                        existingInfo.setValue(info.getValue());
-                    }
-                    if (info.getLastUpdated() != null) {
-                        existingInfo.setLastUpdated(info.getLastUpdated());
-                    }
-
-                    return existingInfo;
+            .map(existingInfo -> {
+                if (info.getType() != null) {
+                    existingInfo.setType(info.getType());
                 }
-            )
+                if (info.getValue() != null) {
+                    existingInfo.setValue(info.getValue());
+                }
+                if (info.getLastUpdated() != null) {
+                    existingInfo.setLastUpdated(info.getLastUpdated());
+                }
+
+                return existingInfo;
+            })
             .map(infoRepository::save);
     }
 

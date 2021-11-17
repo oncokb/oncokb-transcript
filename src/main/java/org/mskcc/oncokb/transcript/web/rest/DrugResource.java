@@ -103,7 +103,7 @@ public class DrugResource {
      * or with status {@code 500 (Internal Server Error)} if the drug couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/drugs/{id}", consumes = "application/merge-patch+json")
+    @PatchMapping(value = "/drugs/{id}", consumes = { "application/json", "application/merge-patch+json" })
     public ResponseEntity<Drug> partialUpdateDrug(@PathVariable(value = "id", required = false) final Long id, @RequestBody Drug drug)
         throws URISyntaxException {
         log.debug("REST request to partial update Drug partially : {}, {}", id, drug);

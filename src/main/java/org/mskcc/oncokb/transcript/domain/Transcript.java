@@ -19,6 +19,7 @@ public class Transcript implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotNull
@@ -55,17 +56,18 @@ public class Transcript implements Serializable {
     private Set<Sequence> sequences = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public Transcript id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Transcript id(Long id) {
-        this.id = id;
-        return this;
     }
 
     public Integer getEntrezGeneId() {
@@ -73,7 +75,7 @@ public class Transcript implements Serializable {
     }
 
     public Transcript entrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
+        this.setEntrezGeneId(entrezGeneId);
         return this;
     }
 
@@ -86,7 +88,7 @@ public class Transcript implements Serializable {
     }
 
     public Transcript hugoSymbol(String hugoSymbol) {
-        this.hugoSymbol = hugoSymbol;
+        this.setHugoSymbol(hugoSymbol);
         return this;
     }
 
@@ -99,7 +101,7 @@ public class Transcript implements Serializable {
     }
 
     public Transcript referenceGenome(ReferenceGenome referenceGenome) {
-        this.referenceGenome = referenceGenome;
+        this.setReferenceGenome(referenceGenome);
         return this;
     }
 
@@ -112,7 +114,7 @@ public class Transcript implements Serializable {
     }
 
     public Transcript ensemblTranscriptId(String ensemblTranscriptId) {
-        this.ensemblTranscriptId = ensemblTranscriptId;
+        this.setEnsemblTranscriptId(ensemblTranscriptId);
         return this;
     }
 
@@ -125,7 +127,7 @@ public class Transcript implements Serializable {
     }
 
     public Transcript ensemblProteinId(String ensemblProteinId) {
-        this.ensemblProteinId = ensemblProteinId;
+        this.setEnsemblProteinId(ensemblProteinId);
         return this;
     }
 
@@ -138,7 +140,7 @@ public class Transcript implements Serializable {
     }
 
     public Transcript referenceSequenceId(String referenceSequenceId) {
-        this.referenceSequenceId = referenceSequenceId;
+        this.setReferenceSequenceId(referenceSequenceId);
         return this;
     }
 
@@ -151,7 +153,7 @@ public class Transcript implements Serializable {
     }
 
     public Transcript description(String description) {
-        this.description = description;
+        this.setDescription(description);
         return this;
     }
 
@@ -161,6 +163,16 @@ public class Transcript implements Serializable {
 
     public Set<TranscriptUsage> getTranscriptUsages() {
         return this.transcriptUsages;
+    }
+
+    public void setTranscriptUsages(Set<TranscriptUsage> transcriptUsages) {
+        if (this.transcriptUsages != null) {
+            this.transcriptUsages.forEach(i -> i.setTranscript(null));
+        }
+        if (transcriptUsages != null) {
+            transcriptUsages.forEach(i -> i.setTranscript(this));
+        }
+        this.transcriptUsages = transcriptUsages;
     }
 
     public Transcript transcriptUsages(Set<TranscriptUsage> transcriptUsages) {
@@ -180,18 +192,18 @@ public class Transcript implements Serializable {
         return this;
     }
 
-    public void setTranscriptUsages(Set<TranscriptUsage> transcriptUsages) {
-        if (this.transcriptUsages != null) {
-            this.transcriptUsages.forEach(i -> i.setTranscript(null));
-        }
-        if (transcriptUsages != null) {
-            transcriptUsages.forEach(i -> i.setTranscript(this));
-        }
-        this.transcriptUsages = transcriptUsages;
-    }
-
     public Set<Sequence> getSequences() {
         return this.sequences;
+    }
+
+    public void setSequences(Set<Sequence> sequences) {
+        if (this.sequences != null) {
+            this.sequences.forEach(i -> i.setTranscript(null));
+        }
+        if (sequences != null) {
+            sequences.forEach(i -> i.setTranscript(this));
+        }
+        this.sequences = sequences;
     }
 
     public Transcript sequences(Set<Sequence> sequences) {
@@ -209,16 +221,6 @@ public class Transcript implements Serializable {
         this.sequences.remove(sequence);
         sequence.setTranscript(null);
         return this;
-    }
-
-    public void setSequences(Set<Sequence> sequences) {
-        if (this.sequences != null) {
-            this.sequences.forEach(i -> i.setTranscript(null));
-        }
-        if (sequences != null) {
-            sequences.forEach(i -> i.setTranscript(this));
-        }
-        this.sequences = sequences;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

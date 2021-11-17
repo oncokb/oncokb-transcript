@@ -16,6 +16,7 @@ public class TranscriptUsage implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
@@ -27,17 +28,18 @@ public class TranscriptUsage implements Serializable {
     private Transcript transcript;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public TranscriptUsage id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public TranscriptUsage id(Long id) {
-        this.id = id;
-        return this;
     }
 
     public UsageSource getSource() {
@@ -45,7 +47,7 @@ public class TranscriptUsage implements Serializable {
     }
 
     public TranscriptUsage source(UsageSource source) {
-        this.source = source;
+        this.setSource(source);
         return this;
     }
 
@@ -57,13 +59,13 @@ public class TranscriptUsage implements Serializable {
         return this.transcript;
     }
 
+    public void setTranscript(Transcript transcript) {
+        this.transcript = transcript;
+    }
+
     public TranscriptUsage transcript(Transcript transcript) {
         this.setTranscript(transcript);
         return this;
-    }
-
-    public void setTranscript(Transcript transcript) {
-        this.transcript = transcript;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

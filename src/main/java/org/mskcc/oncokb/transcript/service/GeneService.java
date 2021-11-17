@@ -46,18 +46,16 @@ public class GeneService {
 
         return geneRepository
             .findById(gene.getId())
-            .map(
-                existingGene -> {
-                    if (gene.getEntrezGeneId() != null) {
-                        existingGene.setEntrezGeneId(gene.getEntrezGeneId());
-                    }
-                    if (gene.getHugoSymbol() != null) {
-                        existingGene.setHugoSymbol(gene.getHugoSymbol());
-                    }
-
-                    return existingGene;
+            .map(existingGene -> {
+                if (gene.getEntrezGeneId() != null) {
+                    existingGene.setEntrezGeneId(gene.getEntrezGeneId());
                 }
-            )
+                if (gene.getHugoSymbol() != null) {
+                    existingGene.setHugoSymbol(gene.getHugoSymbol());
+                }
+
+                return existingGene;
+            })
             .map(geneRepository::save);
     }
 

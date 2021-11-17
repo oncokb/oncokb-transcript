@@ -37,7 +37,7 @@ management:
       liveness:
         include: livenessState
       readiness:
-        include: readinessState,datasource
+        include: readinessState,db
     mail:
       enabled: false # When using the MailService, configure an SMTP server and set this to true
   metrics:
@@ -166,8 +166,8 @@ jhipster:
   api-docs:
     default-include-pattern: ${server.servlet.context-path:}/api/.*
     management-include-pattern: ${server.servlet.context-path:}/management/.*
-    title: oncokb-transcript API
-    description: oncokb-transcript API documentation
+    title: Oncokb Transcript API
+    description: Oncokb Transcript API documentation
     version: 0.0.1
     terms-of-service-url:
     contact-name:

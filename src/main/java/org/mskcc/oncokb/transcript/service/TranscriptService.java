@@ -46,33 +46,31 @@ public class TranscriptService {
 
         return transcriptRepository
             .findById(transcript.getId())
-            .map(
-                existingTranscript -> {
-                    if (transcript.getEntrezGeneId() != null) {
-                        existingTranscript.setEntrezGeneId(transcript.getEntrezGeneId());
-                    }
-                    if (transcript.getHugoSymbol() != null) {
-                        existingTranscript.setHugoSymbol(transcript.getHugoSymbol());
-                    }
-                    if (transcript.getReferenceGenome() != null) {
-                        existingTranscript.setReferenceGenome(transcript.getReferenceGenome());
-                    }
-                    if (transcript.getEnsemblTranscriptId() != null) {
-                        existingTranscript.setEnsemblTranscriptId(transcript.getEnsemblTranscriptId());
-                    }
-                    if (transcript.getEnsemblProteinId() != null) {
-                        existingTranscript.setEnsemblProteinId(transcript.getEnsemblProteinId());
-                    }
-                    if (transcript.getReferenceSequenceId() != null) {
-                        existingTranscript.setReferenceSequenceId(transcript.getReferenceSequenceId());
-                    }
-                    if (transcript.getDescription() != null) {
-                        existingTranscript.setDescription(transcript.getDescription());
-                    }
-
-                    return existingTranscript;
+            .map(existingTranscript -> {
+                if (transcript.getEntrezGeneId() != null) {
+                    existingTranscript.setEntrezGeneId(transcript.getEntrezGeneId());
                 }
-            )
+                if (transcript.getHugoSymbol() != null) {
+                    existingTranscript.setHugoSymbol(transcript.getHugoSymbol());
+                }
+                if (transcript.getReferenceGenome() != null) {
+                    existingTranscript.setReferenceGenome(transcript.getReferenceGenome());
+                }
+                if (transcript.getEnsemblTranscriptId() != null) {
+                    existingTranscript.setEnsemblTranscriptId(transcript.getEnsemblTranscriptId());
+                }
+                if (transcript.getEnsemblProteinId() != null) {
+                    existingTranscript.setEnsemblProteinId(transcript.getEnsemblProteinId());
+                }
+                if (transcript.getReferenceSequenceId() != null) {
+                    existingTranscript.setReferenceSequenceId(transcript.getReferenceSequenceId());
+                }
+                if (transcript.getDescription() != null) {
+                    existingTranscript.setDescription(transcript.getDescription());
+                }
+
+                return existingTranscript;
+            })
             .map(transcriptRepository::save);
     }
 

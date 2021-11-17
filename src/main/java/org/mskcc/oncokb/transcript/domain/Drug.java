@@ -17,6 +17,7 @@ public class Drug implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Lob
@@ -35,17 +36,18 @@ public class Drug implements Serializable {
     private Set<DrugSynonym> synonyms = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public Drug id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Drug id(Long id) {
-        this.id = id;
-        return this;
     }
 
     public String getName() {
@@ -53,7 +55,7 @@ public class Drug implements Serializable {
     }
 
     public Drug name(String name) {
-        this.name = name;
+        this.setName(name);
         return this;
     }
 
@@ -66,7 +68,7 @@ public class Drug implements Serializable {
     }
 
     public Drug code(String code) {
-        this.code = code;
+        this.setCode(code);
         return this;
     }
 
@@ -79,7 +81,7 @@ public class Drug implements Serializable {
     }
 
     public Drug semanticType(String semanticType) {
-        this.semanticType = semanticType;
+        this.setSemanticType(semanticType);
         return this;
     }
 
@@ -89,6 +91,16 @@ public class Drug implements Serializable {
 
     public Set<DrugSynonym> getSynonyms() {
         return this.synonyms;
+    }
+
+    public void setSynonyms(Set<DrugSynonym> drugSynonyms) {
+        if (this.synonyms != null) {
+            this.synonyms.forEach(i -> i.setDrug(null));
+        }
+        if (drugSynonyms != null) {
+            drugSynonyms.forEach(i -> i.setDrug(this));
+        }
+        this.synonyms = drugSynonyms;
     }
 
     public Drug synonyms(Set<DrugSynonym> drugSynonyms) {
@@ -106,16 +118,6 @@ public class Drug implements Serializable {
         this.synonyms.remove(drugSynonym);
         drugSynonym.setDrug(null);
         return this;
-    }
-
-    public void setSynonyms(Set<DrugSynonym> drugSynonyms) {
-        if (this.synonyms != null) {
-            this.synonyms.forEach(i -> i.setDrug(null));
-        }
-        if (drugSynonyms != null) {
-            drugSynonyms.forEach(i -> i.setDrug(this));
-        }
-        this.synonyms = drugSynonyms;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
