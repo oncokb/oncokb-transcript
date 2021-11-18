@@ -93,33 +93,31 @@ public class TranscriptService {
 
         return transcriptRepository
             .findById(transcript.getId())
-            .map(
-                existingTranscript -> {
-                    if (transcript.getEntrezGeneId() != null) {
-                        existingTranscript.setEntrezGeneId(transcript.getEntrezGeneId());
-                    }
-                    if (transcript.getHugoSymbol() != null) {
-                        existingTranscript.setHugoSymbol(transcript.getHugoSymbol());
-                    }
-                    if (transcript.getReferenceGenome() != null) {
-                        existingTranscript.setReferenceGenome(transcript.getReferenceGenome());
-                    }
-                    if (transcript.getEnsemblTranscriptId() != null) {
-                        existingTranscript.setEnsemblTranscriptId(transcript.getEnsemblTranscriptId());
-                    }
-                    if (transcript.getEnsemblProteinId() != null) {
-                        existingTranscript.setEnsemblProteinId(transcript.getEnsemblProteinId());
-                    }
-                    if (transcript.getReferenceSequenceId() != null) {
-                        existingTranscript.setReferenceSequenceId(transcript.getReferenceSequenceId());
-                    }
-                    if (transcript.getDescription() != null) {
-                        existingTranscript.setDescription(transcript.getDescription());
-                    }
-
-                    return existingTranscript;
+            .map(existingTranscript -> {
+                if (transcript.getEntrezGeneId() != null) {
+                    existingTranscript.setEntrezGeneId(transcript.getEntrezGeneId());
                 }
-            )
+                if (transcript.getHugoSymbol() != null) {
+                    existingTranscript.setHugoSymbol(transcript.getHugoSymbol());
+                }
+                if (transcript.getReferenceGenome() != null) {
+                    existingTranscript.setReferenceGenome(transcript.getReferenceGenome());
+                }
+                if (transcript.getEnsemblTranscriptId() != null) {
+                    existingTranscript.setEnsemblTranscriptId(transcript.getEnsemblTranscriptId());
+                }
+                if (transcript.getEnsemblProteinId() != null) {
+                    existingTranscript.setEnsemblProteinId(transcript.getEnsemblProteinId());
+                }
+                if (transcript.getReferenceSequenceId() != null) {
+                    existingTranscript.setReferenceSequenceId(transcript.getReferenceSequenceId());
+                }
+                if (transcript.getDescription() != null) {
+                    existingTranscript.setDescription(transcript.getDescription());
+                }
+
+                return existingTranscript;
+            })
             .map(transcriptRepository::save);
     }
 
@@ -206,20 +204,18 @@ public class TranscriptService {
         return transcripts
             .stream()
             .filter(ensemblTranscript -> StringUtils.isNotEmpty(ensemblTranscript.getProteinId()))
-            .filter(
-                ensemblTranscript -> {
-                    Optional<Sequence> sequence = getProteinSequence(referenceGenome, ensemblTranscript.getProteinId());
-                    if (sequence.isPresent()) {
-                        if (sequence.get().getSeq().length() >= proteinPosition) {
-                            return sequence.get().getSeq().substring(proteinPosition - 1, proteinPosition).equals(expectedAllele);
-                        } else {
-                            return false;
-                        }
+            .filter(ensemblTranscript -> {
+                Optional<Sequence> sequence = getProteinSequence(referenceGenome, ensemblTranscript.getProteinId());
+                if (sequence.isPresent()) {
+                    if (sequence.get().getSeq().length() >= proteinPosition) {
+                        return sequence.get().getSeq().substring(proteinPosition - 1, proteinPosition).equals(expectedAllele);
                     } else {
                         return false;
                     }
+                } else {
+                    return false;
                 }
-            )
+            })
             .collect(Collectors.toList());
     }
 
@@ -291,10 +287,9 @@ public class TranscriptService {
     public Optional<EnsemblTranscript> getEnsemblTranscript(String hugoSymbol, TranscriptPairVM transcriptPairVM) throws ApiException {
         return getEnsemblTranscriptList(hugoSymbol, transcriptPairVM.getReferenceGenome())
             .stream()
-            .filter(
-                ensemblTranscript ->
-                    !StringUtils.isEmpty(ensemblTranscript.getTranscriptId()) &&
-                    ensemblTranscript.getTranscriptId().equalsIgnoreCase(transcriptPairVM.getTranscript())
+            .filter(ensemblTranscript ->
+                !StringUtils.isEmpty(ensemblTranscript.getTranscriptId()) &&
+                ensemblTranscript.getTranscriptId().equalsIgnoreCase(transcriptPairVM.getTranscript())
             )
             .findFirst();
     }
@@ -352,9 +347,8 @@ public class TranscriptService {
     ) {
         List<EnsemblTranscript> sameLengthList = availableTranscripts
             .stream()
-            .filter(
-                ensemblTranscript ->
-                    ensemblTranscript.getProteinLength() != null && ensemblTranscript.getProteinLength().equals(sequence.getSeq().length())
+            .filter(ensemblTranscript ->
+                ensemblTranscript.getProteinLength() != null && ensemblTranscript.getProteinLength().equals(sequence.getSeq().length())
             )
             .collect(Collectors.toList());
 
@@ -388,14 +382,13 @@ public class TranscriptService {
                 ". " +
                 missMatchPairVMS
                     .stream()
-                    .map(
-                        missMatchPairVM ->
-                            missMatchPairVM.getPosition() +
-                            "(" +
-                            missMatchPairVM.getReferenceAllele() +
-                            "," +
-                            missMatchPairVM.getTargetAlelel() +
-                            ")"
+                    .map(missMatchPairVM ->
+                        missMatchPairVM.getPosition() +
+                        "(" +
+                        missMatchPairVM.getReferenceAllele() +
+                        "," +
+                        missMatchPairVM.getTargetAlelel() +
+                        ")"
                     )
                     .collect(Collectors.joining(", "))
             );
@@ -403,9 +396,8 @@ public class TranscriptService {
             // we want to see whether there is any transcript includes the original sequence
             List<EnsemblTranscript> longerOnes = availableTranscripts
                 .stream()
-                .filter(
-                    ensemblTranscript ->
-                        ensemblTranscript.getProteinLength() != null && ensemblTranscript.getProteinLength() > sequence.getSeq().length()
+                .filter(ensemblTranscript ->
+                    ensemblTranscript.getProteinLength() != null && ensemblTranscript.getProteinLength() > sequence.getSeq().length()
                 )
                 .collect(Collectors.toList());
 
@@ -442,29 +434,24 @@ public class TranscriptService {
             return targetTranscripts
                 .stream()
                 .filter(ensemblTranscript -> StringUtils.isNotEmpty(ensemblTranscript.getProteinId()))
-                .map(
-                    ensemblTranscript -> {
-                        Optional<Sequence> targetSequenceOptional = getProteinSequence(
-                            targetReferenceGenome,
-                            ensemblTranscript.getProteinId()
-                        );
-                        if (targetSequenceOptional.isPresent()) {
-                            AlignmentResult alignmentResult =
-                                this.alignmentService.calcOptimalAlignment(
-                                        refSequenceOptional.get().getSeq(),
-                                        targetSequenceOptional.get().getSeq(),
-                                        true
-                                    );
-                            EnrichedAlignmentResult enrichedAlignmentResult = new EnrichedAlignmentResult(alignmentResult);
-                            enrichedAlignmentResult.setRefEnsemblTranscript(refEnsemblTranscript);
-                            enrichedAlignmentResult.setTargetEnsemblTranscript(ensemblTranscript);
-                            return Optional.of(enrichedAlignmentResult);
-                        } else {
-                            Optional<EnrichedAlignmentResult> optional = Optional.empty();
-                            return optional;
-                        }
+                .map(ensemblTranscript -> {
+                    Optional<Sequence> targetSequenceOptional = getProteinSequence(targetReferenceGenome, ensemblTranscript.getProteinId());
+                    if (targetSequenceOptional.isPresent()) {
+                        AlignmentResult alignmentResult =
+                            this.alignmentService.calcOptimalAlignment(
+                                    refSequenceOptional.get().getSeq(),
+                                    targetSequenceOptional.get().getSeq(),
+                                    true
+                                );
+                        EnrichedAlignmentResult enrichedAlignmentResult = new EnrichedAlignmentResult(alignmentResult);
+                        enrichedAlignmentResult.setRefEnsemblTranscript(refEnsemblTranscript);
+                        enrichedAlignmentResult.setTargetEnsemblTranscript(ensemblTranscript);
+                        return Optional.of(enrichedAlignmentResult);
+                    } else {
+                        Optional<EnrichedAlignmentResult> optional = Optional.empty();
+                        return optional;
                     }
-                )
+                })
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .sorted(Comparator.comparingInt(EnrichedAlignmentResult::getPenalty))
@@ -480,15 +467,13 @@ public class TranscriptService {
     ) {
         return availableEnsemblTranscripts
             .stream()
-            .filter(
-                ensemblTranscript -> {
-                    if (ensemblTranscript.getProteinId() != null && ensemblTranscript.getProteinId().equals(sequence.getId())) {
-                        return true;
-                    } else {
-                        return false;
-                    }
+            .filter(ensemblTranscript -> {
+                if (ensemblTranscript.getProteinId() != null && ensemblTranscript.getProteinId().equals(sequence.getId())) {
+                    return true;
+                } else {
+                    return false;
                 }
-            )
+            })
             .findAny();
     }
 

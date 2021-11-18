@@ -46,18 +46,16 @@ public class SequenceService {
 
         return sequenceRepository
             .findById(sequence.getId())
-            .map(
-                existingSequence -> {
-                    if (sequence.getSequenceType() != null) {
-                        existingSequence.setSequenceType(sequence.getSequenceType());
-                    }
-                    if (sequence.getSequence() != null) {
-                        existingSequence.setSequence(sequence.getSequence());
-                    }
-
-                    return existingSequence;
+            .map(existingSequence -> {
+                if (sequence.getSequenceType() != null) {
+                    existingSequence.setSequenceType(sequence.getSequenceType());
                 }
-            )
+                if (sequence.getSequence() != null) {
+                    existingSequence.setSequence(sequence.getSequence());
+                }
+
+                return existingSequence;
+            })
             .map(sequenceRepository::save);
     }
 

@@ -2,7 +2,6 @@ package org.mskcc.oncokb.transcript.service;
 
 import static org.mskcc.oncokb.transcript.util.FileUtils.readTrimmedLinesStream;
 import static org.mskcc.oncokb.transcript.util.GzipUtils.deCompress;
-import static org.mskcc.oncokb.transcript.util.GzipUtils.getZipContent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,11 +13,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.transcript.domain.Drug;
 import org.mskcc.oncokb.transcript.domain.DrugSynonym;
-import org.mskcc.oncokb.transcript.domain.Info;
 import org.mskcc.oncokb.transcript.domain.enumeration.InfoType;
 import org.mskcc.oncokb.transcript.repository.DrugRepository;
 import org.mskcc.oncokb.transcript.repository.DrugSynonymRepository;
-import org.mskcc.oncokb.transcript.repository.InfoRepository;
 import org.mskcc.oncokb.transcript.util.COMPRESSED_FILE_FORMAT;
 import org.oncokb.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,16 +104,14 @@ public class NcitService {
                     existSynonyms.add(drug.getName());
                     synonyms
                         .stream()
-                        .forEach(
-                            synonym -> {
-                                if (!existSynonyms.contains(synonym)) {
-                                    DrugSynonym drugSynonym = new DrugSynonym();
-                                    drugSynonym.setDrug(drug);
-                                    drugSynonym.setName(synonym);
-                                    drugSynonymRepository.save(drugSynonym);
-                                }
+                        .forEach(synonym -> {
+                            if (!existSynonyms.contains(synonym)) {
+                                DrugSynonym drugSynonym = new DrugSynonym();
+                                drugSynonym.setDrug(drug);
+                                drugSynonym.setName(synonym);
+                                drugSynonymRepository.save(drugSynonym);
                             }
-                        );
+                        });
 
                     if (!Objects.equals(drug.getSemanticType(), semanticType)) {
                         drug.setSemanticType(semanticType);
@@ -131,14 +126,12 @@ public class NcitService {
                         synonyms.remove(name);
                         Set<DrugSynonym> synonymSet = synonyms
                             .stream()
-                            .map(
-                                synonym -> {
-                                    DrugSynonym drugSynonym = new DrugSynonym();
-                                    drugSynonym.setName(synonym.trim());
-                                    drugSynonym.setDrug(drug);
-                                    return drugSynonym;
-                                }
-                            )
+                            .map(synonym -> {
+                                DrugSynonym drugSynonym = new DrugSynonym();
+                                drugSynonym.setName(synonym.trim());
+                                drugSynonym.setDrug(drug);
+                                return drugSynonym;
+                            })
                             .collect(Collectors.toSet());
                         drug.setSynonyms(synonymSet);
                     }

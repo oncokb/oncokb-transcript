@@ -82,18 +82,16 @@ public class GeneService {
 
         return geneRepository
             .findById(gene.getId())
-            .map(
-                existingGene -> {
-                    if (gene.getEntrezGeneId() != null) {
-                        existingGene.setEntrezGeneId(gene.getEntrezGeneId());
-                    }
-                    if (gene.getHugoSymbol() != null) {
-                        existingGene.setHugoSymbol(gene.getHugoSymbol());
-                    }
-
-                    return existingGene;
+            .map(existingGene -> {
+                if (gene.getEntrezGeneId() != null) {
+                    existingGene.setEntrezGeneId(gene.getEntrezGeneId());
                 }
-            )
+                if (gene.getHugoSymbol() != null) {
+                    existingGene.setHugoSymbol(gene.getHugoSymbol());
+                }
+
+                return existingGene;
+            })
             .map(geneRepository::save);
     }
 
@@ -164,13 +162,11 @@ public class GeneService {
                     Arrays
                         .stream(line[5].split(SYNONYM_SEPARATOR))
                         .filter(synonym -> StringUtils.isNotEmpty(synonym.trim()))
-                        .map(
-                            synonym -> {
-                                GeneAlias geneAlias = new GeneAlias();
-                                geneAlias.setName(synonym.trim());
-                                return geneAlias;
-                            }
-                        )
+                        .map(synonym -> {
+                            GeneAlias geneAlias = new GeneAlias();
+                            geneAlias.setName(synonym.trim());
+                            return geneAlias;
+                        })
                         .collect(Collectors.toSet())
                 );
             }
@@ -197,16 +193,14 @@ public class GeneService {
         return readmeFileLines
             .stream()
             .map(line -> line.split("\t"))
-            .filter(
-                line -> {
-                    // as long as gene has entrez gene id and hugo symbol, we import
-                    if (line.length >= 2) {
-                        return StringUtils.isNumeric(line[0]);
-                    } else {
-                        return false;
-                    }
+            .filter(line -> {
+                // as long as gene has entrez gene id and hugo symbol, we import
+                if (line.length >= 2) {
+                    return StringUtils.isNumeric(line[0]);
+                } else {
+                    return false;
                 }
-            )
+            })
             .collect(Collectors.toList());
     }
 

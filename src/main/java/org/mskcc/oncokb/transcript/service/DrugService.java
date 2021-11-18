@@ -47,21 +47,19 @@ public class DrugService {
 
         return drugRepository
             .findById(drug.getId())
-            .map(
-                existingDrug -> {
-                    if (drug.getName() != null) {
-                        existingDrug.setName(drug.getName());
-                    }
-                    if (drug.getCode() != null) {
-                        existingDrug.setCode(drug.getCode());
-                    }
-                    if (drug.getSemanticType() != null) {
-                        existingDrug.setSemanticType(drug.getSemanticType());
-                    }
-
-                    return existingDrug;
+            .map(existingDrug -> {
+                if (drug.getName() != null) {
+                    existingDrug.setName(drug.getName());
                 }
-            )
+                if (drug.getCode() != null) {
+                    existingDrug.setCode(drug.getCode());
+                }
+                if (drug.getSemanticType() != null) {
+                    existingDrug.setSemanticType(drug.getSemanticType());
+                }
+
+                return existingDrug;
+            })
             .map(drugRepository::save);
     }
 
