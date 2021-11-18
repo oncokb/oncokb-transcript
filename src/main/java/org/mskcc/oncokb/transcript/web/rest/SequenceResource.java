@@ -115,7 +115,7 @@ public class SequenceResource {
      * or with status {@code 500 (Internal Server Error)} if the sequence couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/sequences/{id}", consumes = "application/merge-patch+json")
+    @PatchMapping(value = "/sequences/{id}", consumes = { "application/json", "application/merge-patch+json" })
     public ResponseEntity<Sequence> partialUpdateSequence(
         @PathVariable(value = "id", required = false) final Long id,
         @RequestBody Sequence sequence
@@ -164,15 +164,14 @@ public class SequenceResource {
             transcripts = transcriptService.findByReferenceGenomeAndSourceAndHugoSymbol(referenceGenome, usageSource, hugoSymbol);
         }
         List<Sequence> sequences = new ArrayList<>();
-        transcripts.forEach(
-            transcript ->
-                sequences.addAll(
-                    transcript
-                        .getSequences()
-                        .stream()
-                        .filter(sequence -> sequence.getSequenceType().equals(SequenceType.PROTEIN))
-                        .collect(Collectors.toList())
-                )
+        transcripts.forEach(transcript ->
+            sequences.addAll(
+                transcript
+                    .getSequences()
+                    .stream()
+                    .filter(sequence -> sequence.getSequenceType().equals(SequenceType.PROTEIN))
+                    .collect(Collectors.toList())
+            )
         );
         return sequences;
     }

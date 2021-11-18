@@ -48,15 +48,13 @@ public class TranscriptUsageService {
 
         return transcriptUsageRepository
             .findById(transcriptUsage.getId())
-            .map(
-                existingTranscriptUsage -> {
-                    if (transcriptUsage.getSource() != null) {
-                        existingTranscriptUsage.setSource(transcriptUsage.getSource());
-                    }
-
-                    return existingTranscriptUsage;
+            .map(existingTranscriptUsage -> {
+                if (transcriptUsage.getSource() != null) {
+                    existingTranscriptUsage.setSource(transcriptUsage.getSource());
                 }
-            )
+
+                return existingTranscriptUsage;
+            })
             .map(transcriptUsageRepository::save);
     }
 

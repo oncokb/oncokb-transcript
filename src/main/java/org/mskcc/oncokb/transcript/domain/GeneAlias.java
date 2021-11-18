@@ -15,6 +15,7 @@ public class GeneAlias implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "name")
@@ -25,17 +26,18 @@ public class GeneAlias implements Serializable {
     private Gene gene;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public GeneAlias id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public GeneAlias id(Long id) {
-        this.id = id;
-        return this;
     }
 
     public String getName() {
@@ -43,7 +45,7 @@ public class GeneAlias implements Serializable {
     }
 
     public GeneAlias name(String name) {
-        this.name = name;
+        this.setName(name);
         return this;
     }
 
@@ -55,13 +57,13 @@ public class GeneAlias implements Serializable {
         return this.gene;
     }
 
+    public void setGene(Gene gene) {
+        this.gene = gene;
+    }
+
     public GeneAlias gene(Gene gene) {
         this.setGene(gene);
         return this;
-    }
-
-    public void setGene(Gene gene) {
-        this.gene = gene;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

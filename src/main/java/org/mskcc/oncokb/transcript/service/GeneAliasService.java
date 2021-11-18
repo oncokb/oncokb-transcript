@@ -46,15 +46,13 @@ public class GeneAliasService {
 
         return geneAliasRepository
             .findById(geneAlias.getId())
-            .map(
-                existingGeneAlias -> {
-                    if (geneAlias.getName() != null) {
-                        existingGeneAlias.setName(geneAlias.getName());
-                    }
-
-                    return existingGeneAlias;
+            .map(existingGeneAlias -> {
+                if (geneAlias.getName() != null) {
+                    existingGeneAlias.setName(geneAlias.getName());
                 }
-            )
+
+                return existingGeneAlias;
+            })
             .map(geneAliasRepository::save);
     }
 

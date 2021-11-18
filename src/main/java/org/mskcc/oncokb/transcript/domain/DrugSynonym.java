@@ -15,6 +15,7 @@ public class DrugSynonym implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Lob
@@ -26,17 +27,18 @@ public class DrugSynonym implements Serializable {
     private Drug drug;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
+
     public Long getId() {
-        return id;
+        return this.id;
+    }
+
+    public DrugSynonym id(Long id) {
+        this.setId(id);
+        return this;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public DrugSynonym id(Long id) {
-        this.id = id;
-        return this;
     }
 
     public String getName() {
@@ -44,7 +46,7 @@ public class DrugSynonym implements Serializable {
     }
 
     public DrugSynonym name(String name) {
-        this.name = name;
+        this.setName(name);
         return this;
     }
 
@@ -56,13 +58,13 @@ public class DrugSynonym implements Serializable {
         return this.drug;
     }
 
+    public void setDrug(Drug drug) {
+        this.drug = drug;
+    }
+
     public DrugSynonym drug(Drug drug) {
         this.setDrug(drug);
         return this;
-    }
-
-    public void setDrug(Drug drug) {
-        this.drug = drug;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

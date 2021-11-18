@@ -46,15 +46,13 @@ public class DrugSynonymService {
 
         return drugSynonymRepository
             .findById(drugSynonym.getId())
-            .map(
-                existingDrugSynonym -> {
-                    if (drugSynonym.getName() != null) {
-                        existingDrugSynonym.setName(drugSynonym.getName());
-                    }
-
-                    return existingDrugSynonym;
+            .map(existingDrugSynonym -> {
+                if (drugSynonym.getName() != null) {
+                    existingDrugSynonym.setName(drugSynonym.getName());
                 }
-            )
+
+                return existingDrugSynonym;
+            })
             .map(drugSynonymRepository::save);
     }
 

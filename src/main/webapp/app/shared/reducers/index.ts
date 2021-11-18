@@ -1,9 +1,9 @@
 import { loadingBarReducer as loadingBar } from 'react-redux-loading-bar';
 
-import authentication, { AuthenticationState } from './authentication';
-import applicationProfile, { ApplicationProfileState } from './application-profile';
+import authentication from './authentication';
+import applicationProfile from './application-profile';
 
-import administration, { AdministrationState } from 'app/modules/administration/administration.reducer';
+import administration from 'app/modules/administration/administration.reducer';
 /* jhipster-needle-add-reducer-import - JHipster will add reducer here */
 
 const rootReducer = {
