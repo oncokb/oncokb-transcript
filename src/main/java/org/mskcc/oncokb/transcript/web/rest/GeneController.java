@@ -44,14 +44,12 @@ public class GeneController {
         if (body != null) {
             body
                 .stream()
-                .forEach(
-                    symbol -> {
-                        Optional<Gene> geneOptional = getGeneBySymbol(symbol);
-                        if (geneOptional.isPresent()) {
-                            genes.add(geneOptional.get());
-                        }
+                .forEach(symbol -> {
+                    Optional<Gene> geneOptional = getGeneBySymbol(symbol);
+                    if (geneOptional.isPresent()) {
+                        genes.add(geneOptional.get());
                     }
-                );
+                });
         }
         return new ResponseEntity<>(genes, HttpStatus.OK);
     }

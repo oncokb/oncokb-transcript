@@ -1,5 +1,7 @@
 package org.mskcc.oncokb.transcript.service;
 
+import static org.mskcc.oncokb.transcript.config.Constants.ENSEMBL_POST_THRESHOLD;
+
 import java.util.*;
 import java.util.List;
 import java.util.Optional;
@@ -8,20 +10,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
 import org.genome_nexus.client.EnsemblControllerApi;
 import org.genome_nexus.client.EnsemblTranscript;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.mskcc.oncokb.transcript.domain.AlignmentResult;
-import org.mskcc.oncokb.transcript.domain.EnrichedAlignmentResult;
-import org.mskcc.oncokb.transcript.domain.Transcript;
+import org.mskcc.oncokb.transcript.domain.*;
+import org.mskcc.oncokb.transcript.domain.enumeration.GenomeFragmentType;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.transcript.domain.enumeration.SequenceType;
 import org.mskcc.oncokb.transcript.domain.enumeration.UsageSource;
 import org.mskcc.oncokb.transcript.repository.TranscriptRepository;
+import org.mskcc.oncokb.transcript.service.dto.TranscriptDTO;
+import org.mskcc.oncokb.transcript.service.mapper.TranscriptMapper;
 import org.mskcc.oncokb.transcript.vm.MissMatchPairVM;
 import org.mskcc.oncokb.transcript.vm.TranscriptMatchResultVM;
 import org.mskcc.oncokb.transcript.vm.TranscriptPairVM;
-import org.mskcc.oncokb.transcript.vm.ensembl.Sequence;
+import org.mskcc.oncokb.transcript.vm.ensembl.EnsemblSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -38,87 +38,98 @@ import org.springframework.web.client.RestTemplate;
 public class TranscriptService {
 
     private final GenomeNexusUrlService genomeNexusUrlService;
+    private final EnsemblService ensemblService;
     private final AlignmentService alignmentService;
     private final SequenceService sequenceService;
+    private final TranscriptMapper transcriptMapper;
 
     private final Logger log = LoggerFactory.getLogger(TranscriptService.class);
 
     private final TranscriptRepository transcriptRepository;
+    private final GenomeFragmentService genomeFragmentService;
 
     public TranscriptService(
         GenomeNexusUrlService genomeNexusUrlService,
+        EnsemblService ensemblService,
         AlignmentService alignmentService,
         SequenceService sequenceService,
-        TranscriptRepository transcriptRepository
+        TranscriptRepository transcriptRepository,
+        TranscriptMapper transcriptMapper,
+        GenomeFragmentService genomeFragmentService
     ) {
         this.genomeNexusUrlService = genomeNexusUrlService;
+        this.ensemblService = ensemblService;
         this.alignmentService = alignmentService;
         this.sequenceService = sequenceService;
         this.transcriptRepository = transcriptRepository;
+        this.transcriptMapper = transcriptMapper;
+        this.genomeFragmentService = genomeFragmentService;
     }
 
     /**
      * Save a transcript.
      *
-     * @param transcript the entity to save.
+     * @param transcriptDTO the entity to save.
      * @return the persisted entity.
      */
-    public Transcript save(Transcript transcript) {
-        log.debug("Request to save Transcript : {}", transcript);
+    public TranscriptDTO save(TranscriptDTO transcriptDTO) {
+        log.debug("Request to save Transcript : {}", transcriptDTO);
+        Transcript transcript = transcriptMapper.toEntity(transcriptDTO);
         Transcript savedTranscript = transcriptRepository.save(transcript);
 
+        List<GenomeFragment> transcriptGenomeFragments = genomeFragmentService.findAllByTranscriptId(transcriptDTO.getId());
+        genomeFragmentService.deleteAll(transcriptGenomeFragments);
+
+        GenomeFragment genomeFragment = new GenomeFragment();
+        genomeFragment.setTranscript(savedTranscript);
+        genomeFragment.setChromosome(transcriptDTO.getChromosome());
+        genomeFragment.setStart(transcriptDTO.getStart());
+        genomeFragment.setEnd(transcriptDTO.getEnd());
+        genomeFragment.setStrand(transcriptDTO.getStrand());
+        genomeFragment.setType(GenomeFragmentType.GENE);
+        genomeFragmentService.save(genomeFragment);
+
+        transcriptDTO.getExons().stream().forEach(exon -> exon.setTranscript(savedTranscript));
+        genomeFragmentService.saveAll(transcriptDTO.getExons());
+        transcriptDTO.getUtrs().stream().forEach(utr -> utr.setTranscript(savedTranscript));
+        genomeFragmentService.saveAll(transcriptDTO.getUtrs());
+
         // save sequence automatically when a new transcript saved
-        Optional<org.mskcc.oncokb.transcript.vm.ensembl.Sequence> sequenceOptional = getProteinSequence(
-            savedTranscript.getReferenceGenome(),
-            savedTranscript.getEnsemblProteinId()
-        );
-        if (sequenceOptional.isPresent()) {
-            org.mskcc.oncokb.transcript.domain.Sequence sequence = new org.mskcc.oncokb.transcript.domain.Sequence();
-            sequence.setTranscript(savedTranscript);
-            sequence.setSequenceType(SequenceType.PROTEIN);
-            sequence.setSequence(sequenceOptional.get().getSeq());
-            sequenceService.save(sequence);
+        Optional<Sequence> sequenceOptional = sequenceService.findOneByTranscriptAndSequenceType(savedTranscript, SequenceType.PROTEIN);
+        if (sequenceOptional.isEmpty()) {
+            Optional<EnsemblSequence> ensemblSequenceOptional = ensemblService.getProteinSequence(
+                savedTranscript.getReferenceGenome(),
+                savedTranscript.getEnsemblProteinId()
+            );
+            if (ensemblSequenceOptional.isPresent()) {
+                Sequence sequence = new Sequence();
+                sequence.setTranscript(savedTranscript);
+                sequence.setSequenceType(SequenceType.PROTEIN);
+                sequence.setSequence(ensemblSequenceOptional.get().getSeq());
+                sequenceService.save(sequence);
+            }
         }
-        return savedTranscript;
+        return transcriptMapper.toDto(savedTranscript);
     }
 
     /**
      * Partially update a transcript.
      *
-     * @param transcript the entity to update partially.
+     * @param transcriptDTO the entity to update partially.
      * @return the persisted entity.
      */
-    public Optional<Transcript> partialUpdate(Transcript transcript) {
-        log.debug("Request to partially update Transcript : {}", transcript);
+    public Optional<TranscriptDTO> partialUpdate(TranscriptDTO transcriptDTO) {
+        log.debug("Request to partially update Transcript : {}", transcriptDTO);
 
         return transcriptRepository
-            .findById(transcript.getId())
+            .findById(transcriptDTO.getId())
             .map(existingTranscript -> {
-                if (transcript.getEntrezGeneId() != null) {
-                    existingTranscript.setEntrezGeneId(transcript.getEntrezGeneId());
-                }
-                if (transcript.getHugoSymbol() != null) {
-                    existingTranscript.setHugoSymbol(transcript.getHugoSymbol());
-                }
-                if (transcript.getReferenceGenome() != null) {
-                    existingTranscript.setReferenceGenome(transcript.getReferenceGenome());
-                }
-                if (transcript.getEnsemblTranscriptId() != null) {
-                    existingTranscript.setEnsemblTranscriptId(transcript.getEnsemblTranscriptId());
-                }
-                if (transcript.getEnsemblProteinId() != null) {
-                    existingTranscript.setEnsemblProteinId(transcript.getEnsemblProteinId());
-                }
-                if (transcript.getReferenceSequenceId() != null) {
-                    existingTranscript.setReferenceSequenceId(transcript.getReferenceSequenceId());
-                }
-                if (transcript.getDescription() != null) {
-                    existingTranscript.setDescription(transcript.getDescription());
-                }
+                transcriptMapper.partialUpdate(existingTranscript, transcriptDTO);
 
                 return existingTranscript;
             })
-            .map(transcriptRepository::save);
+            .map(transcriptRepository::save)
+            .map(transcriptMapper::toDto);
     }
 
     /**
@@ -127,9 +138,9 @@ public class TranscriptService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public List<Transcript> findAll() {
+    public List<TranscriptDTO> findAll() {
         log.debug("Request to get all Transcripts");
-        return transcriptRepository.findAll();
+        return transcriptRepository.findAll().stream().map(transcriptMapper::toDto).collect(Collectors.toCollection(LinkedList::new));
     }
 
     /**
@@ -139,9 +150,9 @@ public class TranscriptService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<Transcript> findOne(Long id) {
+    public Optional<TranscriptDTO> findOne(Long id) {
         log.debug("Request to get Transcript : {}", id);
-        return transcriptRepository.findById(id);
+        return transcriptRepository.findById(id).map(transcriptMapper::toDto);
     }
 
     /**
@@ -162,37 +173,52 @@ public class TranscriptService {
      * @return
      */
     @Transactional(readOnly = true)
-    public Optional<Transcript> findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome referenceGenome, String ensembleTranscriptId) {
+    public Optional<TranscriptDTO> findByReferenceGenomeAndEnsemblTranscriptId(
+        ReferenceGenome referenceGenome,
+        String ensembleTranscriptId
+    ) {
         log.debug("Request to get Sequence : {}", ensembleTranscriptId);
-        return transcriptRepository.findByReferenceGenomeAndEnsemblTranscriptId(referenceGenome, ensembleTranscriptId);
+        Optional<Transcript> transcriptOptional = transcriptRepository.findByReferenceGenomeAndEnsemblTranscriptId(
+            referenceGenome,
+            ensembleTranscriptId
+        );
+        if (transcriptOptional.isPresent()) {
+            return Optional.of(transcriptMapper.toDto(transcriptOptional.get()));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Transactional(readOnly = true)
-    public List<Transcript> findByReferenceGenomeAndSource(ReferenceGenome referenceGenome, UsageSource usageSource) {
-        return transcriptRepository.findByReferenceGenomeAndSource(referenceGenome, usageSource);
+    public List<TranscriptDTO> findByReferenceGenomeAndSource(ReferenceGenome referenceGenome, UsageSource usageSource) {
+        return transcriptMapper.toDto(transcriptRepository.findByReferenceGenomeAndSource(referenceGenome, usageSource));
     }
 
     @Transactional(readOnly = true)
-    public List<Transcript> findByReferenceGenomeAndSourceAndHugoSymbol(
+    public List<TranscriptDTO> findByReferenceGenomeAndSourceAndHugoSymbol(
         ReferenceGenome referenceGenome,
         UsageSource usageSource,
         String hugoSymbol
     ) {
-        return transcriptRepository.findByReferenceGenomeAndSourceAndHugoSymbol(referenceGenome, usageSource, hugoSymbol);
+        return transcriptMapper.toDto(
+            transcriptRepository.findByReferenceGenomeAndSourceAndHugoSymbol(referenceGenome, usageSource, hugoSymbol)
+        );
     }
 
     @Transactional(readOnly = true)
-    public List<Transcript> findByReferenceGenomeAndEnsemblTranscriptAndSource(
+    public List<TranscriptDTO> findByReferenceGenomeAndEnsemblTranscriptAndSource(
         ReferenceGenome referenceGenome,
         String ensemblTranscriptId,
         UsageSource usageSource
     ) {
-        return transcriptRepository.findByReferenceGenomeAndEnsemblTranscriptAndSource(referenceGenome, ensemblTranscriptId, usageSource);
+        return transcriptMapper.toDto(
+            transcriptRepository.findByReferenceGenomeAndEnsemblTranscriptAndSource(referenceGenome, ensemblTranscriptId, usageSource)
+        );
     }
 
     @Transactional(readOnly = true)
-    public List<Transcript> findByReferenceGenome(ReferenceGenome referenceGenome) {
-        return transcriptRepository.findByReferenceGenome(referenceGenome);
+    public List<TranscriptDTO> findByReferenceGenome(ReferenceGenome referenceGenome) {
+        return transcriptMapper.toDto(transcriptRepository.findByReferenceGenome(referenceGenome));
     }
 
     public List<EnsemblTranscript> getTranscriptsWithMatchedResidue(
@@ -205,7 +231,7 @@ public class TranscriptService {
             .stream()
             .filter(ensemblTranscript -> StringUtils.isNotEmpty(ensemblTranscript.getProteinId()))
             .filter(ensemblTranscript -> {
-                Optional<Sequence> sequence = getProteinSequence(referenceGenome, ensemblTranscript.getProteinId());
+                Optional<EnsemblSequence> sequence = ensemblService.getProteinSequence(referenceGenome, ensemblTranscript.getProteinId());
                 if (sequence.isPresent()) {
                     if (sequence.get().getSeq().length() >= proteinPosition) {
                         return sequence.get().getSeq().substring(proteinPosition - 1, proteinPosition).equals(expectedAllele);
@@ -231,7 +257,10 @@ public class TranscriptService {
 
         if (_ensemblTranscript.isPresent()) {
             transcriptMatchResultVM.setOriginalEnsemblTranscript(_ensemblTranscript.get());
-            Optional<Sequence> _sequence = getProteinSequence(transcript.getReferenceGenome(), _ensemblTranscript.get().getProteinId());
+            Optional<EnsemblSequence> _sequence = ensemblService.getProteinSequence(
+                transcript.getReferenceGenome(),
+                _ensemblTranscript.get().getProteinId()
+            );
             if (_sequence.isPresent()) {
                 List<EnsemblTranscript> targetEnsemblTranscripts = getEnsemblTranscriptList(hugoSymbol, referenceGenome);
                 if (targetEnsemblTranscripts.size() == 0) {
@@ -294,56 +323,127 @@ public class TranscriptService {
             .findFirst();
     }
 
-    public Optional<Sequence> getProteinSequence(ReferenceGenome referenceGenome, String transcript) {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> entity = new HttpEntity<>(httpHeaders);
-
-        RestTemplate restTemplate = new RestTemplate();
-        try {
-            ResponseEntity<Sequence> response = restTemplate.exchange(
-                genomeNexusUrlService.getEnsemblSequenceGETUrl(referenceGenome, transcript),
-                HttpMethod.GET,
-                entity,
-                Sequence.class
+    /**
+     * Get a list of transcripts from ensembl.org
+     * @param referenceGenome Reference Genome
+     * @param transcriptIds a list of transcript ids that need to be searched
+     * @return a lit of expanded ensembl transcripts with exon/utr info
+     */
+    public List<org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript> getTranscriptInfo(
+        ReferenceGenome referenceGenome,
+        List<String> transcriptIds
+    ) {
+        List<org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript> ensemblTranscriptList = new ArrayList<>();
+        for (int i = 0; i < transcriptIds.size(); i += ENSEMBL_POST_THRESHOLD) {
+            ensemblTranscriptList.addAll(
+                ensemblService.getTranscripts(
+                    referenceGenome,
+                    transcriptIds.subList(i, Math.min(transcriptIds.toArray().length, i + ENSEMBL_POST_THRESHOLD))
+                )
             );
-            return Optional.of(response.getBody());
-        } catch (RestClientException exception) {
-            exception.printStackTrace();
-            return Optional.empty();
         }
+        return ensemblTranscriptList;
     }
 
-    public List<Sequence> getProteinSequences(ReferenceGenome referenceGenome, List<String> transcripts) {
-        if (transcripts.size() == 0) {
-            return new ArrayList<>();
-        }
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-        JSONObject jsonObject = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
-        transcripts.stream().forEach(transcript -> jsonArray.put(transcript));
-        try {
-            jsonObject.put("ids", jsonArray);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        HttpEntity<String> entity = new HttpEntity<>(jsonObject.toString(), httpHeaders);
+    private void updateGenomeFragments(
+        TranscriptDTO transcriptDTO,
+        org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript ensemblTranscript
+    ) {
+        // save gene fragment
+        transcriptDTO.setChromosome(ensemblTranscript.getSeqRegionName());
+        transcriptDTO.setStart(ensemblTranscript.getStart());
+        transcriptDTO.setEnd(ensemblTranscript.getEnd());
+        transcriptDTO.setStrand(ensemblTranscript.getStrand());
 
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Sequence[]> response = restTemplate.postForEntity(
-            genomeNexusUrlService.getEnsemblSequencePOSTUrl(referenceGenome),
-            entity,
-            Sequence[].class
+        // save UTRs
+        transcriptDTO.setUtrs(
+            ensemblTranscript
+                .getUtrs()
+                .stream()
+                .map(utr -> {
+                    GenomeFragment utrFragment = new GenomeFragment();
+                    GenomeFragmentType genomeFragmentType = null;
+                    switch (utr.getType()) {
+                        case "five_prime_UTR":
+                            genomeFragmentType = GenomeFragmentType.FIVE_PRIME_UTR;
+                            break;
+                        case "three_prime_UTR":
+                            genomeFragmentType = GenomeFragmentType.THREE_PRIME_UTR;
+                            break;
+                        default:
+                            break;
+                    }
+                    if (genomeFragmentType != null) {
+                        utrFragment.setType(genomeFragmentType);
+                        utrFragment.setStrand(utr.getStrand());
+                        utrFragment.setStart(utr.getStart());
+                        utrFragment.setEnd(utr.getEnd());
+                        utrFragment.setChromosome(utr.getSeqRegionName());
+                    }
+                    return utrFragment;
+                })
+                .collect(Collectors.toList())
         );
-        return Arrays.asList(response.getBody());
+
+        // save exons
+        transcriptDTO.setExons(
+            ensemblTranscript
+                .getExons()
+                .stream()
+                .map(utr -> {
+                    GenomeFragment exonFragment = new GenomeFragment();
+                    exonFragment.setType(GenomeFragmentType.EXON);
+                    exonFragment.setStrand(utr.getStrand());
+                    exonFragment.setStart(utr.getStart());
+                    exonFragment.setEnd(utr.getEnd());
+                    exonFragment.setChromosome(utr.getSeqRegionName());
+                    return exonFragment;
+                })
+                .collect(Collectors.toList())
+        );
+    }
+
+    /**
+     * Create/Update transcript using the info. The method will include genome fragments if the ensemblTranscript is specified
+     * @param referenceGenome
+     * @param entrezGeneId
+     * @param hugoSymbol
+     * @param ensemblTranscriptId
+     * @param ensemblProteinId
+     * @param referenceSequenceId
+     * @param ensemblTranscript
+     * @return an optional with the saved transcript
+     */
+    public Optional<TranscriptDTO> createTranscript(
+        ReferenceGenome referenceGenome,
+        Integer entrezGeneId,
+        String hugoSymbol,
+        String ensemblTranscriptId,
+        String ensemblProteinId,
+        String referenceSequenceId,
+        org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript ensemblTranscript
+    ) {
+        Optional<TranscriptDTO> transcriptDTOOptional = findByReferenceGenomeAndEnsemblTranscriptId(referenceGenome, ensemblTranscriptId);
+        TranscriptDTO transcriptDTO = transcriptDTOOptional.isPresent() ? transcriptDTOOptional.get() : new TranscriptDTO();
+        transcriptDTO.setEntrezGeneId(entrezGeneId);
+        transcriptDTO.setHugoSymbol(hugoSymbol);
+        transcriptDTO.setReferenceGenome(referenceGenome);
+        transcriptDTO.setEnsemblTranscriptId(ensemblTranscriptId);
+        transcriptDTO.setEnsemblProteinId(ensemblProteinId);
+        transcriptDTO.setReferenceSequenceId(referenceSequenceId);
+
+        if (ensemblTranscript != null) {
+            updateGenomeFragments(transcriptDTO, ensemblTranscript);
+        }
+
+        return Optional.of(this.save(transcriptDTO));
     }
 
     private TranscriptMatchResultVM pickEnsemblTranscript(
         TranscriptMatchResultVM transcriptMatchResultVM,
         ReferenceGenome referenceGenome,
         List<EnsemblTranscript> availableTranscripts,
-        Sequence sequence
+        EnsemblSequence sequence
     ) {
         List<EnsemblTranscript> sameLengthList = availableTranscripts
             .stream()
@@ -352,14 +452,12 @@ public class TranscriptService {
             )
             .collect(Collectors.toList());
 
-        List<Sequence> sequences = getProteinSequences(
-            referenceGenome,
-            sameLengthList.stream().map(EnsemblTranscript::getProteinId).collect(Collectors.toList())
-        )
+        List<EnsemblSequence> sequences = ensemblService
+            .getProteinSequences(referenceGenome, sameLengthList.stream().map(EnsemblTranscript::getProteinId).collect(Collectors.toList()))
             .stream()
             .filter(filteredSequence -> filteredSequence.getSeq().length() == sequence.getSeq().length())
             .collect(Collectors.toList());
-        Optional<Sequence> sequenceSame = sequences
+        Optional<EnsemblSequence> sequenceSame = sequences
             .stream()
             .filter(matchedSequence -> matchedSequence.getSeq().equals(sequence.getSeq()))
             .findAny();
@@ -371,7 +469,7 @@ public class TranscriptService {
         } else if (sequences.size() > 0) {
             // We should make some comparison with the original sequence for the same length
             sequences.sort(Comparator.comparingInt(s -> getNumOfMismatchSameLengthSequences(sequence.getSeq(), s.getSeq()).size()));
-            Sequence pickedSequence = sequences.iterator().next();
+            EnsemblSequence pickedSequence = sequences.iterator().next();
 
             Optional<EnsemblTranscript> ensemblTranscript = getEnsemblTranscriptBySequence(availableTranscripts, pickedSequence);
             transcriptMatchResultVM.setTargetEnsemblTranscript(ensemblTranscript.get());
@@ -401,18 +499,18 @@ public class TranscriptService {
                 )
                 .collect(Collectors.toList());
 
-            List<Sequence> longerSequences = getProteinSequences(
+            List<EnsemblSequence> longerSequences = ensemblService.getProteinSequences(
                 referenceGenome,
                 longerOnes.stream().map(EnsemblTranscript::getProteinId).collect(Collectors.toList())
             );
-            List<Sequence> sequencesContains = longerSequences
+            List<EnsemblSequence> sequencesContains = longerSequences
                 .stream()
                 .filter(matchedSequence -> matchedSequence.getSeq().contains(sequence.getSeq()))
                 .collect(Collectors.toList());
             sequencesContains.sort((s1, s2) -> s2.getSeq().length() - s1.getSeq().length());
 
             if (sequencesContains.size() > 0) {
-                Sequence pickedSequence = sequencesContains.iterator().next();
+                EnsemblSequence pickedSequence = sequencesContains.iterator().next();
                 Optional<EnsemblTranscript> ensemblTranscript = getEnsemblTranscriptBySequence(longerOnes, pickedSequence);
                 transcriptMatchResultVM.setTargetEnsemblTranscript(ensemblTranscript.get());
                 transcriptMatchResultVM.setNote("Longer one found, length: " + ensemblTranscript.get().getProteinLength());
@@ -429,13 +527,19 @@ public class TranscriptService {
         ReferenceGenome targetReferenceGenome,
         List<EnsemblTranscript> targetTranscripts
     ) {
-        Optional<Sequence> refSequenceOptional = getProteinSequence(refReferenceGenome, refEnsemblTranscript.getProteinId());
+        Optional<EnsemblSequence> refSequenceOptional = ensemblService.getProteinSequence(
+            refReferenceGenome,
+            refEnsemblTranscript.getProteinId()
+        );
         if (refSequenceOptional.isPresent()) {
             return targetTranscripts
                 .stream()
                 .filter(ensemblTranscript -> StringUtils.isNotEmpty(ensemblTranscript.getProteinId()))
                 .map(ensemblTranscript -> {
-                    Optional<Sequence> targetSequenceOptional = getProteinSequence(targetReferenceGenome, ensemblTranscript.getProteinId());
+                    Optional<EnsemblSequence> targetSequenceOptional = ensemblService.getProteinSequence(
+                        targetReferenceGenome,
+                        ensemblTranscript.getProteinId()
+                    );
                     if (targetSequenceOptional.isPresent()) {
                         AlignmentResult alignmentResult =
                             this.alignmentService.calcOptimalAlignment(
@@ -463,7 +567,7 @@ public class TranscriptService {
 
     private Optional<EnsemblTranscript> getEnsemblTranscriptBySequence(
         List<EnsemblTranscript> availableEnsemblTranscripts,
-        Sequence sequence
+        EnsemblSequence sequence
     ) {
         return availableEnsemblTranscripts
             .stream()

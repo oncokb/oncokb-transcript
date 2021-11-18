@@ -50,6 +50,10 @@ public class Transcript implements Serializable {
 
     @OneToMany(mappedBy = "transcript", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "transcript" }, allowSetters = true)
+    private Set<GenomeFragment> fragments = new HashSet<>();
+
+    @OneToMany(mappedBy = "transcript")
+    @JsonIgnoreProperties(value = { "transcript" }, allowSetters = true)
     private Set<TranscriptUsage> transcriptUsages = new HashSet<>();
 
     @OneToMany(mappedBy = "transcript", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
@@ -57,16 +61,6 @@ public class Transcript implements Serializable {
     private Set<Sequence> sequences = new HashSet<>();
 
     public Transcript() {}
-
-    public Transcript(ReferenceGenome referenceGenome, EnsemblTranscript ensemblTranscript, String hugoSymbol, int entrezGeneId) {
-        this.setHugoSymbol(hugoSymbol);
-        this.setEntrezGeneId(entrezGeneId);
-        this.setReferenceGenome(referenceGenome);
-
-        this.setEnsemblTranscriptId(ensemblTranscript.getTranscriptId());
-        this.setEnsemblProteinId(ensemblTranscript.getProteinId());
-        this.setReferenceSequenceId(ensemblTranscript.getRefseqMrnaId());
-    }
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -172,6 +166,37 @@ public class Transcript implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Set<GenomeFragment> getFragments() {
+        return this.fragments;
+    }
+
+    public void setFragments(Set<GenomeFragment> genomeFragments) {
+        if (this.fragments != null) {
+            this.fragments.forEach(i -> i.setTranscript(null));
+        }
+        if (genomeFragments != null) {
+            genomeFragments.forEach(i -> i.setTranscript(this));
+        }
+        this.fragments = genomeFragments;
+    }
+
+    public Transcript fragments(Set<GenomeFragment> genomeFragments) {
+        this.setFragments(genomeFragments);
+        return this;
+    }
+
+    public Transcript addFragments(GenomeFragment genomeFragment) {
+        this.fragments.add(genomeFragment);
+        genomeFragment.setTranscript(this);
+        return this;
+    }
+
+    public Transcript removeFragments(GenomeFragment genomeFragment) {
+        this.fragments.remove(genomeFragment);
+        genomeFragment.setTranscript(null);
+        return this;
     }
 
     public Set<TranscriptUsage> getTranscriptUsages() {

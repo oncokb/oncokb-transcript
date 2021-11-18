@@ -18,7 +18,7 @@ import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
 /**
- * REST controller for managing {@link org.mskcc.cbio.domain.TranscriptUsage}.
+ * REST controller for managing {@link org.mskcc.oncokb.transcript.domain.TranscriptUsage}.
  */
 //@RestController
 //@RequestMapping("/api")

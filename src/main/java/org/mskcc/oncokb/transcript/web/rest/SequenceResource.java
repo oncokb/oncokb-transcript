@@ -16,6 +16,8 @@ import org.mskcc.oncokb.transcript.domain.enumeration.UsageSource;
 import org.mskcc.oncokb.transcript.repository.SequenceRepository;
 import org.mskcc.oncokb.transcript.service.SequenceService;
 import org.mskcc.oncokb.transcript.service.TranscriptService;
+import org.mskcc.oncokb.transcript.service.dto.TranscriptDTO;
+import org.mskcc.oncokb.transcript.service.mapper.TranscriptMapper;
 import org.mskcc.oncokb.transcript.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,11 +45,18 @@ public class SequenceResource {
     private final TranscriptService transcriptService;
 
     private final SequenceRepository sequenceRepository;
+    private final TranscriptMapper transcriptMapper;
 
-    public SequenceResource(SequenceService sequenceService, SequenceRepository sequenceRepository, TranscriptService transcriptService) {
+    public SequenceResource(
+        SequenceService sequenceService,
+        SequenceRepository sequenceRepository,
+        TranscriptService transcriptService,
+        TranscriptMapper transcriptMapper
+    ) {
         this.sequenceService = sequenceService;
         this.sequenceRepository = sequenceRepository;
         this.transcriptService = transcriptService;
+        this.transcriptMapper = transcriptMapper;
     }
 
     /**
@@ -157,22 +166,23 @@ public class SequenceResource {
         @RequestParam UsageSource usageSource,
         @RequestParam(required = false) String hugoSymbol
     ) {
-        List<Transcript> transcripts;
+        List<TranscriptDTO> transcriptDTOS;
         if (StringUtils.isEmpty(hugoSymbol)) {
-            transcripts = transcriptService.findByReferenceGenomeAndSource(referenceGenome, usageSource);
+            transcriptDTOS = transcriptService.findByReferenceGenomeAndSource(referenceGenome, usageSource);
         } else {
-            transcripts = transcriptService.findByReferenceGenomeAndSourceAndHugoSymbol(referenceGenome, usageSource, hugoSymbol);
+            transcriptDTOS = transcriptService.findByReferenceGenomeAndSourceAndHugoSymbol(referenceGenome, usageSource, hugoSymbol);
         }
         List<Sequence> sequences = new ArrayList<>();
-        transcripts.forEach(transcript ->
+        transcriptDTOS.forEach(transcriptDTO -> {
+            Transcript transcript = transcriptMapper.toEntity(transcriptDTO);
             sequences.addAll(
                 transcript
                     .getSequences()
                     .stream()
                     .filter(sequence -> sequence.getSequenceType().equals(SequenceType.PROTEIN))
                     .collect(Collectors.toList())
-            )
-        );
+            );
+        });
         return sequences;
     }
 

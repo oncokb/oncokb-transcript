@@ -9,6 +9,21 @@ entity Transcript {
     description String
 }
 
+entity GenomeFragment {
+    chromosome String,
+    start Integer,
+    end Integer,
+    strand Integer,
+    type GenomeFragmentType
+}
+
+enum GenomeFragmentType {
+    GENE,
+    EXON,
+    FIVE_PRIME_UTR,
+    THREE_PRIME_UTR
+}
+
 entity Sequence {
     sequenceType SequenceType
     sequence TextBlob
@@ -62,6 +77,7 @@ entity GeneAlias {
 relationship OneToMany {
 	Drug{synonyms} to DrugSynonym
 	Gene to GeneAlias
+	Transcript{fragments} to GenomeFragment{transcript}
 }
 
 relationship ManyToOne {
@@ -70,5 +86,6 @@ relationship ManyToOne {
 }
 
 service * with serviceClass
+dto Transcript with mapstruct
 skipClient *
 

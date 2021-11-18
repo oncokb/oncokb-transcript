@@ -3,7 +3,7 @@ package org.mskcc.oncokb.transcript.vm.ensembl;
 /**
  * Created by Hongxin Zhang on 7/15/20.
  */
-public class Sequence {
+public class EnsemblSequence {
 
     String id;
     String molecule;
