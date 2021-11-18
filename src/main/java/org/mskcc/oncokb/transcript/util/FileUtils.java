@@ -2,6 +2,7 @@ package org.mskcc.oncokb.transcript.util;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -55,7 +56,7 @@ public class FileUtils {
      * @throws IOException
      */
     public static List<String> readLinesStream(InputStream is, boolean trim) throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+        BufferedReader in = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
 
         List<String> lines = new ArrayList<String>();
         String line;

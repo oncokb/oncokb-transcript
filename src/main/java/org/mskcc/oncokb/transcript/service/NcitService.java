@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -69,7 +70,7 @@ public class NcitService {
         InputStream is = url.openStream();
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         deCompress(is, os, COMPRESSED_FILE_FORMAT.ZIP);
-        saveNcitDataToDB(Arrays.asList(os.toString("UTF-8").split("\n")));
+        saveNcitDataToDB(Arrays.asList(os.toString(Charset.forName("UTF-8")).split("\n")));
     }
 
     public void saveNcitDataToDB(List<String> lines) {
