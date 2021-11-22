@@ -205,6 +205,17 @@ public class TranscriptController {
         return new ResponseEntity<>(transcriptResultVM, HttpStatus.OK);
     }
 
+    @PostMapping("/get-transcripts-by-ensembl-ids")
+    public ResponseEntity<List<TranscriptDTO>> getTranscriptsByEnsemblIds(
+        @RequestParam ReferenceGenome referenceGenome,
+        @RequestBody List<String> ensemblTranscriptIds
+    ) {
+        return new ResponseEntity<>(
+            transcriptService.findByReferenceGenomeAndEnsemblTranscriptIdIsIn(referenceGenome, ensemblTranscriptIds),
+            HttpStatus.OK
+        );
+    }
+
     @GetMapping("/get-sequence")
     public ResponseEntity<String> getTranscript(@RequestParam ReferenceGenome referenceGenome, @RequestParam String transcript) {
         Optional<EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(transcript, referenceGenome);

@@ -190,6 +190,18 @@ public class TranscriptService {
     }
 
     @Transactional(readOnly = true)
+    public List<TranscriptDTO> findByReferenceGenomeAndEnsemblTranscriptIdIsIn(
+        ReferenceGenome referenceGenome,
+        List<String> ensemblTranscriptIds
+    ) {
+        return transcriptRepository
+            .findByReferenceGenomeAndEnsemblTranscriptIdIsIn(referenceGenome, ensemblTranscriptIds)
+            .stream()
+            .map(transcriptMapper::toDto)
+            .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<TranscriptDTO> findByReferenceGenomeAndSource(ReferenceGenome referenceGenome, UsageSource usageSource) {
         return transcriptMapper.toDto(transcriptRepository.findByReferenceGenomeAndSource(referenceGenome, usageSource));
     }
