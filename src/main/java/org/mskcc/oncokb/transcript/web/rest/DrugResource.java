@@ -137,8 +137,8 @@ public class DrugResource {
         return drugService.findAll();
     }
 
-    @GetMapping("/drugs/search/{query}")
-    public List<Drug> findDrugs(@PathVariable(value = "query") String query) {
+    @GetMapping("/drugs/search")
+    public List<Drug> findDrugs(@RequestParam(value = "query") String query) {
         log.debug("REST request to search Drugs");
         return drugService.searchDrug(query);
     }
