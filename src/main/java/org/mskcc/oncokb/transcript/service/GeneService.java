@@ -12,7 +12,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.mskcc.oncokb.transcript.config.CacheKeys;
+import org.mskcc.oncokb.transcript.config.cache.CacheCategory;
+import org.mskcc.oncokb.transcript.config.cache.CacheKeys;
 import org.mskcc.oncokb.transcript.config.cache.CacheNameResolver;
 import org.mskcc.oncokb.transcript.domain.Gene;
 import org.mskcc.oncokb.transcript.domain.GeneAlias;
@@ -21,8 +22,6 @@ import org.mskcc.oncokb.transcript.repository.GeneAliasRepository;
 import org.mskcc.oncokb.transcript.repository.GeneRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -176,7 +175,7 @@ public class GeneService {
                 geneRepository.delete(geneOptional.get());
             }
             this.geneRepository.save(gene);
-            this.clearGeneCaches(gene);
+            this.clearGeneCaches();
             if (i % 1000 == 0) {
                 System.out.println(i);
             }
@@ -204,29 +203,12 @@ public class GeneService {
             .collect(Collectors.toList());
     }
 
-    private void clearGeneCaches(Gene gene) {
+    private void clearGeneCaches() {
         if (this.optionalCacheManager.isPresent()) {
-            if (gene.getEntrezGeneId() != null) {
-                Objects
-                    .requireNonNull(
-                        this.optionalCacheManager.get().getCache(this.cacheNameResolver.getCacheName(CacheKeys.GENES_BY_ENTREZ_GENE_ID))
-                    )
-                    .evict(gene.getEntrezGeneId());
-            }
-            if (gene.getHugoSymbol() != null) {
-                Objects
-                    .requireNonNull(
-                        this.optionalCacheManager.get().getCache(this.cacheNameResolver.getCacheName(CacheKeys.GENES_BY_HUGO_SYMBOL))
-                    )
-                    .evict(gene.getHugoSymbol().toLowerCase());
-            }
-            if (!gene.getGeneAliases().isEmpty()) {
-                for (GeneAlias alias : gene.getGeneAliases()) {
-                    Objects
-                        .requireNonNull(
-                            this.optionalCacheManager.get().getCache(this.cacheNameResolver.getCacheName(CacheKeys.GENE_ALIASES_BY_NAME))
-                        )
-                        .evict(alias.getName().toLowerCase());
+            for (String cacheKey : this.optionalCacheManager.get().getCacheNames()) {
+                String cacheKeyPrefix = this.cacheNameResolver.getCacheName(CacheCategory.GENE, "");
+                if (cacheKey.startsWith(cacheKeyPrefix)) {
+                    Objects.requireNonNull(this.optionalCacheManager.get().getCache(cacheKey)).clear();
                 }
             }
         }

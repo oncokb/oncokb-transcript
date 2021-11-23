@@ -12,7 +12,7 @@ public class CacheNameResolver {
         this.applicationProperties = applicationProperties;
     }
 
-    public String getCacheName(String cacheKey) {
-        return applicationProperties.getName() + "-" + cacheKey;
+    public String getCacheName(CacheCategory cacheCategory, String cacheKey) {
+        return applicationProperties.getName() + "-" + cacheCategory + "-" + cacheKey;
     }
 }

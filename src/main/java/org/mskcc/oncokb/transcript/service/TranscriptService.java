@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
 import org.genome_nexus.client.EnsemblControllerApi;
 import org.genome_nexus.client.EnsemblTranscript;
+import org.mskcc.oncokb.transcript.config.cache.CacheCategory;
+import org.mskcc.oncokb.transcript.config.cache.CacheNameResolver;
 import org.mskcc.oncokb.transcript.domain.*;
 import org.mskcc.oncokb.transcript.domain.enumeration.GenomeFragmentType;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
@@ -24,11 +26,9 @@ import org.mskcc.oncokb.transcript.vm.TranscriptPairVM;
 import org.mskcc.oncokb.transcript.vm.ensembl.EnsemblSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.*;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * Service Implementation for managing {@link Transcript}.
@@ -42,6 +42,8 @@ public class TranscriptService {
     private final AlignmentService alignmentService;
     private final SequenceService sequenceService;
     private final TranscriptMapper transcriptMapper;
+    private final CacheNameResolver cacheNameResolver;
+    private final Optional<CacheManager> optionalCacheManager;
 
     private final Logger log = LoggerFactory.getLogger(TranscriptService.class);
 
@@ -55,7 +57,9 @@ public class TranscriptService {
         SequenceService sequenceService,
         TranscriptRepository transcriptRepository,
         TranscriptMapper transcriptMapper,
-        GenomeFragmentService genomeFragmentService
+        GenomeFragmentService genomeFragmentService,
+        CacheNameResolver cacheNameResolver,
+        Optional<CacheManager> optionalCacheManager
     ) {
         this.genomeNexusUrlService = genomeNexusUrlService;
         this.ensemblService = ensemblService;
@@ -64,6 +68,8 @@ public class TranscriptService {
         this.transcriptRepository = transcriptRepository;
         this.transcriptMapper = transcriptMapper;
         this.genomeFragmentService = genomeFragmentService;
+        this.cacheNameResolver = cacheNameResolver;
+        this.optionalCacheManager = optionalCacheManager;
     }
 
     /**
@@ -109,6 +115,7 @@ public class TranscriptService {
                 sequenceService.save(sequence);
             }
         }
+        clearTranscriptCaches();
         return transcriptMapper.toDto(savedTranscript);
     }
 
@@ -447,8 +454,9 @@ public class TranscriptService {
         if (ensemblTranscript != null) {
             updateGenomeFragments(transcriptDTO, ensemblTranscript);
         }
-
-        return Optional.of(this.save(transcriptDTO));
+        Optional<TranscriptDTO> savedTranscriptDTO = Optional.of(this.save(transcriptDTO));
+        clearTranscriptCaches();
+        return savedTranscriptDTO;
     }
 
     private TranscriptMatchResultVM pickEnsemblTranscript(
@@ -607,5 +615,16 @@ public class TranscriptService {
             }
         }
         return mismatch;
+    }
+
+    private void clearTranscriptCaches() {
+        if (this.optionalCacheManager.isPresent()) {
+            for (String cacheKey : this.optionalCacheManager.get().getCacheNames()) {
+                String cacheKeyPrefix = this.cacheNameResolver.getCacheName(CacheCategory.TRANSCRIPT, "");
+                if (cacheKey.startsWith(cacheKeyPrefix)) {
+                    Objects.requireNonNull(this.optionalCacheManager.get().getCache(cacheKey)).clear();
+                }
+            }
+        }
     }
 }
