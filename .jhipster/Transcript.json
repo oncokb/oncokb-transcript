@@ -37,6 +37,12 @@
   "relationships": [
     {
       "relationshipType": "one-to-many",
+      "otherEntityName": "genomeFragment",
+      "otherEntityRelationshipName": "transcript",
+      "relationshipName": "fragments"
+    },
+    {
+      "relationshipType": "one-to-many",
       "otherEntityName": "transcriptUsage",
       "otherEntityRelationshipName": "transcript",
       "relationshipName": "transcriptUsage"
@@ -49,7 +55,7 @@
     }
   ],
   "entityTableName": "transcript",
-  "dto": "no",
+  "dto": "mapstruct",
   "pagination": "no",
   "service": "serviceClass",
   "jpaMetamodelFiltering": false,

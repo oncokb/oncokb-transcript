@@ -32,5 +32,7 @@ public interface TranscriptRepository extends JpaRepository<Transcript, Long> {
 
     Optional<Transcript> findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome referenceGenome, String ensemblTranscriptId);
 
+    List<Transcript> findByReferenceGenomeAndEnsemblTranscriptIdIsIn(ReferenceGenome referenceGenome, List<String> ensemblTranscriptIds);
+
     List<Transcript> findByReferenceGenome(ReferenceGenome referenceGenome);
 }

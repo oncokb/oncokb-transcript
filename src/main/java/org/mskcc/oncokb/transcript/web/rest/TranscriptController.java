@@ -6,16 +6,14 @@ import org.genome_nexus.ApiException;
 import org.genome_nexus.client.EnsemblTranscript;
 import org.mskcc.oncokb.transcript.domain.AlignmentResult;
 import org.mskcc.oncokb.transcript.domain.EnrichedAlignmentResult;
-import org.mskcc.oncokb.transcript.domain.Transcript;
 import org.mskcc.oncokb.transcript.domain.TranscriptUsage;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.transcript.domain.enumeration.UsageSource;
-import org.mskcc.oncokb.transcript.service.AlignmentService;
-import org.mskcc.oncokb.transcript.service.GenomeNexusUrlService;
-import org.mskcc.oncokb.transcript.service.TranscriptService;
-import org.mskcc.oncokb.transcript.service.TranscriptUsageService;
+import org.mskcc.oncokb.transcript.service.*;
+import org.mskcc.oncokb.transcript.service.dto.TranscriptDTO;
+import org.mskcc.oncokb.transcript.service.mapper.TranscriptMapper;
 import org.mskcc.oncokb.transcript.vm.*;
-import org.mskcc.oncokb.transcript.vm.ensembl.Sequence;
+import org.mskcc.oncokb.transcript.vm.ensembl.EnsemblSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -33,18 +31,24 @@ public class TranscriptController {
     private final GenomeNexusUrlService genomeNexusUrlService;
     private final AlignmentService alignmentService;
     private final TranscriptService transcriptService;
+    private final EnsemblService ensemblService;
     private final TranscriptUsageService transcriptUsageService;
+    private final TranscriptMapper transcriptMapper;
 
     public TranscriptController(
         GenomeNexusUrlService genomeNexusUrlService,
         AlignmentService alignmentService,
         TranscriptService transcriptService,
-        TranscriptUsageService transcriptUsageService
+        EnsemblService ensemblService,
+        TranscriptUsageService transcriptUsageService,
+        TranscriptMapper transcriptMapper
     ) {
         this.genomeNexusUrlService = genomeNexusUrlService;
         this.alignmentService = alignmentService;
         this.transcriptService = transcriptService;
+        this.ensemblService = ensemblService;
         this.transcriptUsageService = transcriptUsageService;
+        this.transcriptMapper = transcriptMapper;
     }
 
     @PostMapping("/compare-transcript/{hugoSymbol}")
@@ -64,19 +68,19 @@ public class TranscriptController {
         if (ensemblB.isEmpty()) {
             return new ResponseEntity("TranscriptB does not exist.", HttpStatus.BAD_REQUEST);
         }
-        Optional<Sequence> sequenceA = Optional.of(new Sequence());
+        Optional<EnsemblSequence> sequenceA = Optional.of(new EnsemblSequence());
         if (ensemblA.isPresent()) {
             sequenceA =
-                transcriptService.getProteinSequence(
+                ensemblService.getProteinSequence(
                     transcriptComparisonVM.getTranscriptA().getReferenceGenome(),
                     ensemblA.get().getProteinId()
                 );
         }
 
-        Optional<Sequence> sequenceB = Optional.of(new Sequence());
+        Optional<EnsemblSequence> sequenceB = Optional.of(new EnsemblSequence());
         if (ensemblB.isPresent()) {
             sequenceB =
-                transcriptService.getProteinSequence(
+                ensemblService.getProteinSequence(
                     transcriptComparisonVM.getTranscriptB().getReferenceGenome(),
                     ensemblB.get().getProteinId()
                 );
@@ -112,17 +116,17 @@ public class TranscriptController {
     ) throws ApiException {
         TranscriptComparisonResultVM result = new TranscriptComparisonResultVM();
 
-        Optional<Sequence> sequenceA = transcriptService.getProteinSequence(
+        Optional<EnsemblSequence> sequenceA = ensemblService.getProteinSequence(
             transcriptComparisonVM.getTranscriptA().getReferenceGenome(),
             transcriptComparisonVM.getTranscriptA().getTranscript()
         );
-        result.setSequenceA(sequenceA.orElse(new Sequence()).getSeq());
+        result.setSequenceA(sequenceA.orElse(new EnsemblSequence()).getSeq());
 
-        Optional<Sequence> sequenceB = transcriptService.getProteinSequence(
+        Optional<EnsemblSequence> sequenceB = ensemblService.getProteinSequence(
             transcriptComparisonVM.getTranscriptB().getReferenceGenome(),
             transcriptComparisonVM.getTranscriptB().getTranscript()
         );
-        result.setSequenceB(sequenceB.orElse(new Sequence()).getSeq());
+        result.setSequenceB(sequenceB.orElse(new EnsemblSequence()).getSeq());
 
         // do a quick check whether the protein is the same
         if (sequenceA.isPresent() && sequenceB.isPresent()) {
@@ -201,11 +205,22 @@ public class TranscriptController {
         return new ResponseEntity<>(transcriptResultVM, HttpStatus.OK);
     }
 
+    @PostMapping("/get-transcripts-by-ensembl-ids")
+    public ResponseEntity<List<TranscriptDTO>> getTranscriptsByEnsemblIds(
+        @RequestParam ReferenceGenome referenceGenome,
+        @RequestBody List<String> ensemblTranscriptIds
+    ) {
+        return new ResponseEntity<>(
+            transcriptService.findByReferenceGenomeAndEnsemblTranscriptIdIsIn(referenceGenome, ensemblTranscriptIds),
+            HttpStatus.OK
+        );
+    }
+
     @GetMapping("/get-sequence")
     public ResponseEntity<String> getTranscript(@RequestParam ReferenceGenome referenceGenome, @RequestParam String transcript) {
         Optional<EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(transcript, referenceGenome);
         if (ensemblTranscriptOptional.isPresent() && ensemblTranscriptOptional.get().getProteinId() != null) {
-            Optional<Sequence> sequence = transcriptService.getProteinSequence(
+            Optional<EnsemblSequence> sequence = ensemblService.getProteinSequence(
                 referenceGenome,
                 ensemblTranscriptOptional.get().getProteinId()
             );
@@ -281,9 +296,8 @@ public class TranscriptController {
                 if (
                     ensembl37Transcripts
                         .stream()
-                        .filter(
-                            ensemblTranscript ->
-                                ensemblTranscript.getTranscriptId().equals(ensemblTranscriptOptional.get().getTranscriptId())
+                        .filter(ensemblTranscript ->
+                            ensemblTranscript.getTranscriptId().equals(ensemblTranscriptOptional.get().getTranscriptId())
                         )
                         .findAny()
                         .isPresent()
@@ -308,19 +322,17 @@ public class TranscriptController {
                             .setSuggestions(
                                 belowThresholdPenalty
                                     .stream()
-                                    .map(
-                                        enrichedAlignmentResult -> {
-                                            int matchedIndex = findMatchedIndex(enrichedAlignmentResult.getTargetSeq(), proteinPosition);
-                                            int matchedProteinPosition = findMatchedProteinPosition(
-                                                enrichedAlignmentResult.getRefSeq(),
-                                                matchedIndex
-                                            );
-                                            return (
-                                                enrichedAlignmentResult.getTargetSeq().substring(matchedIndex, matchedIndex + 1) +
-                                                matchedProteinPosition
-                                            );
-                                        }
-                                    )
+                                    .map(enrichedAlignmentResult -> {
+                                        int matchedIndex = findMatchedIndex(enrichedAlignmentResult.getTargetSeq(), proteinPosition);
+                                        int matchedProteinPosition = findMatchedProteinPosition(
+                                            enrichedAlignmentResult.getRefSeq(),
+                                            matchedIndex
+                                        );
+                                        return (
+                                            enrichedAlignmentResult.getTargetSeq().substring(matchedIndex, matchedIndex + 1) +
+                                            matchedProteinPosition
+                                        );
+                                    })
                                     .collect(Collectors.toList())
                             );
                     }
@@ -340,9 +352,8 @@ public class TranscriptController {
                 if (
                     ensembl38Transcripts
                         .stream()
-                        .filter(
-                            ensemblTranscript ->
-                                ensemblTranscript.getTranscriptId().equals(ensemblTranscriptOptional.get().getTranscriptId())
+                        .filter(ensemblTranscript ->
+                            ensemblTranscript.getTranscriptId().equals(ensemblTranscriptOptional.get().getTranscriptId())
                         )
                         .findAny()
                         .isPresent()
@@ -367,19 +378,17 @@ public class TranscriptController {
                             .setSuggestions(
                                 belowThresholdPenalty
                                     .stream()
-                                    .map(
-                                        enrichedAlignmentResult -> {
-                                            int matchedIndex = findMatchedIndex(enrichedAlignmentResult.getTargetSeq(), proteinPosition);
-                                            int matchedProteinPosition = findMatchedProteinPosition(
-                                                enrichedAlignmentResult.getRefSeq(),
-                                                matchedIndex
-                                            );
-                                            return (
-                                                enrichedAlignmentResult.getTargetSeq().substring(matchedIndex, matchedIndex + 1) +
-                                                matchedProteinPosition
-                                            );
-                                        }
-                                    )
+                                    .map(enrichedAlignmentResult -> {
+                                        int matchedIndex = findMatchedIndex(enrichedAlignmentResult.getTargetSeq(), proteinPosition);
+                                        int matchedProteinPosition = findMatchedProteinPosition(
+                                            enrichedAlignmentResult.getRefSeq(),
+                                            matchedIndex
+                                        );
+                                        return (
+                                            enrichedAlignmentResult.getTargetSeq().substring(matchedIndex, matchedIndex + 1) +
+                                            matchedProteinPosition
+                                        );
+                                    })
                                     .collect(Collectors.toList())
                             );
                     }
@@ -401,8 +410,8 @@ public class TranscriptController {
     ) {
         TranscriptSuggestionVM transcriptSuggestionVM = new TranscriptSuggestionVM();
         transcriptSuggestionVM.setReferenceGenome(ReferenceGenome.GRCh38);
-        Optional<Sequence> grch37Sequence = transcriptService.getProteinSequence(ReferenceGenome.GRCh37, grch37ProteinId);
-        Optional<Sequence> grch38Sequence = transcriptService.getProteinSequence(ReferenceGenome.GRCh38, grch38ProteinId);
+        Optional<EnsemblSequence> grch37Sequence = ensemblService.getProteinSequence(ReferenceGenome.GRCh37, grch37ProteinId);
+        Optional<EnsemblSequence> grch38Sequence = ensemblService.getProteinSequence(ReferenceGenome.GRCh38, grch38ProteinId);
 
         if (grch37Sequence.isPresent()) {
             if (grch38Sequence.isPresent()) {
@@ -451,7 +460,7 @@ public class TranscriptController {
         @RequestParam String ensemblTranscriptId
     ) {
         // find whether the transcript has been used
-        List<Transcript> matchedTranscript = transcriptService.findByReferenceGenomeAndEnsemblTranscriptAndSource(
+        List<TranscriptDTO> matchedTranscript = transcriptService.findByReferenceGenomeAndEnsemblTranscriptAndSource(
             referenceGenome,
             ensemblTranscriptId,
             usageSource
@@ -475,7 +484,7 @@ public class TranscriptController {
         }
 
         // add the new transcript if it does not exist
-        Optional<Transcript> transcriptOptional = transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(
+        Optional<TranscriptDTO> transcriptOptional = transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(
             referenceGenome,
             ensemblTranscriptId
         );
@@ -485,8 +494,20 @@ public class TranscriptController {
                 referenceGenome
             );
             if (ensemblTranscriptOptional.isPresent()) {
-                Transcript transcript = new Transcript(referenceGenome, ensemblTranscriptOptional.get(), hugoSymbol, entrezGeneId);
-                transcriptOptional = Optional.of(transcriptService.save(transcript));
+                List<org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript> ensemblTranscriptList = transcriptService.getTranscriptInfo(
+                    referenceGenome,
+                    Collections.singletonList(ensemblTranscriptId)
+                );
+                transcriptOptional =
+                    transcriptService.createTranscript(
+                        referenceGenome,
+                        entrezGeneId,
+                        hugoSymbol,
+                        ensemblTranscriptOptional.get().getTranscriptId(),
+                        ensemblTranscriptOptional.get().getProteinId(),
+                        ensemblTranscriptOptional.get().getRefseqMrnaId(),
+                        Optional.of(ensemblTranscriptList.get(0)).orElse(null)
+                    );
             } else {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
@@ -495,7 +516,7 @@ public class TranscriptController {
         // update new transcript usage
         TranscriptUsage transcriptUsage = new TranscriptUsage();
         transcriptUsage.setSource(usageSource);
-        transcriptUsage.setTranscript(transcriptOptional.get());
+        transcriptUsage.setTranscript(transcriptMapper.toEntity(transcriptOptional.get()));
         transcriptUsageService.save(transcriptUsage);
 
         return new ResponseEntity<>(null, HttpStatus.OK);

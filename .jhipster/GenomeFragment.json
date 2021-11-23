@@ -1,0 +1,45 @@
+{
+  "name": "GenomeFragment",
+  "fields": [
+    {
+      "fieldName": "chromosome",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "start",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "end",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "strand",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "type",
+      "fieldType": "GenomeFragmentType",
+      "fieldValues": "GENE,EXON,FIVE_PRIME_UTR,THREE_PRIME_UTR"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "transcript",
+      "otherEntityRelationshipName": "fragments",
+      "relationshipName": "transcript"
+    }
+  ],
+  "entityTableName": "genome_fragment",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "skipClient": true,
+  "changelogDate": "20211118024252"
+}

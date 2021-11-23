@@ -3,6 +3,8 @@ package org.mskcc.oncokb.transcript.service;
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.transcript.domain.Sequence;
+import org.mskcc.oncokb.transcript.domain.Transcript;
+import org.mskcc.oncokb.transcript.domain.enumeration.SequenceType;
 import org.mskcc.oncokb.transcript.repository.SequenceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,5 +92,9 @@ public class SequenceService {
     public void delete(Long id) {
         log.debug("Request to delete Sequence : {}", id);
         sequenceRepository.deleteById(id);
+    }
+
+    public Optional<Sequence> findOneByTranscriptAndSequenceType(Transcript transcript, SequenceType sequenceType) {
+        return sequenceRepository.findOneByTranscriptAndSequenceType(transcript, sequenceType);
     }
 }
