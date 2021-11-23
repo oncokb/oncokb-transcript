@@ -6,6 +6,7 @@ import liquibase.pro.packaged.T;
 import org.mskcc.oncokb.transcript.domain.Transcript;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.transcript.domain.enumeration.UsageSource;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
@@ -32,6 +33,7 @@ public interface TranscriptRepository extends JpaRepository<Transcript, Long> {
 
     Optional<Transcript> findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome referenceGenome, String ensemblTranscriptId);
 
+    @Cacheable(cacheResolver = "transcriptCacheResolver")
     List<Transcript> findByReferenceGenomeAndEnsemblTranscriptIdIsIn(ReferenceGenome referenceGenome, List<String> ensemblTranscriptIds);
 
     List<Transcript> findByReferenceGenome(ReferenceGenome referenceGenome);

@@ -5,8 +5,7 @@ import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import org.mskcc.oncokb.meta.enumeration.RedisType;
-import org.mskcc.oncokb.transcript.config.cache.CacheNameResolver;
-import org.mskcc.oncokb.transcript.config.cache.GeneCacheResolver;
+import org.mskcc.oncokb.transcript.config.cache.*;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -73,13 +72,14 @@ public class CacheConfiguration {
 
     private void createCache(
         javax.cache.CacheManager cm,
+        CacheCategory cacheCategory,
         String cacheName,
         javax.cache.configuration.Configuration<Object, Object> jcacheConfiguration,
         CacheNameResolver cacheNameResolver
     ) {
         javax.cache.Cache<Object, Object> cache = cm.getCache(cacheName);
         if (cache == null) {
-            cm.createCache(cacheNameResolver.getCacheName(cacheName), jcacheConfiguration);
+            cm.createCache(cacheNameResolver.getCacheName(cacheCategory, cacheName), jcacheConfiguration);
         }
     }
 
@@ -89,9 +89,16 @@ public class CacheConfiguration {
         CacheNameResolver cacheNameResolver
     ) {
         return cm -> {
-            createCache(cm, CacheKeys.GENES_BY_ENTREZ_GENE_ID, jcacheConfiguration, cacheNameResolver);
-            createCache(cm, CacheKeys.GENES_BY_HUGO_SYMBOL, jcacheConfiguration, cacheNameResolver);
-            createCache(cm, CacheKeys.GENE_ALIASES_BY_NAME, jcacheConfiguration, cacheNameResolver);
+            createCache(cm, CacheCategory.GENE, CacheKeys.GENES_BY_ENTREZ_GENE_ID, jcacheConfiguration, cacheNameResolver);
+            createCache(cm, CacheCategory.GENE, CacheKeys.GENES_BY_HUGO_SYMBOL, jcacheConfiguration, cacheNameResolver);
+            createCache(cm, CacheCategory.GENE, CacheKeys.GENE_ALIASES_BY_NAME, jcacheConfiguration, cacheNameResolver);
+            createCache(
+                cm,
+                CacheCategory.TRANSCRIPT,
+                CacheKeys.TRANSCRIPTS_BY_ENSEMBL_TRANSCRIPT_IDS,
+                jcacheConfiguration,
+                cacheNameResolver
+            );
             // jhipster-needle-redis-add-entry
         };
     }
@@ -103,6 +110,15 @@ public class CacheConfiguration {
         CacheNameResolver cacheNameResolver
     ) {
         return new GeneCacheResolver(cm, applicationProperties, cacheNameResolver);
+    }
+
+    @Bean
+    public CacheResolver transcriptCacheResolver(
+        CacheManager cm,
+        ApplicationProperties applicationProperties,
+        CacheNameResolver cacheNameResolver
+    ) {
+        return new TranscriptCacheResolver(cm, applicationProperties, cacheNameResolver);
     }
 
     @Autowired(required = false)
