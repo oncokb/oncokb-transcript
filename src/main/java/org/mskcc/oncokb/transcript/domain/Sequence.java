@@ -28,7 +28,7 @@ public class Sequence implements Serializable {
     private String sequence;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "transcriptUsages", "sequences" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "fragments", "transcriptUsages", "sequences" }, allowSetters = true)
     private Transcript transcript;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

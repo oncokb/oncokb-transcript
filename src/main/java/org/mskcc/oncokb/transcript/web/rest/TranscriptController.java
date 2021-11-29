@@ -28,7 +28,7 @@ public class TranscriptController {
 
     private final Logger log = LoggerFactory.getLogger(TranscriptController.class);
 
-    private final GenomeNexusUrlService genomeNexusUrlService;
+    private final GenomeNexusService genomeNexusService;
     private final AlignmentService alignmentService;
     private final TranscriptService transcriptService;
     private final EnsemblService ensemblService;
@@ -36,14 +36,14 @@ public class TranscriptController {
     private final TranscriptMapper transcriptMapper;
 
     public TranscriptController(
-        GenomeNexusUrlService genomeNexusUrlService,
+        GenomeNexusService genomeNexusService,
         AlignmentService alignmentService,
         TranscriptService transcriptService,
         EnsemblService ensemblService,
         TranscriptUsageService transcriptUsageService,
         TranscriptMapper transcriptMapper
     ) {
-        this.genomeNexusUrlService = genomeNexusUrlService;
+        this.genomeNexusService = genomeNexusService;
         this.alignmentService = alignmentService;
         this.transcriptService = transcriptService;
         this.ensemblService = ensemblService;

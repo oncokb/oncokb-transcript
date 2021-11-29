@@ -1,10 +1,13 @@
 package org.mskcc.oncokb.transcript.importer;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.genome_nexus.client.EnsemblGene;
+import org.mskcc.oncokb.transcript.domain.EnsemblGeneInfo;
 import org.mskcc.oncokb.transcript.domain.TranscriptUsage;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.transcript.domain.enumeration.UsageSource;
@@ -38,14 +41,18 @@ public class Importer {
     @Autowired
     private TranscriptMapper transcriptMapper;
 
+    @Autowired
+    private GenomeNexusService genomeNexusService;
+
     public void generalImport() throws ApiException {
-        try {
-            geneService.updatePortalGenes();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        this.importOncoKbSequences();
-        importGeneFragments();
+        //        try {
+        //            geneService.updatePortalGenes();
+        //        } catch (IOException e) {
+        //            e.printStackTrace();
+        //        }
+        //        this.importOncoKbSequences();
+        importEnsemblGeneIds();
+        //        importGeneFragments();
     }
 
     private void importOncoKbSequences() throws ApiException {
@@ -104,6 +111,18 @@ public class Importer {
                     if (savedGrch38TranscriptOptional.isPresent()) {
                         addTranscriptUsage(savedGrch38TranscriptOptional.get());
                     }
+                }
+            }
+        }
+    }
+
+    private void importEnsemblGeneIds() {
+        for (org.mskcc.oncokb.transcript.domain.Gene gene : geneService.findAll()) {
+            for (ReferenceGenome rg : ReferenceGenome.values()) {
+                try {
+                    EnsemblGene ensemblGene = genomeNexusService.findCanonicalEnsemblGeneTranscript(rg, gene.getEntrezGeneId());
+                } catch (org.genome_nexus.ApiException e) {
+                    e.printStackTrace();
                 }
             }
         }

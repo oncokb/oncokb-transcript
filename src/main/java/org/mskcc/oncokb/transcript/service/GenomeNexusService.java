@@ -1,7 +1,9 @@
 package org.mskcc.oncokb.transcript.service;
 
 import org.genome_nexus.ApiClient;
+import org.genome_nexus.ApiException;
 import org.genome_nexus.client.EnsemblControllerApi;
+import org.genome_nexus.client.EnsemblGene;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +11,7 @@ import org.springframework.stereotype.Service;
  * Created by Hongxin Zhang on 7/15/20.
  */
 @Service
-public class GenomeNexusUrlService {
+public class GenomeNexusService {
 
     public final String GN_37_URL = "https://www.genomenexus.org";
     public final String GN_38_URL = "https://grch38.genomenexus.org";
@@ -18,7 +20,7 @@ public class GenomeNexusUrlService {
     private final EnsemblControllerApi ensemblControllerApi38;
     private final EnsemblControllerApi ensemblControllerApi37;
 
-    public GenomeNexusUrlService() {
+    public GenomeNexusService() {
         this.ensemblControllerApi37 = getGNEnsemblControllerApi(GN_37_URL);
         this.ensemblControllerApi38 = getGNEnsemblControllerApi(GN_38_URL);
     }
@@ -39,5 +41,9 @@ public class GenomeNexusUrlService {
             default:
                 return new EnsemblControllerApi();
         }
+    }
+
+    public EnsemblGene findCanonicalEnsemblGeneTranscript(ReferenceGenome referenceGenome, Integer entrezGeneId) throws ApiException {
+        return this.getEnsemblControllerApi(referenceGenome).fetchCanonicalEnsemblGeneIdByEntrezGeneIdGET(Integer.toString(entrezGeneId));
     }
 }
