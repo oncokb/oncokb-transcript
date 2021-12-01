@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiClient;
 import org.genome_nexus.client.EnsemblControllerApi;
 import org.json.JSONArray;
@@ -15,6 +16,7 @@ import org.mskcc.oncokb.transcript.vm.ensembl.EnsemblSequence;
 import org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -80,18 +82,20 @@ public class EnsemblService {
         return Arrays.asList(response.getBody());
     }
 
-    public List<org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript> getTranscripts(
+    public List<org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript> getIds(
         ReferenceGenome referenceGenome,
-        List<String> transcripts
+        List<String> ids,
+        boolean includeUtr,
+        boolean expand
     ) {
-        if (transcripts.size() == 0) {
+        if (ids.size() == 0) {
             return new ArrayList<>();
         }
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         JSONObject jsonObject = new JSONObject();
         JSONArray jsonArray = new JSONArray();
-        transcripts.stream().forEach(transcript -> jsonArray.put(transcript));
+        ids.stream().forEach(id -> jsonArray.put(id));
         try {
             jsonObject.put("ids", jsonArray);
         } catch (JSONException e) {
@@ -100,15 +104,28 @@ public class EnsemblService {
         HttpEntity<String> entity = new HttpEntity<>(jsonObject.toString(), httpHeaders);
 
         RestTemplate restTemplate = new RestTemplate();
-        String response = restTemplate.postForObject(getLookupPOSTUrl(referenceGenome), entity, String.class);
+        String response = restTemplate.postForObject(getLookupPOSTUrl(referenceGenome, includeUtr, expand), entity, String.class);
         Gson gson = new Gson();
         Type type = new TypeToken<Map<String, EnsemblTranscript>>() {}.getType();
         Map<String, org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript> transcriptMap = gson.fromJson(response, type);
         return transcriptMap.values().stream().filter(val -> val != null).collect(Collectors.toList());
     }
 
-    private String getLookupPOSTUrl(ReferenceGenome referenceGenome) {
-        return getEnsemblAPIUrl(referenceGenome) + "/lookup/id?utr=1&expand=1";
+    private String getLookupPOSTUrl(ReferenceGenome referenceGenome, boolean includeUtr, boolean expand) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("/lookup/id");
+        if (includeUtr || expand) {
+            List<String> requestParams = new ArrayList<>();
+            sb.append("?");
+            if (includeUtr) {
+                requestParams.add("utr=1");
+            }
+            if (expand) {
+                requestParams.add("expand=1");
+            }
+            sb.append(StringUtils.join("&"));
+        }
+        return getEnsemblAPIUrl(referenceGenome) + sb.toString();
     }
 
     private String getEnsemblAPIUrl(ReferenceGenome referenceGenome) {

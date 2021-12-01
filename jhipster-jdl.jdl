@@ -2,11 +2,21 @@
 entity Transcript {
     entrezGeneId Integer required,
     hugoSymbol String required,
-    referenceGenome ReferenceGenome required,
+    referenceGenome String required,
     ensemblTranscriptId String,
     ensemblProteinId String,
     referenceSequenceId String,
     description String
+}
+
+entity EnsemblGene {
+    referenceGenome String required,
+    ensemblGeneId String required,
+    canonical Boolean required,
+    chromosome String required,
+    start Integer required,
+    end Integer required,
+    strand Integer required
 }
 
 entity GenomeFragment {
@@ -18,8 +28,8 @@ entity GenomeFragment {
 }
 
 enum GenomeFragmentType {
-    GENE,
-    EXON,
+	GENE,
+	EXON,
     FIVE_PRIME_UTR,
     THREE_PRIME_UTR
 }
@@ -35,9 +45,6 @@ entity TranscriptUsage {
 
 enum SequenceType {
 	PROTEIN, CDNA
-}
-enum ReferenceGenome {
-    GRCh37, GRCh38
 }
 
 enum UsageSource {
@@ -77,7 +84,8 @@ entity GeneAlias {
 relationship OneToMany {
 	Drug{synonyms} to DrugSynonym
 	Gene to GeneAlias
-	Transcript{fragments} to GenomeFragment{transcript}
+	Gene to EnsemblGene
+    Transcript{fragments} to GenomeFragment{transcript}
 }
 
 relationship ManyToOne {

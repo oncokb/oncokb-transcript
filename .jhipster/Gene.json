@@ -16,6 +16,12 @@
       "otherEntityName": "geneAlias",
       "otherEntityRelationshipName": "gene",
       "relationshipName": "geneAlias"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "ensemblGene",
+      "otherEntityRelationshipName": "gene",
+      "relationshipName": "ensemblGene"
     }
   ],
   "entityTableName": "gene",

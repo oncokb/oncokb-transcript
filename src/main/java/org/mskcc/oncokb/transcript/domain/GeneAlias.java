@@ -22,7 +22,7 @@ public class GeneAlias implements Serializable {
     private String name;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "geneAliases" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes" }, allowSetters = true)
     private Gene gene;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

@@ -1,13 +1,10 @@
 package org.mskcc.oncokb.transcript.importer;
 
-import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.genome_nexus.client.EnsemblGene;
-import org.mskcc.oncokb.transcript.domain.EnsemblGeneInfo;
+import org.mskcc.oncokb.transcript.domain.EnsemblGene;
 import org.mskcc.oncokb.transcript.domain.TranscriptUsage;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.transcript.domain.enumeration.UsageSource;
@@ -17,6 +14,8 @@ import org.mskcc.oncokb.transcript.service.mapper.TranscriptMapper;
 import org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript;
 import org.oncokb.ApiException;
 import org.oncokb.client.Gene;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -44,6 +43,14 @@ public class Importer {
     @Autowired
     private GenomeNexusService genomeNexusService;
 
+    @Autowired
+    private EnsemblService ensemblService;
+
+    @Autowired
+    private EnsemblGeneService ensemblGeneService;
+
+    private final Logger log = LoggerFactory.getLogger(Importer.class);
+
     public void generalImport() throws ApiException {
         //        try {
         //            geneService.updatePortalGenes();
@@ -51,7 +58,8 @@ public class Importer {
         //            e.printStackTrace();
         //        }
         //        this.importOncoKbSequences();
-        importEnsemblGeneIds();
+        //        importEnsemblGenes();
+        checkOncoKbEnsemblGenes();
         //        importGeneFragments();
     }
 
@@ -116,13 +124,52 @@ public class Importer {
         }
     }
 
-    private void importEnsemblGeneIds() {
-        for (org.mskcc.oncokb.transcript.domain.Gene gene : geneService.findAll()) {
-            for (ReferenceGenome rg : ReferenceGenome.values()) {
-                try {
-                    EnsemblGene ensemblGene = genomeNexusService.findCanonicalEnsemblGeneTranscript(rg, gene.getEntrezGeneId());
-                } catch (org.genome_nexus.ApiException e) {
-                    e.printStackTrace();
+    private void importEnsemblGenes() {
+        for (ReferenceGenome rg : ReferenceGenome.values()) {
+            List<Integer> ids = geneService
+                .findAll()
+                .stream()
+                .filter(gene -> gene.getEntrezGeneId() > 0)
+                .map(gene -> gene.getEntrezGeneId())
+                .collect(Collectors.toList());
+            try {
+                ensemblGeneService.saveByReferenceGenomeAndEntrezGeneIds(rg, ids);
+            } catch (org.genome_nexus.ApiException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void checkOncoKbEnsemblGenes() throws ApiException {
+        for (Gene gene : oncoKbUrlService.getGenes()) {
+            // check grch37
+            Optional<org.mskcc.oncokb.transcript.domain.Gene> geneOptional = geneService.findGeneByEntrezGeneId(gene.getEntrezGeneId());
+            if (geneOptional.isEmpty()) {
+                log.error("The OncoKB gene does not exist in transcript {}:{}", gene.getEntrezGeneId(), gene.getHugoSymbol());
+            } else {
+                // grch37
+                List<EnsemblGene> ensembl37Genes = ensemblGeneService.findAllByGeneAndReferenceGenome(
+                    geneOptional.get(),
+                    ReferenceGenome.GRCh37
+                );
+                if (ensembl37Genes.size() > 0) {
+                    ensembl37Genes.forEach(ensemblGene ->
+                        log.info("Gene {}:{}, {}", gene.getEntrezGeneId(), gene.getHugoSymbol(), ensemblGene)
+                    );
+                } else {
+                    log.error("No ensembl gene found for gene {}:{}", gene.getEntrezGeneId(), gene.getHugoSymbol());
+                }
+                // grch38
+                List<EnsemblGene> ensembl38Genes = ensemblGeneService.findAllByGeneAndReferenceGenome(
+                    geneOptional.get(),
+                    ReferenceGenome.GRCh38
+                );
+                if (ensembl38Genes.size() > 0) {
+                    ensembl37Genes.forEach(ensemblGene ->
+                        log.info("Gene {}:{}, {}", gene.getEntrezGeneId(), gene.getHugoSymbol(), ensemblGene)
+                    );
+                } else {
+                    log.error("No ensembl gene found for gene {}:{}", gene.getEntrezGeneId(), gene.getHugoSymbol());
                 }
             }
         }
@@ -139,7 +186,7 @@ public class Importer {
                 .filter(transcriptDTO -> transcriptDTO.getReferenceGenome().equals(rg))
                 .map(TranscriptDTO::getEnsemblTranscriptId)
                 .collect(Collectors.toList());
-            List<EnsemblTranscript> ensemblTranscriptList = transcriptService.getTranscriptInfo(rg, transcriptIds);
+            List<EnsemblTranscript> ensemblTranscriptList = transcriptService.getEnsemblTranscriptIds(rg, transcriptIds, true, true);
 
             ensemblTranscriptList.forEach(transcript -> {
                 Optional<TranscriptDTO> transcriptDTOOptional = transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(
@@ -149,7 +196,7 @@ public class Importer {
                 if (transcriptDTOOptional.isPresent()) {
                     TranscriptDTO transcriptDTO = transcriptDTOOptional.get();
                     transcriptService.createTranscript(
-                        transcriptDTO.getReferenceGenome(),
+                        ReferenceGenome.valueOf(transcriptDTO.getReferenceGenome()),
                         transcriptDTO.getEntrezGeneId(),
                         transcriptDTO.getHugoSymbol(),
                         transcriptDTO.getEnsemblTranscriptId(),

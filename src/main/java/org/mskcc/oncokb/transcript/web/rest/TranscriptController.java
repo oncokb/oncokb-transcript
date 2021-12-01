@@ -34,6 +34,7 @@ public class TranscriptController {
     private final EnsemblService ensemblService;
     private final TranscriptUsageService transcriptUsageService;
     private final TranscriptMapper transcriptMapper;
+    private final EnsemblGeneService ensemblGeneService;
 
     public TranscriptController(
         GenomeNexusService genomeNexusService,
@@ -41,6 +42,7 @@ public class TranscriptController {
         TranscriptService transcriptService,
         EnsemblService ensemblService,
         TranscriptUsageService transcriptUsageService,
+        EnsemblGeneService ensemblGeneService,
         TranscriptMapper transcriptMapper
     ) {
         this.genomeNexusService = genomeNexusService;
@@ -48,6 +50,7 @@ public class TranscriptController {
         this.transcriptService = transcriptService;
         this.ensemblService = ensemblService;
         this.transcriptUsageService = transcriptUsageService;
+        this.ensemblGeneService = ensemblGeneService;
         this.transcriptMapper = transcriptMapper;
     }
 
@@ -458,7 +461,7 @@ public class TranscriptController {
         @RequestParam int entrezGeneId,
         @RequestParam ReferenceGenome referenceGenome,
         @RequestParam String ensemblTranscriptId
-    ) {
+    ) throws ApiException {
         // find whether the transcript has been used
         List<TranscriptDTO> matchedTranscript = transcriptService.findByReferenceGenomeAndEnsemblTranscriptAndSource(
             referenceGenome,
@@ -494,9 +497,11 @@ public class TranscriptController {
                 referenceGenome
             );
             if (ensemblTranscriptOptional.isPresent()) {
-                List<org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript> ensemblTranscriptList = transcriptService.getTranscriptInfo(
+                List<org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript> ensemblTranscriptList = transcriptService.getEnsemblTranscriptIds(
                     referenceGenome,
-                    Collections.singletonList(ensemblTranscriptId)
+                    Collections.singletonList(ensemblTranscriptId),
+                    true,
+                    true
                 );
                 transcriptOptional =
                     transcriptService.createTranscript(
@@ -519,6 +524,8 @@ public class TranscriptController {
         transcriptUsage.setTranscript(transcriptMapper.toEntity(transcriptOptional.get()));
         transcriptUsageService.save(transcriptUsage);
 
+        // Add ensembl gene
+        ensemblGeneService.saveByReferenceGenomeAndEntrezGeneIds(referenceGenome, Collections.singletonList(entrezGeneId));
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }

@@ -13,8 +13,7 @@
     },
     {
       "fieldName": "referenceGenome",
-      "fieldType": "ReferenceGenome",
-      "fieldValues": "GRCh37,GRCh38",
+      "fieldType": "String",
       "fieldValidateRules": ["required"]
     },
     {

@@ -22,7 +22,7 @@ public class TranscriptDTO implements Serializable {
     private String hugoSymbol;
 
     @NotNull
-    private ReferenceGenome referenceGenome;
+    private String referenceGenome;
 
     private String ensemblTranscriptId;
 
@@ -68,11 +68,11 @@ public class TranscriptDTO implements Serializable {
         this.hugoSymbol = hugoSymbol;
     }
 
-    public ReferenceGenome getReferenceGenome() {
+    public String getReferenceGenome() {
         return referenceGenome;
     }
 
-    public void setReferenceGenome(ReferenceGenome referenceGenome) {
+    public void setReferenceGenome(String referenceGenome) {
         this.referenceGenome = referenceGenome;
     }
 

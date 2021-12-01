@@ -30,6 +30,10 @@ public class Gene implements Serializable {
     @JsonIgnoreProperties(value = { "gene" }, allowSetters = true)
     private Set<GeneAlias> geneAliases = new HashSet<>();
 
+    @OneToMany(mappedBy = "gene", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnoreProperties(value = { "gene" }, allowSetters = true)
+    private Set<EnsemblGene> ensemblGenes = new HashSet<>();
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
@@ -99,6 +103,37 @@ public class Gene implements Serializable {
     public Gene removeGeneAlias(GeneAlias geneAlias) {
         this.geneAliases.remove(geneAlias);
         geneAlias.setGene(null);
+        return this;
+    }
+
+    public Set<EnsemblGene> getEnsemblGenes() {
+        return this.ensemblGenes;
+    }
+
+    public void setEnsemblGenes(Set<EnsemblGene> ensemblGenes) {
+        if (this.ensemblGenes != null) {
+            this.ensemblGenes.forEach(i -> i.setGene(null));
+        }
+        if (ensemblGenes != null) {
+            ensemblGenes.forEach(i -> i.setGene(this));
+        }
+        this.ensemblGenes = ensemblGenes;
+    }
+
+    public Gene ensemblGenes(Set<EnsemblGene> ensemblGenes) {
+        this.setEnsemblGenes(ensemblGenes);
+        return this;
+    }
+
+    public Gene addEnsemblGene(EnsemblGene ensemblGene) {
+        this.ensemblGenes.add(ensemblGene);
+        ensemblGene.setGene(this);
+        return this;
+    }
+
+    public Gene removeEnsemblGene(EnsemblGene ensemblGene) {
+        this.ensemblGenes.remove(ensemblGene);
+        ensemblGene.setGene(null);
         return this;
     }
 

@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
-import org.genome_nexus.client.EnsemblTranscript;
-import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
 
 /**
  * A Transcript.
@@ -32,9 +30,8 @@ public class Transcript implements Serializable {
     private String hugoSymbol;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "reference_genome", nullable = false)
-    private ReferenceGenome referenceGenome;
+    private String referenceGenome;
 
     @Column(name = "ensembl_transcript_id")
     private String ensemblTranscriptId;
@@ -59,8 +56,6 @@ public class Transcript implements Serializable {
     @OneToMany(mappedBy = "transcript")
     @JsonIgnoreProperties(value = { "transcript" }, allowSetters = true)
     private Set<Sequence> sequences = new HashSet<>();
-
-    public Transcript() {}
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -103,16 +98,16 @@ public class Transcript implements Serializable {
         this.hugoSymbol = hugoSymbol;
     }
 
-    public ReferenceGenome getReferenceGenome() {
+    public String getReferenceGenome() {
         return this.referenceGenome;
     }
 
-    public Transcript referenceGenome(ReferenceGenome referenceGenome) {
+    public Transcript referenceGenome(String referenceGenome) {
         this.setReferenceGenome(referenceGenome);
         return this;
     }
 
-    public void setReferenceGenome(ReferenceGenome referenceGenome) {
+    public void setReferenceGenome(String referenceGenome) {
         this.referenceGenome = referenceGenome;
     }
 

@@ -1,10 +1,18 @@
 package org.mskcc.oncokb.transcript.service;
 
+import static org.mskcc.oncokb.transcript.config.Constants.ENSEMBL_POST_THRESHOLD;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.genome_nexus.ApiClient;
 import org.genome_nexus.ApiException;
 import org.genome_nexus.client.EnsemblControllerApi;
 import org.genome_nexus.client.EnsemblGene;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
+import org.mskcc.oncokb.transcript.importer.Importer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,6 +27,8 @@ public class GenomeNexusService {
 
     private final EnsemblControllerApi ensemblControllerApi38;
     private final EnsemblControllerApi ensemblControllerApi37;
+
+    private final Logger log = LoggerFactory.getLogger(GenomeNexusService.class);
 
     public GenomeNexusService() {
         this.ensemblControllerApi37 = getGNEnsemblControllerApi(GN_37_URL);
@@ -45,5 +55,21 @@ public class GenomeNexusService {
 
     public EnsemblGene findCanonicalEnsemblGeneTranscript(ReferenceGenome referenceGenome, Integer entrezGeneId) throws ApiException {
         return this.getEnsemblControllerApi(referenceGenome).fetchCanonicalEnsemblGeneIdByEntrezGeneIdGET(Integer.toString(entrezGeneId));
+    }
+
+    public List<EnsemblGene> findCanonicalEnsemblGeneTranscript(ReferenceGenome referenceGenome, List<Integer> entrezGeneIds)
+        throws ApiException {
+        List<EnsemblGene> ensemblGenesList = new ArrayList<>();
+        List<String> idStrs = entrezGeneIds.stream().map(id -> Integer.toString(id)).collect(Collectors.toList());
+        log.info("Fetching canonical ensembl genes from GN, total {}", idStrs.size());
+        int postThreshold = 1000;
+        for (int i = 0; i < idStrs.size(); i += postThreshold) {
+            log.info("\ton index {}", i);
+            ensemblGenesList.addAll(
+                this.getEnsemblControllerApi(referenceGenome)
+                    .fetchCanonicalEnsemblGeneIdByEntrezGeneIdsPOST(idStrs.subList(i, Math.min(idStrs.toArray().length, i + postThreshold)))
+            );
+        }
+        return ensemblGenesList;
     }
 }
