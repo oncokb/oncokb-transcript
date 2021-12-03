@@ -16,7 +16,6 @@ import org.mskcc.oncokb.transcript.domain.*;
 import org.mskcc.oncokb.transcript.domain.enumeration.GenomeFragmentType;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.transcript.domain.enumeration.SequenceType;
-import org.mskcc.oncokb.transcript.domain.enumeration.UsageSource;
 import org.mskcc.oncokb.transcript.repository.TranscriptRepository;
 import org.mskcc.oncokb.transcript.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.transcript.service.mapper.TranscriptMapper;
@@ -102,9 +101,9 @@ public class TranscriptService {
 
         // save sequence automatically when a new transcript saved
         Optional<Sequence> sequenceOptional = sequenceService.findOneByTranscriptAndSequenceType(savedTranscript, SequenceType.PROTEIN);
-        if (sequenceOptional.isEmpty()) {
+        if (sequenceOptional.isEmpty() && StringUtils.isNotEmpty(savedTranscript.getEnsemblProteinId())) {
             Optional<EnsemblSequence> ensemblSequenceOptional = ensemblService.getProteinSequence(
-                ReferenceGenome.valueOf(savedTranscript.getReferenceGenome()),
+                ReferenceGenome.valueOf(savedTranscript.getEnsemblGene().getReferenceGenome()),
                 savedTranscript.getEnsemblProteinId()
             );
             if (ensemblSequenceOptional.isPresent()) {
@@ -172,6 +171,19 @@ public class TranscriptService {
         transcriptRepository.deleteById(id);
     }
 
+    public Optional<TranscriptDTO> findByEnsemblGeneAndEnsemblTranscriptId(EnsemblGene ensemblGene, String ensembleTranscriptId) {
+        log.debug("Request to get Sequence : {}", ensembleTranscriptId);
+        Optional<Transcript> transcriptOptional = transcriptRepository.findByEnsemblGeneAndEnsemblTranscriptId(
+            ensemblGene,
+            ensembleTranscriptId
+        );
+        if (transcriptOptional.isPresent()) {
+            return Optional.of(transcriptMapper.toDto(transcriptOptional.get()));
+        } else {
+            return Optional.empty();
+        }
+    }
+
     /**
      * Get trancript by reference genome and ensembleTranscriptId
      *
@@ -186,7 +198,7 @@ public class TranscriptService {
     ) {
         log.debug("Request to get Sequence : {}", ensembleTranscriptId);
         Optional<Transcript> transcriptOptional = transcriptRepository.findByReferenceGenomeAndEnsemblTranscriptId(
-            referenceGenome,
+            referenceGenome.name(),
             ensembleTranscriptId
         );
         if (transcriptOptional.isPresent()) {
@@ -202,42 +214,15 @@ public class TranscriptService {
         List<String> ensemblTranscriptIds
     ) {
         return transcriptRepository
-            .findByReferenceGenomeAndEnsemblTranscriptIdIsIn(referenceGenome, ensemblTranscriptIds)
+            .findByReferenceGenomeAndEnsemblTranscriptIdIsIn(referenceGenome.name(), ensemblTranscriptIds)
             .stream()
             .map(transcriptMapper::toDto)
             .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<TranscriptDTO> findByReferenceGenomeAndSource(ReferenceGenome referenceGenome, UsageSource usageSource) {
-        return transcriptMapper.toDto(transcriptRepository.findByReferenceGenomeAndSource(referenceGenome, usageSource));
-    }
-
-    @Transactional(readOnly = true)
-    public List<TranscriptDTO> findByReferenceGenomeAndSourceAndHugoSymbol(
-        ReferenceGenome referenceGenome,
-        UsageSource usageSource,
-        String hugoSymbol
-    ) {
-        return transcriptMapper.toDto(
-            transcriptRepository.findByReferenceGenomeAndSourceAndHugoSymbol(referenceGenome, usageSource, hugoSymbol)
-        );
-    }
-
-    @Transactional(readOnly = true)
-    public List<TranscriptDTO> findByReferenceGenomeAndEnsemblTranscriptAndSource(
-        ReferenceGenome referenceGenome,
-        String ensemblTranscriptId,
-        UsageSource usageSource
-    ) {
-        return transcriptMapper.toDto(
-            transcriptRepository.findByReferenceGenomeAndEnsemblTranscriptAndSource(referenceGenome, ensemblTranscriptId, usageSource)
-        );
-    }
-
-    @Transactional(readOnly = true)
-    public List<TranscriptDTO> findByReferenceGenome(ReferenceGenome referenceGenome) {
-        return transcriptMapper.toDto(transcriptRepository.findByReferenceGenome(referenceGenome));
+    public List<TranscriptDTO> findByEnsemblGene(EnsemblGene ensemblGene) {
+        return transcriptMapper.toDto(transcriptRepository.findByEnsemblGene(ensemblGene));
     }
 
     public List<EnsemblTranscript> getTranscriptsWithMatchedResidue(
@@ -344,8 +329,9 @@ public class TranscriptService {
 
     /**
      * Get a list of transcripts from ensembl.org
+     *
      * @param referenceGenome Reference Genome
-     * @param ids a list of transcript/gene ids that need to be searched
+     * @param ids             a list of transcript/gene ids that need to be searched
      * @return a lit of expanded ensembl transcripts with exon/utr info
      */
     public List<org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript> getEnsemblTranscriptIds(
@@ -368,101 +354,6 @@ public class TranscriptService {
             );
         }
         return ensemblTranscriptList;
-    }
-
-    private void updateGenomeFragments(
-        TranscriptDTO transcriptDTO,
-        org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript ensemblTranscript
-    ) {
-        // save gene fragment
-        transcriptDTO.setChromosome(ensemblTranscript.getSeqRegionName());
-        transcriptDTO.setStart(ensemblTranscript.getStart());
-        transcriptDTO.setEnd(ensemblTranscript.getEnd());
-        transcriptDTO.setStrand(ensemblTranscript.getStrand());
-
-        // save UTRs
-        transcriptDTO.setUtrs(
-            ensemblTranscript
-                .getUtrs()
-                .stream()
-                .map(utr -> {
-                    GenomeFragment utrFragment = new GenomeFragment();
-                    GenomeFragmentType genomeFragmentType = null;
-                    switch (utr.getType()) {
-                        case "five_prime_UTR":
-                            genomeFragmentType = GenomeFragmentType.FIVE_PRIME_UTR;
-                            break;
-                        case "three_prime_UTR":
-                            genomeFragmentType = GenomeFragmentType.THREE_PRIME_UTR;
-                            break;
-                        default:
-                            break;
-                    }
-                    if (genomeFragmentType != null) {
-                        utrFragment.setType(genomeFragmentType);
-                        utrFragment.setStrand(utr.getStrand());
-                        utrFragment.setStart(utr.getStart());
-                        utrFragment.setEnd(utr.getEnd());
-                        utrFragment.setChromosome(utr.getSeqRegionName());
-                    }
-                    return utrFragment;
-                })
-                .collect(Collectors.toList())
-        );
-
-        // save exons
-        transcriptDTO.setExons(
-            ensemblTranscript
-                .getExons()
-                .stream()
-                .map(utr -> {
-                    GenomeFragment exonFragment = new GenomeFragment();
-                    exonFragment.setType(GenomeFragmentType.EXON);
-                    exonFragment.setStrand(utr.getStrand());
-                    exonFragment.setStart(utr.getStart());
-                    exonFragment.setEnd(utr.getEnd());
-                    exonFragment.setChromosome(utr.getSeqRegionName());
-                    return exonFragment;
-                })
-                .collect(Collectors.toList())
-        );
-    }
-
-    /**
-     * Create/Update transcript using the info. The method will include genome fragments if the ensemblTranscript is specified
-     * @param referenceGenome
-     * @param entrezGeneId
-     * @param hugoSymbol
-     * @param ensemblTranscriptId
-     * @param ensemblProteinId
-     * @param referenceSequenceId
-     * @param ensemblTranscript
-     * @return an optional with the saved transcript
-     */
-    public Optional<TranscriptDTO> createTranscript(
-        ReferenceGenome referenceGenome,
-        Integer entrezGeneId,
-        String hugoSymbol,
-        String ensemblTranscriptId,
-        String ensemblProteinId,
-        String referenceSequenceId,
-        org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript ensemblTranscript
-    ) {
-        Optional<TranscriptDTO> transcriptDTOOptional = findByReferenceGenomeAndEnsemblTranscriptId(referenceGenome, ensemblTranscriptId);
-        TranscriptDTO transcriptDTO = transcriptDTOOptional.isPresent() ? transcriptDTOOptional.get() : new TranscriptDTO();
-        transcriptDTO.setEntrezGeneId(entrezGeneId);
-        transcriptDTO.setHugoSymbol(hugoSymbol);
-        transcriptDTO.setReferenceGenome(referenceGenome.name());
-        transcriptDTO.setEnsemblTranscriptId(ensemblTranscriptId);
-        transcriptDTO.setEnsemblProteinId(ensemblProteinId);
-        transcriptDTO.setReferenceSequenceId(referenceSequenceId);
-
-        if (ensemblTranscript != null) {
-            updateGenomeFragments(transcriptDTO, ensemblTranscript);
-        }
-        Optional<TranscriptDTO> savedTranscriptDTO = Optional.of(this.save(transcriptDTO));
-        clearTranscriptCaches();
-        return savedTranscriptDTO;
     }
 
     private TranscriptMatchResultVM pickEnsemblTranscript(

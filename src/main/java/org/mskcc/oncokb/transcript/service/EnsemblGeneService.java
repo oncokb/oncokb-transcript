@@ -115,6 +115,10 @@ public class EnsemblGeneService {
         return ensemblGeneRepository.findById(id);
     }
 
+    public Optional<EnsemblGene> findCanonicalEnsemblGene(Integer entrezGeneId, ReferenceGenome referenceGenome) {
+        return ensemblGeneRepository.findCanonicalEnsemblGene(entrezGeneId, referenceGenome.name());
+    }
+
     /**
      * Get one ensemblGene by ensembl gene id and reference genome
      *
@@ -123,15 +127,15 @@ public class EnsemblGeneService {
      * @return the entity.
      */
     public Optional<EnsemblGene> findByEnsemblGeneIdAndReferenceGenome(String ensemblGeneId, ReferenceGenome referenceGenome) {
-        return ensemblGeneRepository.findByEnsemblGeneIdAndReferenceGenome(ensemblGeneId, referenceGenome);
+        return ensemblGeneRepository.findByEnsemblGeneIdAndReferenceGenome(ensemblGeneId, referenceGenome.name());
     }
 
     public List<EnsemblGene> findAllByGeneAndReferenceGenome(Gene gene, ReferenceGenome referenceGenome) {
-        return ensemblGeneRepository.findAllByGeneAndReferenceGenome(gene, referenceGenome);
+        return ensemblGeneRepository.findAllByGeneAndReferenceGenome(gene, referenceGenome.name());
     }
 
     public List<EnsemblGene> findAllByReferenceGenomeAndEnsemblGeneIdIn(ReferenceGenome referenceGenome, List<String> ensemblGeneIds) {
-        return ensemblGeneRepository.findAllByReferenceGenomeAndEnsemblGeneIdIn(referenceGenome, ensemblGeneIds);
+        return ensemblGeneRepository.findAllByReferenceGenomeAndEnsemblGeneIdIn(referenceGenome.name(), ensemblGeneIds);
     }
 
     public List<EnsemblGene> saveByReferenceGenomeAndEntrezGeneIds(ReferenceGenome rg, List<Integer> entrezGeneIds) throws ApiException {

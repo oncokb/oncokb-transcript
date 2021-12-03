@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.validation.constraints.*;
+import org.mskcc.oncokb.transcript.domain.EnsemblGene;
 import org.mskcc.oncokb.transcript.domain.GenomeFragment;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
 
@@ -15,22 +16,18 @@ public class TranscriptDTO implements Serializable {
 
     private Long id;
 
-    @NotNull
-    private Integer entrezGeneId;
-
-    @NotNull
-    private String hugoSymbol;
-
-    @NotNull
-    private String referenceGenome;
-
     private String ensemblTranscriptId;
+
+    @NotNull
+    private Boolean canonical = false;
 
     private String ensemblProteinId;
 
     private String referenceSequenceId;
 
     private String description;
+
+    private EnsemblGene ensemblGene;
 
     private Integer strand;
 
@@ -52,36 +49,20 @@ public class TranscriptDTO implements Serializable {
         this.id = id;
     }
 
-    public Integer getEntrezGeneId() {
-        return entrezGeneId;
-    }
-
-    public void setEntrezGeneId(Integer entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
-    }
-
-    public String getHugoSymbol() {
-        return hugoSymbol;
-    }
-
-    public void setHugoSymbol(String hugoSymbol) {
-        this.hugoSymbol = hugoSymbol;
-    }
-
-    public String getReferenceGenome() {
-        return referenceGenome;
-    }
-
-    public void setReferenceGenome(String referenceGenome) {
-        this.referenceGenome = referenceGenome;
-    }
-
     public String getEnsemblTranscriptId() {
         return ensemblTranscriptId;
     }
 
     public void setEnsemblTranscriptId(String ensemblTranscriptId) {
         this.ensemblTranscriptId = ensemblTranscriptId;
+    }
+
+    public Boolean getCanonical() {
+        return canonical;
+    }
+
+    public void setCanonical(Boolean canonical) {
+        this.canonical = canonical;
     }
 
     public String getEnsemblProteinId() {
@@ -156,7 +137,13 @@ public class TranscriptDTO implements Serializable {
         this.utrs = utrs;
     }
 
-    public TranscriptDTO() {}
+    public EnsemblGene getEnsemblGene() {
+        return ensemblGene;
+    }
+
+    public void setEnsemblGene(EnsemblGene ensemblGene) {
+        this.ensemblGene = ensemblGene;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -183,20 +170,13 @@ public class TranscriptDTO implements Serializable {
     @Override
     public String toString() {
         return "TranscriptDTO{" +
-            "id=" + id +
-            ", entrezGeneId=" + entrezGeneId +
-            ", hugoSymbol='" + hugoSymbol + '\'' +
-            ", referenceGenome=" + referenceGenome +
-            ", ensemblTranscriptId='" + ensemblTranscriptId + '\'' +
-            ", ensemblProteinId='" + ensemblProteinId + '\'' +
-            ", referenceSequenceId='" + referenceSequenceId + '\'' +
-            ", description='" + description + '\'' +
-            ", strand=" + strand +
-            ", chromosome='" + chromosome + '\'' +
-            ", start=" + start +
-            ", end=" + end +
-            ", exons=" + exons +
-            ", utrs=" + utrs +
-            '}';
+            "id=" + getId() +
+            ", ensemblTranscriptId='" + getEnsemblTranscriptId() + "'" +
+            ", canonical='" + getCanonical() + "'" +
+            ", ensemblProteinId='" + getEnsemblProteinId() + "'" +
+            ", referenceSequenceId='" + getReferenceSequenceId() + "'" +
+            ", description='" + getDescription() + "'" +
+            ", ensemblGene=" + getEnsemblGene() +
+            "}";
     }
 }

@@ -14,9 +14,12 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface EnsemblGeneRepository extends JpaRepository<EnsemblGene, Long> {
-    Optional<EnsemblGene> findByEnsemblGeneIdAndReferenceGenome(String ensemblGeneId, ReferenceGenome referenceGenome);
+    @Query("select eg from EnsemblGene  eg join eg.gene  g where g.entrezGeneId=?1 and eg.canonical=true and eg.referenceGenome=?2")
+    Optional<EnsemblGene> findCanonicalEnsemblGene(Integer entrezGeneId, String referenceGenome);
 
-    List<EnsemblGene> findAllByGeneAndReferenceGenome(Gene gene, ReferenceGenome referenceGenome);
+    Optional<EnsemblGene> findByEnsemblGeneIdAndReferenceGenome(String ensemblGeneId, String referenceGenome);
 
-    List<EnsemblGene> findAllByReferenceGenomeAndEnsemblGeneIdIn(ReferenceGenome referenceGenome, List<String> ensemblGeneIds);
+    List<EnsemblGene> findAllByGeneAndReferenceGenome(Gene gene, String referenceGenome);
+
+    List<EnsemblGene> findAllByReferenceGenomeAndEnsemblGeneIdIn(String referenceGenome, List<String> ensemblGeneIds);
 }

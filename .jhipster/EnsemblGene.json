@@ -39,6 +39,12 @@
   ],
   "relationships": [
     {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "transcript",
+      "otherEntityRelationshipName": "ensemblGene",
+      "relationshipName": "transcript"
+    },
+    {
       "relationshipType": "many-to-one",
       "otherEntityName": "gene",
       "otherEntityRelationshipName": "ensemblGene",

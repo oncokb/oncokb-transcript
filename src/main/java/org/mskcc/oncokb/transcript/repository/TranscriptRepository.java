@@ -3,9 +3,8 @@ package org.mskcc.oncokb.transcript.repository;
 import java.util.List;
 import java.util.Optional;
 import liquibase.pro.packaged.T;
+import org.mskcc.oncokb.transcript.domain.EnsemblGene;
 import org.mskcc.oncokb.transcript.domain.Transcript;
-import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
-import org.mskcc.oncokb.transcript.domain.enumeration.UsageSource;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
@@ -16,25 +15,17 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface TranscriptRepository extends JpaRepository<Transcript, Long> {
-    @Query("select t from Transcript t join t.transcriptUsages tu where t.referenceGenome= ?1 and tu.source= ?2")
-    List<Transcript> findByReferenceGenomeAndSource(ReferenceGenome referenceGenome, UsageSource source);
-
-    @Query("select t from Transcript t join t.transcriptUsages tu where t.referenceGenome= ?1 and tu.source= ?2 and t.hugoSymbol=?3")
-    List<Transcript> findByReferenceGenomeAndSourceAndHugoSymbol(ReferenceGenome referenceGenome, UsageSource source, String hugoSymbol);
-
-    @Query(
-        "select t from Transcript t join t.transcriptUsages tu where t.referenceGenome= ?1 and t.ensemblTranscriptId=?2 and tu.source= ?3"
-    )
-    List<Transcript> findByReferenceGenomeAndEnsemblTranscriptAndSource(
-        ReferenceGenome referenceGenome,
-        String ensemblTranscriptId,
-        UsageSource source
-    );
-
-    Optional<Transcript> findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome referenceGenome, String ensemblTranscriptId);
+    @Query("select t from Transcript t join t.ensemblGene eg where eg.referenceGenome= ?1 and t.ensemblTranscriptId=?2")
+    Optional<Transcript> findByReferenceGenomeAndEnsemblTranscriptId(String referenceGenome, String ensemblTranscriptId);
 
     @Cacheable(cacheResolver = "transcriptCacheResolver")
-    List<Transcript> findByReferenceGenomeAndEnsemblTranscriptIdIsIn(ReferenceGenome referenceGenome, List<String> ensemblTranscriptIds);
+    @Query("select t from Transcript t join t.ensemblGene eg where eg.referenceGenome= ?1 and t.ensemblTranscriptId in ?2")
+    List<Transcript> findByReferenceGenomeAndEnsemblTranscriptIdIsIn(String referenceGenome, List<String> ensemblTranscriptIds);
 
-    List<Transcript> findByReferenceGenome(ReferenceGenome referenceGenome);
+    List<Transcript> findByEnsemblGene(EnsemblGene ensemblGene);
+
+    @Query("select t from Transcript t join t.ensemblGene eg where eg.referenceGenome= ?1 and t.ensemblTranscriptId in ?2")
+    List<Transcript> findByEnsemblGeneId(Integer entrezGeneId);
+
+    Optional<Transcript> findByEnsemblGeneAndEnsemblTranscriptId(EnsemblGene ensemblGene, String ensemblTranscriptId);
 }

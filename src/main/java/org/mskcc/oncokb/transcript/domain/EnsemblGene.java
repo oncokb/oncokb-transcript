@@ -2,6 +2,8 @@ package org.mskcc.oncokb.transcript.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -46,6 +48,10 @@ public class EnsemblGene implements Serializable {
     @NotNull
     @Column(name = "strand", nullable = false)
     private Integer strand;
+
+    @OneToMany(mappedBy = "ensemblGene")
+    @JsonIgnoreProperties(value = { "fragments", "sequences", "ensemblGene" }, allowSetters = true)
+    private Set<Transcript> transcripts = new HashSet<>();
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes" }, allowSetters = true)
@@ -155,6 +161,37 @@ public class EnsemblGene implements Serializable {
 
     public void setStrand(Integer strand) {
         this.strand = strand;
+    }
+
+    public Set<Transcript> getTranscripts() {
+        return this.transcripts;
+    }
+
+    public void setTranscripts(Set<Transcript> transcripts) {
+        if (this.transcripts != null) {
+            this.transcripts.forEach(i -> i.setEnsemblGene(null));
+        }
+        if (transcripts != null) {
+            transcripts.forEach(i -> i.setEnsemblGene(this));
+        }
+        this.transcripts = transcripts;
+    }
+
+    public EnsemblGene transcripts(Set<Transcript> transcripts) {
+        this.setTranscripts(transcripts);
+        return this;
+    }
+
+    public EnsemblGene addTranscript(Transcript transcript) {
+        this.transcripts.add(transcript);
+        transcript.setEnsemblGene(this);
+        return this;
+    }
+
+    public EnsemblGene removeTranscript(Transcript transcript) {
+        this.transcripts.remove(transcript);
+        transcript.setEnsemblGene(null);
+        return this;
     }
 
     public Gene getGene() {

@@ -36,7 +36,7 @@ public class GenomeFragment implements Serializable {
     private GenomeFragmentType type;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "fragments", "transcriptUsages", "sequences" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "fragments", "sequences", "ensemblGene" }, allowSetters = true)
     private Transcript transcript;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

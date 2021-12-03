@@ -82,6 +82,34 @@ public class EnsemblService {
         return Arrays.asList(response.getBody());
     }
 
+    public Optional<org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript> getTranscript(
+        ReferenceGenome referenceGenome,
+        String transcriptId
+    ) {
+        List<org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript> ensemblTranscriptList = getIds(
+            referenceGenome,
+            Collections.singletonList(transcriptId),
+            true,
+            true
+        );
+        return ensemblTranscriptList.size() > 0 ? Optional.of(ensemblTranscriptList.get(0)) : Optional.empty();
+    }
+
+    public Optional<org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript> getId(
+        ReferenceGenome referenceGenome,
+        String id,
+        boolean includeUtr,
+        boolean expand
+    ) {
+        List<org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript> ensemblTranscriptList = getIds(
+            referenceGenome,
+            Collections.singletonList(id),
+            includeUtr,
+            expand
+        );
+        return ensemblTranscriptList.size() > 0 ? Optional.of(ensemblTranscriptList.get(0)) : Optional.empty();
+    }
+
     public List<org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript> getIds(
         ReferenceGenome referenceGenome,
         List<String> ids,
@@ -123,9 +151,9 @@ public class EnsemblService {
             if (expand) {
                 requestParams.add("expand=1");
             }
-            sb.append(StringUtils.join("&"));
+            sb.append(StringUtils.join(requestParams, "&"));
         }
-        return getEnsemblAPIUrl(referenceGenome) + sb.toString();
+        return getEnsemblAPIUrl(referenceGenome) + sb;
     }
 
     private String getEnsemblAPIUrl(ReferenceGenome referenceGenome) {

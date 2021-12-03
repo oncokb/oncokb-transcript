@@ -6,9 +6,7 @@ import org.genome_nexus.ApiException;
 import org.genome_nexus.client.EnsemblTranscript;
 import org.mskcc.oncokb.transcript.domain.AlignmentResult;
 import org.mskcc.oncokb.transcript.domain.EnrichedAlignmentResult;
-import org.mskcc.oncokb.transcript.domain.TranscriptUsage;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
-import org.mskcc.oncokb.transcript.domain.enumeration.UsageSource;
 import org.mskcc.oncokb.transcript.service.*;
 import org.mskcc.oncokb.transcript.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.transcript.service.mapper.TranscriptMapper;
@@ -31,8 +29,8 @@ public class TranscriptController {
     private final GenomeNexusService genomeNexusService;
     private final AlignmentService alignmentService;
     private final TranscriptService transcriptService;
+    private final MainService mainService;
     private final EnsemblService ensemblService;
-    private final TranscriptUsageService transcriptUsageService;
     private final TranscriptMapper transcriptMapper;
     private final EnsemblGeneService ensemblGeneService;
 
@@ -40,16 +38,16 @@ public class TranscriptController {
         GenomeNexusService genomeNexusService,
         AlignmentService alignmentService,
         TranscriptService transcriptService,
+        MainService mainService,
         EnsemblService ensemblService,
-        TranscriptUsageService transcriptUsageService,
         EnsemblGeneService ensemblGeneService,
         TranscriptMapper transcriptMapper
     ) {
         this.genomeNexusService = genomeNexusService;
         this.alignmentService = alignmentService;
         this.transcriptService = transcriptService;
+        this.mainService = mainService;
         this.ensemblService = ensemblService;
-        this.transcriptUsageService = transcriptUsageService;
         this.ensemblGeneService = ensemblGeneService;
         this.transcriptMapper = transcriptMapper;
     }
@@ -454,78 +452,13 @@ public class TranscriptController {
         return new ResponseEntity<>(transcriptSuggestionVM, HttpStatus.OK);
     }
 
-    @PostMapping("/update-transcript-usage-source")
-    public ResponseEntity<Void> updateTranscriptUsage(
-        @RequestParam UsageSource usageSource,
-        @RequestParam String hugoSymbol,
+    @PostMapping("/add-transcript")
+    public ResponseEntity<Void> addTranscript(
         @RequestParam int entrezGeneId,
         @RequestParam ReferenceGenome referenceGenome,
         @RequestParam String ensemblTranscriptId
     ) throws ApiException {
-        // find whether the transcript has been used
-        List<TranscriptDTO> matchedTranscript = transcriptService.findByReferenceGenomeAndEnsemblTranscriptAndSource(
-            referenceGenome,
-            ensemblTranscriptId,
-            usageSource
-        );
-
-        if (matchedTranscript.size() > 0) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-
-        // update old transcript usage
-        List<TranscriptUsage> usedTranscriptUsages = transcriptUsageService.findByReferenceGenomeAndHugoSymbolAndUsageSource(
-            referenceGenome,
-            hugoSymbol,
-            usageSource
-        );
-        if (usedTranscriptUsages.size() > 0) {
-            // delete all usage
-            for (TranscriptUsage transcriptUsage : usedTranscriptUsages) {
-                transcriptUsageService.delete(transcriptUsage.getId());
-            }
-        }
-
-        // add the new transcript if it does not exist
-        Optional<TranscriptDTO> transcriptOptional = transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(
-            referenceGenome,
-            ensemblTranscriptId
-        );
-        if (!transcriptOptional.isPresent()) {
-            Optional<EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(
-                ensemblTranscriptId,
-                referenceGenome
-            );
-            if (ensemblTranscriptOptional.isPresent()) {
-                List<org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript> ensemblTranscriptList = transcriptService.getEnsemblTranscriptIds(
-                    referenceGenome,
-                    Collections.singletonList(ensemblTranscriptId),
-                    true,
-                    true
-                );
-                transcriptOptional =
-                    transcriptService.createTranscript(
-                        referenceGenome,
-                        entrezGeneId,
-                        hugoSymbol,
-                        ensemblTranscriptOptional.get().getTranscriptId(),
-                        ensemblTranscriptOptional.get().getProteinId(),
-                        ensemblTranscriptOptional.get().getRefseqMrnaId(),
-                        Optional.of(ensemblTranscriptList.get(0)).orElse(null)
-                    );
-            } else {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-        }
-
-        // update new transcript usage
-        TranscriptUsage transcriptUsage = new TranscriptUsage();
-        transcriptUsage.setSource(usageSource);
-        transcriptUsage.setTranscript(transcriptMapper.toEntity(transcriptOptional.get()));
-        transcriptUsageService.save(transcriptUsage);
-
-        // Add ensembl gene
-        ensemblGeneService.saveByReferenceGenomeAndEntrezGeneIds(referenceGenome, Collections.singletonList(entrezGeneId));
+        mainService.createTranscript(referenceGenome, ensemblTranscriptId, entrezGeneId);
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }

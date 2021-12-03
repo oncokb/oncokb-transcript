@@ -31,7 +31,7 @@ public class Gene implements Serializable {
     private Set<GeneAlias> geneAliases = new HashSet<>();
 
     @OneToMany(mappedBy = "gene", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonIgnoreProperties(value = { "gene" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "transcripts", "gene" }, allowSetters = true)
     private Set<EnsemblGene> ensemblGenes = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
