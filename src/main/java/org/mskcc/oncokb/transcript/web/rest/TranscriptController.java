@@ -9,7 +9,6 @@ import org.mskcc.oncokb.transcript.domain.EnrichedAlignmentResult;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.transcript.service.*;
 import org.mskcc.oncokb.transcript.service.dto.TranscriptDTO;
-import org.mskcc.oncokb.transcript.service.mapper.TranscriptMapper;
 import org.mskcc.oncokb.transcript.vm.*;
 import org.mskcc.oncokb.transcript.vm.ensembl.EnsemblSequence;
 import org.slf4j.Logger;
@@ -17,39 +16,27 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Controller to authenticate users.
- */
 @RestController
 @RequestMapping("/api")
 public class TranscriptController {
 
     private final Logger log = LoggerFactory.getLogger(TranscriptController.class);
 
-    private final GenomeNexusService genomeNexusService;
     private final AlignmentService alignmentService;
     private final TranscriptService transcriptService;
     private final MainService mainService;
     private final EnsemblService ensemblService;
-    private final TranscriptMapper transcriptMapper;
-    private final EnsemblGeneService ensemblGeneService;
 
     public TranscriptController(
-        GenomeNexusService genomeNexusService,
         AlignmentService alignmentService,
         TranscriptService transcriptService,
         MainService mainService,
-        EnsemblService ensemblService,
-        EnsemblGeneService ensemblGeneService,
-        TranscriptMapper transcriptMapper
+        EnsemblService ensemblService
     ) {
-        this.genomeNexusService = genomeNexusService;
         this.alignmentService = alignmentService;
         this.transcriptService = transcriptService;
         this.mainService = mainService;
         this.ensemblService = ensemblService;
-        this.ensemblGeneService = ensemblGeneService;
-        this.transcriptMapper = transcriptMapper;
     }
 
     @PostMapping("/compare-transcript/{hugoSymbol}")
@@ -111,33 +98,6 @@ public class TranscriptController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @PostMapping("/compare-ensembl-transcript")
-    public ResponseEntity<TranscriptComparisonResultVM> compareEnsemblTranscript(
-        @RequestBody TranscriptComparisonVM transcriptComparisonVM
-    ) throws ApiException {
-        TranscriptComparisonResultVM result = new TranscriptComparisonResultVM();
-
-        Optional<EnsemblSequence> sequenceA = ensemblService.getProteinSequence(
-            transcriptComparisonVM.getTranscriptA().getReferenceGenome(),
-            transcriptComparisonVM.getTranscriptA().getTranscript()
-        );
-        result.setSequenceA(sequenceA.orElse(new EnsemblSequence()).getSeq());
-
-        Optional<EnsemblSequence> sequenceB = ensemblService.getProteinSequence(
-            transcriptComparisonVM.getTranscriptB().getReferenceGenome(),
-            transcriptComparisonVM.getTranscriptB().getTranscript()
-        );
-        result.setSequenceB(sequenceB.orElse(new EnsemblSequence()).getSeq());
-
-        // do a quick check whether the protein is the same
-        if (sequenceA.isPresent() && sequenceB.isPresent()) {
-            if (sequenceA.get().getSeq().equals(sequenceB.get().getSeq())) {
-                result.setMatch(true);
-            }
-        }
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
     @PostMapping("/match-transcript/{hugoSymbol}")
     public ResponseEntity<TranscriptMatchResultVM> matchTranscript(
         @PathVariable String hugoSymbol,
@@ -150,62 +110,6 @@ public class TranscriptController {
         );
     }
 
-    @PostMapping("/get-alignments/{hugoSymbol}")
-    public ResponseEntity<List<EnrichedAlignmentResult>> getAlignments(
-        @PathVariable String hugoSymbol,
-        @RequestBody MatchTranscriptVM matchTranscriptVM
-    ) throws ApiException {
-        // Find whether both transcript length are the same
-
-        Optional<EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(
-            hugoSymbol,
-            matchTranscriptVM.getTranscript()
-        );
-        if (ensemblTranscriptOptional.isPresent()) {
-            EnsemblTranscript ensemblTranscript = ensemblTranscriptOptional.get();
-            List<EnsemblTranscript> targetEnsemblTranscripts = transcriptService.getEnsemblTranscriptList(
-                hugoSymbol,
-                matchTranscriptVM.getTargetReferenceGenome()
-            );
-            return new ResponseEntity<>(
-                transcriptService.getAlignmentResult(
-                    matchTranscriptVM.getTranscript().getReferenceGenome(),
-                    ensemblTranscript,
-                    matchTranscriptVM.getTargetReferenceGenome(),
-                    targetEnsemblTranscripts
-                ),
-                HttpStatus.OK
-            );
-        } else {
-            throw new ApiException("Cannot find  reference transcript.");
-        }
-    }
-
-    @GetMapping("/get-transcript/{hugoSymbol}")
-    public ResponseEntity<TranscriptResultVM> getTranscript(@PathVariable String hugoSymbol) {
-        EnsemblTranscript grch37Transcript = null;
-        try {
-            grch37Transcript = transcriptService.getCanonicalEnsemblTranscript(hugoSymbol, ReferenceGenome.GRCh37);
-        } catch (ApiException e) {
-            e.printStackTrace();
-        }
-        TranscriptPairVM transcriptPairVM = new TranscriptPairVM();
-        transcriptPairVM.setReferenceGenome(ReferenceGenome.GRCh37);
-        transcriptPairVM.setTranscript(grch37Transcript.getTranscriptId());
-        TranscriptMatchResultVM transcriptMatchResultVM = transcriptService.matchTranscript(
-            transcriptPairVM,
-            ReferenceGenome.GRCh38,
-            hugoSymbol
-        );
-
-        TranscriptResultVM transcriptResultVM = new TranscriptResultVM();
-        transcriptResultVM.setGrch37Transcript(transcriptMatchResultVM.getOriginalEnsemblTranscript());
-        transcriptResultVM.setGrch38Transcript(transcriptMatchResultVM.getTargetEnsemblTranscript());
-        transcriptResultVM.setNote(transcriptMatchResultVM.getNote());
-
-        return new ResponseEntity<>(transcriptResultVM, HttpStatus.OK);
-    }
-
     @PostMapping("/find-transcripts-by-ensembl-ids")
     public ResponseEntity<List<TranscriptDTO>> findTranscriptsByEnsemblIds(
         @RequestParam ReferenceGenome referenceGenome,
@@ -215,24 +119,6 @@ public class TranscriptController {
             transcriptService.findByReferenceGenomeAndEnsemblTranscriptIdIsIn(referenceGenome, ensemblTranscriptIds),
             HttpStatus.OK
         );
-    }
-
-    @GetMapping("/get-sequence")
-    public ResponseEntity<String> getTranscript(@RequestParam ReferenceGenome referenceGenome, @RequestParam String transcript) {
-        Optional<EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(transcript, referenceGenome);
-        if (ensemblTranscriptOptional.isPresent() && ensemblTranscriptOptional.get().getProteinId() != null) {
-            Optional<EnsemblSequence> sequence = ensemblService.getProteinSequence(
-                referenceGenome,
-                ensemblTranscriptOptional.get().getProteinId()
-            );
-            if (sequence.isPresent()) {
-                return new ResponseEntity<>(sequence.get().getSeq(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-            }
-        } else {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
     }
 
     private int findMatchedIndex(String sequence, int proteinPosition) {
@@ -402,63 +288,22 @@ public class TranscriptController {
         return new ResponseEntity<>(allReferenceTranscriptSuggestionVM, HttpStatus.OK);
     }
 
-    @GetMapping("/find-grch38-variant")
-    public ResponseEntity<TranscriptSuggestionVM> findGrch38Variant(
-        @RequestParam String referenceAminoAcid,
-        @RequestParam Integer proteinPosition,
-        @RequestParam String grch37ProteinId,
-        @RequestParam String grch38ProteinId
-    ) {
-        TranscriptSuggestionVM transcriptSuggestionVM = new TranscriptSuggestionVM();
-        transcriptSuggestionVM.setReferenceGenome(ReferenceGenome.GRCh38);
-        Optional<EnsemblSequence> grch37Sequence = ensemblService.getProteinSequence(ReferenceGenome.GRCh37, grch37ProteinId);
-        Optional<EnsemblSequence> grch38Sequence = ensemblService.getProteinSequence(ReferenceGenome.GRCh38, grch38ProteinId);
-
-        if (grch37Sequence.isPresent()) {
-            if (grch38Sequence.isPresent()) {
-                AlignmentResult alignmentResult =
-                    this.alignmentService.calcOptimalAlignment(grch37Sequence.get().getSeq(), grch38Sequence.get().getSeq(), false);
-                int matchedIndex = findMatchedIndex(alignmentResult.getRefSeq(), proteinPosition);
-                String refAA = String.valueOf(alignmentResult.getRefSeq().charAt(matchedIndex));
-                if (refAA.equals(referenceAminoAcid)) {
-                    int matchedProteinPosition = findMatchedProteinPosition(alignmentResult.getTargetSeq(), matchedIndex);
-                    transcriptSuggestionVM.setSuggestions(
-                        Collections.singletonList(
-                            alignmentResult.getTargetSeq().substring(matchedIndex, matchedIndex + 1) + matchedProteinPosition
-                        )
-                    );
-                    if (alignmentResult.getPenalty() > PENALTY_THRESHOLD) {
-                        transcriptSuggestionVM.setNote(
-                            "The suggestions come from an alignment that above penalty threshold 5. The penalty: " +
-                            alignmentResult.getPenalty()
-                        );
-                    }
-                } else {
-                    transcriptSuggestionVM.setNote(
-                        "GRCh37 reference does not match on the position " +
-                        proteinPosition +
-                        ". Given:" +
-                        referenceAminoAcid +
-                        " Actual:" +
-                        refAA
-                    );
-                }
-            } else {
-                transcriptSuggestionVM.setNote("GRCh38 protein id does not have sequence");
-            }
-        } else {
-            transcriptSuggestionVM.setNote("GRCh37 protein id does not have sequence");
-        }
-        return new ResponseEntity<>(transcriptSuggestionVM, HttpStatus.OK);
-    }
-
     @PostMapping("/add-transcript")
-    public ResponseEntity<Void> addTranscript(
+    public ResponseEntity<TranscriptDTO> addTranscript(
         @RequestParam int entrezGeneId,
         @RequestParam ReferenceGenome referenceGenome,
-        @RequestParam String ensemblTranscriptId
+        @RequestParam String ensemblTranscriptId,
+        @RequestParam Boolean isCanonical
     ) throws ApiException {
-        mainService.createTranscript(referenceGenome, ensemblTranscriptId, entrezGeneId);
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        Optional<TranscriptDTO> transcriptDTOOptional = mainService.createTranscript(
+            referenceGenome,
+            ensemblTranscriptId,
+            entrezGeneId,
+            isCanonical
+        );
+        return new ResponseEntity<>(
+            transcriptDTOOptional.get(),
+            transcriptDTOOptional.isPresent() ? HttpStatus.OK : HttpStatus.BAD_REQUEST
+        );
     }
 }

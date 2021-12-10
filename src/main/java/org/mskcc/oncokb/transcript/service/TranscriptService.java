@@ -172,11 +172,30 @@ public class TranscriptService {
     }
 
     public Optional<TranscriptDTO> findByEnsemblGeneAndEnsemblTranscriptId(EnsemblGene ensemblGene, String ensembleTranscriptId) {
-        log.debug("Request to get Sequence : {}", ensembleTranscriptId);
+        log.debug(
+            "Request to get transcript by ensembl gene and transcript id : {} {} {}",
+            ensemblGene.getReferenceGenome(),
+            ensemblGene.getEnsemblGeneId(),
+            ensembleTranscriptId
+        );
         Optional<Transcript> transcriptOptional = transcriptRepository.findByEnsemblGeneAndEnsemblTranscriptId(
             ensemblGene,
             ensembleTranscriptId
         );
+        if (transcriptOptional.isPresent()) {
+            return Optional.of(transcriptMapper.toDto(transcriptOptional.get()));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<TranscriptDTO> findByEnsemblGeneAndCanonicalIsTrue(EnsemblGene ensemblGene) {
+        log.debug(
+            "Request to find canonical transcript for given ensembl gene : {} {}",
+            ensemblGene.getReferenceGenome(),
+            ensemblGene.getEnsemblGeneId()
+        );
+        Optional<Transcript> transcriptOptional = transcriptRepository.findByEnsemblGeneAndCanonicalIsTrue(ensemblGene);
         if (transcriptOptional.isPresent()) {
             return Optional.of(transcriptMapper.toDto(transcriptOptional.get()));
         } else {

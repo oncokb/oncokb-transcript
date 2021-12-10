@@ -2,10 +2,11 @@ package org.mskcc.oncokb.transcript.web.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.mskcc.oncokb.transcript.domain.EnsemblGene;
 import org.mskcc.oncokb.transcript.domain.Sequence;
-import org.mskcc.oncokb.transcript.domain.Transcript;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.transcript.domain.enumeration.SequenceType;
 import org.mskcc.oncokb.transcript.service.EnsemblGeneService;
@@ -44,22 +45,50 @@ public class SequenceController {
         this.sequenceService = sequenceService;
     }
 
-    @GetMapping("/find-sequences")
-    public List<Sequence> findSequences(@RequestParam ReferenceGenome referenceGenome, @RequestParam Integer entrezGeneId) {
-        log.debug("REST request to get sequences by Gene: {} {}", referenceGenome, entrezGeneId);
-        List<Sequence> sequences = new ArrayList<>();
+    @GetMapping("/find-canonical-sequence")
+    public Sequence findCanonicalSequence(
+        @RequestParam ReferenceGenome referenceGenome,
+        @RequestParam Integer entrezGeneId,
+        @RequestParam(defaultValue = "PROTEIN") SequenceType sequenceType
+    ) {
+        log.debug("GET request to get canonical protein sequence by Gene: {} {}", referenceGenome, entrezGeneId);
+        return findSequence(referenceGenome, entrezGeneId, sequenceType);
+    }
 
+    @PostMapping("/find-canonical-sequences")
+    public List<Sequence> findCanonicalSequences(
+        @RequestParam ReferenceGenome referenceGenome,
+        @RequestParam(defaultValue = "PROTEIN") SequenceType sequenceType,
+        @RequestBody List<Integer> entrezGeneIds
+    ) {
+        log.debug("POST request to get canonical protein sequences");
+        if (entrezGeneIds == null || entrezGeneIds.isEmpty()) {
+            return new ArrayList<>();
+        } else {
+            return entrezGeneIds
+                .stream()
+                .map(entrezGeneId -> findSequence(referenceGenome, entrezGeneId, sequenceType))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        }
+    }
+
+    private Sequence findSequence(ReferenceGenome referenceGenome, Integer entrezGeneId, SequenceType sequenceType) {
         Optional<EnsemblGene> ensemblGeneOptional = ensemblGeneService.findCanonicalEnsemblGene(entrezGeneId, referenceGenome);
         if (ensemblGeneOptional.isPresent()) {
-            List<TranscriptDTO> transcriptDTOs = transcriptService.findByEnsemblGene(ensemblGeneOptional.get());
-            transcriptDTOs.forEach(transcriptDTO -> {
-                Transcript transcript = transcriptMapper.toEntity(transcriptDTO);
-                Optional<Sequence> sequenceOptional = sequenceService.findOneByTranscriptAndSequenceType(transcript, SequenceType.PROTEIN);
+            Optional<TranscriptDTO> transcriptDTOOptional = transcriptService.findByEnsemblGeneAndCanonicalIsTrue(
+                ensemblGeneOptional.get()
+            );
+            if (transcriptDTOOptional.isPresent()) {
+                Optional<Sequence> sequenceOptional = sequenceService.findOneByTranscriptAndSequenceType(
+                    transcriptMapper.toEntity(transcriptDTOOptional.get()),
+                    sequenceType
+                );
                 if (sequenceOptional.isPresent()) {
-                    sequences.add(sequenceOptional.get());
+                    return sequenceOptional.get();
                 }
-            });
+            }
         }
-        return sequences;
+        return null;
     }
 }

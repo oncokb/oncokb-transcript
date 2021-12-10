@@ -28,4 +28,6 @@ public interface TranscriptRepository extends JpaRepository<Transcript, Long> {
     List<Transcript> findByEnsemblGeneId(Integer entrezGeneId);
 
     Optional<Transcript> findByEnsemblGeneAndEnsemblTranscriptId(EnsemblGene ensemblGene, String ensemblTranscriptId);
+
+    Optional<Transcript> findByEnsemblGeneAndCanonicalIsTrue(EnsemblGene ensemblGene);
 }

@@ -62,12 +62,10 @@ public class MainService {
                         Optional<EnsemblGene> ensemblGeneOptional = createEnsemblGene(
                             referenceGenome,
                             ensemblGene.getGeneId(),
-                            entrezGeneId
+                            entrezGeneId,
+                            true
                         );
-                        if (ensemblGeneOptional.isPresent()) {
-                            ensemblGeneOptional.get().setCanonical(true);
-                            ensemblGeneService.save(ensemblGeneOptional.get());
-                        } else {
+                        if (ensemblGeneOptional.isEmpty()) {
                             log.error("Failed to save the ensembl {} {} {}", referenceGenome, ensemblGene.getGeneId(), entrezGeneId);
                         }
                     } else {
@@ -83,8 +81,14 @@ public class MainService {
     public Optional<EnsemblGene> createEnsemblGene(
         @NotNull ReferenceGenome referenceGenome,
         @NotNull String ensemblGeneId,
-        @NotNull Integer entrezGeneId
+        @NotNull Integer entrezGeneId,
+        @NotNull Boolean isCanonical
     ) {
+        Optional<EnsemblGene> previousSavedCanonicalEnsemblGeneOptional = ensemblGeneService.findCanonicalEnsemblGene(
+            entrezGeneId,
+            referenceGenome
+        );
+
         Optional<EnsemblGene> savedEnsemblGeneOptional = ensemblGeneService.findByEnsemblGeneIdAndReferenceGenome(
             ensemblGeneId,
             referenceGenome
@@ -107,11 +111,21 @@ public class MainService {
                 ensemblGene.setEnd(remoteEnsemblGene.getEnd());
                 ensemblGene.setStrand(remoteEnsemblGene.getStrand());
                 ensemblGene.setGene(geneOptional.get());
+                ensemblGene.setCanonical(isCanonical);
                 savedEnsemblGeneOptional = Optional.of(ensemblGeneService.save(ensemblGene));
-
-                EnsemblGene savedEnsemblGene = savedEnsemblGeneOptional.get();
-                remoteEnsemblGene.getTranscripts().forEach(ensemblTranscript -> createTranscript(savedEnsemblGene, ensemblTranscript));
             }
+        } else if (savedEnsemblGeneOptional.get().getCanonical() != isCanonical) {
+            savedEnsemblGeneOptional.get().setCanonical(isCanonical);
+            savedEnsemblGeneOptional = ensemblGeneService.partialUpdate(savedEnsemblGeneOptional.get());
+        }
+        if (
+            savedEnsemblGeneOptional.isPresent() &&
+            previousSavedCanonicalEnsemblGeneOptional.isPresent() &&
+            !savedEnsemblGeneOptional.get().getEnsemblGeneId().equals(previousSavedCanonicalEnsemblGeneOptional.get().getEnsemblGeneId()) &&
+            isCanonical
+        ) {
+            previousSavedCanonicalEnsemblGeneOptional.get().setCanonical(false);
+            ensemblGeneService.partialUpdate(previousSavedCanonicalEnsemblGeneOptional.get());
         }
         return savedEnsemblGeneOptional;
     }
@@ -126,38 +140,46 @@ public class MainService {
     public Optional<TranscriptDTO> createTranscript(
         @NotNull ReferenceGenome referenceGenome,
         @NotNull String ensemblTranscriptId,
-        @NotNull Integer entrezGeneId
+        @NotNull Integer entrezGeneId,
+        @NotNull Boolean isCanonical
     ) {
-        Optional<TranscriptDTO> transcriptDTOOptional = transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(
-            referenceGenome,
-            ensemblTranscriptId
-        );
-
-        if (transcriptDTOOptional.isPresent()) {
-            return transcriptDTOOptional;
-        }
-
         Optional<EnsemblTranscript> ensemblTranscriptOptional = ensemblService.getTranscript(referenceGenome, ensemblTranscriptId);
         if (ensemblTranscriptOptional.isPresent()) {
             Optional<EnsemblGene> savedEnsemblGeneOptional = createEnsemblGene(
                 referenceGenome,
                 ensemblTranscriptOptional.get().getParent(),
-                entrezGeneId
+                entrezGeneId,
+                isCanonical
             );
             if (savedEnsemblGeneOptional.isPresent()) {
-                return createTranscript(savedEnsemblGeneOptional.get(), ensemblTranscriptOptional.get());
+                return createTranscript(savedEnsemblGeneOptional.get(), ensemblTranscriptOptional.get(), isCanonical);
             }
         }
         return Optional.empty();
     }
 
-    private Optional<TranscriptDTO> createTranscript(EnsemblGene ensemblGene, EnsemblTranscript ensemblTranscript) {
+    private Optional<TranscriptDTO> createTranscript(
+        @NotNull EnsemblGene ensemblGene,
+        @NotNull EnsemblTranscript ensemblTranscript,
+        @NotNull Boolean isCanonical
+    ) {
+        if (isCanonical) {
+            Optional<TranscriptDTO> canonicalTranscript = transcriptService.findByEnsemblGeneAndCanonicalIsTrue(ensemblGene);
+            if (canonicalTranscript.isPresent() && !canonicalTranscript.get().getEnsemblTranscriptId().equals(ensemblTranscript.getId())) {
+                canonicalTranscript.get().setCanonical(false);
+                transcriptService.partialUpdate(canonicalTranscript.get());
+            }
+        }
+
         Optional<TranscriptDTO> transcriptDTOOptional = transcriptService.findByEnsemblGeneAndEnsemblTranscriptId(
             ensemblGene,
             ensemblTranscript.getId()
         );
-
         if (transcriptDTOOptional.isPresent()) {
+            if (transcriptDTOOptional.get().getCanonical() != isCanonical) {
+                transcriptDTOOptional.get().setCanonical(isCanonical);
+                transcriptDTOOptional = transcriptService.partialUpdate(transcriptDTOOptional.get());
+            }
             return transcriptDTOOptional;
         }
 
@@ -173,6 +195,7 @@ public class MainService {
             transcriptDTO.setEnsemblTranscriptId(gnEnsemblTranscript.getTranscriptId());
             transcriptDTO.setEnsemblProteinId(gnEnsemblTranscript.getProteinId());
             transcriptDTO.setReferenceSequenceId(gnEnsemblTranscript.getRefseqMrnaId());
+            transcriptDTO.setCanonical(isCanonical);
             updateGenomeFragments(transcriptDTO, ensemblTranscript);
 
             Optional<TranscriptDTO> savedTranscriptDTO = Optional.of(transcriptService.save(transcriptDTO));
