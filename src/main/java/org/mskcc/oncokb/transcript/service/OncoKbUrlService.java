@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class OncoKbUrlService {
 
-    public final String ONCOKB_API_URL = "https://beta.oncokb.org/api/v1";
+    public final String ONCOKB_API_URL = "https://www.oncokb.org/api/v1";
 
     private final int ONCOKB_READ_TIMEOUT_OVERRIDE = 30000;
 
