@@ -2,24 +2,13 @@
   "name": "Transcript",
   "fields": [
     {
-      "fieldName": "entrezGeneId",
-      "fieldType": "Integer",
-      "fieldValidateRules": ["required"]
-    },
-    {
-      "fieldName": "hugoSymbol",
-      "fieldType": "String",
-      "fieldValidateRules": ["required"]
-    },
-    {
-      "fieldName": "referenceGenome",
-      "fieldType": "ReferenceGenome",
-      "fieldValues": "GRCh37,GRCh38",
-      "fieldValidateRules": ["required"]
-    },
-    {
       "fieldName": "ensemblTranscriptId",
       "fieldType": "String"
+    },
+    {
+      "fieldName": "canonical",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "ensemblProteinId",
@@ -43,15 +32,15 @@
     },
     {
       "relationshipType": "one-to-many",
-      "otherEntityName": "transcriptUsage",
-      "otherEntityRelationshipName": "transcript",
-      "relationshipName": "transcriptUsage"
-    },
-    {
-      "relationshipType": "one-to-many",
       "otherEntityName": "sequence",
       "otherEntityRelationshipName": "transcript",
       "relationshipName": "sequence"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "ensemblGene",
+      "otherEntityRelationshipName": "transcript",
+      "relationshipName": "ensemblGene"
     }
   ],
   "entityTableName": "transcript",

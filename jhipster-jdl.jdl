@@ -1,12 +1,20 @@
 
 entity Transcript {
-    entrezGeneId Integer required,
-    hugoSymbol String required,
-    referenceGenome ReferenceGenome required,
     ensemblTranscriptId String,
+    canonical Boolean required,
     ensemblProteinId String,
     referenceSequenceId String,
     description String
+}
+
+entity EnsemblGene {
+    referenceGenome String required,
+    ensemblGeneId String required,
+    canonical Boolean required,
+    chromosome String required,
+    start Integer required,
+    end Integer required,
+    strand Integer required
 }
 
 entity GenomeFragment {
@@ -18,8 +26,8 @@ entity GenomeFragment {
 }
 
 enum GenomeFragmentType {
-    GENE,
-    EXON,
+	GENE,
+	EXON,
     FIVE_PRIME_UTR,
     THREE_PRIME_UTR
 }
@@ -29,19 +37,8 @@ entity Sequence {
     sequence TextBlob
 }
 
-entity TranscriptUsage {
-	source UsageSource
-}
-
 enum SequenceType {
 	PROTEIN, CDNA
-}
-enum ReferenceGenome {
-    GRCh37, GRCh38
-}
-
-enum UsageSource {
- 	ONCOKB
 }
 
 entity Drug {
@@ -77,12 +74,10 @@ entity GeneAlias {
 relationship OneToMany {
 	Drug{synonyms} to DrugSynonym
 	Gene to GeneAlias
-	Transcript{fragments} to GenomeFragment{transcript}
-}
-
-relationship ManyToOne {
-	TranscriptUsage to Transcript
-    Sequence to Transcript
+	Gene to EnsemblGene
+    Transcript{fragments} to GenomeFragment{transcript}
+    EnsemblGene to Transcript
+    Transcript to Sequence
 }
 
 service * with serviceClass

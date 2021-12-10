@@ -124,7 +124,7 @@ public class AlignmentService {
                 "\""
             );
         }
-        Alignment alignment = findAlignment(seq1, seq2, memoTable);
+        Alignment alignment = findAlignment(seq1, seq2, memoTable, printResults);
 
         AlignmentResult alignmentResult = new AlignmentResult(alignment);
         alignmentResult.setPenalty(minimumPenalty);
@@ -150,7 +150,7 @@ public class AlignmentService {
     }
 
     //Retrace the memoTable to find the actual alignment, not just the minimum cost
-    private Alignment findAlignment(String seq1, String seq2, int[][] memoTable) {
+    private Alignment findAlignment(String seq1, String seq2, int[][] memoTable, boolean printResults) {
         String seq1Aligned = ""; //Holds the actual sequence with gaps added
         String seq2Aligned = "";
 
@@ -186,7 +186,7 @@ public class AlignmentService {
             j--;
         }
 
-        System.out.println("\nOptimal Alignment:\n" + seq1Aligned + "\n" + seq2Aligned + "\n\n");
+        if (printResults) System.out.println("\nOptimal Alignment:\n" + seq1Aligned + "\n" + seq2Aligned + "\n\n");
         Alignment alignment = new Alignment();
         alignment.setRefSeq(seq1Aligned);
         alignment.setTargetSeq(seq2Aligned);

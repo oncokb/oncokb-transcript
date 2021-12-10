@@ -2,14 +2,14 @@ package org.mskcc.oncokb.transcript.web.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
+import org.mskcc.oncokb.transcript.domain.EnsemblGene;
 import org.mskcc.oncokb.transcript.domain.Sequence;
-import org.mskcc.oncokb.transcript.domain.Transcript;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.transcript.domain.enumeration.SequenceType;
-import org.mskcc.oncokb.transcript.domain.enumeration.UsageSource;
+import org.mskcc.oncokb.transcript.service.EnsemblGeneService;
 import org.mskcc.oncokb.transcript.service.SequenceService;
 import org.mskcc.oncokb.transcript.service.TranscriptService;
 import org.mskcc.oncokb.transcript.service.dto.TranscriptDTO;
@@ -27,38 +27,68 @@ public class SequenceController {
 
     private final Logger log = LoggerFactory.getLogger(SequenceController.class);
 
+    private final EnsemblGeneService ensemblGeneService;
     private final TranscriptService transcriptService;
     private final SequenceService sequenceService;
 
     private final TranscriptMapper transcriptMapper;
 
-    public SequenceController(TranscriptService transcriptService, TranscriptMapper transcriptMapper, SequenceService sequenceService) {
+    public SequenceController(
+        EnsemblGeneService ensemblGeneService,
+        TranscriptService transcriptService,
+        TranscriptMapper transcriptMapper,
+        SequenceService sequenceService
+    ) {
+        this.ensemblGeneService = ensemblGeneService;
         this.transcriptService = transcriptService;
         this.transcriptMapper = transcriptMapper;
         this.sequenceService = sequenceService;
     }
 
-    @GetMapping("/sequences-by-usage-source")
-    public List<Sequence> findSequencesByUsageSource(
+    @GetMapping("/find-canonical-sequence")
+    public Sequence findCanonicalSequence(
         @RequestParam ReferenceGenome referenceGenome,
-        @RequestParam UsageSource usageSource,
-        @RequestParam(required = false) String hugoSymbol
+        @RequestParam Integer entrezGeneId,
+        @RequestParam(defaultValue = "PROTEIN") SequenceType sequenceType
     ) {
-        log.debug("REST request to get sequences by usage source Gene : {} {}", usageSource, hugoSymbol);
-        List<TranscriptDTO> transcriptDTOS;
-        if (StringUtils.isEmpty(hugoSymbol)) {
-            transcriptDTOS = transcriptService.findByReferenceGenomeAndSource(referenceGenome, usageSource);
+        log.debug("GET request to get canonical protein sequence by Gene: {} {}", referenceGenome, entrezGeneId);
+        return findSequence(referenceGenome, entrezGeneId, sequenceType);
+    }
+
+    @PostMapping("/find-canonical-sequences")
+    public List<Sequence> findCanonicalSequences(
+        @RequestParam ReferenceGenome referenceGenome,
+        @RequestParam(defaultValue = "PROTEIN") SequenceType sequenceType,
+        @RequestBody List<Integer> entrezGeneIds
+    ) {
+        log.debug("POST request to get canonical protein sequences");
+        if (entrezGeneIds == null || entrezGeneIds.isEmpty()) {
+            return new ArrayList<>();
         } else {
-            transcriptDTOS = transcriptService.findByReferenceGenomeAndSourceAndHugoSymbol(referenceGenome, usageSource, hugoSymbol);
+            return entrezGeneIds
+                .stream()
+                .map(entrezGeneId -> findSequence(referenceGenome, entrezGeneId, sequenceType))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         }
-        List<Sequence> sequences = new ArrayList<>();
-        transcriptDTOS.forEach(transcriptDTO -> {
-            Transcript transcript = transcriptMapper.toEntity(transcriptDTO);
-            Optional<Sequence> sequenceOptional = sequenceService.findOneByTranscriptAndSequenceType(transcript, SequenceType.PROTEIN);
-            if (sequenceOptional.isPresent()) {
-                sequences.add(sequenceOptional.get());
+    }
+
+    private Sequence findSequence(ReferenceGenome referenceGenome, Integer entrezGeneId, SequenceType sequenceType) {
+        Optional<EnsemblGene> ensemblGeneOptional = ensemblGeneService.findCanonicalEnsemblGene(entrezGeneId, referenceGenome);
+        if (ensemblGeneOptional.isPresent()) {
+            Optional<TranscriptDTO> transcriptDTOOptional = transcriptService.findByEnsemblGeneAndCanonicalIsTrue(
+                ensemblGeneOptional.get()
+            );
+            if (transcriptDTOOptional.isPresent()) {
+                Optional<Sequence> sequenceOptional = sequenceService.findOneByTranscriptAndSequenceType(
+                    transcriptMapper.toEntity(transcriptDTOOptional.get()),
+                    sequenceType
+                );
+                if (sequenceOptional.isPresent()) {
+                    return sequenceOptional.get();
+                }
             }
-        });
-        return sequences;
+        }
+        return null;
     }
 }

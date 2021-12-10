@@ -4,14 +4,14 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.5.xsd">
     <!--
-        Added the constraints for entity TranscriptUsage.
+        Added the constraints for entity EnsemblGene.
     -->
-    <changeSet id="20210201194019-2" author="jhipster">
+    <changeSet id="20211130002704-2" author="jhipster">
 
-        <addForeignKeyConstraint baseColumnNames="transcript_id"
-                                 baseTableName="transcript_usage"
-                                 constraintName="fk_transcript_usage__transcript_id"
+        <addForeignKeyConstraint baseColumnNames="gene_id"
+                                 baseTableName="ensembl_gene"
+                                 constraintName="fk_ensembl_gene__gene_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="transcript"/>
+                                 referencedTableName="gene"/>
     </changeSet>
 </databaseChangeLog>

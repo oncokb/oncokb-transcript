@@ -1,19 +1,18 @@
 package org.mskcc.oncokb.transcript.importer;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
-import org.mskcc.oncokb.transcript.domain.TranscriptUsage;
+import org.mskcc.oncokb.transcript.domain.EnsemblGene;
+import org.mskcc.oncokb.transcript.domain.Sequence;
 import org.mskcc.oncokb.transcript.domain.enumeration.ReferenceGenome;
-import org.mskcc.oncokb.transcript.domain.enumeration.UsageSource;
+import org.mskcc.oncokb.transcript.domain.enumeration.SequenceType;
 import org.mskcc.oncokb.transcript.service.*;
 import org.mskcc.oncokb.transcript.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.transcript.service.mapper.TranscriptMapper;
-import org.mskcc.oncokb.transcript.vm.ensembl.EnsemblTranscript;
 import org.oncokb.ApiException;
 import org.oncokb.client.Gene;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,123 +29,178 @@ public class Importer {
     private GeneService geneService;
 
     @Autowired
-    private TranscriptService transcriptService;
+    private MainService mainService;
 
     @Autowired
-    private TranscriptUsageService transcriptUsageService;
+    private TranscriptService transcriptService;
 
     @Autowired
     private TranscriptMapper transcriptMapper;
 
+    @Autowired
+    private GenomeNexusService genomeNexusService;
+
+    @Autowired
+    private EnsemblService ensemblService;
+
+    @Autowired
+    private EnsemblGeneService ensemblGeneService;
+
+    @Autowired
+    private SequenceService sequenceService;
+
+    @Autowired
+    private AlignmentService alignmentService;
+
+    private final Logger log = LoggerFactory.getLogger(Importer.class);
+
     public void generalImport() throws ApiException {
-        try {
-            geneService.updatePortalGenes();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        this.importOncoKbSequences();
-        importGeneFragments();
+        //        try {
+        //            geneService.updatePortalGenes();
+        //        } catch (IOException e) {
+        //            e.printStackTrace();
+        //        }
+        //        this.importOncoKbSequences();
+        //        importCanonicalEnsemblGenes();
+        //        importCanonicalEnsemblTranscripts();
+        //                checkOncoKbEnsemblGenes();
+        checkOncoKbTranscriptSequenceAcrossRG();
+        //        importGeneFragments();
     }
 
-    private void importOncoKbSequences() throws ApiException {
+    private void importCanonicalEnsemblGenes() {
+        List<org.mskcc.oncokb.transcript.domain.Gene> genes = geneService.findAll();
+        for (ReferenceGenome rg : ReferenceGenome.values()) {
+            for (org.mskcc.oncokb.transcript.domain.Gene gene : genes) {
+                mainService.createCanonicalEnsemblGene(rg, gene.getEntrezGeneId());
+            }
+        }
+    }
+
+    private void importCanonicalEnsemblTranscripts() throws ApiException {
         List<Gene> genes = oncoKbUrlService.getGenes();
-        for (Gene gene : genes) {
-            // Add grch37 sequence
-            if (
-                !transcriptService
-                    .findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome.GRCh37, gene.getGrch37Isoform())
-                    .isPresent() &&
-                StringUtils.isNotEmpty(gene.getGrch37Isoform())
-            ) {
-                Optional<org.genome_nexus.client.EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(
-                    gene.getGrch37Isoform(),
+        for (int i = 0; i < genes.size(); i++) {
+            Gene gene = genes.get(i);
+            if (i % 100 == 0) {
+                log.info("Processing index {}", i);
+            }
+            // import canonical GRCh37 transcript
+            mainService.createTranscript(ReferenceGenome.GRCh37, gene.getGrch37Isoform(), gene.getEntrezGeneId(), true);
+            // import canonical GRCh38 transcript
+            mainService.createTranscript(ReferenceGenome.GRCh38, gene.getGrch38Isoform(), gene.getEntrezGeneId(), true);
+        }
+    }
+
+    private void checkOncoKbEnsemblGenes() throws ApiException {
+        for (Gene gene : oncoKbUrlService.getGenes()) {
+            // check grch37
+            Optional<org.mskcc.oncokb.transcript.domain.Gene> geneOptional = geneService.findGeneByEntrezGeneId(gene.getEntrezGeneId());
+            if (geneOptional.isEmpty()) {
+                log.error("The OncoKB gene does not exist in transcript {}:{}", gene.getEntrezGeneId(), gene.getHugoSymbol());
+            } else {
+                // grch37
+                List<EnsemblGene> ensembl37Genes = ensemblGeneService.findAllByGeneAndReferenceGenome(
+                    geneOptional.get(),
                     ReferenceGenome.GRCh37
                 );
-                if (ensemblTranscriptOptional.isPresent()) {
-                    org.genome_nexus.client.EnsemblTranscript ensemblTranscript = ensemblTranscriptOptional.get();
-                    Optional<TranscriptDTO> savedGrch37TranscriptOptional = transcriptService.createTranscript(
+                if (ensembl37Genes.size() > 0) {
+                    ensembl37Genes.forEach(ensemblGene ->
+                        log.info("Gene {}:{}, {}", gene.getEntrezGeneId(), gene.getHugoSymbol(), ensemblGene)
+                    );
+                } else {
+                    log.error(
+                        "No ensembl gene found for gene {} {}:{}",
                         ReferenceGenome.GRCh37,
                         gene.getEntrezGeneId(),
-                        gene.getHugoSymbol(),
-                        ensemblTranscript.getTranscriptId(),
-                        ensemblTranscript.getProteinId(),
-                        ensemblTranscript.getRefseqMrnaId(),
-                        null
+                        gene.getHugoSymbol()
                     );
-                    if (savedGrch37TranscriptOptional.isPresent()) {
-                        addTranscriptUsage(savedGrch37TranscriptOptional.get());
-                    }
                 }
-            }
-
-            // Add grch38 sequence
-            if (
-                !transcriptService
-                    .findByReferenceGenomeAndEnsemblTranscriptId(ReferenceGenome.GRCh38, gene.getGrch38Isoform())
-                    .isPresent() &&
-                StringUtils.isNotEmpty(gene.getGrch38Isoform())
-            ) {
-                Optional<org.genome_nexus.client.EnsemblTranscript> ensemblTranscriptOptional = transcriptService.getEnsemblTranscript(
-                    gene.getGrch38Isoform(),
+                // grch38
+                List<EnsemblGene> ensembl38Genes = ensemblGeneService.findAllByGeneAndReferenceGenome(
+                    geneOptional.get(),
                     ReferenceGenome.GRCh38
                 );
-                if (ensemblTranscriptOptional.isPresent()) {
-                    org.genome_nexus.client.EnsemblTranscript ensemblTranscript = ensemblTranscriptOptional.get();
-                    Optional<TranscriptDTO> savedGrch38TranscriptOptional = transcriptService.createTranscript(
+                if (ensembl38Genes.size() > 0) {
+                    ensembl38Genes.forEach(ensemblGene ->
+                        log.info("Gene {}:{}, {}", gene.getEntrezGeneId(), gene.getHugoSymbol(), ensemblGene)
+                    );
+                } else {
+                    log.error(
+                        "No ensembl gene found for gene {} {}:{}",
                         ReferenceGenome.GRCh38,
                         gene.getEntrezGeneId(),
-                        gene.getHugoSymbol(),
-                        ensemblTranscript.getTranscriptId(),
-                        ensemblTranscript.getProteinId(),
-                        ensemblTranscript.getRefseqMrnaId(),
-                        null
+                        gene.getHugoSymbol()
                     );
-                    if (savedGrch38TranscriptOptional.isPresent()) {
-                        addTranscriptUsage(savedGrch38TranscriptOptional.get());
-                    }
                 }
             }
         }
     }
 
-    /**
-     * Import gene fragments for all transcripts in the database
-     */
-    private void importGeneFragments() {
-        List<TranscriptDTO> transcriptDTOs = transcriptService.findAll();
-        for (ReferenceGenome rg : ReferenceGenome.values()) {
-            List<String> transcriptIds = transcriptDTOs
-                .stream()
-                .filter(transcriptDTO -> transcriptDTO.getReferenceGenome().equals(rg))
-                .map(TranscriptDTO::getEnsemblTranscriptId)
-                .collect(Collectors.toList());
-            List<EnsemblTranscript> ensemblTranscriptList = transcriptService.getTranscriptInfo(rg, transcriptIds);
-
-            ensemblTranscriptList.forEach(transcript -> {
-                Optional<TranscriptDTO> transcriptDTOOptional = transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(
-                    rg,
-                    transcript.getId()
+    private void checkOncoKbTranscriptSequenceAcrossRG() throws ApiException {
+        for (Gene gene : oncoKbUrlService.getGenes()) {
+            if (gene.getEntrezGeneId() <= 0) {
+                continue;
+            }
+            // check grch37
+            Optional<org.mskcc.oncokb.transcript.domain.Gene> geneOptional = geneService.findGeneByEntrezGeneId(gene.getEntrezGeneId());
+            if (geneOptional.isEmpty()) {
+                log.error("The OncoKB gene does not exist in transcript {}:{}", gene.getEntrezGeneId(), gene.getHugoSymbol());
+            } else {
+                log.info("Checking gene {}:{}", gene.getEntrezGeneId(), gene.getHugoSymbol());
+                Optional<TranscriptDTO> grch37TranscriptDtoOptional = transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(
+                    ReferenceGenome.GRCh37,
+                    gene.getGrch37Isoform()
                 );
-                if (transcriptDTOOptional.isPresent()) {
-                    TranscriptDTO transcriptDTO = transcriptDTOOptional.get();
-                    transcriptService.createTranscript(
-                        transcriptDTO.getReferenceGenome(),
-                        transcriptDTO.getEntrezGeneId(),
-                        transcriptDTO.getHugoSymbol(),
-                        transcriptDTO.getEnsemblTranscriptId(),
-                        transcriptDTO.getEnsemblProteinId(),
-                        transcriptDTO.getReferenceSequenceId(),
-                        transcript
-                    );
-                }
-            });
-        }
-    }
+                Optional<TranscriptDTO> grch38TranscriptDtoOptional = transcriptService.findByReferenceGenomeAndEnsemblTranscriptId(
+                    ReferenceGenome.GRCh38,
+                    gene.getGrch38Isoform()
+                );
 
-    private void addTranscriptUsage(TranscriptDTO transcriptDTO) {
-        TranscriptUsage transcriptUsage = new TranscriptUsage();
-        transcriptUsage.setSource(UsageSource.ONCOKB);
-        transcriptUsage.setTranscript(transcriptMapper.toEntity(transcriptDTO));
-        transcriptUsageService.save(transcriptUsage);
+                Optional<Sequence> sequenceGrch37Optional = Optional.empty();
+                Optional<Sequence> sequenceGrch38Optional = Optional.empty();
+                if (grch37TranscriptDtoOptional.isEmpty()) {
+                    log.warn("\tNo GRCh37 transcript available");
+                } else {
+                    sequenceGrch37Optional =
+                        sequenceService.findOneByTranscriptAndSequenceType(
+                            transcriptMapper.toEntity(grch37TranscriptDtoOptional.get()),
+                            SequenceType.PROTEIN
+                        );
+                    if (sequenceGrch37Optional.isEmpty()) {
+                        log.warn("\t\tNo GRCh37 transcript sequence");
+                    }
+                }
+                if (grch38TranscriptDtoOptional.isEmpty()) {
+                    log.warn("\tNo GRCh38 transcript available");
+                } else {
+                    sequenceGrch38Optional =
+                        sequenceService.findOneByTranscriptAndSequenceType(
+                            transcriptMapper.toEntity(grch38TranscriptDtoOptional.get()),
+                            SequenceType.PROTEIN
+                        );
+                    if (sequenceGrch38Optional.isEmpty()) {
+                        log.warn("\t\tNo GRCh38 transcript sequence");
+                    }
+                }
+
+                if (sequenceGrch37Optional.isPresent() && sequenceGrch38Optional.isPresent()) {
+                    if (sequenceGrch37Optional.get().getSequence().equals(sequenceGrch38Optional.get().getSequence())) {
+                        log.info("\t\t Sequences match");
+                    } else {
+                        log.warn("\t\t Sequences do not match");
+                        log.info(
+                            "\t\t\t Alignment penalty {}",
+                            alignmentService
+                                .calcOptimalAlignment(
+                                    sequenceGrch37Optional.get().getSequence(),
+                                    sequenceGrch38Optional.get().getSequence(),
+                                    false
+                                )
+                                .getPenalty()
+                        );
+                    }
+                }
+            }
+        }
     }
 }
