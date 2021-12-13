@@ -45,7 +45,7 @@ public class SequenceController {
         this.sequenceService = sequenceService;
     }
 
-    @GetMapping("/find-canonical-sequence")
+    @GetMapping("/find-canonical-sequences")
     public Sequence findCanonicalSequence(
         @RequestParam ReferenceGenome referenceGenome,
         @RequestParam Integer entrezGeneId,
