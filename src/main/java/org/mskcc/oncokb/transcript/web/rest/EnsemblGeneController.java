@@ -25,7 +25,7 @@ public class EnsemblGeneController {
     }
 
     @PostMapping("/add-ensembl-gene")
-    public ResponseEntity<EnsemblGene> addTranscript(
+    public ResponseEntity<EnsemblGene> addEnsemblGene(
         @RequestParam ReferenceGenome referenceGenome,
         @RequestParam int entrezGeneId,
         @RequestParam String ensemblGeneId,

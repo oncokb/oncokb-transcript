@@ -32,13 +32,13 @@ public class GeneController {
      * @param symbol the id of the gene to retrieve.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the gene, or with status {@code 404 (Not Found)}.
      */
-    @GetMapping("/find-gene")
+    @GetMapping("/find-genes")
     public ResponseEntity<Gene> findGeneBySymbol(@RequestParam String symbol) {
         log.debug("REST request to find Gene : {}", symbol);
         return new ResponseEntity<>(getGeneBySymbol(symbol).orElse(null), HttpStatus.OK);
     }
 
-    @PostMapping("/find-gene")
+    @PostMapping("/find-genes")
     public ResponseEntity<Set<Gene>> findGenesBySymbols(@RequestBody List<String> body) {
         Set<Gene> genes = new HashSet<>();
         if (body != null) {
