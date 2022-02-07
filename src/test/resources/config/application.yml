@@ -55,6 +55,10 @@ spring:
     allow-bean-definition-overriding: true
   messages:
     basename: i18n/messages
+  security:
+    user:
+      name: test
+      password: test
   task:
     execution:
       thread-name-prefix: oncokb-transcript-task-

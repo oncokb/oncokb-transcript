@@ -23,7 +23,7 @@ management:
           ['configprops', 'env', 'health', 'info', 'jhimetrics', 'logfile', 'loggers', 'prometheus', 'threaddump', 'caches', 'liquibase']
   endpoint:
     health:
-      show-details: when_authorized
+      show-details: WHEN_AUTHORIZED
       roles: 'ROLE_ADMIN'
       probes:
         enabled: true
@@ -109,6 +109,13 @@ spring:
     basename: i18n/messages
   main:
     allow-bean-definition-overriding: true
+  security:
+    user:
+      name: admin
+      password: admin
+      roles:
+        - ADMIN
+        - USER
   task:
     execution:
       thread-name-prefix: oncokb-transcript-task-
@@ -125,6 +132,9 @@ spring:
   output:
     ansi:
       console-available: true
+  jackson:
+    mapper:
+      accept-case-insensitive-enums: true
 
 server:
   servlet:
@@ -179,4 +189,5 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+application:
+  name: oncokb-transcript

@@ -1,7 +1,5 @@
 package org.mskcc.oncokb.transcript.config;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 
 import org.mskcc.oncokb.transcript.service.MailService;
@@ -15,7 +13,6 @@ public class NoOpMailConfiguration {
 
     public NoOpMailConfiguration() {
         mockMailService = mock(MailService.class);
-        doNothing().when(mockMailService).sendActivationEmail(any());
     }
 
     @Bean

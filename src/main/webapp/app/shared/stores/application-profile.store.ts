@@ -4,7 +4,6 @@ import { IRootStore } from 'app/shared/stores';
 import axios, { AxiosResponse } from 'axios';
 
 export class ApplicationProfileStore extends BaseStore {
-  public ribbonEnv = '';
   public isInProduction = true;
   public isOpenAPIEnabled = false;
 
@@ -14,7 +13,6 @@ export class ApplicationProfileStore extends BaseStore {
     super(rootStore);
 
     makeObservable(this, {
-      ribbonEnv: observable,
       isInProduction: observable,
       isOpenAPIEnabled: observable,
       getProfile: action,
@@ -23,7 +21,6 @@ export class ApplicationProfileStore extends BaseStore {
 
   *getProfileGen() {
     const result: AxiosResponse = yield axios.get('/management/info');
-    this.ribbonEnv = result.data['display-ribbon-on-profiles'];
     this.isInProduction = result.data.activeProfiles.includes('prod');
     this.isOpenAPIEnabled = result.data.activeProfiles.includes('api-docs');
     return result;

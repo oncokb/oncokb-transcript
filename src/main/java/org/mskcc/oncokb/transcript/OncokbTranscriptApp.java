@@ -8,8 +8,11 @@ import java.util.Optional;
 import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.transcript.config.ApplicationProperties;
+import org.mskcc.oncokb.transcript.importer.Importer;
+import org.oncokb.ApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
@@ -21,6 +24,9 @@ import tech.jhipster.config.JHipsterConstants;
 @SpringBootApplication
 @EnableConfigurationProperties({ LiquibaseProperties.class, ApplicationProperties.class })
 public class OncokbTranscriptApp {
+
+    @Autowired
+    private Importer importer;
 
     private static final Logger log = LoggerFactory.getLogger(OncokbTranscriptApp.class);
 
@@ -55,6 +61,16 @@ public class OncokbTranscriptApp {
             log.error(
                 "You have misconfigured your application! It should not " + "run with both the 'dev' and 'cloud' profiles at the same time."
             );
+        }
+    }
+
+    @PostConstruct
+    public void importOncoKbSequence() throws ApiException {
+        Collection<String> activeProfiles = Arrays.asList(
+            env.getActiveProfiles().length == 0 ? env.getDefaultProfiles() : env.getActiveProfiles()
+        );
+        if (activeProfiles.contains("importer")) {
+            importer.generalImport();
         }
     }
 

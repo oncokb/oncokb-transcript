@@ -36,7 +36,6 @@ export const App = (props: IAppProps) => {
           <Header
             isAuthenticated={props.isAuthenticated}
             isAdmin={props.isAdmin}
-            ribbonEnv={props.ribbonEnv}
             isInProduction={props.isInProduction}
             isOpenAPIEnabled={props.isOpenAPIEnabled}
           />
@@ -57,7 +56,6 @@ export const App = (props: IAppProps) => {
 const mapStoreToProps = ({ authStore, profileStore }: IRootStore) => ({
   isAuthenticated: authStore.isAuthenticated,
   isAdmin: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.ADMIN]),
-  ribbonEnv: profileStore.ribbonEnv,
   isInProduction: profileStore.isInProduction,
   isOpenAPIEnabled: profileStore.isOpenAPIEnabled,
   getSession: authStore.getSession,
