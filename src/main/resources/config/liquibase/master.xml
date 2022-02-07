@@ -2,7 +2,7 @@
 <databaseChangeLog
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.5.xsd">
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
 
     <property name="now" value="now()" dbms="h2"/>
     <property name="now" value="now()" dbms="mysql, mariadb"/>
@@ -15,22 +15,7 @@
     <property name="datetimeType" value="datetime" dbms="oracle, mssql, postgresql, h2"/>
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20210129192153_added_entity_Sequence.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20210201194018_added_entity_Transcript.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20210421184924_added_entity_Drug.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20210421184925_added_entity_DrugSynonym.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20210421184926_added_entity_Info.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20210503173531_added_entity_Gene.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20210503173532_added_entity_GeneAlias.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20211118024252_added_entity_GenomeFragment.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20211130002704_added_entity_EnsemblGene.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
-    <include file="config/liquibase/changelog/20210129192153_added_entity_constraints_Sequence.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20210421184925_added_entity_constraints_DrugSynonym.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20210503173532_added_entity_constraints_GeneAlias.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20211118024252_added_entity_constraints_GenomeFragment.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20211130002704_added_entity_constraints_EnsemblGene.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20210201194018_added_entity_constraints_Transcript.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>

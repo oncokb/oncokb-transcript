@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'app/shared/util/typed-inject';
 import { Table, Input, Row, Col, Badge } from 'reactstrap';
 
-import { getConfigurations, getEnv } from '../administration.reducer';
-import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { IRootStore } from 'app/shared/stores';
 
-export const ConfigurationPage = () => {
+export type IConfigurationPageProps = StoreProps;
+
+export const ConfigurationPage = (props: IConfigurationPageProps) => {
   const [filter, setFilter] = useState('');
   const [reversePrefix, setReversePrefix] = useState(false);
   const [reverseProperties, setReverseProperties] = useState(false);
-  const dispatch = useAppDispatch();
-
-  const configuration = useAppSelector(state => state.administration.configuration);
+  const configuration = props.configuration;
 
   useEffect(() => {
-    dispatch(getConfigurations());
-    dispatch(getEnv());
+    props.getConfigurations();
+    props.getEnv();
   }, []);
 
   const changeFilter = evt => setFilter(evt.target.value);
@@ -105,4 +105,13 @@ export const ConfigurationPage = () => {
   );
 };
 
-export default ConfigurationPage;
+const mapStoreToProps = ({ adminStore }: IRootStore) => ({
+  configuration: adminStore.configuration,
+  isFetching: adminStore.loading,
+  getConfigurations: adminStore.getConfigurations,
+  getEnv: adminStore.getEnv,
+});
+
+type StoreProps = ReturnType<typeof mapStoreToProps>;
+
+export default connect(mapStoreToProps)(ConfigurationPage);

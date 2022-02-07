@@ -1,4 +1,6 @@
 import React, { useEffect } from 'react';
+import { connect } from 'app/shared/util/typed-inject';
+import { IRootStore } from 'app/shared/stores';
 import { Button, Col, Row } from 'reactstrap';
 import {
   CacheMetrics,
@@ -13,24 +15,21 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { APP_TIMESTAMP_FORMAT, APP_TWO_DIGITS_AFTER_POINT_NUMBER_FORMAT, APP_WHOLE_NUMBER_FORMAT } from 'app/config/constants';
-import { getSystemMetrics, getSystemThreadDump } from '../administration.reducer';
-import { useAppDispatch, useAppSelector } from 'app/config/store';
 
-export const MetricsPage = () => {
-  const dispatch = useAppDispatch();
-  const metrics = useAppSelector(state => state.administration.metrics);
-  const isFetching = useAppSelector(state => state.administration.loading);
-  const threadDump = useAppSelector(state => state.administration.threadDump);
+export type IMetricsPageProps = StoreProps;
+
+export const MetricsPage = (props: IMetricsPageProps) => {
+  const { metrics, threadDump, isFetching } = props;
 
   useEffect(() => {
-    dispatch(getSystemMetrics());
-    dispatch(getSystemThreadDump());
+    props.systemMetrics();
+    props.systemThreadDump();
   }, []);
 
   const getMetrics = () => {
     if (!isFetching) {
-      dispatch(getSystemMetrics());
-      dispatch(getSystemThreadDump());
+      props.systemMetrics();
+      props.systemThreadDump();
     }
   };
 
@@ -113,4 +112,14 @@ export const MetricsPage = () => {
   );
 };
 
-export default MetricsPage;
+const mapStoreToProps = (storeState: IRootStore) => ({
+  metrics: storeState.adminStore.metrics,
+  isFetching: storeState.adminStore.loading,
+  threadDump: storeState.adminStore.threadDump,
+  systemMetrics: storeState.adminStore.systemMetrics,
+  systemThreadDump: storeState.adminStore.systemThreadDump,
+});
+
+type StoreProps = ReturnType<typeof mapStoreToProps>;
+
+export default connect(mapStoreToProps)(MetricsPage);

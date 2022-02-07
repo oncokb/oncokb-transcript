@@ -1,27 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'app/shared/util/typed-inject';
 
 import { Table, Badge, Col, Row, Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { IRootStore } from 'app/shared/stores';
 import HealthModal from './health-modal';
-import { getSystemHealth } from '../administration.reducer';
 
-export const HealthPage = () => {
+export type IHealthPageProps = StoreProps;
+
+export const HealthPage = (props: IHealthPageProps) => {
   const [healthObject, setHealthObject] = useState({});
   const [showModal, setShowModal] = useState(false);
-  const dispatch = useAppDispatch();
-
-  const health = useAppSelector(state => state.administration.health);
-  const isFetching = useAppSelector(state => state.administration.loading);
+  const { health, isFetching } = props;
 
   useEffect(() => {
-    dispatch(getSystemHealth());
+    props.systemHealth();
   }, []);
 
   const fetchSystemHealth = () => {
     if (!isFetching) {
-      dispatch(getSystemHealth());
+      props.systemHealth();
     }
   };
 
@@ -86,4 +85,12 @@ export const HealthPage = () => {
   );
 };
 
-export default HealthPage;
+const mapStoreToProps = (storeState: IRootStore) => ({
+  health: storeState.adminStore.health,
+  isFetching: storeState.adminStore.loading,
+  systemHealth: storeState.adminStore.systemHealth,
+});
+
+type StoreProps = ReturnType<typeof mapStoreToProps>;
+
+export default connect(mapStoreToProps)(HealthPage);

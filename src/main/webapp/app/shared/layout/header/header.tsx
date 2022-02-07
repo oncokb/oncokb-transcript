@@ -3,10 +3,11 @@ import './header.scss';
 import React, { useState } from 'react';
 
 import { Navbar, Nav, NavbarToggler, Collapse } from 'reactstrap';
-import LoadingBar from 'react-redux-loading-bar';
 
 import { Home, Brand } from './header-components';
 import { AdminMenu, EntitiesMenu, AccountMenu } from '../menus';
+import { IRootStore } from 'app/shared/stores';
+import { connect } from 'app/shared/util/typed-inject';
 
 export interface IHeaderProps {
   isAuthenticated: boolean;
@@ -16,7 +17,7 @@ export interface IHeaderProps {
   isOpenAPIEnabled: boolean;
 }
 
-const Header = (props: IHeaderProps) => {
+export const Header = (props: IHeaderProps & StoreProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const renderDevRibbon = () =>
@@ -33,7 +34,9 @@ const Header = (props: IHeaderProps) => {
   return (
     <div id="app-header">
       {renderDevRibbon()}
-      <LoadingBar className="loading-bar" />
+      <div className="simple__loading__container">
+        <div className={'simple__loading__bar ' + (props.count === 0 ? 'simple__loading__bar--done ' : '')}></div>
+      </div>
       <Navbar data-cy="navbar" dark expand="sm" fixed="top" className="jh-navbar">
         <NavbarToggler aria-label="Menu" onClick={toggleMenu} />
         <Brand />
@@ -50,4 +53,10 @@ const Header = (props: IHeaderProps) => {
   );
 };
 
-export default Header;
+const mapStoreToProps = ({ loadingStore }: IRootStore) => ({
+  count: loadingStore.count,
+});
+
+type StoreProps = ReturnType<typeof mapStoreToProps>;
+
+export default connect(mapStoreToProps)(Header);

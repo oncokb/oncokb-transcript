@@ -1,15 +1,15 @@
 import 'react-toastify/dist/ReactToastify.css';
 import './app.scss';
 import 'app/config/dayjs.ts';
-
+import 'mobx-react-lite/batchingForReactDom';
 import React, { useEffect } from 'react';
+import { componentInject } from 'app/shared/util/typed-inject';
+import { observer } from 'mobx-react';
 import { Card } from 'reactstrap';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 
-import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { getSession } from 'app/shared/reducers/authentication';
-import { getProfile } from 'app/shared/reducers/application-profile';
+import { IRootStore } from 'app/shared/stores';
 import Header from 'app/shared/layout/header/header';
 import Footer from 'app/shared/layout/footer/footer';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
@@ -19,19 +19,13 @@ import AppRoutes from 'app/routes';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
-export const App = () => {
-  const dispatch = useAppDispatch();
+export type IAppProps = StoreProps;
 
+export const App = (props: IAppProps) => {
   useEffect(() => {
-    dispatch(getSession());
-    dispatch(getProfile());
+    props.getSession();
+    props.getProfile();
   }, []);
-
-  const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
-  const isAdmin = useAppSelector(state => hasAnyAuthority(state.authentication.account.authorities, [AUTHORITIES.ADMIN]));
-  const ribbonEnv = useAppSelector(state => state.applicationProfile.ribbonEnv);
-  const isInProduction = useAppSelector(state => state.applicationProfile.inProduction);
-  const isOpenAPIEnabled = useAppSelector(state => state.applicationProfile.isOpenAPIEnabled);
 
   const paddingTop = '60px';
   return (
@@ -40,11 +34,11 @@ export const App = () => {
         <ToastContainer position={toast.POSITION.TOP_LEFT} className="toastify-container" toastClassName="toastify-toast" />
         <ErrorBoundary>
           <Header
-            isAuthenticated={isAuthenticated}
-            isAdmin={isAdmin}
-            ribbonEnv={ribbonEnv}
-            isInProduction={isInProduction}
-            isOpenAPIEnabled={isOpenAPIEnabled}
+            isAuthenticated={props.isAuthenticated}
+            isAdmin={props.isAdmin}
+            ribbonEnv={props.ribbonEnv}
+            isInProduction={props.isInProduction}
+            isOpenAPIEnabled={props.isOpenAPIEnabled}
           />
         </ErrorBoundary>
         <div className="container-fluid view-container" id="app-view-container">
@@ -60,4 +54,16 @@ export const App = () => {
   );
 };
 
-export default App;
+const mapStoreToProps = ({ authStore, profileStore }: IRootStore) => ({
+  isAuthenticated: authStore.isAuthenticated,
+  isAdmin: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.ADMIN]),
+  ribbonEnv: profileStore.ribbonEnv,
+  isInProduction: profileStore.isInProduction,
+  isOpenAPIEnabled: profileStore.isOpenAPIEnabled,
+  getSession: authStore.getSession,
+  getProfile: profileStore.getProfile,
+});
+
+type StoreProps = ReturnType<typeof mapStoreToProps>;
+
+export default componentInject(mapStoreToProps)(observer(App));

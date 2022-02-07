@@ -1,14 +1,16 @@
 import React, { useLayoutEffect } from 'react';
+import { connect } from 'app/shared/util/typed-inject';
 
-import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { logout } from 'app/shared/reducers/authentication';
+import { IRootStore } from 'app/shared/stores';
 
-export const Logout = () => {
-  const logoutUrl = useAppSelector(state => state.authentication.logoutUrl);
-  const dispatch = useAppDispatch();
+export interface ILogoutProps extends StoreProps {
+  logoutUrl: string;
+}
 
+export const Logout = (props: ILogoutProps) => {
   useLayoutEffect(() => {
-    dispatch(logout());
+    props.logout();
+    const { logoutUrl } = props;
     if (logoutUrl) {
       window.location.href = logoutUrl;
     }
@@ -21,4 +23,11 @@ export const Logout = () => {
   );
 };
 
-export default Logout;
+const mapStoreToProps = (storeState: IRootStore) => ({
+  logoutUrl: storeState.authStore.logoutUrl,
+  logout: storeState.authStore.logout,
+});
+
+type StoreProps = ReturnType<typeof mapStoreToProps>;
+
+export default connect(mapStoreToProps)(Logout);

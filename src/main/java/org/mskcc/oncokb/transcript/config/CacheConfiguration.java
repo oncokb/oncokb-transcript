@@ -1,124 +1,91 @@
 package org.mskcc.oncokb.transcript.config;
 
+import java.net.URI;
 import java.util.concurrent.TimeUnit;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
-import org.mskcc.oncokb.meta.enumeration.RedisType;
-import org.mskcc.oncokb.transcript.config.cache.*;
 import org.redisson.Redisson;
-import org.redisson.api.RedissonClient;
+import org.redisson.config.ClusterServersConfig;
 import org.redisson.config.Config;
+import org.redisson.config.SingleServerConfig;
 import org.redisson.jcache.configuration.RedissonConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.cache.JCacheManagerCustomizer;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.info.GitProperties;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.interceptor.CacheResolver;
 import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.context.annotation.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tech.jhipster.config.JHipsterProperties;
 import tech.jhipster.config.cache.PrefixedKeyGenerator;
 
 @Configuration
 @EnableCaching
-@ConditionalOnProperty(prefix = "application.redis", name = "enabled", havingValue = "true")
 public class CacheConfiguration {
 
     private GitProperties gitProperties;
     private BuildProperties buildProperties;
 
     @Bean
-    public RedissonClient redissonClient(org.mskcc.oncokb.meta.model.application.ApplicationProperties applicationProperties)
-        throws Exception {
-        Config config = new Config();
-        if (applicationProperties.getRedis().getType().equals(RedisType.SINGLE.getType())) {
-            config
-                .useSingleServer()
-                .setAddress(applicationProperties.getRedis().getAddress())
-                .setPassword(applicationProperties.getRedis().getPassword());
-        } else if (applicationProperties.getRedis().getType().equals(RedisType.SENTINEL.getType())) {
-            config
-                .useSentinelServers()
-                .setMasterName(applicationProperties.getRedis().getSentinelMasterName())
-                .setCheckSentinelsList(false)
-                .addSentinelAddress(applicationProperties.getRedis().getAddress())
-                .setPassword(applicationProperties.getRedis().getPassword());
-        } else {
-            throw new Exception(
-                "The redis type " +
-                applicationProperties.getRedis().getType() +
-                " is not supported. Only single and sentinel are supported."
-            );
-        }
-        return Redisson.create(config);
-    }
-
-    @Bean
-    public javax.cache.configuration.Configuration<Object, Object> jcacheConfiguration(
-        org.mskcc.oncokb.meta.model.application.ApplicationProperties applicationProperties,
-        RedissonClient redissonClient
-    ) {
+    public javax.cache.configuration.Configuration<Object, Object> jcacheConfiguration(JHipsterProperties jHipsterProperties) {
         MutableConfiguration<Object, Object> jcacheConfig = new MutableConfiguration<>();
+
+        URI redisUri = URI.create(jHipsterProperties.getCache().getRedis().getServer()[0]);
+
+        Config config = new Config();
+        if (jHipsterProperties.getCache().getRedis().isCluster()) {
+            ClusterServersConfig clusterServersConfig = config
+                .useClusterServers()
+                .setMasterConnectionPoolSize(jHipsterProperties.getCache().getRedis().getConnectionPoolSize())
+                .setMasterConnectionMinimumIdleSize(jHipsterProperties.getCache().getRedis().getConnectionMinimumIdleSize())
+                .setSubscriptionConnectionPoolSize(jHipsterProperties.getCache().getRedis().getSubscriptionConnectionPoolSize())
+                .addNodeAddress(jHipsterProperties.getCache().getRedis().getServer());
+
+            if (redisUri.getUserInfo() != null) {
+                clusterServersConfig.setPassword(redisUri.getUserInfo().substring(redisUri.getUserInfo().indexOf(':') + 1));
+            }
+        } else {
+            SingleServerConfig singleServerConfig = config
+                .useSingleServer()
+                .setConnectionPoolSize(jHipsterProperties.getCache().getRedis().getConnectionPoolSize())
+                .setConnectionMinimumIdleSize(jHipsterProperties.getCache().getRedis().getConnectionMinimumIdleSize())
+                .setSubscriptionConnectionPoolSize(jHipsterProperties.getCache().getRedis().getSubscriptionConnectionPoolSize())
+                .setAddress(jHipsterProperties.getCache().getRedis().getServer()[0]);
+
+            if (redisUri.getUserInfo() != null) {
+                singleServerConfig.setPassword(redisUri.getUserInfo().substring(redisUri.getUserInfo().indexOf(':') + 1));
+            }
+        }
         jcacheConfig.setStatisticsEnabled(true);
         jcacheConfig.setExpiryPolicyFactory(
-            CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, applicationProperties.getRedis().getExpiration()))
+            CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, jHipsterProperties.getCache().getRedis().getExpiration()))
         );
-        return RedissonConfiguration.fromInstance(redissonClient, jcacheConfig);
-    }
-
-    private void createCache(
-        javax.cache.CacheManager cm,
-        CacheCategory cacheCategory,
-        String cacheName,
-        javax.cache.configuration.Configuration<Object, Object> jcacheConfiguration,
-        CacheNameResolver cacheNameResolver
-    ) {
-        javax.cache.Cache<Object, Object> cache = cm.getCache(cacheName);
-        if (cache == null) {
-            cm.createCache(cacheNameResolver.getCacheName(cacheCategory, cacheName), jcacheConfiguration);
-        }
+        return RedissonConfiguration.fromInstance(Redisson.create(config), jcacheConfig);
     }
 
     @Bean
-    public JCacheManagerCustomizer cacheManagerCustomizer(
-        javax.cache.configuration.Configuration<Object, Object> jcacheConfiguration,
-        CacheNameResolver cacheNameResolver
-    ) {
+    public JCacheManagerCustomizer cacheManagerCustomizer(javax.cache.configuration.Configuration<Object, Object> jcacheConfiguration) {
         return cm -> {
-            createCache(cm, CacheCategory.GENE, CacheKeys.GENES_BY_ENTREZ_GENE_ID, jcacheConfiguration, cacheNameResolver);
-            createCache(cm, CacheCategory.GENE, CacheKeys.GENES_BY_HUGO_SYMBOL, jcacheConfiguration, cacheNameResolver);
-            createCache(cm, CacheCategory.GENE, CacheKeys.GENE_ALIASES_BY_NAME, jcacheConfiguration, cacheNameResolver);
-            createCache(
-                cm,
-                CacheCategory.TRANSCRIPT,
-                CacheKeys.TRANSCRIPTS_BY_ENSEMBL_TRANSCRIPT_IDS,
-                jcacheConfiguration,
-                cacheNameResolver
-            );
+            createCache(cm, org.mskcc.oncokb.transcript.repository.UserRepository.USERS_BY_LOGIN_CACHE, jcacheConfiguration);
+            createCache(cm, org.mskcc.oncokb.transcript.repository.UserRepository.USERS_BY_EMAIL_CACHE, jcacheConfiguration);
             // jhipster-needle-redis-add-entry
         };
     }
 
-    @Bean
-    public CacheResolver geneCacheResolver(
-        CacheManager cm,
-        ApplicationProperties applicationProperties,
-        CacheNameResolver cacheNameResolver
+    private void createCache(
+        javax.cache.CacheManager cm,
+        String cacheName,
+        javax.cache.configuration.Configuration<Object, Object> jcacheConfiguration
     ) {
-        return new GeneCacheResolver(cm, applicationProperties, cacheNameResolver);
-    }
-
-    @Bean
-    public CacheResolver transcriptCacheResolver(
-        CacheManager cm,
-        ApplicationProperties applicationProperties,
-        CacheNameResolver cacheNameResolver
-    ) {
-        return new TranscriptCacheResolver(cm, applicationProperties, cacheNameResolver);
+        javax.cache.Cache<Object, Object> cache = cm.getCache(cacheName);
+        if (cache != null) {
+            cache.clear();
+        } else {
+            cm.createCache(cacheName, jcacheConfiguration);
+        }
     }
 
     @Autowired(required = false)

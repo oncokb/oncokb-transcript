@@ -16,20 +16,6 @@
     <script src="./axios.min.js"></script>
 
     <script type="text/javascript">
-      const AlwaysEnableTryItOutPlugin = function (system) {
-        const OperationContainer = system.getComponents('OperationContainer');
-        return {
-          components: {
-            TryItOutButton: () => null,
-            OperationContainer: class CustomOperationContainer extends OperationContainer {
-              constructor(...args) {
-                super(...args);
-                this.state.tryItOutEnabled = true;
-              }
-            },
-          },
-        };
-      };
       window.onload = function () {
         var urls = [];
         axios.get('/swagger-resources').then(function (response) {
@@ -40,10 +26,6 @@
           urls.sort(function (a, b) {
             var x = a.name.toLowerCase(),
               y = b.name.toLowerCase();
-            if (x.includes('(default)')) return -1;
-            if (y.includes('(default)')) return 1;
-            if (x.includes('(management)')) return -1;
-            if (y.includes('(management)')) return 1;
             return x < y ? -1 : x > y ? 1 : 0;
           });
 
@@ -56,19 +38,13 @@
             layout: 'StandaloneLayout',
             withCredentials: true,
             presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
-            plugins: [SwaggerUIBundle.plugins.DownloadUrl, AlwaysEnableTryItOutPlugin],
+            plugins: [SwaggerUIBundle.plugins.DownloadUrl],
             requestInterceptor: function (req) {
-              var authToken = localStorage.getItem('jhi-authenticationToken') || sessionStorage.getItem('jhi-authenticationToken');
+              var authToken = JSON.parse(
+                localStorage.getItem('jhi-authenticationToken') || sessionStorage.getItem('jhi-authenticationToken')
+              );
               if (authToken) {
-                authToken = JSON.parse(authToken);
                 req.headers['Authorization'] = 'Bearer ' + authToken;
-              }
-              // Remove the sample Swagger UI request body if present
-              if (
-                req.method === 'GET' &&
-                req.body === '{"additionalProp1":"string","additionalProp2":"string","additionalProp3":"string"}'
-              ) {
-                req.body = undefined;
               }
               return req;
             },

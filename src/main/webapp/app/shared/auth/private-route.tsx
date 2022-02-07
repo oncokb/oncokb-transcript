@@ -1,17 +1,24 @@
 import React from 'react';
+import { connect } from 'app/shared/util/typed-inject';
 import { Route, Redirect, RouteProps } from 'react-router-dom';
 
-import { useAppSelector } from 'app/config/store';
+import { IRootStore } from 'app/shared/stores';
 import ErrorBoundary from 'app/shared/error/error-boundary';
 
 interface IOwnProps extends RouteProps {
   hasAnyAuthorities?: string[];
 }
 
-export const PrivateRouteComponent = ({ component: Component, hasAnyAuthorities = [], ...rest }: IOwnProps) => {
-  const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
-  const sessionHasBeenFetched = useAppSelector(state => state.authentication.sessionHasBeenFetched);
-  const account = useAppSelector(state => state.authentication.account);
+export interface IPrivateRouteProps extends IOwnProps, StoreProps {}
+
+export const PrivateRouteComponent = ({
+  component: Component,
+  isAuthenticated,
+  sessionHasBeenFetched,
+  account,
+  hasAnyAuthorities = [],
+  ...rest
+}: IPrivateRouteProps) => {
   const isAuthorized = hasAnyAuthority(account.authorities, hasAnyAuthorities);
 
   const checkAuthorities = props =>
@@ -58,9 +65,19 @@ export const hasAnyAuthority = (authorities: string[], hasAnyAuthorities: string
   return false;
 };
 
+const mapStoreToProps = ({ authStore }: IRootStore) => ({
+  isAuthenticated: authStore.isAuthenticated,
+  account: authStore.account,
+  sessionHasBeenFetched: authStore.sessionHasBeenFetched,
+});
+
+type StoreProps = ReturnType<typeof mapStoreToProps>;
+
 /**
  * A route wrapped in an authentication check so that routing happens only when you are authenticated.
  * Accepts same props as React router Route.
  * The route also checks for authorization if hasAnyAuthorities is specified.
  */
-export default PrivateRouteComponent;
+export const PrivateRoute = connect(mapStoreToProps)(PrivateRouteComponent);
+
+export default PrivateRoute;

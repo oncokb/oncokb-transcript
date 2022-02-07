@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import tech.jhipster.config.JHipsterConstants;
 
 @Configuration
-@EnableJpaRepositories({ "org.mskcc.oncokb.transcript.repository" })
+@EnableJpaRepositories("org.mskcc.oncokb.transcript.repository")
 @EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
 @EnableTransactionManagement
 public class DatabaseConfiguration {}

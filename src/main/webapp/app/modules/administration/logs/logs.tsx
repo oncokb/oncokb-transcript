@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'app/shared/util/typed-inject';
 
-import { getLoggers, changeLogLevel } from '../administration.reducer';
-import { useAppDispatch, useAppSelector } from 'app/config/store';
+import { IRootStore } from 'app/shared/stores';
 
-export const LogsPage = () => {
+export type ILogsPageProps = StoreProps;
+
+export const LogsPage = (props: ILogsPageProps) => {
   const [filter, setFilter] = useState('');
-  const logs = useAppSelector(state => state.administration.logs);
-  const isFetching = useAppSelector(state => state.administration.loading);
-  const dispatch = useAppDispatch();
+  const { logs, isFetching } = props;
 
   useEffect(() => {
-    dispatch(getLoggers());
+    props.getLoggers();
   }, []);
 
-  const changeLevel = (loggerName, level) => () => dispatch(changeLogLevel(loggerName, level));
+  const changeLevel = (loggerName, level) => () => props.changeLogLevel(loggerName, level);
 
   const changeFilter = evt => setFilter(evt.target.value);
 
@@ -102,4 +102,13 @@ export const LogsPage = () => {
   );
 };
 
-export default LogsPage;
+const mapStoreToProps = ({ adminStore }: IRootStore) => ({
+  logs: adminStore.logs,
+  isFetching: adminStore.loading,
+  getLoggers: adminStore.getLoggers,
+  changeLogLevel: adminStore.changeLogLevel,
+});
+
+type StoreProps = ReturnType<typeof mapStoreToProps>;
+
+export default connect(mapStoreToProps)(LogsPage);
