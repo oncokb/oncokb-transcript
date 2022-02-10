@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { IRootStore } from 'app/shared/stores';
+import { IRootStore } from 'app/stores';
 import BaseCrudStore from 'app/shared/util/base-crud-store';
 
 export class CrudStore<T> extends BaseCrudStore<T> {

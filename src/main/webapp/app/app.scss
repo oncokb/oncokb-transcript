@@ -1,43 +1,32 @@
 // Override Boostrap variables
 // Import Bootstrap source files from node_modules
 @import 'node_modules/bootstrap/scss/bootstrap';
-body {
-  background: #fafafa;
-  margin: 0;
+@import './oncokb-commons/styles/variables.scss';
+
+html {
+  font-size: $oncokb-font-font-size;
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }
 
 a {
-  color: #533f03;
-  font-weight: bold;
-}
-
-* {
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  &:after,
-  &::before {
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-  }
+  text-decoration: none !important;
 }
 
 .app-container {
-  box-sizing: border-box;
+  min-height: 100%;
+  position: relative;
   .view-container {
-    width: 100%;
+    width: 1500px;
     height: calc(100% - 40px);
     overflow-y: auto;
     overflow-x: hidden;
+    margin: 0 auto;
     padding: 1rem;
-    .card {
-      padding: 1rem;
-    }
-    .view-routes {
-      height: 100%;
-      > div {
-        height: 100%;
-      }
-    }
   }
 }
 

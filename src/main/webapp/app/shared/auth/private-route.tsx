@@ -2,8 +2,9 @@ import React from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Route, Redirect, RouteProps } from 'react-router-dom';
 
-import { IRootStore } from 'app/shared/stores';
+import { IRootStore } from 'app/stores';
 import ErrorBoundary from 'app/shared/error/error-boundary';
+import { PAGE_ROUTE } from 'app/config/constants';
 
 interface IOwnProps extends RouteProps {
   hasAnyAuthorities?: string[];
@@ -21,6 +22,7 @@ export const PrivateRouteComponent = ({
 }: IPrivateRouteProps) => {
   const isAuthorized = hasAnyAuthority(account.authorities, hasAnyAuthorities);
 
+  /* eslint-disable no-console */
   const checkAuthorities = props =>
     isAuthorized ? (
       <ErrorBoundary>
@@ -33,21 +35,17 @@ export const PrivateRouteComponent = ({
     );
 
   const renderRedirect = props => {
-    if (!sessionHasBeenFetched) {
-      return <div></div>;
-    } else {
-      return isAuthenticated ? (
-        checkAuthorities(props)
-      ) : (
-        <Redirect
-          to={{
-            pathname: '/login',
-            search: props.location.search,
-            state: { from: props.location },
-          }}
-        />
-      );
-    }
+    return isAuthenticated ? (
+      checkAuthorities(props)
+    ) : (
+      <Redirect
+        to={{
+          pathname: PAGE_ROUTE.LOGIN,
+          search: props.location.search,
+          state: { from: props.location },
+        }}
+      />
+    );
   };
 
   if (!Component) throw new Error(`A component needs to be specified for private route for path ${(rest as any).path}`);

@@ -1,65 +1,74 @@
 import 'react-toastify/dist/ReactToastify.css';
 import './app.scss';
 import 'app/config/dayjs.ts';
-import 'mobx-react-lite/batchingForReactDom';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
-import { Card } from 'reactstrap';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-
-import { IRootStore } from 'app/shared/stores';
-import Header from 'app/shared/layout/header/header';
-import Footer from 'app/shared/layout/footer/footer';
+import { IRootStore } from 'app/stores';
+import Header from 'app/components/header/header';
+import Footer from 'app/components/footer/footer';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
-import ErrorBoundary from 'app/shared/error/error-boundary';
 import { AUTHORITIES } from 'app/config/constants';
 import AppRoutes from 'app/routes';
+import SideBar from 'app/components/sidebar/SideBar';
+import { Container } from 'reactstrap';
+import { computed, makeObservable } from 'mobx';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
 export type IAppProps = StoreProps;
 
-export const App = (props: IAppProps) => {
-  useEffect(() => {
-    props.getSession();
-    props.getProfile();
-  }, []);
+class App extends React.Component<IAppProps> {
+  constructor(props: IAppProps) {
+    super(props);
+    makeObservable(this, {
+      sideBarWidth: computed,
+    });
+  }
 
-  const paddingTop = '60px';
-  return (
-    <Router basename={baseHref}>
-      <div className="app-container" style={{ paddingTop }}>
-        <ToastContainer position={toast.POSITION.TOP_LEFT} className="toastify-container" toastClassName="toastify-toast" />
-        <ErrorBoundary>
+  get sideBarWidth() {
+    if (!this.props.isAuthenticated) {
+      return '0';
+    }
+    return this.props.isSideBarCollapsed ? '65px' : '225px';
+  }
+
+  render() {
+    return (
+      <Router basename={baseHref}>
+        <div className="app-container">
+          <ToastContainer position={toast.POSITION.TOP_CENTER} className="toastify-container" toastClassName="toastify-toast" />
           <Header
-            isAuthenticated={props.isAuthenticated}
-            isAdmin={props.isAdmin}
-            isInProduction={props.isInProduction}
-            isOpenAPIEnabled={props.isOpenAPIEnabled}
+            isAuthenticated={this.props.isAuthenticated}
+            isAdmin={this.props.isAdmin}
+            isInProduction={this.props.isInProduction}
+            isOpenAPIEnabled={this.props.isOpenAPIEnabled}
           />
-        </ErrorBoundary>
-        <div className="container-fluid view-container" id="app-view-container">
-          <Card className="jh-card">
-            <ErrorBoundary>
-              <AppRoutes />
-            </ErrorBoundary>
-          </Card>
-          <Footer />
+          <div style={{ display: 'flex' }}>
+            {this.props.isAuthenticated && <SideBar />}
+            <div style={{ flex: 1, marginLeft: this.sideBarWidth, paddingTop: '2rem' }}>
+              <Container fluid>
+                <AppRoutes />
+              </Container>
+              <Footer />
+            </div>
+          </div>
         </div>
-      </div>
-    </Router>
-  );
-};
+      </Router>
+    );
+  }
+}
 
-const mapStoreToProps = ({ authStore, profileStore }: IRootStore) => ({
+const mapStoreToProps = ({ authStore, profileStore, navigationControlStore }: IRootStore) => ({
   isAuthenticated: authStore.isAuthenticated,
   isAdmin: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.ADMIN]),
   isInProduction: profileStore.isInProduction,
   isOpenAPIEnabled: profileStore.isOpenAPIEnabled,
   getSession: authStore.getSession,
   getProfile: profileStore.getProfile,
+  isSideBarCollapsed: navigationControlStore.isSideBarCollapsed,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

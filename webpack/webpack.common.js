@@ -66,6 +66,15 @@ module.exports = async options => {
             include: [utils.root('./src/main/webapp/app')],
             exclude: [utils.root('node_modules')],
           },
+          {
+            test: /\.(jpe?g|png|gif|svg|woff2?|otf|ttf|eot|ppt|pdf|zip)$/i,
+            loader: 'file-loader',
+            options: {
+              digest: 'hex',
+              hash: 'sha512',
+              name: 'content/[name].[ext]',
+            },
+          },
           /*
        ,
        Disabled due to https://github.com/jhipster/generator-jhipster/issues/16116

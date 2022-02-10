@@ -1,5 +1,5 @@
 import { flow, observable, makeObservable } from 'mobx';
-import { IRootStore } from 'app/shared/stores';
+import { IRootStore } from 'app/stores';
 import { handleOperation, OperationStatus } from 'app/shared/util/operation-handler';
 import { responseFailure, responseSuccess } from 'app/config/notification-middleware-mobx';
 

@@ -13,3 +13,13 @@ export const APP_LOCAL_DATE_FORMAT = 'DD/MM/YYYY';
 export const APP_LOCAL_DATETIME_FORMAT = 'YYYY-MM-DDTHH:mm';
 export const APP_WHOLE_NUMBER_FORMAT = '0,0';
 export const APP_TWO_DIGITS_AFTER_POINT_NUMBER_FORMAT = '0,0.[00]';
+
+export enum PAGE_ROUTE {
+  HOME = '/',
+  LOGIN = '/login',
+  LOGOUT = '/logout',
+  ARTICLES_SEARCH = '/articles',
+  ARTICLE = '/articles/:pmid',
+  GENE = '/genes',
+  WORKBENCH = '/workbench',
+}

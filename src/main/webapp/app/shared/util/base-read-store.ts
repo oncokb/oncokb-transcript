@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { action, getObserverTree, observable, onBecomeUnobserved, makeObservable } from 'mobx';
 import { ICrudGetAction, ICrudGetAllAction } from 'app/shared/util/jhipster-types';
 import BaseStore from 'app/shared/util/base-store';
-import { IRootStore } from 'app/shared/stores';
+import { IRootStore } from 'app/stores';
 
 export abstract class BaseReadStore<T> extends BaseStore {
   public entities: ReadonlyArray<T> = [];

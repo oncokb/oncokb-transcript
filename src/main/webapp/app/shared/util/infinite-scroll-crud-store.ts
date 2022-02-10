@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { IRootStore } from 'app/shared/stores';
+import { IRootStore } from 'app/stores';
 import BaseCrudStore from './base-crud-store';
 import { action, observable, makeObservable } from 'mobx';
 import { loadMoreDataWhenScrolled, parseHeaderForLinks } from 'react-jhipster';
