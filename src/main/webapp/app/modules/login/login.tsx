@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { connect } from 'app/shared/util/typed-inject';
 import { Redirect, RouteComponentProps } from 'react-router-dom';
 
-import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { login } from 'app/shared/reducers/authentication';
+import { IRootStore } from 'app/shared/stores';
 import LoginModal from './login-modal';
+export interface ILoginProps extends StoreProps, RouteComponentProps {}
 
-export const Login = (props: RouteComponentProps<any>) => {
-  const dispatch = useAppDispatch();
-  const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
-  const loginError = useAppSelector(state => state.authentication.loginError);
-  const showModalLogin = useAppSelector(state => state.authentication.showModalLogin);
+export const Login = (props: ILoginProps) => {
+  const { isAuthenticated, loginError, showModalLogin } = props;
   const [showModal, setShowModal] = useState(showModalLogin);
 
   useEffect(() => {
     setShowModal(true);
   }, []);
 
-  const handleLogin = (username, password, rememberMe = false) => dispatch(login(username, password, rememberMe));
+  const handleLogin = (username, password, rememberMe = false) => props.login(username, password, rememberMe);
 
   const handleClose = () => {
     setShowModal(false);
@@ -31,4 +29,13 @@ export const Login = (props: RouteComponentProps<any>) => {
   return <LoginModal showModal={showModal} handleLogin={handleLogin} handleClose={handleClose} loginError={loginError} />;
 };
 
-export default Login;
+const mapStoreToProps = ({ authStore }: IRootStore) => ({
+  isAuthenticated: authStore.isAuthenticated,
+  loginError: authStore.loginError,
+  showModalLogin: authStore.showModalLogin,
+  login: authStore.login,
+});
+
+type StoreProps = ReturnType<typeof mapStoreToProps>;
+
+export default connect(mapStoreToProps)(Login);

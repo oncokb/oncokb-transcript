@@ -3,12 +3,15 @@ import './home.scss';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+import { connect } from 'app/shared/util/typed-inject';
 import { Row, Col, Alert } from 'reactstrap';
 
-import { useAppSelector } from 'app/config/store';
+import { IRootStore } from 'app/shared/stores';
 
-export const Home = () => {
-  const account = useAppSelector(state => state.authentication.account);
+export type IHomeProp = StoreProps;
+
+export const Home = (props: IHomeProp) => {
+  const { account } = props;
 
   return (
     <Row>
@@ -79,4 +82,10 @@ export const Home = () => {
   );
 };
 
-export default Home;
+const mapStoreToProps = (storeState: IRootStore) => ({
+  account: storeState.authStore.account,
+});
+
+type StoreProps = ReturnType<typeof mapStoreToProps>;
+
+export default connect(mapStoreToProps)(Home);

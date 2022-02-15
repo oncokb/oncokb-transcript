@@ -3,7 +3,7 @@
     "promptValues": {
       "packageName": "org.mskcc.oncokb.transcript"
     },
-    "jhipsterVersion": "7.3.1",
+    "jhipsterVersion": "7.2.0",
     "applicationType": "monolith",
     "baseName": "oncokb-transcript",
     "packageName": "org.mskcc.oncokb.transcript",
@@ -31,17 +31,27 @@
     "jhiPrefix": "jhi",
     "entitySuffix": "",
     "dtoSuffix": "DTO",
-    "otherModules": [],
+    "otherModules": [
+      {
+        "name": "generator-jhipster-react-mobx",
+        "version": "1.3.0"
+      }
+    ],
     "enableTranslation": false,
-    "blueprints": [],
+    "blueprints": [
+      {
+        "name": "generator-jhipster-react-mobx",
+        "version": "1.3.0"
+      }
+    ],
     "clientFramework": "react",
-    "skipUserManagement": true,
+    "skipUserManagement": false,
     "withAdminUi": true,
     "clientTheme": "none",
     "clientThemeVariant": "",
     "skipServer": false,
     "skipCheckLengthOfIdentifier": false,
-    "skipFakeData": true,
+    "skipFakeData": false,
     "pages": [],
     "reactive": false,
     "nativeLanguage": "en",

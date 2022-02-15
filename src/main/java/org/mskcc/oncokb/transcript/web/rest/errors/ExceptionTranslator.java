@@ -116,6 +116,40 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
     }
 
     @ExceptionHandler
+    public ResponseEntity<Problem> handleEmailAlreadyUsedException(
+        org.mskcc.oncokb.transcript.service.EmailAlreadyUsedException ex,
+        NativeWebRequest request
+    ) {
+        EmailAlreadyUsedException problem = new EmailAlreadyUsedException();
+        return create(
+            problem,
+            request,
+            HeaderUtil.createFailureAlert(applicationName, false, problem.getEntityName(), problem.getErrorKey(), problem.getMessage())
+        );
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleUsernameAlreadyUsedException(
+        org.mskcc.oncokb.transcript.service.UsernameAlreadyUsedException ex,
+        NativeWebRequest request
+    ) {
+        LoginAlreadyUsedException problem = new LoginAlreadyUsedException();
+        return create(
+            problem,
+            request,
+            HeaderUtil.createFailureAlert(applicationName, false, problem.getEntityName(), problem.getErrorKey(), problem.getMessage())
+        );
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleInvalidPasswordException(
+        org.mskcc.oncokb.transcript.service.InvalidPasswordException ex,
+        NativeWebRequest request
+    ) {
+        return create(new InvalidPasswordException(), request);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<Problem> handleBadRequestAlertException(BadRequestAlertException ex, NativeWebRequest request) {
         return create(
             ex,

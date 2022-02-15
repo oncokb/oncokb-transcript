@@ -30,9 +30,8 @@
         <!-- Build properties -->
         <maven.version>3.3.9</maven.version>
         <java.version>11</java.version>
-        <!-- we use nvm manages the npm version. npm 6 is the default for node 14 -->
         <node.version>v14.17.6</node.version>
-        <npm.version>6.14.15</npm.version>
+        <npm.version>7.23.0</npm.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -49,10 +48,10 @@
         <profile.tls />
 
         <!-- Dependency versions -->
-        <jhipster-dependencies.version>7.3.1</jhipster-dependencies.version>
+        <jhipster-dependencies.version>7.2.0</jhipster-dependencies.version>
         <!-- The spring-boot version should match the one managed by
         https://mvnrepository.com/artifact/tech.jhipster/jhipster-dependencies/${jhipster-dependencies.version} -->
-        <spring-boot.version>2.5.5</spring-boot.version>
+        <spring-boot.version>2.5.4</spring-boot.version>
         <!-- The hibernate version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
         <hibernate.version>5.4.32.Final</hibernate.version>
@@ -61,8 +60,8 @@
         <javassist.version>3.27.0-GA</javassist.version>
         <!-- The liquibase version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
-        <liquibase.version>4.5.0</liquibase.version>
-        <liquibase-hibernate5.version>4.5.0</liquibase-hibernate5.version>
+        <liquibase.version>4.4.3</liquibase.version>
+        <liquibase-hibernate5.version>4.4.3</liquibase-hibernate5.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
         <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
         <archunit-junit5.version>0.21.0</archunit-junit5.version>
@@ -345,10 +344,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>11</source>
-                    <target>11</target>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -750,8 +745,8 @@
                                 <version>[${maven.version},)</version>
                             </requireMavenVersion>
                             <requireJavaVersion>
-                                <message>You are running an incompatible version of Java. JHipster supports JDK 17 to 11.</message>
-                                <version>[11,17)</version>
+                                <message>You are running an incompatible version of Java. JHipster supports JDK 8 to 16.</message>
+                                <version>[1.8,17)</version>
                             </requireJavaVersion>
                         </rules>
                     </configuration>

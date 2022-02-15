@@ -3,15 +3,27 @@ import MenuItem from 'app/shared/layout/menus/menu-item';
 
 import { NavDropdown } from './menu-components';
 
-const accountMenuItemsAuthenticated = (
+const AccountMenuItemsAuthenticated: React.FunctionComponent<{
+  isAdmin: boolean;
+}> = props => (
   <>
+    {props.isAdmin ? (
+      <>
+        <MenuItem icon="users" to="/admin/user-management">
+          User management
+        </MenuItem>
+      </>
+    ) : null}
+    <MenuItem icon="wrench" to="/account/settings" data-cy="settings">
+      Settings
+    </MenuItem>
     <MenuItem icon="sign-out-alt" to="/logout" data-cy="logout">
       Sign out
     </MenuItem>
   </>
 );
 
-const accountMenuItems = (
+const AccountMenuItems: React.FunctionComponent = props => (
   <>
     <MenuItem id="login-item" icon="sign-in-alt" to="/login" data-cy="login">
       Sign in
@@ -19,9 +31,12 @@ const accountMenuItems = (
   </>
 );
 
-export const AccountMenu = ({ isAuthenticated = false }) => (
+export const AccountMenu: React.FunctionComponent<{
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+}> = props => (
   <NavDropdown icon="user" name="Account" id="account-menu" data-cy="accountMenu">
-    {isAuthenticated ? accountMenuItemsAuthenticated : accountMenuItems}
+    {props.isAuthenticated ? <AccountMenuItemsAuthenticated isAdmin={props.isAdmin} /> : <AccountMenuItems />}
   </NavDropdown>
 );
 
