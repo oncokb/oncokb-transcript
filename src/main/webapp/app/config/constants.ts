@@ -14,6 +14,8 @@ export const APP_LOCAL_DATETIME_FORMAT = 'YYYY-MM-DDTHH:mm';
 export const APP_WHOLE_NUMBER_FORMAT = '0,0';
 export const APP_TWO_DIGITS_AFTER_POINT_NUMBER_FORMAT = '0,0.[00]';
 
+export const SHORT_REDIRECT = 2000;
+
 export enum PAGE_ROUTE {
   HOME = '/',
   LOGIN = '/login',

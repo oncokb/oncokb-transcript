@@ -1,27 +1,52 @@
-import React, { useLayoutEffect } from 'react';
-import { connect } from 'app/shared/util/typed-inject';
-
+import React from 'react';
+import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
+import { action, makeObservable, observable } from 'mobx';
+import { PAGE_ROUTE, SHORT_REDIRECT } from 'app/config/constants';
+import { Redirect } from 'react-router-dom';
+import { observer } from 'mobx-react';
+import { Row } from 'reactstrap';
 
 export interface ILogoutProps extends StoreProps {
   logoutUrl: string;
 }
 
-export const Logout = (props: ILogoutProps) => {
-  useLayoutEffect(() => {
-    props.logout();
-    const { logoutUrl } = props;
+class Logout extends React.Component<ILogoutProps> {
+  redirect = false;
+
+  constructor(props: ILogoutProps) {
+    super(props);
+    makeObservable(this, {
+      redirect: observable,
+      toggleRedirect: action.bound,
+    });
+  }
+
+  componentDidMount() {
+    this.props.logout();
+    setTimeout(this.toggleRedirect, SHORT_REDIRECT);
+  }
+
+  toggleRedirect() {
+    this.redirect = !this.redirect;
+  }
+
+  render() {
+    const { logoutUrl } = this.props;
     if (logoutUrl) {
       window.location.href = logoutUrl;
     }
-  });
 
-  return (
-    <div className="p-5">
-      <h4>Logged out successfully!</h4>
-    </div>
-  );
-};
+    if (this.redirect) {
+      return <Redirect to={PAGE_ROUTE.HOME} />;
+    }
+    return (
+      <Row className="justify-content-center">
+        <h4>Logged out successfully!</h4>
+      </Row>
+    );
+  }
+}
 
 const mapStoreToProps = (storeState: IRootStore) => ({
   logoutUrl: storeState.authStore.logoutUrl,
@@ -30,4 +55,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(Logout);
+export default componentInject(mapStoreToProps)(observer(Logout));
