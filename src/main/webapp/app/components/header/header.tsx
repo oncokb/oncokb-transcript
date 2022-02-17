@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Navbar, Nav, NavbarToggler, Collapse, NavbarBrand, Container } from 'reactstrap';
 import oncokbLogo from '../../../content/images/oncokb-white.svg';
 import { AccountMenu } from '../menus';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { PAGE_ROUTE } from 'app/config/constants';
 import OptimizedImage from 'app/oncokb-commons/components/image/OptimizedImage';
 import { action, makeObservable, observable } from 'mobx';
@@ -34,10 +34,8 @@ class Header extends React.Component<IHeaderProps> {
       <header className="sticky-top header">
         <Navbar dark expand="lg" className="navbar">
           <Container fluid>
-            <NavbarBrand>
-              <NavLink to={PAGE_ROUTE.HOME}>
-                <OptimizedImage height={30} src={oncokbLogo} alt={'OncoKB'} />
-              </NavLink>
+            <NavbarBrand as={Link} to={PAGE_ROUTE.HOME}>
+              <OptimizedImage height={30} src={oncokbLogo} alt={'OncoKB'} />
             </NavbarBrand>
             <NavbarToggler aria-label="Menu" onClick={this.toggleNavMenu} />
             <Collapse isOpen={this.isNavMenuExpanded} navbar>

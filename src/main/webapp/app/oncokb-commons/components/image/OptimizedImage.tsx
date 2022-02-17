@@ -1,5 +1,6 @@
 import React from 'react';
 import ProgressiveImage from 'react-progressive-image';
+import LoadingIndicator from '../loadingIndicator/LoadingIndicator';
 
 const OptimizedImage: React.FunctionComponent<
   {
@@ -13,7 +14,7 @@ const OptimizedImage: React.FunctionComponent<
   return progressiveLoading ? (
     <ProgressiveImage src={props.src} placeholder={''}>
       {(src: string, loading: boolean) => {
-        return loading ? <div>Loading...</div> : <ImgElement />;
+        return loading ? <LoadingIndicator isLoading={true}>Loading image</LoadingIndicator> : <ImgElement />;
       }}
     </ProgressiveImage>
   ) : (
