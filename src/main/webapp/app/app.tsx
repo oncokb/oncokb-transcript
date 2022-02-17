@@ -40,12 +40,7 @@ class App extends React.Component<IAppProps> {
       <Router basename={baseHref}>
         <div className="app-container">
           <ToastContainer position={toast.POSITION.TOP_CENTER} className="toastify-container" toastClassName="toastify-toast" />
-          <Header
-            isAuthenticated={this.props.isAuthenticated}
-            isAdmin={this.props.isAdmin}
-            isInProduction={this.props.isInProduction}
-            isOpenAPIEnabled={this.props.isOpenAPIEnabled}
-          />
+          <Header isAuthenticated={this.props.isAuthenticated} isAdmin={this.props.isAdmin} />
           <div style={{ display: 'flex' }}>
             {this.props.isAuthenticated && <SideBar />}
             <div style={{ flex: 1, marginLeft: this.sideBarWidth, paddingTop: '2rem' }}>
@@ -64,8 +59,6 @@ class App extends React.Component<IAppProps> {
 const mapStoreToProps = ({ authStore, profileStore, navigationControlStore }: IRootStore) => ({
   isAuthenticated: authStore.isAuthenticated,
   isAdmin: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.ADMIN]),
-  isInProduction: profileStore.isInProduction,
-  isOpenAPIEnabled: profileStore.isOpenAPIEnabled,
   getSession: authStore.getSession,
   getProfile: profileStore.getProfile,
   isSideBarCollapsed: navigationControlStore.isSideBarCollapsed,

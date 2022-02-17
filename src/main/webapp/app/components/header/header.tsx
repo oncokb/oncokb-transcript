@@ -12,8 +12,6 @@ import { action, makeObservable, observable } from 'mobx';
 export interface IHeaderProps {
   isAuthenticated: boolean;
   isAdmin: boolean;
-  isInProduction: boolean;
-  isOpenAPIEnabled: boolean;
 }
 
 class Header extends React.Component<IHeaderProps> {
