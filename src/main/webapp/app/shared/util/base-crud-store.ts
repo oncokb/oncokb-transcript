@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import { action, makeObservable } from 'mobx';
 import { ICrudDeleteAction, ICrudPutAction } from 'app/shared/util/jhipster-types';
-import { IRootStore } from 'app/shared/stores';
+import { IRootStore } from 'app/stores';
 import { cleanEntity } from 'app/shared/util/entity-utils';
 import { BaseReadStore } from 'app/shared/util/base-read-store';
 

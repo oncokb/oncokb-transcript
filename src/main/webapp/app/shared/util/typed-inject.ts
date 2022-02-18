@@ -1,5 +1,5 @@
 import { inject, useObserver } from 'mobx-react';
-import { IRootStore } from 'app/shared/stores';
+import { IRootStore } from 'app/stores';
 import { MobXProviderContext } from 'mobx-react';
 import React from 'react';
 

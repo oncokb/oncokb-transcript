@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'mobx-react';
-import { createStores } from 'app/shared/stores';
+import { createStores } from 'app/stores';
 import { createBrowserHistory } from 'history';
 
 import setupAxiosInterceptors from './config/axios-interceptor';
@@ -23,9 +23,7 @@ const render = Component =>
   ReactDOM.render(
     <ErrorBoundary>
       <Provider {...mobxStores}>
-        <div>
-          <Component />
-        </div>
+        <Component />
       </Provider>
     </ErrorBoundary>,
     rootEl

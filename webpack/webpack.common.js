@@ -66,6 +66,15 @@ module.exports = async options => {
             include: [utils.root('./src/main/webapp/app')],
             exclude: [utils.root('node_modules')],
           },
+          {
+            test: /\.(jpe?g|png|gif|svg|woff2?|otf|ttf|eot|ppt|pdf|zip)$/i,
+            loader: 'file-loader',
+            options: {
+              digest: 'hex',
+              hash: 'sha512',
+              name: 'content/[name].[ext]',
+            },
+          },
           /*
        ,
        Disabled due to https://github.com/jhipster/generator-jhipster/issues/16116
@@ -93,9 +102,16 @@ module.exports = async options => {
         },
       },
       plugins: [
-        new webpack.EnvironmentPlugin({
-          // react-jhipster requires LOG_LEVEL config.
-          LOG_LEVEL: development ? 'info' : 'error',
+        new webpack.DefinePlugin({
+          'process.env': {
+            // APP_VERSION is passed as an environment variable from the Gradle / Maven build tasks.
+            VERSION: `'${process.env.hasOwnProperty('APP_VERSION') ? process.env.APP_VERSION : 'DEV'}'`,
+            // The root URL for API calls, ending with a '/' - for example: `"https://www.jhipster.tech:8081/myservice/"`.
+            // If this URL is left empty (""), then it will be relative to the current context.
+            // If you use an API server, in `prod` mode, you will need to enable CORS
+            // (see the `jhipster.cors` common JHipster property in the `application-*.yml` configurations)
+            SERVER_API_URL: `''`,
+          },
         }),
         new webpack.DefinePlugin({
           DEVELOPMENT: JSON.stringify(development),
