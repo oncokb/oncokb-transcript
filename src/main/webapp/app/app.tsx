@@ -23,6 +23,8 @@ export type IAppProps = StoreProps;
 class App extends React.Component<IAppProps> {
   constructor(props: IAppProps) {
     super(props);
+    props.getSession();
+    props.getProfile();
     makeObservable(this, {
       sideBarWidth: computed,
     });
@@ -32,7 +34,7 @@ class App extends React.Component<IAppProps> {
     if (!this.props.isAuthenticated) {
       return '0';
     }
-    return this.props.isSideBarCollapsed ? '65px' : '225px';
+    return this.props.isSideBarCollapsed ? '80px' : '200px';
   }
 
   render() {

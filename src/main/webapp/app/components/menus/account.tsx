@@ -14,10 +14,10 @@ const AccountMenuItemsAuthenticated: React.FunctionComponent<{
         </MenuItem>
       </>
     ) : null}
-    <MenuItem icon="wrench" to="/account/settings" data-cy="settings">
+    <MenuItem icon="wrench" to="/account/settings">
       Settings
     </MenuItem>
-    <MenuItem icon="sign-out-alt" to="/logout" data-cy="logout">
+    <MenuItem icon="sign-out-alt" to="/logout">
       Sign out
     </MenuItem>
   </>
@@ -25,7 +25,7 @@ const AccountMenuItemsAuthenticated: React.FunctionComponent<{
 
 const AccountMenuItems: React.FunctionComponent = props => (
   <>
-    <MenuItem id="login-item" icon="sign-in-alt" to="/login" data-cy="login">
+    <MenuItem id="login-item" icon="sign-in-alt" to="/login">
       Sign in
     </MenuItem>
   </>
@@ -35,7 +35,7 @@ export const AccountMenu: React.FunctionComponent<{
   isAuthenticated: boolean;
   isAdmin: boolean;
 }> = props => (
-  <NavDropdown icon="user" name="Account" id="account-menu" data-cy="accountMenu">
+  <NavDropdown icon="user" name="Account" id="account-menu">
     {props.isAuthenticated ? <AccountMenuItemsAuthenticated isAdmin={props.isAdmin} /> : <AccountMenuItems />}
   </NavDropdown>
 );

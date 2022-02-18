@@ -1,45 +1,17 @@
-@import '~oncokb-styles/scss/vars';
 @import '../../oncokb-commons/styles/variables.scss';
 
-.sidebar {
+$sidebar-bg-color: white;
+$sidebar-color: $oncokb-blue;
+$submenu-bg-color: white;
+$sidebar-width: 200px;
+$sidebar-collapsed-wdith: 80px;
+$highlight-color: $oncokb-darker-blue;
+
+@import '~react-pro-sidebar/dist/scss/styles.scss';
+
+.sidebar-wrapper {
   position: fixed;
-  width: 225px;
   height: 100vh;
+  z-index: 1000;
   border-right: 1px solid $oncokb-border-color;
-  z-index: 0;
-
-  .panel-title {
-    padding: 15px 1rem 0 1rem;
-  }
-
-  a.active {
-    .menu-item {
-      border-left-color: $oncokb-darker-blue;
-    }
-  }
-
-  .menu-item {
-    padding: 15px 1rem;
-    color: $oncokb-blue;
-    border-left: 0.3rem solid white;
-
-    &:hover {
-      border-left-color: $light-grey;
-      background-color: $light-grey;
-      cursor: pointer;
-    }
-  }
-}
-
-.sidebar--collapse {
-  width: 65px;
-
-  .menu-item {
-    padding: 15px 1rem;
-  }
-
-  .menu-text,
-  .panel-title {
-    display: none;
-  }
 }

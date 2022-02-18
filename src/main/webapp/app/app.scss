@@ -20,14 +20,6 @@ a {
 .app-container {
   min-height: 100%;
   position: relative;
-  .view-container {
-    width: 1500px;
-    height: calc(100% - 40px);
-    overflow-y: auto;
-    overflow-x: hidden;
-    margin: 0 auto;
-    padding: 1rem;
-  }
 }
 
 .fullscreen {
