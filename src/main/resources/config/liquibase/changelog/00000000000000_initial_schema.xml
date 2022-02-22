@@ -13,13 +13,12 @@
     -->
     <changeSet id="00000000000001" author="jhipster">
         <createTable tableName="jhi_user">
-            <column name="id" type="bigint" autoIncrement="true">
+            <column name="id" type="varchar(100)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="login" type="varchar(50)">
                 <constraints unique="true" nullable="false" uniqueConstraintName="ux_user_login"/>
             </column>
-            <column name="password_hash" type="varchar(60)"/>
             <column name="first_name" type="varchar(50)"/>
             <column name="last_name" type="varchar(50)"/>
             <column name="email" type="varchar(191)">
@@ -30,15 +29,10 @@
                 <constraints nullable="false" />
             </column>
             <column name="lang_key" type="varchar(10)"/>
-            <column name="activation_key" type="varchar(20)"/>
-            <column name="reset_key" type="varchar(20)"/>
             <column name="created_by" type="varchar(50)">
                 <constraints nullable="false"/>
             </column>
             <column name="created_date" type="timestamp"/>
-            <column name="reset_date" type="timestamp">
-                <constraints nullable="true"/>
-            </column>
             <column name="last_modified_by" type="varchar(50)"/>
             <column name="last_modified_date" type="timestamp"/>
         </createTable>
@@ -50,7 +44,7 @@
         </createTable>
 
         <createTable tableName="jhi_user_authority">
-            <column name="user_id" type="bigint">
+            <column name="user_id" type="varchar(100)">
                 <constraints nullable="false"/>
             </column>
             <column name="authority_name" type="varchar(50)">
@@ -72,9 +66,6 @@
                                  referencedColumnNames="id"
                                  referencedTableName="jhi_user"/>
 
-        <addNotNullConstraint   columnName="password_hash"
-                                columnDataType="varchar(60)"
-                                tableName="jhi_user"/>
         <loadData
                   file="config/liquibase/data/user.csv"
                   separator=";"
@@ -96,7 +87,7 @@
                   separator=";"
                   tableName="jhi_user_authority"
                   usePreparedStatements="true">
-            <column name="user_id" type="numeric"/>
+            <column name="user_id" type="string"/>
         </loadData>
     </changeSet>
 

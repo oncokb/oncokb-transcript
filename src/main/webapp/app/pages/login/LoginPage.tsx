@@ -1,11 +1,12 @@
 import React from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Redirect, RouteComponentProps } from 'react-router-dom';
+import { Link, Redirect, RouteComponentProps } from 'react-router-dom';
 import { Button, Alert, Row, Col, Form } from 'reactstrap';
 import { AvField, AvForm } from 'availity-reactstrap-validation';
 
 import { IRootStore } from 'app/stores';
 import SmallPageContainer from 'app/oncokb-commons/components/page/SmallPageContainer';
+import { getLoginUrl } from 'app/shared/util/url-utils';
 export interface ILoginProps extends StoreProps, RouteComponentProps {}
 
 export const Login = (props: ILoginProps) => {
@@ -49,6 +50,9 @@ export const Login = (props: ILoginProps) => {
           </Col>
         </Row>
       </AvForm>
+      <a href={getLoginUrl()} className="alert-link">
+        sign in
+      </a>
     </SmallPageContainer>
   );
 };

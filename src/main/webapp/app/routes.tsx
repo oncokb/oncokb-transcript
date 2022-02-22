@@ -11,6 +11,7 @@ import { AUTHORITIES, PAGE_ROUTE } from 'app/config/constants';
 import ArticleSearchPage from './pages/ArticleSearchPage';
 import ArticlePage from './pages/ArticlePage';
 import GenePage from './pages/GenePage';
+import LoginRedirect from './pages/login/login-redirect';
 
 const Account = Loadable({
   loader: () => import(/* webpackChunkName: "account" */ './pages/account/SettingsPage'),
@@ -24,6 +25,7 @@ const Routes = () => {
         <Redirect exact from={PAGE_ROUTE.HOME} to={PAGE_ROUTE.ARTICLES_SEARCH} />
         <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGIN} component={Login} />
         <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGOUT} component={Logout} />
+        <ErrorBoundaryRoute path="/oauth2/authorization/oidc" component={LoginRedirect} />
         <PrivateRoute exact path={PAGE_ROUTE.ARTICLES_SEARCH} component={ArticleSearchPage} />
         <PrivateRoute exact path={PAGE_ROUTE.ARTICLE} component={ArticlePage} />
         <PrivateRoute exact path={PAGE_ROUTE.GENE} component={GenePage} />
