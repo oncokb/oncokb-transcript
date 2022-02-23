@@ -34,10 +34,8 @@ class Header extends React.Component<IHeaderProps> {
       <header className="sticky-top header">
         <Navbar dark expand="lg" className="navbar">
           <Container fluid>
-            <NavbarBrand>
-              <NavLink to={PAGE_ROUTE.HOME}>
-                <OptimizedImage height={20} src={oncokbLogo} alt={'OncoKB'} />
-              </NavLink>
+            <NavbarBrand as={NavLink} to={PAGE_ROUTE.HOME}>
+              <OptimizedImage height={20} src={oncokbLogo} alt={'OncoKB'} />
             </NavbarBrand>
             <NavbarToggler aria-label="Menu" onClick={this.toggleNavMenu} />
             <Collapse isOpen={this.isNavMenuExpanded} navbar>

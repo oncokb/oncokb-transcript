@@ -15,7 +15,6 @@ export interface IPrivateRouteProps extends IOwnProps, StoreProps {}
 export const PrivateRouteComponent = ({
   component: Component,
   isAuthenticated,
-  sessionHasBeenFetched,
   account,
   hasAnyAuthorities = [],
   ...rest
@@ -66,7 +65,6 @@ export const hasAnyAuthority = (authorities: string[], hasAnyAuthorities: string
 const mapStoreToProps = ({ authStore }: IRootStore) => ({
   isAuthenticated: authStore.isAuthenticated,
   account: authStore.account,
-  sessionHasBeenFetched: authStore.sessionHasBeenFetched,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

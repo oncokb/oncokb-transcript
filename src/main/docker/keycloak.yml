@@ -16,6 +16,8 @@ services:
       ]
     volumes:
       - ./realm-config:/opt/jboss/keycloak/realm-config
+      # Keycloak allows you to create custom themes: https://www.keycloak.org/docs/latest/server_development/#_themes
+      # - ./realm-config/themes/custom-theme:/opt/jboss/keycloak/themes/custom-theme
     environment:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin

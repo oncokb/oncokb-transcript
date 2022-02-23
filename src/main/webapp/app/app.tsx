@@ -24,7 +24,6 @@ class App extends React.Component<IAppProps> {
   constructor(props: IAppProps) {
     super(props);
     props.getSession();
-    props.getProfile();
     makeObservable(this, {
       sideBarWidth: computed,
     });
@@ -58,11 +57,10 @@ class App extends React.Component<IAppProps> {
   }
 }
 
-const mapStoreToProps = ({ authStore, profileStore, navigationControlStore }: IRootStore) => ({
+const mapStoreToProps = ({ authStore, navigationControlStore }: IRootStore) => ({
   isAuthenticated: authStore.isAuthenticated,
   isAdmin: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.ADMIN]),
   getSession: authStore.getSession,
-  getProfile: profileStore.getProfile,
   isSideBarCollapsed: navigationControlStore.isSideBarCollapsed,
 });
 

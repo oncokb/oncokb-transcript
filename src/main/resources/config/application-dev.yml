@@ -56,6 +56,12 @@ spring:
     cache-duration: PT1S # 1 second, see the ISO 8601 standard
   thymeleaf:
     cache: false
+  session:
+    store-type: redis
+  redis:
+    host: localhost
+    password:
+    port: 6379
 
 server:
   port: 9090
@@ -90,6 +96,14 @@ jhipster:
       host: localhost
       port: 5000
       queue-size: 512
+  security:
+    authentication:
+      jwt:
+        # This token must be encoded using Base64 and be at least 256 bits long (you can type `openssl rand -base64 64` on your command line to generate a 512 bits one)
+        base64-secret: NGUwNTlhNDNhOWQ2ZGJlMmEzODczOWJjYWM2MWY4NDAwOTM4YTBmNGFjM2UxNjczZDU2YWZjZjc3MjdkNmU4YjVhZmIwYzI1NDhjMDFkZThiYmE5Mjc5MjM0MGVhODU5MGFhMTAyOTE0M2I3ODA1MGUzZWFhYWUwNWY2ZDgyNjQ=
+        # Token is valid 24 hours
+        token-validity-in-seconds: 86400
+        token-validity-in-seconds-for-remember-me: 2592000
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

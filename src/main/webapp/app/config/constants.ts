@@ -20,8 +20,11 @@ export enum PAGE_ROUTE {
   HOME = '/',
   LOGIN = '/login',
   LOGOUT = '/logout',
+  ACCOUNT = '/account',
   ARTICLES_SEARCH = '/articles',
   ARTICLE = '/articles/:pmid',
   GENE = '/genes',
   WORKBENCH = '/workbench',
+  OAUTH = '/oauth2/authorization/oidc',
+  ADMIN_USER_MANAGEMENT = '/admin/user-management',
 }

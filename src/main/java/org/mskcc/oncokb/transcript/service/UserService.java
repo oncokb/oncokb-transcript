@@ -3,6 +3,7 @@ package org.mskcc.oncokb.transcript.service;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.security.auth.login.AccountNotFoundException;
 import org.mskcc.oncokb.transcript.config.Constants;
 import org.mskcc.oncokb.transcript.domain.Authority;
 import org.mskcc.oncokb.transcript.domain.User;
@@ -114,10 +115,6 @@ public class UserService {
                 log.debug("Updating user '{}' in local database", user.getLogin());
                 updateUser(user.getFirstName(), user.getLastName(), user.getEmail(), user.getLangKey(), user.getImageUrl());
             }
-        } else {
-            log.debug("Saving user '{}' in local database", user.getLogin());
-            userRepository.save(user);
-            this.clearUserCaches(user);
         }
         return user;
     }
@@ -139,6 +136,7 @@ public class UserService {
         } else {
             throw new IllegalArgumentException("AuthenticationToken is not OAuth2 or JWT!");
         }
+
         User user = getUser(attributes);
         user.setAuthorities(
             authToken

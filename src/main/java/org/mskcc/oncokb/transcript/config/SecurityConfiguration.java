@@ -3,6 +3,8 @@ package org.mskcc.oncokb.transcript.config;
 import java.util.*;
 import org.mskcc.oncokb.transcript.security.*;
 import org.mskcc.oncokb.transcript.security.SecurityUtils;
+import org.mskcc.oncokb.transcript.security.jwt.JWTConfigurer;
+import org.mskcc.oncokb.transcript.security.jwt.TokenProvider;
 import org.mskcc.oncokb.transcript.security.oauth2.AudienceValidator;
 import org.mskcc.oncokb.transcript.security.oauth2.CustomClaimConverter;
 import org.mskcc.oncokb.transcript.security.oauth2.JwtGrantedAuthorityConverter;
@@ -20,6 +22,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -40,6 +44,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final JHipsterProperties jHipsterProperties;
 
+    private final TokenProvider tokenProvider;
+
     private final CorsFilter corsFilter;
 
     @Value("${spring.security.oauth2.client.provider.oidc.issuer-uri}")
@@ -47,7 +53,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final SecurityProblemSupport problemSupport;
 
-    public SecurityConfiguration(CorsFilter corsFilter, JHipsterProperties jHipsterProperties, SecurityProblemSupport problemSupport) {
+    public SecurityConfiguration(
+        TokenProvider tokenProvider,
+        CorsFilter corsFilter,
+        JHipsterProperties jHipsterProperties,
+        SecurityProblemSupport problemSupport
+    ) {
+        this.tokenProvider = tokenProvider;
         this.corsFilter = corsFilter;
         this.problemSupport = problemSupport;
         this.jHipsterProperties = jHipsterProperties;
@@ -90,29 +102,32 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
             .antMatchers("/api/authenticate").permitAll()
             .antMatchers("/api/auth-info").permitAll()
+            .antMatchers("/api/logout").permitAll()
             .antMatchers("/api/admin/**").hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/**").authenticated()
-            .antMatchers("/management/health").permitAll()
-            .antMatchers("/management/health/**").permitAll()
-            .antMatchers("/management/info").permitAll()
-            .antMatchers("/management/prometheus").permitAll()
-            .antMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
         .and()
             .oauth2Login()
+            .successHandler(customOAuthSuccessHandler())
         .and()
-            .oauth2ResourceServer()
-                .jwt()
-                .jwtAuthenticationConverter(authenticationConverter())
-                .and()
-            .and()
-                .oauth2Client();
+            .oauth2Client()
+        .and()
+            .apply(securityConfigurerAdapter());
         // @formatter:on
+    }
+
+    private JWTConfigurer securityConfigurerAdapter() {
+        return new JWTConfigurer(tokenProvider);
     }
 
     Converter<Jwt, AbstractAuthenticationToken> authenticationConverter() {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new JwtGrantedAuthorityConverter());
         return jwtAuthenticationConverter;
+    }
+
+    @Bean
+    public CustomOAuthSuccessHandler customOAuthSuccessHandler() {
+        return new CustomOAuthSuccessHandler();
     }
 
     /**
