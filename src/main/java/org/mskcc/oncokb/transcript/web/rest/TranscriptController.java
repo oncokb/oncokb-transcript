@@ -11,6 +11,7 @@ import org.mskcc.oncokb.transcript.service.*;
 import org.mskcc.oncokb.transcript.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.transcript.vm.*;
 import org.mskcc.oncokb.transcript.vm.ensembl.EnsemblSequence;
+import org.mskcc.oncokb.transcript.web.rest.model.AddTranscriptBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -289,17 +290,12 @@ public class TranscriptController {
     }
 
     @PostMapping("/add-transcript")
-    public ResponseEntity<TranscriptDTO> addTranscript(
-        @RequestParam int entrezGeneId,
-        @RequestParam ReferenceGenome referenceGenome,
-        @RequestParam String ensemblTranscriptId,
-        @RequestParam Boolean isCanonical
-    ) throws ApiException {
+    public ResponseEntity<TranscriptDTO> addTranscript(@RequestBody AddTranscriptBody body) throws ApiException {
         Optional<TranscriptDTO> transcriptDTOOptional = mainService.createTranscript(
-            referenceGenome,
-            ensemblTranscriptId,
-            entrezGeneId,
-            isCanonical
+            ReferenceGenome.valueOf(body.getReferenceGenome()),
+            body.getEnsemblTranscriptId(),
+            body.getEntrezGeneId(),
+            body.getCanonical()
         );
         return new ResponseEntity<>(
             transcriptDTOOptional.get(),
