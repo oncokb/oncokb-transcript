@@ -6,7 +6,7 @@
     <!--
         Added the constraints for entity GenomeFragment.
     -->
-    <changeSet id="20211118024252-2" author="jhipster">
+    <changeSet id="20211118024252-2" author="oncokb">
 
         <addForeignKeyConstraint baseColumnNames="transcript_id"
                                  baseTableName="genome_fragment"

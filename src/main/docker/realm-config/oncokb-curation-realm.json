@@ -46,43 +46,10 @@
   "roles": {
     "realm": [
       {
-        "id": "8e986fb5-dafb-43bf-a7c2-7e57572d3d80",
-        "name": "ROLE_ADMIN",
-        "description": "Jhipster administrator role",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "oncokb-curation",
-        "attributes": {}
-      },
-      {
         "id": "e1b19afd-f612-4a79-bdf8-26a99b89b10b",
         "name": "offline_access",
         "description": "${role_offline-access}",
         "composite": false,
-        "clientRole": false,
-        "containerId": "oncokb-curation",
-        "attributes": {}
-      },
-      {
-        "id": "ec5705e1-fc1d-4d21-8364-abd3bd4efcd0",
-        "name": "ROLE_USER",
-        "description": "Jhipster user role",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "oncokb-curation",
-        "attributes": {}
-      },
-      {
-        "id": "d2b73e7b-a2d7-40e9-8ebc-2af00454e8aa",
-        "name": "default-roles-jhipster",
-        "description": "${role_default-roles}",
-        "composite": true,
-        "composites": {
-          "realm": ["offline_access", "uma_authorization"],
-          "client": {
-            "account": ["view-profile", "manage-account"]
-          }
-        },
         "clientRole": false,
         "containerId": "oncokb-curation",
         "attributes": {}
@@ -399,34 +366,7 @@
       ]
     }
   },
-  "groups": [
-    {
-      "id": "afb0c768-ab0f-454c-a8ea-bc9e70b50248",
-      "name": "Admins",
-      "path": "/Admins",
-      "attributes": {},
-      "realmRoles": ["ROLE_ADMIN"],
-      "clientRoles": {},
-      "subGroups": []
-    },
-    {
-      "id": "672767bb-4ab0-4d37-93a1-9b6c2416b6b2",
-      "name": "Users",
-      "path": "/Users",
-      "attributes": {},
-      "realmRoles": ["ROLE_USER"],
-      "clientRoles": {},
-      "subGroups": []
-    }
-  ],
-  "defaultRole": {
-    "id": "d2b73e7b-a2d7-40e9-8ebc-2af00454e8aa",
-    "name": "default-roles-jhipster",
-    "description": "${role_default-roles}",
-    "composite": true,
-    "clientRole": false,
-    "containerId": "oncokb-curation"
-  },
+  "groups": [],
   "requiredCredentials": ["password"],
   "otpPolicyType": "totp",
   "otpPolicyAlgorithm": "HmacSHA1",
@@ -1436,7 +1376,7 @@
       "providerId": "google",
       "enabled": true,
       "updateProfileFirstLoginMode": "on",
-      "trustEmail": false,
+      "trustEmail": true,
       "storeToken": false,
       "addReadTokenRoleOnCreate": false,
       "authenticateByDefault": false,

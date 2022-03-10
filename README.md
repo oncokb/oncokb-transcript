@@ -113,7 +113,7 @@ docker-compose -f src/main/docker/keycloak.yml up
 
 If your keycloak server is not setup with docker (ie. with a keycloak helm chart), then add a new realm with the following [realm settings](src/main/docker/realm-config/oncokb-curation-realm.json) via import.
 
-- Once keycloak server is running, go to `http://localhost:9080/auth` and click `Administration Console`
+- Once keycloak server is running, go to `http://localhost:8080/auth` and click `Administration Console`
 - Login with the credential `username: admin, password:admin`.
 - Follow [instructions](https://support.google.com/cloud/answer/6158849) to obtain Google Oauth2 client id and secret.
 - In Keycloak, go to **Identity Providers** > **Edit button on google provider** > **Replace client id and secret**
@@ -131,7 +131,7 @@ spring:
       client:
         provider:
           oidc:
-            issuer-uri: http://localhost:9080/auth/realms/<realm-name>
+            issuer-uri: http://localhost:8080/auth/realms/<realm-name>
         registration:
           oidc:
             client-id: web_app

@@ -4,7 +4,7 @@ import java.security.Principal;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.mskcc.oncokb.transcript.service.UserService;
-import org.mskcc.oncokb.transcript.service.dto.AdminUserDTO;
+import org.mskcc.oncokb.transcript.service.dto.UserDTO;
 import org.mskcc.oncokb.transcript.web.rest.errors.UserNotApprovedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,12 +48,14 @@ public class AccountResource {
      */
     @GetMapping("/account")
     @SuppressWarnings("unchecked")
-    public AdminUserDTO getAccount(Principal principal) {
+    public UserDTO getAccount(Principal principal) {
         if (principal instanceof AbstractAuthenticationToken) {
-            return userService.getUserFromAuthentication((AbstractAuthenticationToken) principal);
-        } else {
-            throw new AccountResourceException("User could not be found");
+            Optional<UserDTO> user = userService.getUserFromAuthentication((AbstractAuthenticationToken) principal);
+            if (user.isPresent()) {
+                return user.get();
+            }
         }
+        throw new AccountResourceException("User could not be found");
     }
 
     /**

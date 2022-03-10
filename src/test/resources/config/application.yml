@@ -74,7 +74,7 @@ spring:
       client:
         provider:
           oidc:
-            issuer-uri: http://DO_NOT_CALL:9080/auth/realms/oncokb
+            issuer-uri: http://DO_NOT_CALL:8080/auth/realms/oncokb-curation
 
 server:
   port: 10344

@@ -1,11 +1,11 @@
 package org.mskcc.oncokb.transcript.web.rest.vm;
 
-import org.mskcc.oncokb.transcript.service.dto.AdminUserDTO;
+import org.mskcc.oncokb.transcript.service.dto.UserDTO;
 
 /**
- * View Model extending the AdminUserDTO, which is meant to be used in the user management UI.
+ * View Model extending the UserDTO, which is meant to be used in the user management UI.
  */
-public class ManagedUserVM extends AdminUserDTO {
+public class ManagedUserVM extends UserDTO {
 
     public ManagedUserVM() {
         // Empty constructor needed for Jackson.

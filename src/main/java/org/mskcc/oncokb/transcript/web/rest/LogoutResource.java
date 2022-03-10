@@ -34,21 +34,13 @@ public class LogoutResource {
     public ResponseEntity<?> logout(HttpServletRequest request) {
         StringBuilder logoutUrl = new StringBuilder();
 
-        String issuerUri = this.registration.getProviderDetails().getIssuerUri();
-        if (issuerUri.contains("auth0.com")) {
-            logoutUrl.append(issuerUri.endsWith("/") ? issuerUri + "v2/logout" : issuerUri + "/v2/logout");
-        } else {
-            logoutUrl.append(this.registration.getProviderDetails().getConfigurationMetadata().get("end_session_endpoint").toString());
-        }
+        // Get keycloak logout endpoint (host/auth/realms/<my_realm>/protocol/openid-connect/logout)
+        logoutUrl.append(this.registration.getProviderDetails().getConfigurationMetadata().get("end_session_endpoint").toString());
 
         String originUrl = request.getHeader(HttpHeaders.ORIGIN);
 
-        if (logoutUrl.indexOf("/protocol") > -1) {
-            logoutUrl.append("?redirect_uri=").append(originUrl);
-        } else if (logoutUrl.indexOf("auth0.com") > -1) {
-            // Auth0
-            logoutUrl.append("?client_id=").append(this.registration.getClientId()).append("&returnTo=").append(originUrl);
-        }
+        // After logout redirect to home page
+        logoutUrl.append("?redirect_uri=").append(originUrl);
 
         request.getSession().invalidate();
         return ResponseEntity.ok().body(Map.of("logoutUrl", logoutUrl.toString()));

@@ -1,8 +1,9 @@
-import { action, makeObservable, observable } from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 import axios, { AxiosResponse } from 'axios';
 import BaseStore from 'app/shared/util/base-store';
 import { IRootStore } from 'app/stores/createStore';
 import { OncoKBError } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
+import { AUTHORITIES } from 'app/config/constants';
 
 export const AUTH_TOKEN_KEY = 'jhi-authenticationToken';
 
@@ -36,6 +37,7 @@ export class AuthStore extends BaseStore {
 
     makeObservable(this, {
       isAuthenticated: observable,
+      isAuthorized: computed,
       account: observable,
       redirectMessage: observable,
       logoutUrl: observable,
@@ -75,6 +77,11 @@ export class AuthStore extends BaseStore {
     this.isAuthenticated = false;
   }
 
+  get isAuthorized() {
+    const authorizedRoles = [AUTHORITIES.ADMIN, AUTHORITIES.USER];
+    return hasAnyAuthority(this.account.authorities, authorizedRoles);
+  }
+
   *logoutGen() {
     try {
       this.reset();
@@ -92,7 +99,7 @@ export class AuthStore extends BaseStore {
       this.fetchingSession = true;
       const result: AxiosResponse = yield axios.get('/api/account');
       this.account = result.data;
-      this.isAuthenticated = result.data && result.data.activated;
+      this.isAuthenticated = !!result.data;
       this.fetchingSession = false;
       return result;
     } catch (e) {

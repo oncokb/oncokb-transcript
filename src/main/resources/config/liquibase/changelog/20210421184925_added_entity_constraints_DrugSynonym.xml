@@ -6,7 +6,7 @@
     <!--
         Added the constraints for entity DrugSynonym.
     -->
-    <changeSet id="20210421184925-2" author="jhipster">
+    <changeSet id="20210421184925-2" author="oncokb">
 
         <addForeignKeyConstraint baseColumnNames="drug_id"
                                  baseTableName="drug_synonym"

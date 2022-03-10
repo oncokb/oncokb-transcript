@@ -9,7 +9,7 @@
     <!--
         Added the entity Drug.
     -->
-    <changeSet id="20210421184924-1" author="jhipster">
+    <changeSet id="20210421184924-1" author="oncokb">
         <createTable tableName="drug">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>

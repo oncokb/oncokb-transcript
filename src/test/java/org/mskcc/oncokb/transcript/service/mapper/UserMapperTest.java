@@ -9,7 +9,6 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mskcc.oncokb.transcript.domain.User;
-import org.mskcc.oncokb.transcript.service.dto.AdminUserDTO;
 import org.mskcc.oncokb.transcript.service.dto.UserDTO;
 
 /**
@@ -18,11 +17,11 @@ import org.mskcc.oncokb.transcript.service.dto.UserDTO;
 class UserMapperTest {
 
     private static final String DEFAULT_LOGIN = "johndoe";
-    private static final String DEFAULT_ID = "id1";
+    private static final Long DEFAULT_ID = 1L;
 
     private UserMapper userMapper;
     private User user;
-    private AdminUserDTO userDto;
+    private UserDTO userDto;
 
     @BeforeEach
     public void init() {
@@ -36,7 +35,7 @@ class UserMapperTest {
         user.setImageUrl("image_url");
         user.setLangKey("en");
 
-        userDto = new AdminUserDTO(user);
+        userDto = new UserDTO(user);
     }
 
     @Test
@@ -52,7 +51,7 @@ class UserMapperTest {
 
     @Test
     void userDTOsToUsersShouldMapOnlyNonNullUsers() {
-        List<AdminUserDTO> usersDto = new ArrayList<>();
+        List<UserDTO> usersDto = new ArrayList<>();
         usersDto.add(userDto);
         usersDto.add(null);
 
@@ -67,7 +66,7 @@ class UserMapperTest {
         authoritiesAsString.add("ADMIN");
         userDto.setAuthorities(authoritiesAsString);
 
-        List<AdminUserDTO> usersDto = new ArrayList<>();
+        List<UserDTO> usersDto = new ArrayList<>();
         usersDto.add(userDto);
 
         List<User> users = userMapper.userDTOsToUsers(usersDto);
@@ -82,7 +81,7 @@ class UserMapperTest {
     void userDTOsToUsersMapWithNullAuthoritiesStringShouldReturnUserWithEmptyAuthorities() {
         userDto.setAuthorities(null);
 
-        List<AdminUserDTO> usersDto = new ArrayList<>();
+        List<UserDTO> usersDto = new ArrayList<>();
         usersDto.add(userDto);
 
         List<User> users = userMapper.userDTOsToUsers(usersDto);
