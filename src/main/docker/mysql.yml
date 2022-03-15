@@ -1,13 +1,13 @@
 # This configuration is intended for development purpose, it's **your** responsibility to harden it for production
 version: '3.8'
 services:
-  oncokb-transcript-mysql:
+  oncokb-curation-mysql:
     image: mysql:8.0.26
     # volumes:
-    #   - ~/volumes/jhipster/oncokb-transcript/mysql/:/var/lib/mysql/
+    #   - ~/volumes/jhipster/oncokb-curation/mysql/:/var/lib/mysql/
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_DATABASE=oncokb-transcript
+      - MYSQL_DATABASE=oncokb-curation
     # If you want to expose these ports outside your dev PC,
     # remove the "127.0.0.1:" prefix
     ports:

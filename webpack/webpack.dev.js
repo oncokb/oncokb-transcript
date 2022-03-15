@@ -124,7 +124,7 @@ module.exports = async options =>
       ),
       new webpack.HotModuleReplacementPlugin(),
       new WebpackNotifierPlugin({
-        title: 'Oncokb Transcript',
+        title: 'Oncokb Curation',
         contentImage: path.join(__dirname, 'logo-oncokb.png'),
       }),
     ].filter(Boolean),

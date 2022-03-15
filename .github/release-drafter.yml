@@ -42,5 +42,5 @@ template: |
 
   ## 🕵️‍♀️ Full commit logs
 
-  - https://github.com/oncokb/oncokb-transcript/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION
+  - https://github.com/oncokb/oncokb-curation/compare/$PREVIOUS_TAG...v$NEXT_PATCH_VERSION
 

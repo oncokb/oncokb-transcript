@@ -1,7 +1,7 @@
 # This configuration is intended for development purpose, it's **your** responsibility to harden it for production
 version: '3.8'
 services:
-  oncokb-transcript-redis:
+  oncokb-curation-redis:
     image: redis:6.2.5
     command:
       - 'redis-server'
@@ -12,7 +12,7 @@ services:
       - '--appendonly yes'
     ports:
       - '6379:6379'
-  oncokb-transcript-redis-1:
+  oncokb-curation-redis-1:
     image: redis:6.2.5
     command:
       - 'redis-server'
@@ -23,7 +23,7 @@ services:
       - '--appendonly yes'
     ports:
       - '16379:6379'
-  oncokb-transcript-redis-2:
+  oncokb-curation-redis-2:
     image: redis:6.2.5
     command:
       - 'redis-server'
@@ -34,7 +34,7 @@ services:
       - '--appendonly yes'
     ports:
       - '26379:6379'
-  oncokb-transcript-redis-3:
+  oncokb-curation-redis-3:
     image: redis:6.2.5
     command:
       - 'redis-server'
@@ -45,7 +45,7 @@ services:
       - '--appendonly yes'
     ports:
       - '36379:6379'
-  oncokb-transcript-redis-4:
+  oncokb-curation-redis-4:
     image: redis:6.2.5
     command:
       - 'redis-server'
@@ -56,7 +56,7 @@ services:
       - '--appendonly yes'
     ports:
       - '46379:6379'
-  oncokb-transcript-redis-5:
+  oncokb-curation-redis-5:
     image: redis:6.2.5
     command:
       - 'redis-server'
@@ -67,7 +67,7 @@ services:
       - '--appendonly yes'
     ports:
       - '56379:6379'
-  oncokb-transcript-redis-cluster-builder:
+  oncokb-curation-redis-cluster-builder:
     build:
       context: .
       dockerfile: redis/Redis-Cluster.Dockerfile

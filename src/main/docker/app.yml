@@ -1,17 +1,17 @@
 # This configuration is intended for development purpose, it's **your** responsibility to harden it for production
 version: '3.8'
 services:
-  oncokb-transcript-app:
-    image: oncokb-transcript
+  oncokb-curation-app:
+    image: oncokb-curation
     environment:
       - _JAVA_OPTIONS=-Xmx512m -Xms256m
       - SPRING_PROFILES_ACTIVE=prod,api-docs
       - MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true
-      - SPRING_DATASOURCE_URL=jdbc:mysql://oncokb-transcript-mysql:3306/oncokb-transcript?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
-      - SPRING_LIQUIBASE_URL=jdbc:mysql://oncokb-transcript-mysql:3306/oncokb-transcript?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
-      - JHIPSTER_CACHE_REDIS_SERVER=redis://oncokb-transcript-redis:6379
+      - SPRING_DATASOURCE_URL=jdbc:mysql://oncokb-curation-mysql:3306/oncokb-curation?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - SPRING_LIQUIBASE_URL=jdbc:mysql://oncokb-curation-mysql:3306/oncokb-curation?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - JHIPSTER_CACHE_REDIS_SERVER=redis://oncokb-curation-redis:6379
       - JHIPSTER_CACHE_REDIS_CLUSTER=false
-      # - JHIPSTER_CACHE_REDIS_SERVER=redis://oncokb-transcript-redis:6379
+      # - JHIPSTER_CACHE_REDIS_SERVER=redis://oncokb-curation-redis:6379
       # - JHIPSTER_CACHE_REDIS_CLUSTER=true
       - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI=http://keycloak:8080/auth/realms/oncokb-curation
       - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID=web_app
@@ -21,19 +21,19 @@ services:
     # remove the "127.0.0.1:" prefix
     ports:
       - 127.0.0.1:9090:9090
-  oncokb-transcript-mysql:
+  oncokb-curation-mysql:
     image: mysql:8.0.26
     # volumes:
-    #   - ~/volumes/jhipster/oncokb-transcript/mysql/:/var/lib/mysql/
+    #   - ~/volumes/jhipster/oncokb-curation/mysql/:/var/lib/mysql/
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_DATABASE=oncokb-transcript
+      - MYSQL_DATABASE=oncokb-curation
     # If you want to expose these ports outside your dev PC,
     # remove the "127.0.0.1:" prefix
     ports:
       - 127.0.0.1:3306:3306
     command: mysqld --lower_case_table_names=1 --skip-ssl --character_set_server=utf8mb4 --explicit_defaults_for_timestamp
-  oncokb-transcript-redis:
+  oncokb-curation-redis:
     image: redis:6.2.5
     # If you want to expose these ports outside your dev PC,
     # remove the "127.0.0.1:" prefix
