@@ -89,14 +89,6 @@ Note: There are still a few other things remaining to do for Leaflet that we won
 
 For further instructions on how to develop with JHipster, have a look at [Using JHipster in development][].
 
-### JHipster Control Center
-
-JHipster Control Center can help you manage and control your application(s). You can start a local control center server (accessible on http://localhost:7419) with:
-
-```
-docker-compose -f src/main/docker/jhipster-control-center.yml up
-```
-
 ### OAuth 2.0 / OpenID Connect
 
 Congratulations! You've selected an excellent way to secure your JHipster application. If you're not sure what OAuth and OpenID Connect (OIDC) are, please see [What the Heck is OAuth?](https://developer.okta.com/blog/2017/06/21/what-the-heck-is-oauth)

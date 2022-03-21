@@ -100,11 +100,11 @@ public class UserService {
     @Transactional
     public Optional<UserDTO> getUserFromAuthentication(AbstractAuthenticationToken authToken) {
         if (authToken instanceof UsernamePasswordAuthenticationToken) { // Our custom JWT
-            User user = new User();
-            user.setAuthorities(getAuthoritiesFromAuthToken(authToken));
-            user.setLogin(authToken.getName());
-            user.setActivated(true);
-            return Optional.of(new UserDTO(user));
+            Optional<User> user = userRepository.findOneByLogin(authToken.getName());
+            if (user.isPresent()) {
+                return Optional.of(userMapper.userToUserDTO(user.get()));
+            }
+            return Optional.empty();
         }
 
         Map<String, Object> attributes;

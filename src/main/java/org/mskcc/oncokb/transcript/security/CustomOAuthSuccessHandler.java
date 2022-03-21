@@ -12,7 +12,6 @@ import org.mskcc.oncokb.transcript.repository.UserRepository;
 import org.mskcc.oncokb.transcript.service.dto.KeycloakUserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -38,6 +37,9 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         Optional<User> user = userRepository.findOneByEmailIgnoreCase(keycloakUser.getEmail());
         // If user is in db, then let spring security handle authentication success.
+        // When we use the OncoKB public user table, then an activated user is not neccesarily
+        // allowed to access this service. We will need to add a ROLE_CURATOR role to public
+        // and check that the role exists here.
         if (user.isPresent() && user.get().isActivated()) {
             super.onAuthenticationSuccess(request, response, authentication);
         } else {
