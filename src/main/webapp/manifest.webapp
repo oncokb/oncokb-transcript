@@ -1,6 +1,6 @@
 {
-  "name": "oncokb-transcript",
-  "short_name": "oncokb-transcript",
+  "name": "oncokb-curation",
+  "short_name": "oncokb-curation",
   "theme_color": "#000000",
   "background_color": "#e0e0e0",
   "start_url": ".",

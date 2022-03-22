@@ -67,7 +67,7 @@ management:
 
 spring:
   application:
-    name: oncokb-transcript
+    name: oncokb-curation
   profiles:
     # The commented value for `active` can be replaced with valid Spring profiles to load.
     # Otherwise, it will be filled in by maven when building the JAR file
@@ -111,13 +111,13 @@ spring:
     allow-bean-definition-overriding: true
   task:
     execution:
-      thread-name-prefix: oncokb-transcript-task-
+      thread-name-prefix: oncokb-curation-task-
       pool:
         core-size: 2
         max-size: 50
         queue-capacity: 10000
     scheduling:
-      thread-name-prefix: oncokb-transcript-scheduling-
+      thread-name-prefix: oncokb-curation-scheduling-
       pool:
         size: 2
   thymeleaf:
@@ -159,7 +159,7 @@ info:
 
 jhipster:
   clientApp:
-    name: 'oncokbTranscriptApp'
+    name: 'oncokbCurationApp'
   # By default CORS is disabled. Uncomment to enable.
   # cors:
   #   allowed-origins: "http://localhost:8100,http://localhost:9000"
@@ -169,12 +169,12 @@ jhipster:
   #   allow-credentials: true
   #   max-age: 1800
   mail:
-    from: oncokb-transcript@localhost
+    from: oncokb-curation@localhost
   api-docs:
     default-include-pattern: ${server.servlet.context-path:}/api/.*
     management-include-pattern: ${server.servlet.context-path:}/management/.*
-    title: oncokb-transcript API
-    description: oncokb-transcript API documentation
+    title: oncokb-curation API
+    description: oncokb-curation API documentation
     version: 0.0.1
     terms-of-service-url:
     contact-name:
@@ -198,4 +198,4 @@ jhipster:
 # ===================================================================
 
 application:
-  name: oncokb-transcript
+  name: oncokb-curation

@@ -1,13 +1,13 @@
 {
   "generator-jhipster": {
     "promptValues": {
-      "packageName": "org.mskcc.oncokb.transcript"
+      "packageName": "org.mskcc.oncokb.curation"
     },
     "jhipsterVersion": "7.2.0",
     "applicationType": "monolith",
     "baseName": "oncokb-transcript",
-    "packageName": "org.mskcc.oncokb.transcript",
-    "packageFolder": "org/mskcc/oncokb/transcript",
+    "packageName": "org.mskcc.oncokb.curation",
+    "packageFolder": "org/mskcc/oncokb/curation",
     "serverPort": "9090",
     "authenticationType": "oauth2",
     "cacheProvider": "redis",
@@ -24,7 +24,7 @@
     "jwtSecretKey": "NGUwNTlhNDNhOWQ2ZGJlMmEzODczOWJjYWM2MWY4NDAwOTM4YTBmNGFjM2UxNjczZDU2YWZjZjc3MjdkNmU4YjVhZmIwYzI1NDhjMDFkZThiYmE5Mjc5MjM0MGVhODU5MGFhMTAyOTE0M2I3ODA1MGUzZWFhYWUwNWY2ZDgyNjQ=",
     "embeddableLaunchScript": false,
     "useSass": true,
-    "clientPackageManager": "npm",
+    "clientPackageManager": "yarn",
     "skipClient": false,
     "creationTimestamp": 1592938365904,
     "testFrameworks": [],
