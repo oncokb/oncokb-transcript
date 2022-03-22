@@ -1,7 +1,6 @@
 import { flow, observable, makeObservable } from 'mobx';
 import { IRootStore } from 'app/stores';
 import { handleOperation, OperationStatus } from 'app/shared/util/operation-handler';
-import { responseFailure, responseSuccess } from 'app/config/notification-middleware-mobx';
 
 export class BaseStore {
   public loading = false;
@@ -43,7 +42,6 @@ export class BaseStore {
         }
         case OperationStatus.SUCCESSFUL: {
           this.updateSuccess = true;
-          responseSuccess(result, successMessage);
           this.updating = false;
           this.rootStore.loadingStore.hideLoading();
           break;
@@ -53,7 +51,6 @@ export class BaseStore {
           this.updateSuccess = false;
           const translatedMessage = errorMessage;
           this.errorMessage = translatedMessage || (error && error.message);
-          responseFailure(error, translatedMessage);
           this.updating = false;
           this.rootStore.loadingStore.hideLoading();
           break;
@@ -64,11 +61,11 @@ export class BaseStore {
 
   readHandler = <R, Args extends any[]>(
     param: (...args: Args) => Generator<any, R, any> | AsyncGenerator<any, R, any>,
-    successMessage?,
-    errorMessage?
+    successMessage?: string,
+    errorMessage?: string
   ) => flow(handleOperation(this, param, this.readOperationHandler(successMessage, errorMessage)));
 
-  readOperationHandler = (successMessage?, errorMessage?) => {
+  readOperationHandler = (successMessage?: string, errorMessage?: string) => {
     return (state: OperationStatus, result?, error?) => {
       switch (state) {
         case OperationStatus.IN_PROGRESS: {
@@ -79,7 +76,6 @@ export class BaseStore {
           break;
         }
         case OperationStatus.SUCCESSFUL: {
-          responseSuccess(result, successMessage);
           this.loading = false;
           this.rootStore.loadingStore.hideLoading();
           break;
@@ -88,7 +84,6 @@ export class BaseStore {
         default: {
           const translatedMessage = errorMessage;
           this.errorMessage = translatedMessage || (error && error.message);
-          responseFailure(error, translatedMessage);
           this.loading = false;
           this.rootStore.loadingStore.hideLoading();
           break;

@@ -55,10 +55,6 @@ spring:
     allow-bean-definition-overriding: true
   messages:
     basename: i18n/messages
-  security:
-    user:
-      name: test
-      password: test
   task:
     execution:
       thread-name-prefix: oncokb-transcript-task-
@@ -72,6 +68,13 @@ spring:
         size: 1
   thymeleaf:
     mode: HTML
+  # Allow SecurityConfiguration to initialize w/o specifying an empty issuer-uri is OK
+  security:
+    oauth2:
+      client:
+        provider:
+          oidc:
+            issuer-uri: http://DO_NOT_CALL:8080/auth/realms/oncokb-curation
 
 server:
   port: 10344
@@ -97,13 +100,6 @@ jhipster:
   mail:
     from: test@localhost
     base-url: http://127.0.0.1:8080
-  security:
-    authentication:
-      jwt:
-        # This token must be encoded using Base64 (you can type `echo 'secret-key'|base64` on your command line)
-        base64-secret: NGUwNTlhNDNhOWQ2ZGJlMmEzODczOWJjYWM2MWY4NDAwOTM4YTBmNGFjM2UxNjczZDU2YWZjZjc3MjdkNmU4YjVhZmIwYzI1NDhjMDFkZThiYmE5Mjc5MjM0MGVhODU5MGFhMTAyOTE0M2I3ODA1MGUzZWFhYWUwNWY2ZDgyNjQ=
-        # Token is valid 24 hours
-        token-validity-in-seconds: 86400
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

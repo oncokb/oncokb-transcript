@@ -16,6 +16,17 @@
     <script src="./axios.min.js"></script>
 
     <script type="text/javascript">
+      function getCSRF() {
+        var name = 'XSRF-TOKEN=';
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) === ' ') c = c.substring(1);
+          if (c.indexOf(name) !== -1) return c.substring(name.length, c.length);
+        }
+        return '';
+      }
+
       window.onload = function () {
         var urls = [];
         axios.get('/swagger-resources').then(function (response) {
@@ -40,12 +51,7 @@
             presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
             plugins: [SwaggerUIBundle.plugins.DownloadUrl],
             requestInterceptor: function (req) {
-              var authToken = JSON.parse(
-                localStorage.getItem('jhi-authenticationToken') || sessionStorage.getItem('jhi-authenticationToken')
-              );
-              if (authToken) {
-                req.headers['Authorization'] = 'Bearer ' + authToken;
-              }
+              req.headers['X-XSRF-TOKEN'] = getCSRF();
               return req;
             },
           });

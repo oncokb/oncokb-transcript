@@ -6,7 +6,7 @@
     <!--
         Added the constraints for entity EnsemblGene.
     -->
-    <changeSet id="20211130002704-2" author="jhipster">
+    <changeSet id="20211130002704-2" author="oncokb">
 
         <addForeignKeyConstraint baseColumnNames="gene_id"
                                  baseTableName="ensembl_gene"

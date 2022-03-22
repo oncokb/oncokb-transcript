@@ -11,6 +11,8 @@ import { AUTHORITIES, PAGE_ROUTE } from 'app/config/constants';
 import ArticleSearchPage from './pages/ArticleSearchPage';
 import ArticlePage from './pages/ArticlePage';
 import GenePage from './pages/GenePage';
+import LoginRedirect from './pages/login/login-redirect';
+import UserManagementPage from './pages/UserManagementPage';
 
 const Account = Loadable({
   loader: () => import(/* webpackChunkName: "account" */ './pages/account/SettingsPage'),
@@ -24,10 +26,17 @@ const Routes = () => {
         <Redirect exact from={PAGE_ROUTE.HOME} to={PAGE_ROUTE.ARTICLES_SEARCH} />
         <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGIN} component={Login} />
         <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGOUT} component={Logout} />
+        <ErrorBoundaryRoute exact path={PAGE_ROUTE.OAUTH} component={LoginRedirect} />
         <PrivateRoute exact path={PAGE_ROUTE.ARTICLES_SEARCH} component={ArticleSearchPage} />
         <PrivateRoute exact path={PAGE_ROUTE.ARTICLE} component={ArticlePage} />
         <PrivateRoute exact path={PAGE_ROUTE.GENE} component={GenePage} />
-        <PrivateRoute path="/account" component={Account} hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]} />
+        <PrivateRoute exact path={PAGE_ROUTE.ACCOUNT} component={Account} hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]} />
+        <PrivateRoute
+          exact
+          path={PAGE_ROUTE.ADMIN_USER_MANAGEMENT}
+          component={UserManagementPage}
+          hasAnyAuthorities={[AUTHORITIES.ADMIN]}
+        />
         <ErrorBoundaryRoute exact component={PageNotFound} />
       </Switch>
     </div>

@@ -30,7 +30,6 @@ import org.zalando.problem.spring.web.advice.ProblemHandling;
 import org.zalando.problem.spring.web.advice.security.SecurityAdviceTrait;
 import org.zalando.problem.violations.ConstraintViolationProblem;
 import tech.jhipster.config.JHipsterConstants;
-import tech.jhipster.web.util.HeaderUtil;
 
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures.
@@ -116,46 +115,13 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
     }
 
     @ExceptionHandler
-    public ResponseEntity<Problem> handleEmailAlreadyUsedException(
-        org.mskcc.oncokb.transcript.service.EmailAlreadyUsedException ex,
-        NativeWebRequest request
-    ) {
-        EmailAlreadyUsedException problem = new EmailAlreadyUsedException();
-        return create(
-            problem,
-            request,
-            HeaderUtil.createFailureAlert(applicationName, false, problem.getEntityName(), problem.getErrorKey(), problem.getMessage())
-        );
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<Problem> handleUsernameAlreadyUsedException(
-        org.mskcc.oncokb.transcript.service.UsernameAlreadyUsedException ex,
-        NativeWebRequest request
-    ) {
-        LoginAlreadyUsedException problem = new LoginAlreadyUsedException();
-        return create(
-            problem,
-            request,
-            HeaderUtil.createFailureAlert(applicationName, false, problem.getEntityName(), problem.getErrorKey(), problem.getMessage())
-        );
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<Problem> handleInvalidPasswordException(
-        org.mskcc.oncokb.transcript.service.InvalidPasswordException ex,
-        NativeWebRequest request
-    ) {
-        return create(new InvalidPasswordException(), request);
-    }
-
-    @ExceptionHandler
     public ResponseEntity<Problem> handleBadRequestAlertException(BadRequestAlertException ex, NativeWebRequest request) {
-        return create(
-            ex,
-            request,
-            HeaderUtil.createFailureAlert(applicationName, false, ex.getEntityName(), ex.getErrorKey(), ex.getMessage())
-        );
+        return create(ex, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleUserNotApprovedException(UserNotApprovedException ex, NativeWebRequest request) {
+        return create(ex, request);
     }
 
     @ExceptionHandler

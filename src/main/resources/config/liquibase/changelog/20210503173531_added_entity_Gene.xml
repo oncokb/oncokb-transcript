@@ -9,7 +9,7 @@
     <!--
         Added the entity Gene.
     -->
-    <changeSet id="20210503173531-1" author="jhipster">
+    <changeSet id="20210503173531-1" author="oncokb">
         <createTable tableName="gene">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>

@@ -24,14 +24,13 @@ class App extends React.Component<IAppProps> {
   constructor(props: IAppProps) {
     super(props);
     props.getSession();
-    props.getProfile();
     makeObservable(this, {
       sideBarWidth: computed,
     });
   }
 
   get sideBarWidth() {
-    if (!this.props.isAuthenticated) {
+    if (!this.props.isAuthenticated || !this.props.isAuthorized) {
       return '0';
     }
     return this.props.isSideBarCollapsed ? '80px' : '200px';
@@ -44,7 +43,7 @@ class App extends React.Component<IAppProps> {
           <ToastContainer position={toast.POSITION.TOP_CENTER} className="toastify-container" toastClassName="toastify-toast" />
           <Header isAuthenticated={this.props.isAuthenticated} isAdmin={this.props.isAdmin} />
           <div style={{ display: 'flex' }}>
-            {this.props.isAuthenticated && <SideBar />}
+            {this.props.isAuthorized && <SideBar />}
             <div style={{ flex: 1, marginLeft: this.sideBarWidth, paddingTop: '2rem' }}>
               <Container fluid>
                 <AppRoutes />
@@ -58,11 +57,11 @@ class App extends React.Component<IAppProps> {
   }
 }
 
-const mapStoreToProps = ({ authStore, profileStore, navigationControlStore }: IRootStore) => ({
+const mapStoreToProps = ({ authStore, navigationControlStore }: IRootStore) => ({
   isAuthenticated: authStore.isAuthenticated,
+  isAuthorized: authStore.isAuthorized,
   isAdmin: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.ADMIN]),
   getSession: authStore.getSession,
-  getProfile: profileStore.getProfile,
   isSideBarCollapsed: navigationControlStore.isSideBarCollapsed,
 });
 

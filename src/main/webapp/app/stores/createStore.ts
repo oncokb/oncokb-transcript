@@ -1,6 +1,5 @@
 import { LoadingBarStore } from 'app/stores/loading-bar.store';
 import { AuthStore } from 'app/stores/authentication.store';
-import { ApplicationProfileStore } from 'app/stores/application-profile.store';
 import { SettingsStore } from 'app/pages/account/settings.store';
 import { History } from 'history';
 import { RouterStore } from './router.store';
@@ -10,7 +9,6 @@ import NavigationControlStore from './navigation-control.store';
 export interface IRootStore {
   readonly loadingStore: LoadingBarStore;
   readonly authStore: AuthStore;
-  readonly profileStore: ApplicationProfileStore;
   readonly settingsStore: SettingsStore;
   readonly routerStore: RouterStore;
   readonly navigationControlStore: NavigationControlStore;
@@ -22,7 +20,6 @@ export function createStores(history: History): IRootStore {
 
   rootStore.loadingStore = new LoadingBarStore();
   rootStore.authStore = new AuthStore(rootStore);
-  rootStore.profileStore = new ApplicationProfileStore(rootStore);
   rootStore.settingsStore = new SettingsStore(rootStore);
   rootStore.routerStore = new RouterStore(history);
   rootStore.navigationControlStore = new NavigationControlStore();

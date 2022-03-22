@@ -89,12 +89,46 @@ Note: There are still a few other things remaining to do for Leaflet that we won
 
 For further instructions on how to develop with JHipster, have a look at [Using JHipster in development][].
 
-### JHipster Control Center
+### OAuth 2.0 / OpenID Connect
 
-JHipster Control Center can help you manage and control your application(s). You can start a local control center server (accessible on http://localhost:7419) with:
+Congratulations! You've selected an excellent way to secure your JHipster application. If you're not sure what OAuth and OpenID Connect (OIDC) are, please see [What the Heck is OAuth?](https://developer.okta.com/blog/2017/06/21/what-the-heck-is-oauth)
+
+To log in to your app, you'll need to have [Keycloak](https://keycloak.org) up and running.
+
+**The JHipster Team has created a Docker container for you that has the default users and roles. Start Keycloak using the following command.**
 
 ```
-docker-compose -f src/main/docker/jhipster-control-center.yml up
+docker-compose -f src/main/docker/keycloak.yml up
+```
+
+**Configure Google SSO**
+
+If your keycloak server is not setup with docker (ie. with a keycloak helm chart), then add a new realm with the following [realm settings](src/main/docker/realm-config/oncokb-curation-realm.json) via import.
+
+- Once keycloak server is running, go to `http://localhost:8080/auth` and click `Administration Console`
+- Login with the credential `username: admin, password:admin`.
+- Follow [instructions](https://support.google.com/cloud/answer/6158849) to obtain Google Oauth2 client id and secret.
+- In Keycloak, go to **Identity Providers** > **Edit button on google provider** > **Replace client id and secret**
+
+The security settings are in `src/main/resources/config/application.yml`.
+
+- Include realm name in `spring.security.oauth2.client.provider.oidc.issue-uri` property.
+- To find the client secret, go to keycloak admin console and look for `web_app` client. Find the `Credentials` tab and copy the client secret. Credentials tab will only show when the client's `Access Type = confidential`.
+
+```yaml
+spring:
+  ...
+  security:
+    oauth2:
+      client:
+        provider:
+          oidc:
+            issuer-uri: http://localhost:8080/auth/realms/<realm-name>
+        registration:
+          oidc:
+            client-id: web_app
+            client-secret: CLIENT_SECRET
+            scope: openid,profile,email
 ```
 
 ## Building for production

@@ -9,7 +9,7 @@
     <!--
         Added the entity Info.
     -->
-    <changeSet id="20210421184926-1" author="jhipster">
+    <changeSet id="20210421184926-1" author="oncokb">
         <createTable tableName="info">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>

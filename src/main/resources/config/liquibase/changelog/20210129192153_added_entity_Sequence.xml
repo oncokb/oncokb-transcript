@@ -9,7 +9,7 @@
     <!--
         Added the entity Sequence.
     -->
-    <changeSet id="20210129192153-1" author="jhipster">
+    <changeSet id="20210129192153-1" author="oncokb">
         <createTable tableName="sequence">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>

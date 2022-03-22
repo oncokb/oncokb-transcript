@@ -6,7 +6,7 @@
     <!--
         Added the constraints for entity GeneAlias.
     -->
-    <changeSet id="20210503173532-2" author="jhipster">
+    <changeSet id="20210503173532-2" author="oncokb">
 
         <addForeignKeyConstraint baseColumnNames="gene_id"
                                  baseTableName="gene_alias"
