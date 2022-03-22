@@ -11,6 +11,7 @@
     "lint:fix": "yarn run lint -- --fix",
     "cleanup": "rimraf target/classes/static/",
     "clean-www": "rimraf target/classes/static/app/{src,target/}",
+    "updateAPI": "openapi-generator-cli generate -i http://localhost:9090/v3/api-docs -g typescript-axios -o src/main/webapp/app/shared/api/generated",
     "jest": "jest --coverage --logHeapUsage --maxWorkers=2 --config jest.conf.js",
     "jest:update": "yarn run jest -- --updateSnapshot",
     "start": "yarn run webapp:dev --",
@@ -107,6 +108,7 @@
     "webpack-cli": "^4.9.2"
   },
   "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.4.26",
     "@testing-library/react": "12.1.0",
     "@types/jest": "27.0.1",
     "@types/lodash": "4.14.172",
