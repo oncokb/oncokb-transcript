@@ -71,16 +71,41 @@ entity GeneAlias {
     name String
 }
 
+entity CompanionDiagnosticDevice {
+	name String
+    manufacturer String
+}
+
+entity PremarketApproval {
+	device String
+    genericName String
+    applicant TextBlob
+    number String
+    supplementNumber String
+    dateReceived Instant
+    decisionDate Instant
+    productCode String
+    approvalOrderStatement TextBlob
+}
+
+entity PmaIndication {
+	cancerType CancerType
+}
+
 relationship OneToMany {
 	Drug{synonyms} to DrugSynonym
 	Gene to GeneAlias
 	Gene to EnsemblGene
+    Gene to Alteration
     Transcript{fragments} to GenomeFragment{transcript}
     EnsemblGene to Transcript
     Transcript to Sequence
+    CompanionDiagnosticDevice to PremarketApproval
+    PremarketApproval to PmaIndication
+	PmaIndication to Alteration
+	PmaIndication to Drug
 }
 
 service * with serviceClass
 dto Transcript with mapstruct
 skipClient *
-
