@@ -71,39 +71,107 @@ entity GeneAlias {
     name String
 }
 
-entity CompanionDiagnosticDevice {
-	name String
-    manufacturer String
+entity SpecimenType{
+	type String required
 }
 
-entity PremarketApproval {
-	device String
-    genericName String
-    applicant TextBlob
-    number String
+entity CompanionDiagnosticDevice {
+	name String required
+    manufacturer String required
+}
+
+enum FdaSubmissionTypeKey {
+	PMA, DE_NOVO, HDE, PMN
+}
+
+entity FdaSubmissionType {
+	key FdaSubmissionTypeKey required
+    name String required
+    shortName String
+    descrption TextBlob
+}
+
+entity FdaSubmission {
+    number String required
     supplementNumber String
+
+	deviceName String
+    genericName String
+
     dateReceived Instant
     decisionDate Instant
-    productCode String
-    approvalOrderStatement TextBlob
+
+    description TextBlob
 }
 
-entity PmaIndication {
-	cancerType CancerType
+enum TumorForm {
+	SOLID, LIQUID, MIXED
+}
+
+enum AlterationType {
+	MUTATION, COPY_NUMBER_ALTERATION, STRUCTURAL_VARIANT, UNKNOWN
+}
+
+enum CopyNumberAlterationType {
+	AMPLIFICATION,
+    DELETION,
+    GAIN,
+    LOSS
+}
+
+enum StructuralVariantType {
+	FUSION
+}
+
+entity VariantConsequence {
+	term String required
+    isGenerallyTruncating Boolean required
+    description String
+}
+
+entity Alteration {
+	type AlterationType required
+    name String required
+    alteration String required
+    proteinStart Integer
+    proteinEnd Integer
+    refResidues String
+    variantResidues String
+}
+
+entity CancerType {
+	code String
+    color String
+    level Integer required
+    mainType String required
+    subtype String
+    tissue String
+    tumorForm TumorForm required
+}
+
+entity DeviceUsageIndication {
 }
 
 relationship OneToMany {
 	Drug{synonyms} to DrugSynonym
 	Gene to GeneAlias
 	Gene to EnsemblGene
-    Gene to Alteration
+    CancerType{children} to CancerType {parent}
     Transcript{fragments} to GenomeFragment{transcript}
     EnsemblGene to Transcript
     Transcript to Sequence
-    CompanionDiagnosticDevice to PremarketApproval
-    PremarketApproval to PmaIndication
-	PmaIndication to Alteration
-	PmaIndication to Drug
+    CompanionDiagnosticDevice to FdaSubmission
+    FdaSubmission to DeviceUsageIndication
+    VariantConsequence to Alteration{consequence}
+    FdaSubmissionType to FdaSubmission{type}
+	Alteration to DeviceUsageIndication
+	CancerType to DeviceUsageIndication
+	Drug to DeviceUsageIndication
+}
+
+relationship ManyToMany {
+    Gene to Alteration
+    CompanionDiagnosticDevice to SpecimenType
 }
 
 service * with serviceClass
