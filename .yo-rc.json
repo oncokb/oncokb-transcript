@@ -56,18 +56,7 @@
     "reactive": false,
     "nativeLanguage": "en",
     "languages": ["en", "fr"],
-    "entities": [
-      "Sequence",
-      "Transcript",
-      "TranscriptUsage",
-      "Drug",
-      "DrugSynonym",
-      "Info",
-      "Gene",
-      "GeneAlias",
-      "GenomeFragment",
-      "EnsemblGene"
-    ],
+    "entities": ["Sequence", "Transcript", "Info", "Gene", "GeneAlias", "GenomeFragment", "EnsemblGene"],
     "lastLiquibaseTimestamp": 1638232024000,
     "devServerPort": 9060,
     "enableGradleEnterprise": false

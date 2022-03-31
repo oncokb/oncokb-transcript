@@ -176,4 +176,3 @@ relationship ManyToMany {
 
 service * with serviceClass
 dto Transcript with mapstruct
-skipClient *
