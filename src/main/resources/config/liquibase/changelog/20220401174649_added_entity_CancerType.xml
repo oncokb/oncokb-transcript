@@ -40,6 +40,13 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+
+        <loadData
+            file="config/liquibase/data/cancer_type.csv"
+            separator="|"
+            tableName="cancer_type"
+            usePreparedStatements="true">
+        </loadData>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

@@ -34,7 +34,7 @@
             separator=";"
             tableName="fda_submission_type"
             usePreparedStatements="true">
-            <column name="description" type="${clobType}"/>
+            <column name="description" type="string"/>
         </loadData>
     </changeSet>
 
