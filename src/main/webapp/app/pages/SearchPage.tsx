@@ -1,11 +1,11 @@
 import React from 'react';
 import Select from 'react-select';
 
-class ArticleSearchPage extends React.Component {
+class SearchPage extends React.Component {
   render() {
     return (
       <div>
-        <h3>Search for articles</h3>
+        <h3>Search</h3>
         <Select placeholder="Search Gene/Alteration" />
         <div>Search results here</div>
       </div>
@@ -13,4 +13,4 @@ class ArticleSearchPage extends React.Component {
   }
 }
 
-export default ArticleSearchPage;
+export default SearchPage;

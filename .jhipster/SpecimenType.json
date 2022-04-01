@@ -5,6 +5,11 @@
       "fieldName": "type",
       "fieldType": "String",
       "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
     }
   ],
   "relationships": [

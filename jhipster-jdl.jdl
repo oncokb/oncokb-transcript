@@ -62,6 +62,17 @@ enum InfoType {
     GENE_LAST_UPDATED
 }
 
+entity Article {
+    pmid String,
+    title TextBlob,
+    journal String,
+    pubDate String,
+    volume String,
+    issue String,
+    pages String,
+    authors String,
+}
+
 entity Gene {
     entrezGeneId Integer
     hugoSymbol String
@@ -73,6 +84,7 @@ entity GeneAlias {
 
 entity SpecimenType{
 	type String required
+    name String required
 }
 
 entity CompanionDiagnosticDevice {
@@ -85,7 +97,7 @@ enum FdaSubmissionTypeKey {
 }
 
 entity FdaSubmissionType {
-	key FdaSubmissionTypeKey required
+	type FdaSubmissionTypeKey required
     name String required
     shortName String
     description TextBlob
@@ -161,9 +173,9 @@ relationship OneToMany {
     EnsemblGene to Transcript
     Transcript to Sequence
     CompanionDiagnosticDevice to FdaSubmission
-    FdaSubmission to DeviceUsageIndication
     VariantConsequence to Alteration{consequence}
     FdaSubmissionType to FdaSubmission{type}
+    FdaSubmission to DeviceUsageIndication
 	Alteration to DeviceUsageIndication
 	CancerType to DeviceUsageIndication
 	Drug to DeviceUsageIndication

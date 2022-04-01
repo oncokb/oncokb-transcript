@@ -7,23 +7,35 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <!--
-        Added the entity FdaSubmissionType.
+        Added the entity Article.
     -->
-    <changeSet id="20220401174645-1" author="jhipster">
-        <createTable tableName="fda_submission_type">
+    <changeSet id="20220401213213-1" author="jhipster">
+        <createTable tableName="article">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="type" type="varchar(255)">
-                <constraints nullable="false" />
-            </column>
-            <column name="name" type="varchar(255)">
-                <constraints nullable="false" />
-            </column>
-            <column name="short_name" type="varchar(255)">
+            <column name="pmid" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="description" type="${clobType}">
+            <column name="title" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="journal" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="pub_date" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="volume" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="issue" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="pages" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="authors" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->

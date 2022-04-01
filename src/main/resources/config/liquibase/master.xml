@@ -32,6 +32,7 @@
     <include file="config/liquibase/changelog/20220401174648_added_entity_Alteration.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174649_added_entity_CancerType.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174650_added_entity_DeviceUsageIndication.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220401213213_added_entity_Article.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="config/liquibase/changelog/20220401174634_added_entity_constraints_Sequence.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174635_added_entity_constraints_Transcript.xml" relativeToChangelogFile="false"/>

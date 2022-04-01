@@ -36,8 +36,8 @@ import org.springframework.util.Base64Utils;
 @WithMockUser
 class FdaSubmissionTypeResourceIT {
 
-    private static final FdaSubmissionTypeKey DEFAULT_KEY = FdaSubmissionTypeKey.PMA;
-    private static final FdaSubmissionTypeKey UPDATED_KEY = FdaSubmissionTypeKey.DE_NOVO;
+    private static final FdaSubmissionTypeKey DEFAULT_TYPE = FdaSubmissionTypeKey.PMA;
+    private static final FdaSubmissionTypeKey UPDATED_TYPE = FdaSubmissionTypeKey.DE_NOVO;
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
@@ -73,7 +73,7 @@ class FdaSubmissionTypeResourceIT {
      */
     public static FdaSubmissionType createEntity(EntityManager em) {
         FdaSubmissionType fdaSubmissionType = new FdaSubmissionType()
-            .key(DEFAULT_KEY)
+            .type(DEFAULT_TYPE)
             .name(DEFAULT_NAME)
             .shortName(DEFAULT_SHORT_NAME)
             .description(DEFAULT_DESCRIPTION);
@@ -88,7 +88,7 @@ class FdaSubmissionTypeResourceIT {
      */
     public static FdaSubmissionType createUpdatedEntity(EntityManager em) {
         FdaSubmissionType fdaSubmissionType = new FdaSubmissionType()
-            .key(UPDATED_KEY)
+            .type(UPDATED_TYPE)
             .name(UPDATED_NAME)
             .shortName(UPDATED_SHORT_NAME)
             .description(UPDATED_DESCRIPTION);
@@ -118,7 +118,7 @@ class FdaSubmissionTypeResourceIT {
         List<FdaSubmissionType> fdaSubmissionTypeList = fdaSubmissionTypeRepository.findAll();
         assertThat(fdaSubmissionTypeList).hasSize(databaseSizeBeforeCreate + 1);
         FdaSubmissionType testFdaSubmissionType = fdaSubmissionTypeList.get(fdaSubmissionTypeList.size() - 1);
-        assertThat(testFdaSubmissionType.getKey()).isEqualTo(DEFAULT_KEY);
+        assertThat(testFdaSubmissionType.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testFdaSubmissionType.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testFdaSubmissionType.getShortName()).isEqualTo(DEFAULT_SHORT_NAME);
         assertThat(testFdaSubmissionType.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
@@ -149,10 +149,10 @@ class FdaSubmissionTypeResourceIT {
 
     @Test
     @Transactional
-    void checkKeyIsRequired() throws Exception {
+    void checkTypeIsRequired() throws Exception {
         int databaseSizeBeforeTest = fdaSubmissionTypeRepository.findAll().size();
         // set the field null
-        fdaSubmissionType.setKey(null);
+        fdaSubmissionType.setType(null);
 
         // Create the FdaSubmissionType, which fails.
 
@@ -203,7 +203,7 @@ class FdaSubmissionTypeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(fdaSubmissionType.getId().intValue())))
-            .andExpect(jsonPath("$.[*].key").value(hasItem(DEFAULT_KEY.toString())))
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].shortName").value(hasItem(DEFAULT_SHORT_NAME)))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())));
@@ -221,7 +221,7 @@ class FdaSubmissionTypeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(fdaSubmissionType.getId().intValue()))
-            .andExpect(jsonPath("$.key").value(DEFAULT_KEY.toString()))
+            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.shortName").value(DEFAULT_SHORT_NAME))
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()));
@@ -246,7 +246,7 @@ class FdaSubmissionTypeResourceIT {
         FdaSubmissionType updatedFdaSubmissionType = fdaSubmissionTypeRepository.findById(fdaSubmissionType.getId()).get();
         // Disconnect from session so that the updates on updatedFdaSubmissionType are not directly saved in db
         em.detach(updatedFdaSubmissionType);
-        updatedFdaSubmissionType.key(UPDATED_KEY).name(UPDATED_NAME).shortName(UPDATED_SHORT_NAME).description(UPDATED_DESCRIPTION);
+        updatedFdaSubmissionType.type(UPDATED_TYPE).name(UPDATED_NAME).shortName(UPDATED_SHORT_NAME).description(UPDATED_DESCRIPTION);
 
         restFdaSubmissionTypeMockMvc
             .perform(
@@ -261,7 +261,7 @@ class FdaSubmissionTypeResourceIT {
         List<FdaSubmissionType> fdaSubmissionTypeList = fdaSubmissionTypeRepository.findAll();
         assertThat(fdaSubmissionTypeList).hasSize(databaseSizeBeforeUpdate);
         FdaSubmissionType testFdaSubmissionType = fdaSubmissionTypeList.get(fdaSubmissionTypeList.size() - 1);
-        assertThat(testFdaSubmissionType.getKey()).isEqualTo(UPDATED_KEY);
+        assertThat(testFdaSubmissionType.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testFdaSubmissionType.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testFdaSubmissionType.getShortName()).isEqualTo(UPDATED_SHORT_NAME);
         assertThat(testFdaSubmissionType.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
@@ -342,7 +342,7 @@ class FdaSubmissionTypeResourceIT {
         FdaSubmissionType partialUpdatedFdaSubmissionType = new FdaSubmissionType();
         partialUpdatedFdaSubmissionType.setId(fdaSubmissionType.getId());
 
-        partialUpdatedFdaSubmissionType.key(UPDATED_KEY).name(UPDATED_NAME);
+        partialUpdatedFdaSubmissionType.type(UPDATED_TYPE).name(UPDATED_NAME);
 
         restFdaSubmissionTypeMockMvc
             .perform(
@@ -357,7 +357,7 @@ class FdaSubmissionTypeResourceIT {
         List<FdaSubmissionType> fdaSubmissionTypeList = fdaSubmissionTypeRepository.findAll();
         assertThat(fdaSubmissionTypeList).hasSize(databaseSizeBeforeUpdate);
         FdaSubmissionType testFdaSubmissionType = fdaSubmissionTypeList.get(fdaSubmissionTypeList.size() - 1);
-        assertThat(testFdaSubmissionType.getKey()).isEqualTo(UPDATED_KEY);
+        assertThat(testFdaSubmissionType.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testFdaSubmissionType.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testFdaSubmissionType.getShortName()).isEqualTo(DEFAULT_SHORT_NAME);
         assertThat(testFdaSubmissionType.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
@@ -375,7 +375,11 @@ class FdaSubmissionTypeResourceIT {
         FdaSubmissionType partialUpdatedFdaSubmissionType = new FdaSubmissionType();
         partialUpdatedFdaSubmissionType.setId(fdaSubmissionType.getId());
 
-        partialUpdatedFdaSubmissionType.key(UPDATED_KEY).name(UPDATED_NAME).shortName(UPDATED_SHORT_NAME).description(UPDATED_DESCRIPTION);
+        partialUpdatedFdaSubmissionType
+            .type(UPDATED_TYPE)
+            .name(UPDATED_NAME)
+            .shortName(UPDATED_SHORT_NAME)
+            .description(UPDATED_DESCRIPTION);
 
         restFdaSubmissionTypeMockMvc
             .perform(
@@ -390,7 +394,7 @@ class FdaSubmissionTypeResourceIT {
         List<FdaSubmissionType> fdaSubmissionTypeList = fdaSubmissionTypeRepository.findAll();
         assertThat(fdaSubmissionTypeList).hasSize(databaseSizeBeforeUpdate);
         FdaSubmissionType testFdaSubmissionType = fdaSubmissionTypeList.get(fdaSubmissionTypeList.size() - 1);
-        assertThat(testFdaSubmissionType.getKey()).isEqualTo(UPDATED_KEY);
+        assertThat(testFdaSubmissionType.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testFdaSubmissionType.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testFdaSubmissionType.getShortName()).isEqualTo(UPDATED_SHORT_NAME);
         assertThat(testFdaSubmissionType.getDescription()).isEqualTo(UPDATED_DESCRIPTION);

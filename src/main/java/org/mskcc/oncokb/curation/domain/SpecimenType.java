@@ -25,6 +25,10 @@ public class SpecimenType implements Serializable {
     @Column(name = "type", nullable = false)
     private String type;
 
+    @NotNull
+    @Column(name = "name", nullable = false)
+    private String name;
+
     @ManyToMany(mappedBy = "specimenTypes")
     @JsonIgnoreProperties(value = { "fdaSubmissions", "specimenTypes" }, allowSetters = true)
     private Set<CompanionDiagnosticDevice> companionDiagnosticDevices = new HashSet<>();
@@ -55,6 +59,19 @@ public class SpecimenType implements Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public SpecimenType name(String name) {
+        this.setName(name);
+        return this;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Set<CompanionDiagnosticDevice> getCompanionDiagnosticDevices() {
@@ -113,6 +130,7 @@ public class SpecimenType implements Serializable {
         return "SpecimenType{" +
             "id=" + getId() +
             ", type='" + getType() + "'" +
+            ", name='" + getName() + "'" +
             "}";
     }
 }

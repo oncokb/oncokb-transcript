@@ -24,8 +24,8 @@ public class FdaSubmissionType implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "jhi_key", nullable = false)
-    private FdaSubmissionTypeKey key;
+    @Column(name = "type", nullable = false)
+    private FdaSubmissionTypeKey type;
 
     @NotNull
     @Column(name = "name", nullable = false)
@@ -57,17 +57,17 @@ public class FdaSubmissionType implements Serializable {
         this.id = id;
     }
 
-    public FdaSubmissionTypeKey getKey() {
-        return this.key;
+    public FdaSubmissionTypeKey getType() {
+        return this.type;
     }
 
-    public FdaSubmissionType key(FdaSubmissionTypeKey key) {
-        this.setKey(key);
+    public FdaSubmissionType type(FdaSubmissionTypeKey type) {
+        this.setType(type);
         return this;
     }
 
-    public void setKey(FdaSubmissionTypeKey key) {
-        this.key = key;
+    public void setType(FdaSubmissionTypeKey type) {
+        this.type = type;
     }
 
     public String getName() {
@@ -164,7 +164,7 @@ public class FdaSubmissionType implements Serializable {
     public String toString() {
         return "FdaSubmissionType{" +
             "id=" + getId() +
-            ", key='" + getKey() + "'" +
+            ", type='" + getType() + "'" +
             ", name='" + getName() + "'" +
             ", shortName='" + getShortName() + "'" +
             ", description='" + getDescription() + "'" +

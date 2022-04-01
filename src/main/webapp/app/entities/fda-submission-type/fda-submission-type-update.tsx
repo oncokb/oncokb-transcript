@@ -55,7 +55,7 @@ export const FdaSubmissionTypeUpdate = (props: IFdaSubmissionTypeUpdateProps) =>
     isNew
       ? {}
       : {
-          key: 'PMA',
+          type: 'PMA',
           ...fdaSubmissionTypeEntity,
         };
 
@@ -77,7 +77,7 @@ export const FdaSubmissionTypeUpdate = (props: IFdaSubmissionTypeUpdateProps) =>
               {!isNew ? (
                 <ValidatedField name="id" required readOnly id="fda-submission-type-id" label="ID" validate={{ required: true }} />
               ) : null}
-              <ValidatedField label="Key" id="fda-submission-type-key" name="key" data-cy="key" type="select">
+              <ValidatedField label="Type" id="fda-submission-type-type" name="type" data-cy="type" type="select">
                 <option value="PMA">PMA</option>
                 <option value="DE_NOVO">DE_NOVO</option>
                 <option value="HDE">HDE</option>

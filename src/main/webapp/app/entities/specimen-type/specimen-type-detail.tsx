@@ -28,6 +28,10 @@ export const SpecimenTypeDetail = (props: ISpecimenTypeDetailProps) => {
             <span id="type">Type</span>
           </dt>
           <dd>{specimenTypeEntity.type}</dd>
+          <dt>
+            <span id="name">Name</span>
+          </dt>
+          <dd>{specimenTypeEntity.name}</dd>
         </dl>
         <Button tag={Link} to="/specimen-type" replace color="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>

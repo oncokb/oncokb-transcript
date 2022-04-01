@@ -90,6 +90,16 @@ export const SpecimenTypeUpdate = (props: ISpecimenTypeUpdateProps) => {
                   required: { value: true, message: 'This field is required.' },
                 }}
               />
+              <ValidatedField
+                label="Name"
+                id="specimen-type-name"
+                name="name"
+                data-cy="name"
+                type="text"
+                validate={{
+                  required: { value: true, message: 'This field is required.' },
+                }}
+              />
               <Button tag={Link} id="cancel-save" data-cy="entityCreateCancelButton" to="/specimen-type" replace color="info">
                 <FontAwesomeIcon icon="arrow-left" />
                 &nbsp;

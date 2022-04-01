@@ -37,6 +37,9 @@ class SpecimenTypeResourceIT {
     private static final String DEFAULT_TYPE = "AAAAAAAAAA";
     private static final String UPDATED_TYPE = "BBBBBBBBBB";
 
+    private static final String DEFAULT_NAME = "AAAAAAAAAA";
+    private static final String UPDATED_NAME = "BBBBBBBBBB";
+
     private static final String ENTITY_API_URL = "/api/specimen-types";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -61,7 +64,7 @@ class SpecimenTypeResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static SpecimenType createEntity(EntityManager em) {
-        SpecimenType specimenType = new SpecimenType().type(DEFAULT_TYPE);
+        SpecimenType specimenType = new SpecimenType().type(DEFAULT_TYPE).name(DEFAULT_NAME);
         return specimenType;
     }
 
@@ -72,7 +75,7 @@ class SpecimenTypeResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static SpecimenType createUpdatedEntity(EntityManager em) {
-        SpecimenType specimenType = new SpecimenType().type(UPDATED_TYPE);
+        SpecimenType specimenType = new SpecimenType().type(UPDATED_TYPE).name(UPDATED_NAME);
         return specimenType;
     }
 
@@ -100,6 +103,7 @@ class SpecimenTypeResourceIT {
         assertThat(specimenTypeList).hasSize(databaseSizeBeforeCreate + 1);
         SpecimenType testSpecimenType = specimenTypeList.get(specimenTypeList.size() - 1);
         assertThat(testSpecimenType.getType()).isEqualTo(DEFAULT_TYPE);
+        assertThat(testSpecimenType.getName()).isEqualTo(DEFAULT_NAME);
     }
 
     @Test
@@ -149,6 +153,28 @@ class SpecimenTypeResourceIT {
 
     @Test
     @Transactional
+    void checkNameIsRequired() throws Exception {
+        int databaseSizeBeforeTest = specimenTypeRepository.findAll().size();
+        // set the field null
+        specimenType.setName(null);
+
+        // Create the SpecimenType, which fails.
+
+        restSpecimenTypeMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(specimenType))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<SpecimenType> specimenTypeList = specimenTypeRepository.findAll();
+        assertThat(specimenTypeList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllSpecimenTypes() throws Exception {
         // Initialize the database
         specimenTypeRepository.saveAndFlush(specimenType);
@@ -159,7 +185,8 @@ class SpecimenTypeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(specimenType.getId().intValue())))
-            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)));
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)));
     }
 
     @Test
@@ -174,7 +201,8 @@ class SpecimenTypeResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(specimenType.getId().intValue()))
-            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE));
+            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
+            .andExpect(jsonPath("$.name").value(DEFAULT_NAME));
     }
 
     @Test
@@ -196,7 +224,7 @@ class SpecimenTypeResourceIT {
         SpecimenType updatedSpecimenType = specimenTypeRepository.findById(specimenType.getId()).get();
         // Disconnect from session so that the updates on updatedSpecimenType are not directly saved in db
         em.detach(updatedSpecimenType);
-        updatedSpecimenType.type(UPDATED_TYPE);
+        updatedSpecimenType.type(UPDATED_TYPE).name(UPDATED_NAME);
 
         restSpecimenTypeMockMvc
             .perform(
@@ -212,6 +240,7 @@ class SpecimenTypeResourceIT {
         assertThat(specimenTypeList).hasSize(databaseSizeBeforeUpdate);
         SpecimenType testSpecimenType = specimenTypeList.get(specimenTypeList.size() - 1);
         assertThat(testSpecimenType.getType()).isEqualTo(UPDATED_TYPE);
+        assertThat(testSpecimenType.getName()).isEqualTo(UPDATED_NAME);
     }
 
     @Test
@@ -305,6 +334,7 @@ class SpecimenTypeResourceIT {
         assertThat(specimenTypeList).hasSize(databaseSizeBeforeUpdate);
         SpecimenType testSpecimenType = specimenTypeList.get(specimenTypeList.size() - 1);
         assertThat(testSpecimenType.getType()).isEqualTo(UPDATED_TYPE);
+        assertThat(testSpecimenType.getName()).isEqualTo(DEFAULT_NAME);
     }
 
     @Test
@@ -319,7 +349,7 @@ class SpecimenTypeResourceIT {
         SpecimenType partialUpdatedSpecimenType = new SpecimenType();
         partialUpdatedSpecimenType.setId(specimenType.getId());
 
-        partialUpdatedSpecimenType.type(UPDATED_TYPE);
+        partialUpdatedSpecimenType.type(UPDATED_TYPE).name(UPDATED_NAME);
 
         restSpecimenTypeMockMvc
             .perform(
@@ -335,6 +365,7 @@ class SpecimenTypeResourceIT {
         assertThat(specimenTypeList).hasSize(databaseSizeBeforeUpdate);
         SpecimenType testSpecimenType = specimenTypeList.get(specimenTypeList.size() - 1);
         assertThat(testSpecimenType.getType()).isEqualTo(UPDATED_TYPE);
+        assertThat(testSpecimenType.getName()).isEqualTo(UPDATED_NAME);
     }
 
     @Test

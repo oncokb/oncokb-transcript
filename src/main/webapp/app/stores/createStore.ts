@@ -72,6 +72,7 @@ import cancerType, {
 import deviceUsageIndication, {
   DeviceUsageIndicationStore
 } from 'app/entities/device-usage-indication/device-usage-indication.store';
+import article, { ArticleStore } from 'app/entities/article/article.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
@@ -97,6 +98,7 @@ export interface IRootStore {
   readonly alterationStore: AlterationStore;
   readonly cancerTypeStore: CancerTypeStore;
   readonly deviceUsageIndicationStore: DeviceUsageIndicationStore;
+  readonly articleStore: ArticleStore;
   /* jhipster-needle-add-store-field - JHipster will add store here */
 }
 
@@ -125,6 +127,7 @@ export function createStores(history: History): IRootStore {
   rootStore.alterationStore = new AlterationStore(rootStore);
   rootStore.cancerTypeStore = new CancerTypeStore(rootStore);
   rootStore.deviceUsageIndicationStore = new DeviceUsageIndicationStore(rootStore);
+  rootStore.articleStore = new ArticleStore(rootStore);
   /* jhipster-needle-add-store-init - JHipster will add store here */
   return rootStore;
 }

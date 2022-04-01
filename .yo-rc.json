@@ -73,9 +73,10 @@
       "VariantConsequence",
       "Alteration",
       "CancerType",
-      "DeviceUsageIndication"
+      "DeviceUsageIndication",
+      "Article"
     ],
-    "lastLiquibaseTimestamp": 1648835210000,
+    "lastLiquibaseTimestamp": 1648848733000,
     "devServerPort": 9060,
     "enableGradleEnterprise": false
   }

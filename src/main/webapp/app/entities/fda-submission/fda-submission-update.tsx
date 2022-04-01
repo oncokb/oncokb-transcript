@@ -158,7 +158,7 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
                 {fdaSubmissionTypes
                   ? fdaSubmissionTypes.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.key}
+                        {otherEntity.type}
                       </option>
                     ))
                   : null}

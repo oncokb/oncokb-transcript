@@ -3,6 +3,7 @@ import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnosti
 export interface ISpecimenType {
   id?: number;
   type?: string;
+  name?: string;
   companionDiagnosticDevices?: ICompanionDiagnosticDevice[] | null;
 }
 

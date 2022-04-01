@@ -47,8 +47,8 @@ public class FdaSubmissionTypeService {
         return fdaSubmissionTypeRepository
             .findById(fdaSubmissionType.getId())
             .map(existingFdaSubmissionType -> {
-                if (fdaSubmissionType.getKey() != null) {
-                    existingFdaSubmissionType.setKey(fdaSubmissionType.getKey());
+                if (fdaSubmissionType.getType() != null) {
+                    existingFdaSubmissionType.setType(fdaSubmissionType.getType());
                 }
                 if (fdaSubmissionType.getName() != null) {
                     existingFdaSubmissionType.setName(fdaSubmissionType.getName());

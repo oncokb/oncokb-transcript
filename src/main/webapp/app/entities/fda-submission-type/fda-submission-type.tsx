@@ -45,7 +45,7 @@ export const FdaSubmissionType = (props: IFdaSubmissionTypeProps) => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Key</th>
+                <th>Type</th>
                 <th>Name</th>
                 <th>Short Name</th>
                 <th>Description</th>
@@ -60,7 +60,7 @@ export const FdaSubmissionType = (props: IFdaSubmissionTypeProps) => {
                       {fdaSubmissionType.id}
                     </Button>
                   </td>
-                  <td>{fdaSubmissionType.key}</td>
+                  <td>{fdaSubmissionType.type}</td>
                   <td>{fdaSubmissionType.name}</td>
                   <td>{fdaSubmissionType.shortName}</td>
                   <td>{fdaSubmissionType.description}</td>

@@ -50,6 +50,9 @@ public class SpecimenTypeService {
                 if (specimenType.getType() != null) {
                     existingSpecimenType.setType(specimenType.getType());
                 }
+                if (specimenType.getName() != null) {
+                    existingSpecimenType.setName(specimenType.getName());
+                }
 
                 return existingSpecimenType;
             })

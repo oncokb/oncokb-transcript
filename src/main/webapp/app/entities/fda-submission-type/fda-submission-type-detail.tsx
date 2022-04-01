@@ -25,9 +25,9 @@ export const FdaSubmissionTypeDetail = (props: IFdaSubmissionTypeDetailProps) =>
           </dt>
           <dd>{fdaSubmissionTypeEntity.id}</dd>
           <dt>
-            <span id="key">Key</span>
+            <span id="type">Type</span>
           </dt>
-          <dd>{fdaSubmissionTypeEntity.key}</dd>
+          <dd>{fdaSubmissionTypeEntity.type}</dd>
           <dt>
             <span id="name">Name</span>
           </dt>

@@ -90,7 +90,7 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
                     )}
                   </td>
                   <td>
-                    {fdaSubmission.type ? <Link to={`fda-submission-type/${fdaSubmission.type.id}`}>{fdaSubmission.type.key}</Link> : ''}
+                    {fdaSubmission.type ? <Link to={`fda-submission-type/${fdaSubmission.type.id}`}>{fdaSubmission.type.type}</Link> : ''}
                   </td>
                   <td className="text-right">
                     <div className="btn-group flex-btn-group-container">

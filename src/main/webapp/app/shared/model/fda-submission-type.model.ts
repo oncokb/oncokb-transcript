@@ -3,7 +3,7 @@ import { FdaSubmissionTypeKey } from 'app/shared/model/enumerations/fda-submissi
 
 export interface IFdaSubmissionType {
   id?: number;
-  key?: FdaSubmissionTypeKey;
+  type?: FdaSubmissionTypeKey;
   name?: string;
   shortName?: string | null;
   description?: string | null;
