@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+    <!--
+        Added the constraints for entity FdaSubmission.
+    -->
+    <changeSet id="20220401174646-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="companion_diagnostic_device_id"
+                                 baseTableName="fda_submission"
+                                 constraintName="fk_fda_submission__companion_diagnostic_device_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="companion_diagnostic_device"/>
+
+        <addForeignKeyConstraint baseColumnNames="type_id"
+                                 baseTableName="fda_submission"
+                                 constraintName="fk_fda_submission__type_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="fda_submission_type"/>
+    </changeSet>
+</databaseChangeLog>

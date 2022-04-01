@@ -56,8 +56,26 @@
     "reactive": false,
     "nativeLanguage": "en",
     "languages": ["en", "fr"],
-    "entities": ["Sequence", "Transcript", "Info", "Gene", "GeneAlias", "GenomeFragment", "EnsemblGene"],
-    "lastLiquibaseTimestamp": 1638232024000,
+    "entities": [
+      "Sequence",
+      "Transcript",
+      "Info",
+      "Gene",
+      "GeneAlias",
+      "GenomeFragment",
+      "EnsemblGene",
+      "Drug",
+      "DrugSynonym",
+      "SpecimenType",
+      "CompanionDiagnosticDevice",
+      "FdaSubmissionType",
+      "FdaSubmission",
+      "VariantConsequence",
+      "Alteration",
+      "CancerType",
+      "DeviceUsageIndication"
+    ],
+    "lastLiquibaseTimestamp": 1648835210000,
     "devServerPort": 9060,
     "enableGradleEnterprise": false
   }

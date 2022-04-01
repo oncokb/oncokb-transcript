@@ -1,0 +1,43 @@
+{
+  "name": "Drug",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    },
+    {
+      "fieldName": "code",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "semanticType",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "drugSynonym",
+      "otherEntityRelationshipName": "drug",
+      "relationshipName": "synonyms"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "deviceUsageIndication",
+      "otherEntityRelationshipName": "drug",
+      "relationshipName": "deviceUsageIndication"
+    }
+  ],
+  "entityTableName": "drug",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220401174641"
+}

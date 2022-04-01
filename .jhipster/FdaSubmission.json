@@ -1,0 +1,65 @@
+{
+  "name": "FdaSubmission",
+  "fields": [
+    {
+      "fieldName": "number",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "supplementNumber",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "deviceName",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "genericName",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "dateReceived",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "decisionDate",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "deviceUsageIndication",
+      "otherEntityRelationshipName": "fdaSubmission",
+      "relationshipName": "deviceUsageIndication"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "companionDiagnosticDevice",
+      "otherEntityRelationshipName": "fdaSubmission",
+      "relationshipName": "companionDiagnosticDevice"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "fdaSubmissionType",
+      "otherEntityRelationshipName": "fdaSubmission",
+      "relationshipName": "type"
+    }
+  ],
+  "entityTableName": "fda_submission",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220401174646"
+}

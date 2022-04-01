@@ -1,0 +1,29 @@
+{
+  "name": "SpecimenType",
+  "fields": [
+    {
+      "fieldName": "type",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "companionDiagnosticDevice",
+      "otherEntityRelationshipName": "specimenType",
+      "relationshipName": "companionDiagnosticDevice",
+      "ownerSide": false
+    }
+  ],
+  "entityTableName": "specimen_type",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220401174643"
+}

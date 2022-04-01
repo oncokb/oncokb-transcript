@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity FdaSubmission.
+    -->
+    <changeSet id="20220401174646-1" author="jhipster">
+        <createTable tableName="fda_submission">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="number" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="supplement_number" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="device_name" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="generic_name" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="date_received" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="decision_date" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="description" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="companion_diagnostic_device_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="type_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+        <dropDefaultValue tableName="fda_submission" columnName="date_received" columnDataType="${datetimeType}"/>
+        <dropDefaultValue tableName="fda_submission" columnName="decision_date" columnDataType="${datetimeType}"/>
+    </changeSet>
+
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
+</databaseChangeLog>

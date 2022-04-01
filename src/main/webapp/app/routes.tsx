@@ -13,6 +13,7 @@ import ArticlePage from './pages/ArticlePage';
 import GenePage from './pages/GenePage';
 import LoginRedirect from './pages/login/login-redirect';
 import UserManagementPage from './pages/UserManagementPage';
+import Entities from 'app/entities';
 
 const Account = Loadable({
   loader: () => import(/* webpackChunkName: "account" */ './pages/account/SettingsPage'),
@@ -28,7 +29,7 @@ const Routes = () => {
         <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGOUT} component={Logout} />
         <ErrorBoundaryRoute exact path={PAGE_ROUTE.OAUTH} component={LoginRedirect} />
         <PrivateRoute exact path={PAGE_ROUTE.ARTICLES_SEARCH} component={ArticleSearchPage} />
-        <PrivateRoute exact path={PAGE_ROUTE.ARTICLE} component={ArticlePage} />
+        <PrivateRoute path="/" component={Entities} hasAnyAuthorities={[AUTHORITIES.USER]} />
         <PrivateRoute exact path={PAGE_ROUTE.GENE} component={GenePage} />
         <PrivateRoute exact path={PAGE_ROUTE.ACCOUNT} component={Account} hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]} />
         <PrivateRoute

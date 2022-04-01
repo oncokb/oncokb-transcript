@@ -34,6 +34,15 @@ public class Gene implements Serializable {
     @JsonIgnoreProperties(value = { "transcripts", "gene" }, allowSetters = true)
     private Set<EnsemblGene> ensemblGenes = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+        name = "rel_gene__alteration",
+        joinColumns = @JoinColumn(name = "gene_id"),
+        inverseJoinColumns = @JoinColumn(name = "alteration_id")
+    )
+    @JsonIgnoreProperties(value = { "deviceUsageIndications", "consequence", "genes" }, allowSetters = true)
+    private Set<Alteration> alterations = new HashSet<>();
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
@@ -134,6 +143,31 @@ public class Gene implements Serializable {
     public Gene removeEnsemblGene(EnsemblGene ensemblGene) {
         this.ensemblGenes.remove(ensemblGene);
         ensemblGene.setGene(null);
+        return this;
+    }
+
+    public Set<Alteration> getAlterations() {
+        return this.alterations;
+    }
+
+    public void setAlterations(Set<Alteration> alterations) {
+        this.alterations = alterations;
+    }
+
+    public Gene alterations(Set<Alteration> alterations) {
+        this.setAlterations(alterations);
+        return this;
+    }
+
+    public Gene addAlteration(Alteration alteration) {
+        this.alterations.add(alteration);
+        alteration.getGenes().add(this);
+        return this;
+    }
+
+    public Gene removeAlteration(Alteration alteration) {
+        this.alterations.remove(alteration);
+        alteration.getGenes().remove(this);
         return this;
     }
 

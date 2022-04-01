@@ -1,0 +1,40 @@
+{
+  "name": "CompanionDiagnosticDevice",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "manufacturer",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "fdaSubmission",
+      "otherEntityRelationshipName": "companionDiagnosticDevice",
+      "relationshipName": "fdaSubmission"
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "specimenType",
+      "otherEntityRelationshipName": "companionDiagnosticDevice",
+      "relationshipName": "specimenType",
+      "ownerSide": true
+    }
+  ],
+  "entityTableName": "companion_diagnostic_device",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220401174644"
+}

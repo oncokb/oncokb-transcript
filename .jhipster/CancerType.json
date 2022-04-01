@@ -1,0 +1,67 @@
+{
+  "name": "CancerType",
+  "fields": [
+    {
+      "fieldName": "code",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "color",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "level",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "mainType",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "subtype",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "tissue",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "tumorForm",
+      "fieldType": "TumorForm",
+      "fieldValues": "SOLID,LIQUID,MIXED",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "cancerType",
+      "otherEntityRelationshipName": "parent",
+      "relationshipName": "children"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "deviceUsageIndication",
+      "otherEntityRelationshipName": "cancerType",
+      "relationshipName": "deviceUsageIndication"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "cancerType",
+      "otherEntityRelationshipName": "children",
+      "relationshipName": "parent"
+    }
+  ],
+  "entityTableName": "cancer_type",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220401174649"
+}

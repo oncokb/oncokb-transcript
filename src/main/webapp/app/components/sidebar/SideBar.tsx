@@ -7,7 +7,7 @@ import { IRootStore } from 'app/stores/createStore';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { NavLink } from 'react-router-dom';
 import { ProSidebar, Menu, MenuItem, SidebarContent } from 'react-pro-sidebar';
-import { faBars, faDna, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faBuilding, faSearch, faPills } from '@fortawesome/free-solid-svg-icons';
 
 class SideBar extends React.Component<StoreProps> {
   render() {
@@ -22,8 +22,21 @@ class SideBar extends React.Component<StoreProps> {
               <MenuItem icon={<FontAwesomeIcon size="lg" icon={faSearch} />}>
                 Article <NavLink to={PAGE_ROUTE.ARTICLES_SEARCH} />
               </MenuItem>
-              <MenuItem icon={<FontAwesomeIcon size="lg" icon={faDna} />}>
+              <MenuItem icon={<b style={{ fontSize: '1.5em' }}>G</b>}>
                 Gene <NavLink to={PAGE_ROUTE.GENE} />
+              </MenuItem>
+              <MenuItem icon={<b style={{ fontSize: '1.5em' }}>A</b>}>
+                Alteration <NavLink to={PAGE_ROUTE.ALTERATION} />
+              </MenuItem>
+              <MenuItem icon={<FontAwesomeIcon size="lg" icon={faPills} />}>
+                Drug <NavLink to={PAGE_ROUTE.DRUG} />
+              </MenuItem>
+              <MenuItem icon={<FontAwesomeIcon size="lg" icon={faBuilding} />}>
+                CDD
+                <NavLink to={PAGE_ROUTE.CDD} />
+              </MenuItem>
+              <MenuItem icon={<b style={{ fontSize: '1.2em' }}>FDA</b>}>
+                Submission <NavLink to={PAGE_ROUTE.FDA_SUBMISSION} />
               </MenuItem>
             </Menu>
           </SidebarContent>

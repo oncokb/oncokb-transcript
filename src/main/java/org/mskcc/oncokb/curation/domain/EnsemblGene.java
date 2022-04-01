@@ -54,7 +54,7 @@ public class EnsemblGene implements Serializable {
     private Set<Transcript> transcripts = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "alterations" }, allowSetters = true)
     private Gene gene;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

@@ -1,0 +1,68 @@
+{
+  "name": "Alteration",
+  "fields": [
+    {
+      "fieldName": "type",
+      "fieldType": "AlterationType",
+      "fieldValues": "MUTATION,COPY_NUMBER_ALTERATION,STRUCTURAL_VARIANT,UNKNOWN",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "alteration",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "proteinStart",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "proteinEnd",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "refResidues",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "variantResidues",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "deviceUsageIndication",
+      "otherEntityRelationshipName": "alteration",
+      "relationshipName": "deviceUsageIndication"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "variantConsequence",
+      "otherEntityRelationshipName": "alteration",
+      "relationshipName": "consequence"
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "gene",
+      "otherEntityRelationshipName": "alteration",
+      "relationshipName": "gene",
+      "ownerSide": false
+    }
+  ],
+  "entityTableName": "alteration",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220401174648"
+}

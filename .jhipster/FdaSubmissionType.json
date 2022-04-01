@@ -1,0 +1,43 @@
+{
+  "name": "FdaSubmissionType",
+  "fields": [
+    {
+      "fieldName": "key",
+      "fieldType": "FdaSubmissionTypeKey",
+      "fieldValues": "PMA,DE_NOVO,HDE,PMN",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "shortName",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "fdaSubmission",
+      "otherEntityRelationshipName": "type",
+      "relationshipName": "fdaSubmission"
+    }
+  ],
+  "entityTableName": "fda_submission_type",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220401174645"
+}

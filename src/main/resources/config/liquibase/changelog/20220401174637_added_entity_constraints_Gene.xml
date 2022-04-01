@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+    <!--
+        Added the constraints for entity Gene.
+    -->
+    <changeSet id="20220401174637-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="gene_id"
+                                 baseTableName="rel_gene__alteration"
+                                 constraintName="fk_rel_gene__alteration__gene_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="gene"/>
+
+        <addForeignKeyConstraint baseColumnNames="alteration_id"
+                                 baseTableName="rel_gene__alteration"
+                                 constraintName="fk_rel_gene__alteration__alteration_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="alteration"/>
+    </changeSet>
+</databaseChangeLog>
