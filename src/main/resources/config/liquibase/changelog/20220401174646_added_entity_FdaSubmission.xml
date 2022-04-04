@@ -45,6 +45,14 @@
         </createTable>
         <dropDefaultValue tableName="fda_submission" columnName="date_received" columnDataType="${datetimeType}"/>
         <dropDefaultValue tableName="fda_submission" columnName="decision_date" columnDataType="${datetimeType}"/>
+
+        <loadData
+            file="config/liquibase/data/fda_submission.csv"
+            separator="|"
+            tableName="fda_submission"
+            usePreparedStatements="true">
+            <column name="description" type="string"/>
+        </loadData>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

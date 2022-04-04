@@ -22,6 +22,13 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+
+        <loadData
+            file="config/liquibase/data/companion_diagnostic_device.csv"
+            separator="|"
+            tableName="companion_diagnostic_device"
+            usePreparedStatements="true">
+        </loadData>
     </changeSet>
 
     <changeSet id="20220401174644-1-relations" author="jhipster">
