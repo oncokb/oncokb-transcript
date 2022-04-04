@@ -23,6 +23,7 @@
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
 
+        <!-- This data was generated on 4/4/2022 12:00PM EST - Please update this when csv file is modified -->
         <loadData
             file="config/liquibase/data/companion_diagnostic_device.csv"
             separator="|"

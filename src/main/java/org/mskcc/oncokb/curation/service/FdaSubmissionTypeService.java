@@ -3,6 +3,7 @@ package org.mskcc.oncokb.curation.service;
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.FdaSubmissionType;
+import org.mskcc.oncokb.curation.domain.enumeration.FdaSubmissionTypeKey;
 import org.mskcc.oncokb.curation.repository.FdaSubmissionTypeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +87,17 @@ public class FdaSubmissionTypeService {
     public Optional<FdaSubmissionType> findOne(Long id) {
         log.debug("Request to get FdaSubmissionType : {}", id);
         return fdaSubmissionTypeRepository.findById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<FdaSubmissionType> findOneBySubmissionNumberPrefix(String submissionNumber) {
+        log.debug("Request to get FdaSubmissionType by prefix : {}", submissionNumber);
+        String[] splitSubmission = submissionNumber.split("[0-9]");
+        if (splitSubmission.length == 0) {
+            return Optional.empty();
+        }
+        FdaSubmissionTypeKey type = FdaSubmissionTypeKey.getTypeByPrefix(splitSubmission[0]);
+        return fdaSubmissionTypeRepository.findByType(type);
     }
 
     /**
