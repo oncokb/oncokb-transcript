@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -95,7 +96,9 @@ class InfoResourceIT {
         int databaseSizeBeforeCreate = infoRepository.findAll().size();
         // Create the Info
         restInfoMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(info)))
+            .perform(
+                post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(info))
+            )
             .andExpect(status().isCreated());
 
         // Validate the Info in the database
@@ -117,7 +120,9 @@ class InfoResourceIT {
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restInfoMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(info)))
+            .perform(
+                post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(info))
+            )
             .andExpect(status().isBadRequest());
 
         // Validate the Info in the database
@@ -135,7 +140,9 @@ class InfoResourceIT {
         // Create the Info, which fails.
 
         restInfoMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(info)))
+            .perform(
+                post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(info))
+            )
             .andExpect(status().isBadRequest());
 
         List<Info> infoList = infoRepository.findAll();
@@ -200,6 +207,7 @@ class InfoResourceIT {
         restInfoMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, updatedInfo.getId())
+                    .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(updatedInfo))
             )
@@ -224,6 +232,7 @@ class InfoResourceIT {
         restInfoMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, info.getId())
+                    .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(info))
             )
@@ -244,6 +253,7 @@ class InfoResourceIT {
         restInfoMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, count.incrementAndGet())
+                    .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(info))
             )
@@ -262,7 +272,9 @@ class InfoResourceIT {
 
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restInfoMockMvc
-            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(info)))
+            .perform(
+                put(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(info))
+            )
             .andExpect(status().isMethodNotAllowed());
 
         // Validate the Info in the database
@@ -287,6 +299,7 @@ class InfoResourceIT {
         restInfoMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, partialUpdatedInfo.getId())
+                    .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedInfo))
             )
@@ -318,6 +331,7 @@ class InfoResourceIT {
         restInfoMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, partialUpdatedInfo.getId())
+                    .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedInfo))
             )
@@ -342,6 +356,7 @@ class InfoResourceIT {
         restInfoMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, info.getId())
+                    .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(info))
             )
@@ -362,6 +377,7 @@ class InfoResourceIT {
         restInfoMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, count.incrementAndGet())
+                    .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(info))
             )
@@ -380,7 +396,12 @@ class InfoResourceIT {
 
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restInfoMockMvc
-            .perform(patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(info)))
+            .perform(
+                patch(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(info))
+            )
             .andExpect(status().isMethodNotAllowed());
 
         // Validate the Info in the database
@@ -398,7 +419,7 @@ class InfoResourceIT {
 
         // Delete the info
         restInfoMockMvc
-            .perform(delete(ENTITY_API_URL_ID, info.getId()).accept(MediaType.APPLICATION_JSON))
+            .perform(delete(ENTITY_API_URL_ID, info.getId()).with(csrf()).accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item

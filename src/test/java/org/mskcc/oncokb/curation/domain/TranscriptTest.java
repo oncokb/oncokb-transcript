@@ -3,7 +3,6 @@ package org.mskcc.oncokb.curation.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.mskcc.oncokb.curation.domain.Transcript;
 import org.mskcc.oncokb.curation.web.rest.TestUtil;
 
 class TranscriptTest {

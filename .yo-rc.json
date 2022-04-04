@@ -5,7 +5,7 @@
     },
     "jhipsterVersion": "7.2.0",
     "applicationType": "monolith",
-    "baseName": "oncokb-transcript",
+    "baseName": "oncokb-curation",
     "packageName": "org.mskcc.oncokb.curation",
     "packageFolder": "org/mskcc/oncokb/curation",
     "serverPort": "9090",
@@ -59,16 +59,24 @@
     "entities": [
       "Sequence",
       "Transcript",
-      "TranscriptUsage",
-      "Drug",
-      "DrugSynonym",
       "Info",
       "Gene",
       "GeneAlias",
       "GenomeFragment",
-      "EnsemblGene"
+      "EnsemblGene",
+      "Drug",
+      "DrugSynonym",
+      "SpecimenType",
+      "CompanionDiagnosticDevice",
+      "FdaSubmissionType",
+      "FdaSubmission",
+      "VariantConsequence",
+      "Alteration",
+      "CancerType",
+      "DeviceUsageIndication",
+      "Article"
     ],
-    "lastLiquibaseTimestamp": 1638232024000,
+    "lastLiquibaseTimestamp": 1648848733000,
     "devServerPort": 9060,
     "enableGradleEnterprise": false
   }

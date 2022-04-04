@@ -1,0 +1,5 @@
+export enum InfoType {
+  NCIT_VERSION = 'NCIT_VERSION',
+
+  GENE_LAST_UPDATED = 'GENE_LAST_UPDATED',
+}

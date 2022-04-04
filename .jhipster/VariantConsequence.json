@@ -1,0 +1,37 @@
+{
+  "name": "VariantConsequence",
+  "fields": [
+    {
+      "fieldName": "term",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "isGenerallyTruncating",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "alteration",
+      "otherEntityRelationshipName": "consequence",
+      "relationshipName": "alteration"
+    }
+  ],
+  "entityTableName": "variant_consequence",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220401174647"
+}

@@ -22,6 +22,12 @@
       "otherEntityName": "drugSynonym",
       "otherEntityRelationshipName": "drug",
       "relationshipName": "synonyms"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "deviceUsageIndication",
+      "otherEntityRelationshipName": "drug",
+      "relationshipName": "deviceUsageIndication"
     }
   ],
   "entityTableName": "drug",
@@ -33,6 +39,5 @@
   "readOnly": false,
   "embedded": false,
   "applications": "*",
-  "changelogDate": "20210421184924",
-  "skipClient": true
+  "changelogDate": "20220401174641"
 }

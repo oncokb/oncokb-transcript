@@ -3,7 +3,6 @@ package org.mskcc.oncokb.curation.service.dto;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.mskcc.oncokb.curation.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.curation.web.rest.TestUtil;
 
 class TranscriptDTOTest {

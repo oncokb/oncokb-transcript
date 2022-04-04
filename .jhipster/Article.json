@@ -1,0 +1,49 @@
+{
+  "name": "Article",
+  "fields": [
+    {
+      "fieldName": "pmid",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "title",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    },
+    {
+      "fieldName": "journal",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "pubDate",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "volume",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "issue",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "pages",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "authors",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [],
+  "entityTableName": "article",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220401213213"
+}

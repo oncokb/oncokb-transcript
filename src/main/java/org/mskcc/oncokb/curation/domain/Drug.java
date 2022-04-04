@@ -35,6 +35,10 @@ public class Drug implements Serializable {
     @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
     private Set<DrugSynonym> synonyms = new HashSet<>();
 
+    @OneToMany(mappedBy = "drug")
+    @JsonIgnoreProperties(value = { "fdaSubmission", "alteration", "cancerType", "drug" }, allowSetters = true)
+    private Set<DeviceUsageIndication> deviceUsageIndications = new HashSet<>();
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
@@ -117,6 +121,37 @@ public class Drug implements Serializable {
     public Drug removeSynonyms(DrugSynonym drugSynonym) {
         this.synonyms.remove(drugSynonym);
         drugSynonym.setDrug(null);
+        return this;
+    }
+
+    public Set<DeviceUsageIndication> getDeviceUsageIndications() {
+        return this.deviceUsageIndications;
+    }
+
+    public void setDeviceUsageIndications(Set<DeviceUsageIndication> deviceUsageIndications) {
+        if (this.deviceUsageIndications != null) {
+            this.deviceUsageIndications.forEach(i -> i.setDrug(null));
+        }
+        if (deviceUsageIndications != null) {
+            deviceUsageIndications.forEach(i -> i.setDrug(this));
+        }
+        this.deviceUsageIndications = deviceUsageIndications;
+    }
+
+    public Drug deviceUsageIndications(Set<DeviceUsageIndication> deviceUsageIndications) {
+        this.setDeviceUsageIndications(deviceUsageIndications);
+        return this;
+    }
+
+    public Drug addDeviceUsageIndication(DeviceUsageIndication deviceUsageIndication) {
+        this.deviceUsageIndications.add(deviceUsageIndication);
+        deviceUsageIndication.setDrug(this);
+        return this;
+    }
+
+    public Drug removeDeviceUsageIndication(DeviceUsageIndication deviceUsageIndication) {
+        this.deviceUsageIndications.remove(deviceUsageIndication);
+        deviceUsageIndication.setDrug(null);
         return this;
     }
 
