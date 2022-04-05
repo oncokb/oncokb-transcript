@@ -66,7 +66,7 @@ export const SpecimenTypeUpdate = (props: ISpecimenTypeUpdateProps) => {
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.specimenType.home.createOrEditLabel" data-cy="SpecimenTypeCreateUpdateHeading">
+          <h2 id="oncokbCurationApp.specimenType.home.createOrEditLabel" data-cy="SpecimenTypeCreateUpdateHeading">
             Create or edit a SpecimenType
           </h2>
         </Col>

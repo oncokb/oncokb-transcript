@@ -54,7 +54,7 @@
   ],
   "entityTableName": "fda_submission",
   "dto": "no",
-  "pagination": "no",
+  "pagination": "pagination",
   "service": "serviceClass",
   "jpaMetamodelFiltering": false,
   "fluentMethods": true,

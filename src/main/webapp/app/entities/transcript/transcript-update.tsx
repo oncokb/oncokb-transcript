@@ -23,7 +23,7 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/transcript');
+    props.history.push('/transcript' + props.location.search);
   };
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.transcript.home.createOrEditLabel" data-cy="TranscriptCreateUpdateHeading">
+          <h2 id="oncokbCurationApp.transcript.home.createOrEditLabel" data-cy="TranscriptCreateUpdateHeading">
             Create or edit a Transcript
           </h2>
         </Col>

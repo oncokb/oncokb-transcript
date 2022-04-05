@@ -17,7 +17,7 @@ export const AlterationDeleteDialog = (props: IAlterationDeleteDialogProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/alteration');
+    props.history.push('/alteration' + props.location.search);
   };
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const AlterationDeleteDialog = (props: IAlterationDeleteDialogProps) => {
       <ModalHeader toggle={handleClose} data-cy="alterationDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.alteration.delete.question">Are you sure you want to delete this Alteration?</ModalBody>
+      <ModalBody id="oncokbCurationApp.alteration.delete.question">Are you sure you want to delete this Alteration?</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>
           <FontAwesomeIcon icon="ban" />

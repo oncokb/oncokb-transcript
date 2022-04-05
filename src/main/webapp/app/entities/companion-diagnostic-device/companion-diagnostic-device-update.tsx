@@ -69,7 +69,7 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
       <Row className="justify-content-center">
         <Col md="8">
           <h2
-            id="oncokbTranscriptApp.companionDiagnosticDevice.home.createOrEditLabel"
+            id="oncokbCurationApp.companionDiagnosticDevice.home.createOrEditLabel"
             data-cy="CompanionDiagnosticDeviceCreateUpdateHeading"
           >
             Create or edit a CompanionDiagnosticDevice

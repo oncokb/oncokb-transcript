@@ -35,7 +35,7 @@ export const VariantConsequenceDeleteDialog = (props: IVariantConsequenceDeleteD
       <ModalHeader toggle={handleClose} data-cy="variantConsequenceDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.variantConsequence.delete.question">
+      <ModalBody id="oncokbCurationApp.variantConsequence.delete.question">
         Are you sure you want to delete this VariantConsequence?
       </ModalBody>
       <ModalFooter>

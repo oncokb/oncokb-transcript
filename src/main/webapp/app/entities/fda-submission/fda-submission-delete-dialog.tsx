@@ -17,7 +17,7 @@ export const FdaSubmissionDeleteDialog = (props: IFdaSubmissionDeleteDialogProps
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/fda-submission');
+    props.history.push('/fda-submission' + props.location.search);
   };
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const FdaSubmissionDeleteDialog = (props: IFdaSubmissionDeleteDialogProps
       <ModalHeader toggle={handleClose} data-cy="fdaSubmissionDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.fdaSubmission.delete.question">Are you sure you want to delete this FdaSubmission?</ModalBody>
+      <ModalBody id="oncokbCurationApp.fdaSubmission.delete.question">Are you sure you want to delete this FdaSubmission?</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>
           <FontAwesomeIcon icon="ban" />

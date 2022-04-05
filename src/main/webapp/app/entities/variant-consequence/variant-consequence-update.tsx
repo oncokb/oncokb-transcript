@@ -62,7 +62,7 @@ export const VariantConsequenceUpdate = (props: IVariantConsequenceUpdateProps) 
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.variantConsequence.home.createOrEditLabel" data-cy="VariantConsequenceCreateUpdateHeading">
+          <h2 id="oncokbCurationApp.variantConsequence.home.createOrEditLabel" data-cy="VariantConsequenceCreateUpdateHeading">
             Create or edit a VariantConsequence
           </h2>
         </Col>

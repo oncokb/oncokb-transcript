@@ -35,7 +35,7 @@ export const InfoDeleteDialog = (props: IInfoDeleteDialogProps) => {
       <ModalHeader toggle={handleClose} data-cy="infoDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.info.delete.question">Are you sure you want to delete this Info?</ModalBody>
+      <ModalBody id="oncokbCurationApp.info.delete.question">Are you sure you want to delete this Info?</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>
           <FontAwesomeIcon icon="ban" />

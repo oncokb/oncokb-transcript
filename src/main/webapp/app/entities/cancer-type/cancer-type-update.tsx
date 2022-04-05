@@ -22,7 +22,7 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/cancer-type');
+    props.history.push('/cancer-type' + props.location.search);
   };
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.cancerType.home.createOrEditLabel" data-cy="CancerTypeCreateUpdateHeading">
+          <h2 id="oncokbCurationApp.cancerType.home.createOrEditLabel" data-cy="CancerTypeCreateUpdateHeading">
             Create or edit a CancerType
           </h2>
         </Col>

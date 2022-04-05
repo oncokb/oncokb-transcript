@@ -1,11 +1,12 @@
 package org.mskcc.oncokb.curation.service;
 
-import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.repository.CancerTypeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,12 +78,13 @@ public class CancerTypeService {
     /**
      * Get all the cancerTypes.
      *
+     * @param pageable the pagination information.
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public List<CancerType> findAll() {
+    public Page<CancerType> findAll(Pageable pageable) {
         log.debug("Request to get all CancerTypes");
-        return cancerTypeRepository.findAll();
+        return cancerTypeRepository.findAll(pageable);
     }
 
     /**

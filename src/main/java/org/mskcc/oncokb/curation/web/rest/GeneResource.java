@@ -12,9 +12,15 @@ import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
 /**
@@ -129,13 +135,24 @@ public class GeneResource {
     /**
      * {@code GET  /genes} : get all the genes.
      *
+     * @param pageable the pagination information.
      * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of genes in body.
      */
     @GetMapping("/genes")
-    public List<Gene> getAllGenes(@RequestParam(required = false, defaultValue = "false") boolean eagerload) {
-        log.debug("REST request to get all Genes");
-        return geneService.findAll();
+    public ResponseEntity<List<Gene>> getAllGenes(
+        Pageable pageable,
+        @RequestParam(required = false, defaultValue = "false") boolean eagerload
+    ) {
+        log.debug("REST request to get a page of Genes");
+        Page<Gene> page;
+        if (eagerload) {
+            page = geneService.findAllWithEagerRelationships(pageable);
+        } else {
+            page = geneService.findAll(pageable);
+        }
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     /**

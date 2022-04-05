@@ -35,7 +35,7 @@ export const CompanionDiagnosticDeviceDeleteDialog = (props: ICompanionDiagnosti
       <ModalHeader toggle={handleClose} data-cy="companionDiagnosticDeviceDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.companionDiagnosticDevice.delete.question">
+      <ModalBody id="oncokbCurationApp.companionDiagnosticDevice.delete.question">
         Are you sure you want to delete this CompanionDiagnosticDevice?
       </ModalBody>
       <ModalFooter>

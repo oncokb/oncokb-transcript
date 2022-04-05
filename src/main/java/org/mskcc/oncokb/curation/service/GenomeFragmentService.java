@@ -7,6 +7,8 @@ import org.mskcc.oncokb.curation.domain.GenomeFragment;
 import org.mskcc.oncokb.curation.repository.GenomeFragmentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,12 +79,13 @@ public class GenomeFragmentService {
     /**
      * Get all the genomeFragments.
      *
+     * @param pageable the pagination information.
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public List<GenomeFragment> findAll() {
+    public Page<GenomeFragment> findAll(Pageable pageable) {
         log.debug("Request to get all GenomeFragments");
-        return genomeFragmentRepository.findAll();
+        return genomeFragmentRepository.findAll(pageable);
     }
 
     /**

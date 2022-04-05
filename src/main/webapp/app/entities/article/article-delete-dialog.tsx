@@ -17,7 +17,7 @@ export const ArticleDeleteDialog = (props: IArticleDeleteDialogProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/article');
+    props.history.push('/article' + props.location.search);
   };
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const ArticleDeleteDialog = (props: IArticleDeleteDialogProps) => {
       <ModalHeader toggle={handleClose} data-cy="articleDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.article.delete.question">Are you sure you want to delete this Article?</ModalBody>
+      <ModalBody id="oncokbCurationApp.article.delete.question">Are you sure you want to delete this Article?</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>
           <FontAwesomeIcon icon="ban" />

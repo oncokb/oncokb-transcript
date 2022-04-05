@@ -25,7 +25,7 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/fda-submission');
+    props.history.push('/fda-submission' + props.location.search);
   };
 
   useEffect(() => {
@@ -81,7 +81,7 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.fdaSubmission.home.createOrEditLabel" data-cy="FdaSubmissionCreateUpdateHeading">
+          <h2 id="oncokbCurationApp.fdaSubmission.home.createOrEditLabel" data-cy="FdaSubmissionCreateUpdateHeading">
             Create or edit a FdaSubmission
           </h2>
         </Col>

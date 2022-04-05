@@ -35,7 +35,7 @@ export const DrugSynonymDeleteDialog = (props: IDrugSynonymDeleteDialogProps) =>
       <ModalHeader toggle={handleClose} data-cy="drugSynonymDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.drugSynonym.delete.question">Are you sure you want to delete this DrugSynonym?</ModalBody>
+      <ModalBody id="oncokbCurationApp.drugSynonym.delete.question">Are you sure you want to delete this DrugSynonym?</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>
           <FontAwesomeIcon icon="ban" />

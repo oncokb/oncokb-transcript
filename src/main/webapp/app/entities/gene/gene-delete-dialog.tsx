@@ -17,7 +17,7 @@ export const GeneDeleteDialog = (props: IGeneDeleteDialogProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/gene');
+    props.history.push('/gene' + props.location.search);
   };
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const GeneDeleteDialog = (props: IGeneDeleteDialogProps) => {
       <ModalHeader toggle={handleClose} data-cy="geneDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.gene.delete.question">Are you sure you want to delete this Gene?</ModalBody>
+      <ModalBody id="oncokbCurationApp.gene.delete.question">Are you sure you want to delete this Gene?</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>
           <FontAwesomeIcon icon="ban" />

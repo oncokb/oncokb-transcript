@@ -17,7 +17,7 @@ export const GenomeFragmentDeleteDialog = (props: IGenomeFragmentDeleteDialogPro
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/genome-fragment');
+    props.history.push('/genome-fragment' + props.location.search);
   };
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const GenomeFragmentDeleteDialog = (props: IGenomeFragmentDeleteDialogPro
       <ModalHeader toggle={handleClose} data-cy="genomeFragmentDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.genomeFragment.delete.question">Are you sure you want to delete this GenomeFragment?</ModalBody>
+      <ModalBody id="oncokbCurationApp.genomeFragment.delete.question">Are you sure you want to delete this GenomeFragment?</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>
           <FontAwesomeIcon icon="ban" />

@@ -23,7 +23,7 @@ export const SequenceUpdate = (props: ISequenceUpdateProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/sequence');
+    props.history.push('/sequence' + props.location.search);
   };
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export const SequenceUpdate = (props: ISequenceUpdateProps) => {
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.sequence.home.createOrEditLabel" data-cy="SequenceCreateUpdateHeading">
+          <h2 id="oncokbCurationApp.sequence.home.createOrEditLabel" data-cy="SequenceCreateUpdateHeading">
             Create or edit a Sequence
           </h2>
         </Col>

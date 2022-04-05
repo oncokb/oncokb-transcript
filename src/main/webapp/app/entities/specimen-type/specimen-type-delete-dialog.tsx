@@ -35,7 +35,7 @@ export const SpecimenTypeDeleteDialog = (props: ISpecimenTypeDeleteDialogProps) 
       <ModalHeader toggle={handleClose} data-cy="specimenTypeDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.specimenType.delete.question">Are you sure you want to delete this SpecimenType?</ModalBody>
+      <ModalBody id="oncokbCurationApp.specimenType.delete.question">Are you sure you want to delete this SpecimenType?</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>
           <FontAwesomeIcon icon="ban" />

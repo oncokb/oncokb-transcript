@@ -21,7 +21,7 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/drug');
+    props.history.push('/drug' + props.location.search);
   };
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.drug.home.createOrEditLabel" data-cy="DrugCreateUpdateHeading">
+          <h2 id="oncokbCurationApp.drug.home.createOrEditLabel" data-cy="DrugCreateUpdateHeading">
             Create or edit a Drug
           </h2>
         </Col>

@@ -33,7 +33,7 @@
   ],
   "entityTableName": "genome_fragment",
   "dto": "no",
-  "pagination": "no",
+  "pagination": "pagination",
   "service": "serviceClass",
   "jpaMetamodelFiltering": false,
   "fluentMethods": true,

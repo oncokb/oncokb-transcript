@@ -1,11 +1,11 @@
 import { IAlteration } from 'app/shared/model/alteration.model';
 import { IRootStore } from 'app/stores';
 import axios from 'axios';
-import CrudStore from 'app/shared/util/crud-store';
+import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
 
 const apiUrl = 'api/alterations';
 
-export class AlterationStore extends CrudStore<IAlteration> {
+export class AlterationStore extends PaginationCrudStore<IAlteration> {
   constructor(protected rootStore: IRootStore) {
     super(rootStore, apiUrl);
   }

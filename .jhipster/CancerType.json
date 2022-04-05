@@ -56,7 +56,7 @@
   ],
   "entityTableName": "cancer_type",
   "dto": "no",
-  "pagination": "no",
+  "pagination": "pagination",
   "service": "serviceClass",
   "jpaMetamodelFiltering": false,
   "fluentMethods": true,
