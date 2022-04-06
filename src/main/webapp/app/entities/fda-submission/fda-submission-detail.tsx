@@ -61,9 +61,9 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
           </dt>
           <dd>{fdaSubmissionEntity.description}</dd>
           <dt>Companion Diagnostic Device</dt>
-          <dd>{fdaSubmissionEntity.companionDiagnosticDevice ? fdaSubmissionEntity.companionDiagnosticDevice.id : ''}</dd>
+          <dd>{fdaSubmissionEntity.companionDiagnosticDevice ? fdaSubmissionEntity.companionDiagnosticDevice.name : ''}</dd>
           <dt>Type</dt>
-          <dd>{fdaSubmissionEntity.type ? fdaSubmissionEntity.type.id : ''}</dd>
+          <dd>{fdaSubmissionEntity.type ? fdaSubmissionEntity.type?.shortName : ''}</dd>
         </dl>
         <Button tag={Link} to="/fda-submission" replace color="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>

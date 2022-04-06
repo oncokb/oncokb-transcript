@@ -21,7 +21,6 @@ export const PrivateRouteComponent = ({
 }: IPrivateRouteProps) => {
   const isAuthorized = hasAnyAuthority(account.authorities, hasAnyAuthorities);
 
-  /* eslint-disable no-console */
   const checkAuthorities = props =>
     isAuthorized ? (
       <ErrorBoundary>

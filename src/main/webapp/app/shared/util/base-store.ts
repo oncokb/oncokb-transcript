@@ -1,6 +1,7 @@
 import { flow, observable, makeObservable } from 'mobx';
 import { IRootStore } from 'app/stores';
 import { handleOperation, OperationStatus } from 'app/shared/util/operation-handler';
+import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 export class BaseStore {
   public loading = false;
@@ -44,6 +45,7 @@ export class BaseStore {
           this.updateSuccess = true;
           this.updating = false;
           this.rootStore.loadingStore.hideLoading();
+          notifySuccess('Successfully created entity');
           break;
         }
         case OperationStatus.ERROR:
@@ -53,6 +55,7 @@ export class BaseStore {
           this.errorMessage = translatedMessage || (error && error.message);
           this.updating = false;
           this.rootStore.loadingStore.hideLoading();
+          notifyError(error);
           break;
         }
       }

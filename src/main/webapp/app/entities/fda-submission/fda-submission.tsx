@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { Button, Col, Row, Table } from 'reactstrap';
 import { byteSize, Translate, TextFormat, getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 
 import { IRootStore } from 'app/stores';
+import { Column } from 'react-table';
+import OncoKBTable from 'app/shared/table/OncoKBTable';
 export interface IFdaSubmissionProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const FdaSubmission = (props: IFdaSubmissionProps) => {
@@ -77,6 +78,37 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
 
   const { match } = props;
 
+  const columns: Column<IFdaSubmission>[] = [
+    { id: 'id', accessor: 'id', Header: 'ID', maxWidth: 30 },
+    { id: 'deviceName', accessor: 'deviceName', Header: 'Device Name' },
+    { id: 'number', accessor: 'number', Header: 'Number', maxWidth: 75 },
+    { id: 'supplementNumber', accessor: 'supplementNumber', Header: 'Supplement Number', maxWidth: 50 },
+    { id: 'type', accessor: 'type', Header: 'Type', Cell: ({ cell: { value } }) => value?.shortName || '', maxWidth: 50 },
+    {
+      id: 'actions',
+      Header: 'Actions',
+      Cell({
+        cell: {
+          row: { original },
+        },
+      }): any {
+        return (
+          <div className="btn-group flex-btn-group-container">
+            <Button tag={Link} to={`${match.url}/${original.id}`} color="info" size="sm" data-cy="entityDetailsButton">
+              <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
+            </Button>
+            <Button tag={Link} to={`${match.url}/${original.id}/edit`} color="primary" size="sm" data-cy="entityEditButton">
+              <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
+            </Button>
+            <Button tag={Link} to={`${match.url}/${original.id}/delete`} color="danger" size="sm" data-cy="entityDeleteButton">
+              <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
     <div>
       <h2 id="fda-submission-heading" data-cy="FdaSubmissionHeading">
@@ -91,7 +123,7 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
           </Link>
         </div>
       </h2>
-      <div className="table-responsive">
+      <div>
         {fdaSubmissionList && fdaSubmissionList.length > 0 ? (
           <Table responsive>
             <thead>
@@ -194,6 +226,7 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
             </tbody>
           </Table>
         ) : (
+          // <OncoKBTable columns={columns} data={fdaSubmissionList}></OncoKBTable>
           !loading && <div className="alert alert-warning">No Fda Submissions found</div>
         )}
       </div>

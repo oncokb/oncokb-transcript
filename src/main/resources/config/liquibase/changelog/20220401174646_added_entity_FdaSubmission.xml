@@ -21,7 +21,7 @@
                 <constraints nullable="true" />
             </column>
             <column name="device_name" type="varchar(255)">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="generic_name" type="varchar(255)">
                 <constraints nullable="true" />
@@ -43,6 +43,7 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+        <addUniqueConstraint tableName="fda_submission" columnNames="number, supplement_number, companion_diagnostic_device_id"/>
         <dropDefaultValue tableName="fda_submission" columnName="date_received" columnDataType="${datetimeType}"/>
         <dropDefaultValue tableName="fda_submission" columnName="decision_date" columnDataType="${datetimeType}"/>
 
