@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.jsoup.Jsoup;
@@ -53,7 +55,9 @@ public class CdxUtils {
         List<CompanionDiagnosticDevice> companionDiagnosticDevices = new ArrayList<>();
         Element tbody = table.select("tbody").first();
         Integer rowSpanCount = 0;
+        Integer rowCount = 0;
         for (Element tr : tbody.getElementsByTag("tr")) {
+            rowCount++;
             Elements td = tr.getElementsByTag("td");
             if (rowSpanCount > 0) { // Some cells may span across multiple rows
                 rowSpanCount--;
@@ -66,6 +70,10 @@ public class CdxUtils {
 
             // Create CompanionDiagnosticDevice entity
             CompanionDiagnosticDevice cdx = new CompanionDiagnosticDevice();
+            if (tableCells.size() < 3) {
+                log.warn("Row has less than 3 elements: {}", rowCount);
+                continue;
+            }
             cdx.setName(tableCells.get(0));
             Set<String> submissionCodes = Arrays
                 .asList(tableCells.get(1).split("\\s"))
@@ -81,33 +89,27 @@ public class CdxUtils {
     }
 
     // Extract the relevant information from the PMA / 510(k) / HDE pages
-    public Set<FdaSubmission> getFDASubmissionFromHTML(Set<String> fdaSubmissionCodes) throws IOException {
+    public Set<FdaSubmission> getFDASubmissionFromHTML(Set<String> fdaSubmissionCodes) {
         // Check if the fda submission codes are valid and purify input
         Set<String> purifiedSubmissionCodes = new HashSet<>();
         for (String code : fdaSubmissionCodes) {
-            // Sometimes the PMAs are given as ranges (ie. P990081/S001-S028) and
-            // some PMAs in the range don't exists. We should go through this list
-            // and skip those that don't exists. (ie P990081/S009 doesn't exists).
-            if (code.contains("-")) {
-                String primaryPma = code.substring(0, code.indexOf("/"));
-                Integer start = Integer.valueOf(code.substring(code.indexOf("/") + 2, code.indexOf("-")));
-                Integer end = Integer.valueOf(code.substring(code.indexOf("-") + 2));
-                IntStream
-                    .rangeClosed(start, end)
-                    .forEach(num -> {
-                        String pmaString = String.format("%sS%03d", primaryPma, num);
-                        purifiedSubmissionCodes.add(pmaString);
-                    });
-            } else if (code.matches("P\\d{6}\\/S\\d{3}")) { // Matches a PMA number with a supplement
-                String primaryPma = code.substring(0, code.indexOf("/"));
-                if (!purifiedSubmissionCodes.contains(primaryPma)) {
-                    purifiedSubmissionCodes.add(primaryPma);
+            Pattern regex = Pattern.compile("^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?");
+            Matcher matcher = regex.matcher(code.toUpperCase());
+            if (matcher.find()) {
+                String primaryPma = matcher.group(1);
+                purifiedSubmissionCodes.add(primaryPma);
+                String supplement = matcher.group(3);
+                if (supplement != null) {
+                    // Sometimes the PMAs are given as ranges (ie. P990081/S001-S028).
+                    Integer start = Integer.valueOf(matcher.group(4).substring(1));
+                    Integer end = matcher.group(6) != null ? Integer.valueOf(matcher.group(6).substring(1)) : start;
+                    IntStream
+                        .rangeClosed(start, end)
+                        .forEach(num -> {
+                            String pmaString = String.format("%sS%03d", primaryPma, num);
+                            purifiedSubmissionCodes.add(pmaString);
+                        });
                 }
-                purifiedSubmissionCodes.add(code.replace("/", ""));
-            } else if (code.matches("DEN\\d{6}\\/K\\d{6}")) { // Special case for DEN
-                purifiedSubmissionCodes.add(code.substring(0, code.indexOf("/")));
-            } else {
-                purifiedSubmissionCodes.add(code.replace("/", ""));
             }
         }
 
@@ -191,7 +193,7 @@ public class CdxUtils {
 
             // Add FDASubmissionType
             if (fdaSubmission.getNumber() != null) {
-                Optional<FdaSubmissionType> type = fdaSubmissionTypeService.findOneBySubmissionNumberPrefix(fdaSubmission.getNumber());
+                Optional<FdaSubmissionType> type = fdaSubmissionTypeService.findOneBySubmissionNumber(fdaSubmission.getNumber());
                 if (type.isPresent()) {
                     fdaSubmission.setType(type.get());
                 }
@@ -202,7 +204,7 @@ public class CdxUtils {
     }
 
     private Instant convertDateToInstant(String date) {
-        return LocalDate.parse(date, DateTimeFormatter.ofPattern("MM/dd/uuuu", Locale.US)).atStartOfDay().toInstant(ZoneOffset.UTC);
+        return LocalDate.parse(date, DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US)).atStartOfDay().toInstant(ZoneOffset.UTC);
     }
 }
 

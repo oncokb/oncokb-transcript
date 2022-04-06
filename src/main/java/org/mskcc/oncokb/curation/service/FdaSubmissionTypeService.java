@@ -90,8 +90,8 @@ public class FdaSubmissionTypeService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<FdaSubmissionType> findOneBySubmissionNumberPrefix(String submissionNumber) {
-        log.debug("Request to get FdaSubmissionType by prefix : {}", submissionNumber);
+    public Optional<FdaSubmissionType> findOneBySubmissionNumber(String submissionNumber) {
+        log.debug("Request to get FdaSubmissionType : {}", submissionNumber);
         String[] splitSubmission = submissionNumber.split("[0-9]");
         if (splitSubmission.length == 0) {
             return Optional.empty();

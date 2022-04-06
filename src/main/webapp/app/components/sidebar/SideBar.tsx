@@ -35,7 +35,7 @@ class SideBar extends React.Component<StoreProps> {
                 Drug <NavLink to={PAGE_ROUTE.DRUG} />
               </MenuItem>
               <MenuItem icon={<FontAwesomeIcon size="lg" icon={faBuilding} />}>
-                CDX
+                CDx
                 <NavLink to={PAGE_ROUTE.CDX} />
               </MenuItem>
               <MenuItem icon={<b style={{ fontSize: '1.2em' }}>FDA</b>}>
