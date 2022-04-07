@@ -83,7 +83,7 @@ export const DeviceUsageIndicationUpdate = (props: IDeviceUsageIndicationUpdateP
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.deviceUsageIndication.home.createOrEditLabel" data-cy="DeviceUsageIndicationCreateUpdateHeading">
+          <h2 id="oncokbCurationApp.deviceUsageIndication.home.createOrEditLabel" data-cy="DeviceUsageIndicationCreateUpdateHeading">
             Create or edit a DeviceUsageIndication
           </h2>
         </Col>

@@ -17,7 +17,7 @@ export const EnsemblGeneDeleteDialog = (props: IEnsemblGeneDeleteDialogProps) =>
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/ensembl-gene');
+    props.history.push('/ensembl-gene' + props.location.search);
   };
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const EnsemblGeneDeleteDialog = (props: IEnsemblGeneDeleteDialogProps) =>
       <ModalHeader toggle={handleClose} data-cy="ensemblGeneDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.ensemblGene.delete.question">Are you sure you want to delete this EnsemblGene?</ModalBody>
+      <ModalBody id="oncokbCurationApp.ensemblGene.delete.question">Are you sure you want to delete this EnsemblGene?</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>
           <FontAwesomeIcon icon="ban" />

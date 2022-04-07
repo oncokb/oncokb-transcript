@@ -13,6 +13,8 @@ import org.mskcc.oncokb.curation.repository.EnsemblGeneRepository;
 import org.mskcc.oncokb.curation.vm.ensembl.EnsemblTranscript;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -95,12 +97,13 @@ public class EnsemblGeneService {
     /**
      * Get all the ensemblGenes.
      *
+     * @param pageable the pagination information.
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public List<EnsemblGene> findAll() {
+    public Page<EnsemblGene> findAll(Pageable pageable) {
         log.debug("Request to get all EnsemblGenes");
-        return ensemblGeneRepository.findAll();
+        return ensemblGeneRepository.findAll(pageable);
     }
 
     /**

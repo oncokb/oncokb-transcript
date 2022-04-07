@@ -2,25 +2,77 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { Button, Col, Row, Table } from 'reactstrap';
-import { byteSize, Translate, TextFormat } from 'react-jhipster';
+import { byteSize, Translate, TextFormat, getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
+import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 
 import { IRootStore } from 'app/stores';
 export interface IFdaSubmissionProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const FdaSubmission = (props: IFdaSubmissionProps) => {
+  const [paginationState, setPaginationState] = useState(
+    overridePaginationStateWithQueryParams(getSortState(props.location, ITEMS_PER_PAGE, 'id'), props.location.search)
+  );
+
   const fdaSubmissionList = props.fdaSubmissionList;
   const loading = props.loading;
+  const totalItems = props.totalItems;
+
+  const getAllEntities = () => {
+    props.getEntities({
+      page: paginationState.activePage - 1,
+      size: paginationState.itemsPerPage,
+      sort: `${paginationState.sort},${paginationState.order}`,
+    });
+  };
+
+  const sortEntities = () => {
+    getAllEntities();
+    const endURL = `?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`;
+    if (props.location.search !== endURL) {
+      props.history.push(`${props.location.pathname}${endURL}`);
+    }
+  };
 
   useEffect(() => {
-    props.getEntities({});
-  }, []);
+    sortEntities();
+  }, [paginationState.activePage, paginationState.order, paginationState.sort]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(props.location.search);
+    const page = params.get('page');
+    const sort = params.get(SORT);
+    if (page && sort) {
+      const sortSplit = sort.split(',');
+      setPaginationState({
+        ...paginationState,
+        activePage: +page,
+        sort: sortSplit[0],
+        order: sortSplit[1],
+      });
+    }
+  }, [props.location.search]);
+
+  const sort = p => () => {
+    setPaginationState({
+      ...paginationState,
+      order: paginationState.order === ASC ? DESC : ASC,
+      sort: p,
+    });
+  };
+
+  const handlePagination = currentPage =>
+    setPaginationState({
+      ...paginationState,
+      activePage: currentPage,
+    });
 
   const handleSyncList = () => {
-    props.getEntities({});
+    sortEntities();
   };
 
   const { match } = props;
@@ -44,16 +96,36 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
           <Table responsive>
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Number</th>
-                <th>Supplement Number</th>
-                <th>Device Name</th>
-                <th>Generic Name</th>
-                <th>Date Received</th>
-                <th>Decision Date</th>
-                <th>Description</th>
-                <th>Companion Diagnostic Device</th>
-                <th>Type</th>
+                <th className="hand" onClick={sort('id')}>
+                  ID <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('number')}>
+                  Number <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('supplementNumber')}>
+                  Supplement Number <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('deviceName')}>
+                  Device Name <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('genericName')}>
+                  Generic Name <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('dateReceived')}>
+                  Date Received <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('decisionDate')}>
+                  Decision Date <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('description')}>
+                  Description <FontAwesomeIcon icon="sort" />
+                </th>
+                <th>
+                  Companion Diagnostic Device <FontAwesomeIcon icon="sort" />
+                </th>
+                <th>
+                  Type <FontAwesomeIcon icon="sort" />
+                </th>
                 <th />
               </tr>
             </thead>
@@ -83,26 +155,32 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
                   <td>
                     {fdaSubmission.companionDiagnosticDevice ? (
                       <Link to={`companion-diagnostic-device/${fdaSubmission.companionDiagnosticDevice.id}`}>
-                        {fdaSubmission.companionDiagnosticDevice.name}
+                        {fdaSubmission.companionDiagnosticDevice.id}
                       </Link>
                     ) : (
                       ''
                     )}
                   </td>
                   <td>
-                    {fdaSubmission.type ? <Link to={`fda-submission-type/${fdaSubmission.type.id}`}>{fdaSubmission.type.type}</Link> : ''}
+                    {fdaSubmission.type ? <Link to={`fda-submission-type/${fdaSubmission.type.id}`}>{fdaSubmission.type.id}</Link> : ''}
                   </td>
                   <td className="text-right">
                     <div className="btn-group flex-btn-group-container">
                       <Button tag={Link} to={`${match.url}/${fdaSubmission.id}`} color="info" size="sm" data-cy="entityDetailsButton">
                         <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
                       </Button>
-                      <Button tag={Link} to={`${match.url}/${fdaSubmission.id}/edit`} color="primary" size="sm" data-cy="entityEditButton">
+                      <Button
+                        tag={Link}
+                        to={`${match.url}/${fdaSubmission.id}/edit?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
+                        color="primary"
+                        size="sm"
+                        data-cy="entityEditButton"
+                      >
                         <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
                       </Button>
                       <Button
                         tag={Link}
-                        to={`${match.url}/${fdaSubmission.id}/delete`}
+                        to={`${match.url}/${fdaSubmission.id}/delete?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
                         color="danger"
                         size="sm"
                         data-cy="entityDeleteButton"
@@ -119,6 +197,24 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
           !loading && <div className="alert alert-warning">No Fda Submissions found</div>
         )}
       </div>
+      {totalItems ? (
+        <div className={fdaSubmissionList && fdaSubmissionList.length > 0 ? '' : 'd-none'}>
+          <Row className="justify-content-center">
+            <JhiItemCount page={paginationState.activePage} total={totalItems} itemsPerPage={paginationState.itemsPerPage} />
+          </Row>
+          <Row className="justify-content-center">
+            <JhiPagination
+              activePage={paginationState.activePage}
+              onSelect={handlePagination}
+              maxButtons={5}
+              itemsPerPage={paginationState.itemsPerPage}
+              totalItems={totalItems}
+            />
+          </Row>
+        </div>
+      ) : (
+        ''
+      )}
     </div>
   );
 };
@@ -126,6 +222,7 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
 const mapStoreToProps = ({ fdaSubmissionStore }: IRootStore) => ({
   fdaSubmissionList: fdaSubmissionStore.entities,
   loading: fdaSubmissionStore.loading,
+  totalItems: fdaSubmissionStore.totalItems,
   getEntities: fdaSubmissionStore.getEntities,
 });
 

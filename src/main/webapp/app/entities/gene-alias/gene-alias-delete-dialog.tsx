@@ -35,7 +35,7 @@ export const GeneAliasDeleteDialog = (props: IGeneAliasDeleteDialogProps) => {
       <ModalHeader toggle={handleClose} data-cy="geneAliasDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.geneAlias.delete.question">Are you sure you want to delete this GeneAlias?</ModalBody>
+      <ModalBody id="oncokbCurationApp.geneAlias.delete.question">Are you sure you want to delete this GeneAlias?</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>
           <FontAwesomeIcon icon="ban" />

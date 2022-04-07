@@ -21,7 +21,7 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/article');
+    props.history.push('/article' + props.location.search);
   };
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.article.home.createOrEditLabel" data-cy="ArticleCreateUpdateHeading">
+          <h2 id="oncokbCurationApp.article.home.createOrEditLabel" data-cy="ArticleCreateUpdateHeading">
             Create or edit a Article
           </h2>
         </Col>

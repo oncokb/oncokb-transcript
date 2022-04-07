@@ -17,7 +17,7 @@ export const TranscriptDeleteDialog = (props: ITranscriptDeleteDialogProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/transcript');
+    props.history.push('/transcript' + props.location.search);
   };
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const TranscriptDeleteDialog = (props: ITranscriptDeleteDialogProps) => {
       <ModalHeader toggle={handleClose} data-cy="transcriptDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.transcript.delete.question">Are you sure you want to delete this Transcript?</ModalBody>
+      <ModalBody id="oncokbCurationApp.transcript.delete.question">Are you sure you want to delete this Transcript?</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>
           <FontAwesomeIcon icon="ban" />

@@ -1,11 +1,11 @@
 import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
 import { IRootStore } from 'app/stores';
 import axios from 'axios';
-import CrudStore from 'app/shared/util/crud-store';
+import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
 
 const apiUrl = 'api/ensembl-genes';
 
-export class EnsemblGeneStore extends CrudStore<IEnsemblGene> {
+export class EnsemblGeneStore extends PaginationCrudStore<IEnsemblGene> {
   constructor(protected rootStore: IRootStore) {
     super(rootStore, apiUrl);
   }

@@ -17,7 +17,7 @@ export const SequenceDeleteDialog = (props: ISequenceDeleteDialogProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/sequence');
+    props.history.push('/sequence' + props.location.search);
   };
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const SequenceDeleteDialog = (props: ISequenceDeleteDialogProps) => {
       <ModalHeader toggle={handleClose} data-cy="sequenceDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.sequence.delete.question">Are you sure you want to delete this Sequence?</ModalBody>
+      <ModalBody id="oncokbCurationApp.sequence.delete.question">Are you sure you want to delete this Sequence?</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>
           <FontAwesomeIcon icon="ban" />

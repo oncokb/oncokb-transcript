@@ -2,25 +2,77 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { Button, Col, Row, Table } from 'reactstrap';
-import { byteSize, Translate } from 'react-jhipster';
+import { byteSize, Translate, getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IArticle } from 'app/shared/model/article.model';
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
+import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 
 import { IRootStore } from 'app/stores';
 export interface IArticleProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const Article = (props: IArticleProps) => {
+  const [paginationState, setPaginationState] = useState(
+    overridePaginationStateWithQueryParams(getSortState(props.location, ITEMS_PER_PAGE, 'id'), props.location.search)
+  );
+
   const articleList = props.articleList;
   const loading = props.loading;
+  const totalItems = props.totalItems;
+
+  const getAllEntities = () => {
+    props.getEntities({
+      page: paginationState.activePage - 1,
+      size: paginationState.itemsPerPage,
+      sort: `${paginationState.sort},${paginationState.order}`,
+    });
+  };
+
+  const sortEntities = () => {
+    getAllEntities();
+    const endURL = `?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`;
+    if (props.location.search !== endURL) {
+      props.history.push(`${props.location.pathname}${endURL}`);
+    }
+  };
 
   useEffect(() => {
-    props.getEntities({});
-  }, []);
+    sortEntities();
+  }, [paginationState.activePage, paginationState.order, paginationState.sort]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(props.location.search);
+    const page = params.get('page');
+    const sort = params.get(SORT);
+    if (page && sort) {
+      const sortSplit = sort.split(',');
+      setPaginationState({
+        ...paginationState,
+        activePage: +page,
+        sort: sortSplit[0],
+        order: sortSplit[1],
+      });
+    }
+  }, [props.location.search]);
+
+  const sort = p => () => {
+    setPaginationState({
+      ...paginationState,
+      order: paginationState.order === ASC ? DESC : ASC,
+      sort: p,
+    });
+  };
+
+  const handlePagination = currentPage =>
+    setPaginationState({
+      ...paginationState,
+      activePage: currentPage,
+    });
 
   const handleSyncList = () => {
-    props.getEntities({});
+    sortEntities();
   };
 
   const { match } = props;
@@ -44,15 +96,33 @@ export const Article = (props: IArticleProps) => {
           <Table responsive>
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Pmid</th>
-                <th>Title</th>
-                <th>Journal</th>
-                <th>Pub Date</th>
-                <th>Volume</th>
-                <th>Issue</th>
-                <th>Pages</th>
-                <th>Authors</th>
+                <th className="hand" onClick={sort('id')}>
+                  ID <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('pmid')}>
+                  Pmid <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('title')}>
+                  Title <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('journal')}>
+                  Journal <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('pubDate')}>
+                  Pub Date <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('volume')}>
+                  Volume <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('issue')}>
+                  Issue <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('pages')}>
+                  Pages <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('authors')}>
+                  Authors <FontAwesomeIcon icon="sort" />
+                </th>
                 <th />
               </tr>
             </thead>
@@ -77,10 +147,22 @@ export const Article = (props: IArticleProps) => {
                       <Button tag={Link} to={`${match.url}/${article.id}`} color="info" size="sm" data-cy="entityDetailsButton">
                         <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
                       </Button>
-                      <Button tag={Link} to={`${match.url}/${article.id}/edit`} color="primary" size="sm" data-cy="entityEditButton">
+                      <Button
+                        tag={Link}
+                        to={`${match.url}/${article.id}/edit?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
+                        color="primary"
+                        size="sm"
+                        data-cy="entityEditButton"
+                      >
                         <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
                       </Button>
-                      <Button tag={Link} to={`${match.url}/${article.id}/delete`} color="danger" size="sm" data-cy="entityDeleteButton">
+                      <Button
+                        tag={Link}
+                        to={`${match.url}/${article.id}/delete?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
+                        color="danger"
+                        size="sm"
+                        data-cy="entityDeleteButton"
+                      >
                         <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
                       </Button>
                     </div>
@@ -93,6 +175,24 @@ export const Article = (props: IArticleProps) => {
           !loading && <div className="alert alert-warning">No Articles found</div>
         )}
       </div>
+      {totalItems ? (
+        <div className={articleList && articleList.length > 0 ? '' : 'd-none'}>
+          <Row className="justify-content-center">
+            <JhiItemCount page={paginationState.activePage} total={totalItems} itemsPerPage={paginationState.itemsPerPage} />
+          </Row>
+          <Row className="justify-content-center">
+            <JhiPagination
+              activePage={paginationState.activePage}
+              onSelect={handlePagination}
+              maxButtons={5}
+              itemsPerPage={paginationState.itemsPerPage}
+              totalItems={totalItems}
+            />
+          </Row>
+        </div>
+      ) : (
+        ''
+      )}
     </div>
   );
 };
@@ -100,6 +200,7 @@ export const Article = (props: IArticleProps) => {
 const mapStoreToProps = ({ articleStore }: IRootStore) => ({
   articleList: articleStore.entities,
   loading: articleStore.loading,
+  totalItems: articleStore.totalItems,
   getEntities: articleStore.getEntities,
 });
 

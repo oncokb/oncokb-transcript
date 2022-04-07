@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.curation.importer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
@@ -14,6 +15,8 @@ import org.oncokb.client.Gene;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 /**
@@ -69,9 +72,16 @@ public class Importer {
     }
 
     private void importCanonicalEnsemblGenes() {
-        List<org.mskcc.oncokb.curation.domain.Gene> genes = geneService.findAll();
+        int pageSize = 10;
+        final PageRequest pageable = PageRequest.of(0, pageSize);
+        Page<org.mskcc.oncokb.curation.domain.Gene> firstPageGenes = geneService.findAll(pageable);
+        List<org.mskcc.oncokb.curation.domain.Gene> allGenes = new ArrayList<>();
+        for (int i = 0; i < firstPageGenes.getTotalPages(); i++) {
+            PageRequest genePage = PageRequest.of(i, pageSize);
+            allGenes.addAll(geneService.findAll(genePage).toList());
+        }
         for (ReferenceGenome rg : ReferenceGenome.values()) {
-            for (org.mskcc.oncokb.curation.domain.Gene gene : genes) {
+            for (org.mskcc.oncokb.curation.domain.Gene gene : allGenes) {
                 mainService.createCanonicalEnsemblGene(rg, gene.getEntrezGeneId());
             }
         }

@@ -17,7 +17,7 @@ export const CancerTypeDeleteDialog = (props: ICancerTypeDeleteDialogProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/cancer-type');
+    props.history.push('/cancer-type' + props.location.search);
   };
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const CancerTypeDeleteDialog = (props: ICancerTypeDeleteDialogProps) => {
       <ModalHeader toggle={handleClose} data-cy="cancerTypeDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.cancerType.delete.question">Are you sure you want to delete this CancerType?</ModalBody>
+      <ModalBody id="oncokbCurationApp.cancerType.delete.question">Are you sure you want to delete this CancerType?</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>
           <FontAwesomeIcon icon="ban" />

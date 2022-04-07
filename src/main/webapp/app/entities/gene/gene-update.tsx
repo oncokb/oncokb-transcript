@@ -23,7 +23,7 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/gene');
+    props.history.push('/gene' + props.location.search);
   };
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.gene.home.createOrEditLabel" data-cy="GeneCreateUpdateHeading">
+          <h2 id="oncokbCurationApp.gene.home.createOrEditLabel" data-cy="GeneCreateUpdateHeading">
             Create or edit a Gene
           </h2>
         </Col>

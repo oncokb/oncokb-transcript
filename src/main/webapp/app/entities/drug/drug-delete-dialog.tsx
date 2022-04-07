@@ -17,7 +17,7 @@ export const DrugDeleteDialog = (props: IDrugDeleteDialogProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/drug');
+    props.history.push('/drug' + props.location.search);
   };
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const DrugDeleteDialog = (props: IDrugDeleteDialogProps) => {
       <ModalHeader toggle={handleClose} data-cy="drugDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.drug.delete.question">Are you sure you want to delete this Drug?</ModalBody>
+      <ModalBody id="oncokbCurationApp.drug.delete.question">Are you sure you want to delete this Drug?</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>
           <FontAwesomeIcon icon="ban" />

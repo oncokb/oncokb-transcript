@@ -23,7 +23,7 @@ export const GenomeFragmentUpdate = (props: IGenomeFragmentUpdateProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/genome-fragment');
+    props.history.push('/genome-fragment' + props.location.search);
   };
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export const GenomeFragmentUpdate = (props: IGenomeFragmentUpdateProps) => {
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.genomeFragment.home.createOrEditLabel" data-cy="GenomeFragmentCreateUpdateHeading">
+          <h2 id="oncokbCurationApp.genomeFragment.home.createOrEditLabel" data-cy="GenomeFragmentCreateUpdateHeading">
             Create or edit a GenomeFragment
           </h2>
         </Col>

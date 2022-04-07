@@ -35,7 +35,7 @@ export const DeviceUsageIndicationDeleteDialog = (props: IDeviceUsageIndicationD
       <ModalHeader toggle={handleClose} data-cy="deviceUsageIndicationDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbTranscriptApp.deviceUsageIndication.delete.question">
+      <ModalBody id="oncokbCurationApp.deviceUsageIndication.delete.question">
         Are you sure you want to delete this DeviceUsageIndication?
       </ModalBody>
       <ModalFooter>

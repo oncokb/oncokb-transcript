@@ -26,6 +26,8 @@ import org.mskcc.oncokb.curation.vm.ensembl.EnsemblSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -141,12 +143,13 @@ public class TranscriptService {
     /**
      * Get all the transcripts.
      *
+     * @param pageable the pagination information.
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public List<TranscriptDTO> findAll() {
+    public Page<TranscriptDTO> findAll(Pageable pageable) {
         log.debug("Request to get all Transcripts");
-        return transcriptRepository.findAll().stream().map(transcriptMapper::toDto).collect(Collectors.toCollection(LinkedList::new));
+        return transcriptRepository.findAll(pageable).map(transcriptMapper::toDto);
     }
 
     /**

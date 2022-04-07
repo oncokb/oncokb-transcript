@@ -68,7 +68,7 @@ export const GeneAliasUpdate = (props: IGeneAliasUpdateProps) => {
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.geneAlias.home.createOrEditLabel" data-cy="GeneAliasCreateUpdateHeading">
+          <h2 id="oncokbCurationApp.geneAlias.home.createOrEditLabel" data-cy="GeneAliasCreateUpdateHeading">
             Create or edit a GeneAlias
           </h2>
         </Col>

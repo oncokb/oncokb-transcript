@@ -25,7 +25,7 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/alteration');
+    props.history.push('/alteration' + props.location.search);
   };
 
   useEffect(() => {
@@ -72,7 +72,7 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.alteration.home.createOrEditLabel" data-cy="AlterationCreateUpdateHeading">
+          <h2 id="oncokbCurationApp.alteration.home.createOrEditLabel" data-cy="AlterationCreateUpdateHeading">
             Create or edit a Alteration
           </h2>
         </Col>

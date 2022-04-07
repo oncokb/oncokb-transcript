@@ -38,7 +38,7 @@
   "relationships": [],
   "entityTableName": "article",
   "dto": "no",
-  "pagination": "no",
+  "pagination": "pagination",
   "service": "serviceClass",
   "jpaMetamodelFiltering": false,
   "fluentMethods": true,

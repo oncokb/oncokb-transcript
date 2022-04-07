@@ -68,7 +68,7 @@ export const DrugSynonymUpdate = (props: IDrugSynonymUpdateProps) => {
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.drugSynonym.home.createOrEditLabel" data-cy="DrugSynonymCreateUpdateHeading">
+          <h2 id="oncokbCurationApp.drugSynonym.home.createOrEditLabel" data-cy="DrugSynonymCreateUpdateHeading">
             Create or edit a DrugSynonym
           </h2>
         </Col>

@@ -23,7 +23,7 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/ensembl-gene');
+    props.history.push('/ensembl-gene' + props.location.search);
   };
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbTranscriptApp.ensemblGene.home.createOrEditLabel" data-cy="EnsemblGeneCreateUpdateHeading">
+          <h2 id="oncokbCurationApp.ensemblGene.home.createOrEditLabel" data-cy="EnsemblGeneCreateUpdateHeading">
             Create or edit a EnsemblGene
           </h2>
         </Col>
