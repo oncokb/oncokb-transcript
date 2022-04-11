@@ -27,7 +27,7 @@ export enum PAGE_ROUTE {
   ALTERATION = '/alteration',
   DRUG = '/drug',
   FDA_SUBMISSION = '/fda-submission',
-  CDD = '/companion-diagnostic-device',
+  CDX = '/companion-diagnostic-device',
   WORKBENCH = '/workbench',
   OAUTH = '/oauth2/authorization/oidc',
   ADMIN_USER_MANAGEMENT = '/admin/user-management',

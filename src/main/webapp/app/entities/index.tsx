@@ -39,7 +39,7 @@ const Routes = ({ match }) => (
       <ErrorBoundaryRoute path={`${match.url}${PAGE_ROUTE.DRUG.substring(1)}`} component={Drug} />
       <ErrorBoundaryRoute path={`${match.url}drug-synonym`} component={DrugSynonym} />
       <ErrorBoundaryRoute path={`${match.url}specimen-type`} component={SpecimenType} />
-      <ErrorBoundaryRoute path={`${match.url}${PAGE_ROUTE.CDD.substring(1)}`} component={CompanionDiagnosticDevice} />
+      <ErrorBoundaryRoute path={`${match.url}${PAGE_ROUTE.CDX.substring(1)}`} component={CompanionDiagnosticDevice} />
       <ErrorBoundaryRoute path={`${match.url}fda-submission-type`} component={FdaSubmissionType} />
       <ErrorBoundaryRoute path={`${match.url}${PAGE_ROUTE.FDA_SUBMISSION.substring(1)}`} component={FdaSubmission} />
       <ErrorBoundaryRoute path={`${match.url}variant-consequence`} component={VariantConsequence} />

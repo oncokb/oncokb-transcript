@@ -1,6 +1,8 @@
 package org.mskcc.oncokb.curation.repository;
 
+import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.FdaSubmissionType;
+import org.mskcc.oncokb.curation.domain.enumeration.FdaSubmissionTypeKey;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
@@ -9,4 +11,6 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface FdaSubmissionTypeRepository extends JpaRepository<FdaSubmissionType, Long> {}
+public interface FdaSubmissionTypeRepository extends JpaRepository<FdaSubmissionType, Long> {
+    Optional<FdaSubmissionType> findByType(FdaSubmissionTypeKey type);
+}

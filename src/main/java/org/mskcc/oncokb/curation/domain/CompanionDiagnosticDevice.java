@@ -29,7 +29,7 @@ public class CompanionDiagnosticDevice implements Serializable {
     @Column(name = "manufacturer", nullable = false)
     private String manufacturer;
 
-    @OneToMany(mappedBy = "companionDiagnosticDevice")
+    @OneToMany(mappedBy = "companionDiagnosticDevice", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "deviceUsageIndications", "companionDiagnosticDevice", "type" }, allowSetters = true)
     private Set<FdaSubmission> fdaSubmissions = new HashSet<>();
 
