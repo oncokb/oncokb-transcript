@@ -104,11 +104,23 @@ public class FdaSubmissionService {
         return fdaSubmissionRepository.findById(id);
     }
 
+    /**
+     * Get one fdaSubmission by number and supplement number
+     * @param number the primary number of the fda submission
+     * @param supplementNumber the supplement number
+     * @return the entity
+     */
     public Optional<FdaSubmission> findByNumberAndSupplementNumber(String number, String supplementNumber) {
         return fdaSubmissionRepository.findByNumberAndSupplementNumber(number, supplementNumber).stream().findAny();
     }
 
-    public Optional<FdaSubmission> findByNumber(String number, String supplementNumber, Long cdxId) {
+    /**
+     * If the fda submission does not exist in db, then fetch and parse the information from fda website
+     * @param number the primary fda submission number
+     * @param supplementNumber the supplement number
+     * @return Optional with the parsed fda submission or the one already existing in db, otherwise empty optional
+     */
+    public Optional<FdaSubmission> getFdaSubmissionByNumberIfNotExist(String number, String supplementNumber) {
         Optional<FdaSubmission> fdaSubmission = this.findByNumberAndSupplementNumber(number, supplementNumber);
         if (fdaSubmission.isEmpty()) { // Fetch from FDA website if not present in database
             String submissionNumber = number;

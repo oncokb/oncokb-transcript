@@ -18,6 +18,6 @@ public interface FdaSubmissionRepository extends JpaRepository<FdaSubmission, Lo
     List<FdaSubmission> findByNumberAndSupplementNumberAndCompanionDiagnosticDevice(
         String number,
         String supplementNumber,
-        CompanionDiagnosticDevice cdxId
+        CompanionDiagnosticDevice companionDiagnosticDevice
     );
 }

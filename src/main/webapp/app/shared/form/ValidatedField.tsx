@@ -36,7 +36,6 @@ export const ValidatedField: React.FunctionComponent<IValidatedFieldProps> = ({
         id={id}
         name={name}
         autoComplete="off"
-        className={'input w-full'}
         innerRef={ref}
         invalid={!!error}
         onChange={e => {

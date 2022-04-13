@@ -99,7 +99,6 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
     if (result.number) {
       setFetch(true);
     }
-    setQuerySubmissionText('');
   };
 
   return (
