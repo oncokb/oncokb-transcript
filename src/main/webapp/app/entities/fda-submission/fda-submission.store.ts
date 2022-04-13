@@ -2,12 +2,12 @@ import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import { IRootStore } from 'app/stores';
 import { action, makeObservable } from 'mobx';
 import axios, { AxiosResponse } from 'axios';
-import CrudStore from 'app/shared/util/crud-store';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
 
 const apiUrl = 'api/fda-submissions';
 
-export class FdaSubmissionStore extends CrudStore<IFdaSubmission> {
+export class FdaSubmissionStore extends PaginationCrudStore<IFdaSubmission> {
   lookupFdaSubmission = this.readHandler(this.lookupFdaSubmissionGen);
 
   constructor(protected rootStore: IRootStore) {

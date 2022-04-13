@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { Button, Col, Row, Table } from 'reactstrap';
@@ -12,6 +12,7 @@ import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-u
 import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';
 import OncoKBTable from 'app/shared/table/OncoKBTable';
+import { TableHeader } from 'app/shared/table/TableHeader';
 export interface IFdaSubmissionProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const FdaSubmission = (props: IFdaSubmissionProps) => {
@@ -58,11 +59,11 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
     }
   }, [props.location.search]);
 
-  const sort = p => () => {
+  const sort = (by: string) => () => {
     setPaginationState({
       ...paginationState,
       order: paginationState.order === ASC ? DESC : ASC,
-      sort: p,
+      sort: by,
     });
   };
 
@@ -79,11 +80,37 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
   const { match } = props;
 
   const columns: Column<IFdaSubmission>[] = [
-    { id: 'id', accessor: 'id', Header: 'ID', maxWidth: 30 },
-    { id: 'deviceName', accessor: 'deviceName', Header: 'Device Name' },
-    { id: 'number', accessor: 'number', Header: 'Number', maxWidth: 75 },
-    { id: 'supplementNumber', accessor: 'supplementNumber', Header: 'Supplement Number', maxWidth: 50 },
-    { id: 'type', accessor: 'type', Header: 'Type', Cell: ({ cell: { value } }) => value?.shortName || '', maxWidth: 50 },
+    {
+      id: 'id',
+      accessor: 'id',
+      Header: <TableHeader header="ID" onSort={sort('id')} sortDirection={paginationState.order} />,
+      maxWidth: 40,
+    },
+    {
+      id: 'deviceName',
+      accessor: 'deviceName',
+      Header: <TableHeader header="Device Name" onSort={sort('deviceName')} sortDirection={paginationState.order} />,
+      maxWidth: 100,
+    },
+    {
+      id: 'number',
+      accessor: 'number',
+      Header: <TableHeader header="Number" onSort={sort('number')} sortDirection={paginationState.order} />,
+      maxWidth: 75,
+    },
+    {
+      id: 'supplementNumber',
+      accessor: 'supplementNumber',
+      Header: <TableHeader header="Supplement Number" onSort={sort('supplementNumber')} sortDirection={paginationState.order} />,
+      maxWidth: 50,
+    },
+    {
+      id: 'type',
+      accessor: 'type',
+      Header: <TableHeader header="Type" onSort={sort('type')} sortDirection={paginationState.order} />,
+      Cell: ({ cell: { value } }) => value?.shortName || '',
+      maxWidth: 50,
+    },
     {
       id: 'actions',
       Header: 'Actions',
@@ -125,108 +152,8 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
       </h2>
       <div>
         {fdaSubmissionList && fdaSubmissionList.length > 0 ? (
-          <Table responsive>
-            <thead>
-              <tr>
-                <th className="hand" onClick={sort('id')}>
-                  ID <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('number')}>
-                  Number <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('supplementNumber')}>
-                  Supplement Number <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('deviceName')}>
-                  Device Name <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('genericName')}>
-                  Generic Name <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('dateReceived')}>
-                  Date Received <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('decisionDate')}>
-                  Decision Date <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('description')}>
-                  Description <FontAwesomeIcon icon="sort" />
-                </th>
-                <th>
-                  Companion Diagnostic Device <FontAwesomeIcon icon="sort" />
-                </th>
-                <th>
-                  Type <FontAwesomeIcon icon="sort" />
-                </th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {fdaSubmissionList.map((fdaSubmission, i) => (
-                <tr key={`entity-${i}`} data-cy="entityTable">
-                  <td>
-                    <Button tag={Link} to={`${match.url}/${fdaSubmission.id}`} color="link" size="sm">
-                      {fdaSubmission.id}
-                    </Button>
-                  </td>
-                  <td>{fdaSubmission.number}</td>
-                  <td>{fdaSubmission.supplementNumber}</td>
-                  <td>{fdaSubmission.deviceName}</td>
-                  <td>{fdaSubmission.genericName}</td>
-                  <td>
-                    {fdaSubmission.dateReceived ? (
-                      <TextFormat type="date" value={fdaSubmission.dateReceived} format={APP_DATE_FORMAT} />
-                    ) : null}
-                  </td>
-                  <td>
-                    {fdaSubmission.decisionDate ? (
-                      <TextFormat type="date" value={fdaSubmission.decisionDate} format={APP_DATE_FORMAT} />
-                    ) : null}
-                  </td>
-                  <td>{fdaSubmission.description}</td>
-                  <td>
-                    {fdaSubmission.companionDiagnosticDevice ? (
-                      <Link to={`companion-diagnostic-device/${fdaSubmission.companionDiagnosticDevice.id}`}>
-                        {fdaSubmission.companionDiagnosticDevice.id}
-                      </Link>
-                    ) : (
-                      ''
-                    )}
-                  </td>
-                  <td>
-                    {fdaSubmission.type ? <Link to={`fda-submission-type/${fdaSubmission.type.id}`}>{fdaSubmission.type.id}</Link> : ''}
-                  </td>
-                  <td className="text-right">
-                    <div className="btn-group flex-btn-group-container">
-                      <Button tag={Link} to={`${match.url}/${fdaSubmission.id}`} color="info" size="sm" data-cy="entityDetailsButton">
-                        <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
-                      </Button>
-                      <Button
-                        tag={Link}
-                        to={`${match.url}/${fdaSubmission.id}/edit?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-                        color="primary"
-                        size="sm"
-                        data-cy="entityEditButton"
-                      >
-                        <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-                      </Button>
-                      <Button
-                        tag={Link}
-                        to={`${match.url}/${fdaSubmission.id}/delete?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-                        color="danger"
-                        size="sm"
-                        data-cy="entityDeleteButton"
-                      >
-                        <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+          <OncoKBTable columns={columns} data={fdaSubmissionList}></OncoKBTable>
         ) : (
-          // <OncoKBTable columns={columns} data={fdaSubmissionList}></OncoKBTable>
           !loading && <div className="alert alert-warning">No Fda Submissions found</div>
         )}
       </div>

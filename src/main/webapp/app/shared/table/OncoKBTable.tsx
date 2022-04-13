@@ -1,13 +1,18 @@
 import React, { useMemo } from 'react';
 import { Table } from 'reactstrap';
-import { useTable } from 'react-table';
+import { Column, useTable } from 'react-table';
 import './OncoKBTable.scss';
+
+type IOncoKBTableProps<T> = {
+  columns: Column[];
+  data: T[];
+};
 
 // The keys are supplied by react-table
 /* eslint-disable react/jsx-key */
 const OncoKBTable = props => {
-  const columns = useMemo(() => props.columns, []);
-  const data = useMemo(() => props.data, []);
+  const columns = useMemo(() => props.columns, [props.columns]);
+  const data = useMemo(() => props.data, [props.data]);
   const defaultColumn = React.useMemo(
     () => ({
       width: 150,
