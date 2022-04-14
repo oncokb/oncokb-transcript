@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Col, Row, Table } from 'reactstrap';
+import { Button, Input, InputGroup, FormGroup, Form, Col, Row, Table } from 'reactstrap';
 import { Translate } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -13,19 +13,26 @@ import { Column } from 'react-table';
 import OncoKBTable from 'app/shared/table/OncoKBTable';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import WithSeparator from 'react-with-separator';
+import axiosInstance from 'app/shared/api/axiosInstance';
+import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
+import { debouncedSearch } from 'app/shared/util/crud-store';
 export interface ICompanionDiagnosticDeviceProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps) => {
+  const [search, setSearch] = useState('');
+
   const companionDiagnosticDeviceList = props.companionDiagnosticDeviceList;
   const loading = props.loading;
 
   useEffect(() => {
-    props.getEntities({});
-  }, []);
+    if (search) {
+      debouncedSearch(search, props.searchEntities);
+    } else {
+      props.getEntities({});
+    }
+  }, [search]);
 
-  const handleSyncList = () => {
-    props.getEntities({});
-  };
+  const handleSearch = (event: any) => setSearch(event.target.value);
 
   const getFdaSubmissionNumber = (primaryNumber: string, supplementNumber: string) => {
     return supplementNumber ? `${primaryNumber}/${supplementNumber}` : primaryNumber;
@@ -33,20 +40,22 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
 
   const getFdaSubmissionLinks = (fdaSubmissions: IFdaSubmission[]) => {
     return (
-      <WithSeparator separator=", ">
-        {fdaSubmissions
-          .sort((a, b) =>
-            getFdaSubmissionNumber(a.number, a.supplementNumber).localeCompare(getFdaSubmissionNumber(b.number, b.supplementNumber))
-          )
-          .map(submission => {
-            const submissionNumber = getFdaSubmissionNumber(submission.number, submission.supplementNumber);
-            return (
-              <Link to={`${PAGE_ROUTE.FDA_SUBMISSION}/${submission.id}`} key={submissionNumber}>
-                {submissionNumber}
-              </Link>
-            );
-          })}
-      </WithSeparator>
+      fdaSubmissions && (
+        <WithSeparator separator=", ">
+          {fdaSubmissions
+            .sort((a, b) =>
+              getFdaSubmissionNumber(a.number, a.supplementNumber).localeCompare(getFdaSubmissionNumber(b.number, b.supplementNumber))
+            )
+            .map(submission => {
+              const submissionNumber = getFdaSubmissionNumber(submission.number, submission.supplementNumber);
+              return (
+                <Link to={`${PAGE_ROUTE.FDA_SUBMISSION}/${submission.id}`} key={submissionNumber}>
+                  {submissionNumber}
+                </Link>
+              );
+            })}
+        </WithSeparator>
+      )
     );
   };
 
@@ -63,14 +72,15 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
           row: { original },
         },
       }: {
-        cell: { row: { original: any } };
+        cell: { row: { original: ICompanionDiagnosticDevice } };
       }): any {
         return (
           <>
-            {original.specimenTypes
-              .map(specimenType => specimenType.type)
-              .sort()
-              .join(', ')}
+            {original.specimenTypes &&
+              original.specimenTypes
+                .map(specimenType => specimenType.type)
+                .sort()
+                .join(', ')}
           </>
         );
       },
@@ -117,22 +127,31 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
     <div>
       <h2 id="companion-diagnostic-device-heading" data-cy="CompanionDiagnosticDeviceHeading">
         Companion Diagnostic Devices
-        <div className="d-flex justify-content-end">
-          <Button className="mr-2" color="info" onClick={handleSyncList} disabled={loading}>
-            <FontAwesomeIcon icon="sync" spin={loading} /> Refresh List
-          </Button>
-          <Link to={`${match.url}/new`} className="btn btn-primary jh-create-entity" id="jh-create-entity" data-cy="entityCreateButton">
+        <span className="ml-2">
+          <Link
+            to={`${match.url}/new`}
+            className="btn btn-primary btn-sm jh-create-entity"
+            id="jh-create-entity"
+            data-cy="entityCreateButton"
+          >
             <FontAwesomeIcon icon="plus" />
-            &nbsp; Create new Companion Diagnostic Device
+            &nbsp; Create
           </Link>
-        </div>
+        </span>
       </h2>
+      <Row className="justify-content-end">
+        <Col sm="4">
+          <Form>
+            <FormGroup>
+              <InputGroup>
+                <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
+              </InputGroup>
+            </FormGroup>
+          </Form>
+        </Col>
+      </Row>
       <div className="table-responsive">
-        {companionDiagnosticDeviceList && companionDiagnosticDeviceList.length > 0 ? (
-          <OncoKBTable columns={columns} data={companionDiagnosticDeviceList} />
-        ) : (
-          !loading && <div className="alert alert-warning">No Companion Diagnostic Devices found</div>
-        )}
+        {companionDiagnosticDeviceList && <OncoKBTable columns={columns} data={companionDiagnosticDeviceList} />}
       </div>
     </div>
   );
@@ -141,6 +160,7 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
 const mapStoreToProps = ({ companionDiagnosticDeviceStore }: IRootStore) => ({
   companionDiagnosticDeviceList: companionDiagnosticDeviceStore.entities,
   loading: companionDiagnosticDeviceStore.loading,
+  searchEntities: companionDiagnosticDeviceStore.searchEntities,
   getEntities: companionDiagnosticDeviceStore.getEntities,
 });
 

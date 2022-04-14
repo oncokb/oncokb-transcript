@@ -2,10 +2,12 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -18,8 +20,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.repository.ArticleRepository;
+import org.mskcc.oncokb.curation.repository.search.ArticleSearchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -61,12 +66,21 @@ class ArticleResourceIT {
 
     private static final String ENTITY_API_URL = "/api/articles";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
+    private static final String ENTITY_SEARCH_API_URL = "/api/_search/articles";
 
     private static Random random = new Random();
     private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
 
     @Autowired
     private ArticleRepository articleRepository;
+
+    /**
+     * This repository is mocked in the org.mskcc.oncokb.curation.repository.search test package.
+     *
+     * @see org.mskcc.oncokb.curation.repository.search.ArticleSearchRepositoryMockConfiguration
+     */
+    @Autowired
+    private ArticleSearchRepository mockArticleSearchRepository;
 
     @Autowired
     private EntityManager em;
@@ -145,6 +159,9 @@ class ArticleResourceIT {
         assertThat(testArticle.getIssue()).isEqualTo(DEFAULT_ISSUE);
         assertThat(testArticle.getPages()).isEqualTo(DEFAULT_PAGES);
         assertThat(testArticle.getAuthors()).isEqualTo(DEFAULT_AUTHORS);
+
+        // Validate the Article in Elasticsearch
+        verify(mockArticleSearchRepository, times(1)).save(testArticle);
     }
 
     @Test
@@ -168,6 +185,9 @@ class ArticleResourceIT {
         // Validate the Article in the database
         List<Article> articleList = articleRepository.findAll();
         assertThat(articleList).hasSize(databaseSizeBeforeCreate);
+
+        // Validate the Article in Elasticsearch
+        verify(mockArticleSearchRepository, times(0)).save(article);
     }
 
     @Test
@@ -264,6 +284,9 @@ class ArticleResourceIT {
         assertThat(testArticle.getIssue()).isEqualTo(UPDATED_ISSUE);
         assertThat(testArticle.getPages()).isEqualTo(UPDATED_PAGES);
         assertThat(testArticle.getAuthors()).isEqualTo(UPDATED_AUTHORS);
+
+        // Validate the Article in Elasticsearch
+        verify(mockArticleSearchRepository).save(testArticle);
     }
 
     @Test
@@ -285,6 +308,9 @@ class ArticleResourceIT {
         // Validate the Article in the database
         List<Article> articleList = articleRepository.findAll();
         assertThat(articleList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Article in Elasticsearch
+        verify(mockArticleSearchRepository, times(0)).save(article);
     }
 
     @Test
@@ -306,6 +332,9 @@ class ArticleResourceIT {
         // Validate the Article in the database
         List<Article> articleList = articleRepository.findAll();
         assertThat(articleList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Article in Elasticsearch
+        verify(mockArticleSearchRepository, times(0)).save(article);
     }
 
     @Test
@@ -324,6 +353,9 @@ class ArticleResourceIT {
         // Validate the Article in the database
         List<Article> articleList = articleRepository.findAll();
         assertThat(articleList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Article in Elasticsearch
+        verify(mockArticleSearchRepository, times(0)).save(article);
     }
 
     @Test
@@ -427,6 +459,9 @@ class ArticleResourceIT {
         // Validate the Article in the database
         List<Article> articleList = articleRepository.findAll();
         assertThat(articleList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Article in Elasticsearch
+        verify(mockArticleSearchRepository, times(0)).save(article);
     }
 
     @Test
@@ -448,6 +483,9 @@ class ArticleResourceIT {
         // Validate the Article in the database
         List<Article> articleList = articleRepository.findAll();
         assertThat(articleList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Article in Elasticsearch
+        verify(mockArticleSearchRepository, times(0)).save(article);
     }
 
     @Test
@@ -469,6 +507,9 @@ class ArticleResourceIT {
         // Validate the Article in the database
         List<Article> articleList = articleRepository.findAll();
         assertThat(articleList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Article in Elasticsearch
+        verify(mockArticleSearchRepository, times(0)).save(article);
     }
 
     @Test
@@ -487,5 +528,33 @@ class ArticleResourceIT {
         // Validate the database contains one less item
         List<Article> articleList = articleRepository.findAll();
         assertThat(articleList).hasSize(databaseSizeBeforeDelete - 1);
+
+        // Validate the Article in Elasticsearch
+        verify(mockArticleSearchRepository, times(1)).deleteById(article.getId());
+    }
+
+    @Test
+    @Transactional
+    void searchArticle() throws Exception {
+        // Configure the mock search repository
+        // Initialize the database
+        articleRepository.saveAndFlush(article);
+        when(mockArticleSearchRepository.search("id:" + article.getId(), PageRequest.of(0, 20)))
+            .thenReturn(new PageImpl<>(Collections.singletonList(article), PageRequest.of(0, 1), 1));
+
+        // Search the article
+        restArticleMockMvc
+            .perform(get(ENTITY_SEARCH_API_URL + "?query=id:" + article.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(article.getId().intValue())))
+            .andExpect(jsonPath("$.[*].pmid").value(hasItem(DEFAULT_PMID)))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
+            .andExpect(jsonPath("$.[*].journal").value(hasItem(DEFAULT_JOURNAL)))
+            .andExpect(jsonPath("$.[*].pubDate").value(hasItem(DEFAULT_PUB_DATE)))
+            .andExpect(jsonPath("$.[*].volume").value(hasItem(DEFAULT_VOLUME)))
+            .andExpect(jsonPath("$.[*].issue").value(hasItem(DEFAULT_ISSUE)))
+            .andExpect(jsonPath("$.[*].pages").value(hasItem(DEFAULT_PAGES)))
+            .andExpect(jsonPath("$.[*].authors").value(hasItem(DEFAULT_AUTHORS)));
     }
 }

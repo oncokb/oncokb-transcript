@@ -1,34 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Col, Row, Table } from 'reactstrap';
-import { Translate, getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
+import { Button, Input, Col, Row } from 'reactstrap';
+import { getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IAlteration } from 'app/shared/model/alteration.model';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 
 import { IRootStore } from 'app/stores';
+import { Column } from 'react-table';
+import { TableHeader } from 'app/shared/table/TableHeader';
+import OncoKBTable from 'app/shared/table/OncoKBTable';
+import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
 export interface IAlterationProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const Alteration = (props: IAlterationProps) => {
+  const [search, setSearch] = useState('');
   const [paginationState, setPaginationState] = useState(
     overridePaginationStateWithQueryParams(getSortState(props.location, ITEMS_PER_PAGE, 'id'), props.location.search)
   );
 
   const alterationList = props.alterationList;
-  const loading = props.loading;
   const totalItems = props.totalItems;
 
   const getAllEntities = () => {
-    props.getEntities({
-      page: paginationState.activePage - 1,
-      size: paginationState.itemsPerPage,
-      sort: `${paginationState.sort},${paginationState.order}`,
-    });
+    if (search) {
+      debouncedSearchWithPagination(
+        search,
+        paginationState.activePage - 1,
+        paginationState.itemsPerPage,
+        `${paginationState.sort},${paginationState.order}`,
+        props.searchEntities
+      );
+    } else {
+      props.getEntities({
+        page: paginationState.activePage - 1,
+        size: paginationState.itemsPerPage,
+        sort: `${paginationState.sort},${paginationState.order}`,
+      });
+    }
   };
+
+  const handleSearch = event => setSearch(event.target.value);
 
   const sortEntities = () => {
     getAllEntities();
@@ -40,7 +55,7 @@ export const Alteration = (props: IAlterationProps) => {
 
   useEffect(() => {
     sortEntities();
-  }, [paginationState.activePage, paginationState.order, paginationState.sort]);
+  }, [paginationState.activePage, paginationState.order, paginationState.sort, search]);
 
   useEffect(() => {
     const params = new URLSearchParams(props.location.search);
@@ -57,11 +72,11 @@ export const Alteration = (props: IAlterationProps) => {
     }
   }, [props.location.search]);
 
-  const sort = p => () => {
+  const sort = (fieldName: keyof IAlteration) => () => {
     setPaginationState({
       ...paginationState,
       order: paginationState.order === ASC ? DESC : ASC,
-      sort: p,
+      sort: fieldName,
     });
   };
 
@@ -71,121 +86,95 @@ export const Alteration = (props: IAlterationProps) => {
       activePage: currentPage,
     });
 
-  const handleSyncList = () => {
-    sortEntities();
-  };
-
   const { match } = props;
+
+  const columns: Column<IAlteration>[] = [
+    { accessor: 'name', Header: <TableHeader header="Name" onSort={sort('name')} sortDirection={paginationState.order} /> },
+    {
+      accessor: 'alteration',
+      Header: <TableHeader header="Alteration" onSort={sort('alteration')} sortDirection={paginationState.order} />,
+    },
+    { accessor: 'type', Header: <TableHeader header="type" onSort={sort('type')} sortDirection={paginationState.order} /> },
+    {
+      accessor: 'proteinStart',
+      Header: 'Protein Start',
+      maxWidth: 50,
+    },
+    {
+      accessor: 'proteinEnd',
+      Header: 'Protein End',
+      maxWidth: 50,
+    },
+    {
+      accessor: 'refResidues',
+      Header: 'Ref Residues',
+      maxWidth: 50,
+    },
+    {
+      accessor: 'variantResidues',
+      Header: 'Variant Residues',
+      maxWidth: 50,
+    },
+    {
+      id: 'actions',
+      Header: 'Actions',
+      Cell({
+        cell: {
+          row: { original },
+        },
+      }): any {
+        return (
+          <div className="btn-group flex-btn-group-container">
+            <Button tag={Link} to={`${match.url}/${original.id}`} color="info" size="sm" data-cy="entityDetailsButton">
+              <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
+            </Button>
+            <Button
+              tag={Link}
+              to={`${match.url}/${original.id}/edit?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
+              color="primary"
+              size="sm"
+              data-cy="entityEditButton"
+            >
+              <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
+            </Button>
+            <Button
+              tag={Link}
+              to={`${match.url}/${original.id}/delete?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
+              color="danger"
+              size="sm"
+              data-cy="entityDeleteButton"
+            >
+              <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <div>
       <h2 id="alteration-heading" data-cy="AlterationHeading">
         Alterations
-        <div className="d-flex justify-content-end">
-          <Button className="mr-2" color="info" onClick={handleSyncList} disabled={loading}>
-            <FontAwesomeIcon icon="sync" spin={loading} /> Refresh List
-          </Button>
-          <Link to={`${match.url}/new`} className="btn btn-primary jh-create-entity" id="jh-create-entity" data-cy="entityCreateButton">
+        <span className="ml-2">
+          <Link
+            to={`${match.url}/new`}
+            className="btn btn-primary btn-sm jh-create-entity"
+            id="jh-create-entity"
+            data-cy="entityCreateButton"
+          >
             <FontAwesomeIcon icon="plus" />
-            &nbsp; Create new Alteration
+            &nbsp; Create
           </Link>
-        </div>
+        </span>
       </h2>
-      <div className="table-responsive">
-        {alterationList && alterationList.length > 0 ? (
-          <Table responsive>
-            <thead>
-              <tr>
-                <th className="hand" onClick={sort('id')}>
-                  ID <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('type')}>
-                  Type <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('name')}>
-                  Name <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('alteration')}>
-                  Alteration <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('proteinStart')}>
-                  Protein Start <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('proteinEnd')}>
-                  Protein End <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('refResidues')}>
-                  Ref Residues <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('variantResidues')}>
-                  Variant Residues <FontAwesomeIcon icon="sort" />
-                </th>
-                <th>
-                  Gene <FontAwesomeIcon icon="sort" />
-                </th>
-                <th>
-                  Consequence <FontAwesomeIcon icon="sort" />
-                </th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {alterationList.map((alteration, i) => (
-                <tr key={`entity-${i}`} data-cy="entityTable">
-                  <td>
-                    <Button tag={Link} to={`${match.url}/${alteration.id}`} color="link" size="sm">
-                      {alteration.id}
-                    </Button>
-                  </td>
-                  <td>{alteration.type}</td>
-                  <td>{alteration.name}</td>
-                  <td>{alteration.alteration}</td>
-                  <td>{alteration.proteinStart}</td>
-                  <td>{alteration.proteinEnd}</td>
-                  <td>{alteration.refResidues}</td>
-                  <td>{alteration.variantResidues}</td>
-                  <td>{alteration.gene ? <Link to={`gene/${alteration.gene.id}`}>{alteration.gene.hugoSymbol}</Link> : ''}</td>
-                  <td>
-                    {alteration.consequence ? (
-                      <Link to={`variant-consequence/${alteration.consequence.id}`}>{alteration.consequence.term}</Link>
-                    ) : (
-                      ''
-                    )}
-                  </td>
-                  <td className="text-right">
-                    <div className="btn-group flex-btn-group-container">
-                      <Button tag={Link} to={`${match.url}/${alteration.id}`} color="info" size="sm" data-cy="entityDetailsButton">
-                        <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
-                      </Button>
-                      <Button
-                        tag={Link}
-                        to={`${match.url}/${alteration.id}/edit?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-                        color="primary"
-                        size="sm"
-                        data-cy="entityEditButton"
-                      >
-                        <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-                      </Button>
-                      <Button
-                        tag={Link}
-                        to={`${match.url}/${alteration.id}/delete?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-                        color="danger"
-                        size="sm"
-                        data-cy="entityDeleteButton"
-                      >
-                        <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        ) : (
-          !loading && <div className="alert alert-warning">No Alterations found</div>
-        )}
-      </div>
-      {totalItems ? (
+      <Row className="justify-content-end mb-3">
+        <Col sm="4">
+          <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
+        </Col>
+      </Row>
+      <div className="table-responsive">{alterationList && <OncoKBTable columns={columns} data={alterationList}></OncoKBTable>}</div>
+      {totalItems && totalItems > 0 ? (
         <div className={alterationList && alterationList.length > 0 ? '' : 'd-none'}>
           <Row className="justify-content-center">
             <JhiItemCount page={paginationState.activePage} total={totalItems} itemsPerPage={paginationState.itemsPerPage} />
@@ -211,6 +200,7 @@ const mapStoreToProps = ({ alterationStore }: IRootStore) => ({
   alterationList: alterationStore.entities,
   loading: alterationStore.loading,
   totalItems: alterationStore.totalItems,
+  searchEntities: alterationStore.searchEntities,
   getEntities: alterationStore.getEntities,
 });
 

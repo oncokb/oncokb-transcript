@@ -1,10 +1,13 @@
 package org.mskcc.oncokb.curation.service;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
+import org.mskcc.oncokb.curation.repository.search.DrugSearchRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -23,8 +26,11 @@ public class DrugService {
 
     private final DrugRepository drugRepository;
 
-    public DrugService(DrugRepository drugRepository) {
+    private final DrugSearchRepository drugSearchRepository;
+
+    public DrugService(DrugRepository drugRepository, DrugSearchRepository drugSearchRepository) {
         this.drugRepository = drugRepository;
+        this.drugSearchRepository = drugSearchRepository;
     }
 
     /**
@@ -35,7 +41,10 @@ public class DrugService {
      */
     public Drug save(Drug drug) {
         log.debug("Request to save Drug : {}", drug);
-        return drugRepository.save(drug);
+        Drug result = drugRepository.save(drug);
+        drug.setId(result.getId());
+        drugSearchRepository.save(drug);
+        return result;
     }
 
     /**
@@ -62,7 +71,12 @@ public class DrugService {
 
                 return existingDrug;
             })
-            .map(drugRepository::save);
+            .map(drugRepository::save)
+            .map(savedDrug -> {
+                drugSearchRepository.save(savedDrug);
+
+                return savedDrug;
+            });
     }
 
     /**
@@ -107,6 +121,20 @@ public class DrugService {
     public void delete(Long id) {
         log.debug("Request to delete Drug : {}", id);
         drugRepository.deleteById(id);
+        drugSearchRepository.deleteById(id);
+    }
+
+    /**
+     * Search for the drug corresponding to the query.
+     *
+     * @param query the query of the search.
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public Page<Drug> search(String query, Pageable pageable) {
+        log.debug("Request to search for a page of Drugs for query {}", query);
+        return drugSearchRepository.search(query, pageable);
     }
 }
 

@@ -13,6 +13,7 @@ import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
  */
 @Entity
 @Table(name = "alteration")
+@org.springframework.data.elasticsearch.annotations.Document(indexName = "alteration")
 public class Alteration implements Serializable {
 
     private static final long serialVersionUID = 1L;

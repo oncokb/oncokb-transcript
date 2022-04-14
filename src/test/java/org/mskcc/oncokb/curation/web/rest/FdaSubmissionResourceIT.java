@@ -2,12 +2,14 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -20,8 +22,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.mskcc.oncokb.curation.repository.FdaSubmissionRepository;
+import org.mskcc.oncokb.curation.repository.search.FdaSubmissionSearchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -66,12 +71,21 @@ class FdaSubmissionResourceIT {
 
     private static final String ENTITY_API_URL = "/api/fda-submissions";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
+    private static final String ENTITY_SEARCH_API_URL = "/api/_search/fda-submissions";
 
     private static Random random = new Random();
     private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
 
     @Autowired
     private FdaSubmissionRepository fdaSubmissionRepository;
+
+    /**
+     * This repository is mocked in the org.mskcc.oncokb.curation.repository.search test package.
+     *
+     * @see org.mskcc.oncokb.curation.repository.search.FdaSubmissionSearchRepositoryMockConfiguration
+     */
+    @Autowired
+    private FdaSubmissionSearchRepository mockFdaSubmissionSearchRepository;
 
     @Autowired
     private EntityManager em;
@@ -153,6 +167,9 @@ class FdaSubmissionResourceIT {
         assertThat(testFdaSubmission.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertThat(testFdaSubmission.getCurated()).isEqualTo(DEFAULT_CURATED);
         assertThat(testFdaSubmission.getGenetic()).isEqualTo(DEFAULT_GENETIC);
+
+        // Validate the FdaSubmission in Elasticsearch
+        verify(mockFdaSubmissionSearchRepository, times(1)).save(testFdaSubmission);
     }
 
     @Test
@@ -176,6 +193,9 @@ class FdaSubmissionResourceIT {
         // Validate the FdaSubmission in the database
         List<FdaSubmission> fdaSubmissionList = fdaSubmissionRepository.findAll();
         assertThat(fdaSubmissionList).hasSize(databaseSizeBeforeCreate);
+
+        // Validate the FdaSubmission in Elasticsearch
+        verify(mockFdaSubmissionSearchRepository, times(0)).save(fdaSubmission);
     }
 
     @Test
@@ -342,6 +362,9 @@ class FdaSubmissionResourceIT {
         assertThat(testFdaSubmission.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testFdaSubmission.getCurated()).isEqualTo(UPDATED_CURATED);
         assertThat(testFdaSubmission.getGenetic()).isEqualTo(UPDATED_GENETIC);
+
+        // Validate the FdaSubmission in Elasticsearch
+        verify(mockFdaSubmissionSearchRepository).save(testFdaSubmission);
     }
 
     @Test
@@ -363,6 +386,9 @@ class FdaSubmissionResourceIT {
         // Validate the FdaSubmission in the database
         List<FdaSubmission> fdaSubmissionList = fdaSubmissionRepository.findAll();
         assertThat(fdaSubmissionList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the FdaSubmission in Elasticsearch
+        verify(mockFdaSubmissionSearchRepository, times(0)).save(fdaSubmission);
     }
 
     @Test
@@ -384,6 +410,9 @@ class FdaSubmissionResourceIT {
         // Validate the FdaSubmission in the database
         List<FdaSubmission> fdaSubmissionList = fdaSubmissionRepository.findAll();
         assertThat(fdaSubmissionList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the FdaSubmission in Elasticsearch
+        verify(mockFdaSubmissionSearchRepository, times(0)).save(fdaSubmission);
     }
 
     @Test
@@ -405,6 +434,9 @@ class FdaSubmissionResourceIT {
         // Validate the FdaSubmission in the database
         List<FdaSubmission> fdaSubmissionList = fdaSubmissionRepository.findAll();
         assertThat(fdaSubmissionList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the FdaSubmission in Elasticsearch
+        verify(mockFdaSubmissionSearchRepository, times(0)).save(fdaSubmission);
     }
 
     @Test
@@ -516,6 +548,9 @@ class FdaSubmissionResourceIT {
         // Validate the FdaSubmission in the database
         List<FdaSubmission> fdaSubmissionList = fdaSubmissionRepository.findAll();
         assertThat(fdaSubmissionList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the FdaSubmission in Elasticsearch
+        verify(mockFdaSubmissionSearchRepository, times(0)).save(fdaSubmission);
     }
 
     @Test
@@ -537,6 +572,9 @@ class FdaSubmissionResourceIT {
         // Validate the FdaSubmission in the database
         List<FdaSubmission> fdaSubmissionList = fdaSubmissionRepository.findAll();
         assertThat(fdaSubmissionList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the FdaSubmission in Elasticsearch
+        verify(mockFdaSubmissionSearchRepository, times(0)).save(fdaSubmission);
     }
 
     @Test
@@ -558,6 +596,9 @@ class FdaSubmissionResourceIT {
         // Validate the FdaSubmission in the database
         List<FdaSubmission> fdaSubmissionList = fdaSubmissionRepository.findAll();
         assertThat(fdaSubmissionList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the FdaSubmission in Elasticsearch
+        verify(mockFdaSubmissionSearchRepository, times(0)).save(fdaSubmission);
     }
 
     @Test
@@ -576,5 +617,32 @@ class FdaSubmissionResourceIT {
         // Validate the database contains one less item
         List<FdaSubmission> fdaSubmissionList = fdaSubmissionRepository.findAll();
         assertThat(fdaSubmissionList).hasSize(databaseSizeBeforeDelete - 1);
+
+        // Validate the FdaSubmission in Elasticsearch
+        verify(mockFdaSubmissionSearchRepository, times(1)).deleteById(fdaSubmission.getId());
+    }
+
+    @Test
+    @Transactional
+    void searchFdaSubmission() throws Exception {
+        // Configure the mock search repository
+        // Initialize the database
+        fdaSubmissionRepository.saveAndFlush(fdaSubmission);
+        when(mockFdaSubmissionSearchRepository.search("id:" + fdaSubmission.getId(), PageRequest.of(0, 20)))
+            .thenReturn(new PageImpl<>(Collections.singletonList(fdaSubmission), PageRequest.of(0, 1), 1));
+
+        // Search the fdaSubmission
+        restFdaSubmissionMockMvc
+            .perform(get(ENTITY_SEARCH_API_URL + "?query=id:" + fdaSubmission.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(fdaSubmission.getId().intValue())))
+            .andExpect(jsonPath("$.[*].number").value(hasItem(DEFAULT_NUMBER)))
+            .andExpect(jsonPath("$.[*].supplementNumber").value(hasItem(DEFAULT_SUPPLEMENT_NUMBER)))
+            .andExpect(jsonPath("$.[*].deviceName").value(hasItem(DEFAULT_DEVICE_NAME)))
+            .andExpect(jsonPath("$.[*].genericName").value(hasItem(DEFAULT_GENERIC_NAME)))
+            .andExpect(jsonPath("$.[*].dateReceived").value(hasItem(DEFAULT_DATE_RECEIVED.toString())))
+            .andExpect(jsonPath("$.[*].decisionDate").value(hasItem(DEFAULT_DECISION_DATE.toString())))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())));
     }
 }

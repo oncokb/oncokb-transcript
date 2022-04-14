@@ -13,7 +13,7 @@ import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import { AUTHORITIES } from 'app/config/constants';
 import AppRoutes from 'app/routes';
 import SideBar from 'app/components/sidebar/SideBar';
-import { Container } from 'reactstrap';
+import { Col, Container, Row } from 'reactstrap';
 import { computed, makeObservable } from 'mobx';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');

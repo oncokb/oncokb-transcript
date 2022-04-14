@@ -5,6 +5,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.mskcc.oncokb.curation.repository.FdaSubmissionRepository;
+import org.mskcc.oncokb.curation.repository.search.FdaSubmissionSearchRepository;
 import org.mskcc.oncokb.curation.util.CdxUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +25,17 @@ public class FdaSubmissionService {
 
     private final FdaSubmissionRepository fdaSubmissionRepository;
 
+    private final FdaSubmissionSearchRepository fdaSubmissionSearchRepository;
+
     private final CdxUtils cdxUtils;
 
-    public FdaSubmissionService(FdaSubmissionRepository fdaSubmissionRepository, CdxUtils cdxUtils) {
+    public FdaSubmissionService(
+        FdaSubmissionRepository fdaSubmissionRepository,
+        FdaSubmissionSearchRepository fdaSubmissionSearchRepository,
+        CdxUtils cdxUtils
+    ) {
         this.fdaSubmissionRepository = fdaSubmissionRepository;
+        this.fdaSubmissionSearchRepository = fdaSubmissionSearchRepository;
         this.cdxUtils = cdxUtils;
     }
 
@@ -39,7 +47,9 @@ public class FdaSubmissionService {
      */
     public FdaSubmission save(FdaSubmission fdaSubmission) {
         log.debug("Request to save FdaSubmission : {}", fdaSubmission);
-        return fdaSubmissionRepository.save(fdaSubmission);
+        FdaSubmission result = fdaSubmissionRepository.save(fdaSubmission);
+        fdaSubmissionSearchRepository.save(result);
+        return result;
     }
 
     /**
@@ -84,7 +94,12 @@ public class FdaSubmissionService {
 
                 return existingFdaSubmission;
             })
-            .map(fdaSubmissionRepository::save);
+            .map(fdaSubmissionRepository::save)
+            .map(savedFdaSubmission -> {
+                fdaSubmissionSearchRepository.save(savedFdaSubmission);
+
+                return savedFdaSubmission;
+            });
     }
 
     /**
@@ -170,5 +185,19 @@ public class FdaSubmissionService {
     public void delete(Long id) {
         log.debug("Request to delete FdaSubmission : {}", id);
         fdaSubmissionRepository.deleteById(id);
+        fdaSubmissionSearchRepository.deleteById(id);
+    }
+
+    /**
+     * Search for the fdaSubmission corresponding to the query.
+     *
+     * @param query the query of the search.
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public Page<FdaSubmission> search(String query, Pageable pageable) {
+        log.debug("Request to search for a page of FdaSubmissions for query {}", query);
+        return fdaSubmissionSearchRepository.search(query, pageable);
     }
 }

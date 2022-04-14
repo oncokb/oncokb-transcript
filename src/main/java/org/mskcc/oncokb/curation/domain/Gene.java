@@ -11,6 +11,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "gene")
+@org.springframework.data.elasticsearch.annotations.Document(indexName = "gene")
 public class Gene implements Serializable {
 
     private static final long serialVersionUID = 1L;

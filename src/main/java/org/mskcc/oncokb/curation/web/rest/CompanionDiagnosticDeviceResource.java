@@ -1,10 +1,13 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
@@ -178,5 +181,18 @@ public class CompanionDiagnosticDeviceResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code SEARCH  /_search/companion-diagnostic-devices?query=:query} : search for the companionDiagnosticDevice corresponding
+     * to the query.
+     *
+     * @param query the query of the companionDiagnosticDevice search.
+     * @return the result of the search.
+     */
+    @GetMapping("/_search/companion-diagnostic-devices")
+    public List<CompanionDiagnosticDevice> searchCompanionDiagnosticDevices(@RequestParam String query) {
+        log.debug("REST request to search CompanionDiagnosticDevices for query {}", query);
+        return companionDiagnosticDeviceService.search(query);
     }
 }

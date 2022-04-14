@@ -20,6 +20,11 @@ logging:
     org.hibernate.SQL: DEBUG
     org.mskcc.oncokb.curation: DEBUG
 
+management:
+  health:
+    elasticsearch:
+      enabled: false
+
 spring:
   devtools:
     restart:
@@ -44,6 +49,9 @@ spring:
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
   jpa:
+  elasticsearch:
+    rest:
+      uris: http://localhost:9200
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev, faker
