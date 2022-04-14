@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.service;
 
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.mskcc.oncokb.curation.repository.FdaSubmissionRepository;
 import org.mskcc.oncokb.curation.util.CdxUtils;
@@ -120,22 +121,21 @@ public class FdaSubmissionService {
      * @param supplementNumber the supplement number
      * @return Optional with the parsed fda submission or the one already existing in db, otherwise empty optional
      */
-    public Optional<FdaSubmission> getFdaSubmissionByNumberIfNotExist(String number, String supplementNumber) {
+    public Optional<FdaSubmission> findOrFetchFdaSubmissionByNumber(String number, String supplementNumber) {
         Optional<FdaSubmission> fdaSubmission = this.findByNumberAndSupplementNumber(number, supplementNumber);
         if (fdaSubmission.isEmpty()) { // Fetch from FDA website if not present in database
+            if (StringUtils.isEmpty(number)) {
+                return Optional.empty();
+            }
             String submissionNumber = number;
-            if (supplementNumber != null) {
+            if (StringUtils.isEmpty(supplementNumber)) {
                 submissionNumber += "/" + supplementNumber;
             }
             Set<FdaSubmission> newFdaSubmissions = cdxUtils.getFDASubmissionFromHTML(Set.of(submissionNumber), true);
             return newFdaSubmissions
                 .stream()
                 .filter(sub -> {
-                    return (
-                        sub.getNumber().equals(number) &&
-                        sub.getSupplementNumber() != null &&
-                        sub.getSupplementNumber().equals(supplementNumber)
-                    );
+                    return number.equals(sub.getNumber()) && StringUtils.equals(supplementNumber, sub.getSupplementNumber());
                 })
                 .findFirst();
         }

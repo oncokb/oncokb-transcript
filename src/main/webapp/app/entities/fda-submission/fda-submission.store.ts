@@ -19,11 +19,11 @@ export class FdaSubmissionStore extends PaginationCrudStore<IFdaSubmission> {
 
   *lookupFdaSubmissionGen(submissionNumber: string) {
     const numbers = submissionNumber.split('/');
-    const url = `${apiUrl}/lookup?number=${numbers[0]}${numbers[1] ? `&supplement_number=${numbers[1]}` : ''}`;
+    const url = `${apiUrl}/lookup?number=${numbers[0]}${numbers[1] ? `&supplementNumber=${numbers[1]}` : ''}`;
     try {
       const result: AxiosResponse<IFdaSubmission> = yield axios.get(url);
       this.reset();
-      this.entity = result.data ? result.data : {};
+      this.entity = result.data || {};
       return this.entity;
     } catch (error) {
       notifyError(error, `Could not find information for ${submissionNumber}.`);

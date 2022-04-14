@@ -171,9 +171,9 @@ public class FdaSubmissionResource {
     @GetMapping("/fda-submissions/lookup")
     public ResponseEntity<FdaSubmission> getFdaSubmissionByNumber(
         @RequestParam(value = "number", required = true) String number,
-        @RequestParam(value = "supplement_number", required = false) String supplementNumber
+        @RequestParam(value = "supplementNumber", required = false) String supplementNumber
     ) {
-        return ResponseUtil.wrapOrNotFound(fdaSubmissionService.getFdaSubmissionByNumberIfNotExist(number, supplementNumber));
+        return ResponseUtil.wrapOrNotFound(fdaSubmissionService.findOrFetchFdaSubmissionByNumber(number, supplementNumber));
     }
 
     /**

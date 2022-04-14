@@ -101,7 +101,7 @@ public class CdxUtils {
             Matcher matcher = regex.matcher(code.toUpperCase());
             if (matcher.find()) {
                 String primaryPma = matcher.group(1);
-                if (!exact) {
+                if (!exact || matcher.group(2) == null) {
                     purifiedSubmissionCodes.add(primaryPma);
                 }
                 String supplement = matcher.group(3);

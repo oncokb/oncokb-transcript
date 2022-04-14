@@ -81,31 +81,22 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
 
   const columns: Column<IFdaSubmission>[] = [
     {
-      id: 'id',
-      accessor: 'id',
-      Header: <TableHeader header="ID" onSort={sort('id')} sortDirection={paginationState.order} />,
-      maxWidth: 40,
-    },
-    {
-      id: 'deviceName',
       accessor: 'deviceName',
       Header: <TableHeader header="Device Name" onSort={sort('deviceName')} sortDirection={paginationState.order} />,
+      width: 200,
+      maxWidth: 300,
+    },
+    {
+      accessor: 'number',
+      Header: <TableHeader header="Number" onSort={sort('number')} sortDirection={paginationState.order} />,
       maxWidth: 100,
     },
     {
-      id: 'number',
-      accessor: 'number',
-      Header: <TableHeader header="Number" onSort={sort('number')} sortDirection={paginationState.order} />,
-      maxWidth: 75,
-    },
-    {
-      id: 'supplementNumber',
       accessor: 'supplementNumber',
       Header: <TableHeader header="Supplement Number" onSort={sort('supplementNumber')} sortDirection={paginationState.order} />,
-      maxWidth: 50,
+      maxWidth: 100,
     },
     {
-      id: 'type',
       accessor: 'type',
       Header: <TableHeader header="Type" onSort={sort('type')} sortDirection={paginationState.order} />,
       Cell: ({ cell: { value } }) => value?.shortName || '',

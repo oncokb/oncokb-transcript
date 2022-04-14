@@ -28,9 +28,8 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
   const { match } = props;
 
   const columns: Column<ICompanionDiagnosticDevice>[] = [
-    { id: 'id', accessor: 'id', Header: 'ID' },
-    { id: 'name', accessor: 'name', Header: 'Device Name' },
-    { id: 'manufacturer', accessor: 'manufacturer', Header: 'Manufacturer' },
+    { accessor: 'name', Header: 'Device Name' },
+    { accessor: 'manufacturer', Header: 'Manufacturer' },
     {
       id: 'actions',
       Header: 'Actions',

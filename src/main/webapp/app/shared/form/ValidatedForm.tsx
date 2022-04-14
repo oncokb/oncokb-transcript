@@ -3,7 +3,6 @@ import { DefaultValues, FieldValues, FormProvider, SubmitHandler, useForm, useFo
 import { Form } from 'reactstrap';
 
 interface IValidatedFormProps {
-  children: React.ReactNode;
   onSubmit: SubmitHandler<FieldValues>;
   defaultValues?: DefaultValues<FieldValues>;
   mode?: keyof ValidationMode;

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Table } from 'reactstrap';
-import { Column, useTable } from 'react-table';
+import { Column, useFlexLayout, useTable } from 'react-table';
 import './OncoKBTable.scss';
 
 type IOncoKBTableProps<T> = {
@@ -16,16 +16,19 @@ const OncoKBTable = props => {
   const defaultColumn = React.useMemo(
     () => ({
       width: 150,
-      maxWidth: 300,
+      maxWidth: 500,
       minWidth: 20,
     }),
     []
   );
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({
-    columns,
-    data,
-    defaultColumn,
-  });
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
+    {
+      columns,
+      data,
+      defaultColumn,
+    },
+    useFlexLayout
+  );
   return (
     <Table bordered {...getTableProps()}>
       <thead>

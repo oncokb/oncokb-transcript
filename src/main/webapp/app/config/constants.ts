@@ -33,4 +33,4 @@ export enum PAGE_ROUTE {
   ADMIN_USER_MANAGEMENT = '/admin/user-management',
 }
 
-export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]{6})(\\/((S[0-9]{3})(-(S[0-9]{3}))?))?');
+export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');
