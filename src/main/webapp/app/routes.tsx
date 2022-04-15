@@ -14,6 +14,7 @@ import GenePage from './pages/GenePage';
 import LoginRedirect from './pages/login/login-redirect';
 import UserManagementPage from './pages/UserManagementPage';
 import Entities from 'app/entities';
+import PageContainer from './components/PageContainer';
 
 const Account = Loadable({
   loader: () => import(/* webpackChunkName: "account" */ './pages/account/SettingsPage'),
@@ -25,20 +26,24 @@ const Routes = () => {
     <div className="view-routes">
       <Switch>
         <Redirect exact from={PAGE_ROUTE.HOME} to={PAGE_ROUTE.SEARCH} />
-        <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGIN} component={Login} />
-        <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGOUT} component={Logout} />
-        <ErrorBoundaryRoute exact path={PAGE_ROUTE.OAUTH} component={LoginRedirect} />
-        <PrivateRoute exact path={PAGE_ROUTE.SEARCH} component={SearchPage} />
-        <PrivateRoute path="/" component={Entities} hasAnyAuthorities={[AUTHORITIES.USER]} />
-        <PrivateRoute exact path={PAGE_ROUTE.GENE} component={GenePage} />
-        <PrivateRoute exact path={PAGE_ROUTE.ACCOUNT} component={Account} hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]} />
-        <PrivateRoute
-          exact
-          path={PAGE_ROUTE.ADMIN_USER_MANAGEMENT}
-          component={UserManagementPage}
-          hasAnyAuthorities={[AUTHORITIES.ADMIN]}
-        />
-        <ErrorBoundaryRoute exact component={PageNotFound} />
+        <PageContainer>
+          <Switch>
+            <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGIN} component={Login} />
+            <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGOUT} component={Logout} />
+            <ErrorBoundaryRoute exact path={PAGE_ROUTE.OAUTH} component={LoginRedirect} />
+            <PrivateRoute exact path={PAGE_ROUTE.SEARCH} component={SearchPage} />
+            <PrivateRoute path="/" component={Entities} hasAnyAuthorities={[AUTHORITIES.USER]} />
+            <PrivateRoute exact path={PAGE_ROUTE.GENE} component={GenePage} />
+            <PrivateRoute exact path={PAGE_ROUTE.ACCOUNT} component={Account} hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]} />
+            <PrivateRoute
+              exact
+              path={PAGE_ROUTE.ADMIN_USER_MANAGEMENT}
+              component={UserManagementPage}
+              hasAnyAuthorities={[AUTHORITIES.ADMIN]}
+            />
+            <ErrorBoundaryRoute exact component={PageNotFound} />
+          </Switch>
+        </PageContainer>
       </Switch>
     </div>
   );

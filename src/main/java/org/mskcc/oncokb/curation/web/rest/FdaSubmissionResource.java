@@ -60,7 +60,10 @@ public class FdaSubmissionResource {
         log.debug("REST request to save FdaSubmission : {}", fdaSubmission);
         if (fdaSubmission.getId() != null) {
             throw new BadRequestAlertException("A new fdaSubmission cannot already have an ID", ENTITY_NAME, "idexists");
+        } else if (!fdaSubmissionService.isUnique(fdaSubmission)) {
+            throw new BadRequestAlertException("Duplicate fdaSubmission", ENTITY_NAME, "duplicate");
         }
+
         FdaSubmission result = fdaSubmissionService.save(fdaSubmission);
         return ResponseEntity
             .created(new URI("/api/fda-submissions/" + result.getId()))
@@ -163,6 +166,14 @@ public class FdaSubmissionResource {
         log.debug("REST request to get FdaSubmission : {}", id);
         Optional<FdaSubmission> fdaSubmission = fdaSubmissionService.findOne(id);
         return ResponseUtil.wrapOrNotFound(fdaSubmission);
+    }
+
+    @GetMapping("/fda-submissions/lookup")
+    public ResponseEntity<FdaSubmission> getFdaSubmissionByNumber(
+        @RequestParam(value = "number", required = true) String number,
+        @RequestParam(value = "supplementNumber", required = false) String supplementNumber
+    ) {
+        return ResponseUtil.wrapOrNotFound(fdaSubmissionService.findOrFetchFdaSubmissionByNumber(number, supplementNumber));
     }
 
     /**

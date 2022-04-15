@@ -9,6 +9,8 @@ import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnosti
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 
 import { IRootStore } from 'app/stores';
+import { Column } from 'react-table';
+import OncoKBTable from 'app/shared/table/OncoKBTable';
 export interface ICompanionDiagnosticDeviceProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps) => {
@@ -24,6 +26,34 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
   };
 
   const { match } = props;
+
+  const columns: Column<ICompanionDiagnosticDevice>[] = [
+    { accessor: 'name', Header: 'Device Name' },
+    { accessor: 'manufacturer', Header: 'Manufacturer' },
+    {
+      id: 'actions',
+      Header: 'Actions',
+      Cell({
+        cell: {
+          row: { original },
+        },
+      }): any {
+        return (
+          <div className="btn-group flex-btn-group-container">
+            <Button tag={Link} to={`${match.url}/${original.id}`} color="info" size="sm" data-cy="entityDetailsButton">
+              <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
+            </Button>
+            <Button tag={Link} to={`${match.url}/${original.id}/edit`} color="primary" size="sm" data-cy="entityEditButton">
+              <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
+            </Button>
+            <Button tag={Link} to={`${match.url}/${original.id}/delete`} color="danger" size="sm" data-cy="entityDeleteButton">
+              <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <div>
@@ -41,71 +71,7 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
       </h2>
       <div className="table-responsive">
         {companionDiagnosticDeviceList && companionDiagnosticDeviceList.length > 0 ? (
-          <Table responsive>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Manufacturer</th>
-                <th>Specimen Type</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {companionDiagnosticDeviceList.map((companionDiagnosticDevice, i) => (
-                <tr key={`entity-${i}`} data-cy="entityTable">
-                  <td>
-                    <Button tag={Link} to={`${match.url}/${companionDiagnosticDevice.id}`} color="link" size="sm">
-                      {companionDiagnosticDevice.id}
-                    </Button>
-                  </td>
-                  <td>{companionDiagnosticDevice.name}</td>
-                  <td>{companionDiagnosticDevice.manufacturer}</td>
-                  <td>
-                    {companionDiagnosticDevice.specimenTypes
-                      ? companionDiagnosticDevice.specimenTypes.map((val, j) => (
-                          <span key={j}>
-                            <Link to={`specimen-type/${val.id}`}>{val.id}</Link>
-                            {j === companionDiagnosticDevice.specimenTypes.length - 1 ? '' : ', '}
-                          </span>
-                        ))
-                      : null}
-                  </td>
-                  <td className="text-right">
-                    <div className="btn-group flex-btn-group-container">
-                      <Button
-                        tag={Link}
-                        to={`${match.url}/${companionDiagnosticDevice.id}`}
-                        color="info"
-                        size="sm"
-                        data-cy="entityDetailsButton"
-                      >
-                        <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
-                      </Button>
-                      <Button
-                        tag={Link}
-                        to={`${match.url}/${companionDiagnosticDevice.id}/edit`}
-                        color="primary"
-                        size="sm"
-                        data-cy="entityEditButton"
-                      >
-                        <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-                      </Button>
-                      <Button
-                        tag={Link}
-                        to={`${match.url}/${companionDiagnosticDevice.id}/delete`}
-                        color="danger"
-                        size="sm"
-                        data-cy="entityDeleteButton"
-                      >
-                        <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
+          <OncoKBTable columns={columns} data={companionDiagnosticDeviceList} />
         ) : (
           !loading && <div className="alert alert-warning">No Companion Diagnostic Devices found</div>
         )}

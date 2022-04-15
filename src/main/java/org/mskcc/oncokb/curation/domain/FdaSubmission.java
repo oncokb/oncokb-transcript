@@ -12,7 +12,10 @@ import javax.validation.constraints.*;
  * A FdaSubmission.
  */
 @Entity
-@Table(name = "fda_submission")
+@Table(
+    name = "fda_submission",
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "number", "supplement_number", "companion_diagnostic_device_id" }) }
+)
 public class FdaSubmission implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -22,14 +25,15 @@ public class FdaSubmission implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @NotNull
+    @NotEmpty
     @Column(name = "number", nullable = false)
     private String number;
 
     @Column(name = "supplement_number")
     private String supplementNumber;
 
-    @Column(name = "device_name")
+    @NotEmpty
+    @Column(name = "device_name", nullable = false)
     private String deviceName;
 
     @Column(name = "generic_name")
@@ -49,10 +53,12 @@ public class FdaSubmission implements Serializable {
     @JsonIgnoreProperties(value = { "fdaSubmission", "alteration", "cancerType", "drug" }, allowSetters = true)
     private Set<DeviceUsageIndication> deviceUsageIndications = new HashSet<>();
 
+    @NotNull
     @ManyToOne
     @JsonIgnoreProperties(value = { "fdaSubmissions", "specimenTypes" }, allowSetters = true)
     private CompanionDiagnosticDevice companionDiagnosticDevice;
 
+    @NotNull
     @ManyToOne
     @JsonIgnoreProperties(value = { "fdaSubmissions" }, allowSetters = true)
     private FdaSubmissionType type;

@@ -32,3 +32,5 @@ export enum PAGE_ROUTE {
   OAUTH = '/oauth2/authorization/oidc',
   ADMIN_USER_MANAGEMENT = '/admin/user-management',
 }
+
+export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');

@@ -81,15 +81,19 @@ public class CdxUtils {
                 .map(code -> code.trim())
                 .filter(code -> code.length() > 0)
                 .collect(Collectors.toSet());
-            cdx.setFdaSubmissions(getFDASubmissionFromHTML(submissionCodes));
+            cdx.setFdaSubmissions(getFDASubmissionFromHTML(submissionCodes, false));
             cdx.setManufacturer(tableCells.get(2));
             companionDiagnosticDevices.add(cdx);
         }
         return companionDiagnosticDevices;
     }
 
-    // Extract the relevant information from the PMA / 510(k) / HDE pages
-    public Set<FdaSubmission> getFDASubmissionFromHTML(Set<String> fdaSubmissionCodes) {
+    /**
+     * Extract the relevant information from the PMA / 510(k) / HDE pages
+     * @param fdaSubmissionCodes the submission codes to fetch from fda website
+     * @param exact if submission is a supplement, then return the supplement
+     */
+    public Set<FdaSubmission> getFDASubmissionFromHTML(Set<String> fdaSubmissionCodes, Boolean exact) {
         // Check if the fda submission codes are valid and purify input
         Set<String> purifiedSubmissionCodes = new HashSet<>();
         for (String code : fdaSubmissionCodes) {
@@ -97,7 +101,9 @@ public class CdxUtils {
             Matcher matcher = regex.matcher(code.toUpperCase());
             if (matcher.find()) {
                 String primaryPma = matcher.group(1);
-                purifiedSubmissionCodes.add(primaryPma);
+                if (!exact || matcher.group(2) == null) {
+                    purifiedSubmissionCodes.add(primaryPma);
+                }
                 String supplement = matcher.group(3);
                 if (supplement != null) {
                     // Sometimes the PMAs are given as ranges (ie. P990081/S001-S028).
