@@ -161,6 +161,15 @@ entity CancerType {
     tumorForm TumorForm required
 }
 
+enum GeographicRegion {
+	US, EU
+}
+
+entity DrugBrand {
+	name String
+    region GeographicRegion
+}
+
 entity DeviceUsageIndication {
 }
 
@@ -179,6 +188,7 @@ relationship OneToMany {
 	Alteration to DeviceUsageIndication
 	CancerType to DeviceUsageIndication
 	Drug to DeviceUsageIndication
+    Drug{brands} to DrugBrand
 }
 
 relationship ManyToMany {

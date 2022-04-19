@@ -96,9 +96,6 @@ export const Drug = (props: IDrugProps) => {
           <Table responsive>
             <thead>
               <tr>
-                <th className="hand" onClick={sort('id')}>
-                  ID <FontAwesomeIcon icon="sort" />
-                </th>
                 <th className="hand" onClick={sort('name')}>
                   Name <FontAwesomeIcon icon="sort" />
                 </th>
@@ -108,20 +105,17 @@ export const Drug = (props: IDrugProps) => {
                 <th className="hand" onClick={sort('semanticType')}>
                   Semantic Type <FontAwesomeIcon icon="sort" />
                 </th>
+                <th>Brand Names</th>
                 <th />
               </tr>
             </thead>
             <tbody>
               {drugList.map((drug, i) => (
                 <tr key={`entity-${i}`} data-cy="entityTable">
-                  <td>
-                    <Button tag={Link} to={`${match.url}/${drug.id}`} color="link" size="sm">
-                      {drug.id}
-                    </Button>
-                  </td>
                   <td>{drug.name}</td>
                   <td>{drug.code}</td>
                   <td>{drug.semanticType}</td>
+                  <td>{drug.brands?.map(brand => brand.name).join(', ')}</td>
                   <td className="text-right">
                     <div className="btn-group flex-btn-group-container">
                       <Button tag={Link} to={`${match.url}/${drug.id}`} color="info" size="sm" data-cy="entityDetailsButton">

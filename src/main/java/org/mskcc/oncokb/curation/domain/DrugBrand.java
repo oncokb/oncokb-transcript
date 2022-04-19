@@ -3,13 +3,14 @@ package org.mskcc.oncokb.curation.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import javax.persistence.*;
+import org.mskcc.oncokb.curation.domain.enumeration.GeographicRegion;
 
 /**
- * A DrugSynonym.
+ * A DrugBrand.
  */
 @Entity
-@Table(name = "drug_synonym")
-public class DrugSynonym implements Serializable {
+@Table(name = "drug_brand")
+public class DrugBrand implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -18,9 +19,12 @@ public class DrugSynonym implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Lob
     @Column(name = "name")
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "region")
+    private GeographicRegion region;
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "synonyms", "deviceUsageIndications", "brands" }, allowSetters = true)
@@ -32,7 +36,7 @@ public class DrugSynonym implements Serializable {
         return this.id;
     }
 
-    public DrugSynonym id(Long id) {
+    public DrugBrand id(Long id) {
         this.setId(id);
         return this;
     }
@@ -45,13 +49,26 @@ public class DrugSynonym implements Serializable {
         return this.name;
     }
 
-    public DrugSynonym name(String name) {
+    public DrugBrand name(String name) {
         this.setName(name);
         return this;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public GeographicRegion getRegion() {
+        return this.region;
+    }
+
+    public DrugBrand region(GeographicRegion region) {
+        this.setRegion(region);
+        return this;
+    }
+
+    public void setRegion(GeographicRegion region) {
+        this.region = region;
     }
 
     public Drug getDrug() {
@@ -62,7 +79,7 @@ public class DrugSynonym implements Serializable {
         this.drug = drug;
     }
 
-    public DrugSynonym drug(Drug drug) {
+    public DrugBrand drug(Drug drug) {
         this.setDrug(drug);
         return this;
     }
@@ -74,10 +91,10 @@ public class DrugSynonym implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof DrugSynonym)) {
+        if (!(o instanceof DrugBrand)) {
             return false;
         }
-        return id != null && id.equals(((DrugSynonym) o).id);
+        return id != null && id.equals(((DrugBrand) o).id);
     }
 
     @Override
@@ -89,9 +106,10 @@ public class DrugSynonym implements Serializable {
     // prettier-ignore
     @Override
     public String toString() {
-        return "DrugSynonym{" +
+        return "DrugBrand{" +
             "id=" + getId() +
             ", name='" + getName() + "'" +
+            ", region='" + getRegion() + "'" +
             "}";
     }
 }

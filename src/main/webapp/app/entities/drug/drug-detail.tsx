@@ -36,6 +36,10 @@ export const DrugDetail = (props: IDrugDetailProps) => {
             <span id="semanticType">Semantic Type</span>
           </dt>
           <dd>{drugEntity.semanticType}</dd>
+          <dt>
+            <span id="brandNames">Brand Names</span>
+          </dt>
+          <dd>{drugEntity.brands?.map(brand => brand.name).join(', ')}</dd>
         </dl>
         <Button tag={Link} to="/drug" replace color="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>

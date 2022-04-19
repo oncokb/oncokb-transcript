@@ -28,6 +28,12 @@
       "otherEntityName": "deviceUsageIndication",
       "otherEntityRelationshipName": "drug",
       "relationshipName": "deviceUsageIndication"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "drugBrand",
+      "otherEntityRelationshipName": "drug",
+      "relationshipName": "brands"
     }
   ],
   "entityTableName": "drug",
