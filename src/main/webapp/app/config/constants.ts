@@ -28,6 +28,7 @@ export enum PAGE_ROUTE {
   DRUG = '/drug',
   FDA_SUBMISSION = '/fda-submission',
   CDX = '/companion-diagnostic-device',
+  SPECIMEN_TYPE = '/specimen-type',
   WORKBENCH = '/workbench',
   OAUTH = '/oauth2/authorization/oidc',
   ADMIN_USER_MANAGEMENT = '/admin/user-management',

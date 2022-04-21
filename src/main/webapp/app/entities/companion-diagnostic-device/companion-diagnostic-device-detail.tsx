@@ -6,7 +6,8 @@ import {} from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, PAGE_ROUTE } from 'app/config/constants';
+import WithSeparator from 'react-with-separator';
 export interface ICompanionDiagnosticDeviceDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const CompanionDiagnosticDeviceDetail = (props: ICompanionDiagnosticDeviceDetailProps) => {
@@ -34,16 +35,13 @@ export const CompanionDiagnosticDeviceDetail = (props: ICompanionDiagnosticDevic
           <dd>{companionDiagnosticDeviceEntity.manufacturer}</dd>
           <dt>Specimen Type</dt>
           <dd>
-            {companionDiagnosticDeviceEntity.specimenTypes
-              ? companionDiagnosticDeviceEntity.specimenTypes.map((val, i) => (
-                  <span key={val.id}>
-                    <a>{val.id}</a>
-                    {companionDiagnosticDeviceEntity.specimenTypes && i === companionDiagnosticDeviceEntity.specimenTypes.length - 1
-                      ? ''
-                      : ', '}
-                  </span>
-                ))
-              : null}
+            <WithSeparator separator={', '}>
+              {(companionDiagnosticDeviceEntity.specimenTypes || []).map((val, i) => (
+                <Link to={`${PAGE_ROUTE.SPECIMEN_TYPE}/${val.id}`} key={val.type}>
+                  {`${val.name}(${val.type})`}
+                </Link>
+              ))}
+            </WithSeparator>
           </dd>
         </dl>
         <Button tag={Link} to="/companion-diagnostic-device" replace color="info" data-cy="entityDetailsBackButton">
