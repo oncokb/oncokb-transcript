@@ -73,6 +73,7 @@ import deviceUsageIndication, {
   DeviceUsageIndicationStore
 } from 'app/entities/device-usage-indication/device-usage-indication.store';
 import article, { ArticleStore } from 'app/entities/article/article.store';
+import DrugBrandStore from 'app/entities/drug-brand/drug-brand.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
@@ -99,6 +100,7 @@ export interface IRootStore {
   readonly cancerTypeStore: CancerTypeStore;
   readonly deviceUsageIndicationStore: DeviceUsageIndicationStore;
   readonly articleStore: ArticleStore;
+  readonly drugBrandStore: DrugBrandStore;
   /* jhipster-needle-add-store-field - JHipster will add store here */
 }
 
@@ -128,6 +130,7 @@ export function createStores(history: History): IRootStore {
   rootStore.cancerTypeStore = new CancerTypeStore(rootStore);
   rootStore.deviceUsageIndicationStore = new DeviceUsageIndicationStore(rootStore);
   rootStore.articleStore = new ArticleStore(rootStore);
+  rootStore.drugBrandStore = new DrugBrandStore(rootStore);
   /* jhipster-needle-add-store-init - JHipster will add store here */
   return rootStore;
 }

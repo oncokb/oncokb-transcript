@@ -1,0 +1,32 @@
+{
+  "name": "DrugBrand",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "region",
+      "fieldType": "GeographicRegion",
+      "fieldValues": "US,EU"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "drug",
+      "otherEntityRelationshipName": "brands",
+      "relationshipName": "drug"
+    }
+  ],
+  "entityTableName": "drug_brand",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220419220505"
+}

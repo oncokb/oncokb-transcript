@@ -74,9 +74,10 @@
       "Alteration",
       "CancerType",
       "DeviceUsageIndication",
-      "Article"
+      "Article",
+      "DrugBrand"
     ],
-    "lastLiquibaseTimestamp": 1648848733000,
+    "lastLiquibaseTimestamp": 1650405905000,
     "devServerPort": 9060,
     "enableGradleEnterprise": false
   }

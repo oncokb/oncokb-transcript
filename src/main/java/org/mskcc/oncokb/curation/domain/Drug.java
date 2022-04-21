@@ -39,6 +39,10 @@ public class Drug implements Serializable {
     @JsonIgnoreProperties(value = { "fdaSubmission", "alteration", "cancerType", "drug" }, allowSetters = true)
     private Set<DeviceUsageIndication> deviceUsageIndications = new HashSet<>();
 
+    @OneToMany(mappedBy = "drug", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
+    private Set<DrugBrand> brands = new HashSet<>();
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
@@ -152,6 +156,37 @@ public class Drug implements Serializable {
     public Drug removeDeviceUsageIndication(DeviceUsageIndication deviceUsageIndication) {
         this.deviceUsageIndications.remove(deviceUsageIndication);
         deviceUsageIndication.setDrug(null);
+        return this;
+    }
+
+    public Set<DrugBrand> getBrands() {
+        return this.brands;
+    }
+
+    public void setBrands(Set<DrugBrand> drugBrands) {
+        if (this.brands != null) {
+            this.brands.forEach(i -> i.setDrug(null));
+        }
+        if (drugBrands != null) {
+            drugBrands.forEach(i -> i.setDrug(this));
+        }
+        this.brands = drugBrands;
+    }
+
+    public Drug brands(Set<DrugBrand> drugBrands) {
+        this.setBrands(drugBrands);
+        return this;
+    }
+
+    public Drug addBrands(DrugBrand drugBrand) {
+        this.brands.add(drugBrand);
+        drugBrand.setDrug(this);
+        return this;
+    }
+
+    public Drug removeBrands(DrugBrand drugBrand) {
+        this.brands.remove(drugBrand);
+        drugBrand.setDrug(null);
         return this;
     }
 
