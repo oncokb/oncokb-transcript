@@ -30,6 +30,16 @@
       "fieldName": "description",
       "fieldType": "byte[]",
       "fieldTypeBlobContent": "text"
+    },
+    {
+      "fieldName": "curated",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "genetic",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
     }
   ],
   "relationships": [

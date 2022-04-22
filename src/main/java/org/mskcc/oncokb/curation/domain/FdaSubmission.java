@@ -49,6 +49,14 @@ public class FdaSubmission implements Serializable {
     @Column(name = "description")
     private String description;
 
+    @NotNull
+    @Column(name = "curated", nullable = false)
+    private Boolean curated = false;
+
+    @NotNull
+    @Column(name = "genetic", nullable = false)
+    private Boolean genetic = false;
+
     @OneToMany(mappedBy = "fdaSubmission")
     @JsonIgnoreProperties(value = { "fdaSubmission", "alteration", "cancerType", "drug" }, allowSetters = true)
     private Set<DeviceUsageIndication> deviceUsageIndications = new HashSet<>();
@@ -169,6 +177,32 @@ public class FdaSubmission implements Serializable {
         this.description = description;
     }
 
+    public Boolean getCurated() {
+        return this.curated;
+    }
+
+    public FdaSubmission curated(Boolean curated) {
+        this.setCurated(curated);
+        return this;
+    }
+
+    public void setCurated(Boolean curated) {
+        this.curated = curated;
+    }
+
+    public Boolean getGenetic() {
+        return this.genetic;
+    }
+
+    public FdaSubmission genetic(Boolean genetic) {
+        this.setGenetic(genetic);
+        return this;
+    }
+
+    public void setGenetic(Boolean genetic) {
+        this.genetic = genetic;
+    }
+
     public Set<DeviceUsageIndication> getDeviceUsageIndications() {
         return this.deviceUsageIndications;
     }
@@ -257,6 +291,8 @@ public class FdaSubmission implements Serializable {
             ", dateReceived='" + getDateReceived() + "'" +
             ", decisionDate='" + getDecisionDate() + "'" +
             ", description='" + getDescription() + "'" +
+            ", curated='" + getCurated() + "'" +
+            ", genetic='" + getGenetic() + "'" +
             "}";
     }
 }

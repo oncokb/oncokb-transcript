@@ -114,6 +114,9 @@ entity FdaSubmission {
     decisionDate Instant
 
     description TextBlob
+
+    curated Boolean required
+    genetic Boolean required
 }
 
 enum TumorForm {
