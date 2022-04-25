@@ -75,6 +75,12 @@ public class FdaSubmissionService {
                 if (fdaSubmission.getDescription() != null) {
                     existingFdaSubmission.setDescription(fdaSubmission.getDescription());
                 }
+                if (fdaSubmission.getCurated() != null) {
+                    existingFdaSubmission.setCurated(fdaSubmission.getCurated());
+                }
+                if (fdaSubmission.getGenetic() != null) {
+                    existingFdaSubmission.setGenetic(fdaSubmission.getGenetic());
+                }
 
                 return existingFdaSubmission;
             })

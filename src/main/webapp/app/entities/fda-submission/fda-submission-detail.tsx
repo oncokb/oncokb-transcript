@@ -60,6 +60,14 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
             <span id="description">Description</span>
           </dt>
           <dd>{fdaSubmissionEntity.description}</dd>
+          <dt>
+            <span id="curated">Curated</span>
+          </dt>
+          <dd>{fdaSubmissionEntity.curated ? 'true' : 'false'}</dd>
+          <dt>
+            <span id="genetic">Genetic</span>
+          </dt>
+          <dd>{fdaSubmissionEntity.genetic ? 'true' : 'false'}</dd>
           <dt>Companion Diagnostic Device</dt>
           <dd>{fdaSubmissionEntity.companionDiagnosticDevice ? fdaSubmissionEntity.companionDiagnosticDevice.name : ''}</dd>
           <dt>Type</dt>

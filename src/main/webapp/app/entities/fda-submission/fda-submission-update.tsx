@@ -59,7 +59,7 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
       ...values,
       companionDiagnosticDevice: companionDiagnosticDevices.find(it => it.id.toString() === values.companionDiagnosticDeviceId.toString()),
       type: fdaSubmissionTypes.find(it => it.id.toString() === values.typeId.toString()),
-      id: null,
+      id: isNew ? null : props.match.params.id,
     };
 
     if (isNew) {
@@ -184,6 +184,8 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
                   data-cy="description"
                   type="textarea"
                 />
+                <ValidatedField label="Curated" id="fda-submission-curated" name="curated" data-cy="curated" check type="checkbox" />
+                <ValidatedField label="Genetic" id="fda-submission-genetic" name="genetic" data-cy="genetic" check type="checkbox" />
                 <ValidatedField
                   id="fda-submission-companionDiagnosticDevice"
                   name="companionDiagnosticDeviceId"

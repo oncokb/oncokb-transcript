@@ -35,6 +35,12 @@
             <column name="description" type="${clobType}">
                 <constraints nullable="true" />
             </column>
+            <column name="curated" type="boolean">
+                <constraints nullable="false" />
+            </column>
+            <column name="genetic" type="boolean">
+                <constraints nullable="false" />
+            </column>
             <column name="companion_diagnostic_device_id" type="bigint">
                 <constraints nullable="true" />
             </column>

@@ -12,9 +12,14 @@ export interface IFdaSubmission {
   dateReceived?: string | null;
   decisionDate?: string | null;
   description?: string | null;
+  curated?: boolean;
+  genetic?: boolean;
   deviceUsageIndications?: IDeviceUsageIndication[] | null;
   companionDiagnosticDevice?: ICompanionDiagnosticDevice | null;
   type?: IFdaSubmissionType | null;
 }
 
-export const defaultValue: Readonly<IFdaSubmission> = {};
+export const defaultValue: Readonly<IFdaSubmission> = {
+  curated: false,
+  genetic: false,
+};

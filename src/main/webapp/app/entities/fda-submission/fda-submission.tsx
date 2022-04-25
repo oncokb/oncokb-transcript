@@ -4,6 +4,7 @@ import { Link, RouteComponentProps } from 'react-router-dom';
 import { Button, Col, Row, Table } from 'reactstrap';
 import { byteSize, Translate, TextFormat, getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
@@ -94,6 +95,18 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
     {
       accessor: 'supplementNumber',
       Header: <TableHeader header="Supplement Number" onSort={sort('supplementNumber')} sortDirection={paginationState.order} />,
+      maxWidth: 100,
+    },
+    {
+      accessor: 'genetic',
+      Header: <TableHeader header="Genetic Relevant" onSort={sort('genetic')} sortDirection={paginationState.order} />,
+      Cell: ({ cell: { value } }) => (value ? <FontAwesomeIcon icon={faCheck} /> : null),
+      maxWidth: 100,
+    },
+    {
+      accessor: 'curated',
+      Header: <TableHeader header="Curated" onSort={sort('curated')} sortDirection={paginationState.order} />,
+      Cell: ({ cell: { value } }) => (value ? <FontAwesomeIcon icon={faCheck} /> : null),
       maxWidth: 100,
     },
     {

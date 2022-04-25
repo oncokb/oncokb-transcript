@@ -58,6 +58,12 @@ class FdaSubmissionResourceIT {
     private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
     private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
 
+    private static final Boolean DEFAULT_CURATED = false;
+    private static final Boolean UPDATED_CURATED = true;
+
+    private static final Boolean DEFAULT_GENETIC = false;
+    private static final Boolean UPDATED_GENETIC = true;
+
     private static final String ENTITY_API_URL = "/api/fda-submissions";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -89,7 +95,9 @@ class FdaSubmissionResourceIT {
             .genericName(DEFAULT_GENERIC_NAME)
             .dateReceived(DEFAULT_DATE_RECEIVED)
             .decisionDate(DEFAULT_DECISION_DATE)
-            .description(DEFAULT_DESCRIPTION);
+            .description(DEFAULT_DESCRIPTION)
+            .curated(DEFAULT_CURATED)
+            .genetic(DEFAULT_GENETIC);
         return fdaSubmission;
     }
 
@@ -107,7 +115,9 @@ class FdaSubmissionResourceIT {
             .genericName(UPDATED_GENERIC_NAME)
             .dateReceived(UPDATED_DATE_RECEIVED)
             .decisionDate(UPDATED_DECISION_DATE)
-            .description(UPDATED_DESCRIPTION);
+            .description(UPDATED_DESCRIPTION)
+            .curated(UPDATED_CURATED)
+            .genetic(UPDATED_GENETIC);
         return fdaSubmission;
     }
 
@@ -141,6 +151,8 @@ class FdaSubmissionResourceIT {
         assertThat(testFdaSubmission.getDateReceived()).isEqualTo(DEFAULT_DATE_RECEIVED);
         assertThat(testFdaSubmission.getDecisionDate()).isEqualTo(DEFAULT_DECISION_DATE);
         assertThat(testFdaSubmission.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testFdaSubmission.getCurated()).isEqualTo(DEFAULT_CURATED);
+        assertThat(testFdaSubmission.getGenetic()).isEqualTo(DEFAULT_GENETIC);
     }
 
     @Test
@@ -190,6 +202,50 @@ class FdaSubmissionResourceIT {
 
     @Test
     @Transactional
+    void checkCuratedIsRequired() throws Exception {
+        int databaseSizeBeforeTest = fdaSubmissionRepository.findAll().size();
+        // set the field null
+        fdaSubmission.setCurated(null);
+
+        // Create the FdaSubmission, which fails.
+
+        restFdaSubmissionMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(fdaSubmission))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<FdaSubmission> fdaSubmissionList = fdaSubmissionRepository.findAll();
+        assertThat(fdaSubmissionList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkGeneticIsRequired() throws Exception {
+        int databaseSizeBeforeTest = fdaSubmissionRepository.findAll().size();
+        // set the field null
+        fdaSubmission.setGenetic(null);
+
+        // Create the FdaSubmission, which fails.
+
+        restFdaSubmissionMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(fdaSubmission))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<FdaSubmission> fdaSubmissionList = fdaSubmissionRepository.findAll();
+        assertThat(fdaSubmissionList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllFdaSubmissions() throws Exception {
         // Initialize the database
         fdaSubmissionRepository.saveAndFlush(fdaSubmission);
@@ -206,7 +262,9 @@ class FdaSubmissionResourceIT {
             .andExpect(jsonPath("$.[*].genericName").value(hasItem(DEFAULT_GENERIC_NAME)))
             .andExpect(jsonPath("$.[*].dateReceived").value(hasItem(DEFAULT_DATE_RECEIVED.toString())))
             .andExpect(jsonPath("$.[*].decisionDate").value(hasItem(DEFAULT_DECISION_DATE.toString())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())));
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
+            .andExpect(jsonPath("$.[*].curated").value(hasItem(DEFAULT_CURATED.booleanValue())))
+            .andExpect(jsonPath("$.[*].genetic").value(hasItem(DEFAULT_GENETIC.booleanValue())));
     }
 
     @Test
@@ -227,7 +285,9 @@ class FdaSubmissionResourceIT {
             .andExpect(jsonPath("$.genericName").value(DEFAULT_GENERIC_NAME))
             .andExpect(jsonPath("$.dateReceived").value(DEFAULT_DATE_RECEIVED.toString()))
             .andExpect(jsonPath("$.decisionDate").value(DEFAULT_DECISION_DATE.toString()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()));
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
+            .andExpect(jsonPath("$.curated").value(DEFAULT_CURATED.booleanValue()))
+            .andExpect(jsonPath("$.genetic").value(DEFAULT_GENETIC.booleanValue()));
     }
 
     @Test
@@ -256,7 +316,9 @@ class FdaSubmissionResourceIT {
             .genericName(UPDATED_GENERIC_NAME)
             .dateReceived(UPDATED_DATE_RECEIVED)
             .decisionDate(UPDATED_DECISION_DATE)
-            .description(UPDATED_DESCRIPTION);
+            .description(UPDATED_DESCRIPTION)
+            .curated(UPDATED_CURATED)
+            .genetic(UPDATED_GENETIC);
 
         restFdaSubmissionMockMvc
             .perform(
@@ -278,6 +340,8 @@ class FdaSubmissionResourceIT {
         assertThat(testFdaSubmission.getDateReceived()).isEqualTo(UPDATED_DATE_RECEIVED);
         assertThat(testFdaSubmission.getDecisionDate()).isEqualTo(UPDATED_DECISION_DATE);
         assertThat(testFdaSubmission.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testFdaSubmission.getCurated()).isEqualTo(UPDATED_CURATED);
+        assertThat(testFdaSubmission.getGenetic()).isEqualTo(UPDATED_GENETIC);
     }
 
     @Test
@@ -359,7 +423,8 @@ class FdaSubmissionResourceIT {
             .supplementNumber(UPDATED_SUPPLEMENT_NUMBER)
             .deviceName(UPDATED_DEVICE_NAME)
             .dateReceived(UPDATED_DATE_RECEIVED)
-            .decisionDate(UPDATED_DECISION_DATE);
+            .decisionDate(UPDATED_DECISION_DATE)
+            .genetic(UPDATED_GENETIC);
 
         restFdaSubmissionMockMvc
             .perform(
@@ -381,6 +446,8 @@ class FdaSubmissionResourceIT {
         assertThat(testFdaSubmission.getDateReceived()).isEqualTo(UPDATED_DATE_RECEIVED);
         assertThat(testFdaSubmission.getDecisionDate()).isEqualTo(UPDATED_DECISION_DATE);
         assertThat(testFdaSubmission.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testFdaSubmission.getCurated()).isEqualTo(DEFAULT_CURATED);
+        assertThat(testFdaSubmission.getGenetic()).isEqualTo(UPDATED_GENETIC);
     }
 
     @Test
@@ -402,7 +469,9 @@ class FdaSubmissionResourceIT {
             .genericName(UPDATED_GENERIC_NAME)
             .dateReceived(UPDATED_DATE_RECEIVED)
             .decisionDate(UPDATED_DECISION_DATE)
-            .description(UPDATED_DESCRIPTION);
+            .description(UPDATED_DESCRIPTION)
+            .curated(UPDATED_CURATED)
+            .genetic(UPDATED_GENETIC);
 
         restFdaSubmissionMockMvc
             .perform(
@@ -424,6 +493,8 @@ class FdaSubmissionResourceIT {
         assertThat(testFdaSubmission.getDateReceived()).isEqualTo(UPDATED_DATE_RECEIVED);
         assertThat(testFdaSubmission.getDecisionDate()).isEqualTo(UPDATED_DECISION_DATE);
         assertThat(testFdaSubmission.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testFdaSubmission.getCurated()).isEqualTo(UPDATED_CURATED);
+        assertThat(testFdaSubmission.getGenetic()).isEqualTo(UPDATED_GENETIC);
     }
 
     @Test

@@ -16,6 +16,7 @@ export const ValidatedField: React.FunctionComponent<IValidatedFieldProps> = ({
   label,
   validate,
   onChange,
+  type,
   ...attributes
 }) => {
   const methods = useFormContext();
@@ -42,6 +43,8 @@ export const ValidatedField: React.FunctionComponent<IValidatedFieldProps> = ({
           void onChangeValidate(e);
           onChange && onChange(e);
         }}
+        type={type}
+        style={type === 'checkbox' ? { marginLeft: '0.25rem' } : null}
         {...attributes}
         {...rest}
       >
