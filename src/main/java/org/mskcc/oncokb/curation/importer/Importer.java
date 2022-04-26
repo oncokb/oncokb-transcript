@@ -1,10 +1,20 @@
 package org.mskcc.oncokb.curation.importer;
 
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
+import org.mskcc.oncokb.curation.domain.Alteration;
+import org.mskcc.oncokb.curation.domain.Consequence;
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
 import org.mskcc.oncokb.curation.domain.Sequence;
+import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.curation.domain.enumeration.SequenceType;
 import org.mskcc.oncokb.curation.service.*;
@@ -55,9 +65,15 @@ public class Importer {
     @Autowired
     private AlignmentService alignmentService;
 
+    @Autowired
+    private AlterationService alterationService;
+
+    @Autowired
+    private ConsequenceService consequenceService;
+
     private final Logger log = LoggerFactory.getLogger(Importer.class);
 
-    public void generalImport() throws ApiException {
+    public void generalImport() throws ApiException, IOException {
         //        try {
         //            geneService.updatePortalGenes();
         //        } catch (IOException e) {
@@ -67,8 +83,9 @@ public class Importer {
         //        importCanonicalEnsemblGenes();
         //        importCanonicalEnsemblTranscripts();
         //                checkOncoKbEnsemblGenes();
-        checkOncoKbTranscriptSequenceAcrossRG();
+        //        checkOncoKbTranscriptSequenceAcrossRG();
         //        importGeneFragments();
+        importAlteration();
     }
 
     private void importCanonicalEnsemblGenes() {
@@ -210,6 +227,41 @@ public class Importer {
                         );
                     }
                 }
+            }
+        }
+    }
+
+    private void importAlteration() throws IOException {
+        URL alterationFileUrl = this.getClass().getClassLoader().getResource("alteration.tsv");
+        if (alterationFileUrl != null) {
+            Integer count = 0;
+            try (Stream<String> stream = Files.lines(Paths.get(alterationFileUrl.getPath()), StandardCharsets.UTF_8)) {
+                stream.forEach(line -> {
+                    String parts[] = line.split("\t");
+                    if (parts.length < 9) {
+                        throw new IllegalArgumentException("Missing elements, parts: " + parts.length + " for line: " + line);
+                    }
+                    // E255K	E255K	MUTATION	255	255	E	K	missense_variant	25
+                    String alteration = parts[0];
+                    String entrezGeneId = parts[8];
+                    log.info("{} {}", entrezGeneId, alteration);
+
+                    Optional<org.mskcc.oncokb.curation.domain.Gene> geneOptional = geneService.findGeneByEntrezGeneId(
+                        Integer.valueOf(entrezGeneId)
+                    );
+                    if (geneOptional.isPresent()) {
+                        Alteration alt = new Alteration();
+                        alt.setAlteration(alteration);
+                        alt.setGenes(Collections.singleton(geneOptional.get()));
+                        mainService.annotateAlteration(alt);
+                        alterationService.save(alt);
+                    } else {
+                        log.error("Gene does not exist {}", entrezGeneId);
+                    }
+                });
+            } catch (Exception e) {
+                log.warn("Failed to get string from text file");
+                throw e;
             }
         }
     }

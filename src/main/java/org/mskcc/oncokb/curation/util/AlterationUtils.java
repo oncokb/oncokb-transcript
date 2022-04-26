@@ -38,9 +38,11 @@ public class AlterationUtils {
                     })
                     .collect(Collectors.toSet())
             );
+            alteration.setAlteration(alteration.getGenes().stream().map(Gene::getHugoSymbol).collect(Collectors.joining("-")) + " Fusion");
         } else {
             alteration.setAlteration(proteinChange.substring(0, 1).toUpperCase() + proteinChange.toLowerCase().substring(1));
         }
+        alteration.setName(alteration.getAlteration());
         return alteration;
     }
 
@@ -59,6 +61,7 @@ public class AlterationUtils {
         alteration.setConsequence(consequence);
 
         alteration.setAlteration(cnaTerm.name().substring(0, 1) + cnaTerm.name().toLowerCase().substring(1));
+        alteration.setName(alteration.getAlteration());
 
         return alteration;
     }
