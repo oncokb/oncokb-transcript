@@ -8,16 +8,5 @@
     -->
     <changeSet id="20220401174637-2" author="jhipster">
 
-        <addForeignKeyConstraint baseColumnNames="gene_id"
-                                 baseTableName="rel_gene__alteration"
-                                 constraintName="fk_rel_gene__alteration__gene_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="gene"/>
-
-        <addForeignKeyConstraint baseColumnNames="alteration_id"
-                                 baseTableName="rel_gene__alteration"
-                                 constraintName="fk_rel_gene__alteration__alteration_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="alteration"/>
     </changeSet>
 </databaseChangeLog>

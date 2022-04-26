@@ -43,16 +43,15 @@
     },
     {
       "relationshipType": "many-to-one",
+      "otherEntityName": "gene",
+      "otherEntityRelationshipName": "alteration",
+      "relationshipName": "gene"
+    },
+    {
+      "relationshipType": "many-to-one",
       "otherEntityName": "variantConsequence",
       "otherEntityRelationshipName": "alteration",
       "relationshipName": "consequence"
-    },
-    {
-      "relationshipType": "many-to-many",
-      "otherEntityName": "gene",
-      "otherEntityRelationshipName": "alteration",
-      "relationshipName": "gene",
-      "ownerSide": false
     }
   ],
   "entityTableName": "alteration",

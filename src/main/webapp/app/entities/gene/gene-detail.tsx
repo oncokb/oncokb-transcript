@@ -32,17 +32,6 @@ export const GeneDetail = (props: IGeneDetailProps) => {
             <span id="hugoSymbol">Hugo Symbol</span>
           </dt>
           <dd>{geneEntity.hugoSymbol}</dd>
-          <dt>Alteration</dt>
-          <dd>
-            {geneEntity.alterations
-              ? geneEntity.alterations.map((val, i) => (
-                  <span key={val.id}>
-                    <a>{val.id}</a>
-                    {geneEntity.alterations && i === geneEntity.alterations.length - 1 ? '' : ', '}
-                  </span>
-                ))
-              : null}
-          </dd>
         </dl>
         <Button tag={Link} to="/gene" replace color="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>

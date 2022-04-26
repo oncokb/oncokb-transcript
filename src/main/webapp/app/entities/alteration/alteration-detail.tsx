@@ -52,6 +52,8 @@ export const AlterationDetail = (props: IAlterationDetailProps) => {
             <span id="variantResidues">Variant Residues</span>
           </dt>
           <dd>{alterationEntity.variantResidues}</dd>
+          <dt>Gene</dt>
+          <dd>{alterationEntity.gene ? alterationEntity.gene.hugoSymbol : ''}</dd>
           <dt>Consequence</dt>
           <dd>{alterationEntity.consequence ? alterationEntity.consequence.id : ''}</dd>
         </dl>

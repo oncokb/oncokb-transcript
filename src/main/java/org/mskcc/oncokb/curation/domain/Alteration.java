@@ -52,12 +52,12 @@ public class Alteration implements Serializable {
     private Set<DeviceUsageIndication> deviceUsageIndications = new HashSet<>();
 
     @ManyToOne
+    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "alterations" }, allowSetters = true)
+    private Gene gene;
+
+    @ManyToOne
     @JsonIgnoreProperties(value = { "alterations" }, allowSetters = true)
     private VariantConsequence consequence;
-
-    @ManyToMany(mappedBy = "alterations")
-    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "alterations" }, allowSetters = true)
-    private Set<Gene> genes = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -196,6 +196,19 @@ public class Alteration implements Serializable {
         return this;
     }
 
+    public Gene getGene() {
+        return this.gene;
+    }
+
+    public void setGene(Gene gene) {
+        this.gene = gene;
+    }
+
+    public Alteration gene(Gene gene) {
+        this.setGene(gene);
+        return this;
+    }
+
     public VariantConsequence getConsequence() {
         return this.consequence;
     }
@@ -206,37 +219,6 @@ public class Alteration implements Serializable {
 
     public Alteration consequence(VariantConsequence variantConsequence) {
         this.setConsequence(variantConsequence);
-        return this;
-    }
-
-    public Set<Gene> getGenes() {
-        return this.genes;
-    }
-
-    public void setGenes(Set<Gene> genes) {
-        if (this.genes != null) {
-            this.genes.forEach(i -> i.removeAlteration(this));
-        }
-        if (genes != null) {
-            genes.forEach(i -> i.addAlteration(this));
-        }
-        this.genes = genes;
-    }
-
-    public Alteration genes(Set<Gene> genes) {
-        this.setGenes(genes);
-        return this;
-    }
-
-    public Alteration addGene(Gene gene) {
-        this.genes.add(gene);
-        gene.getAlterations().add(this);
-        return this;
-    }
-
-    public Alteration removeGene(Gene gene) {
-        this.genes.remove(gene);
-        gene.getAlterations().remove(this);
         return this;
     }
 

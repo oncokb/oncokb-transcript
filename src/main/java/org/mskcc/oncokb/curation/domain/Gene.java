@@ -34,13 +34,8 @@ public class Gene implements Serializable {
     @JsonIgnoreProperties(value = { "transcripts", "gene" }, allowSetters = true)
     private Set<EnsemblGene> ensemblGenes = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-        name = "rel_gene__alteration",
-        joinColumns = @JoinColumn(name = "gene_id"),
-        inverseJoinColumns = @JoinColumn(name = "alteration_id")
-    )
-    @JsonIgnoreProperties(value = { "deviceUsageIndications", "consequence", "genes" }, allowSetters = true)
+    @OneToMany(mappedBy = "gene")
+    @JsonIgnoreProperties(value = { "deviceUsageIndications", "gene", "consequence" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -151,6 +146,12 @@ public class Gene implements Serializable {
     }
 
     public void setAlterations(Set<Alteration> alterations) {
+        if (this.alterations != null) {
+            this.alterations.forEach(i -> i.setGene(null));
+        }
+        if (alterations != null) {
+            alterations.forEach(i -> i.setGene(this));
+        }
         this.alterations = alterations;
     }
 
@@ -161,13 +162,13 @@ public class Gene implements Serializable {
 
     public Gene addAlteration(Alteration alteration) {
         this.alterations.add(alteration);
-        alteration.getGenes().add(this);
+        alteration.setGene(this);
         return this;
     }
 
     public Gene removeAlteration(Alteration alteration) {
         this.alterations.remove(alteration);
-        alteration.getGenes().remove(this);
+        alteration.setGene(null);
         return this;
     }
 

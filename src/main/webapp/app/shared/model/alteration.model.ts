@@ -1,6 +1,6 @@
 import { IDeviceUsageIndication } from 'app/shared/model/device-usage-indication.model';
-import { IVariantConsequence } from 'app/shared/model/variant-consequence.model';
 import { IGene } from 'app/shared/model/gene.model';
+import { IVariantConsequence } from 'app/shared/model/variant-consequence.model';
 import { AlterationType } from 'app/shared/model/enumerations/alteration-type.model';
 
 export interface IAlteration {
@@ -13,8 +13,8 @@ export interface IAlteration {
   refResidues?: string | null;
   variantResidues?: string | null;
   deviceUsageIndications?: IDeviceUsageIndication[] | null;
+  gene?: IGene | null;
   consequence?: IVariantConsequence | null;
-  genes?: IGene[] | null;
 }
 
 export const defaultValue: Readonly<IAlteration> = {};
