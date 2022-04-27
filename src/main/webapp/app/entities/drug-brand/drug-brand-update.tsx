@@ -60,7 +60,7 @@ export const DrugBrandUpdate = (props: IDrugBrandUpdateProps) => {
     isNew
       ? {}
       : {
-          region: 'EU',
+          region: 'US',
           ...drugBrandEntity,
           drugId: drugBrandEntity?.drug?.id,
         };

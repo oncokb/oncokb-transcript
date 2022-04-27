@@ -121,6 +121,9 @@ export const Alteration = (props: IAlterationProps) => {
                   Variant Residues <FontAwesomeIcon icon="sort" />
                 </th>
                 <th>
+                  Gene <FontAwesomeIcon icon="sort" />
+                </th>
+                <th>
                   Consequence <FontAwesomeIcon icon="sort" />
                 </th>
                 <th />
@@ -141,9 +144,10 @@ export const Alteration = (props: IAlterationProps) => {
                   <td>{alteration.proteinEnd}</td>
                   <td>{alteration.refResidues}</td>
                   <td>{alteration.variantResidues}</td>
+                  <td>{alteration.gene ? <Link to={`gene/${alteration.gene.id}`}>{alteration.gene.hugoSymbol}</Link> : ''}</td>
                   <td>
                     {alteration.consequence ? (
-                      <Link to={`variant-consequence/${alteration.consequence.id}`}>{alteration.consequence.id}</Link>
+                      <Link to={`variant-consequence/${alteration.consequence.id}`}>{alteration.consequence.term}</Link>
                     ) : (
                       ''
                     )}

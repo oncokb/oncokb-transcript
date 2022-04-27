@@ -24,19 +24,5 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="20220401174637-1-relations" author="jhipster">
-
-        <createTable tableName="rel_gene__alteration">
-            <column name="alteration_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="gene_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-
-        <addPrimaryKey columnNames="gene_id, alteration_id" tableName="rel_gene__alteration"/>
-    </changeSet>
-
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
 </databaseChangeLog>

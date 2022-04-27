@@ -24,11 +24,10 @@
       "relationshipName": "ensemblGene"
     },
     {
-      "relationshipType": "many-to-many",
+      "relationshipType": "one-to-many",
       "otherEntityName": "alteration",
       "otherEntityRelationshipName": "gene",
-      "relationshipName": "alteration",
-      "ownerSide": true
+      "relationshipName": "alteration"
     }
   ],
   "entityTableName": "gene",

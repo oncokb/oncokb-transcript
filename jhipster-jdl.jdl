@@ -180,6 +180,7 @@ relationship OneToMany {
 	Drug{synonyms} to DrugSynonym
 	Gene to GeneAlias
 	Gene to EnsemblGene
+    Gene to Alteration
     CancerType{children} to CancerType {parent}
     Transcript{fragments} to GenomeFragment{transcript}
     EnsemblGene to Transcript
@@ -195,7 +196,6 @@ relationship OneToMany {
 }
 
 relationship ManyToMany {
-    Gene to Alteration
     CompanionDiagnosticDevice to SpecimenType
 }
 

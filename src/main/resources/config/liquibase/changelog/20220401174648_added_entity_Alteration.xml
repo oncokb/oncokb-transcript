@@ -35,6 +35,9 @@
             <column name="variant_residues" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+            <column name="gene_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <column name="consequence_id" type="bigint">
                 <constraints nullable="true" />
             </column>
