@@ -4,7 +4,7 @@
     {
       "fieldName": "type",
       "fieldType": "AlterationType",
-      "fieldValues": "MUTATION,COPY_NUMBER_ALTERATION,STRUCTURAL_VARIANT,UNKNOWN",
+      "fieldValues": "MUTATION,COPY_NUMBER_ALTERATION,STRUCTURAL_VARIANT,UNKNOWN,NA",
       "fieldValidateRules": ["required"]
     },
     {

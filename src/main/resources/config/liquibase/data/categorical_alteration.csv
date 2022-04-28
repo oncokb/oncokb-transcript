@@ -1,0 +1,12 @@
+id;type;name;alteration_type
+1;ONCOKB_MUTATIONS;Oncogenic Mutations;NA
+2;GAIN_OF_FUNCTION_MUTATIONS;Gain-of-function Mutations;NA
+3;LOSS_OF_FUNCTION_MUTATIONS;Loss-of-function Mutations;NA
+4;SWITCH_OF_FUNCTION_MUTATIONS;Switch-of-function Mutations;NA
+5;VUS;Variants of Unknown Significance;NA
+6;TRUNCATING_MUTATIONS;Truncating Mutations;NA
+7;FUSIONS;Fusions;STRUCTURAL_VARIANT
+8;AMPLIFICATION;Amplification;COPY_NUMBER_ALTERATION
+9;DELETION;Deletion;COPY_NUMBER_ALTERATION
+10;PROMOTER;Promoter;NA
+11;WILDTYPE;Wildtype;NA

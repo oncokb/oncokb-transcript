@@ -1,0 +1,33 @@
+{
+  "name": "CategoricalAlteration",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "type",
+      "fieldType": "CategoricalAlterationType",
+      "fieldValues": "ONCOKB_MUTATIONS,GAIN_OF_FUNCTION_MUTATIONS,LOSS_OF_FUNCTION_MUTATIONS,SWITCH_OF_FUNCTION_MUTATIONS,VUS,TRUNCATING_MUTATIONS,FUSIONS,AMPLIFICATION,DELETION,PROMOTER,WILDTYPE",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "alterationType",
+      "fieldType": "AlterationType",
+      "fieldValues": "MUTATION,COPY_NUMBER_ALTERATION,STRUCTURAL_VARIANT,UNKNOWN,NA",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "relationships": [],
+  "entityTableName": "categorical_alteration",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220428161233"
+}

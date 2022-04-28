@@ -8,4 +8,5 @@ public enum AlterationType {
     COPY_NUMBER_ALTERATION,
     STRUCTURAL_VARIANT,
     UNKNOWN,
+    NA,
 }

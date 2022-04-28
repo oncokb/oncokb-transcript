@@ -91,6 +91,7 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
                 <option value="COPY_NUMBER_ALTERATION">COPY_NUMBER_ALTERATION</option>
                 <option value="STRUCTURAL_VARIANT">STRUCTURAL_VARIANT</option>
                 <option value="UNKNOWN">UNKNOWN</option>
+                <option value="NA">NA</option>
               </ValidatedField>
               <ValidatedField
                 label="Name"
