@@ -53,7 +53,7 @@
         <dropDefaultValue tableName="fda_submission" columnName="date_received" columnDataType="${datetimeType}"/>
         <dropDefaultValue tableName="fda_submission" columnName="decision_date" columnDataType="${datetimeType}"/>
 
-        <!-- This data was generated on 4/4/2022 12:00PM EST - Please update this when csv file is modified -->
+        <!-- This data was generated on 4/29/2022 12:00PM EST - Please update this when csv file is modified -->
         <loadData
             file="config/liquibase/data/fda_submission.csv"
             separator="|"

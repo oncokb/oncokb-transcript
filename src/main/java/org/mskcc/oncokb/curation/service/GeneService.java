@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.config.cache.CacheCategory;
@@ -248,5 +249,11 @@ public class GeneService {
     public Page<Gene> search(String query, Pageable pageable) {
         log.debug("Request to search for a page of Genes for query {}", query);
         return geneSearchRepository.search(query, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Gene> searchHugoSymbolByMultipleValues(Set<String> searchValues) {
+        log.debug("Request to search for a list of genes by list of search values");
+        return geneSearchRepository.searchHugoSymbolByMultipleValues(searchValues);
     }
 }

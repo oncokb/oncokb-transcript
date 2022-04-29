@@ -1,6 +1,7 @@
 package org.mskcc.oncokb.curation.repository.search;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
@@ -25,6 +26,7 @@ public interface GeneSearchRepository extends ElasticsearchRepository<Gene, Long
 
 interface GeneSearchRepositoryInternal {
     Page<Gene> search(String query, Pageable pageable);
+    List<Gene> searchHugoSymbolByMultipleValues(Set<String> searchValues);
 }
 
 class GeneSearchRepositoryInternalImpl implements GeneSearchRepositoryInternal {
@@ -47,5 +49,13 @@ class GeneSearchRepositoryInternalImpl implements GeneSearchRepositoryInternal {
         List<Gene> hits = searchHits.map(SearchHit::getContent).stream().collect(Collectors.toList());
 
         return new PageImpl<>(hits, pageable, searchHits.getTotalHits());
+    }
+
+    @Override
+    public List<Gene> searchHugoSymbolByMultipleValues(Set<String> searchValues) {
+        QueryBuilder queryBuilder = QueryBuilders.boolQuery().must(QueryBuilders.termsQuery("hugoSymbol.keyword", searchValues));
+        NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder().withQuery(queryBuilder).build();
+        SearchHits<Gene> searchHits = elasticsearchTemplate.search(nativeSearchQuery, Gene.class);
+        return searchHits.map(SearchHit::getContent).stream().collect(Collectors.toList());
     }
 }

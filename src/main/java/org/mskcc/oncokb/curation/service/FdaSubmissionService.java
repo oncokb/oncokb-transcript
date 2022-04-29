@@ -152,7 +152,7 @@ public class FdaSubmissionService {
             if (!StringUtils.isEmpty(supplementNumber)) {
                 submissionNumber += "/" + supplementNumber;
             }
-            Set<FdaSubmission> newFdaSubmissions = cdxUtils.getFDASubmissionFromHTML(Set.of(submissionNumber), true);
+            Set<FdaSubmission> newFdaSubmissions = cdxUtils.getFDASubmissionFromHTML(Set.of(submissionNumber), true, false);
             return newFdaSubmissions
                 .stream()
                 .filter(sub -> {
