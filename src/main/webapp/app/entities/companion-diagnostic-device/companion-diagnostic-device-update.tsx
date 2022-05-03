@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
+import { Button, Row, Col, FormGroup, Label } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
-
-import { ISpecimenType } from 'app/shared/model/specimen-type.model';
-import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import ValidatedForm from 'app/shared/form/ValidatedForm';
+import ValidatedField, { ValidatedSelect } from 'app/shared/form/ValidatedField';
 
 export interface ICompanionDiagnosticDeviceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -64,6 +61,10 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
           specimenTypes: companionDiagnosticDeviceEntity?.specimenTypes?.map(e => e.id.toString()),
         };
 
+  const specimenTypesOptions = specimenTypes?.map(specType => {
+    return { label: specType.type, value: specType.id };
+  });
+
   return (
     <div>
       <Row className="justify-content-center">
@@ -105,23 +106,16 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
                   required: { value: true, message: 'This field is required.' },
                 }}
               />
-              <ValidatedField
-                label="Specimen Type"
-                id="companion-diagnostic-device-specimenType"
-                data-cy="specimenType"
-                type="select"
-                multiple
-                name="specimenTypes"
-              >
-                <option value="" key="0" />
-                {specimenTypes
-                  ? specimenTypes.map(otherEntity => (
-                      <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.type}
-                      </option>
-                    ))
-                  : null}
-              </ValidatedField>
+              <ValidatedSelect
+                label="Specimen Types"
+                name={'specimenType'}
+                isMulti
+                closeMenuOnSelect={false}
+                options={specimenTypesOptions}
+                validate={{
+                  required: { value: true, message: 'This field is required.' },
+                }}
+              />
               <Button tag={Link} id="cancel-save" data-cy="entityCreateCancelButton" to="/companion-diagnostic-device" replace color="info">
                 <FontAwesomeIcon icon="arrow-left" />
                 &nbsp;
