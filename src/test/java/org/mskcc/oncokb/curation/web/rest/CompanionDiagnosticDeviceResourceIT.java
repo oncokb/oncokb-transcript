@@ -8,9 +8,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
 import org.mskcc.oncokb.curation.repository.CompanionDiagnosticDeviceRepository;
+import org.mskcc.oncokb.curation.repository.search.CompanionDiagnosticDeviceSearchRepository;
 import org.mskcc.oncokb.curation.service.CompanionDiagnosticDeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -47,6 +50,7 @@ class CompanionDiagnosticDeviceResourceIT {
 
     private static final String ENTITY_API_URL = "/api/companion-diagnostic-devices";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
+    private static final String ENTITY_SEARCH_API_URL = "/api/_search/companion-diagnostic-devices";
 
     private static Random random = new Random();
     private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
@@ -59,6 +63,14 @@ class CompanionDiagnosticDeviceResourceIT {
 
     @Mock
     private CompanionDiagnosticDeviceService companionDiagnosticDeviceServiceMock;
+
+    /**
+     * This repository is mocked in the org.mskcc.oncokb.curation.repository.search test package.
+     *
+     * @see org.mskcc.oncokb.curation.repository.search.CompanionDiagnosticDeviceSearchRepositoryMockConfiguration
+     */
+    @Autowired
+    private CompanionDiagnosticDeviceSearchRepository mockCompanionDiagnosticDeviceSearchRepository;
 
     @Autowired
     private EntityManager em;
@@ -121,6 +133,9 @@ class CompanionDiagnosticDeviceResourceIT {
         );
         assertThat(testCompanionDiagnosticDevice.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testCompanionDiagnosticDevice.getManufacturer()).isEqualTo(DEFAULT_MANUFACTURER);
+
+        // Validate the CompanionDiagnosticDevice in Elasticsearch
+        verify(mockCompanionDiagnosticDeviceSearchRepository, times(1)).save(testCompanionDiagnosticDevice);
     }
 
     @Test
@@ -144,6 +159,9 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the CompanionDiagnosticDevice in the database
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeCreate);
+
+        // Validate the CompanionDiagnosticDevice in Elasticsearch
+        verify(mockCompanionDiagnosticDeviceSearchRepository, times(0)).save(companionDiagnosticDevice);
     }
 
     @Test
@@ -280,6 +298,9 @@ class CompanionDiagnosticDeviceResourceIT {
         );
         assertThat(testCompanionDiagnosticDevice.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testCompanionDiagnosticDevice.getManufacturer()).isEqualTo(UPDATED_MANUFACTURER);
+
+        // Validate the CompanionDiagnosticDevice in Elasticsearch
+        verify(mockCompanionDiagnosticDeviceSearchRepository).save(testCompanionDiagnosticDevice);
     }
 
     @Test
@@ -301,6 +322,9 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the CompanionDiagnosticDevice in the database
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the CompanionDiagnosticDevice in Elasticsearch
+        verify(mockCompanionDiagnosticDeviceSearchRepository, times(0)).save(companionDiagnosticDevice);
     }
 
     @Test
@@ -322,6 +346,9 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the CompanionDiagnosticDevice in the database
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the CompanionDiagnosticDevice in Elasticsearch
+        verify(mockCompanionDiagnosticDeviceSearchRepository, times(0)).save(companionDiagnosticDevice);
     }
 
     @Test
@@ -343,6 +370,9 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the CompanionDiagnosticDevice in the database
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the CompanionDiagnosticDevice in Elasticsearch
+        verify(mockCompanionDiagnosticDeviceSearchRepository, times(0)).save(companionDiagnosticDevice);
     }
 
     @Test
@@ -430,6 +460,9 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the CompanionDiagnosticDevice in the database
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the CompanionDiagnosticDevice in Elasticsearch
+        verify(mockCompanionDiagnosticDeviceSearchRepository, times(0)).save(companionDiagnosticDevice);
     }
 
     @Test
@@ -451,6 +484,9 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the CompanionDiagnosticDevice in the database
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the CompanionDiagnosticDevice in Elasticsearch
+        verify(mockCompanionDiagnosticDeviceSearchRepository, times(0)).save(companionDiagnosticDevice);
     }
 
     @Test
@@ -472,6 +508,9 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the CompanionDiagnosticDevice in the database
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the CompanionDiagnosticDevice in Elasticsearch
+        verify(mockCompanionDiagnosticDeviceSearchRepository, times(0)).save(companionDiagnosticDevice);
     }
 
     @Test
@@ -490,5 +529,27 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the database contains one less item
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeDelete - 1);
+
+        // Validate the CompanionDiagnosticDevice in Elasticsearch
+        verify(mockCompanionDiagnosticDeviceSearchRepository, times(1)).deleteById(companionDiagnosticDevice.getId());
+    }
+
+    @Test
+    @Transactional
+    void searchCompanionDiagnosticDevice() throws Exception {
+        // Configure the mock search repository
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+        when(mockCompanionDiagnosticDeviceSearchRepository.search("id:" + companionDiagnosticDevice.getId()))
+            .thenReturn(Stream.of(companionDiagnosticDevice));
+
+        // Search the companionDiagnosticDevice
+        restCompanionDiagnosticDeviceMockMvc
+            .perform(get(ENTITY_SEARCH_API_URL + "?query=id:" + companionDiagnosticDevice.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(companionDiagnosticDevice.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].manufacturer").value(hasItem(DEFAULT_MANUFACTURER)));
     }
 }

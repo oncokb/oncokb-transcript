@@ -1,10 +1,13 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.repository.GeneRepository;
 import org.mskcc.oncokb.curation.service.GeneService;
@@ -182,5 +185,21 @@ public class GeneResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code SEARCH  /_search/genes?query=:query} : search for the gene corresponding
+     * to the query.
+     *
+     * @param query the query of the gene search.
+     * @param pageable the pagination information.
+     * @return the result of the search.
+     */
+    @GetMapping("/_search/genes")
+    public ResponseEntity<List<Gene>> searchGenes(@RequestParam String query, Pageable pageable) {
+        log.debug("REST request to search for a page of Genes for query {}", query);
+        Page<Gene> page = geneService.search(query, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

@@ -1,10 +1,13 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
@@ -190,5 +193,21 @@ public class FdaSubmissionResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code SEARCH  /_search/fda-submissions?query=:query} : search for the fdaSubmission corresponding
+     * to the query.
+     *
+     * @param query the query of the fdaSubmission search.
+     * @param pageable the pagination information.
+     * @return the result of the search.
+     */
+    @GetMapping("/_search/fda-submissions")
+    public ResponseEntity<List<FdaSubmission>> searchFdaSubmissions(@RequestParam String query, Pageable pageable) {
+        log.debug("REST request to search for a page of FdaSubmissions for query {}", query);
+        Page<FdaSubmission> page = fdaSubmissionService.search(query, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

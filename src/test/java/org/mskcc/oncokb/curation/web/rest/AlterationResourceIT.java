@@ -2,10 +2,12 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -19,8 +21,11 @@ import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 import org.mskcc.oncokb.curation.repository.AlterationRepository;
+import org.mskcc.oncokb.curation.repository.search.AlterationSearchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -58,12 +63,21 @@ class AlterationResourceIT {
 
     private static final String ENTITY_API_URL = "/api/alterations";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
+    private static final String ENTITY_SEARCH_API_URL = "/api/_search/alterations";
 
     private static Random random = new Random();
     private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
 
     @Autowired
     private AlterationRepository alterationRepository;
+
+    /**
+     * This repository is mocked in the org.mskcc.oncokb.curation.repository.search test package.
+     *
+     * @see org.mskcc.oncokb.curation.repository.search.AlterationSearchRepositoryMockConfiguration
+     */
+    @Autowired
+    private AlterationSearchRepository mockAlterationSearchRepository;
 
     @Autowired
     private EntityManager em;
@@ -139,6 +153,9 @@ class AlterationResourceIT {
         assertThat(testAlteration.getProteinEnd()).isEqualTo(DEFAULT_PROTEIN_END);
         assertThat(testAlteration.getRefResidues()).isEqualTo(DEFAULT_REF_RESIDUES);
         assertThat(testAlteration.getVariantResidues()).isEqualTo(DEFAULT_VARIANT_RESIDUES);
+
+        // Validate the Alteration in Elasticsearch
+        verify(mockAlterationSearchRepository, times(1)).save(testAlteration);
     }
 
     @Test
@@ -162,6 +179,9 @@ class AlterationResourceIT {
         // Validate the Alteration in the database
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeCreate);
+
+        // Validate the Alteration in Elasticsearch
+        verify(mockAlterationSearchRepository, times(0)).save(alteration);
     }
 
     @Test
@@ -320,6 +340,9 @@ class AlterationResourceIT {
         assertThat(testAlteration.getProteinEnd()).isEqualTo(UPDATED_PROTEIN_END);
         assertThat(testAlteration.getRefResidues()).isEqualTo(UPDATED_REF_RESIDUES);
         assertThat(testAlteration.getVariantResidues()).isEqualTo(UPDATED_VARIANT_RESIDUES);
+
+        // Validate the Alteration in Elasticsearch
+        verify(mockAlterationSearchRepository).save(testAlteration);
     }
 
     @Test
@@ -341,6 +364,9 @@ class AlterationResourceIT {
         // Validate the Alteration in the database
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Alteration in Elasticsearch
+        verify(mockAlterationSearchRepository, times(0)).save(alteration);
     }
 
     @Test
@@ -362,6 +388,9 @@ class AlterationResourceIT {
         // Validate the Alteration in the database
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Alteration in Elasticsearch
+        verify(mockAlterationSearchRepository, times(0)).save(alteration);
     }
 
     @Test
@@ -383,6 +412,9 @@ class AlterationResourceIT {
         // Validate the Alteration in the database
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Alteration in Elasticsearch
+        verify(mockAlterationSearchRepository, times(0)).save(alteration);
     }
 
     @Test
@@ -488,6 +520,9 @@ class AlterationResourceIT {
         // Validate the Alteration in the database
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Alteration in Elasticsearch
+        verify(mockAlterationSearchRepository, times(0)).save(alteration);
     }
 
     @Test
@@ -509,6 +544,9 @@ class AlterationResourceIT {
         // Validate the Alteration in the database
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Alteration in Elasticsearch
+        verify(mockAlterationSearchRepository, times(0)).save(alteration);
     }
 
     @Test
@@ -530,6 +568,9 @@ class AlterationResourceIT {
         // Validate the Alteration in the database
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Alteration in Elasticsearch
+        verify(mockAlterationSearchRepository, times(0)).save(alteration);
     }
 
     @Test
@@ -548,5 +589,32 @@ class AlterationResourceIT {
         // Validate the database contains one less item
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeDelete - 1);
+
+        // Validate the Alteration in Elasticsearch
+        verify(mockAlterationSearchRepository, times(1)).deleteById(alteration.getId());
+    }
+
+    @Test
+    @Transactional
+    void searchAlteration() throws Exception {
+        // Configure the mock search repository
+        // Initialize the database
+        alterationRepository.saveAndFlush(alteration);
+        when(mockAlterationSearchRepository.search("id:" + alteration.getId(), PageRequest.of(0, 20)))
+            .thenReturn(new PageImpl<>(Collections.singletonList(alteration), PageRequest.of(0, 1), 1));
+
+        // Search the alteration
+        restAlterationMockMvc
+            .perform(get(ENTITY_SEARCH_API_URL + "?query=id:" + alteration.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(alteration.getId().intValue())))
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].alteration").value(hasItem(DEFAULT_ALTERATION)))
+            .andExpect(jsonPath("$.[*].proteinStart").value(hasItem(DEFAULT_PROTEIN_START)))
+            .andExpect(jsonPath("$.[*].proteinEnd").value(hasItem(DEFAULT_PROTEIN_END)))
+            .andExpect(jsonPath("$.[*].refResidues").value(hasItem(DEFAULT_REF_RESIDUES)))
+            .andExpect(jsonPath("$.[*].variantResidues").value(hasItem(DEFAULT_VARIANT_RESIDUES)));
     }
 }

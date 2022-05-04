@@ -34,4 +34,13 @@ export enum PAGE_ROUTE {
   ADMIN_USER_MANAGEMENT = '/admin/user-management',
 }
 
+export enum SearchOptionType {
+  FDA_SUBMISSION = 'Fda Submissions',
+  CDX = 'Companion Diagnostic Devices',
+  ARTICLE = 'Articles',
+  DRUG = 'Drugs',
+  GENE = 'Genes',
+  ALTERATION = 'Alterations',
+}
+
 export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');

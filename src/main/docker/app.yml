@@ -17,6 +17,7 @@ services:
       - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID=web_app
       - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET=web_app
       - JHIPSTER_SLEEP=30 # gives time for other services to boot before the application
+      - SPRING_ELASTICSEARCH_REST_URIS=http://oncokb-curation-elasticsearch:9200
     # If you want to expose these ports outside your dev PC,
     # remove the "127.0.0.1:" prefix
     ports:
@@ -39,6 +40,18 @@ services:
     # remove the "127.0.0.1:" prefix
     ports:
       - 127.0.0.1:6379:6379
+  oncokb-curation-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.3
+    # volumes:
+    #   - ~/volumes/jhipster/oncokb-curation/elasticsearch/:/usr/share/elasticsearch/data/
+    # If you want to expose these ports outside your dev PC,
+    # remove the "127.0.0.1:" prefix
+    ports:
+      - 127.0.0.1:9200:9200
+      - 127.0.0.1:9300:9300
+    environment:
+      - 'ES_JAVA_OPTS=-Xms1024m -Xmx1024m'
+      - 'discovery.type=single-node'
   keycloak:
     image: jboss/keycloak:14.0.0
     command:

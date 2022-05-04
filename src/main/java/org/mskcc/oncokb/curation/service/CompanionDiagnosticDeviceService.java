@@ -2,8 +2,12 @@ package org.mskcc.oncokb.curation.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
 import org.mskcc.oncokb.curation.repository.CompanionDiagnosticDeviceRepository;
+import org.mskcc.oncokb.curation.repository.FdaSubmissionTypeRepository;
+import org.mskcc.oncokb.curation.repository.search.CompanionDiagnosticDeviceSearchRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -15,15 +19,24 @@ import org.springframework.transaction.annotation.Transactional;
  * Service Implementation for managing {@link CompanionDiagnosticDevice}.
  */
 @Service
-@Transactional
 public class CompanionDiagnosticDeviceService {
 
     private final Logger log = LoggerFactory.getLogger(CompanionDiagnosticDeviceService.class);
 
     private final CompanionDiagnosticDeviceRepository companionDiagnosticDeviceRepository;
 
-    public CompanionDiagnosticDeviceService(CompanionDiagnosticDeviceRepository companionDiagnosticDeviceRepository) {
+    private final CompanionDiagnosticDeviceSearchRepository companionDiagnosticDeviceSearchRepository;
+
+    private final FdaSubmissionTypeRepository fdaSubmissionTypeRepository;
+
+    public CompanionDiagnosticDeviceService(
+        CompanionDiagnosticDeviceRepository companionDiagnosticDeviceRepository,
+        CompanionDiagnosticDeviceSearchRepository companionDiagnosticDeviceSearchRepository,
+        FdaSubmissionTypeRepository fdaSubmissionTypeRepository
+    ) {
         this.companionDiagnosticDeviceRepository = companionDiagnosticDeviceRepository;
+        this.companionDiagnosticDeviceSearchRepository = companionDiagnosticDeviceSearchRepository;
+        this.fdaSubmissionTypeRepository = fdaSubmissionTypeRepository;
     }
 
     /**
@@ -34,7 +47,10 @@ public class CompanionDiagnosticDeviceService {
      */
     public CompanionDiagnosticDevice save(CompanionDiagnosticDevice companionDiagnosticDevice) {
         log.debug("Request to save CompanionDiagnosticDevice : {}", companionDiagnosticDevice);
-        return companionDiagnosticDeviceRepository.save(companionDiagnosticDevice);
+        CompanionDiagnosticDevice result = companionDiagnosticDeviceRepository.save(companionDiagnosticDevice);
+        companionDiagnosticDevice.setId(result.getId());
+        companionDiagnosticDeviceSearchRepository.save(companionDiagnosticDevice);
+        return result;
     }
 
     /**
@@ -58,7 +74,12 @@ public class CompanionDiagnosticDeviceService {
 
                 return existingCompanionDiagnosticDevice;
             })
-            .map(companionDiagnosticDeviceRepository::save);
+            .map(companionDiagnosticDeviceRepository::save)
+            .map(savedCompanionDiagnosticDevice -> {
+                companionDiagnosticDeviceSearchRepository.save(savedCompanionDiagnosticDevice);
+
+                return savedCompanionDiagnosticDevice;
+            });
     }
 
     /**
@@ -101,5 +122,20 @@ public class CompanionDiagnosticDeviceService {
     public void delete(Long id) {
         log.debug("Request to delete CompanionDiagnosticDevice : {}", id);
         companionDiagnosticDeviceRepository.deleteById(id);
+        companionDiagnosticDeviceSearchRepository.deleteById(id);
+    }
+
+    /**
+     * Search for the companionDiagnosticDevice corresponding to the query.
+     *
+     * @param query the query of the search.
+     * @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<CompanionDiagnosticDevice> search(String query) {
+        log.debug("Request to search CompanionDiagnosticDevices for query {}", query);
+        return StreamSupport
+            .stream(companionDiagnosticDeviceSearchRepository.search(query).spliterator(), false)
+            .collect(Collectors.toList());
     }
 }

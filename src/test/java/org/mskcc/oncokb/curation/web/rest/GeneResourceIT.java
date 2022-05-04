@@ -2,10 +2,14 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -18,8 +22,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.repository.GeneRepository;
+import org.mskcc.oncokb.curation.repository.search.GeneSearchRepository;
+import org.mskcc.oncokb.curation.service.GeneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -42,12 +50,27 @@ class GeneResourceIT {
 
     private static final String ENTITY_API_URL = "/api/genes";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
+    private static final String ENTITY_SEARCH_API_URL = "/api/_search/genes";
 
     private static Random random = new Random();
     private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
 
     @Autowired
     private GeneRepository geneRepository;
+
+    @Mock
+    private GeneRepository geneRepositoryMock;
+
+    @Mock
+    private GeneService geneServiceMock;
+
+    /**
+     * This repository is mocked in the org.mskcc.oncokb.curation.repository.search test package.
+     *
+     * @see org.mskcc.oncokb.curation.repository.search.GeneSearchRepositoryMockConfiguration
+     */
+    @Autowired
+    private GeneSearchRepository mockGeneSearchRepository;
 
     @Autowired
     private EntityManager em;
@@ -101,6 +124,9 @@ class GeneResourceIT {
         Gene testGene = geneList.get(geneList.size() - 1);
         assertThat(testGene.getEntrezGeneId()).isEqualTo(DEFAULT_ENTREZ_GENE_ID);
         assertThat(testGene.getHugoSymbol()).isEqualTo(DEFAULT_HUGO_SYMBOL);
+
+        // Validate the Gene in Elasticsearch
+        verify(mockGeneSearchRepository, times(1)).save(testGene);
     }
 
     @Test
@@ -121,6 +147,9 @@ class GeneResourceIT {
         // Validate the Gene in the database
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeCreate);
+
+        // Validate the Gene in Elasticsearch
+        verify(mockGeneSearchRepository, times(0)).save(gene);
     }
 
     @Test
@@ -191,6 +220,9 @@ class GeneResourceIT {
         Gene testGene = geneList.get(geneList.size() - 1);
         assertThat(testGene.getEntrezGeneId()).isEqualTo(UPDATED_ENTREZ_GENE_ID);
         assertThat(testGene.getHugoSymbol()).isEqualTo(UPDATED_HUGO_SYMBOL);
+
+        // Validate the Gene in Elasticsearch
+        verify(mockGeneSearchRepository).save(testGene);
     }
 
     @Test
@@ -212,6 +244,9 @@ class GeneResourceIT {
         // Validate the Gene in the database
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Gene in Elasticsearch
+        verify(mockGeneSearchRepository, times(0)).save(gene);
     }
 
     @Test
@@ -233,6 +268,9 @@ class GeneResourceIT {
         // Validate the Gene in the database
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Gene in Elasticsearch
+        verify(mockGeneSearchRepository, times(0)).save(gene);
     }
 
     @Test
@@ -251,6 +289,9 @@ class GeneResourceIT {
         // Validate the Gene in the database
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Gene in Elasticsearch
+        verify(mockGeneSearchRepository, times(0)).save(gene);
     }
 
     @Test
@@ -334,6 +375,9 @@ class GeneResourceIT {
         // Validate the Gene in the database
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Gene in Elasticsearch
+        verify(mockGeneSearchRepository, times(0)).save(gene);
     }
 
     @Test
@@ -355,6 +399,9 @@ class GeneResourceIT {
         // Validate the Gene in the database
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Gene in Elasticsearch
+        verify(mockGeneSearchRepository, times(0)).save(gene);
     }
 
     @Test
@@ -376,6 +423,9 @@ class GeneResourceIT {
         // Validate the Gene in the database
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Gene in Elasticsearch
+        verify(mockGeneSearchRepository, times(0)).save(gene);
     }
 
     @Test
@@ -394,5 +444,27 @@ class GeneResourceIT {
         // Validate the database contains one less item
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeDelete - 1);
+
+        // Validate the Gene in Elasticsearch
+        verify(mockGeneSearchRepository, times(1)).deleteById(gene.getId());
+    }
+
+    @Test
+    @Transactional
+    void searchGene() throws Exception {
+        // Configure the mock search repository
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+        when(mockGeneSearchRepository.search("id:" + gene.getId(), PageRequest.of(0, 20)))
+            .thenReturn(new PageImpl<>(Collections.singletonList(gene), PageRequest.of(0, 1), 1));
+
+        // Search the gene
+        restGeneMockMvc
+            .perform(get(ENTITY_SEARCH_API_URL + "?query=id:" + gene.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(gene.getId().intValue())))
+            .andExpect(jsonPath("$.[*].entrezGeneId").value(hasItem(DEFAULT_ENTREZ_GENE_ID)))
+            .andExpect(jsonPath("$.[*].hugoSymbol").value(hasItem(DEFAULT_HUGO_SYMBOL)));
     }
 }

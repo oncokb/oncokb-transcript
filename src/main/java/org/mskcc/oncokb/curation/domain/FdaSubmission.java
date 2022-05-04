@@ -16,6 +16,7 @@ import javax.validation.constraints.*;
     name = "fda_submission",
     uniqueConstraints = { @UniqueConstraint(columnNames = { "number", "supplement_number", "companion_diagnostic_device_id" }) }
 )
+@org.springframework.data.elasticsearch.annotations.Document(indexName = "fdasubmission")
 public class FdaSubmission implements Serializable {
 
     private static final long serialVersionUID = 1L;

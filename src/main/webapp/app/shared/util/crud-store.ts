@@ -1,6 +1,15 @@
 import axios, { AxiosResponse } from 'axios';
 import { IRootStore } from 'app/stores';
 import BaseCrudStore from 'app/shared/util/base-crud-store';
+import _ from 'lodash';
+
+export const debouncedSearch = _.debounce(
+  (query, searchEntities) =>
+    searchEntities({
+      query,
+    }),
+  500
+);
 
 export class CrudStore<T> extends BaseCrudStore<T> {
   links: { [key: string]: number } = {};

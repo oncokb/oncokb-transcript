@@ -1,10 +1,13 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.repository.ArticleRepository;
 import org.mskcc.oncokb.curation.service.ArticleService;
@@ -175,5 +178,21 @@ public class ArticleResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code SEARCH  /_search/articles?query=:query} : search for the article corresponding
+     * to the query.
+     *
+     * @param query the query of the article search.
+     * @param pageable the pagination information.
+     * @return the result of the search.
+     */
+    @GetMapping("/_search/articles")
+    public ResponseEntity<List<Article>> searchArticles(@RequestParam String query, Pageable pageable) {
+        log.debug("REST request to search for a page of Articles for query {}", query);
+        Page<Article> page = articleService.search(query, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

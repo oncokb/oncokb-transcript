@@ -2,10 +2,12 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -18,8 +20,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
+import org.mskcc.oncokb.curation.repository.search.DrugSearchRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -46,12 +51,21 @@ class DrugResourceIT {
 
     private static final String ENTITY_API_URL = "/api/drugs";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
+    private static final String ENTITY_SEARCH_API_URL = "/api/_search/drugs";
 
     private static Random random = new Random();
     private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
 
     @Autowired
     private DrugRepository drugRepository;
+
+    /**
+     * This repository is mocked in the org.mskcc.oncokb.curation.repository.search test package.
+     *
+     * @see org.mskcc.oncokb.curation.repository.search.DrugSearchRepositoryMockConfiguration
+     */
+    @Autowired
+    private DrugSearchRepository mockDrugSearchRepository;
 
     @Autowired
     private EntityManager em;
@@ -106,6 +120,9 @@ class DrugResourceIT {
         assertThat(testDrug.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testDrug.getCode()).isEqualTo(DEFAULT_CODE);
         assertThat(testDrug.getSemanticType()).isEqualTo(DEFAULT_SEMANTIC_TYPE);
+
+        // Validate the Drug in Elasticsearch
+        verify(mockDrugSearchRepository, times(1)).save(testDrug);
     }
 
     @Test
@@ -126,6 +143,9 @@ class DrugResourceIT {
         // Validate the Drug in the database
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeCreate);
+
+        // Validate the Drug in Elasticsearch
+        verify(mockDrugSearchRepository, times(0)).save(drug);
     }
 
     @Test
@@ -199,6 +219,9 @@ class DrugResourceIT {
         assertThat(testDrug.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testDrug.getCode()).isEqualTo(UPDATED_CODE);
         assertThat(testDrug.getSemanticType()).isEqualTo(UPDATED_SEMANTIC_TYPE);
+
+        // Validate the Drug in Elasticsearch
+        verify(mockDrugSearchRepository).save(testDrug);
     }
 
     @Test
@@ -220,6 +243,9 @@ class DrugResourceIT {
         // Validate the Drug in the database
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Drug in Elasticsearch
+        verify(mockDrugSearchRepository, times(0)).save(drug);
     }
 
     @Test
@@ -241,6 +267,9 @@ class DrugResourceIT {
         // Validate the Drug in the database
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Drug in Elasticsearch
+        verify(mockDrugSearchRepository, times(0)).save(drug);
     }
 
     @Test
@@ -259,6 +288,9 @@ class DrugResourceIT {
         // Validate the Drug in the database
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Drug in Elasticsearch
+        verify(mockDrugSearchRepository, times(0)).save(drug);
     }
 
     @Test
@@ -344,6 +376,9 @@ class DrugResourceIT {
         // Validate the Drug in the database
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Drug in Elasticsearch
+        verify(mockDrugSearchRepository, times(0)).save(drug);
     }
 
     @Test
@@ -365,6 +400,9 @@ class DrugResourceIT {
         // Validate the Drug in the database
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Drug in Elasticsearch
+        verify(mockDrugSearchRepository, times(0)).save(drug);
     }
 
     @Test
@@ -386,6 +424,9 @@ class DrugResourceIT {
         // Validate the Drug in the database
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Drug in Elasticsearch
+        verify(mockDrugSearchRepository, times(0)).save(drug);
     }
 
     @Test
@@ -404,5 +445,28 @@ class DrugResourceIT {
         // Validate the database contains one less item
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeDelete - 1);
+
+        // Validate the Drug in Elasticsearch
+        verify(mockDrugSearchRepository, times(1)).deleteById(drug.getId());
+    }
+
+    @Test
+    @Transactional
+    void searchDrug() throws Exception {
+        // Configure the mock search repository
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+        when(mockDrugSearchRepository.search("id:" + drug.getId(), PageRequest.of(0, 20)))
+            .thenReturn(new PageImpl<>(Collections.singletonList(drug), PageRequest.of(0, 1), 1));
+
+        // Search the drug
+        restDrugMockMvc
+            .perform(get(ENTITY_SEARCH_API_URL + "?query=id:" + drug.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(drug.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
+            .andExpect(jsonPath("$.[*].code").value(hasItem(DEFAULT_CODE)))
+            .andExpect(jsonPath("$.[*].semanticType").value(hasItem(DEFAULT_SEMANTIC_TYPE.toString())));
     }
 }
