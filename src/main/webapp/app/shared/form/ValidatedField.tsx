@@ -1,8 +1,9 @@
 import React from 'react';
 import { Controller, RegisterOptions, useFormContext } from 'react-hook-form';
-import StateManagedSelect from 'react-select';
+import { GroupBase, Props } from 'react-select';
 import Select from 'react-select';
 import { FormFeedback, FormGroup, Input, InputProps, Label } from 'reactstrap';
+import './validated-select.scss';
 
 interface IValidatedFieldProps extends InputProps {
   name: string;
@@ -57,54 +58,47 @@ export const ValidatedField: React.FunctionComponent<IValidatedFieldProps> = ({
   );
 };
 
-interface IValidatedSelectProps {
+export type IValidatedSelectProps<Option, IsMulti extends boolean = false, Group extends GroupBase<Option> = GroupBase<Option>> = Props<
+  Option,
+  IsMulti,
+  Group
+> & {
   name: string;
   label?: string;
-  options: any;
   validate?: RegisterOptions;
-  onChange?: any;
-  isMulti?: boolean;
-  closeMenuOnSelect?: boolean;
-}
-
-export const ValidatedSelect: React.FunctionComponent<IValidatedSelectProps> = ({
-  name,
-  label,
-  validate,
-  options,
-  isMulti,
-  closeMenuOnSelect,
-}) => {
-  const methods = useFormContext();
+};
+export const ValidatedSelect = <Option, IsMulti extends boolean = false, Group extends GroupBase<Option> = GroupBase<Option>>(
+  props: IValidatedSelectProps<Option, IsMulti, Group>
+) => {
   const {
     formState: { errors },
-  } = methods;
-  const error = errors[name];
+  } = useFormContext();
+
+  const { name, label, validate, ...selectProps } = props;
+
+  const error = errors[props.name];
+
   return (
     <FormGroup>
-      {label && (
-        <Label id={`${name}Label`} for={name}>
-          {label}
+      {props.label && (
+        <Label id={`${props.name}Label`} for={props.name}>
+          {props.label}
         </Label>
-      )}{' '}
+      )}
       <Controller
         render={({ field }) => (
           <Select
+            className={`${error ? 'react-select-invalid' : ''}`}
+            classNamePrefix={'react-select'}
             {...field}
-            styles={{ control: provided => ({ ...provided, borderColor: error ? 'red' : '#ced4da' }) }}
-            id={name}
-            isMulti={isMulti}
-            name={name}
-            options={options}
-            closeMenuOnSelect={closeMenuOnSelect}
+            {...selectProps}
+            id={props.name}
           />
         )}
-        name={name}
-        rules={validate}
+        name={props.name}
+        rules={props.validate}
       />
       {error && <FormFeedback>{error.message}</FormFeedback>}
     </FormGroup>
   );
 };
-
-export default ValidatedField;

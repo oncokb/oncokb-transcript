@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormGroup, Label } from 'reactstrap';
+import { Button, Row, Col } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
-import { mapIdList } from 'app/shared/util/entity-utils';
+import { mapSelectOptionList } from 'app/shared/util/entity-utils';
 import ValidatedForm from 'app/shared/form/ValidatedForm';
-import ValidatedField, { ValidatedSelect } from 'app/shared/form/ValidatedField';
+import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
+import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
 
 export interface ICompanionDiagnosticDeviceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -40,10 +41,10 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
   }, [updateSuccess]);
 
   const saveEntity = values => {
-    const entity = {
+    const entity: ICompanionDiagnosticDevice = {
       ...companionDiagnosticDeviceEntity,
       ...values,
-      specimenTypes: mapIdList(values.specimenTypes),
+      specimenTypes: mapSelectOptionList(values.specimenTypes),
     };
 
     if (isNew) {
@@ -58,7 +59,7 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
       ? {}
       : {
           ...companionDiagnosticDeviceEntity,
-          specimenTypes: companionDiagnosticDeviceEntity?.specimenTypes?.map(e => e.id.toString()),
+          specimenTypes: companionDiagnosticDeviceEntity?.specimenTypes?.map(e => ({ label: e.type, value: e.id.toString() })),
         };
 
   const specimenTypesOptions = specimenTypes?.map(specType => {
@@ -73,7 +74,7 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
             id="oncokbCurationApp.companionDiagnosticDevice.home.createOrEditLabel"
             data-cy="CompanionDiagnosticDeviceCreateUpdateHeading"
           >
-            Create or edit a CompanionDiagnosticDevice
+            {isNew ? 'Create' : 'Edit'} Companion Diagnostic Device
           </h2>
         </Col>
       </Row>
@@ -102,19 +103,13 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
                 name="manufacturer"
                 data-cy="manufacturer"
                 type="text"
-                validate={{
-                  required: { value: true, message: 'This field is required.' },
-                }}
               />
               <ValidatedSelect
                 label="Specimen Types"
-                name={'specimenType'}
+                name={'specimenTypes'}
                 isMulti
                 closeMenuOnSelect={false}
                 options={specimenTypesOptions}
-                validate={{
-                  required: { value: true, message: 'This field is required.' },
-                }}
               />
               <Button tag={Link} id="cancel-save" data-cy="entityCreateCancelButton" to="/companion-diagnostic-device" replace color="info">
                 <FontAwesomeIcon icon="arrow-left" />

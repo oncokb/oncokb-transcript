@@ -22,6 +22,13 @@ export const cleanEntity = entity => {
  */
 export const mapIdList = (idList: ReadonlyArray<any>) => idList.filter((id: any) => id !== '').map((id: any) => ({ id }));
 
+/**
+ *
+ * @param selectedOptions Maps a list of react-select options to a list of object with the value field as the id.
+ * @returns The list of objects with mapped value to id.
+ */
+export const mapSelectOptionList = (selectedOptions: any[]) => selectedOptions.map(option => ({ id: option.value }));
+
 export const overridePaginationStateWithQueryParams = (paginationBaseState: IPaginationBaseState, locationSearch: string) => {
   const params = new URLSearchParams(locationSearch);
   const page = params.get('page');

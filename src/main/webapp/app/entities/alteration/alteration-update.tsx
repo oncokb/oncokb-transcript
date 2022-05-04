@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
+import { Button, Row, Col } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
-
-import { IGene } from 'app/shared/model/gene.model';
-import { IVariantConsequence } from 'app/shared/model/variant-consequence.model';
-import { IAlteration } from 'app/shared/model/alteration.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
+import ValidatedForm from 'app/shared/form/ValidatedForm';
+import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
+import { AlterationType } from 'app/shared/model/enumerations/alteration-type.model';
 
 export interface IAlterationUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -23,6 +19,10 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
   const loading = props.loading;
   const updating = props.updating;
   const updateSuccess = props.updateSuccess;
+
+  const alterationTypeOptions = Object.keys(AlterationType).map(key => ({ label: AlterationType[key], value: AlterationType[key] }));
+  const geneOptions = props.genes.map(gene => ({ label: gene.hugoSymbol, value: gene.id }));
+  const consequenceOptions = props.variantConsequences.map(consequence => ({ label: consequence.term, value: consequence.id }));
 
   const handleClose = () => {
     props.history.push('/alteration' + props.location.search);
@@ -49,8 +49,9 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
     const entity = {
       ...alterationEntity,
       ...values,
-      gene: genes.find(it => it.id.toString() === values.geneId.toString()),
-      consequence: variantConsequences.find(it => it.id.toString() === values.consequenceId.toString()),
+      type: values.type.value,
+      gene: genes.find(it => it.id.toString() === values.geneId.value.toString()),
+      consequence: variantConsequences.find(it => it.id.toString() === values.consequenceId.value.toString()),
     };
 
     if (isNew) {
@@ -64,10 +65,10 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
     isNew
       ? {}
       : {
-          type: 'MUTATION',
           ...alterationEntity,
-          geneId: alterationEntity?.gene?.id,
-          consequenceId: alterationEntity?.consequence?.id,
+          type: { label: alterationEntity?.type, value: alterationEntity?.type },
+          geneId: { label: alterationEntity?.gene?.hugoSymbol, value: alterationEntity?.gene?.id },
+          consequenceId: { label: alterationEntity?.consequence?.term, value: alterationEntity?.consequence?.id },
         };
 
   return (
@@ -86,13 +87,7 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
               {!isNew ? <ValidatedField name="id" required readOnly id="alteration-id" label="ID" validate={{ required: true }} /> : null}
-              <ValidatedField label="Type" id="alteration-type" name="type" data-cy="type" type="select">
-                <option value="MUTATION">MUTATION</option>
-                <option value="COPY_NUMBER_ALTERATION">COPY_NUMBER_ALTERATION</option>
-                <option value="STRUCTURAL_VARIANT">STRUCTURAL_VARIANT</option>
-                <option value="UNKNOWN">UNKNOWN</option>
-                <option value="NA">NA</option>
-              </ValidatedField>
+              <ValidatedSelect label="Type" name={'type'} options={alterationTypeOptions} />
               <ValidatedField
                 label="Name"
                 id="alteration-name"
@@ -123,26 +118,8 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
                 data-cy="variantResidues"
                 type="text"
               />
-              <ValidatedField id="alteration-gene" name="geneId" data-cy="gene" label="Gene" type="select">
-                <option value="" key="0" />
-                {genes
-                  ? genes.map(otherEntity => (
-                      <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.hugoSymbol}
-                      </option>
-                    ))
-                  : null}
-              </ValidatedField>
-              <ValidatedField id="alteration-consequence" name="consequenceId" data-cy="consequence" label="Consequence" type="select">
-                <option value="" key="0" />
-                {variantConsequences
-                  ? variantConsequences.map(otherEntity => (
-                      <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.term}
-                      </option>
-                    ))
-                  : null}
-              </ValidatedField>
+              <ValidatedSelect label="Gene" name={'geneId'} options={geneOptions} menuPlacement="top" />
+              <ValidatedSelect label="Consequence" name={'consequenceId'} options={consequenceOptions} menuPlacement="top" />
               <Button tag={Link} id="cancel-save" data-cy="entityCreateCancelButton" to="/alteration" replace color="info">
                 <FontAwesomeIcon icon="arrow-left" />
                 &nbsp;
