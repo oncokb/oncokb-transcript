@@ -6,4 +6,6 @@ export enum AlterationType {
   STRUCTURAL_VARIANT = 'STRUCTURAL_VARIANT',
 
   UNKNOWN = 'UNKNOWN',
+
+  NA = 'NA',
 }

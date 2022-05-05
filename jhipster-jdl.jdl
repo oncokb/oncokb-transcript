@@ -124,7 +124,11 @@ enum TumorForm {
 }
 
 enum AlterationType {
-	MUTATION, COPY_NUMBER_ALTERATION, STRUCTURAL_VARIANT, UNKNOWN
+	MUTATION,
+    COPY_NUMBER_ALTERATION,
+    STRUCTURAL_VARIANT,
+    UNKNOWN,
+    NA
 }
 
 enum CopyNumberAlterationType {
@@ -152,6 +156,26 @@ entity Alteration {
     proteinEnd Integer
     refResidues String
     variantResidues String
+}
+
+enum CategoricalAlterationType{
+	ONCOKB_MUTATIONS,
+    GAIN_OF_FUNCTION_MUTATIONS,
+    LOSS_OF_FUNCTION_MUTATIONS,
+    SWITCH_OF_FUNCTION_MUTATIONS,
+    VUS,
+	TRUNCATING_MUTATIONS,
+	FUSIONS,
+	AMPLIFICATION,
+	DELETION,
+    PROMOTER,
+    WILDTYPE
+}
+
+entity CategoricalAlteration {
+	name String required
+	type CategoricalAlterationType required
+    alterationType AlterationType required
 }
 
 entity CancerType {

@@ -21,7 +21,7 @@
                 <constraints nullable="true" />
             </column>
             <column name="device_name" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints nullable="true" />
             </column>
             <column name="generic_name" type="varchar(255)">
                 <constraints nullable="true" />
