@@ -4,16 +4,14 @@ import { Link, RouteComponentProps } from 'react-router-dom';
 import { Button, Input, Col, Row } from 'reactstrap';
 import { getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 import { IAlteration } from 'app/shared/model/alteration.model';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
-
 import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';
 import { TableHeader } from 'app/shared/table/TableHeader';
-import OncoKBTable from 'app/shared/table/OncoKBTable';
 import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
+import EntityTable from 'app/shared/table/EntityTable';
 export interface IAlterationProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const Alteration = (props: IAlterationProps) => {
@@ -23,6 +21,7 @@ export const Alteration = (props: IAlterationProps) => {
   );
 
   const alterationList = props.alterationList;
+  const loading = props.loading;
   const totalItems = props.totalItems;
 
   const getAllEntities = () => {
@@ -89,12 +88,12 @@ export const Alteration = (props: IAlterationProps) => {
   const { match } = props;
 
   const columns: Column<IAlteration>[] = [
-    { accessor: 'name', Header: <TableHeader header="Name" onSort={sort('name')} sortDirection={paginationState.order} /> },
+    { accessor: 'name', Header: <TableHeader header="Name" onSort={sort('name')} paginationState={paginationState} sortField="name" /> },
     {
       accessor: 'alteration',
-      Header: <TableHeader header="Alteration" onSort={sort('alteration')} sortDirection={paginationState.order} />,
+      Header: <TableHeader header="Alteration" onSort={sort('alteration')} paginationState={paginationState} sortField="alteration" />,
     },
-    { accessor: 'type', Header: <TableHeader header="type" onSort={sort('type')} sortDirection={paginationState.order} /> },
+    { accessor: 'type', Header: <TableHeader header="Type" onSort={sort('type')} paginationState={paginationState} sortField="type" /> },
     {
       accessor: 'proteinStart',
       Header: 'Protein Start',
@@ -114,41 +113,6 @@ export const Alteration = (props: IAlterationProps) => {
       accessor: 'variantResidues',
       Header: 'Variant Residues',
       maxWidth: 50,
-    },
-    {
-      id: 'actions',
-      Header: 'Actions',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }): any {
-        return (
-          <div className="btn-group flex-btn-group-container">
-            <Button tag={Link} to={`${match.url}/${original.id}`} color="info" size="sm" data-cy="entityDetailsButton">
-              <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
-            </Button>
-            <Button
-              tag={Link}
-              to={`${match.url}/${original.id}/edit?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-              color="primary"
-              size="sm"
-              data-cy="entityEditButton"
-            >
-              <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-            </Button>
-            <Button
-              tag={Link}
-              to={`${match.url}/${original.id}/delete?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-              color="danger"
-              size="sm"
-              data-cy="entityDeleteButton"
-            >
-              <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
-            </Button>
-          </div>
-        );
-      },
     },
   ];
 
@@ -173,7 +137,7 @@ export const Alteration = (props: IAlterationProps) => {
           <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
         </Col>
       </Row>
-      <div className="table-responsive">{alterationList && <OncoKBTable columns={columns} data={alterationList}></OncoKBTable>}</div>
+      <div>{alterationList && <EntityTable columns={columns} data={alterationList} loading={loading} url={match.url} />}</div>
       {totalItems && totalItems > 0 ? (
         <div className={alterationList && alterationList.length > 0 ? '' : 'd-none'}>
           <Row className="justify-content-center">

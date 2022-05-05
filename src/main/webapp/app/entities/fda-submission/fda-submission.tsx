@@ -7,14 +7,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
-
 import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';
 import { TableHeader } from 'app/shared/table/TableHeader';
-import OncoKBTable from 'app/shared/table/OncoKBTable';
 import _ from 'lodash';
 import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
+import EntityTable from 'app/shared/table/EntityTable';
 export interface IFdaSubmissionProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const FdaSubmission = (props: IFdaSubmissionProps) => {
@@ -24,6 +23,7 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
   );
 
   const fdaSubmissionList = props.fdaSubmissionList;
+  const loading = props.loading;
   const totalItems = props.totalItems;
 
   const getAllEntities = () => {
@@ -92,60 +92,44 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
   const columns: Column<IFdaSubmission>[] = [
     {
       accessor: 'deviceName',
-      Header: <TableHeader header="Device Name" onSort={sort('deviceName')} sortDirection={paginationState.order} />,
+      Header: <TableHeader header="Device Name" onSort={sort('deviceName')} paginationState={paginationState} sortField="deviceName" />,
       width: 200,
       maxWidth: 300,
     },
     {
       accessor: 'number',
-      Header: <TableHeader header="Number" onSort={sort('number')} sortDirection={paginationState.order} />,
+      Header: <TableHeader header="Number" onSort={sort('number')} paginationState={paginationState} sortField="number" />,
       maxWidth: 100,
     },
     {
       accessor: 'supplementNumber',
-      Header: <TableHeader header="Supplement Number" onSort={sort('supplementNumber')} sortDirection={paginationState.order} />,
+      Header: (
+        <TableHeader
+          header="Supplement Number"
+          onSort={sort('supplementNumber')}
+          paginationState={paginationState}
+          sortField="supplementNumber"
+        />
+      ),
       maxWidth: 100,
     },
     {
       accessor: 'genetic',
-      Header: <TableHeader header="Genetic Relevant" onSort={sort('genetic')} sortDirection={paginationState.order} />,
+      Header: <TableHeader header="Genetic Relevant" onSort={sort('genetic')} paginationState={paginationState} sortField="genetic" />,
       Cell: ({ cell: { value } }) => (value ? <FontAwesomeIcon icon={faCheck} /> : null),
       maxWidth: 100,
     },
     {
       accessor: 'curated',
-      Header: <TableHeader header="Curated" onSort={sort('curated')} sortDirection={paginationState.order} />,
+      Header: <TableHeader header="Curated" onSort={sort('curated')} paginationState={paginationState} sortField="curated" />,
       Cell: ({ cell: { value } }) => (value ? <FontAwesomeIcon icon={faCheck} /> : null),
       maxWidth: 100,
     },
     {
       accessor: 'type',
-      Header: <TableHeader header="Type" onSort={sort('type')} sortDirection={paginationState.order} />,
+      Header: <TableHeader header="Type" onSort={sort('type')} paginationState={paginationState} sortField="type" />,
       Cell: ({ cell: { value } }) => (value.shortName ? <Link to={`fda-submission-type/${value.id}`}>{value.shortName}</Link> : ''),
       maxWidth: 50,
-    },
-    {
-      id: 'actions',
-      Header: 'Actions',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }): any {
-        return (
-          <div className="btn-group flex-btn-group-container">
-            <Button tag={Link} to={`${match.url}/${original.id}`} color="info" size="sm" data-cy="entityDetailsButton">
-              <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
-            </Button>
-            <Button tag={Link} to={`${match.url}/${original.id}/edit`} color="primary" size="sm" data-cy="entityEditButton">
-              <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-            </Button>
-            <Button tag={Link} to={`${match.url}/${original.id}/delete`} color="danger" size="sm" data-cy="entityDeleteButton">
-              <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
-            </Button>
-          </div>
-        );
-      },
     },
   ];
 
@@ -170,7 +154,7 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
           <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
         </Col>
       </Row>
-      <div className="table-responsive">{fdaSubmissionList && <OncoKBTable columns={columns} data={fdaSubmissionList}></OncoKBTable>}</div>
+      <div>{fdaSubmissionList && <EntityTable columns={columns} data={fdaSubmissionList} loading={loading} url={match.url} />}</div>
       {totalItems && totalItems > 0 ? (
         <div>
           <Row className="justify-content-center">
@@ -186,9 +170,7 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
             />
           </Row>
         </div>
-      ) : (
-        ''
-      )}
+      ) : null}
     </div>
   );
 };

@@ -13,9 +13,8 @@ import { Column } from 'react-table';
 import OncoKBTable from 'app/shared/table/OncoKBTable';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import WithSeparator from 'react-with-separator';
-import axiosInstance from 'app/shared/api/axiosInstance';
-import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
 import { debouncedSearch } from 'app/shared/util/crud-store';
+import EntityTable from 'app/shared/table/EntityTable';
 export interface ICompanionDiagnosticDeviceProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps) => {
@@ -98,29 +97,6 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
         return <>{getFdaSubmissionLinks(original.fdaSubmissions)}</>;
       },
     },
-    {
-      id: 'actions',
-      Header: 'Actions',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }): any {
-        return (
-          <div className="btn-group flex-btn-group-container">
-            <Button tag={Link} to={`${match.url}/${original.id}`} color="info" size="sm" data-cy="entityDetailsButton">
-              <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
-            </Button>
-            <Button tag={Link} to={`${match.url}/${original.id}/edit`} color="primary" size="sm" data-cy="entityEditButton">
-              <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-            </Button>
-            <Button tag={Link} to={`${match.url}/${original.id}/delete`} color="danger" size="sm" data-cy="entityDeleteButton">
-              <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
-            </Button>
-          </div>
-        );
-      },
-    },
   ];
 
   return (
@@ -150,8 +126,10 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
           </Form>
         </Col>
       </Row>
-      <div className="table-responsive">
-        {companionDiagnosticDeviceList && <OncoKBTable columns={columns} data={companionDiagnosticDeviceList} />}
+      <div>
+        {companionDiagnosticDeviceList && (
+          <EntityTable columns={columns} data={companionDiagnosticDeviceList} loading={loading} url={match.url} />
+        )}
       </div>
     </div>
   );

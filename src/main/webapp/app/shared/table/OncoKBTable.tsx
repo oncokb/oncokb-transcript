@@ -2,10 +2,12 @@ import React, { useMemo } from 'react';
 import { Table } from 'reactstrap';
 import { Column, useFlexLayout, useTable } from 'react-table';
 import './OncoKBTable.scss';
+import LoadingIndicator from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 
-type IOncoKBTableProps<T> = {
+export type IOncoKBTableProps<T> = {
   columns: Column[];
   data: T[];
+  loading?: boolean;
 };
 
 // The keys are supplied by react-table
@@ -21,6 +23,7 @@ const OncoKBTable = props => {
     }),
     []
   );
+
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
     {
       columns,
@@ -29,8 +32,44 @@ const OncoKBTable = props => {
     },
     useFlexLayout
   );
+
+  const tableRows = rows.map(row => {
+    prepareRow(row);
+    return (
+      <tr {...row.getRowProps()}>
+        {row.cells.map(cell => {
+          return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>;
+        })}
+      </tr>
+    );
+  });
+
+  const getTableContents = () => {
+    if (props.loading) {
+      return (
+        <tr>
+          <td colSpan={columns.length}>
+            <div className="table-message">
+              <LoadingIndicator isLoading={true} />
+            </div>
+          </td>
+        </tr>
+      );
+    } else if (data.length === 0) {
+      return (
+        <tr>
+          <td colSpan={columns.length}>
+            <div className="table-message">No rows found</div>
+          </td>
+        </tr>
+      );
+    } else {
+      return tableRows;
+    }
+  };
+
   return (
-    <Table bordered {...getTableProps()}>
+    <Table striped bordered hover {...getTableProps()} className="oncokb-table">
       <thead>
         {headerGroups.map(headerGroup => (
           <tr {...headerGroup.getHeaderGroupProps()}>
@@ -41,18 +80,7 @@ const OncoKBTable = props => {
           </tr>
         ))}
       </thead>
-      <tbody {...getTableBodyProps()}>
-        {rows.map(row => {
-          prepareRow(row);
-          return (
-            <tr {...row.getRowProps()}>
-              {row.cells.map(cell => {
-                return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>;
-              })}
-            </tr>
-          );
-        })}
-      </tbody>
+      <tbody {...getTableBodyProps()}>{getTableContents()}</tbody>
     </Table>
   );
 };
