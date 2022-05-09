@@ -4,16 +4,14 @@ import { Link, RouteComponentProps } from 'react-router-dom';
 import { Button, Input, Col, Row } from 'reactstrap';
 import { getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 import { IArticle } from 'app/shared/model/article.model';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
-
 import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';
 import { TableHeader } from 'app/shared/table/TableHeader';
-import OncoKBTable from 'app/shared/table/OncoKBTable';
 import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
+import EntityTable from 'app/shared/table/EntityTable';
 export interface IArticleProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const Article = (props: IArticleProps) => {
@@ -23,6 +21,7 @@ export const Article = (props: IArticleProps) => {
   );
 
   const articleList = props.articleList;
+  const loading = props.loading;
   const totalItems = props.totalItems;
 
   const getAllEntities = () => {
@@ -93,10 +92,14 @@ export const Article = (props: IArticleProps) => {
   const { match } = props;
 
   const columns: Column<IArticle>[] = [
-    { accessor: 'title', Header: <TableHeader header="Title" onSort={sort('title')} sortDirection={paginationState.order} />, width: 250 },
+    {
+      accessor: 'title',
+      Header: <TableHeader header="Title" onSort={sort('title')} paginationState={paginationState} sortField="title" />,
+      width: 250,
+    },
     {
       accessor: 'authors',
-      Header: <TableHeader header="Authors" onSort={sort('authors')} sortDirection={paginationState.order} />,
+      Header: <TableHeader header="Authors" onSort={sort('authors')} paginationState={paginationState} sortField="authors" />,
       width: 100,
     },
     {
@@ -108,41 +111,6 @@ export const Article = (props: IArticleProps) => {
         },
       }): any {
         return <div>{getArticleCitations(original)}</div>;
-      },
-    },
-    {
-      id: 'actions',
-      Header: 'Actions',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }): any {
-        return (
-          <div className="btn-group flex-btn-group-container">
-            <Button tag={Link} to={`${match.url}/${original.id}`} color="info" size="sm" data-cy="entityDetailsButton">
-              <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
-            </Button>
-            <Button
-              tag={Link}
-              to={`${match.url}/${original.id}/edit?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-              color="primary"
-              size="sm"
-              data-cy="entityEditButton"
-            >
-              <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-            </Button>
-            <Button
-              tag={Link}
-              to={`${match.url}/${original.id}/delete?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-              color="danger"
-              size="sm"
-              data-cy="entityDeleteButton"
-            >
-              <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
-            </Button>
-          </div>
-        );
       },
     },
   ];
@@ -168,7 +136,7 @@ export const Article = (props: IArticleProps) => {
           <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
         </Col>
       </Row>
-      <div className="table-responsive">{articleList && <OncoKBTable columns={columns} data={articleList}></OncoKBTable>}</div>
+      <div>{articleList && <EntityTable columns={columns} data={articleList} loading={loading} url={match.url} />}</div>
       {totalItems && totalItems > 0 ? (
         <div className={articleList && articleList.length > 0 ? '' : 'd-none'}>
           <Row className="justify-content-center">

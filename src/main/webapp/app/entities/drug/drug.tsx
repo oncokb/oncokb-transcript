@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Input, Col, Row } from 'reactstrap';
+import { Input, Col, Row } from 'reactstrap';
 import { getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 import { IDrug } from 'app/shared/model/drug.model';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
-
 import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';
 import { TableHeader } from 'app/shared/table/TableHeader';
-import OncoKBTable from 'app/shared/table/OncoKBTable';
 import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
+import EntityTable from 'app/shared/table/EntityTable';
 export interface IDrugProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const Drug = (props: IDrugProps) => {
@@ -23,6 +21,7 @@ export const Drug = (props: IDrugProps) => {
   );
 
   const drugList = props.drugList;
+  const loading = props.loading;
   const totalItems = props.totalItems;
 
   const getAllEntities = () => {
@@ -89,49 +88,16 @@ export const Drug = (props: IDrugProps) => {
   const { match } = props;
 
   const columns: Column<IDrug>[] = [
-    { accessor: 'name', Header: <TableHeader header="Name" onSort={sort('name')} sortDirection={paginationState.order} /> },
+    { accessor: 'name', Header: <TableHeader header="Name" onSort={sort('name')} paginationState={paginationState} sortField="name" /> },
     {
       accessor: 'code',
-      Header: <TableHeader header="Code" onSort={sort('code')} sortDirection={paginationState.order} />,
+      Header: <TableHeader header="Code" onSort={sort('code')} paginationState={paginationState} sortField="code" />,
     },
     {
       accessor: 'semanticType',
-      Header: <TableHeader header="Semantic Type" onSort={sort('semanticType')} sortDirection={paginationState.order} />,
-    },
-    {
-      id: 'actions',
-      Header: 'Actions',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }): any {
-        return (
-          <div className="btn-group flex-btn-group-container">
-            <Button tag={Link} to={`${match.url}/${original.id}`} color="info" size="sm" data-cy="entityDetailsButton">
-              <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
-            </Button>
-            <Button
-              tag={Link}
-              to={`${match.url}/${original.id}/edit?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-              color="primary"
-              size="sm"
-              data-cy="entityEditButton"
-            >
-              <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-            </Button>
-            <Button
-              tag={Link}
-              to={`${match.url}/${original.id}/delete?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-              color="danger"
-              size="sm"
-              data-cy="entityDeleteButton"
-            >
-              <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
-            </Button>
-          </div>
-        );
-      },
+      Header: (
+        <TableHeader header="Semantic Type" onSort={sort('semanticType')} paginationState={paginationState} sortField="semanticType" />
+      ),
     },
   ];
 
@@ -156,7 +122,7 @@ export const Drug = (props: IDrugProps) => {
           <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
         </Col>
       </Row>
-      <div className="table-responsive">{drugList && <OncoKBTable columns={columns} data={drugList}></OncoKBTable>}</div>
+      <div>{drugList && <EntityTable columns={columns} data={drugList} loading={loading} url={match.url} />}</div>
       {totalItems && totalItems > 0 ? (
         <div className={drugList && drugList.length > 0 ? '' : 'd-none'}>
           <Row className="justify-content-center">

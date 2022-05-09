@@ -1,18 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, Input, Form } from 'reactstrap';
+import { Button, Row, Col } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
-
-import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
-import { IFdaSubmissionType } from 'app/shared/model/fda-submission-type.model';
-import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
 import { FDA_SUBMISSION_REGEX } from 'app/config/constants';
 import FormSection from 'app/shared/form/FormSection';
-import ValidatedField from 'app/shared/form/ValidatedField';
+import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
 import ValidatedForm from 'app/shared/form/ValidatedForm';
 
 export interface IFdaSubmissionUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
@@ -28,6 +23,10 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
   const loading = props.loading;
   const updating = props.updating;
   const updateSuccess = props.updateSuccess;
+
+  const companionDiagnosticDeviceOptions = props.companionDiagnosticDevices.map(cdx => ({ label: cdx.name, value: cdx.id }));
+
+  const fdaSubmissionTypeOptions = props.fdaSubmissionTypes.map(type => ({ label: type.shortName, value: type.id }));
 
   useEffect(() => {
     if (isNew) {
@@ -53,12 +52,13 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
   const saveEntity = values => {
     values.dateReceived = convertDateTimeToServer(values.dateReceived);
     values.decisionDate = convertDateTimeToServer(values.decisionDate);
-
     const entity = {
       ...fdaSubmissionEntity,
       ...values,
-      companionDiagnosticDevice: companionDiagnosticDevices.find(it => it.id.toString() === values.companionDiagnosticDeviceId.toString()),
-      type: fdaSubmissionTypes.find(it => it.id.toString() === values.typeId.toString()),
+      companionDiagnosticDevice: companionDiagnosticDevices.find(
+        it => it.id.toString() === values.companionDiagnosticDeviceId.value.toString()
+      ),
+      type: fdaSubmissionTypes.find(it => it.id.toString() === values.typeId.value.toString()),
       id: isNew ? null : props.match.params.id,
     };
 
@@ -69,6 +69,12 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
     }
   };
 
+  const defaultCompanionDiagnosticDevice = {
+    label: fdaSubmissionEntity?.companionDiagnosticDevice?.name,
+    value: fdaSubmissionEntity?.companionDiagnosticDevice?.id,
+  };
+  const defaultType = { label: fdaSubmissionEntity?.type?.shortName, value: fdaSubmissionEntity?.type?.id };
+
   const defaultValues = () =>
     isNew
       ? isFetch
@@ -76,8 +82,8 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
             ...fdaSubmissionEntity,
             dateReceived: convertDateTimeFromServer(fdaSubmissionEntity.dateReceived),
             decisionDate: convertDateTimeFromServer(fdaSubmissionEntity.decisionDate),
-            companionDiagnosticDeviceId: fdaSubmissionEntity?.companionDiagnosticDevice?.id,
-            typeId: fdaSubmissionEntity?.type?.id,
+            companionDiagnosticDeviceId: defaultCompanionDiagnosticDevice,
+            typeId: defaultType,
           }
         : {
             dateReceived: displayDefaultDateTime(),
@@ -87,8 +93,8 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
           ...fdaSubmissionEntity,
           dateReceived: convertDateTimeFromServer(fdaSubmissionEntity.dateReceived),
           decisionDate: convertDateTimeFromServer(fdaSubmissionEntity.decisionDate),
-          companionDiagnosticDeviceId: fdaSubmissionEntity?.companionDiagnosticDevice?.id,
-          typeId: fdaSubmissionEntity?.type?.id,
+          companionDiagnosticDeviceId: defaultCompanionDiagnosticDevice,
+          typeId: defaultType,
         };
 
   const handleLookupFdaSubmission = async () => {
@@ -186,44 +192,20 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
                 />
                 <ValidatedField label="Curated" id="fda-submission-curated" name="curated" data-cy="curated" check type="checkbox" />
                 <ValidatedField label="Genetic" id="fda-submission-genetic" name="genetic" data-cy="genetic" check type="checkbox" />
-                <ValidatedField
-                  id="fda-submission-companionDiagnosticDevice"
-                  name="companionDiagnosticDeviceId"
-                  data-cy="companionDiagnosticDevice"
+                <ValidatedSelect
                   label="Companion Diagnostic Device"
-                  type="select"
+                  name={'companionDiagnosticDeviceId'}
+                  options={companionDiagnosticDeviceOptions}
+                  menuPlacement="top"
                   validate={{ required: { value: true, message: 'This field is required' } }}
-                >
-                  <option value="" hidden>
-                    Select CDx
-                  </option>
-                  {companionDiagnosticDevices
-                    ? companionDiagnosticDevices.map(otherEntity => (
-                        <option value={otherEntity.id} key={otherEntity.id}>
-                          {otherEntity.name}
-                        </option>
-                      ))
-                    : null}
-                </ValidatedField>
-                <ValidatedField
-                  id="fda-submission-type"
-                  name="typeId"
-                  data-cy="type"
+                />
+                <ValidatedSelect
                   label="Type"
-                  type="select"
+                  name={'typeId'}
+                  options={fdaSubmissionTypeOptions}
+                  menuPlacement="top"
                   validate={{ required: { value: true, message: 'This field is required' } }}
-                >
-                  <option value="" hidden>
-                    Select Type
-                  </option>
-                  {fdaSubmissionTypes
-                    ? fdaSubmissionTypes.map(otherEntity => (
-                        <option value={otherEntity.id} key={otherEntity.id}>
-                          {otherEntity.shortName}
-                        </option>
-                      ))
-                    : null}
-                </ValidatedField>
+                />
               </FormSection>
               <FormSection>
                 <Button tag={Link} id="cancel-save" data-cy="entityCreateCancelButton" to="/fda-submission" replace color="info">

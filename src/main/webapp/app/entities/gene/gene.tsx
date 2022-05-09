@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Input, Col, Row } from 'reactstrap';
+import { Input, Col, Row } from 'reactstrap';
 import { getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 import { IGene } from 'app/shared/model/gene.model';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
-
 import { IRootStore } from 'app/stores';
 import { TableHeader } from 'app/shared/table/TableHeader';
 import { Column } from 'react-table';
-import OncoKBTable from 'app/shared/table/OncoKBTable';
 import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
+import EntityTable from 'app/shared/table/EntityTable';
 export interface IGeneProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const Gene = (props: IGeneProps) => {
@@ -23,6 +21,7 @@ export const Gene = (props: IGeneProps) => {
   );
 
   const geneList = props.geneList;
+  const loading = props.loading;
   const totalItems = props.totalItems;
 
   const getAllEntities = () => {
@@ -89,46 +88,13 @@ export const Gene = (props: IGeneProps) => {
   const columns: Column<IGene>[] = [
     {
       accessor: 'entrezGeneId',
-      Header: <TableHeader header="Entrez Gene Id" onSort={sort('entrezGeneId')} sortDirection={paginationState.order} />,
+      Header: (
+        <TableHeader header="Entrez Gene Id" onSort={sort('entrezGeneId')} paginationState={paginationState} sortField="entrezGeneId" />
+      ),
     },
     {
       accessor: 'hugoSymbol',
-      Header: <TableHeader header="Hugo Symbol" onSort={sort('hugoSymbol')} sortDirection={paginationState.order} />,
-    },
-    {
-      id: 'actions',
-      Header: 'Actions',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }): any {
-        return (
-          <div className="btn-group flex-btn-group-container">
-            <Button tag={Link} to={`${match.url}/${original.id}`} color="info" size="sm" data-cy="entityDetailsButton">
-              <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
-            </Button>
-            <Button
-              tag={Link}
-              to={`${match.url}/${original.id}/edit?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-              color="primary"
-              size="sm"
-              data-cy="entityEditButton"
-            >
-              <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-            </Button>
-            <Button
-              tag={Link}
-              to={`${match.url}/${original.id}/delete?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-              color="danger"
-              size="sm"
-              data-cy="entityDeleteButton"
-            >
-              <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
-            </Button>
-          </div>
-        );
-      },
+      Header: <TableHeader header="Hugo Symbol" onSort={sort('hugoSymbol')} paginationState={paginationState} sortField="hugoSymbol" />,
     },
   ];
 
@@ -155,7 +121,7 @@ export const Gene = (props: IGeneProps) => {
           <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
         </Col>
       </Row>
-      <div className="table-responsive">{geneList && <OncoKBTable columns={columns} data={geneList}></OncoKBTable>}</div>
+      <div>{geneList && <EntityTable columns={columns} data={geneList} loading={loading} url={match.url} />}</div>
       {totalItems && totalItems > 0 ? (
         <div className={geneList && geneList.length > 0 ? '' : 'd-none'}>
           <Row className="justify-content-center">
