@@ -3,7 +3,7 @@ import { AuthStore } from 'app/stores/authentication.store';
 import { SettingsStore } from 'app/pages/account/settings.store';
 import { History } from 'history';
 import { RouterStore } from './router.store';
-import NavigationControlStore from './navigation-control.store';
+import LayoutStore from './layout.store';
 // prettier-ignore
 import sequence, {
   SequenceStore
@@ -82,7 +82,7 @@ export interface IRootStore {
   readonly authStore: AuthStore;
   readonly settingsStore: SettingsStore;
   readonly routerStore: RouterStore;
-  readonly navigationControlStore: NavigationControlStore;
+  readonly layoutStore: LayoutStore;
   readonly sequenceStore: SequenceStore;
   readonly transcriptStore: TranscriptStore;
   readonly infoStore: InfoStore;
@@ -113,7 +113,7 @@ export function createStores(history: History): IRootStore {
   rootStore.authStore = new AuthStore(rootStore);
   rootStore.settingsStore = new SettingsStore(rootStore);
   rootStore.routerStore = new RouterStore(history);
-  rootStore.navigationControlStore = new NavigationControlStore();
+  rootStore.layoutStore = new LayoutStore();
   rootStore.sequenceStore = new SequenceStore(rootStore);
   rootStore.transcriptStore = new TranscriptStore(rootStore);
   rootStore.infoStore = new InfoStore(rootStore);

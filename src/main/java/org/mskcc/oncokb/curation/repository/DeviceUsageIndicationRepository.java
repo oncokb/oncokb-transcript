@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.curation.repository;
 
+import java.util.List;
 import org.mskcc.oncokb.curation.domain.DeviceUsageIndication;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
@@ -9,4 +10,6 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface DeviceUsageIndicationRepository extends JpaRepository<DeviceUsageIndication, Long> {}
+public interface DeviceUsageIndicationRepository extends JpaRepository<DeviceUsageIndication, Long> {
+    List<DeviceUsageIndication> findByFdaSubmissionId(Long id);
+}

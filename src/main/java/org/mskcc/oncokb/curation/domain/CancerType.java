@@ -13,6 +13,7 @@ import org.mskcc.oncokb.curation.domain.enumeration.TumorForm;
  */
 @Entity
 @Table(name = "cancer_type")
+@org.springframework.data.elasticsearch.annotations.Document(indexName = "cancertype")
 public class CancerType implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -31,10 +31,6 @@ export const DrugSynonymDetail = (props: IDrugSynonymDetailProps) => {
           <dt>Drug</dt>
           <dd>{drugSynonymEntity.drug ? drugSynonymEntity.drug.id : ''}</dd>
         </dl>
-        <Button tag={Link} to="/drug-synonym" replace color="info" data-cy="entityDetailsBackButton">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
         <Button tag={Link} to={`/drug-synonym/${drugSynonymEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
         </Button>

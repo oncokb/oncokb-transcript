@@ -82,12 +82,6 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
               <ValidatedField label="Issue" id="article-issue" name="issue" data-cy="issue" type="text" />
               <ValidatedField label="Pages" id="article-pages" name="pages" data-cy="pages" type="text" />
               <ValidatedField label="Authors" id="article-authors" name="authors" data-cy="authors" type="text" />
-              <Button tag={Link} id="cancel-save" data-cy="entityCreateCancelButton" to="/article" replace color="info">
-                <FontAwesomeIcon icon="arrow-left" />
-                &nbsp;
-                <span className="d-none d-md-inline">Back</span>
-              </Button>
-              &nbsp;
               <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
                 <FontAwesomeIcon icon="save" />
                 &nbsp; Save

@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.domain.Article;
+import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
@@ -32,7 +33,8 @@ public class MapToEntityConverter implements GenericConverter {
         Article.class,
         Drug.class,
         Gene.class,
-        Alteration.class
+        Alteration.class,
+        CancerType.class
     );
 
     private final ObjectMapper objectMapper;

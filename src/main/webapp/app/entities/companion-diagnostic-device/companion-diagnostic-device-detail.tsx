@@ -44,10 +44,6 @@ export const CompanionDiagnosticDeviceDetail = (props: ICompanionDiagnosticDevic
             </WithSeparator>
           </dd>
         </dl>
-        <Button tag={Link} to="/companion-diagnostic-device" replace color="info" data-cy="entityDetailsBackButton">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
         <Button tag={Link} to={`/companion-diagnostic-device/${companionDiagnosticDeviceEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
         </Button>

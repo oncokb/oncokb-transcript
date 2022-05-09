@@ -55,10 +55,6 @@ export const CancerTypeDetail = (props: ICancerTypeDetailProps) => {
           <dt>Parent</dt>
           <dd>{cancerTypeEntity.parent ? cancerTypeEntity.parent.id : ''}</dd>
         </dl>
-        <Button tag={Link} to="/cancer-type" replace color="info" data-cy="entityDetailsBackButton">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
         <Button tag={Link} to={`/cancer-type/${cancerTypeEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
         </Button>

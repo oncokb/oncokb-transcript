@@ -180,4 +180,20 @@ public class CancerTypeResource {
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }
+
+    /**
+     * {@code SEARCH  /_search/cancer-types?query=:query} : search for the cancerType corresponding
+     * to the query.
+     *
+     * @param query the query of the cancerType search.
+     * @param pageable the pagination information.
+     * @return the result of the search.
+     */
+    @GetMapping("/_search/cancer-types")
+    public ResponseEntity<List<CancerType>> searchCancerTypes(@RequestParam String query, Pageable pageable) {
+        log.debug("REST request to search for a page of CancerTypes for query {}", query);
+        Page<CancerType> page = cancerTypeService.search(query, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
 }

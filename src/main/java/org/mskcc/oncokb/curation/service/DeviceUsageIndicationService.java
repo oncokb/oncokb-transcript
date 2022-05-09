@@ -75,6 +75,12 @@ public class DeviceUsageIndicationService {
         return deviceUsageIndicationRepository.findById(id);
     }
 
+    @Transactional(readOnly = true)
+    public List<DeviceUsageIndication> findByFdaSubmissionId(Long id) {
+        log.debug("Request to get DeviceUsageIndication : {}", id);
+        return deviceUsageIndicationRepository.findByFdaSubmissionId(id);
+    }
+
     /**
      * Delete the deviceUsageIndication by id.
      *

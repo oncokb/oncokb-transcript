@@ -77,12 +77,6 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
               <ValidatedField label="Name" id="drug-name" name="name" data-cy="name" type="textarea" />
               <ValidatedField label="Code" id="drug-code" name="code" data-cy="code" type="text" />
               <ValidatedField label="Semantic Type" id="drug-semanticType" name="semanticType" data-cy="semanticType" type="textarea" />
-              <Button tag={Link} id="cancel-save" data-cy="entityCreateCancelButton" to="/drug" replace color="info">
-                <FontAwesomeIcon icon="arrow-left" />
-                &nbsp;
-                <span className="d-none d-md-inline">Back</span>
-              </Button>
-              &nbsp;
               <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
                 <FontAwesomeIcon icon="save" />
                 &nbsp; Save

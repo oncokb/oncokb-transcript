@@ -8,6 +8,8 @@ import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.DeviceUsageIndication;
 import org.mskcc.oncokb.curation.repository.DeviceUsageIndicationRepository;
 import org.mskcc.oncokb.curation.service.DeviceUsageIndicationService;
+import org.mskcc.oncokb.curation.service.dto.DeviceUsageIndicationDTO;
+import org.mskcc.oncokb.curation.service.mapper.DeviceUsageIndicationMapper;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,12 +37,16 @@ public class DeviceUsageIndicationResource {
 
     private final DeviceUsageIndicationRepository deviceUsageIndicationRepository;
 
+    private final DeviceUsageIndicationMapper deviceUsageIndicationMapper;
+
     public DeviceUsageIndicationResource(
         DeviceUsageIndicationService deviceUsageIndicationService,
-        DeviceUsageIndicationRepository deviceUsageIndicationRepository
+        DeviceUsageIndicationRepository deviceUsageIndicationRepository,
+        DeviceUsageIndicationMapper deviceUsageIndicationMapper
     ) {
         this.deviceUsageIndicationService = deviceUsageIndicationService;
         this.deviceUsageIndicationRepository = deviceUsageIndicationRepository;
+        this.deviceUsageIndicationMapper = deviceUsageIndicationMapper;
     }
 
     /**
@@ -51,17 +57,12 @@ public class DeviceUsageIndicationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/device-usage-indications")
-    public ResponseEntity<DeviceUsageIndication> createDeviceUsageIndication(@RequestBody DeviceUsageIndication deviceUsageIndication)
-        throws URISyntaxException {
-        log.debug("REST request to save DeviceUsageIndication : {}", deviceUsageIndication);
-        if (deviceUsageIndication.getId() != null) {
-            throw new BadRequestAlertException("A new deviceUsageIndication cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        DeviceUsageIndication result = deviceUsageIndicationService.save(deviceUsageIndication);
-        return ResponseEntity
-            .created(new URI("/api/device-usage-indications/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+    public ResponseEntity<DeviceUsageIndication> createDeviceUsageIndication(
+        @RequestBody DeviceUsageIndicationDTO deviceUsageIndicationDTO
+    ) throws URISyntaxException {
+        log.debug("REST request to save DeviceUsageIndication : {}", deviceUsageIndicationDTO);
+        DeviceUsageIndication result = deviceUsageIndicationService.save(deviceUsageIndicationMapper.toEntity(deviceUsageIndicationDTO));
+        return ResponseEntity.created(new URI("/api/device-usage-indications/" + result.getId())).body(result);
     }
 
     /**
@@ -156,6 +157,18 @@ public class DeviceUsageIndicationResource {
         log.debug("REST request to get DeviceUsageIndication : {}", id);
         Optional<DeviceUsageIndication> deviceUsageIndication = deviceUsageIndicationService.findOne(id);
         return ResponseUtil.wrapOrNotFound(deviceUsageIndication);
+    }
+
+    /**
+     * {@code GET  /device-usage-indications/fda-submission/:id} : get the deviceUsageIndication by fda submission id.
+     *
+     * @param id the id of the fda submission.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the deviceUsageIndication, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("/device-usage-indications/fda-submission/{id}")
+    public List<DeviceUsageIndication> getDeviceUsageIndicationByFdaSubmission(@PathVariable Long id) {
+        log.debug("REST request to get DeviceUsageIndication by FdaSubmission id : {}", id);
+        return deviceUsageIndicationService.findByFdaSubmissionId(id);
     }
 
     /**

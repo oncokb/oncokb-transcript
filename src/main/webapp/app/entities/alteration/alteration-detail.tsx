@@ -66,10 +66,6 @@ export const AlterationDetail = (props: IAlterationDetailProps) => {
           <dt>Consequence</dt>
           <dd>{alterationEntity.consequence ? alterationEntity.consequence.id : ''}</dd>
         </dl>
-        <Button tag={Link} to="/alteration" replace color="info" data-cy="entityDetailsBackButton">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
         <Button tag={Link} to={`/alteration/${alterationEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
         </Button>

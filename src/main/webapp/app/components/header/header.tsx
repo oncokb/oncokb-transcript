@@ -8,6 +8,7 @@ import { NavLink } from 'react-router-dom';
 import { PAGE_ROUTE } from 'app/config/constants';
 import OptimizedImage from 'app/oncokb-commons/components/image/OptimizedImage';
 import { action, makeObservable, observable } from 'mobx';
+import OncoKBBreadcrumb from 'app/shared/breadcrumb/OncoKBBreadcrumb';
 
 export interface IHeaderProps {
   isAuthenticated: boolean;
@@ -45,6 +46,7 @@ class Header extends React.Component<IHeaderProps> {
             </Collapse>
           </Container>
         </Navbar>
+        <OncoKBBreadcrumb />
       </header>
     );
   }

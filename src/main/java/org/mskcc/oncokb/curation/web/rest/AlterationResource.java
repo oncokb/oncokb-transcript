@@ -174,6 +174,11 @@ public class AlterationResource {
         return ResponseUtil.wrapOrNotFound(alteration);
     }
 
+    @GetMapping("/alterations/gene/{id}")
+    public List<Alteration> findByGeneId(@PathVariable Long id) {
+        return alterationService.findByGeneId(id);
+    }
+
     /**
      * {@code DELETE  /alterations/:id} : delete the "id" alteration.
      *

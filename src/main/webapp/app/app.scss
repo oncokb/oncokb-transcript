@@ -1,7 +1,7 @@
 // Override Boostrap variables
 // Import Bootstrap source files from node_modules
 @import 'node_modules/bootstrap/scss/bootstrap';
-@import './oncokb-commons/styles/variables.scss';
+@import './variables.scss';
 
 html {
   font-size: $oncokb-font-font-size;
@@ -11,6 +11,7 @@ html,
 body,
 #root {
   height: 100%;
+  overflow-x: hidden;
 }
 
 a {
