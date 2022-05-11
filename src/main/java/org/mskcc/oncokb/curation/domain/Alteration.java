@@ -52,9 +52,14 @@ public class Alteration implements Serializable {
     @JsonIgnoreProperties(value = { "fdaSubmission", "alteration", "cancerType", "drug" }, allowSetters = true)
     private Set<DeviceUsageIndication> deviceUsageIndications = new HashSet<>();
 
-    @ManyToOne
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "rel_alteration__gene",
+        joinColumns = @JoinColumn(name = "alteration_id"),
+        inverseJoinColumns = @JoinColumn(name = "gene_id")
+    )
     @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "alterations" }, allowSetters = true)
-    private Gene gene;
+    private Set<Gene> genes = new HashSet<>();
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "alterations" }, allowSetters = true)
@@ -197,16 +202,28 @@ public class Alteration implements Serializable {
         return this;
     }
 
-    public Gene getGene() {
-        return this.gene;
+    public Set<Gene> getGenes() {
+        return this.genes;
     }
 
-    public void setGene(Gene gene) {
-        this.gene = gene;
+    public void setGenes(Set<Gene> genes) {
+        this.genes = genes;
     }
 
-    public Alteration gene(Gene gene) {
-        this.setGene(gene);
+    public Alteration genes(Set<Gene> genes) {
+        this.setGenes(genes);
+        return this;
+    }
+
+    public Alteration addGene(Gene gene) {
+        this.genes.add(gene);
+        gene.getAlterations().add(this);
+        return this;
+    }
+
+    public Alteration removeGene(Gene gene) {
+        this.genes.remove(gene);
+        gene.getAlterations().remove(this);
         return this;
     }
 

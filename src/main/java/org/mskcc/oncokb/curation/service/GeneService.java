@@ -138,7 +138,7 @@ public class GeneService {
     @Transactional(readOnly = true)
     public Optional<Gene> findOne(Long id) {
         log.debug("Request to get Gene : {}", id);
-        return geneRepository.findOneWithEagerRelationships(id);
+        return geneRepository.findById(id);
     }
 
     /**

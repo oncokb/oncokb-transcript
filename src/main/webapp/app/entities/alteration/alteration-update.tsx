@@ -4,9 +4,11 @@ import { Link, RouteComponentProps } from 'react-router-dom';
 import { Button, Row, Col } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
+
 import ValidatedForm from 'app/shared/form/ValidatedForm';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
 import { AlterationType } from 'app/shared/model/enumerations/alteration-type.model';
+import { mapIdList } from 'app/shared/util/entity-utils';
 
 export interface IAlterationUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -21,7 +23,7 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
   const updateSuccess = props.updateSuccess;
 
   const alterationTypeOptions = Object.keys(AlterationType).map(key => ({ label: AlterationType[key], value: AlterationType[key] }));
-  const geneOptions = props.genes.map(gene => ({ label: gene.hugoSymbol, value: gene.id }));
+  const geneOptions = genes.map(gene => ({ label: gene.hugoSymbol, value: gene.id }));
   const consequenceOptions = props.variantConsequences.map(consequence => ({ label: consequence.term, value: consequence.id }));
 
   const handleClose = () => {
@@ -46,12 +48,13 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
   }, [updateSuccess]);
 
   const saveEntity = values => {
+    const selectedGeneIds = values.genes?.map(gene => gene.value);
     const entity = {
       ...alterationEntity,
       ...values,
       type: values.type.value,
-      gene: genes.find(it => it.id.toString() === values.geneId.value.toString()),
-      consequence: variantConsequences.find(it => it.id.toString() === values.consequenceId.value.toString()),
+      genes: genes.filter(gene => selectedGeneIds.includes(gene.id)).map(gene => ({ id: gene.id, hugoSymbol: gene.hugoSymbol })),
+      consequence: variantConsequences.find(it => it.id.toString() === values.consequenceId?.value?.toString()),
     };
 
     if (isNew) {
@@ -67,7 +70,7 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
       : {
           ...alterationEntity,
           type: { label: alterationEntity?.type, value: alterationEntity?.type },
-          geneId: { label: alterationEntity?.gene?.hugoSymbol, value: alterationEntity?.gene?.id },
+          genes: alterationEntity ? alterationEntity.genes?.map(gene => ({ label: gene.hugoSymbol, value: gene.id })) : [],
           consequenceId: { label: alterationEntity?.consequence?.term, value: alterationEntity?.consequence?.id },
         };
 
@@ -118,8 +121,8 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
                 data-cy="variantResidues"
                 type="text"
               />
-              <ValidatedSelect label="Gene" name={'geneId'} options={geneOptions} menuPlacement="top" />
-              <ValidatedSelect label="Consequence" name={'consequenceId'} options={consequenceOptions} menuPlacement="top" />
+              <ValidatedSelect label="Genes" name={'genes'} isMulti options={geneOptions} />
+              <ValidatedSelect label="Consequence" name={'consequenceId'} options={consequenceOptions} menuPlacement="top" isClearable />
               <Button tag={Link} id="cancel-save" data-cy="entityCreateCancelButton" to="/alteration" replace color="info">
                 <FontAwesomeIcon icon="arrow-left" />
                 &nbsp;

@@ -101,6 +101,15 @@ public class AlterationService {
     }
 
     /**
+     * Get all the alterations with eager load of many-to-many relationships.
+     *
+     * @return the list of entities.
+     */
+    public Page<Alteration> findAllWithEagerRelationships(Pageable pageable) {
+        return alterationRepository.findAllWithEagerRelationships(pageable);
+    }
+
+    /**
      * Get one alteration by id.
      *
      * @param id the id of the entity.
@@ -109,7 +118,7 @@ public class AlterationService {
     @Transactional(readOnly = true)
     public Optional<Alteration> findOne(Long id) {
         log.debug("Request to get Alteration : {}", id);
-        return alterationRepository.findById(id);
+        return alterationRepository.findOneWithEagerRelationships(id);
     }
 
     /**

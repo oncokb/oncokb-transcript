@@ -1,13 +1,10 @@
 package org.mskcc.oncokb.curation.web.rest;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Alteration;
@@ -145,12 +142,21 @@ public class AlterationResource {
      * {@code GET  /alterations} : get all the alterations.
      *
      * @param pageable the pagination information.
+     * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of alterations in body.
      */
     @GetMapping("/alterations")
-    public ResponseEntity<List<Alteration>> getAllAlterations(Pageable pageable) {
+    public ResponseEntity<List<Alteration>> getAllAlterations(
+        Pageable pageable,
+        @RequestParam(required = false, defaultValue = "false") boolean eagerload
+    ) {
         log.debug("REST request to get a page of Alterations");
-        Page<Alteration> page = alterationService.findAll(pageable);
+        Page<Alteration> page;
+        if (eagerload) {
+            page = alterationService.findAllWithEagerRelationships(pageable);
+        } else {
+            page = alterationService.findAll(pageable);
+        }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

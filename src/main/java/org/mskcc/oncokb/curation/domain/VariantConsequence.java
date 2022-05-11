@@ -33,7 +33,7 @@ public class VariantConsequence implements Serializable {
     private String description;
 
     @OneToMany(mappedBy = "consequence")
-    @JsonIgnoreProperties(value = { "deviceUsageIndications", "gene", "consequence" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "deviceUsageIndications", "genes", "consequence" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

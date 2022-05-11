@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.curation.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -32,11 +33,11 @@ public class Gene implements Serializable {
     private Set<GeneAlias> geneAliases = new HashSet<>();
 
     @OneToMany(mappedBy = "gene", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonIgnoreProperties(value = { "transcripts", "gene" }, allowSetters = true)
+    @JsonIgnore
     private Set<EnsemblGene> ensemblGenes = new HashSet<>();
 
-    @OneToMany(mappedBy = "gene")
-    @JsonIgnoreProperties(value = { "deviceUsageIndications", "gene", "consequence" }, allowSetters = true)
+    @ManyToMany(mappedBy = "genes")
+    @JsonIgnore
     private Set<Alteration> alterations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -148,10 +149,10 @@ public class Gene implements Serializable {
 
     public void setAlterations(Set<Alteration> alterations) {
         if (this.alterations != null) {
-            this.alterations.forEach(i -> i.setGene(null));
+            this.alterations.forEach(i -> i.removeGene(this));
         }
         if (alterations != null) {
-            alterations.forEach(i -> i.setGene(this));
+            alterations.forEach(i -> i.addGene(this));
         }
         this.alterations = alterations;
     }
@@ -163,13 +164,13 @@ public class Gene implements Serializable {
 
     public Gene addAlteration(Alteration alteration) {
         this.alterations.add(alteration);
-        alteration.setGene(this);
+        alteration.getGenes().add(this);
         return this;
     }
 
     public Gene removeAlteration(Alteration alteration) {
         this.alterations.remove(alteration);
-        alteration.setGene(null);
+        alteration.getGenes().remove(this);
         return this;
     }
 

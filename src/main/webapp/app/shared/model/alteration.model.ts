@@ -13,7 +13,7 @@ export interface IAlteration {
   refResidues?: string | null;
   variantResidues?: string | null;
   deviceUsageIndications?: IDeviceUsageIndication[] | null;
-  gene?: IGene | null;
+  genes?: IGene[] | null;
   consequence?: IVariantConsequence | null;
 }
 
