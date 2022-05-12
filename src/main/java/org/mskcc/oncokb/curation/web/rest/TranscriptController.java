@@ -291,12 +291,12 @@ public class TranscriptController {
     @PostMapping("/add-transcript")
     public ResponseEntity<TranscriptDTO> addTranscript(
         @RequestParam int entrezGeneId,
-        @RequestParam ReferenceGenome referenceGenome,
+        @RequestParam ReferenceGenome ensemblReferenceGenome,
         @RequestParam String ensemblTranscriptId,
         @RequestParam Boolean isCanonical
     ) throws ApiException {
         Optional<TranscriptDTO> transcriptDTOOptional = mainService.createTranscript(
-            referenceGenome,
+            ensemblReferenceGenome,
             ensemblTranscriptId,
             entrezGeneId,
             isCanonical

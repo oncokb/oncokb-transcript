@@ -107,7 +107,19 @@ export const Alteration = (props: IAlterationProps) => {
       accessor: 'alteration',
       Header: <TableHeader header="Alteration" onSort={sort('alteration')} paginationState={paginationState} sortField="alteration" />,
     },
-    { accessor: 'type', Header: <TableHeader header="Type" onSort={sort('type')} paginationState={paginationState} sortField="type" /> },
+    {
+      accessor: 'referenceGenomes',
+      Header: 'Reference Genomes',
+      Cell({
+        cell: {
+          row: { original },
+        },
+      }: {
+        cell: { row: { original: any } };
+      }): any {
+        return <span> {original.referenceGenomes?.map(rg => rg.referenceGenome).join(', ')}</span>;
+      },
+    },
   ];
 
   return (

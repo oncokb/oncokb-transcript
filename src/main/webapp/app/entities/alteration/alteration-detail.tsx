@@ -24,10 +24,8 @@ export const AlterationDetail = (props: IAlterationDetailProps) => {
             <span id="id">ID</span>
           </dt>
           <dd>{alterationEntity.id}</dd>
-          <dt>
-            <span id="type">Type</span>
-          </dt>
-          <dd>{alterationEntity.type}</dd>
+          <dt>Reference Genome</dt>
+          <dd>{alterationEntity.referenceGenomes?.map(rg => rg.referenceGenome).join(', ')}</dd>
           <dt>
             <span id="name">Name</span>
           </dt>

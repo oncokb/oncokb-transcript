@@ -1,0 +1,51 @@
+id;type;term;name;is_generally_truncating;description
+1;MUTATION;UTR_3_PRIME_VARIANT;3 Prime UTR Variant;FALSE;A UTR variant of the 3' UTR
+2;MUTATION;UTR_5_PRIME_VARIANT;5 Prime UTR Variant;FALSE;A UTR variant of the 5' UTR
+3;MUTATION;ANY;Any;FALSE;Any variant
+4;MUTATION;CODING_SEQUENCE_VARIANT;Coding Sequence Variant;FALSE;A sequence variant that changes the coding sequence
+5;MUTATION;DOWNSTREAM_GENE_VARIANT;Downstream Gene Variant;FALSE;A sequence variant located 3' of a gene
+6;MUTATION;FEATURE_ELONGATION;Feature Elongation;FALSE;A sequence variant that causes the extension of a genomic feature, with regard to the reference sequence
+7;MUTATION;FEATURE_TRUNCATION;Feature Truncation;TRUE;A sequence variant that causes the reduction of a genomic feature, with regard to the reference sequence
+8;MUTATION;FRAMESHIFT_VARIANT;Frameshift Variant;TRUE;A sequence variant which causes a disruption of the translational reading frame, because the number of nucleotides inserted or deleted is not a multiple of three
+10;MUTATION;INCOMPLETE_TERMINAL_CODON_VARIANT;Incomplete Terminal Codon Variant;TRUE;A sequence variant where at least one base of the final codon of an incompletely annotated transcript is changed
+11;MUTATION;INFRAME_DELETION;Inframe Deletion;FALSE;An inframe non synonymous variant that deletes bases from the coding sequence
+12;MUTATION;INFRAME_INSERTION;Inframe Insertion;FALSE;An inframe non synonymous variant that inserts bases into in the coding sequence
+13;MUTATION;INTERGENIC_VARIANT;Intergenic Variant;FALSE;A sequence variant located in the intergenic region, between genes
+14;MUTATION;INTRON_VARIANT;Intron Variant;FALSE;A transcript variant occurring within an intron
+15;MUTATION;MATURE_MIRNA_VARIANT;Mature miRNA Variant;FALSE;A transcript variant located with the sequence of the mature miRNA
+16;MUTATION;MISSENSE_VARIANT;Missense Variant;FALSE;A sequence variant, that changes one or more bases, resulting in a different amino acid sequence but where the length is preserved
+17;MUTATION;NA;NA;FALSE;NA
+18;MUTATION;NMD_TRANSCRIPT_VARIANT;NMD Transcript Variant;FALSE;A variant in a transcript that is the target of NMD
+19;MUTATION;NON_CODING_TRANSCRIPT_EXON_VARIANT;Non Coding Transcript Exon Variant;FALSE;A sequence variant that changes non-coding exon sequence in a non-coding transcript
+20;MUTATION;NON_CODING_TRANSCRIPT_VARIANT;Non Coding Transcript Variant;FALSE;A transcript variant of a non coding RNA gene
+21;MUTATION;NON_TRUNCATING_VARIANT;Non Truncating Variant;FALSE;A change in the DNA that does not truncate or shorten the protein
+22;MUTATION;REGULATORY_REGION_ABLATION;Regulatory Region Ablation;FALSE;A feature ablation whereby the deleted region includes a regulatory region
+23;MUTATION;REGULATORY_REGION_AMPLIFICATION;Regulatory Region Amplification;FALSE;A feature amplification of a region containing a regulatory region
+24;MUTATION;REGULATORY_REGION_VARIANT;Regulatory Region Variant;FALSE;A sequence variant located within a regulatory region
+25;MUTATION;SPLICE_ACCEPTOR_VARIANT;Splice Acceptor Variant;TRUE;A splice variant that changes the 2 base region at the 3' end of an intron
+26;MUTATION;SPLICE_DONOR_VARIANT;Splice Donor Variant;TRUE;A splice variant that changes the 2 base region at the 5' end of an intron
+27;MUTATION;SPLICE_REGION_VARIANT;Splice Region Variant;TRUE;A sequence variant in which a change has occurred within the region of the splice site, either within 1-3 bases of the exon or 3-8 bases of the intron
+28;MUTATION;START_LOST;Start Lost;TRUE;A codon variant that changes at least one base of the canonical start codo
+29;MUTATION;STOP_GAINED;Stop Gained;TRUE;A sequence variant whereby at least one base of a codon is changed, resulting in a premature stop codon, leading to a shortened transcript
+30;MUTATION;STOP_LOST;Stop Lost;TRUE;A sequence variant where at least one base of the terminator codon (stop) is changed, resulting in an elongated transcript
+31;MUTATION;STOP_RETAINED_VARIANT;Stop Retained Variant;FALSE;A sequence variant where at least one base in the terminator codon is changed, but the terminator remains
+32;MUTATION;SYNONYMOUS_VARIANT;Synonymous Variant;FALSE;A sequence variant where there is no resulting change to the encoded amino acid
+35;MUTATION;TF_BINDING_SITE_VARIANT;TF Binding Site Variant;FALSE;A sequence variant located within a transcription factor binding site
+33;MUTATION;TFBS_ABLATION;TFBS Ablation;TRUE;A feature ablation whereby the deleted region includes a transcription factor binding site
+34;MUTATION;TFBS_AMPLIFICATION;TFBS Amplification;FALSE;A feature amplification of a region containing a transcription factor binding site
+36;MUTATION;TRANSCRIPT_ABLATION;Transcript Ablation;TRUE;A feature ablation whereby the deleted region includes a transcript feature
+37;MUTATION;TRANSCRIPT_AMPLIFICATION;Transcript Amplification;FALSE;A feature amplification of a region containing a transcript
+38;MUTATION;UPSTREAM_GENE_VARIANT;Upstream Gene Variant;FALSE;A sequence variant located 5' of a gene
+39;MUTATION;UNKNOWN;Mutation Unknown;FALSE;Unknown status of mutation
+40;COPY_NUMBER_ALTERATION;AMPLIFICATION;Copy Number Amplification;FALSE;High-level amplification
+41;COPY_NUMBER_ALTERATION;DELETION;Copy Number Deletion;FALSE;Deep loss, homozygous deletion
+42;COPY_NUMBER_ALTERATION;GAIN;Copy Number Gain;FALSE;Low-level gain
+43;COPY_NUMBER_ALTERATION;LOSS;Copy Number Loss;FALSE;Single-copy loss
+44;COPY_NUMBER_ALTERATION;UNKNOWN;Copy Number Change Unknown;FALSE;Copy number change status unknown
+45;STRUCTURAL_VARIANT;DELETION;Structural Variant Deletion;FALSE;Structrural variant that has a portion of the sequence deleted
+46;STRUCTURAL_VARIANT;TRANSLOCATION;Structural Variant Translocation;FALSE;Structrural variant that has a portion of the sequence translocated
+47;STRUCTURAL_VARIANT;DUPLICATION;Structural Variant Duplication;FALSE;Structrural variant that has a portion of the sequence duplicated
+48;STRUCTURAL_VARIANT;INSERTION;Structural Variant Insertion;FALSE;Structrural variant that has a portion of the sequence newly inserted
+49;STRUCTURAL_VARIANT;INVERSION;Structural Variant Inversion;FALSE;Structrural variant that has a portion of the sequence inverted
+50;STRUCTURAL_VARIANT;FUSION;Structural Variant Fusion;FALSE;Structrural variant that resolved from genes fusion
+51;STRUCTURAL_VARIANT;UNKNOWN;Structural Variant Unknown;FALSE;Unknown status of structural variant

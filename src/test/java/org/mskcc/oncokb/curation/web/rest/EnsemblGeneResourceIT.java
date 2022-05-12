@@ -2,10 +2,12 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -13,10 +15,10 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
+import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.curation.repository.EnsemblGeneRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -34,8 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
 @WithMockUser
 class EnsemblGeneResourceIT {
 
-    private static final String DEFAULT_REFERENCE_GENOME = "AAAAAAAAAA";
-    private static final String UPDATED_REFERENCE_GENOME = "BBBBBBBBBB";
+    private static final ReferenceGenome DEFAULT_REFERENCE_GENOME = ReferenceGenome.GRCh37;
+    private static final ReferenceGenome UPDATED_REFERENCE_GENOME = ReferenceGenome.GRCh38;
 
     private static final String DEFAULT_ENSEMBL_GENE_ID = "AAAAAAAAAA";
     private static final String UPDATED_ENSEMBL_GENE_ID = "BBBBBBBBBB";
@@ -161,28 +163,6 @@ class EnsemblGeneResourceIT {
         // Validate the EnsemblGene in the database
         List<EnsemblGene> ensemblGeneList = ensemblGeneRepository.findAll();
         assertThat(ensemblGeneList).hasSize(databaseSizeBeforeCreate);
-    }
-
-    @Test
-    @Transactional
-    void checkReferenceGenomeIsRequired() throws Exception {
-        int databaseSizeBeforeTest = ensemblGeneRepository.findAll().size();
-        // set the field null
-        ensemblGene.setReferenceGenome(null);
-
-        // Create the EnsemblGene, which fails.
-
-        restEnsemblGeneMockMvc
-            .perform(
-                post(ENTITY_API_URL)
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(ensemblGene))
-            )
-            .andExpect(status().isBadRequest());
-
-        List<EnsemblGene> ensemblGeneList = ensemblGeneRepository.findAll();
-        assertThat(ensemblGeneList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -329,7 +309,7 @@ class EnsemblGeneResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(ensemblGene.getId().intValue())))
-            .andExpect(jsonPath("$.[*].referenceGenome").value(hasItem(DEFAULT_REFERENCE_GENOME)))
+            .andExpect(jsonPath("$.[*].referenceGenome").value(hasItem(DEFAULT_REFERENCE_GENOME.toString())))
             .andExpect(jsonPath("$.[*].ensemblGeneId").value(hasItem(DEFAULT_ENSEMBL_GENE_ID)))
             .andExpect(jsonPath("$.[*].canonical").value(hasItem(DEFAULT_CANONICAL.booleanValue())))
             .andExpect(jsonPath("$.[*].chromosome").value(hasItem(DEFAULT_CHROMOSOME)))
@@ -350,7 +330,7 @@ class EnsemblGeneResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(ensemblGene.getId().intValue()))
-            .andExpect(jsonPath("$.referenceGenome").value(DEFAULT_REFERENCE_GENOME))
+            .andExpect(jsonPath("$.referenceGenome").value(DEFAULT_REFERENCE_GENOME.toString()))
             .andExpect(jsonPath("$.ensemblGeneId").value(DEFAULT_ENSEMBL_GENE_ID))
             .andExpect(jsonPath("$.canonical").value(DEFAULT_CANONICAL.booleanValue()))
             .andExpect(jsonPath("$.chromosome").value(DEFAULT_CHROMOSOME))

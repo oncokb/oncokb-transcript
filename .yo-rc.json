@@ -16,7 +16,7 @@
     "databaseType": "sql",
     "devDatabaseType": "mysql",
     "prodDatabaseType": "mysql",
-    "searchEngine": false,
+    "searchEngine": "elasticsearch",
     "messageBroker": false,
     "serviceDiscoveryType": false,
     "buildTool": "maven",
@@ -78,15 +78,16 @@
       "CompanionDiagnosticDevice",
       "FdaSubmissionType",
       "FdaSubmission",
-      "VariantConsequence",
       "Alteration",
       "CancerType",
       "DeviceUsageIndication",
       "Article",
       "DrugBrand",
-      "CategoricalAlteration"
+      "CategoricalAlteration",
+      "Consequence",
+      "AlterationReferenceGenome"
     ],
-    "lastLiquibaseTimestamp": 1651162353000,
+    "lastLiquibaseTimestamp": 1652738570000,
     "devServerPort": 9060,
     "enableGradleEnterprise": false
   }

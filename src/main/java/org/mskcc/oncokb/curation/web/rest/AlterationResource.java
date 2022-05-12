@@ -1,10 +1,13 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Alteration;

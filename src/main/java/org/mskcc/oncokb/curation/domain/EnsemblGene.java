@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 
 /**
  * A EnsemblGene.
@@ -21,9 +22,9 @@ public class EnsemblGene implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @NotNull
-    @Column(name = "reference_genome", nullable = false)
-    private String referenceGenome;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "reference_genome")
+    private ReferenceGenome referenceGenome;
 
     @NotNull
     @Column(name = "ensembl_gene_id", nullable = false)
@@ -72,16 +73,16 @@ public class EnsemblGene implements Serializable {
         this.id = id;
     }
 
-    public String getReferenceGenome() {
+    public ReferenceGenome getReferenceGenome() {
         return this.referenceGenome;
     }
 
-    public EnsemblGene referenceGenome(String referenceGenome) {
+    public EnsemblGene referenceGenome(ReferenceGenome referenceGenome) {
         this.setReferenceGenome(referenceGenome);
         return this;
     }
 
-    public void setReferenceGenome(String referenceGenome) {
+    public void setReferenceGenome(ReferenceGenome referenceGenome) {
         this.referenceGenome = referenceGenome;
     }
 

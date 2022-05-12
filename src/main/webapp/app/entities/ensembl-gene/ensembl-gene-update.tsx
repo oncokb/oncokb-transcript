@@ -60,6 +60,7 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
     isNew
       ? {}
       : {
+          referenceGenome: 'GRCh37',
           ...ensemblGeneEntity,
           geneId: ensemblGeneEntity?.gene?.id,
         };
@@ -85,11 +86,11 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
                 id="ensembl-gene-referenceGenome"
                 name="referenceGenome"
                 data-cy="referenceGenome"
-                type="text"
-                validate={{
-                  required: { value: true, message: 'This field is required.' },
-                }}
-              />
+                type="select"
+              >
+                <option value="GRCh37">GRCh37</option>
+                <option value="GRCh38">GRCh38</option>
+              </ValidatedField>
               <ValidatedField
                 label="Ensembl Gene Id"
                 id="ensembl-gene-ensemblGeneId"

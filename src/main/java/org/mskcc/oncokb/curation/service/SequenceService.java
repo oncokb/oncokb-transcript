@@ -1,11 +1,11 @@
 package org.mskcc.oncokb.curation.service;
 
-import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.Sequence;
 import org.mskcc.oncokb.curation.domain.Transcript;
 import org.mskcc.oncokb.curation.domain.enumeration.SequenceType;
 import org.mskcc.oncokb.curation.repository.SequenceRepository;
+import org.mskcc.oncokb.curation.service.mapper.TranscriptMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;

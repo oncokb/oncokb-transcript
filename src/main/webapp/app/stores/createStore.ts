@@ -57,10 +57,6 @@ import fdaSubmission, {
   FdaSubmissionStore
 } from 'app/entities/fda-submission/fda-submission.store';
 // prettier-ignore
-import variantConsequence, {
-  VariantConsequenceStore
-} from 'app/entities/variant-consequence/variant-consequence.store';
-// prettier-ignore
 import alteration, {
   AlterationStore
 } from 'app/entities/alteration/alteration.store';
@@ -75,6 +71,7 @@ import deviceUsageIndication, {
 import article, { ArticleStore } from 'app/entities/article/article.store';
 import DrugBrandStore from 'app/entities/drug-brand/drug-brand.store';
 import CategoricalAlterationStore from 'app/entities/categorical-alteration/categorical-alteration.store';
+import ConsequenceStore from 'app/entities/consequence/consequence.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
@@ -96,7 +93,7 @@ export interface IRootStore {
   readonly companionDiagnosticDeviceStore: CompanionDiagnosticDeviceStore;
   readonly fdaSubmissionTypeStore: FdaSubmissionTypeStore;
   readonly fdaSubmissionStore: FdaSubmissionStore;
-  readonly variantConsequenceStore: VariantConsequenceStore;
+  readonly consequenceStore: ConsequenceStore;
   readonly alterationStore: AlterationStore;
   readonly cancerTypeStore: CancerTypeStore;
   readonly deviceUsageIndicationStore: DeviceUsageIndicationStore;
@@ -127,7 +124,7 @@ export function createStores(history: History): IRootStore {
   rootStore.companionDiagnosticDeviceStore = new CompanionDiagnosticDeviceStore(rootStore);
   rootStore.fdaSubmissionTypeStore = new FdaSubmissionTypeStore(rootStore);
   rootStore.fdaSubmissionStore = new FdaSubmissionStore(rootStore);
-  rootStore.variantConsequenceStore = new VariantConsequenceStore(rootStore);
+  rootStore.consequenceStore = new ConsequenceStore(rootStore);
   rootStore.alterationStore = new AlterationStore(rootStore);
   rootStore.cancerTypeStore = new CancerTypeStore(rootStore);
   rootStore.deviceUsageIndicationStore = new DeviceUsageIndicationStore(rootStore);

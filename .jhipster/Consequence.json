@@ -1,8 +1,19 @@
 {
-  "name": "VariantConsequence",
+  "name": "Consequence",
   "fields": [
     {
+      "fieldName": "type",
+      "fieldType": "AlterationType",
+      "fieldValues": "MUTATION,COPY_NUMBER_ALTERATION,STRUCTURAL_VARIANT,UNKNOWN,NA",
+      "fieldValidateRules": ["required"]
+    },
+    {
       "fieldName": "term",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "name",
       "fieldType": "String",
       "fieldValidateRules": ["required"]
     },
@@ -24,7 +35,7 @@
       "relationshipName": "alteration"
     }
   ],
-  "entityTableName": "variant_consequence",
+  "entityTableName": "consequence",
   "dto": "no",
   "pagination": "no",
   "service": "serviceClass",
@@ -33,5 +44,5 @@
   "readOnly": false,
   "embedded": false,
   "applications": "*",
-  "changelogDate": "20220401174647"
+  "changelogDate": "20220513144615"
 }
