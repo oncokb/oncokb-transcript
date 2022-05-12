@@ -643,6 +643,8 @@ class FdaSubmissionResourceIT {
             .andExpect(jsonPath("$.[*].genericName").value(hasItem(DEFAULT_GENERIC_NAME)))
             .andExpect(jsonPath("$.[*].dateReceived").value(hasItem(DEFAULT_DATE_RECEIVED.toString())))
             .andExpect(jsonPath("$.[*].decisionDate").value(hasItem(DEFAULT_DECISION_DATE.toString())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())));
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
+            .andExpect(jsonPath("$.[*].curated").value(hasItem(DEFAULT_CURATED.booleanValue())))
+            .andExpect(jsonPath("$.[*].genetic").value(hasItem(DEFAULT_GENETIC.booleanValue())));
     }
 }

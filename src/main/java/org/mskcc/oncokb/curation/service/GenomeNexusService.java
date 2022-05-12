@@ -10,7 +10,6 @@ import org.genome_nexus.ApiException;
 import org.genome_nexus.client.EnsemblControllerApi;
 import org.genome_nexus.client.EnsemblGene;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
-import org.mskcc.oncokb.curation.importer.Importer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -53,11 +52,13 @@ public class GenomeNexusService {
         }
     }
 
-    public EnsemblGene findCanonicalEnsemblGeneTranscript(ReferenceGenome referenceGenome, Integer entrezGeneId) throws ApiException {
-        return this.getEnsemblControllerApi(referenceGenome).fetchCanonicalEnsemblGeneIdByEntrezGeneIdGET(Integer.toString(entrezGeneId));
+    public EnsemblGene findCanonicalEnsemblGeneTranscript(ReferenceGenome ensemblReferenceGenome, Integer entrezGeneId)
+        throws ApiException {
+        return this.getEnsemblControllerApi(ensemblReferenceGenome)
+            .fetchCanonicalEnsemblGeneIdByEntrezGeneIdGET(Integer.toString(entrezGeneId));
     }
 
-    public List<EnsemblGene> findCanonicalEnsemblGeneTranscript(ReferenceGenome referenceGenome, List<Integer> entrezGeneIds)
+    public List<EnsemblGene> findCanonicalEnsemblGeneTranscript(ReferenceGenome ensemblReferenceGenome, List<Integer> entrezGeneIds)
         throws ApiException {
         List<EnsemblGene> ensemblGenesList = new ArrayList<>();
         List<String> idStrs = entrezGeneIds.stream().map(id -> Integer.toString(id)).collect(Collectors.toList());
@@ -66,7 +67,7 @@ public class GenomeNexusService {
         for (int i = 0; i < idStrs.size(); i += postThreshold) {
             log.info("\ton index {}", i);
             ensemblGenesList.addAll(
-                this.getEnsemblControllerApi(referenceGenome)
+                this.getEnsemblControllerApi(ensemblReferenceGenome)
                     .fetchCanonicalEnsemblGeneIdByEntrezGeneIdsPOST(idStrs.subList(i, Math.min(idStrs.toArray().length, i + postThreshold)))
             );
         }

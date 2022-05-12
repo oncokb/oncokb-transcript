@@ -28,13 +28,14 @@
     <include file="config/liquibase/changelog/20220401174644_added_entity_CompanionDiagnosticDevice.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174645_added_entity_FdaSubmissionType.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174646_added_entity_FdaSubmission.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20220401174647_added_entity_VariantConsequence.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174648_added_entity_Alteration.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174649_added_entity_CancerType.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174650_added_entity_DeviceUsageIndication.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401213213_added_entity_Article.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220419220505_added_entity_DrugBrand.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220428161233_added_entity_CategoricalAlteration.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220513144615_added_entity_Consequence.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220516220250_added_entity_AlterationReferenceGenome.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="config/liquibase/changelog/20220401174634_added_entity_constraints_Sequence.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174635_added_entity_constraints_Transcript.xml" relativeToChangelogFile="false"/>
@@ -48,6 +49,7 @@
     <include file="config/liquibase/changelog/20220401174649_added_entity_constraints_CancerType.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174650_added_entity_constraints_DeviceUsageIndication.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220419220505_added_entity_constraints_DrugBrand.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220516220250_added_entity_constraints_AlterationReferenceGenome.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>

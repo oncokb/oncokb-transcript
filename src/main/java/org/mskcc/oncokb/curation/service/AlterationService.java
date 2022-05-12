@@ -57,9 +57,6 @@ public class AlterationService {
         return alterationRepository
             .findById(alteration.getId())
             .map(existingAlteration -> {
-                if (alteration.getType() != null) {
-                    existingAlteration.setType(alteration.getType());
-                }
                 if (alteration.getName() != null) {
                     existingAlteration.setName(alteration.getName());
                 }

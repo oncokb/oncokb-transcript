@@ -7,7 +7,6 @@ import java.util.Objects;
 import javax.validation.constraints.*;
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
 import org.mskcc.oncokb.curation.domain.GenomeFragment;
-import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 
 /**
  * A DTO for the {@link org.mskcc.oncokb.curation.domain.Transcript} entity.

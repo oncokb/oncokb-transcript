@@ -7,14 +7,20 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <!--
-        Added the entity VariantConsequence.
+        Added the entity Consequence.
     -->
-    <changeSet id="20220401174647-1" author="jhipster">
-        <createTable tableName="variant_consequence">
+    <changeSet id="20220513144615-1" author="jhipster">
+        <createTable tableName="consequence">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
+            <column name="type" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
             <column name="term" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="name" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
             <column name="is_generally_truncating" type="boolean">
@@ -27,9 +33,9 @@
         </createTable>
 
         <loadData
-            file="config/liquibase/data/variant_consequence.csv"
+            file="config/liquibase/data/consequence.csv"
             separator=";"
-            tableName="variant_consequence"
+            tableName="consequence"
             usePreparedStatements="true">
         </loadData>
     </changeSet>

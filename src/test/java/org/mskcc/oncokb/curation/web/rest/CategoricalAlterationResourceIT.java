@@ -39,7 +39,7 @@ class CategoricalAlterationResourceIT {
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
 
-    private static final CategoricalAlterationType DEFAULT_TYPE = CategoricalAlterationType.ONCOKB_MUTATIONS;
+    private static final CategoricalAlterationType DEFAULT_TYPE = CategoricalAlterationType.ONCOGENIC_MUTATIONS;
     private static final CategoricalAlterationType UPDATED_TYPE = CategoricalAlterationType.GAIN_OF_FUNCTION_MUTATIONS;
 
     private static final AlterationType DEFAULT_ALTERATION_TYPE = AlterationType.MUTATION;

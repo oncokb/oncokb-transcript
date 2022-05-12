@@ -119,7 +119,7 @@ public class EnsemblGeneService {
     }
 
     public Optional<EnsemblGene> findCanonicalEnsemblGene(Integer entrezGeneId, ReferenceGenome referenceGenome) {
-        return ensemblGeneRepository.findCanonicalEnsemblGene(entrezGeneId, referenceGenome.name());
+        return ensemblGeneRepository.findCanonicalEnsemblGene(entrezGeneId, referenceGenome);
     }
 
     /**
@@ -130,15 +130,15 @@ public class EnsemblGeneService {
      * @return the entity.
      */
     public Optional<EnsemblGene> findByEnsemblGeneIdAndReferenceGenome(String ensemblGeneId, ReferenceGenome referenceGenome) {
-        return ensemblGeneRepository.findByEnsemblGeneIdAndReferenceGenome(ensemblGeneId, referenceGenome.name());
+        return ensemblGeneRepository.findByEnsemblGeneIdAndReferenceGenome(ensemblGeneId, referenceGenome);
     }
 
     public List<EnsemblGene> findAllByGeneAndReferenceGenome(Gene gene, ReferenceGenome referenceGenome) {
-        return ensemblGeneRepository.findAllByGeneAndReferenceGenome(gene, referenceGenome.name());
+        return ensemblGeneRepository.findAllByGeneAndReferenceGenome(gene, referenceGenome);
     }
 
     public List<EnsemblGene> findAllByReferenceGenomeAndEnsemblGeneIdIn(ReferenceGenome referenceGenome, List<String> ensemblGeneIds) {
-        return ensemblGeneRepository.findAllByReferenceGenomeAndEnsemblGeneIdIn(referenceGenome.name(), ensemblGeneIds);
+        return ensemblGeneRepository.findAllByReferenceGenomeAndEnsemblGeneIdIn(referenceGenome, ensemblGeneIds);
     }
 
     public List<EnsemblGene> saveByReferenceGenomeAndEntrezGeneIds(ReferenceGenome rg, List<Integer> entrezGeneIds) throws ApiException {
@@ -178,7 +178,7 @@ public class EnsemblGeneService {
                             if (ensemblGeneOptional.isEmpty()) {
                                 EnsemblGene ensemblGene = new EnsemblGene();
                                 ensemblGene.setCanonical(true);
-                                ensemblGene.setReferenceGenome(rg.name());
+                                ensemblGene.setReferenceGenome(rg);
                                 ensemblGene.setEnsemblGeneId(et.getId());
                                 ensemblGene.setStrand(et.getStrand());
                                 ensemblGene.setStart(et.getStart());

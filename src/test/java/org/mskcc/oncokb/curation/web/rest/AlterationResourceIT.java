@@ -7,6 +7,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -19,9 +20,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Alteration;
-import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 import org.mskcc.oncokb.curation.repository.AlterationRepository;
 import org.mskcc.oncokb.curation.repository.search.AlterationSearchRepository;
+import org.mskcc.oncokb.curation.service.AlterationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.data.domain.PageImpl;
@@ -39,9 +40,6 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureMockMvc
 @WithMockUser
 class AlterationResourceIT {
-
-    private static final AlterationType DEFAULT_TYPE = AlterationType.MUTATION;
-    private static final AlterationType UPDATED_TYPE = AlterationType.COPY_NUMBER_ALTERATION;
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
@@ -71,6 +69,12 @@ class AlterationResourceIT {
     @Autowired
     private AlterationRepository alterationRepository;
 
+    @Mock
+    private AlterationRepository alterationRepositoryMock;
+
+    @Mock
+    private AlterationService alterationServiceMock;
+
     /**
      * This repository is mocked in the org.mskcc.oncokb.curation.repository.search test package.
      *
@@ -95,7 +99,6 @@ class AlterationResourceIT {
      */
     public static Alteration createEntity(EntityManager em) {
         Alteration alteration = new Alteration()
-            .type(DEFAULT_TYPE)
             .name(DEFAULT_NAME)
             .alteration(DEFAULT_ALTERATION)
             .proteinStart(DEFAULT_PROTEIN_START)
@@ -113,7 +116,6 @@ class AlterationResourceIT {
      */
     public static Alteration createUpdatedEntity(EntityManager em) {
         Alteration alteration = new Alteration()
-            .type(UPDATED_TYPE)
             .name(UPDATED_NAME)
             .alteration(UPDATED_ALTERATION)
             .proteinStart(UPDATED_PROTEIN_START)
@@ -146,7 +148,6 @@ class AlterationResourceIT {
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeCreate + 1);
         Alteration testAlteration = alterationList.get(alterationList.size() - 1);
-        assertThat(testAlteration.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testAlteration.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testAlteration.getAlteration()).isEqualTo(DEFAULT_ALTERATION);
         assertThat(testAlteration.getProteinStart()).isEqualTo(DEFAULT_PROTEIN_START);
@@ -182,28 +183,6 @@ class AlterationResourceIT {
 
         // Validate the Alteration in Elasticsearch
         verify(mockAlterationSearchRepository, times(0)).save(alteration);
-    }
-
-    @Test
-    @Transactional
-    void checkTypeIsRequired() throws Exception {
-        int databaseSizeBeforeTest = alterationRepository.findAll().size();
-        // set the field null
-        alteration.setType(null);
-
-        // Create the Alteration, which fails.
-
-        restAlterationMockMvc
-            .perform(
-                post(ENTITY_API_URL)
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(alteration))
-            )
-            .andExpect(status().isBadRequest());
-
-        List<Alteration> alterationList = alterationRepository.findAll();
-        assertThat(alterationList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -262,13 +241,30 @@ class AlterationResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(alteration.getId().intValue())))
-            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].alteration").value(hasItem(DEFAULT_ALTERATION)))
             .andExpect(jsonPath("$.[*].proteinStart").value(hasItem(DEFAULT_PROTEIN_START)))
             .andExpect(jsonPath("$.[*].proteinEnd").value(hasItem(DEFAULT_PROTEIN_END)))
             .andExpect(jsonPath("$.[*].refResidues").value(hasItem(DEFAULT_REF_RESIDUES)))
             .andExpect(jsonPath("$.[*].variantResidues").value(hasItem(DEFAULT_VARIANT_RESIDUES)));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllAlterationsWithEagerRelationshipsIsEnabled() throws Exception {
+        when(alterationServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restAlterationMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(alterationServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllAlterationsWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(alterationServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restAlterationMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(alterationServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test
@@ -283,7 +279,6 @@ class AlterationResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(alteration.getId().intValue()))
-            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.alteration").value(DEFAULT_ALTERATION))
             .andExpect(jsonPath("$.proteinStart").value(DEFAULT_PROTEIN_START))
@@ -312,7 +307,6 @@ class AlterationResourceIT {
         // Disconnect from session so that the updates on updatedAlteration are not directly saved in db
         em.detach(updatedAlteration);
         updatedAlteration
-            .type(UPDATED_TYPE)
             .name(UPDATED_NAME)
             .alteration(UPDATED_ALTERATION)
             .proteinStart(UPDATED_PROTEIN_START)
@@ -333,7 +327,6 @@ class AlterationResourceIT {
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeUpdate);
         Alteration testAlteration = alterationList.get(alterationList.size() - 1);
-        assertThat(testAlteration.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testAlteration.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testAlteration.getAlteration()).isEqualTo(UPDATED_ALTERATION);
         assertThat(testAlteration.getProteinStart()).isEqualTo(UPDATED_PROTEIN_START);
@@ -430,10 +423,9 @@ class AlterationResourceIT {
         partialUpdatedAlteration.setId(alteration.getId());
 
         partialUpdatedAlteration
-            .type(UPDATED_TYPE)
             .name(UPDATED_NAME)
-            .proteinStart(UPDATED_PROTEIN_START)
-            .refResidues(UPDATED_REF_RESIDUES)
+            .alteration(UPDATED_ALTERATION)
+            .proteinEnd(UPDATED_PROTEIN_END)
             .variantResidues(UPDATED_VARIANT_RESIDUES);
 
         restAlterationMockMvc
@@ -449,12 +441,11 @@ class AlterationResourceIT {
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeUpdate);
         Alteration testAlteration = alterationList.get(alterationList.size() - 1);
-        assertThat(testAlteration.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testAlteration.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testAlteration.getAlteration()).isEqualTo(DEFAULT_ALTERATION);
-        assertThat(testAlteration.getProteinStart()).isEqualTo(UPDATED_PROTEIN_START);
-        assertThat(testAlteration.getProteinEnd()).isEqualTo(DEFAULT_PROTEIN_END);
-        assertThat(testAlteration.getRefResidues()).isEqualTo(UPDATED_REF_RESIDUES);
+        assertThat(testAlteration.getAlteration()).isEqualTo(UPDATED_ALTERATION);
+        assertThat(testAlteration.getProteinStart()).isEqualTo(DEFAULT_PROTEIN_START);
+        assertThat(testAlteration.getProteinEnd()).isEqualTo(UPDATED_PROTEIN_END);
+        assertThat(testAlteration.getRefResidues()).isEqualTo(DEFAULT_REF_RESIDUES);
         assertThat(testAlteration.getVariantResidues()).isEqualTo(UPDATED_VARIANT_RESIDUES);
     }
 
@@ -471,7 +462,6 @@ class AlterationResourceIT {
         partialUpdatedAlteration.setId(alteration.getId());
 
         partialUpdatedAlteration
-            .type(UPDATED_TYPE)
             .name(UPDATED_NAME)
             .alteration(UPDATED_ALTERATION)
             .proteinStart(UPDATED_PROTEIN_START)
@@ -492,7 +482,6 @@ class AlterationResourceIT {
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeUpdate);
         Alteration testAlteration = alterationList.get(alterationList.size() - 1);
-        assertThat(testAlteration.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testAlteration.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testAlteration.getAlteration()).isEqualTo(UPDATED_ALTERATION);
         assertThat(testAlteration.getProteinStart()).isEqualTo(UPDATED_PROTEIN_START);
@@ -609,7 +598,6 @@ class AlterationResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(alteration.getId().intValue())))
-            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].alteration").value(hasItem(DEFAULT_ALTERATION)))
             .andExpect(jsonPath("$.[*].proteinStart").value(hasItem(DEFAULT_PROTEIN_START)))

@@ -3,8 +3,8 @@
   "fields": [
     {
       "fieldName": "referenceGenome",
-      "fieldType": "String",
-      "fieldValidateRules": ["required"]
+      "fieldType": "ReferenceGenome",
+      "fieldValues": "GRCh37,GRCh38"
     },
     {
       "fieldName": "ensemblGeneId",

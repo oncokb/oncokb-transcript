@@ -6,8 +6,6 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.genome_nexus.ApiClient;
-import org.genome_nexus.client.EnsemblControllerApi;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,7 +14,6 @@ import org.mskcc.oncokb.curation.vm.ensembl.EnsemblSequence;
 import org.mskcc.oncokb.curation.vm.ensembl.EnsemblTranscript;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
