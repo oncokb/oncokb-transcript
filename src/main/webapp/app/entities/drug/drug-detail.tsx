@@ -41,10 +41,6 @@ export const DrugDetail = (props: IDrugDetailProps) => {
           </dt>
           <dd>{drugEntity.brands?.map(brand => brand.name).join(', ')}</dd>
         </dl>
-        <Button tag={Link} to="/drug" replace color="info" data-cy="entityDetailsBackButton">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
         <Button tag={Link} to={`/drug/${drugEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
         </Button>

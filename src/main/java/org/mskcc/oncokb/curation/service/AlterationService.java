@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.service;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
+import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.repository.AlterationRepository;
@@ -119,6 +120,11 @@ public class AlterationService {
     public Optional<Alteration> findOne(Long id) {
         log.debug("Request to get Alteration : {}", id);
         return alterationRepository.findOneWithEagerRelationships(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Alteration> findByGeneId(Long geneId) {
+        return alterationRepository.findByGenesId(geneId);
     }
 
     /**

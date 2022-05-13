@@ -21,18 +21,28 @@ export enum PAGE_ROUTE {
   LOGIN = '/login',
   LOGOUT = '/logout',
   ACCOUNT = '/account',
+  OAUTH = '/oauth2/authorization/oidc',
+  ADMIN_USER_MANAGEMENT = '/admin/user-management',
   SEARCH = '/search',
   ARTICLE = '/article',
   GENE = '/gene',
   ALTERATION = '/alteration',
   DRUG = '/drug',
   FDA_SUBMISSION = '/fda-submission',
+  FDA_SUBMISSION_TYPE = '/fda-submission-type',
   CDX = '/companion-diagnostic-device',
   SPECIMEN_TYPE = '/specimen-type',
-  WORKBENCH = '/workbench',
-  OAUTH = '/oauth2/authorization/oidc',
-  ADMIN_USER_MANAGEMENT = '/admin/user-management',
 }
+
+export const ENTITY_ROUTE_TO_TITLE_MAPPING: { [key in PAGE_ROUTE]?: string } = {
+  [PAGE_ROUTE.FDA_SUBMISSION]: 'FDA Submissions',
+  [PAGE_ROUTE.FDA_SUBMISSION_TYPE]: 'FDA Submission Type',
+  [PAGE_ROUTE.CDX]: 'Companion Diagnostic Devices',
+  [PAGE_ROUTE.ARTICLE]: 'Articles',
+  [PAGE_ROUTE.DRUG]: 'Drugs',
+  [PAGE_ROUTE.GENE]: 'Genes',
+  [PAGE_ROUTE.ALTERATION]: 'Alterations',
+};
 
 export enum SearchOptionType {
   FDA_SUBMISSION = 'Fda Submissions',
@@ -41,6 +51,7 @@ export enum SearchOptionType {
   DRUG = 'Drugs',
   GENE = 'Genes',
   ALTERATION = 'Alterations',
+  CANCER_TYPE = 'Cancer Types',
 }
 
 export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');

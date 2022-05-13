@@ -162,16 +162,16 @@ export interface Alteration {
   deviceUsageIndications?: Set<DeviceUsageIndication>;
   /**
    *
-   * @type {VariantConsequence}
-   * @memberof Alteration
-   */
-  consequence?: VariantConsequence;
-  /**
-   *
    * @type {Set<Gene>}
    * @memberof Alteration
    */
   genes?: Set<Gene>;
+  /**
+   *
+   * @type {VariantConsequence}
+   * @memberof Alteration
+   */
+  consequence?: VariantConsequence;
 }
 
 export const AlterationTypeEnum = {
@@ -179,6 +179,7 @@ export const AlterationTypeEnum = {
   CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
   StructuralVariant: 'STRUCTURAL_VARIANT',
   Unknown: 'UNKNOWN',
+  Na: 'NA',
 } as const;
 
 export type AlterationTypeEnum = typeof AlterationTypeEnum[keyof typeof AlterationTypeEnum];
@@ -330,6 +331,64 @@ export type CancerTypeTumorFormEnum = typeof CancerTypeTumorFormEnum[keyof typeo
 /**
  *
  * @export
+ * @interface CategoricalAlteration
+ */
+export interface CategoricalAlteration {
+  /**
+   *
+   * @type {number}
+   * @memberof CategoricalAlteration
+   */
+  id?: number;
+  /**
+   *
+   * @type {string}
+   * @memberof CategoricalAlteration
+   */
+  name: string;
+  /**
+   *
+   * @type {string}
+   * @memberof CategoricalAlteration
+   */
+  type: CategoricalAlterationTypeEnum;
+  /**
+   *
+   * @type {string}
+   * @memberof CategoricalAlteration
+   */
+  alterationType: CategoricalAlterationAlterationTypeEnum;
+}
+
+export const CategoricalAlterationTypeEnum = {
+  OncokbMutations: 'ONCOKB_MUTATIONS',
+  GainOfFunctionMutations: 'GAIN_OF_FUNCTION_MUTATIONS',
+  LossOfFunctionMutations: 'LOSS_OF_FUNCTION_MUTATIONS',
+  SwitchOfFunctionMutations: 'SWITCH_OF_FUNCTION_MUTATIONS',
+  Vus: 'VUS',
+  TruncatingMutations: 'TRUNCATING_MUTATIONS',
+  Fusions: 'FUSIONS',
+  Amplification: 'AMPLIFICATION',
+  Deletion: 'DELETION',
+  Promoter: 'PROMOTER',
+  Wildtype: 'WILDTYPE',
+} as const;
+
+export type CategoricalAlterationTypeEnum = typeof CategoricalAlterationTypeEnum[keyof typeof CategoricalAlterationTypeEnum];
+export const CategoricalAlterationAlterationTypeEnum = {
+  Mutation: 'MUTATION',
+  CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
+  StructuralVariant: 'STRUCTURAL_VARIANT',
+  Unknown: 'UNKNOWN',
+  Na: 'NA',
+} as const;
+
+export type CategoricalAlterationAlterationTypeEnum =
+  typeof CategoricalAlterationAlterationTypeEnum[keyof typeof CategoricalAlterationAlterationTypeEnum];
+
+/**
+ *
+ * @export
  * @interface CompanionDiagnosticDevice
  */
 export interface CompanionDiagnosticDevice {
@@ -400,6 +459,43 @@ export interface DeviceUsageIndication {
    * @memberof DeviceUsageIndication
    */
   drug?: Drug;
+}
+/**
+ *
+ * @export
+ * @interface DeviceUsageIndicationDTO
+ */
+export interface DeviceUsageIndicationDTO {
+  /**
+   *
+   * @type {number}
+   * @memberof DeviceUsageIndicationDTO
+   */
+  id?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof DeviceUsageIndicationDTO
+   */
+  fdaSubmission?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof DeviceUsageIndicationDTO
+   */
+  alteration?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof DeviceUsageIndicationDTO
+   */
+  cancerType?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof DeviceUsageIndicationDTO
+   */
+  drug?: number;
 }
 /**
  *
@@ -854,18 +950,6 @@ export interface Gene {
    * @memberof Gene
    */
   geneAliases?: Set<GeneAlias>;
-  /**
-   *
-   * @type {Set<EnsemblGene>}
-   * @memberof Gene
-   */
-  ensemblGenes?: Set<EnsemblGene>;
-  /**
-   *
-   * @type {Set<Alteration>}
-   * @memberof Gene
-   */
-  alterations?: Set<Alteration>;
 }
 /**
  *
@@ -1615,25 +1699,25 @@ export interface SearchHitsObject {
    * @type {number}
    * @memberof SearchHitsObject
    */
-  maxScore?: number;
-  /**
-   *
-   * @type {number}
-   * @memberof SearchHitsObject
-   */
   totalHits?: number;
-  /**
-   *
-   * @type {Aggregations}
-   * @memberof SearchHitsObject
-   */
-  aggregations?: Aggregations;
   /**
    *
    * @type {string}
    * @memberof SearchHitsObject
    */
   totalHitsRelation?: SearchHitsObjectTotalHitsRelationEnum;
+  /**
+   *
+   * @type {number}
+   * @memberof SearchHitsObject
+   */
+  maxScore?: number;
+  /**
+   *
+   * @type {Aggregations}
+   * @memberof SearchHitsObject
+   */
+  aggregations?: Aggregations;
   /**
    *
    * @type {boolean}
@@ -2421,11 +2505,42 @@ export const AlterationResourceApiAxiosParamCreator = function (configuration?: 
     },
     /**
      *
-     * @param {Pageable} pageable
+     * @param {number} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllAlterations: async (pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    findByGeneId: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('findByGeneId', 'id', id);
+      const localVarPath = `/api/alterations/gene/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {Pageable} pageable
+     * @param {boolean} [eagerload]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getAllAlterations: async (pageable: Pageable, eagerload?: boolean, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('getAllAlterations', 'pageable', pageable);
       const localVarPath = `/api/alterations`;
@@ -2442,6 +2557,10 @@ export const AlterationResourceApiAxiosParamCreator = function (configuration?: 
 
       if (pageable !== undefined) {
         localVarQueryParameter['pageable'] = pageable;
+      }
+
+      if (eagerload !== undefined) {
+        localVarQueryParameter['eagerload'] = eagerload;
       }
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -2634,15 +2753,30 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
     },
     /**
      *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async findByGeneId(
+      id: number,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Alteration>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.findByGeneId(id, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
      * @param {Pageable} pageable
+     * @param {boolean} [eagerload]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getAllAlterations(
       pageable: Pageable,
+      eagerload?: boolean,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Alteration>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllAlterations(pageable, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllAlterations(pageable, eagerload, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -2733,12 +2867,22 @@ export const AlterationResourceApiFactory = function (configuration?: Configurat
     },
     /**
      *
-     * @param {Pageable} pageable
+     * @param {number} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllAlterations(pageable: Pageable, options?: any): AxiosPromise<Array<Alteration>> {
-      return localVarFp.getAllAlterations(pageable, options).then(request => request(axios, basePath));
+    findByGeneId(id: number, options?: any): AxiosPromise<Array<Alteration>> {
+      return localVarFp.findByGeneId(id, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {Pageable} pageable
+     * @param {boolean} [eagerload]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getAllAlterations(pageable: Pageable, eagerload?: boolean, options?: any): AxiosPromise<Array<Alteration>> {
+      return localVarFp.getAllAlterations(pageable, eagerload, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -2817,14 +2961,28 @@ export class AlterationResourceApi extends BaseAPI {
 
   /**
    *
-   * @param {Pageable} pageable
+   * @param {number} id
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof AlterationResourceApi
    */
-  public getAllAlterations(pageable: Pageable, options?: AxiosRequestConfig) {
+  public findByGeneId(id: number, options?: AxiosRequestConfig) {
     return AlterationResourceApiFp(this.configuration)
-      .getAllAlterations(pageable, options)
+      .findByGeneId(id, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {Pageable} pageable
+   * @param {boolean} [eagerload]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof AlterationResourceApi
+   */
+  public getAllAlterations(pageable: Pageable, eagerload?: boolean, options?: AxiosRequestConfig) {
+    return AlterationResourceApiFp(this.configuration)
+      .getAllAlterations(pageable, eagerload, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -3682,6 +3840,47 @@ export const CancerTypeResourceApiAxiosParamCreator = function (configuration?: 
     },
     /**
      *
+     * @param {string} query
+     * @param {Pageable} pageable
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    searchCancerTypes: async (query: string, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'query' is not null or undefined
+      assertParamExists('searchCancerTypes', 'query', query);
+      // verify required parameter 'pageable' is not null or undefined
+      assertParamExists('searchCancerTypes', 'pageable', pageable);
+      const localVarPath = `/api/_search/cancer-types`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (query !== undefined) {
+        localVarQueryParameter['query'] = query;
+      }
+
+      if (pageable !== undefined) {
+        localVarQueryParameter['pageable'] = pageable;
+      }
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @param {number} id
      * @param {CancerType} cancerType
      * @param {*} [options] Override http request option.
@@ -3795,6 +3994,21 @@ export const CancerTypeResourceApiFp = function (configuration?: Configuration) 
     },
     /**
      *
+     * @param {string} query
+     * @param {Pageable} pageable
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async searchCancerTypes(
+      query: string,
+      pageable: Pageable,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CancerType>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.searchCancerTypes(query, pageable, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
      * @param {number} id
      * @param {CancerType} cancerType
      * @param {*} [options] Override http request option.
@@ -3863,6 +4077,16 @@ export const CancerTypeResourceApiFactory = function (configuration?: Configurat
      */
     partialUpdateCancerType(id: number, cancerType: CancerType, options?: any): AxiosPromise<CancerType> {
       return localVarFp.partialUpdateCancerType(id, cancerType, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} query
+     * @param {Pageable} pageable
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    searchCancerTypes(query: string, pageable: Pageable, options?: any): AxiosPromise<Array<CancerType>> {
+      return localVarFp.searchCancerTypes(query, pageable, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -3952,6 +4176,20 @@ export class CancerTypeResourceApi extends BaseAPI {
 
   /**
    *
+   * @param {string} query
+   * @param {Pageable} pageable
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof CancerTypeResourceApi
+   */
+  public searchCancerTypes(query: string, pageable: Pageable, options?: AxiosRequestConfig) {
+    return CancerTypeResourceApiFp(this.configuration)
+      .searchCancerTypes(query, pageable, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
    * @param {number} id
    * @param {CancerType} cancerType
    * @param {*} [options] Override http request option.
@@ -3961,6 +4199,468 @@ export class CancerTypeResourceApi extends BaseAPI {
   public updateCancerType(id: number, cancerType: CancerType, options?: AxiosRequestConfig) {
     return CancerTypeResourceApiFp(this.configuration)
       .updateCancerType(id, cancerType, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+}
+
+/**
+ * CategoricalAlterationResourceApi - axios parameter creator
+ * @export
+ */
+export const CategoricalAlterationResourceApiAxiosParamCreator = function (configuration?: Configuration) {
+  return {
+    /**
+     *
+     * @param {CategoricalAlteration} categoricalAlteration
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createCategoricalAlteration: async (
+      categoricalAlteration: CategoricalAlteration,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'categoricalAlteration' is not null or undefined
+      assertParamExists('createCategoricalAlteration', 'categoricalAlteration', categoricalAlteration);
+      const localVarPath = `/api/categorical-alterations`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(categoricalAlteration, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteCategoricalAlteration: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('deleteCategoricalAlteration', 'id', id);
+      const localVarPath = `/api/categorical-alterations/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getAllCategoricalAlterations: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/api/categorical-alterations`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getCategoricalAlteration: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('getCategoricalAlteration', 'id', id);
+      const localVarPath = `/api/categorical-alterations/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {CategoricalAlteration} categoricalAlteration
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    partialUpdateCategoricalAlteration: async (
+      id: number,
+      categoricalAlteration: CategoricalAlteration,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('partialUpdateCategoricalAlteration', 'id', id);
+      // verify required parameter 'categoricalAlteration' is not null or undefined
+      assertParamExists('partialUpdateCategoricalAlteration', 'categoricalAlteration', categoricalAlteration);
+      const localVarPath = `/api/categorical-alterations/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(categoricalAlteration, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {CategoricalAlteration} categoricalAlteration
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateCategoricalAlteration: async (
+      id: number,
+      categoricalAlteration: CategoricalAlteration,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('updateCategoricalAlteration', 'id', id);
+      // verify required parameter 'categoricalAlteration' is not null or undefined
+      assertParamExists('updateCategoricalAlteration', 'categoricalAlteration', categoricalAlteration);
+      const localVarPath = `/api/categorical-alterations/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(categoricalAlteration, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+  };
+};
+
+/**
+ * CategoricalAlterationResourceApi - functional programming interface
+ * @export
+ */
+export const CategoricalAlterationResourceApiFp = function (configuration?: Configuration) {
+  const localVarAxiosParamCreator = CategoricalAlterationResourceApiAxiosParamCreator(configuration);
+  return {
+    /**
+     *
+     * @param {CategoricalAlteration} categoricalAlteration
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async createCategoricalAlteration(
+      categoricalAlteration: CategoricalAlteration,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CategoricalAlteration>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.createCategoricalAlteration(categoricalAlteration, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deleteCategoricalAlteration(
+      id: number,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteCategoricalAlteration(id, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getAllCategoricalAlterations(
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CategoricalAlteration>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllCategoricalAlterations(options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getCategoricalAlteration(
+      id: number,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CategoricalAlteration>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getCategoricalAlteration(id, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {CategoricalAlteration} categoricalAlteration
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async partialUpdateCategoricalAlteration(
+      id: number,
+      categoricalAlteration: CategoricalAlteration,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CategoricalAlteration>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateCategoricalAlteration(id, categoricalAlteration, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {CategoricalAlteration} categoricalAlteration
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async updateCategoricalAlteration(
+      id: number,
+      categoricalAlteration: CategoricalAlteration,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CategoricalAlteration>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.updateCategoricalAlteration(id, categoricalAlteration, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+  };
+};
+
+/**
+ * CategoricalAlterationResourceApi - factory interface
+ * @export
+ */
+export const CategoricalAlterationResourceApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+  const localVarFp = CategoricalAlterationResourceApiFp(configuration);
+  return {
+    /**
+     *
+     * @param {CategoricalAlteration} categoricalAlteration
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createCategoricalAlteration(categoricalAlteration: CategoricalAlteration, options?: any): AxiosPromise<CategoricalAlteration> {
+      return localVarFp.createCategoricalAlteration(categoricalAlteration, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteCategoricalAlteration(id: number, options?: any): AxiosPromise<void> {
+      return localVarFp.deleteCategoricalAlteration(id, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getAllCategoricalAlterations(options?: any): AxiosPromise<Array<CategoricalAlteration>> {
+      return localVarFp.getAllCategoricalAlterations(options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getCategoricalAlteration(id: number, options?: any): AxiosPromise<CategoricalAlteration> {
+      return localVarFp.getCategoricalAlteration(id, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {CategoricalAlteration} categoricalAlteration
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    partialUpdateCategoricalAlteration(
+      id: number,
+      categoricalAlteration: CategoricalAlteration,
+      options?: any
+    ): AxiosPromise<CategoricalAlteration> {
+      return localVarFp.partialUpdateCategoricalAlteration(id, categoricalAlteration, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {CategoricalAlteration} categoricalAlteration
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateCategoricalAlteration(
+      id: number,
+      categoricalAlteration: CategoricalAlteration,
+      options?: any
+    ): AxiosPromise<CategoricalAlteration> {
+      return localVarFp.updateCategoricalAlteration(id, categoricalAlteration, options).then(request => request(axios, basePath));
+    },
+  };
+};
+
+/**
+ * CategoricalAlterationResourceApi - object-oriented interface
+ * @export
+ * @class CategoricalAlterationResourceApi
+ * @extends {BaseAPI}
+ */
+export class CategoricalAlterationResourceApi extends BaseAPI {
+  /**
+   *
+   * @param {CategoricalAlteration} categoricalAlteration
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof CategoricalAlterationResourceApi
+   */
+  public createCategoricalAlteration(categoricalAlteration: CategoricalAlteration, options?: AxiosRequestConfig) {
+    return CategoricalAlterationResourceApiFp(this.configuration)
+      .createCategoricalAlteration(categoricalAlteration, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof CategoricalAlterationResourceApi
+   */
+  public deleteCategoricalAlteration(id: number, options?: AxiosRequestConfig) {
+    return CategoricalAlterationResourceApiFp(this.configuration)
+      .deleteCategoricalAlteration(id, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof CategoricalAlterationResourceApi
+   */
+  public getAllCategoricalAlterations(options?: AxiosRequestConfig) {
+    return CategoricalAlterationResourceApiFp(this.configuration)
+      .getAllCategoricalAlterations(options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof CategoricalAlterationResourceApi
+   */
+  public getCategoricalAlteration(id: number, options?: AxiosRequestConfig) {
+    return CategoricalAlterationResourceApiFp(this.configuration)
+      .getCategoricalAlteration(id, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {CategoricalAlteration} categoricalAlteration
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof CategoricalAlterationResourceApi
+   */
+  public partialUpdateCategoricalAlteration(id: number, categoricalAlteration: CategoricalAlteration, options?: AxiosRequestConfig) {
+    return CategoricalAlterationResourceApiFp(this.configuration)
+      .partialUpdateCategoricalAlteration(id, categoricalAlteration, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {CategoricalAlteration} categoricalAlteration
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof CategoricalAlterationResourceApi
+   */
+  public updateCategoricalAlteration(id: number, categoricalAlteration: CategoricalAlteration, options?: AxiosRequestConfig) {
+    return CategoricalAlterationResourceApiFp(this.configuration)
+      .updateCategoricalAlteration(id, categoricalAlteration, options)
       .then(request => request(this.axios, this.basePath));
   }
 }
@@ -4530,16 +5230,16 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
   return {
     /**
      *
-     * @param {DeviceUsageIndication} deviceUsageIndication
+     * @param {DeviceUsageIndicationDTO} deviceUsageIndicationDTO
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     createDeviceUsageIndication: async (
-      deviceUsageIndication: DeviceUsageIndication,
+      deviceUsageIndicationDTO: DeviceUsageIndicationDTO,
       options: AxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
-      // verify required parameter 'deviceUsageIndication' is not null or undefined
-      assertParamExists('createDeviceUsageIndication', 'deviceUsageIndication', deviceUsageIndication);
+      // verify required parameter 'deviceUsageIndicationDTO' is not null or undefined
+      assertParamExists('createDeviceUsageIndication', 'deviceUsageIndicationDTO', deviceUsageIndicationDTO);
       const localVarPath = `/api/device-usage-indications`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -4557,7 +5257,7 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
       localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(deviceUsageIndication, localVarRequestOptions, configuration);
+      localVarRequestOptions.data = serializeDataIfNeeded(deviceUsageIndicationDTO, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -4631,6 +5331,36 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
       // verify required parameter 'id' is not null or undefined
       assertParamExists('getDeviceUsageIndication', 'id', id);
       const localVarPath = `/api/device-usage-indications/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getDeviceUsageIndicationByFdaSubmission: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('getDeviceUsageIndicationByFdaSubmission', 'id', id);
+      const localVarPath = `/api/device-usage-indications/fda-submission/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -4743,15 +5473,15 @@ export const DeviceUsageIndicationResourceApiFp = function (configuration?: Conf
   return {
     /**
      *
-     * @param {DeviceUsageIndication} deviceUsageIndication
+     * @param {DeviceUsageIndicationDTO} deviceUsageIndicationDTO
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async createDeviceUsageIndication(
-      deviceUsageIndication: DeviceUsageIndication,
+      deviceUsageIndicationDTO: DeviceUsageIndicationDTO,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DeviceUsageIndication>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.createDeviceUsageIndication(deviceUsageIndication, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.createDeviceUsageIndication(deviceUsageIndicationDTO, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -4789,6 +5519,19 @@ export const DeviceUsageIndicationResourceApiFp = function (configuration?: Conf
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DeviceUsageIndication>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getDeviceUsageIndication(id, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getDeviceUsageIndicationByFdaSubmission(
+      id: number,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DeviceUsageIndication>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getDeviceUsageIndicationByFdaSubmission(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -4833,12 +5576,12 @@ export const DeviceUsageIndicationResourceApiFactory = function (configuration?:
   return {
     /**
      *
-     * @param {DeviceUsageIndication} deviceUsageIndication
+     * @param {DeviceUsageIndicationDTO} deviceUsageIndicationDTO
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    createDeviceUsageIndication(deviceUsageIndication: DeviceUsageIndication, options?: any): AxiosPromise<DeviceUsageIndication> {
-      return localVarFp.createDeviceUsageIndication(deviceUsageIndication, options).then(request => request(axios, basePath));
+    createDeviceUsageIndication(deviceUsageIndicationDTO: DeviceUsageIndicationDTO, options?: any): AxiosPromise<DeviceUsageIndication> {
+      return localVarFp.createDeviceUsageIndication(deviceUsageIndicationDTO, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -4865,6 +5608,15 @@ export const DeviceUsageIndicationResourceApiFactory = function (configuration?:
      */
     getDeviceUsageIndication(id: number, options?: any): AxiosPromise<DeviceUsageIndication> {
       return localVarFp.getDeviceUsageIndication(id, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getDeviceUsageIndicationByFdaSubmission(id: number, options?: any): AxiosPromise<Array<DeviceUsageIndication>> {
+      return localVarFp.getDeviceUsageIndicationByFdaSubmission(id, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -4906,14 +5658,14 @@ export const DeviceUsageIndicationResourceApiFactory = function (configuration?:
 export class DeviceUsageIndicationResourceApi extends BaseAPI {
   /**
    *
-   * @param {DeviceUsageIndication} deviceUsageIndication
+   * @param {DeviceUsageIndicationDTO} deviceUsageIndicationDTO
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof DeviceUsageIndicationResourceApi
    */
-  public createDeviceUsageIndication(deviceUsageIndication: DeviceUsageIndication, options?: AxiosRequestConfig) {
+  public createDeviceUsageIndication(deviceUsageIndicationDTO: DeviceUsageIndicationDTO, options?: AxiosRequestConfig) {
     return DeviceUsageIndicationResourceApiFp(this.configuration)
-      .createDeviceUsageIndication(deviceUsageIndication, options)
+      .createDeviceUsageIndication(deviceUsageIndicationDTO, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -4952,6 +5704,19 @@ export class DeviceUsageIndicationResourceApi extends BaseAPI {
   public getDeviceUsageIndication(id: number, options?: AxiosRequestConfig) {
     return DeviceUsageIndicationResourceApiFp(this.configuration)
       .getDeviceUsageIndication(id, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DeviceUsageIndicationResourceApi
+   */
+  public getDeviceUsageIndicationByFdaSubmission(id: number, options?: AxiosRequestConfig) {
+    return DeviceUsageIndicationResourceApiFp(this.configuration)
+      .getDeviceUsageIndicationByFdaSubmission(id, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -6586,7 +7351,7 @@ export const ElasticsearchIndexResourceApiAxiosParamCreator = function (configur
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
@@ -9034,11 +9799,10 @@ export const GeneResourceApiAxiosParamCreator = function (configuration?: Config
     /**
      *
      * @param {Pageable} pageable
-     * @param {boolean} [eagerload]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllGenes: async (pageable: Pageable, eagerload?: boolean, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    getAllGenes: async (pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('getAllGenes', 'pageable', pageable);
       const localVarPath = `/api/genes`;
@@ -9055,10 +9819,6 @@ export const GeneResourceApiAxiosParamCreator = function (configuration?: Config
 
       if (pageable !== undefined) {
         localVarQueryParameter['pageable'] = pageable;
-      }
-
-      if (eagerload !== undefined) {
-        localVarQueryParameter['eagerload'] = eagerload;
       }
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -9246,16 +10006,14 @@ export const GeneResourceApiFp = function (configuration?: Configuration) {
     /**
      *
      * @param {Pageable} pageable
-     * @param {boolean} [eagerload]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getAllGenes(
       pageable: Pageable,
-      eagerload?: boolean,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Gene>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllGenes(pageable, eagerload, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllGenes(pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -9344,12 +10102,11 @@ export const GeneResourceApiFactory = function (configuration?: Configuration, b
     /**
      *
      * @param {Pageable} pageable
-     * @param {boolean} [eagerload]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllGenes(pageable: Pageable, eagerload?: boolean, options?: any): AxiosPromise<Array<Gene>> {
-      return localVarFp.getAllGenes(pageable, eagerload, options).then(request => request(axios, basePath));
+    getAllGenes(pageable: Pageable, options?: any): AxiosPromise<Array<Gene>> {
+      return localVarFp.getAllGenes(pageable, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -9429,14 +10186,13 @@ export class GeneResourceApi extends BaseAPI {
   /**
    *
    * @param {Pageable} pageable
-   * @param {boolean} [eagerload]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof GeneResourceApi
    */
-  public getAllGenes(pageable: Pageable, eagerload?: boolean, options?: AxiosRequestConfig) {
+  public getAllGenes(pageable: Pageable, options?: AxiosRequestConfig) {
     return GeneResourceApiFp(this.configuration)
-      .getAllGenes(pageable, eagerload, options)
+      .getAllGenes(pageable, options)
       .then(request => request(this.axios, this.basePath));
   }
 

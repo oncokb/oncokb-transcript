@@ -25,4 +25,6 @@ public interface AlterationRepository extends JpaRepository<Alteration, Long> {
 
     @Query("select alteration from Alteration alteration left join fetch alteration.genes where alteration.id =:id")
     Optional<Alteration> findOneWithEagerRelationships(@Param("id") Long id);
+
+    List<Alteration> findByGenesId(@Param("id") Long id);
 }

@@ -33,10 +33,6 @@ export const DeviceUsageIndicationDetail = (props: IDeviceUsageIndicationDetailP
           <dt>Drug</dt>
           <dd>{deviceUsageIndicationEntity.drug ? deviceUsageIndicationEntity.drug.id : ''}</dd>
         </dl>
-        <Button tag={Link} to="/device-usage-indication" replace color="info" data-cy="entityDetailsBackButton">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
         <Button tag={Link} to={`/device-usage-indication/${deviceUsageIndicationEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
         </Button>

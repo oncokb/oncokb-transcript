@@ -11,7 +11,8 @@ export const debouncedSearchWithPagination = _.debounce(
       size,
       sort,
     }),
-  500
+  500,
+  { leading: true }
 );
 
 export class PaginationCrudStore<T> extends BaseCrudStore<T> {

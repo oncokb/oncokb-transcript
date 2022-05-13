@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
+import { Link, RouteComponentProps, useRouteMatch } from 'react-router-dom';
 import { Button, Row, Col } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
@@ -190,8 +190,22 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
                   data-cy="description"
                   type="textarea"
                 />
-                <ValidatedField label="Curated" id="fda-submission-curated" name="curated" data-cy="curated" check type="checkbox" />
-                <ValidatedField label="Genetic" id="fda-submission-genetic" name="genetic" data-cy="genetic" check type="checkbox" />
+                <ValidatedField
+                  label="Curated"
+                  id="fda-submission-curated"
+                  name="curated"
+                  data-cy="curated"
+                  check={fdaSubmissionEntity?.curated?.toString() || 'false'}
+                  type="checkbox"
+                />
+                <ValidatedField
+                  label="Genetic"
+                  id="fda-submission-genetic"
+                  name="genetic"
+                  data-cy="genetic"
+                  check={fdaSubmissionEntity?.genetic?.toString() || 'false'}
+                  type="checkbox"
+                />
                 <ValidatedSelect
                   label="Companion Diagnostic Device"
                   name={'companionDiagnosticDeviceId'}
@@ -208,12 +222,6 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
                 />
               </FormSection>
               <FormSection>
-                <Button tag={Link} id="cancel-save" data-cy="entityCreateCancelButton" to="/fda-submission" replace color="info">
-                  <FontAwesomeIcon icon="arrow-left" />
-                  &nbsp;
-                  <span className="d-none d-md-inline">Back</span>
-                </Button>
-                &nbsp;
                 <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
                   <FontAwesomeIcon icon="save" />
                   &nbsp; Save

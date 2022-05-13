@@ -1,8 +1,8 @@
-@import '../../oncokb-commons/styles/variables.scss';
+@import '../../variables.scss';
 
-$sidebar-bg-color: white;
+$sidebar-bg-color: whitesmoke;
 $sidebar-color: $oncokb-blue;
-$submenu-bg-color: white;
+$submenu-bg-color: whitesmoke;
 $sidebar-width: 200px;
 $sidebar-collapsed-wdith: 80px;
 $highlight-color: $oncokb-darker-blue;
@@ -13,5 +13,8 @@ $highlight-color: $oncokb-darker-blue;
   position: fixed;
   height: 100vh;
   z-index: 1000;
-  border-right: 1px solid $oncokb-border-color;
+
+  .pro-sidebar .pro-menu {
+    padding: 0 !important;
+  }
 }

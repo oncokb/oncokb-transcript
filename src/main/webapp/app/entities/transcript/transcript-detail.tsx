@@ -47,10 +47,6 @@ export const TranscriptDetail = (props: ITranscriptDetailProps) => {
           <dt>Ensembl Gene</dt>
           <dd>{transcriptEntity.ensemblGene ? transcriptEntity.ensemblGene.id : ''}</dd>
         </dl>
-        <Button tag={Link} to="/transcript" replace color="info" data-cy="entityDetailsBackButton">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
         <Button tag={Link} to={`/transcript/${transcriptEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
         </Button>

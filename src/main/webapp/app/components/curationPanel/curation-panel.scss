@@ -1,0 +1,28 @@
+@import '../../variables.scss';
+
+.curation-sidebar-wrapper {
+  z-index: 1000;
+  position: fixed;
+  height: 100vh;
+
+  .pro-sidebar {
+    width: 350px !important;
+  }
+
+  .curation-sidebar-header {
+    background-color: whitesmoke;
+    width: 100%;
+    padding: 8px 24px 0 24px;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  .pro-sidebar-header {
+    border-bottom: none !important;
+  }
+
+  .pro-inner-item {
+    cursor: default !important;
+  }
+}

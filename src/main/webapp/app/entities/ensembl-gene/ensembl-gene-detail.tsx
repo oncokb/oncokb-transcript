@@ -55,10 +55,6 @@ export const EnsemblGeneDetail = (props: IEnsemblGeneDetailProps) => {
           <dt>Gene</dt>
           <dd>{ensemblGeneEntity.gene ? ensemblGeneEntity.gene.id : ''}</dd>
         </dl>
-        <Button tag={Link} to="/ensembl-gene" replace color="info" data-cy="entityDetailsBackButton">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
         <Button tag={Link} to={`/ensembl-gene/${ensemblGeneEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
         </Button>

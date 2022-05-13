@@ -1,5 +1,5 @@
 import React from 'react';
-import './sidebar.scss';
+import './navigation-sidebar.scss';
 import { observer } from 'mobx-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PAGE_ROUTE } from 'app/config/constants';
@@ -7,9 +7,9 @@ import { IRootStore } from 'app/stores/createStore';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { NavLink } from 'react-router-dom';
 import { ProSidebar, Menu, MenuItem, SidebarContent } from 'react-pro-sidebar';
-import { faBars, faBuilding, faSearch, faPills, faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faBuilding, faSearch, faPills, faFileAlt, faLongArrowAltLeft } from '@fortawesome/free-solid-svg-icons';
 
-class SideBar extends React.Component<StoreProps> {
+class NavigationSidebar extends React.Component<StoreProps> {
   render() {
     return (
       <div className="sidebar-wrapper">
@@ -49,9 +49,9 @@ class SideBar extends React.Component<StoreProps> {
   }
 }
 
-const mapStoreToProps = ({ navigationControlStore }: IRootStore) => ({
-  isSideBarCollapsed: navigationControlStore.isSideBarCollapsed,
-  toggleSideBar: navigationControlStore.toggleSideBar,
+const mapStoreToProps = ({ layoutStore }: IRootStore) => ({
+  isSideBarCollapsed: layoutStore.isSideBarCollapsed,
+  toggleSideBar: layoutStore.toggleSideBar,
 });
 
 type StoreProps = {
@@ -59,4 +59,4 @@ type StoreProps = {
   toggleSideBar?: () => void;
 };
 
-export default componentInject(mapStoreToProps)(observer(SideBar));
+export default componentInject(mapStoreToProps)(observer(NavigationSidebar));

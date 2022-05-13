@@ -2,7 +2,7 @@ import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnosti
 import { IRootStore } from 'app/stores';
 import axios from 'axios';
 import CrudStore from 'app/shared/util/crud-store';
-import { ICrudSearchAction } from 'app/shared/util/jhipster-types';
+import { ICrudPutAction, ICrudSearchAction } from 'app/shared/util/jhipster-types';
 
 const apiUrl = 'api/companion-diagnostic-devices';
 const apiSearchUrl = 'api/_search/companion-diagnostic-devices';

@@ -33,10 +33,6 @@ export const GeneDetail = (props: IGeneDetailProps) => {
           </dt>
           <dd>{geneEntity.hugoSymbol}</dd>
         </dl>
-        <Button tag={Link} to="/gene" replace color="info" data-cy="entityDetailsBackButton">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
         <Button tag={Link} to={`/gene/${geneEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
         </Button>

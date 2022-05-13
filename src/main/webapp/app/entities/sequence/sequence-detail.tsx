@@ -35,10 +35,6 @@ export const SequenceDetail = (props: ISequenceDetailProps) => {
           <dt>Transcript</dt>
           <dd>{sequenceEntity.transcript ? sequenceEntity.transcript.id : ''}</dd>
         </dl>
-        <Button tag={Link} to="/sequence" replace color="info" data-cy="entityDetailsBackButton">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
         <Button tag={Link} to={`/sequence/${sequenceEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
         </Button>

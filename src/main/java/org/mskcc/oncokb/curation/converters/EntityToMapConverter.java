@@ -1,7 +1,6 @@
 package org.mskcc.oncokb.curation.converters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.domain.Article;
+import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
@@ -33,7 +33,8 @@ public class EntityToMapConverter implements GenericConverter {
         Article.class,
         Drug.class,
         Gene.class,
-        Alteration.class
+        Alteration.class,
+        CancerType.class
     );
 
     private final ObjectMapper objectMapper;

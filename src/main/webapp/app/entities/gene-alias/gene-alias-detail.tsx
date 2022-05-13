@@ -31,10 +31,6 @@ export const GeneAliasDetail = (props: IGeneAliasDetailProps) => {
           <dt>Gene</dt>
           <dd>{geneAliasEntity.gene ? geneAliasEntity.gene.id : ''}</dd>
         </dl>
-        <Button tag={Link} to="/gene-alias" replace color="info" data-cy="entityDetailsBackButton">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
         <Button tag={Link} to={`/gene-alias/${geneAliasEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
         </Button>

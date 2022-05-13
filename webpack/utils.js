@@ -8,7 +8,7 @@ module.exports = {
   sassResourcesLoader: {
     loader: 'sass-resources-loader',
     options: {
-      resources: ['./src/main/webapp/app/oncokb-commons/styles/variables.scss'],
+      resources: ['./src/main/webapp/app/variables.scss'],
     },
   },
 };

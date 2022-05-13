@@ -8,13 +8,13 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import { IRootStore } from 'app/stores';
 import Header from 'app/components/header/header';
-import Footer from 'app/components/footer/footer';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import { AUTHORITIES } from 'app/config/constants';
 import AppRoutes from 'app/routes';
-import SideBar from 'app/components/sidebar/SideBar';
-import { Col, Container, Row } from 'reactstrap';
+import NavigationSidebar from 'app/components/sidebar/NavigationSidebar';
+import { Container } from 'reactstrap';
 import { computed, makeObservable } from 'mobx';
+import CurationPanel from './components/curationPanel/CurationPanel';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
@@ -30,10 +30,11 @@ class App extends React.Component<IAppProps> {
   }
 
   get sideBarWidth() {
-    if (!this.props.isAuthenticated || !this.props.isAuthorized) {
-      return '0';
-    }
-    return this.props.isSideBarCollapsed ? '80px' : '200px';
+    return !this.props.isAuthenticated || !this.props.isAuthorized ? '0' : `${this.props.sidebarWidth}px`;
+  }
+
+  get curationPanelDisplay() {
+    return this.props.showCurationPanel ? '' : 'none';
   }
 
   render() {
@@ -43,12 +44,14 @@ class App extends React.Component<IAppProps> {
           <ToastContainer position={toast.POSITION.TOP_CENTER} className="toastify-container" toastClassName="toastify-toast" />
           <Header isAuthenticated={this.props.isAuthenticated} isAdmin={this.props.isAdmin} />
           <div style={{ display: 'flex' }}>
-            {this.props.isAuthorized && <SideBar />}
+            {this.props.isAuthorized && <NavigationSidebar />}
             <div style={{ flex: 1, marginLeft: this.sideBarWidth, paddingTop: '2rem' }}>
               <Container fluid>
                 <AppRoutes />
               </Container>
-              <Footer />
+            </div>
+            <div style={{ float: 'right', width: '350px', display: this.curationPanelDisplay }}>
+              <CurationPanel />
             </div>
           </div>
         </div>
@@ -57,12 +60,13 @@ class App extends React.Component<IAppProps> {
   }
 }
 
-const mapStoreToProps = ({ authStore, navigationControlStore }: IRootStore) => ({
+const mapStoreToProps = ({ authStore, layoutStore }: IRootStore) => ({
   isAuthenticated: authStore.isAuthenticated,
   isAuthorized: authStore.isAuthorized,
   isAdmin: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.ADMIN]),
   getSession: authStore.getSession,
-  isSideBarCollapsed: navigationControlStore.isSideBarCollapsed,
+  sidebarWidth: layoutStore.sidebarWidth,
+  showCurationPanel: layoutStore.showCurationPanel,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

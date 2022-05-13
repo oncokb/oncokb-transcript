@@ -37,6 +37,8 @@ public class ElasticsearchIndexService {
     private final CompanionDiagnosticDeviceSearchRepository companionDiagnosticDeviceSearchRepository;
     private final FdaSubmissionRepository fdaSubmissionRepository;
     private final FdaSubmissionSearchRepository fdaSubmissionSearchRepository;
+    private final CancerTypeRepository cancerTypeRepository;
+    private final CancerTypeSearchRepository cancerTypeSearchRepository;
     private final DrugRepository drugRepository;
     private final DrugSearchRepository drugSearchRepository;
     private final GeneRepository geneRepository;
@@ -52,6 +54,8 @@ public class ElasticsearchIndexService {
         CompanionDiagnosticDeviceSearchRepository companionDiagnosticDeviceSearchRepository,
         FdaSubmissionRepository fdaSubmissionRepository,
         FdaSubmissionSearchRepository fdaSubmissionSearchRepository,
+        CancerTypeRepository cancerTypeRepository,
+        CancerTypeSearchRepository cancerTypeSearchRepository,
         DrugRepository drugRepository,
         DrugSearchRepository drugSearchRepository,
         GeneRepository geneRepository,
@@ -66,6 +70,8 @@ public class ElasticsearchIndexService {
         this.companionDiagnosticDeviceSearchRepository = companionDiagnosticDeviceSearchRepository;
         this.fdaSubmissionRepository = fdaSubmissionRepository;
         this.fdaSubmissionSearchRepository = fdaSubmissionSearchRepository;
+        this.cancerTypeRepository = cancerTypeRepository;
+        this.cancerTypeSearchRepository = cancerTypeSearchRepository;
         this.drugRepository = drugRepository;
         this.drugSearchRepository = drugSearchRepository;
         this.geneRepository = geneRepository;
@@ -86,6 +92,7 @@ public class ElasticsearchIndexService {
                     companionDiagnosticDeviceSearchRepository
                 );
                 reindexForClass(FdaSubmission.class, fdaSubmissionRepository, fdaSubmissionSearchRepository);
+                reindexForClass(CancerType.class, cancerTypeRepository, cancerTypeSearchRepository);
                 reindexForClass(Drug.class, drugRepository, drugSearchRepository);
                 reindexForClass(Gene.class, geneRepository, geneSearchRepository);
                 reindexForClass(Alteration.class, alterationRepository, alterationSearchRepository);
