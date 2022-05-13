@@ -35,14 +35,25 @@
             <column name="variant_residues" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="gene_id" type="bigint">
-                <constraints nullable="true" />
-            </column>
             <column name="consequence_id" type="bigint">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+    </changeSet>
+
+    <changeSet id="20220401174648-1-relations" author="jhipster">
+
+        <createTable tableName="rel_alteration__gene">
+            <column name="gene_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="alteration_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="alteration_id, gene_id" tableName="rel_alteration__gene"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

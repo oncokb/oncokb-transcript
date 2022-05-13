@@ -88,32 +88,26 @@ export const Alteration = (props: IAlterationProps) => {
   const { match } = props;
 
   const columns: Column<IAlteration>[] = [
-    { accessor: 'name', Header: <TableHeader header="Name" onSort={sort('name')} paginationState={paginationState} sortField="name" /> },
+    {
+      accessor: 'genes',
+      Header: 'Genes',
+      Cell({
+        cell: {
+          row: { original },
+        },
+      }): any {
+        return <span> {original.genes?.map(gene => gene.hugoSymbol).join(', ')}</span>;
+      },
+    },
+    {
+      accessor: 'name',
+      Header: <TableHeader header="Name" onSort={sort('name')} paginationState={paginationState} sortField="name" />,
+    },
     {
       accessor: 'alteration',
       Header: <TableHeader header="Alteration" onSort={sort('alteration')} paginationState={paginationState} sortField="alteration" />,
     },
     { accessor: 'type', Header: <TableHeader header="Type" onSort={sort('type')} paginationState={paginationState} sortField="type" /> },
-    {
-      accessor: 'proteinStart',
-      Header: 'Protein Start',
-      maxWidth: 50,
-    },
-    {
-      accessor: 'proteinEnd',
-      Header: 'Protein End',
-      maxWidth: 50,
-    },
-    {
-      accessor: 'refResidues',
-      Header: 'Ref Residues',
-      maxWidth: 50,
-    },
-    {
-      accessor: 'variantResidues',
-      Header: 'Variant Residues',
-      maxWidth: 50,
-    },
   ];
 
   return (

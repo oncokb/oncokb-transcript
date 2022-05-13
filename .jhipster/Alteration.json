@@ -42,10 +42,11 @@
       "relationshipName": "deviceUsageIndication"
     },
     {
-      "relationshipType": "many-to-one",
+      "relationshipType": "many-to-many",
       "otherEntityName": "gene",
       "otherEntityRelationshipName": "alteration",
-      "relationshipName": "gene"
+      "relationshipName": "gene",
+      "ownerSide": true
     },
     {
       "relationshipType": "many-to-one",

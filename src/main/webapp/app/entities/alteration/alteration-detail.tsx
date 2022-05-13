@@ -53,7 +53,16 @@ export const AlterationDetail = (props: IAlterationDetailProps) => {
           </dt>
           <dd>{alterationEntity.variantResidues}</dd>
           <dt>Gene</dt>
-          <dd>{alterationEntity.gene ? alterationEntity.gene.hugoSymbol : ''}</dd>
+          <dd>
+            {alterationEntity.genes
+              ? alterationEntity.genes.map((val, i) => (
+                  <span key={val.id}>
+                    <Link to={`/gene/${val.id}`}>{val.hugoSymbol}</Link>
+                    {alterationEntity.genes && i === alterationEntity.genes.length - 1 ? '' : ', '}
+                  </span>
+                ))
+              : null}
+          </dd>
           <dt>Consequence</dt>
           <dd>{alterationEntity.consequence ? alterationEntity.consequence.id : ''}</dd>
         </dl>

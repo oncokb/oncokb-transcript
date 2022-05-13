@@ -1,13 +1,10 @@
 package org.mskcc.oncokb.curation.web.rest;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.repository.GeneRepository;
 import org.mskcc.oncokb.curation.service.GeneService;
@@ -139,21 +136,12 @@ public class GeneResource {
      * {@code GET  /genes} : get all the genes.
      *
      * @param pageable the pagination information.
-     * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of genes in body.
      */
     @GetMapping("/genes")
-    public ResponseEntity<List<Gene>> getAllGenes(
-        Pageable pageable,
-        @RequestParam(required = false, defaultValue = "false") boolean eagerload
-    ) {
+    public ResponseEntity<List<Gene>> getAllGenes(Pageable pageable) {
         log.debug("REST request to get a page of Genes");
-        Page<Gene> page;
-        if (eagerload) {
-            page = geneService.findAllWithEagerRelationships(pageable);
-        } else {
-            page = geneService.findAll(pageable);
-        }
+        Page<Gene> page = geneService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
