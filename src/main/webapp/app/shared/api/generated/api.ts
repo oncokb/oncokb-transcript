@@ -1799,16 +1799,16 @@ export interface SearchHitsObject {
   aggregations?: Aggregations;
   /**
    *
-   * @type {number}
-   * @memberof SearchHitsObject
-   */
-  totalHits?: number;
-  /**
-   *
    * @type {Array<SearchHitObject>}
    * @memberof SearchHitsObject
    */
   searchHits?: Array<SearchHitObject>;
+  /**
+   *
+   * @type {number}
+   * @memberof SearchHitsObject
+   */
+  totalHits?: number;
   /**
    *
    * @type {boolean}
@@ -13246,7 +13246,7 @@ export const TranscriptControllerApiAxiosParamCreator = function (configuration?
     /**
      *
      * @param {number} entrezGeneId
-     * @param {'GRCh37' | 'GRCh38'} ensemblReferenceGenome
+     * @param {'GRCh37' | 'GRCh38'} referenceGenome
      * @param {string} ensemblTranscriptId
      * @param {boolean} isCanonical
      * @param {*} [options] Override http request option.
@@ -13254,15 +13254,15 @@ export const TranscriptControllerApiAxiosParamCreator = function (configuration?
      */
     addTranscript: async (
       entrezGeneId: number,
-      ensemblReferenceGenome: 'GRCh37' | 'GRCh38',
+      referenceGenome: 'GRCh37' | 'GRCh38',
       ensemblTranscriptId: string,
       isCanonical: boolean,
       options: AxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'entrezGeneId' is not null or undefined
       assertParamExists('addTranscript', 'entrezGeneId', entrezGeneId);
-      // verify required parameter 'ensemblReferenceGenome' is not null or undefined
-      assertParamExists('addTranscript', 'ensemblReferenceGenome', ensemblReferenceGenome);
+      // verify required parameter 'referenceGenome' is not null or undefined
+      assertParamExists('addTranscript', 'referenceGenome', referenceGenome);
       // verify required parameter 'ensemblTranscriptId' is not null or undefined
       assertParamExists('addTranscript', 'ensemblTranscriptId', ensemblTranscriptId);
       // verify required parameter 'isCanonical' is not null or undefined
@@ -13283,8 +13283,8 @@ export const TranscriptControllerApiAxiosParamCreator = function (configuration?
         localVarQueryParameter['entrezGeneId'] = entrezGeneId;
       }
 
-      if (ensemblReferenceGenome !== undefined) {
-        localVarQueryParameter['ensemblReferenceGenome'] = ensemblReferenceGenome;
+      if (referenceGenome !== undefined) {
+        localVarQueryParameter['referenceGenome'] = referenceGenome;
       }
 
       if (ensemblTranscriptId !== undefined) {
@@ -13506,7 +13506,7 @@ export const TranscriptControllerApiFp = function (configuration?: Configuration
     /**
      *
      * @param {number} entrezGeneId
-     * @param {'GRCh37' | 'GRCh38'} ensemblReferenceGenome
+     * @param {'GRCh37' | 'GRCh38'} referenceGenome
      * @param {string} ensemblTranscriptId
      * @param {boolean} isCanonical
      * @param {*} [options] Override http request option.
@@ -13514,14 +13514,14 @@ export const TranscriptControllerApiFp = function (configuration?: Configuration
      */
     async addTranscript(
       entrezGeneId: number,
-      ensemblReferenceGenome: 'GRCh37' | 'GRCh38',
+      referenceGenome: 'GRCh37' | 'GRCh38',
       ensemblTranscriptId: string,
       isCanonical: boolean,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TranscriptDTO>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.addTranscript(
         entrezGeneId,
-        ensemblReferenceGenome,
+        referenceGenome,
         ensemblTranscriptId,
         isCanonical,
         options
@@ -13614,7 +13614,7 @@ export const TranscriptControllerApiFactory = function (configuration?: Configur
     /**
      *
      * @param {number} entrezGeneId
-     * @param {'GRCh37' | 'GRCh38'} ensemblReferenceGenome
+     * @param {'GRCh37' | 'GRCh38'} referenceGenome
      * @param {string} ensemblTranscriptId
      * @param {boolean} isCanonical
      * @param {*} [options] Override http request option.
@@ -13622,13 +13622,13 @@ export const TranscriptControllerApiFactory = function (configuration?: Configur
      */
     addTranscript(
       entrezGeneId: number,
-      ensemblReferenceGenome: 'GRCh37' | 'GRCh38',
+      referenceGenome: 'GRCh37' | 'GRCh38',
       ensemblTranscriptId: string,
       isCanonical: boolean,
       options?: any
     ): AxiosPromise<TranscriptDTO> {
       return localVarFp
-        .addTranscript(entrezGeneId, ensemblReferenceGenome, ensemblTranscriptId, isCanonical, options)
+        .addTranscript(entrezGeneId, referenceGenome, ensemblTranscriptId, isCanonical, options)
         .then(request => request(axios, basePath));
     },
     /**
@@ -13704,7 +13704,7 @@ export class TranscriptControllerApi extends BaseAPI {
   /**
    *
    * @param {number} entrezGeneId
-   * @param {'GRCh37' | 'GRCh38'} ensemblReferenceGenome
+   * @param {'GRCh37' | 'GRCh38'} referenceGenome
    * @param {string} ensemblTranscriptId
    * @param {boolean} isCanonical
    * @param {*} [options] Override http request option.
@@ -13713,13 +13713,13 @@ export class TranscriptControllerApi extends BaseAPI {
    */
   public addTranscript(
     entrezGeneId: number,
-    ensemblReferenceGenome: 'GRCh37' | 'GRCh38',
+    referenceGenome: 'GRCh37' | 'GRCh38',
     ensemblTranscriptId: string,
     isCanonical: boolean,
     options?: AxiosRequestConfig
   ) {
     return TranscriptControllerApiFp(this.configuration)
-      .addTranscript(entrezGeneId, ensemblReferenceGenome, ensemblTranscriptId, isCanonical, options)
+      .addTranscript(entrezGeneId, referenceGenome, ensemblTranscriptId, isCanonical, options)
       .then(request => request(this.axios, this.basePath));
   }
 
