@@ -534,6 +534,43 @@ export interface DeviceUsageIndication {
 /**
  *
  * @export
+ * @interface DeviceUsageIndicationDTO
+ */
+export interface DeviceUsageIndicationDTO {
+  /**
+   *
+   * @type {number}
+   * @memberof DeviceUsageIndicationDTO
+   */
+  id?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof DeviceUsageIndicationDTO
+   */
+  fdaSubmission?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof DeviceUsageIndicationDTO
+   */
+  alteration?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof DeviceUsageIndicationDTO
+   */
+  cancerType?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof DeviceUsageIndicationDTO
+   */
+  drug?: number;
+}
+/**
+ *
+ * @export
  * @interface Drug
  */
 export interface Drug {
@@ -1744,12 +1781,6 @@ export interface SearchHitObject {
 export interface SearchHitsObject {
   /**
    *
-   * @type {Aggregations}
-   * @memberof SearchHitsObject
-   */
-  aggregations?: Aggregations;
-  /**
-   *
    * @type {number}
    * @memberof SearchHitsObject
    */
@@ -1760,6 +1791,12 @@ export interface SearchHitsObject {
    * @memberof SearchHitsObject
    */
   totalHitsRelation?: SearchHitsObjectTotalHitsRelationEnum;
+  /**
+   *
+   * @type {Aggregations}
+   * @memberof SearchHitsObject
+   */
+  aggregations?: Aggregations;
   /**
    *
    * @type {number}
@@ -2627,6 +2664,36 @@ export const AlterationResourceApiAxiosParamCreator = function (configuration?: 
     },
     /**
      *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    findByGeneId: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('findByGeneId', 'id', id);
+      const localVarPath = `/api/alterations/gene/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @param {Pageable} pageable
      * @param {boolean} [eagerload]
      * @param {*} [options] Override http request option.
@@ -2845,6 +2912,19 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
     },
     /**
      *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async findByGeneId(
+      id: number,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Alteration>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.findByGeneId(id, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
      * @param {Pageable} pageable
      * @param {boolean} [eagerload]
      * @param {*} [options] Override http request option.
@@ -2946,6 +3026,15 @@ export const AlterationResourceApiFactory = function (configuration?: Configurat
     },
     /**
      *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    findByGeneId(id: number, options?: any): AxiosPromise<Array<Alteration>> {
+      return localVarFp.findByGeneId(id, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
      * @param {Pageable} pageable
      * @param {boolean} [eagerload]
      * @param {*} [options] Override http request option.
@@ -3026,6 +3115,19 @@ export class AlterationResourceApi extends BaseAPI {
   public deleteAlteration(id: number, options?: AxiosRequestConfig) {
     return AlterationResourceApiFp(this.configuration)
       .deleteAlteration(id, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof AlterationResourceApi
+   */
+  public findByGeneId(id: number, options?: AxiosRequestConfig) {
+    return AlterationResourceApiFp(this.configuration)
+      .findByGeneId(id, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -3897,6 +3999,47 @@ export const CancerTypeResourceApiAxiosParamCreator = function (configuration?: 
     },
     /**
      *
+     * @param {string} query
+     * @param {Pageable} pageable
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    searchCancerTypes: async (query: string, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'query' is not null or undefined
+      assertParamExists('searchCancerTypes', 'query', query);
+      // verify required parameter 'pageable' is not null or undefined
+      assertParamExists('searchCancerTypes', 'pageable', pageable);
+      const localVarPath = `/api/_search/cancer-types`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (query !== undefined) {
+        localVarQueryParameter['query'] = query;
+      }
+
+      if (pageable !== undefined) {
+        localVarQueryParameter['pageable'] = pageable;
+      }
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @param {number} id
      * @param {CancerType} cancerType
      * @param {*} [options] Override http request option.
@@ -4010,6 +4153,21 @@ export const CancerTypeResourceApiFp = function (configuration?: Configuration) 
     },
     /**
      *
+     * @param {string} query
+     * @param {Pageable} pageable
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async searchCancerTypes(
+      query: string,
+      pageable: Pageable,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CancerType>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.searchCancerTypes(query, pageable, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
      * @param {number} id
      * @param {CancerType} cancerType
      * @param {*} [options] Override http request option.
@@ -4078,6 +4236,16 @@ export const CancerTypeResourceApiFactory = function (configuration?: Configurat
      */
     partialUpdateCancerType(id: number, cancerType: CancerType, options?: any): AxiosPromise<CancerType> {
       return localVarFp.partialUpdateCancerType(id, cancerType, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} query
+     * @param {Pageable} pageable
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    searchCancerTypes(query: string, pageable: Pageable, options?: any): AxiosPromise<Array<CancerType>> {
+      return localVarFp.searchCancerTypes(query, pageable, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -4162,6 +4330,20 @@ export class CancerTypeResourceApi extends BaseAPI {
   public partialUpdateCancerType(id: number, cancerType: CancerType, options?: AxiosRequestConfig) {
     return CancerTypeResourceApiFp(this.configuration)
       .partialUpdateCancerType(id, cancerType, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} query
+   * @param {Pageable} pageable
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof CancerTypeResourceApi
+   */
+  public searchCancerTypes(query: string, pageable: Pageable, options?: AxiosRequestConfig) {
+    return CancerTypeResourceApiFp(this.configuration)
+      .searchCancerTypes(query, pageable, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -5650,16 +5832,16 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
   return {
     /**
      *
-     * @param {DeviceUsageIndication} deviceUsageIndication
+     * @param {DeviceUsageIndicationDTO} deviceUsageIndicationDTO
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     createDeviceUsageIndication: async (
-      deviceUsageIndication: DeviceUsageIndication,
+      deviceUsageIndicationDTO: DeviceUsageIndicationDTO,
       options: AxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
-      // verify required parameter 'deviceUsageIndication' is not null or undefined
-      assertParamExists('createDeviceUsageIndication', 'deviceUsageIndication', deviceUsageIndication);
+      // verify required parameter 'deviceUsageIndicationDTO' is not null or undefined
+      assertParamExists('createDeviceUsageIndication', 'deviceUsageIndicationDTO', deviceUsageIndicationDTO);
       const localVarPath = `/api/device-usage-indications`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -5677,7 +5859,7 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
       localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(deviceUsageIndication, localVarRequestOptions, configuration);
+      localVarRequestOptions.data = serializeDataIfNeeded(deviceUsageIndicationDTO, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -5751,6 +5933,36 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
       // verify required parameter 'id' is not null or undefined
       assertParamExists('getDeviceUsageIndication', 'id', id);
       const localVarPath = `/api/device-usage-indications/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getDeviceUsageIndicationByFdaSubmission: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('getDeviceUsageIndicationByFdaSubmission', 'id', id);
+      const localVarPath = `/api/device-usage-indications/fda-submission/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -5863,15 +6075,15 @@ export const DeviceUsageIndicationResourceApiFp = function (configuration?: Conf
   return {
     /**
      *
-     * @param {DeviceUsageIndication} deviceUsageIndication
+     * @param {DeviceUsageIndicationDTO} deviceUsageIndicationDTO
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async createDeviceUsageIndication(
-      deviceUsageIndication: DeviceUsageIndication,
+      deviceUsageIndicationDTO: DeviceUsageIndicationDTO,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DeviceUsageIndication>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.createDeviceUsageIndication(deviceUsageIndication, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.createDeviceUsageIndication(deviceUsageIndicationDTO, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -5909,6 +6121,19 @@ export const DeviceUsageIndicationResourceApiFp = function (configuration?: Conf
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DeviceUsageIndication>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getDeviceUsageIndication(id, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getDeviceUsageIndicationByFdaSubmission(
+      id: number,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DeviceUsageIndication>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getDeviceUsageIndicationByFdaSubmission(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -5953,12 +6178,12 @@ export const DeviceUsageIndicationResourceApiFactory = function (configuration?:
   return {
     /**
      *
-     * @param {DeviceUsageIndication} deviceUsageIndication
+     * @param {DeviceUsageIndicationDTO} deviceUsageIndicationDTO
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    createDeviceUsageIndication(deviceUsageIndication: DeviceUsageIndication, options?: any): AxiosPromise<DeviceUsageIndication> {
-      return localVarFp.createDeviceUsageIndication(deviceUsageIndication, options).then(request => request(axios, basePath));
+    createDeviceUsageIndication(deviceUsageIndicationDTO: DeviceUsageIndicationDTO, options?: any): AxiosPromise<DeviceUsageIndication> {
+      return localVarFp.createDeviceUsageIndication(deviceUsageIndicationDTO, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -5985,6 +6210,15 @@ export const DeviceUsageIndicationResourceApiFactory = function (configuration?:
      */
     getDeviceUsageIndication(id: number, options?: any): AxiosPromise<DeviceUsageIndication> {
       return localVarFp.getDeviceUsageIndication(id, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getDeviceUsageIndicationByFdaSubmission(id: number, options?: any): AxiosPromise<Array<DeviceUsageIndication>> {
+      return localVarFp.getDeviceUsageIndicationByFdaSubmission(id, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -6026,14 +6260,14 @@ export const DeviceUsageIndicationResourceApiFactory = function (configuration?:
 export class DeviceUsageIndicationResourceApi extends BaseAPI {
   /**
    *
-   * @param {DeviceUsageIndication} deviceUsageIndication
+   * @param {DeviceUsageIndicationDTO} deviceUsageIndicationDTO
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof DeviceUsageIndicationResourceApi
    */
-  public createDeviceUsageIndication(deviceUsageIndication: DeviceUsageIndication, options?: AxiosRequestConfig) {
+  public createDeviceUsageIndication(deviceUsageIndicationDTO: DeviceUsageIndicationDTO, options?: AxiosRequestConfig) {
     return DeviceUsageIndicationResourceApiFp(this.configuration)
-      .createDeviceUsageIndication(deviceUsageIndication, options)
+      .createDeviceUsageIndication(deviceUsageIndicationDTO, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -6072,6 +6306,19 @@ export class DeviceUsageIndicationResourceApi extends BaseAPI {
   public getDeviceUsageIndication(id: number, options?: AxiosRequestConfig) {
     return DeviceUsageIndicationResourceApiFp(this.configuration)
       .getDeviceUsageIndication(id, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DeviceUsageIndicationResourceApi
+   */
+  public getDeviceUsageIndicationByFdaSubmission(id: number, options?: AxiosRequestConfig) {
+    return DeviceUsageIndicationResourceApiFp(this.configuration)
+      .getDeviceUsageIndicationByFdaSubmission(id, options)
       .then(request => request(this.axios, this.basePath));
   }
 
