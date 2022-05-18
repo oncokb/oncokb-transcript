@@ -111,7 +111,6 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
       consequence: { id: values.consequence.value, name: values.consequence.label },
     };
 
-    console.log(entity);
     if (isNew) {
       props.createEntity(entity);
     } else {
