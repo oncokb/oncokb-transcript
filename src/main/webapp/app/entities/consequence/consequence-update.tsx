@@ -6,22 +6,22 @@ import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 
-import { IVariantConsequence } from 'app/shared/model/variant-consequence.model';
+import { IConsequence } from 'app/shared/model/consequence.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
 
-export interface IVariantConsequenceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
+export interface IConsequenceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
-export const VariantConsequenceUpdate = (props: IVariantConsequenceUpdateProps) => {
+export const ConsequenceUpdate = (props: IConsequenceUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
-  const variantConsequenceEntity = props.variantConsequenceEntity;
+  const consequenceEntity = props.consequenceEntity;
   const loading = props.loading;
   const updating = props.updating;
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/variant-consequence');
+    props.history.push('/consequence');
   };
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export const VariantConsequenceUpdate = (props: IVariantConsequenceUpdateProps) 
 
   const saveEntity = values => {
     const entity = {
-      ...variantConsequenceEntity,
+      ...consequenceEntity,
       ...values,
     };
 
@@ -55,15 +55,16 @@ export const VariantConsequenceUpdate = (props: IVariantConsequenceUpdateProps) 
     isNew
       ? {}
       : {
-          ...variantConsequenceEntity,
+          type: 'MUTATION',
+          ...consequenceEntity,
         };
 
   return (
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbCurationApp.variantConsequence.home.createOrEditLabel" data-cy="VariantConsequenceCreateUpdateHeading">
-            Create or edit a VariantConsequence
+          <h2 id="oncokbCurationApp.consequence.home.createOrEditLabel" data-cy="ConsequenceCreateUpdateHeading">
+            Create or edit a Consequence
           </h2>
         </Col>
       </Row>
@@ -73,12 +74,17 @@ export const VariantConsequenceUpdate = (props: IVariantConsequenceUpdateProps) 
             <p>Loading...</p>
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
-              {!isNew ? (
-                <ValidatedField name="id" required readOnly id="variant-consequence-id" label="ID" validate={{ required: true }} />
-              ) : null}
+              {!isNew ? <ValidatedField name="id" required readOnly id="consequence-id" label="ID" validate={{ required: true }} /> : null}
+              <ValidatedField label="Type" id="consequence-type" name="type" data-cy="type" type="select">
+                <option value="MUTATION">MUTATION</option>
+                <option value="COPY_NUMBER_ALTERATION">COPY_NUMBER_ALTERATION</option>
+                <option value="STRUCTURAL_VARIANT">STRUCTURAL_VARIANT</option>
+                <option value="UNKNOWN">UNKNOWN</option>
+                <option value="NA">NA</option>
+              </ValidatedField>
               <ValidatedField
                 label="Term"
-                id="variant-consequence-term"
+                id="consequence-term"
                 name="term"
                 data-cy="term"
                 type="text"
@@ -87,20 +93,24 @@ export const VariantConsequenceUpdate = (props: IVariantConsequenceUpdateProps) 
                 }}
               />
               <ValidatedField
+                label="Name"
+                id="consequence-name"
+                name="name"
+                data-cy="name"
+                type="text"
+                validate={{
+                  required: { value: true, message: 'This field is required.' },
+                }}
+              />
+              <ValidatedField
                 label="Is Generally Truncating"
-                id="variant-consequence-isGenerallyTruncating"
+                id="consequence-isGenerallyTruncating"
                 name="isGenerallyTruncating"
                 data-cy="isGenerallyTruncating"
                 check
                 type="checkbox"
               />
-              <ValidatedField
-                label="Description"
-                id="variant-consequence-description"
-                name="description"
-                data-cy="description"
-                type="text"
-              />
+              <ValidatedField label="Description" id="consequence-description" name="description" data-cy="description" type="text" />
               <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
                 <FontAwesomeIcon icon="save" />
                 &nbsp; Save
@@ -114,16 +124,16 @@ export const VariantConsequenceUpdate = (props: IVariantConsequenceUpdateProps) 
 };
 
 const mapStoreToProps = (storeState: IRootStore) => ({
-  variantConsequenceEntity: storeState.variantConsequenceStore.entity,
-  loading: storeState.variantConsequenceStore.loading,
-  updating: storeState.variantConsequenceStore.updating,
-  updateSuccess: storeState.variantConsequenceStore.updateSuccess,
-  getEntity: storeState.variantConsequenceStore.getEntity,
-  updateEntity: storeState.variantConsequenceStore.updateEntity,
-  createEntity: storeState.variantConsequenceStore.createEntity,
-  reset: storeState.variantConsequenceStore.reset,
+  consequenceEntity: storeState.consequenceStore.entity,
+  loading: storeState.consequenceStore.loading,
+  updating: storeState.consequenceStore.updating,
+  updateSuccess: storeState.consequenceStore.updateSuccess,
+  getEntity: storeState.consequenceStore.getEntity,
+  updateEntity: storeState.consequenceStore.updateEntity,
+  createEntity: storeState.consequenceStore.createEntity,
+  reset: storeState.consequenceStore.reset,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(VariantConsequenceUpdate);
+export default connect(mapStoreToProps)(ConsequenceUpdate);

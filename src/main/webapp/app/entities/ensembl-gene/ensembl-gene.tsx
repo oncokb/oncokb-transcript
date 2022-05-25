@@ -99,9 +99,6 @@ export const EnsemblGene = (props: IEnsemblGeneProps) => {
                 <th className="hand" onClick={sort('id')}>
                   ID <FontAwesomeIcon icon="sort" />
                 </th>
-                <th className="hand" onClick={sort('referenceGenome')}>
-                  Reference Genome <FontAwesomeIcon icon="sort" />
-                </th>
                 <th className="hand" onClick={sort('ensemblGeneId')}>
                   Ensembl Gene Id <FontAwesomeIcon icon="sort" />
                 </th>
@@ -121,6 +118,9 @@ export const EnsemblGene = (props: IEnsemblGeneProps) => {
                   Strand <FontAwesomeIcon icon="sort" />
                 </th>
                 <th>
+                  Reference Genome <FontAwesomeIcon icon="sort" />
+                </th>
+                <th>
                   Gene <FontAwesomeIcon icon="sort" />
                 </th>
                 <th />
@@ -129,19 +129,14 @@ export const EnsemblGene = (props: IEnsemblGeneProps) => {
             <tbody>
               {ensemblGeneList.map((ensemblGene, i) => (
                 <tr key={`entity-${i}`} data-cy="entityTable">
-                  <td>
-                    <Button tag={Link} to={`${match.url}/${ensemblGene.id}`} color="link" size="sm">
-                      {ensemblGene.id}
-                    </Button>
-                  </td>
-                  <td>{ensemblGene.referenceGenome}</td>
                   <td>{ensemblGene.ensemblGeneId}</td>
                   <td>{ensemblGene.canonical ? 'true' : 'false'}</td>
                   <td>{ensemblGene.chromosome}</td>
                   <td>{ensemblGene.start}</td>
                   <td>{ensemblGene.end}</td>
                   <td>{ensemblGene.strand}</td>
-                  <td>{ensemblGene.gene ? <Link to={`gene/${ensemblGene.gene.id}`}>{ensemblGene.gene.id}</Link> : ''}</td>
+                  <td>{ensemblGene.referenceGenome}</td>
+                  <td>{ensemblGene.gene ? <Link to={`gene/${ensemblGene.gene.id}`}>{ensemblGene.gene.hugoSymbol}</Link> : ''}</td>
                   <td className="text-right">
                     <div className="btn-group flex-btn-group-container">
                       <Button tag={Link} to={`${match.url}/${ensemblGene.id}`} color="info" size="sm" data-cy="entityDetailsButton">

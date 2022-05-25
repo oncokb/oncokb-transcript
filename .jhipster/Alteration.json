@@ -2,12 +2,6 @@
   "name": "Alteration",
   "fields": [
     {
-      "fieldName": "type",
-      "fieldType": "AlterationType",
-      "fieldValues": "MUTATION,COPY_NUMBER_ALTERATION,STRUCTURAL_VARIANT,UNKNOWN,NA",
-      "fieldValidateRules": ["required"]
-    },
-    {
       "fieldName": "name",
       "fieldType": "String",
       "fieldValidateRules": ["required"]
@@ -42,6 +36,12 @@
       "relationshipName": "deviceUsageIndication"
     },
     {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "alterationReferenceGenome",
+      "otherEntityRelationshipName": "alteration",
+      "relationshipName": "referenceGenomes"
+    },
+    {
       "relationshipType": "many-to-many",
       "otherEntityName": "gene",
       "otherEntityRelationshipName": "alteration",
@@ -50,7 +50,7 @@
     },
     {
       "relationshipType": "many-to-one",
-      "otherEntityName": "variantConsequence",
+      "otherEntityName": "consequence",
       "otherEntityRelationshipName": "alteration",
       "relationshipName": "consequence"
     }

@@ -46,7 +46,7 @@ public class Transcript implements Serializable {
     private Set<Sequence> sequences = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "transcripts", "gene" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "transcripts", "referenceGenome", "gene" }, allowSetters = true)
     private EnsemblGene ensemblGene;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

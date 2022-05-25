@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
-import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 
 /**
  * A Alteration.
@@ -22,11 +21,6 @@ public class Alteration implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
-    private AlterationType type;
 
     @NotNull
     @Column(name = "name", nullable = false)
@@ -52,6 +46,10 @@ public class Alteration implements Serializable {
     @JsonIgnoreProperties(value = { "fdaSubmission", "alteration", "cancerType", "drug" }, allowSetters = true)
     private Set<DeviceUsageIndication> deviceUsageIndications = new HashSet<>();
 
+    @OneToMany(mappedBy = "alteration", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties(value = { "alteration" }, allowSetters = true)
+    private Set<AlterationReferenceGenome> referenceGenomes = new HashSet<>();
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rel_alteration__gene",
@@ -63,7 +61,7 @@ public class Alteration implements Serializable {
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "alterations" }, allowSetters = true)
-    private VariantConsequence consequence;
+    private Consequence consequence;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -78,19 +76,6 @@ public class Alteration implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public AlterationType getType() {
-        return this.type;
-    }
-
-    public Alteration type(AlterationType type) {
-        this.setType(type);
-        return this;
-    }
-
-    public void setType(AlterationType type) {
-        this.type = type;
     }
 
     public String getName() {
@@ -202,6 +187,37 @@ public class Alteration implements Serializable {
         return this;
     }
 
+    public Set<AlterationReferenceGenome> getReferenceGenomes() {
+        return this.referenceGenomes;
+    }
+
+    public void setReferenceGenomes(Set<AlterationReferenceGenome> alterationReferenceGenomes) {
+        if (this.referenceGenomes != null) {
+            this.referenceGenomes.forEach(i -> i.setAlteration(null));
+        }
+        if (alterationReferenceGenomes != null) {
+            alterationReferenceGenomes.forEach(i -> i.setAlteration(this));
+        }
+        this.referenceGenomes = alterationReferenceGenomes;
+    }
+
+    public Alteration referenceGenomes(Set<AlterationReferenceGenome> alterationReferenceGenomes) {
+        this.setReferenceGenomes(alterationReferenceGenomes);
+        return this;
+    }
+
+    public Alteration addReferenceGenomes(AlterationReferenceGenome alterationReferenceGenome) {
+        this.referenceGenomes.add(alterationReferenceGenome);
+        alterationReferenceGenome.setAlteration(this);
+        return this;
+    }
+
+    public Alteration removeReferenceGenomes(AlterationReferenceGenome alterationReferenceGenome) {
+        this.referenceGenomes.remove(alterationReferenceGenome);
+        alterationReferenceGenome.setAlteration(null);
+        return this;
+    }
+
     public Set<Gene> getGenes() {
         return this.genes;
     }
@@ -227,16 +243,16 @@ public class Alteration implements Serializable {
         return this;
     }
 
-    public VariantConsequence getConsequence() {
+    public Consequence getConsequence() {
         return this.consequence;
     }
 
-    public void setConsequence(VariantConsequence variantConsequence) {
-        this.consequence = variantConsequence;
+    public void setConsequence(Consequence consequence) {
+        this.consequence = consequence;
     }
 
-    public Alteration consequence(VariantConsequence variantConsequence) {
-        this.setConsequence(variantConsequence);
+    public Alteration consequence(Consequence consequence) {
+        this.setConsequence(consequence);
         return this;
     }
 
@@ -264,7 +280,6 @@ public class Alteration implements Serializable {
     public String toString() {
         return "Alteration{" +
             "id=" + getId() +
-            ", type='" + getType() + "'" +
             ", name='" + getName() + "'" +
             ", alteration='" + getAlteration() + "'" +
             ", proteinStart=" + getProteinStart() +

@@ -1,0 +1,28 @@
+{
+  "name": "AlterationReferenceGenome",
+  "fields": [
+    {
+      "fieldName": "referenceGenome",
+      "fieldType": "ReferenceGenome",
+      "fieldValues": "GRCh37,GRCh38"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "alteration",
+      "otherEntityRelationshipName": "referenceGenomes",
+      "relationshipName": "alteration"
+    }
+  ],
+  "entityTableName": "alteration_reference_genome",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220516220250"
+}

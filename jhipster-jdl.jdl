@@ -1,4 +1,9 @@
 
+
+enum ReferenceGenome {
+ GRCh37, GRCh38
+}
+
 entity Transcript {
     ensemblTranscriptId String,
     canonical Boolean required,
@@ -8,7 +13,7 @@ entity Transcript {
 }
 
 entity EnsemblGene {
-    referenceGenome String required,
+    referenceGenome ReferenceGenome,
     ensemblGeneId String required,
     canonical Boolean required,
     chromosome String required,
@@ -142,14 +147,15 @@ enum StructuralVariantType {
 	FUSION
 }
 
-entity VariantConsequence {
+entity Consequence {
+	type AlterationType required
 	term String required
+    name String required
     isGenerallyTruncating Boolean required
     description String
 }
 
 entity Alteration {
-	type AlterationType required
     name String required
     alteration String required
     proteinStart Integer
@@ -158,8 +164,12 @@ entity Alteration {
     variantResidues String
 }
 
+entity AlterationReferenceGenome {
+    referenceGenome ReferenceGenome
+}
+
 enum CategoricalAlterationType{
-	ONCOKB_MUTATIONS,
+	ONCOGENIC_MUTATIONS,
     GAIN_OF_FUNCTION_MUTATIONS,
     LOSS_OF_FUNCTION_MUTATIONS,
     SWITCH_OF_FUNCTION_MUTATIONS,
@@ -209,10 +219,11 @@ relationship OneToMany {
     EnsemblGene to Transcript
     Transcript to Sequence
     CompanionDiagnosticDevice to FdaSubmission
-    VariantConsequence to Alteration{consequence}
+    Consequence to Alteration
     FdaSubmissionType to FdaSubmission{type}
     FdaSubmission to DeviceUsageIndication
 	Alteration to DeviceUsageIndication
+	Alteration{referenceGenomes} to AlterationReferenceGenome
 	CancerType to DeviceUsageIndication
 	Drug to DeviceUsageIndication
     Drug{brands} to DrugBrand

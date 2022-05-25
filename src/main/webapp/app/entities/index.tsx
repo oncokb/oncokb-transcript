@@ -17,7 +17,6 @@ import SpecimenType from './specimen-type';
 import CompanionDiagnosticDevice from './companion-diagnostic-device';
 import FdaSubmissionType from './fda-submission-type';
 import FdaSubmission from './fda-submission';
-import VariantConsequence from './variant-consequence';
 import Alteration from './alteration';
 import CancerType from './cancer-type';
 import DeviceUsageIndication from './device-usage-indication';
@@ -25,6 +24,7 @@ import { PAGE_ROUTE } from 'app/config/constants';
 import Article from './article';
 import DrugBrand from './drug-brand';
 import CategoricalAlteration from './categorical-alteration';
+import Consequence from './consequence';
 /* jhipster-needle-add-route-import - JHipster will add routes here */
 
 const Routes = ({ match }) => (
@@ -44,13 +44,13 @@ const Routes = ({ match }) => (
       <ErrorBoundaryRoute path={`${match.url}${PAGE_ROUTE.CDX.substring(1)}`} component={CompanionDiagnosticDevice} />
       <ErrorBoundaryRoute path={`${match.url}fda-submission-type`} component={FdaSubmissionType} />
       <ErrorBoundaryRoute path={`${match.url}${PAGE_ROUTE.FDA_SUBMISSION.substring(1)}`} component={FdaSubmission} />
-      <ErrorBoundaryRoute path={`${match.url}variant-consequence`} component={VariantConsequence} />
       <ErrorBoundaryRoute path={`${match.url}${PAGE_ROUTE.ALTERATION.substring(1)}`} component={Alteration} />
       <ErrorBoundaryRoute path={`${match.url}cancer-type`} component={CancerType} />
       <ErrorBoundaryRoute path={`${match.url}device-usage-indication`} component={DeviceUsageIndication} />
       <ErrorBoundaryRoute path={`${match.url}${PAGE_ROUTE.ARTICLE.substring(1)}`} component={Article} />
       <ErrorBoundaryRoute path={`${match.url}drug-brand`} component={DrugBrand} />
       <ErrorBoundaryRoute path={`${match.url}categorical-alteration`} component={CategoricalAlteration} />
+      <ErrorBoundaryRoute path={`${match.url}consequence`} component={Consequence} />
       {/* jhipster-needle-add-route-path - JHipster will add routes here */}
     </Switch>
   </div>

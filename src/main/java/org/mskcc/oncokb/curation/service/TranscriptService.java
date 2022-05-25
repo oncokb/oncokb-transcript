@@ -15,6 +15,7 @@ import org.mskcc.oncokb.curation.config.cache.CacheNameResolver;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.GenomeFragmentType;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
+import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.curation.domain.enumeration.SequenceType;
 import org.mskcc.oncokb.curation.repository.TranscriptRepository;
 import org.mskcc.oncokb.curation.service.dto.TranscriptDTO;
@@ -105,7 +106,7 @@ public class TranscriptService {
         Optional<Sequence> sequenceOptional = sequenceService.findOneByTranscriptAndSequenceType(savedTranscript, SequenceType.PROTEIN);
         if (sequenceOptional.isEmpty() && StringUtils.isNotEmpty(savedTranscript.getEnsemblProteinId())) {
             Optional<EnsemblSequence> ensemblSequenceOptional = ensemblService.getProteinSequence(
-                ReferenceGenome.valueOf(savedTranscript.getEnsemblGene().getReferenceGenome()),
+                savedTranscript.getEnsemblGene().getReferenceGenome(),
                 savedTranscript.getEnsemblProteinId()
             );
             if (ensemblSequenceOptional.isPresent()) {

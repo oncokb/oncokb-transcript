@@ -1,19 +1,15 @@
 package org.mskcc.oncokb.curation.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
-import org.mskcc.oncokb.curation.domain.EnsemblGene;
-import org.mskcc.oncokb.curation.domain.Gene;
-import org.mskcc.oncokb.curation.domain.GenomeFragment;
-import org.mskcc.oncokb.curation.domain.enumeration.GenomeFragmentType;
-import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
+import org.mskcc.oncokb.curation.domain.*;
+import org.mskcc.oncokb.curation.domain.enumeration.*;
 import org.mskcc.oncokb.curation.service.dto.TranscriptDTO;
+import org.mskcc.oncokb.curation.service.mapper.TranscriptMapper;
+import org.mskcc.oncokb.curation.util.AlterationUtils;
 import org.mskcc.oncokb.curation.vm.ensembl.EnsemblTranscript;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,19 +27,142 @@ public class MainService {
     private final EnsemblGeneService ensemblGeneService;
     private final GeneService geneService;
     private final GenomeNexusService genomeNexusService;
+    private final SequenceService sequenceService;
+    private final TranscriptMapper transcriptMapper;
+    private final AlterationUtils alterationUtils;
+    private final ConsequenceService consequenceService;
 
     public MainService(
         TranscriptService transcriptService,
         EnsemblService ensemblService,
-        GeneService geneService,
         EnsemblGeneService ensemblGeneService,
-        GenomeNexusService genomeNexusService
+        GeneService geneService,
+        GenomeNexusService genomeNexusService,
+        SequenceService sequenceService,
+        TranscriptMapper transcriptMapper,
+        AlterationUtils alterationUtils,
+        ConsequenceService consequenceService
     ) {
         this.transcriptService = transcriptService;
-        this.geneService = geneService;
         this.ensemblService = ensemblService;
         this.ensemblGeneService = ensemblGeneService;
+        this.geneService = geneService;
         this.genomeNexusService = genomeNexusService;
+        this.sequenceService = sequenceService;
+        this.transcriptMapper = transcriptMapper;
+        this.alterationUtils = alterationUtils;
+        this.consequenceService = consequenceService;
+    }
+
+    public Optional<Sequence> findSequenceByGene(ReferenceGenome referenceGenome, Integer entrezGeneId, SequenceType sequenceType) {
+        Optional<EnsemblGene> ensemblGeneOptional = ensemblGeneService.findCanonicalEnsemblGene(entrezGeneId, referenceGenome);
+        if (ensemblGeneOptional.isPresent()) {
+            Optional<TranscriptDTO> transcriptDTOOptional = transcriptService.findByEnsemblGeneAndCanonicalIsTrue(
+                ensemblGeneOptional.get()
+            );
+            if (transcriptDTOOptional.isPresent()) {
+                Optional<Sequence> sequenceOptional = sequenceService.findOneByTranscriptAndSequenceType(
+                    transcriptMapper.toEntity(transcriptDTOOptional.get()),
+                    sequenceType
+                );
+                if (sequenceOptional.isPresent()) {
+                    return sequenceOptional;
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    public void annotateAlteration(Alteration alteration) {
+        Alteration pcAlteration = alterationUtils.parseProteinChange(alteration.getAlteration());
+
+        if (alteration.getGenes() == null || alteration.getGenes().isEmpty()) {
+            alteration.setGenes(pcAlteration.getGenes());
+        }
+        Set<Gene> genes = alteration
+            .getGenes()
+            .stream()
+            .map(gene -> {
+                Optional<Gene> geneOptional = Optional.empty();
+                if (gene.getId() != null) {
+                    geneOptional = geneService.findOne(gene.getId());
+                } else if (gene.getEntrezGeneId() != null) {
+                    geneOptional = geneService.findGeneByEntrezGeneId(gene.getEntrezGeneId());
+                } else if (gene.getHugoSymbol() != null) {
+                    geneOptional = geneService.findGeneByHugoSymbol(gene.getHugoSymbol());
+                }
+                if (geneOptional.isEmpty()) {
+                    geneOptional = Optional.of(gene);
+                }
+                return geneOptional.get();
+            })
+            .collect(Collectors.toSet());
+        alteration.setGenes(genes);
+
+        if (alteration.getConsequence() == null) {
+            if (pcAlteration.getConsequence() != null) {
+                Optional<Consequence> consequenceOptional = consequenceService.findConsequenceByTypeAndTerm(
+                    pcAlteration.getConsequence().getType(),
+                    pcAlteration.getConsequence().getTerm()
+                );
+                if (consequenceOptional.isEmpty()) {
+                    consequenceOptional = consequenceService.findConsequenceByTypeAndTerm(AlterationType.UNKNOWN, "UNKNOWN");
+                }
+                if (consequenceOptional.isPresent()) {
+                    alteration.setConsequence(consequenceOptional.get());
+                }
+            }
+        }
+
+        if (alteration.getProteinStart() == null) {
+            alteration.setProteinStart(pcAlteration.getProteinStart());
+        }
+        if (alteration.getProteinEnd() == null) {
+            alteration.setProteinEnd(pcAlteration.getProteinEnd());
+        }
+        if (alteration.getRefResidues() == null) {
+            alteration.setRefResidues(pcAlteration.getRefResidues());
+        }
+        if (alteration.getVariantResidues() == null) {
+            alteration.setVariantResidues(pcAlteration.getVariantResidues());
+        }
+        if (alteration.getName() == null) {
+            alteration.setName(alteration.getAlteration());
+        }
+
+        // update reference genome
+        if (alteration.getGenes().size() == 1) {
+            Gene gene = alteration.getGenes().iterator().next();
+            if (alteration.getRefResidues() != null) {
+                Optional<Sequence> grch37Sequence = findSequenceByGene(
+                    ReferenceGenome.GRCh37,
+                    gene.getEntrezGeneId(),
+                    SequenceType.PROTEIN
+                );
+                Optional<Sequence> grch38Sequence = findSequenceByGene(
+                    ReferenceGenome.GRCh38,
+                    gene.getEntrezGeneId(),
+                    SequenceType.PROTEIN
+                );
+
+                if (grch37Sequence.isPresent()) {
+                    char refRe = grch37Sequence.get().getSequence().charAt(alteration.getProteinStart());
+                    if (alteration.getRefResidues().equals(refRe)) {
+                        AlterationReferenceGenome alterationReferenceGenome = new AlterationReferenceGenome();
+                        alterationReferenceGenome.setReferenceGenome(ReferenceGenome.GRCh37);
+                        alteration.getReferenceGenomes().add(alterationReferenceGenome);
+                    }
+                }
+                if (grch38Sequence.isPresent()) {
+                    char refRe = grch38Sequence.get().getSequence().charAt(alteration.getProteinStart());
+                    if (alteration.getRefResidues().equals(refRe)) {
+                        AlterationReferenceGenome alterationReferenceGenome = new AlterationReferenceGenome();
+                        alterationReferenceGenome.setReferenceGenome(ReferenceGenome.GRCh38);
+                        alteration.getReferenceGenomes().add(alterationReferenceGenome);
+                    }
+                }
+            }
+        }
     }
 
     public void createCanonicalEnsemblGene(@NotNull ReferenceGenome referenceGenome, @NotNull Integer entrezGeneId) {
@@ -104,7 +223,7 @@ public class MainService {
             if (ensemblGeneOptional.isPresent() && geneOptional.isPresent()) {
                 org.mskcc.oncokb.curation.vm.ensembl.EnsemblTranscript remoteEnsemblGene = ensemblGeneOptional.get();
                 EnsemblGene ensemblGene = new EnsemblGene();
-                ensemblGene.setReferenceGenome(referenceGenome.name());
+                ensemblGene.setReferenceGenome(referenceGenome);
                 ensemblGene.setEnsemblGeneId(remoteEnsemblGene.getId());
                 ensemblGene.setChromosome(remoteEnsemblGene.getSeqRegionName());
                 ensemblGene.setStart(remoteEnsemblGene.getStart());
@@ -185,7 +304,7 @@ public class MainService {
 
         Optional<org.genome_nexus.client.EnsemblTranscript> gnEnsemblTranscriptOptional = transcriptService.getEnsemblTranscript(
             ensemblTranscript.getId(),
-            ReferenceGenome.valueOf(ensemblGene.getReferenceGenome())
+            ensemblGene.getReferenceGenome()
         );
         if (gnEnsemblTranscriptOptional.isPresent()) {
             org.genome_nexus.client.EnsemblTranscript gnEnsemblTranscript = gnEnsemblTranscriptOptional.get();

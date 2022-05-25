@@ -10,7 +10,6 @@ import org.genome_nexus.ApiException;
 import org.genome_nexus.client.EnsemblControllerApi;
 import org.genome_nexus.client.EnsemblGene;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
-import org.mskcc.oncokb.curation.importer.Importer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

@@ -6,13 +6,14 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 
 /**
- * A VariantConsequence.
+ * A Consequence.
  */
 @Entity
-@Table(name = "variant_consequence")
-public class VariantConsequence implements Serializable {
+@Table(name = "consequence")
+public class Consequence implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -22,8 +23,17 @@ public class VariantConsequence implements Serializable {
     private Long id;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private AlterationType type;
+
+    @NotNull
     @Column(name = "term", nullable = false)
     private String term;
+
+    @NotNull
+    @Column(name = "name", nullable = false)
+    private String name;
 
     @NotNull
     @Column(name = "is_generally_truncating", nullable = false)
@@ -33,7 +43,7 @@ public class VariantConsequence implements Serializable {
     private String description;
 
     @OneToMany(mappedBy = "consequence")
-    @JsonIgnoreProperties(value = { "deviceUsageIndications", "genes", "consequence" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "deviceUsageIndications", "genes", "referenceGenomes", "consequence" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -42,7 +52,7 @@ public class VariantConsequence implements Serializable {
         return this.id;
     }
 
-    public VariantConsequence id(Long id) {
+    public Consequence id(Long id) {
         this.setId(id);
         return this;
     }
@@ -51,11 +61,24 @@ public class VariantConsequence implements Serializable {
         this.id = id;
     }
 
+    public AlterationType getType() {
+        return this.type;
+    }
+
+    public Consequence type(AlterationType type) {
+        this.setType(type);
+        return this;
+    }
+
+    public void setType(AlterationType type) {
+        this.type = type;
+    }
+
     public String getTerm() {
         return this.term;
     }
 
-    public VariantConsequence term(String term) {
+    public Consequence term(String term) {
         this.setTerm(term);
         return this;
     }
@@ -64,11 +87,24 @@ public class VariantConsequence implements Serializable {
         this.term = term;
     }
 
+    public String getName() {
+        return this.name;
+    }
+
+    public Consequence name(String name) {
+        this.setName(name);
+        return this;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Boolean getIsGenerallyTruncating() {
         return this.isGenerallyTruncating;
     }
 
-    public VariantConsequence isGenerallyTruncating(Boolean isGenerallyTruncating) {
+    public Consequence isGenerallyTruncating(Boolean isGenerallyTruncating) {
         this.setIsGenerallyTruncating(isGenerallyTruncating);
         return this;
     }
@@ -81,7 +117,7 @@ public class VariantConsequence implements Serializable {
         return this.description;
     }
 
-    public VariantConsequence description(String description) {
+    public Consequence description(String description) {
         this.setDescription(description);
         return this;
     }
@@ -104,18 +140,18 @@ public class VariantConsequence implements Serializable {
         this.alterations = alterations;
     }
 
-    public VariantConsequence alterations(Set<Alteration> alterations) {
+    public Consequence alterations(Set<Alteration> alterations) {
         this.setAlterations(alterations);
         return this;
     }
 
-    public VariantConsequence addAlteration(Alteration alteration) {
+    public Consequence addAlteration(Alteration alteration) {
         this.alterations.add(alteration);
         alteration.setConsequence(this);
         return this;
     }
 
-    public VariantConsequence removeAlteration(Alteration alteration) {
+    public Consequence removeAlteration(Alteration alteration) {
         this.alterations.remove(alteration);
         alteration.setConsequence(null);
         return this;
@@ -128,10 +164,10 @@ public class VariantConsequence implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof VariantConsequence)) {
+        if (!(o instanceof Consequence)) {
             return false;
         }
-        return id != null && id.equals(((VariantConsequence) o).id);
+        return id != null && id.equals(((Consequence) o).id);
     }
 
     @Override
@@ -143,9 +179,11 @@ public class VariantConsequence implements Serializable {
     // prettier-ignore
     @Override
     public String toString() {
-        return "VariantConsequence{" +
+        return "Consequence{" +
             "id=" + getId() +
+            ", type='" + getType() + "'" +
             ", term='" + getTerm() + "'" +
+            ", name='" + getName() + "'" +
             ", isGenerallyTruncating='" + getIsGenerallyTruncating() + "'" +
             ", description='" + getDescription() + "'" +
             "}";

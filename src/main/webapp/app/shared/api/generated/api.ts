@@ -39,6 +39,12 @@ import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } fr
 export interface Aggregation {
   /**
    *
+   * @type {{ [key: string]: object; }}
+   * @memberof Aggregation
+   */
+  metadata?: { [key: string]: object };
+  /**
+   *
    * @type {string}
    * @memberof Aggregation
    */
@@ -49,12 +55,6 @@ export interface Aggregation {
    * @memberof Aggregation
    */
   type?: string;
-  /**
-   *
-   * @type {{ [key: string]: object; }}
-   * @memberof Aggregation
-   */
-  metadata?: { [key: string]: object };
   /**
    *
    * @type {boolean}
@@ -117,12 +117,6 @@ export interface Alteration {
    * @type {string}
    * @memberof Alteration
    */
-  type: AlterationTypeEnum;
-  /**
-   *
-   * @type {string}
-   * @memberof Alteration
-   */
   name: string;
   /**
    *
@@ -156,33 +150,50 @@ export interface Alteration {
   variantResidues?: string;
   /**
    *
-   * @type {Set<DeviceUsageIndication>}
+   * @type {Set<AlterationReferenceGenome>}
    * @memberof Alteration
    */
-  deviceUsageIndications?: Set<DeviceUsageIndication>;
+  referenceGenomes?: Set<AlterationReferenceGenome>;
   /**
    *
    * @type {Set<Gene>}
    * @memberof Alteration
    */
   genes?: Set<Gene>;
+}
+/**
+ *
+ * @export
+ * @interface AlterationReferenceGenome
+ */
+export interface AlterationReferenceGenome {
   /**
    *
-   * @type {VariantConsequence}
-   * @memberof Alteration
+   * @type {number}
+   * @memberof AlterationReferenceGenome
    */
-  consequence?: VariantConsequence;
+  id?: number;
+  /**
+   *
+   * @type {string}
+   * @memberof AlterationReferenceGenome
+   */
+  referenceGenome?: AlterationReferenceGenomeReferenceGenomeEnum;
+  /**
+   *
+   * @type {Alteration}
+   * @memberof AlterationReferenceGenome
+   */
+  alteration?: Alteration;
 }
 
-export const AlterationTypeEnum = {
-  Mutation: 'MUTATION',
-  CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
-  StructuralVariant: 'STRUCTURAL_VARIANT',
-  Unknown: 'UNKNOWN',
-  Na: 'NA',
+export const AlterationReferenceGenomeReferenceGenomeEnum = {
+  Grch37: 'GRCh37',
+  Grch38: 'GRCh38',
 } as const;
 
-export type AlterationTypeEnum = typeof AlterationTypeEnum[keyof typeof AlterationTypeEnum];
+export type AlterationReferenceGenomeReferenceGenomeEnum =
+  typeof AlterationReferenceGenomeReferenceGenomeEnum[keyof typeof AlterationReferenceGenomeReferenceGenomeEnum];
 
 /**
  *
@@ -361,7 +372,7 @@ export interface CategoricalAlteration {
 }
 
 export const CategoricalAlterationTypeEnum = {
-  OncokbMutations: 'ONCOKB_MUTATIONS',
+  OncogenicMutations: 'ONCOGENIC_MUTATIONS',
   GainOfFunctionMutations: 'GAIN_OF_FUNCTION_MUTATIONS',
   LossOfFunctionMutations: 'LOSS_OF_FUNCTION_MUTATIONS',
   SwitchOfFunctionMutations: 'SWITCH_OF_FUNCTION_MUTATIONS',
@@ -423,6 +434,66 @@ export interface CompanionDiagnosticDevice {
    */
   specimenTypes?: Set<SpecimenType>;
 }
+/**
+ *
+ * @export
+ * @interface Consequence
+ */
+export interface Consequence {
+  /**
+   *
+   * @type {number}
+   * @memberof Consequence
+   */
+  id?: number;
+  /**
+   *
+   * @type {string}
+   * @memberof Consequence
+   */
+  type: ConsequenceTypeEnum;
+  /**
+   *
+   * @type {string}
+   * @memberof Consequence
+   */
+  term: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Consequence
+   */
+  name: string;
+  /**
+   *
+   * @type {boolean}
+   * @memberof Consequence
+   */
+  isGenerallyTruncating: boolean;
+  /**
+   *
+   * @type {string}
+   * @memberof Consequence
+   */
+  description?: string;
+  /**
+   *
+   * @type {Set<Alteration>}
+   * @memberof Consequence
+   */
+  alterations?: Set<Alteration>;
+}
+
+export const ConsequenceTypeEnum = {
+  Mutation: 'MUTATION',
+  CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
+  StructuralVariant: 'STRUCTURAL_VARIANT',
+  Unknown: 'UNKNOWN',
+  Na: 'NA',
+} as const;
+
+export type ConsequenceTypeEnum = typeof ConsequenceTypeEnum[keyof typeof ConsequenceTypeEnum];
+
 /**
  *
  * @export
@@ -615,7 +686,7 @@ export interface EnsemblGene {
    * @type {string}
    * @memberof EnsemblGene
    */
-  referenceGenome: string;
+  referenceGenome?: EnsemblGeneReferenceGenomeEnum;
   /**
    *
    * @type {string}
@@ -665,6 +736,14 @@ export interface EnsemblGene {
    */
   gene?: Gene;
 }
+
+export const EnsemblGeneReferenceGenomeEnum = {
+  Grch37: 'GRCh37',
+  Grch38: 'GRCh38',
+} as const;
+
+export type EnsemblGeneReferenceGenomeEnum = typeof EnsemblGeneReferenceGenomeEnum[keyof typeof EnsemblGeneReferenceGenomeEnum];
+
 /**
  *
  * @export
@@ -872,6 +951,24 @@ export interface FdaSubmission {
    * @memberof FdaSubmission
    */
   genetic: boolean;
+  /**
+   *
+   * @type {Set<DeviceUsageIndication>}
+   * @memberof FdaSubmission
+   */
+  deviceUsageIndications?: Set<DeviceUsageIndication>;
+  /**
+   *
+   * @type {CompanionDiagnosticDevice}
+   * @memberof FdaSubmission
+   */
+  companionDiagnosticDevice: CompanionDiagnosticDevice;
+  /**
+   *
+   * @type {FdaSubmissionType}
+   * @memberof FdaSubmission
+   */
+  type: FdaSubmissionType;
 }
 /**
  *
@@ -944,12 +1041,6 @@ export interface Gene {
    * @memberof Gene
    */
   hugoSymbol?: string;
-  /**
-   *
-   * @type {Set<GeneAlias>}
-   * @memberof Gene
-   */
-  geneAliases?: Set<GeneAlias>;
 }
 /**
  *
@@ -1690,6 +1781,24 @@ export interface SearchHitObject {
 export interface SearchHitsObject {
   /**
    *
+   * @type {number}
+   * @memberof SearchHitsObject
+   */
+  maxScore?: number;
+  /**
+   *
+   * @type {string}
+   * @memberof SearchHitsObject
+   */
+  totalHitsRelation?: SearchHitsObjectTotalHitsRelationEnum;
+  /**
+   *
+   * @type {Aggregations}
+   * @memberof SearchHitsObject
+   */
+  aggregations?: Aggregations;
+  /**
+   *
    * @type {Array<SearchHitObject>}
    * @memberof SearchHitsObject
    */
@@ -1700,24 +1809,6 @@ export interface SearchHitsObject {
    * @memberof SearchHitsObject
    */
   totalHits?: number;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitsObject
-   */
-  totalHitsRelation?: SearchHitsObjectTotalHitsRelationEnum;
-  /**
-   *
-   * @type {number}
-   * @memberof SearchHitsObject
-   */
-  maxScore?: number;
-  /**
-   *
-   * @type {Aggregations}
-   * @memberof SearchHitsObject
-   */
-  aggregations?: Aggregations;
   /**
    *
    * @type {boolean}
@@ -2247,43 +2338,6 @@ export interface UserDTO {
    */
   authorities?: Set<string>;
 }
-/**
- *
- * @export
- * @interface VariantConsequence
- */
-export interface VariantConsequence {
-  /**
-   *
-   * @type {number}
-   * @memberof VariantConsequence
-   */
-  id?: number;
-  /**
-   *
-   * @type {string}
-   * @memberof VariantConsequence
-   */
-  term: string;
-  /**
-   *
-   * @type {boolean}
-   * @memberof VariantConsequence
-   */
-  isGenerallyTruncating: boolean;
-  /**
-   *
-   * @type {string}
-   * @memberof VariantConsequence
-   */
-  description?: string;
-  /**
-   *
-   * @type {Set<Alteration>}
-   * @memberof VariantConsequence
-   */
-  alterations?: Set<Alteration>;
-}
 
 /**
  * AccountResourceApi - axios parameter creator
@@ -2430,6 +2484,111 @@ export class AccountResourceApi extends BaseAPI {
   public isAuthenticated(options?: AxiosRequestConfig) {
     return AccountResourceApiFp(this.configuration)
       .isAuthenticated(options)
+      .then(request => request(this.axios, this.basePath));
+  }
+}
+
+/**
+ * AlterationControllerApi - axios parameter creator
+ * @export
+ */
+export const AlterationControllerApiAxiosParamCreator = function (configuration?: Configuration) {
+  return {
+    /**
+     *
+     * @param {Alteration} alteration
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    annotateAlteration: async (alteration: Alteration, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'alteration' is not null or undefined
+      assertParamExists('annotateAlteration', 'alteration', alteration);
+      const localVarPath = `/api/annotate-alteration`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(alteration, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+  };
+};
+
+/**
+ * AlterationControllerApi - functional programming interface
+ * @export
+ */
+export const AlterationControllerApiFp = function (configuration?: Configuration) {
+  const localVarAxiosParamCreator = AlterationControllerApiAxiosParamCreator(configuration);
+  return {
+    /**
+     *
+     * @param {Alteration} alteration
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async annotateAlteration(
+      alteration: Alteration,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Alteration>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.annotateAlteration(alteration, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+  };
+};
+
+/**
+ * AlterationControllerApi - factory interface
+ * @export
+ */
+export const AlterationControllerApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+  const localVarFp = AlterationControllerApiFp(configuration);
+  return {
+    /**
+     *
+     * @param {Alteration} alteration
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    annotateAlteration(alteration: Alteration, options?: any): AxiosPromise<Alteration> {
+      return localVarFp.annotateAlteration(alteration, options).then(request => request(axios, basePath));
+    },
+  };
+};
+
+/**
+ * AlterationControllerApi - object-oriented interface
+ * @export
+ * @class AlterationControllerApi
+ * @extends {BaseAPI}
+ */
+export class AlterationControllerApi extends BaseAPI {
+  /**
+   *
+   * @param {Alteration} alteration
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof AlterationControllerApi
+   */
+  public annotateAlteration(alteration: Alteration, options?: AxiosRequestConfig) {
+    return AlterationControllerApiFp(this.configuration)
+      .annotateAlteration(alteration, options)
       .then(request => request(this.axios, this.basePath));
   }
 }
@@ -5218,6 +5377,449 @@ export class CompanionDiagnosticDeviceResourceApi extends BaseAPI {
   public updateCompanionDiagnosticDevice(id: number, companionDiagnosticDevice: CompanionDiagnosticDevice, options?: AxiosRequestConfig) {
     return CompanionDiagnosticDeviceResourceApiFp(this.configuration)
       .updateCompanionDiagnosticDevice(id, companionDiagnosticDevice, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+}
+
+/**
+ * ConsequenceResourceApi - axios parameter creator
+ * @export
+ */
+export const ConsequenceResourceApiAxiosParamCreator = function (configuration?: Configuration) {
+  return {
+    /**
+     *
+     * @param {Consequence} consequence
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createConsequence: async (consequence: Consequence, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'consequence' is not null or undefined
+      assertParamExists('createConsequence', 'consequence', consequence);
+      const localVarPath = `/api/consequences`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(consequence, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteConsequence: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('deleteConsequence', 'id', id);
+      const localVarPath = `/api/consequences/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getAllConsequences: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/api/consequences`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getConsequence: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('getConsequence', 'id', id);
+      const localVarPath = `/api/consequences/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {Consequence} consequence
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    partialUpdateConsequence: async (id: number, consequence: Consequence, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('partialUpdateConsequence', 'id', id);
+      // verify required parameter 'consequence' is not null or undefined
+      assertParamExists('partialUpdateConsequence', 'consequence', consequence);
+      const localVarPath = `/api/consequences/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(consequence, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {Consequence} consequence
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateConsequence: async (id: number, consequence: Consequence, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('updateConsequence', 'id', id);
+      // verify required parameter 'consequence' is not null or undefined
+      assertParamExists('updateConsequence', 'consequence', consequence);
+      const localVarPath = `/api/consequences/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(consequence, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+  };
+};
+
+/**
+ * ConsequenceResourceApi - functional programming interface
+ * @export
+ */
+export const ConsequenceResourceApiFp = function (configuration?: Configuration) {
+  const localVarAxiosParamCreator = ConsequenceResourceApiAxiosParamCreator(configuration);
+  return {
+    /**
+     *
+     * @param {Consequence} consequence
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async createConsequence(
+      consequence: Consequence,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Consequence>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.createConsequence(consequence, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deleteConsequence(
+      id: number,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteConsequence(id, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getAllConsequences(
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Consequence>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllConsequences(options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getConsequence(
+      id: number,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Consequence>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getConsequence(id, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {Consequence} consequence
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async partialUpdateConsequence(
+      id: number,
+      consequence: Consequence,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Consequence>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateConsequence(id, consequence, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {Consequence} consequence
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async updateConsequence(
+      id: number,
+      consequence: Consequence,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Consequence>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.updateConsequence(id, consequence, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+  };
+};
+
+/**
+ * ConsequenceResourceApi - factory interface
+ * @export
+ */
+export const ConsequenceResourceApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+  const localVarFp = ConsequenceResourceApiFp(configuration);
+  return {
+    /**
+     *
+     * @param {Consequence} consequence
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createConsequence(consequence: Consequence, options?: any): AxiosPromise<Consequence> {
+      return localVarFp.createConsequence(consequence, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteConsequence(id: number, options?: any): AxiosPromise<void> {
+      return localVarFp.deleteConsequence(id, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getAllConsequences(options?: any): AxiosPromise<Array<Consequence>> {
+      return localVarFp.getAllConsequences(options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getConsequence(id: number, options?: any): AxiosPromise<Consequence> {
+      return localVarFp.getConsequence(id, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {Consequence} consequence
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    partialUpdateConsequence(id: number, consequence: Consequence, options?: any): AxiosPromise<Consequence> {
+      return localVarFp.partialUpdateConsequence(id, consequence, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {Consequence} consequence
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateConsequence(id: number, consequence: Consequence, options?: any): AxiosPromise<Consequence> {
+      return localVarFp.updateConsequence(id, consequence, options).then(request => request(axios, basePath));
+    },
+  };
+};
+
+/**
+ * ConsequenceResourceApi - object-oriented interface
+ * @export
+ * @class ConsequenceResourceApi
+ * @extends {BaseAPI}
+ */
+export class ConsequenceResourceApi extends BaseAPI {
+  /**
+   *
+   * @param {Consequence} consequence
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ConsequenceResourceApi
+   */
+  public createConsequence(consequence: Consequence, options?: AxiosRequestConfig) {
+    return ConsequenceResourceApiFp(this.configuration)
+      .createConsequence(consequence, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ConsequenceResourceApi
+   */
+  public deleteConsequence(id: number, options?: AxiosRequestConfig) {
+    return ConsequenceResourceApiFp(this.configuration)
+      .deleteConsequence(id, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ConsequenceResourceApi
+   */
+  public getAllConsequences(options?: AxiosRequestConfig) {
+    return ConsequenceResourceApiFp(this.configuration)
+      .getAllConsequences(options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ConsequenceResourceApi
+   */
+  public getConsequence(id: number, options?: AxiosRequestConfig) {
+    return ConsequenceResourceApiFp(this.configuration)
+      .getConsequence(id, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {Consequence} consequence
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ConsequenceResourceApi
+   */
+  public partialUpdateConsequence(id: number, consequence: Consequence, options?: AxiosRequestConfig) {
+    return ConsequenceResourceApiFp(this.configuration)
+      .partialUpdateConsequence(id, consequence, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {Consequence} consequence
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ConsequenceResourceApi
+   */
+  public updateConsequence(id: number, consequence: Consequence, options?: AxiosRequestConfig) {
+    return ConsequenceResourceApiFp(this.configuration)
+      .updateConsequence(id, consequence, options)
       .then(request => request(this.axios, this.basePath));
   }
 }
@@ -13809,457 +14411,6 @@ export class UserResourceApi extends BaseAPI {
   public getUser(login: string, options?: AxiosRequestConfig) {
     return UserResourceApiFp(this.configuration)
       .getUser(login, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-}
-
-/**
- * VariantConsequenceResourceApi - axios parameter creator
- * @export
- */
-export const VariantConsequenceResourceApiAxiosParamCreator = function (configuration?: Configuration) {
-  return {
-    /**
-     *
-     * @param {VariantConsequence} variantConsequence
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createVariantConsequence: async (variantConsequence: VariantConsequence, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'variantConsequence' is not null or undefined
-      assertParamExists('createVariantConsequence', 'variantConsequence', variantConsequence);
-      const localVarPath = `/api/variant-consequences`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(variantConsequence, localVarRequestOptions, configuration);
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteVariantConsequence: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'id' is not null or undefined
-      assertParamExists('deleteVariantConsequence', 'id', id);
-      const localVarPath = `/api/variant-consequences/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getAllVariantConsequences: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      const localVarPath = `/api/variant-consequences`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getVariantConsequence: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'id' is not null or undefined
-      assertParamExists('getVariantConsequence', 'id', id);
-      const localVarPath = `/api/variant-consequences/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {VariantConsequence} variantConsequence
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    partialUpdateVariantConsequence: async (
-      id: number,
-      variantConsequence: VariantConsequence,
-      options: AxiosRequestConfig = {}
-    ): Promise<RequestArgs> => {
-      // verify required parameter 'id' is not null or undefined
-      assertParamExists('partialUpdateVariantConsequence', 'id', id);
-      // verify required parameter 'variantConsequence' is not null or undefined
-      assertParamExists('partialUpdateVariantConsequence', 'variantConsequence', variantConsequence);
-      const localVarPath = `/api/variant-consequences/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(variantConsequence, localVarRequestOptions, configuration);
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {VariantConsequence} variantConsequence
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateVariantConsequence: async (
-      id: number,
-      variantConsequence: VariantConsequence,
-      options: AxiosRequestConfig = {}
-    ): Promise<RequestArgs> => {
-      // verify required parameter 'id' is not null or undefined
-      assertParamExists('updateVariantConsequence', 'id', id);
-      // verify required parameter 'variantConsequence' is not null or undefined
-      assertParamExists('updateVariantConsequence', 'variantConsequence', variantConsequence);
-      const localVarPath = `/api/variant-consequences/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(variantConsequence, localVarRequestOptions, configuration);
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-  };
-};
-
-/**
- * VariantConsequenceResourceApi - functional programming interface
- * @export
- */
-export const VariantConsequenceResourceApiFp = function (configuration?: Configuration) {
-  const localVarAxiosParamCreator = VariantConsequenceResourceApiAxiosParamCreator(configuration);
-  return {
-    /**
-     *
-     * @param {VariantConsequence} variantConsequence
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async createVariantConsequence(
-      variantConsequence: VariantConsequence,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VariantConsequence>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.createVariantConsequence(variantConsequence, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async deleteVariantConsequence(
-      id: number,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteVariantConsequence(id, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async getAllVariantConsequences(
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<VariantConsequence>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllVariantConsequences(options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async getVariantConsequence(
-      id: number,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VariantConsequence>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getVariantConsequence(id, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {VariantConsequence} variantConsequence
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async partialUpdateVariantConsequence(
-      id: number,
-      variantConsequence: VariantConsequence,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VariantConsequence>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateVariantConsequence(id, variantConsequence, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {VariantConsequence} variantConsequence
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async updateVariantConsequence(
-      id: number,
-      variantConsequence: VariantConsequence,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VariantConsequence>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.updateVariantConsequence(id, variantConsequence, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-  };
-};
-
-/**
- * VariantConsequenceResourceApi - factory interface
- * @export
- */
-export const VariantConsequenceResourceApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-  const localVarFp = VariantConsequenceResourceApiFp(configuration);
-  return {
-    /**
-     *
-     * @param {VariantConsequence} variantConsequence
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    createVariantConsequence(variantConsequence: VariantConsequence, options?: any): AxiosPromise<VariantConsequence> {
-      return localVarFp.createVariantConsequence(variantConsequence, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    deleteVariantConsequence(id: number, options?: any): AxiosPromise<void> {
-      return localVarFp.deleteVariantConsequence(id, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getAllVariantConsequences(options?: any): AxiosPromise<Array<VariantConsequence>> {
-      return localVarFp.getAllVariantConsequences(options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getVariantConsequence(id: number, options?: any): AxiosPromise<VariantConsequence> {
-      return localVarFp.getVariantConsequence(id, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {VariantConsequence} variantConsequence
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    partialUpdateVariantConsequence(id: number, variantConsequence: VariantConsequence, options?: any): AxiosPromise<VariantConsequence> {
-      return localVarFp.partialUpdateVariantConsequence(id, variantConsequence, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {VariantConsequence} variantConsequence
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateVariantConsequence(id: number, variantConsequence: VariantConsequence, options?: any): AxiosPromise<VariantConsequence> {
-      return localVarFp.updateVariantConsequence(id, variantConsequence, options).then(request => request(axios, basePath));
-    },
-  };
-};
-
-/**
- * VariantConsequenceResourceApi - object-oriented interface
- * @export
- * @class VariantConsequenceResourceApi
- * @extends {BaseAPI}
- */
-export class VariantConsequenceResourceApi extends BaseAPI {
-  /**
-   *
-   * @param {VariantConsequence} variantConsequence
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof VariantConsequenceResourceApi
-   */
-  public createVariantConsequence(variantConsequence: VariantConsequence, options?: AxiosRequestConfig) {
-    return VariantConsequenceResourceApiFp(this.configuration)
-      .createVariantConsequence(variantConsequence, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {number} id
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof VariantConsequenceResourceApi
-   */
-  public deleteVariantConsequence(id: number, options?: AxiosRequestConfig) {
-    return VariantConsequenceResourceApiFp(this.configuration)
-      .deleteVariantConsequence(id, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof VariantConsequenceResourceApi
-   */
-  public getAllVariantConsequences(options?: AxiosRequestConfig) {
-    return VariantConsequenceResourceApiFp(this.configuration)
-      .getAllVariantConsequences(options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {number} id
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof VariantConsequenceResourceApi
-   */
-  public getVariantConsequence(id: number, options?: AxiosRequestConfig) {
-    return VariantConsequenceResourceApiFp(this.configuration)
-      .getVariantConsequence(id, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {number} id
-   * @param {VariantConsequence} variantConsequence
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof VariantConsequenceResourceApi
-   */
-  public partialUpdateVariantConsequence(id: number, variantConsequence: VariantConsequence, options?: AxiosRequestConfig) {
-    return VariantConsequenceResourceApiFp(this.configuration)
-      .partialUpdateVariantConsequence(id, variantConsequence, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {number} id
-   * @param {VariantConsequence} variantConsequence
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof VariantConsequenceResourceApi
-   */
-  public updateVariantConsequence(id: number, variantConsequence: VariantConsequence, options?: AxiosRequestConfig) {
-    return VariantConsequenceResourceApiFp(this.configuration)
-      .updateVariantConsequence(id, variantConsequence, options)
       .then(request => request(this.axios, this.basePath));
   }
 }

@@ -24,6 +24,6 @@
                                  baseTableName="alteration"
                                  constraintName="fk_alteration__consequence_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="variant_consequence"/>
+                                 referencedTableName="consequence"/>
     </changeSet>
 </databaseChangeLog>
