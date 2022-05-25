@@ -1,5 +1,9 @@
 package org.mskcc.oncokb.curation.service;
 
+import static org.mskcc.oncokb.curation.domain.enumeration.AlterationType.COPY_NUMBER_ALTERATION;
+import static org.mskcc.oncokb.curation.domain.enumeration.AlterationType.STRUCTURAL_VARIANT;
+import static org.mskcc.oncokb.curation.domain.enumeration.MutationConsequence.MISSENSE_VARIANT;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
@@ -79,6 +83,7 @@ public class MainService {
         if (alteration.getGenes() == null || alteration.getGenes().isEmpty()) {
             alteration.setGenes(pcAlteration.getGenes());
         }
+        alteration.setAlteration(pcAlteration.getAlteration());
         Set<Gene> genes = alteration
             .getGenes()
             .stream()
@@ -131,9 +136,9 @@ public class MainService {
         }
 
         // update reference genome
-        if (alteration.getGenes().size() == 1) {
+        if (MISSENSE_VARIANT.equals(alteration.getConsequence().getType())) {
             Gene gene = alteration.getGenes().iterator().next();
-            if (alteration.getRefResidues() != null) {
+            if (alteration.getProteinStart() != null) {
                 Optional<Sequence> grch37Sequence = findSequenceByGene(
                     ReferenceGenome.GRCh37,
                     gene.getEntrezGeneId(),
@@ -146,7 +151,10 @@ public class MainService {
                 );
 
                 if (grch37Sequence.isPresent()) {
-                    char refRe = grch37Sequence.get().getSequence().charAt(alteration.getProteinStart());
+                    String refRe = String.valueOf(grch37Sequence.get().getSequence().charAt(alteration.getProteinStart() - 1));
+                    if (StringUtils.isEmpty(alteration.getRefResidues())) {
+                        alteration.setRefResidues(refRe);
+                    }
                     if (alteration.getRefResidues().equals(refRe)) {
                         AlterationReferenceGenome alterationReferenceGenome = new AlterationReferenceGenome();
                         alterationReferenceGenome.setReferenceGenome(ReferenceGenome.GRCh37);
@@ -154,13 +162,25 @@ public class MainService {
                     }
                 }
                 if (grch38Sequence.isPresent()) {
-                    char refRe = grch38Sequence.get().getSequence().charAt(alteration.getProteinStart());
+                    String refRe = String.valueOf(grch38Sequence.get().getSequence().charAt(alteration.getProteinStart() - 1));
+                    if (StringUtils.isEmpty(alteration.getRefResidues())) {
+                        alteration.setRefResidues(refRe);
+                    }
                     if (alteration.getRefResidues().equals(refRe)) {
                         AlterationReferenceGenome alterationReferenceGenome = new AlterationReferenceGenome();
                         alterationReferenceGenome.setReferenceGenome(ReferenceGenome.GRCh38);
                         alteration.getReferenceGenomes().add(alterationReferenceGenome);
                     }
                 }
+            }
+        } else if (
+            STRUCTURAL_VARIANT.equals(alteration.getConsequence().getType()) ||
+            COPY_NUMBER_ALTERATION.equals(alteration.getConsequence().getType())
+        ) {
+            for (ReferenceGenome rg : ReferenceGenome.values()) {
+                AlterationReferenceGenome alterationReferenceGenome = new AlterationReferenceGenome();
+                alterationReferenceGenome.setReferenceGenome(rg);
+                alteration.getReferenceGenomes().add(alterationReferenceGenome);
             }
         }
     }
