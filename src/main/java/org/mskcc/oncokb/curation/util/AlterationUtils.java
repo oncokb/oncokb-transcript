@@ -14,6 +14,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class AlterationUtils {
 
+    public static final String FUSION_SEPARATOR = "::";
+    public static final String FUSION_ALTERNATIVE_SEPARATOR = "-";
+    private static final String FUSION_REGEX = "\\s*(\\w*)" + FUSION_SEPARATOR + "(\\w*)\\s*(?i)(fusion)?\\s*";
+    private static final String FUSION_ALT_REGEX = "\\s*(\\w*)" + FUSION_ALTERNATIVE_SEPARATOR + "(\\w*)\\s+(?i)fusion\\s*";
+
     private Alteration parseFusionProteinChange(String proteinChange) {
         Alteration alteration = new Alteration();
 
@@ -22,17 +27,20 @@ public class AlterationUtils {
         consequence.setType(AlterationType.STRUCTURAL_VARIANT);
         alteration.setConsequence(consequence);
 
-        alteration.setGenes(
-            getGenesStrs(proteinChange)
-                .stream()
-                .map(hugoSymbol -> {
-                    Gene gene = new Gene();
-                    gene.setHugoSymbol(hugoSymbol);
-                    return gene;
-                })
-                .collect(Collectors.toSet())
-        );
-
+        if (proteinChange.contains(FUSION_SEPARATOR) || proteinChange.contains(FUSION_ALTERNATIVE_SEPARATOR)) {
+            alteration.setGenes(
+                getGenesStrs(proteinChange)
+                    .stream()
+                    .map(hugoSymbol -> {
+                        Gene gene = new Gene();
+                        gene.setHugoSymbol(hugoSymbol);
+                        return gene;
+                    })
+                    .collect(Collectors.toSet())
+            );
+        } else {
+            alteration.setAlteration(proteinChange.substring(0, 1).toUpperCase() + proteinChange.toLowerCase().substring(1));
+        }
         return alteration;
     }
 
@@ -255,6 +263,14 @@ public class AlterationUtils {
                                         } else {
                                             term = SYNONYMOUS_VARIANT;
                                         }
+                                    } else {
+                                        p = Pattern.compile("([0-9]+)");
+                                        m = p.matcher(proteinChange);
+                                        if (m.matches()) {
+                                            start = Integer.valueOf(m.group(1));
+                                            end = start;
+                                            term = UNKNOWN;
+                                        }
                                     }
                                 }
                             }
@@ -296,8 +312,21 @@ public class AlterationUtils {
 
     public List<String> getGenesStrs(String alteration) {
         if (StringUtils.isNotEmpty(alteration)) {
-            String fusionSeparator = alteration.contains(FUSION_SEPARATOR) ? FUSION_SEPARATOR : FUSION_ALTERNATIVE_SEPARATOR;
-            return Arrays.asList(alteration.split(fusionSeparator));
+            List<String> genes = new ArrayList<>();
+            Pattern p = Pattern.compile(FUSION_REGEX);
+            Matcher m = p.matcher(alteration);
+            if (m.matches()) {
+                genes.add(m.group(1));
+                genes.add(m.group(2));
+            } else {
+                p = Pattern.compile(FUSION_ALT_REGEX);
+                m = p.matcher(alteration);
+                if (m.matches()) {
+                    genes.add(m.group(1));
+                    genes.add(m.group(2));
+                }
+            }
+            return genes;
         }
         return new ArrayList<>();
     }
@@ -332,17 +361,20 @@ public class AlterationUtils {
         return exclusionMatch.matches();
     }
 
-    public static final String FUSION_SEPARATOR = "::";
-    public static final String FUSION_ALTERNATIVE_SEPARATOR = "-";
-    private static final String FUSION_REGEX = "\\s*(\\w*)" + FUSION_SEPARATOR + "(\\w*)\\s*(?i)(fusion)?\\s*";
-    private static final String FUSION_ALT_REGEX = "\\s*((\\w*)" + FUSION_ALTERNATIVE_SEPARATOR + "(\\w*))\\s+(?i)fusion\\s*";
-
     public static Boolean isFusion(String variant) {
-        Boolean flag = false;
-        if (variant != null && (Pattern.matches(FUSION_REGEX, variant) || Pattern.matches(FUSION_ALT_REGEX, variant))) {
-            flag = true;
+        if (StringUtils.isEmpty(variant)) {
+            return false;
         }
-        return flag;
+        if (variant != null && (Pattern.matches(FUSION_REGEX, variant) || Pattern.matches(FUSION_ALT_REGEX, variant))) {
+            return true;
+        }
+        if (variant.equalsIgnoreCase("fusions")) {
+            return true;
+        }
+        if (variant.equalsIgnoreCase("fusion")) {
+            return true;
+        }
+        return false;
     }
 
     public static Optional<CNAConsequence> getCNAConsequence(String alteration) {
