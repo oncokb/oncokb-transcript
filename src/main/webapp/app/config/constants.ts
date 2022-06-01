@@ -24,6 +24,7 @@ export enum PAGE_ROUTE {
   OAUTH = '/oauth2/authorization/oidc',
   ADMIN_USER_MANAGEMENT = '/admin/user-management',
   SEARCH = '/search',
+  /* Below are the entity paths */
   ARTICLE = '/article',
   GENE = '/gene',
   ALTERATION = '/alteration',
@@ -44,8 +45,42 @@ export const ENTITY_ROUTE_TO_TITLE_MAPPING: { [key in PAGE_ROUTE]?: string } = {
   [PAGE_ROUTE.ALTERATION]: 'Alterations',
 };
 
+export enum ENTITY_ACTION {
+  CREATE = 'Create',
+  VIEW = 'View',
+  EDIT = 'Edit',
+  CURATE = 'Curate',
+  DELETE = 'Delete',
+}
+
+export const ENTITY_ACTION_PATH: { [key in ENTITY_ACTION]: string } = {
+  [ENTITY_ACTION.CREATE]: '/new',
+  [ENTITY_ACTION.VIEW]: '',
+  [ENTITY_ACTION.EDIT]: '/edit',
+  [ENTITY_ACTION.CURATE]: '/curate',
+  [ENTITY_ACTION.DELETE]: '/delete',
+};
+
+export enum ENTITY_TYPE {
+  COMPANION_DIAGNOSTIC_DEVICE,
+  FDA_SUBMISSION,
+  GENE,
+  ALTERATION,
+  DRUG,
+  ARTICLE,
+}
+
+export const ENTITY_BASE_PATHS: { [key in ENTITY_TYPE]: PAGE_ROUTE } = {
+  [ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE]: PAGE_ROUTE.CDX,
+  [ENTITY_TYPE.FDA_SUBMISSION]: PAGE_ROUTE.FDA_SUBMISSION,
+  [ENTITY_TYPE.GENE]: PAGE_ROUTE.GENE,
+  [ENTITY_TYPE.ALTERATION]: PAGE_ROUTE.ALTERATION,
+  [ENTITY_TYPE.DRUG]: PAGE_ROUTE.DRUG,
+  [ENTITY_TYPE.ARTICLE]: PAGE_ROUTE.ARTICLE,
+};
+
 export enum SearchOptionType {
-  FDA_SUBMISSION = 'Fda Submissions',
+  FDA_SUBMISSION = 'FDA Submissions',
   CDX = 'Companion Diagnostic Devices',
   ARTICLE = 'Articles',
   DRUG = 'Drugs',

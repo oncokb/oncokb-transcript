@@ -18,7 +18,7 @@ export const FdaSubmissionTypeDetail = (props: IFdaSubmissionTypeDetailProps) =>
   return (
     <Row>
       <Col md="8">
-        <h2 data-cy="fdaSubmissionTypeDetailsHeading">FdaSubmissionType</h2>
+        <h2 data-cy="fdaSubmissionTypeDetailsHeading">FDA Submission Type</h2>
         <dl className="jh-entity-details">
           <dt>
             <span id="id">ID</span>

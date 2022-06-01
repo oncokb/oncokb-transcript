@@ -35,7 +35,7 @@ export const FdaSubmissionType = (props: IFdaSubmissionTypeProps) => {
           </Button>
           <Link to={`${match.url}/new`} className="btn btn-primary jh-create-entity" id="jh-create-entity" data-cy="entityCreateButton">
             <FontAwesomeIcon icon="plus" />
-            &nbsp; Create new Fda Submission Type
+            &nbsp; Create new FDA Submission Type
           </Link>
         </div>
       </h2>
@@ -94,7 +94,7 @@ export const FdaSubmissionType = (props: IFdaSubmissionTypeProps) => {
             </tbody>
           </Table>
         ) : (
-          !loading && <div className="alert alert-warning">No Fda Submission Types found</div>
+          !loading && <div className="alert alert-warning">No FDA Submission Types found</div>
         )}
       </div>
     </div>

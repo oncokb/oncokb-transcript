@@ -12,6 +12,8 @@ import { TableHeader } from 'app/shared/table/TableHeader';
 import { Column } from 'react-table';
 import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
 import EntityTable from 'app/shared/table/EntityTable';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import EntityActionButton from 'app/shared/button/EntityActionButton';
 export interface IGeneProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const Gene = (props: IGeneProps) => {
@@ -104,24 +106,16 @@ export const Gene = (props: IGeneProps) => {
     <div>
       <h2 id="gene-heading" data-cy="GeneHeading">
         Genes
-        <span className="ml-2">
-          <Link
-            to={`${match.url}/new`}
-            className="btn btn-primary btn-sm jh-create-entity"
-            id="jh-create-entity"
-            data-cy="entityCreateButton"
-          >
-            <FontAwesomeIcon icon="plus" />
-            &nbsp; Create
-          </Link>
-        </span>
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.GENE} entityAction={ENTITY_ACTION.CREATE} />
       </h2>
       <Row className="justify-content-end mb-3">
         <Col sm="4">
           <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
         </Col>
       </Row>
-      <div>{geneList && <EntityTable columns={columns} data={geneList} loading={loading} url={match.url} />}</div>
+      <div>
+        {geneList && <EntityTable columns={columns} data={geneList} loading={loading} url={match.url} entityType={ENTITY_TYPE.GENE} />}
+      </div>
       {totalItems && totalItems > 0 ? (
         <div className={geneList && geneList.length > 0 ? '' : 'd-none'}>
           <Row className="justify-content-center">

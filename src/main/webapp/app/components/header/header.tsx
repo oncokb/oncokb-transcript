@@ -1,8 +1,8 @@
 import './header.scss';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Navbar, Nav, NavbarToggler, Collapse, NavbarBrand, Container } from 'reactstrap';
-import oncokbLogo from '../../../content/images/oncokb-white.svg';
+import oncokbLogo from 'oncokb-styles/dist/images/logo/oncokb-white.svg';
 import { AccountMenu } from '../menus';
 import { NavLink } from 'react-router-dom';
 import { PAGE_ROUTE } from 'app/config/constants';
@@ -36,7 +36,7 @@ class Header extends React.Component<IHeaderProps> {
         <Navbar dark expand="lg" className="navbar">
           <Container fluid>
             <NavbarBrand as={NavLink} to={PAGE_ROUTE.HOME}>
-              <OptimizedImage height={20} src={oncokbLogo} alt={'OncoKB'} />
+              <OptimizedImage height={25} src={oncokbLogo} alt={'OncoKB'} />
             </NavbarBrand>
             <NavbarToggler aria-label="Menu" onClick={this.toggleNavMenu} />
             <Collapse isOpen={this.isNavMenuExpanded} navbar>

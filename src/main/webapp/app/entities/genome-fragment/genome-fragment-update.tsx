@@ -10,6 +10,7 @@ import { ITranscript } from 'app/shared/model/transcript.model';
 import { IGenomeFragment } from 'app/shared/model/genome-fragment.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface IGenomeFragmentUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -103,10 +104,7 @@ export const GenomeFragmentUpdate = (props: IGenomeFragmentUpdateProps) => {
                     ))
                   : null}
               </ValidatedField>
-              <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
-                <FontAwesomeIcon icon="save" />
-                &nbsp; Save
-              </Button>
+              <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
         </Col>

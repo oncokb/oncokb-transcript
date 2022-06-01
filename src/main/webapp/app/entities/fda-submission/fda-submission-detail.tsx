@@ -6,7 +6,8 @@ import { TextFormat } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import EntityActionButton from 'app/shared/button/EntityActionButton';
 export interface IFdaSubmissionDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
@@ -18,7 +19,7 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
   return (
     <Row>
       <Col md="8">
-        <h2 data-cy="fdaSubmissionDetailsHeading">FdaSubmission</h2>
+        <h2 data-cy="fdaSubmissionDetailsHeading">FDA Submission</h2>
         <dl className="jh-entity-details">
           <dt>
             <span id="id">ID</span>
@@ -73,17 +74,30 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
           <dt>Type</dt>
           <dd>{fdaSubmissionEntity.type ? fdaSubmissionEntity.type?.shortName : ''}</dd>
         </dl>
-        <Button tag={Link} to={`/fda-submission/${fdaSubmissionEntity.id}/edit`} replace color="primary">
-          <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-        </Button>
+        <EntityActionButton
+          color="primary"
+          entityId={fdaSubmissionEntity.id}
+          entityType={ENTITY_TYPE.FDA_SUBMISSION}
+          entityAction={ENTITY_ACTION.EDIT}
+        />
+        {!props.showCurationPanel && (
+          <EntityActionButton
+            color="secondary"
+            className="ml-2"
+            entityId={fdaSubmissionEntity.id}
+            entityType={ENTITY_TYPE.FDA_SUBMISSION}
+            entityAction={ENTITY_ACTION.CURATE}
+          />
+        )}
       </Col>
     </Row>
   );
 };
 
-const mapStoreToProps = ({ fdaSubmissionStore }: IRootStore) => ({
+const mapStoreToProps = ({ fdaSubmissionStore, layoutStore }: IRootStore) => ({
   fdaSubmissionEntity: fdaSubmissionStore.entity,
   getEntity: fdaSubmissionStore.getEntity,
+  showCurationPanel: layoutStore.showCurationPanel,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

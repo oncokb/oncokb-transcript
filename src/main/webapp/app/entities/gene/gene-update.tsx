@@ -5,6 +5,7 @@ import { Button, Row, Col } from 'reactstrap';
 import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
+import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface IGeneUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -72,10 +73,7 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
               {!isNew ? <ValidatedField name="id" required readOnly id="gene-id" label="ID" validate={{ required: true }} /> : null}
               <ValidatedField label="Entrez Gene Id" id="gene-entrezGeneId" name="entrezGeneId" data-cy="entrezGeneId" type="text" />
               <ValidatedField label="Hugo Symbol" id="gene-hugoSymbol" name="hugoSymbol" data-cy="hugoSymbol" type="text" />
-              <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
-                <FontAwesomeIcon icon="save" />
-                &nbsp; Save
-              </Button>
+              <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
         </Col>

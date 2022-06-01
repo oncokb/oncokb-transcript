@@ -14,6 +14,8 @@ import _ from 'lodash';
 import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import EntityTable from 'app/shared/table/EntityTable';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import EntityActionButton from 'app/shared/button/EntityActionButton';
 export interface IFdaSubmissionProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const FdaSubmission = (props: IFdaSubmissionProps) => {
@@ -117,13 +119,13 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
       accessor: 'genetic',
       Header: <TableHeader header="Genetic Relevant" onSort={sort('genetic')} paginationState={paginationState} sortField="genetic" />,
       Cell: ({ cell: { value } }) => (value ? <FontAwesomeIcon icon={faCheck} /> : null),
-      maxWidth: 100,
+      maxWidth: 50,
     },
     {
       accessor: 'curated',
       Header: <TableHeader header="Curated" onSort={sort('curated')} paginationState={paginationState} sortField="curated" />,
       Cell: ({ cell: { value } }) => (value ? <FontAwesomeIcon icon={faCheck} /> : null),
-      maxWidth: 100,
+      maxWidth: 50,
     },
     {
       accessor: 'type',
@@ -136,25 +138,26 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
   return (
     <div>
       <h2 id="fda-submission-heading" data-cy="FdaSubmissionHeading">
-        Fda Submissions
-        <span className="ml-2">
-          <Link
-            to={`${match.url}/new`}
-            className="btn btn-primary btn-sm jh-create-entity"
-            id="jh-create-entity"
-            data-cy="entityCreateButton"
-          >
-            <FontAwesomeIcon icon="plus" />
-            &nbsp; Create
-          </Link>
-        </span>
+        FDA Submissions
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.FDA_SUBMISSION} entityAction={ENTITY_ACTION.CREATE} />
       </h2>
       <Row className="justify-content-end mb-3">
         <Col sm="4">
           <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
         </Col>
       </Row>
-      <div>{fdaSubmissionList && <EntityTable columns={columns} data={fdaSubmissionList} loading={loading} url={match.url} />}</div>
+      <div>
+        {fdaSubmissionList && (
+          <EntityTable
+            columns={columns}
+            data={fdaSubmissionList}
+            loading={loading}
+            url={match.url}
+            curatable
+            entityType={ENTITY_TYPE.FDA_SUBMISSION}
+          />
+        )}
+      </div>
       {totalItems && totalItems > 0 ? (
         <div>
           <Row className="justify-content-center">

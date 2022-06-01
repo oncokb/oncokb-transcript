@@ -1,21 +1,21 @@
+import { connect } from 'app/shared/util/typed-inject';
+import { IRootStore } from 'app/stores/createStore';
 import React, { useEffect } from 'react';
 import { ProSidebar, SidebarContent, SidebarHeader } from 'react-pro-sidebar';
+import { matchPath, useLocation } from 'react-router-dom';
 import './curation-panel.scss';
-import { matchPath, useHistory, useLocation, useParams, useRouteMatch } from 'react-router-dom';
-import { IRootStore } from 'app/stores/createStore';
-import { connect } from 'app/shared/util/typed-inject';
 import FdaSubmissionPanel from './FdaSubmissionPanel';
 
 // Paths that should show the curation panel
-const includedPaths = ['/fda-submission/:id/edit'];
+const includedPaths = ['/fda-submission/:id/curate'];
 
 const CurationPanel: React.FunctionComponent<StoreProps> = props => {
   const location = useLocation();
   const matchedPath = includedPaths.filter(path => matchPath(location.pathname, { path, exact: true }))[0];
 
   useEffect(() => {
-    const show = !!matchedPath;
-    props.toggleCurationPanel(show);
+    const showOnMatchedPath = !!matchedPath;
+    props.toggleCurationPanel(showOnMatchedPath);
   }, [location.pathname]);
 
   return (

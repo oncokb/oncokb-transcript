@@ -10,6 +10,7 @@ import { IDrug } from 'app/shared/model/drug.model';
 import { IDrugBrand } from 'app/shared/model/drug-brand.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface IDrugBrandUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -96,10 +97,7 @@ export const DrugBrandUpdate = (props: IDrugBrandUpdateProps) => {
                     ))
                   : null}
               </ValidatedField>
-              <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
-                <FontAwesomeIcon icon="save" />
-                &nbsp; Save
-              </Button>
+              <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
         </Col>

@@ -17,6 +17,7 @@ import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { IDeviceUsageIndication } from 'app/shared/model/device-usage-indication.model';
 import CancerTypeSelect from 'app/shared/select/CancerTypeSelect';
 import { alterationClient, deviceUsageIndicationClient } from 'app/shared/api/clients';
+import { SaveButton } from 'app/shared/button/SaveButton';
 
 const SidebarMenuItem: React.FunctionComponent<{ style?: React.CSSProperties }> = ({ style, children }) => {
   return <div style={{ padding: '8px 24px 0 24px', ...style }}>{children}</div>;
@@ -197,9 +198,7 @@ const FdaSubmissionPanel: React.FunctionComponent<StoreProps> = props => {
             />
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <Button color="primary" type="submit">
-              Save
-            </Button>
+            <SaveButton />
           </SidebarMenuItem>
         </Form>
       </Menu>

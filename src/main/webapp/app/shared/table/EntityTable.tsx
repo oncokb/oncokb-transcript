@@ -1,19 +1,20 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Column } from 'react-table';
-import { Button } from 'reactstrap';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
 import OncoKBTable from './OncoKBTable';
+import EntityActionButton from '../button/EntityActionButton';
 
 type EntityTableProps = {
   columns: Column[];
   data: ReadonlyArray<any>;
   loading?: boolean;
   url: string;
+  curatable?: boolean;
+  entityType: ENTITY_TYPE;
 };
 
 export const EntityTable: React.FunctionComponent<EntityTableProps> = props => {
-  const { columns, url, ...tableProps } = props;
+  const { columns, url, entityType, ...tableProps } = props;
   const newColumns = [
     ...columns,
     {
@@ -26,15 +27,30 @@ export const EntityTable: React.FunctionComponent<EntityTableProps> = props => {
       }): any {
         return (
           <div className="btn-group flex-btn-group-container">
-            <Button tag={Link} to={`${url}/${original.id}`} color="info" size="sm" data-cy="entityDetailsButton">
-              <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
-            </Button>
-            <Button tag={Link} to={`${url}/${original.id}/edit`} color="primary" size="sm" data-cy="entityEditButton">
-              <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-            </Button>
-            <Button tag={Link} to={`${url}/${original.id}/delete`} color="danger" size="sm" data-cy="entityDeleteButton">
-              <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
-            </Button>
+            <EntityActionButton color="info" size="sm" entityId={original.id} entityType={entityType} entityAction={ENTITY_ACTION.VIEW} />
+            <EntityActionButton
+              color="primary"
+              size="sm"
+              entityId={original.id}
+              entityType={entityType}
+              entityAction={ENTITY_ACTION.EDIT}
+            />
+            {props.curatable && (
+              <EntityActionButton
+                color="secondary"
+                size="sm"
+                entityId={original.id}
+                entityType={entityType}
+                entityAction={ENTITY_ACTION.CURATE}
+              />
+            )}
+            <EntityActionButton
+              color="danger"
+              size="sm"
+              entityId={original.id}
+              entityType={entityType}
+              entityAction={ENTITY_ACTION.DELETE}
+            />
           </div>
         );
       },

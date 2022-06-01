@@ -12,6 +12,8 @@ import { Column } from 'react-table';
 import { TableHeader } from 'app/shared/table/TableHeader';
 import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
 import EntityTable from 'app/shared/table/EntityTable';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import EntityActionButton from 'app/shared/button/EntityActionButton';
 export interface IDrugProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const Drug = (props: IDrugProps) => {
@@ -105,24 +107,16 @@ export const Drug = (props: IDrugProps) => {
     <div>
       <h2 id="drug-heading" data-cy="DrugHeading">
         Drugs
-        <span className="ml-2">
-          <Link
-            to={`${match.url}/new`}
-            className="btn btn-primary btn-sm jh-create-entity"
-            id="jh-create-entity"
-            data-cy="entityCreateButton"
-          >
-            <FontAwesomeIcon icon="plus" />
-            &nbsp; Create
-          </Link>
-        </span>
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.DRUG} entityAction={ENTITY_ACTION.CREATE} />
       </h2>
       <Row className="justify-content-end mb-3">
         <Col sm="4">
           <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
         </Col>
       </Row>
-      <div>{drugList && <EntityTable columns={columns} data={drugList} loading={loading} url={match.url} />}</div>
+      <div>
+        {drugList && <EntityTable columns={columns} data={drugList} loading={loading} url={match.url} entityType={ENTITY_TYPE.DRUG} />}
+      </div>
       {totalItems && totalItems > 0 ? (
         <div className={drugList && drugList.length > 0 ? '' : 'd-none'}>
           <Row className="justify-content-center">

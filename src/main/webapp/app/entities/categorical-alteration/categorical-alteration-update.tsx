@@ -9,6 +9,7 @@ import { IRootStore } from 'app/stores';
 import { ICategoricalAlteration } from 'app/shared/model/categorical-alteration.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface ICategoricalAlterationUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -114,16 +115,7 @@ export const CategoricalAlterationUpdate = (props: ICategoricalAlterationUpdateP
                 <option value="UNKNOWN">UNKNOWN</option>
                 <option value="NA">NA</option>
               </ValidatedField>
-              <Button tag={Link} id="cancel-save" data-cy="entityCreateCancelButton" to="/categorical-alteration" replace color="info">
-                <FontAwesomeIcon icon="arrow-left" />
-                &nbsp;
-                <span className="d-none d-md-inline">Back</span>
-              </Button>
-              &nbsp;
-              <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
-                <FontAwesomeIcon icon="save" />
-                &nbsp; Save
-              </Button>
+              <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
         </Col>

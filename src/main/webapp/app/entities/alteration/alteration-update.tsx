@@ -10,6 +10,7 @@ import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField'
 import { flow, flowResult } from 'mobx';
 import _ from 'lodash';
 import { ReferenceGenome } from 'app/shared/model/enumerations/reference-genome.model';
+import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface IAlterationUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -193,10 +194,7 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
                 type="text"
               />
               <ValidatedSelect label="Consequence" name={'consequence'} options={consequenceOptions} menuPlacement="top" isClearable />
-              <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
-                <FontAwesomeIcon icon="save" />
-                &nbsp; Save
-              </Button>
+              <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
         </Col>

@@ -9,6 +9,7 @@ import { IRootStore } from 'app/stores';
 import { IInfo } from 'app/shared/model/info.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface IInfoUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -93,10 +94,7 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
                 type="datetime-local"
                 placeholder="YYYY-MM-DD HH:mm"
               />
-              <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
-                <FontAwesomeIcon icon="save" />
-                &nbsp; Save
-              </Button>
+              <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
         </Col>

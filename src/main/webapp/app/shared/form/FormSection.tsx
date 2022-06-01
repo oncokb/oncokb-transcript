@@ -1,5 +1,4 @@
 import React from 'react';
-import { Col, Row } from 'reactstrap';
 
 interface IFormSectionProps {
   sectionTitle?: string;
@@ -8,12 +7,9 @@ interface IFormSectionProps {
 
 export const FormSection: React.FunctionComponent<IFormSectionProps> = ({ sectionTitle, isFirst = false, children }) => {
   return (
-    <Row className={`justify-content-center ${isFirst ? 'pb-3' : 'border-top py-3'}`}>
-      <Col md="3">
-        <h5>{sectionTitle}</h5>
-      </Col>
-      <Col md="9">{children}</Col>
-    </Row>
+    <div className={`${isFirst ? 'pb-3' : 'border-top py-3'}`}>
+      <div>{children}</div>
+    </div>
   );
 };
 
