@@ -9,6 +9,7 @@ import { IRootStore } from 'app/stores';
 import { IDrug } from 'app/shared/model/drug.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface IDrugUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -77,10 +78,7 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
               <ValidatedField label="Name" id="drug-name" name="name" data-cy="name" type="textarea" />
               <ValidatedField label="Code" id="drug-code" name="code" data-cy="code" type="text" />
               <ValidatedField label="Semantic Type" id="drug-semanticType" name="semanticType" data-cy="semanticType" type="textarea" />
-              <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
-                <FontAwesomeIcon icon="save" />
-                &nbsp; Save
-              </Button>
+              <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
         </Col>

@@ -12,6 +12,8 @@ import { Column } from 'react-table';
 import { TableHeader } from 'app/shared/table/TableHeader';
 import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
 import EntityTable from 'app/shared/table/EntityTable';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import EntityActionButton from 'app/shared/button/EntityActionButton';
 export interface IArticleProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const Article = (props: IArticleProps) => {
@@ -119,24 +121,18 @@ export const Article = (props: IArticleProps) => {
     <div>
       <h2 id="article-heading" data-cy="ArticleHeading">
         Articles
-        <span className="ml-2">
-          <Link
-            to={`${match.url}/new`}
-            className="btn btn-primary btn-sm jh-create-entity"
-            id="jh-create-entity"
-            data-cy="entityCreateButton"
-          >
-            <FontAwesomeIcon icon="plus" />
-            &nbsp; Create
-          </Link>
-        </span>
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.ARTICLE} entityAction={ENTITY_ACTION.CREATE} />
       </h2>
       <Row className="justify-content-end mb-3">
         <Col sm="4">
           <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
         </Col>
       </Row>
-      <div>{articleList && <EntityTable columns={columns} data={articleList} loading={loading} url={match.url} />}</div>
+      <div>
+        {articleList && (
+          <EntityTable columns={columns} data={articleList} loading={loading} url={match.url} entityType={ENTITY_TYPE.ARTICLE} />
+        )}
+      </div>
       {totalItems && totalItems > 0 ? (
         <div className={articleList && articleList.length > 0 ? '' : 'd-none'}>
           <Row className="justify-content-center">

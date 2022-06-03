@@ -10,6 +10,7 @@ import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnosti
 import { ISpecimenType } from 'app/shared/model/specimen-type.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface ISpecimenTypeUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -100,10 +101,7 @@ export const SpecimenTypeUpdate = (props: ISpecimenTypeUpdateProps) => {
                   required: { value: true, message: 'This field is required.' },
                 }}
               />
-              <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
-                <FontAwesomeIcon icon="save" />
-                &nbsp; Save
-              </Button>
+              <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
         </Col>

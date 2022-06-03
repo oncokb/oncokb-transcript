@@ -8,6 +8,7 @@ import { mapSelectOptionList } from 'app/shared/util/entity-utils';
 import ValidatedForm from 'app/shared/form/ValidatedForm';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
 import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
+import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface ICompanionDiagnosticDeviceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -111,10 +112,7 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
                 closeMenuOnSelect={false}
                 options={specimenTypesOptions}
               />
-              <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
-                <FontAwesomeIcon icon="save" />
-                &nbsp; Save
-              </Button>
+              <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
         </Col>

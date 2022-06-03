@@ -9,6 +9,7 @@ import { IRootStore } from 'app/stores';
 import { ICancerType } from 'app/shared/model/cancer-type.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface ICancerTypeUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -120,10 +121,7 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
                     ))
                   : null}
               </ValidatedField>
-              <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
-                <FontAwesomeIcon icon="save" />
-                &nbsp; Save
-              </Button>
+              <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
         </Col>

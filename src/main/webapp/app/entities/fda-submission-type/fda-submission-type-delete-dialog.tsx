@@ -36,7 +36,7 @@ export const FdaSubmissionTypeDeleteDialog = (props: IFdaSubmissionTypeDeleteDia
         Confirm delete operation
       </ModalHeader>
       <ModalBody id="oncokbCurationApp.fdaSubmissionType.delete.question">
-        Are you sure you want to delete this FdaSubmissionType?
+        Are you sure you want to delete this FDA Submission Type?
       </ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>

@@ -9,6 +9,7 @@ import { IRootStore } from 'app/stores';
 import { IArticle } from 'app/shared/model/article.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface IArticleUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -82,10 +83,7 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
               <ValidatedField label="Issue" id="article-issue" name="issue" data-cy="issue" type="text" />
               <ValidatedField label="Pages" id="article-pages" name="pages" data-cy="pages" type="text" />
               <ValidatedField label="Authors" id="article-authors" name="authors" data-cy="authors" type="text" />
-              <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
-                <FontAwesomeIcon icon="save" />
-                &nbsp; Save
-              </Button>
+              <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
         </Col>

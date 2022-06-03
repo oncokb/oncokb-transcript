@@ -9,6 +9,7 @@ import { IRootStore } from 'app/stores';
 import { IFdaSubmissionType } from 'app/shared/model/fda-submission-type.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface IFdaSubmissionTypeUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -64,7 +65,7 @@ export const FdaSubmissionTypeUpdate = (props: IFdaSubmissionTypeUpdateProps) =>
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.fdaSubmissionType.home.createOrEditLabel" data-cy="FdaSubmissionTypeCreateUpdateHeading">
-            Create or edit a FdaSubmissionType
+            {isNew ? 'Create' : 'Edit'} FDA Submission Type
           </h2>
         </Col>
       </Row>
@@ -101,10 +102,7 @@ export const FdaSubmissionTypeUpdate = (props: IFdaSubmissionTypeUpdateProps) =>
                 data-cy="description"
                 type="textarea"
               />
-              <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
-                <FontAwesomeIcon icon="save" />
-                &nbsp; Save
-              </Button>
+              <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
         </Col>

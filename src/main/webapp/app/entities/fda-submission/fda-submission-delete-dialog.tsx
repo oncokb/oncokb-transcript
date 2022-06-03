@@ -35,7 +35,7 @@ export const FdaSubmissionDeleteDialog = (props: IFdaSubmissionDeleteDialogProps
       <ModalHeader toggle={handleClose} data-cy="fdaSubmissionDeleteDialogHeading">
         Confirm delete operation
       </ModalHeader>
-      <ModalBody id="oncokbCurationApp.fdaSubmission.delete.question">Are you sure you want to delete this FdaSubmission?</ModalBody>
+      <ModalBody id="oncokbCurationApp.fdaSubmission.delete.question">Are you sure you want to delete this FDA Submission?</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={handleClose}>
           <FontAwesomeIcon icon="ban" />

@@ -6,7 +6,7 @@ import { Translate } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, PAGE_ROUTE } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, PAGE_ROUTE } from 'app/config/constants';
 
 import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';
@@ -15,6 +15,8 @@ import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import WithSeparator from 'react-with-separator';
 import { debouncedSearch } from 'app/shared/util/crud-store';
 import EntityTable from 'app/shared/table/EntityTable';
+import { ENTITY_TYPE } from 'app/config/constants';
+import EntityActionButton from 'app/shared/button/EntityActionButton';
 export interface ICompanionDiagnosticDeviceProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps) => {
@@ -103,17 +105,12 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
     <div>
       <h2 id="companion-diagnostic-device-heading" data-cy="CompanionDiagnosticDeviceHeading">
         Companion Diagnostic Devices
-        <span className="ml-2">
-          <Link
-            to={`${match.url}/new`}
-            className="btn btn-primary btn-sm jh-create-entity"
-            id="jh-create-entity"
-            data-cy="entityCreateButton"
-          >
-            <FontAwesomeIcon icon="plus" />
-            &nbsp; Create
-          </Link>
-        </span>
+        <EntityActionButton
+          className="ml-2"
+          color="primary"
+          entityType={ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE}
+          entityAction={ENTITY_ACTION.CREATE}
+        />
       </h2>
       <Row className="justify-content-end">
         <Col sm="4">
@@ -128,7 +125,13 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
       </Row>
       <div>
         {companionDiagnosticDeviceList && (
-          <EntityTable columns={columns} data={companionDiagnosticDeviceList} loading={loading} url={match.url} />
+          <EntityTable
+            columns={columns}
+            data={companionDiagnosticDeviceList}
+            loading={loading}
+            url={match.url}
+            entityType={ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE}
+          />
         )}
       </div>
     </div>

@@ -6,7 +6,8 @@ import { byteSize } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import EntityActionButton from 'app/shared/button/EntityActionButton';
 export interface IArticleDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const ArticleDetail = (props: IArticleDetailProps) => {
@@ -57,10 +58,7 @@ export const ArticleDetail = (props: IArticleDetailProps) => {
           </dt>
           <dd>{articleEntity.authors}</dd>
         </dl>
-        &nbsp;
-        <Button tag={Link} to={`/article/${articleEntity.id}/edit`} replace color="primary">
-          <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-        </Button>
+        <EntityActionButton color="primary" entityId={articleEntity.id} entityType={ENTITY_TYPE.GENE} entityAction={ENTITY_ACTION.EDIT} />
       </Col>
     </Row>
   );

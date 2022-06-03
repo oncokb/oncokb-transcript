@@ -9,6 +9,7 @@ import { IRootStore } from 'app/stores';
 import { IConsequence } from 'app/shared/model/consequence.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface IConsequenceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -111,10 +112,7 @@ export const ConsequenceUpdate = (props: IConsequenceUpdateProps) => {
                 type="checkbox"
               />
               <ValidatedField label="Description" id="consequence-description" name="description" data-cy="description" type="text" />
-              <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
-                <FontAwesomeIcon icon="save" />
-                &nbsp; Save
-              </Button>
+              <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
         </Col>

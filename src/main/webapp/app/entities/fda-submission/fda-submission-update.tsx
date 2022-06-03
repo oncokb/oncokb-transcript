@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps, useRouteMatch } from 'react-router-dom';
+import { RouteComponentProps } from 'react-router-dom';
 import { Button, Row, Col } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { FDA_SUBMISSION_REGEX } from 'app/config/constants';
 import FormSection from 'app/shared/form/FormSection';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
 import ValidatedForm from 'app/shared/form/ValidatedForm';
+import { SaveButton } from 'app/shared/button/SaveButton';
+import LoadingIndicator from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 
 export interface IFdaSubmissionUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -108,130 +109,123 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
   };
 
   return (
-    <div>
-      <Row className="justify-content-center">
-        <Col md="8">
-          <h2 id="oncokbTranscriptApp.fdaSubmission.home.createOrEditLabel" data-cy="FdaSubmissionCreateUpdateHeading">
-            {isNew ? 'Create' : 'Edit'} Fda Submission
-          </h2>
-        </Col>
-      </Row>
-      <Row className="justify-content-center">
-        <Col md="8">
-          {loading ? (
-            <p>Loading...</p>
-          ) : (
-            <ValidatedForm onSubmit={saveEntity} defaultValues={defaultValues()}>
-              {isNew ? (
-                <FormSection sectionTitle="Fetch Information">
-                  <ValidatedField
-                    label="Submission Number"
-                    id="query-submission-number"
-                    name="querySubmissionNumber"
-                    type="text"
-                    validate={{ pattern: { value: FDA_SUBMISSION_REGEX, message: 'Not a valid FDA submission number' } }}
-                    value={querySubmissionText}
-                    onChange={(e: any) => {
-                      setQuerySubmissionText(e.target.value);
-                    }}
-                  />
-                  <Button color="primary" onClick={handleLookupFdaSubmission}>
-                    Fetch
-                  </Button>
-                </FormSection>
-              ) : null}
-              <FormSection sectionTitle="FDA Submission Info">
+    <Row className="justify-content-center">
+      <Col md="8">
+        {loading ? (
+          <LoadingIndicator isLoading />
+        ) : (
+          <ValidatedForm onSubmit={saveEntity} defaultValues={defaultValues()}>
+            <FormSection isFirst>
+              <h2 id="oncokbTranscriptApp.fdaSubmission.home.createOrEditLabel" data-cy="FdaSubmissionCreateUpdateHeading">
+                {isNew ? 'Create' : 'Edit'} FDA Submission
+              </h2>
+            </FormSection>
+            {isNew ? (
+              <FormSection sectionTitle="Fetch Information">
                 <ValidatedField
-                  label="Number"
-                  id="fda-submission-number"
-                  name="number"
-                  data-cy="number"
+                  label="Submission Number"
+                  id="query-submission-number"
+                  name="querySubmissionNumber"
                   type="text"
-                  validate={{
-                    required: { value: true, message: 'This field is required.' },
+                  validate={{ pattern: { value: FDA_SUBMISSION_REGEX, message: 'Not a valid FDA submission number' } }}
+                  value={querySubmissionText}
+                  onChange={(e: any) => {
+                    setQuerySubmissionText(e.target.value);
                   }}
                 />
-                <ValidatedField
-                  label="Supplement Number"
-                  id="fda-submission-supplementNumber"
-                  name="supplementNumber"
-                  data-cy="supplementNumber"
-                  type="text"
-                />
-                <ValidatedField
-                  label="Device Name"
-                  id="fda-submission-deviceName"
-                  name="deviceName"
-                  data-cy="deviceName"
-                  type="text"
-                  validate={{ required: { value: true, message: 'This field is required' } }}
-                />
-                <ValidatedField label="Generic Name" id="fda-submission-genericName" name="genericName" data-cy="genericName" type="text" />
-                <ValidatedField
-                  label="Date Received"
-                  id="fda-submission-dateReceived"
-                  name="dateReceived"
-                  data-cy="dateReceived"
-                  type="date"
-                  placeholder="YYYY-MM-DD"
-                />
-                <ValidatedField
-                  label="Decision Date"
-                  id="fda-submission-decisionDate"
-                  name="decisionDate"
-                  data-cy="decisionDate"
-                  type="date"
-                  placeholder="YYYY-MM-DD"
-                />
-                <ValidatedField
-                  label="Description"
-                  id="fda-submission-description"
-                  name="description"
-                  data-cy="description"
-                  type="textarea"
-                />
-                <ValidatedField
-                  label="Curated"
-                  id="fda-submission-curated"
-                  name="curated"
-                  data-cy="curated"
-                  check={fdaSubmissionEntity?.curated?.toString() || 'false'}
-                  type="checkbox"
-                />
-                <ValidatedField
-                  label="Genetic"
-                  id="fda-submission-genetic"
-                  name="genetic"
-                  data-cy="genetic"
-                  check={fdaSubmissionEntity?.genetic?.toString() || 'false'}
-                  type="checkbox"
-                />
-                <ValidatedSelect
-                  label="Companion Diagnostic Device"
-                  name={'companionDiagnosticDeviceId'}
-                  options={companionDiagnosticDeviceOptions}
-                  menuPlacement="top"
-                  validate={{ required: { value: true, message: 'This field is required' } }}
-                />
-                <ValidatedSelect
-                  label="Type"
-                  name={'typeId'}
-                  options={fdaSubmissionTypeOptions}
-                  menuPlacement="top"
-                  validate={{ required: { value: true, message: 'This field is required' } }}
-                />
-              </FormSection>
-              <FormSection>
-                <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
-                  <FontAwesomeIcon icon="save" />
-                  &nbsp; Save
+                <Button color="primary" onClick={handleLookupFdaSubmission}>
+                  Fetch
                 </Button>
               </FormSection>
-            </ValidatedForm>
-          )}
-        </Col>
-      </Row>
-    </div>
+            ) : null}
+            <FormSection>
+              <ValidatedField
+                label="Number"
+                id="fda-submission-number"
+                name="number"
+                data-cy="number"
+                type="text"
+                validate={{
+                  required: { value: true, message: 'This field is required.' },
+                }}
+              />
+              <ValidatedField
+                label="Supplement Number"
+                id="fda-submission-supplementNumber"
+                name="supplementNumber"
+                data-cy="supplementNumber"
+                type="text"
+              />
+              <ValidatedField
+                label="Device Name"
+                id="fda-submission-deviceName"
+                name="deviceName"
+                data-cy="deviceName"
+                type="text"
+                validate={{ required: { value: true, message: 'This field is required' } }}
+              />
+              <ValidatedField label="Generic Name" id="fda-submission-genericName" name="genericName" data-cy="genericName" type="text" />
+              <ValidatedField
+                label="Date Received"
+                id="fda-submission-dateReceived"
+                name="dateReceived"
+                data-cy="dateReceived"
+                type="date"
+                placeholder="YYYY-MM-DD"
+              />
+              <ValidatedField
+                label="Decision Date"
+                id="fda-submission-decisionDate"
+                name="decisionDate"
+                data-cy="decisionDate"
+                type="date"
+                placeholder="YYYY-MM-DD"
+              />
+              <ValidatedField
+                label="Description"
+                id="fda-submission-description"
+                name="description"
+                data-cy="description"
+                type="textarea"
+              />
+              <ValidatedField
+                label="Curated"
+                id="fda-submission-curated"
+                name="curated"
+                data-cy="curated"
+                check={fdaSubmissionEntity?.curated?.toString() || 'false'}
+                type="checkbox"
+              />
+              <ValidatedField
+                label="Genetic"
+                id="fda-submission-genetic"
+                name="genetic"
+                data-cy="genetic"
+                check={fdaSubmissionEntity?.genetic?.toString() || 'false'}
+                type="checkbox"
+              />
+              <ValidatedSelect
+                label="Companion Diagnostic Device"
+                name={'companionDiagnosticDeviceId'}
+                options={companionDiagnosticDeviceOptions}
+                menuPlacement="top"
+                validate={{ required: { value: true, message: 'This field is required' } }}
+              />
+              <ValidatedSelect
+                label="Type"
+                name={'typeId'}
+                options={fdaSubmissionTypeOptions}
+                menuPlacement="top"
+                validate={{ required: { value: true, message: 'This field is required' } }}
+              />
+            </FormSection>
+            <FormSection>
+              <SaveButton disabled={updating} />
+            </FormSection>
+          </ValidatedForm>
+        )}
+      </Col>
+    </Row>
   );
 };
 
