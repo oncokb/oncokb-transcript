@@ -1,6 +1,7 @@
 import { LoadingBarStore } from 'app/stores/loading-bar.store';
 import { AuthStore } from 'app/stores/authentication.store';
 import { SettingsStore } from 'app/pages/account/settings.store';
+import { UserStore } from 'app/modules/administration/user-management/user.store';
 import { History } from 'history';
 import { RouterStore } from './router.store';
 import LayoutStore from './layout.store';
@@ -78,6 +79,7 @@ export interface IRootStore {
   readonly loadingStore: LoadingBarStore;
   readonly authStore: AuthStore;
   readonly settingsStore: SettingsStore;
+  readonly userStore: UserStore;
   readonly routerStore: RouterStore;
   readonly layoutStore: LayoutStore;
   readonly sequenceStore: SequenceStore;
@@ -109,6 +111,7 @@ export function createStores(history: History): IRootStore {
   rootStore.loadingStore = new LoadingBarStore();
   rootStore.authStore = new AuthStore(rootStore);
   rootStore.settingsStore = new SettingsStore(rootStore);
+  rootStore.userStore = new UserStore(rootStore);
   rootStore.routerStore = new RouterStore(history);
   rootStore.layoutStore = new LayoutStore();
   rootStore.sequenceStore = new SequenceStore(rootStore);

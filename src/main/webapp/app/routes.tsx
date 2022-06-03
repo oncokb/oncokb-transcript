@@ -19,6 +19,11 @@ const Account = Loadable({
   loading: () => <div>loading ...</div>,
 });
 
+const Admin = Loadable({
+  loader: () => import(/* webpackChunkName: "administration" */ 'app/modules/administration'),
+  loading: () => <div>loading ...</div>,
+});
+
 const Routes = () => {
   return (
     <div className="view-routes">
@@ -30,14 +35,9 @@ const Routes = () => {
             <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGOUT} component={Logout} />
             <ErrorBoundaryRoute exact path={PAGE_ROUTE.OAUTH} component={LoginRedirect} />
             <PrivateRoute exact path={PAGE_ROUTE.SEARCH} component={SearchPage} />
+            <PrivateRoute path="/admin" component={Admin} hasAnyAuthorities={[AUTHORITIES.ADMIN]} />
             <PrivateRoute path="/" component={Entities} hasAnyAuthorities={[AUTHORITIES.USER]} />
             <PrivateRoute exact path={PAGE_ROUTE.ACCOUNT} component={Account} hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]} />
-            <PrivateRoute
-              exact
-              path={PAGE_ROUTE.ADMIN_USER_MANAGEMENT}
-              component={UserManagementPage}
-              hasAnyAuthorities={[AUTHORITIES.ADMIN]}
-            />
             <ErrorBoundaryRoute exact component={PageNotFound} />
           </Switch>
         </PageContainer>

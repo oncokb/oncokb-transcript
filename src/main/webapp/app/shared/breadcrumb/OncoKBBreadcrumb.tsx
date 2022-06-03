@@ -11,7 +11,13 @@ const convertEntityName = (entityPathName: string) => {
   const entityTitleKey = Object.values(PAGE_ROUTE).find(route => {
     return route === `/${entityPathName}`;
   });
-  return ENTITY_ROUTE_TO_TITLE_MAPPING[entityTitleKey] || _.capitalize(entityPathName);
+  return (
+    ENTITY_ROUTE_TO_TITLE_MAPPING[entityTitleKey] ||
+    entityPathName
+      .split('-')
+      .map(name => _.capitalize(name))
+      .join(' ')
+  );
 };
 
 const OncoKBBreadcrumb: React.FunctionComponent<StoreProps> = props => {
@@ -84,6 +90,7 @@ const mapStoreToProps = (storeState: IRootStore) => ({
   alteration: storeState.alterationStore.entity,
   drug: storeState.drugStore.entity,
   article: storeState.articleStore.entity,
+  user: storeState.userStore.entity,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
