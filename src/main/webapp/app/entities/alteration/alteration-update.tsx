@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, Input } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col, FormGroup, Label } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 
 import ValidatedForm from 'app/shared/form/ValidatedForm';
@@ -11,6 +10,7 @@ import { flow, flowResult } from 'mobx';
 import _ from 'lodash';
 import { ReferenceGenome } from 'app/shared/model/enumerations/reference-genome.model';
 import { SaveButton } from 'app/shared/button/SaveButton';
+import GeneSelect from 'app/shared/select/GeneSelect';
 
 export interface IAlterationUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -20,14 +20,12 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
   const [proteinChangeAlteration, setProteinChangeAlteration] = useState(null);
   const [selectedGenes, setSelectedGenes] = useState([]);
 
-  const genes = props.genes;
   const consequences = props.consequences;
   const alterationEntity = props.alterationEntity;
   const loading = props.loading;
   const updating = props.updating;
   const updateSuccess = props.updateSuccess;
 
-  const geneOptions = genes.map(gene => ({ label: gene.hugoSymbol, value: gene.id }));
   const alterationReferenceGenomes = props.alterationEntity.referenceGenomes?.map(rg => rg.referenceGenome) || [];
   const referenceGenomeOptions = Object.keys(ReferenceGenome).map(key => {
     if (alterationReferenceGenomes.includes(ReferenceGenome[key])) {
@@ -158,7 +156,10 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
             <p>Loading...</p>
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
-              <ValidatedSelect label="Genes" name={'genes'} isMulti options={geneOptions} onChange={onGenesSelectChange} />
+              <FormGroup>
+                <Label>Genes</Label>
+                <GeneSelect isMulti onChange={onGenesSelectChange} />
+              </FormGroup>
               {!isNew ? <ValidatedField name="id" required readOnly id="alteration-id" label="ID" validate={{ required: true }} /> : null}
               <ValidatedField
                 label="Alteration"
@@ -204,7 +205,6 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
 };
 
 const mapStoreToProps = (storeState: IRootStore) => ({
-  genes: storeState.geneStore.entities,
   consequences: storeState.consequenceStore.entities,
   alterationEntity: storeState.alterationStore.entity,
   loading: storeState.alterationStore.loading,

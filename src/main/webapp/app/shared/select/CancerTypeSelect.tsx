@@ -8,11 +8,7 @@ import { IRootStore } from 'app/stores/createStore';
 import { connect } from '../util/typed-inject';
 import { ICancerType } from '../model/cancer-type.model';
 
-interface ICancerTypeSelectProps extends SelectProps, StoreProps {
-  tumorType?: string;
-  cancerTypeValue: any;
-  onCancerTypeChange: any;
-}
+interface ICancerTypeSelectProps extends SelectProps, StoreProps {}
 
 const getAllMainTypes = (cancerTypeList: ICancerType[]) => {
   return _.uniq(cancerTypeList.filter(cancerType => cancerType.level >= 0)).sort();
@@ -22,7 +18,7 @@ const getAllSubtypes = (cancerTypeList: ICancerType[]) => {
   return _.uniq(cancerTypeList.filter(cancerType => cancerType.subtype)).sort();
 };
 
-const getAllTumorTypesOptions = (cancerTypeList: ICancerType[], prevOptions) => {
+const getAllTumorTypesOptions = (cancerTypeList: ICancerType[]) => {
   return [
     {
       label: 'Cancer Type',
@@ -48,7 +44,12 @@ const getAllTumorTypesOptions = (cancerTypeList: ICancerType[], prevOptions) => 
 };
 
 const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props => {
-  const loadOptions = async (searchWord: string, prevOptions: any[], { page, type }: { page: number; type: SearchOptionType }) => {
+  const { getCancerTypes, searchCancerTypes, ...selectProps } = props;
+  const loadCancerTypeOptions = async (
+    searchWord: string,
+    prevOptions: any[],
+    { page, type }: { page: number; type: SearchOptionType }
+  ) => {
     let result = undefined;
     let options = [];
     if (searchWord) {
@@ -57,13 +58,15 @@ const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props 
       result = await props.getCancerTypes({ page: page - 1, size: 5, sort: 'id,ASC' });
     }
 
-    options = getAllTumorTypesOptions(result.data, prevOptions);
+    options = getAllTumorTypesOptions(result.data);
+    options[0].options = _.uniqBy(options[0].options, 'label');
+    options[1].options = _.uniqBy(options[1].options, 'label');
 
     if (searchWord) {
       // Since options are cached by react-select-async-paginate, we only include options that are
       // not present in prevOptions to avoid duplicates.
-      options[0].options = _.xorBy(prevOptions[0]?.options || [], options[0].options, 'label');
-      options[1].options = _.xorBy(prevOptions[1]?.options || [], options[1].options, 'label');
+      options[0].options = _.differenceBy(options[0].options, prevOptions[0]?.options || [], 'label');
+      options[1].options = _.differenceBy(options[1].options, prevOptions[1]?.options || [], 'label');
     }
 
     return {
@@ -79,13 +82,12 @@ const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props 
   return (
     <AsyncPaginate
       additional={{ ...defaultAdditional, type: SearchOptionType.CANCER_TYPE }}
-      loadOptions={loadOptions}
+      loadOptions={loadCancerTypeOptions}
       reduceOptions={reduceGroupedOptions}
-      value={props.cancerTypeValue}
-      onChange={props.onCancerTypeChange}
-      cacheUniqs={[props.cancerTypeValue]}
+      cacheUniqs={[props.value]}
       placeholder="Select a cancer type..."
       isClearable
+      {...selectProps}
     />
   );
 };
