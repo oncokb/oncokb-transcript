@@ -66,12 +66,7 @@ export abstract class BaseReadStore<T> extends BaseStore {
   }
 
   *checkEntities() {
-    const { observers } = getObserverTree(this.entities);
-    if (observers && observers.length) {
-      yield* this.getAllFromLastUrl();
-    } else {
-      this.resetEntities();
-    }
+    yield* this.getAllFromLastUrl();
   }
 }
 

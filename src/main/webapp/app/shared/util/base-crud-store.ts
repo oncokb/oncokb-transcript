@@ -6,11 +6,11 @@ import { cleanEntity } from 'app/shared/util/entity-utils';
 import { BaseReadStore } from 'app/shared/util/base-read-store';
 
 export abstract class BaseCrudStore<T> extends BaseReadStore<T> {
-  createEntity: ICrudPutAction<T> = this.updateHandler(this.create);
+  createEntity: ICrudPutAction<T> = this.updateHandler(this.create, 'Successfully created entity');
 
-  updateEntity: ICrudPutAction<T> = this.updateHandler(this.update);
+  updateEntity: ICrudPutAction<T> = this.updateHandler(this.update, 'Successfully updated entity');
 
-  deleteEntity: ICrudDeleteAction<T> = this.updateHandler(this.delete);
+  deleteEntity: ICrudDeleteAction<T> = this.updateHandler(this.delete, 'Successfully deleted entity');
 
   constructor(protected rootStore: IRootStore, protected apiUrl: string, protected settings = { clearOnUnobserved: false }) {
     super(rootStore, apiUrl, settings);
@@ -30,7 +30,7 @@ export abstract class BaseCrudStore<T> extends BaseReadStore<T> {
   }
 
   *update(entity: T) {
-    const result: AxiosResponse<T> = yield axios.put(`${this.apiUrl}/${this.entity['id']}`, cleanEntity(entity));
+    const result: AxiosResponse<T> = yield axios.put(`${this.apiUrl}/${entity['id']}`, cleanEntity(entity));
     this.entity = result.data;
     yield* this.checkEntities();
     return result;

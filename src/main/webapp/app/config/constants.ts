@@ -68,6 +68,7 @@ export enum ENTITY_TYPE {
   ALTERATION,
   DRUG,
   ARTICLE,
+  USER,
 }
 
 export const ENTITY_BASE_PATHS: { [key in ENTITY_TYPE]: PAGE_ROUTE } = {
@@ -77,6 +78,7 @@ export const ENTITY_BASE_PATHS: { [key in ENTITY_TYPE]: PAGE_ROUTE } = {
   [ENTITY_TYPE.ALTERATION]: PAGE_ROUTE.ALTERATION,
   [ENTITY_TYPE.DRUG]: PAGE_ROUTE.DRUG,
   [ENTITY_TYPE.ARTICLE]: PAGE_ROUTE.ARTICLE,
+  [ENTITY_TYPE.USER]: PAGE_ROUTE.ADMIN_USER_MANAGEMENT,
 };
 
 export enum SearchOptionType {
@@ -87,6 +89,11 @@ export enum SearchOptionType {
   GENE = 'Genes',
   ALTERATION = 'Alterations',
   CANCER_TYPE = 'Cancer Types',
+}
+
+export enum USER_AUTHORITY {
+  ROLE_USER = 'ROLE_USER',
+  ROLE_ADMIN = 'ROLE_ADMIN',
 }
 
 export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');

@@ -45,7 +45,7 @@ export class BaseStore {
           this.updateSuccess = true;
           this.updating = false;
           this.rootStore.loadingStore.hideLoading();
-          notifySuccess('Successfully created entity');
+          notifySuccess(successMessage || 'Successfully updated entity');
           break;
         }
         case OperationStatus.ERROR:

@@ -46,30 +46,73 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
+    public User createUser(UserDTO userDTO) {
+        User user = new User();
+        user.setLogin(userDTO.getEmail().toLowerCase());
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        if (userDTO.getEmail() != null) {
+            user.setEmail(userDTO.getEmail().toLowerCase());
+        }
+        user.setImageUrl(userDTO.getImageUrl());
+        if (userDTO.getLangKey() == null) {
+            user.setLangKey(Constants.DEFAULT_LANGUAGE); // default language
+        } else {
+            user.setLangKey(userDTO.getLangKey());
+        }
+        user.setActivated(userDTO.isActivated());
+        if (userDTO.getAuthorities() != null) {
+            Set<Authority> authorities = userDTO
+                .getAuthorities()
+                .stream()
+                .map(authorityRepository::findById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+            user.setAuthorities(authorities);
+        }
+        userRepository.save(user);
+        this.clearUserCaches(user);
+        log.debug("Created Information for User: {}", user);
+        return user;
+    }
+
     /**
-     * Update basic information (first name, last name, email, language) for the current user.
+     * Update all information for a specific user, and return the modified user.
      *
-     * @param firstName first name of user.
-     * @param lastName  last name of user.
-     * @param email     email id of user.
-     * @param langKey   language key.
-     * @param imageUrl  image URL of user.
+     * @param userDTO user to update.
+     * @return updated user.
      */
-    public void updateUser(String firstName, String lastName, String email, String langKey, String imageUrl) {
-        SecurityUtils
-            .getCurrentUserLogin()
-            .flatMap(userRepository::findOneByLogin)
-            .ifPresent(user -> {
-                user.setFirstName(firstName);
-                user.setLastName(lastName);
-                if (email != null) {
-                    user.setEmail(email.toLowerCase());
+    public Optional<UserDTO> updateUser(UserDTO userDTO) {
+        return Optional
+            .of(userRepository.findById(userDTO.getId()))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(user -> {
+                this.clearUserCaches(user);
+                user.setLogin(userDTO.getLogin().toLowerCase());
+                user.setFirstName(userDTO.getFirstName());
+                user.setLastName(userDTO.getLastName());
+                if (userDTO.getEmail() != null) {
+                    user.setEmail(userDTO.getEmail().toLowerCase());
                 }
-                user.setLangKey(langKey);
-                user.setImageUrl(imageUrl);
+                user.setImageUrl(userDTO.getImageUrl());
+                user.setActivated(userDTO.isActivated());
+                user.setLangKey(userDTO.getLangKey());
+                Set<Authority> managedAuthorities = user.getAuthorities();
+                managedAuthorities.clear();
+                userDTO
+                    .getAuthorities()
+                    .stream()
+                    .map(authorityRepository::findById)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .forEach(managedAuthorities::add);
                 this.clearUserCaches(user);
                 log.debug("Changed Information for User: {}", user);
-            });
+                return user;
+            })
+            .map(UserDTO::new);
     }
 
     @Transactional(readOnly = true)
@@ -140,6 +183,16 @@ public class UserService {
                 return auth;
             })
             .collect(Collectors.toSet());
+    }
+
+    public void deleteUser(String login) {
+        userRepository
+            .findOneByLogin(login)
+            .ifPresent(user -> {
+                userRepository.delete(user);
+                this.clearUserCaches(user);
+                log.debug("Deleted User: {}", user);
+            });
     }
 
     private void clearUserCaches(User user) {}

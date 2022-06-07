@@ -69,7 +69,7 @@ export const SettingsPage = (props: IUserSettingsProps) => {
               validate={{
                 required: { value: true, message: 'Your email is required.' },
                 minLength: { value: 5, message: 'Your email is required to be at least 5 characters.' },
-                maxLength: { value: 254, message: 'Your email cannot be longer than 50 characters.' },
+                maxLength: { value: 254, message: 'Your email cannot be longer than 254 characters.' },
                 validate: v => isEmail(v) || 'Your email is invalid.',
               }}
               data-cy="email"
