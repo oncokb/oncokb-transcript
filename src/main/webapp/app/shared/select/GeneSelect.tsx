@@ -38,12 +38,12 @@ const GeneSelect: React.FunctionComponent<IGeneSelectProps> = props => {
 
   return (
     <AsyncPaginate
+      {...selectProps}
       additional={{ ...defaultAdditional, type: SearchOptionType.GENE }}
       loadOptions={loadGeneOptions}
       cacheUniqs={[props.value]}
       placeholder="Select a gene..."
       isClearable
-      {...selectProps}
     />
   );
 };

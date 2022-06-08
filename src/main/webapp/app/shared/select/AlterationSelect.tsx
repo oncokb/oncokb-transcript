@@ -14,6 +14,7 @@ interface IAlterationSelectProps extends SelectProps, StoreProps {
 const AlterationSelect: React.FunctionComponent<IAlterationSelectProps> = props => {
   const { geneId, getAlterationsByGeneId, ...selectProps } = props;
   const [alterationList, setAlterationList] = useState([]);
+  const [alterationValue, setAlterationValue] = useState(null);
 
   useEffect(() => {
     const loadAlterationOptions = async (id: string) => {
@@ -29,16 +30,26 @@ const AlterationSelect: React.FunctionComponent<IAlterationSelectProps> = props 
       }
     };
     loadAlterationOptions(geneId);
+    if (!geneId) {
+      setAlterationValue(null);
+    }
   }, [geneId]);
+
+  const onAlterationChange = (option, actionMeta) => {
+    setAlterationValue(option);
+    props.onChange(option, actionMeta);
+  };
 
   return (
     <Select
+      {...selectProps}
       name={'alterations'}
+      value={alterationValue}
       options={alterationList}
+      onChange={onAlterationChange}
       placeholder="Select an alteration..."
       isDisabled={!geneId}
       isClearable
-      {...selectProps}
     />
   );
 };

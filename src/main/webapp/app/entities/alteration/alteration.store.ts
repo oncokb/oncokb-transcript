@@ -5,7 +5,6 @@ import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
 import { ICrudSearchAction } from 'app/shared/util/jhipster-types';
 import { Alteration } from 'app/shared/api/generated';
 import { alterationClient, alterationControllerClient } from 'app/shared/api/clients';
-import { flow } from 'lodash';
 
 const apiUrl = 'api/alterations';
 const apiSearchUrl = 'api/_search/alterations';

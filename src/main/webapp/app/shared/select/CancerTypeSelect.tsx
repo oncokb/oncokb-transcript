@@ -81,13 +81,13 @@ const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props 
 
   return (
     <AsyncPaginate
+      {...selectProps}
       additional={{ ...defaultAdditional, type: SearchOptionType.CANCER_TYPE }}
       loadOptions={loadCancerTypeOptions}
       reduceOptions={reduceGroupedOptions}
       cacheUniqs={[props.value]}
       placeholder="Select a cancer type..."
       isClearable
-      {...selectProps}
     />
   );
 };

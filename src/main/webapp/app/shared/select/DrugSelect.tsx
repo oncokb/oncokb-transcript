@@ -38,12 +38,12 @@ const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
 
   return (
     <AsyncPaginate
+      {...selectProps}
       additional={{ ...defaultAdditional, type: SearchOptionType.DRUG }}
       loadOptions={loadDrugOptions}
       cacheUniqs={[props.value]}
       placeholder="Select a drug..."
       isClearable
-      {...selectProps}
     />
   );
 };
