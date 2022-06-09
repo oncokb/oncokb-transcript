@@ -25,19 +25,19 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
       label: 'Cancer Type',
       options: _.uniq(getAllMainTypes(cancerTypeList).filter(cancerType => !cancerType.mainType.endsWith('NOS')))
         .sort()
-        .map(tumorType => {
+        .map(cancerType => {
           return {
-            value: tumorType.id,
-            label: tumorType.mainType,
+            value: cancerType.id,
+            label: cancerType.mainType,
           };
         }),
     },
     {
       label: 'Cancer Type Detailed',
-      options: _.sortBy(_.uniq(getAllSubtypes(cancerTypeList)), 'name').map(tumorType => {
+      options: _.sortBy(_.uniq(getAllSubtypes(cancerTypeList)), 'name').map(cancerType => {
         return {
-          value: tumorType.id,
-          label: `${tumorType.subtype} (${tumorType.code})`,
+          value: cancerType.id,
+          label: `${cancerType.subtype} (${cancerType.code})`,
         };
       }),
     },
