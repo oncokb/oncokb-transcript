@@ -3,31 +3,22 @@ import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores/createStore';
 import { Menu } from 'react-pro-sidebar';
 import { Button, Form } from 'reactstrap';
-import { AsyncPaginate } from 'react-select-async-paginate';
 import { SearchOptionType } from 'app/config/constants';
-import { IAlteration } from 'app/shared/model/alteration.model';
-import Select from 'react-select';
 import { useHistory, useLocation } from 'react-router-dom';
-import axiosInstance from 'app/shared/api/axiosInstance';
-import { AlterationResourceApi, DeviceUsageIndicationResourceApi } from 'app/shared/api/generated';
 import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { IDeviceUsageIndication } from 'app/shared/model/device-usage-indication.model';
 import CancerTypeSelect from 'app/shared/select/CancerTypeSelect';
-import { alterationClient, deviceUsageIndicationClient } from 'app/shared/api/clients';
+import { deviceUsageIndicationClient } from 'app/shared/api/clients';
 import { SaveButton } from 'app/shared/button/SaveButton';
+import GeneSelect from 'app/shared/select/GeneSelect';
+import AlterationSelect from 'app/shared/select/AlterationSelect';
+import DrugSelect from 'app/shared/select/DrugSelect';
 
 const SidebarMenuItem: React.FunctionComponent<{ style?: React.CSSProperties }> = ({ style, children }) => {
   return <div style={{ padding: '8px 24px 0 24px', ...style }}>{children}</div>;
-};
-
-const SELECT_OPTION_LABEL: { [key in SearchOptionType]?: string } = {
-  [SearchOptionType.GENE]: 'hugoSymbol',
-  [SearchOptionType.ALTERATION]: 'name',
-  [SearchOptionType.CANCER_TYPE]: 'mainType',
-  [SearchOptionType.DRUG]: 'name',
 };
 
 export const defaultAdditional = {
@@ -35,15 +26,12 @@ export const defaultAdditional = {
   type: SearchOptionType.GENE,
 };
 
-const defaultSortParameter = 'id,ASC';
-
 export interface FdaSubmissionPanelProps extends StoreProps {
   entityId: string;
 }
 
 const FdaSubmissionPanel: React.FunctionComponent<StoreProps> = props => {
-  const [geneValue, onGeneChange] = useState(null);
-  const [alterationList, setAlterationList] = useState([]);
+  const [selectedGeneId, setSelectedGeneId] = useState(null);
   const [alterationValue, onAlterationChange] = useState(null);
   const [cancerTypeValue, onCancerTypeChange] = useState(null);
   const [drugValue, onDrugChange] = useState(null);
@@ -61,62 +49,6 @@ const FdaSubmissionPanel: React.FunctionComponent<StoreProps> = props => {
         .catch(error => notifyError(error));
     }
   }, [id]);
-
-  const loadOptions = async (searchWord: string, prevOptions: any[], { page, type }: { page: number; type: SearchOptionType }) => {
-    let getEntities = undefined;
-    let searchEntities = undefined;
-    switch (type) {
-      case SearchOptionType.GENE:
-        getEntities = props.getGenes;
-        searchEntities = props.searchGenes;
-        break;
-      case SearchOptionType.CANCER_TYPE:
-        getEntities = props.getCancerTypes;
-        searchEntities = props.searchCancerTypes;
-        break;
-      case SearchOptionType.DRUG:
-        getEntities = props.getDrugs;
-        searchEntities = props.searchDrugs;
-        break;
-      default:
-        break;
-    }
-
-    let result = undefined;
-    let options = [];
-    if (searchWord) {
-      result = await searchEntities({ query: searchWord, page: page - 1, size: 5, sort: defaultSortParameter });
-    } else {
-      result = await getEntities({ page: page - 1, size: 5, sort: defaultSortParameter });
-    }
-
-    options = result?.data?.map((entity: any) => ({
-      value: entity.id,
-      label: entity[SELECT_OPTION_LABEL[type]],
-    }));
-
-    return {
-      options,
-      hasMore: result.data.length > 0,
-      additional: {
-        page: page + 1,
-        type,
-      },
-    };
-  };
-
-  const loadAlterationOptions = async (geneId: string) => {
-    let options = [];
-    if (geneId) {
-      const result: any = await alterationClient.findByGeneId(parseInt(geneId, 10));
-      result?.data?.sort((a: IAlteration, b: IAlteration) => (a.name > b.name ? 1 : b.name > a.name ? -1 : 0));
-      options = result?.data?.map((alteration: IAlteration) => ({
-        value: alteration.id,
-        label: alteration.name,
-      }));
-      setAlterationList(options);
-    }
-  };
 
   const createDeviceUsageIndication = (e: any) => {
     e.preventDefault();
@@ -151,30 +83,17 @@ const FdaSubmissionPanel: React.FunctionComponent<StoreProps> = props => {
         <Form onSubmit={createDeviceUsageIndication}>
           <SidebarMenuItem>Add Biomarker Association</SidebarMenuItem>
           <SidebarMenuItem>
-            <AsyncPaginate
-              additional={{ ...defaultAdditional, type: SearchOptionType.GENE }}
-              loadOptions={loadOptions}
-              value={geneValue}
+            <GeneSelect
               onChange={option => {
-                option ? loadAlterationOptions(option.value) : setAlterationList([]);
-                onGeneChange(option);
+                const geneId = option ? option.value : null;
+                setSelectedGeneId(geneId);
               }}
-              cacheUniqs={[geneValue]}
-              placeholder="Select a gene..."
-              isClearable
             />
           </SidebarMenuItem>
           <SidebarMenuItem>
             <div style={{ display: 'flex' }}>
               <div style={{ flex: 1 }}>
-                <Select
-                  name={'alterations'}
-                  options={alterationList}
-                  placeholder="Select an alteration..."
-                  onChange={onAlterationChange}
-                  isDisabled={!geneValue}
-                  isClearable
-                />
+                <AlterationSelect geneId={selectedGeneId} onChange={onAlterationChange} />
               </div>
               <DefaultTooltip overlay={'Create new alteration'}>
                 <Button color="primary" onClick={redirectToCreateAlteration}>
@@ -184,18 +103,10 @@ const FdaSubmissionPanel: React.FunctionComponent<StoreProps> = props => {
             </div>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <CancerTypeSelect cancerTypeValue={cancerTypeValue} onCancerTypeChange={onCancerTypeChange} />
+            <CancerTypeSelect onChange={onCancerTypeChange} />
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <AsyncPaginate
-              additional={{ ...defaultAdditional, type: SearchOptionType.DRUG }}
-              loadOptions={loadOptions}
-              value={drugValue}
-              onChange={onDrugChange}
-              cacheUniqs={[drugValue]}
-              placeholder="Select a drug..."
-              isClearable
-            />
+            <DrugSelect onChange={onDrugChange} />
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SaveButton />

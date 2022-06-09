@@ -95,5 +95,6 @@ export enum USER_AUTHORITY {
   ROLE_USER = 'ROLE_USER',
   ROLE_ADMIN = 'ROLE_ADMIN',
 }
+export const DEFAULT_SORT_PARAMETER = 'id,ASC';
 
 export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');
