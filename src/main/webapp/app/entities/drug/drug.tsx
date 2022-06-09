@@ -12,14 +12,17 @@ import { Column } from 'react-table';
 import { TableHeader } from 'app/shared/table/TableHeader';
 import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
 import EntityTable from 'app/shared/table/EntityTable';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { DEFAULT_ENTITY_SORT_FIELD, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 export interface IDrugProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const Drug = (props: IDrugProps) => {
   const [search, setSearch] = useState('');
   const [paginationState, setPaginationState] = useState(
-    overridePaginationStateWithQueryParams(getSortState(props.location, ITEMS_PER_PAGE, 'id'), props.location.search)
+    overridePaginationStateWithQueryParams(
+      getSortState(props.location, ITEMS_PER_PAGE, DEFAULT_ENTITY_SORT_FIELD[ENTITY_TYPE.DRUG]),
+      props.location.search
+    )
   );
 
   const drugList = props.drugList;

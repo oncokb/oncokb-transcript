@@ -4,7 +4,6 @@ import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.mskcc.oncokb.curation.domain.Article;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

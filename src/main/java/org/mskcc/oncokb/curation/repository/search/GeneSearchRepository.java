@@ -8,9 +8,11 @@ import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.WildcardQueryBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
@@ -44,8 +46,19 @@ class GeneSearchRepositoryInternalImpl implements GeneSearchRepositoryInternal {
             Long entrezGeneId = Long.parseLong(query);
             ((BoolQueryBuilder) queryBuilder).should(new MatchQueryBuilder("entrezGeneId", entrezGeneId));
         } catch (NumberFormatException e) {}
-        NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder().withQuery(queryBuilder).withPageable(pageable).build();
-        SearchHits<Gene> searchHits = elasticsearchTemplate.search(nativeSearchQuery, Gene.class);
+
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
+            .withQuery(queryBuilder)
+            .withPageable(PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
+
+        List<FieldSortBuilder> sortBuilders = new SortToFieldSortBuilderConverter<>(Gene.class).convert(pageable.getSort());
+        sortBuilders
+            .stream()
+            .forEach(sortBuilder -> {
+                nativeSearchQueryBuilder.withSort(sortBuilder);
+            });
+
+        SearchHits<Gene> searchHits = elasticsearchTemplate.search(nativeSearchQueryBuilder.build(), Gene.class);
         List<Gene> hits = searchHits.map(SearchHit::getContent).stream().collect(Collectors.toList());
 
         return new PageImpl<>(hits, pageable, searchHits.getTotalHits());

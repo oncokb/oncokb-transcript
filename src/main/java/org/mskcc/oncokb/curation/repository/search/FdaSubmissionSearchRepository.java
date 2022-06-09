@@ -5,14 +5,15 @@ import java.util.stream.Collectors;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.WildcardQueryBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
@@ -44,8 +45,19 @@ class FdaSubmissionSearchRepositoryInternalImpl implements FdaSubmissionSearchRe
             .should(new WildcardQueryBuilder("type.name", query + "*"))
             .should(new WildcardQueryBuilder("type.type", query + "*"))
             .should(new WildcardQueryBuilder("type.shortName", query + "*"));
-        NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder().withQuery(queryBuilder).withPageable(pageable).build();
-        SearchHits<FdaSubmission> searchHits = elasticsearchTemplate.search(nativeSearchQuery, FdaSubmission.class);
+
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
+            .withQuery(queryBuilder)
+            .withPageable(PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
+
+        List<FieldSortBuilder> sortBuilders = new SortToFieldSortBuilderConverter<>(FdaSubmission.class).convert(pageable.getSort());
+        sortBuilders
+            .stream()
+            .forEach(sortBuilder -> {
+                nativeSearchQueryBuilder.withSort(sortBuilder);
+            });
+
+        SearchHits<FdaSubmission> searchHits = elasticsearchTemplate.search(nativeSearchQueryBuilder.build(), FdaSubmission.class);
         List<FdaSubmission> hits = searchHits.map(SearchHit::getContent).stream().collect(Collectors.toList());
 
         return new PageImpl<>(hits, pageable, searchHits.getTotalHits());
