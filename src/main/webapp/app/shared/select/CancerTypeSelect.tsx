@@ -3,7 +3,7 @@ import { Props as SelectProps } from 'react-select';
 import _ from 'lodash';
 import { AsyncPaginate, reduceGroupedOptions } from 'react-select-async-paginate';
 import { defaultAdditional } from 'app/components/curationPanel/FdaSubmissionPanel';
-import { SearchOptionType } from 'app/config/constants';
+import { DEFAULT_SORT_PARAMETER, SearchOptionType } from 'app/config/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { connect } from '../util/typed-inject';
 import { ICancerType } from '../model/cancer-type.model';
@@ -18,7 +18,7 @@ const getAllSubtypes = (cancerTypeList: ICancerType[]) => {
   return _.uniq(cancerTypeList.filter(cancerType => cancerType.subtype)).sort();
 };
 
-const getAllTumorTypesOptions = (cancerTypeList: ICancerType[]) => {
+const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
   return [
     {
       label: 'Cancer Type',
@@ -53,12 +53,12 @@ const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props 
     let result = undefined;
     let options = [];
     if (searchWord) {
-      result = await props.searchCancerTypes({ query: searchWord, page: page - 1, size: 5, sort: 'id,ASC' });
+      result = await props.searchCancerTypes({ query: searchWord, page: page - 1, size: 5, sort: DEFAULT_SORT_PARAMETER });
     } else {
       result = await props.getCancerTypes({ page: page - 1, size: 5, sort: 'id,ASC' });
     }
 
-    options = getAllTumorTypesOptions(result.data);
+    options = getAllCancerTypesOptions(result.data);
     options[0].options = _.uniqBy(options[0].options, 'label');
     options[1].options = _.uniqBy(options[1].options, 'label');
 

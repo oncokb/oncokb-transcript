@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Props as SelectProps } from 'react-select';
-import _ from 'lodash';
 import { IRootStore } from 'app/stores/createStore';
 import { connect } from '../util/typed-inject';
 import { IAlteration } from '../model/alteration.model';

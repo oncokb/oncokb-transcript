@@ -1,9 +1,8 @@
 import React from 'react';
 import { Props as SelectProps } from 'react-select';
-import _ from 'lodash';
 import { AsyncPaginate } from 'react-select-async-paginate';
 import { defaultAdditional } from 'app/components/curationPanel/FdaSubmissionPanel';
-import { SearchOptionType } from 'app/config/constants';
+import { DEFAULT_SORT_PARAMETER, SearchOptionType } from 'app/config/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { connect } from '../util/typed-inject';
 import { IDrug } from '../model/drug.model';
@@ -16,7 +15,7 @@ const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
     let result = undefined;
     let options = [];
     if (searchWord) {
-      result = await searchDrugs({ query: searchWord, page: page - 1, size: 5, sort: 'id,ASC' });
+      result = await searchDrugs({ query: searchWord, page: page - 1, size: 5, sort: DEFAULT_SORT_PARAMETER });
     } else {
       result = await getDrugs({ page: page - 1, size: 5, sort: 'name,ASC' });
     }

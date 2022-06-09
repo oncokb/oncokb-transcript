@@ -88,7 +88,6 @@ const FdaSubmissionPanel: React.FunctionComponent<StoreProps> = props => {
                 const geneId = option ? option.value : null;
                 setSelectedGeneId(geneId);
               }}
-              lol
             />
           </SidebarMenuItem>
           <SidebarMenuItem>
