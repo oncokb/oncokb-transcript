@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
+import { RouteComponentProps } from 'react-router-dom';
 import { Input, Col, Row } from 'reactstrap';
 import { getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IGene } from 'app/shared/model/gene.model';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
@@ -12,14 +11,17 @@ import { TableHeader } from 'app/shared/table/TableHeader';
 import { Column } from 'react-table';
 import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
 import EntityTable from 'app/shared/table/EntityTable';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { DEFAULT_ENTITY_SORT_FIELD, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 export interface IGeneProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const Gene = (props: IGeneProps) => {
   const [search, setSearch] = useState('');
   const [paginationState, setPaginationState] = useState(
-    overridePaginationStateWithQueryParams(getSortState(props.location, ITEMS_PER_PAGE, 'id'), props.location.search)
+    overridePaginationStateWithQueryParams(
+      getSortState(props.location, ITEMS_PER_PAGE, DEFAULT_ENTITY_SORT_FIELD[ENTITY_TYPE.GENE]),
+      props.location.search
+    )
   );
 
   const geneList = props.geneList;

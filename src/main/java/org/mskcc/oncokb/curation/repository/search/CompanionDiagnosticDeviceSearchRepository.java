@@ -1,7 +1,5 @@
 package org.mskcc.oncokb.curation.repository.search;
 
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
-
 import java.util.stream.Stream;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;

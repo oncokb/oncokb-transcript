@@ -14,14 +14,17 @@ import _ from 'lodash';
 import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import EntityTable from 'app/shared/table/EntityTable';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { DEFAULT_ENTITY_SORT_FIELD, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 export interface IFdaSubmissionProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const FdaSubmission = (props: IFdaSubmissionProps) => {
   const [search, setSearch] = useState('');
   const [paginationState, setPaginationState] = useState(
-    overridePaginationStateWithQueryParams(getSortState(props.location, ITEMS_PER_PAGE, 'id'), props.location.search)
+    overridePaginationStateWithQueryParams(
+      getSortState(props.location, ITEMS_PER_PAGE, DEFAULT_ENTITY_SORT_FIELD[ENTITY_TYPE.FDA_SUBMISSION]),
+      props.location.search
+    )
   );
 
   const fdaSubmissionList = props.fdaSubmissionList;

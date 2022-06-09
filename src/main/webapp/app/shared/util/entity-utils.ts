@@ -41,3 +41,7 @@ export const overridePaginationStateWithQueryParams = (paginationBaseState: IPag
   }
   return paginationBaseState;
 };
+
+export const getEntityPaginationSortParameter = (field: string, sortDirection: string) => {
+  return `${field},${sortDirection}`;
+};

@@ -5,9 +5,11 @@ import java.util.stream.Collectors;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.WildcardQueryBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
@@ -36,8 +38,19 @@ class AlterationSearchRepositoryInternalImpl implements AlterationSearchReposito
     @Override
     public Page<Alteration> search(String query, Pageable pageable) {
         QueryBuilder queryBuilder = QueryBuilders.boolQuery().should(new WildcardQueryBuilder("name", query + "*"));
-        NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder().withQuery(queryBuilder).withPageable(pageable).build();
-        SearchHits<Alteration> searchHits = elasticsearchTemplate.search(nativeSearchQuery, Alteration.class);
+
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
+            .withQuery(queryBuilder)
+            .withPageable(PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
+
+        List<FieldSortBuilder> sortBuilders = new SortToFieldSortBuilderConverter<>(Alteration.class).convert(pageable.getSort());
+        sortBuilders
+            .stream()
+            .forEach(sortBuilder -> {
+                nativeSearchQueryBuilder.withSort(sortBuilder);
+            });
+
+        SearchHits<Alteration> searchHits = elasticsearchTemplate.search(nativeSearchQueryBuilder.build(), Alteration.class);
         List<Alteration> hits = searchHits.map(SearchHit::getContent).stream().collect(Collectors.toList());
 
         return new PageImpl<>(hits, pageable, searchHits.getTotalHits());

@@ -5,14 +5,15 @@ import java.util.stream.Collectors;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.WildcardQueryBuilder;
+import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
@@ -40,8 +41,19 @@ class DrugSearchRepositoryInternalImpl implements DrugSearchRepositoryInternal {
             .should(new WildcardQueryBuilder("name", query + "*"))
             .should(new WildcardQueryBuilder("code", query + "*"))
             .should(new WildcardQueryBuilder("brands.name", query + "*"));
-        NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder().withQuery(queryBuilder).withPageable(pageable).build();
-        SearchHits<Drug> searchHits = elasticsearchTemplate.search(nativeSearchQuery, Drug.class);
+
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
+            .withQuery(queryBuilder)
+            .withPageable(PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
+
+        List<FieldSortBuilder> sortBuilders = new SortToFieldSortBuilderConverter<>(Drug.class).convert(pageable.getSort());
+        sortBuilders
+            .stream()
+            .forEach(sortBuilder -> {
+                nativeSearchQueryBuilder.withSort(sortBuilder);
+            });
+
+        SearchHits<Drug> searchHits = elasticsearchTemplate.search(nativeSearchQueryBuilder.build(), Drug.class);
         List<Drug> hits = searchHits.map(SearchHit::getContent).stream().collect(Collectors.toList());
 
         return new PageImpl<>(hits, pageable, searchHits.getTotalHits());

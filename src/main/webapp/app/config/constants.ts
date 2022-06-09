@@ -95,6 +95,16 @@ export enum USER_AUTHORITY {
   ROLE_USER = 'ROLE_USER',
   ROLE_ADMIN = 'ROLE_ADMIN',
 }
+
 export const DEFAULT_SORT_PARAMETER = 'id,ASC';
+
+export const DEFAULT_SORT_DIRECTION = 'ASC';
+
+export const DEFAULT_ENTITY_SORT_FIELD: { [key in ENTITY_TYPE]?: string } = {
+  [ENTITY_TYPE.GENE]: 'hugoSymbol',
+  [ENTITY_TYPE.ALTERATION]: 'name',
+  [ENTITY_TYPE.DRUG]: 'name',
+  [ENTITY_TYPE.FDA_SUBMISSION]: 'deviceName',
+};
 
 export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');
