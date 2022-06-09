@@ -7,6 +7,7 @@ import { DEFAULT_SORT_PARAMETER, SearchOptionType } from 'app/config/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { connect } from '../util/typed-inject';
 import { ICancerType } from '../model/cancer-type.model';
+import { ITEMS_PER_PAGE } from '../util/pagination.constants';
 
 interface ICancerTypeSelectProps extends SelectProps, StoreProps {}
 
@@ -53,9 +54,9 @@ const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props 
     let result = undefined;
     let options = [];
     if (searchWord) {
-      result = await props.searchCancerTypes({ query: searchWord, page: page - 1, size: 5, sort: DEFAULT_SORT_PARAMETER });
+      result = await props.searchCancerTypes({ query: searchWord, page: page - 1, size: ITEMS_PER_PAGE, sort: DEFAULT_SORT_PARAMETER });
     } else {
-      result = await props.getCancerTypes({ page: page - 1, size: 5, sort: 'id,ASC' });
+      result = await props.getCancerTypes({ page: page - 1, size: ITEMS_PER_PAGE, sort: 'id,ASC' });
     }
 
     options = getAllCancerTypesOptions(result.data);

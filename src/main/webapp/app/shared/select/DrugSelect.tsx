@@ -6,6 +6,7 @@ import { DEFAULT_SORT_PARAMETER, SearchOptionType } from 'app/config/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { connect } from '../util/typed-inject';
 import { IDrug } from '../model/drug.model';
+import { ITEMS_PER_PAGE } from '../util/pagination.constants';
 
 interface IDrugSelectProps extends SelectProps, StoreProps {}
 
@@ -15,9 +16,9 @@ const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
     let result = undefined;
     let options = [];
     if (searchWord) {
-      result = await searchDrugs({ query: searchWord, page: page - 1, size: 5, sort: DEFAULT_SORT_PARAMETER });
+      result = await searchDrugs({ query: searchWord, page: page - 1, size: ITEMS_PER_PAGE, sort: DEFAULT_SORT_PARAMETER });
     } else {
-      result = await getDrugs({ page: page - 1, size: 5, sort: 'name,ASC' });
+      result = await getDrugs({ page: page - 1, size: ITEMS_PER_PAGE, sort: 'name,ASC' });
     }
 
     options = result?.data?.map((entity: IDrug) => ({

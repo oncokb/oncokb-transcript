@@ -6,6 +6,7 @@ import { DEFAULT_SORT_PARAMETER, SearchOptionType } from 'app/config/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { connect } from '../util/typed-inject';
 import { IGene } from '../model/gene.model';
+import { ITEMS_PER_PAGE } from '../util/pagination.constants';
 
 export interface IGeneSelectProps extends SelectProps, StoreProps {}
 
@@ -15,9 +16,9 @@ const GeneSelect = (props: IGeneSelectProps) => {
     let result = undefined;
     let options = [];
     if (searchWord) {
-      result = await searchGenes({ query: searchWord, page: page - 1, size: 5, sort: DEFAULT_SORT_PARAMETER });
+      result = await searchGenes({ query: searchWord, page: page - 1, size: ITEMS_PER_PAGE, sort: DEFAULT_SORT_PARAMETER });
     } else {
-      result = await getGenes({ page: page - 1, size: 5, sort: 'hugoSymbol,ASC' });
+      result = await getGenes({ page: page - 1, size: ITEMS_PER_PAGE, sort: 'hugoSymbol,ASC' });
     }
 
     options = result?.data?.map((entity: IGene) => ({
