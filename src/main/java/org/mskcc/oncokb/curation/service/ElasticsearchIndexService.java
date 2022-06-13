@@ -1,8 +1,11 @@
 package org.mskcc.oncokb.curation.service;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.elasticsearch.ResourceAlreadyExistsException;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.repository.*;
@@ -19,7 +22,6 @@ import org.springframework.data.elasticsearch.core.index.Settings;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,21 +83,38 @@ public class ElasticsearchIndexService {
         this.elasticsearchOperations = elasticsearchOperations;
     }
 
-    @Async
     public void reindexAll() {
+        reindexIndices(Stream.of(ElasticsearchIndexName.values()).map(indexName -> indexName.getName()).collect(Collectors.toList()));
+    }
+
+    public void reindexIndices(List<String> indexNames) {
         if (reindexLock.tryLock()) {
             try {
-                reindexForClass(Article.class, articleRepository, articleSearchRepository);
-                reindexForClass(
-                    CompanionDiagnosticDevice.class,
-                    companionDiagnosticDeviceRepository,
-                    companionDiagnosticDeviceSearchRepository
-                );
-                reindexForClass(FdaSubmission.class, fdaSubmissionRepository, fdaSubmissionSearchRepository);
-                reindexForClass(CancerType.class, cancerTypeRepository, cancerTypeSearchRepository);
-                reindexForClass(Drug.class, drugRepository, drugSearchRepository);
-                reindexForClass(Gene.class, geneRepository, geneSearchRepository);
-                reindexForClass(Alteration.class, alterationRepository, alterationSearchRepository);
+                if (indexNames.contains(ElasticsearchIndexName.ARTICLE.getName())) {
+                    reindexForClass(Article.class, articleRepository, articleSearchRepository);
+                }
+                if (indexNames.contains(ElasticsearchIndexName.COMPANION_DIAGNOSTIC_DEVICE.getName())) {
+                    reindexForClass(
+                        CompanionDiagnosticDevice.class,
+                        companionDiagnosticDeviceRepository,
+                        companionDiagnosticDeviceSearchRepository
+                    );
+                }
+                if (indexNames.contains(ElasticsearchIndexName.FDA_SUBMISSION.getName())) {
+                    reindexForClass(FdaSubmission.class, fdaSubmissionRepository, fdaSubmissionSearchRepository);
+                }
+                if (indexNames.contains(ElasticsearchIndexName.CANCER_TYPE.getName())) {
+                    reindexForClass(CancerType.class, cancerTypeRepository, cancerTypeSearchRepository);
+                }
+                if (indexNames.contains(ElasticsearchIndexName.DRUG.getName())) {
+                    reindexForClass(Drug.class, drugRepository, drugSearchRepository);
+                }
+                if (indexNames.contains(ElasticsearchIndexName.GENE.getName())) {
+                    reindexForClass(Gene.class, geneRepository, geneSearchRepository);
+                }
+                if (indexNames.contains(ElasticsearchIndexName.ALTERATION.getName())) {
+                    reindexForClass(Alteration.class, alterationRepository, alterationSearchRepository);
+                }
                 log.info("Elasticsearch: Successfully performed reindexing");
             } finally {
                 reindexLock.unlock();
@@ -105,7 +124,6 @@ public class ElasticsearchIndexService {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private <T, ID extends Serializable> void reindexForClass(
         Class<T> entityClass,
         JpaRepository<T, ID> jpaRepository,
