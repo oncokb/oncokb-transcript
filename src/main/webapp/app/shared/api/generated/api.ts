@@ -39,12 +39,6 @@ import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } fr
 export interface Aggregation {
   /**
    *
-   * @type {{ [key: string]: object; }}
-   * @memberof Aggregation
-   */
-  metadata?: { [key: string]: object };
-  /**
-   *
    * @type {string}
    * @memberof Aggregation
    */
@@ -55,6 +49,12 @@ export interface Aggregation {
    * @memberof Aggregation
    */
   type?: string;
+  /**
+   *
+   * @type {{ [key: string]: object; }}
+   * @memberof Aggregation
+   */
+  metadata?: { [key: string]: object };
   /**
    *
    * @type {boolean}
@@ -1781,6 +1781,18 @@ export interface SearchHitObject {
 export interface SearchHitsObject {
   /**
    *
+   * @type {Array<SearchHitObject>}
+   * @memberof SearchHitsObject
+   */
+  searchHits?: Array<SearchHitObject>;
+  /**
+   *
+   * @type {number}
+   * @memberof SearchHitsObject
+   */
+  totalHits?: number;
+  /**
+   *
    * @type {number}
    * @memberof SearchHitsObject
    */
@@ -1797,18 +1809,6 @@ export interface SearchHitsObject {
    * @memberof SearchHitsObject
    */
   aggregations?: Aggregations;
-  /**
-   *
-   * @type {Array<SearchHitObject>}
-   * @memberof SearchHitsObject
-   */
-  searchHits?: Array<SearchHitObject>;
-  /**
-   *
-   * @type {number}
-   * @memberof SearchHitsObject
-   */
-  totalHits?: number;
   /**
    *
    * @type {boolean}
@@ -2252,6 +2252,61 @@ export interface UntranslatedRegion {
    * @memberof UntranslatedRegion
    */
   strand?: number;
+}
+/**
+ *
+ * @export
+ * @interface User
+ */
+export interface User {
+  /**
+   *
+   * @type {number}
+   * @memberof User
+   */
+  id?: number;
+  /**
+   *
+   * @type {string}
+   * @memberof User
+   */
+  login: string;
+  /**
+   *
+   * @type {string}
+   * @memberof User
+   */
+  firstName?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof User
+   */
+  lastName?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof User
+   */
+  email?: string;
+  /**
+   *
+   * @type {boolean}
+   * @memberof User
+   */
+  activated: boolean;
+  /**
+   *
+   * @type {string}
+   * @memberof User
+   */
+  langKey?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof User
+   */
+  imageUrl?: string;
 }
 /**
  *
@@ -7966,6 +8021,39 @@ export const ElasticsearchIndexResourceApiAxiosParamCreator = function (configur
         options: localVarRequestOptions,
       };
     },
+    /**
+     *
+     * @param {Array<string>} requestBody
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    reindexIndicesFromList: async (requestBody: Array<string>, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'requestBody' is not null or undefined
+      assertParamExists('reindexIndicesFromList', 'requestBody', requestBody);
+      const localVarPath = `/api/elasticsearch/index`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
   };
 };
 
@@ -7983,6 +8071,19 @@ export const ElasticsearchIndexResourceApiFp = function (configuration?: Configu
      */
     async reindexAll(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.reindexAll(options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {Array<string>} requestBody
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async reindexIndicesFromList(
+      requestBody: Array<string>,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.reindexIndicesFromList(requestBody, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
   };
@@ -8003,6 +8104,15 @@ export const ElasticsearchIndexResourceApiFactory = function (configuration?: Co
     reindexAll(options?: any): AxiosPromise<void> {
       return localVarFp.reindexAll(options).then(request => request(axios, basePath));
     },
+    /**
+     *
+     * @param {Array<string>} requestBody
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    reindexIndicesFromList(requestBody: Array<string>, options?: any): AxiosPromise<void> {
+      return localVarFp.reindexIndicesFromList(requestBody, options).then(request => request(axios, basePath));
+    },
   };
 };
 
@@ -8022,6 +8132,19 @@ export class ElasticsearchIndexResourceApi extends BaseAPI {
   public reindexAll(options?: AxiosRequestConfig) {
     return ElasticsearchIndexResourceApiFp(this.configuration)
       .reindexAll(options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {Array<string>} requestBody
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ElasticsearchIndexResourceApi
+   */
+  public reindexIndicesFromList(requestBody: Array<string>, options?: AxiosRequestConfig) {
+    return ElasticsearchIndexResourceApiFp(this.configuration)
+      .reindexIndicesFromList(requestBody, options)
       .then(request => request(this.axios, this.basePath));
   }
 }
@@ -14252,6 +14375,69 @@ export const UserResourceApiAxiosParamCreator = function (configuration?: Config
   return {
     /**
      *
+     * @param {UserDTO} userDTO
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createUser: async (userDTO: UserDTO, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'userDTO' is not null or undefined
+      assertParamExists('createUser', 'userDTO', userDTO);
+      const localVarPath = `/api/admin/users`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(userDTO, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} login
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteUser: async (login: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'login' is not null or undefined
+      assertParamExists('deleteUser', 'login', login);
+      const localVarPath = `/api/admin/users/{login}`.replace(`{${'login'}}`, encodeURIComponent(String(login)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -14314,6 +14500,42 @@ export const UserResourceApiAxiosParamCreator = function (configuration?: Config
         options: localVarRequestOptions,
       };
     },
+    /**
+     *
+     * @param {number} id
+     * @param {UserDTO} userDTO
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateUser: async (id: number, userDTO: UserDTO, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('updateUser', 'id', id);
+      // verify required parameter 'userDTO' is not null or undefined
+      assertParamExists('updateUser', 'userDTO', userDTO);
+      const localVarPath = `/api/admin/users/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(userDTO, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
   };
 };
 
@@ -14324,6 +14546,32 @@ export const UserResourceApiAxiosParamCreator = function (configuration?: Config
 export const UserResourceApiFp = function (configuration?: Configuration) {
   const localVarAxiosParamCreator = UserResourceApiAxiosParamCreator(configuration);
   return {
+    /**
+     *
+     * @param {UserDTO} userDTO
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async createUser(
+      userDTO: UserDTO,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<User>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.createUser(userDTO, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {string} login
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deleteUser(
+      login: string,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteUser(login, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
     /**
      *
      * @param {Pageable} pageable
@@ -14350,6 +14598,21 @@ export const UserResourceApiFp = function (configuration?: Configuration) {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getUser(login, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
+    /**
+     *
+     * @param {number} id
+     * @param {UserDTO} userDTO
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async updateUser(
+      id: number,
+      userDTO: UserDTO,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDTO>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.updateUser(id, userDTO, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
   };
 };
 
@@ -14360,6 +14623,24 @@ export const UserResourceApiFp = function (configuration?: Configuration) {
 export const UserResourceApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
   const localVarFp = UserResourceApiFp(configuration);
   return {
+    /**
+     *
+     * @param {UserDTO} userDTO
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createUser(userDTO: UserDTO, options?: any): AxiosPromise<User> {
+      return localVarFp.createUser(userDTO, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} login
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteUser(login: string, options?: any): AxiosPromise<void> {
+      return localVarFp.deleteUser(login, options).then(request => request(axios, basePath));
+    },
     /**
      *
      * @param {Pageable} pageable
@@ -14378,6 +14659,16 @@ export const UserResourceApiFactory = function (configuration?: Configuration, b
     getUser(login: string, options?: any): AxiosPromise<UserDTO> {
       return localVarFp.getUser(login, options).then(request => request(axios, basePath));
     },
+    /**
+     *
+     * @param {number} id
+     * @param {UserDTO} userDTO
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateUser(id: number, userDTO: UserDTO, options?: any): AxiosPromise<UserDTO> {
+      return localVarFp.updateUser(id, userDTO, options).then(request => request(axios, basePath));
+    },
   };
 };
 
@@ -14388,6 +14679,32 @@ export const UserResourceApiFactory = function (configuration?: Configuration, b
  * @extends {BaseAPI}
  */
 export class UserResourceApi extends BaseAPI {
+  /**
+   *
+   * @param {UserDTO} userDTO
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof UserResourceApi
+   */
+  public createUser(userDTO: UserDTO, options?: AxiosRequestConfig) {
+    return UserResourceApiFp(this.configuration)
+      .createUser(userDTO, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} login
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof UserResourceApi
+   */
+  public deleteUser(login: string, options?: AxiosRequestConfig) {
+    return UserResourceApiFp(this.configuration)
+      .deleteUser(login, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
   /**
    *
    * @param {Pageable} pageable
@@ -14411,6 +14728,20 @@ export class UserResourceApi extends BaseAPI {
   public getUser(login: string, options?: AxiosRequestConfig) {
     return UserResourceApiFp(this.configuration)
       .getUser(login, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {UserDTO} userDTO
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof UserResourceApi
+   */
+  public updateUser(id: number, userDTO: UserDTO, options?: AxiosRequestConfig) {
+    return UserResourceApiFp(this.configuration)
+      .updateUser(id, userDTO, options)
       .then(request => request(this.axios, this.basePath));
   }
 }

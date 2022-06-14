@@ -12,6 +12,9 @@ const AccountMenuItemsAuthenticated: React.FunctionComponent<{
         <MenuItem icon="users" to="/admin/user-management">
           User management
         </MenuItem>
+        <MenuItem icon="search" to="/admin/cache-management">
+          Cache management
+        </MenuItem>
       </>
     ) : null}
     <MenuItem icon="wrench" to="/account/settings">
