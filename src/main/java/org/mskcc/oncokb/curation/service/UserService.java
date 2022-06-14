@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.mskcc.oncokb.curation.config.Constants;
+import org.mskcc.oncokb.curation.config.cache.CacheCategory;
+import org.mskcc.oncokb.curation.config.cache.CacheNameResolver;
 import org.mskcc.oncokb.curation.domain.Authority;
 import org.mskcc.oncokb.curation.domain.User;
 import org.mskcc.oncokb.curation.repository.AuthorityRepository;
@@ -15,6 +17,7 @@ import org.mskcc.oncokb.curation.service.dto.UserDTO;
 import org.mskcc.oncokb.curation.service.mapper.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -40,10 +43,22 @@ public class UserService {
 
     private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, AuthorityRepository authorityRepository, UserMapper userMapper) {
+    private final CacheNameResolver cacheNameResolver;
+
+    private final Optional<CacheManager> optionalCacheManager;
+
+    public UserService(
+        UserRepository userRepository,
+        AuthorityRepository authorityRepository,
+        UserMapper userMapper,
+        CacheNameResolver cacheNameResolver,
+        Optional<CacheManager> optionalCacheManager
+    ) {
         this.userRepository = userRepository;
         this.authorityRepository = authorityRepository;
         this.userMapper = userMapper;
+        this.cacheNameResolver = cacheNameResolver;
+        this.optionalCacheManager = optionalCacheManager;
     }
 
     public User createUser(UserDTO userDTO) {
@@ -195,5 +210,14 @@ public class UserService {
             });
     }
 
-    private void clearUserCaches(User user) {}
+    private void clearUserCaches(User user) {
+        if (this.optionalCacheManager.isPresent()) {
+            for (String cacheKey : this.optionalCacheManager.get().getCacheNames()) {
+                String cacheKeyPrefix = this.cacheNameResolver.getCacheName(CacheCategory.USER, "");
+                if (cacheKey.startsWith(cacheKeyPrefix)) {
+                    Objects.requireNonNull(this.optionalCacheManager.get().getCache(cacheKey)).clear();
+                }
+            }
+        }
+    }
 }

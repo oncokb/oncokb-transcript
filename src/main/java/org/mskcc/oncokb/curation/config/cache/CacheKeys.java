@@ -6,5 +6,8 @@ public final class CacheKeys {
     public static final String GENES_BY_HUGO_SYMBOL = "genesByHugoSymbol";
     public static final String GENE_ALIASES_BY_NAME = "geneAliasesByName";
 
+    public static final String USERS_BY_LOGIN_CACHE = "usersByLogin";
+    public static final String USERS_BY_EMAIL_CACHE = "usersByEmail";
+
     public static final String TRANSCRIPTS_BY_ENSEMBL_TRANSCRIPT_IDS = "findByReferenceGenomeAndEnsemblTranscriptIdIsIn";
 }
