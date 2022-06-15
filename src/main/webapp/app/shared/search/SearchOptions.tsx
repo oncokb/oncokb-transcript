@@ -94,6 +94,9 @@ export const SearchOption: React.FunctionComponent<SearchOptionProps> = props =>
         const data: IGene = props.data;
         path = PAGE_ROUTE.GENE + path;
         title = { textToHighlight: `${data.hugoSymbol} (Entrez Gene: ${data.entrezGeneId})`, searchWords: [searchKeyword] };
+        subTitles = [
+          { label: 'Also known as ', textToHighlight: data.geneAliases?.map(alias => alias.name).join(', '), searchWords: [searchKeyword] },
+        ];
         break;
       }
       case SearchOptionType.ALTERATION: {

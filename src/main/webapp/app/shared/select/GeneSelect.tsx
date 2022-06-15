@@ -1,5 +1,5 @@
 import React from 'react';
-import { Props as SelectProps } from 'react-select';
+import { components, Props as SelectProps } from 'react-select';
 import { AsyncPaginate } from 'react-select-async-paginate';
 import { defaultAdditional } from 'app/components/curationPanel/FdaSubmissionPanel';
 import { DEFAULT_ENTITY_SORT_FIELD, DEFAULT_SORT_DIRECTION, ENTITY_TYPE, SearchOptionType } from 'app/config/constants';
@@ -26,6 +26,7 @@ const GeneSelect = (props: IGeneSelectProps) => {
 
     options = result?.data?.map((entity: IGene) => ({
       value: entity.id,
+      geneAliases: entity.geneAliases,
       label: entity.hugoSymbol,
     }));
 
@@ -39,9 +40,29 @@ const GeneSelect = (props: IGeneSelectProps) => {
     };
   };
 
+  const Option: React.FunctionComponent<any> = (optionProps: any) => {
+    const hasAliases = optionProps.data.geneAliases?.length > 0;
+    return (
+      <>
+        <components.Option {...optionProps}>
+          <div>{optionProps.data.label}</div>
+          {hasAliases && (
+            <div style={{ color: 'grey', fontSize: '0.9em' }}>
+              <span>Also known as </span>
+              <span>{optionProps.data.geneAliases.map(alias => alias.name).join(', ')}</span>
+            </div>
+          )}
+        </components.Option>
+      </>
+    );
+  };
+
   return (
     <AsyncPaginate
       {...selectProps}
+      components={{
+        Option,
+      }}
       additional={{ ...defaultAdditional, type: SearchOptionType.GENE }}
       loadOptions={loadGeneOptions}
       cacheUniqs={[props.value]}
