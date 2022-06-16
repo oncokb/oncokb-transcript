@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { components, OptionProps, Props as SelectProps } from 'react-select';
 import { AsyncPaginate } from 'react-select-async-paginate';
 import { defaultAdditional } from 'app/components/curationPanel/FdaSubmissionPanel';
@@ -23,6 +23,9 @@ interface GeneSelectOption {
 
 const GeneSelect = (props: IGeneSelectProps) => {
   const { getGenes, searchGenes, ...selectProps } = props;
+
+  const [searchInput, setSearchInput] = useState('');
+
   const loadGeneOptions = async (searchWord: string, prevOptions: any[], { page, type }: { page: number; type: SearchOptionType }) => {
     let result = undefined;
     let options: GeneSelectOption[] = [];
@@ -49,14 +52,25 @@ const GeneSelect = (props: IGeneSelectProps) => {
   };
 
   const Option: React.FunctionComponent = (optionProps: OptionProps<GeneSelectOption>) => {
+    const searchKeyword = searchInput || '';
     const subTitles = [];
     if (optionProps.data.geneAliases?.length > 0) {
-      subTitles.push({ label: 'Also known as ', text: optionProps.data.geneAliases.map(alias => alias.name).join(', ') });
+      subTitles.push({
+        label: 'Also known as ',
+        text: optionProps.data.geneAliases.map(alias => alias.name).join(', '),
+        searchWords: [searchKeyword],
+      });
     }
     return (
       <>
         <components.Option {...optionProps}>
-          <EntitySelectOption title={optionProps.data.label} subTitles={subTitles} />
+          <EntitySelectOption
+            title={{
+              text: optionProps.data.label,
+              searchWords: [searchKeyword],
+            }}
+            subTitles={subTitles}
+          />
         </components.Option>
       </>
     );
@@ -72,6 +86,7 @@ const GeneSelect = (props: IGeneSelectProps) => {
       loadOptions={loadGeneOptions}
       cacheUniqs={[props.value]}
       placeholder="Select a gene..."
+      onInputChange={input => setSearchInput(input)}
       isClearable
     />
   );
