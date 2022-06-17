@@ -82,7 +82,7 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
         />
         {!props.showCurationPanel && (
           <EntityActionButton
-            color="secondary"
+            color="primary"
             className="ml-2"
             entityId={fdaSubmissionEntity.id}
             entityType={ENTITY_TYPE.FDA_SUBMISSION}
