@@ -1,7 +1,6 @@
 package org.mskcc.oncokb.curation.service;
 
-import static org.mskcc.oncokb.curation.domain.enumeration.AlterationType.COPY_NUMBER_ALTERATION;
-import static org.mskcc.oncokb.curation.domain.enumeration.AlterationType.STRUCTURAL_VARIANT;
+import static org.mskcc.oncokb.curation.domain.enumeration.AlterationType.*;
 import static org.mskcc.oncokb.curation.domain.enumeration.MutationConsequence.MISSENSE_VARIANT;
 
 import java.util.*;
@@ -80,7 +79,7 @@ public class MainService {
     public void annotateAlteration(Alteration alteration) {
         Alteration pcAlteration = alterationUtils.parseProteinChange(alteration.getAlteration());
 
-        if (alteration.getGenes() == null || alteration.getGenes().isEmpty()) {
+        if (pcAlteration.getConsequence().getType().equals(STRUCTURAL_VARIANT) && !pcAlteration.getGenes().isEmpty()) {
             alteration.setGenes(pcAlteration.getGenes());
         }
         alteration.setAlteration(pcAlteration.getAlteration());
@@ -95,12 +94,18 @@ public class MainService {
                     geneOptional = geneService.findGeneByEntrezGeneId(gene.getEntrezGeneId());
                 } else if (gene.getHugoSymbol() != null) {
                     geneOptional = geneService.findGeneByHugoSymbol(gene.getHugoSymbol());
+                    if (geneOptional.isEmpty()) {
+                        geneOptional = geneService.findGeneByAlias(gene.getHugoSymbol());
+                    }
                 }
                 if (geneOptional.isEmpty()) {
-                    geneOptional = Optional.of(gene);
+                    geneOptional = Optional.empty();
+                    log.error("No match found for gene {}", gene);
                 }
-                return geneOptional.get();
+                return geneOptional;
             })
+            .filter(Optional::isPresent)
+            .map(Optional::get)
             .collect(Collectors.toSet());
         alteration.setGenes(genes);
 
@@ -136,7 +141,7 @@ public class MainService {
         }
 
         // update reference genome
-        if (MISSENSE_VARIANT.equals(alteration.getConsequence().getType())) {
+        if (MUTATION.equals(alteration.getConsequence().getType())) {
             Gene gene = alteration.getGenes().iterator().next();
             if (alteration.getProteinStart() != null) {
                 Optional<Sequence> grch37Sequence = findSequenceByGene(
@@ -150,7 +155,7 @@ public class MainService {
                     SequenceType.PROTEIN
                 );
 
-                if (grch37Sequence.isPresent()) {
+                if (grch37Sequence.isPresent() && alteration.getProteinStart() < grch37Sequence.get().getSequence().length()) {
                     String refRe = String.valueOf(grch37Sequence.get().getSequence().charAt(alteration.getProteinStart() - 1));
                     if (StringUtils.isEmpty(alteration.getRefResidues())) {
                         alteration.setRefResidues(refRe);
@@ -158,10 +163,11 @@ public class MainService {
                     if (alteration.getRefResidues().equals(refRe)) {
                         AlterationReferenceGenome alterationReferenceGenome = new AlterationReferenceGenome();
                         alterationReferenceGenome.setReferenceGenome(ReferenceGenome.GRCh37);
+                        alterationReferenceGenome.setAlteration(alteration);
                         alteration.getReferenceGenomes().add(alterationReferenceGenome);
                     }
                 }
-                if (grch38Sequence.isPresent()) {
+                if (grch38Sequence.isPresent() && alteration.getProteinStart() < grch38Sequence.get().getSequence().length()) {
                     String refRe = String.valueOf(grch38Sequence.get().getSequence().charAt(alteration.getProteinStart() - 1));
                     if (StringUtils.isEmpty(alteration.getRefResidues())) {
                         alteration.setRefResidues(refRe);
@@ -169,6 +175,7 @@ public class MainService {
                     if (alteration.getRefResidues().equals(refRe)) {
                         AlterationReferenceGenome alterationReferenceGenome = new AlterationReferenceGenome();
                         alterationReferenceGenome.setReferenceGenome(ReferenceGenome.GRCh38);
+                        alterationReferenceGenome.setAlteration(alteration);
                         alteration.getReferenceGenomes().add(alterationReferenceGenome);
                     }
                 }
@@ -180,6 +187,7 @@ public class MainService {
             for (ReferenceGenome rg : ReferenceGenome.values()) {
                 AlterationReferenceGenome alterationReferenceGenome = new AlterationReferenceGenome();
                 alterationReferenceGenome.setReferenceGenome(rg);
+                alterationReferenceGenome.setAlteration(alteration);
                 alteration.getReferenceGenomes().add(alterationReferenceGenome);
             }
         }

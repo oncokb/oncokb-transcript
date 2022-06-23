@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.curation;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -65,7 +66,7 @@ public class OncokbCurationApp {
     }
 
     @PostConstruct
-    public void importOncoKbSequence() throws ApiException {
+    public void importOncoKbSequence() throws ApiException, IOException {
         Collection<String> activeProfiles = Arrays.asList(
             env.getActiveProfiles().length == 0 ? env.getDefaultProfiles() : env.getActiveProfiles()
         );
