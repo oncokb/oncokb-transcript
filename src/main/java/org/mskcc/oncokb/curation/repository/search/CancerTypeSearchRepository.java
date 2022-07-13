@@ -37,7 +37,9 @@ class CancerTypeSearchRepositoryInternalImpl implements CancerTypeSearchReposito
 
     @Override
     public Page<CancerType> search(String query, Pageable pageable) {
-        QueryBuilder queryBuilder = QueryBuilders.boolQuery().should(new WildcardQueryBuilder("mainType", query + "*"));
+        QueryBuilder queryBuilder = QueryBuilders
+            .boolQuery()
+            .should(new WildcardQueryBuilder("mainType", query + "*").caseInsensitive(true));
 
         NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
             .withQuery(queryBuilder)

@@ -60,24 +60,30 @@ public class SearchService {
         String wildcardQueryString = query + "*";
         QueryBuilder fdaSubmissionQuery = QueryBuilders
             .boolQuery()
-            .should(new WildcardQueryBuilder("deviceName", wildcardQueryString))
-            .should(new WildcardQueryBuilder("number", wildcardQueryString))
-            .should(new WildcardQueryBuilder("supplementNumber", wildcardQueryString));
+            .should(new WildcardQueryBuilder("deviceName", wildcardQueryString).caseInsensitive(true))
+            .should(new WildcardQueryBuilder("number", wildcardQueryString).caseInsensitive(true))
+            .should(new WildcardQueryBuilder("supplementNumber", wildcardQueryString).caseInsensitive(true));
         QueryBuilder cdxQuery = QueryBuilders
             .boolQuery()
-            .should(new WildcardQueryBuilder("name", wildcardQueryString))
-            .should(new WildcardQueryBuilder("manufacturer", wildcardQueryString));
-        QueryBuilder articleQuery = QueryBuilders.boolQuery().should(new WildcardQueryBuilder("pmid", wildcardQueryString));
+            .should(new WildcardQueryBuilder("name", wildcardQueryString).caseInsensitive(true))
+            .should(new WildcardQueryBuilder("manufacturer", wildcardQueryString).caseInsensitive(true));
+        QueryBuilder articleQuery = QueryBuilders
+            .boolQuery()
+            .should(new WildcardQueryBuilder("pmid", wildcardQueryString).caseInsensitive(true));
         QueryBuilder drugQuery = QueryBuilders
             .boolQuery()
-            .should(new WildcardQueryBuilder("name", wildcardQueryString))
-            .should(new WildcardQueryBuilder("brands.name", wildcardQueryString));
-        QueryBuilder geneQuery = QueryBuilders.boolQuery().should(new WildcardQueryBuilder("hugoSymbol", wildcardQueryString));
+            .should(new WildcardQueryBuilder("name", wildcardQueryString).caseInsensitive(true))
+            .should(new WildcardQueryBuilder("brands.name", wildcardQueryString).caseInsensitive(true));
+        QueryBuilder geneQuery = QueryBuilders
+            .boolQuery()
+            .should(new WildcardQueryBuilder("hugoSymbol", wildcardQueryString).caseInsensitive(true));
         try {
             Long entrezGeneId = Long.parseLong(query);
             ((BoolQueryBuilder) geneQuery).should(new MatchQueryBuilder("entrezGeneId", entrezGeneId));
         } catch (NumberFormatException e) {}
-        QueryBuilder alterationQuery = QueryBuilders.boolQuery().should(new WildcardQueryBuilder("name", wildcardQueryString));
+        QueryBuilder alterationQuery = QueryBuilders
+            .boolQuery()
+            .should(new WildcardQueryBuilder("name", wildcardQueryString).caseInsensitive(true));
 
         // Prepare overall query
         QueryBuilder combinedQuery = QueryBuilders

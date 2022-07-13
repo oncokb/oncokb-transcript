@@ -33,8 +33,8 @@ class CompanionDiagnosticDeviceSearchRepositoryInternalImpl implements Companion
     public Stream<CompanionDiagnosticDevice> search(String query) {
         QueryBuilder queryBuilder = QueryBuilders
             .boolQuery()
-            .should(new WildcardQueryBuilder("name", query + "*"))
-            .should(new WildcardQueryBuilder("manufacturer", query + "*"));
+            .should(new WildcardQueryBuilder("name", query + "*").caseInsensitive(true))
+            .should(new WildcardQueryBuilder("manufacturer", query + "*").caseInsensitive(true));
         NativeSearchQuery nativeSearchQuery = new NativeSearchQueryBuilder().withQuery(queryBuilder).build();
         return elasticsearchTemplate.search(nativeSearchQuery, CompanionDiagnosticDevice.class).map(SearchHit::getContent).stream();
     }

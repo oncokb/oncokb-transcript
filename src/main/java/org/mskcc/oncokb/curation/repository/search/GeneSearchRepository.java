@@ -41,7 +41,9 @@ class GeneSearchRepositoryInternalImpl implements GeneSearchRepositoryInternal {
 
     @Override
     public Page<Gene> search(String query, Pageable pageable) {
-        QueryBuilder queryBuilder = QueryBuilders.boolQuery().should(new WildcardQueryBuilder("hugoSymbol", query + "*"));
+        QueryBuilder queryBuilder = QueryBuilders
+            .boolQuery()
+            .should(new WildcardQueryBuilder("hugoSymbol", query + "*").caseInsensitive(true));
         try {
             Long entrezGeneId = Long.parseLong(query);
             ((BoolQueryBuilder) queryBuilder).should(new MatchQueryBuilder("entrezGeneId", entrezGeneId));

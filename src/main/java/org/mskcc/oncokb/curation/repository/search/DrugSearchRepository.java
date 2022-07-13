@@ -38,9 +38,9 @@ class DrugSearchRepositoryInternalImpl implements DrugSearchRepositoryInternal {
     public Page<Drug> search(String query, Pageable pageable) {
         QueryBuilder queryBuilder = QueryBuilders
             .boolQuery()
-            .should(new WildcardQueryBuilder("name", query + "*"))
-            .should(new WildcardQueryBuilder("code", query + "*"))
-            .should(new WildcardQueryBuilder("brands.name", query + "*"));
+            .should(new WildcardQueryBuilder("name", query + "*").caseInsensitive(true))
+            .should(new WildcardQueryBuilder("code", query + "*").caseInsensitive(true))
+            .should(new WildcardQueryBuilder("brands.name", query + "*").caseInsensitive(true));
 
         NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
             .withQuery(queryBuilder)
