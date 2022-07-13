@@ -37,7 +37,7 @@ class AlterationSearchRepositoryInternalImpl implements AlterationSearchReposito
 
     @Override
     public Page<Alteration> search(String query, Pageable pageable) {
-        QueryBuilder queryBuilder = QueryBuilders.boolQuery().should(new WildcardQueryBuilder("name", query + "*"));
+        QueryBuilder queryBuilder = QueryBuilders.boolQuery().should(new WildcardQueryBuilder("name", query + "*").caseInsensitive(true));
 
         NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
             .withQuery(queryBuilder)

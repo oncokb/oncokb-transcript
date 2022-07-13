@@ -39,12 +39,12 @@ class FdaSubmissionSearchRepositoryInternalImpl implements FdaSubmissionSearchRe
     public Page<FdaSubmission> search(String query, Pageable pageable) {
         QueryBuilder queryBuilder = QueryBuilders
             .boolQuery()
-            .should(new WildcardQueryBuilder("deviceName", query + "*"))
-            .should(new WildcardQueryBuilder("number", query + "*"))
-            .should(new WildcardQueryBuilder("supplementNumber", query + "*"))
-            .should(new WildcardQueryBuilder("type.name", query + "*"))
-            .should(new WildcardQueryBuilder("type.type", query + "*"))
-            .should(new WildcardQueryBuilder("type.shortName", query + "*"));
+            .should(new WildcardQueryBuilder("deviceName", query + "*").caseInsensitive(true))
+            .should(new WildcardQueryBuilder("number", query + "*").caseInsensitive(true))
+            .should(new WildcardQueryBuilder("supplementNumber", query + "*").caseInsensitive(true))
+            .should(new WildcardQueryBuilder("type.name", query + "*").caseInsensitive(true))
+            .should(new WildcardQueryBuilder("type.type", query + "*").caseInsensitive(true))
+            .should(new WildcardQueryBuilder("type.shortName", query + "*").caseInsensitive(true));
 
         NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
             .withQuery(queryBuilder)
