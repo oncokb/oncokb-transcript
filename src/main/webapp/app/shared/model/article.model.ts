@@ -3,7 +3,7 @@ import { IArticleFullText } from 'app/shared/model/article-full-text.model';
 
 export interface IArticle {
   id?: number;
-  pmid?: string | null;
+  pmid?: string;
   pmcid?: string | null;
   doi?: string | null;
   title?: string | null;

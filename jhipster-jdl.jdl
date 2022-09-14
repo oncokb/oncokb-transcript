@@ -68,7 +68,7 @@ enum InfoType {
 }
 
 entity Article {
-    pmid String,
+    pmid String required,
     pmcid String,
     doi String,
     title TextBlob,
@@ -78,7 +78,7 @@ entity Article {
     volume String,
     issue String,
     pages String,
-    authors String,
+    authors TextBlob,
     meshTerms TextBlob
 }
 

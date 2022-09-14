@@ -218,6 +218,28 @@ class ArticleResourceIT {
 
     @Test
     @Transactional
+    void checkPmidIsRequired() throws Exception {
+        int databaseSizeBeforeTest = articleRepository.findAll().size();
+        // set the field null
+        article.setPmid(null);
+
+        // Create the Article, which fails.
+
+        restArticleMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(article))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<Article> articleList = articleRepository.findAll();
+        assertThat(articleList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllArticles() throws Exception {
         // Initialize the database
         articleRepository.saveAndFlush(article);
@@ -238,7 +260,7 @@ class ArticleResourceIT {
             .andExpect(jsonPath("$.[*].volume").value(hasItem(DEFAULT_VOLUME)))
             .andExpect(jsonPath("$.[*].issue").value(hasItem(DEFAULT_ISSUE)))
             .andExpect(jsonPath("$.[*].pages").value(hasItem(DEFAULT_PAGES)))
-            .andExpect(jsonPath("$.[*].authors").value(hasItem(DEFAULT_AUTHORS)))
+            .andExpect(jsonPath("$.[*].authors").value(hasItem(DEFAULT_AUTHORS.toString())))
             .andExpect(jsonPath("$.[*].meshTerms").value(hasItem(DEFAULT_MESH_TERMS.toString())));
     }
 
@@ -264,7 +286,7 @@ class ArticleResourceIT {
             .andExpect(jsonPath("$.volume").value(DEFAULT_VOLUME))
             .andExpect(jsonPath("$.issue").value(DEFAULT_ISSUE))
             .andExpect(jsonPath("$.pages").value(DEFAULT_PAGES))
-            .andExpect(jsonPath("$.authors").value(DEFAULT_AUTHORS))
+            .andExpect(jsonPath("$.authors").value(DEFAULT_AUTHORS.toString()))
             .andExpect(jsonPath("$.meshTerms").value(DEFAULT_MESH_TERMS.toString()));
     }
 
@@ -618,7 +640,7 @@ class ArticleResourceIT {
             .andExpect(jsonPath("$.[*].volume").value(hasItem(DEFAULT_VOLUME)))
             .andExpect(jsonPath("$.[*].issue").value(hasItem(DEFAULT_ISSUE)))
             .andExpect(jsonPath("$.[*].pages").value(hasItem(DEFAULT_PAGES)))
-            .andExpect(jsonPath("$.[*].authors").value(hasItem(DEFAULT_AUTHORS)))
+            .andExpect(jsonPath("$.[*].authors").value(hasItem(DEFAULT_AUTHORS.toString())))
             .andExpect(jsonPath("$.[*].meshTerms").value(hasItem(DEFAULT_MESH_TERMS.toString())));
     }
 }
