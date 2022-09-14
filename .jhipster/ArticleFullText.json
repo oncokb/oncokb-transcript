@@ -1,0 +1,34 @@
+{
+  "name": "ArticleFullText",
+  "fields": [
+    {
+      "fieldName": "text",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    },
+    {
+      "fieldName": "html",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-one",
+      "otherEntityName": "article",
+      "otherEntityRelationshipName": "fullText",
+      "relationshipName": "article",
+      "ownerSide": true
+    }
+  ],
+  "entityTableName": "article_full_text",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220914023829"
+}

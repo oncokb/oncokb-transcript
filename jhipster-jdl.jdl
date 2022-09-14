@@ -69,13 +69,22 @@ enum InfoType {
 
 entity Article {
     pmid String,
+    pmcid String,
+    doi String,
     title TextBlob,
+    pubAbstract TextBlob,
+    pubDate Instant,
     journal String,
-    pubDate String,
     volume String,
     issue String,
     pages String,
     authors String,
+    meshTerms TextBlob
+}
+
+entity ArticleFullText {
+	text TextBlob
+    html TextBlob
 }
 
 entity Gene {
@@ -208,6 +217,10 @@ entity DrugBrand {
 }
 
 entity DeviceUsageIndication {
+}
+
+relationship OneToOne {
+	ArticleFullText{article} to Article{fullText}
 }
 
 relationship OneToMany {

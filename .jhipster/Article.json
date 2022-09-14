@@ -6,16 +6,29 @@
       "fieldType": "String"
     },
     {
+      "fieldName": "pmcid",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "doi",
+      "fieldType": "String"
+    },
+    {
       "fieldName": "title",
       "fieldType": "byte[]",
       "fieldTypeBlobContent": "text"
     },
     {
-      "fieldName": "journal",
-      "fieldType": "String"
+      "fieldName": "pubAbstract",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
     },
     {
       "fieldName": "pubDate",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "journal",
       "fieldType": "String"
     },
     {
@@ -33,9 +46,22 @@
     {
       "fieldName": "authors",
       "fieldType": "String"
+    },
+    {
+      "fieldName": "meshTerms",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
     }
   ],
-  "relationships": [],
+  "relationships": [
+    {
+      "relationshipType": "one-to-one",
+      "otherEntityName": "articleFullText",
+      "otherEntityRelationshipName": "article",
+      "relationshipName": "fullText",
+      "ownerSide": false
+    }
+  ],
   "entityTableName": "article",
   "dto": "no",
   "pagination": "pagination",

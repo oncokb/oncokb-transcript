@@ -2,7 +2,10 @@ package org.mskcc.oncokb.curation.service;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.repository.ArticleRepository;
 import org.mskcc.oncokb.curation.repository.search.ArticleSearchRepository;
@@ -59,14 +62,23 @@ public class ArticleService {
                 if (article.getPmid() != null) {
                     existingArticle.setPmid(article.getPmid());
                 }
+                if (article.getPmcid() != null) {
+                    existingArticle.setPmcid(article.getPmcid());
+                }
+                if (article.getDoi() != null) {
+                    existingArticle.setDoi(article.getDoi());
+                }
                 if (article.getTitle() != null) {
                     existingArticle.setTitle(article.getTitle());
                 }
-                if (article.getJournal() != null) {
-                    existingArticle.setJournal(article.getJournal());
+                if (article.getPubAbstract() != null) {
+                    existingArticle.setPubAbstract(article.getPubAbstract());
                 }
                 if (article.getPubDate() != null) {
                     existingArticle.setPubDate(article.getPubDate());
+                }
+                if (article.getJournal() != null) {
+                    existingArticle.setJournal(article.getJournal());
                 }
                 if (article.getVolume() != null) {
                     existingArticle.setVolume(article.getVolume());
@@ -79,6 +91,9 @@ public class ArticleService {
                 }
                 if (article.getAuthors() != null) {
                     existingArticle.setAuthors(article.getAuthors());
+                }
+                if (article.getMeshTerms() != null) {
+                    existingArticle.setMeshTerms(article.getMeshTerms());
                 }
 
                 return existingArticle;
@@ -101,6 +116,19 @@ public class ArticleService {
     public Page<Article> findAll(Pageable pageable) {
         log.debug("Request to get all Articles");
         return articleRepository.findAll(pageable);
+    }
+
+    /**
+     *  Get all the articles where FullText is {@code null}.
+     *  @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<Article> findAllWhereFullTextIsNull() {
+        log.debug("Request to get all articles where FullText is null");
+        return StreamSupport
+            .stream(articleRepository.findAll().spliterator(), false)
+            .filter(article -> article.getFullText() == null)
+            .collect(Collectors.toList());
     }
 
     /**

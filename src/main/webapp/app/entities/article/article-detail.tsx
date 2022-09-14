@@ -2,12 +2,11 @@ import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { Button, Row, Col } from 'reactstrap';
-import { byteSize } from 'react-jhipster';
+import { byteSize, TextFormat } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
-import EntityActionButton from 'app/shared/button/EntityActionButton';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 export interface IArticleDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const ArticleDetail = (props: IArticleDetailProps) => {
@@ -30,17 +29,29 @@ export const ArticleDetail = (props: IArticleDetailProps) => {
           </dt>
           <dd>{articleEntity.pmid}</dd>
           <dt>
+            <span id="pmcid">Pmcid</span>
+          </dt>
+          <dd>{articleEntity.pmcid}</dd>
+          <dt>
+            <span id="doi">Doi</span>
+          </dt>
+          <dd>{articleEntity.doi}</dd>
+          <dt>
             <span id="title">Title</span>
           </dt>
           <dd>{articleEntity.title}</dd>
           <dt>
-            <span id="journal">Journal</span>
+            <span id="pubAbstract">Pub Abstract</span>
           </dt>
-          <dd>{articleEntity.journal}</dd>
+          <dd>{articleEntity.pubAbstract}</dd>
           <dt>
             <span id="pubDate">Pub Date</span>
           </dt>
-          <dd>{articleEntity.pubDate}</dd>
+          <dd>{articleEntity.pubDate ? <TextFormat value={articleEntity.pubDate} type="date" format={APP_DATE_FORMAT} /> : null}</dd>
+          <dt>
+            <span id="journal">Journal</span>
+          </dt>
+          <dd>{articleEntity.journal}</dd>
           <dt>
             <span id="volume">Volume</span>
           </dt>
@@ -57,8 +68,18 @@ export const ArticleDetail = (props: IArticleDetailProps) => {
             <span id="authors">Authors</span>
           </dt>
           <dd>{articleEntity.authors}</dd>
+          <dt>
+            <span id="meshTerms">Mesh Terms</span>
+          </dt>
+          <dd>{articleEntity.meshTerms}</dd>
         </dl>
-        <EntityActionButton color="primary" entityId={articleEntity.id} entityType={ENTITY_TYPE.GENE} entityAction={ENTITY_ACTION.EDIT} />
+        <Button tag={Link} to="/article" replace color="info" data-cy="entityDetailsBackButton">
+          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
+        </Button>
+        &nbsp;
+        <Button tag={Link} to={`/article/${articleEntity.id}/edit`} replace color="primary">
+          <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
+        </Button>
       </Col>
     </Row>
   );

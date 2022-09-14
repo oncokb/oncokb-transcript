@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Input, Col, Row } from 'reactstrap';
-import { getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
+import { Button, Input, InputGroup, FormGroup, Form, Col, Row, Table } from 'reactstrap';
+import { byteSize, Translate, TextFormat, getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 import { IArticle } from 'app/shared/model/article.model';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
+
 import { IRootStore } from 'app/stores';
-import { Column } from 'react-table';
-import { TableHeader } from 'app/shared/table/TableHeader';
-import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
-import EntityTable from 'app/shared/table/EntityTable';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
-import EntityActionButton from 'app/shared/button/EntityActionButton';
 export interface IArticleProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const Article = (props: IArticleProps) => {
@@ -28,13 +25,12 @@ export const Article = (props: IArticleProps) => {
 
   const getAllEntities = () => {
     if (search) {
-      debouncedSearchWithPagination(
-        search,
-        paginationState.activePage - 1,
-        paginationState.itemsPerPage,
-        `${paginationState.sort},${paginationState.order}`,
-        props.searchEntities
-      );
+      props.searchEntities({
+        query: search,
+        page: paginationState.activePage - 1,
+        size: paginationState.itemsPerPage,
+        sort: `${paginationState.sort},${paginationState.order}`,
+      });
     } else {
       props.getEntities({
         page: paginationState.activePage - 1,
@@ -42,6 +38,31 @@ export const Article = (props: IArticleProps) => {
         sort: `${paginationState.sort},${paginationState.order}`,
       });
     }
+  };
+
+  const startSearching = e => {
+    if (search) {
+      setPaginationState({
+        ...paginationState,
+        activePage: 1,
+      });
+      props.searchEntities({
+        query: search,
+        page: paginationState.activePage - 1,
+        size: paginationState.itemsPerPage,
+        sort: `${paginationState.sort},${paginationState.order}`,
+      });
+    }
+    e.preventDefault();
+  };
+
+  const clear = () => {
+    setSearch('');
+    setPaginationState({
+      ...paginationState,
+      activePage: 1,
+    });
+    props.getEntities({});
   };
 
   const handleSearch = event => setSearch(event.target.value);
@@ -73,11 +94,11 @@ export const Article = (props: IArticleProps) => {
     }
   }, [props.location.search]);
 
-  const sort = (fieldName: keyof IArticle) => () => {
+  const sort = p => () => {
     setPaginationState({
       ...paginationState,
       order: paginationState.order === ASC ? DESC : ASC,
-      sort: fieldName,
+      sort: p,
     });
   };
 
@@ -87,53 +108,144 @@ export const Article = (props: IArticleProps) => {
       activePage: currentPage,
     });
 
-  const getArticleCitations = (article: IArticle) => {
-    return `${article.journal}. ${article.pubDate};${article.volume}(${article.issue}):${article.pages}`;
+  const handleSyncList = () => {
+    sortEntities();
   };
 
   const { match } = props;
-
-  const columns: Column<IArticle>[] = [
-    {
-      accessor: 'title',
-      Header: <TableHeader header="Title" onSort={sort('title')} paginationState={paginationState} sortField="title" />,
-      width: 250,
-    },
-    {
-      accessor: 'authors',
-      Header: <TableHeader header="Authors" onSort={sort('authors')} paginationState={paginationState} sortField="authors" />,
-      width: 100,
-    },
-    {
-      id: 'citation',
-      Header: 'Citation',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }): any {
-        return <div>{getArticleCitations(original)}</div>;
-      },
-    },
-  ];
 
   return (
     <div>
       <h2 id="article-heading" data-cy="ArticleHeading">
         Articles
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.ARTICLE} entityAction={ENTITY_ACTION.CREATE} />
+        <div className="d-flex justify-content-end">
+          <Button className="mr-2" color="info" onClick={handleSyncList} disabled={loading}>
+            <FontAwesomeIcon icon="sync" spin={loading} /> Refresh List
+          </Button>
+          <Link to={`${match.url}/new`} className="btn btn-primary jh-create-entity" id="jh-create-entity" data-cy="entityCreateButton">
+            <FontAwesomeIcon icon="plus" />
+            &nbsp; Create new Article
+          </Link>
+        </div>
       </h2>
-      <Row className="justify-content-end mb-3">
-        <Col sm="4">
-          <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
+      <Row>
+        <Col sm="12">
+          <Form onSubmit={startSearching}>
+            <FormGroup>
+              <InputGroup>
+                <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
+                <Button className="input-group-addon">
+                  <FontAwesomeIcon icon="search" />
+                </Button>
+                <Button type="reset" className="input-group-addon" onClick={clear}>
+                  <FontAwesomeIcon icon="trash" />
+                </Button>
+              </InputGroup>
+            </FormGroup>
+          </Form>
         </Col>
       </Row>
-      <div>
-        {articleList && (
-          <EntityTable columns={columns} data={articleList} loading={loading} url={match.url} entityType={ENTITY_TYPE.ARTICLE} />
+      <div className="table-responsive">
+        {articleList && articleList.length > 0 ? (
+          <Table responsive>
+            <thead>
+              <tr>
+                <th className="hand" onClick={sort('id')}>
+                  ID <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('pmid')}>
+                  Pmid <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('pmcid')}>
+                  Pmcid <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('doi')}>
+                  Doi <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('title')}>
+                  Title <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('pubAbstract')}>
+                  Pub Abstract <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('pubDate')}>
+                  Pub Date <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('journal')}>
+                  Journal <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('volume')}>
+                  Volume <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('issue')}>
+                  Issue <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('pages')}>
+                  Pages <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('authors')}>
+                  Authors <FontAwesomeIcon icon="sort" />
+                </th>
+                <th className="hand" onClick={sort('meshTerms')}>
+                  Mesh Terms <FontAwesomeIcon icon="sort" />
+                </th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {articleList.map((article, i) => (
+                <tr key={`entity-${i}`} data-cy="entityTable">
+                  <td>
+                    <Button tag={Link} to={`${match.url}/${article.id}`} color="link" size="sm">
+                      {article.id}
+                    </Button>
+                  </td>
+                  <td>{article.pmid}</td>
+                  <td>{article.pmcid}</td>
+                  <td>{article.doi}</td>
+                  <td>{article.title}</td>
+                  <td>{article.pubAbstract}</td>
+                  <td>{article.pubDate ? <TextFormat type="date" value={article.pubDate} format={APP_DATE_FORMAT} /> : null}</td>
+                  <td>{article.journal}</td>
+                  <td>{article.volume}</td>
+                  <td>{article.issue}</td>
+                  <td>{article.pages}</td>
+                  <td>{article.authors}</td>
+                  <td>{article.meshTerms}</td>
+                  <td className="text-right">
+                    <div className="btn-group flex-btn-group-container">
+                      <Button tag={Link} to={`${match.url}/${article.id}`} color="info" size="sm" data-cy="entityDetailsButton">
+                        <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
+                      </Button>
+                      <Button
+                        tag={Link}
+                        to={`${match.url}/${article.id}/edit?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
+                        color="primary"
+                        size="sm"
+                        data-cy="entityEditButton"
+                      >
+                        <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
+                      </Button>
+                      <Button
+                        tag={Link}
+                        to={`${match.url}/${article.id}/delete?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
+                        color="danger"
+                        size="sm"
+                        data-cy="entityDeleteButton"
+                      >
+                        <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        ) : (
+          !loading && <div className="alert alert-warning">No Articles found</div>
         )}
       </div>
-      {totalItems && totalItems > 0 ? (
+      {totalItems ? (
         <div className={articleList && articleList.length > 0 ? '' : 'd-none'}>
           <Row className="justify-content-center">
             <JhiItemCount page={paginationState.activePage} total={totalItems} itemsPerPage={paginationState.itemsPerPage} />
