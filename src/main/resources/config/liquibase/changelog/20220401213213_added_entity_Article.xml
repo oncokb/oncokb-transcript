@@ -17,13 +17,22 @@
             <column name="pmid" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+            <column name="pmcid" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="doi" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
             <column name="title" type="${clobType}">
                 <constraints nullable="true" />
             </column>
-            <column name="journal" type="varchar(255)">
+            <column name="pub_abstract" type="${clobType}">
                 <constraints nullable="true" />
             </column>
-            <column name="pub_date" type="varchar(255)">
+            <column name="pub_date" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="journal" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <column name="volume" type="varchar(255)">
@@ -38,8 +47,12 @@
             <column name="authors" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+            <column name="mesh_terms" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+        <dropDefaultValue tableName="article" columnName="pub_date" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

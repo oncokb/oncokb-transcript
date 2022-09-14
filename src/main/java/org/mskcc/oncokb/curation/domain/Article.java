@@ -1,6 +1,8 @@
 package org.mskcc.oncokb.curation.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.time.Instant;
 import javax.persistence.*;
 
 /**
@@ -21,15 +23,25 @@ public class Article implements Serializable {
     @Column(name = "pmid")
     private String pmid;
 
+    @Column(name = "pmcid")
+    private String pmcid;
+
+    @Column(name = "doi")
+    private String doi;
+
     @Lob
     @Column(name = "title")
     private String title;
 
-    @Column(name = "journal")
-    private String journal;
+    @Lob
+    @Column(name = "pub_abstract")
+    private String pubAbstract;
 
     @Column(name = "pub_date")
-    private String pubDate;
+    private Instant pubDate;
+
+    @Column(name = "journal")
+    private String journal;
 
     @Column(name = "volume")
     private String volume;
@@ -42,6 +54,14 @@ public class Article implements Serializable {
 
     @Column(name = "authors")
     private String authors;
+
+    @Lob
+    @Column(name = "mesh_terms")
+    private String meshTerms;
+
+    @JsonIgnoreProperties(value = { "article" }, allowSetters = true)
+    @OneToOne(mappedBy = "article")
+    private ArticleFullText fullText;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -71,6 +91,32 @@ public class Article implements Serializable {
         this.pmid = pmid;
     }
 
+    public String getPmcid() {
+        return this.pmcid;
+    }
+
+    public Article pmcid(String pmcid) {
+        this.setPmcid(pmcid);
+        return this;
+    }
+
+    public void setPmcid(String pmcid) {
+        this.pmcid = pmcid;
+    }
+
+    public String getDoi() {
+        return this.doi;
+    }
+
+    public Article doi(String doi) {
+        this.setDoi(doi);
+        return this;
+    }
+
+    public void setDoi(String doi) {
+        this.doi = doi;
+    }
+
     public String getTitle() {
         return this.title;
     }
@@ -84,6 +130,32 @@ public class Article implements Serializable {
         this.title = title;
     }
 
+    public String getPubAbstract() {
+        return this.pubAbstract;
+    }
+
+    public Article pubAbstract(String pubAbstract) {
+        this.setPubAbstract(pubAbstract);
+        return this;
+    }
+
+    public void setPubAbstract(String pubAbstract) {
+        this.pubAbstract = pubAbstract;
+    }
+
+    public Instant getPubDate() {
+        return this.pubDate;
+    }
+
+    public Article pubDate(Instant pubDate) {
+        this.setPubDate(pubDate);
+        return this;
+    }
+
+    public void setPubDate(Instant pubDate) {
+        this.pubDate = pubDate;
+    }
+
     public String getJournal() {
         return this.journal;
     }
@@ -95,19 +167,6 @@ public class Article implements Serializable {
 
     public void setJournal(String journal) {
         this.journal = journal;
-    }
-
-    public String getPubDate() {
-        return this.pubDate;
-    }
-
-    public Article pubDate(String pubDate) {
-        this.setPubDate(pubDate);
-        return this;
-    }
-
-    public void setPubDate(String pubDate) {
-        this.pubDate = pubDate;
     }
 
     public String getVolume() {
@@ -162,6 +221,38 @@ public class Article implements Serializable {
         this.authors = authors;
     }
 
+    public String getMeshTerms() {
+        return this.meshTerms;
+    }
+
+    public Article meshTerms(String meshTerms) {
+        this.setMeshTerms(meshTerms);
+        return this;
+    }
+
+    public void setMeshTerms(String meshTerms) {
+        this.meshTerms = meshTerms;
+    }
+
+    public ArticleFullText getFullText() {
+        return this.fullText;
+    }
+
+    public void setFullText(ArticleFullText articleFullText) {
+        if (this.fullText != null) {
+            this.fullText.setArticle(null);
+        }
+        if (articleFullText != null) {
+            articleFullText.setArticle(this);
+        }
+        this.fullText = articleFullText;
+    }
+
+    public Article fullText(ArticleFullText articleFullText) {
+        this.setFullText(articleFullText);
+        return this;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -187,13 +278,17 @@ public class Article implements Serializable {
         return "Article{" +
             "id=" + getId() +
             ", pmid='" + getPmid() + "'" +
+            ", pmcid='" + getPmcid() + "'" +
+            ", doi='" + getDoi() + "'" +
             ", title='" + getTitle() + "'" +
-            ", journal='" + getJournal() + "'" +
+            ", pubAbstract='" + getPubAbstract() + "'" +
             ", pubDate='" + getPubDate() + "'" +
+            ", journal='" + getJournal() + "'" +
             ", volume='" + getVolume() + "'" +
             ", issue='" + getIssue() + "'" +
             ", pages='" + getPages() + "'" +
             ", authors='" + getAuthors() + "'" +
+            ", meshTerms='" + getMeshTerms() + "'" +
             "}";
     }
 }

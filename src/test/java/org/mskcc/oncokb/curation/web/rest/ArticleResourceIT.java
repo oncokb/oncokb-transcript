@@ -7,6 +7,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -43,14 +45,23 @@ class ArticleResourceIT {
     private static final String DEFAULT_PMID = "AAAAAAAAAA";
     private static final String UPDATED_PMID = "BBBBBBBBBB";
 
+    private static final String DEFAULT_PMCID = "AAAAAAAAAA";
+    private static final String UPDATED_PMCID = "BBBBBBBBBB";
+
+    private static final String DEFAULT_DOI = "AAAAAAAAAA";
+    private static final String UPDATED_DOI = "BBBBBBBBBB";
+
     private static final String DEFAULT_TITLE = "AAAAAAAAAA";
     private static final String UPDATED_TITLE = "BBBBBBBBBB";
 
+    private static final String DEFAULT_PUB_ABSTRACT = "AAAAAAAAAA";
+    private static final String UPDATED_PUB_ABSTRACT = "BBBBBBBBBB";
+
+    private static final Instant DEFAULT_PUB_DATE = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_PUB_DATE = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+
     private static final String DEFAULT_JOURNAL = "AAAAAAAAAA";
     private static final String UPDATED_JOURNAL = "BBBBBBBBBB";
-
-    private static final String DEFAULT_PUB_DATE = "AAAAAAAAAA";
-    private static final String UPDATED_PUB_DATE = "BBBBBBBBBB";
 
     private static final String DEFAULT_VOLUME = "AAAAAAAAAA";
     private static final String UPDATED_VOLUME = "BBBBBBBBBB";
@@ -63,6 +74,9 @@ class ArticleResourceIT {
 
     private static final String DEFAULT_AUTHORS = "AAAAAAAAAA";
     private static final String UPDATED_AUTHORS = "BBBBBBBBBB";
+
+    private static final String DEFAULT_MESH_TERMS = "AAAAAAAAAA";
+    private static final String UPDATED_MESH_TERMS = "BBBBBBBBBB";
 
     private static final String ENTITY_API_URL = "/api/articles";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -99,13 +113,17 @@ class ArticleResourceIT {
     public static Article createEntity(EntityManager em) {
         Article article = new Article()
             .pmid(DEFAULT_PMID)
+            .pmcid(DEFAULT_PMCID)
+            .doi(DEFAULT_DOI)
             .title(DEFAULT_TITLE)
-            .journal(DEFAULT_JOURNAL)
+            .pubAbstract(DEFAULT_PUB_ABSTRACT)
             .pubDate(DEFAULT_PUB_DATE)
+            .journal(DEFAULT_JOURNAL)
             .volume(DEFAULT_VOLUME)
             .issue(DEFAULT_ISSUE)
             .pages(DEFAULT_PAGES)
-            .authors(DEFAULT_AUTHORS);
+            .authors(DEFAULT_AUTHORS)
+            .meshTerms(DEFAULT_MESH_TERMS);
         return article;
     }
 
@@ -118,13 +136,17 @@ class ArticleResourceIT {
     public static Article createUpdatedEntity(EntityManager em) {
         Article article = new Article()
             .pmid(UPDATED_PMID)
+            .pmcid(UPDATED_PMCID)
+            .doi(UPDATED_DOI)
             .title(UPDATED_TITLE)
-            .journal(UPDATED_JOURNAL)
+            .pubAbstract(UPDATED_PUB_ABSTRACT)
             .pubDate(UPDATED_PUB_DATE)
+            .journal(UPDATED_JOURNAL)
             .volume(UPDATED_VOLUME)
             .issue(UPDATED_ISSUE)
             .pages(UPDATED_PAGES)
-            .authors(UPDATED_AUTHORS);
+            .authors(UPDATED_AUTHORS)
+            .meshTerms(UPDATED_MESH_TERMS);
         return article;
     }
 
@@ -152,13 +174,17 @@ class ArticleResourceIT {
         assertThat(articleList).hasSize(databaseSizeBeforeCreate + 1);
         Article testArticle = articleList.get(articleList.size() - 1);
         assertThat(testArticle.getPmid()).isEqualTo(DEFAULT_PMID);
+        assertThat(testArticle.getPmcid()).isEqualTo(DEFAULT_PMCID);
+        assertThat(testArticle.getDoi()).isEqualTo(DEFAULT_DOI);
         assertThat(testArticle.getTitle()).isEqualTo(DEFAULT_TITLE);
-        assertThat(testArticle.getJournal()).isEqualTo(DEFAULT_JOURNAL);
+        assertThat(testArticle.getPubAbstract()).isEqualTo(DEFAULT_PUB_ABSTRACT);
         assertThat(testArticle.getPubDate()).isEqualTo(DEFAULT_PUB_DATE);
+        assertThat(testArticle.getJournal()).isEqualTo(DEFAULT_JOURNAL);
         assertThat(testArticle.getVolume()).isEqualTo(DEFAULT_VOLUME);
         assertThat(testArticle.getIssue()).isEqualTo(DEFAULT_ISSUE);
         assertThat(testArticle.getPages()).isEqualTo(DEFAULT_PAGES);
         assertThat(testArticle.getAuthors()).isEqualTo(DEFAULT_AUTHORS);
+        assertThat(testArticle.getMeshTerms()).isEqualTo(DEFAULT_MESH_TERMS);
 
         // Validate the Article in Elasticsearch
         verify(mockArticleSearchRepository, times(1)).save(testArticle);
@@ -203,13 +229,17 @@ class ArticleResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(article.getId().intValue())))
             .andExpect(jsonPath("$.[*].pmid").value(hasItem(DEFAULT_PMID)))
+            .andExpect(jsonPath("$.[*].pmcid").value(hasItem(DEFAULT_PMCID)))
+            .andExpect(jsonPath("$.[*].doi").value(hasItem(DEFAULT_DOI)))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
+            .andExpect(jsonPath("$.[*].pubAbstract").value(hasItem(DEFAULT_PUB_ABSTRACT.toString())))
+            .andExpect(jsonPath("$.[*].pubDate").value(hasItem(DEFAULT_PUB_DATE.toString())))
             .andExpect(jsonPath("$.[*].journal").value(hasItem(DEFAULT_JOURNAL)))
-            .andExpect(jsonPath("$.[*].pubDate").value(hasItem(DEFAULT_PUB_DATE)))
             .andExpect(jsonPath("$.[*].volume").value(hasItem(DEFAULT_VOLUME)))
             .andExpect(jsonPath("$.[*].issue").value(hasItem(DEFAULT_ISSUE)))
             .andExpect(jsonPath("$.[*].pages").value(hasItem(DEFAULT_PAGES)))
-            .andExpect(jsonPath("$.[*].authors").value(hasItem(DEFAULT_AUTHORS)));
+            .andExpect(jsonPath("$.[*].authors").value(hasItem(DEFAULT_AUTHORS)))
+            .andExpect(jsonPath("$.[*].meshTerms").value(hasItem(DEFAULT_MESH_TERMS.toString())));
     }
 
     @Test
@@ -225,13 +255,17 @@ class ArticleResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(article.getId().intValue()))
             .andExpect(jsonPath("$.pmid").value(DEFAULT_PMID))
+            .andExpect(jsonPath("$.pmcid").value(DEFAULT_PMCID))
+            .andExpect(jsonPath("$.doi").value(DEFAULT_DOI))
             .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
+            .andExpect(jsonPath("$.pubAbstract").value(DEFAULT_PUB_ABSTRACT.toString()))
+            .andExpect(jsonPath("$.pubDate").value(DEFAULT_PUB_DATE.toString()))
             .andExpect(jsonPath("$.journal").value(DEFAULT_JOURNAL))
-            .andExpect(jsonPath("$.pubDate").value(DEFAULT_PUB_DATE))
             .andExpect(jsonPath("$.volume").value(DEFAULT_VOLUME))
             .andExpect(jsonPath("$.issue").value(DEFAULT_ISSUE))
             .andExpect(jsonPath("$.pages").value(DEFAULT_PAGES))
-            .andExpect(jsonPath("$.authors").value(DEFAULT_AUTHORS));
+            .andExpect(jsonPath("$.authors").value(DEFAULT_AUTHORS))
+            .andExpect(jsonPath("$.meshTerms").value(DEFAULT_MESH_TERMS.toString()));
     }
 
     @Test
@@ -255,13 +289,17 @@ class ArticleResourceIT {
         em.detach(updatedArticle);
         updatedArticle
             .pmid(UPDATED_PMID)
+            .pmcid(UPDATED_PMCID)
+            .doi(UPDATED_DOI)
             .title(UPDATED_TITLE)
-            .journal(UPDATED_JOURNAL)
+            .pubAbstract(UPDATED_PUB_ABSTRACT)
             .pubDate(UPDATED_PUB_DATE)
+            .journal(UPDATED_JOURNAL)
             .volume(UPDATED_VOLUME)
             .issue(UPDATED_ISSUE)
             .pages(UPDATED_PAGES)
-            .authors(UPDATED_AUTHORS);
+            .authors(UPDATED_AUTHORS)
+            .meshTerms(UPDATED_MESH_TERMS);
 
         restArticleMockMvc
             .perform(
@@ -277,13 +315,17 @@ class ArticleResourceIT {
         assertThat(articleList).hasSize(databaseSizeBeforeUpdate);
         Article testArticle = articleList.get(articleList.size() - 1);
         assertThat(testArticle.getPmid()).isEqualTo(UPDATED_PMID);
+        assertThat(testArticle.getPmcid()).isEqualTo(UPDATED_PMCID);
+        assertThat(testArticle.getDoi()).isEqualTo(UPDATED_DOI);
         assertThat(testArticle.getTitle()).isEqualTo(UPDATED_TITLE);
-        assertThat(testArticle.getJournal()).isEqualTo(UPDATED_JOURNAL);
+        assertThat(testArticle.getPubAbstract()).isEqualTo(UPDATED_PUB_ABSTRACT);
         assertThat(testArticle.getPubDate()).isEqualTo(UPDATED_PUB_DATE);
+        assertThat(testArticle.getJournal()).isEqualTo(UPDATED_JOURNAL);
         assertThat(testArticle.getVolume()).isEqualTo(UPDATED_VOLUME);
         assertThat(testArticle.getIssue()).isEqualTo(UPDATED_ISSUE);
         assertThat(testArticle.getPages()).isEqualTo(UPDATED_PAGES);
         assertThat(testArticle.getAuthors()).isEqualTo(UPDATED_AUTHORS);
+        assertThat(testArticle.getMeshTerms()).isEqualTo(UPDATED_MESH_TERMS);
 
         // Validate the Article in Elasticsearch
         verify(mockArticleSearchRepository).save(testArticle);
@@ -370,7 +412,13 @@ class ArticleResourceIT {
         Article partialUpdatedArticle = new Article();
         partialUpdatedArticle.setId(article.getId());
 
-        partialUpdatedArticle.pmid(UPDATED_PMID).title(UPDATED_TITLE).journal(UPDATED_JOURNAL).issue(UPDATED_ISSUE);
+        partialUpdatedArticle
+            .pmid(UPDATED_PMID)
+            .pmcid(UPDATED_PMCID)
+            .doi(UPDATED_DOI)
+            .pubDate(UPDATED_PUB_DATE)
+            .issue(UPDATED_ISSUE)
+            .pages(UPDATED_PAGES);
 
         restArticleMockMvc
             .perform(
@@ -386,13 +434,17 @@ class ArticleResourceIT {
         assertThat(articleList).hasSize(databaseSizeBeforeUpdate);
         Article testArticle = articleList.get(articleList.size() - 1);
         assertThat(testArticle.getPmid()).isEqualTo(UPDATED_PMID);
-        assertThat(testArticle.getTitle()).isEqualTo(UPDATED_TITLE);
-        assertThat(testArticle.getJournal()).isEqualTo(UPDATED_JOURNAL);
-        assertThat(testArticle.getPubDate()).isEqualTo(DEFAULT_PUB_DATE);
+        assertThat(testArticle.getPmcid()).isEqualTo(UPDATED_PMCID);
+        assertThat(testArticle.getDoi()).isEqualTo(UPDATED_DOI);
+        assertThat(testArticle.getTitle()).isEqualTo(DEFAULT_TITLE);
+        assertThat(testArticle.getPubAbstract()).isEqualTo(DEFAULT_PUB_ABSTRACT);
+        assertThat(testArticle.getPubDate()).isEqualTo(UPDATED_PUB_DATE);
+        assertThat(testArticle.getJournal()).isEqualTo(DEFAULT_JOURNAL);
         assertThat(testArticle.getVolume()).isEqualTo(DEFAULT_VOLUME);
         assertThat(testArticle.getIssue()).isEqualTo(UPDATED_ISSUE);
-        assertThat(testArticle.getPages()).isEqualTo(DEFAULT_PAGES);
+        assertThat(testArticle.getPages()).isEqualTo(UPDATED_PAGES);
         assertThat(testArticle.getAuthors()).isEqualTo(DEFAULT_AUTHORS);
+        assertThat(testArticle.getMeshTerms()).isEqualTo(DEFAULT_MESH_TERMS);
     }
 
     @Test
@@ -409,13 +461,17 @@ class ArticleResourceIT {
 
         partialUpdatedArticle
             .pmid(UPDATED_PMID)
+            .pmcid(UPDATED_PMCID)
+            .doi(UPDATED_DOI)
             .title(UPDATED_TITLE)
-            .journal(UPDATED_JOURNAL)
+            .pubAbstract(UPDATED_PUB_ABSTRACT)
             .pubDate(UPDATED_PUB_DATE)
+            .journal(UPDATED_JOURNAL)
             .volume(UPDATED_VOLUME)
             .issue(UPDATED_ISSUE)
             .pages(UPDATED_PAGES)
-            .authors(UPDATED_AUTHORS);
+            .authors(UPDATED_AUTHORS)
+            .meshTerms(UPDATED_MESH_TERMS);
 
         restArticleMockMvc
             .perform(
@@ -431,13 +487,17 @@ class ArticleResourceIT {
         assertThat(articleList).hasSize(databaseSizeBeforeUpdate);
         Article testArticle = articleList.get(articleList.size() - 1);
         assertThat(testArticle.getPmid()).isEqualTo(UPDATED_PMID);
+        assertThat(testArticle.getPmcid()).isEqualTo(UPDATED_PMCID);
+        assertThat(testArticle.getDoi()).isEqualTo(UPDATED_DOI);
         assertThat(testArticle.getTitle()).isEqualTo(UPDATED_TITLE);
-        assertThat(testArticle.getJournal()).isEqualTo(UPDATED_JOURNAL);
+        assertThat(testArticle.getPubAbstract()).isEqualTo(UPDATED_PUB_ABSTRACT);
         assertThat(testArticle.getPubDate()).isEqualTo(UPDATED_PUB_DATE);
+        assertThat(testArticle.getJournal()).isEqualTo(UPDATED_JOURNAL);
         assertThat(testArticle.getVolume()).isEqualTo(UPDATED_VOLUME);
         assertThat(testArticle.getIssue()).isEqualTo(UPDATED_ISSUE);
         assertThat(testArticle.getPages()).isEqualTo(UPDATED_PAGES);
         assertThat(testArticle.getAuthors()).isEqualTo(UPDATED_AUTHORS);
+        assertThat(testArticle.getMeshTerms()).isEqualTo(UPDATED_MESH_TERMS);
     }
 
     @Test
@@ -549,12 +609,16 @@ class ArticleResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(article.getId().intValue())))
             .andExpect(jsonPath("$.[*].pmid").value(hasItem(DEFAULT_PMID)))
+            .andExpect(jsonPath("$.[*].pmcid").value(hasItem(DEFAULT_PMCID)))
+            .andExpect(jsonPath("$.[*].doi").value(hasItem(DEFAULT_DOI)))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
+            .andExpect(jsonPath("$.[*].pubAbstract").value(hasItem(DEFAULT_PUB_ABSTRACT.toString())))
+            .andExpect(jsonPath("$.[*].pubDate").value(hasItem(DEFAULT_PUB_DATE.toString())))
             .andExpect(jsonPath("$.[*].journal").value(hasItem(DEFAULT_JOURNAL)))
-            .andExpect(jsonPath("$.[*].pubDate").value(hasItem(DEFAULT_PUB_DATE)))
             .andExpect(jsonPath("$.[*].volume").value(hasItem(DEFAULT_VOLUME)))
             .andExpect(jsonPath("$.[*].issue").value(hasItem(DEFAULT_ISSUE)))
             .andExpect(jsonPath("$.[*].pages").value(hasItem(DEFAULT_PAGES)))
-            .andExpect(jsonPath("$.[*].authors").value(hasItem(DEFAULT_AUTHORS)));
+            .andExpect(jsonPath("$.[*].authors").value(hasItem(DEFAULT_AUTHORS)))
+            .andExpect(jsonPath("$.[*].meshTerms").value(hasItem(DEFAULT_MESH_TERMS.toString())));
     }
 }

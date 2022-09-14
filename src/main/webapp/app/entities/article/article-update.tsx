@@ -6,10 +6,10 @@ import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 
+import { IArticleFullText } from 'app/shared/model/article-full-text.model';
 import { IArticle } from 'app/shared/model/article.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
-import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface IArticleUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -40,6 +40,8 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
   }, [updateSuccess]);
 
   const saveEntity = values => {
+    values.pubDate = convertDateTimeToServer(values.pubDate);
+
     const entity = {
       ...articleEntity,
       ...values,
@@ -54,9 +56,12 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
 
   const defaultValues = () =>
     isNew
-      ? {}
+      ? {
+          pubDate: displayDefaultDateTime(),
+        }
       : {
           ...articleEntity,
+          pubDate: convertDateTimeFromServer(articleEntity.pubDate),
         };
 
   return (
@@ -76,14 +81,34 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
               {!isNew ? <ValidatedField name="id" required readOnly id="article-id" label="ID" validate={{ required: true }} /> : null}
               <ValidatedField label="Pmid" id="article-pmid" name="pmid" data-cy="pmid" type="text" />
+              <ValidatedField label="Pmcid" id="article-pmcid" name="pmcid" data-cy="pmcid" type="text" />
+              <ValidatedField label="Doi" id="article-doi" name="doi" data-cy="doi" type="text" />
               <ValidatedField label="Title" id="article-title" name="title" data-cy="title" type="textarea" />
+              <ValidatedField label="Pub Abstract" id="article-pubAbstract" name="pubAbstract" data-cy="pubAbstract" type="textarea" />
+              <ValidatedField
+                label="Pub Date"
+                id="article-pubDate"
+                name="pubDate"
+                data-cy="pubDate"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+              />
               <ValidatedField label="Journal" id="article-journal" name="journal" data-cy="journal" type="text" />
-              <ValidatedField label="Pub Date" id="article-pubDate" name="pubDate" data-cy="pubDate" type="text" />
               <ValidatedField label="Volume" id="article-volume" name="volume" data-cy="volume" type="text" />
               <ValidatedField label="Issue" id="article-issue" name="issue" data-cy="issue" type="text" />
               <ValidatedField label="Pages" id="article-pages" name="pages" data-cy="pages" type="text" />
               <ValidatedField label="Authors" id="article-authors" name="authors" data-cy="authors" type="text" />
-              <SaveButton disabled={updating} />
+              <ValidatedField label="Mesh Terms" id="article-meshTerms" name="meshTerms" data-cy="meshTerms" type="textarea" />
+              <Button tag={Link} id="cancel-save" data-cy="entityCreateCancelButton" to="/article" replace color="info">
+                <FontAwesomeIcon icon="arrow-left" />
+                &nbsp;
+                <span className="d-none d-md-inline">Back</span>
+              </Button>
+              &nbsp;
+              <Button color="primary" id="save-entity" data-cy="entityCreateSaveButton" type="submit" disabled={updating}>
+                <FontAwesomeIcon icon="save" />
+                &nbsp; Save
+              </Button>
             </ValidatedForm>
           )}
         </Col>

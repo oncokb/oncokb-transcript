@@ -141,10 +141,15 @@ public class ArticleResource {
      * {@code GET  /articles} : get all the articles.
      *
      * @param pageable the pagination information.
+     * @param filter the filter of the request.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of articles in body.
      */
     @GetMapping("/articles")
-    public ResponseEntity<List<Article>> getAllArticles(Pageable pageable) {
+    public ResponseEntity<List<Article>> getAllArticles(Pageable pageable, @RequestParam(required = false) String filter) {
+        if ("fulltext-is-null".equals(filter)) {
+            log.debug("REST request to get all Articles where fullText is null");
+            return new ResponseEntity<>(articleService.findAllWhereFullTextIsNull(), HttpStatus.OK);
+        }
         log.debug("REST request to get a page of Articles");
         Page<Article> page = articleService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
