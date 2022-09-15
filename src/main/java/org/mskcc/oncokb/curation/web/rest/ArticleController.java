@@ -1,6 +1,6 @@
 package org.mskcc.oncokb.curation.web.rest;
 
-import org.mskcc.oncokb.curation.domain.Article;
+import java.io.FileNotFoundException;
 import org.mskcc.oncokb.curation.importer.PubMedImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +20,14 @@ public class ArticleController {
     }
 
     @GetMapping("/articles/import")
-    public ResponseEntity<Void> importPubMeArticle(@RequestParam(required = true) String pmid) {
-        pubMedImporter.addArticlePMID(pmid);
+    public ResponseEntity<Void> importPubMeArticle(@RequestParam(required = true) String pmid) throws FileNotFoundException {
+        boolean saved = pubMedImporter.addArticlePMID(pmid);
+        if (saved) {
+            saved = pubMedImporter.addArticleFullText(pmid);
+            if (saved) {
+                saved = pubMedImporter.uploadArticleFullTextToS3(pmid);
+            }
+        }
         return ResponseEntity.ok().build();
     }
 }

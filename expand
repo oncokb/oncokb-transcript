@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd PMC
+cd $1
+tar zxvf ${2}.tar.gz
+cd PMC${2}
+mv * ..
+cd ..
+rmdir PMC${2}
+cd ../..
+

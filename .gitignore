@@ -157,3 +157,8 @@ Desktop.ini
 ######################
 /coverage/
 /.nyc_output/
+
+
+# Ignore project files
+PMC
+pubmed_ids.xml

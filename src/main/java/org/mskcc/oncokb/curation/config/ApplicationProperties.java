@@ -13,6 +13,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ApplicationProperties extends org.mskcc.oncokb.meta.model.application.ApplicationProperties {
 
     private OncoKbConfig oncokb;
+    private AWSProperties aws;
 
     public OncoKbConfig getOncokb() {
         return oncokb;
@@ -20,5 +21,13 @@ public class ApplicationProperties extends org.mskcc.oncokb.meta.model.applicati
 
     public void setOncokb(OncoKbConfig oncokb) {
         this.oncokb = oncokb;
+    }
+
+    public AWSProperties getAws() {
+        return aws;
+    }
+
+    public void setAws(AWSProperties aws) {
+        this.aws = aws;
     }
 }
