@@ -245,12 +245,6 @@ public class Tree {
                                                     .name("ArticleId")
                                                     .token(Pair.<String, String>builder().key("IdType").value("pmc").build())
                                                     .asField("pmcid")
-                                                    .build(),
-                                                Tree
-                                                    .builder()
-                                                    .name("ArticleId")
-                                                    .token(Pair.<String, String>builder().key("IdType").value("doi").build())
-                                                    .asField("doi")
                                                     .build()
                                             )
                                         )
@@ -485,12 +479,6 @@ public class Tree {
                                                     .name("ArticleId")
                                                     .token(Pair.<String, String>builder().key("IdType").value("pmc").build())
                                                     .asField("pmcid")
-                                                    .build(),
-                                                Tree
-                                                    .builder()
-                                                    .name("ArticleId")
-                                                    .token(Pair.<String, String>builder().key("IdType").value("doi").build())
-                                                    .asField("doi")
                                                     .build()
                                             )
                                         )

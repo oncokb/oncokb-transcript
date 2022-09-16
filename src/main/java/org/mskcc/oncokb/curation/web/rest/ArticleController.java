@@ -22,12 +22,13 @@ public class ArticleController {
     @GetMapping("/articles/import")
     public ResponseEntity<Void> importPubMeArticle(@RequestParam(required = true) String pmid) throws FileNotFoundException {
         boolean saved = pubMedImporter.addArticlePMID(pmid);
-        if (saved) {
-            saved = pubMedImporter.addArticleFullText(pmid);
-            if (saved) {
-                saved = pubMedImporter.uploadArticleFullTextToS3(pmid);
-            }
-        }
+        //        if (saved) {
+        saved = pubMedImporter.addArticleFullText(pmid);
+        //            if (saved) {
+        saved = pubMedImporter.uploadArticleFullTextToS3(pmid);
+        //            }
+        //        }
+        //        boolean saved = pubMedImporter.uploadArticleFullTextToS3(pmid);
         return ResponseEntity.ok().build();
     }
 }

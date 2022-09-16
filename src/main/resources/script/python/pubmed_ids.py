@@ -4,14 +4,14 @@ import sys
 import requests
 
 
-def get_pub_content(ids, done=False):
+def get_pub_content(ids, fileName="pubmed_ids.xml"):
     print(ids)
     res = requests.get(
         url=f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id={ids}&rettype=text"
     )
     text = res.text
     result = ''
-    file1 = open("pubmed_ids.xml", "w")
+    file1 = open(fileName, "w")
     file1.write(text)
     file1.close()
 
@@ -25,7 +25,9 @@ if __name__ == '__main__':
                 term = term + sys.argv[i]
             else:
                 term = term + " " + sys.argv[i]
-        get_pub_content(term, True)
+        if len(sys.argv) > 2:
+            fileName = sys.argv[2]
+        get_pub_content(term, fileName)
     else:
         print('Provide multiple arguments (query)')
 

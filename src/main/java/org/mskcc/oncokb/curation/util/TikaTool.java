@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
+// @Author Luke Czapla
 public class TikaTool {
 
     private static final Logger log = LoggerFactory.getLogger(TikaTool.class);

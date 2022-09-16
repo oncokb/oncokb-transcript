@@ -43,7 +43,7 @@ public class ArticleFullTextService {
      * @return the persisted entity.
      */
     public ArticleFullText save(ArticleFullText articleFullText) {
-        log.debug("Request to save ArticleFullText : {}", articleFullText);
+        log.debug("Request to save ArticleFullText for Article {}", articleFullText.getArticle().getPmid());
         ArticleFullText result = articleFullTextRepository.save(articleFullText);
         articleFullTextSearchRepository.save(result);
         return result;

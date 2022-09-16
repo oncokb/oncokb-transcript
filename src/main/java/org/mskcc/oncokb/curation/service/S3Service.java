@@ -43,6 +43,18 @@ public class S3Service {
     }
 
     /**
+     * Save an object to aws s3 if object does not exist
+     * @param bucket s3 bucket name
+     * @param objectPath the path where the object will be saved
+     * @param file the object
+     */
+    public void saveObjectIfExists(String bucket, String objectPath, File file) {
+        if (!s3client.doesObjectExist(bucket, objectPath)) {
+            s3client.putObject(bucket, objectPath, file);
+        }
+    }
+
+    /**
      * Get an object from aws s3
      * @param bucket s3 bucket name
      * @param objectPath the path of the object

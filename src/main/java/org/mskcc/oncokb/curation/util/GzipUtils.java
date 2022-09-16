@@ -1,14 +1,11 @@
 package org.mskcc.oncokb.curation.util;
 
 import java.io.*;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.zip.*;
 
-/**
- * Created by Yifu Yao on 3/12/2021
- */
 public class GzipUtils {
 
     private static GzipUtils instance = null;
@@ -24,64 +21,59 @@ public class GzipUtils {
 
     private static final int BUFFER = 1024;
 
-    public static void compress(File orginalFile, File compressFile) throws IOException {
-        if (orginalFile != null && orginalFile.isFile() && compressFile != null && compressFile.isFile()) {
-            FileInputStream is = new FileInputStream(orginalFile);
-            FileOutputStream os = new FileOutputStream(compressFile);
-            compress(is, os);
-            is.close();
-            os.close();
+    public static void compress(Path originalPath, Path compressPath) throws IOException {
+        if (originalPath != null && compressPath != null) {
+            FileOutputStream os = new FileOutputStream(compressPath.toString());
+            ZipOutputStream zipOut = new ZipOutputStream(os);
+
+            compress(originalPath, zipOut);
+            zipOut.close();
         }
     }
 
-    public static void compress(String orginalFile, String compressFile) throws IOException {
-        if (orginalFile != null && compressFile != null) {
-            FileInputStream is = new FileInputStream(orginalFile);
-            FileOutputStream os = new FileOutputStream(compressFile);
-            compress(is, os);
-            is.close();
-            os.close();
+    private static void compress(Path originalPath, ZipOutputStream zipOut) throws IOException {
+        if (originalPath != null && zipOut != null) {
+            if (Files.isHidden(originalPath)) {
+                return;
+            }
+            if (Files.isDirectory(originalPath)) {
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(originalPath)) {
+                    for (Path file : stream) {
+                        compress(file, zipOut);
+                    }
+                }
+                return;
+            }
+            writeToStream(originalPath, zipOut);
         }
     }
 
-    public static byte[] compress(byte[] bytes) throws IOException {
-        if (bytes != null) {
-            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            compress(bais, baos);
-            bytes = baos.toByteArray();
-            bais.close();
-            baos.close();
-        }
-        return bytes;
-    }
-
-    public static void compress(InputStream is, OutputStream os) throws IOException {
-        GZIPOutputStream gos = new GZIPOutputStream(os);
+    public static void writeToStream(Path path, ZipOutputStream zipOut) throws IOException {
+        zipOut.putNextEntry(new ZipEntry(path.getFileName().toString()));
+        FileInputStream fis = new FileInputStream(path.toFile());
         int len = 0;
         byte[] buffer = new byte[BUFFER];
-        while ((len = is.read(buffer)) != -1) {
-            gos.write(buffer, 0, len);
+        while ((len = fis.read(buffer)) != -1) {
+            zipOut.write(buffer, 0, len);
         }
-        gos.finish();
-        gos.flush();
-        gos.close();
+        fis.close();
+        zipOut.closeEntry();
     }
 
-    public static void deCompress(File compressFile, File orginalFile, COMPRESSED_FILE_FORMAT fileFormat) throws IOException {
-        if (orginalFile != null && orginalFile.isFile() && compressFile != null && compressFile.isFile()) {
+    public static void deCompress(File compressFile, File originalFile, COMPRESSED_FILE_FORMAT fileFormat) throws IOException {
+        if (originalFile != null && originalFile.isFile() && compressFile != null && compressFile.isFile()) {
             FileInputStream is = new FileInputStream(compressFile);
-            FileOutputStream os = new FileOutputStream(orginalFile);
+            FileOutputStream os = new FileOutputStream(originalFile);
             deCompress(is, os, fileFormat);
             is.close();
             os.close();
         }
     }
 
-    public static void deCompress(String compressFile, String orginalFile, COMPRESSED_FILE_FORMAT fileFormat) throws IOException {
-        if (orginalFile != null && compressFile != null) {
+    public static void deCompress(String compressFile, String originalFile, COMPRESSED_FILE_FORMAT fileFormat) throws IOException {
+        if (originalFile != null && compressFile != null) {
             FileInputStream is = new FileInputStream(compressFile);
-            FileOutputStream os = new FileOutputStream(orginalFile);
+            FileOutputStream os = new FileOutputStream(originalFile);
             deCompress(is, os, fileFormat);
             is.close();
             os.close();
