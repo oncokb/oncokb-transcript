@@ -57,13 +57,13 @@ public class PubMedImporter {
     }
 
     public Path getPublicationPath(String pmid) {
-        return Path.of("PMC/" + pmid);
+        return Path.of("publication/" + pmid);
     }
 
     public Path getPmcZipPath(String pmid) {
-        Path filePath = Path.of("PMC/" + pmid + ".zip");
+        Path filePath = Path.of("publication/" + pmid + ".zip");
         if (filePath == null) {
-            Path directoryPath = Path.of("PMC");
+            Path directoryPath = Path.of("publication");
             return Path.of(directoryPath.toString() + "/" + pmid + ".zip");
         } else {
             return filePath;
@@ -86,7 +86,7 @@ public class PubMedImporter {
 
     public boolean uploadArticleFullTextToS3(String pmid) throws FileNotFoundException {
         try {
-            String sourcePath = "PMC/" + pmid;
+            String sourcePath = "publication/" + pmid;
             String compressPath = sourcePath + ".zip";
             String s3ObjPath = "curation-website/article-full-text/" + pmid + ".zip";
             GzipUtils.compress(getPublicationPath(pmid), getPmcZipPath(pmid));
@@ -193,7 +193,8 @@ public class PubMedImporter {
         if (StringUtils.isNotEmpty(article.getPmcid())) {
             String pmcid = article.getPmcid().replace("PMC", "");
             try {
-                ProcessUtil.runScript(getPyScriptExecCommand("PMC.py", article.getPmcid(), path.toString()));
+                ProcessUtil.runScript("pip3 install bs4");
+                ProcessUtil.runScript(getPyScriptExecCommand("PMC.py", article.getPmcid(), path.toAbsolutePath().toString()));
                 found = pdfExists(pmid, pmcid + ".pdf");
             } catch (IOException e) {
                 log.error("Failed with PMC retrieval: {}, continuing with DOI", e.getMessage());
@@ -203,7 +204,7 @@ public class PubMedImporter {
         // If we cannot fetch the PDF through PubMed Central, we'd like to try doi link if user has access to the PDF file
         if (!found) {
             if (article.getDoi() == null) return false;
-            String doiUrl = article.getDoi();
+            String doiUrl = "https://www.doi.org/" + article.getDoi();
             String fileName = Math.abs(doiUrl.hashCode()) + ".pdf";
             String fileNameWithDirectory = pmid + "/" + fileName;
             Path pathToPdf = getPublicationPath(fileNameWithDirectory);

@@ -1,6 +1,7 @@
 package org.mskcc.oncokb.curation.config;
 
 import org.mskcc.oncokb.curation.config.model.OncoKbConfig;
+import org.mskcc.oncokb.meta.model.application.AWSProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**

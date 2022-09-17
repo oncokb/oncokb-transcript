@@ -32,6 +32,7 @@
         <java.version>11</java.version>
         <node.version>v14.17.6</node.version>
         <npm.version>7.23.0</npm.version>
+        <lombok.version>1.18.22</lombok.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -349,7 +350,7 @@
         <dependency>
             <groupId>com.github.oncokb</groupId>
             <artifactId>oncokb-meta</artifactId>
-            <version>4f57f6d0fa</version>
+            <version>b2fd1c65e6</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -364,7 +365,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.22</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -396,6 +397,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

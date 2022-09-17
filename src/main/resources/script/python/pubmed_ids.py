@@ -4,13 +4,14 @@ import sys
 import requests
 
 
+# TODO: The code is subjected to further review/refactoring. It comes from AI/ML team, developed by Luke  Czapla.
+
 def get_pub_content(ids, fileName="pubmed_ids.xml"):
     print(ids)
     res = requests.get(
         url=f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id={ids}&rettype=text"
     )
     text = res.text
-    result = ''
     file1 = open(fileName, "w")
     file1.write(text)
     file1.close()

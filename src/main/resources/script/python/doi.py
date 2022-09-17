@@ -1,6 +1,7 @@
 import urllib.parse, requests, json
-from bs4 import BeautifulSoup
 import sys
+
+# TODO: The code is subjected to further review/refactoring. It comes from AI/ML team, developed by Luke  Czapla.
 
 # https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pmc&term=kras
 # ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_pdf/8e/71/WJR-9-27.PMC5334499.pdf

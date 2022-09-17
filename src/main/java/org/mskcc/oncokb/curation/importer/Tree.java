@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.ToString;
 
+// TODO: The code is subjected to further review/refactoring. It comes from AI/ML team, developed by Luke Czapla.
+
 @ToString
 @AllArgsConstructor
 @Builder

@@ -89,6 +89,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/authenticate").permitAll()
             .antMatchers("/api/auth-info").permitAll()
             .antMatchers("/api/logout").permitAll()
+            // TODO: the permission needs to be updated before going production
             .antMatchers("/api/articles/**").permitAll()
             .antMatchers("/api/elasticsearch/index").hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/admin/**").hasAuthority(AuthoritiesConstants.ADMIN)

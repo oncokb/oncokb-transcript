@@ -1,71 +1,80 @@
-import urllib.request, requests, json
-import xml.etree.ElementTree as ET
+import urllib.request, requests
 import sys
+import xml.etree.ElementTree as ET
+from bs4 import BeautifulSoup
+import re
+
+# TODO: The code is subjected to further review/refactoring. It comes from AI/ML team, developed by Luke  Czapla.
 
 # https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pmc&term=kras
 # ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_pdf/8e/71/WJR-9-27.PMC5334499.pdf
 
 term = ""
 
+def parse_xml(xml_file, pmid, file_path):
+    with urllib.request.urlopen(xml_file) as file:
+        # create element tree object
+        tree = ET.parse(file)
 
-def download(id, filePath):
+        # get root element
+        root = tree.getroot()
+
+        got_file = False
+        # get the list of links available for the PMC
+        links = root.findall("./records/record/link")
+        if len(links) > 0:
+            for item in links:
+                link = item.get('href')
+                if link is not None:
+                    file_type = item.get('format')
+                    file_extension = None
+                    if file_type == 'tgz':
+                        file_extension = 'tar.gz'
+                    elif file_type == 'pdf':
+                        file_extension = 'pdf'
+                    if file_extension is not None:
+                        with urllib.request.urlopen(link, timeout=8) as url:
+                            data = url.read()
+                            f = open(f'{file_path}/{pmid}.{file_extension}', 'wb')
+                            f.write(data)
+                            f.close()
+                        got_file = True
+        return got_file
+
+def download(id, file_path='./'):
     if (id[0:3].upper() == 'PMC'):
         id = id[3:]
-    res = requests.get(url=f'https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC{id}', timeout=8)
-    str = res.content.decode('utf-8')
-    print(str)
-    start = str.lower().find("ftp://")
-    end = str.lower().find(".tar.gz") + 7
-    ftpurl1 = str[start:end]
-    print(ftpurl1)
-    try:
-        with urllib.request.urlopen(ftpurl1, timeout=8) as url:
-            data = url.read()
-            f = open(f'{filePath}/{id}.tar.gz', 'wb')
-            f.write(data)
-            f.close()
-            # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3951336/pdf/nihms555682.pdf
-    # /pmc/articles/PMC3087888/pdf/ukmss-34235.pdf
-    except Exception as error:
-        print("Exception occured downloading .tar.gz file, check PDF files too, article may not be open access.")
-        urlitem = ""
-        with urllib.request.urlopen(f"https://www.ncbi.nlm.nih.gov/pmc/?term={id}") as url2:
+    got_pdf = parse_xml(f'https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id=PMC{id}', id, file_path)
+
+    if got_pdf is False:
+        print("No PDF found through PubMed Central. Now parsing NCBI page to get the PDF link")
+        url = f"https://www.ncbi.nlm.nih.gov/pmc/?term={id}"
+        print(url)
+        with urllib.request.urlopen(url) as url2:
             for line in url2:
                 line = line.decode('utf-8')
+
                 if line.find(f'/pmc/articles/PMC{id}/pdf/') >= 0:
-                    urlitem = line[line.find(f"/pmc/articles/PMC{id}/pdf/"):line.find(".pdf", line.find(
-                        f"/pmc/articles/PMC{id}/pdf/")) + 4].strip()
-                    print("Found item ", urlitem)
-                    break
-            print(f"https://www.ncbi.nlm.nih.gov{urlitem}")
-            req = urllib.request.Request(
-                f"https://www.ncbi.nlm.nih.gov{urlitem}",
-                data=None,
-                headers={
-                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
-                }
-            )
-            if urlitem != "":
-                with urllib.request.urlopen(req) as url3:
-                    data = url3.read()
-                    f = open(f'{filePath}/PMC{id}.pdf', 'wb')
-                    f.write(data)
-                    f.close()
-    str = str[end:]
-    start = str.lower().find("ftp://")
-    end = str.lower().find(".pdf") + 4
-    ftpurl2 = str[start:end]
-    # if end == 3:
-    #  continue
-    print(ftpurl2)
-    try:
-        with urllib.request.urlopen(ftpurl2, timeout=8) as url:
-            data = url.read()
-            f = open(f'{filePath}/{id}.pdf', 'wb')
-            f.write(data)
-            f.close()
-    except Exception as error:
-        print("Exception occured downloading PDF file, .tar.gz may still be available")
+                    soup = BeautifulSoup(line, 'html.parser')
+                    result = soup.findAll(href=re.compile(r'pdf.*\.pdf'))
+                    for match in result:
+                        url_href = match['href']
+                        url = f"https://www.ncbi.nlm.nih.gov{url_href}"
+                        if url != "":
+                            header_with_user_agent = {
+                                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
+                            }
+                            head_response = requests.head(url, headers=header_with_user_agent)
+                            if head_response is not None and head_response.headers['content-type'] == 'application/pdf':
+                                with requests.get(url, headers=header_with_user_agent) as res:
+                                    data = res.content
+                                    f = open(f'{file_path}/PMC{id}.pdf', 'wb')
+                                    f.write(data)
+                                    f.close()
+                                    got_pdf = True
+
+        if got_pdf == False:
+            print(f'No PDF found for PMC {id}')
 
 
 if __name__ == "__main__":
@@ -74,6 +83,6 @@ if __name__ == "__main__":
         quit()
     else:
         pmcid = sys.argv[1]
-        filePath = sys.argv[2]
-        download(pmcid, filePath)
+        file_path = sys.argv[2]
+        download(pmcid, file_path)
         quit()

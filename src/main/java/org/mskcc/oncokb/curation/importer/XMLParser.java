@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
+// TODO: The code is subjected to further review/refactoring. It comes from AI/ML team, developed by Luke Czapla.
+
 @Component
 public class XMLParser {
 
