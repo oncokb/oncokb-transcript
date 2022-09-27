@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
 /**
  * A Article.
@@ -20,7 +21,8 @@ public class Article implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "pmid")
+    @NotNull
+    @Column(name = "pmid", nullable = false)
     private String pmid;
 
     @Column(name = "pmcid")
@@ -52,6 +54,7 @@ public class Article implements Serializable {
     @Column(name = "pages")
     private String pages;
 
+    @Lob
     @Column(name = "authors")
     private String authors;
 

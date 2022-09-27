@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.repository.ArticleRepository;
 import org.mskcc.oncokb.curation.service.ArticleService;
@@ -57,7 +59,7 @@ public class ArticleResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/articles")
-    public ResponseEntity<Article> createArticle(@RequestBody Article article) throws URISyntaxException {
+    public ResponseEntity<Article> createArticle(@Valid @RequestBody Article article) throws URISyntaxException {
         log.debug("REST request to save Article : {}", article);
         if (article.getId() != null) {
             throw new BadRequestAlertException("A new article cannot already have an ID", ENTITY_NAME, "idexists");
@@ -80,8 +82,10 @@ public class ArticleResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/articles/{id}")
-    public ResponseEntity<Article> updateArticle(@PathVariable(value = "id", required = false) final Long id, @RequestBody Article article)
-        throws URISyntaxException {
+    public ResponseEntity<Article> updateArticle(
+        @PathVariable(value = "id", required = false) final Long id,
+        @Valid @RequestBody Article article
+    ) throws URISyntaxException {
         log.debug("REST request to update Article : {}, {}", id, article);
         if (article.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -115,7 +119,7 @@ public class ArticleResource {
     @PatchMapping(value = "/articles/{id}", consumes = { "application/json", "application/merge-patch+json" })
     public ResponseEntity<Article> partialUpdateArticle(
         @PathVariable(value = "id", required = false) final Long id,
-        @RequestBody Article article
+        @NotNull @RequestBody Article article
     ) throws URISyntaxException {
         log.debug("REST request to partial update Article partially : {}, {}", id, article);
         if (article.getId() == null) {

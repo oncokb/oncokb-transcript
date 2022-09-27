@@ -143,6 +143,11 @@ public class ArticleService {
         return articleRepository.findById(id);
     }
 
+    public Optional<Article> findByPmid(String pmid) {
+        log.debug("Request to get Article : {}", pmid);
+        return articleRepository.findByPmid(pmid);
+    }
+
     /**
      * Delete the article by id.
      *

@@ -291,4 +291,10 @@ http://stackoverflow.com/questions/23436430/bootstrap-3-input-group-100-width */
   width: 1% !important;
 }
 
+.overflow-text {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 200px;
+}
 /* jhipster-needle-scss-add-main JHipster will add new css style */

@@ -3,7 +3,8 @@
   "fields": [
     {
       "fieldName": "pmid",
-      "fieldType": "String"
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "pmcid",
@@ -45,7 +46,8 @@
     },
     {
       "fieldName": "authors",
-      "fieldType": "String"
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
     },
     {
       "fieldName": "meshTerms",

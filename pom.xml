@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <groupId>org.mskcc.oncokb.curation</groupId>
     <artifactId>oncokb-curation</artifactId>
     <version>0.7.1</version>
@@ -31,7 +31,8 @@
         <maven.version>3.3.9</maven.version>
         <java.version>11</java.version>
         <node.version>v14.17.6</node.version>
-        <npm.version>7.23.0</npm.version>
+        <yarn.version>v1.22.19</yarn.version>
+        <lombok.version>1.18.22</lombok.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -349,7 +350,7 @@
         <dependency>
             <groupId>com.github.oncokb</groupId>
             <artifactId>oncokb-meta</artifactId>
-            <version>4f57f6d0fa</version>
+            <version>b2fd1c65e6</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -361,6 +362,33 @@
             <artifactId>jsoup</artifactId>
             <version>1.14.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk</artifactId>
+            <version>1.11.163</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-core</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-parsers-standard-package</artifactId>
+            <version>2.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <build>
@@ -369,6 +397,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -1006,25 +1043,25 @@
                         <artifactId>frontend-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>install-node-and-npm</id>
+                                <id>install-node-and-yarn</id>
                                 <goals>
-                                    <goal>install-node-and-npm</goal>
+                                    <goal>install-node-and-yarn</goal>
                                 </goals>
                                 <configuration>
                                     <nodeVersion>${node.version}</nodeVersion>
-                                    <npmVersion>${npm.version}</npmVersion>
+                                    <yarnVersion>${yarn.version}</yarnVersion>
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>npm install</id>
+                                <id>yarn install</id>
                                 <goals>
-                                    <goal>npm</goal>
+                                    <goal>yarn</goal>
                                 </goals>
                             </execution>
                             <execution>
                                 <id>webapp build dev</id>
                                 <goals>
-                                    <goal>npm</goal>
+                                    <goal>yarn</goal>
                                 </goals>
                                 <phase>generate-resources</phase>
                                 <configuration>
@@ -1032,7 +1069,7 @@
                                     <environmentVariables>
                                         <APP_VERSION>${project.version}</APP_VERSION>
                                     </environmentVariables>
-                                    <npmInheritsProxyConfigFromMaven>false</npmInheritsProxyConfigFromMaven>
+                                    <yarnInheritsProxyConfigFromMaven>false</yarnInheritsProxyConfigFromMaven>
                                 </configuration>
                             </execution>
                         </executions>
@@ -1101,36 +1138,36 @@
                         <artifactId>frontend-maven-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>install-node-and-npm</id>
+                                <id>install-node-and-yarn</id>
                                 <goals>
-                                    <goal>install-node-and-npm</goal>
+                                    <goal>install-node-and-yarn</goal>
                                 </goals>
                                 <configuration>
                                     <nodeVersion>${node.version}</nodeVersion>
-                                    <npmVersion>${npm.version}</npmVersion>
+                                    <yarnVersion>${yarn.version}</yarnVersion>
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>npm install</id>
+                                <id>yarn install</id>
                                 <goals>
-                                    <goal>npm</goal>
+                                    <goal>yarn</goal>
                                 </goals>
                             </execution>
                             <execution>
                                 <id>webapp build test</id>
                                 <goals>
-                                    <goal>npm</goal>
+                                    <goal>yarn</goal>
                                 </goals>
                                 <phase>test</phase>
                                 <configuration>
                                     <arguments>run webapp:test</arguments>
-                                    <npmInheritsProxyConfigFromMaven>false</npmInheritsProxyConfigFromMaven>
+                                    <yarnInheritsProxyConfigFromMaven>false</yarnInheritsProxyConfigFromMaven>
                                 </configuration>
                             </execution>
                             <execution>
                                 <id>webapp build prod</id>
                                 <goals>
-                                    <goal>npm</goal>
+                                    <goal>yarn</goal>
                                 </goals>
                                 <phase>generate-resources</phase>
                                 <configuration>
@@ -1138,7 +1175,7 @@
                                     <environmentVariables>
                                         <APP_VERSION>${project.version}</APP_VERSION>
                                     </environmentVariables>
-                                    <npmInheritsProxyConfigFromMaven>false</npmInheritsProxyConfigFromMaven>
+                                    <yarnInheritsProxyConfigFromMaven>false</yarnInheritsProxyConfigFromMaven>
                                 </configuration>
                             </execution>
                         </executions>
@@ -1249,8 +1286,8 @@
                                                 <artifactId>frontend-maven-plugin</artifactId>
                                                 <versionRange>${frontend-maven-plugin.version}</versionRange>
                                                 <goals>
-                                                    <goal>install-node-and-npm</goal>
-                                                    <goal>npm</goal>
+                                                    <goal>install-node-and-yarn</goal>
+                                                    <goal>yarn</goal>
                                                 </goals>
                                             </pluginExecutionFilter>
                                             <action>

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.domain.ArticleFullText;
 import org.mskcc.oncokb.curation.repository.ArticleFullTextRepository;
 import org.mskcc.oncokb.curation.repository.search.ArticleFullTextSearchRepository;
@@ -42,7 +43,7 @@ public class ArticleFullTextService {
      * @return the persisted entity.
      */
     public ArticleFullText save(ArticleFullText articleFullText) {
-        log.debug("Request to save ArticleFullText : {}", articleFullText);
+        log.debug("Request to save ArticleFullText for Article {}", articleFullText.getArticle().getPmid());
         ArticleFullText result = articleFullTextRepository.save(articleFullText);
         articleFullTextSearchRepository.save(result);
         return result;
@@ -98,6 +99,11 @@ public class ArticleFullTextService {
     public Optional<ArticleFullText> findOne(Long id) {
         log.debug("Request to get ArticleFullText : {}", id);
         return articleFullTextRepository.findById(id);
+    }
+
+    public Optional<ArticleFullText> findByArticle(Article article) {
+        log.debug("Request to get ArticleFullText by Article : {}", article.getPmid());
+        return articleFullTextRepository.findByArticle(article);
     }
 
     /**

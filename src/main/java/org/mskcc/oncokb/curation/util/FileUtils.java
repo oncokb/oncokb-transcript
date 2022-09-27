@@ -1,13 +1,27 @@
 package org.mskcc.oncokb.curation.util;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 public class FileUtils {
+
+    public static Path getResourcePath(String resourceName) {
+        try {
+            URL url = ClassLoader.getSystemResource(resourceName);
+            if (url == null) {
+                return null;
+            }
+            return Path.of(url.toURI()).normalize();
+        } catch (URISyntaxException e) {
+            return null;
+        }
+    }
 
     /**
      * read local files and return content

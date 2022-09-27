@@ -157,3 +157,7 @@ Desktop.ini
 ######################
 /coverage/
 /.nyc_output/
+
+
+# Ignore project files
+publication

@@ -150,23 +150,14 @@ export const Article = (props: IArticleProps) => {
           <Table responsive>
             <thead>
               <tr>
-                <th className="hand" onClick={sort('id')}>
-                  ID <FontAwesomeIcon icon="sort" />
-                </th>
                 <th className="hand" onClick={sort('pmid')}>
                   Pmid <FontAwesomeIcon icon="sort" />
                 </th>
                 <th className="hand" onClick={sort('pmcid')}>
                   Pmcid <FontAwesomeIcon icon="sort" />
                 </th>
-                <th className="hand" onClick={sort('doi')}>
-                  Doi <FontAwesomeIcon icon="sort" />
-                </th>
                 <th className="hand" onClick={sort('title')}>
                   Title <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('pubAbstract')}>
-                  Pub Abstract <FontAwesomeIcon icon="sort" />
                 </th>
                 <th className="hand" onClick={sort('pubDate')}>
                   Pub Date <FontAwesomeIcon icon="sort" />
@@ -174,20 +165,8 @@ export const Article = (props: IArticleProps) => {
                 <th className="hand" onClick={sort('journal')}>
                   Journal <FontAwesomeIcon icon="sort" />
                 </th>
-                <th className="hand" onClick={sort('volume')}>
-                  Volume <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('issue')}>
-                  Issue <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('pages')}>
-                  Pages <FontAwesomeIcon icon="sort" />
-                </th>
                 <th className="hand" onClick={sort('authors')}>
                   Authors <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('meshTerms')}>
-                  Mesh Terms <FontAwesomeIcon icon="sort" />
                 </th>
                 <th />
               </tr>
@@ -195,23 +174,12 @@ export const Article = (props: IArticleProps) => {
             <tbody>
               {articleList.map((article, i) => (
                 <tr key={`entity-${i}`} data-cy="entityTable">
-                  <td>
-                    <Button tag={Link} to={`${match.url}/${article.id}`} color="link" size="sm">
-                      {article.id}
-                    </Button>
-                  </td>
                   <td>{article.pmid}</td>
                   <td>{article.pmcid}</td>
-                  <td>{article.doi}</td>
                   <td>{article.title}</td>
-                  <td>{article.pubAbstract}</td>
-                  <td>{article.pubDate ? <TextFormat type="date" value={article.pubDate} format={APP_DATE_FORMAT} /> : null}</td>
+                  <td>{article.pubDate ? <TextFormat type="date" value={article.pubDate} format={APP_LOCAL_DATE_FORMAT} /> : null}</td>
                   <td>{article.journal}</td>
-                  <td>{article.volume}</td>
-                  <td>{article.issue}</td>
-                  <td>{article.pages}</td>
-                  <td>{article.authors}</td>
-                  <td>{article.meshTerms}</td>
+                  <td className="overflow-text">{article.authors}</td>
                   <td className="text-right">
                     <div className="btn-group flex-btn-group-container">
                       <Button tag={Link} to={`${match.url}/${article.id}`} color="info" size="sm" data-cy="entityDetailsButton">

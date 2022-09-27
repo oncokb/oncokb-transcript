@@ -80,7 +80,16 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
               {!isNew ? <ValidatedField name="id" required readOnly id="article-id" label="ID" validate={{ required: true }} /> : null}
-              <ValidatedField label="Pmid" id="article-pmid" name="pmid" data-cy="pmid" type="text" />
+              <ValidatedField
+                label="Pmid"
+                id="article-pmid"
+                name="pmid"
+                data-cy="pmid"
+                type="text"
+                validate={{
+                  required: { value: true, message: 'This field is required.' },
+                }}
+              />
               <ValidatedField label="Pmcid" id="article-pmcid" name="pmcid" data-cy="pmcid" type="text" />
               <ValidatedField label="Doi" id="article-doi" name="doi" data-cy="doi" type="text" />
               <ValidatedField label="Title" id="article-title" name="title" data-cy="title" type="textarea" />
@@ -97,7 +106,7 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
               <ValidatedField label="Volume" id="article-volume" name="volume" data-cy="volume" type="text" />
               <ValidatedField label="Issue" id="article-issue" name="issue" data-cy="issue" type="text" />
               <ValidatedField label="Pages" id="article-pages" name="pages" data-cy="pages" type="text" />
-              <ValidatedField label="Authors" id="article-authors" name="authors" data-cy="authors" type="text" />
+              <ValidatedField label="Authors" id="article-authors" name="authors" data-cy="authors" type="textarea" />
               <ValidatedField label="Mesh Terms" id="article-meshTerms" name="meshTerms" data-cy="meshTerms" type="textarea" />
               <Button tag={Link} id="cancel-save" data-cy="entityCreateCancelButton" to="/article" replace color="info">
                 <FontAwesomeIcon icon="arrow-left" />
