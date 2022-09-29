@@ -71,12 +71,13 @@ public class PubMedImporter {
     }
 
     public boolean addArticlePMID(String pmid) {
-        if (articleService.findByPmid(pmid).isPresent()) return false;
+        //        if (articleService.findByPmid(pmid).isPresent()) return false;
         try {
             Path XmlPath = getPublicationPath(pmid + ".xml");
             ProcessUtil.runScript(getPyScriptExecCommand("pubmed_ids.py", pmid, XmlPath.toString()));
             parser.reload(XmlPath.toString());
             parser.DFS(parser.getRoot(), Tree.articleTree(), null);
+            Files.deleteIfExists(XmlPath);
             return true;
         } catch (IOException | ParserConfigurationException | SAXException | NoSuchFieldException | IllegalAccessException e) {
             log.error(e.getMessage());
@@ -91,11 +92,21 @@ public class PubMedImporter {
             String s3ObjPath = "curation-website/article-full-text/" + pmid + ".zip";
             GzipUtils.compress(getPublicationPath(pmid), getPmcZipPath(pmid));
             Path path = Path.of(compressPath);
-            if (Files.exists(path)) s3Service.saveObject("oncokb", s3ObjPath, path.toFile());
+            if (Files.exists(path)) {
+                s3Service.saveObject("oncokb", s3ObjPath, path.toFile());
+                path.toFile().delete();
+            }
             return true;
         } catch (IOException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public void removePublicationIfExist(String pmid) {
+        Path pubDirectory = getPublicationPath(pmid);
+        if (Files.exists(pubDirectory)) {
+            FileUtils.deleteDirectory(pubDirectory.toFile());
         }
     }
 
@@ -191,11 +202,10 @@ public class PubMedImporter {
         boolean found = false;
 
         if (StringUtils.isNotEmpty(article.getPmcid())) {
-            String pmcid = article.getPmcid().replace("PMC", "");
             try {
                 ProcessUtil.runScript("pip3 install bs4");
                 ProcessUtil.runScript(getPyScriptExecCommand("PMC.py", article.getPmcid(), path.toAbsolutePath().toString()));
-                found = pdfExists(pmid, pmcid + ".pdf");
+                found = pdfExists(pmid, article.getPmcid() + ".pdf");
             } catch (IOException e) {
                 log.error("Failed with PMC retrieval: {}, continuing with DOI", e.getMessage());
             }

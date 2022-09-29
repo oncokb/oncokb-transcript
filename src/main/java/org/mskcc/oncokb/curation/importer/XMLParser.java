@@ -250,7 +250,15 @@ public class XMLParser {
                                 }
                                 if (article.getPmid() != null) {
                                     try {
-                                        Article savedArticle = articleService.save(article);
+                                        Article savedArticle;
+                                        Optional<Article> articleOptional = articleService.findByPmid(article.getPmid());
+                                        if (articleOptional.isEmpty()) {
+                                            savedArticle = articleService.save(article);
+                                        } else {
+                                            article.setId(articleOptional.get().getId());
+                                            savedArticle = articleService.partialUpdate(article).get();
+                                        }
+                                        articleMap.add(Integer.parseInt(savedArticle.getPmid()));
                                         synchronized (log) {
                                             articleMap.add(Integer.parseInt(savedArticle.getPmid()));
                                         }
@@ -403,7 +411,14 @@ public class XMLParser {
                                 }
                                 if (!bad && !articleMap.contains(pmIdInt)) {
                                     try {
-                                        Article savedArticle = articleService.save(article);
+                                        Article savedArticle;
+                                        Optional<Article> articleOptional = articleService.findByPmid(article.getPmid());
+                                        if (articleOptional.isEmpty()) {
+                                            savedArticle = articleService.save(article);
+                                        } else {
+                                            article.setId(articleOptional.get().getId());
+                                            savedArticle = articleService.partialUpdate(article).get();
+                                        }
                                         articleMap.add(Integer.parseInt(savedArticle.getPmid()));
                                         count++;
                                     } catch (Exception e) {
