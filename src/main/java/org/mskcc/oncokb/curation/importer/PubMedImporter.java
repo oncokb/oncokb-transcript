@@ -226,6 +226,9 @@ public class PubMedImporter {
                 e.printStackTrace();
             }
         }
+        if (!found) {
+            log.info("Did not find PDF for article {}", pmid);
+        }
         return found;
     }
 }
