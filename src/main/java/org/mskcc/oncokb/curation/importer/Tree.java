@@ -201,21 +201,6 @@ public class Tree {
                                                     .build()
                                             )
                                         )
-                                        .build(),
-                                    Tree
-                                        .builder()
-                                        .name("KeywordList")
-                                        .children(
-                                            Arrays.asList(
-                                                Tree
-                                                    .builder()
-                                                    .name("Keyword")
-                                                    .asField("keywords")
-                                                    .withLabel("MajorTopicYN")
-                                                    .append(";")
-                                                    .build()
-                                            )
-                                        )
                                         .build()
                                 )
                             )
@@ -432,21 +417,6 @@ public class Tree {
                                                                 .build()
                                                         )
                                                     )
-                                                    .build()
-                                            )
-                                        )
-                                        .build(),
-                                    Tree
-                                        .builder()
-                                        .name("KeywordList")
-                                        .children(
-                                            Arrays.asList(
-                                                Tree
-                                                    .builder()
-                                                    .name("Keyword")
-                                                    .asField("keywords")
-                                                    .withLabel("MajorTopicYN")
-                                                    .append(";")
                                                     .build()
                                             )
                                         )
