@@ -96,13 +96,15 @@ public class GeneService {
 
     /**
      * Get all the genes.
+     * We do not use the default find all is because the FetchType.EAGER in the gene model.
+     * The default will trigger a lot of queries to the database.
      *
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
     public List<Gene> findAll() {
         log.debug("Request to get all Genes");
-        return geneRepository.findAll();
+        return geneRepository.findAllWithGeneAliasAndEnsemblGenes();
     }
 
     /**
