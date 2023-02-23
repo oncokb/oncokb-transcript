@@ -8,11 +8,12 @@ import { IRootStore } from 'app/stores/createStore';
 import { connect } from '../util/typed-inject';
 import { ICancerType } from '../model/cancer-type.model';
 import { ITEMS_PER_PAGE } from '../util/pagination.constants';
+import { getCancerTypeName } from 'app/shared/util/utils';
 
 interface ICancerTypeSelectProps extends SelectProps, StoreProps {}
 
 const getAllMainTypes = (cancerTypeList: ICancerType[]) => {
-  return _.uniq(cancerTypeList.filter(cancerType => cancerType.level >= 0)).sort();
+  return _.uniq(cancerTypeList.filter(cancerType => cancerType.level <= 0)).sort();
 };
 
 const getAllSubtypes = (cancerTypeList: ICancerType[]) => {
@@ -28,7 +29,7 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
         .map(cancerType => {
           return {
             value: cancerType.id,
-            label: cancerType.mainType,
+            label: getCancerTypeName(cancerType),
           };
         }),
     },
@@ -37,7 +38,7 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
       options: _.sortBy(_.uniq(getAllSubtypes(cancerTypeList)), 'name').map(cancerType => {
         return {
           value: cancerType.id,
-          label: `${cancerType.subtype} (${cancerType.code})`,
+          label: getCancerTypeName(cancerType),
         };
       }),
     },

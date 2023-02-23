@@ -36,6 +36,7 @@
     <include file="config/liquibase/changelog/20220428161233_added_entity_CategoricalAlteration.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220513144615_added_entity_Consequence.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220516220250_added_entity_AlterationReferenceGenome.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230223171840_added_entity_ClinicalTrialsGovCondition.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="config/liquibase/changelog/20220401174634_added_entity_constraints_Sequence.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174635_added_entity_constraints_Transcript.xml" relativeToChangelogFile="false"/>
@@ -50,6 +51,7 @@
     <include file="config/liquibase/changelog/20220401174650_added_entity_constraints_DeviceUsageIndication.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220419220505_added_entity_constraints_DrugBrand.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220516220250_added_entity_constraints_AlterationReferenceGenome.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230223171840_added_entity_constraints_ClinicalTrialsGovCondition.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>

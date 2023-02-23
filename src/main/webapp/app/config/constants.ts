@@ -33,6 +33,8 @@ export enum PAGE_ROUTE {
   FDA_SUBMISSION_TYPE = '/fda-submission-type',
   CDX = '/companion-diagnostic-device',
   SPECIMEN_TYPE = '/specimen-type',
+
+  CT_GOV_CONDITION = '/clinical-trials-gov-condition',
 }
 
 export const ENTITY_ROUTE_TO_TITLE_MAPPING: { [key in PAGE_ROUTE]?: string } = {
