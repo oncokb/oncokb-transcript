@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Input, InputGroup, FormGroup, Form, Col, Row, Table } from 'reactstrap';
-import { Translate, getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Input, Col, Row } from 'reactstrap';
+import { getSortState, JhiPagination, JhiItemCount } from 'react-jhipster';
 
 import { IClinicalTrialsGovCondition } from 'app/shared/model/clinical-trials-gov-condition.model';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 
 import { IRootStore } from 'app/stores';
+import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
+import EntityActionButton from 'app/shared/button/EntityActionButton';
+import EntityTable from 'app/shared/table/EntityTable';
+import { TableHeader } from 'app/shared/table/TableHeader';
+import { Column } from 'react-table';
+
 export interface IClinicalTrialsGovConditionProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const ClinicalTrialsGovCondition = (props: IClinicalTrialsGovConditionProps) => {
@@ -25,12 +30,13 @@ export const ClinicalTrialsGovCondition = (props: IClinicalTrialsGovConditionPro
 
   const getAllEntities = () => {
     if (search) {
-      props.searchEntities({
-        query: search,
-        page: paginationState.activePage - 1,
-        size: paginationState.itemsPerPage,
-        sort: `${paginationState.sort},${paginationState.order}`,
-      });
+      debouncedSearchWithPagination(
+        search,
+        paginationState.activePage - 1,
+        paginationState.itemsPerPage,
+        `${paginationState.sort},${paginationState.order}`,
+        props.searchEntities
+      );
     } else {
       props.getEntities({
         page: paginationState.activePage - 1,
@@ -38,31 +44,6 @@ export const ClinicalTrialsGovCondition = (props: IClinicalTrialsGovConditionPro
         sort: `${paginationState.sort},${paginationState.order}`,
       });
     }
-  };
-
-  const startSearching = e => {
-    if (search) {
-      setPaginationState({
-        ...paginationState,
-        activePage: 1,
-      });
-      props.searchEntities({
-        query: search,
-        page: paginationState.activePage - 1,
-        size: paginationState.itemsPerPage,
-        sort: `${paginationState.sort},${paginationState.order}`,
-      });
-    }
-    e.preventDefault();
-  };
-
-  const clear = () => {
-    setSearch('');
-    setPaginationState({
-      ...paginationState,
-      activePage: 1,
-    });
-    props.getEntities({});
   };
 
   const handleSearch = event => setSearch(event.target.value);
@@ -108,103 +89,40 @@ export const ClinicalTrialsGovCondition = (props: IClinicalTrialsGovConditionPro
       activePage: currentPage,
     });
 
-  const handleSyncList = () => {
-    sortEntities();
-  };
-
   const { match } = props;
+
+  const columns: Column<IClinicalTrialsGovCondition>[] = [
+    {
+      accessor: 'name',
+      Header: <TableHeader header="Name" onSort={sort('name')} paginationState={paginationState} sortField="name" />,
+    },
+  ];
 
   return (
     <div>
       <h2 id="clinical-trials-gov-condition-heading" data-cy="ClinicalTrialsGovConditionHeading">
         CT.gov Conditions
-        <div className="d-flex justify-content-end">
-          <Button className="mr-2" color="info" onClick={handleSyncList} disabled={loading}>
-            <FontAwesomeIcon icon="sync" spin={loading} /> Refresh List
-          </Button>
-          <Link to={`${match.url}/new`} className="btn btn-primary jh-create-entity" id="jh-create-entity" data-cy="entityCreateButton">
-            <FontAwesomeIcon icon="plus" />
-            &nbsp; Create new Condition
-          </Link>
-        </div>
+        <EntityActionButton
+          className="ml-2"
+          color="primary"
+          entityType={ENTITY_TYPE.CT_GOV_CONDITION}
+          entityAction={ENTITY_ACTION.CREATE}
+        />
       </h2>
-      <Row>
-        <Col sm="12">
-          <Form onSubmit={startSearching}>
-            <FormGroup>
-              <InputGroup>
-                <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
-                <Button className="input-group-addon">
-                  <FontAwesomeIcon icon="search" />
-                </Button>
-                <Button type="reset" className="input-group-addon" onClick={clear}>
-                  <FontAwesomeIcon icon="trash" />
-                </Button>
-              </InputGroup>
-            </FormGroup>
-          </Form>
+      <Row className="justify-content-end mb-3">
+        <Col sm="4">
+          <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
         </Col>
       </Row>
       <div className="table-responsive">
-        {clinicalTrialsGovConditionList && clinicalTrialsGovConditionList.length > 0 ? (
-          <Table responsive>
-            <thead>
-              <tr>
-                <th className="hand" onClick={sort('id')}>
-                  ID <FontAwesomeIcon icon="sort" />
-                </th>
-                <th className="hand" onClick={sort('name')}>
-                  Name <FontAwesomeIcon icon="sort" />
-                </th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {clinicalTrialsGovConditionList.map((clinicalTrialsGovCondition, i) => (
-                <tr key={`entity-${i}`} data-cy="entityTable">
-                  <td>
-                    <Button tag={Link} to={`${match.url}/${clinicalTrialsGovCondition.id}`} color="link" size="sm">
-                      {clinicalTrialsGovCondition.id}
-                    </Button>
-                  </td>
-                  <td>{clinicalTrialsGovCondition.name}</td>
-                  <td className="text-right">
-                    <div className="btn-group flex-btn-group-container">
-                      <Button
-                        tag={Link}
-                        to={`${match.url}/${clinicalTrialsGovCondition.id}`}
-                        color="info"
-                        size="sm"
-                        data-cy="entityDetailsButton"
-                      >
-                        <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
-                      </Button>
-                      <Button
-                        tag={Link}
-                        to={`${match.url}/${clinicalTrialsGovCondition.id}/edit?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-                        color="primary"
-                        size="sm"
-                        data-cy="entityEditButton"
-                      >
-                        <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-                      </Button>
-                      <Button
-                        tag={Link}
-                        to={`${match.url}/${clinicalTrialsGovCondition.id}/delete?page=${paginationState.activePage}&sort=${paginationState.sort},${paginationState.order}`}
-                        color="danger"
-                        size="sm"
-                        data-cy="entityDeleteButton"
-                      >
-                        <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        ) : (
-          !loading && <div className="alert alert-warning">No CT.gov Conditions found</div>
+        {clinicalTrialsGovConditionList && (
+          <EntityTable
+            columns={columns}
+            data={clinicalTrialsGovConditionList}
+            loading={loading}
+            url={match.url}
+            entityType={ENTITY_TYPE.CT_GOV_CONDITION}
+          />
         )}
       </div>
       {totalItems ? (
