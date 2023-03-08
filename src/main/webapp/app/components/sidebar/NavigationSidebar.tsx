@@ -41,6 +41,9 @@ class NavigationSidebar extends React.Component<StoreProps> {
               <MenuItem icon={<b style={{ fontSize: '1.2em' }}>FDA</b>}>
                 Submission <NavLink to={PAGE_ROUTE.FDA_SUBMISSION} />
               </MenuItem>
+              <MenuItem icon={<b style={{ fontSize: '1.2em' }}>CT</b>}>
+                Condition <NavLink to={PAGE_ROUTE.CT_GOV_CONDITION} />
+              </MenuItem>
             </Menu>
           </SidebarContent>
         </ProSidebar>

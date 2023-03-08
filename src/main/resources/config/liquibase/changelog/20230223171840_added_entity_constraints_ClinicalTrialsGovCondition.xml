@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+    <!--
+        Added the constraints for entity ClinicalTrialsGovCondition.
+    -->
+    <changeSet id="20230223171840-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="clinical_trials_gov_condition_id"
+                                 baseTableName="rel_clinical_trials_gov_condition__cancer_type"
+                                 constraintName="fk_rel_clinical_trials_gov_cond__clinical_trials_gov_condi_e1_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="clinical_trials_gov_condition"/>
+
+        <addForeignKeyConstraint baseColumnNames="cancer_type_id"
+                                 baseTableName="rel_clinical_trials_gov_condition__cancer_type"
+                                 constraintName="fk_rel_clinical_trials_gov_cond__cancer_type_7c_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="cancer_type"/>
+    </changeSet>
+</databaseChangeLog>

@@ -33,6 +33,8 @@ export enum PAGE_ROUTE {
   FDA_SUBMISSION_TYPE = '/fda-submission-type',
   CDX = '/companion-diagnostic-device',
   SPECIMEN_TYPE = '/specimen-type',
+
+  CT_GOV_CONDITION = '/clinical-trials-gov-condition',
 }
 
 export const ENTITY_ROUTE_TO_TITLE_MAPPING: { [key in PAGE_ROUTE]?: string } = {
@@ -43,6 +45,7 @@ export const ENTITY_ROUTE_TO_TITLE_MAPPING: { [key in PAGE_ROUTE]?: string } = {
   [PAGE_ROUTE.DRUG]: 'Drugs',
   [PAGE_ROUTE.GENE]: 'Genes',
   [PAGE_ROUTE.ALTERATION]: 'Alterations',
+  [PAGE_ROUTE.CT_GOV_CONDITION]: 'CT.gov Conditions',
 };
 
 export enum ENTITY_ACTION {
@@ -69,6 +72,7 @@ export enum ENTITY_TYPE {
   DRUG,
   ARTICLE,
   USER,
+  CT_GOV_CONDITION,
 }
 
 export const ENTITY_BASE_PATHS: { [key in ENTITY_TYPE]: PAGE_ROUTE } = {
@@ -79,6 +83,7 @@ export const ENTITY_BASE_PATHS: { [key in ENTITY_TYPE]: PAGE_ROUTE } = {
   [ENTITY_TYPE.DRUG]: PAGE_ROUTE.DRUG,
   [ENTITY_TYPE.ARTICLE]: PAGE_ROUTE.ARTICLE,
   [ENTITY_TYPE.USER]: PAGE_ROUTE.ADMIN_USER_MANAGEMENT,
+  [ENTITY_TYPE.CT_GOV_CONDITION]: PAGE_ROUTE.CT_GOV_CONDITION,
 };
 
 export enum SearchOptionType {
@@ -89,6 +94,7 @@ export enum SearchOptionType {
   GENE = 'Genes',
   ALTERATION = 'Alterations',
   CANCER_TYPE = 'Cancer Types',
+  CT_GOV_CONDITION = 'CT.gov Conditions',
 }
 
 export enum USER_AUTHORITY {
@@ -105,6 +111,7 @@ export const DEFAULT_ENTITY_SORT_FIELD: { [key in ENTITY_TYPE]?: string } = {
   [ENTITY_TYPE.ALTERATION]: 'name',
   [ENTITY_TYPE.DRUG]: 'name',
   [ENTITY_TYPE.FDA_SUBMISSION]: 'deviceName',
+  [ENTITY_TYPE.CT_GOV_CONDITION]: 'name',
 };
 
 export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');

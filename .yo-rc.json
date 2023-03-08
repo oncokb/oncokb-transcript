@@ -85,9 +85,10 @@
       "DrugBrand",
       "CategoricalAlteration",
       "Consequence",
-      "AlterationReferenceGenome"
+      "AlterationReferenceGenome",
+      "ClinicalTrialsGovCondition"
     ],
-    "lastLiquibaseTimestamp": 1652738570000,
+    "lastLiquibaseTimestamp": 1677172720000,
     "devServerPort": 9060,
     "enableGradleEnterprise": false
   }

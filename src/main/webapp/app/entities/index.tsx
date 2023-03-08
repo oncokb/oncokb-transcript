@@ -25,6 +25,7 @@ import Article from './article';
 import DrugBrand from './drug-brand';
 import CategoricalAlteration from './categorical-alteration';
 import Consequence from './consequence';
+import ClinicalTrialsGovCondition from './clinical-trials-gov-condition';
 /* jhipster-needle-add-route-import - JHipster will add routes here */
 
 const Routes = ({ match }) => (
@@ -51,6 +52,7 @@ const Routes = ({ match }) => (
       <ErrorBoundaryRoute path={`${match.url}drug-brand`} component={DrugBrand} />
       <ErrorBoundaryRoute path={`${match.url}categorical-alteration`} component={CategoricalAlteration} />
       <ErrorBoundaryRoute path={`${match.url}consequence`} component={Consequence} />
+      <ErrorBoundaryRoute path={`${match.url}clinical-trials-gov-condition`} component={ClinicalTrialsGovCondition} />
       {/* jhipster-needle-add-route-path - JHipster will add routes here */}
     </Switch>
   </div>

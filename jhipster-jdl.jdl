@@ -210,6 +210,10 @@ entity DrugBrand {
 entity DeviceUsageIndication {
 }
 
+entity ClinicalTrialsGovCondition {
+	name String unique required
+}
+
 relationship OneToMany {
 	Drug{synonyms} to DrugSynonym
 	Gene to GeneAlias
@@ -232,9 +236,10 @@ relationship OneToMany {
 relationship ManyToMany {
     Alteration to Gene
     CompanionDiagnosticDevice to SpecimenType
+    ClinicalTrialsGovCondition to CancerType
 }
 
-paginate Gene, EnsemblGene, Alteration, CancerType, Transcript, Sequence, GenomeFragment, Article, Drug, FdaSubmission with pagination
+paginate Gene, EnsemblGene, Alteration, CancerType, Transcript, Sequence, GenomeFragment, Article, Drug, ClinicalTrialsGovCondition, FdaSubmission with pagination
 
 service * with serviceClass
 dto Transcript with mapstruct
