@@ -16,7 +16,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.info.GitProperties;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.cache.interceptor.CacheResolver;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +28,7 @@ import tech.jhipster.config.cache.PrefixedKeyGenerator;
 @Configuration
 @EnableCaching
 @ConditionalOnProperty(prefix = "application.redis", name = "enabled", havingValue = "true")
-public class CacheConfiguration {
+public class CacheConfiguration extends CachingConfigurerSupport {
 
     private GitProperties gitProperties;
     private BuildProperties buildProperties;
@@ -38,15 +40,32 @@ public class CacheConfiguration {
         if (applicationProperties.getRedis().getType().equals(RedisType.SINGLE.getType())) {
             config
                 .useSingleServer()
+                .setClientName(applicationProperties.getName())
+                .setTimeout(applicationProperties.getRedis().getTimeout())
+                .setRetryAttempts(applicationProperties.getRedis().getRetryAttempts())
+                .setRetryInterval(applicationProperties.getRedis().getRetryInterval())
                 .setAddress(applicationProperties.getRedis().getAddress())
                 .setPassword(applicationProperties.getRedis().getPassword());
         } else if (applicationProperties.getRedis().getType().equals(RedisType.SENTINEL.getType())) {
             config
                 .useSentinelServers()
+                .setClientName(applicationProperties.getName())
+                .setTimeout(applicationProperties.getRedis().getTimeout())
+                .setRetryAttempts(applicationProperties.getRedis().getRetryAttempts())
+                .setRetryInterval(applicationProperties.getRedis().getRetryInterval())
                 .setMasterName(applicationProperties.getRedis().getSentinelMasterName())
                 .setCheckSentinelsList(false)
                 .addSentinelAddress(applicationProperties.getRedis().getAddress())
                 .setPassword(applicationProperties.getRedis().getPassword());
+        } else if (applicationProperties.getRedis().getType().equals(RedisType.CLUSTER.getType())) {
+            config
+                .useClusterServers()
+                .setTimeout(applicationProperties.getRedis().getTimeout())
+                .setRetryAttempts(applicationProperties.getRedis().getRetryAttempts())
+                .setRetryInterval(applicationProperties.getRedis().getRetryInterval())
+                .addNodeAddress(applicationProperties.getRedis().getAddress())
+                .setPassword(applicationProperties.getRedis().getPassword())
+                .setClientName(applicationProperties.getName());
         } else {
             throw new Exception(
                 "The redis type " +
@@ -134,5 +153,10 @@ public class CacheConfiguration {
     @Bean
     public KeyGenerator keyGenerator() {
         return new PrefixedKeyGenerator(this.gitProperties, this.buildProperties);
+    }
+
+    @Override
+    public CacheErrorHandler errorHandler() {
+        return new LoggingCacheErrorHandler();
     }
 }
