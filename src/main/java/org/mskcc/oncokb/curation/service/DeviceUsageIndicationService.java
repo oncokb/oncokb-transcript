@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.mskcc.oncokb.curation.domain.DeviceUsageIndication;
 import org.mskcc.oncokb.curation.repository.DeviceUsageIndicationRepository;
 import org.slf4j.Logger;
@@ -75,11 +76,11 @@ public class DeviceUsageIndicationService {
         return deviceUsageIndicationRepository.findById(id);
     }
 
-    @Transactional(readOnly = true)
-    public List<DeviceUsageIndication> findByFdaSubmissionId(Long id) {
-        log.debug("Request to get DeviceUsageIndication : {}", id);
-        return deviceUsageIndicationRepository.findByFdaSubmissionId(id);
-    }
+    // @Transactional(readOnly = true)
+    // public List<DeviceUsageIndication> findByFdaSubmissionIds(Set<Long> id) {
+    //     log.debug("Request to get DeviceUsageIndication : {}", id);
+    //     return deviceUsageIndicationRepository.findByFdaSubmissionIds(id);
+    // }
 
     /**
      * Delete the deviceUsageIndication by id.

@@ -1,5 +1,10 @@
 package org.mskcc.oncokb.curation.service.mapper;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.domain.CancerType;
@@ -31,35 +36,45 @@ public abstract class DeviceUsageIndicationMapper implements EntityMapper<Device
     @Autowired
     DrugRepository drugRepository;
 
-    protected FdaSubmission fromFdaSubmissionId(Long fdaSubmissionId) {
-        return fdaSubmissionRepository.findById(fdaSubmissionId).orElse(null);
+    protected FdaSubmission fromFdaSubmissionId(Long fdaSubmission) {
+        return fdaSubmissionRepository.findById(fdaSubmission).orElse(null);
     }
 
     protected Long fromFdaSubmission(FdaSubmission fdaSubmission) {
         return fdaSubmission.getId();
     }
 
-    protected Alteration fromAlterationId(Long alterationId) {
-        return alterationRepository.findById(alterationId).orElse(null);
+    protected Set<Alteration> fromAlterationIds(Set<Long> alterationIds) {
+        return alterationIds
+            .stream()
+            .collect(Collectors.toList())
+            .stream()
+            .map(alterationId -> alterationRepository.findById(alterationId).orElse(null))
+            .collect(Collectors.toSet());
     }
 
-    protected Long fromAlteration(Alteration alteration) {
-        return alteration.getId();
+    protected Set<Long> fromAlterations(Set<Alteration> alterations) {
+        return alterations.stream().collect(Collectors.toList()).stream().map(alteration -> alteration.getId()).collect(Collectors.toSet());
     }
 
-    protected CancerType fromCancerTypeId(Long cancerTypeId) {
-        return cancerTypeRepository.findById(cancerTypeId).orElse(null);
+    protected CancerType fromCancerTypeId(Long cancerType) {
+        return cancerTypeRepository.findById(cancerType).orElse(null);
     }
 
     protected Long fromCancerType(CancerType cancerType) {
         return cancerType.getId();
     }
 
-    protected Drug fromDrugId(Long drugId) {
-        return drugRepository.findById(drugId).orElse(null);
+    protected Set<Drug> fromDrugIds(Set<Long> drugIds) {
+        return drugIds
+            .stream()
+            .collect(Collectors.toList())
+            .stream()
+            .map(drugId -> drugRepository.findById(drugId).orElse(null))
+            .collect(Collectors.toSet());
     }
 
-    protected Long fromDrug(Drug drug) {
-        return drug.getId();
+    protected Set<Long> fromDrugs(Set<Drug> drugs) {
+        return drugs.stream().collect(Collectors.toList()).stream().map(drug -> drug.getId()).collect(Collectors.toSet());
     }
 }

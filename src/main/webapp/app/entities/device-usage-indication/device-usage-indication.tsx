@@ -68,22 +68,8 @@ export const DeviceUsageIndication = (props: IDeviceUsageIndicationProps) => {
                     )}
                   </td>
                   <td>
-                    {deviceUsageIndication.alteration ? (
-                      <Link to={`alteration/${deviceUsageIndication.alteration.id}`}>{deviceUsageIndication.alteration.id}</Link>
-                    ) : (
-                      ''
-                    )}
-                  </td>
-                  <td>
                     {deviceUsageIndication.cancerType ? (
                       <Link to={`cancer-type/${deviceUsageIndication.cancerType.id}`}>{deviceUsageIndication.cancerType.id}</Link>
-                    ) : (
-                      ''
-                    )}
-                  </td>
-                  <td>
-                    {deviceUsageIndication.drug ? (
-                      <Link to={`drug/${deviceUsageIndication.drug.id}`}>{deviceUsageIndication.drug.id}</Link>
                     ) : (
                       ''
                     )}

@@ -5,6 +5,7 @@ export interface ICompanionDiagnosticDevice {
   id?: number;
   name?: string;
   manufacturer?: string;
+  indicationDetails?: string | null;
   fdaSubmissions?: IFdaSubmission[] | null;
   specimenTypes?: ISpecimenType[] | null;
 }

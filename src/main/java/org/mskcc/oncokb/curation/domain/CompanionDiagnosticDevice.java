@@ -11,7 +11,7 @@ import javax.validation.constraints.*;
  * A CompanionDiagnosticDevice.
  */
 @Entity
-@Table(name = "companion_diagnostic_device")
+@Table(name = "companion_diagnostic_device", uniqueConstraints = { @UniqueConstraint(columnNames = { "name", "manufacturer" }) })
 public class CompanionDiagnosticDevice implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -29,11 +29,14 @@ public class CompanionDiagnosticDevice implements Serializable {
     @Column(name = "manufacturer", nullable = false)
     private String manufacturer;
 
-    @OneToMany(mappedBy = "companionDiagnosticDevice", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Column(name = "indication_details")
+    private String indicationDetails;
+
+    @OneToMany(mappedBy = "companionDiagnosticDevice", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "companionDiagnosticDevice" }, allowSetters = true)
     private Set<FdaSubmission> fdaSubmissions = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rel_companion_diagnostic_device__specimen_type",
         joinColumns = @JoinColumn(name = "companion_diagnostic_device_id"),
@@ -81,6 +84,19 @@ public class CompanionDiagnosticDevice implements Serializable {
 
     public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
+    }
+
+    public String getIndicationDetails() {
+        return this.indicationDetails;
+    }
+
+    public CompanionDiagnosticDevice indicationDetails(String indicationDetails) {
+        this.setIndicationDetails(indicationDetails);
+        return this;
+    }
+
+    public void setIndicationDetails(String indicationDetails) {
+        this.indicationDetails = indicationDetails;
     }
 
     public Set<FdaSubmission> getFdaSubmissions() {
@@ -165,6 +181,7 @@ public class CompanionDiagnosticDevice implements Serializable {
             "id=" + getId() +
             ", name='" + getName() + "'" +
             ", manufacturer='" + getManufacturer() + "'" +
+            ", indicationDetails='" + getIndicationDetails() + "'" +
             "}";
     }
 }

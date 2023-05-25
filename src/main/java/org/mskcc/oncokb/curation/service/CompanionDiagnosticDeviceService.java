@@ -65,6 +65,9 @@ public class CompanionDiagnosticDeviceService {
                 if (companionDiagnosticDevice.getManufacturer() != null) {
                     existingCompanionDiagnosticDevice.setManufacturer(companionDiagnosticDevice.getManufacturer());
                 }
+                if (companionDiagnosticDevice.getIndicationDetails() != null) {
+                    existingCompanionDiagnosticDevice.setIndicationDetails(companionDiagnosticDevice.getIndicationDetails());
+                }
 
                 return existingCompanionDiagnosticDevice;
             })
@@ -104,6 +107,11 @@ public class CompanionDiagnosticDeviceService {
     public Optional<CompanionDiagnosticDevice> findOne(Long id) {
         log.debug("Request to get CompanionDiagnosticDevice : {}", id);
         return companionDiagnosticDeviceRepository.findOneWithEagerRelationships(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CompanionDiagnosticDevice> findByNameAndManufacturer(String name, String manufacturer) {
+        return companionDiagnosticDeviceRepository.findByNameIgnoreCaseAndManufacturerIgnoreCase(name, manufacturer);
     }
 
     /**

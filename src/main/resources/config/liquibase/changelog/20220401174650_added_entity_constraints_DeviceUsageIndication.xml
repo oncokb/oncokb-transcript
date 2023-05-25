@@ -8,17 +8,41 @@
     -->
     <changeSet id="20220401174650-2" author="jhipster">
 
-        <addForeignKeyConstraint baseColumnNames="fda_submission_id"
-                                 baseTableName="device_usage_indication"
-                                 constraintName="fk_device_usage_indication__fda_submission_id"
+        <addForeignKeyConstraint baseColumnNames="device_usage_indication_id"
+                                 baseTableName="rel_device_usage_indication__alteration"
+                                 constraintName="fk_rel_device_usage_indication___device_usage_indication_e2_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="fda_submission"/>
+                                 referencedTableName="device_usage_indication"/>
 
         <addForeignKeyConstraint baseColumnNames="alteration_id"
-                                 baseTableName="device_usage_indication"
-                                 constraintName="fk_device_usage_indication__alteration_id"
+                                 baseTableName="rel_device_usage_indication__alteration"
+                                 constraintName="fk_rel_device_usage_indication__alteration__alteration_id"
                                  referencedColumnNames="id"
                                  referencedTableName="alteration"/>
+
+        <addForeignKeyConstraint baseColumnNames="device_usage_indication_id"
+                                 baseTableName="rel_device_usage_indication__drug"
+                                 constraintName="fk_rel_device_usage_indication___device_usage_indication_06_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="device_usage_indication"/>
+
+        <addForeignKeyConstraint baseColumnNames="drug_id"
+                                 baseTableName="rel_device_usage_indication__drug"
+                                 constraintName="fk_rel_device_usage_indication__drug__drug_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="drug"/>
+
+        <addForeignKeyConstraint baseColumnNames="device_usage_indication_id"
+                                 baseTableName="rel_device_usage_indication__fda_submission"
+                                 constraintName="fk_rel_device_usage_indication___device_usage_indication_8e_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="device_usage_indication"/>
+
+        <addForeignKeyConstraint baseColumnNames="fda_submission_id"
+                                 baseTableName="rel_device_usage_indication__fda_submission"
+                                 constraintName="fk_rel_device_usage_indication___fda_submission_9c_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="fda_submission"/>
 
         <addForeignKeyConstraint baseColumnNames="cancer_type_id"
                                  baseTableName="device_usage_indication"
@@ -26,10 +50,10 @@
                                  referencedColumnNames="id"
                                  referencedTableName="cancer_type"/>
 
-        <addForeignKeyConstraint baseColumnNames="drug_id"
+        <addForeignKeyConstraint baseColumnNames="gene_id"
                                  baseTableName="device_usage_indication"
-                                 constraintName="fk_device_usage_indication__drug_id"
+                                 constraintName="fk_device_usage_indication__gene_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="drug"/>
+                                 referencedTableName="gene"/>
     </changeSet>
 </databaseChangeLog>

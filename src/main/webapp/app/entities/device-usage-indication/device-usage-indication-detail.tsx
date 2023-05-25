@@ -26,12 +26,30 @@ export const DeviceUsageIndicationDetail = (props: IDeviceUsageIndicationDetailP
           <dd>{deviceUsageIndicationEntity.id}</dd>
           <dt>Fda Submission</dt>
           <dd>{deviceUsageIndicationEntity.fdaSubmission ? deviceUsageIndicationEntity.fdaSubmission.id : ''}</dd>
-          <dt>Alteration</dt>
-          <dd>{deviceUsageIndicationEntity.alteration ? deviceUsageIndicationEntity.alteration.id : ''}</dd>
+          <dt>Alterations</dt>
+          <dd>
+            {deviceUsageIndicationEntity.alterations
+              ? deviceUsageIndicationEntity.alterations.map((val, i) => (
+                  <span key={val.id}>
+                    <Link to={`/alteration/${val.id}`}>{val.name}</Link>
+                    {deviceUsageIndicationEntity.alterations && i === deviceUsageIndicationEntity.alterations.length - 1 ? '' : ', '}
+                  </span>
+                ))
+              : null}
+          </dd>
           <dt>Cancer Type</dt>
           <dd>{deviceUsageIndicationEntity.cancerType ? deviceUsageIndicationEntity.cancerType.id : ''}</dd>
-          <dt>Drug</dt>
-          <dd>{deviceUsageIndicationEntity.drug ? deviceUsageIndicationEntity.drug.id : ''}</dd>
+          <dt>Drugs</dt>
+          <dd>
+            {deviceUsageIndicationEntity.drugs
+              ? deviceUsageIndicationEntity.drugs.map((val, i) => (
+                  <span key={val.id}>
+                    <Link to={`/drug/${val.id}`}>{val.name}</Link>
+                    {deviceUsageIndicationEntity.drugs && i === deviceUsageIndicationEntity.drugs.length - 1 ? '' : ' + '}
+                  </span>
+                ))
+              : null}
+          </dd>
         </dl>
         <Button tag={Link} to={`/device-usage-indication/${deviceUsageIndicationEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>

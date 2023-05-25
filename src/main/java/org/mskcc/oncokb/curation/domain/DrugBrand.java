@@ -27,7 +27,7 @@ public class DrugBrand implements Serializable {
     private GeographicRegion region;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "synonyms", "deviceUsageIndications", "brands" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "fdaDrug", "synonyms", "deviceUsageIndications", "brands" }, allowSetters = true)
     private Drug drug;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

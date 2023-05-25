@@ -195,7 +195,7 @@ public class FdaSubmissionResource {
         @RequestParam(value = "number", required = true) String number,
         @RequestParam(value = "supplementNumber", required = false) String supplementNumber
     ) {
-        return ResponseUtil.wrapOrNotFound(fdaSubmissionService.findOrFetchFdaSubmissionByNumber(number, supplementNumber));
+        return ResponseUtil.wrapOrNotFound(fdaSubmissionService.findOrFetchFdaSubmissionByNumber(number, supplementNumber, false));
     }
 
     /**

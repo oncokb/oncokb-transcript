@@ -99,6 +99,21 @@ public class CancerTypeService {
         return cancerTypeRepository.findById(id);
     }
 
+    @Transactional(readOnly = true)
+    public Optional<CancerType> findOneByCode(String code) {
+        return cancerTypeRepository.findOneByCodeIgnoreCase(code);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<CancerType> findOneBySubtypeIgnoreCase(String subtype) {
+        return cancerTypeRepository.findOneBySubtypeIgnoreCase(subtype);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<CancerType> findOneByMainTypeIgnoreCaseAndLevel(String mainType, Integer level) {
+        return cancerTypeRepository.findOneByMainTypeIgnoreCaseAndLevel(mainType, level);
+    }
+
     /**
      * Delete the cancerType by id.
      *

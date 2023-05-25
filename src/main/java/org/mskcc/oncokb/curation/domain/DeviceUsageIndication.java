@@ -2,6 +2,8 @@ package org.mskcc.oncokb.curation.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 
 /**
@@ -18,21 +20,40 @@ public class DeviceUsageIndication implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne
-    @JsonIgnoreProperties(value = { "deviceUsageIndications", "companionDiagnosticDevice", "type" }, allowSetters = true)
-    private FdaSubmission fdaSubmission;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "rel_device_usage_indication__alteration",
+        joinColumns = @JoinColumn(name = "device_usage_indication_id"),
+        inverseJoinColumns = @JoinColumn(name = "alteration_id")
+    )
+    @JsonIgnoreProperties(value = { "deviceUsageIndications" }, allowSetters = true)
+    private Set<Alteration> alterations = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "rel_device_usage_indication__drug",
+        joinColumns = @JoinColumn(name = "device_usage_indication_id"),
+        inverseJoinColumns = @JoinColumn(name = "drug_id")
+    )
+    @JsonIgnoreProperties(value = { "fdaDrug", "synonyms", "deviceUsageIndications" }, allowSetters = true)
+    private Set<Drug> drugs = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "rel_device_usage_indication__fda_submission",
+        joinColumns = @JoinColumn(name = "device_usage_indication_id"),
+        inverseJoinColumns = @JoinColumn(name = "fda_submission_id")
+    )
+    @JsonIgnoreProperties(value = { "companionDiagnosticDevice", "type", "deviceUsageIndications" }, allowSetters = true)
+    private Set<FdaSubmission> fdaSubmissions = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "deviceUsageIndications", "gene", "consequence" }, allowSetters = true)
-    private Alteration alteration;
-
-    @ManyToOne
-    @JsonIgnoreProperties(value = { "children", "deviceUsageIndications", "parent" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "children", "deviceUsageIndications", "parent", "clinicalTrialsGovConditions" }, allowSetters = true)
     private CancerType cancerType;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "synonyms", "deviceUsageIndications" }, allowSetters = true)
-    private Drug drug;
+    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "deviceUsageIndications", "alterations" }, allowSetters = true)
+    private Gene gene;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -49,29 +70,78 @@ public class DeviceUsageIndication implements Serializable {
         this.id = id;
     }
 
-    public FdaSubmission getFdaSubmission() {
-        return this.fdaSubmission;
+    public Set<Alteration> getAlterations() {
+        return this.alterations;
     }
 
-    public void setFdaSubmission(FdaSubmission fdaSubmission) {
-        this.fdaSubmission = fdaSubmission;
+    public void setAlterations(Set<Alteration> alterations) {
+        this.alterations = alterations;
     }
 
-    public DeviceUsageIndication fdaSubmission(FdaSubmission fdaSubmission) {
-        this.setFdaSubmission(fdaSubmission);
+    public DeviceUsageIndication alterations(Set<Alteration> alterations) {
+        this.setAlterations(alterations);
         return this;
     }
 
-    public Alteration getAlteration() {
-        return this.alteration;
+    public DeviceUsageIndication addAlteration(Alteration alteration) {
+        this.alterations.add(alteration);
+        alteration.getDeviceUsageIndications().add(this);
+        return this;
     }
 
-    public void setAlteration(Alteration alteration) {
-        this.alteration = alteration;
+    public DeviceUsageIndication removeAlteration(Alteration alteration) {
+        this.alterations.remove(alteration);
+        alteration.getDeviceUsageIndications().remove(this);
+        return this;
     }
 
-    public DeviceUsageIndication alteration(Alteration alteration) {
-        this.setAlteration(alteration);
+    public Set<Drug> getDrugs() {
+        return this.drugs;
+    }
+
+    public void setDrugs(Set<Drug> drugs) {
+        this.drugs = drugs;
+    }
+
+    public DeviceUsageIndication drugs(Set<Drug> drugs) {
+        this.setDrugs(drugs);
+        return this;
+    }
+
+    public DeviceUsageIndication addDrug(Drug drug) {
+        this.drugs.add(drug);
+        drug.getDeviceUsageIndications().add(this);
+        return this;
+    }
+
+    public DeviceUsageIndication removeDrug(Drug drug) {
+        this.drugs.remove(drug);
+        drug.getDeviceUsageIndications().remove(this);
+        return this;
+    }
+
+    public Set<FdaSubmission> getFdaSubmissions() {
+        return this.fdaSubmissions;
+    }
+
+    public void setFdaSubmissions(Set<FdaSubmission> fdaSubmissions) {
+        this.fdaSubmissions = fdaSubmissions;
+    }
+
+    public DeviceUsageIndication fdaSubmissions(Set<FdaSubmission> fdaSubmissions) {
+        this.setFdaSubmissions(fdaSubmissions);
+        return this;
+    }
+
+    public DeviceUsageIndication addFdaSubmission(FdaSubmission fdaSubmission) {
+        this.fdaSubmissions.add(fdaSubmission);
+        fdaSubmission.getDeviceUsageIndications().add(this);
+        return this;
+    }
+
+    public DeviceUsageIndication removeFdaSubmission(FdaSubmission fdaSubmission) {
+        this.fdaSubmissions.remove(fdaSubmission);
+        fdaSubmission.getDeviceUsageIndications().remove(this);
         return this;
     }
 
@@ -88,16 +158,16 @@ public class DeviceUsageIndication implements Serializable {
         return this;
     }
 
-    public Drug getDrug() {
-        return this.drug;
+    public Gene getGene() {
+        return this.gene;
     }
 
-    public void setDrug(Drug drug) {
-        this.drug = drug;
+    public void setGene(Gene gene) {
+        this.gene = gene;
     }
 
-    public DeviceUsageIndication drug(Drug drug) {
-        this.setDrug(drug);
+    public DeviceUsageIndication gene(Gene gene) {
+        this.setGene(gene);
         return this;
     }
 

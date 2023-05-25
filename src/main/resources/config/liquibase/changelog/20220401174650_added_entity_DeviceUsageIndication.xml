@@ -14,20 +14,50 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="fda_submission_id" type="bigint">
-                <constraints nullable="true" />
-            </column>
-            <column name="alteration_id" type="bigint">
-                <constraints nullable="true" />
-            </column>
             <column name="cancer_type_id" type="bigint">
                 <constraints nullable="true" />
             </column>
-            <column name="drug_id" type="bigint">
+            <column name="gene_id" type="bigint">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+    </changeSet>
+
+    <changeSet id="20220401174650-1-relations" author="jhipster">
+
+        <createTable tableName="rel_device_usage_indication__alteration">
+            <column name="alteration_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="device_usage_indication_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="device_usage_indication_id, alteration_id" tableName="rel_device_usage_indication__alteration"/>
+
+        <createTable tableName="rel_device_usage_indication__drug">
+            <column name="drug_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="device_usage_indication_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="device_usage_indication_id, drug_id" tableName="rel_device_usage_indication__drug"/>
+
+        <createTable tableName="rel_device_usage_indication__fda_submission">
+            <column name="fda_submission_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="device_usage_indication_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="device_usage_indication_id, fda_submission_id" tableName="rel_device_usage_indication__fda_submission"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

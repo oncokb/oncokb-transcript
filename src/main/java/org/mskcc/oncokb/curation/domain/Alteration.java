@@ -41,10 +41,6 @@ public class Alteration implements Serializable {
     @Column(name = "variant_residues")
     private String variantResidues;
 
-    @OneToMany(mappedBy = "alteration")
-    @JsonIgnoreProperties(value = { "fdaSubmission", "alteration", "cancerType", "drug" }, allowSetters = true)
-    private Set<DeviceUsageIndication> deviceUsageIndications = new HashSet<>();
-
     @OneToMany(mappedBy = "alteration", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties(value = { "alteration" }, allowSetters = true)
     private Set<AlterationReferenceGenome> referenceGenomes = new HashSet<>();
@@ -61,6 +57,10 @@ public class Alteration implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = { "alterations" }, allowSetters = true)
     private Consequence consequence;
+
+    @ManyToMany(mappedBy = "alterations", fetch = FetchType.EAGER)
+    @JsonIgnoreProperties(value = { "alterations", "drugs", "fdaSubmission", "cancerType" }, allowSetters = true)
+    private Set<DeviceUsageIndication> deviceUsageIndications = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -155,37 +155,6 @@ public class Alteration implements Serializable {
         this.variantResidues = variantResidues;
     }
 
-    public Set<DeviceUsageIndication> getDeviceUsageIndications() {
-        return this.deviceUsageIndications;
-    }
-
-    public void setDeviceUsageIndications(Set<DeviceUsageIndication> deviceUsageIndications) {
-        if (this.deviceUsageIndications != null) {
-            this.deviceUsageIndications.forEach(i -> i.setAlteration(null));
-        }
-        if (deviceUsageIndications != null) {
-            deviceUsageIndications.forEach(i -> i.setAlteration(this));
-        }
-        this.deviceUsageIndications = deviceUsageIndications;
-    }
-
-    public Alteration deviceUsageIndications(Set<DeviceUsageIndication> deviceUsageIndications) {
-        this.setDeviceUsageIndications(deviceUsageIndications);
-        return this;
-    }
-
-    public Alteration addDeviceUsageIndication(DeviceUsageIndication deviceUsageIndication) {
-        this.deviceUsageIndications.add(deviceUsageIndication);
-        deviceUsageIndication.setAlteration(this);
-        return this;
-    }
-
-    public Alteration removeDeviceUsageIndication(DeviceUsageIndication deviceUsageIndication) {
-        this.deviceUsageIndications.remove(deviceUsageIndication);
-        deviceUsageIndication.setAlteration(null);
-        return this;
-    }
-
     public Set<AlterationReferenceGenome> getReferenceGenomes() {
         return this.referenceGenomes;
     }
@@ -252,6 +221,37 @@ public class Alteration implements Serializable {
 
     public Alteration consequence(Consequence consequence) {
         this.setConsequence(consequence);
+        return this;
+    }
+
+    public Set<DeviceUsageIndication> getDeviceUsageIndications() {
+        return this.deviceUsageIndications;
+    }
+
+    public void setDeviceUsageIndications(Set<DeviceUsageIndication> deviceUsageIndications) {
+        if (this.deviceUsageIndications != null) {
+            this.deviceUsageIndications.forEach(i -> i.removeAlteration(this));
+        }
+        if (deviceUsageIndications != null) {
+            deviceUsageIndications.forEach(i -> i.addAlteration(this));
+        }
+        this.deviceUsageIndications = deviceUsageIndications;
+    }
+
+    public Alteration deviceUsageIndications(Set<DeviceUsageIndication> deviceUsageIndications) {
+        this.setDeviceUsageIndications(deviceUsageIndications);
+        return this;
+    }
+
+    public Alteration addDeviceUsageIndication(DeviceUsageIndication deviceUsageIndication) {
+        this.deviceUsageIndications.add(deviceUsageIndication);
+        deviceUsageIndication.getAlterations().add(this);
+        return this;
+    }
+
+    public Alteration removeDeviceUsageIndication(DeviceUsageIndication deviceUsageIndication) {
+        this.deviceUsageIndications.remove(deviceUsageIndication);
+        deviceUsageIndication.getAlterations().remove(this);
         return this;
     }
 

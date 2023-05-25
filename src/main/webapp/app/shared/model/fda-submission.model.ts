@@ -1,7 +1,6 @@
-import dayjs from 'dayjs';
 import { IDeviceUsageIndication } from 'app/shared/model/device-usage-indication.model';
-import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
-import { IFdaSubmissionType } from 'app/shared/model/fda-submission-type.model';
+import { ICompanionDiagnosticDevice } from './companion-diagnostic-device.model';
+import { IFdaSubmissionType } from './fda-submission-type.model';
 
 export interface IFdaSubmission {
   id?: number;
@@ -12,8 +11,10 @@ export interface IFdaSubmission {
   dateReceived?: string | null;
   decisionDate?: string | null;
   description?: string | null;
+  platform?: string | null;
   curated?: boolean;
   genetic?: boolean;
+  additionalInfo?: string | null;
   deviceUsageIndications?: IDeviceUsageIndication[] | null;
   companionDiagnosticDevice?: ICompanionDiagnosticDevice | null;
   type?: IFdaSubmissionType | null;

@@ -188,6 +188,7 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
                 data-cy="description"
                 type="textarea"
               />
+              <ValidatedField label="Platform" id="fda-submission-platform" name="platform" data-cy="platform" type="text" />
               <ValidatedField
                 label="Curated"
                 id="fda-submission-curated"
@@ -203,6 +204,13 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
                 data-cy="genetic"
                 check={fdaSubmissionEntity?.genetic?.toString() || 'false'}
                 type="checkbox"
+              />
+              <ValidatedField
+                label="Additional Info"
+                id="fda-submission-additionalInfo"
+                name="additionalInfo"
+                data-cy="additionalInfo"
+                type="textarea"
               />
               <ValidatedSelect
                 label="Companion Diagnostic Device"

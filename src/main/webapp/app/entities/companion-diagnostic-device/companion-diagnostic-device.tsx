@@ -64,6 +64,7 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
   const columns: Column<ICompanionDiagnosticDevice>[] = [
     { accessor: 'name', Header: 'Device Name' },
     { accessor: 'manufacturer', Header: 'Manufacturer' },
+    { accessor: 'indicationDetails', Header: 'Indication Details' },
     {
       id: 'specimenTypes',
       Header: 'Specimen Types',

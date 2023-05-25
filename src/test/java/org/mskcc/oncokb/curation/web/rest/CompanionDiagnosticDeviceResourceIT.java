@@ -48,6 +48,9 @@ class CompanionDiagnosticDeviceResourceIT {
     private static final String DEFAULT_MANUFACTURER = "AAAAAAAAAA";
     private static final String UPDATED_MANUFACTURER = "BBBBBBBBBB";
 
+    private static final String DEFAULT_INDICATION_DETAILS = "AAAAAAAAAA";
+    private static final String UPDATED_INDICATION_DETAILS = "BBBBBBBBBB";
+
     private static final String ENTITY_API_URL = "/api/companion-diagnostic-devices";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -80,7 +83,8 @@ class CompanionDiagnosticDeviceResourceIT {
     public static CompanionDiagnosticDevice createEntity(EntityManager em) {
         CompanionDiagnosticDevice companionDiagnosticDevice = new CompanionDiagnosticDevice()
             .name(DEFAULT_NAME)
-            .manufacturer(DEFAULT_MANUFACTURER);
+            .manufacturer(DEFAULT_MANUFACTURER)
+            .indicationDetails(DEFAULT_INDICATION_DETAILS);
         return companionDiagnosticDevice;
     }
 
@@ -93,7 +97,8 @@ class CompanionDiagnosticDeviceResourceIT {
     public static CompanionDiagnosticDevice createUpdatedEntity(EntityManager em) {
         CompanionDiagnosticDevice companionDiagnosticDevice = new CompanionDiagnosticDevice()
             .name(UPDATED_NAME)
-            .manufacturer(UPDATED_MANUFACTURER);
+            .manufacturer(UPDATED_MANUFACTURER)
+            .indicationDetails(UPDATED_INDICATION_DETAILS);
         return companionDiagnosticDevice;
     }
 
@@ -124,6 +129,8 @@ class CompanionDiagnosticDeviceResourceIT {
         );
         assertThat(testCompanionDiagnosticDevice.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testCompanionDiagnosticDevice.getManufacturer()).isEqualTo(DEFAULT_MANUFACTURER);
+        assertThat(testCompanionDiagnosticDevice.getIndicationDetails()).isEqualTo(DEFAULT_INDICATION_DETAILS);
+
     }
 
     @Test
@@ -206,7 +213,8 @@ class CompanionDiagnosticDeviceResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(companionDiagnosticDevice.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].manufacturer").value(hasItem(DEFAULT_MANUFACTURER)));
+            .andExpect(jsonPath("$.[*].manufacturer").value(hasItem(DEFAULT_MANUFACTURER)))
+            .andExpect(jsonPath("$.[*].indicationDetails").value(hasItem(DEFAULT_INDICATION_DETAILS)));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -240,7 +248,8 @@ class CompanionDiagnosticDeviceResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(companionDiagnosticDevice.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
-            .andExpect(jsonPath("$.manufacturer").value(DEFAULT_MANUFACTURER));
+            .andExpect(jsonPath("$.manufacturer").value(DEFAULT_MANUFACTURER))
+            .andExpect(jsonPath("$.indicationDetails").value(DEFAULT_INDICATION_DETAILS));
     }
 
     @Test
@@ -529,7 +538,10 @@ class CompanionDiagnosticDeviceResourceIT {
             .get();
         // Disconnect from session so that the updates on updatedCompanionDiagnosticDevice are not directly saved in db
         em.detach(updatedCompanionDiagnosticDevice);
-        updatedCompanionDiagnosticDevice.name(UPDATED_NAME).manufacturer(UPDATED_MANUFACTURER);
+        updatedCompanionDiagnosticDevice
+            .name(UPDATED_NAME)
+            .manufacturer(UPDATED_MANUFACTURER)
+            .indicationDetails(UPDATED_INDICATION_DETAILS);
 
         restCompanionDiagnosticDeviceMockMvc
             .perform(
@@ -548,6 +560,8 @@ class CompanionDiagnosticDeviceResourceIT {
         );
         assertThat(testCompanionDiagnosticDevice.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testCompanionDiagnosticDevice.getManufacturer()).isEqualTo(UPDATED_MANUFACTURER);
+        assertThat(testCompanionDiagnosticDevice.getIndicationDetails()).isEqualTo(UPDATED_INDICATION_DETAILS);
+
     }
 
     @Test
@@ -625,7 +639,7 @@ class CompanionDiagnosticDeviceResourceIT {
         CompanionDiagnosticDevice partialUpdatedCompanionDiagnosticDevice = new CompanionDiagnosticDevice();
         partialUpdatedCompanionDiagnosticDevice.setId(companionDiagnosticDevice.getId());
 
-        partialUpdatedCompanionDiagnosticDevice.manufacturer(UPDATED_MANUFACTURER);
+        partialUpdatedCompanionDiagnosticDevice.manufacturer(UPDATED_MANUFACTURER).indicationDetails(UPDATED_INDICATION_DETAILS);
 
         restCompanionDiagnosticDeviceMockMvc
             .perform(
@@ -644,6 +658,7 @@ class CompanionDiagnosticDeviceResourceIT {
         );
         assertThat(testCompanionDiagnosticDevice.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testCompanionDiagnosticDevice.getManufacturer()).isEqualTo(UPDATED_MANUFACTURER);
+        assertThat(testCompanionDiagnosticDevice.getIndicationDetails()).isEqualTo(UPDATED_INDICATION_DETAILS);
     }
 
     @Test
@@ -658,7 +673,10 @@ class CompanionDiagnosticDeviceResourceIT {
         CompanionDiagnosticDevice partialUpdatedCompanionDiagnosticDevice = new CompanionDiagnosticDevice();
         partialUpdatedCompanionDiagnosticDevice.setId(companionDiagnosticDevice.getId());
 
-        partialUpdatedCompanionDiagnosticDevice.name(UPDATED_NAME).manufacturer(UPDATED_MANUFACTURER);
+        partialUpdatedCompanionDiagnosticDevice
+            .name(UPDATED_NAME)
+            .manufacturer(UPDATED_MANUFACTURER)
+            .indicationDetails(UPDATED_INDICATION_DETAILS);
 
         restCompanionDiagnosticDeviceMockMvc
             .perform(
@@ -677,6 +695,7 @@ class CompanionDiagnosticDeviceResourceIT {
         );
         assertThat(testCompanionDiagnosticDevice.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testCompanionDiagnosticDevice.getManufacturer()).isEqualTo(UPDATED_MANUFACTURER);
+        assertThat(testCompanionDiagnosticDevice.getIndicationDetails()).isEqualTo(UPDATED_INDICATION_DETAILS);
     }
 
     @Test

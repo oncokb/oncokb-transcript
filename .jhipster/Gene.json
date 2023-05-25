@@ -24,6 +24,12 @@
       "relationshipName": "ensemblGene"
     },
     {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "deviceUsageIndication",
+      "otherEntityRelationshipName": "gene",
+      "relationshipName": "deviceUsageIndication"
+    },
+    {
       "relationshipType": "many-to-many",
       "otherEntityName": "alteration",
       "otherEntityRelationshipName": "gene",

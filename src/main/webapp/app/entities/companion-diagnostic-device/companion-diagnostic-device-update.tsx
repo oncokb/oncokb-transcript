@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 import { mapSelectOptionList } from 'app/shared/util/entity-utils';
 import ValidatedForm from 'app/shared/form/ValidatedForm';
@@ -103,6 +102,13 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
                 id="companion-diagnostic-device-manufacturer"
                 name="manufacturer"
                 data-cy="manufacturer"
+                type="text"
+              />
+              <ValidatedField
+                label="Indication Details"
+                id="companion-diagnostic-device-indicationDetails"
+                name="indicationDetails"
+                data-cy="indicationDetails"
                 type="text"
               />
               <ValidatedSelect

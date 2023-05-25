@@ -1,4 +1,6 @@
 import { ICancerType } from 'app/shared/model/cancer-type.model';
+import { IAlteration } from '../model/alteration.model';
+import { IDrug } from '../model/drug.model';
 
 export const getCancerTypeName = (cancerType: ICancerType): string => {
   let name = '';
@@ -10,4 +12,12 @@ export const getCancerTypeName = (cancerType: ICancerType): string => {
     }
   }
   return name;
+};
+
+export const getTreatmentName = (drugs: IDrug[]): string => {
+  return drugs.map(drug => drug.name).join(' + ');
+};
+
+export const getAlterationName = (alterations: IAlteration[]): string => {
+  return alterations.map(alteration => alteration.name).join(', ');
 };

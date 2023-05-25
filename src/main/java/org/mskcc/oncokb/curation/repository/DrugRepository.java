@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface DrugRepository extends JpaRepository<Drug, Long>, JpaSpecificationExecutor<Drug> {
     Optional<Drug> findOneByCode(String code);
 
-    Optional<Drug> findOneByName(String name);
+    List<Drug> findByNameIgnoreCase(String name);
 
     @Query(
         "select d from Drug d join d.synonyms ds where lower(d.name) like lower(concat('%', ?1,'%')) or lower(d.code) like lower(concat('%', ?1,'%')) or lower(ds.name) like lower(concat('%', ?1,'%'))"

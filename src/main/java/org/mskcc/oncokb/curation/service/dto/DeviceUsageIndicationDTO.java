@@ -1,6 +1,10 @@
 package org.mskcc.oncokb.curation.service.dto;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 /**
  * A DTO for the {@link org.mskcc.oncokb.curation.domain.DeviceUsageIndication} entity.
@@ -9,15 +13,13 @@ public class DeviceUsageIndicationDTO implements Serializable {
 
     private Long id;
 
+    private Set<Long> alterations = new HashSet<>();
+
+    private Set<Long> drugs = new HashSet<>();
+
     private Long fdaSubmission;
 
-    private Long alteration;
-
     private Long cancerType;
-
-    private Long drug;
-
-    public DeviceUsageIndicationDTO() {}
 
     public Long getId() {
         return this.id;
@@ -25,6 +27,22 @@ public class DeviceUsageIndicationDTO implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Set<Long> getAlterations() {
+        return this.alterations;
+    }
+
+    public void setAlterations(Set<Long> alterations) {
+        this.alterations = alterations;
+    }
+
+    public Set<Long> getDrugs() {
+        return this.drugs;
+    }
+
+    public void setDrugs(Set<Long> drugs) {
+        this.drugs = drugs;
     }
 
     public Long getFdaSubmission() {
@@ -35,27 +53,11 @@ public class DeviceUsageIndicationDTO implements Serializable {
         this.fdaSubmission = fdaSubmission;
     }
 
-    public Long getAlteration() {
-        return this.alteration;
-    }
-
-    public void setAlteration(Long alteration) {
-        this.alteration = alteration;
-    }
-
     public Long getCancerType() {
         return this.cancerType;
     }
 
     public void setCancerType(Long cancerType) {
         this.cancerType = cancerType;
-    }
-
-    public Long getDrug() {
-        return this.drug;
-    }
-
-    public void setDrug(Long drug) {
-        this.drug = drug;
     }
 }

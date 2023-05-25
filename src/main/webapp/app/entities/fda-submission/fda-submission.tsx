@@ -119,6 +119,11 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
       maxWidth: 100,
     },
     {
+      accessor: 'platform',
+      Header: <TableHeader header="Platform" onSort={sort('platform')} paginationState={paginationState} sortField="platform" />,
+      maxWidth: 50,
+    },
+    {
       accessor: 'genetic',
       Header: <TableHeader header="Genetic Relevant" onSort={sort('genetic')} paginationState={paginationState} sortField="genetic" />,
       Cell: ({ cell: { value } }) => (value ? <FontAwesomeIcon icon={faCheck} /> : null),

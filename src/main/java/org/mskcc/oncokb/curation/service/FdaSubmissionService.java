@@ -76,11 +76,17 @@ public class FdaSubmissionService {
                 if (fdaSubmission.getDescription() != null) {
                     existingFdaSubmission.setDescription(fdaSubmission.getDescription());
                 }
+                if (fdaSubmission.getPlatform() != null) {
+                    existingFdaSubmission.setPlatform(fdaSubmission.getPlatform());
+                }
                 if (fdaSubmission.getCurated() != null) {
                     existingFdaSubmission.setCurated(fdaSubmission.getCurated());
                 }
                 if (fdaSubmission.getGenetic() != null) {
                     existingFdaSubmission.setGenetic(fdaSubmission.getGenetic());
+                }
+                if (fdaSubmission.getAdditionalInfo() != null) {
+                    existingFdaSubmission.setAdditionalInfo(fdaSubmission.getAdditionalInfo());
                 }
 
                 return existingFdaSubmission;
@@ -131,7 +137,7 @@ public class FdaSubmissionService {
      * @param supplementNumber the supplement number
      * @return Optional with the parsed fda submission or the one already existing in db, otherwise empty optional
      */
-    public Optional<FdaSubmission> findOrFetchFdaSubmissionByNumber(String number, String supplementNumber) {
+    public Optional<FdaSubmission> findOrFetchFdaSubmissionByNumber(String number, String supplementNumber, Boolean getAllSupplements) {
         Optional<FdaSubmission> fdaSubmission = this.findByNumberAndSupplementNumber(number, supplementNumber);
         if (fdaSubmission.isEmpty()) { // Fetch from FDA website if not present in database
             if (StringUtils.isEmpty(number)) {
@@ -141,7 +147,11 @@ public class FdaSubmissionService {
             if (!StringUtils.isEmpty(supplementNumber)) {
                 submissionNumber += "/" + supplementNumber;
             }
-            Set<FdaSubmission> newFdaSubmissions = cdxUtils.getFDASubmissionFromHTML(Set.of(submissionNumber), true, false);
+            Set<FdaSubmission> newFdaSubmissions = cdxUtils.getFDASubmissionFromHTML(
+                Set.of(submissionNumber),
+                supplementNumber != null,
+                getAllSupplements
+            );
             return newFdaSubmissions
                 .stream()
                 .filter(sub -> {

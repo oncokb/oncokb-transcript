@@ -1,14 +1,16 @@
-import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
-import { IAlteration } from 'app/shared/model/alteration.model';
-import { ICancerType } from 'app/shared/model/cancer-type.model';
-import { IDrug } from 'app/shared/model/drug.model';
+import { IDrug } from './drug.model';
+import { IFdaSubmission } from './fda-submission.model';
+import { IAlteration } from './alteration.model';
+import { ICancerType } from './cancer-type.model';
+import { IGene } from './gene.model';
 
 export interface IDeviceUsageIndication {
   id?: number;
-  fdaSubmission?: IFdaSubmission | null;
-  alteration?: IAlteration | null;
+  alterations?: IAlteration[] | null;
+  drugs?: IDrug[] | null;
+  fdaSubmission?: IFdaSubmission[] | null;
   cancerType?: ICancerType | null;
-  drug?: IDrug | null;
+  gene?: IGene | null;
 }
 
 export const defaultValue: Readonly<IDeviceUsageIndication> = {};

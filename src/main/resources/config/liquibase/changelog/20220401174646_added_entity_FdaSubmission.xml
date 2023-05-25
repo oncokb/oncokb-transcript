@@ -35,11 +35,17 @@
             <column name="description" type="${clobType}">
                 <constraints nullable="true" />
             </column>
+            <column name="platform" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
             <column name="curated" type="boolean">
                 <constraints nullable="false" />
             </column>
             <column name="genetic" type="boolean">
                 <constraints nullable="false" />
+            </column>
+            <column name="additional_info" type="${clobType}">
+                <constraints nullable="true" />
             </column>
             <column name="companion_diagnostic_device_id" type="bigint">
                 <constraints nullable="true" />

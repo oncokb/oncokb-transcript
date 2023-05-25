@@ -20,8 +20,12 @@
             <column name="manufacturer" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
+            <column name="indication_details" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+        <addUniqueConstraint tableName="companion_diagnostic_device" columnNames="name, manufacturer"/>
 
         <!-- This data was generated on 4/4/2022 12:00PM EST - Please update this when csv file is modified -->
         <loadData
