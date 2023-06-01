@@ -1,13 +1,12 @@
 package org.mskcc.oncokb.curation.config.security;
 
 import org.mskcc.oncokb.curation.security.jwt.JWTConfigurer;
+import org.mskcc.oncokb.curation.security.jwt.JWTFilter;
 import org.mskcc.oncokb.curation.security.jwt.TokenProvider;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -23,14 +22,14 @@ import tech.jhipster.config.JHipsterProperties;
  * to make API requests to this application, so we also need to support JWT token authentication.
  * In order to use multiple WebSecurityConfigurerAdapter, we need to use requestMatcher() to
  * let spring know which SecurityConfiguration to use. Our requestMatcher() condition is that any request
- * with an 'Authorization' header will use SecurityConfigurationAPI, while others will use SecurityConfigurationOAuth.
+ * with an 'Authorization' header will use SecurityConfigurationJWT, while others will use SecurityConfigurationOAuth.
  */
 
 @Order(1)
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @Import(SecurityProblemSupport.class)
-public class SecurityConfigurationAPI extends WebSecurityConfigurerAdapter {
+public class SecurityConfigurationJWT extends WebSecurityConfigurerAdapter {
 
     private final JHipsterProperties jHipsterProperties;
 
@@ -39,7 +38,7 @@ public class SecurityConfigurationAPI extends WebSecurityConfigurerAdapter {
     private final CorsFilter corsFilter;
     private final SecurityProblemSupport problemSupport;
 
-    public SecurityConfigurationAPI(
+    public SecurityConfigurationJWT(
         TokenProvider tokenProvider,
         CorsFilter corsFilter,
         JHipsterProperties jHipsterProperties,
@@ -52,21 +51,10 @@ public class SecurityConfigurationAPI extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web) {
-        web
-            .ignoring()
-            .antMatchers(HttpMethod.OPTIONS, "/**")
-            .antMatchers("/app/**/*.{js,html}")
-            .antMatchers("/i18n/**")
-            .antMatchers("/content/**")
-            .antMatchers("/swagger-ui/**")
-            .antMatchers("/test/**");
-    }
-
-    @Override
     public void configure(HttpSecurity http) throws Exception {
         // @formatter:off
         http
+            .requestMatcher(new RequestHeaderRequestMatcher(JWTFilter.AUTHORIZATION_HEADER))
             .csrf()
             .disable()
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
@@ -74,22 +62,19 @@ public class SecurityConfigurationAPI extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(problemSupport)
                 .accessDeniedHandler(problemSupport)
         .and()
+            .authorizeRequests()
+            .antMatchers("/api/**").authenticated()
+        .and()
             .headers()
             .contentSecurityPolicy(jHipsterProperties.getSecurity().getContentSecurityPolicy())
         .and()
             .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
-        .and()
-            .permissionsPolicy().policy("camera=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), sync-xhr=()")
         .and()
             .frameOptions()
             .deny()
         .and()
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
-            .requestMatcher(new RequestHeaderRequestMatcher("Authorization"))
-            .authorizeRequests()
-            .antMatchers("/api/**").authenticated()
         .and()
             .httpBasic()
         .and()
