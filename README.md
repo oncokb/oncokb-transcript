@@ -95,26 +95,25 @@ Note: There are still a few other things remaining to do for Leaflet that we won
 
 For further instructions on how to develop with JHipster, have a look at [Using JHipster in development][].
 
-### OAuth 2.0 / OpenID Connect
+## Running application
 
-Congratulations! You've selected an excellent way to secure your JHipster application. If you're not sure what OAuth and OpenID Connect (OIDC) are, please see [What the Heck is OAuth?](https://developer.okta.com/blog/2017/06/21/what-the-heck-is-oauth)
+### 1. Configure Keycloak and Google SSO
 
 To log in to your app, you'll need to have [Keycloak](https://keycloak.org) up and running.
-
-**The JHipster Team has created a Docker container for you that has the default users and roles. Start Keycloak using the following command.**
 
 ```
 docker-compose -f src/main/docker/keycloak.yml up
 ```
 
-**Configure Google SSO**
-
 If your keycloak server is not setup with docker (ie. with a keycloak helm chart), then add a new realm with the following [realm settings](src/main/docker/realm-config/oncokb-curation-realm.json) via import.
 
 - Once keycloak server is running, go to `http://localhost:8080/auth` and click `Administration Console`
 - Login with the credential `username: admin, password:admin`.
+- In Keycloak go to **Realm Settings** > **Themes** > **Login Theme** and change value to `keycloak-oncokb`.
 - Follow [instructions](https://support.google.com/cloud/answer/6158849) to obtain Google Oauth2 client id and secret.
 - In Keycloak, go to **Identity Providers** > **Edit button on google provider** > **Replace client id and secret**
+- Copy the redirect URL for the google identity provider. It should look like `http://localhost:8080/auth/realms/oncokb-curation/broker/google/endpoint`
+- Go back to Google APIs & Services `Credentials` tab and click on your application. Add the redirect URL from the last step into the list with the label `Authorized redirect URIs`.
 
 The security settings are in `src/main/resources/config/application.yml`.
 
@@ -137,6 +136,20 @@ spring:
             scope: openid,profile,email
 ```
 
+### 2. Start ElasticSearch
+
+ElasticSearch is used for searching, filtering and sorting.
+
+```
+docker-compose -f src/main/docker/elasticsearch.yml up
+```
+
+### 3. Run
+
+```
+./mvnw
+```
+
 ## Building for production
 
 ### Packaging as jar
@@ -155,8 +168,6 @@ java -jar target/*.jar
 ```
 
 Then navigate to [http://localhost:9090](http://localhost:9090) in your browser.
-
-Refer to [Using JHipster in production][] for more details.
 
 ### Packaging as war
 
