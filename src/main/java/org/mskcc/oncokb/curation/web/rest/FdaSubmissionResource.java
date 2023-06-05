@@ -1,18 +1,17 @@
 package org.mskcc.oncokb.curation.web.rest;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.mskcc.oncokb.curation.repository.FdaSubmissionRepository;
+import org.mskcc.oncokb.curation.service.FdaSubmissionQueryService;
 import org.mskcc.oncokb.curation.service.FdaSubmissionService;
+import org.mskcc.oncokb.curation.service.criteria.FdaSubmissionCriteria;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,9 +45,16 @@ public class FdaSubmissionResource {
 
     private final FdaSubmissionRepository fdaSubmissionRepository;
 
-    public FdaSubmissionResource(FdaSubmissionService fdaSubmissionService, FdaSubmissionRepository fdaSubmissionRepository) {
+    private final FdaSubmissionQueryService fdaSubmissionQueryService;
+
+    public FdaSubmissionResource(
+        FdaSubmissionService fdaSubmissionService,
+        FdaSubmissionRepository fdaSubmissionRepository,
+        FdaSubmissionQueryService fdaSubmissionQueryService
+    ) {
         this.fdaSubmissionService = fdaSubmissionService;
         this.fdaSubmissionRepository = fdaSubmissionRepository;
+        this.fdaSubmissionQueryService = fdaSubmissionQueryService;
     }
 
     /**
@@ -148,14 +154,27 @@ public class FdaSubmissionResource {
      * {@code GET  /fda-submissions} : get all the fdaSubmissions.
      *
      * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of fdaSubmissions in body.
      */
     @GetMapping("/fda-submissions")
-    public ResponseEntity<List<FdaSubmission>> getAllFdaSubmissions(Pageable pageable) {
-        log.debug("REST request to get a page of FdaSubmissions");
-        Page<FdaSubmission> page = fdaSubmissionService.findAll(pageable);
+    public ResponseEntity<List<FdaSubmission>> getAllFdaSubmissions(FdaSubmissionCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get FdaSubmissions by criteria: {}", criteria);
+        Page<FdaSubmission> page = fdaSubmissionQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /fda-submissions/count} : count all the fdaSubmissions.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/fda-submissions/count")
+    public ResponseEntity<Long> countFdaSubmissions(FdaSubmissionCriteria criteria) {
+        log.debug("REST request to count FdaSubmissions by criteria: {}", criteria);
+        return ResponseEntity.ok().body(fdaSubmissionQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -206,7 +225,7 @@ public class FdaSubmissionResource {
     @GetMapping("/_search/fda-submissions")
     public ResponseEntity<List<FdaSubmission>> searchFdaSubmissions(@RequestParam String query, Pageable pageable) {
         log.debug("REST request to search for a page of FdaSubmissions for query {}", query);
-        Page<FdaSubmission> page = fdaSubmissionService.search(query, pageable);
+        Page<FdaSubmission> page = fdaSubmissionQueryService.findBySearchQuery(query, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

@@ -1,16 +1,15 @@
-import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import { IRootStore } from 'app/stores';
 import axios, { AxiosResponse } from 'axios';
 import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
-import { ICrudSearchAction } from 'app/shared/util/jhipster-types';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 
 const apiUrl = 'api/fda-submissions';
 const apiSearchUrl = 'api/_search/fda-submissions';
 
 export class FdaSubmissionStore extends PaginationCrudStore<IFdaSubmission> {
-  searchEntities: ICrudSearchAction<IFdaSubmission> = this.readHandler(this.getSearch);
   lookupFdaSubmission = this.readHandler(this.lookupFdaSubmissionGen);
+  searchEntities = this.readHandler(this.getSearch);
   constructor(protected rootStore: IRootStore) {
     super(rootStore, apiUrl);
   }

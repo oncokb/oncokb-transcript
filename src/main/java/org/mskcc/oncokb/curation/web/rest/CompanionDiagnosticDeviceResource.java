@@ -1,18 +1,17 @@
 package org.mskcc.oncokb.curation.web.rest;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
 import org.mskcc.oncokb.curation.repository.CompanionDiagnosticDeviceRepository;
+import org.mskcc.oncokb.curation.service.CompanionDiagnosticDeviceQueryService;
 import org.mskcc.oncokb.curation.service.CompanionDiagnosticDeviceService;
+import org.mskcc.oncokb.curation.service.criteria.CompanionDiagnosticDeviceCriteria;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,12 +39,16 @@ public class CompanionDiagnosticDeviceResource {
 
     private final CompanionDiagnosticDeviceRepository companionDiagnosticDeviceRepository;
 
+    private final CompanionDiagnosticDeviceQueryService companionDiagnosticDeviceQueryService;
+
     public CompanionDiagnosticDeviceResource(
         CompanionDiagnosticDeviceService companionDiagnosticDeviceService,
-        CompanionDiagnosticDeviceRepository companionDiagnosticDeviceRepository
+        CompanionDiagnosticDeviceRepository companionDiagnosticDeviceRepository,
+        CompanionDiagnosticDeviceQueryService companionDiagnosticDeviceQueryService
     ) {
         this.companionDiagnosticDeviceService = companionDiagnosticDeviceService;
         this.companionDiagnosticDeviceRepository = companionDiagnosticDeviceRepository;
+        this.companionDiagnosticDeviceQueryService = companionDiagnosticDeviceQueryService;
     }
 
     /**
@@ -143,15 +146,26 @@ public class CompanionDiagnosticDeviceResource {
     /**
      * {@code GET  /companion-diagnostic-devices} : get all the companionDiagnosticDevices.
      *
-     * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of companionDiagnosticDevices in body.
      */
     @GetMapping("/companion-diagnostic-devices")
-    public List<CompanionDiagnosticDevice> getAllCompanionDiagnosticDevices(
-        @RequestParam(required = false, defaultValue = "false") boolean eagerload
-    ) {
-        log.debug("REST request to get all CompanionDiagnosticDevices");
-        return companionDiagnosticDeviceService.findAll();
+    public ResponseEntity<List<CompanionDiagnosticDevice>> getAllCompanionDiagnosticDevices(CompanionDiagnosticDeviceCriteria criteria) {
+        log.debug("REST request to get CompanionDiagnosticDevices by criteria: {}", criteria);
+        List<CompanionDiagnosticDevice> entityList = companionDiagnosticDeviceQueryService.findByCriteria(criteria);
+        return ResponseEntity.ok().body(entityList);
+    }
+
+    /**
+     * {@code GET  /companion-diagnostic-devices/count} : count all the companionDiagnosticDevices.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/companion-diagnostic-devices/count")
+    public ResponseEntity<Long> countCompanionDiagnosticDevices(CompanionDiagnosticDeviceCriteria criteria) {
+        log.debug("REST request to count CompanionDiagnosticDevices by criteria: {}", criteria);
+        return ResponseEntity.ok().body(companionDiagnosticDeviceQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -193,6 +207,6 @@ public class CompanionDiagnosticDeviceResource {
     @GetMapping("/_search/companion-diagnostic-devices")
     public List<CompanionDiagnosticDevice> searchCompanionDiagnosticDevices(@RequestParam String query) {
         log.debug("REST request to search CompanionDiagnosticDevices for query {}", query);
-        return companionDiagnosticDeviceService.search(query);
+        return companionDiagnosticDeviceQueryService.findBySearchQuery(query);
     }
 }

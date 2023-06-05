@@ -1,6 +1,5 @@
 package org.mskcc.oncokb.curation.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -13,7 +12,6 @@ import javax.validation.constraints.*;
  */
 @Entity
 @Table(name = "companion_diagnostic_device")
-@org.springframework.data.elasticsearch.annotations.Document(indexName = "companiondiagnosticdevice")
 public class CompanionDiagnosticDevice implements Serializable {
 
     private static final long serialVersionUID = 1L;
