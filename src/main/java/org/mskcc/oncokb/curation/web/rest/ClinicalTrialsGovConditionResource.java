@@ -1,18 +1,17 @@
 package org.mskcc.oncokb.curation.web.rest;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.ClinicalTrialsGovCondition;
 import org.mskcc.oncokb.curation.repository.ClinicalTrialsGovConditionRepository;
+import org.mskcc.oncokb.curation.service.ClinicalTrialsGovConditionQueryService;
 import org.mskcc.oncokb.curation.service.ClinicalTrialsGovConditionService;
+import org.mskcc.oncokb.curation.service.criteria.ClinicalTrialsGovConditionCriteria;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,12 +45,16 @@ public class ClinicalTrialsGovConditionResource {
 
     private final ClinicalTrialsGovConditionRepository clinicalTrialsGovConditionRepository;
 
+    private final ClinicalTrialsGovConditionQueryService clinicalTrialsGovConditionQueryService;
+
     public ClinicalTrialsGovConditionResource(
         ClinicalTrialsGovConditionService clinicalTrialsGovConditionService,
-        ClinicalTrialsGovConditionRepository clinicalTrialsGovConditionRepository
+        ClinicalTrialsGovConditionRepository clinicalTrialsGovConditionRepository,
+        ClinicalTrialsGovConditionQueryService clinicalTrialsGovConditionQueryService
     ) {
         this.clinicalTrialsGovConditionService = clinicalTrialsGovConditionService;
         this.clinicalTrialsGovConditionRepository = clinicalTrialsGovConditionRepository;
+        this.clinicalTrialsGovConditionQueryService = clinicalTrialsGovConditionQueryService;
     }
 
     /**
@@ -150,23 +153,30 @@ public class ClinicalTrialsGovConditionResource {
      * {@code GET  /clinical-trials-gov-conditions} : get all the clinicalTrialsGovConditions.
      *
      * @param pageable the pagination information.
-     * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of clinicalTrialsGovConditions in body.
      */
     @GetMapping("/clinical-trials-gov-conditions")
     public ResponseEntity<List<ClinicalTrialsGovCondition>> getAllClinicalTrialsGovConditions(
-        Pageable pageable,
-        @RequestParam(required = false, defaultValue = "false") boolean eagerload
+        ClinicalTrialsGovConditionCriteria criteria,
+        Pageable pageable
     ) {
-        log.debug("REST request to get a page of ClinicalTrialsGovConditions");
-        Page<ClinicalTrialsGovCondition> page;
-        if (eagerload) {
-            page = clinicalTrialsGovConditionService.findAllWithEagerRelationships(pageable);
-        } else {
-            page = clinicalTrialsGovConditionService.findAll(pageable);
-        }
+        log.debug("REST request to get ClinicalTrialsGovConditions by criteria: {}", criteria);
+        Page<ClinicalTrialsGovCondition> page = clinicalTrialsGovConditionQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /clinical-trials-gov-conditions/count} : count all the clinicalTrialsGovConditions.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/clinical-trials-gov-conditions/count")
+    public ResponseEntity<Long> countClinicalTrialsGovConditions(ClinicalTrialsGovConditionCriteria criteria) {
+        log.debug("REST request to count ClinicalTrialsGovConditions by criteria: {}", criteria);
+        return ResponseEntity.ok().body(clinicalTrialsGovConditionQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -212,7 +222,7 @@ public class ClinicalTrialsGovConditionResource {
         Pageable pageable
     ) {
         log.debug("REST request to search for a page of ClinicalTrialsGovConditions for query {}", query);
-        Page<ClinicalTrialsGovCondition> page = clinicalTrialsGovConditionService.search(query, pageable);
+        Page<ClinicalTrialsGovCondition> page = clinicalTrialsGovConditionQueryService.findBySearchQuery(query, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

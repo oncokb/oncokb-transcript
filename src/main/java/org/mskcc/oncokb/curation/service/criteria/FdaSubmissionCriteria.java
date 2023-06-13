@@ -49,6 +49,10 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
 
     private LongFilter typeId;
 
+    private StringFilter typeName;
+
+    private StringFilter typeShortName;
+
     private Boolean distinct;
 
     public FdaSubmissionCriteria() {}
@@ -66,6 +70,8 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
         this.deviceUsageIndicationId = other.deviceUsageIndicationId == null ? null : other.deviceUsageIndicationId.copy();
         this.companionDiagnosticDeviceId = other.companionDiagnosticDeviceId == null ? null : other.companionDiagnosticDeviceId.copy();
         this.typeId = other.typeId == null ? null : other.typeId.copy();
+        this.typeName = other.typeName == null ? null : other.typeName.copy();
+        this.typeShortName = other.typeShortName == null ? null : other.typeShortName.copy();
         this.distinct = other.distinct;
     }
 
@@ -254,6 +260,36 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
         this.typeId = typeId;
     }
 
+    public StringFilter getTypeName() {
+        return this.typeName;
+    }
+
+    public StringFilter typeName() {
+        if (typeName == null) {
+            typeName = new StringFilter();
+        }
+        return typeName;
+    }
+
+    public void setTypeName(StringFilter typeName) {
+        this.typeName = typeName;
+    }
+
+    public StringFilter getTypeShortName() {
+        return this.typeShortName;
+    }
+
+    public StringFilter typeShortName() {
+        if (typeShortName == null) {
+            typeShortName = new StringFilter();
+        }
+        return typeShortName;
+    }
+
+    public void settypeShortName(StringFilter typeShortName) {
+        this.typeShortName = typeShortName;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -284,6 +320,8 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
             Objects.equals(deviceUsageIndicationId, that.deviceUsageIndicationId) &&
             Objects.equals(companionDiagnosticDeviceId, that.companionDiagnosticDeviceId) &&
             Objects.equals(typeId, that.typeId) &&
+            Objects.equals(typeName, that.typeName) &&
+            Objects.equals(typeShortName, that.typeShortName) &&
             Objects.equals(distinct, that.distinct)
         );
     }
@@ -303,6 +341,8 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
             deviceUsageIndicationId,
             companionDiagnosticDeviceId,
             typeId,
+            typeName,
+            typeShortName,
             distinct
         );
     }
@@ -323,6 +363,8 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
             (deviceUsageIndicationId != null ? "deviceUsageIndicationId=" + deviceUsageIndicationId + ", " : "") +
             (companionDiagnosticDeviceId != null ? "companionDiagnosticDeviceId=" + companionDiagnosticDeviceId + ", " : "") +
             (typeId != null ? "typeId=" + typeId + ", " : "") +
+            (typeName != null ? "typeName=" + typeName + ", " : "") +
+            (typeShortName != null ? "typeShortName=" + typeShortName + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

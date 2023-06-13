@@ -36,13 +36,17 @@ public class CompanionDiagnosticDeviceQueryService extends QueryService<Companio
 
     @Transactional(readOnly = true)
     public List<CompanionDiagnosticDevice> findBySearchQuery(String query) {
+        return findBySearchQuery(query, Pageable.unpaged()).getContent();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CompanionDiagnosticDevice> findBySearchQuery(String query, Pageable page) {
         CompanionDiagnosticDeviceCriteria criteria = new CompanionDiagnosticDeviceCriteria();
         StringFilter stringFilter = new StringFilter();
         stringFilter.setContains(query);
         criteria.setName(stringFilter);
         criteria.setManufacturer(stringFilter);
-        final Specification<CompanionDiagnosticDevice> specification = createSpecification(criteria);
-        return companionDiagnosticDeviceRepository.findAll(specification);
+        return findByCriteria(criteria, page);
     }
 
     /**

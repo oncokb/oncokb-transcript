@@ -42,8 +42,7 @@ public class FdaSubmissionQueryService extends QueryService<FdaSubmission> {
         criteria.setDeviceName(stringFilter);
         criteria.setNumber(stringFilter);
         criteria.setSupplementNumber(stringFilter);
-        final Specification<FdaSubmission> specification = createSpecification(criteria);
-        return fdaSubmissionRepository.findAll(specification, page);
+        return findByCriteria(criteria, page);
     }
 
     /**
@@ -146,6 +145,15 @@ public class FdaSubmissionQueryService extends QueryService<FdaSubmission> {
                         buildSpecification(
                             criteria.getTypeId(),
                             root -> root.join(FdaSubmission_.type, JoinType.LEFT).get(FdaSubmissionType_.id)
+                        )
+                    );
+            }
+            if (criteria.getTypeName() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(
+                            criteria.getTypeName(),
+                            root -> root.join(FdaSubmission_.type, JoinType.LEFT).get(FdaSubmissionType_.name)
                         )
                     );
             }

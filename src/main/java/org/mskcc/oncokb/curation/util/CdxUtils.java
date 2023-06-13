@@ -280,7 +280,7 @@ public class CdxUtils {
             .stream()
             .map(val -> val.trim().toUpperCase())
             .collect(Collectors.toSet());
-        return !geneService.searchHugoSymbolByMultipleValues(searchValues).isEmpty();
+        return !geneService.findByHugoSymbolIn(searchValues).isEmpty();
     }
 }
 

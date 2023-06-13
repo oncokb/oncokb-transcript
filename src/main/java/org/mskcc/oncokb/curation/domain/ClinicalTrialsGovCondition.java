@@ -12,7 +12,6 @@ import javax.validation.constraints.*;
  */
 @Entity
 @Table(name = "clinical_trials_gov_condition")
-@org.springframework.data.elasticsearch.annotations.Document(indexName = "clinicaltrialsgovcondition")
 public class ClinicalTrialsGovCondition implements Serializable {
 
     private static final long serialVersionUID = 1L;

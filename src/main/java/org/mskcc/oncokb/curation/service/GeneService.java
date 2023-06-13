@@ -21,7 +21,6 @@ import org.mskcc.oncokb.curation.domain.GeneAlias;
 import org.mskcc.oncokb.curation.domain.enumeration.InfoType;
 import org.mskcc.oncokb.curation.repository.GeneAliasRepository;
 import org.mskcc.oncokb.curation.repository.GeneRepository;
-import org.mskcc.oncokb.curation.repository.search.GeneSearchRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
@@ -44,7 +43,6 @@ public class GeneService {
     private final String SYNONYM_SEPARATOR = "\\|";
 
     private final GeneRepository geneRepository;
-    private final GeneSearchRepository geneSearchRepository;
     private final GeneAliasRepository geneAliasRepository;
     private final InfoService infoService;
     private final CacheNameResolver cacheNameResolver;
@@ -52,14 +50,12 @@ public class GeneService {
 
     public GeneService(
         GeneRepository geneRepository,
-        GeneSearchRepository geneSearchRepository,
         GeneAliasRepository geneAliasRepository,
         InfoService infoService,
         CacheNameResolver cacheNameResolver,
         Optional<CacheManager> optionalCacheManager
     ) {
         this.geneRepository = geneRepository;
-        this.geneSearchRepository = geneSearchRepository;
         this.geneAliasRepository = geneAliasRepository;
         this.infoService = infoService;
         this.cacheNameResolver = cacheNameResolver;
@@ -75,7 +71,6 @@ public class GeneService {
     public Gene save(Gene gene) {
         log.debug("Request to save Gene : {}", gene);
         Gene result = geneRepository.save(gene);
-        geneSearchRepository.save(result);
         return result;
     }
 
@@ -100,12 +95,7 @@ public class GeneService {
 
                 return existingGene;
             })
-            .map(geneRepository::save)
-            .map(savedGene -> {
-                geneSearchRepository.save(savedGene);
-
-                return savedGene;
-            });
+            .map(geneRepository::save);
     }
 
     /**
@@ -238,22 +228,9 @@ public class GeneService {
         }
     }
 
-    /**
-     * Search for the gene corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
     @Transactional(readOnly = true)
-    public Page<Gene> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of Genes for query {}", query);
-        return geneSearchRepository.search(query, pageable);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Gene> searchHugoSymbolByMultipleValues(Set<String> searchValues) {
+    public List<Gene> findByHugoSymbolIn(Set<String> searchValues) {
         log.debug("Request to search for a list of genes by list of search values");
-        return geneSearchRepository.searchHugoSymbolByMultipleValues(searchValues);
+        return geneRepository.findByHugoSymbolInIgnoreCase(searchValues.stream().collect(Collectors.toList()));
     }
 }

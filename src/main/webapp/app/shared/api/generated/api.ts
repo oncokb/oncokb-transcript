@@ -34,56 +34,6 @@ import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } fr
 /**
  *
  * @export
- * @interface Aggregation
- */
-export interface Aggregation {
-  /**
-   *
-   * @type {string}
-   * @memberof Aggregation
-   */
-  name?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof Aggregation
-   */
-  type?: string;
-  /**
-   *
-   * @type {{ [key: string]: object; }}
-   * @memberof Aggregation
-   */
-  metadata?: { [key: string]: object };
-  /**
-   *
-   * @type {boolean}
-   * @memberof Aggregation
-   */
-  fragment?: boolean;
-}
-/**
- *
- * @export
- * @interface Aggregations
- */
-export interface Aggregations {
-  /**
-   *
-   * @type {{ [key: string]: Aggregation; }}
-   * @memberof Aggregations
-   */
-  asMap?: { [key: string]: Aggregation };
-  /**
-   *
-   * @type {boolean}
-   * @memberof Aggregations
-   */
-  fragment?: boolean;
-}
-/**
- *
- * @export
  * @interface AllReferenceTranscriptSuggestionVM
  */
 export interface AllReferenceTranscriptSuggestionVM {
@@ -160,6 +110,85 @@ export interface Alteration {
    * @memberof Alteration
    */
   genes?: Set<Gene>;
+}
+/**
+ *
+ * @export
+ * @interface AlterationCriteria
+ */
+export interface AlterationCriteria {
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof AlterationCriteria
+   */
+  id?: LongFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof AlterationCriteria
+   */
+  name?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof AlterationCriteria
+   */
+  alteration?: StringFilter;
+  /**
+   *
+   * @type {IntegerFilter}
+   * @memberof AlterationCriteria
+   */
+  proteinStart?: IntegerFilter;
+  /**
+   *
+   * @type {IntegerFilter}
+   * @memberof AlterationCriteria
+   */
+  proteinEnd?: IntegerFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof AlterationCriteria
+   */
+  refResidues?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof AlterationCriteria
+   */
+  variantResidues?: StringFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof AlterationCriteria
+   */
+  deviceUsageIndicationId?: LongFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof AlterationCriteria
+   */
+  referenceGenomesId?: LongFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof AlterationCriteria
+   */
+  geneId?: LongFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof AlterationCriteria
+   */
+  consequenceId?: LongFilter;
+  /**
+   *
+   * @type {boolean}
+   * @memberof AlterationCriteria
+   */
+  distinct?: boolean;
 }
 /**
  *
@@ -259,6 +288,67 @@ export interface Article {
 /**
  *
  * @export
+ * @interface ArticleCriteria
+ */
+export interface ArticleCriteria {
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof ArticleCriteria
+   */
+  id?: LongFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof ArticleCriteria
+   */
+  pmid?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof ArticleCriteria
+   */
+  journal?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof ArticleCriteria
+   */
+  pubDate?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof ArticleCriteria
+   */
+  volume?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof ArticleCriteria
+   */
+  issue?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof ArticleCriteria
+   */
+  pages?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof ArticleCriteria
+   */
+  authors?: StringFilter;
+  /**
+   *
+   * @type {boolean}
+   * @memberof ArticleCriteria
+   */
+  distinct?: boolean;
+}
+/**
+ *
+ * @export
  * @interface AuthInfoVM
  */
 export interface AuthInfoVM {
@@ -274,6 +364,43 @@ export interface AuthInfoVM {
    * @memberof AuthInfoVM
    */
   clientId?: string;
+}
+/**
+ *
+ * @export
+ * @interface BooleanFilter
+ */
+export interface BooleanFilter {
+  /**
+   *
+   * @type {boolean}
+   * @memberof BooleanFilter
+   */
+  equals?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof BooleanFilter
+   */
+  notEquals?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof BooleanFilter
+   */
+  specified?: boolean;
+  /**
+   *
+   * @type {Array<boolean>}
+   * @memberof BooleanFilter
+   */
+  in?: Array<boolean>;
+  /**
+   *
+   * @type {Array<boolean>}
+   * @memberof BooleanFilter
+   */
+  notIn?: Array<boolean>;
 }
 /**
  *
@@ -400,6 +527,62 @@ export type CategoricalAlterationAlterationTypeEnum =
 /**
  *
  * @export
+ * @interface ClinicalTrialsGovCondition
+ */
+export interface ClinicalTrialsGovCondition {
+  /**
+   *
+   * @type {number}
+   * @memberof ClinicalTrialsGovCondition
+   */
+  id?: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ClinicalTrialsGovCondition
+   */
+  name: string;
+  /**
+   *
+   * @type {Set<CancerType>}
+   * @memberof ClinicalTrialsGovCondition
+   */
+  cancerTypes?: Set<CancerType>;
+}
+/**
+ *
+ * @export
+ * @interface ClinicalTrialsGovConditionCriteria
+ */
+export interface ClinicalTrialsGovConditionCriteria {
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof ClinicalTrialsGovConditionCriteria
+   */
+  id?: LongFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof ClinicalTrialsGovConditionCriteria
+   */
+  name?: StringFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof ClinicalTrialsGovConditionCriteria
+   */
+  cancerTypeId?: LongFilter;
+  /**
+   *
+   * @type {boolean}
+   * @memberof ClinicalTrialsGovConditionCriteria
+   */
+  distinct?: boolean;
+}
+/**
+ *
+ * @export
  * @interface CompanionDiagnosticDevice
  */
 export interface CompanionDiagnosticDevice {
@@ -433,6 +616,49 @@ export interface CompanionDiagnosticDevice {
    * @memberof CompanionDiagnosticDevice
    */
   specimenTypes?: Set<SpecimenType>;
+}
+/**
+ *
+ * @export
+ * @interface CompanionDiagnosticDeviceCriteria
+ */
+export interface CompanionDiagnosticDeviceCriteria {
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof CompanionDiagnosticDeviceCriteria
+   */
+  id?: LongFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof CompanionDiagnosticDeviceCriteria
+   */
+  name?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof CompanionDiagnosticDeviceCriteria
+   */
+  manufacturer?: StringFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof CompanionDiagnosticDeviceCriteria
+   */
+  fdaSubmissionId?: LongFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof CompanionDiagnosticDeviceCriteria
+   */
+  specimenTypeId?: LongFilter;
+  /**
+   *
+   * @type {boolean}
+   * @memberof CompanionDiagnosticDeviceCriteria
+   */
+  distinct?: boolean;
 }
 /**
  *
@@ -647,6 +873,49 @@ export type DrugBrandRegionEnum = typeof DrugBrandRegionEnum[keyof typeof DrugBr
 /**
  *
  * @export
+ * @interface DrugCriteria
+ */
+export interface DrugCriteria {
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof DrugCriteria
+   */
+  id?: LongFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof DrugCriteria
+   */
+  code?: StringFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof DrugCriteria
+   */
+  synonymsId?: LongFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof DrugCriteria
+   */
+  deviceUsageIndicationId?: LongFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof DrugCriteria
+   */
+  brandsId?: LongFilter;
+  /**
+   *
+   * @type {boolean}
+   * @memberof DrugCriteria
+   */
+  distinct?: boolean;
+}
+/**
+ *
+ * @export
  * @interface DrugSynonym
  */
 export interface DrugSynonym {
@@ -857,37 +1126,6 @@ export interface Exon {
 /**
  *
  * @export
- * @interface Explanation
- */
-export interface Explanation {
-  /**
-   *
-   * @type {boolean}
-   * @memberof Explanation
-   */
-  match?: boolean;
-  /**
-   *
-   * @type {number}
-   * @memberof Explanation
-   */
-  value?: number;
-  /**
-   *
-   * @type {string}
-   * @memberof Explanation
-   */
-  description?: string;
-  /**
-   *
-   * @type {Array<Explanation>}
-   * @memberof Explanation
-   */
-  details?: Array<Explanation>;
-}
-/**
- *
- * @export
  * @interface FdaSubmission
  */
 export interface FdaSubmission {
@@ -969,6 +1207,91 @@ export interface FdaSubmission {
    * @memberof FdaSubmission
    */
   type: FdaSubmissionType;
+}
+/**
+ *
+ * @export
+ * @interface FdaSubmissionCriteria
+ */
+export interface FdaSubmissionCriteria {
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof FdaSubmissionCriteria
+   */
+  id?: LongFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof FdaSubmissionCriteria
+   */
+  number?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof FdaSubmissionCriteria
+   */
+  supplementNumber?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof FdaSubmissionCriteria
+   */
+  deviceName?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof FdaSubmissionCriteria
+   */
+  genericName?: StringFilter;
+  /**
+   *
+   * @type {InstantFilter}
+   * @memberof FdaSubmissionCriteria
+   */
+  dateReceived?: InstantFilter;
+  /**
+   *
+   * @type {InstantFilter}
+   * @memberof FdaSubmissionCriteria
+   */
+  decisionDate?: InstantFilter;
+  /**
+   *
+   * @type {BooleanFilter}
+   * @memberof FdaSubmissionCriteria
+   */
+  curated?: BooleanFilter;
+  /**
+   *
+   * @type {BooleanFilter}
+   * @memberof FdaSubmissionCriteria
+   */
+  genetic?: BooleanFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof FdaSubmissionCriteria
+   */
+  deviceUsageIndicationId?: LongFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof FdaSubmissionCriteria
+   */
+  companionDiagnosticDeviceId?: LongFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof FdaSubmissionCriteria
+   */
+  typeId?: LongFilter;
+  /**
+   *
+   * @type {boolean}
+   * @memberof FdaSubmissionCriteria
+   */
+  distinct?: boolean;
 }
 /**
  *
@@ -1066,6 +1389,55 @@ export interface GeneAlias {
    * @memberof GeneAlias
    */
   gene?: Gene;
+}
+/**
+ *
+ * @export
+ * @interface GeneCriteria
+ */
+export interface GeneCriteria {
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof GeneCriteria
+   */
+  id?: LongFilter;
+  /**
+   *
+   * @type {IntegerFilter}
+   * @memberof GeneCriteria
+   */
+  entrezGeneId?: IntegerFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof GeneCriteria
+   */
+  hugoSymbol?: StringFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof GeneCriteria
+   */
+  geneAliasId?: LongFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof GeneCriteria
+   */
+  ensemblGeneId?: LongFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof GeneCriteria
+   */
+  alterationId?: LongFilter;
+  /**
+   *
+   * @type {boolean}
+   * @memberof GeneCriteria
+   */
+  distinct?: boolean;
 }
 /**
  *
@@ -1168,6 +1540,189 @@ export type InfoTypeEnum = typeof InfoTypeEnum[keyof typeof InfoTypeEnum];
 /**
  *
  * @export
+ * @interface InstantFilter
+ */
+export interface InstantFilter {
+  /**
+   *
+   * @type {string}
+   * @memberof InstantFilter
+   */
+  equals?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof InstantFilter
+   */
+  notEquals?: string;
+  /**
+   *
+   * @type {boolean}
+   * @memberof InstantFilter
+   */
+  specified?: boolean;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof InstantFilter
+   */
+  in?: Array<string>;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof InstantFilter
+   */
+  notIn?: Array<string>;
+  /**
+   *
+   * @type {string}
+   * @memberof InstantFilter
+   */
+  greaterThan?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof InstantFilter
+   */
+  lessThan?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof InstantFilter
+   */
+  greaterThanOrEqual?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof InstantFilter
+   */
+  lessThanOrEqual?: string;
+}
+/**
+ *
+ * @export
+ * @interface IntegerFilter
+ */
+export interface IntegerFilter {
+  /**
+   *
+   * @type {number}
+   * @memberof IntegerFilter
+   */
+  equals?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof IntegerFilter
+   */
+  notEquals?: number;
+  /**
+   *
+   * @type {boolean}
+   * @memberof IntegerFilter
+   */
+  specified?: boolean;
+  /**
+   *
+   * @type {Array<number>}
+   * @memberof IntegerFilter
+   */
+  in?: Array<number>;
+  /**
+   *
+   * @type {Array<number>}
+   * @memberof IntegerFilter
+   */
+  notIn?: Array<number>;
+  /**
+   *
+   * @type {number}
+   * @memberof IntegerFilter
+   */
+  greaterThan?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof IntegerFilter
+   */
+  lessThan?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof IntegerFilter
+   */
+  greaterThanOrEqual?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof IntegerFilter
+   */
+  lessThanOrEqual?: number;
+}
+/**
+ *
+ * @export
+ * @interface LongFilter
+ */
+export interface LongFilter {
+  /**
+   *
+   * @type {number}
+   * @memberof LongFilter
+   */
+  equals?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof LongFilter
+   */
+  notEquals?: number;
+  /**
+   *
+   * @type {boolean}
+   * @memberof LongFilter
+   */
+  specified?: boolean;
+  /**
+   *
+   * @type {Array<number>}
+   * @memberof LongFilter
+   */
+  in?: Array<number>;
+  /**
+   *
+   * @type {Array<number>}
+   * @memberof LongFilter
+   */
+  notIn?: Array<number>;
+  /**
+   *
+   * @type {number}
+   * @memberof LongFilter
+   */
+  greaterThan?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof LongFilter
+   */
+  lessThan?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof LongFilter
+   */
+  greaterThanOrEqual?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof LongFilter
+   */
+  lessThanOrEqual?: number;
+}
+/**
+ *
+ * @export
  * @interface MatchTranscriptVM
  */
 export interface MatchTranscriptVM {
@@ -1193,31 +1748,6 @@ export const MatchTranscriptVMTargetReferenceGenomeEnum = {
 export type MatchTranscriptVMTargetReferenceGenomeEnum =
   typeof MatchTranscriptVMTargetReferenceGenomeEnum[keyof typeof MatchTranscriptVMTargetReferenceGenomeEnum];
 
-/**
- *
- * @export
- * @interface NestedMetaData
- */
-export interface NestedMetaData {
-  /**
-   *
-   * @type {string}
-   * @memberof NestedMetaData
-   */
-  field?: string;
-  /**
-   *
-   * @type {number}
-   * @memberof NestedMetaData
-   */
-  offset?: number;
-  /**
-   *
-   * @type {NestedMetaData}
-   * @memberof NestedMetaData
-   */
-  child?: NestedMetaData;
-}
 /**
  *
  * @export
@@ -1271,603 +1801,45 @@ export interface PfamDomainRange {
 /**
  *
  * @export
- * @interface SearchHitAlteration
- */
-export interface SearchHitAlteration {
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitAlteration
-   */
-  index?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitAlteration
-   */
-  id?: string;
-  /**
-   *
-   * @type {number}
-   * @memberof SearchHitAlteration
-   */
-  score?: number;
-  /**
-   *
-   * @type {Array<object>}
-   * @memberof SearchHitAlteration
-   */
-  sortValues?: Array<object>;
-  /**
-   *
-   * @type {Alteration}
-   * @memberof SearchHitAlteration
-   */
-  content?: Alteration;
-  /**
-   *
-   * @type {{ [key: string]: Array<string>; }}
-   * @memberof SearchHitAlteration
-   */
-  highlightFields?: { [key: string]: Array<string> };
-  /**
-   *
-   * @type {{ [key: string]: SearchHitsObject; }}
-   * @memberof SearchHitAlteration
-   */
-  innerHits?: { [key: string]: SearchHitsObject };
-  /**
-   *
-   * @type {NestedMetaData}
-   * @memberof SearchHitAlteration
-   */
-  nestedMetaData?: NestedMetaData;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitAlteration
-   */
-  routing?: string;
-  /**
-   *
-   * @type {Explanation}
-   * @memberof SearchHitAlteration
-   */
-  explanation?: Explanation;
-  /**
-   *
-   * @type {Array<string>}
-   * @memberof SearchHitAlteration
-   */
-  matchedQueries?: Array<string>;
-}
-/**
- *
- * @export
- * @interface SearchHitArticle
- */
-export interface SearchHitArticle {
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitArticle
-   */
-  index?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitArticle
-   */
-  id?: string;
-  /**
-   *
-   * @type {number}
-   * @memberof SearchHitArticle
-   */
-  score?: number;
-  /**
-   *
-   * @type {Array<object>}
-   * @memberof SearchHitArticle
-   */
-  sortValues?: Array<object>;
-  /**
-   *
-   * @type {Article}
-   * @memberof SearchHitArticle
-   */
-  content?: Article;
-  /**
-   *
-   * @type {{ [key: string]: Array<string>; }}
-   * @memberof SearchHitArticle
-   */
-  highlightFields?: { [key: string]: Array<string> };
-  /**
-   *
-   * @type {{ [key: string]: SearchHitsObject; }}
-   * @memberof SearchHitArticle
-   */
-  innerHits?: { [key: string]: SearchHitsObject };
-  /**
-   *
-   * @type {NestedMetaData}
-   * @memberof SearchHitArticle
-   */
-  nestedMetaData?: NestedMetaData;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitArticle
-   */
-  routing?: string;
-  /**
-   *
-   * @type {Explanation}
-   * @memberof SearchHitArticle
-   */
-  explanation?: Explanation;
-  /**
-   *
-   * @type {Array<string>}
-   * @memberof SearchHitArticle
-   */
-  matchedQueries?: Array<string>;
-}
-/**
- *
- * @export
- * @interface SearchHitCompanionDiagnosticDevice
- */
-export interface SearchHitCompanionDiagnosticDevice {
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitCompanionDiagnosticDevice
-   */
-  index?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitCompanionDiagnosticDevice
-   */
-  id?: string;
-  /**
-   *
-   * @type {number}
-   * @memberof SearchHitCompanionDiagnosticDevice
-   */
-  score?: number;
-  /**
-   *
-   * @type {Array<object>}
-   * @memberof SearchHitCompanionDiagnosticDevice
-   */
-  sortValues?: Array<object>;
-  /**
-   *
-   * @type {CompanionDiagnosticDevice}
-   * @memberof SearchHitCompanionDiagnosticDevice
-   */
-  content?: CompanionDiagnosticDevice;
-  /**
-   *
-   * @type {{ [key: string]: Array<string>; }}
-   * @memberof SearchHitCompanionDiagnosticDevice
-   */
-  highlightFields?: { [key: string]: Array<string> };
-  /**
-   *
-   * @type {{ [key: string]: SearchHitsObject; }}
-   * @memberof SearchHitCompanionDiagnosticDevice
-   */
-  innerHits?: { [key: string]: SearchHitsObject };
-  /**
-   *
-   * @type {NestedMetaData}
-   * @memberof SearchHitCompanionDiagnosticDevice
-   */
-  nestedMetaData?: NestedMetaData;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitCompanionDiagnosticDevice
-   */
-  routing?: string;
-  /**
-   *
-   * @type {Explanation}
-   * @memberof SearchHitCompanionDiagnosticDevice
-   */
-  explanation?: Explanation;
-  /**
-   *
-   * @type {Array<string>}
-   * @memberof SearchHitCompanionDiagnosticDevice
-   */
-  matchedQueries?: Array<string>;
-}
-/**
- *
- * @export
- * @interface SearchHitDrug
- */
-export interface SearchHitDrug {
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitDrug
-   */
-  index?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitDrug
-   */
-  id?: string;
-  /**
-   *
-   * @type {number}
-   * @memberof SearchHitDrug
-   */
-  score?: number;
-  /**
-   *
-   * @type {Array<object>}
-   * @memberof SearchHitDrug
-   */
-  sortValues?: Array<object>;
-  /**
-   *
-   * @type {Drug}
-   * @memberof SearchHitDrug
-   */
-  content?: Drug;
-  /**
-   *
-   * @type {{ [key: string]: Array<string>; }}
-   * @memberof SearchHitDrug
-   */
-  highlightFields?: { [key: string]: Array<string> };
-  /**
-   *
-   * @type {{ [key: string]: SearchHitsObject; }}
-   * @memberof SearchHitDrug
-   */
-  innerHits?: { [key: string]: SearchHitsObject };
-  /**
-   *
-   * @type {NestedMetaData}
-   * @memberof SearchHitDrug
-   */
-  nestedMetaData?: NestedMetaData;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitDrug
-   */
-  routing?: string;
-  /**
-   *
-   * @type {Explanation}
-   * @memberof SearchHitDrug
-   */
-  explanation?: Explanation;
-  /**
-   *
-   * @type {Array<string>}
-   * @memberof SearchHitDrug
-   */
-  matchedQueries?: Array<string>;
-}
-/**
- *
- * @export
- * @interface SearchHitFdaSubmission
- */
-export interface SearchHitFdaSubmission {
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitFdaSubmission
-   */
-  index?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitFdaSubmission
-   */
-  id?: string;
-  /**
-   *
-   * @type {number}
-   * @memberof SearchHitFdaSubmission
-   */
-  score?: number;
-  /**
-   *
-   * @type {Array<object>}
-   * @memberof SearchHitFdaSubmission
-   */
-  sortValues?: Array<object>;
-  /**
-   *
-   * @type {FdaSubmission}
-   * @memberof SearchHitFdaSubmission
-   */
-  content?: FdaSubmission;
-  /**
-   *
-   * @type {{ [key: string]: Array<string>; }}
-   * @memberof SearchHitFdaSubmission
-   */
-  highlightFields?: { [key: string]: Array<string> };
-  /**
-   *
-   * @type {{ [key: string]: SearchHitsObject; }}
-   * @memberof SearchHitFdaSubmission
-   */
-  innerHits?: { [key: string]: SearchHitsObject };
-  /**
-   *
-   * @type {NestedMetaData}
-   * @memberof SearchHitFdaSubmission
-   */
-  nestedMetaData?: NestedMetaData;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitFdaSubmission
-   */
-  routing?: string;
-  /**
-   *
-   * @type {Explanation}
-   * @memberof SearchHitFdaSubmission
-   */
-  explanation?: Explanation;
-  /**
-   *
-   * @type {Array<string>}
-   * @memberof SearchHitFdaSubmission
-   */
-  matchedQueries?: Array<string>;
-}
-/**
- *
- * @export
- * @interface SearchHitGene
- */
-export interface SearchHitGene {
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitGene
-   */
-  index?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitGene
-   */
-  id?: string;
-  /**
-   *
-   * @type {number}
-   * @memberof SearchHitGene
-   */
-  score?: number;
-  /**
-   *
-   * @type {Array<object>}
-   * @memberof SearchHitGene
-   */
-  sortValues?: Array<object>;
-  /**
-   *
-   * @type {Gene}
-   * @memberof SearchHitGene
-   */
-  content?: Gene;
-  /**
-   *
-   * @type {{ [key: string]: Array<string>; }}
-   * @memberof SearchHitGene
-   */
-  highlightFields?: { [key: string]: Array<string> };
-  /**
-   *
-   * @type {{ [key: string]: SearchHitsObject; }}
-   * @memberof SearchHitGene
-   */
-  innerHits?: { [key: string]: SearchHitsObject };
-  /**
-   *
-   * @type {NestedMetaData}
-   * @memberof SearchHitGene
-   */
-  nestedMetaData?: NestedMetaData;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitGene
-   */
-  routing?: string;
-  /**
-   *
-   * @type {Explanation}
-   * @memberof SearchHitGene
-   */
-  explanation?: Explanation;
-  /**
-   *
-   * @type {Array<string>}
-   * @memberof SearchHitGene
-   */
-  matchedQueries?: Array<string>;
-}
-/**
- *
- * @export
- * @interface SearchHitObject
- */
-export interface SearchHitObject {
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitObject
-   */
-  index?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitObject
-   */
-  id?: string;
-  /**
-   *
-   * @type {number}
-   * @memberof SearchHitObject
-   */
-  score?: number;
-  /**
-   *
-   * @type {Array<object>}
-   * @memberof SearchHitObject
-   */
-  sortValues?: Array<object>;
-  /**
-   *
-   * @type {object}
-   * @memberof SearchHitObject
-   */
-  content?: object;
-  /**
-   *
-   * @type {{ [key: string]: Array<string>; }}
-   * @memberof SearchHitObject
-   */
-  highlightFields?: { [key: string]: Array<string> };
-  /**
-   *
-   * @type {NestedMetaData}
-   * @memberof SearchHitObject
-   */
-  nestedMetaData?: NestedMetaData;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitObject
-   */
-  routing?: string;
-  /**
-   *
-   * @type {Explanation}
-   * @memberof SearchHitObject
-   */
-  explanation?: Explanation;
-  /**
-   *
-   * @type {Array<string>}
-   * @memberof SearchHitObject
-   */
-  matchedQueries?: Array<string>;
-}
-/**
- *
- * @export
- * @interface SearchHitsObject
- */
-export interface SearchHitsObject {
-  /**
-   *
-   * @type {Array<SearchHitObject>}
-   * @memberof SearchHitsObject
-   */
-  searchHits?: Array<SearchHitObject>;
-  /**
-   *
-   * @type {number}
-   * @memberof SearchHitsObject
-   */
-  totalHits?: number;
-  /**
-   *
-   * @type {number}
-   * @memberof SearchHitsObject
-   */
-  maxScore?: number;
-  /**
-   *
-   * @type {string}
-   * @memberof SearchHitsObject
-   */
-  totalHitsRelation?: SearchHitsObjectTotalHitsRelationEnum;
-  /**
-   *
-   * @type {Aggregations}
-   * @memberof SearchHitsObject
-   */
-  aggregations?: Aggregations;
-  /**
-   *
-   * @type {boolean}
-   * @memberof SearchHitsObject
-   */
-  empty?: boolean;
-}
-
-export const SearchHitsObjectTotalHitsRelationEnum = {
-  EqualTo: 'EQUAL_TO',
-  GreaterThanOrEqualTo: 'GREATER_THAN_OR_EQUAL_TO',
-  Off: 'OFF',
-} as const;
-
-export type SearchHitsObjectTotalHitsRelationEnum =
-  typeof SearchHitsObjectTotalHitsRelationEnum[keyof typeof SearchHitsObjectTotalHitsRelationEnum];
-
-/**
- *
- * @export
  * @interface SearchResultDTO
  */
 export interface SearchResultDTO {
   /**
    *
-   * @type {Array<SearchHitFdaSubmission>}
+   * @type {Array<FdaSubmission>}
    * @memberof SearchResultDTO
    */
-  fdaSubmissions?: Array<SearchHitFdaSubmission>;
+  fdaSubmissions?: Array<FdaSubmission>;
   /**
    *
-   * @type {Array<SearchHitCompanionDiagnosticDevice>}
+   * @type {Array<CompanionDiagnosticDevice>}
    * @memberof SearchResultDTO
    */
-  companionDiagnosticDevices?: Array<SearchHitCompanionDiagnosticDevice>;
+  companionDiagnosticDevices?: Array<CompanionDiagnosticDevice>;
   /**
    *
-   * @type {Array<SearchHitArticle>}
+   * @type {Array<Article>}
    * @memberof SearchResultDTO
    */
-  articles?: Array<SearchHitArticle>;
+  articles?: Array<Article>;
   /**
    *
-   * @type {Array<SearchHitDrug>}
+   * @type {Array<Drug>}
    * @memberof SearchResultDTO
    */
-  drugs?: Array<SearchHitDrug>;
+  drugs?: Array<Drug>;
   /**
    *
-   * @type {Array<SearchHitGene>}
+   * @type {Array<Gene>}
    * @memberof SearchResultDTO
    */
-  genes?: Array<SearchHitGene>;
+  genes?: Array<Gene>;
   /**
    *
-   * @type {Array<SearchHitAlteration>}
+   * @type {Array<Alteration>}
    * @memberof SearchResultDTO
    */
-  alterations?: Array<SearchHitAlteration>;
+  alterations?: Array<Alteration>;
 }
 /**
  *
@@ -1938,6 +1910,55 @@ export interface SpecimenType {
    * @memberof SpecimenType
    */
   companionDiagnosticDevices?: Set<CompanionDiagnosticDevice>;
+}
+/**
+ *
+ * @export
+ * @interface StringFilter
+ */
+export interface StringFilter {
+  /**
+   *
+   * @type {string}
+   * @memberof StringFilter
+   */
+  equals?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof StringFilter
+   */
+  notEquals?: string;
+  /**
+   *
+   * @type {boolean}
+   * @memberof StringFilter
+   */
+  specified?: boolean;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof StringFilter
+   */
+  in?: Array<string>;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof StringFilter
+   */
+  notIn?: Array<string>;
+  /**
+   *
+   * @type {string}
+   * @memberof StringFilter
+   */
+  contains?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof StringFilter
+   */
+  doesNotContain?: string;
 }
 /**
  *
@@ -2656,6 +2677,40 @@ export const AlterationResourceApiAxiosParamCreator = function (configuration?: 
   return {
     /**
      *
+     * @param {AlterationCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    countAlterations: async (criteria: AlterationCriteria, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('countAlterations', 'criteria', criteria);
+      const localVarPath = `/api/alterations/count`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
+      }
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @param {Alteration} alteration
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -2749,12 +2804,14 @@ export const AlterationResourceApiAxiosParamCreator = function (configuration?: 
     },
     /**
      *
+     * @param {AlterationCriteria} criteria
      * @param {Pageable} pageable
-     * @param {boolean} [eagerload]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllAlterations: async (pageable: Pageable, eagerload?: boolean, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    getAllAlterations: async (criteria: AlterationCriteria, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('getAllAlterations', 'criteria', criteria);
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('getAllAlterations', 'pageable', pageable);
       const localVarPath = `/api/alterations`;
@@ -2769,12 +2826,12 @@ export const AlterationResourceApiAxiosParamCreator = function (configuration?: 
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
-      if (pageable !== undefined) {
-        localVarQueryParameter['pageable'] = pageable;
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
       }
 
-      if (eagerload !== undefined) {
-        localVarQueryParameter['eagerload'] = eagerload;
+      if (pageable !== undefined) {
+        localVarQueryParameter['pageable'] = pageable;
       }
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -2941,6 +2998,19 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
   return {
     /**
      *
+     * @param {AlterationCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async countAlterations(
+      criteria: AlterationCriteria,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.countAlterations(criteria, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
      * @param {Alteration} alteration
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -2980,17 +3050,17 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
     },
     /**
      *
+     * @param {AlterationCriteria} criteria
      * @param {Pageable} pageable
-     * @param {boolean} [eagerload]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getAllAlterations(
+      criteria: AlterationCriteria,
       pageable: Pageable,
-      eagerload?: boolean,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Alteration>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllAlterations(pageable, eagerload, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllAlterations(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -3063,6 +3133,15 @@ export const AlterationResourceApiFactory = function (configuration?: Configurat
   return {
     /**
      *
+     * @param {AlterationCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    countAlterations(criteria: AlterationCriteria, options?: any): AxiosPromise<number> {
+      return localVarFp.countAlterations(criteria, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
      * @param {Alteration} alteration
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -3090,13 +3169,13 @@ export const AlterationResourceApiFactory = function (configuration?: Configurat
     },
     /**
      *
+     * @param {AlterationCriteria} criteria
      * @param {Pageable} pageable
-     * @param {boolean} [eagerload]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllAlterations(pageable: Pageable, eagerload?: boolean, options?: any): AxiosPromise<Array<Alteration>> {
-      return localVarFp.getAllAlterations(pageable, eagerload, options).then(request => request(axios, basePath));
+    getAllAlterations(criteria: AlterationCriteria, pageable: Pageable, options?: any): AxiosPromise<Array<Alteration>> {
+      return localVarFp.getAllAlterations(criteria, pageable, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -3149,6 +3228,19 @@ export const AlterationResourceApiFactory = function (configuration?: Configurat
 export class AlterationResourceApi extends BaseAPI {
   /**
    *
+   * @param {AlterationCriteria} criteria
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof AlterationResourceApi
+   */
+  public countAlterations(criteria: AlterationCriteria, options?: AxiosRequestConfig) {
+    return AlterationResourceApiFp(this.configuration)
+      .countAlterations(criteria, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
    * @param {Alteration} alteration
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -3188,15 +3280,15 @@ export class AlterationResourceApi extends BaseAPI {
 
   /**
    *
+   * @param {AlterationCriteria} criteria
    * @param {Pageable} pageable
-   * @param {boolean} [eagerload]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof AlterationResourceApi
    */
-  public getAllAlterations(pageable: Pageable, eagerload?: boolean, options?: AxiosRequestConfig) {
+  public getAllAlterations(criteria: AlterationCriteria, pageable: Pageable, options?: AxiosRequestConfig) {
     return AlterationResourceApiFp(this.configuration)
-      .getAllAlterations(pageable, eagerload, options)
+      .getAllAlterations(criteria, pageable, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -3264,6 +3356,40 @@ export const ArticleResourceApiAxiosParamCreator = function (configuration?: Con
   return {
     /**
      *
+     * @param {ArticleCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    countArticles: async (criteria: ArticleCriteria, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('countArticles', 'criteria', criteria);
+      const localVarPath = `/api/articles/count`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
+      }
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @param {Article} article
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -3327,11 +3453,14 @@ export const ArticleResourceApiAxiosParamCreator = function (configuration?: Con
     },
     /**
      *
+     * @param {ArticleCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllArticles: async (pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    getAllArticles: async (criteria: ArticleCriteria, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('getAllArticles', 'criteria', criteria);
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('getAllArticles', 'pageable', pageable);
       const localVarPath = `/api/articles`;
@@ -3345,6 +3474,10 @@ export const ArticleResourceApiAxiosParamCreator = function (configuration?: Con
       const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
+
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
+      }
 
       if (pageable !== undefined) {
         localVarQueryParameter['pageable'] = pageable;
@@ -3514,6 +3647,19 @@ export const ArticleResourceApiFp = function (configuration?: Configuration) {
   return {
     /**
      *
+     * @param {ArticleCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async countArticles(
+      criteria: ArticleCriteria,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.countArticles(criteria, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
      * @param {Article} article
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -3540,15 +3686,17 @@ export const ArticleResourceApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @param {ArticleCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getAllArticles(
+      criteria: ArticleCriteria,
       pageable: Pageable,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Article>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllArticles(pageable, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllArticles(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -3621,6 +3769,15 @@ export const ArticleResourceApiFactory = function (configuration?: Configuration
   return {
     /**
      *
+     * @param {ArticleCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    countArticles(criteria: ArticleCriteria, options?: any): AxiosPromise<number> {
+      return localVarFp.countArticles(criteria, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
      * @param {Article} article
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -3639,12 +3796,13 @@ export const ArticleResourceApiFactory = function (configuration?: Configuration
     },
     /**
      *
+     * @param {ArticleCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllArticles(pageable: Pageable, options?: any): AxiosPromise<Array<Article>> {
-      return localVarFp.getAllArticles(pageable, options).then(request => request(axios, basePath));
+    getAllArticles(criteria: ArticleCriteria, pageable: Pageable, options?: any): AxiosPromise<Array<Article>> {
+      return localVarFp.getAllArticles(criteria, pageable, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -3697,6 +3855,19 @@ export const ArticleResourceApiFactory = function (configuration?: Configuration
 export class ArticleResourceApi extends BaseAPI {
   /**
    *
+   * @param {ArticleCriteria} criteria
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ArticleResourceApi
+   */
+  public countArticles(criteria: ArticleCriteria, options?: AxiosRequestConfig) {
+    return ArticleResourceApiFp(this.configuration)
+      .countArticles(criteria, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
    * @param {Article} article
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -3723,14 +3894,15 @@ export class ArticleResourceApi extends BaseAPI {
 
   /**
    *
+   * @param {ArticleCriteria} criteria
    * @param {Pageable} pageable
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof ArticleResourceApi
    */
-  public getAllArticles(pageable: Pageable, options?: AxiosRequestConfig) {
+  public getAllArticles(criteria: ArticleCriteria, pageable: Pageable, options?: AxiosRequestConfig) {
     return ArticleResourceApiFp(this.configuration)
-      .getAllArticles(pageable, options)
+      .getAllArticles(criteria, pageable, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -4054,47 +4226,6 @@ export const CancerTypeResourceApiAxiosParamCreator = function (configuration?: 
     },
     /**
      *
-     * @param {string} query
-     * @param {Pageable} pageable
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    searchCancerTypes: async (query: string, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'query' is not null or undefined
-      assertParamExists('searchCancerTypes', 'query', query);
-      // verify required parameter 'pageable' is not null or undefined
-      assertParamExists('searchCancerTypes', 'pageable', pageable);
-      const localVarPath = `/api/_search/cancer-types`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      if (query !== undefined) {
-        localVarQueryParameter['query'] = query;
-      }
-
-      if (pageable !== undefined) {
-        localVarQueryParameter['pageable'] = pageable;
-      }
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
      * @param {number} id
      * @param {CancerType} cancerType
      * @param {*} [options] Override http request option.
@@ -4208,21 +4339,6 @@ export const CancerTypeResourceApiFp = function (configuration?: Configuration) 
     },
     /**
      *
-     * @param {string} query
-     * @param {Pageable} pageable
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async searchCancerTypes(
-      query: string,
-      pageable: Pageable,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CancerType>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.searchCancerTypes(query, pageable, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
      * @param {number} id
      * @param {CancerType} cancerType
      * @param {*} [options] Override http request option.
@@ -4291,16 +4407,6 @@ export const CancerTypeResourceApiFactory = function (configuration?: Configurat
      */
     partialUpdateCancerType(id: number, cancerType: CancerType, options?: any): AxiosPromise<CancerType> {
       return localVarFp.partialUpdateCancerType(id, cancerType, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {string} query
-     * @param {Pageable} pageable
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    searchCancerTypes(query: string, pageable: Pageable, options?: any): AxiosPromise<Array<CancerType>> {
-      return localVarFp.searchCancerTypes(query, pageable, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -4385,20 +4491,6 @@ export class CancerTypeResourceApi extends BaseAPI {
   public partialUpdateCancerType(id: number, cancerType: CancerType, options?: AxiosRequestConfig) {
     return CancerTypeResourceApiFp(this.configuration)
       .partialUpdateCancerType(id, cancerType, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {string} query
-   * @param {Pageable} pageable
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof CancerTypeResourceApi
-   */
-  public searchCancerTypes(query: string, pageable: Pageable, options?: AxiosRequestConfig) {
-    return CancerTypeResourceApiFp(this.configuration)
-      .searchCancerTypes(query, pageable, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -4880,11 +4972,717 @@ export class CategoricalAlterationResourceApi extends BaseAPI {
 }
 
 /**
+ * ClinicalTrialsGovConditionResourceApi - axios parameter creator
+ * @export
+ */
+export const ClinicalTrialsGovConditionResourceApiAxiosParamCreator = function (configuration?: Configuration) {
+  return {
+    /**
+     *
+     * @param {ClinicalTrialsGovConditionCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    countClinicalTrialsGovConditions: async (
+      criteria: ClinicalTrialsGovConditionCriteria,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('countClinicalTrialsGovConditions', 'criteria', criteria);
+      const localVarPath = `/api/clinical-trials-gov-conditions/count`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
+      }
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {ClinicalTrialsGovCondition} clinicalTrialsGovCondition
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createClinicalTrialsGovCondition: async (
+      clinicalTrialsGovCondition: ClinicalTrialsGovCondition,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'clinicalTrialsGovCondition' is not null or undefined
+      assertParamExists('createClinicalTrialsGovCondition', 'clinicalTrialsGovCondition', clinicalTrialsGovCondition);
+      const localVarPath = `/api/clinical-trials-gov-conditions`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(clinicalTrialsGovCondition, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteClinicalTrialsGovCondition: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('deleteClinicalTrialsGovCondition', 'id', id);
+      const localVarPath = `/api/clinical-trials-gov-conditions/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {ClinicalTrialsGovConditionCriteria} criteria
+     * @param {Pageable} pageable
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getAllClinicalTrialsGovConditions: async (
+      criteria: ClinicalTrialsGovConditionCriteria,
+      pageable: Pageable,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('getAllClinicalTrialsGovConditions', 'criteria', criteria);
+      // verify required parameter 'pageable' is not null or undefined
+      assertParamExists('getAllClinicalTrialsGovConditions', 'pageable', pageable);
+      const localVarPath = `/api/clinical-trials-gov-conditions`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
+      }
+
+      if (pageable !== undefined) {
+        localVarQueryParameter['pageable'] = pageable;
+      }
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getClinicalTrialsGovCondition: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('getClinicalTrialsGovCondition', 'id', id);
+      const localVarPath = `/api/clinical-trials-gov-conditions/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {ClinicalTrialsGovCondition} clinicalTrialsGovCondition
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    partialUpdateClinicalTrialsGovCondition: async (
+      id: number,
+      clinicalTrialsGovCondition: ClinicalTrialsGovCondition,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('partialUpdateClinicalTrialsGovCondition', 'id', id);
+      // verify required parameter 'clinicalTrialsGovCondition' is not null or undefined
+      assertParamExists('partialUpdateClinicalTrialsGovCondition', 'clinicalTrialsGovCondition', clinicalTrialsGovCondition);
+      const localVarPath = `/api/clinical-trials-gov-conditions/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(clinicalTrialsGovCondition, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} query
+     * @param {Pageable} pageable
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    searchClinicalTrialsGovConditions: async (
+      query: string,
+      pageable: Pageable,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'query' is not null or undefined
+      assertParamExists('searchClinicalTrialsGovConditions', 'query', query);
+      // verify required parameter 'pageable' is not null or undefined
+      assertParamExists('searchClinicalTrialsGovConditions', 'pageable', pageable);
+      const localVarPath = `/api/_search/clinical-trials-gov-conditions`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (query !== undefined) {
+        localVarQueryParameter['query'] = query;
+      }
+
+      if (pageable !== undefined) {
+        localVarQueryParameter['pageable'] = pageable;
+      }
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {ClinicalTrialsGovCondition} clinicalTrialsGovCondition
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateClinicalTrialsGovCondition: async (
+      id: number,
+      clinicalTrialsGovCondition: ClinicalTrialsGovCondition,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('updateClinicalTrialsGovCondition', 'id', id);
+      // verify required parameter 'clinicalTrialsGovCondition' is not null or undefined
+      assertParamExists('updateClinicalTrialsGovCondition', 'clinicalTrialsGovCondition', clinicalTrialsGovCondition);
+      const localVarPath = `/api/clinical-trials-gov-conditions/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(clinicalTrialsGovCondition, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+  };
+};
+
+/**
+ * ClinicalTrialsGovConditionResourceApi - functional programming interface
+ * @export
+ */
+export const ClinicalTrialsGovConditionResourceApiFp = function (configuration?: Configuration) {
+  const localVarAxiosParamCreator = ClinicalTrialsGovConditionResourceApiAxiosParamCreator(configuration);
+  return {
+    /**
+     *
+     * @param {ClinicalTrialsGovConditionCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async countClinicalTrialsGovConditions(
+      criteria: ClinicalTrialsGovConditionCriteria,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.countClinicalTrialsGovConditions(criteria, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {ClinicalTrialsGovCondition} clinicalTrialsGovCondition
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async createClinicalTrialsGovCondition(
+      clinicalTrialsGovCondition: ClinicalTrialsGovCondition,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ClinicalTrialsGovCondition>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.createClinicalTrialsGovCondition(clinicalTrialsGovCondition, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deleteClinicalTrialsGovCondition(
+      id: number,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteClinicalTrialsGovCondition(id, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {ClinicalTrialsGovConditionCriteria} criteria
+     * @param {Pageable} pageable
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getAllClinicalTrialsGovConditions(
+      criteria: ClinicalTrialsGovConditionCriteria,
+      pageable: Pageable,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ClinicalTrialsGovCondition>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllClinicalTrialsGovConditions(criteria, pageable, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getClinicalTrialsGovCondition(
+      id: number,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ClinicalTrialsGovCondition>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getClinicalTrialsGovCondition(id, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {ClinicalTrialsGovCondition} clinicalTrialsGovCondition
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async partialUpdateClinicalTrialsGovCondition(
+      id: number,
+      clinicalTrialsGovCondition: ClinicalTrialsGovCondition,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ClinicalTrialsGovCondition>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateClinicalTrialsGovCondition(
+        id,
+        clinicalTrialsGovCondition,
+        options
+      );
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {string} query
+     * @param {Pageable} pageable
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async searchClinicalTrialsGovConditions(
+      query: string,
+      pageable: Pageable,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ClinicalTrialsGovCondition>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.searchClinicalTrialsGovConditions(query, pageable, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {ClinicalTrialsGovCondition} clinicalTrialsGovCondition
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async updateClinicalTrialsGovCondition(
+      id: number,
+      clinicalTrialsGovCondition: ClinicalTrialsGovCondition,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ClinicalTrialsGovCondition>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.updateClinicalTrialsGovCondition(id, clinicalTrialsGovCondition, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+  };
+};
+
+/**
+ * ClinicalTrialsGovConditionResourceApi - factory interface
+ * @export
+ */
+export const ClinicalTrialsGovConditionResourceApiFactory = function (
+  configuration?: Configuration,
+  basePath?: string,
+  axios?: AxiosInstance
+) {
+  const localVarFp = ClinicalTrialsGovConditionResourceApiFp(configuration);
+  return {
+    /**
+     *
+     * @param {ClinicalTrialsGovConditionCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    countClinicalTrialsGovConditions(criteria: ClinicalTrialsGovConditionCriteria, options?: any): AxiosPromise<number> {
+      return localVarFp.countClinicalTrialsGovConditions(criteria, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {ClinicalTrialsGovCondition} clinicalTrialsGovCondition
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createClinicalTrialsGovCondition(
+      clinicalTrialsGovCondition: ClinicalTrialsGovCondition,
+      options?: any
+    ): AxiosPromise<ClinicalTrialsGovCondition> {
+      return localVarFp.createClinicalTrialsGovCondition(clinicalTrialsGovCondition, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteClinicalTrialsGovCondition(id: number, options?: any): AxiosPromise<void> {
+      return localVarFp.deleteClinicalTrialsGovCondition(id, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {ClinicalTrialsGovConditionCriteria} criteria
+     * @param {Pageable} pageable
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getAllClinicalTrialsGovConditions(
+      criteria: ClinicalTrialsGovConditionCriteria,
+      pageable: Pageable,
+      options?: any
+    ): AxiosPromise<Array<ClinicalTrialsGovCondition>> {
+      return localVarFp.getAllClinicalTrialsGovConditions(criteria, pageable, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getClinicalTrialsGovCondition(id: number, options?: any): AxiosPromise<ClinicalTrialsGovCondition> {
+      return localVarFp.getClinicalTrialsGovCondition(id, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {ClinicalTrialsGovCondition} clinicalTrialsGovCondition
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    partialUpdateClinicalTrialsGovCondition(
+      id: number,
+      clinicalTrialsGovCondition: ClinicalTrialsGovCondition,
+      options?: any
+    ): AxiosPromise<ClinicalTrialsGovCondition> {
+      return localVarFp
+        .partialUpdateClinicalTrialsGovCondition(id, clinicalTrialsGovCondition, options)
+        .then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} query
+     * @param {Pageable} pageable
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    searchClinicalTrialsGovConditions(query: string, pageable: Pageable, options?: any): AxiosPromise<Array<ClinicalTrialsGovCondition>> {
+      return localVarFp.searchClinicalTrialsGovConditions(query, pageable, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {ClinicalTrialsGovCondition} clinicalTrialsGovCondition
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateClinicalTrialsGovCondition(
+      id: number,
+      clinicalTrialsGovCondition: ClinicalTrialsGovCondition,
+      options?: any
+    ): AxiosPromise<ClinicalTrialsGovCondition> {
+      return localVarFp.updateClinicalTrialsGovCondition(id, clinicalTrialsGovCondition, options).then(request => request(axios, basePath));
+    },
+  };
+};
+
+/**
+ * ClinicalTrialsGovConditionResourceApi - object-oriented interface
+ * @export
+ * @class ClinicalTrialsGovConditionResourceApi
+ * @extends {BaseAPI}
+ */
+export class ClinicalTrialsGovConditionResourceApi extends BaseAPI {
+  /**
+   *
+   * @param {ClinicalTrialsGovConditionCriteria} criteria
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ClinicalTrialsGovConditionResourceApi
+   */
+  public countClinicalTrialsGovConditions(criteria: ClinicalTrialsGovConditionCriteria, options?: AxiosRequestConfig) {
+    return ClinicalTrialsGovConditionResourceApiFp(this.configuration)
+      .countClinicalTrialsGovConditions(criteria, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {ClinicalTrialsGovCondition} clinicalTrialsGovCondition
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ClinicalTrialsGovConditionResourceApi
+   */
+  public createClinicalTrialsGovCondition(clinicalTrialsGovCondition: ClinicalTrialsGovCondition, options?: AxiosRequestConfig) {
+    return ClinicalTrialsGovConditionResourceApiFp(this.configuration)
+      .createClinicalTrialsGovCondition(clinicalTrialsGovCondition, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ClinicalTrialsGovConditionResourceApi
+   */
+  public deleteClinicalTrialsGovCondition(id: number, options?: AxiosRequestConfig) {
+    return ClinicalTrialsGovConditionResourceApiFp(this.configuration)
+      .deleteClinicalTrialsGovCondition(id, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {ClinicalTrialsGovConditionCriteria} criteria
+   * @param {Pageable} pageable
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ClinicalTrialsGovConditionResourceApi
+   */
+  public getAllClinicalTrialsGovConditions(criteria: ClinicalTrialsGovConditionCriteria, pageable: Pageable, options?: AxiosRequestConfig) {
+    return ClinicalTrialsGovConditionResourceApiFp(this.configuration)
+      .getAllClinicalTrialsGovConditions(criteria, pageable, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ClinicalTrialsGovConditionResourceApi
+   */
+  public getClinicalTrialsGovCondition(id: number, options?: AxiosRequestConfig) {
+    return ClinicalTrialsGovConditionResourceApiFp(this.configuration)
+      .getClinicalTrialsGovCondition(id, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {ClinicalTrialsGovCondition} clinicalTrialsGovCondition
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ClinicalTrialsGovConditionResourceApi
+   */
+  public partialUpdateClinicalTrialsGovCondition(
+    id: number,
+    clinicalTrialsGovCondition: ClinicalTrialsGovCondition,
+    options?: AxiosRequestConfig
+  ) {
+    return ClinicalTrialsGovConditionResourceApiFp(this.configuration)
+      .partialUpdateClinicalTrialsGovCondition(id, clinicalTrialsGovCondition, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} query
+   * @param {Pageable} pageable
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ClinicalTrialsGovConditionResourceApi
+   */
+  public searchClinicalTrialsGovConditions(query: string, pageable: Pageable, options?: AxiosRequestConfig) {
+    return ClinicalTrialsGovConditionResourceApiFp(this.configuration)
+      .searchClinicalTrialsGovConditions(query, pageable, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {ClinicalTrialsGovCondition} clinicalTrialsGovCondition
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ClinicalTrialsGovConditionResourceApi
+   */
+  public updateClinicalTrialsGovCondition(
+    id: number,
+    clinicalTrialsGovCondition: ClinicalTrialsGovCondition,
+    options?: AxiosRequestConfig
+  ) {
+    return ClinicalTrialsGovConditionResourceApiFp(this.configuration)
+      .updateClinicalTrialsGovCondition(id, clinicalTrialsGovCondition, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+}
+
+/**
  * CompanionDiagnosticDeviceResourceApi - axios parameter creator
  * @export
  */
 export const CompanionDiagnosticDeviceResourceApiAxiosParamCreator = function (configuration?: Configuration) {
   return {
+    /**
+     *
+     * @param {CompanionDiagnosticDeviceCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    countCompanionDiagnosticDevices: async (
+      criteria: CompanionDiagnosticDeviceCriteria,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('countCompanionDiagnosticDevices', 'criteria', criteria);
+      const localVarPath = `/api/companion-diagnostic-devices/count`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
+      }
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
     /**
      *
      * @param {CompanionDiagnosticDevice} companionDiagnosticDevice
@@ -4953,11 +5751,16 @@ export const CompanionDiagnosticDeviceResourceApiAxiosParamCreator = function (c
     },
     /**
      *
-     * @param {boolean} [eagerload]
+     * @param {CompanionDiagnosticDeviceCriteria} criteria
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllCompanionDiagnosticDevices: async (eagerload?: boolean, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    getAllCompanionDiagnosticDevices: async (
+      criteria: CompanionDiagnosticDeviceCriteria,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('getAllCompanionDiagnosticDevices', 'criteria', criteria);
       const localVarPath = `/api/companion-diagnostic-devices`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -4970,8 +5773,8 @@ export const CompanionDiagnosticDeviceResourceApiAxiosParamCreator = function (c
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
-      if (eagerload !== undefined) {
-        localVarQueryParameter['eagerload'] = eagerload;
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
       }
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -5139,6 +5942,19 @@ export const CompanionDiagnosticDeviceResourceApiFp = function (configuration?: 
   return {
     /**
      *
+     * @param {CompanionDiagnosticDeviceCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async countCompanionDiagnosticDevices(
+      criteria: CompanionDiagnosticDeviceCriteria,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.countCompanionDiagnosticDevices(criteria, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
      * @param {CompanionDiagnosticDevice} companionDiagnosticDevice
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5165,15 +5981,15 @@ export const CompanionDiagnosticDeviceResourceApiFp = function (configuration?: 
     },
     /**
      *
-     * @param {boolean} [eagerload]
+     * @param {CompanionDiagnosticDeviceCriteria} criteria
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getAllCompanionDiagnosticDevices(
-      eagerload?: boolean,
+      criteria: CompanionDiagnosticDeviceCriteria,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CompanionDiagnosticDevice>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllCompanionDiagnosticDevices(eagerload, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllCompanionDiagnosticDevices(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -5252,6 +6068,15 @@ export const CompanionDiagnosticDeviceResourceApiFactory = function (
   return {
     /**
      *
+     * @param {CompanionDiagnosticDeviceCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    countCompanionDiagnosticDevices(criteria: CompanionDiagnosticDeviceCriteria, options?: any): AxiosPromise<number> {
+      return localVarFp.countCompanionDiagnosticDevices(criteria, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
      * @param {CompanionDiagnosticDevice} companionDiagnosticDevice
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5273,12 +6098,15 @@ export const CompanionDiagnosticDeviceResourceApiFactory = function (
     },
     /**
      *
-     * @param {boolean} [eagerload]
+     * @param {CompanionDiagnosticDeviceCriteria} criteria
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllCompanionDiagnosticDevices(eagerload?: boolean, options?: any): AxiosPromise<Array<CompanionDiagnosticDevice>> {
-      return localVarFp.getAllCompanionDiagnosticDevices(eagerload, options).then(request => request(axios, basePath));
+    getAllCompanionDiagnosticDevices(
+      criteria: CompanionDiagnosticDeviceCriteria,
+      options?: any
+    ): AxiosPromise<Array<CompanionDiagnosticDevice>> {
+      return localVarFp.getAllCompanionDiagnosticDevices(criteria, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -5340,6 +6168,19 @@ export const CompanionDiagnosticDeviceResourceApiFactory = function (
 export class CompanionDiagnosticDeviceResourceApi extends BaseAPI {
   /**
    *
+   * @param {CompanionDiagnosticDeviceCriteria} criteria
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof CompanionDiagnosticDeviceResourceApi
+   */
+  public countCompanionDiagnosticDevices(criteria: CompanionDiagnosticDeviceCriteria, options?: AxiosRequestConfig) {
+    return CompanionDiagnosticDeviceResourceApiFp(this.configuration)
+      .countCompanionDiagnosticDevices(criteria, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
    * @param {CompanionDiagnosticDevice} companionDiagnosticDevice
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -5366,14 +6207,14 @@ export class CompanionDiagnosticDeviceResourceApi extends BaseAPI {
 
   /**
    *
-   * @param {boolean} [eagerload]
+   * @param {CompanionDiagnosticDeviceCriteria} criteria
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof CompanionDiagnosticDeviceResourceApi
    */
-  public getAllCompanionDiagnosticDevices(eagerload?: boolean, options?: AxiosRequestConfig) {
+  public getAllCompanionDiagnosticDevices(criteria: CompanionDiagnosticDeviceCriteria, options?: AxiosRequestConfig) {
     return CompanionDiagnosticDeviceResourceApiFp(this.configuration)
-      .getAllCompanionDiagnosticDevices(eagerload, options)
+      .getAllCompanionDiagnosticDevices(criteria, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -7028,6 +7869,40 @@ export const DrugResourceApiAxiosParamCreator = function (configuration?: Config
   return {
     /**
      *
+     * @param {DrugCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    countDrugs: async (criteria: DrugCriteria, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('countDrugs', 'criteria', criteria);
+      const localVarPath = `/api/drugs/count`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
+      }
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @param {Drug} drug
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -7091,11 +7966,14 @@ export const DrugResourceApiAxiosParamCreator = function (configuration?: Config
     },
     /**
      *
+     * @param {DrugCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllDrugs: async (pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    getAllDrugs: async (criteria: DrugCriteria, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('getAllDrugs', 'criteria', criteria);
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('getAllDrugs', 'pageable', pageable);
       const localVarPath = `/api/drugs`;
@@ -7109,6 +7987,10 @@ export const DrugResourceApiAxiosParamCreator = function (configuration?: Config
       const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
+
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
+      }
 
       if (pageable !== undefined) {
         localVarQueryParameter['pageable'] = pageable;
@@ -7278,6 +8160,19 @@ export const DrugResourceApiFp = function (configuration?: Configuration) {
   return {
     /**
      *
+     * @param {DrugCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async countDrugs(
+      criteria: DrugCriteria,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.countDrugs(criteria, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
      * @param {Drug} drug
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -7298,15 +8193,17 @@ export const DrugResourceApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @param {DrugCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getAllDrugs(
+      criteria: DrugCriteria,
       pageable: Pageable,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Drug>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllDrugs(pageable, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllDrugs(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -7376,6 +8273,15 @@ export const DrugResourceApiFactory = function (configuration?: Configuration, b
   return {
     /**
      *
+     * @param {DrugCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    countDrugs(criteria: DrugCriteria, options?: any): AxiosPromise<number> {
+      return localVarFp.countDrugs(criteria, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
      * @param {Drug} drug
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -7394,12 +8300,13 @@ export const DrugResourceApiFactory = function (configuration?: Configuration, b
     },
     /**
      *
+     * @param {DrugCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllDrugs(pageable: Pageable, options?: any): AxiosPromise<Array<Drug>> {
-      return localVarFp.getAllDrugs(pageable, options).then(request => request(axios, basePath));
+    getAllDrugs(criteria: DrugCriteria, pageable: Pageable, options?: any): AxiosPromise<Array<Drug>> {
+      return localVarFp.getAllDrugs(criteria, pageable, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -7452,6 +8359,19 @@ export const DrugResourceApiFactory = function (configuration?: Configuration, b
 export class DrugResourceApi extends BaseAPI {
   /**
    *
+   * @param {DrugCriteria} criteria
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof DrugResourceApi
+   */
+  public countDrugs(criteria: DrugCriteria, options?: AxiosRequestConfig) {
+    return DrugResourceApiFp(this.configuration)
+      .countDrugs(criteria, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
    * @param {Drug} drug
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -7478,14 +8398,15 @@ export class DrugResourceApi extends BaseAPI {
 
   /**
    *
+   * @param {DrugCriteria} criteria
    * @param {Pageable} pageable
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof DrugResourceApi
    */
-  public getAllDrugs(pageable: Pageable, options?: AxiosRequestConfig) {
+  public getAllDrugs(criteria: DrugCriteria, pageable: Pageable, options?: AxiosRequestConfig) {
     return DrugResourceApiFp(this.configuration)
-      .getAllDrugs(pageable, options)
+      .getAllDrugs(criteria, pageable, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -7984,167 +8905,6 @@ export class DrugSynonymResourceApi extends BaseAPI {
   public updateDrugSynonym(id: number, drugSynonym: DrugSynonym, options?: AxiosRequestConfig) {
     return DrugSynonymResourceApiFp(this.configuration)
       .updateDrugSynonym(id, drugSynonym, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-}
-
-/**
- * ElasticsearchIndexResourceApi - axios parameter creator
- * @export
- */
-export const ElasticsearchIndexResourceApiAxiosParamCreator = function (configuration?: Configuration) {
-  return {
-    /**
-     *
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    reindexAll: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      const localVarPath = `/api/elasticsearch/index`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {Array<string>} requestBody
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    reindexIndicesFromList: async (requestBody: Array<string>, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'requestBody' is not null or undefined
-      assertParamExists('reindexIndicesFromList', 'requestBody', requestBody);
-      const localVarPath = `/api/elasticsearch/index`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(requestBody, localVarRequestOptions, configuration);
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-  };
-};
-
-/**
- * ElasticsearchIndexResourceApi - functional programming interface
- * @export
- */
-export const ElasticsearchIndexResourceApiFp = function (configuration?: Configuration) {
-  const localVarAxiosParamCreator = ElasticsearchIndexResourceApiAxiosParamCreator(configuration);
-  return {
-    /**
-     *
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async reindexAll(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.reindexAll(options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {Array<string>} requestBody
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async reindexIndicesFromList(
-      requestBody: Array<string>,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.reindexIndicesFromList(requestBody, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-  };
-};
-
-/**
- * ElasticsearchIndexResourceApi - factory interface
- * @export
- */
-export const ElasticsearchIndexResourceApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-  const localVarFp = ElasticsearchIndexResourceApiFp(configuration);
-  return {
-    /**
-     *
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    reindexAll(options?: any): AxiosPromise<void> {
-      return localVarFp.reindexAll(options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {Array<string>} requestBody
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    reindexIndicesFromList(requestBody: Array<string>, options?: any): AxiosPromise<void> {
-      return localVarFp.reindexIndicesFromList(requestBody, options).then(request => request(axios, basePath));
-    },
-  };
-};
-
-/**
- * ElasticsearchIndexResourceApi - object-oriented interface
- * @export
- * @class ElasticsearchIndexResourceApi
- * @extends {BaseAPI}
- */
-export class ElasticsearchIndexResourceApi extends BaseAPI {
-  /**
-   *
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof ElasticsearchIndexResourceApi
-   */
-  public reindexAll(options?: AxiosRequestConfig) {
-    return ElasticsearchIndexResourceApiFp(this.configuration)
-      .reindexAll(options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {Array<string>} requestBody
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof ElasticsearchIndexResourceApi
-   */
-  public reindexIndicesFromList(requestBody: Array<string>, options?: AxiosRequestConfig) {
-    return ElasticsearchIndexResourceApiFp(this.configuration)
-      .reindexIndicesFromList(requestBody, options)
       .then(request => request(this.axios, this.basePath));
   }
 }
@@ -8776,6 +9536,40 @@ export const FdaSubmissionResourceApiAxiosParamCreator = function (configuration
   return {
     /**
      *
+     * @param {FdaSubmissionCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    countFdaSubmissions: async (criteria: FdaSubmissionCriteria, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('countFdaSubmissions', 'criteria', criteria);
+      const localVarPath = `/api/fda-submissions/count`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
+      }
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @param {FdaSubmission} fdaSubmission
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -8839,11 +9633,18 @@ export const FdaSubmissionResourceApiAxiosParamCreator = function (configuration
     },
     /**
      *
+     * @param {FdaSubmissionCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllFdaSubmissions: async (pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    getAllFdaSubmissions: async (
+      criteria: FdaSubmissionCriteria,
+      pageable: Pageable,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('getAllFdaSubmissions', 'criteria', criteria);
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('getAllFdaSubmissions', 'pageable', pageable);
       const localVarPath = `/api/fda-submissions`;
@@ -8857,6 +9658,10 @@ export const FdaSubmissionResourceApiAxiosParamCreator = function (configuration
       const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
+
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
+      }
 
       if (pageable !== undefined) {
         localVarQueryParameter['pageable'] = pageable;
@@ -9069,6 +9874,19 @@ export const FdaSubmissionResourceApiFp = function (configuration?: Configuratio
   return {
     /**
      *
+     * @param {FdaSubmissionCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async countFdaSubmissions(
+      criteria: FdaSubmissionCriteria,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.countFdaSubmissions(criteria, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
      * @param {FdaSubmission} fdaSubmission
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -9095,15 +9913,17 @@ export const FdaSubmissionResourceApiFp = function (configuration?: Configuratio
     },
     /**
      *
+     * @param {FdaSubmissionCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getAllFdaSubmissions(
+      criteria: FdaSubmissionCriteria,
       pageable: Pageable,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<FdaSubmission>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllFdaSubmissions(pageable, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllFdaSubmissions(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -9191,6 +10011,15 @@ export const FdaSubmissionResourceApiFactory = function (configuration?: Configu
   return {
     /**
      *
+     * @param {FdaSubmissionCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    countFdaSubmissions(criteria: FdaSubmissionCriteria, options?: any): AxiosPromise<number> {
+      return localVarFp.countFdaSubmissions(criteria, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
      * @param {FdaSubmission} fdaSubmission
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -9209,12 +10038,13 @@ export const FdaSubmissionResourceApiFactory = function (configuration?: Configu
     },
     /**
      *
+     * @param {FdaSubmissionCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllFdaSubmissions(pageable: Pageable, options?: any): AxiosPromise<Array<FdaSubmission>> {
-      return localVarFp.getAllFdaSubmissions(pageable, options).then(request => request(axios, basePath));
+    getAllFdaSubmissions(criteria: FdaSubmissionCriteria, pageable: Pageable, options?: any): AxiosPromise<Array<FdaSubmission>> {
+      return localVarFp.getAllFdaSubmissions(criteria, pageable, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -9277,6 +10107,19 @@ export const FdaSubmissionResourceApiFactory = function (configuration?: Configu
 export class FdaSubmissionResourceApi extends BaseAPI {
   /**
    *
+   * @param {FdaSubmissionCriteria} criteria
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof FdaSubmissionResourceApi
+   */
+  public countFdaSubmissions(criteria: FdaSubmissionCriteria, options?: AxiosRequestConfig) {
+    return FdaSubmissionResourceApiFp(this.configuration)
+      .countFdaSubmissions(criteria, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
    * @param {FdaSubmission} fdaSubmission
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -9303,14 +10146,15 @@ export class FdaSubmissionResourceApi extends BaseAPI {
 
   /**
    *
+   * @param {FdaSubmissionCriteria} criteria
    * @param {Pageable} pageable
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof FdaSubmissionResourceApi
    */
-  public getAllFdaSubmissions(pageable: Pageable, options?: AxiosRequestConfig) {
+  public getAllFdaSubmissions(criteria: FdaSubmissionCriteria, pageable: Pageable, options?: AxiosRequestConfig) {
     return FdaSubmissionResourceApiFp(this.configuration)
-      .getAllFdaSubmissions(pageable, options)
+      .getAllFdaSubmissions(criteria, pageable, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -10460,6 +11304,40 @@ export const GeneResourceApiAxiosParamCreator = function (configuration?: Config
   return {
     /**
      *
+     * @param {GeneCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    countGenes: async (criteria: GeneCriteria, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('countGenes', 'criteria', criteria);
+      const localVarPath = `/api/genes/count`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
+      }
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @param {Gene} gene
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -10523,11 +11401,14 @@ export const GeneResourceApiAxiosParamCreator = function (configuration?: Config
     },
     /**
      *
+     * @param {GeneCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllGenes: async (pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    getAllGenes: async (criteria: GeneCriteria, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('getAllGenes', 'criteria', criteria);
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('getAllGenes', 'pageable', pageable);
       const localVarPath = `/api/genes`;
@@ -10541,6 +11422,10 @@ export const GeneResourceApiAxiosParamCreator = function (configuration?: Config
       const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
+
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
+      }
 
       if (pageable !== undefined) {
         localVarQueryParameter['pageable'] = pageable;
@@ -10710,6 +11595,19 @@ export const GeneResourceApiFp = function (configuration?: Configuration) {
   return {
     /**
      *
+     * @param {GeneCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async countGenes(
+      criteria: GeneCriteria,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.countGenes(criteria, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
      * @param {Gene} gene
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -10730,15 +11628,17 @@ export const GeneResourceApiFp = function (configuration?: Configuration) {
     },
     /**
      *
+     * @param {GeneCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getAllGenes(
+      criteria: GeneCriteria,
       pageable: Pageable,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Gene>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllGenes(pageable, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllGenes(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -10808,6 +11708,15 @@ export const GeneResourceApiFactory = function (configuration?: Configuration, b
   return {
     /**
      *
+     * @param {GeneCriteria} criteria
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    countGenes(criteria: GeneCriteria, options?: any): AxiosPromise<number> {
+      return localVarFp.countGenes(criteria, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
      * @param {Gene} gene
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -10826,12 +11735,13 @@ export const GeneResourceApiFactory = function (configuration?: Configuration, b
     },
     /**
      *
+     * @param {GeneCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllGenes(pageable: Pageable, options?: any): AxiosPromise<Array<Gene>> {
-      return localVarFp.getAllGenes(pageable, options).then(request => request(axios, basePath));
+    getAllGenes(criteria: GeneCriteria, pageable: Pageable, options?: any): AxiosPromise<Array<Gene>> {
+      return localVarFp.getAllGenes(criteria, pageable, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -10884,6 +11794,19 @@ export const GeneResourceApiFactory = function (configuration?: Configuration, b
 export class GeneResourceApi extends BaseAPI {
   /**
    *
+   * @param {GeneCriteria} criteria
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof GeneResourceApi
+   */
+  public countGenes(criteria: GeneCriteria, options?: AxiosRequestConfig) {
+    return GeneResourceApiFp(this.configuration)
+      .countGenes(criteria, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
    * @param {Gene} gene
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -10910,14 +11833,15 @@ export class GeneResourceApi extends BaseAPI {
 
   /**
    *
+   * @param {GeneCriteria} criteria
    * @param {Pageable} pageable
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof GeneResourceApi
    */
-  public getAllGenes(pageable: Pageable, options?: AxiosRequestConfig) {
+  public getAllGenes(criteria: GeneCriteria, pageable: Pageable, options?: AxiosRequestConfig) {
     return GeneResourceApiFp(this.configuration)
-      .getAllGenes(pageable, options)
+      .getAllGenes(criteria, pageable, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -12124,7 +13048,7 @@ export const SearchControllerApiAxiosParamCreator = function (configuration?: Co
     search: async (query: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'query' is not null or undefined
       assertParamExists('search', 'query', query);
-      const localVarPath = `/api/search/_all`;
+      const localVarPath = `/api/_search/all`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;

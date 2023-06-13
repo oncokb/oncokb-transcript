@@ -2,12 +2,10 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -18,13 +16,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
+import org.mskcc.oncokb.curation.domain.DeviceUsageIndication;
 import org.mskcc.oncokb.curation.domain.Drug;
+import org.mskcc.oncokb.curation.domain.DrugBrand;
+import org.mskcc.oncokb.curation.domain.DrugSynonym;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
-import org.mskcc.oncokb.curation.repository.search.DrugSearchRepository;
+import org.mskcc.oncokb.curation.service.criteria.DrugCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -51,21 +50,12 @@ class DrugResourceIT {
 
     private static final String ENTITY_API_URL = "/api/drugs";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
-    private static final String ENTITY_SEARCH_API_URL = "/api/_search/drugs";
 
     private static Random random = new Random();
     private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
 
     @Autowired
     private DrugRepository drugRepository;
-
-    /**
-     * This repository is mocked in the org.mskcc.oncokb.curation.repository.search test package.
-     *
-     * @see org.mskcc.oncokb.curation.repository.search.DrugSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private DrugSearchRepository mockDrugSearchRepository;
 
     @Autowired
     private EntityManager em;
@@ -120,9 +110,6 @@ class DrugResourceIT {
         assertThat(testDrug.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testDrug.getCode()).isEqualTo(DEFAULT_CODE);
         assertThat(testDrug.getSemanticType()).isEqualTo(DEFAULT_SEMANTIC_TYPE);
-
-        // Validate the Drug in Elasticsearch
-        verify(mockDrugSearchRepository, times(1)).save(testDrug);
     }
 
     @Test
@@ -143,9 +130,6 @@ class DrugResourceIT {
         // Validate the Drug in the database
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the Drug in Elasticsearch
-        verify(mockDrugSearchRepository, times(0)).save(drug);
     }
 
     @Test
@@ -180,6 +164,220 @@ class DrugResourceIT {
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
             .andExpect(jsonPath("$.code").value(DEFAULT_CODE))
             .andExpect(jsonPath("$.semanticType").value(DEFAULT_SEMANTIC_TYPE.toString()));
+    }
+
+    @Test
+    @Transactional
+    void getDrugsByIdFiltering() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+
+        Long id = drug.getId();
+
+        defaultDrugShouldBeFound("id.equals=" + id);
+        defaultDrugShouldNotBeFound("id.notEquals=" + id);
+
+        defaultDrugShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultDrugShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultDrugShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultDrugShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByCodeIsEqualToSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+
+        // Get all the drugList where code equals to DEFAULT_CODE
+        defaultDrugShouldBeFound("code.equals=" + DEFAULT_CODE);
+
+        // Get all the drugList where code equals to UPDATED_CODE
+        defaultDrugShouldNotBeFound("code.equals=" + UPDATED_CODE);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByCodeIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+
+        // Get all the drugList where code not equals to DEFAULT_CODE
+        defaultDrugShouldNotBeFound("code.notEquals=" + DEFAULT_CODE);
+
+        // Get all the drugList where code not equals to UPDATED_CODE
+        defaultDrugShouldBeFound("code.notEquals=" + UPDATED_CODE);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByCodeIsInShouldWork() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+
+        // Get all the drugList where code in DEFAULT_CODE or UPDATED_CODE
+        defaultDrugShouldBeFound("code.in=" + DEFAULT_CODE + "," + UPDATED_CODE);
+
+        // Get all the drugList where code equals to UPDATED_CODE
+        defaultDrugShouldNotBeFound("code.in=" + UPDATED_CODE);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByCodeIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+
+        // Get all the drugList where code is not null
+        defaultDrugShouldBeFound("code.specified=true");
+
+        // Get all the drugList where code is null
+        defaultDrugShouldNotBeFound("code.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByCodeContainsSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+
+        // Get all the drugList where code contains DEFAULT_CODE
+        defaultDrugShouldBeFound("code.contains=" + DEFAULT_CODE);
+
+        // Get all the drugList where code contains UPDATED_CODE
+        defaultDrugShouldNotBeFound("code.contains=" + UPDATED_CODE);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByCodeNotContainsSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+
+        // Get all the drugList where code does not contain DEFAULT_CODE
+        defaultDrugShouldNotBeFound("code.doesNotContain=" + DEFAULT_CODE);
+
+        // Get all the drugList where code does not contain UPDATED_CODE
+        defaultDrugShouldBeFound("code.doesNotContain=" + UPDATED_CODE);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsBySynonymsIsEqualToSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+        DrugSynonym synonyms;
+        if (TestUtil.findAll(em, DrugSynonym.class).isEmpty()) {
+            synonyms = DrugSynonymResourceIT.createEntity(em);
+            em.persist(synonyms);
+            em.flush();
+        } else {
+            synonyms = TestUtil.findAll(em, DrugSynonym.class).get(0);
+        }
+        em.persist(synonyms);
+        em.flush();
+        drug.addSynonyms(synonyms);
+        drugRepository.saveAndFlush(drug);
+        Long synonymsId = synonyms.getId();
+
+        // Get all the drugList where synonyms equals to synonymsId
+        defaultDrugShouldBeFound("synonymsId.equals=" + synonymsId);
+
+        // Get all the drugList where synonyms equals to (synonymsId + 1)
+        defaultDrugShouldNotBeFound("synonymsId.equals=" + (synonymsId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByDeviceUsageIndicationIsEqualToSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+        DeviceUsageIndication deviceUsageIndication;
+        if (TestUtil.findAll(em, DeviceUsageIndication.class).isEmpty()) {
+            deviceUsageIndication = DeviceUsageIndicationResourceIT.createEntity(em);
+            em.persist(deviceUsageIndication);
+            em.flush();
+        } else {
+            deviceUsageIndication = TestUtil.findAll(em, DeviceUsageIndication.class).get(0);
+        }
+        em.persist(deviceUsageIndication);
+        em.flush();
+        drug.addDeviceUsageIndication(deviceUsageIndication);
+        drugRepository.saveAndFlush(drug);
+        Long deviceUsageIndicationId = deviceUsageIndication.getId();
+
+        // Get all the drugList where deviceUsageIndication equals to deviceUsageIndicationId
+        defaultDrugShouldBeFound("deviceUsageIndicationId.equals=" + deviceUsageIndicationId);
+
+        // Get all the drugList where deviceUsageIndication equals to (deviceUsageIndicationId + 1)
+        defaultDrugShouldNotBeFound("deviceUsageIndicationId.equals=" + (deviceUsageIndicationId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByBrandsIsEqualToSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+        DrugBrand brands;
+        if (TestUtil.findAll(em, DrugBrand.class).isEmpty()) {
+            brands = DrugBrandResourceIT.createEntity(em);
+            em.persist(brands);
+            em.flush();
+        } else {
+            brands = TestUtil.findAll(em, DrugBrand.class).get(0);
+        }
+        em.persist(brands);
+        em.flush();
+        drug.addBrands(brands);
+        drugRepository.saveAndFlush(drug);
+        Long brandsId = brands.getId();
+
+        // Get all the drugList where brands equals to brandsId
+        defaultDrugShouldBeFound("brandsId.equals=" + brandsId);
+
+        // Get all the drugList where brands equals to (brandsId + 1)
+        defaultDrugShouldNotBeFound("brandsId.equals=" + (brandsId + 1));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is returned.
+     */
+    private void defaultDrugShouldBeFound(String filter) throws Exception {
+        restDrugMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(drug.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
+            .andExpect(jsonPath("$.[*].code").value(hasItem(DEFAULT_CODE)))
+            .andExpect(jsonPath("$.[*].semanticType").value(hasItem(DEFAULT_SEMANTIC_TYPE.toString())));
+
+        // Check, that the count call also returns 1
+        restDrugMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("1"));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is not returned.
+     */
+    private void defaultDrugShouldNotBeFound(String filter) throws Exception {
+        restDrugMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$").isEmpty());
+
+        // Check, that the count call also returns 0
+        restDrugMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("0"));
     }
 
     @Test
@@ -219,9 +417,6 @@ class DrugResourceIT {
         assertThat(testDrug.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testDrug.getCode()).isEqualTo(UPDATED_CODE);
         assertThat(testDrug.getSemanticType()).isEqualTo(UPDATED_SEMANTIC_TYPE);
-
-        // Validate the Drug in Elasticsearch
-        verify(mockDrugSearchRepository).save(testDrug);
     }
 
     @Test
@@ -243,9 +438,6 @@ class DrugResourceIT {
         // Validate the Drug in the database
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Drug in Elasticsearch
-        verify(mockDrugSearchRepository, times(0)).save(drug);
     }
 
     @Test
@@ -267,9 +459,6 @@ class DrugResourceIT {
         // Validate the Drug in the database
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Drug in Elasticsearch
-        verify(mockDrugSearchRepository, times(0)).save(drug);
     }
 
     @Test
@@ -288,9 +477,6 @@ class DrugResourceIT {
         // Validate the Drug in the database
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Drug in Elasticsearch
-        verify(mockDrugSearchRepository, times(0)).save(drug);
     }
 
     @Test
@@ -376,9 +562,6 @@ class DrugResourceIT {
         // Validate the Drug in the database
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Drug in Elasticsearch
-        verify(mockDrugSearchRepository, times(0)).save(drug);
     }
 
     @Test
@@ -400,9 +583,6 @@ class DrugResourceIT {
         // Validate the Drug in the database
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Drug in Elasticsearch
-        verify(mockDrugSearchRepository, times(0)).save(drug);
     }
 
     @Test
@@ -424,9 +604,6 @@ class DrugResourceIT {
         // Validate the Drug in the database
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Drug in Elasticsearch
-        verify(mockDrugSearchRepository, times(0)).save(drug);
     }
 
     @Test
@@ -445,28 +622,5 @@ class DrugResourceIT {
         // Validate the database contains one less item
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the Drug in Elasticsearch
-        verify(mockDrugSearchRepository, times(1)).deleteById(drug.getId());
-    }
-
-    @Test
-    @Transactional
-    void searchDrug() throws Exception {
-        // Configure the mock search repository
-        // Initialize the database
-        drugRepository.saveAndFlush(drug);
-        when(mockDrugSearchRepository.search("id:" + drug.getId(), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(drug), PageRequest.of(0, 1), 1));
-
-        // Search the drug
-        restDrugMockMvc
-            .perform(get(ENTITY_SEARCH_API_URL + "?query=id:" + drug.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(drug.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
-            .andExpect(jsonPath("$.[*].code").value(hasItem(DEFAULT_CODE)))
-            .andExpect(jsonPath("$.[*].semanticType").value(hasItem(DEFAULT_SEMANTIC_TYPE.toString())));
     }
 }

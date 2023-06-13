@@ -7,7 +7,6 @@ import java.util.stream.StreamSupport;
 import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
 import org.mskcc.oncokb.curation.repository.CompanionDiagnosticDeviceRepository;
 import org.mskcc.oncokb.curation.repository.FdaSubmissionTypeRepository;
-import org.mskcc.oncokb.curation.repository.search.CompanionDiagnosticDeviceSearchRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;

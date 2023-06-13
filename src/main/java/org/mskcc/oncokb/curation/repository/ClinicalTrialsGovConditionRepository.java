@@ -13,7 +13,8 @@ import org.springframework.stereotype.Repository;
  * Spring Data SQL repository for the ClinicalTrialsGovCondition entity.
  */
 @Repository
-public interface ClinicalTrialsGovConditionRepository extends JpaRepository<ClinicalTrialsGovCondition, Long> {
+public interface ClinicalTrialsGovConditionRepository
+    extends JpaRepository<ClinicalTrialsGovCondition, Long>, JpaSpecificationExecutor<ClinicalTrialsGovCondition> {
     @Query(
         value = "select distinct clinicalTrialsGovCondition from ClinicalTrialsGovCondition clinicalTrialsGovCondition left join fetch clinicalTrialsGovCondition.cancerTypes",
         countQuery = "select count(distinct clinicalTrialsGovCondition) from ClinicalTrialsGovCondition clinicalTrialsGovCondition"

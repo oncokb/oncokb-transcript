@@ -1,12 +1,9 @@
 package org.mskcc.oncokb.curation.service;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.repository.AlterationRepository;
-import org.mskcc.oncokb.curation.repository.search.AlterationSearchRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -25,11 +22,8 @@ public class AlterationService {
 
     private final AlterationRepository alterationRepository;
 
-    private final AlterationSearchRepository alterationSearchRepository;
-
-    public AlterationService(AlterationRepository alterationRepository, AlterationSearchRepository alterationSearchRepository) {
+    public AlterationService(AlterationRepository alterationRepository) {
         this.alterationRepository = alterationRepository;
-        this.alterationSearchRepository = alterationSearchRepository;
     }
 
     /**
@@ -40,9 +34,7 @@ public class AlterationService {
      */
     public Alteration save(Alteration alteration) {
         log.debug("Request to save Alteration : {}", alteration);
-        Alteration result = alterationRepository.save(alteration);
-        alterationSearchRepository.save(result);
-        return result;
+        return alterationRepository.save(alteration);
     }
 
     /**
@@ -78,12 +70,7 @@ public class AlterationService {
 
                 return existingAlteration;
             })
-            .map(alterationRepository::save)
-            .map(savedAlteration -> {
-                alterationSearchRepository.save(savedAlteration);
-
-                return savedAlteration;
-            });
+            .map(alterationRepository::save);
     }
 
     /**
@@ -132,19 +119,5 @@ public class AlterationService {
     public void delete(Long id) {
         log.debug("Request to delete Alteration : {}", id);
         alterationRepository.deleteById(id);
-        alterationSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the alteration corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Transactional(readOnly = true)
-    public Page<Alteration> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of Alterations for query {}", query);
-        return alterationSearchRepository.search(query, pageable);
     }
 }
