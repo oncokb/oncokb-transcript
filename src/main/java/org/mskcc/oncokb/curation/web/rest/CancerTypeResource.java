@@ -9,7 +9,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.repository.CancerTypeRepository;
+import org.mskcc.oncokb.curation.service.CancerTypeQueryService;
 import org.mskcc.oncokb.curation.service.CancerTypeService;
+import org.mskcc.oncokb.curation.service.criteria.CancerTypeCriteria;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,9 +45,16 @@ public class CancerTypeResource {
 
     private final CancerTypeRepository cancerTypeRepository;
 
-    public CancerTypeResource(CancerTypeService cancerTypeService, CancerTypeRepository cancerTypeRepository) {
+    private final CancerTypeQueryService cancerTypeQueryService;
+
+    public CancerTypeResource(
+        CancerTypeService cancerTypeService,
+        CancerTypeRepository cancerTypeRepository,
+        CancerTypeQueryService cancerTypeQueryService
+    ) {
         this.cancerTypeService = cancerTypeService;
         this.cancerTypeRepository = cancerTypeRepository;
+        this.cancerTypeQueryService = cancerTypeQueryService;
     }
 
     /**
@@ -142,14 +151,27 @@ public class CancerTypeResource {
      * {@code GET  /cancer-types} : get all the cancerTypes.
      *
      * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of cancerTypes in body.
      */
     @GetMapping("/cancer-types")
-    public ResponseEntity<List<CancerType>> getAllCancerTypes(Pageable pageable) {
-        log.debug("REST request to get a page of CancerTypes");
-        Page<CancerType> page = cancerTypeService.findAll(pageable);
+    public ResponseEntity<List<CancerType>> getAllCancerTypes(CancerTypeCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get CancerTypes by criteria: {}", criteria);
+        Page<CancerType> page = cancerTypeQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /cancer-types/count} : count all the cancerTypes.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/cancer-types/count")
+    public ResponseEntity<Long> countCancerTypes(CancerTypeCriteria criteria) {
+        log.debug("REST request to count CancerTypes by criteria: {}", criteria);
+        return ResponseEntity.ok().body(cancerTypeQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -179,5 +201,21 @@ public class CancerTypeResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code SEARCH  /_search/cancer-types?query=:query} : search for the cancerType corresponding
+     * to the query.
+     *
+     * @param query the query of the cancerType search.
+     * @param pageable the pagination information.
+     * @return the result of the search.
+     */
+    @GetMapping("/_search/cancer-types")
+    public ResponseEntity<List<CancerType>> searchCancerTypes(@RequestParam String query, Pageable pageable) {
+        log.debug("REST request to search for a page of CancerTypes for query {}", query);
+        Page<CancerType> page = cancerTypeQueryService.findBySearchQuery(query, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }
