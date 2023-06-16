@@ -1,4 +1,4 @@
-package org.mskcc.oncokb.curation.config;
+package org.mskcc.oncokb.curation.config.application;
 
 import org.mskcc.oncokb.curation.config.model.OncoKbConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -14,11 +14,21 @@ public class ApplicationProperties extends org.mskcc.oncokb.meta.model.applicati
 
     private OncoKbConfig oncokb;
 
+    private FrontendProperties frontend;
+
     public OncoKbConfig getOncokb() {
         return oncokb;
     }
 
     public void setOncokb(OncoKbConfig oncokb) {
         this.oncokb = oncokb;
+    }
+
+    public FrontendProperties getFrontend() {
+        return this.frontend;
+    }
+
+    public void setFrontend(FrontendProperties frontend) {
+        this.frontend = frontend;
     }
 }

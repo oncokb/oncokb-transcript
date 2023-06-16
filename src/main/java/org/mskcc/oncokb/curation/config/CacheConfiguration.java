@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
+import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.config.cache.*;
 import org.mskcc.oncokb.meta.enumeration.RedisType;
 import org.redisson.Redisson;

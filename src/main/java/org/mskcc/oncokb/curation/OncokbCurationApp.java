@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
-import org.mskcc.oncokb.curation.config.ApplicationProperties;
+import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.importer.Importer;
 import org.oncokb.ApiException;
 import org.slf4j.Logger;
