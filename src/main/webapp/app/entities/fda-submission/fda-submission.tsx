@@ -12,10 +12,10 @@ import { Column } from 'react-table';
 import { TableHeader } from 'app/shared/table/TableHeader';
 import _ from 'lodash';
 import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-store';
-import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import EntityTable from 'app/shared/table/EntityTable';
 import { DEFAULT_ENTITY_SORT_FIELD, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
+import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 export interface IFdaSubmissionProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const FdaSubmission = (props: IFdaSubmissionProps) => {
@@ -185,8 +185,8 @@ const mapStoreToProps = ({ fdaSubmissionStore }: IRootStore) => ({
   fdaSubmissionList: fdaSubmissionStore.entities,
   loading: fdaSubmissionStore.loading,
   totalItems: fdaSubmissionStore.totalItems,
-  searchEntities: fdaSubmissionStore.searchEntities,
   getEntities: fdaSubmissionStore.getEntities,
+  searchEntities: fdaSubmissionStore.searchEntities,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

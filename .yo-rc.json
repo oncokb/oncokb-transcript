@@ -16,7 +16,7 @@
     "databaseType": "sql",
     "devDatabaseType": "mysql",
     "prodDatabaseType": "mysql",
-    "searchEngine": "elasticsearch",
+    "searchEngine": false,
     "messageBroker": false,
     "serviceDiscoveryType": false,
     "buildTool": "maven",
@@ -33,20 +33,12 @@
     "dtoSuffix": "DTO",
     "otherModules": [
       {
-        "name": "generator-jhipster-elasticsearch-reindexer",
-        "version": "1.2.1"
-      },
-      {
         "name": "generator-jhipster-react-mobx",
         "version": "1.3.0"
       }
     ],
     "enableTranslation": false,
     "blueprints": [
-      {
-        "name": "generator-jhipster-elasticsearch-reindexer",
-        "version": "1.2.1"
-      },
       {
         "name": "generator-jhipster-react-mobx",
         "version": "1.3.0"

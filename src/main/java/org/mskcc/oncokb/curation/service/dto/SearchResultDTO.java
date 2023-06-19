@@ -7,24 +7,23 @@ import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.mskcc.oncokb.curation.domain.Gene;
-import org.springframework.data.elasticsearch.core.SearchHit;
 
 public class SearchResultDTO {
 
-    private final List<SearchHit<FdaSubmission>> fdaSubmissions;
-    private final List<SearchHit<CompanionDiagnosticDevice>> companionDiagnosticDevices;
-    private final List<SearchHit<Article>> articles;
-    private final List<SearchHit<Drug>> drugs;
-    private final List<SearchHit<Gene>> genes;
-    private final List<SearchHit<Alteration>> alterations;
+    private final List<FdaSubmission> fdaSubmissions;
+    private final List<CompanionDiagnosticDevice> companionDiagnosticDevices;
+    private final List<Article> articles;
+    private final List<Drug> drugs;
+    private final List<Gene> genes;
+    private final List<Alteration> alterations;
 
     public SearchResultDTO(
-        List<SearchHit<FdaSubmission>> fdaSubmissions,
-        List<SearchHit<CompanionDiagnosticDevice>> companionDiagnosticDevices,
-        List<SearchHit<Article>> articles,
-        List<SearchHit<Drug>> drugs,
-        List<SearchHit<Gene>> genes,
-        List<SearchHit<Alteration>> alterations
+        List<FdaSubmission> fdaSubmissions,
+        List<CompanionDiagnosticDevice> companionDiagnosticDevices,
+        List<Article> articles,
+        List<Drug> drugs,
+        List<Gene> genes,
+        List<Alteration> alterations
     ) {
         this.fdaSubmissions = fdaSubmissions;
         this.companionDiagnosticDevices = companionDiagnosticDevices;
@@ -34,27 +33,27 @@ public class SearchResultDTO {
         this.alterations = alterations;
     }
 
-    public List<SearchHit<FdaSubmission>> getFdaSubmissions() {
+    public List<FdaSubmission> getFdaSubmissions() {
         return this.fdaSubmissions;
     }
 
-    public List<SearchHit<CompanionDiagnosticDevice>> getCompanionDiagnosticDevices() {
+    public List<CompanionDiagnosticDevice> getCompanionDiagnosticDevices() {
         return this.companionDiagnosticDevices;
     }
 
-    public List<SearchHit<Article>> getArticles() {
+    public List<Article> getArticles() {
         return this.articles;
     }
 
-    public List<SearchHit<Drug>> getDrugs() {
+    public List<Drug> getDrugs() {
         return this.drugs;
     }
 
-    public List<SearchHit<Gene>> getGenes() {
+    public List<Gene> getGenes() {
         return this.genes;
     }
 
-    public List<SearchHit<Alteration>> getAlterations() {
+    public List<Alteration> getAlterations() {
         return this.alterations;
     }
 }

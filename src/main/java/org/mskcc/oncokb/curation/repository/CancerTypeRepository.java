@@ -9,4 +9,4 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface CancerTypeRepository extends JpaRepository<CancerType, Long> {}
+public interface CancerTypeRepository extends JpaRepository<CancerType, Long>, JpaSpecificationExecutor<CancerType> {}

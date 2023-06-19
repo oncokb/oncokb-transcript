@@ -1,16 +1,15 @@
 package org.mskcc.oncokb.curation.web.rest;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.repository.ArticleRepository;
+import org.mskcc.oncokb.curation.service.ArticleQueryService;
 import org.mskcc.oncokb.curation.service.ArticleService;
+import org.mskcc.oncokb.curation.service.criteria.ArticleCriteria;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -44,9 +42,12 @@ public class ArticleResource {
 
     private final ArticleRepository articleRepository;
 
-    public ArticleResource(ArticleService articleService, ArticleRepository articleRepository) {
+    private final ArticleQueryService articleQueryService;
+
+    public ArticleResource(ArticleService articleService, ArticleRepository articleRepository, ArticleQueryService articleQueryService) {
         this.articleService = articleService;
         this.articleRepository = articleRepository;
+        this.articleQueryService = articleQueryService;
     }
 
     /**
@@ -141,14 +142,27 @@ public class ArticleResource {
      * {@code GET  /articles} : get all the articles.
      *
      * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of articles in body.
      */
     @GetMapping("/articles")
-    public ResponseEntity<List<Article>> getAllArticles(Pageable pageable) {
-        log.debug("REST request to get a page of Articles");
-        Page<Article> page = articleService.findAll(pageable);
+    public ResponseEntity<List<Article>> getAllArticles(ArticleCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get Articles by criteria: {}", criteria);
+        Page<Article> page = articleQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /articles/count} : count all the articles.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/articles/count")
+    public ResponseEntity<Long> countArticles(ArticleCriteria criteria) {
+        log.debug("REST request to count Articles by criteria: {}", criteria);
+        return ResponseEntity.ok().body(articleQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -191,7 +205,7 @@ public class ArticleResource {
     @GetMapping("/_search/articles")
     public ResponseEntity<List<Article>> searchArticles(@RequestParam String query, Pageable pageable) {
         log.debug("REST request to search for a page of Articles for query {}", query);
-        Page<Article> page = articleService.search(query, pageable);
+        Page<Article> page = articleQueryService.findBySearchQuery(query, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

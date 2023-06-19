@@ -8,11 +8,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,9 +19,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
+import org.mskcc.oncokb.curation.domain.FdaSubmission;
+import org.mskcc.oncokb.curation.domain.SpecimenType;
 import org.mskcc.oncokb.curation.repository.CompanionDiagnosticDeviceRepository;
-import org.mskcc.oncokb.curation.repository.search.CompanionDiagnosticDeviceSearchRepository;
 import org.mskcc.oncokb.curation.service.CompanionDiagnosticDeviceService;
+import org.mskcc.oncokb.curation.service.criteria.CompanionDiagnosticDeviceCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.data.domain.PageImpl;
@@ -50,7 +50,6 @@ class CompanionDiagnosticDeviceResourceIT {
 
     private static final String ENTITY_API_URL = "/api/companion-diagnostic-devices";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
-    private static final String ENTITY_SEARCH_API_URL = "/api/_search/companion-diagnostic-devices";
 
     private static Random random = new Random();
     private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
@@ -63,14 +62,6 @@ class CompanionDiagnosticDeviceResourceIT {
 
     @Mock
     private CompanionDiagnosticDeviceService companionDiagnosticDeviceServiceMock;
-
-    /**
-     * This repository is mocked in the org.mskcc.oncokb.curation.repository.search test package.
-     *
-     * @see org.mskcc.oncokb.curation.repository.search.CompanionDiagnosticDeviceSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private CompanionDiagnosticDeviceSearchRepository mockCompanionDiagnosticDeviceSearchRepository;
 
     @Autowired
     private EntityManager em;
@@ -133,9 +124,6 @@ class CompanionDiagnosticDeviceResourceIT {
         );
         assertThat(testCompanionDiagnosticDevice.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testCompanionDiagnosticDevice.getManufacturer()).isEqualTo(DEFAULT_MANUFACTURER);
-
-        // Validate the CompanionDiagnosticDevice in Elasticsearch
-        verify(mockCompanionDiagnosticDeviceSearchRepository, times(1)).save(testCompanionDiagnosticDevice);
     }
 
     @Test
@@ -159,9 +147,6 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the CompanionDiagnosticDevice in the database
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the CompanionDiagnosticDevice in Elasticsearch
-        verify(mockCompanionDiagnosticDeviceSearchRepository, times(0)).save(companionDiagnosticDevice);
     }
 
     @Test
@@ -260,6 +245,271 @@ class CompanionDiagnosticDeviceResourceIT {
 
     @Test
     @Transactional
+    void getCompanionDiagnosticDevicesByIdFiltering() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        Long id = companionDiagnosticDevice.getId();
+
+        defaultCompanionDiagnosticDeviceShouldBeFound("id.equals=" + id);
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("id.notEquals=" + id);
+
+        defaultCompanionDiagnosticDeviceShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultCompanionDiagnosticDeviceShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByNameIsEqualToSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where name equals to DEFAULT_NAME
+        defaultCompanionDiagnosticDeviceShouldBeFound("name.equals=" + DEFAULT_NAME);
+
+        // Get all the companionDiagnosticDeviceList where name equals to UPDATED_NAME
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("name.equals=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByNameIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where name not equals to DEFAULT_NAME
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("name.notEquals=" + DEFAULT_NAME);
+
+        // Get all the companionDiagnosticDeviceList where name not equals to UPDATED_NAME
+        defaultCompanionDiagnosticDeviceShouldBeFound("name.notEquals=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByNameIsInShouldWork() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where name in DEFAULT_NAME or UPDATED_NAME
+        defaultCompanionDiagnosticDeviceShouldBeFound("name.in=" + DEFAULT_NAME + "," + UPDATED_NAME);
+
+        // Get all the companionDiagnosticDeviceList where name equals to UPDATED_NAME
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("name.in=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByNameIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where name is not null
+        defaultCompanionDiagnosticDeviceShouldBeFound("name.specified=true");
+
+        // Get all the companionDiagnosticDeviceList where name is null
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("name.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByNameContainsSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where name contains DEFAULT_NAME
+        defaultCompanionDiagnosticDeviceShouldBeFound("name.contains=" + DEFAULT_NAME);
+
+        // Get all the companionDiagnosticDeviceList where name contains UPDATED_NAME
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("name.contains=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByNameNotContainsSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where name does not contain DEFAULT_NAME
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("name.doesNotContain=" + DEFAULT_NAME);
+
+        // Get all the companionDiagnosticDeviceList where name does not contain UPDATED_NAME
+        defaultCompanionDiagnosticDeviceShouldBeFound("name.doesNotContain=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByManufacturerIsEqualToSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where manufacturer equals to DEFAULT_MANUFACTURER
+        defaultCompanionDiagnosticDeviceShouldBeFound("manufacturer.equals=" + DEFAULT_MANUFACTURER);
+
+        // Get all the companionDiagnosticDeviceList where manufacturer equals to UPDATED_MANUFACTURER
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("manufacturer.equals=" + UPDATED_MANUFACTURER);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByManufacturerIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where manufacturer not equals to DEFAULT_MANUFACTURER
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("manufacturer.notEquals=" + DEFAULT_MANUFACTURER);
+
+        // Get all the companionDiagnosticDeviceList where manufacturer not equals to UPDATED_MANUFACTURER
+        defaultCompanionDiagnosticDeviceShouldBeFound("manufacturer.notEquals=" + UPDATED_MANUFACTURER);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByManufacturerIsInShouldWork() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where manufacturer in DEFAULT_MANUFACTURER or UPDATED_MANUFACTURER
+        defaultCompanionDiagnosticDeviceShouldBeFound("manufacturer.in=" + DEFAULT_MANUFACTURER + "," + UPDATED_MANUFACTURER);
+
+        // Get all the companionDiagnosticDeviceList where manufacturer equals to UPDATED_MANUFACTURER
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("manufacturer.in=" + UPDATED_MANUFACTURER);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByManufacturerIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where manufacturer is not null
+        defaultCompanionDiagnosticDeviceShouldBeFound("manufacturer.specified=true");
+
+        // Get all the companionDiagnosticDeviceList where manufacturer is null
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("manufacturer.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByManufacturerContainsSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where manufacturer contains DEFAULT_MANUFACTURER
+        defaultCompanionDiagnosticDeviceShouldBeFound("manufacturer.contains=" + DEFAULT_MANUFACTURER);
+
+        // Get all the companionDiagnosticDeviceList where manufacturer contains UPDATED_MANUFACTURER
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("manufacturer.contains=" + UPDATED_MANUFACTURER);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByManufacturerNotContainsSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where manufacturer does not contain DEFAULT_MANUFACTURER
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("manufacturer.doesNotContain=" + DEFAULT_MANUFACTURER);
+
+        // Get all the companionDiagnosticDeviceList where manufacturer does not contain UPDATED_MANUFACTURER
+        defaultCompanionDiagnosticDeviceShouldBeFound("manufacturer.doesNotContain=" + UPDATED_MANUFACTURER);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByFdaSubmissionIsEqualToSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+        FdaSubmission fdaSubmission;
+        if (TestUtil.findAll(em, FdaSubmission.class).isEmpty()) {
+            fdaSubmission = FdaSubmissionResourceIT.createEntity(em);
+            em.persist(fdaSubmission);
+            em.flush();
+        } else {
+            fdaSubmission = TestUtil.findAll(em, FdaSubmission.class).get(0);
+        }
+        em.persist(fdaSubmission);
+        em.flush();
+        companionDiagnosticDevice.addFdaSubmission(fdaSubmission);
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+        Long fdaSubmissionId = fdaSubmission.getId();
+
+        // Get all the companionDiagnosticDeviceList where fdaSubmission equals to fdaSubmissionId
+        defaultCompanionDiagnosticDeviceShouldBeFound("fdaSubmissionId.equals=" + fdaSubmissionId);
+
+        // Get all the companionDiagnosticDeviceList where fdaSubmission equals to (fdaSubmissionId + 1)
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("fdaSubmissionId.equals=" + (fdaSubmissionId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesBySpecimenTypeIsEqualToSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+        SpecimenType specimenType;
+        if (TestUtil.findAll(em, SpecimenType.class).isEmpty()) {
+            specimenType = SpecimenTypeResourceIT.createEntity(em);
+            em.persist(specimenType);
+            em.flush();
+        } else {
+            specimenType = TestUtil.findAll(em, SpecimenType.class).get(0);
+        }
+        em.persist(specimenType);
+        em.flush();
+        companionDiagnosticDevice.addSpecimenType(specimenType);
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+        Long specimenTypeId = specimenType.getId();
+
+        // Get all the companionDiagnosticDeviceList where specimenType equals to specimenTypeId
+        defaultCompanionDiagnosticDeviceShouldBeFound("specimenTypeId.equals=" + specimenTypeId);
+
+        // Get all the companionDiagnosticDeviceList where specimenType equals to (specimenTypeId + 1)
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("specimenTypeId.equals=" + (specimenTypeId + 1));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is returned.
+     */
+    private void defaultCompanionDiagnosticDeviceShouldBeFound(String filter) throws Exception {
+        restCompanionDiagnosticDeviceMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(companionDiagnosticDevice.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].manufacturer").value(hasItem(DEFAULT_MANUFACTURER)));
+
+        // Check, that the count call also returns 1
+        restCompanionDiagnosticDeviceMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("1"));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is not returned.
+     */
+    private void defaultCompanionDiagnosticDeviceShouldNotBeFound(String filter) throws Exception {
+        restCompanionDiagnosticDeviceMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$").isEmpty());
+
+        // Check, that the count call also returns 0
+        restCompanionDiagnosticDeviceMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("0"));
+    }
+
+    @Test
+    @Transactional
     void getNonExistingCompanionDiagnosticDevice() throws Exception {
         // Get the companionDiagnosticDevice
         restCompanionDiagnosticDeviceMockMvc.perform(get(ENTITY_API_URL_ID, Long.MAX_VALUE)).andExpect(status().isNotFound());
@@ -298,9 +548,6 @@ class CompanionDiagnosticDeviceResourceIT {
         );
         assertThat(testCompanionDiagnosticDevice.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testCompanionDiagnosticDevice.getManufacturer()).isEqualTo(UPDATED_MANUFACTURER);
-
-        // Validate the CompanionDiagnosticDevice in Elasticsearch
-        verify(mockCompanionDiagnosticDeviceSearchRepository).save(testCompanionDiagnosticDevice);
     }
 
     @Test
@@ -322,9 +569,6 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the CompanionDiagnosticDevice in the database
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the CompanionDiagnosticDevice in Elasticsearch
-        verify(mockCompanionDiagnosticDeviceSearchRepository, times(0)).save(companionDiagnosticDevice);
     }
 
     @Test
@@ -346,9 +590,6 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the CompanionDiagnosticDevice in the database
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the CompanionDiagnosticDevice in Elasticsearch
-        verify(mockCompanionDiagnosticDeviceSearchRepository, times(0)).save(companionDiagnosticDevice);
     }
 
     @Test
@@ -370,9 +611,6 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the CompanionDiagnosticDevice in the database
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the CompanionDiagnosticDevice in Elasticsearch
-        verify(mockCompanionDiagnosticDeviceSearchRepository, times(0)).save(companionDiagnosticDevice);
     }
 
     @Test
@@ -460,9 +698,6 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the CompanionDiagnosticDevice in the database
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the CompanionDiagnosticDevice in Elasticsearch
-        verify(mockCompanionDiagnosticDeviceSearchRepository, times(0)).save(companionDiagnosticDevice);
     }
 
     @Test
@@ -484,9 +719,6 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the CompanionDiagnosticDevice in the database
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the CompanionDiagnosticDevice in Elasticsearch
-        verify(mockCompanionDiagnosticDeviceSearchRepository, times(0)).save(companionDiagnosticDevice);
     }
 
     @Test
@@ -508,9 +740,6 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the CompanionDiagnosticDevice in the database
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the CompanionDiagnosticDevice in Elasticsearch
-        verify(mockCompanionDiagnosticDeviceSearchRepository, times(0)).save(companionDiagnosticDevice);
     }
 
     @Test
@@ -529,27 +758,5 @@ class CompanionDiagnosticDeviceResourceIT {
         // Validate the database contains one less item
         List<CompanionDiagnosticDevice> companionDiagnosticDeviceList = companionDiagnosticDeviceRepository.findAll();
         assertThat(companionDiagnosticDeviceList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the CompanionDiagnosticDevice in Elasticsearch
-        verify(mockCompanionDiagnosticDeviceSearchRepository, times(1)).deleteById(companionDiagnosticDevice.getId());
-    }
-
-    @Test
-    @Transactional
-    void searchCompanionDiagnosticDevice() throws Exception {
-        // Configure the mock search repository
-        // Initialize the database
-        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
-        when(mockCompanionDiagnosticDeviceSearchRepository.search("id:" + companionDiagnosticDevice.getId()))
-            .thenReturn(Stream.of(companionDiagnosticDevice));
-
-        // Search the companionDiagnosticDevice
-        restCompanionDiagnosticDeviceMockMvc
-            .perform(get(ENTITY_SEARCH_API_URL + "?query=id:" + companionDiagnosticDevice.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(companionDiagnosticDevice.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].manufacturer").value(hasItem(DEFAULT_MANUFACTURER)));
     }
 }

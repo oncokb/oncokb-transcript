@@ -1,18 +1,17 @@
 package org.mskcc.oncokb.curation.web.rest;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.repository.AlterationRepository;
+import org.mskcc.oncokb.curation.service.AlterationQueryService;
 import org.mskcc.oncokb.curation.service.AlterationService;
+import org.mskcc.oncokb.curation.service.criteria.AlterationCriteria;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,9 +45,16 @@ public class AlterationResource {
 
     private final AlterationRepository alterationRepository;
 
-    public AlterationResource(AlterationService alterationService, AlterationRepository alterationRepository) {
+    private final AlterationQueryService alterationQueryService;
+
+    public AlterationResource(
+        AlterationService alterationService,
+        AlterationRepository alterationRepository,
+        AlterationQueryService alterationQueryService
+    ) {
         this.alterationService = alterationService;
         this.alterationRepository = alterationRepository;
+        this.alterationQueryService = alterationQueryService;
     }
 
     /**
@@ -145,23 +151,27 @@ public class AlterationResource {
      * {@code GET  /alterations} : get all the alterations.
      *
      * @param pageable the pagination information.
-     * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of alterations in body.
      */
     @GetMapping("/alterations")
-    public ResponseEntity<List<Alteration>> getAllAlterations(
-        Pageable pageable,
-        @RequestParam(required = false, defaultValue = "false") boolean eagerload
-    ) {
-        log.debug("REST request to get a page of Alterations");
-        Page<Alteration> page;
-        if (eagerload) {
-            page = alterationService.findAllWithEagerRelationships(pageable);
-        } else {
-            page = alterationService.findAll(pageable);
-        }
+    public ResponseEntity<List<Alteration>> getAllAlterations(AlterationCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get Alterations by criteria: {}", criteria);
+        Page<Alteration> page = alterationQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /alterations/count} : count all the alterations.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/alterations/count")
+    public ResponseEntity<Long> countAlterations(AlterationCriteria criteria) {
+        log.debug("REST request to count Alterations by criteria: {}", criteria);
+        return ResponseEntity.ok().body(alterationQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -209,7 +219,7 @@ public class AlterationResource {
     @GetMapping("/_search/alterations")
     public ResponseEntity<List<Alteration>> searchAlterations(@RequestParam String query, Pageable pageable) {
         log.debug("REST request to search for a page of Alterations for query {}", query);
-        Page<Alteration> page = alterationService.search(query, pageable);
+        Page<Alteration> page = alterationQueryService.findBySearchQuery(query, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

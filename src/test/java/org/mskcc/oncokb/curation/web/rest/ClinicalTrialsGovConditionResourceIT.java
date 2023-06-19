@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -19,10 +18,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
+import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.domain.ClinicalTrialsGovCondition;
 import org.mskcc.oncokb.curation.repository.ClinicalTrialsGovConditionRepository;
-import org.mskcc.oncokb.curation.repository.search.ClinicalTrialsGovConditionSearchRepository;
 import org.mskcc.oncokb.curation.service.ClinicalTrialsGovConditionService;
+import org.mskcc.oncokb.curation.service.criteria.ClinicalTrialsGovConditionCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.data.domain.PageImpl;
@@ -46,7 +46,6 @@ class ClinicalTrialsGovConditionResourceIT {
 
     private static final String ENTITY_API_URL = "/api/clinical-trials-gov-conditions";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
-    private static final String ENTITY_SEARCH_API_URL = "/api/_search/clinical-trials-gov-conditions";
 
     private static Random random = new Random();
     private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
@@ -59,14 +58,6 @@ class ClinicalTrialsGovConditionResourceIT {
 
     @Mock
     private ClinicalTrialsGovConditionService clinicalTrialsGovConditionServiceMock;
-
-    /**
-     * This repository is mocked in the org.mskcc.oncokb.curation.repository.search test package.
-     *
-     * @see org.mskcc.oncokb.curation.repository.search.ClinicalTrialsGovConditionSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private ClinicalTrialsGovConditionSearchRepository mockClinicalTrialsGovConditionSearchRepository;
 
     @Autowired
     private EntityManager em;
@@ -124,9 +115,6 @@ class ClinicalTrialsGovConditionResourceIT {
             clinicalTrialsGovConditionList.size() - 1
         );
         assertThat(testClinicalTrialsGovCondition.getName()).isEqualTo(DEFAULT_NAME);
-
-        // Validate the ClinicalTrialsGovCondition in Elasticsearch
-        verify(mockClinicalTrialsGovConditionSearchRepository, times(1)).save(testClinicalTrialsGovCondition);
     }
 
     @Test
@@ -150,9 +138,6 @@ class ClinicalTrialsGovConditionResourceIT {
         // Validate the ClinicalTrialsGovCondition in the database
         List<ClinicalTrialsGovCondition> clinicalTrialsGovConditionList = clinicalTrialsGovConditionRepository.findAll();
         assertThat(clinicalTrialsGovConditionList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the ClinicalTrialsGovCondition in Elasticsearch
-        verify(mockClinicalTrialsGovConditionSearchRepository, times(0)).save(clinicalTrialsGovCondition);
     }
 
     @Test
@@ -227,6 +212,166 @@ class ClinicalTrialsGovConditionResourceIT {
 
     @Test
     @Transactional
+    void getClinicalTrialsGovConditionsByIdFiltering() throws Exception {
+        // Initialize the database
+        clinicalTrialsGovConditionRepository.saveAndFlush(clinicalTrialsGovCondition);
+
+        Long id = clinicalTrialsGovCondition.getId();
+
+        defaultClinicalTrialsGovConditionShouldBeFound("id.equals=" + id);
+        defaultClinicalTrialsGovConditionShouldNotBeFound("id.notEquals=" + id);
+
+        defaultClinicalTrialsGovConditionShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultClinicalTrialsGovConditionShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultClinicalTrialsGovConditionShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultClinicalTrialsGovConditionShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllClinicalTrialsGovConditionsByNameIsEqualToSomething() throws Exception {
+        // Initialize the database
+        clinicalTrialsGovConditionRepository.saveAndFlush(clinicalTrialsGovCondition);
+
+        // Get all the clinicalTrialsGovConditionList where name equals to DEFAULT_NAME
+        defaultClinicalTrialsGovConditionShouldBeFound("name.equals=" + DEFAULT_NAME);
+
+        // Get all the clinicalTrialsGovConditionList where name equals to UPDATED_NAME
+        defaultClinicalTrialsGovConditionShouldNotBeFound("name.equals=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllClinicalTrialsGovConditionsByNameIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        clinicalTrialsGovConditionRepository.saveAndFlush(clinicalTrialsGovCondition);
+
+        // Get all the clinicalTrialsGovConditionList where name not equals to DEFAULT_NAME
+        defaultClinicalTrialsGovConditionShouldNotBeFound("name.notEquals=" + DEFAULT_NAME);
+
+        // Get all the clinicalTrialsGovConditionList where name not equals to UPDATED_NAME
+        defaultClinicalTrialsGovConditionShouldBeFound("name.notEquals=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllClinicalTrialsGovConditionsByNameIsInShouldWork() throws Exception {
+        // Initialize the database
+        clinicalTrialsGovConditionRepository.saveAndFlush(clinicalTrialsGovCondition);
+
+        // Get all the clinicalTrialsGovConditionList where name in DEFAULT_NAME or UPDATED_NAME
+        defaultClinicalTrialsGovConditionShouldBeFound("name.in=" + DEFAULT_NAME + "," + UPDATED_NAME);
+
+        // Get all the clinicalTrialsGovConditionList where name equals to UPDATED_NAME
+        defaultClinicalTrialsGovConditionShouldNotBeFound("name.in=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllClinicalTrialsGovConditionsByNameIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        clinicalTrialsGovConditionRepository.saveAndFlush(clinicalTrialsGovCondition);
+
+        // Get all the clinicalTrialsGovConditionList where name is not null
+        defaultClinicalTrialsGovConditionShouldBeFound("name.specified=true");
+
+        // Get all the clinicalTrialsGovConditionList where name is null
+        defaultClinicalTrialsGovConditionShouldNotBeFound("name.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllClinicalTrialsGovConditionsByNameContainsSomething() throws Exception {
+        // Initialize the database
+        clinicalTrialsGovConditionRepository.saveAndFlush(clinicalTrialsGovCondition);
+
+        // Get all the clinicalTrialsGovConditionList where name contains DEFAULT_NAME
+        defaultClinicalTrialsGovConditionShouldBeFound("name.contains=" + DEFAULT_NAME);
+
+        // Get all the clinicalTrialsGovConditionList where name contains UPDATED_NAME
+        defaultClinicalTrialsGovConditionShouldNotBeFound("name.contains=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllClinicalTrialsGovConditionsByNameNotContainsSomething() throws Exception {
+        // Initialize the database
+        clinicalTrialsGovConditionRepository.saveAndFlush(clinicalTrialsGovCondition);
+
+        // Get all the clinicalTrialsGovConditionList where name does not contain DEFAULT_NAME
+        defaultClinicalTrialsGovConditionShouldNotBeFound("name.doesNotContain=" + DEFAULT_NAME);
+
+        // Get all the clinicalTrialsGovConditionList where name does not contain UPDATED_NAME
+        defaultClinicalTrialsGovConditionShouldBeFound("name.doesNotContain=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllClinicalTrialsGovConditionsByCancerTypeIsEqualToSomething() throws Exception {
+        // Initialize the database
+        clinicalTrialsGovConditionRepository.saveAndFlush(clinicalTrialsGovCondition);
+        CancerType cancerType;
+        if (TestUtil.findAll(em, CancerType.class).isEmpty()) {
+            cancerType = CancerTypeResourceIT.createEntity(em);
+            em.persist(cancerType);
+            em.flush();
+        } else {
+            cancerType = TestUtil.findAll(em, CancerType.class).get(0);
+        }
+        em.persist(cancerType);
+        em.flush();
+        clinicalTrialsGovCondition.addCancerType(cancerType);
+        clinicalTrialsGovConditionRepository.saveAndFlush(clinicalTrialsGovCondition);
+        Long cancerTypeId = cancerType.getId();
+
+        // Get all the clinicalTrialsGovConditionList where cancerType equals to cancerTypeId
+        defaultClinicalTrialsGovConditionShouldBeFound("cancerTypeId.equals=" + cancerTypeId);
+
+        // Get all the clinicalTrialsGovConditionList where cancerType equals to (cancerTypeId + 1)
+        defaultClinicalTrialsGovConditionShouldNotBeFound("cancerTypeId.equals=" + (cancerTypeId + 1));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is returned.
+     */
+    private void defaultClinicalTrialsGovConditionShouldBeFound(String filter) throws Exception {
+        restClinicalTrialsGovConditionMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(clinicalTrialsGovCondition.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)));
+
+        // Check, that the count call also returns 1
+        restClinicalTrialsGovConditionMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("1"));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is not returned.
+     */
+    private void defaultClinicalTrialsGovConditionShouldNotBeFound(String filter) throws Exception {
+        restClinicalTrialsGovConditionMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$").isEmpty());
+
+        // Check, that the count call also returns 0
+        restClinicalTrialsGovConditionMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("0"));
+    }
+
+    @Test
+    @Transactional
     void getNonExistingClinicalTrialsGovCondition() throws Exception {
         // Get the clinicalTrialsGovCondition
         restClinicalTrialsGovConditionMockMvc.perform(get(ENTITY_API_URL_ID, Long.MAX_VALUE)).andExpect(status().isNotFound());
@@ -264,9 +409,6 @@ class ClinicalTrialsGovConditionResourceIT {
             clinicalTrialsGovConditionList.size() - 1
         );
         assertThat(testClinicalTrialsGovCondition.getName()).isEqualTo(UPDATED_NAME);
-
-        // Validate the ClinicalTrialsGovCondition in Elasticsearch
-        verify(mockClinicalTrialsGovConditionSearchRepository).save(testClinicalTrialsGovCondition);
     }
 
     @Test
@@ -288,9 +430,6 @@ class ClinicalTrialsGovConditionResourceIT {
         // Validate the ClinicalTrialsGovCondition in the database
         List<ClinicalTrialsGovCondition> clinicalTrialsGovConditionList = clinicalTrialsGovConditionRepository.findAll();
         assertThat(clinicalTrialsGovConditionList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the ClinicalTrialsGovCondition in Elasticsearch
-        verify(mockClinicalTrialsGovConditionSearchRepository, times(0)).save(clinicalTrialsGovCondition);
     }
 
     @Test
@@ -312,9 +451,6 @@ class ClinicalTrialsGovConditionResourceIT {
         // Validate the ClinicalTrialsGovCondition in the database
         List<ClinicalTrialsGovCondition> clinicalTrialsGovConditionList = clinicalTrialsGovConditionRepository.findAll();
         assertThat(clinicalTrialsGovConditionList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the ClinicalTrialsGovCondition in Elasticsearch
-        verify(mockClinicalTrialsGovConditionSearchRepository, times(0)).save(clinicalTrialsGovCondition);
     }
 
     @Test
@@ -336,9 +472,6 @@ class ClinicalTrialsGovConditionResourceIT {
         // Validate the ClinicalTrialsGovCondition in the database
         List<ClinicalTrialsGovCondition> clinicalTrialsGovConditionList = clinicalTrialsGovConditionRepository.findAll();
         assertThat(clinicalTrialsGovConditionList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the ClinicalTrialsGovCondition in Elasticsearch
-        verify(mockClinicalTrialsGovConditionSearchRepository, times(0)).save(clinicalTrialsGovCondition);
     }
 
     @Test
@@ -422,9 +555,6 @@ class ClinicalTrialsGovConditionResourceIT {
         // Validate the ClinicalTrialsGovCondition in the database
         List<ClinicalTrialsGovCondition> clinicalTrialsGovConditionList = clinicalTrialsGovConditionRepository.findAll();
         assertThat(clinicalTrialsGovConditionList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the ClinicalTrialsGovCondition in Elasticsearch
-        verify(mockClinicalTrialsGovConditionSearchRepository, times(0)).save(clinicalTrialsGovCondition);
     }
 
     @Test
@@ -446,9 +576,6 @@ class ClinicalTrialsGovConditionResourceIT {
         // Validate the ClinicalTrialsGovCondition in the database
         List<ClinicalTrialsGovCondition> clinicalTrialsGovConditionList = clinicalTrialsGovConditionRepository.findAll();
         assertThat(clinicalTrialsGovConditionList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the ClinicalTrialsGovCondition in Elasticsearch
-        verify(mockClinicalTrialsGovConditionSearchRepository, times(0)).save(clinicalTrialsGovCondition);
     }
 
     @Test
@@ -470,9 +597,6 @@ class ClinicalTrialsGovConditionResourceIT {
         // Validate the ClinicalTrialsGovCondition in the database
         List<ClinicalTrialsGovCondition> clinicalTrialsGovConditionList = clinicalTrialsGovConditionRepository.findAll();
         assertThat(clinicalTrialsGovConditionList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the ClinicalTrialsGovCondition in Elasticsearch
-        verify(mockClinicalTrialsGovConditionSearchRepository, times(0)).save(clinicalTrialsGovCondition);
     }
 
     @Test
@@ -491,26 +615,5 @@ class ClinicalTrialsGovConditionResourceIT {
         // Validate the database contains one less item
         List<ClinicalTrialsGovCondition> clinicalTrialsGovConditionList = clinicalTrialsGovConditionRepository.findAll();
         assertThat(clinicalTrialsGovConditionList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the ClinicalTrialsGovCondition in Elasticsearch
-        verify(mockClinicalTrialsGovConditionSearchRepository, times(1)).deleteById(clinicalTrialsGovCondition.getId());
-    }
-
-    @Test
-    @Transactional
-    void searchClinicalTrialsGovCondition() throws Exception {
-        // Configure the mock search repository
-        // Initialize the database
-        clinicalTrialsGovConditionRepository.saveAndFlush(clinicalTrialsGovCondition);
-        when(mockClinicalTrialsGovConditionSearchRepository.search("id:" + clinicalTrialsGovCondition.getId(), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(clinicalTrialsGovCondition), PageRequest.of(0, 1), 1));
-
-        // Search the clinicalTrialsGovCondition
-        restClinicalTrialsGovConditionMockMvc
-            .perform(get(ENTITY_SEARCH_API_URL + "?query=id:" + clinicalTrialsGovCondition.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(clinicalTrialsGovCondition.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)));
     }
 }

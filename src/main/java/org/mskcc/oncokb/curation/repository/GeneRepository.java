@@ -2,7 +2,6 @@ package org.mskcc.oncokb.curation.repository;
 
 import java.util.List;
 import java.util.Optional;
-import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data SQL repository for the Gene entity.
  */
 @Repository
-public interface GeneRepository extends JpaRepository<Gene, Long> {
+public interface GeneRepository extends JpaRepository<Gene, Long>, JpaSpecificationExecutor<Gene> {
     @Cacheable(cacheResolver = "geneCacheResolver")
     Optional<Gene> findByEntrezGeneId(Integer entrezGeneId);
 
@@ -33,4 +32,6 @@ public interface GeneRepository extends JpaRepository<Gene, Long> {
 
     @Query("select gene from Gene gene left join fetch gene.alterations where gene.id =:id")
     Optional<Gene> findOneWithEagerRelationships(@Param("id") Long id);
+
+    List<Gene> findByHugoSymbolInIgnoreCase(List<String> values);
 }

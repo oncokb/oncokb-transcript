@@ -1,16 +1,15 @@
 package org.mskcc.oncokb.curation.web.rest;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
+import org.mskcc.oncokb.curation.service.DrugQueryService;
 import org.mskcc.oncokb.curation.service.DrugService;
+import org.mskcc.oncokb.curation.service.criteria.DrugCriteria;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,9 +43,12 @@ public class DrugResource {
 
     private final DrugRepository drugRepository;
 
-    public DrugResource(DrugService drugService, DrugRepository drugRepository) {
+    private final DrugQueryService drugQueryService;
+
+    public DrugResource(DrugService drugService, DrugRepository drugRepository, DrugQueryService drugQueryService) {
         this.drugService = drugService;
         this.drugRepository = drugRepository;
+        this.drugQueryService = drugQueryService;
     }
 
     /**
@@ -139,14 +141,27 @@ public class DrugResource {
      * {@code GET  /drugs} : get all the drugs.
      *
      * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of drugs in body.
      */
     @GetMapping("/drugs")
-    public ResponseEntity<List<Drug>> getAllDrugs(Pageable pageable) {
-        log.debug("REST request to get a page of Drugs");
-        Page<Drug> page = drugService.findAll(pageable);
+    public ResponseEntity<List<Drug>> getAllDrugs(DrugCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get Drugs by criteria: {}", criteria);
+        Page<Drug> page = drugQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /drugs/count} : count all the drugs.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/drugs/count")
+    public ResponseEntity<Long> countDrugs(DrugCriteria criteria) {
+        log.debug("REST request to count Drugs by criteria: {}", criteria);
+        return ResponseEntity.ok().body(drugQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -189,7 +204,7 @@ public class DrugResource {
     @GetMapping("/_search/drugs")
     public ResponseEntity<List<Drug>> searchDrugs(@RequestParam String query, Pageable pageable) {
         log.debug("REST request to search for a page of Drugs for query {}", query);
-        Page<Drug> page = drugService.search(query, pageable);
+        Page<Drug> page = drugQueryService.findBySearchQuery(query, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

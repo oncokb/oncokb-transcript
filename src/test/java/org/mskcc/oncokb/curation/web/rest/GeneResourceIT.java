@@ -2,14 +2,10 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -20,14 +16,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
+import org.mskcc.oncokb.curation.domain.Alteration;
+import org.mskcc.oncokb.curation.domain.EnsemblGene;
 import org.mskcc.oncokb.curation.domain.Gene;
+import org.mskcc.oncokb.curation.domain.GeneAlias;
 import org.mskcc.oncokb.curation.repository.GeneRepository;
-import org.mskcc.oncokb.curation.repository.search.GeneSearchRepository;
-import org.mskcc.oncokb.curation.service.GeneService;
+import org.mskcc.oncokb.curation.service.criteria.GeneCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -44,33 +40,19 @@ class GeneResourceIT {
 
     private static final Integer DEFAULT_ENTREZ_GENE_ID = 1;
     private static final Integer UPDATED_ENTREZ_GENE_ID = 2;
+    private static final Integer SMALLER_ENTREZ_GENE_ID = 1 - 1;
 
     private static final String DEFAULT_HUGO_SYMBOL = "AAAAAAAAAA";
     private static final String UPDATED_HUGO_SYMBOL = "BBBBBBBBBB";
 
     private static final String ENTITY_API_URL = "/api/genes";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
-    private static final String ENTITY_SEARCH_API_URL = "/api/_search/genes";
 
     private static Random random = new Random();
     private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
 
     @Autowired
     private GeneRepository geneRepository;
-
-    @Mock
-    private GeneRepository geneRepositoryMock;
-
-    @Mock
-    private GeneService geneServiceMock;
-
-    /**
-     * This repository is mocked in the org.mskcc.oncokb.curation.repository.search test package.
-     *
-     * @see org.mskcc.oncokb.curation.repository.search.GeneSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private GeneSearchRepository mockGeneSearchRepository;
 
     @Autowired
     private EntityManager em;
@@ -124,9 +106,6 @@ class GeneResourceIT {
         Gene testGene = geneList.get(geneList.size() - 1);
         assertThat(testGene.getEntrezGeneId()).isEqualTo(DEFAULT_ENTREZ_GENE_ID);
         assertThat(testGene.getHugoSymbol()).isEqualTo(DEFAULT_HUGO_SYMBOL);
-
-        // Validate the Gene in Elasticsearch
-        verify(mockGeneSearchRepository, times(1)).save(testGene);
     }
 
     @Test
@@ -147,9 +126,6 @@ class GeneResourceIT {
         // Validate the Gene in the database
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the Gene in Elasticsearch
-        verify(mockGeneSearchRepository, times(0)).save(gene);
     }
 
     @Test
@@ -182,6 +158,323 @@ class GeneResourceIT {
             .andExpect(jsonPath("$.id").value(gene.getId().intValue()))
             .andExpect(jsonPath("$.entrezGeneId").value(DEFAULT_ENTREZ_GENE_ID))
             .andExpect(jsonPath("$.hugoSymbol").value(DEFAULT_HUGO_SYMBOL));
+    }
+
+    @Test
+    @Transactional
+    void getGenesByIdFiltering() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        Long id = gene.getId();
+
+        defaultGeneShouldBeFound("id.equals=" + id);
+        defaultGeneShouldNotBeFound("id.notEquals=" + id);
+
+        defaultGeneShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultGeneShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultGeneShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultGeneShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByEntrezGeneIdIsEqualToSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where entrezGeneId equals to DEFAULT_ENTREZ_GENE_ID
+        defaultGeneShouldBeFound("entrezGeneId.equals=" + DEFAULT_ENTREZ_GENE_ID);
+
+        // Get all the geneList where entrezGeneId equals to UPDATED_ENTREZ_GENE_ID
+        defaultGeneShouldNotBeFound("entrezGeneId.equals=" + UPDATED_ENTREZ_GENE_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByEntrezGeneIdIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where entrezGeneId not equals to DEFAULT_ENTREZ_GENE_ID
+        defaultGeneShouldNotBeFound("entrezGeneId.notEquals=" + DEFAULT_ENTREZ_GENE_ID);
+
+        // Get all the geneList where entrezGeneId not equals to UPDATED_ENTREZ_GENE_ID
+        defaultGeneShouldBeFound("entrezGeneId.notEquals=" + UPDATED_ENTREZ_GENE_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByEntrezGeneIdIsInShouldWork() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where entrezGeneId in DEFAULT_ENTREZ_GENE_ID or UPDATED_ENTREZ_GENE_ID
+        defaultGeneShouldBeFound("entrezGeneId.in=" + DEFAULT_ENTREZ_GENE_ID + "," + UPDATED_ENTREZ_GENE_ID);
+
+        // Get all the geneList where entrezGeneId equals to UPDATED_ENTREZ_GENE_ID
+        defaultGeneShouldNotBeFound("entrezGeneId.in=" + UPDATED_ENTREZ_GENE_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByEntrezGeneIdIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where entrezGeneId is not null
+        defaultGeneShouldBeFound("entrezGeneId.specified=true");
+
+        // Get all the geneList where entrezGeneId is null
+        defaultGeneShouldNotBeFound("entrezGeneId.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByEntrezGeneIdIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where entrezGeneId is greater than or equal to DEFAULT_ENTREZ_GENE_ID
+        defaultGeneShouldBeFound("entrezGeneId.greaterThanOrEqual=" + DEFAULT_ENTREZ_GENE_ID);
+
+        // Get all the geneList where entrezGeneId is greater than or equal to UPDATED_ENTREZ_GENE_ID
+        defaultGeneShouldNotBeFound("entrezGeneId.greaterThanOrEqual=" + UPDATED_ENTREZ_GENE_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByEntrezGeneIdIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where entrezGeneId is less than or equal to DEFAULT_ENTREZ_GENE_ID
+        defaultGeneShouldBeFound("entrezGeneId.lessThanOrEqual=" + DEFAULT_ENTREZ_GENE_ID);
+
+        // Get all the geneList where entrezGeneId is less than or equal to SMALLER_ENTREZ_GENE_ID
+        defaultGeneShouldNotBeFound("entrezGeneId.lessThanOrEqual=" + SMALLER_ENTREZ_GENE_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByEntrezGeneIdIsLessThanSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where entrezGeneId is less than DEFAULT_ENTREZ_GENE_ID
+        defaultGeneShouldNotBeFound("entrezGeneId.lessThan=" + DEFAULT_ENTREZ_GENE_ID);
+
+        // Get all the geneList where entrezGeneId is less than UPDATED_ENTREZ_GENE_ID
+        defaultGeneShouldBeFound("entrezGeneId.lessThan=" + UPDATED_ENTREZ_GENE_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByEntrezGeneIdIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where entrezGeneId is greater than DEFAULT_ENTREZ_GENE_ID
+        defaultGeneShouldNotBeFound("entrezGeneId.greaterThan=" + DEFAULT_ENTREZ_GENE_ID);
+
+        // Get all the geneList where entrezGeneId is greater than SMALLER_ENTREZ_GENE_ID
+        defaultGeneShouldBeFound("entrezGeneId.greaterThan=" + SMALLER_ENTREZ_GENE_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByHugoSymbolIsEqualToSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where hugoSymbol equals to DEFAULT_HUGO_SYMBOL
+        defaultGeneShouldBeFound("hugoSymbol.equals=" + DEFAULT_HUGO_SYMBOL);
+
+        // Get all the geneList where hugoSymbol equals to UPDATED_HUGO_SYMBOL
+        defaultGeneShouldNotBeFound("hugoSymbol.equals=" + UPDATED_HUGO_SYMBOL);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByHugoSymbolIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where hugoSymbol not equals to DEFAULT_HUGO_SYMBOL
+        defaultGeneShouldNotBeFound("hugoSymbol.notEquals=" + DEFAULT_HUGO_SYMBOL);
+
+        // Get all the geneList where hugoSymbol not equals to UPDATED_HUGO_SYMBOL
+        defaultGeneShouldBeFound("hugoSymbol.notEquals=" + UPDATED_HUGO_SYMBOL);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByHugoSymbolIsInShouldWork() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where hugoSymbol in DEFAULT_HUGO_SYMBOL or UPDATED_HUGO_SYMBOL
+        defaultGeneShouldBeFound("hugoSymbol.in=" + DEFAULT_HUGO_SYMBOL + "," + UPDATED_HUGO_SYMBOL);
+
+        // Get all the geneList where hugoSymbol equals to UPDATED_HUGO_SYMBOL
+        defaultGeneShouldNotBeFound("hugoSymbol.in=" + UPDATED_HUGO_SYMBOL);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByHugoSymbolIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where hugoSymbol is not null
+        defaultGeneShouldBeFound("hugoSymbol.specified=true");
+
+        // Get all the geneList where hugoSymbol is null
+        defaultGeneShouldNotBeFound("hugoSymbol.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByHugoSymbolContainsSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where hugoSymbol contains DEFAULT_HUGO_SYMBOL
+        defaultGeneShouldBeFound("hugoSymbol.contains=" + DEFAULT_HUGO_SYMBOL);
+
+        // Get all the geneList where hugoSymbol contains UPDATED_HUGO_SYMBOL
+        defaultGeneShouldNotBeFound("hugoSymbol.contains=" + UPDATED_HUGO_SYMBOL);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByHugoSymbolNotContainsSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where hugoSymbol does not contain DEFAULT_HUGO_SYMBOL
+        defaultGeneShouldNotBeFound("hugoSymbol.doesNotContain=" + DEFAULT_HUGO_SYMBOL);
+
+        // Get all the geneList where hugoSymbol does not contain UPDATED_HUGO_SYMBOL
+        defaultGeneShouldBeFound("hugoSymbol.doesNotContain=" + UPDATED_HUGO_SYMBOL);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByGeneAliasIsEqualToSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+        GeneAlias geneAlias;
+        if (TestUtil.findAll(em, GeneAlias.class).isEmpty()) {
+            geneAlias = GeneAliasResourceIT.createEntity(em);
+            em.persist(geneAlias);
+            em.flush();
+        } else {
+            geneAlias = TestUtil.findAll(em, GeneAlias.class).get(0);
+        }
+        em.persist(geneAlias);
+        em.flush();
+        gene.addGeneAlias(geneAlias);
+        geneRepository.saveAndFlush(gene);
+        Long geneAliasId = geneAlias.getId();
+
+        // Get all the geneList where geneAlias equals to geneAliasId
+        defaultGeneShouldBeFound("geneAliasId.equals=" + geneAliasId);
+
+        // Get all the geneList where geneAlias equals to (geneAliasId + 1)
+        defaultGeneShouldNotBeFound("geneAliasId.equals=" + (geneAliasId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByEnsemblGeneIsEqualToSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+        EnsemblGene ensemblGene;
+        if (TestUtil.findAll(em, EnsemblGene.class).isEmpty()) {
+            ensemblGene = EnsemblGeneResourceIT.createEntity(em);
+            em.persist(ensemblGene);
+            em.flush();
+        } else {
+            ensemblGene = TestUtil.findAll(em, EnsemblGene.class).get(0);
+        }
+        em.persist(ensemblGene);
+        em.flush();
+        gene.addEnsemblGene(ensemblGene);
+        geneRepository.saveAndFlush(gene);
+        Long ensemblGeneId = ensemblGene.getId();
+
+        // Get all the geneList where ensemblGene equals to ensemblGeneId
+        defaultGeneShouldBeFound("ensemblGeneId.equals=" + ensemblGeneId);
+
+        // Get all the geneList where ensemblGene equals to (ensemblGeneId + 1)
+        defaultGeneShouldNotBeFound("ensemblGeneId.equals=" + (ensemblGeneId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByAlterationIsEqualToSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+        Alteration alteration;
+        if (TestUtil.findAll(em, Alteration.class).isEmpty()) {
+            alteration = AlterationResourceIT.createEntity(em);
+            em.persist(alteration);
+            em.flush();
+        } else {
+            alteration = TestUtil.findAll(em, Alteration.class).get(0);
+        }
+        em.persist(alteration);
+        em.flush();
+        gene.addAlteration(alteration);
+        geneRepository.saveAndFlush(gene);
+        Long alterationId = alteration.getId();
+
+        // Get all the geneList where alteration equals to alterationId
+        defaultGeneShouldBeFound("alterationId.equals=" + alterationId);
+
+        // Get all the geneList where alteration equals to (alterationId + 1)
+        defaultGeneShouldNotBeFound("alterationId.equals=" + (alterationId + 1));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is returned.
+     */
+    private void defaultGeneShouldBeFound(String filter) throws Exception {
+        restGeneMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(gene.getId().intValue())))
+            .andExpect(jsonPath("$.[*].entrezGeneId").value(hasItem(DEFAULT_ENTREZ_GENE_ID)))
+            .andExpect(jsonPath("$.[*].hugoSymbol").value(hasItem(DEFAULT_HUGO_SYMBOL)));
+
+        // Check, that the count call also returns 1
+        restGeneMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("1"));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is not returned.
+     */
+    private void defaultGeneShouldNotBeFound(String filter) throws Exception {
+        restGeneMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$").isEmpty());
+
+        // Check, that the count call also returns 0
+        restGeneMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("0"));
     }
 
     @Test
@@ -220,9 +513,6 @@ class GeneResourceIT {
         Gene testGene = geneList.get(geneList.size() - 1);
         assertThat(testGene.getEntrezGeneId()).isEqualTo(UPDATED_ENTREZ_GENE_ID);
         assertThat(testGene.getHugoSymbol()).isEqualTo(UPDATED_HUGO_SYMBOL);
-
-        // Validate the Gene in Elasticsearch
-        verify(mockGeneSearchRepository).save(testGene);
     }
 
     @Test
@@ -244,9 +534,6 @@ class GeneResourceIT {
         // Validate the Gene in the database
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Gene in Elasticsearch
-        verify(mockGeneSearchRepository, times(0)).save(gene);
     }
 
     @Test
@@ -268,9 +555,6 @@ class GeneResourceIT {
         // Validate the Gene in the database
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Gene in Elasticsearch
-        verify(mockGeneSearchRepository, times(0)).save(gene);
     }
 
     @Test
@@ -289,9 +573,6 @@ class GeneResourceIT {
         // Validate the Gene in the database
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Gene in Elasticsearch
-        verify(mockGeneSearchRepository, times(0)).save(gene);
     }
 
     @Test
@@ -375,9 +656,6 @@ class GeneResourceIT {
         // Validate the Gene in the database
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Gene in Elasticsearch
-        verify(mockGeneSearchRepository, times(0)).save(gene);
     }
 
     @Test
@@ -399,9 +677,6 @@ class GeneResourceIT {
         // Validate the Gene in the database
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Gene in Elasticsearch
-        verify(mockGeneSearchRepository, times(0)).save(gene);
     }
 
     @Test
@@ -423,9 +698,6 @@ class GeneResourceIT {
         // Validate the Gene in the database
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Gene in Elasticsearch
-        verify(mockGeneSearchRepository, times(0)).save(gene);
     }
 
     @Test
@@ -444,27 +716,5 @@ class GeneResourceIT {
         // Validate the database contains one less item
         List<Gene> geneList = geneRepository.findAll();
         assertThat(geneList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the Gene in Elasticsearch
-        verify(mockGeneSearchRepository, times(1)).deleteById(gene.getId());
-    }
-
-    @Test
-    @Transactional
-    void searchGene() throws Exception {
-        // Configure the mock search repository
-        // Initialize the database
-        geneRepository.saveAndFlush(gene);
-        when(mockGeneSearchRepository.search("id:" + gene.getId(), PageRequest.of(0, 20)))
-            .thenReturn(new PageImpl<>(Collections.singletonList(gene), PageRequest.of(0, 1), 1));
-
-        // Search the gene
-        restGeneMockMvc
-            .perform(get(ENTITY_SEARCH_API_URL + "?query=id:" + gene.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(gene.getId().intValue())))
-            .andExpect(jsonPath("$.[*].entrezGeneId").value(hasItem(DEFAULT_ENTREZ_GENE_ID)))
-            .andExpect(jsonPath("$.[*].hugoSymbol").value(hasItem(DEFAULT_HUGO_SYMBOL)));
     }
 }

@@ -7,7 +7,9 @@ import java.util.Objects;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.repository.GeneRepository;
+import org.mskcc.oncokb.curation.service.GeneQueryService;
 import org.mskcc.oncokb.curation.service.GeneService;
+import org.mskcc.oncokb.curation.service.criteria.GeneCriteria;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,9 +43,12 @@ public class GeneResource {
 
     private final GeneRepository geneRepository;
 
-    public GeneResource(GeneService geneService, GeneRepository geneRepository) {
+    private final GeneQueryService geneQueryService;
+
+    public GeneResource(GeneService geneService, GeneRepository geneRepository, GeneQueryService geneQueryService) {
         this.geneService = geneService;
         this.geneRepository = geneRepository;
+        this.geneQueryService = geneQueryService;
     }
 
     /**
@@ -136,14 +141,27 @@ public class GeneResource {
      * {@code GET  /genes} : get all the genes.
      *
      * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of genes in body.
      */
     @GetMapping("/genes")
-    public ResponseEntity<List<Gene>> getAllGenes(Pageable pageable) {
-        log.debug("REST request to get a page of Genes");
-        Page<Gene> page = geneService.findAll(pageable);
+    public ResponseEntity<List<Gene>> getAllGenes(GeneCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get Genes by criteria: {}", criteria);
+        Page<Gene> page = geneQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /genes/count} : count all the genes.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/genes/count")
+    public ResponseEntity<Long> countGenes(GeneCriteria criteria) {
+        log.debug("REST request to count Genes by criteria: {}", criteria);
+        return ResponseEntity.ok().body(geneQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -186,7 +204,7 @@ public class GeneResource {
     @GetMapping("/_search/genes")
     public ResponseEntity<List<Gene>> searchGenes(@RequestParam String query, Pageable pageable) {
         log.debug("REST request to search for a page of Genes for query {}", query);
-        Page<Gene> page = geneService.search(query, pageable);
+        Page<Gene> page = geneQueryService.findBySearchQuery(query, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

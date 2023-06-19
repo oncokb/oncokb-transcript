@@ -23,7 +23,7 @@ public class SearchController {
         this.searchService = searchService;
     }
 
-    @GetMapping("/search/_all")
+    @GetMapping("/_search/all")
     public ResponseEntity<SearchResultDTO> search(@RequestParam String query) {
         return new ResponseEntity<SearchResultDTO>(searchService.search(query), HttpStatus.OK);
     }

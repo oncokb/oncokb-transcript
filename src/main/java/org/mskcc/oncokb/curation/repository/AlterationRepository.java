@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data SQL repository for the Alteration entity.
  */
 @Repository
-public interface AlterationRepository extends JpaRepository<Alteration, Long> {
+public interface AlterationRepository extends JpaRepository<Alteration, Long>, JpaSpecificationExecutor<Alteration> {
     @Query(
         value = "select distinct alteration from Alteration alteration left join fetch alteration.genes",
         countQuery = "select count(distinct alteration) from Alteration alteration"

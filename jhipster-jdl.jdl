@@ -242,4 +242,5 @@ relationship ManyToMany {
 paginate Gene, EnsemblGene, Alteration, CancerType, Transcript, Sequence, GenomeFragment, Article, Drug, ClinicalTrialsGovCondition, FdaSubmission with pagination
 
 service * with serviceClass
+filter Alteration, Gene, Article, Drug, CompanionDiagnosticDevice, FdaSubmission, ClinicalTrialsGovCondition, CancerType
 dto Transcript with mapstruct

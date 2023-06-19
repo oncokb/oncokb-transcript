@@ -4,8 +4,6 @@ import { Link, RouteComponentProps } from 'react-router-dom';
 import { Button, Input, InputGroup, FormGroup, Form, Col, Row, Table } from 'reactstrap';
 import { Translate } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
-import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, PAGE_ROUTE } from 'app/config/constants';
 
 import { IRootStore } from 'app/stores';
@@ -17,6 +15,7 @@ import { debouncedSearch } from 'app/shared/util/crud-store';
 import EntityTable from 'app/shared/table/EntityTable';
 import { ENTITY_TYPE } from 'app/config/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
+import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
 export interface ICompanionDiagnosticDeviceProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps) => {

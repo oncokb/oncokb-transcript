@@ -8,7 +8,6 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "article")
-@org.springframework.data.elasticsearch.annotations.Document(indexName = "article")
 public class Article implements Serializable {
 
     private static final long serialVersionUID = 1L;

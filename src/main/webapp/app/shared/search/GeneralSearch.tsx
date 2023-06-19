@@ -36,7 +36,7 @@ const getSearchResults = async (search: string) => {
       searchResults[key].slice(0, 5).forEach(result => {
         const index = searchOptions.findIndex(o => o.label === SearchResultKeys[key]);
         const type = Object.values(SearchOptionType).find(v => v === SearchResultKeys[key]);
-        searchOptions[index].options.push({ value: result.content, type });
+        searchOptions[index].options.push({ value: result, type });
       });
     }
     return searchOptions;

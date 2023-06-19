@@ -13,7 +13,8 @@ import org.springframework.stereotype.Repository;
  * Spring Data SQL repository for the CompanionDiagnosticDevice entity.
  */
 @Repository
-public interface CompanionDiagnosticDeviceRepository extends JpaRepository<CompanionDiagnosticDevice, Long> {
+public interface CompanionDiagnosticDeviceRepository
+    extends JpaRepository<CompanionDiagnosticDevice, Long>, JpaSpecificationExecutor<CompanionDiagnosticDevice> {
     @Query(
         value = "select distinct companionDiagnosticDevice from CompanionDiagnosticDevice companionDiagnosticDevice left join fetch companionDiagnosticDevice.specimenTypes",
         countQuery = "select count(distinct companionDiagnosticDevice) from CompanionDiagnosticDevice companionDiagnosticDevice"

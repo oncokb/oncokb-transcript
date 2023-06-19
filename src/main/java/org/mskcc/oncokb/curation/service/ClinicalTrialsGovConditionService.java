@@ -1,11 +1,8 @@
 package org.mskcc.oncokb.curation.service;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.ClinicalTrialsGovCondition;
 import org.mskcc.oncokb.curation.repository.ClinicalTrialsGovConditionRepository;
-import org.mskcc.oncokb.curation.repository.search.ClinicalTrialsGovConditionSearchRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -24,14 +21,8 @@ public class ClinicalTrialsGovConditionService {
 
     private final ClinicalTrialsGovConditionRepository clinicalTrialsGovConditionRepository;
 
-    private final ClinicalTrialsGovConditionSearchRepository clinicalTrialsGovConditionSearchRepository;
-
-    public ClinicalTrialsGovConditionService(
-        ClinicalTrialsGovConditionRepository clinicalTrialsGovConditionRepository,
-        ClinicalTrialsGovConditionSearchRepository clinicalTrialsGovConditionSearchRepository
-    ) {
+    public ClinicalTrialsGovConditionService(ClinicalTrialsGovConditionRepository clinicalTrialsGovConditionRepository) {
         this.clinicalTrialsGovConditionRepository = clinicalTrialsGovConditionRepository;
-        this.clinicalTrialsGovConditionSearchRepository = clinicalTrialsGovConditionSearchRepository;
     }
 
     /**
@@ -42,9 +33,7 @@ public class ClinicalTrialsGovConditionService {
      */
     public ClinicalTrialsGovCondition save(ClinicalTrialsGovCondition clinicalTrialsGovCondition) {
         log.debug("Request to save ClinicalTrialsGovCondition : {}", clinicalTrialsGovCondition);
-        ClinicalTrialsGovCondition result = clinicalTrialsGovConditionRepository.save(clinicalTrialsGovCondition);
-        clinicalTrialsGovConditionSearchRepository.save(result);
-        return result;
+        return clinicalTrialsGovConditionRepository.save(clinicalTrialsGovCondition);
     }
 
     /**
@@ -65,12 +54,7 @@ public class ClinicalTrialsGovConditionService {
 
                 return existingClinicalTrialsGovCondition;
             })
-            .map(clinicalTrialsGovConditionRepository::save)
-            .map(savedClinicalTrialsGovCondition -> {
-                clinicalTrialsGovConditionSearchRepository.save(savedClinicalTrialsGovCondition);
-
-                return savedClinicalTrialsGovCondition;
-            });
+            .map(clinicalTrialsGovConditionRepository::save);
     }
 
     /**
@@ -114,19 +98,5 @@ public class ClinicalTrialsGovConditionService {
     public void delete(Long id) {
         log.debug("Request to delete ClinicalTrialsGovCondition : {}", id);
         clinicalTrialsGovConditionRepository.deleteById(id);
-        clinicalTrialsGovConditionSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the clinicalTrialsGovCondition corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Transactional(readOnly = true)
-    public Page<ClinicalTrialsGovCondition> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of ClinicalTrialsGovConditions for query {}", query);
-        return clinicalTrialsGovConditionSearchRepository.search(query, pageable);
     }
 }

@@ -1,11 +1,8 @@
 package org.mskcc.oncokb.curation.service;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.repository.ArticleRepository;
-import org.mskcc.oncokb.curation.repository.search.ArticleSearchRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -24,11 +21,8 @@ public class ArticleService {
 
     private final ArticleRepository articleRepository;
 
-    private final ArticleSearchRepository articleSearchRepository;
-
-    public ArticleService(ArticleRepository articleRepository, ArticleSearchRepository articleSearchRepository) {
+    public ArticleService(ArticleRepository articleRepository) {
         this.articleRepository = articleRepository;
-        this.articleSearchRepository = articleSearchRepository;
     }
 
     /**
@@ -39,9 +33,7 @@ public class ArticleService {
      */
     public Article save(Article article) {
         log.debug("Request to save Article : {}", article);
-        Article result = articleRepository.save(article);
-        articleSearchRepository.save(result);
-        return result;
+        return articleRepository.save(article);
     }
 
     /**
@@ -83,12 +75,7 @@ public class ArticleService {
 
                 return existingArticle;
             })
-            .map(articleRepository::save)
-            .map(savedArticle -> {
-                articleSearchRepository.save(savedArticle);
-
-                return savedArticle;
-            });
+            .map(articleRepository::save);
     }
 
     /**
@@ -123,19 +110,5 @@ public class ArticleService {
     public void delete(Long id) {
         log.debug("Request to delete Article : {}", id);
         articleRepository.deleteById(id);
-        articleSearchRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the article corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Transactional(readOnly = true)
-    public Page<Article> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of Articles for query {}", query);
-        return articleSearchRepository.search(query, pageable);
     }
 }

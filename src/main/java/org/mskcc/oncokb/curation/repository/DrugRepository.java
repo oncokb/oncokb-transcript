@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface DrugRepository extends JpaRepository<Drug, Long> {
+public interface DrugRepository extends JpaRepository<Drug, Long>, JpaSpecificationExecutor<Drug> {
     Optional<Drug> findOneByCode(String code);
 
     Optional<Drug> findOneByName(String name);

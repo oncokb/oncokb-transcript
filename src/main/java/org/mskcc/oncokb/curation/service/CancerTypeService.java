@@ -3,7 +3,6 @@ package org.mskcc.oncokb.curation.service;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.repository.CancerTypeRepository;
-import org.mskcc.oncokb.curation.repository.search.CancerTypeSearchRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -22,11 +21,8 @@ public class CancerTypeService {
 
     private final CancerTypeRepository cancerTypeRepository;
 
-    private final CancerTypeSearchRepository cancerTypeSearchRepository;
-
-    public CancerTypeService(CancerTypeRepository cancerTypeRepository, CancerTypeSearchRepository cancerTypeSearchRepository) {
+    public CancerTypeService(CancerTypeRepository cancerTypeRepository) {
         this.cancerTypeRepository = cancerTypeRepository;
-        this.cancerTypeSearchRepository = cancerTypeSearchRepository;
     }
 
     /**
@@ -111,18 +107,5 @@ public class CancerTypeService {
     public void delete(Long id) {
         log.debug("Request to delete CancerType : {}", id);
         cancerTypeRepository.deleteById(id);
-    }
-
-    /**
-     * Search for the cancerType corresponding to the query.
-     *
-     * @param query the query of the search.
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    @Transactional(readOnly = true)
-    public Page<CancerType> search(String query, Pageable pageable) {
-        log.debug("Request to search for a page of CancerType for query {}", query);
-        return cancerTypeSearchRepository.search(query, pageable);
     }
 }

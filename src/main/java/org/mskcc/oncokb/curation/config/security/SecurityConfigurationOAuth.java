@@ -91,7 +91,6 @@ public class SecurityConfigurationOAuth extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/authenticate").permitAll()
             .antMatchers("/api/auth-info").permitAll()
             .antMatchers("/api/logout").permitAll()
-            .antMatchers("/api/elasticsearch/index").hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/admin/**").hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/**").authenticated()
         .and()

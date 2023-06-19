@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface FdaSubmissionRepository extends JpaRepository<FdaSubmission, Long> {
+public interface FdaSubmissionRepository extends JpaRepository<FdaSubmission, Long>, JpaSpecificationExecutor<FdaSubmission> {
     List<FdaSubmission> findByNumberAndSupplementNumber(String number, String supplementNumber);
 
     List<FdaSubmission> findByNumberAndSupplementNumberAndCompanionDiagnosticDevice(
