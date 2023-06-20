@@ -67,7 +67,7 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             String firebaseCustomToken = null;
             try {
                 Map<String, Object> additionalClaims = new HashMap<>();
-                // This claim will be used in Firebase rules for authorization
+                // This claim will be used in Firebase security rules for authorization.
                 additionalClaims.put(Constants.FIREBASE_AUTHORIZED_CLAIM, true);
                 firebaseCustomToken = FirebaseAuth.getInstance().createCustomTokenAsync(email, additionalClaims).get();
             } catch (InterruptedException | ExecutionException e) {
