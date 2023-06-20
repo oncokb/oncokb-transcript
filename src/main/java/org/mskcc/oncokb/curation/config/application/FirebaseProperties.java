@@ -18,6 +18,8 @@ public class FirebaseProperties {
 
     private String measurementId;
 
+    private String serviceAccountCredentialsPath;
+
     public String getApiKey() {
         return this.apiKey;
     }
@@ -80,5 +82,13 @@ public class FirebaseProperties {
 
     public void setMeasurementId(String measurementId) {
         this.measurementId = measurementId;
+    }
+
+    public String getServiceAccountCredentialsPath() {
+        return this.serviceAccountCredentialsPath;
+    }
+
+    public void setServiceAccountCredentialsPath(String serviceAccountCredentialsPath) {
+        this.serviceAccountCredentialsPath = serviceAccountCredentialsPath;
     }
 }

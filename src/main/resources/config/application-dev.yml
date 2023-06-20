@@ -131,3 +131,4 @@ application:
       messaging-sender-id:
       app-id:
       measurement-id:
+      service-account-credentials-path:

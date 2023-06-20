@@ -1,5 +1,8 @@
 package org.mskcc.oncokb.curation;
 
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -28,6 +31,9 @@ public class OncokbCurationApp {
 
     @Autowired
     private Importer importer;
+
+    @Autowired
+    private ApplicationProperties applicationProperties;
 
     private static final Logger log = LoggerFactory.getLogger(OncokbCurationApp.class);
 
@@ -73,6 +79,23 @@ public class OncokbCurationApp {
         if (activeProfiles.contains("importer")) {
             importer.generalImport();
         }
+    }
+
+    @PostConstruct
+    public void initFirebase() throws IOException {
+        FirebaseOptions options = new FirebaseOptions.Builder()
+            .setCredentials(
+                GoogleCredentials.fromStream(
+                    getClass()
+                        .getClassLoader()
+                        .getResource(applicationProperties.getFrontend().getFirebase().getServiceAccountCredentialsPath())
+                        .openStream()
+                )
+            )
+            .setDatabaseUrl(applicationProperties.getFrontend().getFirebase().getDatabaseUrl())
+            .build();
+
+        FirebaseApp.initializeApp(options);
     }
 
     /**

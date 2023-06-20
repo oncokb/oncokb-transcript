@@ -1,14 +1,18 @@
 package org.mskcc.oncokb.curation.security;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.mskcc.oncokb.curation.config.Constants;
 import org.mskcc.oncokb.curation.domain.User;
 import org.mskcc.oncokb.curation.repository.UserRepository;
 import org.mskcc.oncokb.curation.service.dto.KeycloakUserDTO;
@@ -57,13 +61,33 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 authorities,
                 ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId()
             );
-            SecurityContextHolder.getContext().setAuthentication(authenticationWithAuthorities);
-            super.onAuthenticationSuccess(request, response, authenticationWithAuthorities);
-        } else {
-            request.getSession().invalidate();
-            SecurityContextHolder.clearContext();
-            redirectStrategy.sendRedirect(request, response, "/logout");
+
+            // Create custom token for frontend Firebase authentication
+            String email = authenticationWithAuthorities.getPrincipal().getAttribute("email");
+            String firebaseCustomToken = null;
+            try {
+                Map<String, Object> additionalClaims = new HashMap<>();
+                // This claim will be used in Firebase rules for authorization
+                additionalClaims.put(Constants.FIREBASE_AUTHORIZED_CLAIM, true);
+                firebaseCustomToken = FirebaseAuth.getInstance().createCustomTokenAsync(email, additionalClaims).get();
+            } catch (InterruptedException | ExecutionException e) {
+                logger.error("Could not create Firebase custom token", e);
+            }
+
+            if (firebaseCustomToken != null) {
+                Map<String, Object> additionalDetails = new HashMap<>();
+                additionalDetails.put(Constants.FIREBASE_CUSTOM_TOKEN, firebaseCustomToken);
+                authenticationWithAuthorities.setDetails(additionalDetails);
+
+                SecurityContextHolder.getContext().setAuthentication(authenticationWithAuthorities);
+                super.onAuthenticationSuccess(request, response, authenticationWithAuthorities);
+                return;
+            }
         }
+
+        request.getSession().invalidate();
+        SecurityContextHolder.clearContext();
+        redirectStrategy.sendRedirect(request, response, "/logout");
         clearAuthenticationAttributes(request);
     }
 }

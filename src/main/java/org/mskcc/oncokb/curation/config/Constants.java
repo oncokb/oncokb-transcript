@@ -12,5 +12,9 @@ public final class Constants {
     public static final Integer ENSEMBL_POST_THRESHOLD = 100;
     public static final String DEFAULT_LANGUAGE = "en";
 
+    // Authentication firebase custom token key
+    public static final String FIREBASE_CUSTOM_TOKEN = "firebaseCustomToken";
+    public static final String FIREBASE_AUTHORIZED_CLAIM = "authorizedUser";
+
     private Constants() {}
 }

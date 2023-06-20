@@ -25,8 +25,11 @@ export class AuthStore extends BaseStore {
   public loginSuccess = false;
   public loginError: OncoKBError | undefined = undefined; // Errors returned from server side
   public fetchingSession = false;
+  public firebaseToken = '';
 
   getSession = this.readHandler(this.getSessionGen);
+
+  getFirebaseToken = this.readHandler(this.getFirebaseTokenGen);
 
   logout = this.readHandler(this.logoutGen);
 
@@ -49,6 +52,7 @@ export class AuthStore extends BaseStore {
       clearAuthentication: action.bound,
       logout: action.bound,
       fetchingSession: observable,
+      firebaseToken: observable,
     });
   }
 
@@ -64,6 +68,7 @@ export class AuthStore extends BaseStore {
     this.updating = false;
     this.updateSuccess = false;
     this.fetchingSession = false;
+    this.firebaseToken = '';
   }
 
   displayAuthError(message) {
@@ -108,6 +113,11 @@ export class AuthStore extends BaseStore {
       this.loginError = e;
       throw e;
     }
+  }
+
+  *getFirebaseTokenGen() {
+    const result: AxiosResponse = yield axios.get('/api/account/firebase-token');
+    this.firebaseToken = result.data;
   }
 }
 

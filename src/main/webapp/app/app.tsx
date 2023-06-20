@@ -1,6 +1,5 @@
 import 'react-toastify/dist/ReactToastify.css';
 import './app.scss';
-import 'app/config/dayjs.ts';
 import React from 'react';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
@@ -15,6 +14,8 @@ import NavigationSidebar from 'app/components/sidebar/NavigationSidebar';
 import { Container } from 'reactstrap';
 import { computed, makeObservable } from 'mobx';
 import CurationPanel from './components/curationPanel/CurationPanel';
+import { getAuth, signInWithCustomToken } from 'firebase/auth';
+import { notifyError } from './oncokb-commons/components/util/NotificationUtils';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
@@ -35,6 +36,15 @@ class App extends React.Component<IAppProps> {
 
   get curationPanelDisplay() {
     return this.props.showCurationPanel ? '' : 'none';
+  }
+
+  componentDidMount(): void {
+    this.props.getFirebaseToken().then(() => {
+      const auth = getAuth();
+      signInWithCustomToken(auth, this.props.firebaseToken).catch(e => {
+        notifyError(e);
+      });
+    });
   }
 
   render() {
@@ -65,6 +75,8 @@ const mapStoreToProps = ({ authStore, layoutStore }: IRootStore) => ({
   isAuthorized: authStore.isAuthorized,
   isAdmin: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.ADMIN]),
   getSession: authStore.getSession,
+  getFirebaseToken: authStore.getFirebaseToken,
+  firebaseToken: authStore.firebaseToken,
   sidebarWidth: layoutStore.sidebarWidth,
   showCurationPanel: layoutStore.showCurationPanel,
 });
