@@ -1,6 +1,6 @@
 import 'react-toastify/dist/ReactToastify.css';
 import './app.scss';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -12,73 +12,65 @@ import { AUTHORITIES } from 'app/config/constants';
 import AppRoutes from 'app/routes';
 import NavigationSidebar from 'app/components/sidebar/NavigationSidebar';
 import { Container } from 'reactstrap';
-import { computed, makeObservable } from 'mobx';
 import CurationPanel from './components/curationPanel/CurationPanel';
-import { getAuth, signInWithCustomToken } from 'firebase/auth';
-import { notifyError } from './oncokb-commons/components/util/NotificationUtils';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
 export type IAppProps = StoreProps;
 
-class App extends React.Component<IAppProps> {
-  constructor(props: IAppProps) {
-    super(props);
+const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
+  const [sideBarWidth, setSideBarWidth] = useState('0');
+
+  useEffect(() => {
     props.getSession();
-    makeObservable(this, {
-      sideBarWidth: computed,
-    });
-  }
+  }, []);
 
-  get sideBarWidth() {
-    return !this.props.isAuthenticated || !this.props.isAuthorized ? '0' : `${this.props.sidebarWidth}px`;
-  }
+  useEffect(() => {
+    setSideBarWidth(!props.isAuthenticated || !props.isAuthorized ? '0' : `${props.sidebarWidth}px`);
+  }, [props.isAuthenticated, props.isAuthorized, props.sidebarWidth]);
 
-  get curationPanelDisplay() {
-    return this.props.showCurationPanel ? '' : 'none';
-  }
+  useEffect(() => {
+    if (props.hasFirebaseAccess) {
+      props.initializeFirebase();
+      props.authenticateWithFirebase();
+    }
+  }, [props.hasFirebaseAccess]);
 
-  componentDidMount(): void {
-    this.props.getFirebaseToken().then(() => {
-      const auth = getAuth();
-      signInWithCustomToken(auth, this.props.firebaseToken).catch(e => {
-        notifyError(e);
-      });
-    });
-  }
+  const getCurationPanelDisplay = () => {
+    return props.showCurationPanel ? '' : 'none';
+  };
 
-  render() {
-    return (
-      <Router basename={baseHref}>
-        <div className="app-container">
-          <ToastContainer position={toast.POSITION.TOP_CENTER} className="toastify-container" toastClassName="toastify-toast" />
-          <Header isAuthenticated={this.props.isAuthenticated} isAdmin={this.props.isAdmin} />
-          <div style={{ display: 'flex' }}>
-            {this.props.isAuthorized && <NavigationSidebar />}
-            <div style={{ flex: 1, marginLeft: this.sideBarWidth, padding: '2rem 0 2rem' }}>
-              <Container fluid>
-                <AppRoutes />
-              </Container>
-            </div>
-            <div style={{ float: 'right', width: '350px', display: this.curationPanelDisplay }}>
-              <CurationPanel />
-            </div>
+  return (
+    <Router basename={baseHref}>
+      <div className="app-container">
+        <ToastContainer position={toast.POSITION.TOP_CENTER} className="toastify-container" toastClassName="toastify-toast" />
+        <Header isAuthenticated={props.isAuthenticated} isAdmin={props.isAdmin} />
+        <div style={{ display: 'flex' }}>
+          {props.isAuthorized && <NavigationSidebar />}
+          <div style={{ flex: 1, marginLeft: sideBarWidth, padding: '2rem 0 2rem' }}>
+            <Container fluid>
+              <AppRoutes />
+            </Container>
+          </div>
+          <div style={{ float: 'right', width: '350px', display: getCurationPanelDisplay() }}>
+            <CurationPanel />
           </div>
         </div>
-      </Router>
-    );
-  }
-}
+      </div>
+    </Router>
+  );
+};
 
-const mapStoreToProps = ({ authStore, layoutStore }: IRootStore) => ({
+const mapStoreToProps = ({ authStore, layoutStore, firebaseStore }: IRootStore) => ({
   isAuthenticated: authStore.isAuthenticated,
   isAuthorized: authStore.isAuthorized,
   isAdmin: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.ADMIN]),
+  hasFirebaseAccess: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.FIREBASE]),
   getSession: authStore.getSession,
-  getFirebaseToken: authStore.getFirebaseToken,
-  firebaseToken: authStore.firebaseToken,
   sidebarWidth: layoutStore.sidebarWidth,
   showCurationPanel: layoutStore.showCurationPanel,
+  initializeFirebase: firebaseStore.initializeFirebase,
+  authenticateWithFirebase: firebaseStore.signInToFirebase,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

@@ -150,8 +150,8 @@ spring:
 ```
 {
   "rules": {
-    ".read": "auth !== null && auth.token.authorizedUser === true",
-    ".write": "auth !== null && auth.token.authorizedUser === true"
+    ".read": "auth !== null && auth.token.firebaseAuthorizedUser === true",
+    ".write": "auth !== null && auth.token.firebaseAuthorizedUser === true"
   }
 }
 ```
@@ -309,4 +309,7 @@ To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`)
 [jest]: https://facebook.github.io/jest/
 [leaflet]: https://leafletjs.com/
 [definitelytyped]: https://definitelytyped.org/
+
+```
+
 ```

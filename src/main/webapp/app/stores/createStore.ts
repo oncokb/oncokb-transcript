@@ -77,11 +77,13 @@ import ConsequenceStore from 'app/entities/consequence/consequence.store';
 import clinicalTrialsGovCondition, {
   ClinicalTrialsGovConditionStore
 } from 'app/entities/clinical-trials-gov-condition/clinical-trials-gov-condition.store';
+import FirebaseStore from './firebase.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
   readonly loadingStore: LoadingBarStore;
   readonly authStore: AuthStore;
+  readonly firebaseStore: FirebaseStore;
   readonly settingsStore: SettingsStore;
   readonly userStore: UserStore;
   readonly routerStore: RouterStore;
@@ -115,6 +117,7 @@ export function createStores(history: History): IRootStore {
 
   rootStore.loadingStore = new LoadingBarStore();
   rootStore.authStore = new AuthStore(rootStore);
+  rootStore.firebaseStore = new FirebaseStore(rootStore);
   rootStore.settingsStore = new SettingsStore(rootStore);
   rootStore.userStore = new UserStore(rootStore);
   rootStore.routerStore = new RouterStore(history);

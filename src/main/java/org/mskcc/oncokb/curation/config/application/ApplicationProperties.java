@@ -16,6 +16,8 @@ public class ApplicationProperties extends org.mskcc.oncokb.meta.model.applicati
 
     private FrontendProperties frontend;
 
+    private FirebaseProperties firebase;
+
     public OncoKbConfig getOncokb() {
         return oncokb;
     }
@@ -30,5 +32,13 @@ public class ApplicationProperties extends org.mskcc.oncokb.meta.model.applicati
 
     public void setFrontend(FrontendProperties frontend) {
         this.frontend = frontend;
+    }
+
+    public FirebaseProperties getFirebase() {
+        return this.firebase;
+    }
+
+    public void setFirebase(FirebaseProperties firebase) {
+        this.firebase = firebase;
     }
 }

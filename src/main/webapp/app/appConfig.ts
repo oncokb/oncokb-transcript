@@ -2,7 +2,7 @@ type FrontendProperties = {
   firebase: FirebaseProperties;
 };
 
-type FirebaseProperties = {
+export type FirebaseProperties = {
   apiKey: string;
   authDomain: string;
   databaseUrl: string;

@@ -62,32 +62,33 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId()
             );
 
-            // Create custom token for frontend Firebase authentication
-            String email = authenticationWithAuthorities.getPrincipal().getAttribute("email");
-            String firebaseCustomToken = null;
-            try {
-                Map<String, Object> additionalClaims = new HashMap<>();
-                // This claim will be used in Firebase security rules for authorization.
-                additionalClaims.put(Constants.FIREBASE_AUTHORIZED_CLAIM, true);
-                firebaseCustomToken = FirebaseAuth.getInstance().createCustomTokenAsync(email, additionalClaims).get();
-            } catch (InterruptedException | ExecutionException e) {
-                logger.error("Could not create Firebase custom token", e);
+            // Create a custom token for frontend Firebase authentication if user has ROLE_FIREBASE role
+            if (SecurityUtils.hasAuthenticationAnyOfAuthorities(authenticationWithAuthorities, AuthoritiesConstants.FIREBASE)) {
+                String email = authenticationWithAuthorities.getPrincipal().getAttribute("email");
+                String firebaseCustomToken = null;
+                try {
+                    Map<String, Object> additionalClaims = new HashMap<>();
+                    // This claim will be used in Firebase security rules for authorization.
+                    additionalClaims.put(Constants.FIREBASE_AUTHORIZED_CLAIM, true);
+                    firebaseCustomToken = FirebaseAuth.getInstance().createCustomTokenAsync(email, additionalClaims).get();
+                } catch (InterruptedException | ExecutionException e) {
+                    logger.error("Could not create Firebase custom token", e);
+                }
+                // Add additionalDetails containing firebase token to Authentication object
+                if (firebaseCustomToken != null) {
+                    Map<String, Object> additionalDetails = new HashMap<>();
+                    additionalDetails.put(Constants.FIREBASE_CUSTOM_TOKEN, firebaseCustomToken);
+                    authenticationWithAuthorities.setDetails(additionalDetails);
+                }
             }
-
-            if (firebaseCustomToken != null) {
-                Map<String, Object> additionalDetails = new HashMap<>();
-                additionalDetails.put(Constants.FIREBASE_CUSTOM_TOKEN, firebaseCustomToken);
-                authenticationWithAuthorities.setDetails(additionalDetails);
-
-                SecurityContextHolder.getContext().setAuthentication(authenticationWithAuthorities);
-                super.onAuthenticationSuccess(request, response, authenticationWithAuthorities);
-                return;
-            }
+            SecurityContextHolder.getContext().setAuthentication(authenticationWithAuthorities);
+            super.onAuthenticationSuccess(request, response, authenticationWithAuthorities);
+        } else {
+            request.getSession().invalidate();
+            SecurityContextHolder.clearContext();
+            redirectStrategy.sendRedirect(request, response, "/logout");
         }
 
-        request.getSession().invalidate();
-        SecurityContextHolder.clearContext();
-        redirectStrategy.sendRedirect(request, response, "/logout");
         clearAuthenticationAttributes(request);
     }
 }

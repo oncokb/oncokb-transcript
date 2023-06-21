@@ -61,9 +61,13 @@ public class AccountResource {
     @GetMapping("/account/firebase-token")
     public String getFirebaseToken(Principal principal) {
         OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) principal;
-        Map<String, Object> details = (Map) oauth2Token.getDetails();
-        String firebaseCustomToken = (String) details.get(Constants.FIREBASE_CUSTOM_TOKEN);
-        return firebaseCustomToken;
+        try {
+            Map<String, Object> details = (Map) oauth2Token.getDetails();
+            String firebaseCustomToken = (String) details.get(Constants.FIREBASE_CUSTOM_TOKEN);
+            return firebaseCustomToken;
+        } catch (Exception e) {
+            throw new AccountResourceException("Firebase token could not be found");
+        }
     }
 
     /**

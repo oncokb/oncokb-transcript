@@ -121,14 +121,13 @@ application:
     address: redis://localhost:6379
     password: oncokb-public-redis-password
     expiration: 3600 # By default objects stay 1 hour (in seconds) in the cache
-  frontend:
-    firebase:
-      api-key:
-      auth-domain:
-      database-url:
-      project-id:
-      storage-bucket:
-      messaging-sender-id:
-      app-id:
-      measurement-id:
-      service-account-credentials-path:
+  firebase:
+    api-key:
+    auth-domain:
+    database-url:
+    project-id:
+    storage-bucket:
+    messaging-sender-id:
+    app-id:
+    measurement-id:
+    service-account-credentials-path:

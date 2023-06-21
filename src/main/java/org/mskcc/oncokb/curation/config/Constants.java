@@ -15,7 +15,7 @@ public final class Constants {
     // Firebase authentication custom token key
     public static final String FIREBASE_CUSTOM_TOKEN = "firebaseCustomToken";
     // Name of additional JWT claim added for authorization to firebase.
-    public static final String FIREBASE_AUTHORIZED_CLAIM = "authorizedUser";
+    public static final String FIREBASE_AUTHORIZED_CLAIM = "firebaseAuthorizedUser";
 
     private Constants() {}
 }
