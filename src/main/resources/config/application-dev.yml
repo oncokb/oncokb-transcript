@@ -43,7 +43,6 @@ spring:
         prepStmtCacheSize: 250
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
-  jpa:
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev, faker
@@ -122,3 +121,13 @@ application:
     address: redis://localhost:6379
     password: oncokb-public-redis-password
     expiration: 3600 # By default objects stay 1 hour (in seconds) in the cache
+  firebase:
+    api-key:
+    auth-domain:
+    database-url:
+    project-id:
+    storage-bucket:
+    messaging-sender-id:
+    app-id:
+    measurement-id:
+    service-account-credentials-path:

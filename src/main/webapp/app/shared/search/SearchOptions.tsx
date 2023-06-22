@@ -17,8 +17,6 @@ type SearchOptionProps = {
 export const SearchOption: React.FunctionComponent<SearchOptionProps> = props => {
   const searchKeyword = props.search ? props.search : '';
   const getSearchOption = () => {
-    /* eslint-disable no-console */
-    console.log(props);
     let path = `/${props.data.id}`;
     let title: SelectText = undefined;
     let subTitles: SelectText[] = [];

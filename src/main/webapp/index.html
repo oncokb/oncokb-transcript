@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="no-js" lang="en" dir="ltr">
+<html class="no-js" lang="en" dir="ltr" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -41,5 +41,13 @@
         r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
         ga('create','UA-XXXXX-X');ga('send','pageview');
     </script>-->
+    <script th:inline="javascript">
+      /*<![CDATA[*/
+
+      window.serverConfig = {};
+      window.serverConfig.frontend = /*[[${frontendConfig}]]*/ {};
+
+      /*]]>*/
+    </script>
   </body>
 </html>

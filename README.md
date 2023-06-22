@@ -136,9 +136,27 @@ spring:
             scope: openid,profile,email
 ```
 
+### 2. Configure Firebase
+
+1. Go to [Firebase Console](https://console.firebase.google.com/) and create a new project
+2. Select gear icon next to **Project Overview**
+3. Choose **Service Account** on header
+4. Under **Firebase Admin SDK** section, click on **Generate new private key**
+5. Move the service account credentials under `src/main/resources/<CREDENTIALS_FILENAME>.json`
+6. Update `application.frontend.firebase.service-account-credentials-path` to the filename
+7. Under **Project Overview** page in the **General** tab, find the Firebase config. Update the application properties accordingly.
+8. Create a Firebase Realtime Database and configure the rules as such:
+
+```
+{
+  "rules": {
+    ".read": "auth !== null && auth.token.firebaseAuthorizedUser === true",
+    ".write": "auth !== null && auth.token.firebaseAuthorizedUser === true"
+  }
+}
 ```
 
-### 2. Run
+### 3. Run
 
 ```
 
@@ -291,4 +309,7 @@ To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`)
 [jest]: https://facebook.github.io/jest/
 [leaflet]: https://leafletjs.com/
 [definitelytyped]: https://definitelytyped.org/
+
+```
+
 ```

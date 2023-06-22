@@ -2,7 +2,7 @@ package org.mskcc.oncokb.curation.service;
 
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.mskcc.oncokb.curation.config.ApplicationProperties;
+import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.oncokb.ApiClient;
 import org.oncokb.ApiException;
 import org.oncokb.client.Gene;

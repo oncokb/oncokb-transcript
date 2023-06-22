@@ -68,6 +68,10 @@ public final class SecurityUtils {
      */
     public static boolean hasCurrentUserAnyOfAuthorities(String... authorities) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return hasAuthenticationAnyOfAuthorities(authentication, authorities);
+    }
+
+    public static boolean hasAuthenticationAnyOfAuthorities(Authentication authentication, String... authorities) {
         return (
             authentication != null && getAuthorities(authentication).anyMatch(authority -> Arrays.asList(authorities).contains(authority))
         );

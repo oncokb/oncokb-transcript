@@ -1,5 +1,8 @@
 package org.mskcc.oncokb.curation;
 
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -8,7 +11,8 @@ import java.util.Collection;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
-import org.mskcc.oncokb.curation.config.ApplicationProperties;
+import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
+import org.mskcc.oncokb.curation.config.application.FrontendProperties;
 import org.mskcc.oncokb.curation.importer.Importer;
 import org.oncokb.ApiException;
 import org.slf4j.Logger;
@@ -28,6 +32,9 @@ public class OncokbCurationApp {
 
     @Autowired
     private Importer importer;
+
+    @Autowired
+    private ApplicationProperties applicationProperties;
 
     private static final Logger log = LoggerFactory.getLogger(OncokbCurationApp.class);
 
@@ -63,6 +70,14 @@ public class OncokbCurationApp {
                 "You have misconfigured your application! It should not " + "run with both the 'dev' and 'cloud' profiles at the same time."
             );
         }
+
+        // Copy firebase properties to FrontendProperties
+        if (applicationProperties.getFirebase() != null) {
+            if (applicationProperties.getFrontend() == null) {
+                applicationProperties.setFrontend(new FrontendProperties());
+            }
+            applicationProperties.getFrontend().setFirebase(applicationProperties.getFirebase());
+        }
     }
 
     @PostConstruct
@@ -73,6 +88,23 @@ public class OncokbCurationApp {
         if (activeProfiles.contains("importer")) {
             importer.generalImport();
         }
+    }
+
+    @PostConstruct
+    public void initFirebase() throws IOException {
+        FirebaseOptions options = new FirebaseOptions.Builder()
+            .setCredentials(
+                GoogleCredentials.fromStream(
+                    getClass()
+                        .getClassLoader()
+                        .getResource(applicationProperties.getFrontend().getFirebase().getServiceAccountCredentialsPath())
+                        .openStream()
+                )
+            )
+            .setDatabaseUrl(applicationProperties.getFrontend().getFirebase().getDatabaseUrl())
+            .build();
+
+        FirebaseApp.initializeApp(options);
     }
 
     /**

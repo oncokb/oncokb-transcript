@@ -1,6 +1,6 @@
 package org.mskcc.oncokb.curation.config.cache;
 
-import org.mskcc.oncokb.curation.config.ApplicationProperties;
+import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.springframework.stereotype.Component;
 
 @Component

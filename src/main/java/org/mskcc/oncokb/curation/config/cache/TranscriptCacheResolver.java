@@ -2,7 +2,7 @@ package org.mskcc.oncokb.curation.config.cache;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import org.mskcc.oncokb.curation.config.ApplicationProperties;
+import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.interceptor.CacheOperationInvocationContext;
