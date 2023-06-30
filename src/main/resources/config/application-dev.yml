@@ -56,7 +56,7 @@ spring:
   thymeleaf:
     cache: false
   session:
-    store-type: redis
+    store-type: none
   redis:
     host: localhost
     password:
