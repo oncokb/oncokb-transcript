@@ -39,6 +39,8 @@ public class CancerTypeQueryService extends QueryService<CancerType> {
         StringFilter stringFilter = new StringFilter();
         stringFilter.setContains(query);
         cancerTypeCriteria.setMainType(stringFilter);
+        cancerTypeCriteria.setSubtype(stringFilter);
+        cancerTypeCriteria.setCode(stringFilter);
         return findByCriteria(cancerTypeCriteria, page);
     }
 
@@ -89,35 +91,35 @@ public class CancerTypeQueryService extends QueryService<CancerType> {
         if (criteria != null) {
             // This has to be called first, because the distinct method returns null
             if (criteria.getDistinct() != null) {
-                specification = specification.and(distinct(criteria.getDistinct()));
+                specification = specification.or(distinct(criteria.getDistinct()));
             }
             if (criteria.getId() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getId(), CancerType_.id));
+                specification = specification.or(buildRangeSpecification(criteria.getId(), CancerType_.id));
             }
             if (criteria.getCode() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getCode(), CancerType_.code));
+                specification = specification.or(buildStringSpecification(criteria.getCode(), CancerType_.code));
             }
             if (criteria.getColor() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getColor(), CancerType_.color));
+                specification = specification.or(buildStringSpecification(criteria.getColor(), CancerType_.color));
             }
             if (criteria.getLevel() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getLevel(), CancerType_.level));
+                specification = specification.or(buildRangeSpecification(criteria.getLevel(), CancerType_.level));
             }
             if (criteria.getMainType() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getMainType(), CancerType_.mainType));
+                specification = specification.or(buildStringSpecification(criteria.getMainType(), CancerType_.mainType));
             }
             if (criteria.getSubtype() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getSubtype(), CancerType_.subtype));
+                specification = specification.or(buildStringSpecification(criteria.getSubtype(), CancerType_.subtype));
             }
             if (criteria.getTissue() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getTissue(), CancerType_.tissue));
+                specification = specification.or(buildStringSpecification(criteria.getTissue(), CancerType_.tissue));
             }
             if (criteria.getTumorForm() != null) {
-                specification = specification.and(buildSpecification(criteria.getTumorForm(), CancerType_.tumorForm));
+                specification = specification.or(buildSpecification(criteria.getTumorForm(), CancerType_.tumorForm));
             }
             if (criteria.getChildrenId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getChildrenId(),
                             root -> root.join(CancerType_.children, JoinType.LEFT).get(CancerType_.id)
@@ -126,7 +128,7 @@ public class CancerTypeQueryService extends QueryService<CancerType> {
             }
             if (criteria.getDeviceUsageIndicationId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getDeviceUsageIndicationId(),
                             root -> root.join(CancerType_.deviceUsageIndications, JoinType.LEFT).get(DeviceUsageIndication_.id)
@@ -135,7 +137,7 @@ public class CancerTypeQueryService extends QueryService<CancerType> {
             }
             if (criteria.getParentId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(criteria.getParentId(), root -> root.join(CancerType_.parent, JoinType.LEFT).get(CancerType_.id))
                     );
             }

@@ -9,6 +9,7 @@ import { UserCredential, getAuth, signInWithCustomToken } from 'firebase/auth';
 import { AppConfig } from 'app/appConfig';
 
 export class FirebaseStore extends BaseStore {
+  public firebaseEnabled = false;
   public firebaseOptions: FirebaseOptions | undefined = undefined;
   public firebaseApp: FirebaseApp | undefined = undefined;
   public firebaseDb: Database | undefined = undefined;
@@ -22,12 +23,12 @@ export class FirebaseStore extends BaseStore {
     super(rootStore);
 
     makeObservable(this, {
+      firebaseEnabled: observable,
       firebaseOptions: observable,
       firebaseApp: observable,
       firebaseDb: observable,
       firebaseInitSuccess: observable,
       firebaseInitError: observable,
-      signInToFirebase: action.bound,
       initializeFirebase: action.bound,
       getFirebaseToken: action.bound,
     });
@@ -39,14 +40,21 @@ export class FirebaseStore extends BaseStore {
   }
 
   initializeFirebase() {
-    try {
-      this.firebaseOptions = AppConfig.serverConfig.frontend.firebase as FirebaseOptions;
-      this.firebaseApp = initializeApp(this.firebaseOptions);
-      this.firebaseDb = getDatabase(this.firebaseApp);
-    } catch (error) {
-      this.firebaseInitError = error;
-      notifyError(error, 'Encountered issue initializing Firebase app.');
-      this.firebaseInitSuccess = false;
+    if (AppConfig.serverConfig?.frontend?.firebase) {
+      const { enabled, ...firebaseOptions } = AppConfig.serverConfig.frontend.firebase;
+      this.firebaseEnabled = enabled;
+      if (this.firebaseEnabled) {
+        try {
+          this.firebaseOptions = firebaseOptions as FirebaseOptions;
+          this.firebaseApp = initializeApp(this.firebaseOptions);
+          this.firebaseDb = getDatabase(this.firebaseApp);
+          this.signInToFirebase();
+        } catch (error) {
+          this.firebaseInitError = error;
+          notifyError(error, 'Encountered issue initializing Firebase app.');
+          this.firebaseInitSuccess = false;
+        }
+      }
     }
   }
 

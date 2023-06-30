@@ -2,6 +2,8 @@ package org.mskcc.oncokb.curation.config.application;
 
 public class FirebaseProperties {
 
+    private Boolean enabled = false;
+
     private String apiKey;
 
     private String authDomain;
@@ -19,6 +21,14 @@ public class FirebaseProperties {
     private String measurementId;
 
     private String serviceAccountCredentialsPath;
+
+    public Boolean isEnabled() {
+        return this.enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
 
     public String getApiKey() {
         return this.apiKey;

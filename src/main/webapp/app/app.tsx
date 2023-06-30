@@ -32,13 +32,8 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
   useEffect(() => {
     if (props.hasFirebaseAccess) {
       props.initializeFirebase();
-      props.authenticateWithFirebase();
     }
   }, [props.hasFirebaseAccess]);
-
-  const getCurationPanelDisplay = () => {
-    return props.showCurationPanel ? '' : 'none';
-  };
 
   return (
     <Router basename={baseHref}>
@@ -52,9 +47,11 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
               <AppRoutes />
             </Container>
           </div>
-          <div style={{ float: 'right', width: '350px', display: getCurationPanelDisplay() }}>
-            <CurationPanel />
-          </div>
+          {props.showCurationPanel ? (
+            <div style={{ float: 'right', width: '350px' }}>
+              <CurationPanel />
+            </div>
+          ) : undefined}
         </div>
       </div>
     </Router>
@@ -70,7 +67,6 @@ const mapStoreToProps = ({ authStore, layoutStore, firebaseStore }: IRootStore) 
   sidebarWidth: layoutStore.sidebarWidth,
   showCurationPanel: layoutStore.showCurationPanel,
   initializeFirebase: firebaseStore.initializeFirebase,
-  authenticateWithFirebase: firebaseStore.signInToFirebase,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

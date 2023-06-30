@@ -3,6 +3,7 @@ type FrontendProperties = {
 };
 
 export type FirebaseProperties = {
+  enabled: boolean;
   apiKey: string;
   authDomain: string;
   databaseUrl: string;

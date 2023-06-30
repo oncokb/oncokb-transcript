@@ -56,7 +56,7 @@ spring:
   thymeleaf:
     cache: false
   session:
-    store-type: redis
+    store-type: none
   redis:
     host: localhost
     password:
@@ -122,6 +122,7 @@ application:
     password: oncokb-public-redis-password
     expiration: 3600 # By default objects stay 1 hour (in seconds) in the cache
   firebase:
+    enabled: false
     api-key:
     auth-domain:
     database-url:
