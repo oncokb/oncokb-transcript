@@ -35,10 +35,6 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
     }
   }, [props.hasFirebaseAccess]);
 
-  const getCurationPanelDisplay = () => {
-    return props.showCurationPanel ? '' : 'none';
-  };
-
   return (
     <Router basename={baseHref}>
       <div className="app-container">
@@ -51,9 +47,11 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
               <AppRoutes />
             </Container>
           </div>
-          <div style={{ float: 'right', width: '350px', display: getCurationPanelDisplay() }}>
-            <CurationPanel />
-          </div>
+          {props.showCurationPanel ? (
+            <div style={{ float: 'right', width: '350px' }}>
+              <CurationPanel />
+            </div>
+          ) : undefined}
         </div>
       </div>
     </Router>

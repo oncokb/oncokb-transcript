@@ -3,6 +3,8 @@ import { Column } from 'react-table';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
 import OncoKBTable from './OncoKBTable';
 import EntityActionButton from '../button/EntityActionButton';
+import { IRootStore } from 'app/stores';
+import { connect } from '../util/typed-inject';
 
 type EntityTableProps = {
   columns: Column[];
@@ -11,7 +13,7 @@ type EntityTableProps = {
   url: string;
   curatable?: boolean;
   entityType: ENTITY_TYPE;
-};
+} & StoreProps;
 
 const getEntityId = (entity: any, entityType: ENTITY_TYPE) => {
   return entityType === ENTITY_TYPE.USER ? entity.login : entity.id;
@@ -39,6 +41,7 @@ export const EntityTable: React.FunctionComponent<EntityTableProps> = props => {
                 entityId={entityId}
                 entityType={entityType}
                 entityAction={ENTITY_ACTION.CURATE}
+                onClick={() => props.toggleCurationPanel(true)}
               />
             )}
             <EntityActionButton color="info" size="sm" entityId={entityId} entityType={entityType} entityAction={ENTITY_ACTION.VIEW} />
@@ -52,4 +55,10 @@ export const EntityTable: React.FunctionComponent<EntityTableProps> = props => {
   return <OncoKBTable {...tableProps} columns={newColumns}></OncoKBTable>;
 };
 
-export default EntityTable;
+const mapStoreToProps = ({ layoutStore }: IRootStore) => ({
+  toggleCurationPanel: layoutStore.toggleCurationPanel,
+});
+
+type StoreProps = ReturnType<typeof mapStoreToProps>;
+
+export default connect(mapStoreToProps)(EntityTable);
