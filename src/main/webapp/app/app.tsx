@@ -32,7 +32,6 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
   useEffect(() => {
     if (props.hasFirebaseAccess) {
       props.initializeFirebase();
-      props.authenticateWithFirebase();
     }
   }, [props.hasFirebaseAccess]);
 
@@ -70,7 +69,6 @@ const mapStoreToProps = ({ authStore, layoutStore, firebaseStore }: IRootStore) 
   sidebarWidth: layoutStore.sidebarWidth,
   showCurationPanel: layoutStore.showCurationPanel,
   initializeFirebase: firebaseStore.initializeFirebase,
-  authenticateWithFirebase: firebaseStore.signInToFirebase,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

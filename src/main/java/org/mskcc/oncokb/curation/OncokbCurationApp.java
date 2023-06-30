@@ -92,19 +92,21 @@ public class OncokbCurationApp {
 
     @PostConstruct
     public void initFirebase() throws IOException {
-        FirebaseOptions options = new FirebaseOptions.Builder()
-            .setCredentials(
-                GoogleCredentials.fromStream(
-                    getClass()
-                        .getClassLoader()
-                        .getResource(applicationProperties.getFrontend().getFirebase().getServiceAccountCredentialsPath())
-                        .openStream()
+        if (applicationProperties.getFirebase().isEnabled()) {
+            FirebaseOptions options = new FirebaseOptions.Builder()
+                .setCredentials(
+                    GoogleCredentials.fromStream(
+                        getClass()
+                            .getClassLoader()
+                            .getResource(applicationProperties.getFrontend().getFirebase().getServiceAccountCredentialsPath())
+                            .openStream()
+                    )
                 )
-            )
-            .setDatabaseUrl(applicationProperties.getFrontend().getFirebase().getDatabaseUrl())
-            .build();
+                .setDatabaseUrl(applicationProperties.getFrontend().getFirebase().getDatabaseUrl())
+                .build();
 
-        FirebaseApp.initializeApp(options);
+            FirebaseApp.initializeApp(options);
+        }
     }
 
     /**
