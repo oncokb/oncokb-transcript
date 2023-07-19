@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.curation.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -160,6 +161,10 @@ public class FdaSubmissionService {
                 .findFirst();
         }
         return fdaSubmission;
+    }
+
+    public List<FdaSubmission> findByCompanionDiagnosticDevice(Long id) {
+        return fdaSubmissionRepository.findByCompanionDiagnosticDeviceId(id);
     }
 
     /**

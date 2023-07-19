@@ -237,7 +237,6 @@ relationship OneToMany {
     CompanionDiagnosticDevice to FdaSubmission
     Consequence to Alteration
     FdaSubmissionType to FdaSubmission{type}
-    FdaSubmission to DeviceUsageIndication
 	Alteration{referenceGenomes} to AlterationReferenceGenome
 	CancerType to DeviceUsageIndication
     Gene to DeviceUsageIndication
@@ -250,6 +249,7 @@ relationship ManyToMany {
     ClinicalTrialsGovCondition to CancerType
     DeviceUsageIndication to Alteration
     DeviceUsageIndication to Drug
+    DeviceUsageIndication to FdaSubmission
 }
 
 paginate Gene, EnsemblGene, Alteration, CancerType, Transcript, Sequence, GenomeFragment, Article, Drug, FdaDrug, ClinicalTrialsGovCondition, FdaSubmission with pagination

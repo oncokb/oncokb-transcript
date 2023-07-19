@@ -1,15 +1,16 @@
 import React from 'react';
-import { Button, ButtonProps } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ButtonProps } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
 import { getEntityActionRoute } from '../util/RouteUtils';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import CompactButton from './CompactButton';
 
 export interface EntityActionButtonProps {
   entityId?: number | string;
   entityType: ENTITY_TYPE;
   entityAction: ENTITY_ACTION;
+  compact?: boolean;
 }
 
 const ENTITY_ACTION_ICONS: { [key in ENTITY_ACTION]: IconProp } = {
@@ -22,14 +23,19 @@ const ENTITY_ACTION_ICONS: { [key in ENTITY_ACTION]: IconProp } = {
 
 const EntityActionButton: React.FunctionComponent<EntityActionButtonProps & ButtonProps & React.HTMLAttributes<HTMLButtonElement>> =
   props => {
-    const { entityId, entityType, entityAction, ...buttonProps } = props;
+    const { entityId, entityType, entityAction, compact, ...buttonProps } = props;
     const path = getEntityActionRoute(entityType, entityAction, entityId);
 
     return (
-      <Button tag={Link} to={path} {...buttonProps}>
-        <FontAwesomeIcon icon={ENTITY_ACTION_ICONS[entityAction]} />
-        <span className="ml-2">{entityAction}</span>
-      </Button>
+      <CompactButton
+        className="mr-2"
+        {...buttonProps}
+        tag={Link}
+        to={path}
+        text={entityAction}
+        icon={ENTITY_ACTION_ICONS[entityAction]}
+        compact
+      />
     );
   };
 

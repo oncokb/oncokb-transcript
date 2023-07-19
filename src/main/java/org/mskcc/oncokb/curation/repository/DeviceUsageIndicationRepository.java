@@ -12,5 +12,5 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface DeviceUsageIndicationRepository extends JpaRepository<DeviceUsageIndication, Long> {
-    // List<DeviceUsageIndication> findByFdaSubmissionIds(Set<Long> id);
+    List<DeviceUsageIndication> findDistinctIdByFdaSubmissions_CompanionDiagnosticDeviceId(Long id);
 }

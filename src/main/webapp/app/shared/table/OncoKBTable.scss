@@ -1,9 +1,53 @@
 .oncokb-table {
   word-wrap: break-word;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
 
   .table-message {
     display: flex;
     justify-content: center;
     border-top: none;
+  }
+
+  .rt-thead {
+    box-shadow: 0 2px 15px 0 rgb(0 0 0 / 15%);
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    position: sticky;
+  }
+
+  .rt-th {
+    font-weight: 500;
+    padding: 5px;
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .rt-th:last-child {
+    border-right: none;
+  }
+
+  .rt-tr {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .rt-tr:last-child {
+    border-bottom: none;
+  }
+
+  .rt-tr:nth-child(odd) {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+
+  .rt-tr:hover {
+    background-color: #d6e8f9;
+  }
+
+  .rt-td {
+    padding: 0.75rem;
+    border-right: 1px solid rgba(0, 0, 0, 0.02);
+  }
+
+  .rt-td:last-child {
+    border-right: none;
   }
 }

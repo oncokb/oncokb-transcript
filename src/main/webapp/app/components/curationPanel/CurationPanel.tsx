@@ -4,10 +4,10 @@ import React, { useEffect } from 'react';
 import { ProSidebar, SidebarContent, SidebarHeader } from 'react-pro-sidebar';
 import { matchPath, useLocation } from 'react-router-dom';
 import './curation-panel.scss';
-import FdaSubmissionPanel from './FdaSubmissionPanel';
+import CompanionDiagnosticDevicePanel from './CompanionDiagnosticDevicePanel';
 
 // Paths that should show the curation panel
-const includedPaths = ['/fda-submission/:id/curate'];
+const includedPaths = ['/companion-diagnostic-device/:id/edit'];
 
 const CurationPanel: React.FunctionComponent<StoreProps> = props => {
   const location = useLocation();
@@ -25,7 +25,7 @@ const CurationPanel: React.FunctionComponent<StoreProps> = props => {
           <div className="curation-sidebar-header">Curation Panel</div>
         </SidebarHeader>
         <SidebarContent>
-          <FdaSubmissionPanel />
+          <CompanionDiagnosticDevicePanel />
         </SidebarContent>
       </ProSidebar>
     </div>

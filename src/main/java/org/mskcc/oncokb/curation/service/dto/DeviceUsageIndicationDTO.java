@@ -3,8 +3,6 @@ package org.mskcc.oncokb.curation.service.dto;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 /**
  * A DTO for the {@link org.mskcc.oncokb.curation.domain.DeviceUsageIndication} entity.
@@ -17,7 +15,7 @@ public class DeviceUsageIndicationDTO implements Serializable {
 
     private Set<Long> drugs = new HashSet<>();
 
-    private Long fdaSubmission;
+    private Set<Long> fdaSubmissions;
 
     private Long cancerType;
 
@@ -45,12 +43,12 @@ public class DeviceUsageIndicationDTO implements Serializable {
         this.drugs = drugs;
     }
 
-    public Long getFdaSubmission() {
-        return this.fdaSubmission;
+    public Set<Long> getFdaSubmissions() {
+        return this.fdaSubmissions;
     }
 
-    public void setFdaSubmission(Long fdaSubmission) {
-        this.fdaSubmission = fdaSubmission;
+    public void setFdaSubmissions(Set<Long> fdaSubmissions) {
+        this.fdaSubmissions = fdaSubmissions;
     }
 
     public Long getCancerType() {

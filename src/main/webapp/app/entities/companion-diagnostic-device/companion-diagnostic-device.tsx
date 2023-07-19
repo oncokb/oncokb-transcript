@@ -18,7 +18,34 @@ import EntityActionButton from 'app/shared/button/EntityActionButton';
 import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
 export interface ICompanionDiagnosticDeviceProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
+export const getFdaSubmissionNumber = (primaryNumber: string, supplementNumber: string) => {
+  return supplementNumber ? `${primaryNumber}/${supplementNumber}` : primaryNumber;
+};
+
+export const getFdaSubmissionLinks = (fdaSubmissions: IFdaSubmission[]) => {
+  return (
+    fdaSubmissions && (
+      <WithSeparator separator=", ">
+        {fdaSubmissions
+          .sort((a, b) =>
+            getFdaSubmissionNumber(a.number, a.supplementNumber).localeCompare(getFdaSubmissionNumber(b.number, b.supplementNumber))
+          )
+          .map(submission => {
+            const submissionNumber = getFdaSubmissionNumber(submission.number, submission.supplementNumber);
+            return (
+              <Link to={`${PAGE_ROUTE.FDA_SUBMISSION}/${submission.id}`} key={submissionNumber}>
+                {submissionNumber}
+              </Link>
+            );
+          })}
+      </WithSeparator>
+    )
+  );
+};
+
 export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps) => {
+  const { match } = props;
+
   const [search, setSearch] = useState('');
 
   const companionDiagnosticDeviceList = props.companionDiagnosticDeviceList;
@@ -34,36 +61,9 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
 
   const handleSearch = (event: any) => setSearch(event.target.value);
 
-  const getFdaSubmissionNumber = (primaryNumber: string, supplementNumber: string) => {
-    return supplementNumber ? `${primaryNumber}/${supplementNumber}` : primaryNumber;
-  };
-
-  const getFdaSubmissionLinks = (fdaSubmissions: IFdaSubmission[]) => {
-    return (
-      fdaSubmissions && (
-        <WithSeparator separator=", ">
-          {fdaSubmissions
-            .sort((a, b) =>
-              getFdaSubmissionNumber(a.number, a.supplementNumber).localeCompare(getFdaSubmissionNumber(b.number, b.supplementNumber))
-            )
-            .map(submission => {
-              const submissionNumber = getFdaSubmissionNumber(submission.number, submission.supplementNumber);
-              return (
-                <Link to={`${PAGE_ROUTE.FDA_SUBMISSION}/${submission.id}`} key={submissionNumber}>
-                  {submissionNumber}
-                </Link>
-              );
-            })}
-        </WithSeparator>
-      )
-    );
-  };
-
-  const { match } = props;
-
   const columns: Column<ICompanionDiagnosticDevice>[] = [
-    { accessor: 'name', Header: 'Device Name' },
-    { accessor: 'manufacturer', Header: 'Manufacturer' },
+    { accessor: 'name', Header: 'Device Name', width: 250 },
+    { accessor: 'manufacturer', Header: 'Manufacturer', width: 250 },
     { accessor: 'indicationDetails', Header: 'Indication Details' },
     {
       id: 'specimenTypes',
@@ -98,6 +98,7 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
       }): any {
         return <>{getFdaSubmissionLinks(original.fdaSubmissions)}</>;
       },
+      width: 250,
     },
   ];
 

@@ -4,9 +4,8 @@ import { Link, RouteComponentProps } from 'react-router-dom';
 import { Button, Row, Col } from 'reactstrap';
 import {} from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { getFdaSubmissionLinks } from '../companion-diagnostic-device/companion-diagnostic-device';
 export interface IDeviceUsageIndicationDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const DeviceUsageIndicationDetail = (props: IDeviceUsageIndicationDetailProps) => {
@@ -25,7 +24,7 @@ export const DeviceUsageIndicationDetail = (props: IDeviceUsageIndicationDetailP
           </dt>
           <dd>{deviceUsageIndicationEntity.id}</dd>
           <dt>Fda Submission</dt>
-          <dd>{deviceUsageIndicationEntity.fdaSubmission ? deviceUsageIndicationEntity.fdaSubmission.id : ''}</dd>
+          <dd>{deviceUsageIndicationEntity.fdaSubmissions ? getFdaSubmissionLinks(deviceUsageIndicationEntity.fdaSubmissions) : ''}</dd>
           <dt>Alterations</dt>
           <dd>
             {deviceUsageIndicationEntity.alterations

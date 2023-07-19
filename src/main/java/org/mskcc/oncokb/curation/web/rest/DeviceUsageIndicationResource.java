@@ -159,17 +159,11 @@ public class DeviceUsageIndicationResource {
         return ResponseUtil.wrapOrNotFound(deviceUsageIndication);
     }
 
-    /**
-     * {@code GET  /device-usage-indications/fda-submission/:id} : get the deviceUsageIndication by fda submission id.
-     *
-     * @param id the id of the fda submission.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the deviceUsageIndication, or with status {@code 404 (Not Found)}.
-     */
-    // @GetMapping("/device-usage-indications/fda-submission/{id}")
-    // public List<DeviceUsageIndication> getDeviceUsageIndicationByFdaSubmission(@PathVariable Long id) {
-    //     log.debug("REST request to get DeviceUsageIndication by FdaSubmission id : {}", id);
-    //     return deviceUsageIndicationService.findByFdaSubmissionIds(id);
-    // }
+    @GetMapping("/device-usage-indications/companion-diagnostic-device/{id}")
+    public List<DeviceUsageIndication> getDeviceUsageIndicationByCompanionDiagnosticDevice(@PathVariable Long id) {
+        log.debug("REST request to get DeviceUsageIndication by CompanionDiagnosticDevice id : {}", id);
+        return deviceUsageIndicationService.findByCompanionDiagnosticDeviceId(id);
+    }
 
     /**
      * {@code DELETE  /device-usage-indications/:id} : delete the "id" deviceUsageIndication.

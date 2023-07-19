@@ -8,7 +8,7 @@ export interface IDeviceUsageIndication {
   id?: number;
   alterations?: IAlteration[] | null;
   drugs?: IDrug[] | null;
-  fdaSubmission?: IFdaSubmission[] | null;
+  fdaSubmissions?: IFdaSubmission[] | null;
   cancerType?: ICancerType | null;
   gene?: IGene | null;
 }

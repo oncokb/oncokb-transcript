@@ -74,7 +74,7 @@ export const DeviceUsageIndicationUpdate = (props: IDeviceUsageIndicationUpdateP
       ? {}
       : {
           ...deviceUsageIndicationEntity,
-          fdaSubmissionId: deviceUsageIndicationEntity?.fdaSubmission?.id,
+          fdaSubmissionId: deviceUsageIndicationEntity?.fdaSubmissions || [],
           alterations: deviceUsageIndicationEntity?.alterations || [],
           cancerTypeId: deviceUsageIndicationEntity?.cancerType?.id,
           drugs: deviceUsageIndicationEntity?.drugs || [],

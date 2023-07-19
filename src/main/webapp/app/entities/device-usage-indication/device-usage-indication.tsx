@@ -9,6 +9,7 @@ import { IDeviceUsageIndication } from 'app/shared/model/device-usage-indication
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 
 import { IRootStore } from 'app/stores';
+import { getFdaSubmissionLinks } from '../companion-diagnostic-device/companion-diagnostic-device';
 export interface IDeviceUsageIndicationProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const DeviceUsageIndication = (props: IDeviceUsageIndicationProps) => {
@@ -60,13 +61,7 @@ export const DeviceUsageIndication = (props: IDeviceUsageIndicationProps) => {
                       {deviceUsageIndication.id}
                     </Button>
                   </td>
-                  <td>
-                    {deviceUsageIndication.fdaSubmission ? (
-                      <Link to={`fda-submission/${deviceUsageIndication.fdaSubmission.id}`}>{deviceUsageIndication.fdaSubmission.id}</Link>
-                    ) : (
-                      ''
-                    )}
-                  </td>
+                  <td>{deviceUsageIndication.fdaSubmissions ? getFdaSubmissionLinks(deviceUsageIndication.fdaSubmissions) : ''}</td>
                   <td>
                     {deviceUsageIndication.cancerType ? (
                       <Link to={`cancer-type/${deviceUsageIndication.cancerType.id}`}>{deviceUsageIndication.cancerType.id}</Link>

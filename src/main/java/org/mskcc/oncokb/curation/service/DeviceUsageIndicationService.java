@@ -76,11 +76,9 @@ public class DeviceUsageIndicationService {
         return deviceUsageIndicationRepository.findById(id);
     }
 
-    // @Transactional(readOnly = true)
-    // public List<DeviceUsageIndication> findByFdaSubmissionIds(Set<Long> id) {
-    //     log.debug("Request to get DeviceUsageIndication : {}", id);
-    //     return deviceUsageIndicationRepository.findByFdaSubmissionIds(id);
-    // }
+    public List<DeviceUsageIndication> findByCompanionDiagnosticDeviceId(Long id) {
+        return deviceUsageIndicationRepository.findDistinctIdByFdaSubmissions_CompanionDiagnosticDeviceId(id);
+    }
 
     /**
      * Delete the deviceUsageIndication by id.

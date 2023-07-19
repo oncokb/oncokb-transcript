@@ -77,4 +77,22 @@ public abstract class DeviceUsageIndicationMapper implements EntityMapper<Device
     protected Set<Long> fromDrugs(Set<Drug> drugs) {
         return drugs.stream().collect(Collectors.toList()).stream().map(drug -> drug.getId()).collect(Collectors.toSet());
     }
+
+    protected Set<FdaSubmission> fromFdaSubmissionIds(Set<Long> fdaSubmissionIds) {
+        return fdaSubmissionIds
+            .stream()
+            .collect(Collectors.toList())
+            .stream()
+            .map(fdaSubmissionId -> fdaSubmissionRepository.findById(fdaSubmissionId).orElse(null))
+            .collect(Collectors.toSet());
+    }
+
+    protected Set<Long> fromFdaSubmissions(Set<FdaSubmission> fdaSubmissions) {
+        return fdaSubmissions
+            .stream()
+            .collect(Collectors.toList())
+            .stream()
+            .map(fdaSubmission -> fdaSubmission.getId())
+            .collect(Collectors.toSet());
+    }
 }
