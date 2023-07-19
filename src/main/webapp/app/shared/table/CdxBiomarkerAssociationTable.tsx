@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from '../util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { getFdaSubmissionNumber } from 'app/entities/companion-diagnostic-device/companion-diagnostic-device';
+import { getFdaSubmissionLinks, getFdaSubmissionNumber } from 'app/entities/companion-diagnostic-device/companion-diagnostic-device';
 import OncoKBTable from './OncoKBTable';
 import { IDeviceUsageIndication } from '../model/device-usage-indication.model';
 import { Column } from 'react-table';
-import { getCancerTypeName } from '../util/utils';
+import { getAlterationName, getCancerTypeName, getTreatmentName } from '../util/utils';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
-import CompactButton from '../button/CompactButton';
 import { SimpleConfirmModal } from '../modal/SimpleConfirmModal';
+import { Button } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface CdxBiomarkerAssociationTableProps extends StoreProps {
   editable?: boolean;
@@ -16,29 +17,27 @@ interface CdxBiomarkerAssociationTableProps extends StoreProps {
 }
 
 export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerAssociationTableProps> = props => {
-  const [indications, setIndications] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [indicationToDeleteId, setIndicationToDeleteId] = useState(null);
+  const [currentBiomarkerAssociationId, setCurrentBiomarkerAssociationId] = useState(null);
 
   useEffect(() => {
     if (props.companionDiagnosticDeviceId) {
-      const getIndications = async () => {
-        const result = await props.getCdxIndications(props.companionDiagnosticDeviceId);
-        setIndications(result);
-      };
-      getIndications();
+      props.getBiomarkerAssociations(props.companionDiagnosticDeviceId);
     }
   }, [props.companionDiagnosticDeviceId]);
 
   const handleDeleteIndication = () => {
-    if (indicationToDeleteId) {
-      props.deleteEntity(indicationToDeleteId);
+    setShowModal(false);
+    if (currentBiomarkerAssociationId) {
+      props.deleteEntity(currentBiomarkerAssociationId).then(() => {
+        props.getBiomarkerAssociations(props.companionDiagnosticDeviceId);
+      });
     }
   };
 
   const handleCancel = () => {
     setShowModal(false);
-    setIndicationToDeleteId(null);
+    setCurrentBiomarkerAssociationId(null);
   };
 
   const columns: Column<IDeviceUsageIndication>[] = [
@@ -65,15 +64,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
       }: {
         cell: { row: { original: IDeviceUsageIndication } };
       }): any {
-        return (
-          <>
-            {original.alterations &&
-              original.alterations
-                .map(alteration => alteration.name)
-                .sort()
-                .join(', ')}
-          </>
-        );
+        return <>{original.alterations && getAlterationName(original.alterations)}</>;
       },
     },
     {
@@ -99,15 +90,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
       }: {
         cell: { row: { original: IDeviceUsageIndication } };
       }): any {
-        return (
-          <>
-            {original.drugs &&
-              original.drugs
-                .map(drug => drug.name)
-                .sort()
-                .join(' + ')}
-          </>
-        );
+        return <>{original.drugs && getTreatmentName(original.drugs)}</>;
       },
     },
     {
@@ -120,15 +103,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
       }: {
         cell: { row: { original: IDeviceUsageIndication } };
       }): any {
-        return (
-          <>
-            {original.fdaSubmissions &&
-              original.fdaSubmissions
-                .map(sub => getFdaSubmissionNumber(sub.number, sub.supplementNumber))
-                .sort()
-                .join(', ')}
-          </>
-        );
+        return <>{original.fdaSubmissions && getFdaSubmissionLinks(original.fdaSubmissions)}</>;
       },
     },
   ];
@@ -146,16 +121,17 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
       }): any {
         return (
           <>
-            <CompactButton
+            <Button
               text="Delete"
-              icon={faTrashAlt}
               color="danger"
               size="sm"
               onClick={() => {
                 setShowModal(true);
-                setIndicationToDeleteId(original.id);
+                setCurrentBiomarkerAssociationId(original.id);
               }}
-            />
+            >
+              <FontAwesomeIcon icon={faTrashAlt} />
+            </Button>
           </>
         );
       },
@@ -166,7 +142,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
   return (
     <>
       <h4>Biomarker Associations</h4>
-      <OncoKBTable columns={columns} data={indications} loading={props.loading} />
+      <OncoKBTable columns={columns} data={props.biomarkerAssociations} loading={props.loading} />
       <SimpleConfirmModal
         show={showModal}
         onCancel={handleCancel}
@@ -179,7 +155,8 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
 
 const mapStoreToProps = ({ deviceUsageIndicationStore }: IRootStore) => ({
   deleteEntity: deviceUsageIndicationStore.deleteEntity,
-  getCdxIndications: deviceUsageIndicationStore.getCdxIndications,
+  getBiomarkerAssociations: deviceUsageIndicationStore.getByCompanionDiagnosticDevice,
+  biomarkerAssociations: deviceUsageIndicationStore.entities,
   loading: deviceUsageIndicationStore.loading,
 });
 

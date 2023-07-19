@@ -3,7 +3,6 @@ package org.mskcc.oncokb.curation.service;
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.Alteration;
-import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.repository.AlterationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,16 +111,8 @@ public class AlterationService {
         return alterationRepository.findByGenesId(geneId);
     }
 
-    public Optional<Alteration> findOneByGeneIdAndAlterationName(Long geneId, String alterationName) {
-        Optional<Alteration> optionalAlteration = Optional.empty();
-        List<Alteration> alterations = findByGeneId(geneId);
-        for (Alteration alteration : alterations) {
-            if (alteration.getName().equalsIgnoreCase(alterationName)) {
-                optionalAlteration = Optional.of(alteration);
-                break;
-            }
-        }
-        return optionalAlteration;
+    public Optional<Alteration> findByNameAndGeneId(String alterationName, Long geneId) {
+        return alterationRepository.findByNameAndGenesId(alterationName, geneId);
     }
 
     /**

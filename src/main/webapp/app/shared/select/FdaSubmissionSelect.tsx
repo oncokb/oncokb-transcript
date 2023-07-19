@@ -34,7 +34,7 @@ const FdaSubmissionSelect: React.FunctionComponent<IFdaSubmissionSelectProps> = 
     }
   }, [cdxId]);
 
-  const onFdaSubmissionChangee = (option, actionMeta) => {
+  const onFdaSubmissionChange = (option, actionMeta) => {
     setFdaSubmissionValue(option);
     props.onChange(option, actionMeta);
   };
@@ -45,7 +45,7 @@ const FdaSubmissionSelect: React.FunctionComponent<IFdaSubmissionSelectProps> = 
       name={'fdaSubmissions'}
       value={fdaSubmissionValue}
       options={fdaSubmissionList}
-      onChange={onFdaSubmissionChangee}
+      onChange={onFdaSubmissionChange}
       placeholder="Select an fda submission..."
       isClearable
     />

@@ -890,6 +890,12 @@ export interface DeviceUsageIndicationDTO {
    * @memberof DeviceUsageIndicationDTO
    */
   cancerType?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof DeviceUsageIndicationDTO
+   */
+  gene?: number;
 }
 /**
  *

@@ -27,4 +27,6 @@ public interface AlterationRepository extends JpaRepository<Alteration, Long>, J
     Optional<Alteration> findOneWithEagerRelationships(@Param("id") Long id);
 
     List<Alteration> findByGenesId(@Param("id") Long id);
+
+    Optional<Alteration> findByNameAndGenesId(String name, Long geneId);
 }

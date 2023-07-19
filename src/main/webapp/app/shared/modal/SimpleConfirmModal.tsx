@@ -14,7 +14,7 @@ export const SimpleConfirmModal: React.FunctionComponent<{
   };
   return (
     <Modal isOpen={props.show} toggle={() => onCancel()}>
-      <ModalHeader toggle={() => onCancel()}>{props.title ? props.title : 'Please confirm'}</ModalHeader>
+      <ModalHeader toggle={() => onCancel()}>{props.title || 'Please confirm'}</ModalHeader>
       <ModalBody>{props.body ? props.body : 'Are you sure?'}</ModalBody>
       <ModalFooter>
         <Button color="secondary" onClick={(event: any) => onCancel(event)}>

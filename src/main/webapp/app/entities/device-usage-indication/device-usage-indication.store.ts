@@ -7,12 +7,12 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 const apiUrl = 'api/device-usage-indications';
 
 export class DeviceUsageIndicationStore extends CrudStore<IDeviceUsageIndication> {
-  getCdxIndications = this.readHandler(this.getByCompanionDiagnosticDevice);
+  getByCompanionDiagnosticDevice = this.readHandler(this.getByCompanionDiagnosticDeviceGen);
   constructor(protected rootStore: IRootStore) {
     super(rootStore, apiUrl);
   }
 
-  *getByCompanionDiagnosticDevice(id: number) {
+  *getByCompanionDiagnosticDeviceGen(id: number) {
     try {
       this.loading = true;
       const result = yield deviceUsageIndicationClient.getDeviceUsageIndicationByCompanionDiagnosticDevice(id);

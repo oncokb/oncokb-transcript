@@ -87,16 +87,6 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
           entityType={ENTITY_TYPE.FDA_SUBMISSION}
           entityAction={ENTITY_ACTION.EDIT}
         />
-        {!props.showCurationPanel && (
-          <EntityActionButton
-            color="primary"
-            className="ml-2"
-            entityId={fdaSubmissionEntity.id}
-            entityType={ENTITY_TYPE.FDA_SUBMISSION}
-            entityAction={ENTITY_ACTION.CURATE}
-            onClick={() => props.toggleCurationPanel(true)}
-          />
-        )}
       </Col>
     </Row>
   );
@@ -105,8 +95,6 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
 const mapStoreToProps = ({ fdaSubmissionStore, layoutStore }: IRootStore) => ({
   fdaSubmissionEntity: fdaSubmissionStore.entity,
   getEntity: fdaSubmissionStore.getEntity,
-  showCurationPanel: layoutStore.showCurationPanel,
-  toggleCurationPanel: layoutStore.toggleCurationPanel,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

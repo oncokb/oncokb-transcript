@@ -276,7 +276,7 @@ public class CdxImporter {
             List<Alteration> alterations = new ArrayList<>();
             for (String alterationString : alterationStrings) {
                 alterationString = alterationString.trim();
-                Optional<Alteration> optionalAlteration = alterationService.findOneByGeneIdAndAlterationName(geneId, alterationString);
+                Optional<Alteration> optionalAlteration = alterationService.findByNameAndGeneId(alterationString, geneId);
                 if (optionalAlteration.isPresent()) {
                     if (geneAlterationMap.get(gene) == null) {
                         geneAlterationMap.put(gene, alterations);

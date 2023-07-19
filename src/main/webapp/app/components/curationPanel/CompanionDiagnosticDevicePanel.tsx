@@ -15,6 +15,8 @@ import AlterationSelect from 'app/shared/select/AlterationSelect';
 import DrugSelect from 'app/shared/select/DrugSelect';
 import { DeviceUsageIndicationDTO } from 'app/shared/api/generated';
 import FdaSubmissionSelect from 'app/shared/select/FdaSubmissionSelect';
+import { connect } from 'app/shared/util/typed-inject';
+import { IRootStore } from 'app/stores';
 
 const SidebarMenuItem: React.FunctionComponent<{ style?: React.CSSProperties }> = ({ style, children }) => {
   return <div style={{ padding: '8px 24px 0 24px', ...style }}>{children}</div>;
@@ -25,7 +27,7 @@ export const defaultAdditional = {
   type: SearchOptionType.GENE,
 };
 
-const CompanionDiagnosticDevicePanel = () => {
+const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = props => {
   const [selectedGeneId, setSelectedGeneId] = useState(null);
   const [alterationValue, onAlterationChange] = useState(null);
   const [cancerTypeValue, onCancerTypeChange] = useState(null);
@@ -43,11 +45,13 @@ const CompanionDiagnosticDevicePanel = () => {
       alterations: alterationValue.map(alteration => alteration.value),
       cancerType: cancerTypeValue.value as number,
       drugs: drugValue.map(drug => drug.value),
+      gene: selectedGeneId,
     };
     deviceUsageIndicationClient
       .createDeviceUsageIndication(deviceUsageIndicationDTO)
       .then(() => {
         notifySuccess('Biomarker association added.');
+        props.getBiomarkerAssociations(id);
       })
       .catch(error => notifyError(error));
   };
@@ -110,4 +114,10 @@ const CompanionDiagnosticDevicePanel = () => {
   );
 };
 
-export default CompanionDiagnosticDevicePanel;
+const mapStoreToProps = ({ deviceUsageIndicationStore }: IRootStore) => ({
+  getBiomarkerAssociations: deviceUsageIndicationStore.getByCompanionDiagnosticDevice,
+});
+
+type StoreProps = ReturnType<typeof mapStoreToProps>;
+
+export default connect(mapStoreToProps)(CompanionDiagnosticDevicePanel);

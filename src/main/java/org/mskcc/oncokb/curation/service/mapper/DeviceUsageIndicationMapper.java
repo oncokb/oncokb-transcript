@@ -1,8 +1,5 @@
 package org.mskcc.oncokb.curation.service.mapper;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
@@ -11,10 +8,12 @@ import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.domain.DeviceUsageIndication;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
+import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.repository.AlterationRepository;
 import org.mskcc.oncokb.curation.repository.CancerTypeRepository;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
 import org.mskcc.oncokb.curation.repository.FdaSubmissionRepository;
+import org.mskcc.oncokb.curation.repository.GeneRepository;
 import org.mskcc.oncokb.curation.service.dto.DeviceUsageIndicationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,6 +34,9 @@ public abstract class DeviceUsageIndicationMapper implements EntityMapper<Device
 
     @Autowired
     DrugRepository drugRepository;
+
+    @Autowired
+    GeneRepository geneRepository;
 
     protected FdaSubmission fromFdaSubmissionId(Long fdaSubmission) {
         return fdaSubmissionRepository.findById(fdaSubmission).orElse(null);
@@ -57,8 +59,8 @@ public abstract class DeviceUsageIndicationMapper implements EntityMapper<Device
         return alterations.stream().collect(Collectors.toList()).stream().map(alteration -> alteration.getId()).collect(Collectors.toSet());
     }
 
-    protected CancerType fromCancerTypeId(Long cancerType) {
-        return cancerTypeRepository.findById(cancerType).orElse(null);
+    protected CancerType fromCancerTypeId(Long cancerTypeId) {
+        return cancerTypeRepository.findById(cancerTypeId).orElse(null);
     }
 
     protected Long fromCancerType(CancerType cancerType) {
@@ -94,5 +96,13 @@ public abstract class DeviceUsageIndicationMapper implements EntityMapper<Device
             .stream()
             .map(fdaSubmission -> fdaSubmission.getId())
             .collect(Collectors.toSet());
+    }
+
+    protected Gene fromGeneId(Long geneId) {
+        return geneRepository.findById(geneId).orElse(null);
+    }
+
+    protected Long fromGene(Gene gene) {
+        return gene.getId();
     }
 }

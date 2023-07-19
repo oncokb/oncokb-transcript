@@ -1,19 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { Row, Col } from 'reactstrap';
-import {} from 'react-jhipster';
-
 import { IRootStore } from 'app/stores';
 import { ENTITY_ACTION, ENTITY_TYPE, PAGE_ROUTE } from 'app/config/constants';
 import WithSeparator from 'react-with-separator';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
-import { flow, flowResult } from 'mobx';
-import { IDeviceUsageIndication } from 'app/shared/model/device-usage-indication.model';
-import { Column } from 'react-table';
-import OncoKBTable from 'app/shared/table/OncoKBTable';
-import { getCancerTypeName } from 'app/shared/util/utils';
-import { getFdaSubmissionNumber } from './companion-diagnostic-device';
 import CdxBiomarkerAssociationTable from 'app/shared/table/CdxBiomarkerAssociationTable';
 export interface ICompanionDiagnosticDeviceDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -77,10 +69,9 @@ export const CompanionDiagnosticDeviceDetail = (props: ICompanionDiagnosticDevic
   );
 };
 
-const mapStoreToProps = ({ companionDiagnosticDeviceStore, deviceUsageIndicationStore }: IRootStore) => ({
+const mapStoreToProps = ({ companionDiagnosticDeviceStore }: IRootStore) => ({
   companionDiagnosticDeviceEntity: companionDiagnosticDeviceStore.entity,
   getEntity: companionDiagnosticDeviceStore.getEntity,
-  getDeviceUsageIndications: flow(deviceUsageIndicationStore.getByCompanionDiagnosticDevice),
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

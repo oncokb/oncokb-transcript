@@ -3,6 +3,7 @@ package org.mskcc.oncokb.curation.service.dto;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import org.mskcc.oncokb.curation.domain.Gene;
 
 /**
  * A DTO for the {@link org.mskcc.oncokb.curation.domain.DeviceUsageIndication} entity.
@@ -18,6 +19,8 @@ public class DeviceUsageIndicationDTO implements Serializable {
     private Set<Long> fdaSubmissions;
 
     private Long cancerType;
+
+    private Long gene;
 
     public Long getId() {
         return this.id;
@@ -57,5 +60,13 @@ public class DeviceUsageIndicationDTO implements Serializable {
 
     public void setCancerType(Long cancerType) {
         this.cancerType = cancerType;
+    }
+
+    public Long getGene() {
+        return this.gene;
+    }
+
+    public void setGene(Long gene) {
+        this.gene = gene;
     }
 }
