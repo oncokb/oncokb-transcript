@@ -6,9 +6,9 @@ import java.util.Set;
 import org.mskcc.oncokb.curation.domain.Gene;
 
 /**
- * A DTO for the {@link org.mskcc.oncokb.curation.domain.DeviceUsageIndication} entity.
+ * A DTO for the {@link org.mskcc.oncokb.curation.domain.BiomarkerAssociation} entity.
  */
-public class DeviceUsageIndicationDTO implements Serializable {
+public class BiomarkerAssociationDTO implements Serializable {
 
     private Long id;
 

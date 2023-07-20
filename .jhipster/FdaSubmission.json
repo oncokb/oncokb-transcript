@@ -66,9 +66,9 @@
     },
     {
       "relationshipType": "many-to-many",
-      "otherEntityName": "deviceUsageIndication",
+      "otherEntityName": "biomarkerAssociation",
       "otherEntityRelationshipName": "fdaSubmission",
-      "relationshipName": "deviceUsageIndication",
+      "relationshipName": "biomarkerAssociation",
       "ownerSide": false
     }
   ],

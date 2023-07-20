@@ -48,15 +48,15 @@ public class CancerType implements Serializable {
     private TumorForm tumorForm;
 
     @OneToMany(mappedBy = "parent")
-    @JsonIgnoreProperties(value = { "children", "deviceUsageIndications", "parent" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "children", "biomarkerAssociations", "parent" }, allowSetters = true)
     private Set<CancerType> children = new HashSet<>();
 
     @OneToMany(mappedBy = "cancerType")
     @JsonIgnoreProperties(value = { "fdaSubmission", "alteration", "cancerType", "drug" }, allowSetters = true)
-    private Set<DeviceUsageIndication> deviceUsageIndications = new HashSet<>();
+    private Set<BiomarkerAssociation> biomarkerAssociations = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "children", "deviceUsageIndications", "parent" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "children", "biomarkerAssociations", "parent" }, allowSetters = true)
     private CancerType parent;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -196,34 +196,34 @@ public class CancerType implements Serializable {
         return this;
     }
 
-    public Set<DeviceUsageIndication> getDeviceUsageIndications() {
-        return this.deviceUsageIndications;
+    public Set<BiomarkerAssociation> getBiomarkerAssociations() {
+        return this.biomarkerAssociations;
     }
 
-    public void setDeviceUsageIndications(Set<DeviceUsageIndication> deviceUsageIndications) {
-        if (this.deviceUsageIndications != null) {
-            this.deviceUsageIndications.forEach(i -> i.setCancerType(null));
+    public void setBiomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
+        if (this.biomarkerAssociations != null) {
+            this.biomarkerAssociations.forEach(i -> i.setCancerType(null));
         }
-        if (deviceUsageIndications != null) {
-            deviceUsageIndications.forEach(i -> i.setCancerType(this));
+        if (biomarkerAssociations != null) {
+            biomarkerAssociations.forEach(i -> i.setCancerType(this));
         }
-        this.deviceUsageIndications = deviceUsageIndications;
+        this.biomarkerAssociations = biomarkerAssociations;
     }
 
-    public CancerType deviceUsageIndications(Set<DeviceUsageIndication> deviceUsageIndications) {
-        this.setDeviceUsageIndications(deviceUsageIndications);
+    public CancerType biomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
+        this.setBiomarkerAssociations(biomarkerAssociations);
         return this;
     }
 
-    public CancerType addDeviceUsageIndication(DeviceUsageIndication deviceUsageIndication) {
-        this.deviceUsageIndications.add(deviceUsageIndication);
-        deviceUsageIndication.setCancerType(this);
+    public CancerType addBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
+        this.biomarkerAssociations.add(biomarkerAssociation);
+        biomarkerAssociation.setCancerType(this);
         return this;
     }
 
-    public CancerType removeDeviceUsageIndication(DeviceUsageIndication deviceUsageIndication) {
-        this.deviceUsageIndications.remove(deviceUsageIndication);
-        deviceUsageIndication.setCancerType(null);
+    public CancerType removeBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
+        this.biomarkerAssociations.remove(biomarkerAssociation);
+        biomarkerAssociation.setCancerType(null);
         return this;
     }
 

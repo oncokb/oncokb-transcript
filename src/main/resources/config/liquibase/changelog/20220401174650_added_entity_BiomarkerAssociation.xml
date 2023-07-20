@@ -7,10 +7,10 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <!--
-        Added the entity DeviceUsageIndication.
+        Added the entity BiomarkerAssociation.
     -->
     <changeSet id="20220401174650-1" author="jhipster">
-        <createTable tableName="device_usage_indication">
+        <createTable tableName="biomarker_association">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -26,38 +26,38 @@
 
     <changeSet id="20220401174650-1-relations" author="jhipster">
 
-        <createTable tableName="rel_device_usage_indication__alteration">
+        <createTable tableName="rel_biomarker_association__alteration">
             <column name="alteration_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="device_usage_indication_id" type="bigint">
+            <column name="biomarker_association_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
         </createTable>
 
-        <addPrimaryKey columnNames="device_usage_indication_id, alteration_id" tableName="rel_device_usage_indication__alteration"/>
+        <addPrimaryKey columnNames="biomarker_association_id, alteration_id" tableName="rel_biomarker_association__alteration"/>
 
-        <createTable tableName="rel_device_usage_indication__drug">
+        <createTable tableName="rel_biomarker_association__drug">
             <column name="drug_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="device_usage_indication_id" type="bigint">
+            <column name="biomarker_association_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
         </createTable>
 
-        <addPrimaryKey columnNames="device_usage_indication_id, drug_id" tableName="rel_device_usage_indication__drug"/>
+        <addPrimaryKey columnNames="biomarker_association_id, drug_id" tableName="rel_biomarker_association__drug"/>
 
-        <createTable tableName="rel_device_usage_indication__fda_submission">
+        <createTable tableName="rel_biomarker_association__fda_submission">
             <column name="fda_submission_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
-            <column name="device_usage_indication_id" type="bigint">
+            <column name="biomarker_association_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
         </createTable>
 
-        <addPrimaryKey columnNames="device_usage_indication_id, fda_submission_id" tableName="rel_device_usage_indication__fda_submission"/>
+        <addPrimaryKey columnNames="biomarker_association_id, fda_submission_id" tableName="rel_biomarker_association__fda_submission"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

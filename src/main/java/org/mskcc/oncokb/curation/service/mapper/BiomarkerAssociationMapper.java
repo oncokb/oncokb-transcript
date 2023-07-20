@@ -4,8 +4,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
 import org.mskcc.oncokb.curation.domain.Alteration;
+import org.mskcc.oncokb.curation.domain.BiomarkerAssociation;
 import org.mskcc.oncokb.curation.domain.CancerType;
-import org.mskcc.oncokb.curation.domain.DeviceUsageIndication;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.mskcc.oncokb.curation.domain.Gene;
@@ -14,14 +14,14 @@ import org.mskcc.oncokb.curation.repository.CancerTypeRepository;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
 import org.mskcc.oncokb.curation.repository.FdaSubmissionRepository;
 import org.mskcc.oncokb.curation.repository.GeneRepository;
-import org.mskcc.oncokb.curation.service.dto.DeviceUsageIndicationDTO;
+import org.mskcc.oncokb.curation.service.dto.BiomarkerAssociationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Mapper for the entity {@link Company} and its DTO {@link CompanyDTO}.
  */
 @Mapper(componentModel = "spring", uses = {})
-public abstract class DeviceUsageIndicationMapper implements EntityMapper<DeviceUsageIndicationDTO, DeviceUsageIndication> {
+public abstract class BiomarkerAssociationMapper implements EntityMapper<BiomarkerAssociationDTO, BiomarkerAssociation> {
 
     @Autowired
     FdaSubmissionRepository fdaSubmissionRepository;

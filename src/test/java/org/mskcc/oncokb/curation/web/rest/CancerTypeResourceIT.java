@@ -16,9 +16,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
+import org.mskcc.oncokb.curation.domain.BiomarkerAssociation;
 import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.domain.CancerType;
-import org.mskcc.oncokb.curation.domain.DeviceUsageIndication;
 import org.mskcc.oncokb.curation.domain.enumeration.TumorForm;
 import org.mskcc.oncokb.curation.repository.CancerTypeRepository;
 import org.mskcc.oncokb.curation.service.criteria.CancerTypeCriteria;
@@ -868,28 +868,28 @@ class CancerTypeResourceIT {
 
     @Test
     @Transactional
-    void getAllCancerTypesByDeviceUsageIndicationIsEqualToSomething() throws Exception {
+    void getAllCancerTypesByBiomarkerAssociationIsEqualToSomething() throws Exception {
         // Initialize the database
         cancerTypeRepository.saveAndFlush(cancerType);
-        DeviceUsageIndication deviceUsageIndication;
-        if (TestUtil.findAll(em, DeviceUsageIndication.class).isEmpty()) {
-            deviceUsageIndication = DeviceUsageIndicationResourceIT.createEntity(em);
-            em.persist(deviceUsageIndication);
+        BiomarkerAssociation biomarkerAssociation;
+        if (TestUtil.findAll(em, BiomarkerAssociation.class).isEmpty()) {
+            biomarkerAssociation = BiomarkerAssociationResourceIT.createEntity(em);
+            em.persist(biomarkerAssociation);
             em.flush();
         } else {
-            deviceUsageIndication = TestUtil.findAll(em, DeviceUsageIndication.class).get(0);
+            biomarkerAssociation = TestUtil.findAll(em, BiomarkerAssociation.class).get(0);
         }
-        em.persist(deviceUsageIndication);
+        em.persist(biomarkerAssociation);
         em.flush();
-        cancerType.addDeviceUsageIndication(deviceUsageIndication);
+        cancerType.addBiomarkerAssociation(biomarkerAssociation);
         cancerTypeRepository.saveAndFlush(cancerType);
-        Long deviceUsageIndicationId = deviceUsageIndication.getId();
+        Long biomarkerAssociationId = biomarkerAssociation.getId();
 
-        // Get all the cancerTypeList where deviceUsageIndication equals to deviceUsageIndicationId
-        defaultCancerTypeShouldBeFound("deviceUsageIndicationId.equals=" + deviceUsageIndicationId);
+        // Get all the cancerTypeList where biomarkerAssociation equals to biomarkerAssociationId
+        defaultCancerTypeShouldBeFound("biomarkerAssociationId.equals=" + biomarkerAssociationId);
 
-        // Get all the cancerTypeList where deviceUsageIndication equals to (deviceUsageIndicationId + 1)
-        defaultCancerTypeShouldNotBeFound("deviceUsageIndicationId.equals=" + (deviceUsageIndicationId + 1));
+        // Get all the cancerTypeList where biomarkerAssociation equals to (biomarkerAssociationId + 1)
+        defaultCancerTypeShouldNotBeFound("biomarkerAssociationId.equals=" + (biomarkerAssociationId + 1));
     }
 
     @Test

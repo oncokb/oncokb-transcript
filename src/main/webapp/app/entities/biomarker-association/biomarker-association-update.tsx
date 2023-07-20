@@ -10,27 +10,27 @@ import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import { IAlteration } from 'app/shared/model/alteration.model';
 import { ICancerType } from 'app/shared/model/cancer-type.model';
 import { IDrug } from 'app/shared/model/drug.model';
-import { IDeviceUsageIndication } from 'app/shared/model/device-usage-indication.model';
+import { IBiomarkerAssociation } from 'app/shared/model/biomarker-association.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
 
-export interface IDeviceUsageIndicationUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
+export interface IBiomarkerAssociationUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
-export const DeviceUsageIndicationUpdate = (props: IDeviceUsageIndicationUpdateProps) => {
+export const BiomarkerAssociationUpdate = (props: IBiomarkerAssociationUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
   const fdaSubmissions = props.fdaSubmissions;
   const alterations = props.alterations;
   const cancerTypes = props.cancerTypes;
   const drugs = props.drugs;
-  const deviceUsageIndicationEntity = props.deviceUsageIndicationEntity;
+  const biomarkerAssociationEntity = props.biomarkerAssociationEntity;
   const loading = props.loading;
   const updating = props.updating;
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/device-usage-indication');
+    props.history.push('/biomarker-association');
   };
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export const DeviceUsageIndicationUpdate = (props: IDeviceUsageIndicationUpdateP
 
   const saveEntity = values => {
     const entity = {
-      ...deviceUsageIndicationEntity,
+      ...biomarkerAssociationEntity,
       ...values,
       fdaSubmission: fdaSubmissions.find(it => it.id.toString() === values.fdaSubmissionId.toString()),
       alteration: alterations.find(it => it.id.toString() === values.alterationId.toString()),
@@ -73,19 +73,19 @@ export const DeviceUsageIndicationUpdate = (props: IDeviceUsageIndicationUpdateP
     isNew
       ? {}
       : {
-          ...deviceUsageIndicationEntity,
-          fdaSubmissionId: deviceUsageIndicationEntity?.fdaSubmissions || [],
-          alterations: deviceUsageIndicationEntity?.alterations || [],
-          cancerTypeId: deviceUsageIndicationEntity?.cancerType?.id,
-          drugs: deviceUsageIndicationEntity?.drugs || [],
+          ...biomarkerAssociationEntity,
+          fdaSubmissionId: biomarkerAssociationEntity?.fdaSubmissions || [],
+          alterations: biomarkerAssociationEntity?.alterations || [],
+          cancerTypeId: biomarkerAssociationEntity?.cancerType?.id,
+          drugs: biomarkerAssociationEntity?.drugs || [],
         };
 
   return (
     <div>
       <Row className="justify-content-center">
         <Col md="8">
-          <h2 id="oncokbCurationApp.deviceUsageIndication.home.createOrEditLabel" data-cy="DeviceUsageIndicationCreateUpdateHeading">
-            Create or edit a DeviceUsageIndication
+          <h2 id="oncokbCurationApp.biomarkerAssociation.home.createOrEditLabel" data-cy="BiomarkerAssociationCreateUpdateHeading">
+            Create or edit a BiomarkerAssociation
           </h2>
         </Col>
       </Row>
@@ -96,10 +96,10 @@ export const DeviceUsageIndicationUpdate = (props: IDeviceUsageIndicationUpdateP
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
               {!isNew ? (
-                <ValidatedField name="id" required readOnly id="device-usage-indication-id" label="ID" validate={{ required: true }} />
+                <ValidatedField name="id" required readOnly id="biomarker-association-id" label="ID" validate={{ required: true }} />
               ) : null}
               <ValidatedField
-                id="device-usage-indication-fdaSubmission"
+                id="biomarker-association-fdaSubmission"
                 name="fdaSubmissionId"
                 data-cy="fdaSubmission"
                 label="Fda Submission"
@@ -115,7 +115,7 @@ export const DeviceUsageIndicationUpdate = (props: IDeviceUsageIndicationUpdateP
                   : null}
               </ValidatedField>
               <ValidatedField
-                id="device-usage-indication-alteration"
+                id="biomarker-association-alteration"
                 name="alterationId"
                 data-cy="alteration"
                 label="Alteration"
@@ -131,7 +131,7 @@ export const DeviceUsageIndicationUpdate = (props: IDeviceUsageIndicationUpdateP
                   : null}
               </ValidatedField>
               <ValidatedField
-                id="device-usage-indication-cancerType"
+                id="biomarker-association-cancerType"
                 name="cancerTypeId"
                 data-cy="cancerType"
                 label="Cancer Type"
@@ -146,7 +146,7 @@ export const DeviceUsageIndicationUpdate = (props: IDeviceUsageIndicationUpdateP
                     ))
                   : null}
               </ValidatedField>
-              <ValidatedField id="device-usage-indication-drug" name="drugId" data-cy="drug" label="Drug" type="select">
+              <ValidatedField id="biomarker-association-drug" name="drugId" data-cy="drug" label="Drug" type="select">
                 <option value="" key="0" />
                 {drugs
                   ? drugs.map(otherEntity => (
@@ -170,20 +170,20 @@ const mapStoreToProps = (storeState: IRootStore) => ({
   alterations: storeState.alterationStore.entities,
   cancerTypes: storeState.cancerTypeStore.entities,
   drugs: storeState.drugStore.entities,
-  deviceUsageIndicationEntity: storeState.deviceUsageIndicationStore.entity,
-  loading: storeState.deviceUsageIndicationStore.loading,
-  updating: storeState.deviceUsageIndicationStore.updating,
-  updateSuccess: storeState.deviceUsageIndicationStore.updateSuccess,
+  biomarkerAssociationEntity: storeState.biomarkerAssociationStore.entity,
+  loading: storeState.biomarkerAssociationStore.loading,
+  updating: storeState.biomarkerAssociationStore.updating,
+  updateSuccess: storeState.biomarkerAssociationStore.updateSuccess,
   getFdaSubmissions: storeState.fdaSubmissionStore.getEntities,
   getAlterations: storeState.alterationStore.getEntities,
   getCancerTypes: storeState.cancerTypeStore.getEntities,
   getDrugs: storeState.drugStore.getEntities,
-  getEntity: storeState.deviceUsageIndicationStore.getEntity,
-  updateEntity: storeState.deviceUsageIndicationStore.updateEntity,
-  createEntity: storeState.deviceUsageIndicationStore.createEntity,
-  reset: storeState.deviceUsageIndicationStore.reset,
+  getEntity: storeState.biomarkerAssociationStore.getEntity,
+  updateEntity: storeState.biomarkerAssociationStore.updateEntity,
+  createEntity: storeState.biomarkerAssociationStore.createEntity,
+  reset: storeState.biomarkerAssociationStore.reset,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(DeviceUsageIndicationUpdate);
+export default connect(mapStoreToProps)(BiomarkerAssociationUpdate);

@@ -126,12 +126,12 @@ public class CancerTypeQueryService extends QueryService<CancerType> {
                         )
                     );
             }
-            if (criteria.getDeviceUsageIndicationId() != null) {
+            if (criteria.getBiomarkerAssociationId() != null) {
                 specification =
                     specification.or(
                         buildSpecification(
-                            criteria.getDeviceUsageIndicationId(),
-                            root -> root.join(CancerType_.deviceUsageIndications, JoinType.LEFT).get(DeviceUsageIndication_.id)
+                            criteria.getBiomarkerAssociationId(),
+                            root -> root.join(CancerType_.biomarkerAssociations, JoinType.LEFT).get(BiomarkerAssociation_.id)
                         )
                     );
             }

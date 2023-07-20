@@ -7,11 +7,11 @@ import java.util.Set;
 import javax.persistence.*;
 
 /**
- * A DeviceUsageIndication.
+ * A BiomarkerAssociation.
  */
 @Entity
-@Table(name = "device_usage_indication")
-public class DeviceUsageIndication implements Serializable {
+@Table(name = "biomarker_association")
+public class BiomarkerAssociation implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -22,37 +22,37 @@ public class DeviceUsageIndication implements Serializable {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-        name = "rel_device_usage_indication__alteration",
-        joinColumns = @JoinColumn(name = "device_usage_indication_id"),
+        name = "rel_biomarker_association__alteration",
+        joinColumns = @JoinColumn(name = "biomarker_association_id"),
         inverseJoinColumns = @JoinColumn(name = "alteration_id")
     )
-    @JsonIgnoreProperties(value = { "deviceUsageIndications" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "biomarkerAssociations" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-        name = "rel_device_usage_indication__drug",
-        joinColumns = @JoinColumn(name = "device_usage_indication_id"),
+        name = "rel_biomarker_association__drug",
+        joinColumns = @JoinColumn(name = "biomarker_association_id"),
         inverseJoinColumns = @JoinColumn(name = "drug_id")
     )
-    @JsonIgnoreProperties(value = { "fdaDrug", "synonyms", "deviceUsageIndications" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "fdaDrug", "synonyms", "biomarkerAssociations" }, allowSetters = true)
     private Set<Drug> drugs = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-        name = "rel_device_usage_indication__fda_submission",
-        joinColumns = @JoinColumn(name = "device_usage_indication_id"),
+        name = "rel_biomarker_association__fda_submission",
+        joinColumns = @JoinColumn(name = "biomarker_association_id"),
         inverseJoinColumns = @JoinColumn(name = "fda_submission_id")
     )
-    @JsonIgnoreProperties(value = { "companionDiagnosticDevice", "type", "deviceUsageIndications" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "companionDiagnosticDevice", "type", "biomarkerAssociations" }, allowSetters = true)
     private Set<FdaSubmission> fdaSubmissions = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "children", "deviceUsageIndications", "parent", "clinicalTrialsGovConditions" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "children", "biomarkerAssociations", "parent", "clinicalTrialsGovConditions" }, allowSetters = true)
     private CancerType cancerType;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "deviceUsageIndications", "alterations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "biomarkerAssociations", "alterations" }, allowSetters = true)
     private Gene gene;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -61,7 +61,7 @@ public class DeviceUsageIndication implements Serializable {
         return this.id;
     }
 
-    public DeviceUsageIndication id(Long id) {
+    public BiomarkerAssociation id(Long id) {
         this.setId(id);
         return this;
     }
@@ -78,20 +78,20 @@ public class DeviceUsageIndication implements Serializable {
         this.alterations = alterations;
     }
 
-    public DeviceUsageIndication alterations(Set<Alteration> alterations) {
+    public BiomarkerAssociation alterations(Set<Alteration> alterations) {
         this.setAlterations(alterations);
         return this;
     }
 
-    public DeviceUsageIndication addAlteration(Alteration alteration) {
+    public BiomarkerAssociation addAlteration(Alteration alteration) {
         this.alterations.add(alteration);
-        alteration.getDeviceUsageIndications().add(this);
+        alteration.getBiomarkerAssociations().add(this);
         return this;
     }
 
-    public DeviceUsageIndication removeAlteration(Alteration alteration) {
+    public BiomarkerAssociation removeAlteration(Alteration alteration) {
         this.alterations.remove(alteration);
-        alteration.getDeviceUsageIndications().remove(this);
+        alteration.getBiomarkerAssociations().remove(this);
         return this;
     }
 
@@ -103,20 +103,20 @@ public class DeviceUsageIndication implements Serializable {
         this.drugs = drugs;
     }
 
-    public DeviceUsageIndication drugs(Set<Drug> drugs) {
+    public BiomarkerAssociation drugs(Set<Drug> drugs) {
         this.setDrugs(drugs);
         return this;
     }
 
-    public DeviceUsageIndication addDrug(Drug drug) {
+    public BiomarkerAssociation addDrug(Drug drug) {
         this.drugs.add(drug);
-        drug.getDeviceUsageIndications().add(this);
+        drug.getBiomarkerAssociations().add(this);
         return this;
     }
 
-    public DeviceUsageIndication removeDrug(Drug drug) {
+    public BiomarkerAssociation removeDrug(Drug drug) {
         this.drugs.remove(drug);
-        drug.getDeviceUsageIndications().remove(this);
+        drug.getBiomarkerAssociations().remove(this);
         return this;
     }
 
@@ -128,20 +128,20 @@ public class DeviceUsageIndication implements Serializable {
         this.fdaSubmissions = fdaSubmissions;
     }
 
-    public DeviceUsageIndication fdaSubmissions(Set<FdaSubmission> fdaSubmissions) {
+    public BiomarkerAssociation fdaSubmissions(Set<FdaSubmission> fdaSubmissions) {
         this.setFdaSubmissions(fdaSubmissions);
         return this;
     }
 
-    public DeviceUsageIndication addFdaSubmission(FdaSubmission fdaSubmission) {
+    public BiomarkerAssociation addFdaSubmission(FdaSubmission fdaSubmission) {
         this.fdaSubmissions.add(fdaSubmission);
-        fdaSubmission.getDeviceUsageIndications().add(this);
+        fdaSubmission.getBiomarkerAssociations().add(this);
         return this;
     }
 
-    public DeviceUsageIndication removeFdaSubmission(FdaSubmission fdaSubmission) {
+    public BiomarkerAssociation removeFdaSubmission(FdaSubmission fdaSubmission) {
         this.fdaSubmissions.remove(fdaSubmission);
-        fdaSubmission.getDeviceUsageIndications().remove(this);
+        fdaSubmission.getBiomarkerAssociations().remove(this);
         return this;
     }
 
@@ -153,7 +153,7 @@ public class DeviceUsageIndication implements Serializable {
         this.cancerType = cancerType;
     }
 
-    public DeviceUsageIndication cancerType(CancerType cancerType) {
+    public BiomarkerAssociation cancerType(CancerType cancerType) {
         this.setCancerType(cancerType);
         return this;
     }
@@ -166,7 +166,7 @@ public class DeviceUsageIndication implements Serializable {
         this.gene = gene;
     }
 
-    public DeviceUsageIndication gene(Gene gene) {
+    public BiomarkerAssociation gene(Gene gene) {
         this.setGene(gene);
         return this;
     }
@@ -178,10 +178,10 @@ public class DeviceUsageIndication implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof DeviceUsageIndication)) {
+        if (!(o instanceof BiomarkerAssociation)) {
             return false;
         }
-        return id != null && id.equals(((DeviceUsageIndication) o).id);
+        return id != null && id.equals(((BiomarkerAssociation) o).id);
     }
 
     @Override
@@ -193,7 +193,7 @@ public class DeviceUsageIndication implements Serializable {
     // prettier-ignore
     @Override
     public String toString() {
-        return "DeviceUsageIndication{" +
+        return "BiomarkerAssociation{" +
             "id=" + getId() +
             "}";
     }

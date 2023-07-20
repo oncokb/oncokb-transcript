@@ -74,7 +74,7 @@ public class FdaSubmission implements Serializable {
 
     @ManyToMany(mappedBy = "fdaSubmissions", fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "alterations", "drugs", "fdaSubmissions", "cancerType", "gene" }, allowSetters = true)
-    private Set<DeviceUsageIndication> deviceUsageIndications = new HashSet<>();
+    private Set<BiomarkerAssociation> biomarkerAssociations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -260,34 +260,34 @@ public class FdaSubmission implements Serializable {
         return this;
     }
 
-    public Set<DeviceUsageIndication> getDeviceUsageIndications() {
-        return this.deviceUsageIndications;
+    public Set<BiomarkerAssociation> getBiomarkerAssociations() {
+        return this.biomarkerAssociations;
     }
 
-    public void setDeviceUsageIndications(Set<DeviceUsageIndication> deviceUsageIndications) {
-        if (this.deviceUsageIndications != null) {
-            this.deviceUsageIndications.forEach(i -> i.removeFdaSubmission(this));
+    public void setBiomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
+        if (this.biomarkerAssociations != null) {
+            this.biomarkerAssociations.forEach(i -> i.removeFdaSubmission(this));
         }
-        if (deviceUsageIndications != null) {
-            deviceUsageIndications.forEach(i -> i.addFdaSubmission(this));
+        if (biomarkerAssociations != null) {
+            biomarkerAssociations.forEach(i -> i.addFdaSubmission(this));
         }
-        this.deviceUsageIndications = deviceUsageIndications;
+        this.biomarkerAssociations = biomarkerAssociations;
     }
 
-    public FdaSubmission deviceUsageIndications(Set<DeviceUsageIndication> deviceUsageIndications) {
-        this.setDeviceUsageIndications(deviceUsageIndications);
+    public FdaSubmission biomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
+        this.setBiomarkerAssociations(biomarkerAssociations);
         return this;
     }
 
-    public FdaSubmission addDeviceUsageIndication(DeviceUsageIndication deviceUsageIndication) {
-        this.deviceUsageIndications.add(deviceUsageIndication);
-        deviceUsageIndication.getFdaSubmissions().add(this);
+    public FdaSubmission addBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
+        this.biomarkerAssociations.add(biomarkerAssociation);
+        biomarkerAssociation.getFdaSubmissions().add(this);
         return this;
     }
 
-    public FdaSubmission removeDeviceUsageIndication(DeviceUsageIndication deviceUsageIndication) {
-        this.deviceUsageIndications.remove(deviceUsageIndication);
-        deviceUsageIndication.getFdaSubmissions().remove(this);
+    public FdaSubmission removeBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
+        this.biomarkerAssociations.remove(biomarkerAssociation);
+        biomarkerAssociation.getFdaSubmissions().remove(this);
         return this;
     }
 

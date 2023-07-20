@@ -118,10 +118,10 @@ export interface Alteration {
   consequence?: Consequence;
   /**
    *
-   * @type {Set<DeviceUsageIndication>}
+   * @type {Set<BiomarkerAssociation>}
    * @memberof Alteration
    */
-  deviceUsageIndications?: Set<DeviceUsageIndication>;
+  biomarkerAssociations?: Set<BiomarkerAssociation>;
 }
 /**
  *
@@ -176,7 +176,7 @@ export interface AlterationCriteria {
    * @type {LongFilter}
    * @memberof AlterationCriteria
    */
-  deviceUsageIndicationId?: LongFilter;
+  biomarkerAssociationId?: LongFilter;
   /**
    *
    * @type {LongFilter}
@@ -543,7 +543,7 @@ export interface CancerTypeCriteria {
    * @type {LongFilter}
    * @memberof CancerTypeCriteria
    */
-  deviceUsageIndicationId?: LongFilter;
+  biomarkerAssociationId?: LongFilter;
   /**
    *
    * @type {LongFilter}
@@ -814,86 +814,86 @@ export type ConsequenceTypeEnum = typeof ConsequenceTypeEnum[keyof typeof Conseq
 /**
  *
  * @export
- * @interface DeviceUsageIndication
+ * @interface BiomarkerAssociation
  */
-export interface DeviceUsageIndication {
+export interface BiomarkerAssociation {
   /**
    *
    * @type {number}
-   * @memberof DeviceUsageIndication
+   * @memberof BiomarkerAssociation
    */
   id?: number;
   /**
    *
    * @type {Set<Alteration>}
-   * @memberof DeviceUsageIndication
+   * @memberof BiomarkerAssociation
    */
   alterations?: Set<Alteration>;
   /**
    *
    * @type {Set<Drug>}
-   * @memberof DeviceUsageIndication
+   * @memberof BiomarkerAssociation
    */
   drugs?: Set<Drug>;
   /**
    *
    * @type {Set<FdaSubmission>}
-   * @memberof DeviceUsageIndication
+   * @memberof BiomarkerAssociation
    */
   fdaSubmissions?: Set<FdaSubmission>;
   /**
    *
    * @type {CancerType}
-   * @memberof DeviceUsageIndication
+   * @memberof BiomarkerAssociation
    */
   cancerType?: CancerType;
   /**
    *
    * @type {Gene}
-   * @memberof DeviceUsageIndication
+   * @memberof BiomarkerAssociation
    */
   gene?: Gene;
 }
 /**
  *
  * @export
- * @interface DeviceUsageIndicationDTO
+ * @interface BiomarkerAssociationDTO
  */
-export interface DeviceUsageIndicationDTO {
+export interface BiomarkerAssociationDTO {
   /**
    *
    * @type {number}
-   * @memberof DeviceUsageIndicationDTO
+   * @memberof BiomarkerAssociationDTO
    */
   id?: number;
   /**
    *
    * @type {Set<number>}
-   * @memberof DeviceUsageIndicationDTO
+   * @memberof BiomarkerAssociationDTO
    */
   alterations?: Set<number>;
   /**
    *
    * @type {Set<number>}
-   * @memberof DeviceUsageIndicationDTO
+   * @memberof BiomarkerAssociationDTO
    */
   drugs?: Set<number>;
   /**
    *
    * @type {Set<number>}
-   * @memberof DeviceUsageIndicationDTO
+   * @memberof BiomarkerAssociationDTO
    */
   fdaSubmissions?: Set<number>;
   /**
    *
    * @type {number}
-   * @memberof DeviceUsageIndicationDTO
+   * @memberof BiomarkerAssociationDTO
    */
   cancerType?: number;
   /**
    *
    * @type {number}
-   * @memberof DeviceUsageIndicationDTO
+   * @memberof BiomarkerAssociationDTO
    */
   gene?: number;
 }
@@ -947,10 +947,10 @@ export interface Drug {
   brands?: Set<DrugBrand>;
   /**
    *
-   * @type {Set<DeviceUsageIndication>}
+   * @type {Set<BiomarkerAssociation>}
    * @memberof Drug
    */
-  deviceUsageIndications?: Set<DeviceUsageIndication>;
+  biomarkerAssociations?: Set<BiomarkerAssociation>;
 }
 /**
  *
@@ -1026,7 +1026,7 @@ export interface DrugCriteria {
    * @type {LongFilter}
    * @memberof DrugCriteria
    */
-  deviceUsageIndicationId?: LongFilter;
+  biomarkerAssociationId?: LongFilter;
   /**
    *
    * @type {LongFilter}
@@ -1367,10 +1367,10 @@ export interface FdaSubmission {
   type?: FdaSubmissionType;
   /**
    *
-   * @type {Set<DeviceUsageIndication>}
+   * @type {Set<BiomarkerAssociation>}
    * @memberof FdaSubmission
    */
-  deviceUsageIndications?: Set<DeviceUsageIndication>;
+  biomarkerAssociations?: Set<BiomarkerAssociation>;
 }
 /**
  *
@@ -1437,7 +1437,7 @@ export interface FdaSubmissionCriteria {
    * @type {LongFilter}
    * @memberof FdaSubmissionCriteria
    */
-  deviceUsageIndicationId?: LongFilter;
+  biomarkerAssociationId?: LongFilter;
   /**
    *
    * @type {LongFilter}
@@ -7180,24 +7180,24 @@ export class ConsequenceResourceApi extends BaseAPI {
 }
 
 /**
- * DeviceUsageIndicationResourceApi - axios parameter creator
+ * BiomarkerAssociationResourceApi - axios parameter creator
  * @export
  */
-export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (configuration?: Configuration) {
+export const BiomarkerAssociationResourceApiAxiosParamCreator = function (configuration?: Configuration) {
   return {
     /**
      *
-     * @param {DeviceUsageIndicationDTO} deviceUsageIndicationDTO
+     * @param {BiomarkerAssociationDTO} biomarkerAssociationDTO
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    createDeviceUsageIndication: async (
-      deviceUsageIndicationDTO: DeviceUsageIndicationDTO,
+    createBiomarkerAssociation: async (
+      biomarkerAssociationDTO: BiomarkerAssociationDTO,
       options: AxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
-      // verify required parameter 'deviceUsageIndicationDTO' is not null or undefined
-      assertParamExists('createDeviceUsageIndication', 'deviceUsageIndicationDTO', deviceUsageIndicationDTO);
-      const localVarPath = `/api/device-usage-indications`;
+      // verify required parameter 'biomarkerAssociationDTO' is not null or undefined
+      assertParamExists('createBiomarkerAssociation', 'biomarkerAssociationDTO', biomarkerAssociationDTO);
+      const localVarPath = `/api/biomarker-associations`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -7214,7 +7214,7 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
       localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(deviceUsageIndicationDTO, localVarRequestOptions, configuration);
+      localVarRequestOptions.data = serializeDataIfNeeded(biomarkerAssociationDTO, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -7227,10 +7227,10 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    deleteDeviceUsageIndication: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    deleteBiomarkerAssociation: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
-      assertParamExists('deleteDeviceUsageIndication', 'id', id);
-      const localVarPath = `/api/device-usage-indications/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      assertParamExists('deleteBiomarkerAssociation', 'id', id);
+      const localVarPath = `/api/biomarker-associations/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -7256,8 +7256,8 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllDeviceUsageIndications: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      const localVarPath = `/api/device-usage-indications`;
+    getAllBiomarkerAssociations: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/api/biomarker-associations`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -7284,10 +7284,10 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getDeviceUsageIndication: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    getBiomarkerAssociation: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
-      assertParamExists('getDeviceUsageIndication', 'id', id);
-      const localVarPath = `/api/device-usage-indications/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      assertParamExists('getBiomarkerAssociation', 'id', id);
+      const localVarPath = `/api/biomarker-associations/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -7314,10 +7314,10 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getDeviceUsageIndicationByCompanionDiagnosticDevice: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    getBiomarkerAssociationByCompanionDiagnosticDevice: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
-      assertParamExists('getDeviceUsageIndicationByCompanionDiagnosticDevice', 'id', id);
-      const localVarPath = `/api/device-usage-indications/companion-diagnostic-device/{id}`.replace(
+      assertParamExists('getBiomarkerAssociationByCompanionDiagnosticDevice', 'id', id);
+      const localVarPath = `/api/biomarker-associations/companion-diagnostic-device/{id}`.replace(
         `{${'id'}}`,
         encodeURIComponent(String(id))
       );
@@ -7344,20 +7344,20 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
     /**
      *
      * @param {number} id
-     * @param {DeviceUsageIndication} deviceUsageIndication
+     * @param {BiomarkerAssociation} biomarkerAssociation
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    partialUpdateDeviceUsageIndication: async (
+    partialUpdateBiomarkerAssociation: async (
       id: number,
-      deviceUsageIndication: DeviceUsageIndication,
+      biomarkerAssociation: BiomarkerAssociation,
       options: AxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
-      assertParamExists('partialUpdateDeviceUsageIndication', 'id', id);
-      // verify required parameter 'deviceUsageIndication' is not null or undefined
-      assertParamExists('partialUpdateDeviceUsageIndication', 'deviceUsageIndication', deviceUsageIndication);
-      const localVarPath = `/api/device-usage-indications/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      assertParamExists('partialUpdateBiomarkerAssociation', 'id', id);
+      // verify required parameter 'biomarkerAssociation' is not null or undefined
+      assertParamExists('partialUpdateBiomarkerAssociation', 'biomarkerAssociation', biomarkerAssociation);
+      const localVarPath = `/api/biomarker-associations/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -7374,7 +7374,7 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
       localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(deviceUsageIndication, localVarRequestOptions, configuration);
+      localVarRequestOptions.data = serializeDataIfNeeded(biomarkerAssociation, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -7384,20 +7384,20 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
     /**
      *
      * @param {number} id
-     * @param {DeviceUsageIndication} deviceUsageIndication
+     * @param {BiomarkerAssociation} biomarkerAssociation
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    updateDeviceUsageIndication: async (
+    updateBiomarkerAssociation: async (
       id: number,
-      deviceUsageIndication: DeviceUsageIndication,
+      biomarkerAssociation: BiomarkerAssociation,
       options: AxiosRequestConfig = {}
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
-      assertParamExists('updateDeviceUsageIndication', 'id', id);
-      // verify required parameter 'deviceUsageIndication' is not null or undefined
-      assertParamExists('updateDeviceUsageIndication', 'deviceUsageIndication', deviceUsageIndication);
-      const localVarPath = `/api/device-usage-indications/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      assertParamExists('updateBiomarkerAssociation', 'id', id);
+      // verify required parameter 'biomarkerAssociation' is not null or undefined
+      assertParamExists('updateBiomarkerAssociation', 'biomarkerAssociation', biomarkerAssociation);
+      const localVarPath = `/api/biomarker-associations/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -7414,7 +7414,7 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
       localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(deviceUsageIndication, localVarRequestOptions, configuration);
+      localVarRequestOptions.data = serializeDataIfNeeded(biomarkerAssociation, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -7425,23 +7425,23 @@ export const DeviceUsageIndicationResourceApiAxiosParamCreator = function (confi
 };
 
 /**
- * DeviceUsageIndicationResourceApi - functional programming interface
+ * BiomarkerAssociationResourceApi - functional programming interface
  * @export
  */
-export const DeviceUsageIndicationResourceApiFp = function (configuration?: Configuration) {
-  const localVarAxiosParamCreator = DeviceUsageIndicationResourceApiAxiosParamCreator(configuration);
+export const BiomarkerAssociationResourceApiFp = function (configuration?: Configuration) {
+  const localVarAxiosParamCreator = BiomarkerAssociationResourceApiAxiosParamCreator(configuration);
   return {
     /**
      *
-     * @param {DeviceUsageIndicationDTO} deviceUsageIndicationDTO
+     * @param {BiomarkerAssociationDTO} biomarkerAssociationDTO
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async createDeviceUsageIndication(
-      deviceUsageIndicationDTO: DeviceUsageIndicationDTO,
+    async createBiomarkerAssociation(
+      biomarkerAssociationDTO: BiomarkerAssociationDTO,
       options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DeviceUsageIndication>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.createDeviceUsageIndication(deviceUsageIndicationDTO, options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BiomarkerAssociation>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.createBiomarkerAssociation(biomarkerAssociationDTO, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -7450,11 +7450,11 @@ export const DeviceUsageIndicationResourceApiFp = function (configuration?: Conf
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async deleteDeviceUsageIndication(
+    async deleteBiomarkerAssociation(
       id: number,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteDeviceUsageIndication(id, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteBiomarkerAssociation(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -7462,23 +7462,10 @@ export const DeviceUsageIndicationResourceApiFp = function (configuration?: Conf
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async getAllDeviceUsageIndications(
+    async getAllBiomarkerAssociations(
       options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DeviceUsageIndication>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllDeviceUsageIndications(options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async getDeviceUsageIndication(
-      id: number,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DeviceUsageIndication>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getDeviceUsageIndication(id, options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<BiomarkerAssociation>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllBiomarkerAssociations(options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -7487,61 +7474,74 @@ export const DeviceUsageIndicationResourceApiFp = function (configuration?: Conf
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async getDeviceUsageIndicationByCompanionDiagnosticDevice(
+    async getBiomarkerAssociation(
       id: number,
       options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<DeviceUsageIndication>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getDeviceUsageIndicationByCompanionDiagnosticDevice(id, options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BiomarkerAssociation>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getBiomarkerAssociation(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
      *
      * @param {number} id
-     * @param {DeviceUsageIndication} deviceUsageIndication
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async partialUpdateDeviceUsageIndication(
+    async getBiomarkerAssociationByCompanionDiagnosticDevice(
       id: number,
-      deviceUsageIndication: DeviceUsageIndication,
       options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DeviceUsageIndication>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateDeviceUsageIndication(id, deviceUsageIndication, options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<BiomarkerAssociation>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getBiomarkerAssociationByCompanionDiagnosticDevice(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
      *
      * @param {number} id
-     * @param {DeviceUsageIndication} deviceUsageIndication
+     * @param {BiomarkerAssociation} biomarkerAssociation
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async updateDeviceUsageIndication(
+    async partialUpdateBiomarkerAssociation(
       id: number,
-      deviceUsageIndication: DeviceUsageIndication,
+      biomarkerAssociation: BiomarkerAssociation,
       options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DeviceUsageIndication>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.updateDeviceUsageIndication(id, deviceUsageIndication, options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BiomarkerAssociation>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateBiomarkerAssociation(id, biomarkerAssociation, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {BiomarkerAssociation} biomarkerAssociation
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async updateBiomarkerAssociation(
+      id: number,
+      biomarkerAssociation: BiomarkerAssociation,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BiomarkerAssociation>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.updateBiomarkerAssociation(id, biomarkerAssociation, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
   };
 };
 
 /**
- * DeviceUsageIndicationResourceApi - factory interface
+ * BiomarkerAssociationResourceApi - factory interface
  * @export
  */
-export const DeviceUsageIndicationResourceApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-  const localVarFp = DeviceUsageIndicationResourceApiFp(configuration);
+export const BiomarkerAssociationResourceApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+  const localVarFp = BiomarkerAssociationResourceApiFp(configuration);
   return {
     /**
      *
-     * @param {DeviceUsageIndicationDTO} deviceUsageIndicationDTO
+     * @param {BiomarkerAssociationDTO} biomarkerAssociationDTO
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    createDeviceUsageIndication(deviceUsageIndicationDTO: DeviceUsageIndicationDTO, options?: any): AxiosPromise<DeviceUsageIndication> {
-      return localVarFp.createDeviceUsageIndication(deviceUsageIndicationDTO, options).then(request => request(axios, basePath));
+    createBiomarkerAssociation(biomarkerAssociationDTO: BiomarkerAssociationDTO, options?: any): AxiosPromise<BiomarkerAssociation> {
+      return localVarFp.createBiomarkerAssociation(biomarkerAssociationDTO, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -7549,25 +7549,16 @@ export const DeviceUsageIndicationResourceApiFactory = function (configuration?:
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    deleteDeviceUsageIndication(id: number, options?: any): AxiosPromise<void> {
-      return localVarFp.deleteDeviceUsageIndication(id, options).then(request => request(axios, basePath));
+    deleteBiomarkerAssociation(id: number, options?: any): AxiosPromise<void> {
+      return localVarFp.deleteBiomarkerAssociation(id, options).then(request => request(axios, basePath));
     },
     /**
      *
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllDeviceUsageIndications(options?: any): AxiosPromise<Array<DeviceUsageIndication>> {
-      return localVarFp.getAllDeviceUsageIndications(options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    getDeviceUsageIndication(id: number, options?: any): AxiosPromise<DeviceUsageIndication> {
-      return localVarFp.getDeviceUsageIndication(id, options).then(request => request(axios, basePath));
+    getAllBiomarkerAssociations(options?: any): AxiosPromise<Array<BiomarkerAssociation>> {
+      return localVarFp.getAllBiomarkerAssociations(options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -7575,57 +7566,62 @@ export const DeviceUsageIndicationResourceApiFactory = function (configuration?:
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getDeviceUsageIndicationByCompanionDiagnosticDevice(id: number, options?: any): AxiosPromise<Array<DeviceUsageIndication>> {
-      return localVarFp.getDeviceUsageIndicationByCompanionDiagnosticDevice(id, options).then(request => request(axios, basePath));
+    getBiomarkerAssociation(id: number, options?: any): AxiosPromise<BiomarkerAssociation> {
+      return localVarFp.getBiomarkerAssociation(id, options).then(request => request(axios, basePath));
     },
     /**
      *
      * @param {number} id
-     * @param {DeviceUsageIndication} deviceUsageIndication
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    partialUpdateDeviceUsageIndication(
+    getBiomarkerAssociationByCompanionDiagnosticDevice(id: number, options?: any): AxiosPromise<Array<BiomarkerAssociation>> {
+      return localVarFp.getBiomarkerAssociationByCompanionDiagnosticDevice(id, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {BiomarkerAssociation} biomarkerAssociation
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    partialUpdateBiomarkerAssociation(
       id: number,
-      deviceUsageIndication: DeviceUsageIndication,
+      biomarkerAssociation: BiomarkerAssociation,
       options?: any
-    ): AxiosPromise<DeviceUsageIndication> {
-      return localVarFp.partialUpdateDeviceUsageIndication(id, deviceUsageIndication, options).then(request => request(axios, basePath));
+    ): AxiosPromise<BiomarkerAssociation> {
+      return localVarFp.partialUpdateBiomarkerAssociation(id, biomarkerAssociation, options).then(request => request(axios, basePath));
     },
     /**
      *
      * @param {number} id
-     * @param {DeviceUsageIndication} deviceUsageIndication
+     * @param {BiomarkerAssociation} biomarkerAssociation
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    updateDeviceUsageIndication(
-      id: number,
-      deviceUsageIndication: DeviceUsageIndication,
-      options?: any
-    ): AxiosPromise<DeviceUsageIndication> {
-      return localVarFp.updateDeviceUsageIndication(id, deviceUsageIndication, options).then(request => request(axios, basePath));
+    updateBiomarkerAssociation(id: number, biomarkerAssociation: BiomarkerAssociation, options?: any): AxiosPromise<BiomarkerAssociation> {
+      return localVarFp.updateBiomarkerAssociation(id, biomarkerAssociation, options).then(request => request(axios, basePath));
     },
   };
 };
 
 /**
- * DeviceUsageIndicationResourceApi - object-oriented interface
+ * BiomarkerAssociationResourceApi - object-oriented interface
  * @export
- * @class DeviceUsageIndicationResourceApi
+ * @class BiomarkerAssociationResourceApi
  * @extends {BaseAPI}
  */
-export class DeviceUsageIndicationResourceApi extends BaseAPI {
+export class BiomarkerAssociationResourceApi extends BaseAPI {
   /**
    *
-   * @param {DeviceUsageIndicationDTO} deviceUsageIndicationDTO
+   * @param {BiomarkerAssociationDTO} biomarkerAssociationDTO
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
-   * @memberof DeviceUsageIndicationResourceApi
+   * @memberof BiomarkerAssociationResourceApi
    */
-  public createDeviceUsageIndication(deviceUsageIndicationDTO: DeviceUsageIndicationDTO, options?: AxiosRequestConfig) {
-    return DeviceUsageIndicationResourceApiFp(this.configuration)
-      .createDeviceUsageIndication(deviceUsageIndicationDTO, options)
+  public createBiomarkerAssociation(biomarkerAssociationDTO: BiomarkerAssociationDTO, options?: AxiosRequestConfig) {
+    return BiomarkerAssociationResourceApiFp(this.configuration)
+      .createBiomarkerAssociation(biomarkerAssociationDTO, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -7634,11 +7630,11 @@ export class DeviceUsageIndicationResourceApi extends BaseAPI {
    * @param {number} id
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
-   * @memberof DeviceUsageIndicationResourceApi
+   * @memberof BiomarkerAssociationResourceApi
    */
-  public deleteDeviceUsageIndication(id: number, options?: AxiosRequestConfig) {
-    return DeviceUsageIndicationResourceApiFp(this.configuration)
-      .deleteDeviceUsageIndication(id, options)
+  public deleteBiomarkerAssociation(id: number, options?: AxiosRequestConfig) {
+    return BiomarkerAssociationResourceApiFp(this.configuration)
+      .deleteBiomarkerAssociation(id, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -7646,24 +7642,11 @@ export class DeviceUsageIndicationResourceApi extends BaseAPI {
    *
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
-   * @memberof DeviceUsageIndicationResourceApi
+   * @memberof BiomarkerAssociationResourceApi
    */
-  public getAllDeviceUsageIndications(options?: AxiosRequestConfig) {
-    return DeviceUsageIndicationResourceApiFp(this.configuration)
-      .getAllDeviceUsageIndications(options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {number} id
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof DeviceUsageIndicationResourceApi
-   */
-  public getDeviceUsageIndication(id: number, options?: AxiosRequestConfig) {
-    return DeviceUsageIndicationResourceApiFp(this.configuration)
-      .getDeviceUsageIndication(id, options)
+  public getAllBiomarkerAssociations(options?: AxiosRequestConfig) {
+    return BiomarkerAssociationResourceApiFp(this.configuration)
+      .getAllBiomarkerAssociations(options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -7672,39 +7655,52 @@ export class DeviceUsageIndicationResourceApi extends BaseAPI {
    * @param {number} id
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
-   * @memberof DeviceUsageIndicationResourceApi
+   * @memberof BiomarkerAssociationResourceApi
    */
-  public getDeviceUsageIndicationByCompanionDiagnosticDevice(id: number, options?: AxiosRequestConfig) {
-    return DeviceUsageIndicationResourceApiFp(this.configuration)
-      .getDeviceUsageIndicationByCompanionDiagnosticDevice(id, options)
+  public getBiomarkerAssociation(id: number, options?: AxiosRequestConfig) {
+    return BiomarkerAssociationResourceApiFp(this.configuration)
+      .getBiomarkerAssociation(id, options)
       .then(request => request(this.axios, this.basePath));
   }
 
   /**
    *
    * @param {number} id
-   * @param {DeviceUsageIndication} deviceUsageIndication
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
-   * @memberof DeviceUsageIndicationResourceApi
+   * @memberof BiomarkerAssociationResourceApi
    */
-  public partialUpdateDeviceUsageIndication(id: number, deviceUsageIndication: DeviceUsageIndication, options?: AxiosRequestConfig) {
-    return DeviceUsageIndicationResourceApiFp(this.configuration)
-      .partialUpdateDeviceUsageIndication(id, deviceUsageIndication, options)
+  public getBiomarkerAssociationByCompanionDiagnosticDevice(id: number, options?: AxiosRequestConfig) {
+    return BiomarkerAssociationResourceApiFp(this.configuration)
+      .getBiomarkerAssociationByCompanionDiagnosticDevice(id, options)
       .then(request => request(this.axios, this.basePath));
   }
 
   /**
    *
    * @param {number} id
-   * @param {DeviceUsageIndication} deviceUsageIndication
+   * @param {BiomarkerAssociation} biomarkerAssociation
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
-   * @memberof DeviceUsageIndicationResourceApi
+   * @memberof BiomarkerAssociationResourceApi
    */
-  public updateDeviceUsageIndication(id: number, deviceUsageIndication: DeviceUsageIndication, options?: AxiosRequestConfig) {
-    return DeviceUsageIndicationResourceApiFp(this.configuration)
-      .updateDeviceUsageIndication(id, deviceUsageIndication, options)
+  public partialUpdateBiomarkerAssociation(id: number, biomarkerAssociation: BiomarkerAssociation, options?: AxiosRequestConfig) {
+    return BiomarkerAssociationResourceApiFp(this.configuration)
+      .partialUpdateBiomarkerAssociation(id, biomarkerAssociation, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {BiomarkerAssociation} biomarkerAssociation
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof BiomarkerAssociationResourceApi
+   */
+  public updateBiomarkerAssociation(id: number, biomarkerAssociation: BiomarkerAssociation, options?: AxiosRequestConfig) {
+    return BiomarkerAssociationResourceApiFp(this.configuration)
+      .updateBiomarkerAssociation(id, biomarkerAssociation, options)
       .then(request => request(this.axios, this.basePath));
   }
 }

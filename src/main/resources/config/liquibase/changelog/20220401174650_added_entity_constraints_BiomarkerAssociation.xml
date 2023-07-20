@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+    <!--
+        Added the constraints for entity BiomarkerAssociation.
+    -->
+    <changeSet id="20220401174650-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="biomarker_association_id"
+                                 baseTableName="rel_biomarker_association__alteration"
+                                 constraintName="fk_rel_biomarker_association___biomarker_association_e2_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="biomarker_association"/>
+
+        <addForeignKeyConstraint baseColumnNames="alteration_id"
+                                 baseTableName="rel_biomarker_association__alteration"
+                                 constraintName="fk_rel_biomarker_association__alteration__alteration_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="alteration"/>
+
+        <addForeignKeyConstraint baseColumnNames="biomarker_association_id"
+                                 baseTableName="rel_biomarker_association__drug"
+                                 constraintName="fk_rel_biomarker_association___biomarker_association_06_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="biomarker_association"/>
+
+        <addForeignKeyConstraint baseColumnNames="drug_id"
+                                 baseTableName="rel_biomarker_association__drug"
+                                 constraintName="fk_rel_biomarker_association__drug__drug_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="drug"/>
+
+        <addForeignKeyConstraint baseColumnNames="biomarker_association_id"
+                                 baseTableName="rel_biomarker_association__fda_submission"
+                                 constraintName="fk_rel_biomarker_association___biomarker_association_8e_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="biomarker_association"/>
+
+        <addForeignKeyConstraint baseColumnNames="fda_submission_id"
+                                 baseTableName="rel_biomarker_association__fda_submission"
+                                 constraintName="fk_rel_biomarker_association___fda_submission_9c_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="fda_submission"/>
+
+        <addForeignKeyConstraint baseColumnNames="cancer_type_id"
+                                 baseTableName="biomarker_association"
+                                 constraintName="fk_biomarker_association__cancer_type_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="cancer_type"/>
+
+        <addForeignKeyConstraint baseColumnNames="gene_id"
+                                 baseTableName="biomarker_association"
+                                 constraintName="fk_biomarker_association__gene_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="gene"/>
+    </changeSet>
+</databaseChangeLog>

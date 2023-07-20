@@ -38,7 +38,7 @@ public class AlterationCriteria implements Serializable, Criteria {
 
     private StringFilter variantResidues;
 
-    private LongFilter deviceUsageIndicationId;
+    private LongFilter biomarkerAssociationId;
 
     private LongFilter referenceGenomesId;
 
@@ -58,7 +58,7 @@ public class AlterationCriteria implements Serializable, Criteria {
         this.proteinEnd = other.proteinEnd == null ? null : other.proteinEnd.copy();
         this.refResidues = other.refResidues == null ? null : other.refResidues.copy();
         this.variantResidues = other.variantResidues == null ? null : other.variantResidues.copy();
-        this.deviceUsageIndicationId = other.deviceUsageIndicationId == null ? null : other.deviceUsageIndicationId.copy();
+        this.biomarkerAssociationId = other.biomarkerAssociationId == null ? null : other.biomarkerAssociationId.copy();
         this.referenceGenomesId = other.referenceGenomesId == null ? null : other.referenceGenomesId.copy();
         this.geneId = other.geneId == null ? null : other.geneId.copy();
         this.consequenceId = other.consequenceId == null ? null : other.consequenceId.copy();
@@ -175,19 +175,19 @@ public class AlterationCriteria implements Serializable, Criteria {
         this.variantResidues = variantResidues;
     }
 
-    public LongFilter getDeviceUsageIndicationId() {
-        return deviceUsageIndicationId;
+    public LongFilter getBiomarkerAssociationId() {
+        return biomarkerAssociationId;
     }
 
-    public LongFilter deviceUsageIndicationId() {
-        if (deviceUsageIndicationId == null) {
-            deviceUsageIndicationId = new LongFilter();
+    public LongFilter biomarkerAssociationId() {
+        if (biomarkerAssociationId == null) {
+            biomarkerAssociationId = new LongFilter();
         }
-        return deviceUsageIndicationId;
+        return biomarkerAssociationId;
     }
 
-    public void setDeviceUsageIndicationId(LongFilter deviceUsageIndicationId) {
-        this.deviceUsageIndicationId = deviceUsageIndicationId;
+    public void setBiomarkerAssociationId(LongFilter biomarkerAssociationId) {
+        this.biomarkerAssociationId = biomarkerAssociationId;
     }
 
     public LongFilter getReferenceGenomesId() {
@@ -260,7 +260,7 @@ public class AlterationCriteria implements Serializable, Criteria {
             Objects.equals(proteinEnd, that.proteinEnd) &&
             Objects.equals(refResidues, that.refResidues) &&
             Objects.equals(variantResidues, that.variantResidues) &&
-            Objects.equals(deviceUsageIndicationId, that.deviceUsageIndicationId) &&
+            Objects.equals(biomarkerAssociationId, that.biomarkerAssociationId) &&
             Objects.equals(referenceGenomesId, that.referenceGenomesId) &&
             Objects.equals(geneId, that.geneId) &&
             Objects.equals(consequenceId, that.consequenceId) &&
@@ -278,7 +278,7 @@ public class AlterationCriteria implements Serializable, Criteria {
             proteinEnd,
             refResidues,
             variantResidues,
-            deviceUsageIndicationId,
+            biomarkerAssociationId,
             referenceGenomesId,
             geneId,
             consequenceId,
@@ -297,7 +297,7 @@ public class AlterationCriteria implements Serializable, Criteria {
             (proteinEnd != null ? "proteinEnd=" + proteinEnd + ", " : "") +
             (refResidues != null ? "refResidues=" + refResidues + ", " : "") +
             (variantResidues != null ? "variantResidues=" + variantResidues + ", " : "") +
-            (deviceUsageIndicationId != null ? "deviceUsageIndicationId=" + deviceUsageIndicationId + ", " : "") +
+            (biomarkerAssociationId != null ? "biomarkerAssociationId=" + biomarkerAssociationId + ", " : "") +
             (referenceGenomesId != null ? "referenceGenomesId=" + referenceGenomesId + ", " : "") +
             (geneId != null ? "geneId=" + geneId + ", " : "") +
             (consequenceId != null ? "consequenceId=" + consequenceId + ", " : "") +

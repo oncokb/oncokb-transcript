@@ -3,7 +3,7 @@ import { connect } from '../util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { getFdaSubmissionLinks, getFdaSubmissionNumber } from 'app/entities/companion-diagnostic-device/companion-diagnostic-device';
 import OncoKBTable from './OncoKBTable';
-import { IDeviceUsageIndication } from '../model/device-usage-indication.model';
+import { IBiomarkerAssociation } from '../model/biomarker-association.model';
 import { Column } from 'react-table';
 import { getAlterationName, getCancerTypeName, getTreatmentName } from '../util/utils';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
@@ -40,7 +40,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
     setCurrentBiomarkerAssociationId(null);
   };
 
-  const columns: Column<IDeviceUsageIndication>[] = [
+  const columns: Column<IBiomarkerAssociation>[] = [
     {
       id: 'gene',
       Header: 'Gene',
@@ -49,7 +49,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
           row: { original },
         },
       }: {
-        cell: { row: { original: IDeviceUsageIndication } };
+        cell: { row: { original: IBiomarkerAssociation } };
       }): any {
         return <div>{original.gene?.hugoSymbol}</div>;
       },
@@ -62,7 +62,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
           row: { original },
         },
       }: {
-        cell: { row: { original: IDeviceUsageIndication } };
+        cell: { row: { original: IBiomarkerAssociation } };
       }): any {
         return <>{original.alterations && getAlterationName(original.alterations)}</>;
       },
@@ -75,7 +75,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
           row: { original },
         },
       }: {
-        cell: { row: { original: IDeviceUsageIndication } };
+        cell: { row: { original: IBiomarkerAssociation } };
       }): any {
         return <div>{getCancerTypeName(original.cancerType)}</div>;
       },
@@ -88,7 +88,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
           row: { original },
         },
       }: {
-        cell: { row: { original: IDeviceUsageIndication } };
+        cell: { row: { original: IBiomarkerAssociation } };
       }): any {
         return <>{original.drugs && getTreatmentName(original.drugs)}</>;
       },
@@ -101,7 +101,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
           row: { original },
         },
       }: {
-        cell: { row: { original: IDeviceUsageIndication } };
+        cell: { row: { original: IBiomarkerAssociation } };
       }): any {
         return <>{original.fdaSubmissions && getFdaSubmissionLinks(original.fdaSubmissions)}</>;
       },
@@ -117,7 +117,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
           row: { original },
         },
       }: {
-        cell: { row: { original: IDeviceUsageIndication } };
+        cell: { row: { original: IBiomarkerAssociation } };
       }): any {
         return (
           <>
@@ -153,11 +153,11 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
   );
 };
 
-const mapStoreToProps = ({ deviceUsageIndicationStore }: IRootStore) => ({
-  deleteEntity: deviceUsageIndicationStore.deleteEntity,
-  getBiomarkerAssociations: deviceUsageIndicationStore.getByCompanionDiagnosticDevice,
-  biomarkerAssociations: deviceUsageIndicationStore.entities,
-  loading: deviceUsageIndicationStore.loading,
+const mapStoreToProps = ({ biomarkerAssociationStore }: IRootStore) => ({
+  deleteEntity: biomarkerAssociationStore.deleteEntity,
+  getBiomarkerAssociations: biomarkerAssociationStore.getByCompanionDiagnosticDevice,
+  biomarkerAssociations: biomarkerAssociationStore.entities,
+  loading: biomarkerAssociationStore.loading,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

@@ -30,7 +30,7 @@
     <include file="config/liquibase/changelog/20220401174646_added_entity_FdaSubmission.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174648_added_entity_Alteration.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174649_added_entity_CancerType.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20220401174650_added_entity_DeviceUsageIndication.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220401174650_added_entity_BiomarkerAssociation.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401213213_added_entity_Article.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220419220505_added_entity_DrugBrand.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220428161233_added_entity_CategoricalAlteration.xml" relativeToChangelogFile="false"/>
@@ -49,7 +49,7 @@
     <include file="config/liquibase/changelog/20220401174646_added_entity_constraints_FdaSubmission.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174648_added_entity_constraints_Alteration.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174649_added_entity_constraints_CancerType.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20220401174650_added_entity_constraints_DeviceUsageIndication.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220401174650_added_entity_constraints_BiomarkerAssociation.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220419220505_added_entity_constraints_DrugBrand.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220516220250_added_entity_constraints_AlterationReferenceGenome.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230223171840_added_entity_constraints_ClinicalTrialsGovCondition.xml" relativeToChangelogFile="false"/>

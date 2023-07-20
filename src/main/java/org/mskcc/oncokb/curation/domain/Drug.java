@@ -46,7 +46,7 @@ public class Drug implements Serializable {
 
     @ManyToMany(mappedBy = "drugs", fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "alterations", "drugs", "fdaSubmission", "cancerType" }, allowSetters = true)
-    private Set<DeviceUsageIndication> deviceUsageIndications = new HashSet<>();
+    private Set<BiomarkerAssociation> biomarkerAssociations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -177,34 +177,34 @@ public class Drug implements Serializable {
         return this;
     }
 
-    public Set<DeviceUsageIndication> getDeviceUsageIndications() {
-        return this.deviceUsageIndications;
+    public Set<BiomarkerAssociation> getBiomarkerAssociations() {
+        return this.biomarkerAssociations;
     }
 
-    public void setDeviceUsageIndications(Set<DeviceUsageIndication> deviceUsageIndications) {
-        if (this.deviceUsageIndications != null) {
-            this.deviceUsageIndications.forEach(i -> i.removeDrug(this));
+    public void setBiomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
+        if (this.biomarkerAssociations != null) {
+            this.biomarkerAssociations.forEach(i -> i.removeDrug(this));
         }
-        if (deviceUsageIndications != null) {
-            deviceUsageIndications.forEach(i -> i.addDrug(this));
+        if (biomarkerAssociations != null) {
+            biomarkerAssociations.forEach(i -> i.addDrug(this));
         }
-        this.deviceUsageIndications = deviceUsageIndications;
+        this.biomarkerAssociations = biomarkerAssociations;
     }
 
-    public Drug deviceUsageIndications(Set<DeviceUsageIndication> deviceUsageIndications) {
-        this.setDeviceUsageIndications(deviceUsageIndications);
+    public Drug biomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
+        this.setBiomarkerAssociations(biomarkerAssociations);
         return this;
     }
 
-    public Drug addDeviceUsageIndication(DeviceUsageIndication deviceUsageIndication) {
-        this.deviceUsageIndications.add(deviceUsageIndication);
-        deviceUsageIndication.getDrugs().add(this);
+    public Drug addBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
+        this.biomarkerAssociations.add(biomarkerAssociation);
+        biomarkerAssociation.getDrugs().add(this);
         return this;
     }
 
-    public Drug removeDeviceUsageIndication(DeviceUsageIndication deviceUsageIndication) {
-        this.deviceUsageIndications.remove(deviceUsageIndication);
-        deviceUsageIndication.getDrugs().remove(this);
+    public Drug removeBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
+        this.biomarkerAssociations.remove(biomarkerAssociation);
+        biomarkerAssociation.getDrugs().remove(this);
         return this;
     }
 

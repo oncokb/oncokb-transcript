@@ -1,12 +1,12 @@
-import { IDeviceUsageIndication } from 'app/shared/model/device-usage-indication.model';
+import { IBiomarkerAssociation } from 'app/shared/model/biomarker-association.model';
 import { IRootStore } from 'app/stores';
 import CrudStore from 'app/shared/util/crud-store';
-import { deviceUsageIndicationClient } from 'app/shared/api/clients';
+import { biomarkerAssociationClient } from 'app/shared/api/clients';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
-const apiUrl = 'api/device-usage-indications';
+const apiUrl = 'api/biomarker-associations';
 
-export class DeviceUsageIndicationStore extends CrudStore<IDeviceUsageIndication> {
+export class BiomarkerAssociationStore extends CrudStore<IBiomarkerAssociation> {
   getByCompanionDiagnosticDevice = this.readHandler(this.getByCompanionDiagnosticDeviceGen);
   constructor(protected rootStore: IRootStore) {
     super(rootStore, apiUrl);
@@ -15,7 +15,7 @@ export class DeviceUsageIndicationStore extends CrudStore<IDeviceUsageIndication
   *getByCompanionDiagnosticDeviceGen(id: number) {
     try {
       this.loading = true;
-      const result = yield deviceUsageIndicationClient.getDeviceUsageIndicationByCompanionDiagnosticDevice(id);
+      const result = yield biomarkerAssociationClient.getBiomarkerAssociationByCompanionDiagnosticDevice(id);
       this.entities = result.data;
       this.totalItems = result.data.length;
       return this.entities;
@@ -27,4 +27,4 @@ export class DeviceUsageIndicationStore extends CrudStore<IDeviceUsageIndication
   }
 }
 
-export default DeviceUsageIndicationStore;
+export default BiomarkerAssociationStore;

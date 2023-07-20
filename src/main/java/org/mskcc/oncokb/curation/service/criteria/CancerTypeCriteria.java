@@ -60,7 +60,7 @@ public class CancerTypeCriteria implements Serializable, Criteria {
 
     private LongFilter childrenId;
 
-    private LongFilter deviceUsageIndicationId;
+    private LongFilter biomarkerAssociationId;
 
     private LongFilter parentId;
 
@@ -78,7 +78,7 @@ public class CancerTypeCriteria implements Serializable, Criteria {
         this.tissue = other.tissue == null ? null : other.tissue.copy();
         this.tumorForm = other.tumorForm == null ? null : other.tumorForm.copy();
         this.childrenId = other.childrenId == null ? null : other.childrenId.copy();
-        this.deviceUsageIndicationId = other.deviceUsageIndicationId == null ? null : other.deviceUsageIndicationId.copy();
+        this.biomarkerAssociationId = other.biomarkerAssociationId == null ? null : other.biomarkerAssociationId.copy();
         this.parentId = other.parentId == null ? null : other.parentId.copy();
         this.distinct = other.distinct;
     }
@@ -223,19 +223,19 @@ public class CancerTypeCriteria implements Serializable, Criteria {
         this.childrenId = childrenId;
     }
 
-    public LongFilter getDeviceUsageIndicationId() {
-        return deviceUsageIndicationId;
+    public LongFilter getBiomarkerAssociationId() {
+        return biomarkerAssociationId;
     }
 
-    public LongFilter deviceUsageIndicationId() {
-        if (deviceUsageIndicationId == null) {
-            deviceUsageIndicationId = new LongFilter();
+    public LongFilter biomarkerAssociationId() {
+        if (biomarkerAssociationId == null) {
+            biomarkerAssociationId = new LongFilter();
         }
-        return deviceUsageIndicationId;
+        return biomarkerAssociationId;
     }
 
-    public void setDeviceUsageIndicationId(LongFilter deviceUsageIndicationId) {
-        this.deviceUsageIndicationId = deviceUsageIndicationId;
+    public void setBiomarkerAssociationId(LongFilter biomarkerAssociationId) {
+        this.biomarkerAssociationId = biomarkerAssociationId;
     }
 
     public LongFilter getParentId() {
@@ -280,7 +280,7 @@ public class CancerTypeCriteria implements Serializable, Criteria {
             Objects.equals(tissue, that.tissue) &&
             Objects.equals(tumorForm, that.tumorForm) &&
             Objects.equals(childrenId, that.childrenId) &&
-            Objects.equals(deviceUsageIndicationId, that.deviceUsageIndicationId) &&
+            Objects.equals(biomarkerAssociationId, that.biomarkerAssociationId) &&
             Objects.equals(parentId, that.parentId) &&
             Objects.equals(distinct, that.distinct)
         );
@@ -298,7 +298,7 @@ public class CancerTypeCriteria implements Serializable, Criteria {
             tissue,
             tumorForm,
             childrenId,
-            deviceUsageIndicationId,
+            biomarkerAssociationId,
             parentId,
             distinct
         );
@@ -317,7 +317,7 @@ public class CancerTypeCriteria implements Serializable, Criteria {
             (tissue != null ? "tissue=" + tissue + ", " : "") +
             (tumorForm != null ? "tumorForm=" + tumorForm + ", " : "") +
             (childrenId != null ? "childrenId=" + childrenId + ", " : "") +
-            (deviceUsageIndicationId != null ? "deviceUsageIndicationId=" + deviceUsageIndicationId + ", " : "") +
+            (biomarkerAssociationId != null ? "biomarkerAssociationId=" + biomarkerAssociationId + ", " : "") +
             (parentId != null ? "parentId=" + parentId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";

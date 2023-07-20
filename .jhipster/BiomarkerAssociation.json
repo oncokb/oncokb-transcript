@@ -1,42 +1,42 @@
 {
-  "name": "DeviceUsageIndication",
+  "name": "BiomarkerAssociation",
   "fields": [],
   "relationships": [
     {
       "relationshipType": "many-to-many",
       "otherEntityName": "alteration",
-      "otherEntityRelationshipName": "deviceUsageIndication",
+      "otherEntityRelationshipName": "biomarkerAssociation",
       "relationshipName": "alteration",
       "ownerSide": true
     },
     {
       "relationshipType": "many-to-many",
       "otherEntityName": "drug",
-      "otherEntityRelationshipName": "deviceUsageIndication",
+      "otherEntityRelationshipName": "biomarkerAssociation",
       "relationshipName": "drug",
       "ownerSide": true
     },
     {
       "relationshipType": "many-to-many",
       "otherEntityName": "fdaSubmission",
-      "otherEntityRelationshipName": "deviceUsageIndication",
+      "otherEntityRelationshipName": "biomarkerAssociation",
       "relationshipName": "fdaSubmission",
       "ownerSide": true
     },
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "cancerType",
-      "otherEntityRelationshipName": "deviceUsageIndication",
+      "otherEntityRelationshipName": "biomarkerAssociation",
       "relationshipName": "cancerType"
     },
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "gene",
-      "otherEntityRelationshipName": "deviceUsageIndication",
+      "otherEntityRelationshipName": "biomarkerAssociation",
       "relationshipName": "gene"
     }
   ],
-  "entityTableName": "device_usage_indication",
+  "entityTableName": "biomarker_association",
   "dto": "no",
   "pagination": "no",
   "service": "serviceClass",

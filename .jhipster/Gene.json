@@ -25,9 +25,9 @@
     },
     {
       "relationshipType": "one-to-many",
-      "otherEntityName": "deviceUsageIndication",
+      "otherEntityName": "biomarkerAssociation",
       "otherEntityRelationshipName": "gene",
-      "relationshipName": "deviceUsageIndication"
+      "relationshipName": "biomarkerAssociation"
     },
     {
       "relationshipType": "many-to-many",

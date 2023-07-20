@@ -50,9 +50,9 @@
     },
     {
       "relationshipType": "many-to-many",
-      "otherEntityName": "deviceUsageIndication",
+      "otherEntityName": "biomarkerAssociation",
       "otherEntityRelationshipName": "alteration",
-      "relationshipName": "deviceUsageIndication",
+      "relationshipName": "biomarkerAssociation",
       "ownerSide": false
     }
   ],

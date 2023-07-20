@@ -8,12 +8,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import CancerTypeSelect from 'app/shared/select/CancerTypeSelect';
-import { deviceUsageIndicationClient } from 'app/shared/api/clients';
+import { biomarkerAssociationClient } from 'app/shared/api/clients';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import GeneSelect from 'app/shared/select/GeneSelect';
 import AlterationSelect from 'app/shared/select/AlterationSelect';
 import DrugSelect from 'app/shared/select/DrugSelect';
-import { DeviceUsageIndicationDTO } from 'app/shared/api/generated';
+import { BiomarkerAssociationDTO } from 'app/shared/api/generated';
 import FdaSubmissionSelect from 'app/shared/select/FdaSubmissionSelect';
 import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
@@ -38,17 +38,17 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
   const location = useLocation();
   const id = parseInt(location.pathname.split('/')[2], 10);
 
-  const createDeviceUsageIndication = (e: any) => {
+  const createBiomarkerAssociation = (e: any) => {
     e.preventDefault();
-    const deviceUsageIndicationDTO: DeviceUsageIndicationDTO = {
+    const biomarkerAssociationDTO: BiomarkerAssociationDTO = {
       fdaSubmissions: fdaSubmissionValue.map(fdaSubmission => fdaSubmission.value),
       alterations: alterationValue.map(alteration => alteration.value),
       cancerType: cancerTypeValue.value as number,
       drugs: drugValue.map(drug => drug.value),
       gene: selectedGeneId,
     };
-    deviceUsageIndicationClient
-      .createDeviceUsageIndication(deviceUsageIndicationDTO)
+    biomarkerAssociationClient
+      .createBiomarkerAssociation(biomarkerAssociationDTO)
       .then(() => {
         notifySuccess('Biomarker association added.');
         props.getBiomarkerAssociations(id);
@@ -66,7 +66,7 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
 
   return (
     <Menu>
-      <Form onSubmit={createDeviceUsageIndication}>
+      <Form onSubmit={createBiomarkerAssociation}>
         <SidebarMenuItem>Add Biomarker Association</SidebarMenuItem>
         <SidebarMenuItem>
           <GeneSelect
@@ -114,8 +114,8 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
   );
 };
 
-const mapStoreToProps = ({ deviceUsageIndicationStore }: IRootStore) => ({
-  getBiomarkerAssociations: deviceUsageIndicationStore.getByCompanionDiagnosticDevice,
+const mapStoreToProps = ({ biomarkerAssociationStore }: IRootStore) => ({
+  getBiomarkerAssociations: biomarkerAssociationStore.getByCompanionDiagnosticDevice,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

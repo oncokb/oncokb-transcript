@@ -4,7 +4,7 @@ import { IAlteration } from './alteration.model';
 import { ICancerType } from './cancer-type.model';
 import { IGene } from './gene.model';
 
-export interface IDeviceUsageIndication {
+export interface IBiomarkerAssociation {
   id?: number;
   alterations?: IAlteration[] | null;
   drugs?: IDrug[] | null;
@@ -13,4 +13,4 @@ export interface IDeviceUsageIndication {
   gene?: IGene | null;
 }
 
-export const defaultValue: Readonly<IDeviceUsageIndication> = {};
+export const defaultValue: Readonly<IBiomarkerAssociation> = {};

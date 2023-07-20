@@ -18,8 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
+import org.mskcc.oncokb.curation.domain.BiomarkerAssociation;
 import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
-import org.mskcc.oncokb.curation.domain.DeviceUsageIndication;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.mskcc.oncokb.curation.domain.FdaSubmissionType;
 import org.mskcc.oncokb.curation.repository.FdaSubmissionRepository;
@@ -980,28 +980,28 @@ class FdaSubmissionResourceIT {
 
     @Test
     @Transactional
-    void getAllFdaSubmissionsByDeviceUsageIndicationIsEqualToSomething() throws Exception {
+    void getAllFdaSubmissionsByBiomarkerAssociationIsEqualToSomething() throws Exception {
         // Initialize the database
         fdaSubmissionRepository.saveAndFlush(fdaSubmission);
-        DeviceUsageIndication deviceUsageIndication;
-        if (TestUtil.findAll(em, DeviceUsageIndication.class).isEmpty()) {
-            deviceUsageIndication = DeviceUsageIndicationResourceIT.createEntity(em);
-            em.persist(deviceUsageIndication);
+        BiomarkerAssociation biomarkerAssociation;
+        if (TestUtil.findAll(em, BiomarkerAssociation.class).isEmpty()) {
+            biomarkerAssociation = BiomarkerAssociationResourceIT.createEntity(em);
+            em.persist(biomarkerAssociation);
             em.flush();
         } else {
-            deviceUsageIndication = TestUtil.findAll(em, DeviceUsageIndication.class).get(0);
+            biomarkerAssociation = TestUtil.findAll(em, BiomarkerAssociation.class).get(0);
         }
-        em.persist(deviceUsageIndication);
+        em.persist(biomarkerAssociation);
         em.flush();
-        fdaSubmission.addDeviceUsageIndication(deviceUsageIndication);
+        fdaSubmission.addBiomarkerAssociation(biomarkerAssociation);
         fdaSubmissionRepository.saveAndFlush(fdaSubmission);
-        Long deviceUsageIndicationId = deviceUsageIndication.getId();
+        Long biomarkerAssociationId = biomarkerAssociation.getId();
 
-        // Get all the fdaSubmissionList where deviceUsageIndication equals to deviceUsageIndicationId
-        defaultFdaSubmissionShouldBeFound("deviceUsageIndicationId.equals=" + deviceUsageIndicationId);
+        // Get all the fdaSubmissionList where biomarkerAssociation equals to biomarkerAssociationId
+        defaultFdaSubmissionShouldBeFound("biomarkerAssociationId.equals=" + biomarkerAssociationId);
 
-        // Get all the fdaSubmissionList where deviceUsageIndication equals to (deviceUsageIndicationId + 1)
-        defaultFdaSubmissionShouldNotBeFound("deviceUsageIndicationId.equals=" + (deviceUsageIndicationId + 1));
+        // Get all the fdaSubmissionList where biomarkerAssociation equals to (biomarkerAssociationId + 1)
+        defaultFdaSubmissionShouldNotBeFound("biomarkerAssociationId.equals=" + (biomarkerAssociationId + 1));
     }
 
     /**

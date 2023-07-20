@@ -20,8 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.domain.AlterationReferenceGenome;
+import org.mskcc.oncokb.curation.domain.BiomarkerAssociation;
 import org.mskcc.oncokb.curation.domain.Consequence;
-import org.mskcc.oncokb.curation.domain.DeviceUsageIndication;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.repository.AlterationRepository;
 import org.mskcc.oncokb.curation.service.AlterationService;
@@ -817,28 +817,28 @@ class AlterationResourceIT {
 
     @Test
     @Transactional
-    void getAllAlterationsByDeviceUsageIndicationIsEqualToSomething() throws Exception {
+    void getAllAlterationsByBiomarkerAssociationIsEqualToSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
-        DeviceUsageIndication deviceUsageIndication;
-        if (TestUtil.findAll(em, DeviceUsageIndication.class).isEmpty()) {
-            deviceUsageIndication = DeviceUsageIndicationResourceIT.createEntity(em);
-            em.persist(deviceUsageIndication);
+        BiomarkerAssociation biomarkerAssociation;
+        if (TestUtil.findAll(em, BiomarkerAssociation.class).isEmpty()) {
+            biomarkerAssociation = BiomarkerAssociationResourceIT.createEntity(em);
+            em.persist(biomarkerAssociation);
             em.flush();
         } else {
-            deviceUsageIndication = TestUtil.findAll(em, DeviceUsageIndication.class).get(0);
+            biomarkerAssociation = TestUtil.findAll(em, BiomarkerAssociation.class).get(0);
         }
-        em.persist(deviceUsageIndication);
+        em.persist(biomarkerAssociation);
         em.flush();
-        alteration.addDeviceUsageIndication(deviceUsageIndication);
+        alteration.addBiomarkerAssociation(biomarkerAssociation);
         alterationRepository.saveAndFlush(alteration);
-        Long deviceUsageIndicationId = deviceUsageIndication.getId();
+        Long biomarkerAssociationId = biomarkerAssociation.getId();
 
-        // Get all the alterationList where deviceUsageIndication equals to deviceUsageIndicationId
-        defaultAlterationShouldBeFound("deviceUsageIndicationId.equals=" + deviceUsageIndicationId);
+        // Get all the alterationList where biomarkerAssociation equals to biomarkerAssociationId
+        defaultAlterationShouldBeFound("biomarkerAssociationId.equals=" + biomarkerAssociationId);
 
-        // Get all the alterationList where deviceUsageIndication equals to (deviceUsageIndicationId + 1)
-        defaultAlterationShouldNotBeFound("deviceUsageIndicationId.equals=" + (deviceUsageIndicationId + 1));
+        // Get all the alterationList where biomarkerAssociation equals to (biomarkerAssociationId + 1)
+        defaultAlterationShouldNotBeFound("biomarkerAssociationId.equals=" + (biomarkerAssociationId + 1));
     }
 
     @Test

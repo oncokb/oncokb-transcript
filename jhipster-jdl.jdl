@@ -215,7 +215,7 @@ entity DrugBrand {
     region GeographicRegion
 }
 
-entity DeviceUsageIndication {
+entity BiomarkerAssociation {
 }
 
 entity ClinicalTrialsGovCondition {
@@ -238,8 +238,8 @@ relationship OneToMany {
     Consequence to Alteration
     FdaSubmissionType to FdaSubmission{type}
 	Alteration{referenceGenomes} to AlterationReferenceGenome
-	CancerType to DeviceUsageIndication
-    Gene to DeviceUsageIndication
+	CancerType to BiomarkerAssociation
+    Gene to BiomarkerAssociation
     Drug{brands} to DrugBrand
 }
 
@@ -247,9 +247,9 @@ relationship ManyToMany {
     Alteration to Gene
     CompanionDiagnosticDevice to SpecimenType
     ClinicalTrialsGovCondition to CancerType
-    DeviceUsageIndication to Alteration
-    DeviceUsageIndication to Drug
-    DeviceUsageIndication to FdaSubmission
+    BiomarkerAssociation to Alteration
+    BiomarkerAssociation to Drug
+    BiomarkerAssociation to FdaSubmission
 }
 
 paginate Gene, EnsemblGene, Alteration, CancerType, Transcript, Sequence, GenomeFragment, Article, Drug, FdaDrug, ClinicalTrialsGovCondition, FdaSubmission with pagination

@@ -1,4 +1,4 @@
-import { IDeviceUsageIndication } from 'app/shared/model/device-usage-indication.model';
+import { IBiomarkerAssociation } from 'app/shared/model/biomarker-association.model';
 import { TumorForm } from 'app/shared/model/enumerations/tumor-form.model';
 
 export interface ICancerType {
@@ -11,7 +11,7 @@ export interface ICancerType {
   tissue?: string | null;
   tumorForm?: TumorForm;
   children?: ICancerType[] | null;
-  deviceUsageIndications?: IDeviceUsageIndication[] | null;
+  biomarkerAssociations?: IBiomarkerAssociation[] | null;
   parent?: ICancerType | null;
 }
 

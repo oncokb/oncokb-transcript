@@ -1,4 +1,4 @@
-import { IDeviceUsageIndication } from 'app/shared/model/device-usage-indication.model';
+import { IBiomarkerAssociation } from 'app/shared/model/biomarker-association.model';
 import { ICompanionDiagnosticDevice } from './companion-diagnostic-device.model';
 import { IFdaSubmissionType } from './fda-submission-type.model';
 
@@ -15,7 +15,7 @@ export interface IFdaSubmission {
   curated?: boolean;
   genetic?: boolean;
   additionalInfo?: string | null;
-  deviceUsageIndications?: IDeviceUsageIndication[] | null;
+  biomarkerAssociations?: IBiomarkerAssociation[] | null;
   companionDiagnosticDevice?: ICompanionDiagnosticDevice | null;
   type?: IFdaSubmissionType | null;
 }

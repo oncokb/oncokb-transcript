@@ -66,9 +66,9 @@ import cancerType, {
   CancerTypeStore
 } from 'app/entities/cancer-type/cancer-type.store';
 // prettier-ignore
-import deviceUsageIndication, {
-  DeviceUsageIndicationStore
-} from 'app/entities/device-usage-indication/device-usage-indication.store';
+import biomarkerAssociation, {
+  BiomarkerAssociationStore
+} from 'app/entities/biomarker-association/biomarker-association.store';
 import article, { ArticleStore } from 'app/entities/article/article.store';
 import DrugBrandStore from 'app/entities/drug-brand/drug-brand.store';
 import CategoricalAlterationStore from 'app/entities/categorical-alteration/categorical-alteration.store';
@@ -106,7 +106,7 @@ export interface IRootStore {
   readonly consequenceStore: ConsequenceStore;
   readonly alterationStore: AlterationStore;
   readonly cancerTypeStore: CancerTypeStore;
-  readonly deviceUsageIndicationStore: DeviceUsageIndicationStore;
+  readonly biomarkerAssociationStore: BiomarkerAssociationStore;
   readonly articleStore: ArticleStore;
   readonly drugBrandStore: DrugBrandStore;
   readonly categoricalAlterationStore: CategoricalAlterationStore;
@@ -141,7 +141,7 @@ export function createStores(history: History): IRootStore {
   rootStore.consequenceStore = new ConsequenceStore(rootStore);
   rootStore.alterationStore = new AlterationStore(rootStore);
   rootStore.cancerTypeStore = new CancerTypeStore(rootStore);
-  rootStore.deviceUsageIndicationStore = new DeviceUsageIndicationStore(rootStore);
+  rootStore.biomarkerAssociationStore = new BiomarkerAssociationStore(rootStore);
   rootStore.articleStore = new ArticleStore(rootStore);
   rootStore.drugBrandStore = new DrugBrandStore(rootStore);
   rootStore.categoricalAlterationStore = new CategoricalAlterationStore(rootStore);

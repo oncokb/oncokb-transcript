@@ -113,12 +113,12 @@ public class AlterationQueryService extends QueryService<Alteration> {
             if (criteria.getVariantResidues() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getVariantResidues(), Alteration_.variantResidues));
             }
-            if (criteria.getDeviceUsageIndicationId() != null) {
+            if (criteria.getBiomarkerAssociationId() != null) {
                 specification =
                     specification.or(
                         buildSpecification(
-                            criteria.getDeviceUsageIndicationId(),
-                            root -> root.join(Alteration_.deviceUsageIndications, JoinType.LEFT).get(DeviceUsageIndication_.id)
+                            criteria.getBiomarkerAssociationId(),
+                            root -> root.join(Alteration_.biomarkerAssociations, JoinType.LEFT).get(BiomarkerAssociation_.id)
                         )
                     );
             }

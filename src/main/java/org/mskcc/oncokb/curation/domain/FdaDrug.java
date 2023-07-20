@@ -23,7 +23,7 @@ public class FdaDrug implements Serializable {
     @Column(name = "application_number", nullable = false, unique = true)
     private String applicationNumber;
 
-    @JsonIgnoreProperties(value = { "fdaDrug", "synonyms", "deviceUsageIndications", "brands" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "fdaDrug", "synonyms", "biomarkerAssociations", "brands" }, allowSetters = true)
     @OneToOne(mappedBy = "fdaDrug")
     private Drug drug;
 
