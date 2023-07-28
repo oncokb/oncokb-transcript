@@ -9,6 +9,7 @@ import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField'
 import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import CdxBiomarkerAssociationTable from 'app/shared/table/CdxBiomarkerAssociationTable';
+import { PAGE_ROUTE } from 'app/config/constants';
 
 export interface ICompanionDiagnosticDeviceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -22,7 +23,7 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/companion-diagnostic-device');
+    props.history.push(PAGE_ROUTE.CDX);
   };
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Menu } from 'react-pro-sidebar';
 import { Button, Form } from 'reactstrap';
-import { SearchOptionType } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE, SearchOptionType } from 'app/config/constants';
 import { useHistory, useLocation } from 'react-router-dom';
 import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -17,6 +17,7 @@ import { BiomarkerAssociationDTO } from 'app/shared/api/generated';
 import FdaSubmissionSelect from 'app/shared/select/FdaSubmissionSelect';
 import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
+import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
 
 const SidebarMenuItem: React.FunctionComponent<{ style?: React.CSSProperties }> = ({ style, children }) => {
   return <div style={{ padding: '8px 24px 0 24px', ...style }}>{children}</div>;
@@ -57,11 +58,11 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
   };
 
   const redirectToCreateAlteration = () => {
-    history.push('/alteration/new');
+    history.push(getEntityActionRoute(ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE, ENTITY_ACTION.CREATE));
   };
 
   const redirectToCreateFdaSubmission = () => {
-    history.push('/fda-submission/new');
+    history.push(getEntityActionRoute(ENTITY_TYPE.FDA_SUBMISSION, ENTITY_ACTION.CREATE));
   };
 
   return (

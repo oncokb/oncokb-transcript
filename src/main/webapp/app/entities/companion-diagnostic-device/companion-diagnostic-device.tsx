@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Input, InputGroup, FormGroup, Form, Col, Row, Table } from 'reactstrap';
-import { Translate } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, PAGE_ROUTE } from 'app/config/constants';
+import { Input, InputGroup, FormGroup, Form, Col, Row } from 'reactstrap';
+import { ENTITY_ACTION, PAGE_ROUTE } from 'app/config/constants';
 
 import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';
-import OncoKBTable from 'app/shared/table/OncoKBTable';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import WithSeparator from 'react-with-separator';
 import { debouncedSearch } from 'app/shared/util/crud-store';

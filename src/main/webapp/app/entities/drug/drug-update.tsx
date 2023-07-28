@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
-
-import { IDrug } from 'app/shared/model/drug.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
+import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
 
 export interface IDrugUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -22,7 +19,7 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/drug' + props.location.search);
+    props.history.push(getEntityActionRoute(ENTITY_TYPE.DRUG, ENTITY_ACTION.EDIT, props.location.search));
   };
 
   useEffect(() => {

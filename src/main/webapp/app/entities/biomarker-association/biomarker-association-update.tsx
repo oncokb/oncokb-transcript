@@ -1,18 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
-
-import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
-import { IAlteration } from 'app/shared/model/alteration.model';
-import { ICancerType } from 'app/shared/model/cancer-type.model';
-import { IDrug } from 'app/shared/model/drug.model';
-import { IBiomarkerAssociation } from 'app/shared/model/biomarker-association.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface IBiomarkerAssociationUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
