@@ -118,3 +118,15 @@ export const DEFAULT_ENTITY_SORT_FIELD: { [key in ENTITY_TYPE]?: string } = {
 };
 
 export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');
+
+export enum FirebaseCollectionName {
+  DRUGS = 'Drugs',
+  GENES = 'Genes',
+  HISTORY = 'History',
+  MAP = 'Map',
+  META = 'Meta',
+  QUEUES = 'Queues',
+  SETTING = 'Setting',
+  USERS = 'Users',
+  VUS = 'VUS',
+}

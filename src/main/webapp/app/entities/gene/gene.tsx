@@ -116,7 +116,9 @@ export const Gene = (props: IGeneProps) => {
         </Col>
       </Row>
       <div>
-        {geneList && <EntityTable columns={columns} data={geneList} loading={loading} url={match.url} entityType={ENTITY_TYPE.GENE} />}
+        {geneList && (
+          <EntityTable columns={columns} data={geneList} loading={loading} url={match.url} entityType={ENTITY_TYPE.GENE} curatable />
+        )}
       </div>
       {totalItems && totalItems > 0 ? (
         <div className={geneList && geneList.length > 0 ? '' : 'd-none'}>
