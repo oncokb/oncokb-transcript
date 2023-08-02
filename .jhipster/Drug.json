@@ -18,6 +18,13 @@
   ],
   "relationships": [
     {
+      "relationshipType": "one-to-one",
+      "otherEntityName": "fdaDrug",
+      "otherEntityRelationshipName": "drug",
+      "relationshipName": "fdaDrug",
+      "ownerSide": true
+    },
+    {
       "relationshipType": "one-to-many",
       "otherEntityName": "drugSynonym",
       "otherEntityRelationshipName": "drug",
@@ -25,15 +32,16 @@
     },
     {
       "relationshipType": "one-to-many",
-      "otherEntityName": "deviceUsageIndication",
-      "otherEntityRelationshipName": "drug",
-      "relationshipName": "deviceUsageIndication"
-    },
-    {
-      "relationshipType": "one-to-many",
       "otherEntityName": "drugBrand",
       "otherEntityRelationshipName": "drug",
       "relationshipName": "brands"
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "biomarkerAssociation",
+      "otherEntityRelationshipName": "drug",
+      "relationshipName": "biomarkerAssociation",
+      "ownerSide": false
     }
   ],
   "entityTableName": "drug",

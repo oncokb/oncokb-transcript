@@ -5,14 +5,15 @@ import { Button, Col, Row, Table } from 'reactstrap';
 import { Translate } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { IDeviceUsageIndication } from 'app/shared/model/device-usage-indication.model';
+import { IBiomarkerAssociation } from 'app/shared/model/biomarker-association.model';
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 
 import { IRootStore } from 'app/stores';
-export interface IDeviceUsageIndicationProps extends StoreProps, RouteComponentProps<{ url: string }> {}
+import { getFdaSubmissionLinks } from '../companion-diagnostic-device/companion-diagnostic-device';
+export interface IBiomarkerAssociationProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
-export const DeviceUsageIndication = (props: IDeviceUsageIndicationProps) => {
-  const deviceUsageIndicationList = props.deviceUsageIndicationList;
+export const BiomarkerAssociation = (props: IBiomarkerAssociationProps) => {
+  const biomarkerAssociationList = props.biomarkerAssociationList;
   const loading = props.loading;
 
   useEffect(() => {
@@ -27,20 +28,20 @@ export const DeviceUsageIndication = (props: IDeviceUsageIndicationProps) => {
 
   return (
     <div>
-      <h2 id="device-usage-indication-heading" data-cy="DeviceUsageIndicationHeading">
-        Device Usage Indications
+      <h2 id="biomarker-association-heading" data-cy="BiomarkerAssociationHeading">
+        Biomarker Associations
         <div className="d-flex justify-content-end">
           <Button className="mr-2" color="info" onClick={handleSyncList} disabled={loading}>
             <FontAwesomeIcon icon="sync" spin={loading} /> Refresh List
           </Button>
           <Link to={`${match.url}/new`} className="btn btn-primary jh-create-entity" id="jh-create-entity" data-cy="entityCreateButton">
             <FontAwesomeIcon icon="plus" />
-            &nbsp; Create new Device Usage Indication
+            &nbsp; Create new Biomarker Association
           </Link>
         </div>
       </h2>
       <div className="table-responsive">
-        {deviceUsageIndicationList && deviceUsageIndicationList.length > 0 ? (
+        {biomarkerAssociationList && biomarkerAssociationList.length > 0 ? (
           <Table responsive>
             <thead>
               <tr>
@@ -53,37 +54,17 @@ export const DeviceUsageIndication = (props: IDeviceUsageIndicationProps) => {
               </tr>
             </thead>
             <tbody>
-              {deviceUsageIndicationList.map((deviceUsageIndication, i) => (
+              {biomarkerAssociationList.map((biomarkerAssociation, i) => (
                 <tr key={`entity-${i}`} data-cy="entityTable">
                   <td>
-                    <Button tag={Link} to={`${match.url}/${deviceUsageIndication.id}`} color="link" size="sm">
-                      {deviceUsageIndication.id}
+                    <Button tag={Link} to={`${match.url}/${biomarkerAssociation.id}`} color="link" size="sm">
+                      {biomarkerAssociation.id}
                     </Button>
                   </td>
+                  <td>{biomarkerAssociation.fdaSubmissions ? getFdaSubmissionLinks(biomarkerAssociation.fdaSubmissions) : ''}</td>
                   <td>
-                    {deviceUsageIndication.fdaSubmission ? (
-                      <Link to={`fda-submission/${deviceUsageIndication.fdaSubmission.id}`}>{deviceUsageIndication.fdaSubmission.id}</Link>
-                    ) : (
-                      ''
-                    )}
-                  </td>
-                  <td>
-                    {deviceUsageIndication.alteration ? (
-                      <Link to={`alteration/${deviceUsageIndication.alteration.id}`}>{deviceUsageIndication.alteration.id}</Link>
-                    ) : (
-                      ''
-                    )}
-                  </td>
-                  <td>
-                    {deviceUsageIndication.cancerType ? (
-                      <Link to={`cancer-type/${deviceUsageIndication.cancerType.id}`}>{deviceUsageIndication.cancerType.id}</Link>
-                    ) : (
-                      ''
-                    )}
-                  </td>
-                  <td>
-                    {deviceUsageIndication.drug ? (
-                      <Link to={`drug/${deviceUsageIndication.drug.id}`}>{deviceUsageIndication.drug.id}</Link>
+                    {biomarkerAssociation.cancerType ? (
+                      <Link to={`cancer-type/${biomarkerAssociation.cancerType.id}`}>{biomarkerAssociation.cancerType.id}</Link>
                     ) : (
                       ''
                     )}
@@ -92,7 +73,7 @@ export const DeviceUsageIndication = (props: IDeviceUsageIndicationProps) => {
                     <div className="btn-group flex-btn-group-container">
                       <Button
                         tag={Link}
-                        to={`${match.url}/${deviceUsageIndication.id}`}
+                        to={`${match.url}/${biomarkerAssociation.id}`}
                         color="info"
                         size="sm"
                         data-cy="entityDetailsButton"
@@ -101,7 +82,7 @@ export const DeviceUsageIndication = (props: IDeviceUsageIndicationProps) => {
                       </Button>
                       <Button
                         tag={Link}
-                        to={`${match.url}/${deviceUsageIndication.id}/edit`}
+                        to={`${match.url}/${biomarkerAssociation.id}/edit`}
                         color="primary"
                         size="sm"
                         data-cy="entityEditButton"
@@ -110,7 +91,7 @@ export const DeviceUsageIndication = (props: IDeviceUsageIndicationProps) => {
                       </Button>
                       <Button
                         tag={Link}
-                        to={`${match.url}/${deviceUsageIndication.id}/delete`}
+                        to={`${match.url}/${biomarkerAssociation.id}/delete`}
                         color="danger"
                         size="sm"
                         data-cy="entityDeleteButton"
@@ -124,19 +105,19 @@ export const DeviceUsageIndication = (props: IDeviceUsageIndicationProps) => {
             </tbody>
           </Table>
         ) : (
-          !loading && <div className="alert alert-warning">No Device Usage Indications found</div>
+          !loading && <div className="alert alert-warning">No Biomarker Associations found</div>
         )}
       </div>
     </div>
   );
 };
 
-const mapStoreToProps = ({ deviceUsageIndicationStore }: IRootStore) => ({
-  deviceUsageIndicationList: deviceUsageIndicationStore.entities,
-  loading: deviceUsageIndicationStore.loading,
-  getEntities: deviceUsageIndicationStore.getEntities,
+const mapStoreToProps = ({ biomarkerAssociationStore }: IRootStore) => ({
+  biomarkerAssociationList: biomarkerAssociationStore.entities,
+  loading: biomarkerAssociationStore.loading,
+  getEntities: biomarkerAssociationStore.getEntities,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(DeviceUsageIndication);
+export default connect(mapStoreToProps)(BiomarkerAssociation);

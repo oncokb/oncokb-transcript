@@ -14,8 +14,11 @@ interface ITableHeaderProps {
 export const TableHeader: React.FunctionComponent<ITableHeaderProps> = props => {
   const isSortUp = props.paginationState?.sort === props.sortField && props.paginationState?.order === ASC ? faSortUp : faSortDown;
   return (
-    <div onClick={props.onSort} style={{ cursor: 'pointer' }}>
-      {props.header} <FontAwesomeIcon icon={isSortUp} />
+    <div className="d-flex flex justify-content-between" onClick={props.onSort} style={{ cursor: 'pointer' }}>
+      <div className="mr-1">{props.header}</div>
+      <div>
+        <FontAwesomeIcon icon={isSortUp} />
+      </div>
     </div>
   );
 };

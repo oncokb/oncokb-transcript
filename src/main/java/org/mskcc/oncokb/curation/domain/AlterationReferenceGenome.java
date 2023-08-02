@@ -24,7 +24,7 @@ public class AlterationReferenceGenome implements Serializable {
     private ReferenceGenome referenceGenome;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "deviceUsageIndications", "referenceGenomes", "genes", "consequence" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "biomarkerAssociations", "referenceGenomes", "genes", "consequence" }, allowSetters = true)
     private Alteration alteration;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

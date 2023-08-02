@@ -19,13 +19,14 @@ import FdaSubmissionType from './fda-submission-type';
 import FdaSubmission from './fda-submission';
 import Alteration from './alteration';
 import CancerType from './cancer-type';
-import DeviceUsageIndication from './device-usage-indication';
+import BiomarkerAssociation from './biomarker-association';
 import { PAGE_ROUTE } from 'app/config/constants';
 import Article from './article';
 import DrugBrand from './drug-brand';
 import CategoricalAlteration from './categorical-alteration';
 import Consequence from './consequence';
 import ClinicalTrialsGovCondition from './clinical-trials-gov-condition';
+import FdaDrug from './fda-drug';
 /* jhipster-needle-add-route-import - JHipster will add routes here */
 
 const Routes = ({ match }) => (
@@ -47,12 +48,16 @@ const Routes = ({ match }) => (
       <ErrorBoundaryRoute path={`${match.url}${PAGE_ROUTE.FDA_SUBMISSION.substring(1)}`} component={FdaSubmission} />
       <ErrorBoundaryRoute path={`${match.url}${PAGE_ROUTE.ALTERATION.substring(1)}`} component={Alteration} />
       <ErrorBoundaryRoute path={`${match.url}cancer-type`} component={CancerType} />
-      <ErrorBoundaryRoute path={`${match.url}device-usage-indication`} component={DeviceUsageIndication} />
+      <ErrorBoundaryRoute path={`${match.url}biomarker-association`} component={BiomarkerAssociation} />
       <ErrorBoundaryRoute path={`${match.url}${PAGE_ROUTE.ARTICLE.substring(1)}`} component={Article} />
       <ErrorBoundaryRoute path={`${match.url}drug-brand`} component={DrugBrand} />
       <ErrorBoundaryRoute path={`${match.url}categorical-alteration`} component={CategoricalAlteration} />
       <ErrorBoundaryRoute path={`${match.url}consequence`} component={Consequence} />
       <ErrorBoundaryRoute path={`${match.url}clinical-trials-gov-condition`} component={ClinicalTrialsGovCondition} />
+      <ErrorBoundaryRoute path={`${match.url}drug`} component={Drug} />
+      <ErrorBoundaryRoute path={`${match.url}companion-diagnostic-device`} component={CompanionDiagnosticDevice} />
+      <ErrorBoundaryRoute path={`${match.url}fda-submission`} component={FdaSubmission} />
+      <ErrorBoundaryRoute path={`${match.url}fda-drug`} component={FdaDrug} />
       {/* jhipster-needle-add-route-path - JHipster will add routes here */}
     </Switch>
   </div>

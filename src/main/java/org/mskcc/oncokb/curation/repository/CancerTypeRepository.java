@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.curation.repository;
 
+import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.CancerType;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
@@ -9,4 +10,10 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface CancerTypeRepository extends JpaRepository<CancerType, Long>, JpaSpecificationExecutor<CancerType> {}
+public interface CancerTypeRepository extends JpaRepository<CancerType, Long>, JpaSpecificationExecutor<CancerType> {
+    Optional<CancerType> findOneByCodeIgnoreCase(String code);
+
+    Optional<CancerType> findOneBySubtypeIgnoreCase(String subtype);
+
+    Optional<CancerType> findOneByMainTypeIgnoreCaseAndLevel(String mainType, Integer level);
+}

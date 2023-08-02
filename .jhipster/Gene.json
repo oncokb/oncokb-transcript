@@ -24,6 +24,12 @@
       "relationshipName": "ensemblGene"
     },
     {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "biomarkerAssociation",
+      "otherEntityRelationshipName": "gene",
+      "relationshipName": "biomarkerAssociation"
+    },
+    {
       "relationshipType": "many-to-many",
       "otherEntityName": "alteration",
       "otherEntityRelationshipName": "gene",

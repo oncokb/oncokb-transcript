@@ -16,7 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
-import org.mskcc.oncokb.curation.domain.DeviceUsageIndication;
+import org.mskcc.oncokb.curation.domain.BiomarkerAssociation;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.DrugBrand;
 import org.mskcc.oncokb.curation.domain.DrugSynonym;
@@ -290,28 +290,28 @@ class DrugResourceIT {
 
     @Test
     @Transactional
-    void getAllDrugsByDeviceUsageIndicationIsEqualToSomething() throws Exception {
+    void getAllDrugsByBiomarkerAssociationIsEqualToSomething() throws Exception {
         // Initialize the database
         drugRepository.saveAndFlush(drug);
-        DeviceUsageIndication deviceUsageIndication;
-        if (TestUtil.findAll(em, DeviceUsageIndication.class).isEmpty()) {
-            deviceUsageIndication = DeviceUsageIndicationResourceIT.createEntity(em);
-            em.persist(deviceUsageIndication);
+        BiomarkerAssociation biomarkerAssociation;
+        if (TestUtil.findAll(em, BiomarkerAssociation.class).isEmpty()) {
+            biomarkerAssociation = BiomarkerAssociationResourceIT.createEntity(em);
+            em.persist(biomarkerAssociation);
             em.flush();
         } else {
-            deviceUsageIndication = TestUtil.findAll(em, DeviceUsageIndication.class).get(0);
+            biomarkerAssociation = TestUtil.findAll(em, BiomarkerAssociation.class).get(0);
         }
-        em.persist(deviceUsageIndication);
+        em.persist(biomarkerAssociation);
         em.flush();
-        drug.addDeviceUsageIndication(deviceUsageIndication);
+        drug.addBiomarkerAssociation(biomarkerAssociation);
         drugRepository.saveAndFlush(drug);
-        Long deviceUsageIndicationId = deviceUsageIndication.getId();
+        Long biomarkerAssociationId = biomarkerAssociation.getId();
 
-        // Get all the drugList where deviceUsageIndication equals to deviceUsageIndicationId
-        defaultDrugShouldBeFound("deviceUsageIndicationId.equals=" + deviceUsageIndicationId);
+        // Get all the drugList where biomarkerAssociation equals to biomarkerAssociationId
+        defaultDrugShouldBeFound("biomarkerAssociationId.equals=" + biomarkerAssociationId);
 
-        // Get all the drugList where deviceUsageIndication equals to (deviceUsageIndicationId + 1)
-        defaultDrugShouldNotBeFound("deviceUsageIndicationId.equals=" + (deviceUsageIndicationId + 1));
+        // Get all the drugList where biomarkerAssociation equals to (biomarkerAssociationId + 1)
+        defaultDrugShouldNotBeFound("biomarkerAssociationId.equals=" + (biomarkerAssociationId + 1));
     }
 
     @Test

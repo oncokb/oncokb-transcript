@@ -7,24 +7,15 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <!--
-        Added the entity DeviceUsageIndication.
+        Added the entity FdaDrug.
     -->
-    <changeSet id="20220401174650-1" author="jhipster">
-        <createTable tableName="device_usage_indication">
+    <changeSet id="20230525144705-1" author="jhipster">
+        <createTable tableName="fda_drug">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="fda_submission_id" type="bigint">
-                <constraints nullable="true" />
-            </column>
-            <column name="alteration_id" type="bigint">
-                <constraints nullable="true" />
-            </column>
-            <column name="cancer_type_id" type="bigint">
-                <constraints nullable="true" />
-            </column>
-            <column name="drug_id" type="bigint">
-                <constraints nullable="true" />
+            <column name="application_number" type="varchar(255)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_fda_drug__application_number" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>

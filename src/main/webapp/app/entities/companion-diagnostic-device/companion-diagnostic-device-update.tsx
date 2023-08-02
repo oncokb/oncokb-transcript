@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 import { mapSelectOptionList } from 'app/shared/util/entity-utils';
 import ValidatedForm from 'app/shared/form/ValidatedForm';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
 import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
 import { SaveButton } from 'app/shared/button/SaveButton';
+import CdxBiomarkerAssociationTable from 'app/shared/table/CdxBiomarkerAssociationTable';
+import { PAGE_ROUTE } from 'app/config/constants';
 
 export interface ICompanionDiagnosticDeviceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -22,7 +23,7 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/companion-diagnostic-device');
+    props.history.push(PAGE_ROUTE.CDX);
   };
 
   useEffect(() => {
@@ -68,8 +69,8 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
   });
 
   return (
-    <div>
-      <Row className="justify-content-center">
+    <>
+      <Row>
         <Col md="8">
           <h2
             id="oncokbCurationApp.companionDiagnosticDevice.home.createOrEditLabel"
@@ -79,45 +80,69 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
           </h2>
         </Col>
       </Row>
-      <Row className="justify-content-center">
+      <Row className="mt-4">
         <Col md="8">
           {loading ? (
             <p>Loading...</p>
           ) : (
-            <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
-              {!isNew ? (
-                <ValidatedField name="id" required readOnly id="companion-diagnostic-device-id" label="ID" validate={{ required: true }} />
-              ) : null}
-              <ValidatedField
-                label="Name"
-                id="companion-diagnostic-device-name"
-                name="name"
-                data-cy="name"
-                type="text"
-                validate={{
-                  required: { value: true, message: 'This field is required.' },
-                }}
-              />
-              <ValidatedField
-                label="Manufacturer"
-                id="companion-diagnostic-device-manufacturer"
-                name="manufacturer"
-                data-cy="manufacturer"
-                type="text"
-              />
-              <ValidatedSelect
-                label="Specimen Types"
-                name={'specimenTypes'}
-                isMulti
-                closeMenuOnSelect={false}
-                options={specimenTypesOptions}
-              />
-              <SaveButton disabled={updating} />
-            </ValidatedForm>
+            <>
+              <h4>CDx Details</h4>
+              <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
+                {!isNew ? (
+                  <ValidatedField
+                    name="id"
+                    required
+                    readOnly
+                    id="companion-diagnostic-device-id"
+                    label="ID"
+                    validate={{ required: true }}
+                  />
+                ) : null}
+                <ValidatedField
+                  label="Name"
+                  id="companion-diagnostic-device-name"
+                  name="name"
+                  data-cy="name"
+                  type="text"
+                  validate={{
+                    required: { value: true, message: 'This field is required.' },
+                  }}
+                />
+                <ValidatedField
+                  label="Manufacturer"
+                  id="companion-diagnostic-device-manufacturer"
+                  name="manufacturer"
+                  data-cy="manufacturer"
+                  type="text"
+                />
+                <ValidatedField
+                  label="Indication Details"
+                  id="companion-diagnostic-device-indicationDetails"
+                  name="indicationDetails"
+                  data-cy="indicationDetails"
+                  type="text"
+                />
+                <ValidatedSelect
+                  label="Specimen Types"
+                  name={'specimenTypes'}
+                  isMulti
+                  closeMenuOnSelect={false}
+                  options={specimenTypesOptions}
+                />
+                <SaveButton disabled={updating} />
+              </ValidatedForm>
+            </>
           )}
         </Col>
       </Row>
-    </div>
+      {!isNew ? (
+        <Row className="mt-4">
+          <Col>
+            <CdxBiomarkerAssociationTable companionDiagnosticDeviceId={props.companionDiagnosticDeviceEntity.id} editable />
+          </Col>
+        </Row>
+      ) : undefined}
+    </>
   );
 };
 

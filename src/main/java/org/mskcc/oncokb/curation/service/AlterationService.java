@@ -111,6 +111,10 @@ public class AlterationService {
         return alterationRepository.findByGenesId(geneId);
     }
 
+    public Optional<Alteration> findByNameAndGeneId(String alterationName, Long geneId) {
+        return alterationRepository.findByNameAndGenesId(alterationName, geneId);
+    }
+
     /**
      * Delete the alteration by id.
      *

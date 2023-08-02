@@ -31,12 +31,6 @@
   "relationships": [
     {
       "relationshipType": "one-to-many",
-      "otherEntityName": "deviceUsageIndication",
-      "otherEntityRelationshipName": "alteration",
-      "relationshipName": "deviceUsageIndication"
-    },
-    {
-      "relationshipType": "one-to-many",
       "otherEntityName": "alterationReferenceGenome",
       "otherEntityRelationshipName": "alteration",
       "relationshipName": "referenceGenomes"
@@ -53,6 +47,13 @@
       "otherEntityName": "consequence",
       "otherEntityRelationshipName": "alteration",
       "relationshipName": "consequence"
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "biomarkerAssociation",
+      "otherEntityRelationshipName": "alteration",
+      "relationshipName": "biomarkerAssociation",
+      "ownerSide": false
     }
   ],
   "entityTableName": "alteration",

@@ -121,12 +121,12 @@ public class FdaSubmissionQueryService extends QueryService<FdaSubmission> {
             if (criteria.getGenetic() != null) {
                 specification = specification.or(buildSpecification(criteria.getGenetic(), FdaSubmission_.genetic));
             }
-            if (criteria.getDeviceUsageIndicationId() != null) {
+            if (criteria.getBiomarkerAssociationId() != null) {
                 specification =
                     specification.or(
                         buildSpecification(
-                            criteria.getDeviceUsageIndicationId(),
-                            root -> root.join(FdaSubmission_.deviceUsageIndications, JoinType.LEFT).get(DeviceUsageIndication_.id)
+                            criteria.getBiomarkerAssociationId(),
+                            root -> root.join(FdaSubmission_.biomarkerAssociations, JoinType.LEFT).get(BiomarkerAssociation_.id)
                         )
                     );
             }

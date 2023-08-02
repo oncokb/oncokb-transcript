@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity BiomarkerAssociation.
+    -->
+    <changeSet id="20220401174650-1" author="jhipster">
+        <createTable tableName="biomarker_association">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="cancer_type_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="gene_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+    </changeSet>
+
+    <changeSet id="20220401174650-1-relations" author="jhipster">
+
+        <createTable tableName="rel_biomarker_association__alteration">
+            <column name="alteration_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="biomarker_association_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="biomarker_association_id, alteration_id" tableName="rel_biomarker_association__alteration"/>
+
+        <createTable tableName="rel_biomarker_association__drug">
+            <column name="drug_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="biomarker_association_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="biomarker_association_id, drug_id" tableName="rel_biomarker_association__drug"/>
+
+        <createTable tableName="rel_biomarker_association__fda_submission">
+            <column name="fda_submission_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="biomarker_association_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="biomarker_association_id, fda_submission_id" tableName="rel_biomarker_association__fda_submission"/>
+    </changeSet>
+
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
+</databaseChangeLog>

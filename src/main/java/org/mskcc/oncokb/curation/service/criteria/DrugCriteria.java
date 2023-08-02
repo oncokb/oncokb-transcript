@@ -32,7 +32,7 @@ public class DrugCriteria implements Serializable, Criteria {
 
     private LongFilter synonymsId;
 
-    private LongFilter deviceUsageIndicationId;
+    private LongFilter biomarkerAssociationId;
 
     private LongFilter brandsId;
 
@@ -47,7 +47,7 @@ public class DrugCriteria implements Serializable, Criteria {
         this.name = other.name == null ? null : other.name.copy();
         this.code = other.code == null ? null : other.code.copy();
         this.synonymsId = other.synonymsId == null ? null : other.synonymsId.copy();
-        this.deviceUsageIndicationId = other.deviceUsageIndicationId == null ? null : other.deviceUsageIndicationId.copy();
+        this.biomarkerAssociationId = other.biomarkerAssociationId == null ? null : other.biomarkerAssociationId.copy();
         this.brandsId = other.brandsId == null ? null : other.brandsId.copy();
         this.brandsName = other.brandsName == null ? null : other.brandsName.copy();
         this.distinct = other.distinct;
@@ -118,19 +118,19 @@ public class DrugCriteria implements Serializable, Criteria {
         this.synonymsId = synonymsId;
     }
 
-    public LongFilter getDeviceUsageIndicationId() {
-        return deviceUsageIndicationId;
+    public LongFilter getBiomarkerAssociationId() {
+        return biomarkerAssociationId;
     }
 
-    public LongFilter deviceUsageIndicationId() {
-        if (deviceUsageIndicationId == null) {
-            deviceUsageIndicationId = new LongFilter();
+    public LongFilter biomarkerAssociationId() {
+        if (biomarkerAssociationId == null) {
+            biomarkerAssociationId = new LongFilter();
         }
-        return deviceUsageIndicationId;
+        return biomarkerAssociationId;
     }
 
-    public void setDeviceUsageIndicationId(LongFilter deviceUsageIndicationId) {
-        this.deviceUsageIndicationId = deviceUsageIndicationId;
+    public void setBiomarkerAssociationId(LongFilter biomarkerAssociationId) {
+        this.biomarkerAssociationId = biomarkerAssociationId;
     }
 
     public LongFilter getBrandsId() {
@@ -184,7 +184,7 @@ public class DrugCriteria implements Serializable, Criteria {
             Objects.equals(id, that.id) &&
             Objects.equals(code, that.code) &&
             Objects.equals(synonymsId, that.synonymsId) &&
-            Objects.equals(deviceUsageIndicationId, that.deviceUsageIndicationId) &&
+            Objects.equals(biomarkerAssociationId, that.biomarkerAssociationId) &&
             Objects.equals(brandsId, that.brandsId) &&
             Objects.equals(brandsName, that.brandsName) &&
             Objects.equals(distinct, that.distinct)
@@ -193,7 +193,7 @@ public class DrugCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, code, synonymsId, deviceUsageIndicationId, brandsId, brandsName, distinct);
+        return Objects.hash(id, code, synonymsId, biomarkerAssociationId, brandsId, brandsName, distinct);
     }
 
     // prettier-ignore
@@ -203,7 +203,7 @@ public class DrugCriteria implements Serializable, Criteria {
             (id != null ? "id=" + id + ", " : "") +
             (code != null ? "code=" + code + ", " : "") +
             (synonymsId != null ? "synonymsId=" + synonymsId + ", " : "") +
-            (deviceUsageIndicationId != null ? "deviceUsageIndicationId=" + deviceUsageIndicationId + ", " : "") +
+            (biomarkerAssociationId != null ? "biomarkerAssociationId=" + biomarkerAssociationId + ", " : "") +
             (brandsId != null ? "brandsId=" + brandsId + ", " : "") +
             (brandsName != null ? "brandsName=" + brandsName + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +

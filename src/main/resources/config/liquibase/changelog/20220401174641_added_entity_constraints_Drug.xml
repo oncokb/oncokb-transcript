@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+    <!--
+        Added the constraints for entity Drug.
+    -->
+    <changeSet id="20220401174641-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="fda_drug_id"
+                                 baseTableName="drug"
+                                 constraintName="fk_drug__fda_drug_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="fda_drug"/>
+    </changeSet>
+</databaseChangeLog>

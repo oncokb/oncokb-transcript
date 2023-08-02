@@ -2,8 +2,6 @@ package org.mskcc.oncokb.curation.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
 import org.mskcc.oncokb.curation.repository.CompanionDiagnosticDeviceRepository;
 import org.mskcc.oncokb.curation.repository.FdaSubmissionTypeRepository;
@@ -65,6 +63,9 @@ public class CompanionDiagnosticDeviceService {
                 if (companionDiagnosticDevice.getManufacturer() != null) {
                     existingCompanionDiagnosticDevice.setManufacturer(companionDiagnosticDevice.getManufacturer());
                 }
+                if (companionDiagnosticDevice.getIndicationDetails() != null) {
+                    existingCompanionDiagnosticDevice.setIndicationDetails(companionDiagnosticDevice.getIndicationDetails());
+                }
 
                 return existingCompanionDiagnosticDevice;
             })
@@ -104,6 +105,11 @@ public class CompanionDiagnosticDeviceService {
     public Optional<CompanionDiagnosticDevice> findOne(Long id) {
         log.debug("Request to get CompanionDiagnosticDevice : {}", id);
         return companionDiagnosticDeviceRepository.findOneWithEagerRelationships(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CompanionDiagnosticDevice> findByNameAndManufacturer(String name, String manufacturer) {
+        return companionDiagnosticDeviceRepository.findByNameIgnoreCaseAndManufacturerIgnoreCase(name, manufacturer);
     }
 
     /**

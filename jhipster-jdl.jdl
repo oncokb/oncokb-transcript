@@ -52,6 +52,10 @@ entity Drug {
     semanticType TextBlob
 }
 
+entity FdaDrug {
+    applicationNumber String unique required
+}
+
 entity DrugSynonym {
     name TextBlob
 }
@@ -95,6 +99,7 @@ entity SpecimenType{
 entity CompanionDiagnosticDevice {
 	name String required
     manufacturer String required
+    indicationDetails String
 }
 
 enum FdaSubmissionTypeKey {
@@ -119,9 +124,12 @@ entity FdaSubmission {
     decisionDate Instant
 
     description TextBlob
+    platform String
 
     curated Boolean required
     genetic Boolean required
+
+    additionalInfo TextBlob
 }
 
 enum TumorForm {
@@ -207,11 +215,15 @@ entity DrugBrand {
     region GeographicRegion
 }
 
-entity DeviceUsageIndication {
+entity BiomarkerAssociation {
 }
 
 entity ClinicalTrialsGovCondition {
 	name String unique required
+}
+
+relationship OneToOne {
+  Drug{fdaDrug} to FdaDrug{drug}
 }
 
 relationship OneToMany {
@@ -225,11 +237,9 @@ relationship OneToMany {
     CompanionDiagnosticDevice to FdaSubmission
     Consequence to Alteration
     FdaSubmissionType to FdaSubmission{type}
-    FdaSubmission to DeviceUsageIndication
-	Alteration to DeviceUsageIndication
 	Alteration{referenceGenomes} to AlterationReferenceGenome
-	CancerType to DeviceUsageIndication
-	Drug to DeviceUsageIndication
+	CancerType to BiomarkerAssociation
+    Gene to BiomarkerAssociation
     Drug{brands} to DrugBrand
 }
 
@@ -237,9 +247,12 @@ relationship ManyToMany {
     Alteration to Gene
     CompanionDiagnosticDevice to SpecimenType
     ClinicalTrialsGovCondition to CancerType
+    BiomarkerAssociation to Alteration
+    BiomarkerAssociation to Drug
+    BiomarkerAssociation to FdaSubmission
 }
 
-paginate Gene, EnsemblGene, Alteration, CancerType, Transcript, Sequence, GenomeFragment, Article, Drug, ClinicalTrialsGovCondition, FdaSubmission with pagination
+paginate Gene, EnsemblGene, Alteration, CancerType, Transcript, Sequence, GenomeFragment, Article, Drug, FdaDrug, ClinicalTrialsGovCondition, FdaSubmission with pagination
 
 service * with serviceClass
 filter Alteration, Gene, Article, Drug, CompanionDiagnosticDevice, FdaSubmission, ClinicalTrialsGovCondition, CancerType

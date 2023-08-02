@@ -32,6 +32,10 @@
       "fieldTypeBlobContent": "text"
     },
     {
+      "fieldName": "platform",
+      "fieldType": "String"
+    },
+    {
       "fieldName": "curated",
       "fieldType": "Boolean",
       "fieldValidateRules": ["required"]
@@ -40,15 +44,14 @@
       "fieldName": "genetic",
       "fieldType": "Boolean",
       "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "additionalInfo",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
     }
   ],
   "relationships": [
-    {
-      "relationshipType": "one-to-many",
-      "otherEntityName": "deviceUsageIndication",
-      "otherEntityRelationshipName": "fdaSubmission",
-      "relationshipName": "deviceUsageIndication"
-    },
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "companionDiagnosticDevice",
@@ -60,6 +63,13 @@
       "otherEntityName": "fdaSubmissionType",
       "otherEntityRelationshipName": "fdaSubmission",
       "relationshipName": "type"
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "biomarkerAssociation",
+      "otherEntityRelationshipName": "fdaSubmission",
+      "relationshipName": "biomarkerAssociation",
+      "ownerSide": false
     }
   ],
   "entityTableName": "fda_submission",

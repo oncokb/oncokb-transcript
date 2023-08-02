@@ -13,6 +13,7 @@ import AppRoutes from 'app/routes';
 import NavigationSidebar from 'app/components/sidebar/NavigationSidebar';
 import { Container } from 'reactstrap';
 import CurationPanel from './components/curationPanel/CurationPanel';
+import Layout from './layout';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
@@ -37,23 +38,25 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
 
   return (
     <Router basename={baseHref}>
-      <div className="app-container">
-        <ToastContainer position={toast.POSITION.TOP_CENTER} className="toastify-container" toastClassName="toastify-toast" />
-        <Header isAuthenticated={props.isAuthenticated} isAdmin={props.isAdmin} />
-        <div style={{ display: 'flex' }}>
-          {props.isAuthorized && <NavigationSidebar />}
-          <div style={{ flex: 1, marginLeft: sideBarWidth, padding: '2rem 0 2rem' }}>
-            <Container fluid>
-              <AppRoutes />
-            </Container>
-          </div>
-          {props.showCurationPanel ? (
-            <div style={{ float: 'right', width: '350px' }}>
-              <CurationPanel />
+      <Layout>
+        <div className="app-container">
+          <ToastContainer position={toast.POSITION.TOP_CENTER} className="toastify-container" toastClassName="toastify-toast" />
+          <Header isAuthenticated={props.isAuthenticated} isAdmin={props.isAdmin} />
+          <div style={{ display: 'flex' }}>
+            {props.isAuthorized && <NavigationSidebar />}
+            <div style={{ flex: 1, marginLeft: sideBarWidth, padding: '2rem 0 2rem' }}>
+              <Container fluid>
+                <AppRoutes />
+              </Container>
             </div>
-          ) : undefined}
+            {props.showCurationPanel ? (
+              <div style={{ float: 'right', width: '350px' }}>
+                <CurationPanel />
+              </div>
+            ) : undefined}
+          </div>
         </div>
-      </div>
+      </Layout>
     </Router>
   );
 };

@@ -1,0 +1,49 @@
+{
+  "name": "BiomarkerAssociation",
+  "fields": [],
+  "relationships": [
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "alteration",
+      "otherEntityRelationshipName": "biomarkerAssociation",
+      "relationshipName": "alteration",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "drug",
+      "otherEntityRelationshipName": "biomarkerAssociation",
+      "relationshipName": "drug",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "fdaSubmission",
+      "otherEntityRelationshipName": "biomarkerAssociation",
+      "relationshipName": "fdaSubmission",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "cancerType",
+      "otherEntityRelationshipName": "biomarkerAssociation",
+      "relationshipName": "cancerType"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "gene",
+      "otherEntityRelationshipName": "biomarkerAssociation",
+      "relationshipName": "gene"
+    }
+  ],
+  "entityTableName": "biomarker_association",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220401174650"
+}

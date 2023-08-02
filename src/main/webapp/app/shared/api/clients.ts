@@ -1,6 +1,7 @@
 import axiosInstance from './axiosInstance';
-import { AlterationControllerApi, AlterationResourceApi, DeviceUsageIndicationResourceApi } from './generated/api';
+import { AlterationControllerApi, AlterationResourceApi, BiomarkerAssociationResourceApi, FdaSubmissionResourceApi } from './generated/api';
 
-export const deviceUsageIndicationClient = new DeviceUsageIndicationResourceApi(null, '', axiosInstance);
+export const biomarkerAssociationClient = new BiomarkerAssociationResourceApi(null, '', axiosInstance);
+export const fdaSubmissionClient = new FdaSubmissionResourceApi(null, '', axiosInstance);
 export const alterationClient = new AlterationResourceApi(null, '', axiosInstance);
 export const alterationControllerClient = new AlterationControllerApi(null, '', axiosInstance);

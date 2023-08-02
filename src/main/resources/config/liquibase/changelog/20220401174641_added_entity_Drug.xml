@@ -23,6 +23,9 @@
             <column name="semantic_type" type="${clobType}">
                 <constraints nullable="true" />
             </column>
+            <column name="fda_drug_id" type="bigint">
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_drug__fda_drug_id" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
     </changeSet>

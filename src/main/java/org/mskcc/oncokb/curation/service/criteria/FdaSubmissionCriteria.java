@@ -43,7 +43,7 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
 
     private BooleanFilter genetic;
 
-    private LongFilter deviceUsageIndicationId;
+    private LongFilter biomarkerAssociationId;
 
     private LongFilter companionDiagnosticDeviceId;
 
@@ -67,7 +67,7 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
         this.decisionDate = other.decisionDate == null ? null : other.decisionDate.copy();
         this.curated = other.curated == null ? null : other.curated.copy();
         this.genetic = other.genetic == null ? null : other.genetic.copy();
-        this.deviceUsageIndicationId = other.deviceUsageIndicationId == null ? null : other.deviceUsageIndicationId.copy();
+        this.biomarkerAssociationId = other.biomarkerAssociationId == null ? null : other.biomarkerAssociationId.copy();
         this.companionDiagnosticDeviceId = other.companionDiagnosticDeviceId == null ? null : other.companionDiagnosticDeviceId.copy();
         this.typeId = other.typeId == null ? null : other.typeId.copy();
         this.typeName = other.typeName == null ? null : other.typeName.copy();
@@ -215,19 +215,19 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
         this.genetic = genetic;
     }
 
-    public LongFilter getDeviceUsageIndicationId() {
-        return deviceUsageIndicationId;
+    public LongFilter getBiomarkerAssociationId() {
+        return biomarkerAssociationId;
     }
 
-    public LongFilter deviceUsageIndicationId() {
-        if (deviceUsageIndicationId == null) {
-            deviceUsageIndicationId = new LongFilter();
+    public LongFilter biomarkerAssociationId() {
+        if (biomarkerAssociationId == null) {
+            biomarkerAssociationId = new LongFilter();
         }
-        return deviceUsageIndicationId;
+        return biomarkerAssociationId;
     }
 
-    public void setDeviceUsageIndicationId(LongFilter deviceUsageIndicationId) {
-        this.deviceUsageIndicationId = deviceUsageIndicationId;
+    public void setBiomarkerAssociationId(LongFilter biomarkerAssociationId) {
+        this.biomarkerAssociationId = biomarkerAssociationId;
     }
 
     public LongFilter getCompanionDiagnosticDeviceId() {
@@ -317,7 +317,7 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
             Objects.equals(decisionDate, that.decisionDate) &&
             Objects.equals(curated, that.curated) &&
             Objects.equals(genetic, that.genetic) &&
-            Objects.equals(deviceUsageIndicationId, that.deviceUsageIndicationId) &&
+            Objects.equals(biomarkerAssociationId, that.biomarkerAssociationId) &&
             Objects.equals(companionDiagnosticDeviceId, that.companionDiagnosticDeviceId) &&
             Objects.equals(typeId, that.typeId) &&
             Objects.equals(typeName, that.typeName) &&
@@ -338,7 +338,7 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
             decisionDate,
             curated,
             genetic,
-            deviceUsageIndicationId,
+            biomarkerAssociationId,
             companionDiagnosticDeviceId,
             typeId,
             typeName,
@@ -360,7 +360,7 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
             (decisionDate != null ? "decisionDate=" + decisionDate + ", " : "") +
             (curated != null ? "curated=" + curated + ", " : "") +
             (genetic != null ? "genetic=" + genetic + ", " : "") +
-            (deviceUsageIndicationId != null ? "deviceUsageIndicationId=" + deviceUsageIndicationId + ", " : "") +
+            (biomarkerAssociationId != null ? "biomarkerAssociationId=" + biomarkerAssociationId + ", " : "") +
             (companionDiagnosticDeviceId != null ? "companionDiagnosticDeviceId=" + companionDiagnosticDeviceId + ", " : "") +
             (typeId != null ? "typeId=" + typeId + ", " : "") +
             (typeName != null ? "typeName=" + typeName + ", " : "") +

@@ -93,6 +93,10 @@ public class DrugService {
         return drugRepository.findOneByCode(code);
     }
 
+    public List<Drug> findByName(String name) {
+        return drugRepository.findByNameIgnoreCase(name);
+    }
+
     public List<Drug> searchDrug(String query) {
         List<Drug> result = drugRepository.searchDrug(query);
         result.sort(new DrugComp(query));

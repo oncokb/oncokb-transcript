@@ -265,7 +265,7 @@ public class CdxUtils {
         return supplements;
     }
 
-    private Instant convertDateToInstant(String date) {
+    public Instant convertDateToInstant(String date) {
         return LocalDate.parse(date, DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US)).atStartOfDay().toInstant(ZoneOffset.UTC);
     }
 

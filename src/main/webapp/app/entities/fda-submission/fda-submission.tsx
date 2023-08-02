@@ -98,7 +98,7 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
     {
       accessor: 'deviceName',
       Header: <TableHeader header="Device Name" onSort={sort('deviceName')} paginationState={paginationState} sortField="deviceName" />,
-      width: 200,
+      width: 150,
       maxWidth: 300,
     },
     {
@@ -116,25 +116,30 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
           sortField="supplementNumber"
         />
       ),
+      maxWidth: 150,
+    },
+    {
+      accessor: 'platform',
+      Header: <TableHeader header="Platform" onSort={sort('platform')} paginationState={paginationState} sortField="platform" />,
       maxWidth: 100,
     },
     {
       accessor: 'genetic',
       Header: <TableHeader header="Genetic Relevant" onSort={sort('genetic')} paginationState={paginationState} sortField="genetic" />,
       Cell: ({ cell: { value } }) => (value ? <FontAwesomeIcon icon={faCheck} /> : null),
-      maxWidth: 50,
+      maxWidth: 100,
     },
     {
       accessor: 'curated',
       Header: <TableHeader header="Curated" onSort={sort('curated')} paginationState={paginationState} sortField="curated" />,
       Cell: ({ cell: { value } }) => (value ? <FontAwesomeIcon icon={faCheck} /> : null),
-      maxWidth: 50,
+      maxWidth: 125,
     },
     {
       accessor: 'type',
       Header: <TableHeader header="Type" onSort={sort('type')} paginationState={paginationState} sortField="type" />,
       Cell: ({ cell: { value } }) => (value.shortName ? <Link to={`fda-submission-type/${value.id}`}>{value.shortName}</Link> : ''),
-      maxWidth: 50,
+      maxWidth: 100,
     },
   ];
 

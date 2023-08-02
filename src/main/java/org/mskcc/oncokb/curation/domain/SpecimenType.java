@@ -29,7 +29,7 @@ public class SpecimenType implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "specimenTypes")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "specimenTypes")
     @JsonIgnoreProperties(value = { "fdaSubmissions", "specimenTypes" }, allowSetters = true)
     private Set<CompanionDiagnosticDevice> companionDiagnosticDevices = new HashSet<>();
 

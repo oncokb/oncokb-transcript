@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Button, Row, Col } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { FDA_SUBMISSION_REGEX } from 'app/config/constants';
+import { FDA_SUBMISSION_REGEX, PAGE_ROUTE } from 'app/config/constants';
 import FormSection from 'app/shared/form/FormSection';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
 import ValidatedForm from 'app/shared/form/ValidatedForm';
@@ -41,7 +41,7 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
   }, []);
 
   const handleClose = () => {
-    props.history.push('/fda-submission');
+    props.history.push(PAGE_ROUTE.FDA_SUBMISSION);
   };
 
   useEffect(() => {
@@ -188,6 +188,7 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
                 data-cy="description"
                 type="textarea"
               />
+              <ValidatedField label="Platform" id="fda-submission-platform" name="platform" data-cy="platform" type="text" />
               <ValidatedField
                 label="Curated"
                 id="fda-submission-curated"
@@ -203,6 +204,13 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
                 data-cy="genetic"
                 check={fdaSubmissionEntity?.genetic?.toString() || 'false'}
                 type="checkbox"
+              />
+              <ValidatedField
+                label="Additional Info"
+                id="fda-submission-additionalInfo"
+                name="additionalInfo"
+                data-cy="additionalInfo"
+                type="textarea"
               />
               <ValidatedSelect
                 label="Companion Diagnostic Device"

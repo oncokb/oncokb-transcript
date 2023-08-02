@@ -3,6 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
+import { fdaSubmissionClient } from 'app/shared/api/clients';
 
 const apiUrl = 'api/fda-submissions';
 const apiSearchUrl = 'api/_search/fda-submissions';
@@ -34,6 +35,18 @@ export class FdaSubmissionStore extends PaginationCrudStore<IFdaSubmission> {
     this.entities = result.data;
     this.totalItems = result.headers['x-total-count'];
     return this.entities;
+  }
+
+  *getFdaSubmissionsByCDx({ cdxId }) {
+    try {
+      if (cdxId) {
+        const result = yield fdaSubmissionClient.findFdaSubmissionsByCompanionDiagnosticDevice(cdxId);
+        return result.data;
+      }
+      return [];
+    } catch (error) {
+      notifyError(error);
+    }
   }
 }
 

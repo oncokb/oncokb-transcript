@@ -72,15 +72,16 @@
       "FdaSubmission",
       "Alteration",
       "CancerType",
-      "DeviceUsageIndication",
+      "BiomarkerAssociation",
       "Article",
       "DrugBrand",
       "CategoricalAlteration",
       "Consequence",
       "AlterationReferenceGenome",
-      "ClinicalTrialsGovCondition"
+      "ClinicalTrialsGovCondition",
+      "FdaDrug"
     ],
-    "lastLiquibaseTimestamp": 1677172720000,
+    "lastLiquibaseTimestamp": 1685026025000,
     "devServerPort": 9060,
     "enableGradleEnterprise": false
   }

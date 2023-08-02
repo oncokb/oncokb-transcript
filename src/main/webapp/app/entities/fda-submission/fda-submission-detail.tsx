@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col } from 'reactstrap';
+import { Row, Col } from 'reactstrap';
 import { TextFormat } from 'react-jhipster';
 
 import { IRootStore } from 'app/stores';
@@ -61,6 +61,10 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
           </dt>
           <dd>{fdaSubmissionEntity.description}</dd>
           <dt>
+            <span id="platform">Platform</span>
+          </dt>
+          <dd>{fdaSubmissionEntity.platform}</dd>
+          <dt>
             <span id="curated">Curated</span>
           </dt>
           <dd>{fdaSubmissionEntity.curated ? 'true' : 'false'}</dd>
@@ -68,6 +72,10 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
             <span id="genetic">Genetic</span>
           </dt>
           <dd>{fdaSubmissionEntity.genetic ? 'true' : 'false'}</dd>
+          <dt>
+            <span id="additionalInfo">Additional Info</span>
+          </dt>
+          <dd>{fdaSubmissionEntity.additionalInfo}</dd>
           <dt>Companion Diagnostic Device</dt>
           <dd>{fdaSubmissionEntity.companionDiagnosticDevice ? fdaSubmissionEntity.companionDiagnosticDevice.name : ''}</dd>
           <dt>Type</dt>
@@ -79,16 +87,6 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
           entityType={ENTITY_TYPE.FDA_SUBMISSION}
           entityAction={ENTITY_ACTION.EDIT}
         />
-        {!props.showCurationPanel && (
-          <EntityActionButton
-            color="primary"
-            className="ml-2"
-            entityId={fdaSubmissionEntity.id}
-            entityType={ENTITY_TYPE.FDA_SUBMISSION}
-            entityAction={ENTITY_ACTION.CURATE}
-            onClick={() => props.toggleCurationPanel(true)}
-          />
-        )}
       </Col>
     </Row>
   );
@@ -97,8 +95,6 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
 const mapStoreToProps = ({ fdaSubmissionStore, layoutStore }: IRootStore) => ({
   fdaSubmissionEntity: fdaSubmissionStore.entity,
   getEntity: fdaSubmissionStore.getEntity,
-  showCurationPanel: layoutStore.showCurationPanel,
-  toggleCurationPanel: layoutStore.toggleCurationPanel,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

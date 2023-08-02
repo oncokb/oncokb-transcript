@@ -1,7 +1,7 @@
 import React from 'react';
 import { Props as SelectProps } from 'react-select';
 import { AsyncPaginate } from 'react-select-async-paginate';
-import { defaultAdditional } from 'app/components/curationPanel/FdaSubmissionPanel';
+import { defaultAdditional } from 'app/components/curationPanel/CompanionDiagnosticDevicePanel';
 import { DEFAULT_ENTITY_SORT_FIELD, DEFAULT_SORT_DIRECTION, ENTITY_TYPE, SearchOptionType } from 'app/config/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { connect } from '../util/typed-inject';

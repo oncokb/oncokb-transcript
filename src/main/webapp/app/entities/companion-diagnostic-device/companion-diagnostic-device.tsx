@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Input, InputGroup, FormGroup, Form, Col, Row, Table } from 'reactstrap';
-import { Translate } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, PAGE_ROUTE } from 'app/config/constants';
+import { Input, InputGroup, FormGroup, Form, Col, Row } from 'reactstrap';
+import { ENTITY_ACTION, PAGE_ROUTE } from 'app/config/constants';
 
 import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';
-import OncoKBTable from 'app/shared/table/OncoKBTable';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import WithSeparator from 'react-with-separator';
 import { debouncedSearch } from 'app/shared/util/crud-store';
@@ -18,7 +15,34 @@ import EntityActionButton from 'app/shared/button/EntityActionButton';
 import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
 export interface ICompanionDiagnosticDeviceProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
+export const getFdaSubmissionNumber = (primaryNumber: string, supplementNumber: string) => {
+  return supplementNumber ? `${primaryNumber}/${supplementNumber}` : primaryNumber;
+};
+
+export const getFdaSubmissionLinks = (fdaSubmissions: IFdaSubmission[]) => {
+  return (
+    fdaSubmissions && (
+      <WithSeparator separator=", ">
+        {fdaSubmissions
+          .sort((a, b) =>
+            getFdaSubmissionNumber(a.number, a.supplementNumber).localeCompare(getFdaSubmissionNumber(b.number, b.supplementNumber))
+          )
+          .map(submission => {
+            const submissionNumber = getFdaSubmissionNumber(submission.number, submission.supplementNumber);
+            return (
+              <Link to={`${PAGE_ROUTE.FDA_SUBMISSION}/${submission.id}`} key={submissionNumber}>
+                {submissionNumber}
+              </Link>
+            );
+          })}
+      </WithSeparator>
+    )
+  );
+};
+
 export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps) => {
+  const { match } = props;
+
   const [search, setSearch] = useState('');
 
   const companionDiagnosticDeviceList = props.companionDiagnosticDeviceList;
@@ -34,36 +58,10 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
 
   const handleSearch = (event: any) => setSearch(event.target.value);
 
-  const getFdaSubmissionNumber = (primaryNumber: string, supplementNumber: string) => {
-    return supplementNumber ? `${primaryNumber}/${supplementNumber}` : primaryNumber;
-  };
-
-  const getFdaSubmissionLinks = (fdaSubmissions: IFdaSubmission[]) => {
-    return (
-      fdaSubmissions && (
-        <WithSeparator separator=", ">
-          {fdaSubmissions
-            .sort((a, b) =>
-              getFdaSubmissionNumber(a.number, a.supplementNumber).localeCompare(getFdaSubmissionNumber(b.number, b.supplementNumber))
-            )
-            .map(submission => {
-              const submissionNumber = getFdaSubmissionNumber(submission.number, submission.supplementNumber);
-              return (
-                <Link to={`${PAGE_ROUTE.FDA_SUBMISSION}/${submission.id}`} key={submissionNumber}>
-                  {submissionNumber}
-                </Link>
-              );
-            })}
-        </WithSeparator>
-      )
-    );
-  };
-
-  const { match } = props;
-
   const columns: Column<ICompanionDiagnosticDevice>[] = [
-    { accessor: 'name', Header: 'Device Name' },
-    { accessor: 'manufacturer', Header: 'Manufacturer' },
+    { accessor: 'name', Header: 'Device Name', width: 250 },
+    { accessor: 'manufacturer', Header: 'Manufacturer', width: 250 },
+    { accessor: 'indicationDetails', Header: 'Indication Details' },
     {
       id: 'specimenTypes',
       Header: 'Specimen Types',
@@ -97,6 +95,7 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
       }): any {
         return <>{getFdaSubmissionLinks(original.fdaSubmissions)}</>;
       },
+      width: 250,
     },
   ];
 

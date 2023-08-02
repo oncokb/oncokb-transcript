@@ -43,9 +43,9 @@
     },
     {
       "relationshipType": "one-to-many",
-      "otherEntityName": "deviceUsageIndication",
+      "otherEntityName": "biomarkerAssociation",
       "otherEntityRelationshipName": "cancerType",
-      "relationshipName": "deviceUsageIndication"
+      "relationshipName": "biomarkerAssociation"
     },
     {
       "relationshipType": "many-to-one",

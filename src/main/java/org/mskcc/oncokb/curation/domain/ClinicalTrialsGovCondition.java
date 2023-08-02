@@ -31,7 +31,7 @@ public class ClinicalTrialsGovCondition implements Serializable {
         joinColumns = @JoinColumn(name = "clinical_trials_gov_condition_id"),
         inverseJoinColumns = @JoinColumn(name = "cancer_type_id")
     )
-    @JsonIgnoreProperties(value = { "children", "deviceUsageIndications", "parent", "clinicalTrialsGovConditions" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "children", "biomarkerAssociations", "parent", "clinicalTrialsGovConditions" }, allowSetters = true)
     private Set<CancerType> cancerTypes = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

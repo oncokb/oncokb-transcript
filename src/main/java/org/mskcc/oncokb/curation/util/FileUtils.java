@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
@@ -69,5 +70,31 @@ public class FileUtils {
         in.close();
 
         return lines;
+    }
+
+    /**
+     * read a stream and splits each line by a delimiter
+     *
+     * @param is
+     * @param delimiter
+     * @param trim
+     * @return
+     * @throws IOException
+     */
+    public static List<List<String>> readDelimitedLinesStream(InputStream is, String delimiter, Boolean trim) throws IOException {
+        List<List<String>> rows = new ArrayList<>();
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+
+        String line;
+        while ((line = in.readLine()) != null) {
+            List<String> row = Arrays.asList(line.split(delimiter));
+            if (trim) {
+                row.stream().map(String::trim);
+            }
+            rows.add(row);
+        }
+
+        return rows;
     }
 }
