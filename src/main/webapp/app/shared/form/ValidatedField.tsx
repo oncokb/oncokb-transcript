@@ -2,6 +2,7 @@ import React from 'react';
 import { Controller, RegisterOptions, useFormContext } from 'react-hook-form';
 import { GroupBase, Props } from 'react-select';
 import Select from 'react-select';
+import CreatableSelect from 'react-select/creatable';
 import { FormFeedback, FormGroup, Input, InputProps, Label } from 'reactstrap';
 import './validated-select.scss';
 
@@ -64,6 +65,7 @@ export type IValidatedSelectProps<Option, IsMulti extends boolean = false, Group
   Group
 > & {
   name: string;
+  creatable?: boolean;
   label?: string;
   validate?: RegisterOptions;
 };
@@ -86,15 +88,28 @@ export const ValidatedSelect = <Option, IsMulti extends boolean = false, Group e
         </Label>
       )}
       <Controller
-        render={({ field }) => (
-          <Select
-            className={`${error ? 'react-select-invalid' : ''}`}
-            classNamePrefix={'react-select'}
-            {...field}
-            {...selectProps}
-            id={props.name}
-          />
-        )}
+        render={({ field }) => {
+          if (props.creatable) {
+            return (
+              <CreatableSelect
+                className={`${error ? 'react-select-invalid' : ''}`}
+                classNamePrefix={'react-select'}
+                {...field}
+                {...selectProps}
+                id={props.name}
+              />
+            );
+          }
+          return (
+            <Select
+              className={`${error ? 'react-select-invalid' : ''}`}
+              classNamePrefix={'react-select'}
+              {...field}
+              {...selectProps}
+              id={props.name}
+            />
+          );
+        }}
         name={props.name}
         rules={props.validate}
       />

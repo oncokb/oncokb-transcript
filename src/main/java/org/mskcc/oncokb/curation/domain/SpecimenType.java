@@ -11,7 +11,7 @@ import javax.validation.constraints.*;
  * A SpecimenType.
  */
 @Entity
-@Table(name = "specimen_type")
+@Table(name = "specimen_type", uniqueConstraints = { @UniqueConstraint(columnNames = { "type", "name" }) })
 public class SpecimenType implements Serializable {
 
     private static final long serialVersionUID = 1L;
