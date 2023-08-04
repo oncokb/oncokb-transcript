@@ -161,7 +161,6 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
             data={fdaSubmissionList}
             loading={loading}
             url={match.url}
-            curatable
             entityType={ENTITY_TYPE.FDA_SUBMISSION}
           />
         )}

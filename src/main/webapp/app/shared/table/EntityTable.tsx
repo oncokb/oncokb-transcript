@@ -32,7 +32,17 @@ export const EntityTable: React.FunctionComponent<EntityTableProps> = props => {
       }): any {
         const entityId = getEntityId(original, entityType);
         return (
-          <div className="">
+          <div>
+            {props.curatable && (
+              <EntityActionButton
+                color="primary"
+                size="sm"
+                entityId={entityId}
+                entityType={entityType}
+                entityAction={ENTITY_ACTION.CURATE}
+                showText={false}
+              />
+            )}
             <EntityActionButton
               color="info"
               size="sm"
