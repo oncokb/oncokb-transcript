@@ -11,7 +11,7 @@ export const PMIDLink: React.FunctionComponent<IPMIDLinkProps> = props => {
   if (props.seperateLinks) {
     <WithSeparator separator={props.seperator}>
       {props.pmids.split(',').map(pmid => (
-        <span>
+        <span key={pmid}>
           PMID:{' '}
           <a
             href={`https://pubmed.ncbi.nlm.nih.gov/?term=${pmid}`}
