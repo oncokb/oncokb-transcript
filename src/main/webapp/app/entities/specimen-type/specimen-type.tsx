@@ -30,9 +30,6 @@ export const SpecimenType = (props: ISpecimenTypeProps) => {
       <h2 id="specimen-type-heading" data-cy="SpecimenTypeHeading">
         Specimen Types
         <div className="d-flex justify-content-end">
-          <Button className="mr-2" color="info" onClick={handleSyncList} disabled={loading}>
-            <FontAwesomeIcon icon="sync" spin={loading} /> Refresh List
-          </Button>
           <Link to={`${match.url}/new`} className="btn btn-primary jh-create-entity" id="jh-create-entity" data-cy="entityCreateButton">
             <FontAwesomeIcon icon="plus" />
             &nbsp; Create new Specimen Type

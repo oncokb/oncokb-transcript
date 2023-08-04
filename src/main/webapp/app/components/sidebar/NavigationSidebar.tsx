@@ -5,12 +5,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { PAGE_ROUTE } from 'app/config/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { componentInject } from 'app/shared/util/typed-inject';
-import { NavLink, useHistory } from 'react-router-dom';
-import { ProSidebar, Menu, MenuItem, SidebarContent, SubMenu } from 'react-pro-sidebar';
+import { NavLink } from 'react-router-dom';
+import { ProSidebar, Menu, MenuItem, SidebarContent } from 'react-pro-sidebar';
 import { faBars, faBuilding, faSearch, faPills, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 
 const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
-  const history = useHistory();
   return (
     <div className="sidebar-wrapper">
       <ProSidebar collapsed={props.isSideBarCollapsed}>
