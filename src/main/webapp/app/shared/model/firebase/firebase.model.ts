@@ -1,5 +1,8 @@
 import { generateUuid } from 'app/shared/util/utils';
 
+export const ONCOGENE = 'Oncogene';
+export const TUMOR_SUPPRESSOR = 'Tumor Suppressor';
+
 export enum TX_LEVELS {
   LEVEL_NO = 'no',
   LEVEL_1 = '1',
@@ -91,10 +94,10 @@ export class Gene {
 }
 
 export class GeneType {
-  ocg = '';
+  ocg: typeof ONCOGENE | '' = '';
   ocg_review?: Review;
   ocg_uuid: string = generateUuid();
-  tsg = '';
+  tsg: typeof TUMOR_SUPPRESSOR | '' = '';
   tsg_uuid: string = generateUuid();
 }
 

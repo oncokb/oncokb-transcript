@@ -3,6 +3,31 @@ import { Database, onValue, push, ref, set, update } from 'firebase/database';
 import { action, autorun, makeObservable, observable } from 'mobx';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
+/* Convert a nested object into an object where the key is the path to the object.
+  Example: 
+    {type: {ocg: 'Oncogene}, name: 'ABL1' }
+    is converted to
+    {'type/ocg': 'Oncogene', 'name': 'ABL1'}
+*/
+const convertNestedObject = (obj: any, key: string, result: any) => {
+  if (typeof obj !== 'object') {
+    result[key] = obj;
+    return result;
+  }
+  const keys = Object.keys(obj);
+
+  for (let i = 0; i < keys.length; i++) {
+    const newKey = key ? key + '/' + keys[i] : keys[i];
+    convertNestedObject(obj[keys[i]], newKey, result);
+  }
+
+  return result;
+};
+
+export type RecursivePartial<T> = {
+  [P in keyof T]?: RecursivePartial<T[P]>;
+};
+
 export class FirebaseCrudStore<T> {
   public data: Readonly<T> = undefined;
   public db: Database = undefined;
@@ -47,8 +72,9 @@ export class FirebaseCrudStore<T> {
     set(newItemRef, value);
   }
 
-  update(path: string, value: Partial<T>) {
-    update(ref(this.db, path), value).catch(e => {
+  update(path: string, value: RecursivePartial<T>) {
+    const convertValue = convertNestedObject(value, '', {});
+    update(ref(this.db, path), convertValue).catch(e => {
       notifyError(e, 'Error updating to Firebase');
     });
   }

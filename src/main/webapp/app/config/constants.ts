@@ -17,6 +17,11 @@ export const APP_TWO_DIGITS_AFTER_POINT_NUMBER_FORMAT = '0,0.[00]';
 
 export const SHORT_REDIRECT = 2000;
 
+export enum REFERENCE_GENOME {
+  GRCH37 = 'GRCh37',
+  GRCH38 = 'GRCh38',
+}
+
 export enum PAGE_ROUTE {
   HOME = '/',
   LOGIN = '/login',

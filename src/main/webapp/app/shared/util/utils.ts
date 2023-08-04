@@ -26,3 +26,7 @@ export const getAlterationName = (alterations: IAlteration[]): string => {
 export const generateUuid = () => {
   return uuidv4();
 };
+
+export function getSectionClassName(theFirst = false) {
+  return `${theFirst ? 'pb-3' : 'border-top py-3'}`;
+}
