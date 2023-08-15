@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Col, Row, Table } from 'reactstrap';
-import { Translate } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
-import { ISpecimenType } from 'app/shared/model/specimen-type.model';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { RouteComponentProps } from 'react-router-dom';
 
 import { IRootStore } from 'app/stores';
+import { Column } from 'react-table';
+import { ISpecimenType } from 'app/shared/model/specimen-type.model';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import EntityActionButton from 'app/shared/button/EntityActionButton';
+import EntityTable from 'app/shared/table/EntityTable';
 export interface ISpecimenTypeProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const SpecimenType = (props: ISpecimenTypeProps) => {
@@ -19,72 +18,22 @@ export const SpecimenType = (props: ISpecimenTypeProps) => {
     props.getEntities({});
   }, []);
 
-  const handleSyncList = () => {
-    props.getEntities({});
-  };
-
   const { match } = props;
+
+  const columns: Column<ISpecimenType>[] = [
+    { accessor: 'type', Header: 'Type', width: 250 },
+    { accessor: 'name', Header: 'Name', width: 250 },
+  ];
 
   return (
     <div>
       <h2 id="specimen-type-heading" data-cy="SpecimenTypeHeading">
         Specimen Types
-        <div className="d-flex justify-content-end">
-          <Button className="mr-2" color="info" onClick={handleSyncList} disabled={loading}>
-            <FontAwesomeIcon icon="sync" spin={loading} /> Refresh List
-          </Button>
-          <Link to={`${match.url}/new`} className="btn btn-primary jh-create-entity" id="jh-create-entity" data-cy="entityCreateButton">
-            <FontAwesomeIcon icon="plus" />
-            &nbsp; Create new Specimen Type
-          </Link>
-        </div>
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.SPECIMEN_TYPE} entityAction={ENTITY_ACTION.CREATE} />
       </h2>
-      <div className="table-responsive">
-        {specimenTypeList && specimenTypeList.length > 0 ? (
-          <Table responsive>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Type</th>
-                <th>Name</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {specimenTypeList.map((specimenType, i) => (
-                <tr key={`entity-${i}`} data-cy="entityTable">
-                  <td>
-                    <Button tag={Link} to={`${match.url}/${specimenType.id}`} color="link" size="sm">
-                      {specimenType.id}
-                    </Button>
-                  </td>
-                  <td>{specimenType.type}</td>
-                  <td>{specimenType.name}</td>
-                  <td className="text-right">
-                    <div className="btn-group flex-btn-group-container">
-                      <Button tag={Link} to={`${match.url}/${specimenType.id}`} color="info" size="sm" data-cy="entityDetailsButton">
-                        <FontAwesomeIcon icon="eye" /> <span className="d-none d-md-inline">View</span>
-                      </Button>
-                      <Button tag={Link} to={`${match.url}/${specimenType.id}/edit`} color="primary" size="sm" data-cy="entityEditButton">
-                        <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-                      </Button>
-                      <Button
-                        tag={Link}
-                        to={`${match.url}/${specimenType.id}/delete`}
-                        color="danger"
-                        size="sm"
-                        data-cy="entityDeleteButton"
-                      >
-                        <FontAwesomeIcon icon="trash" /> <span className="d-none d-md-inline">Delete</span>
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        ) : (
-          !loading && <div className="alert alert-warning">No Specimen Types found</div>
+      <div>
+        {specimenTypeList && (
+          <EntityTable columns={columns} data={specimenTypeList} loading={loading} url={match.url} entityType={ENTITY_TYPE.SPECIMEN_TYPE} />
         )}
       </div>
     </div>

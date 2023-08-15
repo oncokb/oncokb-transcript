@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { connect } from 'app/shared/util/typed-inject';
-import { RouteComponentProps } from 'react-router-dom';
-import { Row, Col } from 'reactstrap';
-import { IRootStore } from 'app/stores';
-import { mapSelectOptionList } from 'app/shared/util/entity-utils';
-import ValidatedForm from 'app/shared/form/ValidatedForm';
-import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
-import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
-import { SaveButton } from 'app/shared/button/SaveButton';
-import CdxBiomarkerAssociationTable from 'app/shared/table/CdxBiomarkerAssociationTable';
 import { PAGE_ROUTE } from 'app/config/constants';
+import { SaveButton } from 'app/shared/button/SaveButton';
+import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
+import ValidatedForm from 'app/shared/form/ValidatedForm';
+import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
+import CdxBiomarkerAssociationTable from 'app/shared/table/CdxBiomarkerAssociationTable';
+import { mapSelectOptionList } from 'app/shared/util/entity-utils';
+import { connect } from 'app/shared/util/typed-inject';
+import { IRootStore } from 'app/stores';
+import React, { useEffect, useState } from 'react';
+import { RouteComponentProps } from 'react-router-dom';
+import { Col, Row } from 'reactstrap';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 export interface ICompanionDiagnosticDeviceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -20,11 +21,6 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
   const companionDiagnosticDeviceEntity = props.companionDiagnosticDeviceEntity;
   const loading = props.loading;
   const updating = props.updating;
-  const updateSuccess = props.updateSuccess;
-
-  const handleClose = () => {
-    props.history.push(PAGE_ROUTE.CDX);
-  };
 
   useEffect(() => {
     if (isNew) {
@@ -36,17 +32,23 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
     props.getSpecimenTypes({});
   }, []);
 
-  useEffect(() => {
-    if (updateSuccess) {
-      handleClose();
+  const saveEntity = async (values: any) => {
+    const specimenTypeValues = mapSelectOptionList(values.specimenTypes);
+    for (const st of specimenTypeValues) {
+      if (typeof st.id === 'string') {
+        try {
+          const result = (await props.createSpecimenType({ type: st.id, name: st.id })) as any;
+          st.id = result.data.id;
+        } catch (error) {
+          notifyError(error, 'Could not create new specimen type');
+        }
+      }
     }
-  }, [updateSuccess]);
 
-  const saveEntity = values => {
     const entity: ICompanionDiagnosticDevice = {
       ...companionDiagnosticDeviceEntity,
       ...values,
-      specimenTypes: mapSelectOptionList(values.specimenTypes),
+      specimenTypes: specimenTypeValues,
     };
 
     if (isNew) {
@@ -125,7 +127,9 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
                 <ValidatedSelect
                   label="Specimen Types"
                   name={'specimenTypes'}
+                  creatable
                   isMulti
+                  isClearable
                   closeMenuOnSelect={false}
                   options={specimenTypesOptions}
                 />
@@ -151,9 +155,10 @@ const mapStoreToProps = (storeState: IRootStore) => ({
   companionDiagnosticDeviceEntity: storeState.companionDiagnosticDeviceStore.entity,
   loading: storeState.companionDiagnosticDeviceStore.loading,
   updating: storeState.companionDiagnosticDeviceStore.updating,
-  updateSuccess: storeState.companionDiagnosticDeviceStore.updateSuccess,
   getSpecimenTypes: storeState.specimenTypeStore.getEntities,
   getEntity: storeState.companionDiagnosticDeviceStore.getEntity,
+  createSpecimenType: storeState.specimenTypeStore.createEntity,
+  getSpecimenType: storeState.specimenTypeStore.getEntity,
   updateEntity: storeState.companionDiagnosticDeviceStore.updateEntity,
   createEntity: storeState.companionDiagnosticDeviceStore.createEntity,
   reset: storeState.companionDiagnosticDeviceStore.reset,
