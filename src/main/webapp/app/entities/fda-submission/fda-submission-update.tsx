@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Button, Row, Col } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { FDA_SUBMISSION_REGEX, PAGE_ROUTE } from 'app/config/constants';
+import { FDA_SUBMISSION_REGEX } from 'app/config/constants';
 import FormSection from 'app/shared/form/FormSection';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
 import ValidatedForm from 'app/shared/form/ValidatedForm';
@@ -23,7 +23,6 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
   const fdaSubmissionEntity = props.fdaSubmissionEntity;
   const loading = props.loading;
   const updating = props.updating;
-  const updateSuccess = props.updateSuccess;
 
   const companionDiagnosticDeviceOptions = props.companionDiagnosticDevices.map(cdx => ({ label: cdx.name, value: cdx.id }));
 
@@ -39,16 +38,6 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
     props.getCompanionDiagnosticDevices({});
     props.getFdaSubmissionTypes({});
   }, []);
-
-  const handleClose = () => {
-    props.history.push(PAGE_ROUTE.FDA_SUBMISSION);
-  };
-
-  useEffect(() => {
-    if (updateSuccess) {
-      handleClose();
-    }
-  }, [updateSuccess]);
 
   const saveEntity = values => {
     values.dateReceived = convertDateTimeToServer(values.dateReceived);
@@ -243,7 +232,6 @@ const mapStoreToProps = (storeState: IRootStore) => ({
   fdaSubmissionEntity: storeState.fdaSubmissionStore.entity,
   loading: storeState.fdaSubmissionStore.loading,
   updating: storeState.fdaSubmissionStore.updating,
-  updateSuccess: storeState.fdaSubmissionStore.updateSuccess,
   getCompanionDiagnosticDevices: storeState.companionDiagnosticDeviceStore.getEntities,
   getFdaSubmissionTypes: storeState.fdaSubmissionTypeStore.getEntities,
   getEntity: storeState.fdaSubmissionStore.getEntity,
