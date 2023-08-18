@@ -11,7 +11,7 @@ import org.mskcc.oncokb.curation.service.*;
 import org.mskcc.oncokb.curation.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.curation.vm.*;
 import org.mskcc.oncokb.curation.vm.ensembl.EnsemblSequence;
-import org.mskcc.oncokb.transcript.web.rest.model.AddTranscriptBody;
+import org.mskcc.oncokb.curation.web.rest.model.AddTranscriptBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;

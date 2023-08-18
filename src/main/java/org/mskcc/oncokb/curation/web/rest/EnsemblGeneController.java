@@ -7,7 +7,7 @@ import org.genome_nexus.ApiException;
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.curation.service.*;
-import org.mskcc.oncokb.transcript.web.rest.model.AddEnsemblGeneBody;
+import org.mskcc.oncokb.curation.web.rest.model.AddEnsemblGeneBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

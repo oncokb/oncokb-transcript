@@ -1,4 +1,4 @@
-package org.mskcc.oncokb.transcript.web.rest.model;
+package org.mskcc.oncokb.curation.web.rest.model;
 
 import javax.validation.constraints.NotNull;
 
