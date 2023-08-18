@@ -1,4 +1,4 @@
-package org.mskcc.oncokb.transcript.config.cache;
+package org.mskcc.oncokb.curation.config.cache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

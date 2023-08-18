@@ -21,7 +21,7 @@ public interface GeneRepository extends JpaRepository<Gene, Long>, JpaSpecificat
     @Cacheable(cacheResolver = "geneCacheResolver")
     Optional<Gene> findByHugoSymbol(String hugoSymbol);
 
-    @Query("select distinct g from Gene g left join fetch g.geneAliases ga left join fetch g.ensemblGenes eg")
+    @Query(value = "select distinct g from Gene g left join fetch g.geneAliases ga left join fetch g.ensemblGenes eg", nativeQuery = true)
     Page<Gene> findAllWithGeneAliasAndEnsemblGenes(Pageable pageable);
 
     @Query(
