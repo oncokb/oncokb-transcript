@@ -35,9 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 @WithMockUser
 class GenomeFragmentResourceIT {
 
-    private static final String DEFAULT_CHROMOSOME = "AAAAAAAAAA";
-    private static final String UPDATED_CHROMOSOME = "BBBBBBBBBB";
-
     private static final Integer DEFAULT_START = 1;
     private static final Integer UPDATED_START = 2;
 
@@ -75,7 +72,6 @@ class GenomeFragmentResourceIT {
      */
     public static GenomeFragment createEntity(EntityManager em) {
         GenomeFragment genomeFragment = new GenomeFragment()
-            .chromosome(DEFAULT_CHROMOSOME)
             .start(DEFAULT_START)
             .end(DEFAULT_END)
             .strand(DEFAULT_STRAND)
@@ -91,7 +87,6 @@ class GenomeFragmentResourceIT {
      */
     public static GenomeFragment createUpdatedEntity(EntityManager em) {
         GenomeFragment genomeFragment = new GenomeFragment()
-            .chromosome(UPDATED_CHROMOSOME)
             .start(UPDATED_START)
             .end(UPDATED_END)
             .strand(UPDATED_STRAND)
@@ -122,7 +117,6 @@ class GenomeFragmentResourceIT {
         List<GenomeFragment> genomeFragmentList = genomeFragmentRepository.findAll();
         assertThat(genomeFragmentList).hasSize(databaseSizeBeforeCreate + 1);
         GenomeFragment testGenomeFragment = genomeFragmentList.get(genomeFragmentList.size() - 1);
-        assertThat(testGenomeFragment.getChromosome()).isEqualTo(DEFAULT_CHROMOSOME);
         assertThat(testGenomeFragment.getStart()).isEqualTo(DEFAULT_START);
         assertThat(testGenomeFragment.getEnd()).isEqualTo(DEFAULT_END);
         assertThat(testGenomeFragment.getStrand()).isEqualTo(DEFAULT_STRAND);
@@ -164,7 +158,6 @@ class GenomeFragmentResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(genomeFragment.getId().intValue())))
-            .andExpect(jsonPath("$.[*].chromosome").value(hasItem(DEFAULT_CHROMOSOME)))
             .andExpect(jsonPath("$.[*].start").value(hasItem(DEFAULT_START)))
             .andExpect(jsonPath("$.[*].end").value(hasItem(DEFAULT_END)))
             .andExpect(jsonPath("$.[*].strand").value(hasItem(DEFAULT_STRAND)))
@@ -183,7 +176,6 @@ class GenomeFragmentResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(genomeFragment.getId().intValue()))
-            .andExpect(jsonPath("$.chromosome").value(DEFAULT_CHROMOSOME))
             .andExpect(jsonPath("$.start").value(DEFAULT_START))
             .andExpect(jsonPath("$.end").value(DEFAULT_END))
             .andExpect(jsonPath("$.strand").value(DEFAULT_STRAND))
@@ -209,12 +201,7 @@ class GenomeFragmentResourceIT {
         GenomeFragment updatedGenomeFragment = genomeFragmentRepository.findById(genomeFragment.getId()).get();
         // Disconnect from session so that the updates on updatedGenomeFragment are not directly saved in db
         em.detach(updatedGenomeFragment);
-        updatedGenomeFragment
-            .chromosome(UPDATED_CHROMOSOME)
-            .start(UPDATED_START)
-            .end(UPDATED_END)
-            .strand(UPDATED_STRAND)
-            .type(UPDATED_TYPE);
+        updatedGenomeFragment.start(UPDATED_START).end(UPDATED_END).strand(UPDATED_STRAND).type(UPDATED_TYPE);
 
         restGenomeFragmentMockMvc
             .perform(
@@ -229,7 +216,6 @@ class GenomeFragmentResourceIT {
         List<GenomeFragment> genomeFragmentList = genomeFragmentRepository.findAll();
         assertThat(genomeFragmentList).hasSize(databaseSizeBeforeUpdate);
         GenomeFragment testGenomeFragment = genomeFragmentList.get(genomeFragmentList.size() - 1);
-        assertThat(testGenomeFragment.getChromosome()).isEqualTo(UPDATED_CHROMOSOME);
         assertThat(testGenomeFragment.getStart()).isEqualTo(UPDATED_START);
         assertThat(testGenomeFragment.getEnd()).isEqualTo(UPDATED_END);
         assertThat(testGenomeFragment.getStrand()).isEqualTo(UPDATED_STRAND);
@@ -311,7 +297,7 @@ class GenomeFragmentResourceIT {
         GenomeFragment partialUpdatedGenomeFragment = new GenomeFragment();
         partialUpdatedGenomeFragment.setId(genomeFragment.getId());
 
-        partialUpdatedGenomeFragment.chromosome(UPDATED_CHROMOSOME).start(UPDATED_START).end(UPDATED_END).strand(UPDATED_STRAND);
+        partialUpdatedGenomeFragment.start(UPDATED_START).end(UPDATED_END).strand(UPDATED_STRAND).type(UPDATED_TYPE);
 
         restGenomeFragmentMockMvc
             .perform(
@@ -326,11 +312,10 @@ class GenomeFragmentResourceIT {
         List<GenomeFragment> genomeFragmentList = genomeFragmentRepository.findAll();
         assertThat(genomeFragmentList).hasSize(databaseSizeBeforeUpdate);
         GenomeFragment testGenomeFragment = genomeFragmentList.get(genomeFragmentList.size() - 1);
-        assertThat(testGenomeFragment.getChromosome()).isEqualTo(UPDATED_CHROMOSOME);
         assertThat(testGenomeFragment.getStart()).isEqualTo(UPDATED_START);
         assertThat(testGenomeFragment.getEnd()).isEqualTo(UPDATED_END);
         assertThat(testGenomeFragment.getStrand()).isEqualTo(UPDATED_STRAND);
-        assertThat(testGenomeFragment.getType()).isEqualTo(DEFAULT_TYPE);
+        assertThat(testGenomeFragment.getType()).isEqualTo(UPDATED_TYPE);
     }
 
     @Test
@@ -345,12 +330,7 @@ class GenomeFragmentResourceIT {
         GenomeFragment partialUpdatedGenomeFragment = new GenomeFragment();
         partialUpdatedGenomeFragment.setId(genomeFragment.getId());
 
-        partialUpdatedGenomeFragment
-            .chromosome(UPDATED_CHROMOSOME)
-            .start(UPDATED_START)
-            .end(UPDATED_END)
-            .strand(UPDATED_STRAND)
-            .type(UPDATED_TYPE);
+        partialUpdatedGenomeFragment.start(UPDATED_START).end(UPDATED_END).strand(UPDATED_STRAND).type(UPDATED_TYPE);
 
         restGenomeFragmentMockMvc
             .perform(
@@ -365,7 +345,6 @@ class GenomeFragmentResourceIT {
         List<GenomeFragment> genomeFragmentList = genomeFragmentRepository.findAll();
         assertThat(genomeFragmentList).hasSize(databaseSizeBeforeUpdate);
         GenomeFragment testGenomeFragment = genomeFragmentList.get(genomeFragmentList.size() - 1);
-        assertThat(testGenomeFragment.getChromosome()).isEqualTo(UPDATED_CHROMOSOME);
         assertThat(testGenomeFragment.getStart()).isEqualTo(UPDATED_START);
         assertThat(testGenomeFragment.getEnd()).isEqualTo(UPDATED_END);
         assertThat(testGenomeFragment.getStrand()).isEqualTo(UPDATED_STRAND);

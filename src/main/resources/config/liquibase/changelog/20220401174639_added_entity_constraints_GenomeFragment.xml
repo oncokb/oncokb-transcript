@@ -8,6 +8,12 @@
     -->
     <changeSet id="20220401174639-2" author="jhipster">
 
+        <addForeignKeyConstraint baseColumnNames="seq_region"
+                                 baseTableName="genome_fragment"
+                                 constraintName="fk_genome_fragment__seq_region_name"
+                                 referencedColumnNames="name"
+                                 referencedTableName="seq_region"/>
+
         <addForeignKeyConstraint baseColumnNames="transcript_id"
                                  baseTableName="genome_fragment"
                                  constraintName="fk_genome_fragment__transcript_id"

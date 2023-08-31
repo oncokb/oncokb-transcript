@@ -25,10 +25,6 @@ export const GenomeFragmentDetail = (props: IGenomeFragmentDetailProps) => {
           </dt>
           <dd>{genomeFragmentEntity.id}</dd>
           <dt>
-            <span id="chromosome">Chromosome</span>
-          </dt>
-          <dd>{genomeFragmentEntity.chromosome}</dd>
-          <dt>
             <span id="start">Start</span>
           </dt>
           <dd>{genomeFragmentEntity.start}</dd>
@@ -44,9 +40,15 @@ export const GenomeFragmentDetail = (props: IGenomeFragmentDetailProps) => {
             <span id="type">Type</span>
           </dt>
           <dd>{genomeFragmentEntity.type}</dd>
+          <dt>Seq Region</dt>
+          <dd>{genomeFragmentEntity.seqRegion ? genomeFragmentEntity.seqRegion.name : ''}</dd>
           <dt>Transcript</dt>
           <dd>{genomeFragmentEntity.transcript ? genomeFragmentEntity.transcript.id : ''}</dd>
         </dl>
+        <Button tag={Link} to="/genome-fragment" replace color="info" data-cy="entityDetailsBackButton">
+          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
+        </Button>
+        &nbsp;
         <Button tag={Link} to={`/genome-fragment/${genomeFragmentEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
         </Button>

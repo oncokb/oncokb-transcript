@@ -37,10 +37,6 @@ public class GeneService {
 
     private final Logger log = LoggerFactory.getLogger(GeneService.class);
 
-    private final String PORTAL_GENE_FILE =
-        "https://raw.githubusercontent.com/cBioPortal/datahub-study-curation-tools/master/gene-table-update/build-input-for-importer/gene_info.txt";
-    private final String SYNONYM_SEPARATOR = "\\|";
-
     private final GeneRepository geneRepository;
     private final GeneAliasRepository geneAliasRepository;
     private final InfoService infoService;
@@ -91,6 +87,10 @@ public class GeneService {
                 if (gene.getHugoSymbol() != null) {
                     existingGene.setHugoSymbol(gene.getHugoSymbol());
                 }
+                if (gene.getFlags() != null) {
+                    existingGene.getFlags().clear();
+                    existingGene.getFlags().addAll(gene.getFlags());
+                }
 
                 return existingGene;
             })
@@ -98,17 +98,27 @@ public class GeneService {
     }
 
     /**
-     * Get all the genes.
-     * We do not use the default find all is because the FetchType.EAGER in the gene model.
-     * The default will trigger a lot of queries to the database.
+     * Get all the gene ids
      *
      * @param pageable the pagination information.
-     * @return the list of entities.
+     * @return the list of ids.
      */
     @Transactional(readOnly = true)
-    public Page<Gene> findAll(Pageable pageable) {
+    public Page<Long> findAllGeneIds(Pageable pageable) {
         log.debug("Request to get all Genes");
-        return geneRepository.findAllWithGeneAliasAndEnsemblGenes(pageable);
+        return geneRepository.findAllGeneIds(pageable);
+    }
+
+    /**
+     * Get all the genes by ids
+     *
+     * @param geneIds a list of gene ids for query.
+     * @return the list of genes.
+     */
+    @Transactional(readOnly = true)
+    public List<Gene> findAllByIdInWithGeneAliasAndEnsemblGenes(List<Long> geneIds) {
+        log.debug("Request to get all Genes");
+        return geneRepository.findAllByIdInWithGeneAliasAndEnsemblGenes(geneIds);
     }
 
     /**
@@ -142,14 +152,22 @@ public class GeneService {
         geneRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public Optional<Gene> findGeneByEntrezGeneId(Integer entrezGeneId) {
         return geneRepository.findByEntrezGeneId(entrezGeneId);
     }
 
+    @Transactional(readOnly = true)
     public Optional<Gene> findGeneByHugoSymbol(String hugoSymbol) {
         return geneRepository.findByHugoSymbol(hugoSymbol.toLowerCase());
     }
 
+    @Transactional(readOnly = true)
+    public List<Gene> findGeneByHugoSymbolOrGeneAliasesIn(String hugoSymbol) {
+        return geneRepository.findGeneByHugoSymbolOrGeneAliasesIn(hugoSymbol);
+    }
+
+    @Transactional(readOnly = true)
     public Optional<Gene> findGeneByAlias(String alias) {
         Optional<GeneAlias> geneAliasOptional = geneAliasRepository.findByName(alias.toLowerCase());
         if (geneAliasOptional.isPresent()) {
@@ -157,65 +175,6 @@ public class GeneService {
         } else {
             return Optional.empty();
         }
-    }
-
-    public void updatePortalGenes() throws IOException {
-        List<String[]> portalGenes = getPortalGenes()
-            .stream()
-            .filter(gene -> gene[1].equalsIgnoreCase("BRAF"))
-            .collect(Collectors.toList());
-        for (var i = 0; i < portalGenes.size(); i++) {
-            String[] line = portalGenes.get(i);
-            Integer entrezGeneId = Integer.parseInt(line[0]);
-
-            Gene gene = new Gene();
-            gene.setEntrezGeneId(entrezGeneId);
-            gene.setHugoSymbol(line[1]);
-            if (line.length > 5) {
-                gene.setGeneAliases(
-                    Arrays
-                        .stream(line[5].split(SYNONYM_SEPARATOR))
-                        .filter(synonym -> StringUtils.isNotEmpty(synonym.trim()))
-                        .map(synonym -> {
-                            GeneAlias geneAlias = new GeneAlias();
-                            geneAlias.setName(synonym.trim());
-                            return geneAlias;
-                        })
-                        .collect(Collectors.toSet())
-                );
-            }
-
-            Optional<Gene> geneOptional = this.findGeneByEntrezGeneId(entrezGeneId);
-            if (geneOptional.isPresent()) {
-                geneRepository.delete(geneOptional.get());
-            }
-            this.geneRepository.save(gene);
-            this.clearGeneCaches();
-            if (i % 1000 == 0) {
-                System.out.println(i);
-            }
-        }
-
-        this.infoService.updateInfo(InfoType.GENE_LAST_UPDATED, null, Instant.now());
-    }
-
-    private List<String[]> getPortalGenes() throws IOException {
-        URL url = new URL(PORTAL_GENE_FILE);
-        InputStream is = url.openStream();
-        List<String> readmeFileLines = readTrimmedLinesStream(is);
-
-        return readmeFileLines
-            .stream()
-            .map(line -> line.split("\t"))
-            .filter(line -> {
-                // as long as gene has entrez gene id and hugo symbol, we import
-                if (line.length >= 2) {
-                    return StringUtils.isNumeric(line[0]);
-                } else {
-                    return false;
-                }
-            })
-            .collect(Collectors.toList());
     }
 
     private void clearGeneCaches() {

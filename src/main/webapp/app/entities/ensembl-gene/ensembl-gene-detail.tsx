@@ -6,7 +6,7 @@ import {} from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, PAGE_ROUTE } from 'app/config/constants';
 export interface IEnsemblGeneDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const EnsemblGeneDetail = (props: IEnsemblGeneDetailProps) => {
@@ -37,10 +37,6 @@ export const EnsemblGeneDetail = (props: IEnsemblGeneDetailProps) => {
           </dt>
           <dd>{ensemblGeneEntity.canonical ? 'true' : 'false'}</dd>
           <dt>
-            <span id="chromosome">Chromosome</span>
-          </dt>
-          <dd>{ensemblGeneEntity.chromosome}</dd>
-          <dt>
             <span id="start">Start</span>
           </dt>
           <dd>{ensemblGeneEntity.start}</dd>
@@ -54,8 +50,14 @@ export const EnsemblGeneDetail = (props: IEnsemblGeneDetailProps) => {
           <dd>{ensemblGeneEntity.strand}</dd>
           <dt>Gene</dt>
           <dd>{ensemblGeneEntity.gene ? ensemblGeneEntity.gene.id : ''}</dd>
+          <dt>Seq Region</dt>
+          <dd>{ensemblGeneEntity.seqRegion ? ensemblGeneEntity.seqRegion.name : ''}</dd>
         </dl>
-        <Button tag={Link} to={`/ensembl-gene/${ensemblGeneEntity.id}/edit`} replace color="primary">
+        <Button tag={Link} to={PAGE_ROUTE.ENSEMBL_GENE} replace color="info" data-cy="entityDetailsBackButton">
+          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
+        </Button>
+        &nbsp;
+        <Button tag={Link} to={`${PAGE_ROUTE.ENSEMBL_GENE}/${ensemblGeneEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
         </Button>
       </Col>

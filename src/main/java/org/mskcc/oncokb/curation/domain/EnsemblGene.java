@@ -35,10 +35,6 @@ public class EnsemblGene implements Serializable {
     private Boolean canonical = false;
 
     @NotNull
-    @Column(name = "chromosome", nullable = false)
-    private String chromosome;
-
-    @NotNull
     @Column(name = "start", nullable = false)
     private Integer start;
 
@@ -57,6 +53,11 @@ public class EnsemblGene implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "alterations" }, allowSetters = true)
     private Gene gene;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnoreProperties(value = { "ensemblGenes", "genomeFragments" }, allowSetters = true)
+    @JoinColumn(name = "seqRegion", referencedColumnName = "name")
+    private SeqRegion seqRegion;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -110,19 +111,6 @@ public class EnsemblGene implements Serializable {
 
     public void setCanonical(Boolean canonical) {
         this.canonical = canonical;
-    }
-
-    public String getChromosome() {
-        return this.chromosome;
-    }
-
-    public EnsemblGene chromosome(String chromosome) {
-        this.setChromosome(chromosome);
-        return this;
-    }
-
-    public void setChromosome(String chromosome) {
-        this.chromosome = chromosome;
     }
 
     public Integer getStart() {
@@ -208,6 +196,19 @@ public class EnsemblGene implements Serializable {
         return this;
     }
 
+    public SeqRegion getSeqRegion() {
+        return this.seqRegion;
+    }
+
+    public void setSeqRegion(SeqRegion seqRegion) {
+        this.seqRegion = seqRegion;
+    }
+
+    public EnsemblGene seqRegion(SeqRegion seqRegion) {
+        this.setSeqRegion(seqRegion);
+        return this;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -235,7 +236,7 @@ public class EnsemblGene implements Serializable {
             ", referenceGenome='" + getReferenceGenome() + "'" +
             ", ensemblGeneId='" + getEnsemblGeneId() + "'" +
             ", canonical='" + getCanonical() + "'" +
-            ", chromosome='" + getChromosome() + "'" +
+            ", seqRegion=" + getSeqRegion() +
             ", start=" + getStart() +
             ", end=" + getEnd() +
             ", strand=" + getStrand() +

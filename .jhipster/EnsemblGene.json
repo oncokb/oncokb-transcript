@@ -17,11 +17,6 @@
       "fieldValidateRules": ["required"]
     },
     {
-      "fieldName": "chromosome",
-      "fieldType": "String",
-      "fieldValidateRules": ["required"]
-    },
-    {
       "fieldName": "start",
       "fieldType": "Integer",
       "fieldValidateRules": ["required"]
@@ -49,13 +44,20 @@
       "otherEntityName": "gene",
       "otherEntityRelationshipName": "ensemblGene",
       "relationshipName": "gene"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "seqRegion",
+      "otherEntityRelationshipName": "ensemblGene",
+      "relationshipName": "seqRegion",
+      "otherEntityField": "name"
     }
   ],
   "entityTableName": "ensembl_gene",
   "dto": "no",
   "pagination": "pagination",
   "service": "serviceClass",
-  "jpaMetamodelFiltering": false,
+  "jpaMetamodelFiltering": true,
   "fluentMethods": true,
   "readOnly": false,
   "embedded": false,

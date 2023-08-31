@@ -14,9 +14,6 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="chromosome" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
             <column name="start" type="integer">
                 <constraints nullable="true" />
             </column>
@@ -27,6 +24,9 @@
                 <constraints nullable="true" />
             </column>
             <column name="type" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="seq_region" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <column name="transcript_id" type="bigint">

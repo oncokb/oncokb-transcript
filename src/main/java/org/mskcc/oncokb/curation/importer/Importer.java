@@ -36,6 +36,15 @@ import org.springframework.stereotype.Component;
 public class Importer {
 
     @Autowired
+    private GeneImporter geneImporter;
+
+    @Autowired
+    private TranscriptImporter transcriptImporter;
+
+    @Autowired
+    private EnsemblImporter ensemblImporter;
+
+    @Autowired
     private OncoKbUrlService oncoKbUrlService;
 
     @Autowired
@@ -74,93 +83,13 @@ public class Importer {
     private final Logger log = LoggerFactory.getLogger(Importer.class);
 
     public void generalImport() throws ApiException, IOException {
-        //        try {
-        //            geneService.updatePortalGenes();
-        //        } catch (IOException e) {
-        //            e.printStackTrace();
-        //        }
-        //        this.importOncoKbSequences();
-        //        importCanonicalEnsemblGenes();
-        //        importCanonicalEnsemblTranscripts();
-        //                checkOncoKbEnsemblGenes();
+        //        this.geneImporter.importPortalGenes();
+        //        this.transcriptImporter.importCanonicalEnsemblGenes();
         //        checkOncoKbTranscriptSequenceAcrossRG();
-        //        importGeneFragments();
-        importAlteration();
-    }
-
-    private void importCanonicalEnsemblGenes() {
-        int pageSize = 10;
-        final PageRequest pageable = PageRequest.of(0, pageSize);
-        Page<org.mskcc.oncokb.curation.domain.Gene> firstPageGenes = geneService.findAll(pageable);
-        List<org.mskcc.oncokb.curation.domain.Gene> allGenes = new ArrayList<>();
-        for (int i = 0; i < firstPageGenes.getTotalPages(); i++) {
-            PageRequest genePage = PageRequest.of(i, pageSize);
-            allGenes.addAll(geneService.findAll(genePage).toList());
-        }
-        for (ReferenceGenome rg : ReferenceGenome.values()) {
-            for (org.mskcc.oncokb.curation.domain.Gene gene : allGenes) {
-                mainService.createCanonicalEnsemblGene(rg, gene.getEntrezGeneId());
-            }
-        }
-    }
-
-    private void importCanonicalEnsemblTranscripts() throws ApiException {
-        List<Gene> genes = oncoKbUrlService.getGenes();
-        for (int i = 0; i < genes.size(); i++) {
-            Gene gene = genes.get(i);
-            if (i % 100 == 0) {
-                log.info("Processing index {}", i);
-            }
-            // import canonical GRCh37 transcript
-            mainService.createTranscript(ReferenceGenome.GRCh37, gene.getGrch37Isoform(), gene.getEntrezGeneId(), true);
-            // import canonical GRCh38 transcript
-            mainService.createTranscript(ReferenceGenome.GRCh38, gene.getGrch38Isoform(), gene.getEntrezGeneId(), true);
-        }
-    }
-
-    private void checkOncoKbEnsemblGenes() throws ApiException {
-        for (Gene gene : oncoKbUrlService.getGenes()) {
-            // check grch37
-            Optional<org.mskcc.oncokb.curation.domain.Gene> geneOptional = geneService.findGeneByEntrezGeneId(gene.getEntrezGeneId());
-            if (geneOptional.isEmpty()) {
-                log.error("The OncoKB gene does not exist in transcript {}:{}", gene.getEntrezGeneId(), gene.getHugoSymbol());
-            } else {
-                // grch37
-                List<EnsemblGene> ensembl37Genes = ensemblGeneService.findAllByGeneAndReferenceGenome(
-                    geneOptional.get(),
-                    ReferenceGenome.GRCh37
-                );
-                if (ensembl37Genes.size() > 0) {
-                    ensembl37Genes.forEach(ensemblGene ->
-                        log.info("Gene {}:{}, {}", gene.getEntrezGeneId(), gene.getHugoSymbol(), ensemblGene)
-                    );
-                } else {
-                    log.error(
-                        "No ensembl gene found for gene {} {}:{}",
-                        ReferenceGenome.GRCh37,
-                        gene.getEntrezGeneId(),
-                        gene.getHugoSymbol()
-                    );
-                }
-                // grch38
-                List<EnsemblGene> ensembl38Genes = ensemblGeneService.findAllByGeneAndReferenceGenome(
-                    geneOptional.get(),
-                    ReferenceGenome.GRCh38
-                );
-                if (ensembl38Genes.size() > 0) {
-                    ensembl38Genes.forEach(ensemblGene ->
-                        log.info("Gene {}:{}, {}", gene.getEntrezGeneId(), gene.getHugoSymbol(), ensemblGene)
-                    );
-                } else {
-                    log.error(
-                        "No ensembl gene found for gene {} {}:{}",
-                        ReferenceGenome.GRCh38,
-                        gene.getEntrezGeneId(),
-                        gene.getHugoSymbol()
-                    );
-                }
-            }
-        }
+        //        importAlteration();
+        //                this.transcriptImporter.importTranscripts();
+        //        this.ensemblImporter.importSeqRegion();
+        this.geneImporter.importGenePanels();
     }
 
     private void checkOncoKbTranscriptSequenceAcrossRG() throws ApiException {
@@ -237,6 +166,9 @@ public class Importer {
             Integer count = 0;
             try (Stream<String> stream = Files.lines(Paths.get(alterationFileUrl.getPath()), StandardCharsets.UTF_8)) {
                 stream.forEach(line -> {
+                    if (line.startsWith("#")) {
+                        return;
+                    }
                     String parts[] = line.split("\t");
                     if (parts.length < 9) {
                         throw new IllegalArgumentException("Missing elements, parts: " + parts.length + " for line: " + line);
@@ -247,7 +179,7 @@ public class Importer {
                     log.info("{} {}", entrezGeneId, alteration);
 
                     Optional<org.mskcc.oncokb.curation.domain.Gene> geneOptional = geneService.findGeneByEntrezGeneId(
-                        Integer.valueOf(entrezGeneId)
+                        Integer.parseInt(entrezGeneId)
                     );
                     if (geneOptional.isPresent()) {
                         Alteration alt = new Alteration();

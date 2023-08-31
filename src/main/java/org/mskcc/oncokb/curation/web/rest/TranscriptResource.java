@@ -8,7 +8,10 @@ import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.repository.TranscriptRepository;
+import org.mskcc.oncokb.curation.service.TranscriptQueryService;
 import org.mskcc.oncokb.curation.service.TranscriptService;
+import org.mskcc.oncokb.curation.service.criteria.TranscriptCriteria;
+import org.mskcc.oncokb.curation.service.dto.ClustalOResp;
 import org.mskcc.oncokb.curation.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
@@ -17,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -43,9 +45,16 @@ public class TranscriptResource {
 
     private final TranscriptRepository transcriptRepository;
 
-    public TranscriptResource(TranscriptService transcriptService, TranscriptRepository transcriptRepository) {
+    private final TranscriptQueryService transcriptQueryService;
+
+    public TranscriptResource(
+        TranscriptService transcriptService,
+        TranscriptRepository transcriptRepository,
+        TranscriptQueryService transcriptQueryService
+    ) {
         this.transcriptService = transcriptService;
         this.transcriptRepository = transcriptRepository;
+        this.transcriptQueryService = transcriptQueryService;
     }
 
     /**
@@ -142,14 +151,27 @@ public class TranscriptResource {
      * {@code GET  /transcripts} : get all the transcripts.
      *
      * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of transcripts in body.
      */
     @GetMapping("/transcripts")
-    public ResponseEntity<List<TranscriptDTO>> getAllTranscripts(Pageable pageable) {
-        log.debug("REST request to get a page of Transcripts");
-        Page<TranscriptDTO> page = transcriptService.findAll(pageable);
+    public ResponseEntity<List<TranscriptDTO>> getAllTranscripts(TranscriptCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get Transcripts by criteria: {}", criteria);
+        Page<TranscriptDTO> page = transcriptQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /transcripts/count} : count all the transcripts.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/transcripts/count")
+    public ResponseEntity<Long> countTranscripts(TranscriptCriteria criteria) {
+        log.debug("REST request to count Transcripts by criteria: {}", criteria);
+        return ResponseEntity.ok().body(transcriptQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -179,5 +201,27 @@ public class TranscriptResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code SEARCH  /transcripts/search?query=:query} : search for the Transcript corresponding
+     * to the query.
+     *
+     * @param query    the query of the Transcript search.
+     * @param pageable the pagination information.
+     * @return the result of the search.
+     */
+    @GetMapping("/transcripts/search")
+    public ResponseEntity<List<TranscriptDTO>> searchTranscripts(@RequestParam String query, Pageable pageable) {
+        log.debug("REST request to search for a page of FdaSubmissions for query {}", query);
+        Page<TranscriptDTO> page = transcriptQueryService.findBySearchQuery(query, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    @PostMapping("/transcripts/align")
+    public ResponseEntity<ClustalOResp> alignTranscripts(@RequestBody List<Long> body) throws InterruptedException {
+        log.debug("REST request to align existing transcripts");
+        return ResponseEntity.ok().body(transcriptService.alignTranscripts(body));
     }
 }

@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
+import { Button, Row, Col, FormText, Label } from 'reactstrap';
 import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 
 import { IGene } from 'app/shared/model/gene.model';
+import { ISeqRegion } from 'app/shared/model/seq-region.model';
 import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { getGeneName } from 'app/shared/util/utils';
+import GeneSelect from 'app/shared/select/GeneSelect';
 import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface IEnsemblGeneUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
+  const [selectedGeneId, setSelectedGeneId] = useState();
 
   const genes = props.genes;
+  const seqRegions = props.seqRegions;
   const ensemblGeneEntity = props.ensemblGeneEntity;
   const loading = props.loading;
   const updating = props.updating;
@@ -35,6 +40,7 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
     }
 
     props.getGenes({});
+    props.getSeqRegions({});
   }, []);
 
   useEffect(() => {
@@ -47,7 +53,8 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
     const entity = {
       ...ensemblGeneEntity,
       ...values,
-      gene: genes.find(it => it.id.toString() === values.geneId.toString()),
+      gene: selectedGeneId,
+      seqRegion: seqRegions.find(it => it.id.toString() === values.seqRegionId.toString()),
     };
 
     if (isNew) {
@@ -64,6 +71,7 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
           referenceGenome: 'GRCh37',
           ...ensemblGeneEntity,
           geneId: ensemblGeneEntity?.gene?.id,
+          seqRegionId: ensemblGeneEntity?.seqRegion?.id,
         };
 
   return (
@@ -104,16 +112,6 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
               />
               <ValidatedField label="Canonical" id="ensembl-gene-canonical" name="canonical" data-cy="canonical" check type="checkbox" />
               <ValidatedField
-                label="Chromosome"
-                id="ensembl-gene-chromosome"
-                name="chromosome"
-                data-cy="chromosome"
-                type="text"
-                validate={{
-                  required: { value: true, message: 'This field is required.' },
-                }}
-              />
-              <ValidatedField
                 label="Start"
                 id="ensembl-gene-start"
                 name="start"
@@ -146,12 +144,14 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
                   validate: v => isNumber(v) || 'This field should be a number.',
                 }}
               />
-              <ValidatedField id="ensembl-gene-gene" name="geneId" data-cy="gene" label="Gene" type="select">
+              <Label>Gene</Label>
+              <GeneSelect onChange={option => setSelectedGeneId(option.value)} className={'mb-3'} />
+              <ValidatedField id="ensembl-gene-seqRegion" name="seqRegionId" data-cy="seqRegion" label="Seq Region" type="select">
                 <option value="" key="0" />
-                {genes
-                  ? genes.map(otherEntity => (
+                {seqRegions
+                  ? seqRegions.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.id}
+                        {otherEntity.name}
                       </option>
                     ))
                   : null}
@@ -167,11 +167,13 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
 
 const mapStoreToProps = (storeState: IRootStore) => ({
   genes: storeState.geneStore.entities,
+  seqRegions: storeState.seqRegionStore.entities,
   ensemblGeneEntity: storeState.ensemblGeneStore.entity,
   loading: storeState.ensemblGeneStore.loading,
   updating: storeState.ensemblGeneStore.updating,
   updateSuccess: storeState.ensemblGeneStore.updateSuccess,
   getGenes: storeState.geneStore.getEntities,
+  getSeqRegions: storeState.seqRegionStore.getEntities,
   getEntity: storeState.ensemblGeneStore.getEntity,
   updateEntity: storeState.ensemblGeneStore.updateEntity,
   createEntity: storeState.ensemblGeneStore.createEntity,

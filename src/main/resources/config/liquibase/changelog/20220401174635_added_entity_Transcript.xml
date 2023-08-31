@@ -36,5 +36,19 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="20220401174635-1-relations" author="jhipster">
+
+        <createTable tableName="rel_transcript__flag">
+            <column name="flag_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="transcript_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="transcript_id, flag_id" tableName="rel_transcript__flag"/>
+    </changeSet>
+
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
 </databaseChangeLog>

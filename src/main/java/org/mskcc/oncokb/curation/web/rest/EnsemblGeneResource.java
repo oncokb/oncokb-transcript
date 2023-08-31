@@ -8,8 +8,11 @@ import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
+import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.mskcc.oncokb.curation.repository.EnsemblGeneRepository;
+import org.mskcc.oncokb.curation.service.EnsemblGeneQueryService;
 import org.mskcc.oncokb.curation.service.EnsemblGeneService;
+import org.mskcc.oncokb.curation.service.criteria.EnsemblGeneCriteria;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,9 +46,16 @@ public class EnsemblGeneResource {
 
     private final EnsemblGeneRepository ensemblGeneRepository;
 
-    public EnsemblGeneResource(EnsemblGeneService ensemblGeneService, EnsemblGeneRepository ensemblGeneRepository) {
+    private final EnsemblGeneQueryService ensemblGeneQueryService;
+
+    public EnsemblGeneResource(
+        EnsemblGeneService ensemblGeneService,
+        EnsemblGeneRepository ensemblGeneRepository,
+        EnsemblGeneQueryService ensemblGeneQueryService
+    ) {
         this.ensemblGeneService = ensemblGeneService;
         this.ensemblGeneRepository = ensemblGeneRepository;
+        this.ensemblGeneQueryService = ensemblGeneQueryService;
     }
 
     /**
@@ -71,7 +81,7 @@ public class EnsemblGeneResource {
     /**
      * {@code PUT  /ensembl-genes/:id} : Updates an existing ensemblGene.
      *
-     * @param id the id of the ensemblGene to save.
+     * @param id          the id of the ensemblGene to save.
      * @param ensemblGene the ensemblGene to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated ensemblGene,
      * or with status {@code 400 (Bad Request)} if the ensemblGene is not valid,
@@ -105,7 +115,7 @@ public class EnsemblGeneResource {
     /**
      * {@code PATCH  /ensembl-genes/:id} : Partial updates given fields of an existing ensemblGene, field will ignore if it is null
      *
-     * @param id the id of the ensemblGene to save.
+     * @param id          the id of the ensemblGene to save.
      * @param ensemblGene the ensemblGene to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated ensemblGene,
      * or with status {@code 400 (Bad Request)} if the ensemblGene is not valid,
@@ -142,14 +152,27 @@ public class EnsemblGeneResource {
      * {@code GET  /ensembl-genes} : get all the ensemblGenes.
      *
      * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of ensemblGenes in body.
      */
     @GetMapping("/ensembl-genes")
-    public ResponseEntity<List<EnsemblGene>> getAllEnsemblGenes(Pageable pageable) {
-        log.debug("REST request to get a page of EnsemblGenes");
-        Page<EnsemblGene> page = ensemblGeneService.findAll(pageable);
+    public ResponseEntity<List<EnsemblGene>> getAllEnsemblGenes(EnsemblGeneCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get EnsemblGenes by criteria: {}", criteria);
+        Page<EnsemblGene> page = ensemblGeneQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /ensembl-genes/count} : count all the ensemblGenes.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/ensembl-genes/count")
+    public ResponseEntity<Long> countEnsemblGenes(EnsemblGeneCriteria criteria) {
+        log.debug("REST request to count EnsemblGenes by criteria: {}", criteria);
+        return ResponseEntity.ok().body(ensemblGeneQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -179,5 +202,21 @@ public class EnsemblGeneResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code SEARCH  /ensembl-genes/search?query=:query} : search for the EnsemblGene corresponding
+     * to the query.
+     *
+     * @param query    the query of the EnsemblGene search.
+     * @param pageable the pagination information.
+     * @return the result of the search.
+     */
+    @GetMapping("/ensembl-genes/search")
+    public ResponseEntity<List<EnsemblGene>> searchEnsemblGenes(@RequestParam String query, Pageable pageable) {
+        log.debug("REST request to search for a page of FdaSubmissions for query {}", query);
+        Page<EnsemblGene> page = ensemblGeneQueryService.findBySearchQuery(query, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

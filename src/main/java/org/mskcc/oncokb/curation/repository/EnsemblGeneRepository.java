@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface EnsemblGeneRepository extends JpaRepository<EnsemblGene, Long> {
+public interface EnsemblGeneRepository extends JpaRepository<EnsemblGene, Long>, JpaSpecificationExecutor<EnsemblGene> {
     @Query("select eg from EnsemblGene  eg join eg.gene  g where g.entrezGeneId=?1 and eg.canonical=true and eg.referenceGenome=?2")
     Optional<EnsemblGene> findCanonicalEnsemblGene(Integer entrezGeneId, ReferenceGenome referenceGenome);
 

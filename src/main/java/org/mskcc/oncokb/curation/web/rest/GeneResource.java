@@ -146,11 +146,7 @@ public class GeneResource {
     @GetMapping("/genes")
     public ResponseEntity<List<Gene>> getAllGenes(GeneCriteria criteria, Pageable pageable) {
         log.debug("REST request to get Genes by criteria: {}", criteria);
-        Page<Gene> page = Page.empty();
-        if (criteria == null) {
-            page = geneService.findAll(pageable);
-        }
-        page = geneQueryService.findByCriteria(criteria, pageable);
+        Page<Gene> page = geneQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

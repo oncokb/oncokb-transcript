@@ -6,6 +6,7 @@ import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 
+import { ISeqRegion } from 'app/shared/model/seq-region.model';
 import { ITranscript } from 'app/shared/model/transcript.model';
 import { IGenomeFragment } from 'app/shared/model/genome-fragment.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
@@ -17,6 +18,7 @@ export interface IGenomeFragmentUpdateProps extends StoreProps, RouteComponentPr
 export const GenomeFragmentUpdate = (props: IGenomeFragmentUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
+  const seqRegions = props.seqRegions;
   const transcripts = props.transcripts;
   const genomeFragmentEntity = props.genomeFragmentEntity;
   const loading = props.loading;
@@ -34,6 +36,7 @@ export const GenomeFragmentUpdate = (props: IGenomeFragmentUpdateProps) => {
       props.getEntity(props.match.params.id);
     }
 
+    props.getSeqRegions({});
     props.getTranscripts({});
   }, []);
 
@@ -47,6 +50,7 @@ export const GenomeFragmentUpdate = (props: IGenomeFragmentUpdateProps) => {
     const entity = {
       ...genomeFragmentEntity,
       ...values,
+      seqRegion: seqRegions.find(it => it.id.toString() === values.seqRegionId.toString()),
       transcript: transcripts.find(it => it.id.toString() === values.transcriptId.toString()),
     };
 
@@ -63,6 +67,7 @@ export const GenomeFragmentUpdate = (props: IGenomeFragmentUpdateProps) => {
       : {
           type: 'GENE',
           ...genomeFragmentEntity,
+          seqRegionId: genomeFragmentEntity?.seqRegion?.id,
           transcriptId: genomeFragmentEntity?.transcript?.id,
         };
 
@@ -84,7 +89,6 @@ export const GenomeFragmentUpdate = (props: IGenomeFragmentUpdateProps) => {
               {!isNew ? (
                 <ValidatedField name="id" required readOnly id="genome-fragment-id" label="ID" validate={{ required: true }} />
               ) : null}
-              <ValidatedField label="Chromosome" id="genome-fragment-chromosome" name="chromosome" data-cy="chromosome" type="text" />
               <ValidatedField label="Start" id="genome-fragment-start" name="start" data-cy="start" type="text" />
               <ValidatedField label="End" id="genome-fragment-end" name="end" data-cy="end" type="text" />
               <ValidatedField label="Strand" id="genome-fragment-strand" name="strand" data-cy="strand" type="text" />
@@ -93,6 +97,16 @@ export const GenomeFragmentUpdate = (props: IGenomeFragmentUpdateProps) => {
                 <option value="EXON">EXON</option>
                 <option value="FIVE_PRIME_UTR">FIVE_PRIME_UTR</option>
                 <option value="THREE_PRIME_UTR">THREE_PRIME_UTR</option>
+              </ValidatedField>
+              <ValidatedField id="genome-fragment-seqRegion" name="seqRegionId" data-cy="seqRegion" label="Seq Region" type="select">
+                <option value="" key="0" />
+                {seqRegions
+                  ? seqRegions.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.name}
+                      </option>
+                    ))
+                  : null}
               </ValidatedField>
               <ValidatedField id="genome-fragment-transcript" name="transcriptId" data-cy="transcript" label="Transcript" type="select">
                 <option value="" key="0" />
@@ -114,11 +128,13 @@ export const GenomeFragmentUpdate = (props: IGenomeFragmentUpdateProps) => {
 };
 
 const mapStoreToProps = (storeState: IRootStore) => ({
+  seqRegions: storeState.seqRegionStore.entities,
   transcripts: storeState.transcriptStore.entities,
   genomeFragmentEntity: storeState.genomeFragmentStore.entity,
   loading: storeState.genomeFragmentStore.loading,
   updating: storeState.genomeFragmentStore.updating,
   updateSuccess: storeState.genomeFragmentStore.updateSuccess,
+  getSeqRegions: storeState.seqRegionStore.getEntities,
   getTranscripts: storeState.transcriptStore.getEntities,
   getEntity: storeState.genomeFragmentStore.getEntity,
   updateEntity: storeState.genomeFragmentStore.updateEntity,

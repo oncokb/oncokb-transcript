@@ -40,6 +40,7 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
   }, [updateSuccess]);
 
   const saveEntity = values => {
+    values.created = convertDateTimeToServer(values.created);
     values.lastUpdated = convertDateTimeToServer(values.lastUpdated);
 
     const entity = {
@@ -57,11 +58,12 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
   const defaultValues = () =>
     isNew
       ? {
+          created: displayDefaultDateTime(),
           lastUpdated: displayDefaultDateTime(),
         }
       : {
-          type: 'NCIT_VERSION',
           ...infoEntity,
+          created: convertDateTimeFromServer(infoEntity.created),
           lastUpdated: convertDateTimeFromServer(infoEntity.lastUpdated),
         };
 
@@ -81,11 +83,25 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
               {!isNew ? <ValidatedField name="id" required readOnly id="info-id" label="ID" validate={{ required: true }} /> : null}
-              <ValidatedField label="Type" id="info-type" name="type" data-cy="type" type="select">
-                <option value="NCIT_VERSION">NCIT_VERSION</option>
-                <option value="GENE_LAST_UPDATED">GENE_LAST_UPDATED</option>
-              </ValidatedField>
+              <ValidatedField
+                label="Type"
+                id="info-type"
+                name="type"
+                data-cy="type"
+                type="text"
+                validate={{
+                  required: { value: true, message: 'This field is required.' },
+                }}
+              />
               <ValidatedField label="Value" id="info-value" name="value" data-cy="value" type="text" />
+              <ValidatedField
+                label="Created"
+                id="info-created"
+                name="created"
+                data-cy="created"
+                type="datetime-local"
+                placeholder="YYYY-MM-DD HH:mm"
+              />
               <ValidatedField
                 label="Last Updated"
                 id="info-lastUpdated"

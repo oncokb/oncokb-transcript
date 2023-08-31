@@ -15,9 +15,9 @@ import org.mskcc.oncokb.curation.config.cache.CacheNameResolver;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.GenomeFragmentType;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
-import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.curation.domain.enumeration.SequenceType;
 import org.mskcc.oncokb.curation.repository.TranscriptRepository;
+import org.mskcc.oncokb.curation.service.dto.ClustalOResp;
 import org.mskcc.oncokb.curation.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.curation.service.mapper.TranscriptMapper;
 import org.mskcc.oncokb.curation.vm.MissMatchPairVM;
@@ -51,6 +51,8 @@ public class TranscriptService {
 
     private final TranscriptRepository transcriptRepository;
     private final GenomeFragmentService genomeFragmentService;
+    private final SeqRegionService seqRegionService;
+    private final EbiService ebiService;
 
     public TranscriptService(
         GenomeNexusService genomeNexusService,
@@ -61,7 +63,9 @@ public class TranscriptService {
         TranscriptMapper transcriptMapper,
         GenomeFragmentService genomeFragmentService,
         CacheNameResolver cacheNameResolver,
-        Optional<CacheManager> optionalCacheManager
+        Optional<CacheManager> optionalCacheManager,
+        SeqRegionService seqRegionService,
+        EbiService ebiService
     ) {
         this.genomeNexusService = genomeNexusService;
         this.ensemblService = ensemblService;
@@ -72,6 +76,8 @@ public class TranscriptService {
         this.genomeFragmentService = genomeFragmentService;
         this.cacheNameResolver = cacheNameResolver;
         this.optionalCacheManager = optionalCacheManager;
+        this.seqRegionService = seqRegionService;
+        this.ebiService = ebiService;
     }
 
     /**
@@ -88,9 +94,13 @@ public class TranscriptService {
         List<GenomeFragment> transcriptGenomeFragments = genomeFragmentService.findAllByTranscriptId(transcriptDTO.getId());
         genomeFragmentService.deleteAll(transcriptGenomeFragments);
 
+        Optional<SeqRegion> seqRegionOptional = seqRegionService.findByNameOrCreate(transcriptDTO.getChromosome());
+
         GenomeFragment genomeFragment = new GenomeFragment();
         genomeFragment.setTranscript(savedTranscript);
-        genomeFragment.setChromosome(transcriptDTO.getChromosome());
+        if (seqRegionOptional.isPresent()) {
+            genomeFragment.setSeqRegion(seqRegionOptional.get());
+        }
         genomeFragment.setStart(transcriptDTO.getStart());
         genomeFragment.setEnd(transcriptDTO.getEnd());
         genomeFragment.setStrand(transcriptDTO.getStrand());
@@ -151,6 +161,16 @@ public class TranscriptService {
     public Page<TranscriptDTO> findAll(Pageable pageable) {
         log.debug("Request to get all Transcripts");
         return transcriptRepository.findAll(pageable).map(transcriptMapper::toDto);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TranscriptDTO> findAllByIdIn(List<Long> ids) {
+        return transcriptRepository
+            .findAllByIdIn(ids)
+            .stream()
+            .sorted(Comparator.comparingInt(o -> ids.indexOf(o.getId())))
+            .map(transcriptMapper::toDto)
+            .collect(Collectors.toList());
     }
 
     /**
@@ -221,7 +241,7 @@ public class TranscriptService {
     ) {
         log.debug("Request to get Sequence : {}", ensembleTranscriptId);
         Optional<Transcript> transcriptOptional = transcriptRepository.findByReferenceGenomeAndEnsemblTranscriptId(
-            referenceGenome.name(),
+            referenceGenome,
             ensembleTranscriptId
         );
         if (transcriptOptional.isPresent()) {
@@ -270,6 +290,27 @@ public class TranscriptService {
                 }
             })
             .collect(Collectors.toList());
+    }
+
+    public ClustalOResp alignTranscripts(List<Long> transcriptToCompare) throws InterruptedException {
+        List<TranscriptDTO> transcripts = findAllByIdIn(transcriptToCompare);
+        StringBuilder sb = new StringBuilder();
+        for (TranscriptDTO transcript : transcripts) {
+            Optional<Sequence> sequenceOptional = sequenceService.findOneByTranscriptAndSequenceType(
+                transcriptMapper.toEntity(transcript),
+                SequenceType.PROTEIN
+            );
+            if (sequenceOptional.isPresent()) {
+                sb.append(">");
+                sb.append(transcript.getEnsemblGene().getReferenceGenome());
+                sb.append("_");
+                sb.append(transcript.getEnsemblTranscriptId());
+                sb.append("\n");
+                sb.append(sequenceOptional.get().getSequence());
+                sb.append("\n");
+            }
+        }
+        return ebiService.alignUsingClustalO(sb.toString());
     }
 
     public TranscriptMatchResultVM matchTranscript(TranscriptPairVM transcript, ReferenceGenome referenceGenome, String hugoSymbol) {
@@ -364,7 +405,7 @@ public class TranscriptService {
         boolean expand
     ) {
         List<org.mskcc.oncokb.curation.vm.ensembl.EnsemblTranscript> ensemblTranscriptList = new ArrayList<>();
-        log.info("Get {} ensembl trancript ids", ids.size());
+        log.info("Get {} ensembl transcript ids", ids.size());
         for (int i = 0; i < ids.size(); i += ENSEMBL_POST_THRESHOLD) {
             log.info("\tIndex {}", i);
             ensemblTranscriptList.addAll(

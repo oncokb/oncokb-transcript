@@ -1,6 +1,8 @@
 package org.mskcc.oncokb.curation.service;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.Info;
@@ -55,6 +57,9 @@ public class InfoService {
                 if (info.getValue() != null) {
                     existingInfo.setValue(info.getValue());
                 }
+                if (info.getCreated() != null) {
+                    existingInfo.setCreated(info.getCreated());
+                }
                 if (info.getLastUpdated() != null) {
                     existingInfo.setLastUpdated(info.getLastUpdated());
                 }
@@ -97,6 +102,10 @@ public class InfoService {
         infoRepository.deleteById(id);
     }
 
+    public void updateInfo(InfoType infoType, String newValue, String lastUpdated) {
+        this.updateInfo(infoType, newValue, LocalDate.parse(lastUpdated).atStartOfDay(ZoneId.of("UTC")).toInstant());
+    }
+
     public void updateInfo(InfoType infoType, String newValue, Instant newLastUpdated) {
         Optional<Info> infoRecord = this.infoRepository.findOneByType(infoType);
         if (infoRecord.isPresent()) {
@@ -105,7 +114,7 @@ public class InfoService {
             this.infoRepository.save(infoRecord.get());
         } else {
             Info info = new Info();
-            info.setType(infoType);
+            info.setType(infoType.name());
             info.setValue(newValue);
             info.setLastUpdated(newLastUpdated);
             this.infoRepository.save(info);

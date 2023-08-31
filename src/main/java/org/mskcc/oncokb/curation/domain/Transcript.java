@@ -45,8 +45,17 @@ public class Transcript implements Serializable {
     @JsonIgnoreProperties(value = { "transcript" }, allowSetters = true)
     private Set<Sequence> sequences = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+        name = "rel_transcript__flag",
+        joinColumns = @JoinColumn(name = "transcript_id"),
+        inverseJoinColumns = @JoinColumn(name = "flag_id")
+    )
+    @JsonIgnoreProperties(value = { "transcripts", "genes" }, allowSetters = true)
+    private Set<Flag> flags = new HashSet<>();
+
     @ManyToOne
-    @JsonIgnoreProperties(value = { "transcripts", "referenceGenome", "gene" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "transcripts", "gene" }, allowSetters = true)
     private EnsemblGene ensemblGene;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -188,6 +197,31 @@ public class Transcript implements Serializable {
     public Transcript removeSequence(Sequence sequence) {
         this.sequences.remove(sequence);
         sequence.setTranscript(null);
+        return this;
+    }
+
+    public Set<Flag> getFlags() {
+        return this.flags;
+    }
+
+    public void setFlags(Set<Flag> flags) {
+        this.flags = flags;
+    }
+
+    public Transcript flags(Set<Flag> flags) {
+        this.setFlags(flags);
+        return this;
+    }
+
+    public Transcript addFlag(Flag flag) {
+        this.flags.add(flag);
+        flag.getTranscripts().add(this);
+        return this;
+    }
+
+    public Transcript removeFlag(Flag flag) {
+        this.flags.remove(flag);
+        flag.getTranscripts().remove(this);
         return this;
     }
 

@@ -12,18 +12,30 @@ entity Transcript {
     description String
 }
 
+enum TranscriptFlagEnum {
+	 MANE_SELECT,
+	 MANE_PLUS_CLINICAL,
+	 GN_CANONICAL,
+	 ONCOKB,
+	 ENSEMBL_CANONICAL
+}
+
+entity SeqRegion {
+    name String required unique,
+    chromosome String,
+    description TextBlob
+}
+
 entity EnsemblGene {
     referenceGenome ReferenceGenome,
     ensemblGeneId String required,
     canonical Boolean required,
-    chromosome String required,
     start Integer required,
     end Integer required,
     strand Integer required
 }
 
 entity GenomeFragment {
-    chromosome String,
     start Integer,
     end Integer,
     strand Integer,
@@ -61,14 +73,18 @@ entity DrugSynonym {
 }
 
 entity Info {
-    type InfoType unique required
+    type String unique required
     value String
+    created Instant
     lastUpdated Instant
 }
 
 enum InfoType {
     NCIT_VERSION,
-    GENE_LAST_UPDATED
+    GENE_VERSION,
+    ONCOKB_TRANSCRIPT_VERSION,
+    MANE_TRANSCRIPT_VERSION,
+    ENSEMBL_VERSION
 }
 
 entity Article {
@@ -85,10 +101,46 @@ entity Article {
 entity Gene {
     entrezGeneId Integer
     hugoSymbol String
+    hgncId String
 }
 
 entity GeneAlias {
     name String
+}
+
+enum GeneFlagEnum {
+	 ONCOKB,
+	 MSK_IMPACT_505,
+	 MSK_ACCESS,
+	 MSK_HEME,
+	 VOGELSTEIN,
+	 CGC_T1,
+	 FOUNDATION_ONE,
+	 FOUNDATION_HEME,
+	 TEMPUS_XT,
+	 TEMPUS_XR,
+	 TEMPUS_XF,
+	 TEMPUS_XG,
+	 TEMPUS_XG_PLUS,
+	 TEMPUS_XE,
+	 GUARDANT_360,
+	 ONCOMINE_DX
+	 ONCOMINE_CA_V3
+	 ONCOMINE_CA_PLUS
+	 CARIS_MI
+	 TRUSIGHT_ONCOLOGY_500
+}
+
+enum FlagType {
+    GENE,
+    TRANSCRIPT
+}
+
+entity Flag {
+    type String required,
+    flag String required,
+    name String required,
+    description TextBlob required
 }
 
 entity SpecimenType{
@@ -230,6 +282,8 @@ relationship OneToMany {
 	Drug{synonyms} to DrugSynonym
 	Gene to GeneAlias
 	Gene to EnsemblGene
+	SeqRegion to EnsemblGene {seqRegion(name)}
+	SeqRegion to GenomeFragment {seqRegion(name)}
     CancerType{children} to CancerType {parent}
     Transcript{fragments} to GenomeFragment{transcript}
     EnsemblGene to Transcript
@@ -250,10 +304,12 @@ relationship ManyToMany {
     BiomarkerAssociation to Alteration
     BiomarkerAssociation to Drug
     BiomarkerAssociation to FdaSubmission
+    Transcript to Flag
+    Gene to Flag
 }
 
-paginate Gene, EnsemblGene, Alteration, CancerType, Transcript, Sequence, GenomeFragment, Article, Drug, FdaDrug, ClinicalTrialsGovCondition, FdaSubmission with pagination
+paginate Gene, EnsemblGene, Alteration, CancerType, Transcript, Sequence, GenomeFragment, Article, Drug, FdaDrug, ClinicalTrialsGovCondition, FdaSubmission, Flag with pagination
 
 service * with serviceClass
-filter Alteration, Gene, Article, Drug, CompanionDiagnosticDevice, FdaSubmission, ClinicalTrialsGovCondition, CancerType
+filter Alteration, Gene, Article, Drug, CompanionDiagnosticDevice, FdaSubmission, ClinicalTrialsGovCondition, CancerType, EnsemblGene, Transcript, Flag
 dto Transcript with mapstruct

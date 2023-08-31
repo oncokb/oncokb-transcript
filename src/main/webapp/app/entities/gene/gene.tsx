@@ -13,6 +13,7 @@ import { debouncedSearchWithPagination } from 'app/shared/util/pagination-crud-s
 import EntityTable from 'app/shared/table/EntityTable';
 import { DEFAULT_ENTITY_SORT_FIELD, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
+import GeneFlags from 'app/entities/gene/gene-flags';
 export interface IGeneProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const Gene = (props: IGeneProps) => {
@@ -99,6 +100,15 @@ export const Gene = (props: IGeneProps) => {
     {
       accessor: 'hugoSymbol',
       Header: <TableHeader header="Hugo Symbol" onSort={sort('hugoSymbol')} paginationState={paginationState} sortField="hugoSymbol" />,
+    },
+    {
+      accessor: 'hgncId',
+      Header: <TableHeader header="HGNC ID" onSort={sort('hgncId')} paginationState={paginationState} sortField="hgncId" />,
+    },
+    {
+      accessor: 'flags',
+      Header: 'Flags',
+      Cell: ({ cell: { value } }) => <GeneFlags flags={value} />,
     },
   ];
 

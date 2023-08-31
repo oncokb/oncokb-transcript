@@ -19,7 +19,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Info;
-import org.mskcc.oncokb.curation.domain.enumeration.InfoType;
 import org.mskcc.oncokb.curation.repository.InfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -37,11 +36,14 @@ import org.springframework.transaction.annotation.Transactional;
 @WithMockUser
 class InfoResourceIT {
 
-    private static final InfoType DEFAULT_TYPE = InfoType.NCIT_VERSION;
-    private static final InfoType UPDATED_TYPE = InfoType.GENE_LAST_UPDATED;
+    private static final String DEFAULT_TYPE = "AAAAAAAAAA";
+    private static final String UPDATED_TYPE = "BBBBBBBBBB";
 
     private static final String DEFAULT_VALUE = "AAAAAAAAAA";
     private static final String UPDATED_VALUE = "BBBBBBBBBB";
+
+    private static final Instant DEFAULT_CREATED = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_CREATED = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
     private static final Instant DEFAULT_LAST_UPDATED = Instant.ofEpochMilli(0L);
     private static final Instant UPDATED_LAST_UPDATED = Instant.now().truncatedTo(ChronoUnit.MILLIS);
@@ -70,7 +72,7 @@ class InfoResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Info createEntity(EntityManager em) {
-        Info info = new Info().type(DEFAULT_TYPE).value(DEFAULT_VALUE).lastUpdated(DEFAULT_LAST_UPDATED);
+        Info info = new Info().type(DEFAULT_TYPE).value(DEFAULT_VALUE).created(DEFAULT_CREATED).lastUpdated(DEFAULT_LAST_UPDATED);
         return info;
     }
 
@@ -81,7 +83,7 @@ class InfoResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Info createUpdatedEntity(EntityManager em) {
-        Info info = new Info().type(UPDATED_TYPE).value(UPDATED_VALUE).lastUpdated(UPDATED_LAST_UPDATED);
+        Info info = new Info().type(UPDATED_TYPE).value(UPDATED_VALUE).created(UPDATED_CREATED).lastUpdated(UPDATED_LAST_UPDATED);
         return info;
     }
 
@@ -107,6 +109,7 @@ class InfoResourceIT {
         Info testInfo = infoList.get(infoList.size() - 1);
         assertThat(testInfo.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testInfo.getValue()).isEqualTo(DEFAULT_VALUE);
+        assertThat(testInfo.getCreated()).isEqualTo(DEFAULT_CREATED);
         assertThat(testInfo.getLastUpdated()).isEqualTo(DEFAULT_LAST_UPDATED);
     }
 
@@ -161,8 +164,9 @@ class InfoResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(info.getId().intValue())))
-            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
             .andExpect(jsonPath("$.[*].value").value(hasItem(DEFAULT_VALUE)))
+            .andExpect(jsonPath("$.[*].created").value(hasItem(DEFAULT_CREATED.toString())))
             .andExpect(jsonPath("$.[*].lastUpdated").value(hasItem(DEFAULT_LAST_UPDATED.toString())));
     }
 
@@ -178,8 +182,9 @@ class InfoResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(info.getId().intValue()))
-            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
+            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
             .andExpect(jsonPath("$.value").value(DEFAULT_VALUE))
+            .andExpect(jsonPath("$.created").value(DEFAULT_CREATED.toString()))
             .andExpect(jsonPath("$.lastUpdated").value(DEFAULT_LAST_UPDATED.toString()));
     }
 
@@ -202,7 +207,7 @@ class InfoResourceIT {
         Info updatedInfo = infoRepository.findById(info.getId()).get();
         // Disconnect from session so that the updates on updatedInfo are not directly saved in db
         em.detach(updatedInfo);
-        updatedInfo.type(UPDATED_TYPE).value(UPDATED_VALUE).lastUpdated(UPDATED_LAST_UPDATED);
+        updatedInfo.type(UPDATED_TYPE).value(UPDATED_VALUE).created(UPDATED_CREATED).lastUpdated(UPDATED_LAST_UPDATED);
 
         restInfoMockMvc
             .perform(
@@ -219,6 +224,7 @@ class InfoResourceIT {
         Info testInfo = infoList.get(infoList.size() - 1);
         assertThat(testInfo.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testInfo.getValue()).isEqualTo(UPDATED_VALUE);
+        assertThat(testInfo.getCreated()).isEqualTo(UPDATED_CREATED);
         assertThat(testInfo.getLastUpdated()).isEqualTo(UPDATED_LAST_UPDATED);
     }
 
@@ -311,6 +317,7 @@ class InfoResourceIT {
         Info testInfo = infoList.get(infoList.size() - 1);
         assertThat(testInfo.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testInfo.getValue()).isEqualTo(UPDATED_VALUE);
+        assertThat(testInfo.getCreated()).isEqualTo(DEFAULT_CREATED);
         assertThat(testInfo.getLastUpdated()).isEqualTo(DEFAULT_LAST_UPDATED);
     }
 
@@ -326,7 +333,7 @@ class InfoResourceIT {
         Info partialUpdatedInfo = new Info();
         partialUpdatedInfo.setId(info.getId());
 
-        partialUpdatedInfo.type(UPDATED_TYPE).value(UPDATED_VALUE).lastUpdated(UPDATED_LAST_UPDATED);
+        partialUpdatedInfo.type(UPDATED_TYPE).value(UPDATED_VALUE).created(UPDATED_CREATED).lastUpdated(UPDATED_LAST_UPDATED);
 
         restInfoMockMvc
             .perform(
@@ -343,6 +350,7 @@ class InfoResourceIT {
         Info testInfo = infoList.get(infoList.size() - 1);
         assertThat(testInfo.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testInfo.getValue()).isEqualTo(UPDATED_VALUE);
+        assertThat(testInfo.getCreated()).isEqualTo(UPDATED_CREATED);
         assertThat(testInfo.getLastUpdated()).isEqualTo(UPDATED_LAST_UPDATED);
     }
 

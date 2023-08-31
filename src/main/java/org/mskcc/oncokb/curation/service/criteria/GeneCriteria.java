@@ -30,9 +30,13 @@ public class GeneCriteria implements Serializable, Criteria {
 
     private StringFilter hugoSymbol;
 
+    private StringFilter hgncId;
+
     private LongFilter geneAliasId;
 
     private LongFilter ensemblGeneId;
+
+    private LongFilter flagId;
 
     private LongFilter alterationId;
 
@@ -44,8 +48,10 @@ public class GeneCriteria implements Serializable, Criteria {
         this.id = other.id == null ? null : other.id.copy();
         this.entrezGeneId = other.entrezGeneId == null ? null : other.entrezGeneId.copy();
         this.hugoSymbol = other.hugoSymbol == null ? null : other.hugoSymbol.copy();
+        this.hgncId = other.hgncId == null ? null : other.hgncId.copy();
         this.geneAliasId = other.geneAliasId == null ? null : other.geneAliasId.copy();
         this.ensemblGeneId = other.ensemblGeneId == null ? null : other.ensemblGeneId.copy();
+        this.flagId = other.flagId == null ? null : other.flagId.copy();
         this.alterationId = other.alterationId == null ? null : other.alterationId.copy();
         this.distinct = other.distinct;
     }
@@ -100,6 +106,21 @@ public class GeneCriteria implements Serializable, Criteria {
         this.hugoSymbol = hugoSymbol;
     }
 
+    public StringFilter getHgncId() {
+        return hgncId;
+    }
+
+    public StringFilter hgncId() {
+        if (hgncId == null) {
+            hgncId = new StringFilter();
+        }
+        return hgncId;
+    }
+
+    public void setHgncId(StringFilter hgncId) {
+        this.hgncId = hgncId;
+    }
+
     public LongFilter getGeneAliasId() {
         return geneAliasId;
     }
@@ -128,6 +149,21 @@ public class GeneCriteria implements Serializable, Criteria {
 
     public void setEnsemblGeneId(LongFilter ensemblGeneId) {
         this.ensemblGeneId = ensemblGeneId;
+    }
+
+    public LongFilter getFlagId() {
+        return flagId;
+    }
+
+    public LongFilter flagId() {
+        if (flagId == null) {
+            flagId = new LongFilter();
+        }
+        return flagId;
+    }
+
+    public void setFlagId(LongFilter flagId) {
+        this.flagId = flagId;
     }
 
     public LongFilter getAlterationId() {
@@ -166,8 +202,10 @@ public class GeneCriteria implements Serializable, Criteria {
             Objects.equals(id, that.id) &&
             Objects.equals(entrezGeneId, that.entrezGeneId) &&
             Objects.equals(hugoSymbol, that.hugoSymbol) &&
+            Objects.equals(hgncId, that.hgncId) &&
             Objects.equals(geneAliasId, that.geneAliasId) &&
             Objects.equals(ensemblGeneId, that.ensemblGeneId) &&
+            Objects.equals(flagId, that.flagId) &&
             Objects.equals(alterationId, that.alterationId) &&
             Objects.equals(distinct, that.distinct)
         );
@@ -175,7 +213,7 @@ public class GeneCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, entrezGeneId, hugoSymbol, geneAliasId, ensemblGeneId, alterationId, distinct);
+        return Objects.hash(id, entrezGeneId, hugoSymbol, hgncId, geneAliasId, ensemblGeneId, flagId, alterationId, distinct);
     }
 
     // prettier-ignore
@@ -185,8 +223,10 @@ public class GeneCriteria implements Serializable, Criteria {
             (id != null ? "id=" + id + ", " : "") +
             (entrezGeneId != null ? "entrezGeneId=" + entrezGeneId + ", " : "") +
             (hugoSymbol != null ? "hugoSymbol=" + hugoSymbol + ", " : "") +
+            (hgncId != null ? "hgncId=" + hgncId + ", " : "") +
             (geneAliasId != null ? "geneAliasId=" + geneAliasId + ", " : "") +
             (ensemblGeneId != null ? "ensemblGeneId=" + ensemblGeneId + ", " : "") +
+            (flagId != null ? "flagId=" + flagId + ", " : "") +
             (alterationId != null ? "alterationId=" + alterationId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";

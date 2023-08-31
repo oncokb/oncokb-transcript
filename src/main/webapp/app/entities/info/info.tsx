@@ -47,6 +47,7 @@ export const Info = (props: IInfoProps) => {
                 <th>ID</th>
                 <th>Type</th>
                 <th>Value</th>
+                <th>Created</th>
                 <th>Last Updated</th>
                 <th />
               </tr>
@@ -61,6 +62,7 @@ export const Info = (props: IInfoProps) => {
                   </td>
                   <td>{info.type}</td>
                   <td>{info.value}</td>
+                  <td>{info.created ? <TextFormat type="date" value={info.created} format={APP_DATE_FORMAT} /> : null}</td>
                   <td>{info.lastUpdated ? <TextFormat type="date" value={info.lastUpdated} format={APP_DATE_FORMAT} /> : null}</td>
                   <td className="text-right">
                     <div className="btn-group flex-btn-group-container">

@@ -33,7 +33,7 @@ public abstract class TranscriptMapper implements EntityMapper<TranscriptDTO, Tr
             .findFirst();
         if (geneInfo.isPresent()) {
             GenomeFragment gf = geneInfo.get();
-            transcriptDTO.setChromosome(gf.getChromosome());
+            transcriptDTO.setChromosome(gf.getSeqRegion().getChromosome());
             transcriptDTO.setStart(gf.getStart());
             transcriptDTO.setEnd(gf.getEnd());
             transcriptDTO.setStrand(gf.getStrand());

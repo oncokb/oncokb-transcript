@@ -6,12 +6,14 @@ import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 import { SaveButton } from 'app/shared/button/SaveButton';
+import { mapIdList } from 'app/shared/util/entity-utils';
 
 export interface IGeneUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const GeneUpdate = (props: IGeneUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
+  const geneFlags = props.geneFlags;
   const geneEntity = props.geneEntity;
   const loading = props.loading;
   const updating = props.updating;
@@ -27,6 +29,8 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
     } else {
       props.getEntity(props.match.params.id);
     }
+
+    props.getGeneFlags({});
   }, []);
 
   useEffect(() => {
@@ -39,6 +43,7 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
     const entity = {
       ...geneEntity,
       ...values,
+      geneFlags: mapIdList(values.geneFlags),
     };
 
     if (isNew) {
@@ -53,6 +58,7 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
       ? {}
       : {
           ...geneEntity,
+          geneFlags: geneEntity?.flags?.map(e => e.id.toString()),
         };
 
   return (
@@ -71,8 +77,19 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
               {!isNew ? <ValidatedField name="id" required readOnly id="gene-id" label="ID" validate={{ required: true }} /> : null}
-              <ValidatedField label="Entrez Gene Id" id="gene-entrezGeneId" name="entrezGeneId" data-cy="entrezGeneId" type="text" />
+              <ValidatedField label="Entrez Gene ID" id="gene-entrezGeneId" name="entrezGeneId" data-cy="entrezGeneId" type="text" />
               <ValidatedField label="Hugo Symbol" id="gene-hugoSymbol" name="hugoSymbol" data-cy="hugoSymbol" type="text" />
+              <ValidatedField label="HGNC ID" id="gene-hgncId" name="hgncId" data-cy="hgncId" type="text" />
+              <ValidatedField label="Gene Flag" id="gene-geneFlag" data-cy="geneFlag" type="select" multiple name="geneFlags">
+                <option value="" key="0" />
+                {geneFlags
+                  ? geneFlags.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.name}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
               <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
@@ -83,10 +100,12 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
 };
 
 const mapStoreToProps = (storeState: IRootStore) => ({
+  geneFlags: storeState.flagStore.entities,
   geneEntity: storeState.geneStore.entity,
   loading: storeState.geneStore.loading,
   updating: storeState.geneStore.updating,
   updateSuccess: storeState.geneStore.updateSuccess,
+  getGeneFlags: storeState.flagStore.getEntities,
   getEntity: storeState.geneStore.getEntity,
   updateEntity: storeState.geneStore.updateEntity,
   createEntity: storeState.geneStore.createEntity,

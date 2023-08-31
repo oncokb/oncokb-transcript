@@ -99,9 +99,6 @@ export const GenomeFragment = (props: IGenomeFragmentProps) => {
                 <th className="hand" onClick={sort('id')}>
                   ID <FontAwesomeIcon icon="sort" />
                 </th>
-                <th className="hand" onClick={sort('chromosome')}>
-                  Chromosome <FontAwesomeIcon icon="sort" />
-                </th>
                 <th className="hand" onClick={sort('start')}>
                   Start <FontAwesomeIcon icon="sort" />
                 </th>
@@ -113,6 +110,9 @@ export const GenomeFragment = (props: IGenomeFragmentProps) => {
                 </th>
                 <th className="hand" onClick={sort('type')}>
                   Type <FontAwesomeIcon icon="sort" />
+                </th>
+                <th>
+                  Seq Region <FontAwesomeIcon icon="sort" />
                 </th>
                 <th>
                   Transcript <FontAwesomeIcon icon="sort" />
@@ -128,11 +128,17 @@ export const GenomeFragment = (props: IGenomeFragmentProps) => {
                       {genomeFragment.id}
                     </Button>
                   </td>
-                  <td>{genomeFragment.chromosome}</td>
                   <td>{genomeFragment.start}</td>
                   <td>{genomeFragment.end}</td>
                   <td>{genomeFragment.strand}</td>
                   <td>{genomeFragment.type}</td>
+                  <td>
+                    {genomeFragment.seqRegion ? (
+                      <Link to={`seq-region/${genomeFragment.seqRegion.id}`}>{genomeFragment.seqRegion.name}</Link>
+                    ) : (
+                      ''
+                    )}
+                  </td>
                   <td>
                     {genomeFragment.transcript ? (
                       <Link to={`transcript/${genomeFragment.transcript.id}`}>{genomeFragment.transcript.id}</Link>

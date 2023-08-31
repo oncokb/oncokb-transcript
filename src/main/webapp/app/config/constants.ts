@@ -43,6 +43,10 @@ export enum PAGE_ROUTE {
   CDX = '/companion-diagnostic-device',
   SPECIMEN_TYPE = '/specimen-type',
   CT_GOV_CONDITION = '/clinical-trials-gov-condition',
+  ENSEMBL_GENE = '/ensembl-gene',
+  TRANSCRIPT = '/transcript',
+  TRANSCRIPT_FLAG = '/transcript-flag',
+  GENE_FLAG = '/gene-flag',
 }
 
 export const ENTITY_ROUTE_TO_TITLE_MAPPING: { [key in PAGE_ROUTE]?: string } = {
@@ -82,6 +86,10 @@ export enum ENTITY_TYPE {
   ARTICLE,
   USER,
   CT_GOV_CONDITION,
+  ENSEMBL_GENE,
+  TRANSCRIPT,
+  TRANSCRIPT_FLAG,
+  GENE_FLAG,
 }
 
 export const ENTITY_BASE_PATHS: { [key in ENTITY_TYPE]: PAGE_ROUTE } = {
@@ -94,6 +102,10 @@ export const ENTITY_BASE_PATHS: { [key in ENTITY_TYPE]: PAGE_ROUTE } = {
   [ENTITY_TYPE.ARTICLE]: PAGE_ROUTE.ARTICLE,
   [ENTITY_TYPE.USER]: PAGE_ROUTE.ADMIN_USER_MANAGEMENT,
   [ENTITY_TYPE.CT_GOV_CONDITION]: PAGE_ROUTE.CT_GOV_CONDITION,
+  [ENTITY_TYPE.ENSEMBL_GENE]: PAGE_ROUTE.ENSEMBL_GENE,
+  [ENTITY_TYPE.TRANSCRIPT]: PAGE_ROUTE.TRANSCRIPT,
+  [ENTITY_TYPE.TRANSCRIPT_FLAG]: PAGE_ROUTE.TRANSCRIPT_FLAG,
+  [ENTITY_TYPE.GENE_FLAG]: PAGE_ROUTE.GENE_FLAG,
 };
 
 export enum SearchOptionType {

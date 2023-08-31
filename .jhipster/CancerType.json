@@ -52,6 +52,13 @@
       "otherEntityName": "cancerType",
       "otherEntityRelationshipName": "children",
       "relationshipName": "parent"
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "clinicalTrialsGovCondition",
+      "otherEntityRelationshipName": "cancerType",
+      "relationshipName": "clinicalTrialsGovCondition",
+      "ownerSide": false
     }
   ],
   "entityTableName": "cancer_type",

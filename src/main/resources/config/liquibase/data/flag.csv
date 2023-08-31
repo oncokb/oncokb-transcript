@@ -1,0 +1,6 @@
+id;flag;name;description
+1;MANE_SELECT;MANE Select;Test
+2;MANE_PLUS_CLINICAL;MANE Plus Clinical;Test
+3;GN_CANONICAL;Genome Nexus Canonical;Test
+4;ONCOKB;OncoKB Canonical;Test
+5;ENSEMBL_CANONICAL;Ensembl Canonical;Test

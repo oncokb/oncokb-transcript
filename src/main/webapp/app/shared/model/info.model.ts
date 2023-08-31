@@ -1,10 +1,10 @@
 import dayjs from 'dayjs';
-import { InfoType } from 'app/shared/model/enumerations/info-type.model';
 
 export interface IInfo {
   id?: number;
-  type?: InfoType;
+  type?: string;
   value?: string | null;
+  created?: string | null;
   lastUpdated?: string | null;
 }
 

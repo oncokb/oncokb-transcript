@@ -102,6 +102,9 @@ public class GeneQueryService extends QueryService<Gene> {
             if (criteria.getHugoSymbol() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getHugoSymbol(), Gene_.hugoSymbol));
             }
+            if (criteria.getHgncId() != null) {
+                specification = specification.or(buildStringSpecification(criteria.getHgncId(), Gene_.hgncId));
+            }
             if (criteria.getGeneAliasId() != null) {
                 specification =
                     specification.or(
@@ -119,6 +122,10 @@ public class GeneQueryService extends QueryService<Gene> {
                             root -> root.join(Gene_.ensemblGenes, JoinType.LEFT).get(EnsemblGene_.id)
                         )
                     );
+            }
+            if (criteria.getFlagId() != null) {
+                specification =
+                    specification.or(buildSpecification(criteria.getFlagId(), root -> root.join(Gene_.flags, JoinType.LEFT).get(Flag_.id)));
             }
             if (criteria.getAlterationId() != null) {
                 specification =

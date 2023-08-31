@@ -1,6 +1,8 @@
 package org.mskcc.oncokb.curation.web.rest.model;
 
+import java.util.List;
 import javax.validation.constraints.NotNull;
+import org.mskcc.oncokb.curation.domain.enumeration.TranscriptFlagEnum;
 
 public class AddTranscriptBody {
 
@@ -15,6 +17,9 @@ public class AddTranscriptBody {
 
     @NotNull
     Boolean isCanonical = false;
+
+    @NotNull
+    List<TranscriptFlagEnum> flags;
 
     public Integer getEntrezGeneId() {
         return entrezGeneId;
@@ -46,5 +51,13 @@ public class AddTranscriptBody {
 
     public void setCanonical(Boolean canonical) {
         isCanonical = canonical;
+    }
+
+    public List<TranscriptFlagEnum> getFlags() {
+        return flags;
+    }
+
+    public void setFlags(List<TranscriptFlagEnum> flags) {
+        this.flags = flags;
     }
 }

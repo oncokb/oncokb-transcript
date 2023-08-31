@@ -22,6 +22,14 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+
+        <!-- This data was generated on 4/4/2022 12:00PM EST - Please update this when csv file is modified -->
+        <loadData
+            file="config/liquibase/data/gene_alias.txt"
+            separator="|"
+            tableName="gene_alias"
+            usePreparedStatements="true">
+        </loadData>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

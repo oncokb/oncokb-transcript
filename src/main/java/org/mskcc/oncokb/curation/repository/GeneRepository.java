@@ -21,8 +21,18 @@ public interface GeneRepository extends JpaRepository<Gene, Long>, JpaSpecificat
     @Cacheable(cacheResolver = "geneCacheResolver")
     Optional<Gene> findByHugoSymbol(String hugoSymbol);
 
-    @Query(value = "select distinct g from Gene g left join fetch g.geneAliases ga left join fetch g.ensemblGenes eg", nativeQuery = true)
-    Page<Gene> findAllWithGeneAliasAndEnsemblGenes(Pageable pageable);
+    @Query(
+        value = "select gene from Gene gene left join fetch gene.geneAliases ga where UPPER(gene.hugoSymbol) = UPPER(:hugoSymbol) or UPPER(ga.name) = UPPER(:hugoSymbol) "
+    )
+    List<Gene> findGeneByHugoSymbolOrGeneAliasesIn(@Param("hugoSymbol") String hugoSymbol);
+
+    @Query(value = "select gene.id from Gene gene order by gene.id", countQuery = "select count(gene.id) from Gene gene")
+    Page<Long> findAllGeneIds(Pageable pageable);
+
+    @Query(
+        value = "select distinct gene from Gene gene left join fetch gene.geneAliases ga left join fetch gene.ensemblGenes eg where gene.id in :ids"
+    )
+    List<Gene> findAllByIdInWithGeneAliasAndEnsemblGenes(@Param("ids") List<Long> ids);
 
     @Query(
         value = "select distinct gene from Gene gene left join fetch gene.alterations",

@@ -50,6 +50,12 @@ const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
             <MenuItem icon={<b style={{ fontSize: '1.2em' }}>CT</b>}>
               Condition <NavLink to={PAGE_ROUTE.CT_GOV_CONDITION} />
             </MenuItem>
+            <MenuItem icon={<b style={{ fontSize: '1.2em' }}>EG</b>}>
+              Ensembl Gene <NavLink to={PAGE_ROUTE.ENSEMBL_GENE} />
+            </MenuItem>
+            <MenuItem icon={<b style={{ fontSize: '1.2em' }}>T</b>}>
+              Transcript <NavLink to={PAGE_ROUTE.TRANSCRIPT} />
+            </MenuItem>
           </Menu>
         </SidebarContent>
       </ProSidebar>

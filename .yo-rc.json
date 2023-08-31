@@ -79,9 +79,11 @@
       "Consequence",
       "AlterationReferenceGenome",
       "ClinicalTrialsGovCondition",
-      "FdaDrug"
+      "FdaDrug",
+      "SeqRegion",
+      "Flag"
     ],
-    "lastLiquibaseTimestamp": 1685026025000,
+    "lastLiquibaseTimestamp": 1694828904000,
     "devServerPort": 9060,
     "enableGradleEnterprise": false
   }

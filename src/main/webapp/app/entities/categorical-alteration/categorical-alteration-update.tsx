@@ -56,7 +56,7 @@ export const CategoricalAlterationUpdate = (props: ICategoricalAlterationUpdateP
     isNew
       ? {}
       : {
-          type: 'ONCOKB_MUTATIONS',
+          type: 'ONCOGENIC_MUTATIONS',
           alterationType: 'MUTATION',
           ...categoricalAlterationEntity,
         };
@@ -90,7 +90,7 @@ export const CategoricalAlterationUpdate = (props: ICategoricalAlterationUpdateP
                 }}
               />
               <ValidatedField label="Type" id="categorical-alteration-type" name="type" data-cy="type" type="select">
-                <option value="ONCOKB_MUTATIONS">ONCOKB_MUTATIONS</option>
+                <option value="ONCOGENIC_MUTATIONS">ONCOGENIC_MUTATIONS</option>
                 <option value="GAIN_OF_FUNCTION_MUTATIONS">GAIN_OF_FUNCTION_MUTATIONS</option>
                 <option value="LOSS_OF_FUNCTION_MUTATIONS">LOSS_OF_FUNCTION_MUTATIONS</option>
                 <option value="SWITCH_OF_FUNCTION_MUTATIONS">SWITCH_OF_FUNCTION_MUTATIONS</option>
