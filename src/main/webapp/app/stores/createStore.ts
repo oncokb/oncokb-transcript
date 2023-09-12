@@ -80,6 +80,7 @@ import clinicalTrialsGovCondition, {
 import FirebaseStore from './firebase.store';
 import FdaDrugStore from 'app/entities/fda-drug/fda-drug.store';
 import { FirebaseGeneStore } from './firebase/firebase.gene.store';
+import { FirebaseMetaStore } from './firebase/firebase.meta.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
@@ -114,6 +115,7 @@ export interface IRootStore {
   /* Firebase stores */
   readonly firebaseStore: FirebaseStore;
   readonly firebaseGeneStore: FirebaseGeneStore;
+  readonly firebaseMetaStore: FirebaseMetaStore;
 }
 
 export function createStores(history: History): IRootStore {
@@ -150,5 +152,6 @@ export function createStores(history: History): IRootStore {
   /* Firebase stores */
   rootStore.firebaseStore = new FirebaseStore(rootStore);
   rootStore.firebaseGeneStore = new FirebaseGeneStore(rootStore);
+  rootStore.firebaseMetaStore = new FirebaseMetaStore(rootStore);
   return rootStore;
 }

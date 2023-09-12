@@ -1,8 +1,7 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
 import { Row, Col } from 'reactstrap';
-import { ValidatedField } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 import { Else, If, Then } from 'react-if';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
@@ -10,13 +9,13 @@ import { FirebaseCollectionName, REFERENCE_GENOME } from 'app/config/constants';
 import { PubmedGeneLink } from 'app/shared/links/PubmedGeneLink';
 import { InlineDivider, PubmedGeneArticlesLink } from 'app/shared/links/PubmedGeneArticlesLink';
 import { getSectionClassName } from 'app/shared/util/utils';
-import { Gene, ONCOGENE, TUMOR_SUPPRESSOR } from 'app/shared/model/firebase/firebase.model';
+import { ONCOGENE, TUMOR_SUPPRESSOR } from 'app/shared/model/firebase/firebase.model';
 import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
 import WithSeparator from 'react-with-separator';
-import { DefaultField } from 'app/shared/form/DefaultField';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
+import { RealtimeBasicInput, RealtimeInputType } from 'app/shared/firebase/FirebaseRealtimeInput';
 
-const ReferenceGenomeInput: React.FunctionComponent<{
+const GeneTranscriptInput: React.FunctionComponent<{
   referenceGenome: REFERENCE_GENOME;
   isoform: string;
   refseq: string;
@@ -26,9 +25,10 @@ const ReferenceGenomeInput: React.FunctionComponent<{
   return (
     <Row>
       <Col>
-        <ValidatedField
-          name={'isoform'}
+        <RealtimeBasicInput
+          name={`isoform-${props.referenceGenome}`}
           label={`${props.referenceGenome} Isoform`}
+          type={RealtimeInputType.TEXT}
           labelClass="font-weight-bold"
           inputClass="h-25 p-1"
           value={props.isoform || ''}
@@ -36,9 +36,10 @@ const ReferenceGenomeInput: React.FunctionComponent<{
         />
       </Col>
       <Col>
-        <ValidatedField
-          name={'refseq'}
-          label={`${props.referenceGenome} RefSeq`}
+        <RealtimeBasicInput
+          name={`isoform-${props.referenceGenome}`}
+          label={`${props.referenceGenome} Isoform`}
+          type={RealtimeInputType.TEXT}
           labelClass="font-weight-bold"
           inputClass="h-25 p-1"
           value={props.refseq || ''}
@@ -55,34 +56,20 @@ export const GeneCurate = (props: IGeneCurateProps) => {
   const firebaseParentPath = `${FirebaseCollectionName.GENES}/${props.geneEntity.hugoSymbol}`;
 
   useEffect(() => {
-    let unsubscribe = undefined;
+    const cleanupCallbacks = [];
     props.getEntity(props.match.params.id).then(result => {
-      unsubscribe = props.addListener(`${FirebaseCollectionName.GENES}/${result.data.hugoSymbol}/`);
+      cleanupCallbacks.push(props.addListener(`${FirebaseCollectionName.GENES}/${result.data.hugoSymbol}/`));
+      cleanupCallbacks.push(props.addMetaListener(`${FirebaseCollectionName.META}/collaborators/`));
+      cleanupCallbacks.push(() => props.updateCollaborator(result.data.hugoSymbol, false));
     });
-    if (unsubscribe) {
-      return () => unsubscribe();
-    }
+    return () => cleanupCallbacks.forEach(callback => callback && callback());
   }, []);
 
-  const handleTumorSuppressorChange = (checked: boolean) => {
-    props.update(firebaseParentPath, { type: { tsg: checked ? TUMOR_SUPPRESSOR : '' } });
-  };
-
-  const handleOncogeneChange = (checked: boolean) => {
-    props.update(firebaseParentPath, { type: { ocg: checked ? ONCOGENE : '' } });
-  };
-
-  const handleIsoformChange = (referenceGenome: REFERENCE_GENOME, value: string) => {
-    const updateObj: Partial<Gene> =
-      referenceGenome === REFERENCE_GENOME.GRCH37 ? { isoform_override: value } : { isoform_override_grch38: value };
-    props.update(firebaseParentPath, updateObj);
-  };
-
-  const handleRefseqChange = (referenceGenome: REFERENCE_GENOME, value: string) => {
-    const updateObj: Partial<Gene> =
-      referenceGenome === REFERENCE_GENOME.GRCH37 ? { dmp_refseq_id: value } : { dmp_refseq_id_grch38: value };
-    props.update(firebaseParentPath, updateObj);
-  };
+  useEffect(() => {
+    if (props.metaData && props.data?.name) {
+      props.updateCollaborator(props.data.name, true);
+    }
+  }, [props.metaData, props.data]);
 
   return (
     <If condition={!props.loading && !!props.data}>
@@ -108,59 +95,59 @@ export const GeneCurate = (props: IGeneCurateProps) => {
                 </span>
               </div>
               <div className="mb-4">
-                <ReferenceGenomeInput
+                <GeneTranscriptInput
                   referenceGenome={REFERENCE_GENOME.GRCH37}
                   isoform={props.data?.isoform_override}
                   refseq={props.data?.dmp_refseq_id}
-                  onIsoformChange={event => {
-                    handleIsoformChange(REFERENCE_GENOME.GRCH37, event.target.value);
+                  onIsoformChange={e => {
+                    props.updateReviewableContent(firebaseParentPath, 'isoform_override', e.target.value);
                   }}
-                  onRefseqChange={event => {
-                    handleRefseqChange(REFERENCE_GENOME.GRCH37, event.target.value);
+                  onRefseqChange={e => {
+                    props.updateReviewableContent(firebaseParentPath, 'dmp_refseq_id', e.target.value);
                   }}
                 />
-                <ReferenceGenomeInput
+                <GeneTranscriptInput
                   referenceGenome={REFERENCE_GENOME.GRCH38}
                   isoform={props.data?.isoform_override_grch38}
                   refseq={props.data?.dmp_refseq_id_grch38}
-                  onIsoformChange={event => {
-                    handleIsoformChange(REFERENCE_GENOME.GRCH38, event.target.value);
+                  onIsoformChange={e => {
+                    props.updateReviewableContent(firebaseParentPath, 'isoform_override_grch38', e.target.value);
                   }}
-                  onRefseqChange={event => {
-                    handleRefseqChange(REFERENCE_GENOME.GRCH38, event.target.value);
+                  onRefseqChange={e => {
+                    props.updateReviewableContent(firebaseParentPath, 'dmp_refseq_id_grch38', e.target.value);
                   }}
                 />
               </div>
-              <DefaultField
+              <RealtimeBasicInput
                 label="Summary"
                 labelClass="font-weight-bold"
                 name="geneSummary"
-                type="textarea"
+                type={RealtimeInputType.TEXTAREA}
                 value={props.data?.summary || ''}
-                onChange={event => {
-                  props.update(firebaseParentPath, { summary: event.target.value });
+                onChange={e => {
+                  props.updateReviewableContent(firebaseParentPath, 'summary', e.target.value);
                 }}
               />
               <div className="mb-2 d-flex">
-                <DefaultField
-                  name="type"
-                  type="checkbox"
+                <RealtimeBasicInput
                   label="Tumor Supressor"
+                  name="tumorSupressor"
+                  type={RealtimeInputType.CHECKBOX}
                   inputClass="ml-1 position-relative"
                   checked={!!props.data?.type?.tsg}
                   onChange={e => {
-                    handleTumorSuppressorChange(e.target.checked);
+                    props.updateGeneType(firebaseParentPath, TUMOR_SUPPRESSOR, e.target.checked);
                   }}
                 />
-                <DefaultField
+                <RealtimeBasicInput
                   className="ml-4"
-                  name="type"
-                  type="checkbox"
                   label="Oncogene"
+                  name="oncogene"
+                  type={RealtimeInputType.CHECKBOX}
                   inputClass="ml-1 position-relative"
                   checked={!!props.data?.type?.ocg}
                   onChange={e => {
-                    handleOncogeneChange(e.target.checked);
+                    props.updateGeneType(firebaseParentPath, ONCOGENE, e.target.checked);
                   }}
                 />
               </div>
@@ -168,16 +155,14 @@ export const GeneCurate = (props: IGeneCurateProps) => {
           </Row>
           <Row className={getSectionClassName()}>
             <Col>
-              <DefaultField
-                className="mb-1"
+              <RealtimeBasicInput
                 label="Background"
                 labelClass="font-weight-bold"
                 name="geneBackground"
-                type="textarea"
+                type={RealtimeInputType.TEXTAREA}
                 value={props.data?.background || ''}
-                rows={Math.ceil(props.data?.background.length / 250)}
-                onChange={event => {
-                  props.update(firebaseParentPath, { background: event.target.value });
+                onChange={e => {
+                  props.updateReviewableContent(firebaseParentPath, 'background', e.target.value);
                 }}
               />
               <div className="mb-2">
@@ -209,13 +194,19 @@ export const GeneCurate = (props: IGeneCurateProps) => {
   );
 };
 
-const mapStoreToProps = ({ geneStore, firebaseGeneStore }: IRootStore) => ({
+const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, authStore }: IRootStore) => ({
   geneEntity: geneStore.entity,
   loading: geneStore.loading,
   getEntity: geneStore.getEntity,
   addListener: firebaseGeneStore.addListener,
   data: firebaseGeneStore.data,
   update: firebaseGeneStore.update,
+  updateReviewableContent: firebaseGeneStore.updateReviewableContent,
+  addMetaListener: firebaseMetaStore.addListener,
+  updateGeneType: firebaseGeneStore.updateGeneType,
+  metaData: firebaseMetaStore.data,
+  updateCollaborator: firebaseMetaStore.updateCollaborator,
+  account: authStore.account,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

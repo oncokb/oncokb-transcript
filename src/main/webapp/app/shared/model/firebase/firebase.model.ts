@@ -2,6 +2,7 @@ import { generateUuid } from 'app/shared/util/utils';
 
 export const ONCOGENE = 'Oncogene';
 export const TUMOR_SUPPRESSOR = 'Tumor Suppressor';
+export type GeneTypeString = typeof ONCOGENE | typeof TUMOR_SUPPRESSOR;
 
 export enum TX_LEVELS {
   LEVEL_NO = 'no',
@@ -99,6 +100,7 @@ export class GeneType {
   ocg_uuid: string = generateUuid();
   tsg: typeof TUMOR_SUPPRESSOR | '' = '';
   tsg_uuid: string = generateUuid();
+  tsg_review?: Review;
 }
 
 export class Mutation {
@@ -231,7 +233,7 @@ export class Meta {
 }
 
 export class MetaReview {
-  currentReview = '';
+  currentReviewer = '';
   [key: string]: string | boolean;
 }
 
@@ -246,6 +248,7 @@ export class Comment {
 export class Review {
   updateTime: number;
   updatedBy = '';
+  lastReviewed?: string;
   // These two properties should not coexist
   added?: boolean;
   removed?: boolean;
