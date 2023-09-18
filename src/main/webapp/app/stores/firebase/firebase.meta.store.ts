@@ -1,16 +1,36 @@
-import { Meta } from 'app/shared/model/firebase/firebase.model';
-import { FirebaseCrudStore } from 'app/shared/util/firebase-crud-store';
+import { Meta, MetaCollection } from 'app/shared/model/firebase/firebase.model';
+import { FirebaseCrudStore } from 'app/shared/util/firebase/firebase-crud-store';
 import { IRootStore } from '../createStore';
-import { action, makeObservable } from 'mobx';
+import { action, makeObservable, observable } from 'mobx';
+import { onValue, ref } from 'firebase/database';
+import { FB_COLLECTION } from 'app/config/constants';
+import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 
 export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
+  public metaList: MetaCollection = undefined;
+
   constructor(rootStore: IRootStore) {
     super(rootStore);
     makeObservable(this, {
+      metaList: observable,
+      addMetaListListener: action.bound,
       updateGeneMetaContent: action.bound,
       updateGeneReviewUuid: action.bound,
       updateCollaborator: action.bound,
     });
+  }
+
+  /**
+   * Create a listener for the entire Meta collection.
+   */
+  addMetaListListener() {
+    const unsubscribe = onValue(
+      ref(this.db, FB_COLLECTION.META),
+      action(snapshot => {
+        this.metaList = snapshot.val();
+      })
+    );
+    return unsubscribe;
   }
 
   /**
@@ -19,7 +39,7 @@ export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
    */
   updateGeneMetaContent(hugoSymbol: string) {
     // Update timestamp and author
-    this.update(`Meta/${hugoSymbol}`, {
+    this.update(getFirebasePath('META_GENE', hugoSymbol), {
       lastModifiedBy: this.rootStore.authStore.fullName,
       lastModifiedAt: new Date().getTime().toString(),
     });
@@ -34,9 +54,9 @@ export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
    */
   updateGeneReviewUuid(hugoSymbol: string, uuid: string, add: boolean) {
     if (add) {
-      this.update(`Meta/${hugoSymbol}`, { review: { [uuid]: true } });
+      this.update(getFirebasePath('META_GENE', hugoSymbol), { review: { [uuid]: true } });
     } else {
-      this.delete(`Meta/${hugoSymbol}/review/${uuid}`);
+      this.delete(getFirebasePath('META_GENE_REVIEW', hugoSymbol, uuid));
     }
   }
 
@@ -49,10 +69,12 @@ export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
     const name = this.rootStore.authStore.fullName.toLowerCase();
     const collaboratorGeneList: string[] = this.data[name];
     if (add && !this.data[name].includes(hugoSymbol)) {
-      this.update(`Meta/collaborators/${name}`, { [collaboratorGeneList.length]: hugoSymbol });
+      this.update(getFirebasePath('META_COLLABORATOR', name), {
+        [collaboratorGeneList.length]: hugoSymbol,
+      });
     } else if (!add) {
-      const index = collaboratorGeneList.findIndex(g => g === hugoSymbol);
-      this.delete(`Meta/collaborators/${name}/${index}`);
+      const index = collaboratorGeneList.findIndex(g => g === hugoSymbol).toString();
+      this.delete(getFirebasePath('META_COLLABORATOR_GENE', name, index));
     }
   }
 }

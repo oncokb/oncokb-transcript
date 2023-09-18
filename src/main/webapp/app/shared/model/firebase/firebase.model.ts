@@ -4,6 +4,16 @@ export const ONCOGENE = 'Oncogene';
 export const TUMOR_SUPPRESSOR = 'Tumor Suppressor';
 export type GeneTypeString = typeof ONCOGENE | typeof TUMOR_SUPPRESSOR;
 
+export type MetaCollection = {
+  [hugoSymbol: string]: Meta;
+} & {
+  collaborators?: MetaCollaborator;
+};
+
+export type MetaCollaborator = {
+  [name: string]: string[];
+};
+
 export enum TX_LEVELS {
   LEVEL_NO = 'no',
   LEVEL_1 = '1',

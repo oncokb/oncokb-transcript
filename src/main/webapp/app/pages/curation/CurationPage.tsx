@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
 import { Row, Col } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 import { Else, If, Then } from 'react-if';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
-import { FirebaseCollectionName, REFERENCE_GENOME } from 'app/config/constants';
+import { REFERENCE_GENOME } from 'app/config/constants';
 import { PubmedGeneLink } from 'app/shared/links/PubmedGeneLink';
 import { InlineDivider, PubmedGeneArticlesLink } from 'app/shared/links/PubmedGeneArticlesLink';
 import { getSectionClassName } from 'app/shared/util/utils';
@@ -14,56 +14,27 @@ import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
 import WithSeparator from 'react-with-separator';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
 import { RealtimeBasicInput, RealtimeInputType } from 'app/shared/firebase/FirebaseRealtimeInput';
+import GeneTranscriptInfoInput from '../../shared/firebase/GeneTranscriptInfoInput';
+import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 
-const GeneTranscriptInput: React.FunctionComponent<{
-  referenceGenome: REFERENCE_GENOME;
-  isoform: string;
-  refseq: string;
-  onIsoformChange: (event) => void;
-  onRefseqChange: (event) => void;
-}> = props => {
-  return (
-    <Row>
-      <Col>
-        <RealtimeBasicInput
-          name={`isoform-${props.referenceGenome}`}
-          label={`${props.referenceGenome} Isoform`}
-          type={RealtimeInputType.TEXT}
-          labelClass="font-weight-bold"
-          inputClass="h-25 p-1"
-          value={props.isoform || ''}
-          onChange={props.onIsoformChange}
-        />
-      </Col>
-      <Col>
-        <RealtimeBasicInput
-          name={`isoform-${props.referenceGenome}`}
-          label={`${props.referenceGenome} Isoform`}
-          type={RealtimeInputType.TEXT}
-          labelClass="font-weight-bold"
-          inputClass="h-25 p-1"
-          value={props.refseq || ''}
-          onChange={props.onRefseqChange}
-        />
-      </Col>
-    </Row>
-  );
-};
+export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
-export interface IGeneCurateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
-
-export const GeneCurate = (props: IGeneCurateProps) => {
-  const firebaseParentPath = `${FirebaseCollectionName.GENES}/${props.geneEntity.hugoSymbol}`;
+const CurationPage = (props: ICurationPageProps) => {
+  const hugoSymbol = props.match.params.hugoSymbol;
+  const firebaseGenePath = getFirebasePath('GENE', hugoSymbol);
 
   useEffect(() => {
+    props.searchEntities({ query: hugoSymbol });
     const cleanupCallbacks = [];
-    props.getEntity(props.match.params.id).then(result => {
-      cleanupCallbacks.push(props.addListener(`${FirebaseCollectionName.GENES}/${result.data.hugoSymbol}/`));
-      cleanupCallbacks.push(props.addMetaListener(`${FirebaseCollectionName.META}/collaborators/`));
-      cleanupCallbacks.push(() => props.updateCollaborator(result.data.hugoSymbol, false));
-    });
+    cleanupCallbacks.push(props.addListener(firebaseGenePath));
+    cleanupCallbacks.push(props.addMetaListener(getFirebasePath('META_COLLABORATORS')));
+    cleanupCallbacks.push(() => props.updateCollaborator(hugoSymbol, false));
     return () => cleanupCallbacks.forEach(callback => callback && callback());
   }, []);
+
+  const geneEntity = useMemo(() => {
+    return props.entities.find(gene => gene.hugoSymbol === hugoSymbol);
+  }, [props.entities]);
 
   useEffect(() => {
     if (props.metaData && props.data?.name) {
@@ -72,7 +43,7 @@ export const GeneCurate = (props: IGeneCurateProps) => {
   }, [props.metaData, props.data]);
 
   return (
-    <If condition={!props.loading && !!props.data}>
+    <If condition={!!props.data && !!geneEntity}>
       <Then>
         <div>
           <Row>
@@ -85,36 +56,36 @@ export const GeneCurate = (props: IGeneCurateProps) => {
               <div className="mb-2">
                 <span className="font-weight-bold">Entrez Gene:</span>
                 <span className="ml-1">
-                  <PubmedGeneLink entrezGeneId={props.geneEntity.entrezGeneId} />
+                  <PubmedGeneLink entrezGeneId={geneEntity?.entrezGeneId} />
                 </span>
               </div>
               <div className="mb-4">
                 <span className="font-weight-bold">Gene aliases:</span>
                 <span className="ml-1">
-                  <PubmedGeneArticlesLink hugoSymbols={props.geneEntity.geneAliases?.map(alias => alias.name)} />
+                  <PubmedGeneArticlesLink hugoSymbols={geneEntity?.geneAliases?.map(alias => alias.name)} />
                 </span>
               </div>
               <div className="mb-4">
-                <GeneTranscriptInput
+                <GeneTranscriptInfoInput
                   referenceGenome={REFERENCE_GENOME.GRCH37}
                   isoform={props.data?.isoform_override}
                   refseq={props.data?.dmp_refseq_id}
                   onIsoformChange={e => {
-                    props.updateReviewableContent(firebaseParentPath, 'isoform_override', e.target.value);
+                    props.updateReviewableContent(firebaseGenePath, 'isoform_override', e.target.value);
                   }}
                   onRefseqChange={e => {
-                    props.updateReviewableContent(firebaseParentPath, 'dmp_refseq_id', e.target.value);
+                    props.updateReviewableContent(firebaseGenePath, 'dmp_refseq_id', e.target.value);
                   }}
                 />
-                <GeneTranscriptInput
+                <GeneTranscriptInfoInput
                   referenceGenome={REFERENCE_GENOME.GRCH38}
                   isoform={props.data?.isoform_override_grch38}
                   refseq={props.data?.dmp_refseq_id_grch38}
                   onIsoformChange={e => {
-                    props.updateReviewableContent(firebaseParentPath, 'isoform_override_grch38', e.target.value);
+                    props.updateReviewableContent(firebaseGenePath, 'isoform_override_grch38', e.target.value);
                   }}
                   onRefseqChange={e => {
-                    props.updateReviewableContent(firebaseParentPath, 'dmp_refseq_id_grch38', e.target.value);
+                    props.updateReviewableContent(firebaseGenePath, 'dmp_refseq_id_grch38', e.target.value);
                   }}
                 />
               </div>
@@ -125,18 +96,17 @@ export const GeneCurate = (props: IGeneCurateProps) => {
                 type={RealtimeInputType.TEXTAREA}
                 value={props.data?.summary || ''}
                 onChange={e => {
-                  props.updateReviewableContent(firebaseParentPath, 'summary', e.target.value);
+                  props.updateReviewableContent(firebaseGenePath, 'summary', e.target.value);
                 }}
               />
-              <div className="mb-2 d-flex">
+              <div className="flex d-flex">
                 <RealtimeBasicInput
                   label="Tumor Supressor"
                   name="tumorSupressor"
                   type={RealtimeInputType.CHECKBOX}
-                  inputClass="ml-1 position-relative"
                   checked={!!props.data?.type?.tsg}
                   onChange={e => {
-                    props.updateGeneType(firebaseParentPath, TUMOR_SUPPRESSOR, e.target.checked);
+                    props.updateGeneType(firebaseGenePath, TUMOR_SUPPRESSOR, e.target.checked);
                   }}
                 />
                 <RealtimeBasicInput
@@ -144,10 +114,9 @@ export const GeneCurate = (props: IGeneCurateProps) => {
                   label="Oncogene"
                   name="oncogene"
                   type={RealtimeInputType.CHECKBOX}
-                  inputClass="ml-1 position-relative"
                   checked={!!props.data?.type?.ocg}
                   onChange={e => {
-                    props.updateGeneType(firebaseParentPath, ONCOGENE, e.target.checked);
+                    props.updateGeneType(firebaseGenePath, ONCOGENE, e.target.checked);
                   }}
                 />
               </div>
@@ -162,7 +131,7 @@ export const GeneCurate = (props: IGeneCurateProps) => {
                 type={RealtimeInputType.TEXTAREA}
                 value={props.data?.background || ''}
                 onChange={e => {
-                  props.updateReviewableContent(firebaseParentPath, 'background', e.target.value);
+                  props.updateReviewableContent(firebaseGenePath, 'background', e.target.value);
                 }}
               />
               <div className="mb-2">
@@ -188,16 +157,15 @@ export const GeneCurate = (props: IGeneCurateProps) => {
         </div>
       </Then>
       <Else>
-        <LoadingIndicator size={LoaderSize.LARGE} center={true} isLoading={props.loading} />
+        <LoadingIndicator size={LoaderSize.LARGE} center={true} isLoading />
       </Else>
     </If>
   );
 };
 
 const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, authStore }: IRootStore) => ({
-  geneEntity: geneStore.entity,
-  loading: geneStore.loading,
-  getEntity: geneStore.getEntity,
+  searchEntities: geneStore.searchEntities,
+  entities: geneStore.entities,
   addListener: firebaseGeneStore.addListener,
   data: firebaseGeneStore.data,
   update: firebaseGeneStore.update,
@@ -211,4 +179,4 @@ const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, auth
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(GeneCurate);
+export default connect(mapStoreToProps)(CurationPage);

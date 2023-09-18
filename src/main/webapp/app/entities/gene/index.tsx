@@ -7,9 +7,6 @@ import Gene from './gene';
 import GeneDetail from './gene-detail';
 import GeneUpdate from './gene-update';
 import GeneDeleteDialog from './gene-delete-dialog';
-import GeneCurate from './gene-curate';
-import PrivateRoute from 'app/shared/auth/private-route';
-import { AUTHORITIES } from 'app/config/constants';
 
 const Routes = ({ match }) => (
   <>
@@ -17,8 +14,6 @@ const Routes = ({ match }) => (
       <ErrorBoundaryRoute exact path={`${match.url}/new`} component={GeneUpdate} />
       <ErrorBoundaryRoute exact path={`${match.url}/:id/edit`} component={GeneUpdate} />
       <ErrorBoundaryRoute exact path={`${match.url}/:id`} component={GeneDetail} />
-      <ErrorBoundaryRoute exact path={`${match.url}/:id/curate`} component={GeneCurate} />
-      <PrivateRoute exact path={`${match.url}/:id/curate`} component={GeneCurate} hasAnyAuthorities={[AUTHORITIES.FIREBASE]} />
       <ErrorBoundaryRoute path={match.url} component={Gene} />
     </Switch>
     <ErrorBoundaryRoute exact path={`${match.url}/:id/delete`} component={GeneDeleteDialog} />

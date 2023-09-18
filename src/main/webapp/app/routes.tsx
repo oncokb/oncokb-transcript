@@ -1,7 +1,6 @@
 import React from 'react';
 import { Redirect, Switch } from 'react-router-dom';
 import Loadable from 'react-loadable';
-
 import Login from 'app/pages/login/LoginPage';
 import Logout from 'app/pages/login/logout';
 import PrivateRoute from 'app/shared/auth/private-route';
@@ -10,9 +9,10 @@ import PageNotFound from 'app/shared/error/page-not-found';
 import { AUTHORITIES, PAGE_ROUTE } from 'app/config/constants';
 import SearchPage from './pages/SearchPage';
 import LoginRedirect from './pages/login/login-redirect';
-import UserManagementPage from './pages/UserManagementPage';
 import Entities from 'app/entities';
 import PageContainer from './components/PageContainer';
+import GeneListPage from './pages/curation/GeneListPage';
+import CurationPage from './pages/curation/CurationPage';
 
 const Account = Loadable({
   loader: () => import(/* webpackChunkName: "account" */ './pages/account/SettingsPage'),
@@ -35,6 +35,8 @@ const Routes = () => {
             <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGOUT} component={Logout} />
             <ErrorBoundaryRoute exact path={PAGE_ROUTE.OAUTH} component={LoginRedirect} />
             <PrivateRoute exact path={PAGE_ROUTE.SEARCH} component={SearchPage} />
+            <PrivateRoute exact path={PAGE_ROUTE.CURATION} component={GeneListPage} hasAnyAuthorities={[AUTHORITIES.FIREBASE]} />
+            <PrivateRoute exact path={PAGE_ROUTE.CURATION_GENE} component={CurationPage} hasAnyAuthorities={[AUTHORITIES.FIREBASE]} />
             <PrivateRoute path="/admin" component={Admin} hasAnyAuthorities={[AUTHORITIES.ADMIN]} />
             <PrivateRoute path="/" component={Entities} hasAnyAuthorities={[AUTHORITIES.USER]} />
             <PrivateRoute exact path={PAGE_ROUTE.ACCOUNT} component={Account} hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]} />

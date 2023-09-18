@@ -1,5 +1,5 @@
 import { Gene, GeneTypeString, TUMOR_SUPPRESSOR } from 'app/shared/model/firebase/firebase.model';
-import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase-crud-store';
+import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-crud-store';
 import { IRootStore } from '../createStore';
 import { action, makeObservable } from 'mobx';
 

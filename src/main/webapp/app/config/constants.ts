@@ -30,6 +30,9 @@ export enum PAGE_ROUTE {
   OAUTH = '/oauth2/authorization/oidc',
   ADMIN_USER_MANAGEMENT = '/admin/user-management',
   SEARCH = '/search',
+  /* Below are curation related paths */
+  CURATION = '/curation',
+  CURATION_GENE = '/curation/:hugoSymbol',
   /* Below are the entity paths */
   ARTICLE = '/article',
   GENE = '/gene',
@@ -39,7 +42,6 @@ export enum PAGE_ROUTE {
   FDA_SUBMISSION_TYPE = '/fda-submission-type',
   CDX = '/companion-diagnostic-device',
   SPECIMEN_TYPE = '/specimen-type',
-
   CT_GOV_CONDITION = '/clinical-trials-gov-condition',
 }
 
@@ -122,9 +124,12 @@ export const DEFAULT_ENTITY_SORT_FIELD: { [key in ENTITY_TYPE]?: string } = {
   [ENTITY_TYPE.CT_GOV_CONDITION]: 'name',
 };
 
+/* Regex constants */
 export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');
+export const UUID_REGEX = new RegExp('\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}');
 
-export enum FirebaseCollectionName {
+/* Firebase constants */
+export enum FB_COLLECTION {
   DRUGS = 'Drugs',
   GENES = 'Genes',
   HISTORY = 'History',
@@ -135,3 +140,14 @@ export enum FirebaseCollectionName {
   USERS = 'Users',
   VUS = 'VUS',
 }
+
+export const FB_COLLECTION_PATH = {
+  GENE: `${FB_COLLECTION.GENES}/:hugoSymbol`,
+  MUTATIONS: `${FB_COLLECTION.GENES}/:hugoSymbol/mutations/:index`,
+  TUMORS: `${FB_COLLECTION.GENES}/:hugoSymbol/mutations/:index/tumors/:index`,
+  META_GENE: `${FB_COLLECTION.META}/:hugoSymbol`,
+  META_GENE_REVIEW: `${FB_COLLECTION.META}/:hugoSymbol/review/:uuid`,
+  META_COLLABORATORS: `${FB_COLLECTION.META}/collaborators`,
+  META_COLLABORATOR: `${FB_COLLECTION.META}/collaborators/:name`,
+  META_COLLABORATOR_GENE: `${FB_COLLECTION.META}/collaborators/:name/:index`,
+};

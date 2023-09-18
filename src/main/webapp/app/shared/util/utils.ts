@@ -21,7 +21,7 @@ export const getTreatmentName = (drugs: IDrug[]): string => {
 
 export const getAlterationName = (alterations: IAlteration[]): string => {
   return alterations.map(alteration => alteration.name).join(', ');
-}
+};
 
 export const generateUuid = () => {
   return uuidv4();
@@ -29,4 +29,8 @@ export const generateUuid = () => {
 
 export function getSectionClassName(theFirst = false) {
   return `${theFirst ? 'pb-3' : 'border-top py-3'}`;
+}
+
+export function filterByKeyword(value: string | undefined | null, keyword: string): boolean {
+  return value ? value.toLowerCase().includes(keyword.trim()) : false;
 }
