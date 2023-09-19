@@ -5,9 +5,9 @@ import { Row, Col } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 import { Else, If, Then } from 'react-if';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
-import { REFERENCE_GENOME } from 'app/config/constants';
+import { CBIOPORTAL, COSMIC, REFERENCE_GENOME } from 'app/config/constants';
 import { PubmedGeneLink } from 'app/shared/links/PubmedGeneLink';
-import { InlineDivider, PubmedGeneArticlesLink } from 'app/shared/links/PubmedGeneArticlesLink';
+import { InlineDivider } from 'app/shared/links/PubmedGeneArticlesLink';
 import { getSectionClassName } from 'app/shared/util/utils';
 import { ONCOGENE, TUMOR_SUPPRESSOR } from 'app/shared/model/firebase/firebase.model';
 import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
@@ -57,12 +57,6 @@ const CurationPage = (props: ICurationPageProps) => {
                 <span className="font-weight-bold">Entrez Gene:</span>
                 <span className="ml-1">
                   <PubmedGeneLink entrezGeneId={geneEntity?.entrezGeneId} />
-                </span>
-              </div>
-              <div className="mb-4">
-                <span className="font-weight-bold">Gene aliases:</span>
-                <span className="ml-1">
-                  <PubmedGeneArticlesLink hugoSymbols={geneEntity?.geneAliases?.map(alias => alias.name)} />
                 </span>
               </div>
               <div className="mb-4">
@@ -141,14 +135,14 @@ const CurationPage = (props: ICurationPageProps) => {
                 <span className="font-weight-bold mr-2">External Links:</span>
                 <WithSeparator separator={InlineDivider}>
                   <a href={`https://cbioportal.mskcc.org/ln?q=${props.data?.name}`} target="_blank" rel="noopener noreferrer">
-                    CBioPortal <ExternalLinkIcon />
+                    {CBIOPORTAL} <ExternalLinkIcon />
                   </a>
                   <a
                     href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data?.name}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Cosmic <ExternalLinkIcon />
+                    {COSMIC} <ExternalLinkIcon />
                   </a>
                 </WithSeparator>
               </div>
