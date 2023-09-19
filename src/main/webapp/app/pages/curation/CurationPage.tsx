@@ -5,16 +5,15 @@ import { Row, Col } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 import { Else, If, Then } from 'react-if';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
-import { CBIOPORTAL, COSMIC, REFERENCE_GENOME } from 'app/config/constants';
+import { CBIOPORTAL, COSMIC } from 'app/config/constants';
 import { PubmedGeneLink } from 'app/shared/links/PubmedGeneLink';
-import { InlineDivider } from 'app/shared/links/PubmedGeneArticlesLink';
+import { InlineDivider, PubmedGeneArticlesLink } from 'app/shared/links/PubmedGeneArticlesLink';
 import { getSectionClassName } from 'app/shared/util/utils';
 import { ONCOGENE, TUMOR_SUPPRESSOR } from 'app/shared/model/firebase/firebase.model';
 import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
 import WithSeparator from 'react-with-separator';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
 import { RealtimeBasicInput, RealtimeInputType } from 'app/shared/firebase/FirebaseRealtimeInput';
-import GeneTranscriptInfoInput from '../../shared/firebase/GeneTranscriptInfoInput';
 import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
@@ -60,28 +59,10 @@ const CurationPage = (props: ICurationPageProps) => {
                 </span>
               </div>
               <div className="mb-4">
-                <GeneTranscriptInfoInput
-                  referenceGenome={REFERENCE_GENOME.GRCH37}
-                  isoform={props.data?.isoform_override}
-                  refseq={props.data?.dmp_refseq_id}
-                  onIsoformChange={e => {
-                    props.updateReviewableContent(firebaseGenePath, 'isoform_override', e.target.value);
-                  }}
-                  onRefseqChange={e => {
-                    props.updateReviewableContent(firebaseGenePath, 'dmp_refseq_id', e.target.value);
-                  }}
-                />
-                <GeneTranscriptInfoInput
-                  referenceGenome={REFERENCE_GENOME.GRCH38}
-                  isoform={props.data?.isoform_override_grch38}
-                  refseq={props.data?.dmp_refseq_id_grch38}
-                  onIsoformChange={e => {
-                    props.updateReviewableContent(firebaseGenePath, 'isoform_override_grch38', e.target.value);
-                  }}
-                  onRefseqChange={e => {
-                    props.updateReviewableContent(firebaseGenePath, 'dmp_refseq_id_grch38', e.target.value);
-                  }}
-                />
+                <span className="font-weight-bold">Gene aliases:</span>
+                <span className="ml-1">
+                  <PubmedGeneArticlesLink hugoSymbols={geneEntity?.geneAliases?.map(alias => alias.name)} />
+                </span>
               </div>
               <RealtimeBasicInput
                 label="Summary"
