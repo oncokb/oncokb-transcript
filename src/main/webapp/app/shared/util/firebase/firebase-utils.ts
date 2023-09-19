@@ -29,7 +29,7 @@ export const getValueByNestedKey = (obj: any, nestedKey = '') => {
   }, obj);
 };
 
-export const geneNeedsReview = (meta: Meta) => {
+export const geneNeedsReview = (meta: Meta | undefined) => {
   let needsReview = false;
   const metaReview = meta?.review;
   if (metaReview) {

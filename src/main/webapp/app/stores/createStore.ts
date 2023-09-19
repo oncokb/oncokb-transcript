@@ -77,7 +77,7 @@ import ConsequenceStore from 'app/entities/consequence/consequence.store';
 import clinicalTrialsGovCondition, {
   ClinicalTrialsGovConditionStore
 } from 'app/entities/clinical-trials-gov-condition/clinical-trials-gov-condition.store';
-import FirebaseStore from './firebase.store';
+import FirebaseStore from './firebase/firebase.store';
 import FdaDrugStore from 'app/entities/fda-drug/fda-drug.store';
 import { FirebaseGeneStore } from './firebase/firebase.gene.store';
 import { FirebaseMetaStore } from './firebase/firebase.meta.store';

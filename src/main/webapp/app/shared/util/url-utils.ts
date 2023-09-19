@@ -3,25 +3,23 @@ export const replaceUrlParams = (url: string, ...params: string[]) => {
     return '';
   }
 
-  const urlParts = url.split(/(^https?:\/\/)/).filter(p => p);
-  let urlProtocol = urlParts[0];
-  let restUrl = urlParts[1];
-  if (!urlParts[1]) {
-    restUrl = urlParts[0];
-    urlProtocol = undefined;
+  const paramMatches = url.match(/\/:\w+/g);
+  if (!paramMatches) {
+    // If there are no params in URL, return the origin url
+    return url;
   }
 
-  const parts = restUrl.split('/');
-  let paramsIndex = 0;
-  const urlWithParams = parts
-    .map(part => {
-      if (part.startsWith(':')) {
-        const param = params[paramsIndex] || part;
-        paramsIndex++;
-        return param;
-      }
-      return part;
-    })
-    .join('/');
-  return (urlProtocol || '') + urlWithParams;
+  if (params.length < paramMatches.length) {
+    // If there is an insufficient number of params compared to number of params in url, return empty string
+    return '';
+  }
+
+  for (let i = 0; i < paramMatches.length; i++) {
+    if (!params[i]) {
+      return '';
+    }
+    url = url.replace(paramMatches[i], `/${params[i]}`);
+  }
+
+  return url;
 };
