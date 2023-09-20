@@ -77,14 +77,15 @@ import ConsequenceStore from 'app/entities/consequence/consequence.store';
 import clinicalTrialsGovCondition, {
   ClinicalTrialsGovConditionStore
 } from 'app/entities/clinical-trials-gov-condition/clinical-trials-gov-condition.store';
-import FirebaseStore from './firebase.store';
+import FirebaseStore from './firebase/firebase.store';
 import FdaDrugStore from 'app/entities/fda-drug/fda-drug.store';
+import { FirebaseGeneStore } from './firebase/firebase.gene.store';
+import { FirebaseMetaStore } from './firebase/firebase.meta.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
   readonly loadingStore: LoadingBarStore;
   readonly authStore: AuthStore;
-  readonly firebaseStore: FirebaseStore;
   readonly settingsStore: SettingsStore;
   readonly userStore: UserStore;
   readonly routerStore: RouterStore;
@@ -111,7 +112,10 @@ export interface IRootStore {
   readonly drugBrandStore: DrugBrandStore;
   readonly categoricalAlterationStore: CategoricalAlterationStore;
   readonly clinicalTrialsGovConditionStore: ClinicalTrialsGovConditionStore;
-  /* jhipster-needle-add-store-field - JHipster will add store here */
+  /* Firebase stores */
+  readonly firebaseStore: FirebaseStore;
+  readonly firebaseGeneStore: FirebaseGeneStore;
+  readonly firebaseMetaStore: FirebaseMetaStore;
 }
 
 export function createStores(history: History): IRootStore {
@@ -119,7 +123,6 @@ export function createStores(history: History): IRootStore {
 
   rootStore.loadingStore = new LoadingBarStore();
   rootStore.authStore = new AuthStore(rootStore);
-  rootStore.firebaseStore = new FirebaseStore(rootStore);
   rootStore.settingsStore = new SettingsStore(rootStore);
   rootStore.userStore = new UserStore(rootStore);
   rootStore.routerStore = new RouterStore(history);
@@ -146,6 +149,9 @@ export function createStores(history: History): IRootStore {
   rootStore.drugBrandStore = new DrugBrandStore(rootStore);
   rootStore.categoricalAlterationStore = new CategoricalAlterationStore(rootStore);
   rootStore.clinicalTrialsGovConditionStore = new ClinicalTrialsGovConditionStore(rootStore);
-  /* jhipster-needle-add-store-init - JHipster will add store here */
+  /* Firebase stores */
+  rootStore.firebaseStore = new FirebaseStore(rootStore);
+  rootStore.firebaseGeneStore = new FirebaseGeneStore(rootStore);
+  rootStore.firebaseMetaStore = new FirebaseMetaStore(rootStore);
   return rootStore;
 }

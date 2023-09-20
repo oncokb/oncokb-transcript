@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { action, getObserverTree, observable, onBecomeUnobserved, makeObservable } from 'mobx';
+import { action, observable, onBecomeUnobserved, makeObservable } from 'mobx';
 import { ICrudGetAction, ICrudGetAllAction } from 'app/shared/util/jhipster-types';
 import BaseStore from 'app/shared/util/base-store';
 import { IRootStore } from 'app/stores';

@@ -38,6 +38,7 @@ export class AuthStore extends BaseStore {
     makeObservable(this, {
       isAuthenticated: observable,
       isAuthorized: computed,
+      fullName: computed,
       account: observable,
       redirectMessage: observable,
       logoutUrl: observable,
@@ -80,6 +81,10 @@ export class AuthStore extends BaseStore {
   get isAuthorized() {
     const authorizedRoles = [AUTHORITIES.ADMIN, AUTHORITIES.USER];
     return hasAnyAuthority(this.account.authorities, authorizedRoles);
+  }
+
+  get fullName() {
+    return this.account.firstName + ' ' + this.account.lastName;
   }
 
   *logoutGen() {
