@@ -76,6 +76,7 @@ import clinicalTrialsGovCondition, {
 import FirebaseStore from './firebase/firebase.store';
 import { FirebaseGeneStore } from './firebase/firebase.gene.store';
 import { FirebaseMetaStore } from './firebase/firebase.meta.store';
+import { FirebaseDrugsStore } from 'app/stores/firebase/firebase.drugs.store';
 // prettier-ignore
 import article, {
   ArticleStore
@@ -139,6 +140,7 @@ export interface IRootStore {
   readonly firebaseStore: FirebaseStore;
   readonly firebaseGeneStore: FirebaseGeneStore;
   readonly firebaseMetaStore: FirebaseMetaStore;
+  readonly firebaseDrugsStore: FirebaseDrugsStore;
   readonly seqRegionStore: SeqRegionStore;
   readonly flagStore: FlagStore;
   /* jhipster-needle-add-store-field - JHipster will add store here */
@@ -179,6 +181,7 @@ export function createStores(history: History): IRootStore {
   rootStore.firebaseStore = new FirebaseStore(rootStore);
   rootStore.firebaseGeneStore = new FirebaseGeneStore(rootStore);
   rootStore.firebaseMetaStore = new FirebaseMetaStore(rootStore);
+  rootStore.firebaseDrugsStore = new FirebaseDrugsStore(rootStore);
   rootStore.seqRegionStore = new SeqRegionStore(rootStore);
   rootStore.flagStore = new FlagStore(rootStore);
   /* jhipster-needle-add-store-init - JHipster will add store here */

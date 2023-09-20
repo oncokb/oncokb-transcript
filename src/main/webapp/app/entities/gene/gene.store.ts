@@ -7,6 +7,7 @@ import { ensemblGeneClient, transcriptClient } from 'app/shared/api/clients';
 import { EnsemblGene, EnsemblGeneCriteria } from 'app/shared/api/generated';
 import { action, makeObservable, observable } from 'mobx';
 import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
+import { geneClient } from 'app/shared/api/clients';
 
 const apiUrl = 'api/genes';
 const apiSearchUrl = 'api/_search/genes';
@@ -14,6 +15,7 @@ const apiSearchUrl = 'api/_search/genes';
 export class GeneStore extends PaginationCrudStore<IGene> {
   searchEntities: ICrudSearchAction<IGene> = this.readHandler(this.getSearch);
   ensemblGenes: EnsemblGene[] = [];
+  findAllGeneEntities = this.readHandler(this.findAllGene);
 
   constructor(protected rootStore: IRootStore) {
     super(rootStore, apiUrl);
@@ -35,6 +37,14 @@ export class GeneStore extends PaginationCrudStore<IGene> {
 
   alignTranscripts(transcriptIds: number[]) {
     return transcriptClient.alignTranscripts(transcriptIds);
+  }
+
+  *findAllGene(hugoSymbol, page?, size?, sort?) {
+    const query = hugoSymbol ? `?hugoSymbol.equals=${hugoSymbol}` : '';
+    const result = yield axios.get<IGene[]>(`api/genes${query}`);
+    this.entities = result.data;
+    this.totalItems = result.headers['x-total-count'];
+    return result;
   }
 }
 

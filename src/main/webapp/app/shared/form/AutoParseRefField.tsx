@@ -25,17 +25,15 @@ export const AutoParseRefField: React.FunctionComponent<IAutoParseRefField> = pr
   content = _.uniqBy(content, 'content');
 
   return (
-    <div>
+    <div className={'d-flex flex-wrap'}>
       <span>References:</span>
-      <span className="ml-2">
-        <WithSeparator separator={InlineDivider}>
-          {content.map(c => (
-            <a target="_blank" rel="noopener noreferrer" href={c.link} key={c.content} style={{ whiteSpace: 'nowrap' }}>
-              {`${c.prefix}${c.content}`}
-            </a>
-          ))}
-        </WithSeparator>
-      </span>
+      {content.map(c => (
+        <span className="ml-2" key={c.content}>
+          <a target="_blank" rel="noopener noreferrer" href={c.link} style={{ whiteSpace: 'nowrap' }}>
+            {`${c.prefix}${c.content}`}
+          </a>
+        </span>
+      ))}
     </div>
   );
 };
