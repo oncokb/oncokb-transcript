@@ -9,6 +9,7 @@ import org.genome_nexus.ApiClient;
 import org.genome_nexus.ApiException;
 import org.genome_nexus.client.EnsemblControllerApi;
 import org.genome_nexus.client.EnsemblGene;
+import org.genome_nexus.client.EnsemblTranscript;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,15 +61,17 @@ public class GenomeNexusService {
         throws ApiException {
         List<EnsemblGene> ensemblGenesList = new ArrayList<>();
         List<String> idStrs = entrezGeneIds.stream().map(id -> Integer.toString(id)).collect(Collectors.toList());
-        log.info("Fetching canonical ensembl genes from GN, total {}", idStrs.size());
         int postThreshold = 1000;
         for (int i = 0; i < idStrs.size(); i += postThreshold) {
-            log.info("\ton index {}", i);
             ensemblGenesList.addAll(
                 this.getEnsemblControllerApi(referenceGenome)
                     .fetchCanonicalEnsemblGeneIdByEntrezGeneIdsPOST(idStrs.subList(i, Math.min(idStrs.toArray().length, i + postThreshold)))
             );
         }
         return ensemblGenesList;
+    }
+
+    public EnsemblTranscript findCanonicalEnsemblTranscript(ReferenceGenome referenceGenome, String hugoSymbol) throws ApiException {
+        return this.getEnsemblControllerApi(referenceGenome).fetchCanonicalEnsemblTranscriptByHugoSymbolGET(hugoSymbol, null);
     }
 }

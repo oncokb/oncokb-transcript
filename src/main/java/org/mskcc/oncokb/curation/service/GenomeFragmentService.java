@@ -55,8 +55,8 @@ public class GenomeFragmentService {
         return genomeFragmentRepository
             .findById(genomeFragment.getId())
             .map(existingGenomeFragment -> {
-                if (genomeFragment.getChromosome() != null) {
-                    existingGenomeFragment.setChromosome(genomeFragment.getChromosome());
+                if (genomeFragment.getSeqRegion() != null) {
+                    existingGenomeFragment.setSeqRegion(genomeFragment.getSeqRegion());
                 }
                 if (genomeFragment.getStart() != null) {
                     existingGenomeFragment.setStart(genomeFragment.getStart());

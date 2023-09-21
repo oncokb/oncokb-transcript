@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
 import org.mskcc.oncokb.curation.domain.Gene;
+import org.mskcc.oncokb.curation.domain.SeqRegion;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.curation.repository.EnsemblGeneRepository;
 import org.mskcc.oncokb.curation.vm.ensembl.EnsemblTranscript;
@@ -31,17 +32,20 @@ public class EnsemblGeneService {
     private final GenomeNexusService genomeNexusService;
     private final TranscriptService transcriptService;
     private final GeneService geneService;
+    private final SeqRegionService seqRegionService;
 
     public EnsemblGeneService(
         EnsemblGeneRepository ensemblGeneRepository,
         GenomeNexusService genomeNexusService,
         TranscriptService transcriptService,
-        GeneService geneService
+        GeneService geneService,
+        SeqRegionService seqRegionService
     ) {
         this.ensemblGeneRepository = ensemblGeneRepository;
         this.genomeNexusService = genomeNexusService;
         this.transcriptService = transcriptService;
         this.geneService = geneService;
+        this.seqRegionService = seqRegionService;
     }
 
     /**
@@ -76,8 +80,8 @@ public class EnsemblGeneService {
                 if (ensemblGene.getCanonical() != null) {
                     existingEnsemblGene.setCanonical(ensemblGene.getCanonical());
                 }
-                if (ensemblGene.getChromosome() != null) {
-                    existingEnsemblGene.setChromosome(ensemblGene.getChromosome());
+                if (ensemblGene.getSeqRegion() != null) {
+                    existingEnsemblGene.setSeqRegion(ensemblGene.getSeqRegion());
                 }
                 if (ensemblGene.getStart() != null) {
                     existingEnsemblGene.setStart(ensemblGene.getStart());
@@ -163,6 +167,7 @@ public class EnsemblGeneService {
                 log.info("Processing {} of ensembl genes.", i);
             }
             EnsemblTranscript et = ensemblTranscriptList.get(i);
+            Optional<SeqRegion> seqRegionOptional = seqRegionService.findByNameOrCreate(et.getSeqRegionName());
             Optional<org.genome_nexus.client.EnsemblGene> ensemblGeneGNOptional = ensemblGeneFromGN
                 .stream()
                 .filter(ensemblGene -> ensemblGene.getGeneId().equals(et.getId()))
@@ -183,7 +188,9 @@ public class EnsemblGeneService {
                                 ensemblGene.setStrand(et.getStrand());
                                 ensemblGene.setStart(et.getStart());
                                 ensemblGene.setEnd(et.getEnd());
-                                ensemblGene.setChromosome(et.getSeqRegionName());
+                                if (seqRegionOptional.isPresent()) {
+                                    ensemblGene.setSeqRegion(seqRegionOptional.get());
+                                }
                                 ensemblGene.setGene(savedGeneOptional.get());
                                 EnsemblGene savedEnsemblGene = save(ensemblGene);
                                 savedEnsemblGenes.add(savedEnsemblGene);

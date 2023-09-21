@@ -30,10 +30,4 @@ public class PipelineController {
         ncitService.updateNcitDrugs();
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-    @PostMapping("/update-gene")
-    public ResponseEntity<Void> updatePortalGene() throws Exception {
-        geneService.updatePortalGenes();
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 }

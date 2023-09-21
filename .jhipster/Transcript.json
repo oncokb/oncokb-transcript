@@ -37,6 +37,13 @@
       "relationshipName": "sequence"
     },
     {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "flag",
+      "otherEntityRelationshipName": "transcript",
+      "relationshipName": "flag",
+      "ownerSide": true
+    },
+    {
       "relationshipType": "many-to-one",
       "otherEntityName": "ensemblGene",
       "otherEntityRelationshipName": "transcript",
@@ -47,7 +54,7 @@
   "dto": "mapstruct",
   "pagination": "pagination",
   "service": "serviceClass",
-  "jpaMetamodelFiltering": false,
+  "jpaMetamodelFiltering": true,
   "fluentMethods": true,
   "readOnly": false,
   "embedded": false,

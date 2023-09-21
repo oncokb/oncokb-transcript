@@ -295,7 +295,10 @@ public class TranscriptController {
             ReferenceGenome.valueOf(body.getReferenceGenome()),
             body.getEnsemblTranscriptId(),
             body.getEntrezGeneId(),
-            body.getCanonical()
+            null,
+            null,
+            body.getCanonical(),
+            body.getFlags()
         );
         return new ResponseEntity<>(
             transcriptDTOOptional.get(),

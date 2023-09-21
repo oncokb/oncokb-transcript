@@ -77,11 +77,13 @@ public class ClinicalTrialsGovCondition implements Serializable {
 
     public ClinicalTrialsGovCondition addCancerType(CancerType cancerType) {
         this.cancerTypes.add(cancerType);
+        cancerType.getClinicalTrialsGovConditions().add(this);
         return this;
     }
 
     public ClinicalTrialsGovCondition removeCancerType(CancerType cancerType) {
         this.cancerTypes.remove(cancerType);
+        cancerType.getClinicalTrialsGovConditions().remove(this);
         return this;
     }
 

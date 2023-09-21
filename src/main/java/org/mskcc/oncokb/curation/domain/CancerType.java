@@ -48,16 +48,20 @@ public class CancerType implements Serializable {
     private TumorForm tumorForm;
 
     @OneToMany(mappedBy = "parent")
-    @JsonIgnoreProperties(value = { "children", "biomarkerAssociations", "parent" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "children", "biomarkerAssociations", "parent", "clinicalTrialsGovConditions" }, allowSetters = true)
     private Set<CancerType> children = new HashSet<>();
 
     @OneToMany(mappedBy = "cancerType")
-    @JsonIgnoreProperties(value = { "fdaSubmission", "alteration", "cancerType", "drug" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "alterations", "drugs", "fdaSubmissions", "cancerType" }, allowSetters = true)
     private Set<BiomarkerAssociation> biomarkerAssociations = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "children", "biomarkerAssociations", "parent" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "children", "biomarkerAssociations", "parent", "clinicalTrialsGovConditions" }, allowSetters = true)
     private CancerType parent;
+
+    @ManyToMany(mappedBy = "cancerTypes")
+    @JsonIgnoreProperties(value = { "cancerTypes" }, allowSetters = true)
+    private Set<ClinicalTrialsGovCondition> clinicalTrialsGovConditions = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -237,6 +241,37 @@ public class CancerType implements Serializable {
 
     public CancerType parent(CancerType cancerType) {
         this.setParent(cancerType);
+        return this;
+    }
+
+    public Set<ClinicalTrialsGovCondition> getClinicalTrialsGovConditions() {
+        return this.clinicalTrialsGovConditions;
+    }
+
+    public void setClinicalTrialsGovConditions(Set<ClinicalTrialsGovCondition> clinicalTrialsGovConditions) {
+        if (this.clinicalTrialsGovConditions != null) {
+            this.clinicalTrialsGovConditions.forEach(i -> i.removeCancerType(this));
+        }
+        if (clinicalTrialsGovConditions != null) {
+            clinicalTrialsGovConditions.forEach(i -> i.addCancerType(this));
+        }
+        this.clinicalTrialsGovConditions = clinicalTrialsGovConditions;
+    }
+
+    public CancerType clinicalTrialsGovConditions(Set<ClinicalTrialsGovCondition> clinicalTrialsGovConditions) {
+        this.setClinicalTrialsGovConditions(clinicalTrialsGovConditions);
+        return this;
+    }
+
+    public CancerType addClinicalTrialsGovCondition(ClinicalTrialsGovCondition clinicalTrialsGovCondition) {
+        this.clinicalTrialsGovConditions.add(clinicalTrialsGovCondition);
+        clinicalTrialsGovCondition.getCancerTypes().add(this);
+        return this;
+    }
+
+    public CancerType removeClinicalTrialsGovCondition(ClinicalTrialsGovCondition clinicalTrialsGovCondition) {
+        this.clinicalTrialsGovConditions.remove(clinicalTrialsGovCondition);
+        clinicalTrialsGovCondition.getCancerTypes().remove(this);
         return this;
     }
 

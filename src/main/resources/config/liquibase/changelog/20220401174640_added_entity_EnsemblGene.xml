@@ -23,9 +23,6 @@
             <column name="canonical" type="boolean">
                 <constraints nullable="false" />
             </column>
-            <column name="chromosome" type="varchar(255)">
-                <constraints nullable="false" />
-            </column>
             <column name="start" type="integer">
                 <constraints nullable="false" />
             </column>
@@ -36,6 +33,9 @@
                 <constraints nullable="false" />
             </column>
             <column name="gene_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="seq_region" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->

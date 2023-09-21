@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.*;
 import javax.validation.constraints.*;
-import org.mskcc.oncokb.curation.domain.enumeration.InfoType;
 
 /**
  * A Info.
@@ -21,12 +20,14 @@ public class Info implements Serializable {
     private Long id;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, unique = true)
-    private InfoType type;
+    private String type;
 
     @Column(name = "value")
     private String value;
+
+    @Column(name = "created")
+    private Instant created;
 
     @Column(name = "last_updated")
     private Instant lastUpdated;
@@ -46,16 +47,16 @@ public class Info implements Serializable {
         this.id = id;
     }
 
-    public InfoType getType() {
+    public String getType() {
         return this.type;
     }
 
-    public Info type(InfoType type) {
+    public Info type(String type) {
         this.setType(type);
         return this;
     }
 
-    public void setType(InfoType type) {
+    public void setType(String type) {
         this.type = type;
     }
 
@@ -70,6 +71,19 @@ public class Info implements Serializable {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public Instant getCreated() {
+        return this.created;
+    }
+
+    public Info created(Instant created) {
+        this.setCreated(created);
+        return this;
+    }
+
+    public void setCreated(Instant created) {
+        this.created = created;
     }
 
     public Instant getLastUpdated() {
@@ -111,6 +125,7 @@ public class Info implements Serializable {
             "id=" + getId() +
             ", type='" + getType() + "'" +
             ", value='" + getValue() + "'" +
+            ", created='" + getCreated() + "'" +
             ", lastUpdated='" + getLastUpdated() + "'" +
             "}";
     }

@@ -27,6 +27,8 @@ import CategoricalAlteration from './categorical-alteration';
 import Consequence from './consequence';
 import ClinicalTrialsGovCondition from './clinical-trials-gov-condition';
 import FdaDrug from './fda-drug';
+import SeqRegion from './seq-region';
+import Flag from './flag';
 /* jhipster-needle-add-route-import - JHipster will add routes here */
 
 const Routes = ({ match }) => (
@@ -58,6 +60,8 @@ const Routes = ({ match }) => (
       <ErrorBoundaryRoute path={`${match.url}companion-diagnostic-device`} component={CompanionDiagnosticDevice} />
       <ErrorBoundaryRoute path={`${match.url}fda-submission`} component={FdaSubmission} />
       <ErrorBoundaryRoute path={`${match.url}fda-drug`} component={FdaDrug} />
+      <ErrorBoundaryRoute path={`${match.url}seq-region`} component={SeqRegion} />
+      <ErrorBoundaryRoute path={`${match.url}flag`} component={Flag} />
       {/* jhipster-needle-add-route-path - JHipster will add routes here */}
     </Switch>
   </div>

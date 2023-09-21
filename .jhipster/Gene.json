@@ -8,6 +8,10 @@
     {
       "fieldName": "hugoSymbol",
       "fieldType": "String"
+    },
+    {
+      "fieldName": "hgncId",
+      "fieldType": "String"
     }
   ],
   "relationships": [
@@ -28,6 +32,13 @@
       "otherEntityName": "biomarkerAssociation",
       "otherEntityRelationshipName": "gene",
       "relationshipName": "biomarkerAssociation"
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "flag",
+      "otherEntityRelationshipName": "gene",
+      "relationshipName": "flag",
+      "ownerSide": true
     },
     {
       "relationshipType": "many-to-many",

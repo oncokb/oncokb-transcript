@@ -27,7 +27,7 @@ export default class LoadingIndicator extends React.Component<ILoader> {
   };
 
   public render() {
-    const color = this.props.color ? this.props.color : this.props.size === LoaderSize.LARGE ? 'white' : 'blue';
+    const color = this.props.color ? this.props.color : this.props.size === LoaderSize.LARGE ? 'white' : '#0968C3';
     const spinnerStyles = {
       [styles.extraSmall]: this.props.size === LoaderSize.EXTRA_SMALL,
       [styles.small]: this.props.size === LoaderSize.SMALL,

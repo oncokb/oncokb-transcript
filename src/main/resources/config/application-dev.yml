@@ -59,8 +59,10 @@ spring:
     store-type: none
   redis:
     host: localhost
-    password:
+    password: oncokb-public-redis-password
     port: 6379
+  jpa:
+    show-sql: false
 
 server:
   port: 9090

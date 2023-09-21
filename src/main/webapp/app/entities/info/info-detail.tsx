@@ -33,10 +33,18 @@ export const InfoDetail = (props: IInfoDetailProps) => {
           </dt>
           <dd>{infoEntity.value}</dd>
           <dt>
+            <span id="created">Created</span>
+          </dt>
+          <dd>{infoEntity.created ? <TextFormat value={infoEntity.created} type="date" format={APP_DATE_FORMAT} /> : null}</dd>
+          <dt>
             <span id="lastUpdated">Last Updated</span>
           </dt>
           <dd>{infoEntity.lastUpdated ? <TextFormat value={infoEntity.lastUpdated} type="date" format={APP_DATE_FORMAT} /> : null}</dd>
         </dl>
+        <Button tag={Link} to="/info" replace color="info" data-cy="entityDetailsBackButton">
+          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
+        </Button>
+        &nbsp;
         <Button tag={Link} to={`/info/${infoEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
         </Button>

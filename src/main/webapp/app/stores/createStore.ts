@@ -69,18 +69,41 @@ import cancerType, {
 import biomarkerAssociation, {
   BiomarkerAssociationStore
 } from 'app/entities/biomarker-association/biomarker-association.store';
-import article, { ArticleStore } from 'app/entities/article/article.store';
-import DrugBrandStore from 'app/entities/drug-brand/drug-brand.store';
-import CategoricalAlterationStore from 'app/entities/categorical-alteration/categorical-alteration.store';
-import ConsequenceStore from 'app/entities/consequence/consequence.store';
 // prettier-ignore
 import clinicalTrialsGovCondition, {
   ClinicalTrialsGovConditionStore
 } from 'app/entities/clinical-trials-gov-condition/clinical-trials-gov-condition.store';
 import FirebaseStore from './firebase/firebase.store';
-import FdaDrugStore from 'app/entities/fda-drug/fda-drug.store';
 import { FirebaseGeneStore } from './firebase/firebase.gene.store';
 import { FirebaseMetaStore } from './firebase/firebase.meta.store';
+// prettier-ignore
+import article, {
+  ArticleStore
+} from 'app/entities/article/article.store';
+// prettier-ignore
+import drugBrand, {
+  DrugBrandStore
+} from 'app/entities/drug-brand/drug-brand.store';
+// prettier-ignore
+import categoricalAlteration, {
+  CategoricalAlterationStore
+} from 'app/entities/categorical-alteration/categorical-alteration.store';
+// prettier-ignore
+import consequence, {
+  ConsequenceStore
+} from 'app/entities/consequence/consequence.store';
+// prettier-ignore
+import fdaDrug, {
+  FdaDrugStore
+} from 'app/entities/fda-drug/fda-drug.store';
+// prettier-ignore
+import seqRegion, {
+  SeqRegionStore
+} from 'app/entities/seq-region/seq-region.store';
+// prettier-ignore
+import flag, {
+  FlagStore
+} from 'app/entities/flag/flag.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
@@ -116,6 +139,9 @@ export interface IRootStore {
   readonly firebaseStore: FirebaseStore;
   readonly firebaseGeneStore: FirebaseGeneStore;
   readonly firebaseMetaStore: FirebaseMetaStore;
+  readonly seqRegionStore: SeqRegionStore;
+  readonly flagStore: FlagStore;
+  /* jhipster-needle-add-store-field - JHipster will add store here */
 }
 
 export function createStores(history: History): IRootStore {
@@ -153,5 +179,8 @@ export function createStores(history: History): IRootStore {
   rootStore.firebaseStore = new FirebaseStore(rootStore);
   rootStore.firebaseGeneStore = new FirebaseGeneStore(rootStore);
   rootStore.firebaseMetaStore = new FirebaseMetaStore(rootStore);
+  rootStore.seqRegionStore = new SeqRegionStore(rootStore);
+  rootStore.flagStore = new FlagStore(rootStore);
+  /* jhipster-needle-add-store-init - JHipster will add store here */
   return rootStore;
 }

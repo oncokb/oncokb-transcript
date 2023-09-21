@@ -19,9 +19,6 @@ public class GenomeFragment implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "chromosome")
-    private String chromosome;
-
     @Column(name = "start")
     private Integer start;
 
@@ -34,6 +31,11 @@ public class GenomeFragment implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
     private GenomeFragmentType type;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnoreProperties(value = { "ensemblGenes", "genomeFragments" }, allowSetters = true)
+    @JoinColumn(name = "seqRegion", referencedColumnName = "name")
+    private SeqRegion seqRegion;
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "fragments", "sequences", "ensemblGene" }, allowSetters = true)
@@ -52,19 +54,6 @@ public class GenomeFragment implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getChromosome() {
-        return this.chromosome;
-    }
-
-    public GenomeFragment chromosome(String chromosome) {
-        this.setChromosome(chromosome);
-        return this;
-    }
-
-    public void setChromosome(String chromosome) {
-        this.chromosome = chromosome;
     }
 
     public Integer getStart() {
@@ -119,6 +108,19 @@ public class GenomeFragment implements Serializable {
         this.type = type;
     }
 
+    public SeqRegion getSeqRegion() {
+        return this.seqRegion;
+    }
+
+    public void setSeqRegion(SeqRegion seqRegion) {
+        this.seqRegion = seqRegion;
+    }
+
+    public GenomeFragment seqRegion(SeqRegion seqRegion) {
+        this.setSeqRegion(seqRegion);
+        return this;
+    }
+
     public Transcript getTranscript() {
         return this.transcript;
     }
@@ -156,7 +158,7 @@ public class GenomeFragment implements Serializable {
     public String toString() {
         return "GenomeFragment{" +
             "id=" + getId() +
-            ", chromosome='" + getChromosome() + "'" +
+            ", seqRegion='" + getSeqRegion() + "'" +
             ", start=" + getStart() +
             ", end=" + getEnd() +
             ", strand=" + getStrand() +

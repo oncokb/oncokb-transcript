@@ -27,6 +27,9 @@ public class Gene implements Serializable {
     @Column(name = "hugo_symbol")
     private String hugoSymbol;
 
+    @Column(name = "hgnc_id")
+    private String hgncId;
+
     @OneToMany(mappedBy = "gene", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "gene" }, allowSetters = true)
     private Set<GeneAlias> geneAliases = new HashSet<>();
@@ -34,6 +37,11 @@ public class Gene implements Serializable {
     @OneToMany(mappedBy = "gene", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
     private Set<EnsemblGene> ensemblGenes = new HashSet<>();
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name = "rel_gene__flag", joinColumns = @JoinColumn(name = "gene_id"), inverseJoinColumns = @JoinColumn(name = "flag_id"))
+    @JsonIgnoreProperties(value = { "transcripts", "genes" }, allowSetters = true)
+    private Set<Flag> flags = new HashSet<>();
 
     @ManyToMany(mappedBy = "genes")
     @JsonIgnore
@@ -78,6 +86,19 @@ public class Gene implements Serializable {
 
     public void setHugoSymbol(String hugoSymbol) {
         this.hugoSymbol = hugoSymbol;
+    }
+
+    public String getHgncId() {
+        return this.hgncId;
+    }
+
+    public Gene hgncId(String hgncId) {
+        this.setHgncId(hgncId);
+        return this;
+    }
+
+    public void setHgncId(String hgncId) {
+        this.hgncId = hgncId;
     }
 
     public Set<GeneAlias> getGeneAliases() {
@@ -142,6 +163,31 @@ public class Gene implements Serializable {
         return this;
     }
 
+    public Set<Flag> getFlags() {
+        return this.flags;
+    }
+
+    public void setFlags(Set<Flag> flags) {
+        this.flags = flags;
+    }
+
+    public Gene flags(Set<Flag> flags) {
+        this.setFlags(flags);
+        return this;
+    }
+
+    public Gene addFlag(Flag flag) {
+        this.flags.add(flag);
+        flag.getGenes().add(this);
+        return this;
+    }
+
+    public Gene removeFlag(Flag flag) {
+        this.flags.remove(flag);
+        flag.getGenes().remove(this);
+        return this;
+    }
+
     public Set<Alteration> getAlterations() {
         return this.alterations;
     }
@@ -199,6 +245,7 @@ public class Gene implements Serializable {
             "id=" + getId() +
             ", entrezGeneId=" + getEntrezGeneId() +
             ", hugoSymbol='" + getHugoSymbol() + "'" +
+            ", hgncId='" + getHgncId() + "'" +
             "}";
     }
 }

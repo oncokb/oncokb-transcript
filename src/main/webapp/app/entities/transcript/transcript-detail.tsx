@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootStore } from 'app/stores';
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import FlagBadge from 'app/shared/badge/FlagBadge';
 export interface ITranscriptDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const TranscriptDetail = (props: ITranscriptDetailProps) => {
@@ -44,9 +45,19 @@ export const TranscriptDetail = (props: ITranscriptDetailProps) => {
             <span id="description">Description</span>
           </dt>
           <dd>{transcriptEntity.description}</dd>
+          <dt>Flag</dt>
+          <dd>
+            {transcriptEntity.flags
+              ? transcriptEntity.flags.map((val, i) => <FlagBadge key={`${val.id}`} flag={val} tagClassName={'mr-2'} />)
+              : null}
+          </dd>
           <dt>Ensembl Gene</dt>
-          <dd>{transcriptEntity.ensemblGene ? transcriptEntity.ensemblGene.id : ''}</dd>
+          <dd>{transcriptEntity.ensemblGene ? transcriptEntity.ensemblGene.ensemblGeneId : ''}</dd>
         </dl>
+        <Button tag={Link} to="/transcript" replace color="info" data-cy="entityDetailsBackButton">
+          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
+        </Button>
+        &nbsp;
         <Button tag={Link} to={`/transcript/${transcriptEntity.id}/edit`} replace color="primary">
           <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
         </Button>

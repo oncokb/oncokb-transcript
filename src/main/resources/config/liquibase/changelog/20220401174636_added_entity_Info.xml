@@ -20,11 +20,15 @@
             <column name="value" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+            <column name="created" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
             <column name="last_updated" type="${datetimeType}">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+        <dropDefaultValue tableName="info" columnName="created" columnDataType="${datetimeType}"/>
         <dropDefaultValue tableName="info" columnName="last_updated" columnDataType="${datetimeType}"/>
     </changeSet>
 

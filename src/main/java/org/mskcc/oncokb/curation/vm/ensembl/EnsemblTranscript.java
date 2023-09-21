@@ -10,6 +10,14 @@ public class EnsemblTranscript extends EnsemblTranscriptFragment implements Seri
     @SerializedName("Parent")
     String parent;
 
+    Integer version;
+
+    @SerializedName("Translation")
+    EnsemblTranscript transcription;
+
+    @SerializedName("canonical_transcript")
+    String canonicalTranscript;
+
     @SerializedName("Transcript")
     List<EnsemblTranscript> transcripts = new ArrayList<>();
 
@@ -25,6 +33,30 @@ public class EnsemblTranscript extends EnsemblTranscriptFragment implements Seri
 
     public void setParent(String parent) {
         this.parent = parent;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    public EnsemblTranscript getTranscription() {
+        return transcription;
+    }
+
+    public void setTranscription(EnsemblTranscript transcription) {
+        this.transcription = transcription;
+    }
+
+    public String getCanonicalTranscript() {
+        return canonicalTranscript;
+    }
+
+    public void setCanonicalTranscript(String canonicalTranscript) {
+        this.canonicalTranscript = canonicalTranscript;
     }
 
     public List<EnsemblTranscript> getTranscripts() {

@@ -1,5 +1,6 @@
 import { IGenomeFragment } from 'app/shared/model/genome-fragment.model';
 import { ISequence } from 'app/shared/model/sequence.model';
+import { IFlag } from 'app/shared/model/flag.model';
 import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
 
 export interface ITranscript {
@@ -11,6 +12,7 @@ export interface ITranscript {
   description?: string | null;
   fragments?: IGenomeFragment[] | null;
   sequences?: ISequence[] | null;
+  flags?: IFlag[] | null;
   ensemblGene?: IEnsemblGene | null;
 }
 

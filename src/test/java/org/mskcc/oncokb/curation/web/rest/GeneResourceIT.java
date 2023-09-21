@@ -2,10 +2,12 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -17,13 +19,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Alteration;
+import org.mskcc.oncokb.curation.domain.BiomarkerAssociation;
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
+import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.domain.GeneAlias;
 import org.mskcc.oncokb.curation.repository.GeneRepository;
+import org.mskcc.oncokb.curation.service.GeneService;
 import org.mskcc.oncokb.curation.service.criteria.GeneCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -45,6 +52,9 @@ class GeneResourceIT {
     private static final String DEFAULT_HUGO_SYMBOL = "AAAAAAAAAA";
     private static final String UPDATED_HUGO_SYMBOL = "BBBBBBBBBB";
 
+    private static final String DEFAULT_HGNC_ID = "AAAAAAAAAA";
+    private static final String UPDATED_HGNC_ID = "BBBBBBBBBB";
+
     private static final String ENTITY_API_URL = "/api/genes";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -53,6 +63,12 @@ class GeneResourceIT {
 
     @Autowired
     private GeneRepository geneRepository;
+
+    @Mock
+    private GeneRepository geneRepositoryMock;
+
+    @Mock
+    private GeneService geneServiceMock;
 
     @Autowired
     private EntityManager em;
@@ -69,7 +85,7 @@ class GeneResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Gene createEntity(EntityManager em) {
-        Gene gene = new Gene().entrezGeneId(DEFAULT_ENTREZ_GENE_ID).hugoSymbol(DEFAULT_HUGO_SYMBOL);
+        Gene gene = new Gene().entrezGeneId(DEFAULT_ENTREZ_GENE_ID).hugoSymbol(DEFAULT_HUGO_SYMBOL).hgncId(DEFAULT_HGNC_ID);
         return gene;
     }
 
@@ -80,7 +96,7 @@ class GeneResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Gene createUpdatedEntity(EntityManager em) {
-        Gene gene = new Gene().entrezGeneId(UPDATED_ENTREZ_GENE_ID).hugoSymbol(UPDATED_HUGO_SYMBOL);
+        Gene gene = new Gene().entrezGeneId(UPDATED_ENTREZ_GENE_ID).hugoSymbol(UPDATED_HUGO_SYMBOL).hgncId(UPDATED_HGNC_ID);
         return gene;
     }
 
@@ -106,6 +122,7 @@ class GeneResourceIT {
         Gene testGene = geneList.get(geneList.size() - 1);
         assertThat(testGene.getEntrezGeneId()).isEqualTo(DEFAULT_ENTREZ_GENE_ID);
         assertThat(testGene.getHugoSymbol()).isEqualTo(DEFAULT_HUGO_SYMBOL);
+        assertThat(testGene.getHgncId()).isEqualTo(DEFAULT_HGNC_ID);
     }
 
     @Test
@@ -141,7 +158,26 @@ class GeneResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(gene.getId().intValue())))
             .andExpect(jsonPath("$.[*].entrezGeneId").value(hasItem(DEFAULT_ENTREZ_GENE_ID)))
-            .andExpect(jsonPath("$.[*].hugoSymbol").value(hasItem(DEFAULT_HUGO_SYMBOL)));
+            .andExpect(jsonPath("$.[*].hugoSymbol").value(hasItem(DEFAULT_HUGO_SYMBOL)))
+            .andExpect(jsonPath("$.[*].hgncId").value(hasItem(DEFAULT_HGNC_ID)));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllGenesWithEagerRelationshipsIsEnabled() throws Exception {
+        when(geneServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restGeneMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(geneServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllGenesWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(geneServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restGeneMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(geneServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test
@@ -157,7 +193,8 @@ class GeneResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(gene.getId().intValue()))
             .andExpect(jsonPath("$.entrezGeneId").value(DEFAULT_ENTREZ_GENE_ID))
-            .andExpect(jsonPath("$.hugoSymbol").value(DEFAULT_HUGO_SYMBOL));
+            .andExpect(jsonPath("$.hugoSymbol").value(DEFAULT_HUGO_SYMBOL))
+            .andExpect(jsonPath("$.hgncId").value(DEFAULT_HGNC_ID));
     }
 
     @Test
@@ -362,6 +399,84 @@ class GeneResourceIT {
 
     @Test
     @Transactional
+    void getAllGenesByHgncIdIsEqualToSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where hgncId equals to DEFAULT_HGNC_ID
+        defaultGeneShouldBeFound("hgncId.equals=" + DEFAULT_HGNC_ID);
+
+        // Get all the geneList where hgncId equals to UPDATED_HGNC_ID
+        defaultGeneShouldNotBeFound("hgncId.equals=" + UPDATED_HGNC_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByHgncIdIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where hgncId not equals to DEFAULT_HGNC_ID
+        defaultGeneShouldNotBeFound("hgncId.notEquals=" + DEFAULT_HGNC_ID);
+
+        // Get all the geneList where hgncId not equals to UPDATED_HGNC_ID
+        defaultGeneShouldBeFound("hgncId.notEquals=" + UPDATED_HGNC_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByHgncIdIsInShouldWork() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where hgncId in DEFAULT_HGNC_ID or UPDATED_HGNC_ID
+        defaultGeneShouldBeFound("hgncId.in=" + DEFAULT_HGNC_ID + "," + UPDATED_HGNC_ID);
+
+        // Get all the geneList where hgncId equals to UPDATED_HGNC_ID
+        defaultGeneShouldNotBeFound("hgncId.in=" + UPDATED_HGNC_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByHgncIdIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where hgncId is not null
+        defaultGeneShouldBeFound("hgncId.specified=true");
+
+        // Get all the geneList where hgncId is null
+        defaultGeneShouldNotBeFound("hgncId.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByHgncIdContainsSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where hgncId contains DEFAULT_HGNC_ID
+        defaultGeneShouldBeFound("hgncId.contains=" + DEFAULT_HGNC_ID);
+
+        // Get all the geneList where hgncId contains UPDATED_HGNC_ID
+        defaultGeneShouldNotBeFound("hgncId.contains=" + UPDATED_HGNC_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByHgncIdNotContainsSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+
+        // Get all the geneList where hgncId does not contain DEFAULT_HGNC_ID
+        defaultGeneShouldNotBeFound("hgncId.doesNotContain=" + DEFAULT_HGNC_ID);
+
+        // Get all the geneList where hgncId does not contain UPDATED_HGNC_ID
+        defaultGeneShouldBeFound("hgncId.doesNotContain=" + UPDATED_HGNC_ID);
+    }
+
+    @Test
+    @Transactional
     void getAllGenesByGeneAliasIsEqualToSomething() throws Exception {
         // Initialize the database
         geneRepository.saveAndFlush(gene);
@@ -414,6 +529,57 @@ class GeneResourceIT {
 
     @Test
     @Transactional
+    void getAllGenesByBiomarkerAssociationIsEqualToSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+        BiomarkerAssociation biomarkerAssociation;
+        if (TestUtil.findAll(em, BiomarkerAssociation.class).isEmpty()) {
+            biomarkerAssociation = BiomarkerAssociationResourceIT.createEntity(em);
+            em.persist(biomarkerAssociation);
+            em.flush();
+        } else {
+            biomarkerAssociation = TestUtil.findAll(em, BiomarkerAssociation.class).get(0);
+        }
+        em.persist(biomarkerAssociation);
+        em.flush();
+        geneRepository.saveAndFlush(gene);
+        Long biomarkerAssociationId = biomarkerAssociation.getId();
+
+        // Get all the geneList where biomarkerAssociation equals to biomarkerAssociationId
+        defaultGeneShouldBeFound("biomarkerAssociationId.equals=" + biomarkerAssociationId);
+
+        // Get all the geneList where biomarkerAssociation equals to (biomarkerAssociationId + 1)
+        defaultGeneShouldNotBeFound("biomarkerAssociationId.equals=" + (biomarkerAssociationId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByFlagIsEqualToSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+        Flag flag;
+        if (TestUtil.findAll(em, Flag.class).isEmpty()) {
+            flag = FlagResourceIT.createEntity(em);
+            em.persist(flag);
+            em.flush();
+        } else {
+            flag = TestUtil.findAll(em, Flag.class).get(0);
+        }
+        em.persist(flag);
+        em.flush();
+        gene.addFlag(flag);
+        geneRepository.saveAndFlush(gene);
+        Long flagId = flag.getId();
+
+        // Get all the geneList where flag equals to flagId
+        defaultGeneShouldBeFound("flagId.equals=" + flagId);
+
+        // Get all the geneList where flag equals to (flagId + 1)
+        defaultGeneShouldNotBeFound("flagId.equals=" + (flagId + 1));
+    }
+
+    @Test
+    @Transactional
     void getAllGenesByAlterationIsEqualToSomething() throws Exception {
         // Initialize the database
         geneRepository.saveAndFlush(gene);
@@ -448,7 +614,8 @@ class GeneResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(gene.getId().intValue())))
             .andExpect(jsonPath("$.[*].entrezGeneId").value(hasItem(DEFAULT_ENTREZ_GENE_ID)))
-            .andExpect(jsonPath("$.[*].hugoSymbol").value(hasItem(DEFAULT_HUGO_SYMBOL)));
+            .andExpect(jsonPath("$.[*].hugoSymbol").value(hasItem(DEFAULT_HUGO_SYMBOL)))
+            .andExpect(jsonPath("$.[*].hgncId").value(hasItem(DEFAULT_HGNC_ID)));
 
         // Check, that the count call also returns 1
         restGeneMockMvc
@@ -496,7 +663,7 @@ class GeneResourceIT {
         Gene updatedGene = geneRepository.findById(gene.getId()).get();
         // Disconnect from session so that the updates on updatedGene are not directly saved in db
         em.detach(updatedGene);
-        updatedGene.entrezGeneId(UPDATED_ENTREZ_GENE_ID).hugoSymbol(UPDATED_HUGO_SYMBOL);
+        updatedGene.entrezGeneId(UPDATED_ENTREZ_GENE_ID).hugoSymbol(UPDATED_HUGO_SYMBOL).hgncId(UPDATED_HGNC_ID);
 
         restGeneMockMvc
             .perform(
@@ -513,6 +680,7 @@ class GeneResourceIT {
         Gene testGene = geneList.get(geneList.size() - 1);
         assertThat(testGene.getEntrezGeneId()).isEqualTo(UPDATED_ENTREZ_GENE_ID);
         assertThat(testGene.getHugoSymbol()).isEqualTo(UPDATED_HUGO_SYMBOL);
+        assertThat(testGene.getHgncId()).isEqualTo(UPDATED_HGNC_ID);
     }
 
     @Test
@@ -604,6 +772,7 @@ class GeneResourceIT {
         Gene testGene = geneList.get(geneList.size() - 1);
         assertThat(testGene.getEntrezGeneId()).isEqualTo(UPDATED_ENTREZ_GENE_ID);
         assertThat(testGene.getHugoSymbol()).isEqualTo(DEFAULT_HUGO_SYMBOL);
+        assertThat(testGene.getHgncId()).isEqualTo(DEFAULT_HGNC_ID);
     }
 
     @Test
@@ -618,7 +787,7 @@ class GeneResourceIT {
         Gene partialUpdatedGene = new Gene();
         partialUpdatedGene.setId(gene.getId());
 
-        partialUpdatedGene.entrezGeneId(UPDATED_ENTREZ_GENE_ID).hugoSymbol(UPDATED_HUGO_SYMBOL);
+        partialUpdatedGene.entrezGeneId(UPDATED_ENTREZ_GENE_ID).hugoSymbol(UPDATED_HUGO_SYMBOL).hgncId(UPDATED_HGNC_ID);
 
         restGeneMockMvc
             .perform(
@@ -635,6 +804,7 @@ class GeneResourceIT {
         Gene testGene = geneList.get(geneList.size() - 1);
         assertThat(testGene.getEntrezGeneId()).isEqualTo(UPDATED_ENTREZ_GENE_ID);
         assertThat(testGene.getHugoSymbol()).isEqualTo(UPDATED_HUGO_SYMBOL);
+        assertThat(testGene.getHgncId()).isEqualTo(UPDATED_HGNC_ID);
     }
 
     @Test
