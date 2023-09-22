@@ -1,4 +1,4 @@
-import { Meta, MetaCollection } from 'app/shared/model/firebase/firebase.model';
+import { Meta, MetaCollaborators, MetaCollection } from 'app/shared/model/firebase/firebase.model';
 import { FirebaseCrudStore } from 'app/shared/util/firebase/firebase-crud-store';
 import { IRootStore } from '../createStore';
 import { action, makeObservable, observable } from 'mobx';
@@ -8,12 +8,15 @@ import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 
 export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
   public metaList: MetaCollection = undefined;
+  public metaCollaborators: MetaCollaborators = undefined;
 
   constructor(rootStore: IRootStore) {
     super(rootStore);
     makeObservable(this, {
       metaList: observable,
+      metaCollaborators: observable,
       addMetaListListener: action.bound,
+      addMetaCollaboratorsListener: action.bound,
       updateGeneMetaContent: action.bound,
       updateGeneReviewUuid: action.bound,
       updateCollaborator: action.bound,
@@ -34,12 +37,25 @@ export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
   }
 
   /**
+   * Create a listener for Meta collaborators list
+   */
+  addMetaCollaboratorsListener() {
+    const unsubscribe = onValue(
+      ref(this.db, getFirebasePath('META_COLLABORATORS')),
+      action(snapshot => {
+        this.metaCollaborators = snapshot.val();
+      })
+    );
+    return unsubscribe;
+  }
+
+  /**
    * Update the timestamp and author of the most recent edit to the gene.
    * @param hugoSymbol The gene to update the meta information
    */
   updateGeneMetaContent(hugoSymbol: string) {
     // Update timestamp and author
-    this.update(getFirebasePath('META_GENE', hugoSymbol), {
+    return this.update(getFirebasePath('META_GENE', hugoSymbol), {
       lastModifiedBy: this.rootStore.authStore.fullName,
       lastModifiedAt: new Date().getTime().toString(),
     });
@@ -54,10 +70,9 @@ export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
    */
   updateGeneReviewUuid(hugoSymbol: string, uuid: string, add: boolean) {
     if (add) {
-      this.update(getFirebasePath('META_GENE', hugoSymbol), { review: { [uuid]: true } });
-    } else {
-      this.delete(getFirebasePath('META_GENE_REVIEW', hugoSymbol, uuid));
+      return this.update(getFirebasePath('META_GENE', hugoSymbol), { review: { [uuid]: true } });
     }
+    return this.delete(getFirebasePath('META_GENE_REVIEW', hugoSymbol, uuid));
   }
 
   /**
@@ -66,15 +81,24 @@ export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
    * @param add If gene should be added or removed.
    */
   updateCollaborator(hugoSymbol: string, add: boolean) {
-    const name = this.rootStore.authStore.fullName.toLowerCase();
-    const collaboratorGeneList: string[] = this.data[name];
-    if (add && !this.data[name].includes(hugoSymbol)) {
-      this.update(getFirebasePath('META_COLLABORATOR', name), {
+    /* eslint-disable no-console */
+    const name = this.rootStore?.authStore?.fullName?.toLowerCase();
+    if (!name) {
+      return Promise.reject(new Error('Cannot update collaborator with undefined name'));
+    }
+
+    const collaboratorGeneList: string[] = this.metaCollaborators[name];
+    if (add && !this.metaCollaborators[name].includes(hugoSymbol)) {
+      return this.update(getFirebasePath('META_COLLABORATOR', name), {
         [collaboratorGeneList.length]: hugoSymbol,
       });
-    } else if (!add) {
-      const index = collaboratorGeneList.findIndex(g => g === hugoSymbol).toString();
-      this.delete(getFirebasePath('META_COLLABORATOR_GENE', name, index));
     }
+
+    const index = collaboratorGeneList.findIndex(g => g === hugoSymbol);
+    if (!add && index > -1) {
+      return this.delete(getFirebasePath('META_COLLABORATOR_GENE', name, index.toString()));
+    }
+
+    return Promise.resolve();
   }
 }

@@ -1,9 +1,8 @@
 import { IRootStore } from 'app/stores';
-import { Database, onValue, push, ref, remove, set, update } from 'firebase/database';
+import { DataSnapshot, Database, onValue, push, ref, remove, set, update } from 'firebase/database';
 import { action, autorun, makeObservable, observable } from 'mobx';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { Review } from '../../model/firebase/firebase.model';
-import { convertNestedObject, getValueByNestedKey } from './firebase-utils';
+import { convertNestedObject } from './firebase-utils';
 
 export type RecursivePartial<T> = {
   [P in keyof T]?: RecursivePartial<T[P]>;
@@ -43,12 +42,8 @@ export class FirebaseCrudStore<T> {
   }
 
   addListener(path: string) {
-    const unsubscribe = onValue(
-      ref(this.db, path),
-      action(snapshot => {
-        this.data = snapshot.val();
-      })
-    );
+    const callback = (snapshot: DataSnapshot) => (this.data = snapshot.val());
+    const unsubscribe = onValue(ref(this.db, path), action(callback));
     return unsubscribe;
   }
 
@@ -62,59 +57,16 @@ export class FirebaseCrudStore<T> {
     set(newItemRef, value);
   }
 
-  update(path: string, value: RecursivePartial<T>) {
+  async update(path: string, value: RecursivePartial<T>) {
     const convertValue = convertNestedObject(value);
-    update(ref(this.db, path), convertValue).catch(e => {
+    try {
+      return await update(ref(this.db, path), convertValue);
+    } catch (e) {
       notifyError(e, 'Error updating to Firebase');
-    });
+    }
   }
 
   delete(path: string) {
-    remove(ref(this.db, path));
-  }
-}
-
-export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudStore<T> {
-  constructor(protected rootStore: IRootStore) {
-    super(rootStore);
-    makeObservable(this, {
-      updateReviewableContent: action.bound,
-    });
-  }
-
-  updateReviewableContent(path: string, key: RecursiveKeyOf<T>, value: any) {
-    const reviewableKey = `${key as string}_review`;
-    let review: Review = getValueByNestedKey(this.data, reviewableKey);
-    if (review === undefined) {
-      review = new Review(this.rootStore.authStore.fullName);
-    }
-    review.updateTime = new Date().getTime();
-    review.updatedBy = this.rootStore.authStore.fullName;
-
-    let isChangeReverted = false;
-    if (review.lastReviewed === undefined) {
-      review.lastReviewed = getValueByNestedKey(this.data, key);
-    } else {
-      if (review.lastReviewed === value) {
-        isChangeReverted = true;
-      }
-    }
-
-    const updateObject = {
-      [key]: value,
-      [reviewableKey]: review,
-    };
-
-    update(ref(this.db, path), updateObject).then(() => {
-      if (isChangeReverted) {
-        remove(ref(this.db, `${path}/${reviewableKey}/lastReviewed`));
-      }
-    });
-
-    // Update Meta information
-    const hugoSymbol = path.split('/')[1];
-    this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol);
-    const uuid = getValueByNestedKey(this.data, `${key as string}_uuid`);
-    this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, !isChangeReverted);
+    return remove(ref(this.db, path));
   }
 }

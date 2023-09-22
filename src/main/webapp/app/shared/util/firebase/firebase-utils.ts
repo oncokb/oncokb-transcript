@@ -1,4 +1,4 @@
-import { FB_COLLECTION, FB_COLLECTION_PATH, UUID_REGEX } from 'app/config/constants';
+import { FB_COLLECTION_PATH, UUID_REGEX } from 'app/config/constants';
 import { Drug, Meta, Mutation } from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
 
