@@ -3,10 +3,10 @@ const mockRemove = jest.fn().mockImplementation((db, value) => {});
 const mockRef = jest.fn().mockImplementation(db => {});
 
 import 'jest-expect-message';
-import { FirebaseMetaStore } from 'app/stores/firebase/firebase.meta.store';
 import { FirebaseGeneStore } from './firebase.gene.store';
 import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
 import { ONCOGENE, TUMOR_SUPPRESSOR } from 'app/shared/model/firebase/firebase.model';
+import FirebaseStore from './firebase.store';
 
 jest.mock('firebase/database', () => {
   return {
@@ -18,14 +18,20 @@ jest.mock('firebase/database', () => {
 
 const updateReviewableContentMock = jest.spyOn(FirebaseReviewableCrudStore.prototype, 'updateReviewableContent').mockResolvedValue();
 
+class TestRootStore {
+  firebaseStore;
+  constructor() {
+    this.firebaseStore = new FirebaseStore(this as any);
+  }
+}
+
 describe('FirebaseGeneStore', () => {
   let rootStore = undefined;
-  const metaStore = new FirebaseMetaStore(rootStore);
   const defaultDate = new Date('2023-09-21');
 
   const reset = () => {
     jest.useFakeTimers().setSystemTime(defaultDate);
-    rootStore = { firebaseStore: {}, authStore: { fullName: 'test user' }, firebaseMetaStore: metaStore } as any;
+    rootStore = new TestRootStore();
     jest.clearAllMocks();
   };
 
