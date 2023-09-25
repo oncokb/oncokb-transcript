@@ -81,7 +81,6 @@ export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
    * @param add If gene should be added or removed.
    */
   updateCollaborator(hugoSymbol: string, add: boolean) {
-    /* eslint-disable no-console */
     const name = this.rootStore?.authStore?.fullName?.toLowerCase();
     if (!name) {
       return Promise.reject(new Error('Cannot update collaborator with undefined name'));

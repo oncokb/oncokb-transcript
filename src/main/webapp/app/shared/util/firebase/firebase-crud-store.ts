@@ -48,13 +48,13 @@ export class FirebaseCrudStore<T> {
   }
 
   create(path: string, value: T) {
-    set(ref(this.db, path), value);
+    return set(ref(this.db, path), value);
   }
 
   push(path: string, value: any) {
     const listRef = ref(this.db, path);
     const newItemRef = push(listRef);
-    set(newItemRef, value);
+    return set(newItemRef, value);
   }
 
   async update(path: string, value: RecursivePartial<T>) {
