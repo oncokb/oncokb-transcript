@@ -90,6 +90,7 @@ export class AuthStore extends BaseStore {
   *logoutGen() {
     try {
       this.reset();
+      this.rootStore.firebaseStore.signOutFromFirebase();
       const result: AxiosResponse = yield axios.post('/api/logout', {});
       this.logoutUrl = result.data.logoutUrl;
       return result;
