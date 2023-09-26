@@ -136,6 +136,50 @@ export const DEFAULT_ENTITY_SORT_FIELD: { [key in ENTITY_TYPE]?: string } = {
   [ENTITY_TYPE.CT_GOV_CONDITION]: 'name',
 };
 
+export enum ONCOGENICITY {
+  ONCOGENIC = 'Oncogenic',
+  LIKELY_ONCOGENIC = 'Likely Oncogenic',
+  PREDICTED_ONCOGENIC = 'Predicted Oncogenic',
+  RESISTANCE = 'Resistance',
+  LIKELY_NEUTRAL = 'Likely Neutral',
+  NEUTRAL = 'Neutral',
+  INCONCLUSIVE = 'Inconclusive',
+  UNKNOWN = 'Unknown',
+}
+
+export enum PATHOGENICITY {
+  PATHOGENIC = 'Pathogenic',
+  LIKELY_PATHOGENIC = 'Likely Pathogenic',
+  BENIGN = 'Benign',
+  LIKELY_BENIGN = 'Likely Benign',
+  UNKNOWN = 'Unknown',
+}
+
+export enum MUTATION_EFFECT {
+  GAIN_OF_FUNCTION = 'Gain-of-function',
+  LIKELY_GAIN_OF_FUNCTION = 'Likely Gain-of-function',
+  LOSS_OF_FUNCTION = 'Loss-of-function',
+  LIKELY_LOSS_OF_FUNCTION = 'Likely Loss-of-function',
+  SWITCH_OF_FUNCTION = 'Switch-of-function',
+  LIKELY_SWITCH_OF_FUNCTION = 'Likely Switch-of-function',
+  NEUTRAL = 'Neutral',
+  LIKELY_NEUTRAL = 'Likely Neutral',
+  INCONCLUSIVE = 'Inconclusive',
+  UNKNOWN = 'Unknown',
+}
+
+export enum PENETRANCE {
+  HIGH = 'High',
+  INTERMEDIATE = 'Intermediate',
+  LOW = 'Low',
+  OTHER = 'Other',
+}
+
+export enum GERMLINE_INHERITANCE_MECHANISM {
+  RECESSIVE = 'Autosomal Recessive',
+  DOMINANT = 'Autosomal Dominant',
+}
+
 export const CBIOPORTAL = 'cBioPortal';
 export const COSMIC = 'COSMIC';
 

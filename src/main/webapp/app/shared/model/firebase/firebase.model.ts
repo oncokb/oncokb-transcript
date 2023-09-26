@@ -14,6 +14,10 @@ export type MetaCollaborator = {
   [name: string]: string[];
 };
 
+export type DrugCollection = {
+  [hugoSymbol: string]: Drug;
+};
+
 export enum TX_LEVELS {
   LEVEL_NO = 'no',
   LEVEL_1 = '1',
@@ -36,6 +40,12 @@ export enum PX_LEVELS {
   LEVEL_PX1 = 'Px1',
   LEVEL_PX2 = 'Px2',
   LEVEL_PX3 = 'Px3',
+}
+
+export enum FDA_LEVELS {
+  LEVEL_FDA1 = '1',
+  LEVEL_FDA2 = '2',
+  LEVEL_FDA3 = '3',
 }
 
 // In future, we want to remove the TI Types because they distinguishable
@@ -66,6 +76,9 @@ export class Treatment {
   level: TX_LEVELS = TX_LEVELS.LEVEL_NO;
   level_review?: Review;
   level_uuid: string = generateUuid();
+  fdaLevel: FDA_LEVELS = FDA_LEVELS.LEVEL_FDA1;
+  fdaLevel_review?: Review;
+  fdaLevel_uuid: string = generateUuid();
   name = '';
   name_review?: Review;
   name_uuid: string = generateUuid();
@@ -94,6 +107,9 @@ export class Gene {
   summary = '';
   summary_review?: Review;
   summary_uuid: string = generateUuid();
+  penetrance? = '';
+  penetrance_uuid? = generateUuid();
+  penetrance_review?: Review;
   type: GeneType = new GeneType();
   type_uuid: string = generateUuid();
   dmp_refseq_id_grch38 = '';
@@ -113,11 +129,19 @@ export class GeneType {
   tsg_review?: Review;
 }
 
+export class Alteration {
+  proteinChange = '';
+  cDna = '';
+}
+
 export class Mutation {
   mutation_effect: MutationEffect = new MutationEffect();
   mutation_effect_uuid: string = generateUuid();
   name = '';
   name_review?: Review;
+  alteration? = new Alteration();
+  alteration_uuid?: string = generateUuid();
+  alteration_review?: Review;
   name_uuid: string = generateUuid();
   tumors: Tumor[] = [];
   tumors_uuid: string = generateUuid();
@@ -133,7 +157,24 @@ export class MutationEffect {
   oncogenic = '';
   oncogenic_review?: Review;
   oncogenic_uuid: string = generateUuid();
+  germline?: GermlineMutation = new GermlineMutation();
+  germline_uuid?: string = generateUuid();
   short = '';
+}
+
+export class GermlineMutation {
+  pathogenic = '';
+  pathogenic_review?: Review;
+  pathogenic_uuid: string = generateUuid();
+  penetrance = '';
+  penetrance_review?: Review;
+  penetrance_uuid: string = generateUuid();
+  inheritanceMechanism: 'Autosomal Recessive' | 'Autosomal Dominant' | '' = '';
+  inheritanceMechanism_review?: Review;
+  inheritanceMechanism_uuid: string = generateUuid();
+  cancerRisk = '';
+  cancerRisk_review?: Review;
+  cancerRisk_uuid: string = generateUuid();
 }
 
 export class Tumor {

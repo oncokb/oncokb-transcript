@@ -2,9 +2,11 @@ import classNames from 'classnames';
 import React from 'react';
 import { Input, Label } from 'reactstrap';
 import { InputType } from 'reactstrap/es/Input';
+import classnames from 'classnames';
 
 export enum RealtimeInputType {
   TEXT = 'text',
+  INLINE_TEXT = 'text',
   TEXTAREA = 'textarea',
   CHECKBOX = 'checkbox',
   RADIO = 'radio',
@@ -26,9 +28,10 @@ export const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = 
   const { name, id = name, type, onChange, className, labelClass, label, inputClass, children, ...otherProps } = props;
 
   const isCheckType = type === RealtimeInputType.CHECKBOX || type === RealtimeInputType.RADIO;
+  const isInlineInputText = type === RealtimeInputType.INLINE_TEXT;
 
   const labelComponent = label && (
-    <Label id={id} for={id} className={labelClass}>
+    <Label id={id} for={id} className={classnames(labelClass, 'text-nowrap')}>
       {label}
     </Label>
   );
@@ -57,6 +60,11 @@ export const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = 
           {inputComponent}
           {labelComponent}
         </>
+      ) : isInlineInputText ? (
+        <div className={'d-flex'}>
+          <div className={'mr-2 d-flex'}>{labelComponent}:</div>
+          {inputComponent}
+        </div>
       ) : (
         <>
           {labelComponent}

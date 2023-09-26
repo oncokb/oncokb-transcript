@@ -18,11 +18,11 @@ const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
             <MenuItem icon={<FontAwesomeIcon size="lg" icon={faBars} />} onClick={props.toggleSideBar} />
           </Menu>
           <Menu>
-            <MenuItem icon={<FontAwesomeIcon size="lg" icon={faSearch} />}>
-              Search <NavLink to={PAGE_ROUTE.SEARCH} />
-            </MenuItem>
             <MenuItem icon={<b style={{ fontSize: '1.5em' }}>C</b>}>
               Curation <NavLink to={PAGE_ROUTE.CURATION} />
+            </MenuItem>
+            <MenuItem icon={<FontAwesomeIcon size="lg" icon={faSearch} />}>
+              Search <NavLink to={PAGE_ROUTE.SEARCH} />
             </MenuItem>
             <MenuItem icon={<b style={{ fontSize: '1.5em' }}>G</b>}>
               Gene <NavLink to={PAGE_ROUTE.GENE} />

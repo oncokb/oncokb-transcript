@@ -11,13 +11,7 @@ const convertEntityName = (entityPathName: string) => {
   const entityTitleKey = Object.values(PAGE_ROUTE).find(route => {
     return route === `/${entityPathName}`;
   });
-  return (
-    ENTITY_ROUTE_TO_TITLE_MAPPING[entityTitleKey] ||
-    entityPathName
-      .split('-')
-      .map(name => _.capitalize(name))
-      .join(' ')
-  );
+  return ENTITY_ROUTE_TO_TITLE_MAPPING[entityTitleKey] || entityPathName.split('-').join(' ');
 };
 
 const OncoKBBreadcrumb: React.FunctionComponent<StoreProps> = props => {
