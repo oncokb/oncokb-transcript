@@ -4,7 +4,15 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Col, Input, Row } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
-import { CBIOPORTAL, COSMIC } from 'app/config/constants';
+import {
+  CBIOPORTAL,
+  COSMIC,
+  GERMLINE_INHERITANCE_MECHANISM,
+  MUTATION_EFFECT,
+  ONCOGENICITY,
+  PATHOGENICITY,
+  PENETRANCE,
+} from 'app/config/constants';
 import { PubmedGeneLink } from 'app/shared/links/PubmedGeneLink';
 import { InlineDivider, PubmedGeneArticlesLink } from 'app/shared/links/PubmedGeneArticlesLink';
 import { getCancerTypeName, getSectionClassName } from 'app/shared/util/utils';
@@ -173,15 +181,15 @@ const CurationPage = (props: ICurationPageProps) => {
                       <span className="font-weight-bold text-nowrap">Mutation Effect:</span>
                       <span className="d-flex flex-wrap">
                         {[
-                          'Gain-of-function',
-                          'Likely Gain-of-function',
-                          'Loss-of-function',
-                          'Likely Loss-of-function',
-                          'Switch-of-function',
-                          'Likely Switch-of-function',
-                          'Neutral',
-                          'Likely Neutral',
-                          'Inconclusive',
+                          MUTATION_EFFECT.GAIN_OF_FUNCTION,
+                          MUTATION_EFFECT.LIKELY_GAIN_OF_FUNCTION,
+                          MUTATION_EFFECT.LOSS_OF_FUNCTION,
+                          MUTATION_EFFECT.LIKELY_LOSS_OF_FUNCTION,
+                          MUTATION_EFFECT.SWITCH_OF_FUNCTION,
+                          MUTATION_EFFECT.LIKELY_SWITCH_OF_FUNCTION,
+                          MUTATION_EFFECT.NEUTRAL,
+                          MUTATION_EFFECT.LIKELY_NEUTRAL,
+                          MUTATION_EFFECT.INCONCLUSIVE,
                         ].map(label => {
                           return (
                             <RealtimeBasicInput
@@ -210,26 +218,34 @@ const CurationPage = (props: ICurationPageProps) => {
                   <Collapsible nestLevel={NestLevel.SOMATIC} className={'mt-2'} title={'Somatic'}>
                     <div className="flex d-flex">
                       <span className="font-weight-bold">Oncogenic:</span>
-                      {['Yes', 'Likely', 'Likely Neutral', 'Inconclusive'].map(label => {
-                        return (
-                          <RealtimeBasicInput
-                            key={label}
-                            className="ml-2"
-                            label={label}
-                            name={label.toLowerCase()}
-                            type={RealtimeInputType.CHECKBOX}
-                            checked={mutation.mutation_effect.oncogenic === label}
-                            onChange={e => {}}
-                          />
-                        );
-                      })}
+                      {[ONCOGENICITY.ONCOGENIC, ONCOGENICITY.LIKELY_ONCOGENIC, ONCOGENICITY.LIKELY_NEUTRAL, ONCOGENICITY.INCONCLUSIVE].map(
+                        label => {
+                          return (
+                            <RealtimeBasicInput
+                              key={label}
+                              className="ml-2"
+                              label={label}
+                              name={label.toLowerCase()}
+                              type={RealtimeInputType.CHECKBOX}
+                              checked={mutation.mutation_effect.oncogenic === label}
+                              onChange={e => {}}
+                            />
+                          );
+                        }
+                      )}
                     </div>
                   </Collapsible>
                   {mutation.mutation_effect.germline && (
                     <Collapsible nestLevel={NestLevel.GERMLINE} className={'mt-2'} title={'Germline'}>
                       <div className="flex d-flex">
                         <span className="font-weight-bold">Pathogenic:</span>
-                        {['Pathogenic', 'Likely Pathogenic', 'Benign', 'Likely Benign', 'Unknown'].map(label => {
+                        {[
+                          PATHOGENICITY.PATHOGENIC,
+                          PATHOGENICITY.LIKELY_PATHOGENIC,
+                          PATHOGENICITY.BENIGN,
+                          PATHOGENICITY.LIKELY_BENIGN,
+                          PATHOGENICITY.UNKNOWN,
+                        ].map(label => {
                           return (
                             <RealtimeBasicInput
                               key={label}
@@ -245,7 +261,7 @@ const CurationPage = (props: ICurationPageProps) => {
                       </div>
                       <div className="flex d-flex">
                         <span className="font-weight-bold">Penetrance:</span>
-                        {['High', 'Intermediate', 'Low', 'Other'].map(label => {
+                        {[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER].map(label => {
                           return (
                             <RealtimeBasicInput
                               key={label}
@@ -261,7 +277,7 @@ const CurationPage = (props: ICurationPageProps) => {
                       </div>
                       <div className="flex d-flex">
                         <span className="font-weight-bold">Mechanism of Inheritance:</span>
-                        {['Autosomal Recessive', 'Autosomal Dominant'].map(label => {
+                        {[GERMLINE_INHERITANCE_MECHANISM.RECESSIVE, GERMLINE_INHERITANCE_MECHANISM.DOMINANT].map(label => {
                           return (
                             <RealtimeBasicInput
                               key={label}
