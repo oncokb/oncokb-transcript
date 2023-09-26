@@ -5,6 +5,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -97,19 +98,33 @@ public class OncokbCurationApp {
     @PostConstruct
     public void initFirebase() throws IOException {
         if (applicationProperties.getFirebase().isEnabled()) {
-            FirebaseOptions options = new FirebaseOptions.Builder()
-                .setCredentials(
-                    GoogleCredentials.fromStream(
-                        getClass()
-                            .getClassLoader()
-                            .getResource(applicationProperties.getFrontend().getFirebase().getServiceAccountCredentialsPath())
-                            .openStream()
-                    )
-                )
-                .setDatabaseUrl(applicationProperties.getFrontend().getFirebase().getDatabaseUrl())
-                .build();
+            String serviceAccountPath = applicationProperties.getFrontend().getFirebase().getServiceAccountCredentialsPath();
+            if (serviceAccountPath == null) {
+                log.error("application.firebase.service-account-credentials-path is not specified");
+                return;
+            }
+            URL serviceAccountFileUrl = getClass().getClassLoader().getResource(serviceAccountPath);
+            if (serviceAccountFileUrl == null) {
+                log.error("Cannot find the firebase service account file");
+                return;
+            }
+            try {
+                FirebaseOptions options = FirebaseOptions
+                    .builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccountFileUrl.openStream()))
+                    .setDatabaseUrl(applicationProperties.getFrontend().getFirebase().getDatabaseUrl())
+                    .build();
 
-            FirebaseApp.initializeApp(options);
+                FirebaseApp.initializeApp(options);
+                log.info("Firebase Admin SDK successfully initialized");
+            } catch (Exception e) {
+                log.error("Failed to initialize Firebase", e.getMessage());
+            }
+        } else {
+            log.info(
+                "Skipping Firebase Admin SDK initialization because application.firebase.enabled={}",
+                applicationProperties.getFirebase().isEnabled()
+            );
         }
     }
 
