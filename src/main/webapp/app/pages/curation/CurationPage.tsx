@@ -8,12 +8,12 @@ import { CBIOPORTAL, COSMIC } from 'app/config/constants';
 import { PubmedGeneLink } from 'app/shared/links/PubmedGeneLink';
 import { InlineDivider, PubmedGeneArticlesLink } from 'app/shared/links/PubmedGeneArticlesLink';
 import { getCancerTypeName, getSectionClassName } from 'app/shared/util/utils';
-import { Mutation, ONCOGENE, TUMOR_SUPPRESSOR } from 'app/shared/model/firebase/firebase.model';
+import { Drug, Mutation, ONCOGENE, TUMOR_SUPPRESSOR } from 'app/shared/model/firebase/firebase.model';
 import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
 import WithSeparator from 'react-with-separator';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
 import { RealtimeBasicInput, RealtimeInputType } from 'app/shared/firebase/FirebaseRealtimeInput';
-import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
+import { getFirebasePath, getMutationName, getTxName } from 'app/shared/util/firebase/firebase-utils';
 import Collapsible, { NestLevel } from 'app/pages/curation/collapsible/Collapsible';
 import styles from './styles.module.scss';
 
@@ -43,42 +43,6 @@ const CurationPage = (props: ICurationPageProps) => {
       props.updateCollaborator(props.data.name, true);
     }
   }, [props.metaData, props.data]);
-
-  const getMutationName = (mutation: Mutation) => {
-    const defaultNoName = '[No Name]';
-    if (mutation.alteration) {
-      if (mutation.alteration.proteinChange) {
-        let name = mutation.alteration.proteinChange;
-        if (mutation.alteration.cDna) {
-          name += ` (${mutation.alteration.cDna})`;
-        }
-        return name;
-      } else if (mutation.alteration.cDna) {
-        return mutation.alteration.cDna;
-      } else {
-        return defaultNoName;
-      }
-    } else if (mutation.name) {
-      return mutation.name;
-    } else {
-      return defaultNoName;
-    }
-  };
-
-  const getTxName = (txUuidName: string) => {
-    return txUuidName
-      .split(',')
-      .map(tx => {
-        return tx
-          .split('+')
-          .map(drug => {
-            drug = drug.trim();
-            return props.drugList[drug] ? props.drugList[drug].drugName : drug;
-          })
-          .join(' + ');
-      })
-      .join(', ');
-  };
 
   return !!props.data && props.drugList && !!geneEntity ? (
     <div>
@@ -351,7 +315,7 @@ const CurationPage = (props: ICurationPageProps) => {
                                 className={'mt-2'}
                                 key={tumor.cancerTypes_uuid}
                                 nestLevel={NestLevel.THERAPY}
-                                title={`Therapy: ${getTxName(treatment.name)}`}
+                                title={`Therapy: ${getTxName(props.drugList, treatment.name)}`}
                               >
                                 <RealtimeBasicInput
                                   label="Highest level of evidence"
