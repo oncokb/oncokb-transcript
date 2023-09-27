@@ -4,6 +4,7 @@ import { action, makeObservable } from 'mobx';
 import { Review } from '../../model/firebase/firebase.model';
 import { getValueByNestedKey } from './firebase-utils';
 import { FirebaseCrudStore, RecursiveKeyOf } from './firebase-crud-store';
+import { generateUuid } from '../utils';
 
 /* eslint-disable @typescript-eslint/ban-types */
 export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudStore<T> {
@@ -15,14 +16,16 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
   }
 
   updateReviewableContent(path: string, key: RecursiveKeyOf<T>, value: any) {
+    // Update Review
     const reviewableKey = `${key as string}_review`;
     let review: Review = getValueByNestedKey(this.data, reviewableKey);
-    if (review === undefined) {
+    if (!review) {
       review = new Review(this.rootStore.authStore.fullName);
     }
     review.updateTime = new Date().getTime();
     review.updatedBy = this.rootStore.authStore.fullName;
 
+    // Update Review when value is reverted to original
     let isChangeReverted = false;
     if (review.lastReviewed === undefined) {
       review.lastReviewed = getValueByNestedKey(this.data, key);
@@ -37,6 +40,13 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
       [reviewableKey]: review,
     };
 
+    // Make sure that there is a UUID attached
+    const uuidKey = `${key as string}_uuid`;
+    const uuid = getValueByNestedKey(this.data, `${key as string}_uuid`);
+    if (!uuid) {
+      updateObject[uuidKey] = generateUuid();
+    }
+
     const hugoSymbol = path.split('/')[1];
     if (!hugoSymbol) {
       return Promise.reject(new Error('Cannot update when hugoSymbol is undefined'));
@@ -48,7 +58,6 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
       }
       // Update Meta information
       this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol);
-      const uuid = getValueByNestedKey(this.data, `${key as string}_uuid`);
       this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, !isChangeReverted);
     });
   }

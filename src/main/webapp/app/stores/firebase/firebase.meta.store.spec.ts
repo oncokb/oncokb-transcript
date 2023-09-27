@@ -16,10 +16,10 @@ jest.mock('firebase/database', () => {
 
 describe('FirebaseMetaStore', () => {
   let rootStore = undefined;
-  const defaultDate = new Date('2023-09-21');
+  const DEFAULT_DATE = new Date('2023-09-21');
 
   const reset = () => {
-    jest.useFakeTimers().setSystemTime(defaultDate);
+    jest.useFakeTimers().setSystemTime(DEFAULT_DATE);
     rootStore = { firebaseStore: {}, authStore: { fullName: 'test user' } } as any;
     jest.clearAllMocks();
   };
@@ -30,22 +30,18 @@ describe('FirebaseMetaStore', () => {
     it('should update lastModifiedBy and lastModifiedAt fields', async () => {
       const store = new FirebaseMetaStore(rootStore);
       await store.updateGeneMetaContent('ABL1');
-      expect(mockUpdate).toHaveBeenCalled();
 
-      const updateValueArg = mockUpdate.mock.calls[0][1]; // The second value that is passed to update function
-      expect(updateValueArg).toBeDefined();
-      expect(updateValueArg).toEqual({ lastModifiedBy: 'test user', lastModifiedAt: defaultDate.getTime().toString() });
+      expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, {
+        lastModifiedBy: 'test user',
+        lastModifiedAt: DEFAULT_DATE.getTime().toString(),
+      });
     });
 
     it('should update to the correct location', async () => {
       const store = new FirebaseMetaStore(rootStore);
       await store.updateGeneMetaContent('BRAF');
 
-      expect(mockRef).toHaveBeenCalled();
-
-      const refPathArg = mockRef.mock.calls[0][1];
-      expect(refPathArg).toBeDefined();
-      expect(refPathArg).toEqual('Meta/BRAF');
+      expect(mockRef).toHaveBeenNthCalledWith(1, undefined, 'Meta/BRAF');
     });
   });
 
@@ -57,18 +53,11 @@ describe('FirebaseMetaStore', () => {
       const testUuid = generateUuid();
       await store.updateGeneReviewUuid('EGFR', testUuid, true);
 
-      expect(mockUpdate).toHaveBeenCalled();
-
       const reviewKey = `review/${testUuid}`;
-      const updateValueArg = mockUpdate.mock.calls[0][1];
-      expect(updateValueArg).toBeDefined();
-      expect(updateValueArg).toEqual({ [reviewKey]: true });
+      expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, { [reviewKey]: true });
 
       // Check the path for updated data
-      expect(mockRef).toHaveBeenCalledTimes(1);
-      const refPathArg = mockRef.mock.calls[0][1];
-      expect(refPathArg).toBeDefined();
-      expect(refPathArg).toEqual(`Meta/EGFR`);
+      expect(mockRef).toHaveBeenNthCalledWith(1, undefined, 'Meta/EGFR');
     });
 
     it('should remove uuid from gene meta review', async () => {
@@ -80,21 +69,20 @@ describe('FirebaseMetaStore', () => {
       expect(mockRemove).toHaveBeenCalledTimes(1);
 
       // Check the path for removed data
-      expect(mockRef).toHaveBeenCalledTimes(1);
-      const refPathArg = mockRef.mock.calls[0][1];
-      expect(refPathArg).toBeDefined();
-      expect(refPathArg).toEqual(`Meta/FLT3/review/${testUuid}`);
+      expect(mockRef).toHaveBeenNthCalledWith(1, undefined, `Meta/FLT3/review/${testUuid}`);
     });
   });
 
   describe('updateCollaborator', () => {
     let store = undefined;
-    const genes = ['ABL1', 'BRAF', 'EGFR'];
+    const DEFAULT_USER = 'test user';
+    const NON_EXISTENT_USER = 'fake user';
+    const GENE_LIST = ['ABL1', 'BRAF', 'EGFR'];
 
     beforeEach(() => {
       reset();
       store = new FirebaseMetaStore(rootStore);
-      store.metaCollaborators = { 'test user': genes };
+      store.metaCollaborators = { [DEFAULT_USER]: GENE_LIST };
     });
 
     it('should add gene to collaborator list', async () => {
@@ -102,18 +90,12 @@ describe('FirebaseMetaStore', () => {
 
       await store.updateCollaborator('APC', true);
 
-      expect(mockUpdate).toHaveBeenCalledTimes(1);
-
       // Check update value
-      const updateValueArg = mockUpdate.mock.calls[0][1];
-      expect(updateValueArg).toBeDefined();
-      expect(updateValueArg).toEqual({ [genes.length]: 'APC' });
+      expect(mockUpdate).toHaveBeenCalledTimes(1);
+      expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, { [GENE_LIST.length]: 'APC' });
 
       // Check the path for updated data
-      expect(mockRef).toHaveBeenCalledTimes(1);
-      const refPathArg = mockRef.mock.calls[0][1];
-      expect(refPathArg).toBeDefined();
-      expect(refPathArg).toEqual('Meta/collaborators/test user');
+      expect(mockRef).toHaveBeenNthCalledWith(1, undefined, `Meta/collaborators/${DEFAULT_USER}`);
     });
 
     it('should not add duplicate gene to collaborator list', async () => {
@@ -133,16 +115,13 @@ describe('FirebaseMetaStore', () => {
       expect(mockRemove).toHaveBeenCalledTimes(1);
 
       // Check the path for removed data
-      expect(mockRef).toHaveBeenCalledTimes(1);
-      const refPathArg = mockRef.mock.calls[0][1];
-      expect(refPathArg).toBeDefined();
-      expect(refPathArg).toEqual('Meta/collaborators/test user/0');
+      expect(mockRef).toHaveBeenNthCalledWith(1, undefined, `Meta/collaborators/${DEFAULT_USER}/0`);
     });
 
     it('should not call remove when gene is not in collaborator list', async () => {
       expect(store.metaCollaborators).toBeDefined();
 
-      await store.updateCollaborator('fake', false);
+      await store.updateCollaborator(NON_EXISTENT_USER, false);
 
       expect(mockRemove).toHaveBeenCalledTimes(0);
     });

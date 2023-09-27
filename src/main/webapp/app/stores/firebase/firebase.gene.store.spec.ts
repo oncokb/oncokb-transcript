@@ -27,10 +27,10 @@ class TestRootStore {
 
 describe('FirebaseGeneStore', () => {
   let rootStore = undefined;
-  const defaultDate = new Date('2023-09-21');
+  const DEFAULT_DATE = new Date('2023-01-01');
 
   const reset = () => {
-    jest.useFakeTimers().setSystemTime(defaultDate);
+    jest.useFakeTimers().setSystemTime(DEFAULT_DATE);
     rootStore = new TestRootStore();
     jest.clearAllMocks();
   };
@@ -42,40 +42,32 @@ describe('FirebaseGeneStore', () => {
       const store = new FirebaseGeneStore(rootStore);
 
       await store.updateGeneType('Gene/ACKR3', 'Oncogene', true);
-      expect(updateReviewableContentMock).toHaveBeenCalledTimes(1);
-      expect(updateReviewableContentMock.mock.calls[0][0]).toEqual('Gene/ACKR3');
-      expect(updateReviewableContentMock.mock.calls[0][1]).toEqual('type/ocg');
-      expect(updateReviewableContentMock.mock.calls[0][2]).toEqual(ONCOGENE);
+
+      expect(updateReviewableContentMock).toHaveBeenNthCalledWith(1, 'Gene/ACKR3', 'type/ocg', ONCOGENE);
     });
 
     it('should add tumor suppressor to gene type', async () => {
       const store = new FirebaseGeneStore(rootStore);
 
       await store.updateGeneType('Gene/ACKR3', 'Tumor Suppressor', true);
-      expect(updateReviewableContentMock).toHaveBeenCalledTimes(1);
-      expect(updateReviewableContentMock.mock.calls[0][0]).toEqual('Gene/ACKR3');
-      expect(updateReviewableContentMock.mock.calls[0][1]).toEqual('type/tsg');
-      expect(updateReviewableContentMock.mock.calls[0][2]).toEqual(TUMOR_SUPPRESSOR);
+
+      expect(updateReviewableContentMock).toHaveBeenNthCalledWith(1, 'Gene/ACKR3', 'type/tsg', TUMOR_SUPPRESSOR);
     });
 
     it('should remove oncogene from gene type', async () => {
       const store = new FirebaseGeneStore(rootStore);
 
       await store.updateGeneType('Gene/ACKR3', 'Oncogene', false);
-      expect(updateReviewableContentMock).toHaveBeenCalledTimes(1);
-      expect(updateReviewableContentMock.mock.calls[0][0]).toEqual('Gene/ACKR3');
-      expect(updateReviewableContentMock.mock.calls[0][1]).toEqual('type/ocg');
-      expect(updateReviewableContentMock.mock.calls[0][2]).toEqual('');
+
+      expect(updateReviewableContentMock).toHaveBeenNthCalledWith(1, 'Gene/ACKR3', 'type/ocg', '');
     });
 
     it('should remove tumor suppressor from gene type', async () => {
       const store = new FirebaseGeneStore(rootStore);
 
       await store.updateGeneType('Gene/ACKR3', 'Tumor Suppressor', false);
-      expect(updateReviewableContentMock).toHaveBeenCalledTimes(1);
-      expect(updateReviewableContentMock.mock.calls[0][0]).toEqual('Gene/ACKR3');
-      expect(updateReviewableContentMock.mock.calls[0][1]).toEqual('type/tsg');
-      expect(updateReviewableContentMock.mock.calls[0][2]).toEqual('');
+
+      expect(updateReviewableContentMock).toHaveBeenNthCalledWith(1, 'Gene/ACKR3', 'type/tsg', '');
     });
   });
 });

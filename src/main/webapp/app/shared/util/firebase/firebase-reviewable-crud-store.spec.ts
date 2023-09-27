@@ -1,6 +1,7 @@
 const mockUpdate = jest.fn().mockImplementation((db, value) => Promise.resolve());
 const mockRemove = jest.fn().mockImplementation((db, value) => {});
 const mockRef = jest.fn().mockImplementation(db => {});
+const mockUuidReturnValue = 'fake-uuid';
 
 import 'jest-expect-message';
 import { FirebaseReviewableCrudStore } from './firebase-reviewable-crud-store';
@@ -15,10 +16,23 @@ jest.mock('firebase/database', () => {
   };
 });
 
+jest.mock('uuid', () => ({ v4: jest.fn().mockReturnValue(mockUuidReturnValue) }));
+
 const updateGeneMetaContentMock = jest.spyOn(FirebaseMetaStore.prototype, 'updateGeneMetaContent').mockReturnValue(Promise.resolve());
 const updateGeneReviewUuidMock = jest.spyOn(FirebaseMetaStore.prototype, 'updateGeneReviewUuid').mockReturnValue(Promise.resolve());
 
 describe('FirebaseReviewableCrudStore', () => {
+  // Variables used in tests
+  let rootStore = undefined;
+  const DEFAULT_DATE = new Date('2023-01-01');
+  const DEFAULT_OLD_DATE = new Date('2020-01-01');
+  const DEFAULT_UUID = mockUuidReturnValue;
+  const DEFAULT_USER = 'test user';
+  const UPDATED_USER = 'some user';
+  const DEFAULT_VALUE = 'original';
+  const UPDATED_VALUE_A = 'new value';
+  const UPDATED_VALUE_B = 'new value 2';
+
   class TestRootStore {
     firebaseStore;
     firebaseMetaStore;
@@ -26,15 +40,12 @@ describe('FirebaseReviewableCrudStore', () => {
     constructor() {
       this.firebaseStore = new FirebaseStore(this as any);
       this.firebaseMetaStore = new FirebaseMetaStore(this as any);
-      this.authStore = { fullName: 'test user' };
+      this.authStore = { fullName: DEFAULT_USER };
     }
   }
 
-  let rootStore = undefined;
-  const defaultDate = new Date('2023-01-01');
-
   const reset = () => {
-    jest.useFakeTimers().setSystemTime(defaultDate);
+    jest.useFakeTimers().setSystemTime(DEFAULT_DATE);
     rootStore = new TestRootStore();
     jest.clearAllMocks();
   };
@@ -44,113 +55,115 @@ describe('FirebaseReviewableCrudStore', () => {
 
     it('should correctly update field that was already reviewed', async () => {
       const store = new FirebaseReviewableCrudStore<any>(rootStore);
-      store.data = { key: 'original', key_uuid: 'fake-uuid' };
+      store.data = { key: DEFAULT_VALUE, key_uuid: DEFAULT_UUID };
 
-      await store.updateReviewableContent('Gene/ABL1', 'key', 'new value');
+      await store.updateReviewableContent('Gene/ABL1', 'key', UPDATED_VALUE_A);
 
       expect(mockUpdate).toHaveBeenCalled();
 
       // Check if field and field_review were updated
       // lastReviewed should be set because the field was already reviewed and we are making a new change
-      const updateValueArg = mockUpdate.mock.calls[0][1];
-      expect(updateValueArg).toBeDefined();
-      expect(updateValueArg).toEqual({
-        key: 'new value',
-        key_review: { updateTime: defaultDate.getTime(), updatedBy: 'test user', lastReviewed: 'original' },
+      expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, {
+        key: UPDATED_VALUE_A,
+        key_review: { updateTime: DEFAULT_DATE.getTime(), updatedBy: DEFAULT_USER, lastReviewed: DEFAULT_VALUE },
       });
 
       // Check if Meta information was updated
-      expect(updateGeneMetaContentMock).toHaveBeenCalled();
-      expect(updateGeneMetaContentMock.mock.calls[0][0]).toEqual('ABL1');
+      expect(updateGeneMetaContentMock).toHaveBeenNthCalledWith(1, 'ABL1');
 
       // Check if we add uuid to meta
-      expect(updateGeneReviewUuidMock).toHaveBeenCalled();
-      expect(updateGeneReviewUuidMock).toHaveBeenNthCalledWith(1, 'ABL1', 'fake-uuid', true);
+      expect(updateGeneReviewUuidMock).toHaveBeenNthCalledWith(1, 'ABL1', DEFAULT_UUID, true);
     });
 
     it('should not update lastReviewed when it is present', async () => {
       const store = new FirebaseReviewableCrudStore<any>(rootStore);
-      store.data = { key: 'new value', key_uuid: 'fake-uuid', key_review: { lastReviewed: 'original' } };
+      store.data = { key: UPDATED_VALUE_A, key_uuid: DEFAULT_UUID, key_review: { lastReviewed: DEFAULT_VALUE } };
 
-      await store.updateReviewableContent('Gene/ABL1', 'key', 'new value 2');
-
-      expect(mockUpdate).toHaveBeenCalled();
+      await store.updateReviewableContent('Gene/ABL1', 'key', UPDATED_VALUE_B);
 
       // lastReviewed should not be updated because we it was already set
-      const updateValueArg = mockUpdate.mock.calls[0][1];
-      expect(updateValueArg).toBeDefined();
-      expect(updateValueArg).toEqual({
-        key: 'new value 2',
-        key_review: { updateTime: defaultDate.getTime(), updatedBy: 'test user', lastReviewed: 'original' },
+      expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, {
+        key: UPDATED_VALUE_B,
+        key_review: { updateTime: DEFAULT_DATE.getTime(), updatedBy: DEFAULT_USER, lastReviewed: DEFAULT_VALUE },
       });
     });
 
-    it('should remove lastReviewed when value is reverted to original', async () => {
+    it('should add uuid when not present', async () => {
       const store = new FirebaseReviewableCrudStore<any>(rootStore);
-      store.data = {
-        key: 'new value',
-        key_uuid: 'fake-uuid',
-        key_review: { lastReviewed: 'original', updatedBy: 'test user', updateTime: defaultDate.getTime() },
-      };
+      store.data = { key: DEFAULT_VALUE };
 
-      await store.updateReviewableContent('Gene/ABL1', 'key', 'original');
+      await store.updateReviewableContent('Gene/ABL1', 'key', UPDATED_VALUE_A);
 
-      expect(mockUpdate).toHaveBeenCalled();
-
-      const updateValueArg = mockUpdate.mock.calls[0][1];
-      expect(updateValueArg).toBeDefined();
-      expect(updateValueArg).toEqual({
-        key: 'original',
-        key_review: { updateTime: defaultDate.getTime(), updatedBy: 'test user', lastReviewed: 'original' },
+      expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, {
+        key: UPDATED_VALUE_A,
+        key_uuid: DEFAULT_UUID,
+        key_review: { updateTime: DEFAULT_DATE.getTime(), updatedBy: DEFAULT_USER, lastReviewed: DEFAULT_VALUE },
       });
-
-      // After successfull update to field, we expect the lastReviewed field to be removed
-      expect(mockRef).toHaveBeenCalled();
-      expect(mockRef).toHaveBeenNthCalledWith(2, undefined, `Gene/ABL1/key_review/lastReviewed`);
     });
 
-    it('should remove uuid from meta when value is reverted to original', async () => {
-      const store = new FirebaseReviewableCrudStore<any>(rootStore);
-      store.data = {
-        key: 'new value',
-        key_uuid: 'fake-uuid',
-        key_review: { lastReviewed: 'original', updatedBy: 'test user', updateTime: defaultDate.getTime() },
-      };
+    describe('when value is reverted to original', () => {
+      beforeEach(() => reset());
 
-      await store.updateReviewableContent('Gene/ABL1', 'key', 'original');
+      it('should remove lastReviewed when value is reverted to original', async () => {
+        const store = new FirebaseReviewableCrudStore<any>(rootStore);
+        store.data = {
+          key: UPDATED_VALUE_A,
+          key_uuid: DEFAULT_UUID,
+          key_review: { lastReviewed: DEFAULT_VALUE, updatedBy: DEFAULT_USER, updateTime: DEFAULT_DATE.getTime() },
+        };
 
-      expect(mockUpdate).toHaveBeenCalled();
+        await store.updateReviewableContent('Gene/ABL1', 'key', DEFAULT_VALUE);
 
-      // Check if we add uuid to meta
-      expect(updateGeneReviewUuidMock).toHaveBeenCalled();
-      expect(updateGeneReviewUuidMock).toHaveBeenNthCalledWith(1, 'ABL1', 'fake-uuid', false);
+        expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, {
+          key: DEFAULT_VALUE,
+          key_review: { updateTime: DEFAULT_DATE.getTime(), updatedBy: DEFAULT_USER, lastReviewed: DEFAULT_VALUE },
+        });
+
+        // After successfull update to field, we expect the lastReviewed field to be removed
+        expect(mockRef).toHaveBeenNthCalledWith(2, undefined, `Gene/ABL1/key_review/lastReviewed`);
+      });
+
+      it('should remove uuid from meta when value is reverted to original', async () => {
+        const store = new FirebaseReviewableCrudStore<any>(rootStore);
+        store.data = {
+          key: UPDATED_VALUE_A,
+          key_uuid: DEFAULT_UUID,
+          key_review: { lastReviewed: DEFAULT_VALUE, updatedBy: DEFAULT_USER, updateTime: DEFAULT_DATE.getTime() },
+        };
+
+        await store.updateReviewableContent('Gene/ABL1', 'key', DEFAULT_VALUE);
+
+        expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, {
+          key: DEFAULT_VALUE,
+          key_review: { updateTime: DEFAULT_DATE.getTime(), updatedBy: DEFAULT_USER, lastReviewed: DEFAULT_VALUE },
+        });
+
+        // Check if UUID is removed from meta collection
+        expect(updateGeneReviewUuidMock).toHaveBeenNthCalledWith(1, 'ABL1', DEFAULT_UUID, false);
+      });
     });
 
     it('should update timestamp and author', async () => {
       const store = new FirebaseReviewableCrudStore<any>(rootStore);
       store.data = {
-        key: 'new value',
-        key_uuid: 'fake-uuid',
-        key_review: { lastReviewed: 'original', updatedBy: 'some user', updateTime: new Date('2020-01-01').getTime() },
+        key: UPDATED_VALUE_A,
+        key_uuid: DEFAULT_UUID,
+        key_review: { lastReviewed: DEFAULT_VALUE, updatedBy: UPDATED_USER, updateTime: DEFAULT_OLD_DATE.getTime() },
       };
 
-      await store.updateReviewableContent('Gene/ABL1', 'key', 'new value 2');
+      await store.updateReviewableContent('Gene/ABL1', 'key', UPDATED_VALUE_B);
 
-      expect(mockUpdate).toHaveBeenCalled();
-
-      // lastReviewed should not be updated because it was already set
-      const updateValueArg = mockUpdate.mock.calls[0][1];
-      expect(updateValueArg).toBeDefined();
-      expect(updateValueArg).toEqual({
-        key: 'new value 2',
-        key_review: { updateTime: defaultDate.getTime(), updatedBy: 'test user', lastReviewed: 'original' },
+      // timestamp and author should be updated
+      expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, {
+        key: UPDATED_VALUE_B,
+        key_review: { updateTime: DEFAULT_DATE.getTime(), updatedBy: DEFAULT_USER, lastReviewed: DEFAULT_VALUE },
       });
     });
 
     it('should not update when path does not contain hugoSymbol', async () => {
       const store = new FirebaseReviewableCrudStore<any>(rootStore);
 
-      await expect(store.updateReviewableContent('Gene', 'key', 'value')).rejects.toThrow();
+      await expect(store.updateReviewableContent('Gene', 'key', UPDATED_VALUE_A)).rejects.toThrow();
 
       expect(mockUpdate).toHaveBeenCalledTimes(0);
       expect(updateGeneMetaContentMock).toHaveBeenCalledTimes(0);
