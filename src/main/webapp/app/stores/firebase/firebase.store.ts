@@ -5,7 +5,7 @@ import { IRootStore } from 'app/stores/createStore';
 import { FirebaseApp, FirebaseOptions, initializeApp } from 'firebase/app';
 import { Database, getDatabase } from 'firebase/database';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { UserCredential, getAuth, signInWithCustomToken } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut } from 'firebase/auth';
 import { AppConfig } from 'app/appConfig';
 
 export class FirebaseStore extends BaseStore {
@@ -30,6 +30,8 @@ export class FirebaseStore extends BaseStore {
       firebaseInitSuccess: observable,
       firebaseInitError: observable,
       initializeFirebase: action.bound,
+      signInToFirebase: action.bound,
+      signOutFromFirebase: action.bound,
       getFirebaseToken: action.bound,
     });
   }
@@ -37,46 +39,54 @@ export class FirebaseStore extends BaseStore {
   *getFirebaseTokenGen() {
     const result: AxiosResponse = yield axios.get('/api/account/firebase-token');
     this.firebaseCustomToken = result.data;
+    return result.data;
   }
 
   initializeFirebase() {
-    if (AppConfig.serverConfig?.frontend?.firebase) {
-      const { enabled, ...firebaseOptions } = AppConfig.serverConfig.frontend.firebase;
-      this.firebaseEnabled = enabled;
-      if (this.firebaseEnabled) {
-        try {
-          this.firebaseOptions = firebaseOptions as FirebaseOptions;
-          this.firebaseApp = initializeApp(this.firebaseOptions);
-          this.firebaseDb = getDatabase(this.firebaseApp);
-          this.signInToFirebase();
-        } catch (error) {
-          this.firebaseInitError = error;
-          notifyError(error, 'Encountered issue initializing Firebase app.');
-          this.firebaseInitSuccess = false;
-        }
+    const { enabled, ...firebaseOptions } = AppConfig.serverConfig.frontend.firebase;
+    this.firebaseEnabled = enabled;
+    if (this.firebaseEnabled) {
+      try {
+        this.firebaseOptions = firebaseOptions as FirebaseOptions;
+        this.firebaseApp = initializeApp(this.firebaseOptions);
+        this.firebaseDb = getDatabase(this.firebaseApp);
+        const auth = getAuth();
+        return onAuthStateChanged(auth, user => {
+          if (!user) {
+            this.signInToFirebase();
+          }
+        });
+      } catch (error) {
+        this.firebaseInitError = error;
+        notifyError(error, 'Encountered issue initializing Firebase app.');
+        this.firebaseInitSuccess = false;
       }
     }
   }
 
   signInToFirebase() {
     this.getFirebaseToken()
-      .then(() => {
+      .then(token => {
         const auth = getAuth();
-        signInWithCustomToken(auth, this.firebaseCustomToken)
-          .then((userCredential: UserCredential) => {
-            this.firebaseInitSuccess = true;
-          })
-          .catch(e => {
-            notifyError(e, 'Error signing into Firebase.');
-            this.firebaseInitError = e;
-            this.firebaseInitSuccess = false;
-          });
+        return signInWithCustomToken(auth, token).catch(e => {
+          notifyError(e, 'Error signing into Firebase.');
+        });
       })
       .catch(e => {
-        notifyError(e, 'Error fetching Firebase custom token');
-        this.firebaseInitError = e;
-        this.firebaseInitSuccess = false;
+        notifyError(e, 'Error getting Firebase custom token');
       });
+  }
+
+  signOutFromFirebase() {
+    try {
+      const auth = getAuth();
+      signOut(auth);
+    } catch (e) {
+      /* getAuth() will throw an exception when firebase is not initialized.
+       * When a user is not in our DB, we immediately log the user out, so firebase
+       * would have not been initialized yet.
+       */
+    }
   }
 }
 

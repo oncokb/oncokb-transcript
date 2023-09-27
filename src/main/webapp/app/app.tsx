@@ -31,9 +31,11 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
   }, [props.isAuthenticated, props.isAuthorized, props.sidebarWidth]);
 
   useEffect(() => {
+    let authSubscriber = undefined;
     if (props.hasFirebaseAccess) {
-      props.initializeFirebase();
+      authSubscriber = props.initializeFirebase();
     }
+    return () => authSubscriber && authSubscriber();
   }, [props.hasFirebaseAccess]);
 
   return (
