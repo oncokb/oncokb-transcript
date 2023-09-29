@@ -1,7 +1,9 @@
 import { Gene, GeneTypeString, TUMOR_SUPPRESSOR } from 'app/shared/model/firebase/firebase.model';
-import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-crud-store';
 import { IRootStore } from '../createStore';
-import { action, makeObservable } from 'mobx';
+import { action, makeObservable, override } from 'mobx';
+import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
+import { RecursiveKeyOf } from 'app/shared/util/firebase/firebase-crud-store';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
   constructor(rootStore: IRootStore) {
@@ -12,6 +14,14 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
   }
 
   updateGeneType(path: string, type: GeneTypeString, isChecked: boolean) {
-    this.updateReviewableContent(path, type === TUMOR_SUPPRESSOR ? 'type/tsg' : 'type/ocg', isChecked ? type : '');
+    return this.updateReviewableContent(path, type === TUMOR_SUPPRESSOR ? 'type/tsg' : 'type/ocg', isChecked ? type : '');
+  }
+
+  override updateReviewableContent(path: string, key: RecursiveKeyOf<Gene>, value: any) {
+    try {
+      return super.updateReviewableContent(path, key, value);
+    } catch (error) {
+      notifyError(error, `Could not update ${key} at location ${path}`);
+    }
   }
 }

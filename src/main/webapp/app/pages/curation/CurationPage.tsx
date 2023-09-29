@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { RouteComponentProps } from 'react-router-dom';
+import { RouteComponentProps, useHistory } from 'react-router-dom';
 import { Col, Input, Row } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
@@ -10,6 +10,7 @@ import {
   GERMLINE_INHERITANCE_MECHANISM,
   MUTATION_EFFECT,
   ONCOGENICITY,
+  PAGE_ROUTE,
   PATHOGENICITY,
   PENETRANCE,
 } from 'app/config/constants';
@@ -24,10 +25,12 @@ import { RealtimeBasicInput, RealtimeInputType } from 'app/shared/firebase/Fireb
 import { getFirebasePath, getMutationName, getTxName } from 'app/shared/util/firebase/firebase-utils';
 import Collapsible, { NestLevel } from 'app/pages/curation/collapsible/Collapsible';
 import styles from './styles.module.scss';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
 const CurationPage = (props: ICurationPageProps) => {
+  const history = useHistory();
   const hugoSymbol = props.match.params.hugoSymbol;
   const firebaseGenePath = getFirebasePath('GENE', hugoSymbol);
   const [mutationFilter, setMutationFilter] = useState('');
@@ -36,9 +39,9 @@ const CurationPage = (props: ICurationPageProps) => {
     props.findAllGeneEntities(hugoSymbol);
     const cleanupCallbacks = [];
     cleanupCallbacks.push(props.addListener(firebaseGenePath));
-    cleanupCallbacks.push(props.addMetaListener(getFirebasePath('META_COLLABORATORS')));
+    cleanupCallbacks.push(props.addMetaCollaboratorsListener());
     cleanupCallbacks.push(props.addDrugListListener());
-    cleanupCallbacks.push(() => props.updateCollaborator(hugoSymbol, false));
+    cleanupCallbacks.push(() => props.metaCollaboratorsData && props.updateCollaborator(hugoSymbol, false));
     return () => cleanupCallbacks.forEach(callback => callback && callback());
   }, []);
 
@@ -47,10 +50,13 @@ const CurationPage = (props: ICurationPageProps) => {
   }, [props.entities]);
 
   useEffect(() => {
-    if (props.metaData && props.data?.name) {
-      props.updateCollaborator(props.data.name, true);
+    if (props.metaCollaboratorsData && props.data?.name) {
+      props.updateCollaborator(props.data.name, true).catch(error => {
+        notifyError(error);
+        history.push(PAGE_ROUTE.CURATION);
+      });
     }
-  }, [props.metaData, props.data]);
+  }, [props.metaCollaboratorsData, props.data]);
 
   return !!props.data && props.drugList && !!geneEntity ? (
     <div>
@@ -401,11 +407,12 @@ const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, fire
   data: firebaseGeneStore.data,
   update: firebaseGeneStore.update,
   updateReviewableContent: firebaseGeneStore.updateReviewableContent,
-  addMetaListener: firebaseMetaStore.addListener,
+  addMetaCollaboratorsListener: firebaseMetaStore.addMetaCollaboratorsListener,
   updateGeneType: firebaseGeneStore.updateGeneType,
   metaData: firebaseMetaStore.data,
   drugList: firebaseDrugsStore.drugList,
   addDrugListListener: firebaseDrugsStore.addDrugListListener,
+  metaCollaboratorsData: firebaseMetaStore.metaCollaborators,
   updateCollaborator: firebaseMetaStore.updateCollaborator,
   account: authStore.account,
 });

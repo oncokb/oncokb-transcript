@@ -7,10 +7,10 @@ export type GeneTypeString = typeof ONCOGENE | typeof TUMOR_SUPPRESSOR;
 export type MetaCollection = {
   [hugoSymbol: string]: Meta;
 } & {
-  collaborators?: MetaCollaborator;
+  collaborators?: MetaCollaborators;
 };
 
-export type MetaCollaborator = {
+export type MetaCollaborators = {
   [name: string]: string[];
 };
 
