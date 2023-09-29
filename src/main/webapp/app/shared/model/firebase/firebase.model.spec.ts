@@ -28,6 +28,8 @@ describe('Firebase Models', () => {
         mutations_uuid: DEFAULT_UUID,
         summary: '',
         summary_uuid: DEFAULT_UUID,
+        penetrance: '',
+        penetrance_uuid: DEFAULT_UUID,
         type: new GeneType(),
         type_uuid: DEFAULT_UUID,
         dmp_refseq_id_grch38: '',
