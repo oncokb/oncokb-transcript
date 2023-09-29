@@ -31,6 +31,7 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
       review.lastReviewed = getValueByNestedKey(this.data, key);
     } else {
       if (review.lastReviewed === value) {
+        delete review.lastReviewed;
         isChangeReverted = true;
       }
     }

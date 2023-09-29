@@ -29,6 +29,7 @@ describe('FirebaseReviewableCrudStore', () => {
   const DEFAULT_UUID = mockUuidReturnValue;
   const DEFAULT_USER = 'test user';
   const UPDATED_USER = 'some user';
+  const DEFAULT_INITIAL_VALUE = '';
   const DEFAULT_VALUE = 'original';
   const UPDATED_VALUE_A = 'new value';
   const UPDATED_VALUE_B = 'new value 2';
@@ -59,8 +60,6 @@ describe('FirebaseReviewableCrudStore', () => {
 
       await store.updateReviewableContent('Gene/ABL1', 'key', UPDATED_VALUE_A);
 
-      expect(mockUpdate).toHaveBeenCalled();
-
       // Check if field and field_review were updated
       // lastReviewed should be set because the field was already reviewed and we are making a new change
       expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, {
@@ -72,6 +71,24 @@ describe('FirebaseReviewableCrudStore', () => {
       expect(updateGeneMetaContentMock).toHaveBeenNthCalledWith(1, 'ABL1');
 
       // Check if we add uuid to meta
+      expect(updateGeneReviewUuidMock).toHaveBeenNthCalledWith(1, 'ABL1', DEFAULT_UUID, true);
+    });
+
+    it('should set lastReviewed to empty string when content has never been reviewed before', async () => {
+      const store = new FirebaseReviewableCrudStore<any>(rootStore);
+      store.data = { key: DEFAULT_INITIAL_VALUE, key_uuid: DEFAULT_UUID };
+
+      await store.updateReviewableContent('Gene/ABL1', 'key', UPDATED_VALUE_A);
+
+      // When a field does not have _review, it means that it was never reviewed before.
+      // In this case, the lastReviewed property should be empty string
+      expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, {
+        key: UPDATED_VALUE_A,
+        key_review: { lastReviewed: DEFAULT_INITIAL_VALUE, updateTime: DEFAULT_DATE.getTime(), updatedBy: DEFAULT_USER },
+      });
+
+      expect(updateGeneMetaContentMock).toHaveBeenNthCalledWith(1, 'ABL1');
+
       expect(updateGeneReviewUuidMock).toHaveBeenNthCalledWith(1, 'ABL1', DEFAULT_UUID, true);
     });
 
@@ -104,7 +121,7 @@ describe('FirebaseReviewableCrudStore', () => {
     describe('when value is reverted to original', () => {
       beforeEach(() => reset());
 
-      it('should remove lastReviewed when value is reverted to original', async () => {
+      it('should remove lastReviewed when original value was a non-empty string', async () => {
         const store = new FirebaseReviewableCrudStore<any>(rootStore);
         store.data = {
           key: UPDATED_VALUE_A,
@@ -116,14 +133,33 @@ describe('FirebaseReviewableCrudStore', () => {
 
         expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, {
           key: DEFAULT_VALUE,
-          key_review: { updateTime: DEFAULT_DATE.getTime(), updatedBy: DEFAULT_USER, lastReviewed: DEFAULT_VALUE },
+          key_review: { updateTime: DEFAULT_DATE.getTime(), updatedBy: DEFAULT_USER },
         });
 
         // After successfull update to field, we expect the lastReviewed field to be removed
         expect(mockRef).toHaveBeenNthCalledWith(2, undefined, `Gene/ABL1/key_review/lastReviewed`);
       });
 
-      it('should remove uuid from meta when value is reverted to original', async () => {
+      it('should remove lastReviewed when original value was empty string', async () => {
+        const store = new FirebaseReviewableCrudStore<any>(rootStore);
+        store.data = {
+          key: UPDATED_VALUE_A,
+          key_uuid: DEFAULT_UUID,
+          key_review: { lastReviewed: DEFAULT_INITIAL_VALUE, updatedBy: DEFAULT_USER, updateTime: DEFAULT_DATE.getTime() },
+        };
+
+        await store.updateReviewableContent('Gene/ABL1', 'key', DEFAULT_INITIAL_VALUE);
+
+        expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, {
+          key: DEFAULT_INITIAL_VALUE,
+          key_review: { updateTime: DEFAULT_DATE.getTime(), updatedBy: DEFAULT_USER },
+        });
+
+        // After successfull update to field, we expect the lastReviewed field to be removed
+        expect(mockRef).toHaveBeenNthCalledWith(2, undefined, `Gene/ABL1/key_review/lastReviewed`);
+      });
+
+      it('should remove uuid from meta', async () => {
         const store = new FirebaseReviewableCrudStore<any>(rootStore);
         store.data = {
           key: UPDATED_VALUE_A,
@@ -135,7 +171,7 @@ describe('FirebaseReviewableCrudStore', () => {
 
         expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, {
           key: DEFAULT_VALUE,
-          key_review: { updateTime: DEFAULT_DATE.getTime(), updatedBy: DEFAULT_USER, lastReviewed: DEFAULT_VALUE },
+          key_review: { updateTime: DEFAULT_DATE.getTime(), updatedBy: DEFAULT_USER },
         });
 
         // Check if UUID is removed from meta collection
