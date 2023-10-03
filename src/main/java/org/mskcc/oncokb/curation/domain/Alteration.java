@@ -41,25 +41,25 @@ public class Alteration implements Serializable {
     @Column(name = "variant_residues")
     private String variantResidues;
 
-    @OneToMany(mappedBy = "alteration", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "alteration")
     @JsonIgnoreProperties(value = { "alteration" }, allowSetters = true)
     private Set<AlterationReferenceGenome> referenceGenomes = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
         name = "rel_alteration__gene",
         joinColumns = @JoinColumn(name = "alteration_id"),
         inverseJoinColumns = @JoinColumn(name = "gene_id")
     )
-    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "alterations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "biomarkerAssociations", "flags", "alterations" }, allowSetters = true)
     private Set<Gene> genes = new HashSet<>();
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "alterations" }, allowSetters = true)
     private Consequence consequence;
 
-    @ManyToMany(mappedBy = "alterations", fetch = FetchType.EAGER)
-    @JsonIgnoreProperties(value = { "alterations", "drugs", "fdaSubmission", "cancerType" }, allowSetters = true)
+    @ManyToMany(mappedBy = "alterations")
+    @JsonIgnoreProperties(value = { "alterations", "drugs", "fdaSubmissions", "cancerType", "gene" }, allowSetters = true)
     private Set<BiomarkerAssociation> biomarkerAssociations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

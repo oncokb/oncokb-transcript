@@ -14,6 +14,14 @@
     {
       "fieldName": "indicationDetails",
       "fieldType": "String"
+    },
+    {
+      "fieldName": "platformType",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "lastUpdated",
+      "fieldType": "Instant"
     }
   ],
   "relationships": [

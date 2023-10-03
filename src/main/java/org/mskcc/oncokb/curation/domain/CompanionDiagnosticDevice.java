@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
@@ -32,11 +33,17 @@ public class CompanionDiagnosticDevice implements Serializable {
     @Column(name = "indication_details")
     private String indicationDetails;
 
-    @OneToMany(mappedBy = "companionDiagnosticDevice", cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @Column(name = "platform_type")
+    private String platformType;
+
+    @Column(name = "last_updated")
+    private Instant lastUpdated;
+
+    @OneToMany(mappedBy = "companionDiagnosticDevice")
     @JsonIgnoreProperties(value = { "companionDiagnosticDevice" }, allowSetters = true)
     private Set<FdaSubmission> fdaSubmissions = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
         name = "rel_companion_diagnostic_device__specimen_type",
         joinColumns = @JoinColumn(name = "companion_diagnostic_device_id"),
@@ -97,6 +104,32 @@ public class CompanionDiagnosticDevice implements Serializable {
 
     public void setIndicationDetails(String indicationDetails) {
         this.indicationDetails = indicationDetails;
+    }
+
+    public String getPlatformType() {
+        return this.platformType;
+    }
+
+    public CompanionDiagnosticDevice platformType(String platformType) {
+        this.setPlatformType(platformType);
+        return this;
+    }
+
+    public void setPlatformType(String platformType) {
+        this.platformType = platformType;
+    }
+
+    public Instant getLastUpdated() {
+        return this.lastUpdated;
+    }
+
+    public CompanionDiagnosticDevice lastUpdated(Instant lastUpdated) {
+        this.setLastUpdated(lastUpdated);
+        return this;
+    }
+
+    public void setLastUpdated(Instant lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
 
     public Set<FdaSubmission> getFdaSubmissions() {
@@ -182,6 +215,8 @@ public class CompanionDiagnosticDevice implements Serializable {
             ", name='" + getName() + "'" +
             ", manufacturer='" + getManufacturer() + "'" +
             ", indicationDetails='" + getIndicationDetails() + "'" +
+            ", platformType='" + getPlatformType() + "'" +
+            ", lastUpdated='" + getLastUpdated() + "'" +
             "}";
     }
 }

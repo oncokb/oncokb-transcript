@@ -105,6 +105,7 @@ import seqRegion, {
 import flag, {
   FlagStore
 } from 'app/entities/flag/flag.store';
+import AlterationReferenceGenomeStore from 'app/entities/alteration-reference-genome/alteration-reference-genome.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
@@ -143,6 +144,7 @@ export interface IRootStore {
   readonly firebaseDrugsStore: FirebaseDrugsStore;
   readonly seqRegionStore: SeqRegionStore;
   readonly flagStore: FlagStore;
+  readonly alterationReferenceGenomeStore: AlterationReferenceGenomeStore;
   /* jhipster-needle-add-store-field - JHipster will add store here */
 }
 
@@ -184,6 +186,7 @@ export function createStores(history: History): IRootStore {
   rootStore.firebaseDrugsStore = new FirebaseDrugsStore(rootStore);
   rootStore.seqRegionStore = new SeqRegionStore(rootStore);
   rootStore.flagStore = new FlagStore(rootStore);
+  rootStore.alterationReferenceGenomeStore = new AlterationReferenceGenomeStore(rootStore);
   /* jhipster-needle-add-store-init - JHipster will add store here */
   return rootStore;
 }

@@ -13,8 +13,8 @@ import tech.jhipster.service.filter.LongFilter;
 import tech.jhipster.service.filter.StringFilter;
 
 /**
- * Criteria class for the {@link com.mycompany.myapp.domain.FdaSubmission} entity. This class is used
- * in {@link com.mycompany.myapp.web.rest.FdaSubmissionResource} to receive all the possible filtering options from
+ * Criteria class for the {@link org.mskcc.oncokb.curation.domain.FdaSubmission} entity. This class is used
+ * in {@link org.mskcc.oncokb.curation.web.rest.FdaSubmissionResource} to receive all the possible filtering options from
  * the Http GET request parameters.
  * For example the following could be a valid request:
  * {@code /fda-submissions?id.greaterThan=5&attr1.contains=something&attr2.specified=false}
@@ -39,19 +39,17 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
 
     private InstantFilter decisionDate;
 
+    private StringFilter platform;
+
     private BooleanFilter curated;
 
     private BooleanFilter genetic;
-
-    private LongFilter biomarkerAssociationId;
 
     private LongFilter companionDiagnosticDeviceId;
 
     private LongFilter typeId;
 
-    private StringFilter typeName;
-
-    private StringFilter typeShortName;
+    private LongFilter biomarkerAssociationId;
 
     private Boolean distinct;
 
@@ -65,13 +63,12 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
         this.genericName = other.genericName == null ? null : other.genericName.copy();
         this.dateReceived = other.dateReceived == null ? null : other.dateReceived.copy();
         this.decisionDate = other.decisionDate == null ? null : other.decisionDate.copy();
+        this.platform = other.platform == null ? null : other.platform.copy();
         this.curated = other.curated == null ? null : other.curated.copy();
         this.genetic = other.genetic == null ? null : other.genetic.copy();
-        this.biomarkerAssociationId = other.biomarkerAssociationId == null ? null : other.biomarkerAssociationId.copy();
         this.companionDiagnosticDeviceId = other.companionDiagnosticDeviceId == null ? null : other.companionDiagnosticDeviceId.copy();
         this.typeId = other.typeId == null ? null : other.typeId.copy();
-        this.typeName = other.typeName == null ? null : other.typeName.copy();
-        this.typeShortName = other.typeShortName == null ? null : other.typeShortName.copy();
+        this.biomarkerAssociationId = other.biomarkerAssociationId == null ? null : other.biomarkerAssociationId.copy();
         this.distinct = other.distinct;
     }
 
@@ -185,6 +182,21 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
         this.decisionDate = decisionDate;
     }
 
+    public StringFilter getPlatform() {
+        return platform;
+    }
+
+    public StringFilter platform() {
+        if (platform == null) {
+            platform = new StringFilter();
+        }
+        return platform;
+    }
+
+    public void setPlatform(StringFilter platform) {
+        this.platform = platform;
+    }
+
     public BooleanFilter getCurated() {
         return curated;
     }
@@ -213,21 +225,6 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
 
     public void setGenetic(BooleanFilter genetic) {
         this.genetic = genetic;
-    }
-
-    public LongFilter getBiomarkerAssociationId() {
-        return biomarkerAssociationId;
-    }
-
-    public LongFilter biomarkerAssociationId() {
-        if (biomarkerAssociationId == null) {
-            biomarkerAssociationId = new LongFilter();
-        }
-        return biomarkerAssociationId;
-    }
-
-    public void setBiomarkerAssociationId(LongFilter biomarkerAssociationId) {
-        this.biomarkerAssociationId = biomarkerAssociationId;
     }
 
     public LongFilter getCompanionDiagnosticDeviceId() {
@@ -260,34 +257,19 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
         this.typeId = typeId;
     }
 
-    public StringFilter getTypeName() {
-        return this.typeName;
+    public LongFilter getBiomarkerAssociationId() {
+        return biomarkerAssociationId;
     }
 
-    public StringFilter typeName() {
-        if (typeName == null) {
-            typeName = new StringFilter();
+    public LongFilter biomarkerAssociationId() {
+        if (biomarkerAssociationId == null) {
+            biomarkerAssociationId = new LongFilter();
         }
-        return typeName;
+        return biomarkerAssociationId;
     }
 
-    public void setTypeName(StringFilter typeName) {
-        this.typeName = typeName;
-    }
-
-    public StringFilter getTypeShortName() {
-        return this.typeShortName;
-    }
-
-    public StringFilter typeShortName() {
-        if (typeShortName == null) {
-            typeShortName = new StringFilter();
-        }
-        return typeShortName;
-    }
-
-    public void settypeShortName(StringFilter typeShortName) {
-        this.typeShortName = typeShortName;
+    public void setBiomarkerAssociationId(LongFilter biomarkerAssociationId) {
+        this.biomarkerAssociationId = biomarkerAssociationId;
     }
 
     public Boolean getDistinct() {
@@ -315,13 +297,12 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
             Objects.equals(genericName, that.genericName) &&
             Objects.equals(dateReceived, that.dateReceived) &&
             Objects.equals(decisionDate, that.decisionDate) &&
+            Objects.equals(platform, that.platform) &&
             Objects.equals(curated, that.curated) &&
             Objects.equals(genetic, that.genetic) &&
-            Objects.equals(biomarkerAssociationId, that.biomarkerAssociationId) &&
             Objects.equals(companionDiagnosticDeviceId, that.companionDiagnosticDeviceId) &&
             Objects.equals(typeId, that.typeId) &&
-            Objects.equals(typeName, that.typeName) &&
-            Objects.equals(typeShortName, that.typeShortName) &&
+            Objects.equals(biomarkerAssociationId, that.biomarkerAssociationId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
@@ -336,13 +317,12 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
             genericName,
             dateReceived,
             decisionDate,
+            platform,
             curated,
             genetic,
-            biomarkerAssociationId,
             companionDiagnosticDeviceId,
             typeId,
-            typeName,
-            typeShortName,
+            biomarkerAssociationId,
             distinct
         );
     }
@@ -358,13 +338,12 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
             (genericName != null ? "genericName=" + genericName + ", " : "") +
             (dateReceived != null ? "dateReceived=" + dateReceived + ", " : "") +
             (decisionDate != null ? "decisionDate=" + decisionDate + ", " : "") +
+            (platform != null ? "platform=" + platform + ", " : "") +
             (curated != null ? "curated=" + curated + ", " : "") +
             (genetic != null ? "genetic=" + genetic + ", " : "") +
-            (biomarkerAssociationId != null ? "biomarkerAssociationId=" + biomarkerAssociationId + ", " : "") +
             (companionDiagnosticDeviceId != null ? "companionDiagnosticDeviceId=" + companionDiagnosticDeviceId + ", " : "") +
             (typeId != null ? "typeId=" + typeId + ", " : "") +
-            (typeName != null ? "typeName=" + typeName + ", " : "") +
-            (typeShortName != null ? "typeShortName=" + typeShortName + ", " : "") +
+            (biomarkerAssociationId != null ? "biomarkerAssociationId=" + biomarkerAssociationId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

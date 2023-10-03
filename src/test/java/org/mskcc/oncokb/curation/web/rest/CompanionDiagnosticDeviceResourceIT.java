@@ -7,6 +7,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -51,6 +53,12 @@ class CompanionDiagnosticDeviceResourceIT {
     private static final String DEFAULT_INDICATION_DETAILS = "AAAAAAAAAA";
     private static final String UPDATED_INDICATION_DETAILS = "BBBBBBBBBB";
 
+    private static final String DEFAULT_PLATFORM_TYPE = "AAAAAAAAAA";
+    private static final String UPDATED_PLATFORM_TYPE = "BBBBBBBBBB";
+
+    private static final Instant DEFAULT_LAST_UPDATED = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_LAST_UPDATED = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+
     private static final String ENTITY_API_URL = "/api/companion-diagnostic-devices";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -84,7 +92,9 @@ class CompanionDiagnosticDeviceResourceIT {
         CompanionDiagnosticDevice companionDiagnosticDevice = new CompanionDiagnosticDevice()
             .name(DEFAULT_NAME)
             .manufacturer(DEFAULT_MANUFACTURER)
-            .indicationDetails(DEFAULT_INDICATION_DETAILS);
+            .indicationDetails(DEFAULT_INDICATION_DETAILS)
+            .platformType(DEFAULT_PLATFORM_TYPE)
+            .lastUpdated(DEFAULT_LAST_UPDATED);
         return companionDiagnosticDevice;
     }
 
@@ -98,7 +108,9 @@ class CompanionDiagnosticDeviceResourceIT {
         CompanionDiagnosticDevice companionDiagnosticDevice = new CompanionDiagnosticDevice()
             .name(UPDATED_NAME)
             .manufacturer(UPDATED_MANUFACTURER)
-            .indicationDetails(UPDATED_INDICATION_DETAILS);
+            .indicationDetails(UPDATED_INDICATION_DETAILS)
+            .platformType(UPDATED_PLATFORM_TYPE)
+            .lastUpdated(UPDATED_LAST_UPDATED);
         return companionDiagnosticDevice;
     }
 
@@ -130,7 +142,8 @@ class CompanionDiagnosticDeviceResourceIT {
         assertThat(testCompanionDiagnosticDevice.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testCompanionDiagnosticDevice.getManufacturer()).isEqualTo(DEFAULT_MANUFACTURER);
         assertThat(testCompanionDiagnosticDevice.getIndicationDetails()).isEqualTo(DEFAULT_INDICATION_DETAILS);
-
+        assertThat(testCompanionDiagnosticDevice.getPlatformType()).isEqualTo(DEFAULT_PLATFORM_TYPE);
+        assertThat(testCompanionDiagnosticDevice.getLastUpdated()).isEqualTo(DEFAULT_LAST_UPDATED);
     }
 
     @Test
@@ -214,7 +227,9 @@ class CompanionDiagnosticDeviceResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(companionDiagnosticDevice.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].manufacturer").value(hasItem(DEFAULT_MANUFACTURER)))
-            .andExpect(jsonPath("$.[*].indicationDetails").value(hasItem(DEFAULT_INDICATION_DETAILS)));
+            .andExpect(jsonPath("$.[*].indicationDetails").value(hasItem(DEFAULT_INDICATION_DETAILS)))
+            .andExpect(jsonPath("$.[*].platformType").value(hasItem(DEFAULT_PLATFORM_TYPE)))
+            .andExpect(jsonPath("$.[*].lastUpdated").value(hasItem(DEFAULT_LAST_UPDATED.toString())));
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -249,7 +264,9 @@ class CompanionDiagnosticDeviceResourceIT {
             .andExpect(jsonPath("$.id").value(companionDiagnosticDevice.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.manufacturer").value(DEFAULT_MANUFACTURER))
-            .andExpect(jsonPath("$.indicationDetails").value(DEFAULT_INDICATION_DETAILS));
+            .andExpect(jsonPath("$.indicationDetails").value(DEFAULT_INDICATION_DETAILS))
+            .andExpect(jsonPath("$.platformType").value(DEFAULT_PLATFORM_TYPE))
+            .andExpect(jsonPath("$.lastUpdated").value(DEFAULT_LAST_UPDATED.toString()));
     }
 
     @Test
@@ -428,6 +445,216 @@ class CompanionDiagnosticDeviceResourceIT {
 
     @Test
     @Transactional
+    void getAllCompanionDiagnosticDevicesByIndicationDetailsIsEqualToSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where indicationDetails equals to DEFAULT_INDICATION_DETAILS
+        defaultCompanionDiagnosticDeviceShouldBeFound("indicationDetails.equals=" + DEFAULT_INDICATION_DETAILS);
+
+        // Get all the companionDiagnosticDeviceList where indicationDetails equals to UPDATED_INDICATION_DETAILS
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("indicationDetails.equals=" + UPDATED_INDICATION_DETAILS);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByIndicationDetailsIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where indicationDetails not equals to DEFAULT_INDICATION_DETAILS
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("indicationDetails.notEquals=" + DEFAULT_INDICATION_DETAILS);
+
+        // Get all the companionDiagnosticDeviceList where indicationDetails not equals to UPDATED_INDICATION_DETAILS
+        defaultCompanionDiagnosticDeviceShouldBeFound("indicationDetails.notEquals=" + UPDATED_INDICATION_DETAILS);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByIndicationDetailsIsInShouldWork() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where indicationDetails in DEFAULT_INDICATION_DETAILS or UPDATED_INDICATION_DETAILS
+        defaultCompanionDiagnosticDeviceShouldBeFound(
+            "indicationDetails.in=" + DEFAULT_INDICATION_DETAILS + "," + UPDATED_INDICATION_DETAILS
+        );
+
+        // Get all the companionDiagnosticDeviceList where indicationDetails equals to UPDATED_INDICATION_DETAILS
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("indicationDetails.in=" + UPDATED_INDICATION_DETAILS);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByIndicationDetailsIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where indicationDetails is not null
+        defaultCompanionDiagnosticDeviceShouldBeFound("indicationDetails.specified=true");
+
+        // Get all the companionDiagnosticDeviceList where indicationDetails is null
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("indicationDetails.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByIndicationDetailsContainsSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where indicationDetails contains DEFAULT_INDICATION_DETAILS
+        defaultCompanionDiagnosticDeviceShouldBeFound("indicationDetails.contains=" + DEFAULT_INDICATION_DETAILS);
+
+        // Get all the companionDiagnosticDeviceList where indicationDetails contains UPDATED_INDICATION_DETAILS
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("indicationDetails.contains=" + UPDATED_INDICATION_DETAILS);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByIndicationDetailsNotContainsSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where indicationDetails does not contain DEFAULT_INDICATION_DETAILS
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("indicationDetails.doesNotContain=" + DEFAULT_INDICATION_DETAILS);
+
+        // Get all the companionDiagnosticDeviceList where indicationDetails does not contain UPDATED_INDICATION_DETAILS
+        defaultCompanionDiagnosticDeviceShouldBeFound("indicationDetails.doesNotContain=" + UPDATED_INDICATION_DETAILS);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByPlatformTypeIsEqualToSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where platformType equals to DEFAULT_PLATFORM_TYPE
+        defaultCompanionDiagnosticDeviceShouldBeFound("platformType.equals=" + DEFAULT_PLATFORM_TYPE);
+
+        // Get all the companionDiagnosticDeviceList where platformType equals to UPDATED_PLATFORM_TYPE
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("platformType.equals=" + UPDATED_PLATFORM_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByPlatformTypeIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where platformType not equals to DEFAULT_PLATFORM_TYPE
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("platformType.notEquals=" + DEFAULT_PLATFORM_TYPE);
+
+        // Get all the companionDiagnosticDeviceList where platformType not equals to UPDATED_PLATFORM_TYPE
+        defaultCompanionDiagnosticDeviceShouldBeFound("platformType.notEquals=" + UPDATED_PLATFORM_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByPlatformTypeIsInShouldWork() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where platformType in DEFAULT_PLATFORM_TYPE or UPDATED_PLATFORM_TYPE
+        defaultCompanionDiagnosticDeviceShouldBeFound("platformType.in=" + DEFAULT_PLATFORM_TYPE + "," + UPDATED_PLATFORM_TYPE);
+
+        // Get all the companionDiagnosticDeviceList where platformType equals to UPDATED_PLATFORM_TYPE
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("platformType.in=" + UPDATED_PLATFORM_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByPlatformTypeIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where platformType is not null
+        defaultCompanionDiagnosticDeviceShouldBeFound("platformType.specified=true");
+
+        // Get all the companionDiagnosticDeviceList where platformType is null
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("platformType.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByPlatformTypeContainsSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where platformType contains DEFAULT_PLATFORM_TYPE
+        defaultCompanionDiagnosticDeviceShouldBeFound("platformType.contains=" + DEFAULT_PLATFORM_TYPE);
+
+        // Get all the companionDiagnosticDeviceList where platformType contains UPDATED_PLATFORM_TYPE
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("platformType.contains=" + UPDATED_PLATFORM_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByPlatformTypeNotContainsSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where platformType does not contain DEFAULT_PLATFORM_TYPE
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("platformType.doesNotContain=" + DEFAULT_PLATFORM_TYPE);
+
+        // Get all the companionDiagnosticDeviceList where platformType does not contain UPDATED_PLATFORM_TYPE
+        defaultCompanionDiagnosticDeviceShouldBeFound("platformType.doesNotContain=" + UPDATED_PLATFORM_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByLastUpdatedIsEqualToSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where lastUpdated equals to DEFAULT_LAST_UPDATED
+        defaultCompanionDiagnosticDeviceShouldBeFound("lastUpdated.equals=" + DEFAULT_LAST_UPDATED);
+
+        // Get all the companionDiagnosticDeviceList where lastUpdated equals to UPDATED_LAST_UPDATED
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("lastUpdated.equals=" + UPDATED_LAST_UPDATED);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByLastUpdatedIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where lastUpdated not equals to DEFAULT_LAST_UPDATED
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("lastUpdated.notEquals=" + DEFAULT_LAST_UPDATED);
+
+        // Get all the companionDiagnosticDeviceList where lastUpdated not equals to UPDATED_LAST_UPDATED
+        defaultCompanionDiagnosticDeviceShouldBeFound("lastUpdated.notEquals=" + UPDATED_LAST_UPDATED);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByLastUpdatedIsInShouldWork() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where lastUpdated in DEFAULT_LAST_UPDATED or UPDATED_LAST_UPDATED
+        defaultCompanionDiagnosticDeviceShouldBeFound("lastUpdated.in=" + DEFAULT_LAST_UPDATED + "," + UPDATED_LAST_UPDATED);
+
+        // Get all the companionDiagnosticDeviceList where lastUpdated equals to UPDATED_LAST_UPDATED
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("lastUpdated.in=" + UPDATED_LAST_UPDATED);
+    }
+
+    @Test
+    @Transactional
+    void getAllCompanionDiagnosticDevicesByLastUpdatedIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
+
+        // Get all the companionDiagnosticDeviceList where lastUpdated is not null
+        defaultCompanionDiagnosticDeviceShouldBeFound("lastUpdated.specified=true");
+
+        // Get all the companionDiagnosticDeviceList where lastUpdated is null
+        defaultCompanionDiagnosticDeviceShouldNotBeFound("lastUpdated.specified=false");
+    }
+
+    @Test
+    @Transactional
     void getAllCompanionDiagnosticDevicesByFdaSubmissionIsEqualToSomething() throws Exception {
         // Initialize the database
         companionDiagnosticDeviceRepository.saveAndFlush(companionDiagnosticDevice);
@@ -488,7 +715,10 @@ class CompanionDiagnosticDeviceResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(companionDiagnosticDevice.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].manufacturer").value(hasItem(DEFAULT_MANUFACTURER)));
+            .andExpect(jsonPath("$.[*].manufacturer").value(hasItem(DEFAULT_MANUFACTURER)))
+            .andExpect(jsonPath("$.[*].indicationDetails").value(hasItem(DEFAULT_INDICATION_DETAILS)))
+            .andExpect(jsonPath("$.[*].platformType").value(hasItem(DEFAULT_PLATFORM_TYPE)))
+            .andExpect(jsonPath("$.[*].lastUpdated").value(hasItem(DEFAULT_LAST_UPDATED.toString())));
 
         // Check, that the count call also returns 1
         restCompanionDiagnosticDeviceMockMvc
@@ -541,7 +771,9 @@ class CompanionDiagnosticDeviceResourceIT {
         updatedCompanionDiagnosticDevice
             .name(UPDATED_NAME)
             .manufacturer(UPDATED_MANUFACTURER)
-            .indicationDetails(UPDATED_INDICATION_DETAILS);
+            .indicationDetails(UPDATED_INDICATION_DETAILS)
+            .platformType(UPDATED_PLATFORM_TYPE)
+            .lastUpdated(UPDATED_LAST_UPDATED);
 
         restCompanionDiagnosticDeviceMockMvc
             .perform(
@@ -561,7 +793,8 @@ class CompanionDiagnosticDeviceResourceIT {
         assertThat(testCompanionDiagnosticDevice.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testCompanionDiagnosticDevice.getManufacturer()).isEqualTo(UPDATED_MANUFACTURER);
         assertThat(testCompanionDiagnosticDevice.getIndicationDetails()).isEqualTo(UPDATED_INDICATION_DETAILS);
-
+        assertThat(testCompanionDiagnosticDevice.getPlatformType()).isEqualTo(UPDATED_PLATFORM_TYPE);
+        assertThat(testCompanionDiagnosticDevice.getLastUpdated()).isEqualTo(UPDATED_LAST_UPDATED);
     }
 
     @Test
@@ -639,7 +872,10 @@ class CompanionDiagnosticDeviceResourceIT {
         CompanionDiagnosticDevice partialUpdatedCompanionDiagnosticDevice = new CompanionDiagnosticDevice();
         partialUpdatedCompanionDiagnosticDevice.setId(companionDiagnosticDevice.getId());
 
-        partialUpdatedCompanionDiagnosticDevice.manufacturer(UPDATED_MANUFACTURER).indicationDetails(UPDATED_INDICATION_DETAILS);
+        partialUpdatedCompanionDiagnosticDevice
+            .manufacturer(UPDATED_MANUFACTURER)
+            .indicationDetails(UPDATED_INDICATION_DETAILS)
+            .lastUpdated(UPDATED_LAST_UPDATED);
 
         restCompanionDiagnosticDeviceMockMvc
             .perform(
@@ -659,6 +895,8 @@ class CompanionDiagnosticDeviceResourceIT {
         assertThat(testCompanionDiagnosticDevice.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testCompanionDiagnosticDevice.getManufacturer()).isEqualTo(UPDATED_MANUFACTURER);
         assertThat(testCompanionDiagnosticDevice.getIndicationDetails()).isEqualTo(UPDATED_INDICATION_DETAILS);
+        assertThat(testCompanionDiagnosticDevice.getPlatformType()).isEqualTo(DEFAULT_PLATFORM_TYPE);
+        assertThat(testCompanionDiagnosticDevice.getLastUpdated()).isEqualTo(UPDATED_LAST_UPDATED);
     }
 
     @Test
@@ -676,7 +914,9 @@ class CompanionDiagnosticDeviceResourceIT {
         partialUpdatedCompanionDiagnosticDevice
             .name(UPDATED_NAME)
             .manufacturer(UPDATED_MANUFACTURER)
-            .indicationDetails(UPDATED_INDICATION_DETAILS);
+            .indicationDetails(UPDATED_INDICATION_DETAILS)
+            .platformType(UPDATED_PLATFORM_TYPE)
+            .lastUpdated(UPDATED_LAST_UPDATED);
 
         restCompanionDiagnosticDeviceMockMvc
             .perform(
@@ -696,6 +936,8 @@ class CompanionDiagnosticDeviceResourceIT {
         assertThat(testCompanionDiagnosticDevice.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testCompanionDiagnosticDevice.getManufacturer()).isEqualTo(UPDATED_MANUFACTURER);
         assertThat(testCompanionDiagnosticDevice.getIndicationDetails()).isEqualTo(UPDATED_INDICATION_DETAILS);
+        assertThat(testCompanionDiagnosticDevice.getPlatformType()).isEqualTo(UPDATED_PLATFORM_TYPE);
+        assertThat(testCompanionDiagnosticDevice.getLastUpdated()).isEqualTo(UPDATED_LAST_UPDATED);
     }
 
     @Test

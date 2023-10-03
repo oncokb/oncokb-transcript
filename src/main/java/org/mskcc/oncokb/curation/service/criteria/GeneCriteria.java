@@ -36,6 +36,8 @@ public class GeneCriteria implements Serializable, Criteria {
 
     private LongFilter ensemblGeneId;
 
+    private LongFilter biomarkerAssociationId;
+
     private LongFilter flagId;
 
     private LongFilter alterationId;
@@ -51,6 +53,7 @@ public class GeneCriteria implements Serializable, Criteria {
         this.hgncId = other.hgncId == null ? null : other.hgncId.copy();
         this.geneAliasId = other.geneAliasId == null ? null : other.geneAliasId.copy();
         this.ensemblGeneId = other.ensemblGeneId == null ? null : other.ensemblGeneId.copy();
+        this.biomarkerAssociationId = other.biomarkerAssociationId == null ? null : other.biomarkerAssociationId.copy();
         this.flagId = other.flagId == null ? null : other.flagId.copy();
         this.alterationId = other.alterationId == null ? null : other.alterationId.copy();
         this.distinct = other.distinct;
@@ -151,6 +154,21 @@ public class GeneCriteria implements Serializable, Criteria {
         this.ensemblGeneId = ensemblGeneId;
     }
 
+    public LongFilter getBiomarkerAssociationId() {
+        return biomarkerAssociationId;
+    }
+
+    public LongFilter biomarkerAssociationId() {
+        if (biomarkerAssociationId == null) {
+            biomarkerAssociationId = new LongFilter();
+        }
+        return biomarkerAssociationId;
+    }
+
+    public void setBiomarkerAssociationId(LongFilter biomarkerAssociationId) {
+        this.biomarkerAssociationId = biomarkerAssociationId;
+    }
+
     public LongFilter getFlagId() {
         return flagId;
     }
@@ -205,6 +223,7 @@ public class GeneCriteria implements Serializable, Criteria {
             Objects.equals(hgncId, that.hgncId) &&
             Objects.equals(geneAliasId, that.geneAliasId) &&
             Objects.equals(ensemblGeneId, that.ensemblGeneId) &&
+            Objects.equals(biomarkerAssociationId, that.biomarkerAssociationId) &&
             Objects.equals(flagId, that.flagId) &&
             Objects.equals(alterationId, that.alterationId) &&
             Objects.equals(distinct, that.distinct)
@@ -213,7 +232,18 @@ public class GeneCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, entrezGeneId, hugoSymbol, hgncId, geneAliasId, ensemblGeneId, flagId, alterationId, distinct);
+        return Objects.hash(
+            id,
+            entrezGeneId,
+            hugoSymbol,
+            hgncId,
+            geneAliasId,
+            ensemblGeneId,
+            biomarkerAssociationId,
+            flagId,
+            alterationId,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -226,6 +256,7 @@ public class GeneCriteria implements Serializable, Criteria {
             (hgncId != null ? "hgncId=" + hgncId + ", " : "") +
             (geneAliasId != null ? "geneAliasId=" + geneAliasId + ", " : "") +
             (ensemblGeneId != null ? "ensemblGeneId=" + ensemblGeneId + ", " : "") +
+            (biomarkerAssociationId != null ? "biomarkerAssociationId=" + biomarkerAssociationId + ", " : "") +
             (flagId != null ? "flagId=" + flagId + ", " : "") +
             (alterationId != null ? "alterationId=" + alterationId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +

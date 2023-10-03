@@ -148,15 +148,6 @@ public class FdaSubmissionQueryService extends QueryService<FdaSubmission> {
                         )
                     );
             }
-            if (criteria.getTypeName() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getTypeName(),
-                            root -> root.join(FdaSubmission_.type, JoinType.LEFT).get(FdaSubmissionType_.name)
-                        )
-                    );
-            }
         }
         return specification;
     }

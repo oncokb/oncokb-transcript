@@ -32,13 +32,13 @@ public class GenomeFragment implements Serializable {
     @Column(name = "type")
     private GenomeFragmentType type;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JsonIgnoreProperties(value = { "ensemblGenes", "genomeFragments" }, allowSetters = true)
     @JoinColumn(name = "seqRegion", referencedColumnName = "name")
     private SeqRegion seqRegion;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "fragments", "sequences", "ensemblGene" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "fragments", "sequences", "flags", "ensemblGene" }, allowSetters = true)
     private Transcript transcript;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

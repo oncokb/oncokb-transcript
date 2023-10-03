@@ -3,6 +3,7 @@ package org.mskcc.oncokb.curation.service;
 import java.util.List;
 import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
+import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.repository.CancerTypeRepository;
 import org.mskcc.oncokb.curation.service.criteria.CancerTypeCriteria;
 import org.slf4j.Logger;
@@ -139,6 +140,15 @@ public class CancerTypeQueryService extends QueryService<CancerType> {
                 specification =
                     specification.or(
                         buildSpecification(criteria.getParentId(), root -> root.join(CancerType_.parent, JoinType.LEFT).get(CancerType_.id))
+                    );
+            }
+            if (criteria.getClinicalTrialsGovConditionId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(
+                            criteria.getClinicalTrialsGovConditionId(),
+                            root -> root.join(CancerType_.clinicalTrialsGovConditions, JoinType.LEFT).get(ClinicalTrialsGovCondition_.id)
+                        )
                     );
             }
         }

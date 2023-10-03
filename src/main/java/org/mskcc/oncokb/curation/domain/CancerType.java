@@ -52,7 +52,7 @@ public class CancerType implements Serializable {
     private Set<CancerType> children = new HashSet<>();
 
     @OneToMany(mappedBy = "cancerType")
-    @JsonIgnoreProperties(value = { "alterations", "drugs", "fdaSubmissions", "cancerType" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "alterations", "drugs", "fdaSubmissions", "cancerType", "gene" }, allowSetters = true)
     private Set<BiomarkerAssociation> biomarkerAssociations = new HashSet<>();
 
     @ManyToOne

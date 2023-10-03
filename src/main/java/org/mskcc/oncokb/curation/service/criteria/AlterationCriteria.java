@@ -38,13 +38,13 @@ public class AlterationCriteria implements Serializable, Criteria {
 
     private StringFilter variantResidues;
 
-    private LongFilter biomarkerAssociationId;
-
     private LongFilter referenceGenomesId;
 
     private LongFilter geneId;
 
     private LongFilter consequenceId;
+
+    private LongFilter biomarkerAssociationId;
 
     private Boolean distinct;
 
@@ -58,10 +58,10 @@ public class AlterationCriteria implements Serializable, Criteria {
         this.proteinEnd = other.proteinEnd == null ? null : other.proteinEnd.copy();
         this.refResidues = other.refResidues == null ? null : other.refResidues.copy();
         this.variantResidues = other.variantResidues == null ? null : other.variantResidues.copy();
-        this.biomarkerAssociationId = other.biomarkerAssociationId == null ? null : other.biomarkerAssociationId.copy();
         this.referenceGenomesId = other.referenceGenomesId == null ? null : other.referenceGenomesId.copy();
         this.geneId = other.geneId == null ? null : other.geneId.copy();
         this.consequenceId = other.consequenceId == null ? null : other.consequenceId.copy();
+        this.biomarkerAssociationId = other.biomarkerAssociationId == null ? null : other.biomarkerAssociationId.copy();
         this.distinct = other.distinct;
     }
 
@@ -175,21 +175,6 @@ public class AlterationCriteria implements Serializable, Criteria {
         this.variantResidues = variantResidues;
     }
 
-    public LongFilter getBiomarkerAssociationId() {
-        return biomarkerAssociationId;
-    }
-
-    public LongFilter biomarkerAssociationId() {
-        if (biomarkerAssociationId == null) {
-            biomarkerAssociationId = new LongFilter();
-        }
-        return biomarkerAssociationId;
-    }
-
-    public void setBiomarkerAssociationId(LongFilter biomarkerAssociationId) {
-        this.biomarkerAssociationId = biomarkerAssociationId;
-    }
-
     public LongFilter getReferenceGenomesId() {
         return referenceGenomesId;
     }
@@ -235,6 +220,21 @@ public class AlterationCriteria implements Serializable, Criteria {
         this.consequenceId = consequenceId;
     }
 
+    public LongFilter getBiomarkerAssociationId() {
+        return biomarkerAssociationId;
+    }
+
+    public LongFilter biomarkerAssociationId() {
+        if (biomarkerAssociationId == null) {
+            biomarkerAssociationId = new LongFilter();
+        }
+        return biomarkerAssociationId;
+    }
+
+    public void setBiomarkerAssociationId(LongFilter biomarkerAssociationId) {
+        this.biomarkerAssociationId = biomarkerAssociationId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -260,10 +260,10 @@ public class AlterationCriteria implements Serializable, Criteria {
             Objects.equals(proteinEnd, that.proteinEnd) &&
             Objects.equals(refResidues, that.refResidues) &&
             Objects.equals(variantResidues, that.variantResidues) &&
-            Objects.equals(biomarkerAssociationId, that.biomarkerAssociationId) &&
             Objects.equals(referenceGenomesId, that.referenceGenomesId) &&
             Objects.equals(geneId, that.geneId) &&
             Objects.equals(consequenceId, that.consequenceId) &&
+            Objects.equals(biomarkerAssociationId, that.biomarkerAssociationId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
@@ -278,10 +278,10 @@ public class AlterationCriteria implements Serializable, Criteria {
             proteinEnd,
             refResidues,
             variantResidues,
-            biomarkerAssociationId,
             referenceGenomesId,
             geneId,
             consequenceId,
+            biomarkerAssociationId,
             distinct
         );
     }
@@ -297,10 +297,10 @@ public class AlterationCriteria implements Serializable, Criteria {
             (proteinEnd != null ? "proteinEnd=" + proteinEnd + ", " : "") +
             (refResidues != null ? "refResidues=" + refResidues + ", " : "") +
             (variantResidues != null ? "variantResidues=" + variantResidues + ", " : "") +
-            (biomarkerAssociationId != null ? "biomarkerAssociationId=" + biomarkerAssociationId + ", " : "") +
             (referenceGenomesId != null ? "referenceGenomesId=" + referenceGenomesId + ", " : "") +
             (geneId != null ? "geneId=" + geneId + ", " : "") +
             (consequenceId != null ? "consequenceId=" + consequenceId + ", " : "") +
+            (biomarkerAssociationId != null ? "biomarkerAssociationId=" + biomarkerAssociationId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

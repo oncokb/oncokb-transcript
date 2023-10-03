@@ -113,15 +113,6 @@ public class AlterationQueryService extends QueryService<Alteration> {
             if (criteria.getVariantResidues() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getVariantResidues(), Alteration_.variantResidues));
             }
-            if (criteria.getBiomarkerAssociationId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getBiomarkerAssociationId(),
-                            root -> root.join(Alteration_.biomarkerAssociations, JoinType.LEFT).get(BiomarkerAssociation_.id)
-                        )
-                    );
-            }
             if (criteria.getReferenceGenomesId() != null) {
                 specification =
                     specification.or(
@@ -143,6 +134,15 @@ public class AlterationQueryService extends QueryService<Alteration> {
                         buildSpecification(
                             criteria.getConsequenceId(),
                             root -> root.join(Alteration_.consequence, JoinType.LEFT).get(Consequence_.id)
+                        )
+                    );
+            }
+            if (criteria.getBiomarkerAssociationId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(
+                            criteria.getBiomarkerAssociationId(),
+                            root -> root.join(Alteration_.biomarkerAssociations, JoinType.LEFT).get(BiomarkerAssociation_.id)
                         )
                     );
             }

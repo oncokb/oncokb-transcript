@@ -3,10 +3,11 @@ import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { Row, Col } from 'reactstrap';
 import { IRootStore } from 'app/stores';
-import { ENTITY_ACTION, ENTITY_TYPE, PAGE_ROUTE } from 'app/config/constants';
+import { APP_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE, PAGE_ROUTE } from 'app/config/constants';
 import WithSeparator from 'react-with-separator';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import CdxBiomarkerAssociationTable from 'app/shared/table/CdxBiomarkerAssociationTable';
+import { TextFormat } from 'react-jhipster';
 export interface ICompanionDiagnosticDeviceDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const CompanionDiagnosticDeviceDetail = (props: ICompanionDiagnosticDeviceDetailProps) => {
@@ -47,6 +48,16 @@ export const CompanionDiagnosticDeviceDetail = (props: ICompanionDiagnosticDevic
               <span id="indicationDetails">Indication Details</span>
             </dt>
             <dd>{companionDiagnosticDeviceEntity.indicationDetails}</dd>
+            <dt>
+              <span id="platformType">Platform Type</span>
+            </dt>
+            <dd>{companionDiagnosticDeviceEntity.platformType}</dd>
+            <dt>
+              <span id="platformType">Last Updated</span>
+            </dt>
+            <dd>
+              <TextFormat value={companionDiagnosticDeviceEntity.lastUpdated} type="date" format={APP_DATE_FORMAT} />
+            </dd>
             <dt>Specimen Type</dt>
             <dd>
               <WithSeparator separator={', '}>

@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Consequence;
@@ -51,7 +52,6 @@ class ConsequenceResourceIT {
 
     private static final String ENTITY_API_URL = "/api/consequences";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
-    private static final String ENTITY_SEARCH_API_URL = "/api/_search/consequences";
 
     private static Random random = new Random();
     private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
@@ -539,25 +539,5 @@ class ConsequenceResourceIT {
         // Validate the database contains one less item
         List<Consequence> consequenceList = consequenceRepository.findAll();
         assertThat(consequenceList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    void searchConsequence() throws Exception {
-        // Configure the mock search repository
-        // Initialize the database
-        consequenceRepository.saveAndFlush(consequence);
-
-        // Search the consequence
-        restConsequenceMockMvc
-            .perform(get(ENTITY_SEARCH_API_URL + "?query=id:" + consequence.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(consequence.getId().intValue())))
-            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].term").value(hasItem(DEFAULT_TERM)))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].isGenerallyTruncating").value(hasItem(DEFAULT_IS_GENERALLY_TRUNCATING.booleanValue())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)));
     }
 }

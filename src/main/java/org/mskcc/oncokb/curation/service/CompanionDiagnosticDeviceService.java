@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
 import org.mskcc.oncokb.curation.repository.CompanionDiagnosticDeviceRepository;
-import org.mskcc.oncokb.curation.repository.FdaSubmissionTypeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -16,20 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
  * Service Implementation for managing {@link CompanionDiagnosticDevice}.
  */
 @Service
+@Transactional
 public class CompanionDiagnosticDeviceService {
 
     private final Logger log = LoggerFactory.getLogger(CompanionDiagnosticDeviceService.class);
 
     private final CompanionDiagnosticDeviceRepository companionDiagnosticDeviceRepository;
 
-    private final FdaSubmissionTypeRepository fdaSubmissionTypeRepository;
-
-    public CompanionDiagnosticDeviceService(
-        CompanionDiagnosticDeviceRepository companionDiagnosticDeviceRepository,
-        FdaSubmissionTypeRepository fdaSubmissionTypeRepository
-    ) {
+    public CompanionDiagnosticDeviceService(CompanionDiagnosticDeviceRepository companionDiagnosticDeviceRepository) {
         this.companionDiagnosticDeviceRepository = companionDiagnosticDeviceRepository;
-        this.fdaSubmissionTypeRepository = fdaSubmissionTypeRepository;
     }
 
     /**
@@ -40,9 +34,7 @@ public class CompanionDiagnosticDeviceService {
      */
     public CompanionDiagnosticDevice save(CompanionDiagnosticDevice companionDiagnosticDevice) {
         log.debug("Request to save CompanionDiagnosticDevice : {}", companionDiagnosticDevice);
-        CompanionDiagnosticDevice result = companionDiagnosticDeviceRepository.save(companionDiagnosticDevice);
-        companionDiagnosticDevice.setId(result.getId());
-        return result;
+        return companionDiagnosticDeviceRepository.save(companionDiagnosticDevice);
     }
 
     /**
@@ -66,13 +58,16 @@ public class CompanionDiagnosticDeviceService {
                 if (companionDiagnosticDevice.getIndicationDetails() != null) {
                     existingCompanionDiagnosticDevice.setIndicationDetails(companionDiagnosticDevice.getIndicationDetails());
                 }
+                if (companionDiagnosticDevice.getPlatformType() != null) {
+                    existingCompanionDiagnosticDevice.setPlatformType(companionDiagnosticDevice.getPlatformType());
+                }
+                if (companionDiagnosticDevice.getLastUpdated() != null) {
+                    existingCompanionDiagnosticDevice.setLastUpdated(companionDiagnosticDevice.getLastUpdated());
+                }
 
                 return existingCompanionDiagnosticDevice;
             })
-            .map(companionDiagnosticDeviceRepository::save)
-            .map(savedCompanionDiagnosticDevice -> {
-                return savedCompanionDiagnosticDevice;
-            });
+            .map(companionDiagnosticDeviceRepository::save);
     }
 
     /**
@@ -83,7 +78,7 @@ public class CompanionDiagnosticDeviceService {
     @Transactional(readOnly = true)
     public List<CompanionDiagnosticDevice> findAll() {
         log.debug("Request to get all CompanionDiagnosticDevices");
-        return companionDiagnosticDeviceRepository.findAllWithEagerRelationships();
+        return companionDiagnosticDeviceRepository.findAll();
     }
 
     /**

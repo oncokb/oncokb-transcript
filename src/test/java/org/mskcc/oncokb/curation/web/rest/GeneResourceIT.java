@@ -542,6 +542,7 @@ class GeneResourceIT {
         }
         em.persist(biomarkerAssociation);
         em.flush();
+        gene.addBiomarkerAssociation(biomarkerAssociation);
         geneRepository.saveAndFlush(gene);
         Long biomarkerAssociationId = biomarkerAssociation.getId();
 

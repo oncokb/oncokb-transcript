@@ -2,10 +2,12 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -18,8 +20,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.BiomarkerAssociation;
 import org.mskcc.oncokb.curation.repository.BiomarkerAssociationRepository;
+import org.mskcc.oncokb.curation.service.BiomarkerAssociationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -42,6 +47,12 @@ class BiomarkerAssociationResourceIT {
 
     @Autowired
     private BiomarkerAssociationRepository biomarkerAssociationRepository;
+
+    @Mock
+    private BiomarkerAssociationRepository biomarkerAssociationRepositoryMock;
+
+    @Mock
+    private BiomarkerAssociationService biomarkerAssociationServiceMock;
 
     @Autowired
     private EntityManager em;
@@ -133,6 +144,24 @@ class BiomarkerAssociationResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(biomarkerAssociation.getId().intValue())));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllBiomarkerAssociationsWithEagerRelationshipsIsEnabled() throws Exception {
+        when(biomarkerAssociationServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restBiomarkerAssociationMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(biomarkerAssociationServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllBiomarkerAssociationsWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(biomarkerAssociationServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restBiomarkerAssociationMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(biomarkerAssociationServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test

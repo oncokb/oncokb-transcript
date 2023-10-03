@@ -58,7 +58,7 @@ public class CompanionDiagnosticDeviceQueryService extends QueryService<Companio
     public List<CompanionDiagnosticDevice> findByCriteria(CompanionDiagnosticDeviceCriteria criteria) {
         log.debug("find by criteria : {}", criteria);
         final Specification<CompanionDiagnosticDevice> specification = createSpecification(criteria);
-        return companionDiagnosticDeviceRepository.findAll(specification);
+        return companionDiagnosticDeviceRepository.findAllWithEagerRelationships();
     }
 
     /**
@@ -107,6 +107,20 @@ public class CompanionDiagnosticDeviceQueryService extends QueryService<Companio
             if (criteria.getManufacturer() != null) {
                 specification =
                     specification.or(buildStringSpecification(criteria.getManufacturer(), CompanionDiagnosticDevice_.manufacturer));
+            }
+            if (criteria.getIndicationDetails() != null) {
+                specification =
+                    specification.or(
+                        buildStringSpecification(criteria.getIndicationDetails(), CompanionDiagnosticDevice_.indicationDetails)
+                    );
+            }
+            if (criteria.getPlatformType() != null) {
+                specification =
+                    specification.or(buildStringSpecification(criteria.getPlatformType(), CompanionDiagnosticDevice_.platformType));
+            }
+            if (criteria.getLastUpdated() != null) {
+                specification =
+                    specification.or(buildRangeSpecification(criteria.getLastUpdated(), CompanionDiagnosticDevice_.lastUpdated));
             }
             if (criteria.getFdaSubmissionId() != null) {
                 specification =

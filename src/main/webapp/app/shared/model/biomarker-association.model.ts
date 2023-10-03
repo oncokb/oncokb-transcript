@@ -1,8 +1,8 @@
-import { IDrug } from './drug.model';
-import { IFdaSubmission } from './fda-submission.model';
-import { IAlteration } from './alteration.model';
-import { ICancerType } from './cancer-type.model';
-import { IGene } from './gene.model';
+import { IAlteration } from 'app/shared/model/alteration.model';
+import { IDrug } from 'app/shared/model/drug.model';
+import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
+import { ICancerType } from 'app/shared/model/cancer-type.model';
+import { IGene } from 'app/shared/model/gene.model';
 
 export interface IBiomarkerAssociation {
   id?: number;

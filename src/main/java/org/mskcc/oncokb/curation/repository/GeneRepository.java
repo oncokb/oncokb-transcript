@@ -35,15 +35,15 @@ public interface GeneRepository extends JpaRepository<Gene, Long>, JpaSpecificat
     List<Gene> findAllByIdInWithGeneAliasAndEnsemblGenes(@Param("ids") List<Long> ids);
 
     @Query(
-        value = "select distinct gene from Gene gene left join fetch gene.alterations",
+        value = "select distinct gene from Gene gene left join fetch gene.flags",
         countQuery = "select count(distinct gene) from Gene gene"
     )
     Page<Gene> findAllWithEagerRelationships(Pageable pageable);
 
-    @Query("select distinct gene from Gene gene left join fetch gene.alterations")
+    @Query("select distinct gene from Gene gene left join fetch gene.flags")
     List<Gene> findAllWithEagerRelationships();
 
-    @Query("select gene from Gene gene left join fetch gene.alterations where gene.id =:id")
+    @Query("select gene from Gene gene left join fetch gene.flags where gene.id =:id")
     Optional<Gene> findOneWithEagerRelationships(@Param("id") Long id);
 
     List<Gene> findByHugoSymbolInIgnoreCase(List<String> values);

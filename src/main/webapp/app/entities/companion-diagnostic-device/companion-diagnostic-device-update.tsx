@@ -1,4 +1,4 @@
-import { PAGE_ROUTE } from 'app/config/constants';
+import { APP_DATE_FORMAT, PAGE_ROUTE } from 'app/config/constants';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
 import ValidatedForm from 'app/shared/form/ValidatedForm';
@@ -123,6 +123,21 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
                   name="indicationDetails"
                   data-cy="indicationDetails"
                   type="text"
+                />
+                <ValidatedField
+                  label="Platform Type"
+                  id="companion-diagnostic-device-platformType"
+                  name="platformType"
+                  data-cy="platformType"
+                  type="text"
+                />
+                <ValidatedField
+                  label="Last Updated"
+                  id="fda-submission-lastUpdated"
+                  name="lastUpdated"
+                  data-cy="lastUpdated"
+                  type="date"
+                  placeholder={APP_DATE_FORMAT}
                 />
                 <ValidatedSelect
                   label="Specimen Types"
