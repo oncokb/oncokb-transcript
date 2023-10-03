@@ -12,7 +12,8 @@
     },
     {
       "fieldName": "deviceName",
-      "fieldType": "String"
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "genericName",

@@ -7,7 +7,7 @@ export interface IFdaSubmission {
   id?: number;
   number?: string;
   supplementNumber?: string | null;
-  deviceName?: string | null;
+  deviceName?: string;
   genericName?: string | null;
   dateReceived?: string | null;
   decisionDate?: string | null;

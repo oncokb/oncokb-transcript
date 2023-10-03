@@ -65,8 +65,7 @@ public class GeneService {
      */
     public Gene save(Gene gene) {
         log.debug("Request to save Gene : {}", gene);
-        Gene result = geneRepository.save(gene);
-        return result;
+        return geneRepository.save(gene);
     }
 
     /**
@@ -87,6 +86,9 @@ public class GeneService {
                 if (gene.getHugoSymbol() != null) {
                     existingGene.setHugoSymbol(gene.getHugoSymbol());
                 }
+                if (gene.getHgncId() != null) {
+                    existingGene.setHgncId(gene.getHgncId());
+                }
                 if (gene.getFlags() != null) {
                     existingGene.getFlags().clear();
                     existingGene.getFlags().addAll(gene.getFlags());
@@ -95,6 +97,18 @@ public class GeneService {
                 return existingGene;
             })
             .map(geneRepository::save);
+    }
+
+    /**
+     * Get all the genes.
+     *
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public Page<Gene> findAll(Pageable pageable) {
+        log.debug("Request to get all Genes");
+        return geneRepository.findAll(pageable);
     }
 
     /**
@@ -139,7 +153,7 @@ public class GeneService {
     @Transactional(readOnly = true)
     public Optional<Gene> findOne(Long id) {
         log.debug("Request to get Gene : {}", id);
-        return geneRepository.findById(id);
+        return geneRepository.findOneWithEagerRelationships(id);
     }
 
     /**

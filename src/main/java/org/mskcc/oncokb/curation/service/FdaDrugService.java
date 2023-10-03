@@ -36,8 +36,7 @@ public class FdaDrugService {
      */
     public FdaDrug save(FdaDrug fdaDrug) {
         log.debug("Request to save FdaDrug : {}", fdaDrug);
-        FdaDrug result = fdaDrugRepository.save(fdaDrug);
-        return result;
+        return fdaDrugRepository.save(fdaDrug);
     }
 
     /**
@@ -55,6 +54,7 @@ public class FdaDrugService {
                 if (fdaDrug.getApplicationNumber() != null) {
                     existingFdaDrug.setApplicationNumber(fdaDrug.getApplicationNumber());
                 }
+
                 return existingFdaDrug;
             })
             .map(fdaDrugRepository::save);

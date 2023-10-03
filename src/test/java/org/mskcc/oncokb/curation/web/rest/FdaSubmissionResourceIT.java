@@ -218,6 +218,28 @@ class FdaSubmissionResourceIT {
 
     @Test
     @Transactional
+    void checkDeviceNameIsRequired() throws Exception {
+        int databaseSizeBeforeTest = fdaSubmissionRepository.findAll().size();
+        // set the field null
+        fdaSubmission.setDeviceName(null);
+
+        // Create the FdaSubmission, which fails.
+
+        restFdaSubmissionMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(fdaSubmission))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<FdaSubmission> fdaSubmissionList = fdaSubmissionRepository.findAll();
+        assertThat(fdaSubmissionList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void checkCuratedIsRequired() throws Exception {
         int databaseSizeBeforeTest = fdaSubmissionRepository.findAll().size();
         // set the field null
