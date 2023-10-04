@@ -1,6 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -134,7 +135,11 @@ public class EnsemblGeneService {
      * @return the entity.
      */
     public Optional<EnsemblGene> findByEnsemblGeneIdAndReferenceGenome(String ensemblGeneId, ReferenceGenome referenceGenome) {
-        return ensemblGeneRepository.findByEnsemblGeneIdAndReferenceGenome(ensemblGeneId, referenceGenome);
+        List<EnsemblGene> ensemblGenes = ensemblGeneRepository.findAllByReferenceGenomeAndEnsemblGeneIdIn(
+            referenceGenome,
+            Collections.singletonList(ensemblGeneId)
+        );
+        return ensemblGenes.size() > 0 ? Optional.of(ensemblGenes.get(0)) : Optional.empty();
     }
 
     public List<EnsemblGene> findAllByGeneAndReferenceGenome(Gene gene, ReferenceGenome referenceGenome) {

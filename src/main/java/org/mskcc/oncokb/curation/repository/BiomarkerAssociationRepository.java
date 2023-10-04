@@ -17,18 +17,28 @@ public interface BiomarkerAssociationRepository extends JpaRepository<BiomarkerA
     List<BiomarkerAssociation> findDistinctIdByFdaSubmissions_CompanionDiagnosticDeviceId(Long id);
 
     @Query(
-        value = "select distinct biomarkerAssociation from BiomarkerAssociation biomarkerAssociation left join fetch biomarkerAssociation.alterations left join fetch biomarkerAssociation.drugs left join fetch biomarkerAssociation.fdaSubmissions",
+        value = "select distinct biomarkerAssociation from BiomarkerAssociation biomarkerAssociation" +
+        " left join fetch biomarkerAssociation.alterations" +
+        " left join fetch biomarkerAssociation.drugs" +
+        " left join fetch biomarkerAssociation.fdaSubmissions",
         countQuery = "select count(distinct biomarkerAssociation) from BiomarkerAssociation biomarkerAssociation"
     )
     Page<BiomarkerAssociation> findAllWithEagerRelationships(Pageable pageable);
 
     @Query(
-        "select distinct biomarkerAssociation from BiomarkerAssociation biomarkerAssociation left join fetch biomarkerAssociation.alterations left join fetch biomarkerAssociation.drugs left join fetch biomarkerAssociation.fdaSubmissions"
+        "select distinct biomarkerAssociation from BiomarkerAssociation biomarkerAssociation" +
+        " left join fetch biomarkerAssociation.alterations" +
+        " left join fetch biomarkerAssociation.drugs" +
+        " left join fetch biomarkerAssociation.fdaSubmissions"
     )
     List<BiomarkerAssociation> findAllWithEagerRelationships();
 
     @Query(
-        "select biomarkerAssociation from BiomarkerAssociation biomarkerAssociation left join fetch biomarkerAssociation.alterations left join fetch biomarkerAssociation.drugs left join fetch biomarkerAssociation.fdaSubmissions where biomarkerAssociation.id =:id"
+        "select biomarkerAssociation from BiomarkerAssociation biomarkerAssociation" +
+        " left join fetch biomarkerAssociation.alterations" +
+        " left join fetch biomarkerAssociation.drugs" +
+        " left join fetch biomarkerAssociation.fdaSubmissions" +
+        " where biomarkerAssociation.id =:id"
     )
     Optional<BiomarkerAssociation> findOneWithEagerRelationships(@Param("id") Long id);
 }

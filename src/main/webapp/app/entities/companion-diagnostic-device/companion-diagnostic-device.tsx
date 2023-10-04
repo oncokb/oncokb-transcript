@@ -52,7 +52,7 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
 
   useEffect(() => {
     if (search) {
-      debouncedSearch(search, props.searchEntities);
+      // debouncedSearch(search, props.searchEntities);
     } else {
       props.getEntities({});
     }

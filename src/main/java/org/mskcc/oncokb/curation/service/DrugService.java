@@ -74,7 +74,7 @@ public class DrugService {
     @Transactional(readOnly = true)
     public Page<Drug> findAll(Pageable pageable) {
         log.debug("Request to get all Drugs");
-        return drugRepository.findAll(pageable);
+        return drugRepository.findAllWithEagerRelationships(pageable);
     }
 
     /**
@@ -86,15 +86,15 @@ public class DrugService {
     @Transactional(readOnly = true)
     public Optional<Drug> findOne(Long id) {
         log.debug("Request to get Drug : {}", id);
-        return drugRepository.findById(id);
+        return drugRepository.findOneWithEagerRelationships(id);
     }
 
     public Optional<Drug> findByCode(String code) {
-        return drugRepository.findOneByCode(code);
+        return drugRepository.findOneByCodeWithEagerRelationships(code);
     }
 
     public List<Drug> findByName(String name) {
-        return drugRepository.findByNameIgnoreCase(name);
+        return drugRepository.findByNameIgnoreCaseWithEagerRelationships(name);
     }
 
     public List<Drug> searchDrug(String query) {

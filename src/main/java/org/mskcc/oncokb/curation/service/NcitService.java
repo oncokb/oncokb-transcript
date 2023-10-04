@@ -84,7 +84,7 @@ public class NcitService {
             String[] parts = line.split("\t");
             if (parts.length >= 6) {
                 String code = parts[0];
-                Optional<Drug> matchedDrugOptional = drugRepository.findOneByCode(code);
+                Optional<Drug> matchedDrugOptional = drugRepository.findOneByCodeWithEagerRelationships(code);
 
                 List<String> synonyms = Arrays
                     .asList((parts[3] == null ? "" : parts[3]).split(SYNONYMS_SEPARATOR_REGEX))

@@ -16,13 +16,25 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface GeneRepository extends JpaRepository<Gene, Long>, JpaSpecificationExecutor<Gene> {
     @Cacheable(cacheResolver = "geneCacheResolver")
-    Optional<Gene> findByEntrezGeneId(Integer entrezGeneId);
+    @Query(
+        "select gene from Gene gene" +
+        " left join fetch gene.flags" +
+        " left join fetch gene.geneAliases" +
+        " where gene.entrezGeneId =:entrezGeneId"
+    )
+    Optional<Gene> findByEntrezGeneId(@Param("entrezGeneId") Integer entrezGeneId);
 
     @Cacheable(cacheResolver = "geneCacheResolver")
-    Optional<Gene> findByHugoSymbol(String hugoSymbol);
+    @Query(
+        "select gene from Gene gene" +
+        " left join fetch gene.flags" +
+        " left join fetch gene.geneAliases" +
+        " where gene.hugoSymbol =:hugoSymbol"
+    )
+    Optional<Gene> findByHugoSymbol(@Param("hugoSymbol") String hugoSymbol);
 
     @Query(
-        value = "select gene from Gene gene left join fetch gene.geneAliases ga where UPPER(gene.hugoSymbol) = UPPER(:hugoSymbol) or UPPER(ga.name) = UPPER(:hugoSymbol) "
+        value = "select gene from Gene gene left join fetch gene.flags left join fetch gene.geneAliases ga where UPPER(gene.hugoSymbol) = UPPER(:hugoSymbol) or UPPER(ga.name) = UPPER(:hugoSymbol) "
     )
     List<Gene> findGeneByHugoSymbolOrGeneAliasesIn(@Param("hugoSymbol") String hugoSymbol);
 
@@ -30,21 +42,27 @@ public interface GeneRepository extends JpaRepository<Gene, Long>, JpaSpecificat
     Page<Long> findAllGeneIds(Pageable pageable);
 
     @Query(
-        value = "select distinct gene from Gene gene left join fetch gene.geneAliases ga left join fetch gene.ensemblGenes eg where gene.id in :ids"
+        value = "select distinct gene from Gene gene left join fetch gene.flags left join fetch gene.geneAliases ga left join fetch gene.ensemblGenes eg where gene.id in :ids"
     )
     List<Gene> findAllByIdInWithGeneAliasAndEnsemblGenes(@Param("ids") List<Long> ids);
 
     @Query(
-        value = "select distinct gene from Gene gene left join fetch gene.flags",
+        value = "select distinct gene from Gene gene" + " left join fetch gene.flags" + " left join fetch gene.geneAliases",
         countQuery = "select count(distinct gene) from Gene gene"
     )
     Page<Gene> findAllWithEagerRelationships(Pageable pageable);
 
-    @Query("select distinct gene from Gene gene left join fetch gene.flags")
+    @Query("select distinct gene from Gene gene" + " left join fetch gene.flags" + " left join fetch gene.geneAliases")
     List<Gene> findAllWithEagerRelationships();
 
-    @Query("select gene from Gene gene left join fetch gene.flags where gene.id =:id")
+    @Query("select gene from Gene gene" + " left join fetch gene.flags" + " left join fetch gene.geneAliases" + " where gene.id =:id")
     Optional<Gene> findOneWithEagerRelationships(@Param("id") Long id);
 
-    List<Gene> findByHugoSymbolInIgnoreCase(List<String> values);
+    @Query(
+        "select gene from Gene gene" +
+        " left join fetch gene.flags" +
+        " left join fetch gene.geneAliases" +
+        " where gene.hugoSymbol in (:symbols)"
+    )
+    List<Gene> findByHugoSymbolInIgnoreCase(@Param("symbols") List<String> symbols);
 }
