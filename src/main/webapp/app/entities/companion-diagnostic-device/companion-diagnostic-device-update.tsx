@@ -11,6 +11,7 @@ import React, { useEffect, useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Col, Row } from 'reactstrap';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import _ from 'lodash';
 
 export interface ICompanionDiagnosticDeviceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -69,6 +70,12 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
   const specimenTypesOptions = specimenTypes?.map(specType => {
     return { label: specType.type, value: specType.id };
   });
+  const biomarkerAssociations = _.uniq(
+    (companionDiagnosticDeviceEntity.fdaSubmissions || []).reduce((acc, fdaSubmission) => {
+      acc.push(...fdaSubmission.biomarkerAssociations);
+      return acc;
+    }, [])
+  );
 
   return (
     <>
@@ -157,7 +164,11 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
       {!isNew ? (
         <Row className="mt-4">
           <Col>
-            <CdxBiomarkerAssociationTable companionDiagnosticDeviceId={props.companionDiagnosticDeviceEntity.id} editable />
+            <CdxBiomarkerAssociationTable
+              biomarkerAssociations={biomarkerAssociations}
+              onDeleteBiomarkerAssociation={() => props.getEntity(props.match.params.id)}
+              editable
+            />
           </Col>
         </Row>
       ) : undefined}

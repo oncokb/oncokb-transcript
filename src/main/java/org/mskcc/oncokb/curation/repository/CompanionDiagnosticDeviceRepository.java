@@ -20,7 +20,9 @@ public interface CompanionDiagnosticDeviceRepository
         " left join fetch companionDiagnosticDevice.specimenTypes" +
         " left join fetch companionDiagnosticDevice.fdaSubmissions fa" +
         " left join fetch fa.biomarkerAssociations ba" +
-        " left join fetch ba.drugs"
+        " left join fetch ba.drugs" +
+        " left join fetch ba.alterations" +
+        " left join fetch ba.fdaSubmissions"
     )
     List<CompanionDiagnosticDevice> findAllWithEagerRelationships();
 
@@ -30,6 +32,8 @@ public interface CompanionDiagnosticDeviceRepository
         " left join fetch companionDiagnosticDevice.fdaSubmissions fa" +
         " left join fetch fa.biomarkerAssociations ba" +
         " left join fetch ba.drugs" +
+        " left join fetch ba.alterations" +
+        " left join fetch ba.fdaSubmissions" +
         " where companionDiagnosticDevice.id =:id"
     )
     Optional<CompanionDiagnosticDevice> findOneWithEagerRelationships(@Param("id") Long id);

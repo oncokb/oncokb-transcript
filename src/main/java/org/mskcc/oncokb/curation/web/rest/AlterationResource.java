@@ -1,6 +1,5 @@
 package org.mskcc.oncokb.curation.web.rest;
 
-import com.blazebit.persistence.PagedList;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;

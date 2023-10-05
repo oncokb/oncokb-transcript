@@ -13,24 +13,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface CdxBiomarkerAssociationTableProps extends StoreProps {
   editable?: boolean;
-  companionDiagnosticDeviceId: number;
+  biomarkerAssociations: IBiomarkerAssociation[];
+  onDeleteBiomarkerAssociation: () => void;
 }
 
 export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerAssociationTableProps> = props => {
   const [showModal, setShowModal] = useState(false);
   const [currentBiomarkerAssociationId, setCurrentBiomarkerAssociationId] = useState(null);
 
-  useEffect(() => {
-    if (props.companionDiagnosticDeviceId) {
-      props.getBiomarkerAssociations(props.companionDiagnosticDeviceId);
-    }
-  }, [props.companionDiagnosticDeviceId]);
-
   const handleDeleteIndication = () => {
     setShowModal(false);
     if (currentBiomarkerAssociationId) {
       props.deleteEntity(currentBiomarkerAssociationId).then(() => {
-        props.getBiomarkerAssociations(props.companionDiagnosticDeviceId);
+        props.onDeleteBiomarkerAssociation();
       });
     }
   };
@@ -142,7 +137,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
   return (
     <>
       <h4>Biomarker Associations</h4>
-      <OncoKBTable columns={columns} data={props.biomarkerAssociations} loading={props.loading} />
+      <OncoKBTable columns={columns} data={props.biomarkerAssociations} />
       <SimpleConfirmModal
         show={showModal}
         onCancel={handleCancel}
@@ -155,9 +150,6 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
 
 const mapStoreToProps = ({ biomarkerAssociationStore }: IRootStore) => ({
   deleteEntity: biomarkerAssociationStore.deleteEntity,
-  getBiomarkerAssociations: biomarkerAssociationStore.getByCompanionDiagnosticDevice,
-  biomarkerAssociations: biomarkerAssociationStore.entities,
-  loading: biomarkerAssociationStore.loading,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

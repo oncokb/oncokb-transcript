@@ -73,7 +73,6 @@ public class FdaSubmission implements Serializable {
     private FdaSubmissionType type;
 
     @ManyToMany(mappedBy = "fdaSubmissions")
-    @JsonIgnoreProperties(value = { "fdaSubmissions" }, allowSetters = true)
     private Set<BiomarkerAssociation> biomarkerAssociations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

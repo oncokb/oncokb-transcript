@@ -40,7 +40,6 @@ public class CompanionDiagnosticDevice implements Serializable {
     private Instant lastUpdated;
 
     @OneToMany(mappedBy = "companionDiagnosticDevice")
-    @JsonIgnoreProperties(value = { "companionDiagnosticDevice" }, allowSetters = true)
     private Set<FdaSubmission> fdaSubmissions = new HashSet<>();
 
     @ManyToMany
