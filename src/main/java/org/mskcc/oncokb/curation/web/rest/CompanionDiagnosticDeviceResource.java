@@ -213,7 +213,7 @@ public class CompanionDiagnosticDeviceResource {
      * @param query the query of the companionDiagnosticDevice search.
      * @return the result of the search.
      */
-    @GetMapping("/_search/companion-diagnostic-devices")
+    @GetMapping("/companion-diagnostic-devices/search")
     public List<CompanionDiagnosticDevice> searchCompanionDiagnosticDevices(@RequestParam String query) {
         log.debug("REST request to search CompanionDiagnosticDevices for query {}", query);
         return companionDiagnosticDeviceQueryService.findBySearchQuery(query);

@@ -16,15 +16,6 @@ import org.springframework.stereotype.Repository;
 public interface CompanionDiagnosticDeviceRepository
     extends JpaRepository<CompanionDiagnosticDevice, Long>, JpaSpecificationExecutor<CompanionDiagnosticDevice> {
     @Query(
-        value = "select distinct companionDiagnosticDevice from CompanionDiagnosticDevice companionDiagnosticDevice" +
-        " left join fetch companionDiagnosticDevice.specimenTypes" +
-        " left join fetch companionDiagnosticDevice.fdaSubmissions fa" +
-        " left join fetch fa.biomarkerAssociations",
-        countQuery = "select count(distinct companionDiagnosticDevice) from CompanionDiagnosticDevice companionDiagnosticDevice"
-    )
-    Page<CompanionDiagnosticDevice> findAllWithEagerRelationships(Pageable pageable);
-
-    @Query(
         "select distinct companionDiagnosticDevice from CompanionDiagnosticDevice companionDiagnosticDevice" +
         " left join fetch companionDiagnosticDevice.specimenTypes" +
         " left join fetch companionDiagnosticDevice.fdaSubmissions fa" +

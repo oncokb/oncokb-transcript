@@ -82,15 +82,6 @@ public class CompanionDiagnosticDeviceService {
     }
 
     /**
-     * Get all the companionDiagnosticDevices with eager load of many-to-many relationships.
-     *
-     * @return the list of entities.
-     */
-    public Page<CompanionDiagnosticDevice> findAllWithEagerRelationships(Pageable pageable) {
-        return companionDiagnosticDeviceRepository.findAllWithEagerRelationships(pageable);
-    }
-
-    /**
      * Get one companionDiagnosticDevice by id.
      *
      * @param id the id of the entity.

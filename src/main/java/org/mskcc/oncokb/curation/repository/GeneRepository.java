@@ -38,31 +38,33 @@ public interface GeneRepository extends JpaRepository<Gene, Long>, JpaSpecificat
     )
     List<Gene> findGeneByHugoSymbolOrGeneAliasesIn(@Param("hugoSymbol") String hugoSymbol);
 
-    @Query(value = "select gene.id from Gene gene order by gene.id", countQuery = "select count(gene.id) from Gene gene")
-    Page<Long> findAllGeneIds(Pageable pageable);
-
     @Query(
         value = "select distinct gene from Gene gene left join fetch gene.flags left join fetch gene.geneAliases ga left join fetch gene.ensemblGenes eg where gene.id in :ids"
     )
     List<Gene> findAllByIdInWithGeneAliasAndEnsemblGenes(@Param("ids") List<Long> ids);
 
-    @Query(
-        value = "select distinct gene from Gene gene" + " left join fetch gene.flags" + " left join fetch gene.geneAliases",
-        countQuery = "select count(distinct gene) from Gene gene"
-    )
-    Page<Gene> findAllWithEagerRelationships(Pageable pageable);
-
     @Query("select distinct gene from Gene gene" + " left join fetch gene.flags" + " left join fetch gene.geneAliases")
     List<Gene> findAllWithEagerRelationships();
+
+    @Query(
+        "select distinct gene from Gene gene" +
+        " left join fetch gene.flags" +
+        " left join fetch gene.geneAliases" +
+        " where gene.id in (:ids)"
+    )
+    List<Gene> findAllWithEagerRelationships(@Param("ids") List<Long> ids);
 
     @Query("select gene from Gene gene" + " left join fetch gene.flags" + " left join fetch gene.geneAliases" + " where gene.id =:id")
     Optional<Gene> findOneWithEagerRelationships(@Param("id") Long id);
 
     @Query(
-        "select gene from Gene gene" +
+        "select distinct gene from Gene gene" +
         " left join fetch gene.flags" +
         " left join fetch gene.geneAliases" +
         " where gene.hugoSymbol in (:symbols)"
     )
     List<Gene> findByHugoSymbolInIgnoreCase(@Param("symbols") List<String> symbols);
+
+    @Query("select distinct gene from Gene gene" + " where lower(gene.hugoSymbol) like lower(concat('%', :query,'%'))")
+    Page<Gene> searchGene(@Param("query") String query, Pageable pageable);
 }

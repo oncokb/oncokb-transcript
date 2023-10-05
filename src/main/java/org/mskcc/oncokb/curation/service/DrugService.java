@@ -74,7 +74,7 @@ public class DrugService {
     @Transactional(readOnly = true)
     public Page<Drug> findAll(Pageable pageable) {
         log.debug("Request to get all Drugs");
-        return drugRepository.findAllWithEagerRelationships(pageable);
+        return drugRepository.findAll(pageable);
     }
 
     /**

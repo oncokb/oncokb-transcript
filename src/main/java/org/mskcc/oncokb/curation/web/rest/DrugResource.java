@@ -82,7 +82,7 @@ public class DrugResource {
     /**
      * {@code PUT  /drugs/:id} : Updates an existing drug.
      *
-     * @param id the id of the drug to save.
+     * @param id   the id of the drug to save.
      * @param drug the drug to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated drug,
      * or with status {@code 400 (Bad Request)} if the drug is not valid,
@@ -114,7 +114,7 @@ public class DrugResource {
     /**
      * {@code PATCH  /drugs/:id} : Partial updates given fields of an existing drug, field will ignore if it is null
      *
-     * @param id the id of the drug to save.
+     * @param id   the id of the drug to save.
      * @param drug the drug to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated drug,
      * or with status {@code 400 (Bad Request)} if the drug is not valid,
@@ -202,18 +202,16 @@ public class DrugResource {
     }
 
     /**
-     * {@code SEARCH  /_search/drugs?query=:query} : search for the drug corresponding
+     * {@code SEARCH  /drugs/search?query=:query} : search for the drug corresponding
      * to the query.
      *
      * @param query the query of the drug search.
-     * @param pageable the pagination information.
      * @return the result of the search.
      */
-    @GetMapping("/_search/drugs")
-    public ResponseEntity<List<Drug>> searchDrugs(@RequestParam String query, Pageable pageable) {
+    @GetMapping("/drugs/search")
+    public ResponseEntity<List<Drug>> searchDrugs(@RequestParam String query) {
         log.debug("REST request to search for a page of Drugs for query {}", query);
-        Page<Drug> page = drugQueryService.findBySearchQuery(query, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        List<Drug> drugs = drugService.searchDrug(query);
+        return ResponseEntity.ok().body(drugs);
     }
 }

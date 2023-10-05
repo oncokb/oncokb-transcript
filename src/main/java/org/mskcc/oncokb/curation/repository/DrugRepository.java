@@ -14,12 +14,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface DrugRepository extends JpaRepository<Drug, Long>, JpaSpecificationExecutor<Drug> {
-    @Query(
-        value = "select distinct drug from Drug drug left join fetch drug.brands left join fetch drug.synonyms",
-        countQuery = "select count(distinct drug) from Drug drug"
-    )
-    Page<Drug> findAllWithEagerRelationships(Pageable pageable);
-
     @Query("select distinct drug from Drug drug left join fetch drug.brands left join fetch drug.synonyms where drug.id=:id")
     Optional<Drug> findOneWithEagerRelationships(@Param("id") Long id);
 
