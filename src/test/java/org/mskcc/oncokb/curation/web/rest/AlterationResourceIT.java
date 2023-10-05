@@ -239,24 +239,6 @@ class AlterationResourceIT {
             .andExpect(jsonPath("$.[*].variantResidues").value(hasItem(DEFAULT_VARIANT_RESIDUES)));
     }
 
-    @SuppressWarnings({ "unchecked" })
-    void getAllAlterationsWithEagerRelationshipsIsEnabled() throws Exception {
-        when(alterationServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restAlterationMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(alterationServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllAlterationsWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(alterationServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restAlterationMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(alterationServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
     @Test
     @Transactional
     void getAlteration() throws Exception {

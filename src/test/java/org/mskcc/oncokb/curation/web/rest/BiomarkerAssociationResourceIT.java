@@ -146,24 +146,6 @@ class BiomarkerAssociationResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(biomarkerAssociation.getId().intValue())));
     }
 
-    @SuppressWarnings({ "unchecked" })
-    void getAllBiomarkerAssociationsWithEagerRelationshipsIsEnabled() throws Exception {
-        when(biomarkerAssociationServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restBiomarkerAssociationMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(biomarkerAssociationServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllBiomarkerAssociationsWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(biomarkerAssociationServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restBiomarkerAssociationMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(biomarkerAssociationServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
     @Test
     @Transactional
     void getBiomarkerAssociation() throws Exception {

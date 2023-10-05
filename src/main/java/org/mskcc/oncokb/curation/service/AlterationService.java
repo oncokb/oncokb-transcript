@@ -89,7 +89,7 @@ public class AlterationService {
         List<Alteration> enrichedAlterations = alterationRepository.findAllWithEagerRelationships(
             alterationPage.getContent().stream().map(Alteration::getId).collect(Collectors.toList())
         );
-        return new PageImpl<>(enrichedAlterations, pageable, enrichedAlterations.size());
+        return new PageImpl<>(enrichedAlterations, pageable, alterationPage.getTotalElements());
     }
 
     /**

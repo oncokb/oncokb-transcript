@@ -66,15 +66,6 @@ public class BiomarkerAssociationService {
     }
 
     /**
-     * Get all the biomarkerAssociations with eager load of many-to-many relationships.
-     *
-     * @return the list of entities.
-     */
-    public Page<BiomarkerAssociation> findAllWithEagerRelationships(Pageable pageable) {
-        return biomarkerAssociationRepository.findAllWithEagerRelationships(pageable);
-    }
-
-    /**
      * Get one biomarkerAssociation by id.
      *
      * @param id the id of the entity.
