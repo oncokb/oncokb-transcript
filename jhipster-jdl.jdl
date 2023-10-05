@@ -314,4 +314,4 @@ paginate Gene, EnsemblGene, Alteration, CancerType, Transcript, Sequence, Genome
 
 service * with serviceClass
 filter Alteration, Gene, Article, Drug, CompanionDiagnosticDevice, FdaSubmission, ClinicalTrialsGovCondition, CancerType, EnsemblGene, Transcript, Flag
-dto Transcript, BiomarkerAssociation with mapstruct
+dto Transcript with mapstruct
