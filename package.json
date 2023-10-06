@@ -81,7 +81,7 @@
     "dayjs": "1.10.7",
     "lodash": "4.17.21",
     "path-browserify": "1.0.1",
-    "postcss": "^8.3.11",
+    "postcss": "^8.4.31",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-hook-form": "7.17.4",
