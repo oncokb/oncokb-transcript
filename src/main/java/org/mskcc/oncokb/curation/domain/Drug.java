@@ -36,16 +36,16 @@ public class Drug implements Serializable {
     @JoinColumn(unique = true)
     private FdaDrug fdaDrug;
 
-    @OneToMany(mappedBy = "drug", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "drug")
     @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
     private Set<DrugSynonym> synonyms = new HashSet<>();
 
-    @OneToMany(mappedBy = "drug", cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "drug")
     @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
     private Set<DrugBrand> brands = new HashSet<>();
 
-    @ManyToMany(mappedBy = "drugs", fetch = FetchType.EAGER)
-    @JsonIgnoreProperties(value = { "alterations", "drugs", "fdaSubmission", "cancerType" }, allowSetters = true)
+    @ManyToMany(mappedBy = "drugs")
+    @JsonIgnoreProperties(value = { "alterations", "drugs", "fdaSubmissions", "cancerType", "gene" }, allowSetters = true)
     private Set<BiomarkerAssociation> biomarkerAssociations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

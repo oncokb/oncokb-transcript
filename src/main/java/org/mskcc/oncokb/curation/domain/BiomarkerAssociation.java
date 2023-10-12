@@ -20,25 +20,25 @@ public class BiomarkerAssociation implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
         name = "rel_biomarker_association__alteration",
         joinColumns = @JoinColumn(name = "biomarker_association_id"),
         inverseJoinColumns = @JoinColumn(name = "alteration_id")
     )
-    @JsonIgnoreProperties(value = { "biomarkerAssociations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "referenceGenomes", "genes", "consequence", "biomarkerAssociations" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
         name = "rel_biomarker_association__drug",
         joinColumns = @JoinColumn(name = "biomarker_association_id"),
         inverseJoinColumns = @JoinColumn(name = "drug_id")
     )
-    @JsonIgnoreProperties(value = { "fdaDrug", "synonyms", "biomarkerAssociations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "fdaDrug", "synonyms", "brands", "biomarkerAssociations" }, allowSetters = true)
     private Set<Drug> drugs = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
         name = "rel_biomarker_association__fda_submission",
         joinColumns = @JoinColumn(name = "biomarker_association_id"),
@@ -52,7 +52,7 @@ public class BiomarkerAssociation implements Serializable {
     private CancerType cancerType;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "biomarkerAssociations", "alterations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "biomarkerAssociations", "flags", "alterations" }, allowSetters = true)
     private Gene gene;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

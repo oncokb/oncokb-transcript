@@ -1,4 +1,5 @@
 import { IBiomarkerAssociation } from 'app/shared/model/biomarker-association.model';
+import { IClinicalTrialsGovCondition } from 'app/shared/model/clinical-trials-gov-condition.model';
 import { TumorForm } from 'app/shared/model/enumerations/tumor-form.model';
 
 export interface ICancerType {
@@ -13,6 +14,7 @@ export interface ICancerType {
   children?: ICancerType[] | null;
   biomarkerAssociations?: IBiomarkerAssociation[] | null;
   parent?: ICancerType | null;
+  clinicalTrialsGovConditions?: IClinicalTrialsGovCondition[] | null;
 }
 
 export const defaultValue: Readonly<ICancerType> = {};

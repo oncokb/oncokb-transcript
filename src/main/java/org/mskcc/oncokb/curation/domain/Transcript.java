@@ -38,7 +38,7 @@ public class Transcript implements Serializable {
     private String description;
 
     @OneToMany(mappedBy = "transcript")
-    @JsonIgnoreProperties(value = { "transcript" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "seqRegion", "transcript" }, allowSetters = true)
     private Set<GenomeFragment> fragments = new HashSet<>();
 
     @OneToMany(mappedBy = "transcript")
@@ -55,7 +55,7 @@ public class Transcript implements Serializable {
     private Set<Flag> flags = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "transcripts", "gene" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "transcripts", "gene", "seqRegion" }, allowSetters = true)
     private EnsemblGene ensemblGene;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

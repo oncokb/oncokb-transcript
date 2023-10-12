@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.FdaDrug;
@@ -36,15 +37,8 @@ class FdaDrugResourceIT {
     private static final String DEFAULT_APPLICATION_NUMBER = "AAAAAAAAAA";
     private static final String UPDATED_APPLICATION_NUMBER = "BBBBBBBBBB";
 
-    private static final String DEFAULT_BRAND_NAME = "AAAAAAAAAA";
-    private static final String UPDATED_BRAND_NAME = "BBBBBBBBBB";
-
-    private static final String DEFAULT_GENERIC_NAME = "AAAAAAAAAA";
-    private static final String UPDATED_GENERIC_NAME = "BBBBBBBBBB";
-
     private static final String ENTITY_API_URL = "/api/fda-drugs";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
-    private static final String ENTITY_SEARCH_API_URL = "/api/_search/fda-drugs";
 
     private static Random random = new Random();
     private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));

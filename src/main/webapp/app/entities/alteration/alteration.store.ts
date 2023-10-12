@@ -7,7 +7,7 @@ import { Alteration } from 'app/shared/api/generated';
 import { alterationClient, alterationControllerClient } from 'app/shared/api/clients';
 
 const apiUrl = 'api/alterations';
-const apiSearchUrl = 'api/_search/alterations';
+const apiSearchUrl = 'api/alterations/search';
 
 export class AlterationStore extends PaginationCrudStore<IAlteration> {
   public proteinChangeAlteration: IAlteration;

@@ -41,7 +41,7 @@ public class Flag implements Serializable {
     @JsonIgnoreProperties(value = { "fragments", "sequences", "flags", "ensemblGene" }, allowSetters = true)
     private Set<Transcript> transcripts = new HashSet<>();
 
-    @ManyToMany(mappedBy = "flags", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "flags")
     @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "biomarkerAssociations", "flags", "alterations" }, allowSetters = true)
     private Set<Gene> genes = new HashSet<>();
 

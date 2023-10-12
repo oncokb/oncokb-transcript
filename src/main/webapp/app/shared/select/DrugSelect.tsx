@@ -11,7 +11,7 @@ import { getEntityPaginationSortParameter } from '../util/entity-utils';
 
 interface IDrugSelectProps extends SelectProps, StoreProps {}
 
-const sortParamter = getEntityPaginationSortParameter(DEFAULT_ENTITY_SORT_FIELD[ENTITY_TYPE.DRUG], DEFAULT_SORT_DIRECTION);
+const sortParameter = getEntityPaginationSortParameter(DEFAULT_ENTITY_SORT_FIELD[ENTITY_TYPE.DRUG], DEFAULT_SORT_DIRECTION);
 
 const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
   const { getDrugs, searchDrugs, ...selectProps } = props;
@@ -19,9 +19,9 @@ const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
     let result = undefined;
     let options = [];
     if (searchWord) {
-      result = await searchDrugs({ query: searchWord, page: page - 1, size: ITEMS_PER_PAGE, sort: sortParamter });
+      result = await searchDrugs({ query: searchWord });
     } else {
-      result = await getDrugs({ page: page - 1, size: ITEMS_PER_PAGE, sort: sortParamter });
+      result = await getDrugs({ page: page - 1, size: ITEMS_PER_PAGE, sort: sortParameter });
     }
 
     options = result?.data?.map((entity: IDrug) => ({

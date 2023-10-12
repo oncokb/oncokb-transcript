@@ -123,6 +123,15 @@ public class GeneQueryService extends QueryService<Gene> {
                         )
                     );
             }
+            if (criteria.getBiomarkerAssociationId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(
+                            criteria.getBiomarkerAssociationId(),
+                            root -> root.join(Gene_.biomarkerAssociations, JoinType.LEFT).get(BiomarkerAssociation_.id)
+                        )
+                    );
+            }
             if (criteria.getFlagId() != null) {
                 specification =
                     specification.or(buildSpecification(criteria.getFlagId(), root -> root.join(Gene_.flags, JoinType.LEFT).get(Flag_.id)));

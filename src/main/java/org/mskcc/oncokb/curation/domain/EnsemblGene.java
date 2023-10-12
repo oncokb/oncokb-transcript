@@ -47,14 +47,14 @@ public class EnsemblGene implements Serializable {
     private Integer strand;
 
     @OneToMany(mappedBy = "ensemblGene")
-    @JsonIgnoreProperties(value = { "fragments", "sequences", "ensemblGene" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "fragments", "sequences", "flags", "ensemblGene" }, allowSetters = true)
     private Set<Transcript> transcripts = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "alterations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "biomarkerAssociations", "flags", "alterations" }, allowSetters = true)
     private Gene gene;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JsonIgnoreProperties(value = { "ensemblGenes", "genomeFragments" }, allowSetters = true)
     @JoinColumn(name = "seqRegion", referencedColumnName = "name")
     private SeqRegion seqRegion;

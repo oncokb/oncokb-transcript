@@ -1,4 +1,4 @@
-import { PAGE_ROUTE } from 'app/config/constants';
+import { APP_DATE_FORMAT, PAGE_ROUTE } from 'app/config/constants';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
 import ValidatedForm from 'app/shared/form/ValidatedForm';
@@ -11,6 +11,7 @@ import React, { useEffect, useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Col, Row } from 'reactstrap';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import _ from 'lodash';
 
 export interface ICompanionDiagnosticDeviceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -69,6 +70,12 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
   const specimenTypesOptions = specimenTypes?.map(specType => {
     return { label: specType.type, value: specType.id };
   });
+  const biomarkerAssociations = _.uniq(
+    (companionDiagnosticDeviceEntity.fdaSubmissions || []).reduce((acc, fdaSubmission) => {
+      acc.push(...fdaSubmission.biomarkerAssociations);
+      return acc;
+    }, [])
+  );
 
   return (
     <>
@@ -124,6 +131,21 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
                   data-cy="indicationDetails"
                   type="text"
                 />
+                <ValidatedField
+                  label="Platform Type"
+                  id="companion-diagnostic-device-platformType"
+                  name="platformType"
+                  data-cy="platformType"
+                  type="text"
+                />
+                <ValidatedField
+                  label="Last Updated"
+                  id="fda-submission-lastUpdated"
+                  name="lastUpdated"
+                  data-cy="lastUpdated"
+                  type="date"
+                  placeholder={APP_DATE_FORMAT}
+                />
                 <ValidatedSelect
                   label="Specimen Types"
                   name={'specimenTypes'}
@@ -142,7 +164,11 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
       {!isNew ? (
         <Row className="mt-4">
           <Col>
-            <CdxBiomarkerAssociationTable companionDiagnosticDeviceId={props.companionDiagnosticDeviceEntity.id} editable />
+            <CdxBiomarkerAssociationTable
+              biomarkerAssociations={biomarkerAssociations}
+              onDeleteBiomarkerAssociation={() => props.getEntity(props.match.params.id)}
+              editable
+            />
           </Col>
         </Row>
       ) : undefined}

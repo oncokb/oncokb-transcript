@@ -1,6 +1,5 @@
 package org.mskcc.oncokb.curation.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -30,21 +29,25 @@ public class Gene implements Serializable {
     @Column(name = "hgnc_id")
     private String hgncId;
 
-    @OneToMany(mappedBy = "gene", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "gene")
     @JsonIgnoreProperties(value = { "gene" }, allowSetters = true)
     private Set<GeneAlias> geneAliases = new HashSet<>();
 
-    @OneToMany(mappedBy = "gene", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonIgnore
+    @OneToMany(mappedBy = "gene")
+    @JsonIgnoreProperties(value = { "transcripts", "gene", "seqRegion" }, allowSetters = true)
     private Set<EnsemblGene> ensemblGenes = new HashSet<>();
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "gene")
+    @JsonIgnoreProperties(value = { "alterations", "drugs", "fdaSubmissions", "cancerType", "gene" }, allowSetters = true)
+    private Set<BiomarkerAssociation> biomarkerAssociations = new HashSet<>();
+
+    @ManyToMany
     @JoinTable(name = "rel_gene__flag", joinColumns = @JoinColumn(name = "gene_id"), inverseJoinColumns = @JoinColumn(name = "flag_id"))
     @JsonIgnoreProperties(value = { "transcripts", "genes" }, allowSetters = true)
     private Set<Flag> flags = new HashSet<>();
 
     @ManyToMany(mappedBy = "genes")
-    @JsonIgnore
+    @JsonIgnoreProperties(value = { "referenceGenomes", "genes", "consequence", "biomarkerAssociations" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -160,6 +163,37 @@ public class Gene implements Serializable {
     public Gene removeEnsemblGene(EnsemblGene ensemblGene) {
         this.ensemblGenes.remove(ensemblGene);
         ensemblGene.setGene(null);
+        return this;
+    }
+
+    public Set<BiomarkerAssociation> getBiomarkerAssociations() {
+        return this.biomarkerAssociations;
+    }
+
+    public void setBiomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
+        if (this.biomarkerAssociations != null) {
+            this.biomarkerAssociations.forEach(i -> i.setGene(null));
+        }
+        if (biomarkerAssociations != null) {
+            biomarkerAssociations.forEach(i -> i.setGene(this));
+        }
+        this.biomarkerAssociations = biomarkerAssociations;
+    }
+
+    public Gene biomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
+        this.setBiomarkerAssociations(biomarkerAssociations);
+        return this;
+    }
+
+    public Gene addBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
+        this.biomarkerAssociations.add(biomarkerAssociation);
+        biomarkerAssociation.setGene(this);
+        return this;
+    }
+
+    public Gene removeBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
+        this.biomarkerAssociations.remove(biomarkerAssociation);
+        biomarkerAssociation.setGene(null);
         return this;
     }
 

@@ -120,7 +120,7 @@ export const Drug = (props: IDrugProps) => {
       <div>
         {drugList && <EntityTable columns={columns} data={drugList} loading={loading} url={match.url} entityType={ENTITY_TYPE.DRUG} />}
       </div>
-      {totalItems && totalItems > 0 ? (
+      {totalItems && totalItems > 0 && !search ? (
         <div className={drugList && drugList.length > 0 ? '' : 'd-none'}>
           <Row className="justify-content-center">
             <JhiItemCount page={paginationState.activePage} total={totalItems} itemsPerPage={paginationState.itemsPerPage} />

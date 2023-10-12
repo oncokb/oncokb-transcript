@@ -20,6 +20,7 @@ import org.mskcc.oncokb.curation.domain.BiomarkerAssociation;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.DrugBrand;
 import org.mskcc.oncokb.curation.domain.DrugSynonym;
+import org.mskcc.oncokb.curation.domain.FdaDrug;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
 import org.mskcc.oncokb.curation.service.criteria.DrugCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -264,6 +265,32 @@ class DrugResourceIT {
 
     @Test
     @Transactional
+    void getAllDrugsByFdaDrugIsEqualToSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+        FdaDrug fdaDrug;
+        if (TestUtil.findAll(em, FdaDrug.class).isEmpty()) {
+            fdaDrug = FdaDrugResourceIT.createEntity(em);
+            em.persist(fdaDrug);
+            em.flush();
+        } else {
+            fdaDrug = TestUtil.findAll(em, FdaDrug.class).get(0);
+        }
+        em.persist(fdaDrug);
+        em.flush();
+        drug.setFdaDrug(fdaDrug);
+        drugRepository.saveAndFlush(drug);
+        Long fdaDrugId = fdaDrug.getId();
+
+        // Get all the drugList where fdaDrug equals to fdaDrugId
+        defaultDrugShouldBeFound("fdaDrugId.equals=" + fdaDrugId);
+
+        // Get all the drugList where fdaDrug equals to (fdaDrugId + 1)
+        defaultDrugShouldNotBeFound("fdaDrugId.equals=" + (fdaDrugId + 1));
+    }
+
+    @Test
+    @Transactional
     void getAllDrugsBySynonymsIsEqualToSomething() throws Exception {
         // Initialize the database
         drugRepository.saveAndFlush(drug);
@@ -290,32 +317,6 @@ class DrugResourceIT {
 
     @Test
     @Transactional
-    void getAllDrugsByBiomarkerAssociationIsEqualToSomething() throws Exception {
-        // Initialize the database
-        drugRepository.saveAndFlush(drug);
-        BiomarkerAssociation biomarkerAssociation;
-        if (TestUtil.findAll(em, BiomarkerAssociation.class).isEmpty()) {
-            biomarkerAssociation = BiomarkerAssociationResourceIT.createEntity(em);
-            em.persist(biomarkerAssociation);
-            em.flush();
-        } else {
-            biomarkerAssociation = TestUtil.findAll(em, BiomarkerAssociation.class).get(0);
-        }
-        em.persist(biomarkerAssociation);
-        em.flush();
-        drug.addBiomarkerAssociation(biomarkerAssociation);
-        drugRepository.saveAndFlush(drug);
-        Long biomarkerAssociationId = biomarkerAssociation.getId();
-
-        // Get all the drugList where biomarkerAssociation equals to biomarkerAssociationId
-        defaultDrugShouldBeFound("biomarkerAssociationId.equals=" + biomarkerAssociationId);
-
-        // Get all the drugList where biomarkerAssociation equals to (biomarkerAssociationId + 1)
-        defaultDrugShouldNotBeFound("biomarkerAssociationId.equals=" + (biomarkerAssociationId + 1));
-    }
-
-    @Test
-    @Transactional
     void getAllDrugsByBrandsIsEqualToSomething() throws Exception {
         // Initialize the database
         drugRepository.saveAndFlush(drug);
@@ -338,6 +339,32 @@ class DrugResourceIT {
 
         // Get all the drugList where brands equals to (brandsId + 1)
         defaultDrugShouldNotBeFound("brandsId.equals=" + (brandsId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByBiomarkerAssociationIsEqualToSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+        BiomarkerAssociation biomarkerAssociation;
+        if (TestUtil.findAll(em, BiomarkerAssociation.class).isEmpty()) {
+            biomarkerAssociation = BiomarkerAssociationResourceIT.createEntity(em);
+            em.persist(biomarkerAssociation);
+            em.flush();
+        } else {
+            biomarkerAssociation = TestUtil.findAll(em, BiomarkerAssociation.class).get(0);
+        }
+        em.persist(biomarkerAssociation);
+        em.flush();
+        drug.addBiomarkerAssociation(biomarkerAssociation);
+        drugRepository.saveAndFlush(drug);
+        Long biomarkerAssociationId = biomarkerAssociation.getId();
+
+        // Get all the drugList where biomarkerAssociation equals to biomarkerAssociationId
+        defaultDrugShouldBeFound("biomarkerAssociationId.equals=" + biomarkerAssociationId);
+
+        // Get all the drugList where biomarkerAssociation equals to (biomarkerAssociationId + 1)
+        defaultDrugShouldNotBeFound("biomarkerAssociationId.equals=" + (biomarkerAssociationId + 1));
     }
 
     /**

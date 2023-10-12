@@ -64,6 +64,8 @@ public class CancerTypeCriteria implements Serializable, Criteria {
 
     private LongFilter parentId;
 
+    private LongFilter clinicalTrialsGovConditionId;
+
     private Boolean distinct;
 
     public CancerTypeCriteria() {}
@@ -80,6 +82,7 @@ public class CancerTypeCriteria implements Serializable, Criteria {
         this.childrenId = other.childrenId == null ? null : other.childrenId.copy();
         this.biomarkerAssociationId = other.biomarkerAssociationId == null ? null : other.biomarkerAssociationId.copy();
         this.parentId = other.parentId == null ? null : other.parentId.copy();
+        this.clinicalTrialsGovConditionId = other.clinicalTrialsGovConditionId == null ? null : other.clinicalTrialsGovConditionId.copy();
         this.distinct = other.distinct;
     }
 
@@ -253,6 +256,21 @@ public class CancerTypeCriteria implements Serializable, Criteria {
         this.parentId = parentId;
     }
 
+    public LongFilter getClinicalTrialsGovConditionId() {
+        return clinicalTrialsGovConditionId;
+    }
+
+    public LongFilter clinicalTrialsGovConditionId() {
+        if (clinicalTrialsGovConditionId == null) {
+            clinicalTrialsGovConditionId = new LongFilter();
+        }
+        return clinicalTrialsGovConditionId;
+    }
+
+    public void setClinicalTrialsGovConditionId(LongFilter clinicalTrialsGovConditionId) {
+        this.clinicalTrialsGovConditionId = clinicalTrialsGovConditionId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -282,6 +300,7 @@ public class CancerTypeCriteria implements Serializable, Criteria {
             Objects.equals(childrenId, that.childrenId) &&
             Objects.equals(biomarkerAssociationId, that.biomarkerAssociationId) &&
             Objects.equals(parentId, that.parentId) &&
+            Objects.equals(clinicalTrialsGovConditionId, that.clinicalTrialsGovConditionId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
@@ -300,6 +319,7 @@ public class CancerTypeCriteria implements Serializable, Criteria {
             childrenId,
             biomarkerAssociationId,
             parentId,
+            clinicalTrialsGovConditionId,
             distinct
         );
     }
@@ -319,6 +339,7 @@ public class CancerTypeCriteria implements Serializable, Criteria {
             (childrenId != null ? "childrenId=" + childrenId + ", " : "") +
             (biomarkerAssociationId != null ? "biomarkerAssociationId=" + biomarkerAssociationId + ", " : "") +
             (parentId != null ? "parentId=" + parentId + ", " : "") +
+            (clinicalTrialsGovConditionId != null ? "clinicalTrialsGovConditionId=" + clinicalTrialsGovConditionId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

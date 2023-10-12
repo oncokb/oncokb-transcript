@@ -239,24 +239,6 @@ class AlterationResourceIT {
             .andExpect(jsonPath("$.[*].variantResidues").value(hasItem(DEFAULT_VARIANT_RESIDUES)));
     }
 
-    @SuppressWarnings({ "unchecked" })
-    void getAllAlterationsWithEagerRelationshipsIsEnabled() throws Exception {
-        when(alterationServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restAlterationMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(alterationServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllAlterationsWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(alterationServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restAlterationMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(alterationServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
     @Test
     @Transactional
     void getAlteration() throws Exception {
@@ -817,28 +799,28 @@ class AlterationResourceIT {
 
     @Test
     @Transactional
-    void getAllAlterationsByBiomarkerAssociationIsEqualToSomething() throws Exception {
+    void getAllAlterationsByReferenceGenomesIsEqualToSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
-        BiomarkerAssociation biomarkerAssociation;
-        if (TestUtil.findAll(em, BiomarkerAssociation.class).isEmpty()) {
-            biomarkerAssociation = BiomarkerAssociationResourceIT.createEntity(em);
-            em.persist(biomarkerAssociation);
+        AlterationReferenceGenome referenceGenomes;
+        if (TestUtil.findAll(em, AlterationReferenceGenome.class).isEmpty()) {
+            referenceGenomes = AlterationReferenceGenomeResourceIT.createEntity(em);
+            em.persist(referenceGenomes);
             em.flush();
         } else {
-            biomarkerAssociation = TestUtil.findAll(em, BiomarkerAssociation.class).get(0);
+            referenceGenomes = TestUtil.findAll(em, AlterationReferenceGenome.class).get(0);
         }
-        em.persist(biomarkerAssociation);
+        em.persist(referenceGenomes);
         em.flush();
-        alteration.addBiomarkerAssociation(biomarkerAssociation);
+        alteration.addReferenceGenomes(referenceGenomes);
         alterationRepository.saveAndFlush(alteration);
-        Long biomarkerAssociationId = biomarkerAssociation.getId();
+        Long referenceGenomesId = referenceGenomes.getId();
 
-        // Get all the alterationList where biomarkerAssociation equals to biomarkerAssociationId
-        defaultAlterationShouldBeFound("biomarkerAssociationId.equals=" + biomarkerAssociationId);
+        // Get all the alterationList where referenceGenomes equals to referenceGenomesId
+        defaultAlterationShouldBeFound("referenceGenomesId.equals=" + referenceGenomesId);
 
-        // Get all the alterationList where biomarkerAssociation equals to (biomarkerAssociationId + 1)
-        defaultAlterationShouldNotBeFound("biomarkerAssociationId.equals=" + (biomarkerAssociationId + 1));
+        // Get all the alterationList where referenceGenomes equals to (referenceGenomesId + 1)
+        defaultAlterationShouldNotBeFound("referenceGenomesId.equals=" + (referenceGenomesId + 1));
     }
 
     @Test
@@ -891,6 +873,32 @@ class AlterationResourceIT {
 
         // Get all the alterationList where consequence equals to (consequenceId + 1)
         defaultAlterationShouldNotBeFound("consequenceId.equals=" + (consequenceId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllAlterationsByBiomarkerAssociationIsEqualToSomething() throws Exception {
+        // Initialize the database
+        alterationRepository.saveAndFlush(alteration);
+        BiomarkerAssociation biomarkerAssociation;
+        if (TestUtil.findAll(em, BiomarkerAssociation.class).isEmpty()) {
+            biomarkerAssociation = BiomarkerAssociationResourceIT.createEntity(em);
+            em.persist(biomarkerAssociation);
+            em.flush();
+        } else {
+            biomarkerAssociation = TestUtil.findAll(em, BiomarkerAssociation.class).get(0);
+        }
+        em.persist(biomarkerAssociation);
+        em.flush();
+        alteration.addBiomarkerAssociation(biomarkerAssociation);
+        alterationRepository.saveAndFlush(alteration);
+        Long biomarkerAssociationId = biomarkerAssociation.getId();
+
+        // Get all the alterationList where biomarkerAssociation equals to biomarkerAssociationId
+        defaultAlterationShouldBeFound("biomarkerAssociationId.equals=" + biomarkerAssociationId);
+
+        // Get all the alterationList where biomarkerAssociation equals to (biomarkerAssociationId + 1)
+        defaultAlterationShouldNotBeFound("biomarkerAssociationId.equals=" + (biomarkerAssociationId + 1));
     }
 
     /**

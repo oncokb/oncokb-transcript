@@ -152,6 +152,8 @@ entity CompanionDiagnosticDevice {
 	name String required
     manufacturer String required
     indicationDetails String
+    platformType String
+    lastUpdated Instant
 }
 
 enum FdaSubmissionTypeKey {
@@ -169,7 +171,7 @@ entity FdaSubmission {
     number String required
     supplementNumber String
 
-	deviceName String
+	deviceName String required
     genericName String
 
     dateReceived Instant

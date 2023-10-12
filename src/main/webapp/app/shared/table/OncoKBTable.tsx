@@ -14,7 +14,7 @@ export type IOncoKBTableProps<T> = {
 /* eslint-disable react/jsx-key */
 const OncoKBTable = props => {
   const columns = useMemo(() => props.columns, [props.columns]);
-  const data = useMemo(() => props.data, [props.data]);
+  const data = useMemo(() => props.data || [], [props.data]);
   const defaultColumn = React.useMemo(
     () => ({
       width: 150,

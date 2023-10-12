@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { Input, InputGroup, FormGroup, Form, Col, Row } from 'reactstrap';
-import { ENTITY_ACTION, PAGE_ROUTE } from 'app/config/constants';
+import { APP_DATE_FORMAT, ENTITY_ACTION, PAGE_ROUTE } from 'app/config/constants';
 
 import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';
@@ -13,6 +13,8 @@ import EntityTable from 'app/shared/table/EntityTable';
 import { ENTITY_TYPE } from 'app/config/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
+import { TextFormat } from 'react-jhipster';
+import _ from 'lodash';
 export interface ICompanionDiagnosticDeviceProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const getFdaSubmissionNumber = (primaryNumber: string, supplementNumber: string) => {
@@ -50,7 +52,7 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
 
   useEffect(() => {
     if (search) {
-      debouncedSearch(search, props.searchEntities);
+      // debouncedSearch(search, props.searchEntities);
     } else {
       props.getEntities({});
     }
@@ -58,31 +60,20 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
 
   const handleSearch = (event: any) => setSearch(event.target.value);
 
+  const getUniqDrugs = (fdaSubmissions: IFdaSubmission[]) => {
+    const drugs = [];
+    fdaSubmissions.forEach(fdaSubmission => {
+      fdaSubmission.biomarkerAssociations.reduce((acc, val) => {
+        acc.push(...(val.drugs || []).map(drug => drug.name));
+        return acc;
+      }, drugs);
+    });
+    return _.uniq(drugs);
+  };
+
   const columns: Column<ICompanionDiagnosticDevice>[] = [
     { accessor: 'name', Header: 'Device Name', width: 250 },
     { accessor: 'manufacturer', Header: 'Manufacturer', width: 250 },
-    { accessor: 'indicationDetails', Header: 'Indication Details' },
-    {
-      id: 'specimenTypes',
-      Header: 'Specimen Types',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }: {
-        cell: { row: { original: ICompanionDiagnosticDevice } };
-      }): any {
-        return (
-          <>
-            {original.specimenTypes &&
-              original.specimenTypes
-                .map(specimenType => specimenType.type)
-                .sort()
-                .join(', ')}
-          </>
-        );
-      },
-    },
     {
       id: 'fdaSubmissions',
       Header: 'FDA Submissions',
@@ -96,6 +87,27 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
         return <>{getFdaSubmissionLinks(original.fdaSubmissions)}</>;
       },
       width: 250,
+    },
+    {
+      id: 'drugs',
+      Header: 'Associated Drugs',
+      Cell({
+        cell: {
+          row: { original },
+        },
+      }): any {
+        return <>{getUniqDrugs(original.fdaSubmissions).sort().join(', ')}</>;
+      },
+      width: 250,
+    },
+    { accessor: 'platformType', Header: 'Platform Type' },
+    {
+      accessor: 'lastUpdated',
+      Header: 'Last Updated',
+
+      Cell({ cell: { value } }) {
+        return value ? <TextFormat value={value} type="date" format={APP_DATE_FORMAT} /> : null;
+      },
     },
   ];
 

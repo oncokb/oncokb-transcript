@@ -19,6 +19,7 @@ import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.BiomarkerAssociation;
 import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.domain.CancerType;
+import org.mskcc.oncokb.curation.domain.ClinicalTrialsGovCondition;
 import org.mskcc.oncokb.curation.domain.enumeration.TumorForm;
 import org.mskcc.oncokb.curation.repository.CancerTypeRepository;
 import org.mskcc.oncokb.curation.service.criteria.CancerTypeCriteria;
@@ -916,6 +917,32 @@ class CancerTypeResourceIT {
 
         // Get all the cancerTypeList where parent equals to (parentId + 1)
         defaultCancerTypeShouldNotBeFound("parentId.equals=" + (parentId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllCancerTypesByClinicalTrialsGovConditionIsEqualToSomething() throws Exception {
+        // Initialize the database
+        cancerTypeRepository.saveAndFlush(cancerType);
+        ClinicalTrialsGovCondition clinicalTrialsGovCondition;
+        if (TestUtil.findAll(em, ClinicalTrialsGovCondition.class).isEmpty()) {
+            clinicalTrialsGovCondition = ClinicalTrialsGovConditionResourceIT.createEntity(em);
+            em.persist(clinicalTrialsGovCondition);
+            em.flush();
+        } else {
+            clinicalTrialsGovCondition = TestUtil.findAll(em, ClinicalTrialsGovCondition.class).get(0);
+        }
+        em.persist(clinicalTrialsGovCondition);
+        em.flush();
+        cancerType.addClinicalTrialsGovCondition(clinicalTrialsGovCondition);
+        cancerTypeRepository.saveAndFlush(cancerType);
+        Long clinicalTrialsGovConditionId = clinicalTrialsGovCondition.getId();
+
+        // Get all the cancerTypeList where clinicalTrialsGovCondition equals to clinicalTrialsGovConditionId
+        defaultCancerTypeShouldBeFound("clinicalTrialsGovConditionId.equals=" + clinicalTrialsGovConditionId);
+
+        // Get all the cancerTypeList where clinicalTrialsGovCondition equals to (clinicalTrialsGovConditionId + 1)
+        defaultCancerTypeShouldNotBeFound("clinicalTrialsGovConditionId.equals=" + (clinicalTrialsGovConditionId + 1));
     }
 
     /**

@@ -205,85 +205,6 @@ export interface Alteration {
 /**
  *
  * @export
- * @interface AlterationCriteria
- */
-export interface AlterationCriteria {
-  /**
-   *
-   * @type {LongFilter}
-   * @memberof AlterationCriteria
-   */
-  id?: LongFilter;
-  /**
-   *
-   * @type {StringFilter}
-   * @memberof AlterationCriteria
-   */
-  name?: StringFilter;
-  /**
-   *
-   * @type {StringFilter}
-   * @memberof AlterationCriteria
-   */
-  alteration?: StringFilter;
-  /**
-   *
-   * @type {IntegerFilter}
-   * @memberof AlterationCriteria
-   */
-  proteinStart?: IntegerFilter;
-  /**
-   *
-   * @type {IntegerFilter}
-   * @memberof AlterationCriteria
-   */
-  proteinEnd?: IntegerFilter;
-  /**
-   *
-   * @type {StringFilter}
-   * @memberof AlterationCriteria
-   */
-  refResidues?: StringFilter;
-  /**
-   *
-   * @type {StringFilter}
-   * @memberof AlterationCriteria
-   */
-  variantResidues?: StringFilter;
-  /**
-   *
-   * @type {LongFilter}
-   * @memberof AlterationCriteria
-   */
-  biomarkerAssociationId?: LongFilter;
-  /**
-   *
-   * @type {LongFilter}
-   * @memberof AlterationCriteria
-   */
-  referenceGenomesId?: LongFilter;
-  /**
-   *
-   * @type {LongFilter}
-   * @memberof AlterationCriteria
-   */
-  geneId?: LongFilter;
-  /**
-   *
-   * @type {LongFilter}
-   * @memberof AlterationCriteria
-   */
-  consequenceId?: LongFilter;
-  /**
-   *
-   * @type {boolean}
-   * @memberof AlterationCriteria
-   */
-  distinct?: boolean;
-}
-/**
- *
- * @export
  * @interface AlterationReferenceGenome
  */
 export interface AlterationReferenceGenome {
@@ -717,6 +638,12 @@ export interface CancerTypeCriteria {
   parentId?: LongFilter;
   /**
    *
+   * @type {LongFilter}
+   * @memberof CancerTypeCriteria
+   */
+  clinicalTrialsGovConditionId?: LongFilter;
+  /**
+   *
    * @type {boolean}
    * @memberof CancerTypeCriteria
    */
@@ -893,16 +820,16 @@ export interface CompanionDiagnosticDevice {
   indicationDetails?: string;
   /**
    *
-   * @type {Set<FdaSubmission>}
+   * @type {string}
    * @memberof CompanionDiagnosticDevice
    */
-  fdaSubmissions?: Set<FdaSubmission>;
+  platformType?: string;
   /**
    *
-   * @type {Set<SpecimenType>}
+   * @type {string}
    * @memberof CompanionDiagnosticDevice
    */
-  specimenTypes?: Set<SpecimenType>;
+  lastUpdated?: string;
 }
 /**
  *
@@ -928,6 +855,24 @@ export interface CompanionDiagnosticDeviceCriteria {
    * @memberof CompanionDiagnosticDeviceCriteria
    */
   manufacturer?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof CompanionDiagnosticDeviceCriteria
+   */
+  indicationDetails?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof CompanionDiagnosticDeviceCriteria
+   */
+  platformType?: StringFilter;
+  /**
+   *
+   * @type {InstantFilter}
+   * @memberof CompanionDiagnosticDeviceCriteria
+   */
+  lastUpdated?: InstantFilter;
   /**
    *
    * @type {LongFilter}
@@ -1124,13 +1069,13 @@ export interface DrugCriteria {
    * @type {LongFilter}
    * @memberof DrugCriteria
    */
-  synonymsId?: LongFilter;
+  fdaDrugId?: LongFilter;
   /**
    *
    * @type {LongFilter}
    * @memberof DrugCriteria
    */
-  biomarkerAssociationId?: LongFilter;
+  synonymsId?: LongFilter;
   /**
    *
    * @type {LongFilter}
@@ -1143,6 +1088,12 @@ export interface DrugCriteria {
    * @memberof DrugCriteria
    */
   brandsName?: StringFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof DrugCriteria
+   */
+  biomarkerAssociationId?: LongFilter;
   /**
    *
    * @type {boolean}
@@ -1599,6 +1550,12 @@ export interface FdaSubmissionCriteria {
   decisionDate?: InstantFilter;
   /**
    *
+   * @type {StringFilter}
+   * @memberof FdaSubmissionCriteria
+   */
+  platform?: StringFilter;
+  /**
+   *
    * @type {BooleanFilter}
    * @memberof FdaSubmissionCriteria
    */
@@ -1614,12 +1571,6 @@ export interface FdaSubmissionCriteria {
    * @type {LongFilter}
    * @memberof FdaSubmissionCriteria
    */
-  biomarkerAssociationId?: LongFilter;
-  /**
-   *
-   * @type {LongFilter}
-   * @memberof FdaSubmissionCriteria
-   */
   companionDiagnosticDeviceId?: LongFilter;
   /**
    *
@@ -1629,16 +1580,10 @@ export interface FdaSubmissionCriteria {
   typeId?: LongFilter;
   /**
    *
-   * @type {StringFilter}
+   * @type {LongFilter}
    * @memberof FdaSubmissionCriteria
    */
-  typeName?: StringFilter;
-  /**
-   *
-   * @type {StringFilter}
-   * @memberof FdaSubmissionCriteria
-   */
-  typeShortName?: StringFilter;
+  biomarkerAssociationId?: LongFilter;
   /**
    *
    * @type {boolean}
@@ -1823,10 +1768,34 @@ export interface Gene {
   hgncId?: string;
   /**
    *
+   * @type {Set<GeneAlias>}
+   * @memberof Gene
+   */
+  geneAliases?: Set<GeneAlias>;
+  /**
+   *
+   * @type {Set<EnsemblGene>}
+   * @memberof Gene
+   */
+  ensemblGenes?: Set<EnsemblGene>;
+  /**
+   *
+   * @type {Set<BiomarkerAssociation>}
+   * @memberof Gene
+   */
+  biomarkerAssociations?: Set<BiomarkerAssociation>;
+  /**
+   *
    * @type {Set<Flag>}
    * @memberof Gene
    */
   flags?: Set<Flag>;
+  /**
+   *
+   * @type {Set<Alteration>}
+   * @memberof Gene
+   */
+  alterations?: Set<Alteration>;
 }
 /**
  *
@@ -1852,67 +1821,6 @@ export interface GeneAlias {
    * @memberof GeneAlias
    */
   gene?: Gene;
-}
-/**
- *
- * @export
- * @interface GeneCriteria
- */
-export interface GeneCriteria {
-  /**
-   *
-   * @type {LongFilter}
-   * @memberof GeneCriteria
-   */
-  id?: LongFilter;
-  /**
-   *
-   * @type {IntegerFilter}
-   * @memberof GeneCriteria
-   */
-  entrezGeneId?: IntegerFilter;
-  /**
-   *
-   * @type {StringFilter}
-   * @memberof GeneCriteria
-   */
-  hugoSymbol?: StringFilter;
-  /**
-   *
-   * @type {StringFilter}
-   * @memberof GeneCriteria
-   */
-  hgncId?: StringFilter;
-  /**
-   *
-   * @type {LongFilter}
-   * @memberof GeneCriteria
-   */
-  geneAliasId?: LongFilter;
-  /**
-   *
-   * @type {LongFilter}
-   * @memberof GeneCriteria
-   */
-  ensemblGeneId?: LongFilter;
-  /**
-   *
-   * @type {LongFilter}
-   * @memberof GeneCriteria
-   */
-  flagId?: LongFilter;
-  /**
-   *
-   * @type {LongFilter}
-   * @memberof GeneCriteria
-   */
-  alterationId?: LongFilter;
-  /**
-   *
-   * @type {boolean}
-   * @memberof GeneCriteria
-   */
-  distinct?: boolean;
 }
 /**
  *
@@ -3445,21 +3353,84 @@ export class AlterationControllerApi extends BaseAPI {
 }
 
 /**
- * AlterationResourceApi - axios parameter creator
+ * AlterationReferenceGenomeResourceApi - axios parameter creator
  * @export
  */
-export const AlterationResourceApiAxiosParamCreator = function (configuration?: Configuration) {
+export const AlterationReferenceGenomeResourceApiAxiosParamCreator = function (configuration?: Configuration) {
   return {
     /**
      *
-     * @param {AlterationCriteria} criteria
+     * @param {AlterationReferenceGenome} alterationReferenceGenome
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    countAlterations: async (criteria: AlterationCriteria, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'criteria' is not null or undefined
-      assertParamExists('countAlterations', 'criteria', criteria);
-      const localVarPath = `/api/alterations/count`;
+    createAlterationReferenceGenome: async (
+      alterationReferenceGenome: AlterationReferenceGenome,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'alterationReferenceGenome' is not null or undefined
+      assertParamExists('createAlterationReferenceGenome', 'alterationReferenceGenome', alterationReferenceGenome);
+      const localVarPath = `/api/alteration-reference-genomes`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(alterationReferenceGenome, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteAlterationReferenceGenome: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('deleteAlterationReferenceGenome', 'id', id);
+      const localVarPath = `/api/alteration-reference-genomes/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getAllAlterationReferenceGenomes: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/api/alteration-reference-genomes`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -3471,9 +3442,35 @@ export const AlterationResourceApiAxiosParamCreator = function (configuration?: 
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
-      if (criteria !== undefined) {
-        localVarQueryParameter['criteria'] = criteria;
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getAlterationReferenceGenome: async (id: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('getAlterationReferenceGenome', 'id', id);
+      const localVarPath = `/api/alteration-reference-genomes/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
       }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -3484,6 +3481,362 @@ export const AlterationResourceApiAxiosParamCreator = function (configuration?: 
         options: localVarRequestOptions,
       };
     },
+    /**
+     *
+     * @param {number} id
+     * @param {AlterationReferenceGenome} alterationReferenceGenome
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    partialUpdateAlterationReferenceGenome: async (
+      id: number,
+      alterationReferenceGenome: AlterationReferenceGenome,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('partialUpdateAlterationReferenceGenome', 'id', id);
+      // verify required parameter 'alterationReferenceGenome' is not null or undefined
+      assertParamExists('partialUpdateAlterationReferenceGenome', 'alterationReferenceGenome', alterationReferenceGenome);
+      const localVarPath = `/api/alteration-reference-genomes/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(alterationReferenceGenome, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {AlterationReferenceGenome} alterationReferenceGenome
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateAlterationReferenceGenome: async (
+      id: number,
+      alterationReferenceGenome: AlterationReferenceGenome,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'id' is not null or undefined
+      assertParamExists('updateAlterationReferenceGenome', 'id', id);
+      // verify required parameter 'alterationReferenceGenome' is not null or undefined
+      assertParamExists('updateAlterationReferenceGenome', 'alterationReferenceGenome', alterationReferenceGenome);
+      const localVarPath = `/api/alteration-reference-genomes/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(alterationReferenceGenome, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+  };
+};
+
+/**
+ * AlterationReferenceGenomeResourceApi - functional programming interface
+ * @export
+ */
+export const AlterationReferenceGenomeResourceApiFp = function (configuration?: Configuration) {
+  const localVarAxiosParamCreator = AlterationReferenceGenomeResourceApiAxiosParamCreator(configuration);
+  return {
+    /**
+     *
+     * @param {AlterationReferenceGenome} alterationReferenceGenome
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async createAlterationReferenceGenome(
+      alterationReferenceGenome: AlterationReferenceGenome,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AlterationReferenceGenome>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.createAlterationReferenceGenome(alterationReferenceGenome, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async deleteAlterationReferenceGenome(
+      id: number,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.deleteAlterationReferenceGenome(id, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getAllAlterationReferenceGenomes(
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<AlterationReferenceGenome>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllAlterationReferenceGenomes(options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getAlterationReferenceGenome(
+      id: number,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AlterationReferenceGenome>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAlterationReferenceGenome(id, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {AlterationReferenceGenome} alterationReferenceGenome
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async partialUpdateAlterationReferenceGenome(
+      id: number,
+      alterationReferenceGenome: AlterationReferenceGenome,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AlterationReferenceGenome>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateAlterationReferenceGenome(
+        id,
+        alterationReferenceGenome,
+        options
+      );
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {AlterationReferenceGenome} alterationReferenceGenome
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async updateAlterationReferenceGenome(
+      id: number,
+      alterationReferenceGenome: AlterationReferenceGenome,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AlterationReferenceGenome>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.updateAlterationReferenceGenome(id, alterationReferenceGenome, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+  };
+};
+
+/**
+ * AlterationReferenceGenomeResourceApi - factory interface
+ * @export
+ */
+export const AlterationReferenceGenomeResourceApiFactory = function (
+  configuration?: Configuration,
+  basePath?: string,
+  axios?: AxiosInstance
+) {
+  const localVarFp = AlterationReferenceGenomeResourceApiFp(configuration);
+  return {
+    /**
+     *
+     * @param {AlterationReferenceGenome} alterationReferenceGenome
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    createAlterationReferenceGenome(
+      alterationReferenceGenome: AlterationReferenceGenome,
+      options?: any
+    ): AxiosPromise<AlterationReferenceGenome> {
+      return localVarFp.createAlterationReferenceGenome(alterationReferenceGenome, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    deleteAlterationReferenceGenome(id: number, options?: any): AxiosPromise<void> {
+      return localVarFp.deleteAlterationReferenceGenome(id, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getAllAlterationReferenceGenomes(options?: any): AxiosPromise<Array<AlterationReferenceGenome>> {
+      return localVarFp.getAllAlterationReferenceGenomes(options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getAlterationReferenceGenome(id: number, options?: any): AxiosPromise<AlterationReferenceGenome> {
+      return localVarFp.getAlterationReferenceGenome(id, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {AlterationReferenceGenome} alterationReferenceGenome
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    partialUpdateAlterationReferenceGenome(
+      id: number,
+      alterationReferenceGenome: AlterationReferenceGenome,
+      options?: any
+    ): AxiosPromise<AlterationReferenceGenome> {
+      return localVarFp
+        .partialUpdateAlterationReferenceGenome(id, alterationReferenceGenome, options)
+        .then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {number} id
+     * @param {AlterationReferenceGenome} alterationReferenceGenome
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    updateAlterationReferenceGenome(
+      id: number,
+      alterationReferenceGenome: AlterationReferenceGenome,
+      options?: any
+    ): AxiosPromise<AlterationReferenceGenome> {
+      return localVarFp.updateAlterationReferenceGenome(id, alterationReferenceGenome, options).then(request => request(axios, basePath));
+    },
+  };
+};
+
+/**
+ * AlterationReferenceGenomeResourceApi - object-oriented interface
+ * @export
+ * @class AlterationReferenceGenomeResourceApi
+ * @extends {BaseAPI}
+ */
+export class AlterationReferenceGenomeResourceApi extends BaseAPI {
+  /**
+   *
+   * @param {AlterationReferenceGenome} alterationReferenceGenome
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof AlterationReferenceGenomeResourceApi
+   */
+  public createAlterationReferenceGenome(alterationReferenceGenome: AlterationReferenceGenome, options?: AxiosRequestConfig) {
+    return AlterationReferenceGenomeResourceApiFp(this.configuration)
+      .createAlterationReferenceGenome(alterationReferenceGenome, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof AlterationReferenceGenomeResourceApi
+   */
+  public deleteAlterationReferenceGenome(id: number, options?: AxiosRequestConfig) {
+    return AlterationReferenceGenomeResourceApiFp(this.configuration)
+      .deleteAlterationReferenceGenome(id, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof AlterationReferenceGenomeResourceApi
+   */
+  public getAllAlterationReferenceGenomes(options?: AxiosRequestConfig) {
+    return AlterationReferenceGenomeResourceApiFp(this.configuration)
+      .getAllAlterationReferenceGenomes(options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof AlterationReferenceGenomeResourceApi
+   */
+  public getAlterationReferenceGenome(id: number, options?: AxiosRequestConfig) {
+    return AlterationReferenceGenomeResourceApiFp(this.configuration)
+      .getAlterationReferenceGenome(id, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {AlterationReferenceGenome} alterationReferenceGenome
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof AlterationReferenceGenomeResourceApi
+   */
+  public partialUpdateAlterationReferenceGenome(
+    id: number,
+    alterationReferenceGenome: AlterationReferenceGenome,
+    options?: AxiosRequestConfig
+  ) {
+    return AlterationReferenceGenomeResourceApiFp(this.configuration)
+      .partialUpdateAlterationReferenceGenome(id, alterationReferenceGenome, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {number} id
+   * @param {AlterationReferenceGenome} alterationReferenceGenome
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof AlterationReferenceGenomeResourceApi
+   */
+  public updateAlterationReferenceGenome(id: number, alterationReferenceGenome: AlterationReferenceGenome, options?: AxiosRequestConfig) {
+    return AlterationReferenceGenomeResourceApiFp(this.configuration)
+      .updateAlterationReferenceGenome(id, alterationReferenceGenome, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+}
+
+/**
+ * AlterationResourceApi - axios parameter creator
+ * @export
+ */
+export const AlterationResourceApiAxiosParamCreator = function (configuration?: Configuration) {
+  return {
     /**
      *
      * @param {Alteration} alteration
@@ -3579,14 +3932,11 @@ export const AlterationResourceApiAxiosParamCreator = function (configuration?: 
     },
     /**
      *
-     * @param {AlterationCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllAlterations: async (criteria: AlterationCriteria, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'criteria' is not null or undefined
-      assertParamExists('getAllAlterations', 'criteria', criteria);
+    getAllAlterations: async (pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('getAllAlterations', 'pageable', pageable);
       const localVarPath = `/api/alterations`;
@@ -3600,10 +3950,6 @@ export const AlterationResourceApiAxiosParamCreator = function (configuration?: 
       const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
-
-      if (criteria !== undefined) {
-        localVarQueryParameter['criteria'] = criteria;
-      }
 
       if (pageable !== undefined) {
         localVarQueryParameter['pageable'] = pageable;
@@ -3687,16 +4033,13 @@ export const AlterationResourceApiAxiosParamCreator = function (configuration?: 
     /**
      *
      * @param {string} query
-     * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    searchAlterations: async (query: string, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    searchAlterations: async (query: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'query' is not null or undefined
       assertParamExists('searchAlterations', 'query', query);
-      // verify required parameter 'pageable' is not null or undefined
-      assertParamExists('searchAlterations', 'pageable', pageable);
-      const localVarPath = `/api/_search/alterations`;
+      const localVarPath = `/api/alterations/search`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -3710,10 +4053,6 @@ export const AlterationResourceApiAxiosParamCreator = function (configuration?: 
 
       if (query !== undefined) {
         localVarQueryParameter['query'] = query;
-      }
-
-      if (pageable !== undefined) {
-        localVarQueryParameter['pageable'] = pageable;
       }
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -3773,19 +4112,6 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
   return {
     /**
      *
-     * @param {AlterationCriteria} criteria
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async countAlterations(
-      criteria: AlterationCriteria,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.countAlterations(criteria, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
      * @param {Alteration} alteration
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -3825,17 +4151,15 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
     },
     /**
      *
-     * @param {AlterationCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getAllAlterations(
-      criteria: AlterationCriteria,
       pageable: Pageable,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Alteration>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllAlterations(criteria, pageable, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllAlterations(pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -3869,16 +4193,14 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
     /**
      *
      * @param {string} query
-     * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async searchAlterations(
       query: string,
-      pageable: Pageable,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Alteration>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.searchAlterations(query, pageable, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.searchAlterations(query, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -3908,15 +4230,6 @@ export const AlterationResourceApiFactory = function (configuration?: Configurat
   return {
     /**
      *
-     * @param {AlterationCriteria} criteria
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    countAlterations(criteria: AlterationCriteria, options?: any): AxiosPromise<number> {
-      return localVarFp.countAlterations(criteria, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
      * @param {Alteration} alteration
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -3944,13 +4257,12 @@ export const AlterationResourceApiFactory = function (configuration?: Configurat
     },
     /**
      *
-     * @param {AlterationCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllAlterations(criteria: AlterationCriteria, pageable: Pageable, options?: any): AxiosPromise<Array<Alteration>> {
-      return localVarFp.getAllAlterations(criteria, pageable, options).then(request => request(axios, basePath));
+    getAllAlterations(pageable: Pageable, options?: any): AxiosPromise<Array<Alteration>> {
+      return localVarFp.getAllAlterations(pageable, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -3974,12 +4286,11 @@ export const AlterationResourceApiFactory = function (configuration?: Configurat
     /**
      *
      * @param {string} query
-     * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    searchAlterations(query: string, pageable: Pageable, options?: any): AxiosPromise<Array<Alteration>> {
-      return localVarFp.searchAlterations(query, pageable, options).then(request => request(axios, basePath));
+    searchAlterations(query: string, options?: any): AxiosPromise<Array<Alteration>> {
+      return localVarFp.searchAlterations(query, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -4001,19 +4312,6 @@ export const AlterationResourceApiFactory = function (configuration?: Configurat
  * @extends {BaseAPI}
  */
 export class AlterationResourceApi extends BaseAPI {
-  /**
-   *
-   * @param {AlterationCriteria} criteria
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof AlterationResourceApi
-   */
-  public countAlterations(criteria: AlterationCriteria, options?: AxiosRequestConfig) {
-    return AlterationResourceApiFp(this.configuration)
-      .countAlterations(criteria, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
   /**
    *
    * @param {Alteration} alteration
@@ -4055,15 +4353,14 @@ export class AlterationResourceApi extends BaseAPI {
 
   /**
    *
-   * @param {AlterationCriteria} criteria
    * @param {Pageable} pageable
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof AlterationResourceApi
    */
-  public getAllAlterations(criteria: AlterationCriteria, pageable: Pageable, options?: AxiosRequestConfig) {
+  public getAllAlterations(pageable: Pageable, options?: AxiosRequestConfig) {
     return AlterationResourceApiFp(this.configuration)
-      .getAllAlterations(criteria, pageable, options)
+      .getAllAlterations(pageable, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -4097,14 +4394,13 @@ export class AlterationResourceApi extends BaseAPI {
   /**
    *
    * @param {string} query
-   * @param {Pageable} pageable
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof AlterationResourceApi
    */
-  public searchAlterations(query: string, pageable: Pageable, options?: AxiosRequestConfig) {
+  public searchAlterations(query: string, options?: AxiosRequestConfig) {
     return AlterationResourceApiFp(this.configuration)
-      .searchAlterations(query, pageable, options)
+      .searchAlterations(query, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -13395,40 +13691,6 @@ export const GeneResourceApiAxiosParamCreator = function (configuration?: Config
   return {
     /**
      *
-     * @param {GeneCriteria} criteria
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    countGenes: async (criteria: GeneCriteria, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'criteria' is not null or undefined
-      assertParamExists('countGenes', 'criteria', criteria);
-      const localVarPath = `/api/genes/count`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      if (criteria !== undefined) {
-        localVarQueryParameter['criteria'] = criteria;
-      }
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
      * @param {Gene} gene
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -13492,14 +13754,11 @@ export const GeneResourceApiAxiosParamCreator = function (configuration?: Config
     },
     /**
      *
-     * @param {GeneCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllGenes: async (criteria: GeneCriteria, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'criteria' is not null or undefined
-      assertParamExists('getAllGenes', 'criteria', criteria);
+    getAllGenes: async (pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('getAllGenes', 'pageable', pageable);
       const localVarPath = `/api/genes`;
@@ -13513,10 +13772,6 @@ export const GeneResourceApiAxiosParamCreator = function (configuration?: Config
       const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
-
-      if (criteria !== undefined) {
-        localVarQueryParameter['criteria'] = criteria;
-      }
 
       if (pageable !== undefined) {
         localVarQueryParameter['pageable'] = pageable;
@@ -13609,7 +13864,7 @@ export const GeneResourceApiAxiosParamCreator = function (configuration?: Config
       assertParamExists('searchGenes', 'query', query);
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('searchGenes', 'pageable', pageable);
-      const localVarPath = `/api/_search/genes`;
+      const localVarPath = `/api/genes/search`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -13686,19 +13941,6 @@ export const GeneResourceApiFp = function (configuration?: Configuration) {
   return {
     /**
      *
-     * @param {GeneCriteria} criteria
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async countGenes(
-      criteria: GeneCriteria,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.countGenes(criteria, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
      * @param {Gene} gene
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -13719,17 +13961,15 @@ export const GeneResourceApiFp = function (configuration?: Configuration) {
     },
     /**
      *
-     * @param {GeneCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getAllGenes(
-      criteria: GeneCriteria,
       pageable: Pageable,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Gene>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllGenes(criteria, pageable, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllGenes(pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -13799,15 +14039,6 @@ export const GeneResourceApiFactory = function (configuration?: Configuration, b
   return {
     /**
      *
-     * @param {GeneCriteria} criteria
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    countGenes(criteria: GeneCriteria, options?: any): AxiosPromise<number> {
-      return localVarFp.countGenes(criteria, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
      * @param {Gene} gene
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -13826,13 +14057,12 @@ export const GeneResourceApiFactory = function (configuration?: Configuration, b
     },
     /**
      *
-     * @param {GeneCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllGenes(criteria: GeneCriteria, pageable: Pageable, options?: any): AxiosPromise<Array<Gene>> {
-      return localVarFp.getAllGenes(criteria, pageable, options).then(request => request(axios, basePath));
+    getAllGenes(pageable: Pageable, options?: any): AxiosPromise<Array<Gene>> {
+      return localVarFp.getAllGenes(pageable, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -13885,19 +14115,6 @@ export const GeneResourceApiFactory = function (configuration?: Configuration, b
 export class GeneResourceApi extends BaseAPI {
   /**
    *
-   * @param {GeneCriteria} criteria
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof GeneResourceApi
-   */
-  public countGenes(criteria: GeneCriteria, options?: AxiosRequestConfig) {
-    return GeneResourceApiFp(this.configuration)
-      .countGenes(criteria, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
    * @param {Gene} gene
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
@@ -13924,15 +14141,14 @@ export class GeneResourceApi extends BaseAPI {
 
   /**
    *
-   * @param {GeneCriteria} criteria
    * @param {Pageable} pageable
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof GeneResourceApi
    */
-  public getAllGenes(criteria: GeneCriteria, pageable: Pageable, options?: AxiosRequestConfig) {
+  public getAllGenes(pageable: Pageable, options?: AxiosRequestConfig) {
     return GeneResourceApiFp(this.configuration)
-      .getAllGenes(criteria, pageable, options)
+      .getAllGenes(pageable, options)
       .then(request => request(this.axios, this.basePath));
   }
 

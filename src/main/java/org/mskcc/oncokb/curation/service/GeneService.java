@@ -1,29 +1,21 @@
 package org.mskcc.oncokb.curation.service;
 
-import static org.mskcc.oncokb.curation.util.FileUtils.readTrimmedLinesStream;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.config.cache.CacheCategory;
 import org.mskcc.oncokb.curation.config.cache.CacheNameResolver;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.domain.GeneAlias;
-import org.mskcc.oncokb.curation.domain.enumeration.InfoType;
 import org.mskcc.oncokb.curation.repository.GeneAliasRepository;
 import org.mskcc.oncokb.curation.repository.GeneRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,8 +57,7 @@ public class GeneService {
      */
     public Gene save(Gene gene) {
         log.debug("Request to save Gene : {}", gene);
-        Gene result = geneRepository.save(gene);
-        return result;
+        return geneRepository.save(gene);
     }
 
     /**
@@ -79,13 +70,16 @@ public class GeneService {
         log.debug("Request to partially update Gene : {}", gene);
 
         return geneRepository
-            .findById(gene.getId())
+            .findOneWithEagerRelationships(gene.getId())
             .map(existingGene -> {
                 if (gene.getEntrezGeneId() != null) {
                     existingGene.setEntrezGeneId(gene.getEntrezGeneId());
                 }
                 if (gene.getHugoSymbol() != null) {
                     existingGene.setHugoSymbol(gene.getHugoSymbol());
+                }
+                if (gene.getHgncId() != null) {
+                    existingGene.setHgncId(gene.getHgncId());
                 }
                 if (gene.getFlags() != null) {
                     existingGene.getFlags().clear();
@@ -98,6 +92,23 @@ public class GeneService {
     }
 
     /**
+     * Get all the genes.
+     *
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public Page<Gene> findAll(Pageable pageable) {
+        log.debug("Request to get all Genes");
+        Page<Gene> genePage = geneRepository.findAll(pageable);
+        return new PageImpl<>(
+            geneRepository.findAllWithEagerRelationships(genePage.getContent().stream().map(Gene::getId).collect(Collectors.toList())),
+            pageable,
+            genePage.getSize()
+        );
+    }
+
+    /**
      * Get all the gene ids
      *
      * @param pageable the pagination information.
@@ -106,7 +117,7 @@ public class GeneService {
     @Transactional(readOnly = true)
     public Page<Long> findAllGeneIds(Pageable pageable) {
         log.debug("Request to get all Genes");
-        return geneRepository.findAllGeneIds(pageable);
+        return Page.empty();
     }
 
     /**
@@ -122,15 +133,6 @@ public class GeneService {
     }
 
     /**
-     * Get all the genes with eager load of many-to-many relationships.
-     *
-     * @return the list of entities.
-     */
-    public Page<Gene> findAllWithEagerRelationships(Pageable pageable) {
-        return geneRepository.findAllWithEagerRelationships(pageable);
-    }
-
-    /**
      * Get one gene by id.
      *
      * @param id the id of the entity.
@@ -139,7 +141,7 @@ public class GeneService {
     @Transactional(readOnly = true)
     public Optional<Gene> findOne(Long id) {
         log.debug("Request to get Gene : {}", id);
-        return geneRepository.findById(id);
+        return geneRepository.findOneWithEagerRelationships(id);
     }
 
     /**
@@ -192,5 +194,15 @@ public class GeneService {
     public List<Gene> findByHugoSymbolIn(Set<String> searchValues) {
         log.debug("Request to search for a list of genes by list of search values");
         return geneRepository.findByHugoSymbolInIgnoreCase(searchValues.stream().collect(Collectors.toList()));
+    }
+
+    public Page<Gene> search(String query, Pageable pageable) {
+        Page<Gene> genePage = geneRepository.searchGene(query, pageable);
+        Page<Gene> page = new PageImpl<>(
+            geneRepository.findAllWithEagerRelationships(genePage.getContent().stream().map(Gene::getId).collect(Collectors.toList())),
+            pageable,
+            genePage.getTotalElements()
+        );
+        return page;
     }
 }

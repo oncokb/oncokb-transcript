@@ -4,14 +4,19 @@ import BaseCrudStore from 'app/shared/util/base-crud-store';
 import _ from 'lodash';
 
 export const debouncedSearchWithPagination = _.debounce(
-  (query, page, size, sort, searchEntities) =>
-    searchEntities({
-      query,
-      page,
-      size,
-      sort,
-    }),
-  500,
+  (query: string, page, size, sort, searchEntities) => {
+    if (query && query.length > 2) {
+      return searchEntities({
+        query,
+        page,
+        size,
+        sort,
+      });
+    } else {
+      return null;
+    }
+  },
+  1000,
   { leading: true }
 );
 

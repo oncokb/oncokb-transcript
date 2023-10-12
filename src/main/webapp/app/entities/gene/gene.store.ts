@@ -10,7 +10,7 @@ import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
 import { geneClient } from 'app/shared/api/clients';
 
 const apiUrl = 'api/genes';
-const apiSearchUrl = 'api/_search/genes';
+const apiSearchUrl = 'api/genes/search';
 
 export class GeneStore extends PaginationCrudStore<IGene> {
   searchEntities: ICrudSearchAction<IGene> = this.readHandler(this.getSearch);

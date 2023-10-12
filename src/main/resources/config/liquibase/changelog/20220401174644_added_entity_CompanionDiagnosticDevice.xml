@@ -23,6 +23,12 @@
             <column name="indication_details" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+            <column name="platform_type" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="last_updated" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
         <addUniqueConstraint tableName="companion_diagnostic_device" columnNames="name, manufacturer"/>
@@ -34,6 +40,7 @@
             tableName="companion_diagnostic_device"
             usePreparedStatements="true">
         </loadData>
+        <dropDefaultValue tableName="companion_diagnostic_device" columnName="last_updated" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <changeSet id="20220401174644-1-relations" author="jhipster">

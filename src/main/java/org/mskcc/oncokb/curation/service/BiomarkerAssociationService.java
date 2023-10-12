@@ -2,11 +2,12 @@ package org.mskcc.oncokb.curation.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.mskcc.oncokb.curation.domain.BiomarkerAssociation;
 import org.mskcc.oncokb.curation.repository.BiomarkerAssociationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,7 +62,7 @@ public class BiomarkerAssociationService {
     @Transactional(readOnly = true)
     public List<BiomarkerAssociation> findAll() {
         log.debug("Request to get all BiomarkerAssociations");
-        return biomarkerAssociationRepository.findAll();
+        return biomarkerAssociationRepository.findAllWithEagerRelationships();
     }
 
     /**
@@ -73,7 +74,7 @@ public class BiomarkerAssociationService {
     @Transactional(readOnly = true)
     public Optional<BiomarkerAssociation> findOne(Long id) {
         log.debug("Request to get BiomarkerAssociation : {}", id);
-        return biomarkerAssociationRepository.findById(id);
+        return biomarkerAssociationRepository.findOneWithEagerRelationships(id);
     }
 
     public List<BiomarkerAssociation> findByCompanionDiagnosticDeviceId(Long id) {
