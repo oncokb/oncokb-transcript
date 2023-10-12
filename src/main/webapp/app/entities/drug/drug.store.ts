@@ -15,7 +15,7 @@ export class DrugStore extends PaginationCrudStore<IDrug> {
   *getSearch({ query }) {
     const result = yield axios.get<IDrug[]>(`${apiSearchUrl}?query=${query}`);
     this.entities = result.data;
-    this.totalItems = result.data.length();
+    this.totalItems = result.data.length;
     return result;
   }
 }
