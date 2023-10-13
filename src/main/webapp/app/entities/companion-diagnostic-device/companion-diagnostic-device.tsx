@@ -1,20 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Input, InputGroup, FormGroup, Form, Col, Row } from 'reactstrap';
 import { APP_DATE_FORMAT, ENTITY_ACTION, PAGE_ROUTE } from 'app/config/constants';
-
 import { IRootStore } from 'app/stores';
-import { Column } from 'react-table';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import WithSeparator from 'react-with-separator';
-import { debouncedSearch } from 'app/shared/util/crud-store';
-import EntityTable from 'app/shared/table/EntityTable';
 import { ENTITY_TYPE } from 'app/config/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
 import { TextFormat } from 'react-jhipster';
 import _ from 'lodash';
+import { filterByKeyword, getEntityTableActionsColumn } from 'app/shared/util/utils';
+import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 export interface ICompanionDiagnosticDeviceProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const getFdaSubmissionNumber = (primaryNumber: string, supplementNumber: string) => {
@@ -43,22 +40,12 @@ export const getFdaSubmissionLinks = (fdaSubmissions: IFdaSubmission[]) => {
 };
 
 export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps) => {
-  const { match } = props;
-
-  const [search, setSearch] = useState('');
-
   const companionDiagnosticDeviceList = props.companionDiagnosticDeviceList;
   const loading = props.loading;
 
   useEffect(() => {
-    if (search) {
-      // debouncedSearch(search, props.searchEntities);
-    } else {
-      props.getEntities({});
-    }
-  }, [search]);
-
-  const handleSearch = (event: any) => setSearch(event.target.value);
+    props.getEntities({});
+  }, []);
 
   const getUniqDrugs = (fdaSubmissions: IFdaSubmission[]) => {
     const drugs = [];
@@ -71,44 +58,49 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
     return _.uniq(drugs);
   };
 
-  const columns: Column<ICompanionDiagnosticDevice>[] = [
-    { accessor: 'name', Header: 'Device Name', width: 250 },
-    { accessor: 'manufacturer', Header: 'Manufacturer', width: 250 },
+  const columns: SearchColumn<ICompanionDiagnosticDevice>[] = [
     {
-      id: 'fdaSubmissions',
-      Header: 'FDA Submissions',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }: {
-        cell: { row: { original: any } };
-      }): any {
-        return <>{getFdaSubmissionLinks(original.fdaSubmissions)}</>;
-      },
-      width: 250,
+      accessor: 'name',
+      Header: 'Device Name',
+      onFilter: (data: ICompanionDiagnosticDevice, keyword) => (data.name ? filterByKeyword(data.name, keyword) : false),
+      minWidth: 200,
+    },
+    {
+      accessor: 'manufacturer',
+      Header: 'Manufacturer',
+      onFilter: (data: ICompanionDiagnosticDevice, keyword) => (data.manufacturer ? filterByKeyword(data.manufacturer, keyword) : false),
+      minWidth: 150,
     },
     {
       id: 'drugs',
       Header: 'Associated Drugs',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }): any {
-        return <>{getUniqDrugs(original.fdaSubmissions).sort().join(', ')}</>;
+      Cell(cell: { original: ICompanionDiagnosticDevice }) {
+        return <>{getUniqDrugs(cell.original.fdaSubmissions).sort().join(', ')}</>;
       },
-      width: 250,
+    },
+    {
+      id: 'fdaSubmissions',
+      Header: 'FDA Submissions',
+      sortable: false,
+      onFilter: (data: ICompanionDiagnosticDevice, keyword) =>
+        data.fdaSubmissions
+          ? filterByKeyword(data.fdaSubmissions.map(s => getFdaSubmissionNumber(s.number, s.supplementNumber)).join(', '), keyword)
+          : false,
+      Cell(cell: { original: ICompanionDiagnosticDevice }) {
+        return <>{getFdaSubmissionLinks(cell.original.fdaSubmissions)}</>;
+      },
+      minWidth: 250,
     },
     { accessor: 'platformType', Header: 'Platform Type' },
     {
       accessor: 'lastUpdated',
       Header: 'Last Updated',
 
-      Cell({ cell: { value } }) {
-        return value ? <TextFormat value={value} type="date" format={APP_DATE_FORMAT} /> : null;
+      Cell(cell: { original: ICompanionDiagnosticDevice }) {
+        return cell.original ? <TextFormat value={cell.original.lastUpdated} type="date" format={APP_DATE_FORMAT} /> : null;
       },
     },
+    getEntityTableActionsColumn(ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE),
   ];
 
   return (
@@ -122,25 +114,14 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
           entityAction={ENTITY_ACTION.CREATE}
         />
       </h2>
-      <Row className="justify-content-end">
-        <Col sm="4">
-          <Form>
-            <FormGroup>
-              <InputGroup>
-                <Input type="text" name="search" defaultValue={search} onChange={handleSearch} placeholder="Search" />
-              </InputGroup>
-            </FormGroup>
-          </Form>
-        </Col>
-      </Row>
       <div>
         {companionDiagnosticDeviceList && (
-          <EntityTable
+          <OncoKBTable
             columns={columns}
-            data={companionDiagnosticDeviceList}
+            data={companionDiagnosticDeviceList.concat()}
             loading={loading}
-            url={match.url}
-            entityType={ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE}
+            showPagination
+            defaultPageSize={5}
           />
         )}
       </div>
@@ -151,7 +132,6 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
 const mapStoreToProps = ({ companionDiagnosticDeviceStore }: IRootStore) => ({
   companionDiagnosticDeviceList: companionDiagnosticDeviceStore.entities,
   loading: companionDiagnosticDeviceStore.loading,
-  searchEntities: companionDiagnosticDeviceStore.searchEntities,
   getEntities: companionDiagnosticDeviceStore.getEntities,
 });
 

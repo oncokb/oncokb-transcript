@@ -20,7 +20,7 @@ import { IRootStore } from 'app/stores';
 import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
 
 const SidebarMenuItem: React.FunctionComponent<{ style?: React.CSSProperties }> = ({ style, children }) => {
-  return <div style={{ padding: '8px 24px 0 24px', ...style }}>{children}</div>;
+  return <div style={{ padding: '0.5rem 1rem', ...style }}>{children}</div>;
 };
 
 export const defaultAdditional = {

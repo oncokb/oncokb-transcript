@@ -30,10 +30,12 @@ import FdaDrug from './fda-drug';
 import SeqRegion from './seq-region';
 import Flag from './flag';
 import AlterationReferenceGenome from './alteration-reference-genome';
+import OncoKBBreadcrumb from 'app/shared/breadcrumb/OncoKBBreadcrumb';
 /* jhipster-needle-add-route-import - JHipster will add routes here */
 
 const Routes = ({ match }) => (
   <div>
+    <OncoKBBreadcrumb />
     <Switch>
       {/* prettier-ignore */}
       <ErrorBoundaryRoute path={`${match.url}sequence`} component={Sequence} />

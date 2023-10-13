@@ -4,6 +4,7 @@ import BaseStore from 'app/shared/util/base-store';
 import { IRootStore } from 'app/stores/createStore';
 import { OncoKBError } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
 import { AUTHORITIES } from 'app/config/constants';
+import { IUser } from 'app/shared/model/user.model';
 
 export const AUTH_TOKEN_KEY = 'jhi-authenticationToken';
 
@@ -19,7 +20,7 @@ export const hasAnyAuthority = (authorities: string[], hasAnyAuthorities: string
 
 export class AuthStore extends BaseStore {
   public isAuthenticated = false;
-  public account: any = {};
+  public account: IUser = {};
   public redirectMessage: string = null;
   public logoutUrl: string = null;
   public loginSuccess = false;

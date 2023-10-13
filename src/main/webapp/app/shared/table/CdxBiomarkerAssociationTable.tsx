@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from '../util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { getFdaSubmissionLinks, getFdaSubmissionNumber } from 'app/entities/companion-diagnostic-device/companion-diagnostic-device';
-import OncoKBTable from './OncoKBTable';
+import { getFdaSubmissionLinks } from 'app/entities/companion-diagnostic-device/companion-diagnostic-device';
 import { IBiomarkerAssociation } from '../model/biomarker-association.model';
 import { Column } from 'react-table';
 import { getAlterationName, getCancerTypeName, getTreatmentName } from '../util/utils';
@@ -10,6 +9,7 @@ import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { SimpleConfirmModal } from '../modal/SimpleConfirmModal';
 import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import OncoKBTable from './OncoKBTable';
 
 interface CdxBiomarkerAssociationTableProps extends StoreProps {
   editable?: boolean;
@@ -39,66 +39,36 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
     {
       id: 'gene',
       Header: 'Gene',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }: {
-        cell: { row: { original: IBiomarkerAssociation } };
-      }): any {
-        return <div>{original.gene?.hugoSymbol}</div>;
+      Cell(cell: { original: IBiomarkerAssociation }) {
+        return <div>{cell.original.gene?.hugoSymbol}</div>;
       },
     },
     {
       id: 'alterations',
       Header: 'Alterations',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }: {
-        cell: { row: { original: IBiomarkerAssociation } };
-      }): any {
-        return <>{original.alterations && getAlterationName(original.alterations)}</>;
+      Cell(cell: { original: IBiomarkerAssociation }) {
+        return <>{cell.original.alterations && getAlterationName(cell.original.alterations)}</>;
       },
     },
     {
       id: 'cancerType',
       Header: 'Cancer Type',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }: {
-        cell: { row: { original: IBiomarkerAssociation } };
-      }): any {
-        return <div>{getCancerTypeName(original.cancerType)}</div>;
+      Cell(cell: { original: IBiomarkerAssociation }) {
+        return <div>{getCancerTypeName(cell.original.cancerType)}</div>;
       },
     },
     {
       id: 'drugs',
       Header: 'Drug',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }: {
-        cell: { row: { original: IBiomarkerAssociation } };
-      }): any {
-        return <>{original.drugs && getTreatmentName(original.drugs)}</>;
+      Cell(cell: { original: IBiomarkerAssociation }) {
+        return <>{cell.original.drugs && getTreatmentName(cell.original.drugs)}</>;
       },
     },
     {
       id: 'fdaSubmissions',
       Header: 'FDA Submissions',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }: {
-        cell: { row: { original: IBiomarkerAssociation } };
-      }): any {
-        return <>{original.fdaSubmissions && getFdaSubmissionLinks(original.fdaSubmissions)}</>;
+      Cell(cell: { original: IBiomarkerAssociation }) {
+        return <>{cell.original.fdaSubmissions && getFdaSubmissionLinks(cell.original.fdaSubmissions)}</>;
       },
     },
   ];
@@ -107,13 +77,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
     columns.push({
       id: 'remove',
       Header: 'Remove',
-      Cell({
-        cell: {
-          row: { original },
-        },
-      }: {
-        cell: { row: { original: IBiomarkerAssociation } };
-      }): any {
+      Cell(cell: { original: IBiomarkerAssociation }) {
         return (
           <>
             <Button
@@ -122,7 +86,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
               size="sm"
               onClick={() => {
                 setShowModal(true);
-                setCurrentBiomarkerAssociationId(original.id);
+                setCurrentBiomarkerAssociationId(cell.original.id);
               }}
             >
               <FontAwesomeIcon icon={faTrashAlt} />
@@ -137,7 +101,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
   return (
     <>
       <h4>Biomarker Associations</h4>
-      <OncoKBTable columns={columns} data={props.biomarkerAssociations} />
+      <OncoKBTable data={props.biomarkerAssociations.concat()} columns={columns} showPagination defaultPageSize={5} />
       <SimpleConfirmModal
         show={showModal}
         onCancel={handleCancel}
