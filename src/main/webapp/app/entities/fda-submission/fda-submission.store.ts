@@ -6,7 +6,7 @@ import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import { fdaSubmissionClient } from 'app/shared/api/clients';
 
 const apiUrl = 'api/fda-submissions';
-const apiSearchUrl = 'api/_search/fda-submissions';
+const apiSearchUrl = 'api/fda-submissions/search';
 
 export class FdaSubmissionStore extends PaginationCrudStore<IFdaSubmission> {
   lookupFdaSubmission = this.readHandler(this.lookupFdaSubmissionGen);

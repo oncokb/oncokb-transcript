@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -209,14 +208,14 @@ public class ClinicalTrialsGovConditionResource {
     }
 
     /**
-     * {@code SEARCH  /_search/clinical-trials-gov-conditions?query=:query} : search for the clinicalTrialsGovCondition corresponding
+     * {@code SEARCH  /clinical-trials-gov-conditions/search?query=:query} : search for the clinicalTrialsGovCondition corresponding
      * to the query.
      *
      * @param query the query of the clinicalTrialsGovCondition search.
      * @param pageable the pagination information.
      * @return the result of the search.
      */
-    @GetMapping("/_search/clinical-trials-gov-conditions")
+    @GetMapping("/clinical-trials-gov-conditions/search")
     public ResponseEntity<List<ClinicalTrialsGovCondition>> searchClinicalTrialsGovConditions(
         @RequestParam String query,
         Pageable pageable

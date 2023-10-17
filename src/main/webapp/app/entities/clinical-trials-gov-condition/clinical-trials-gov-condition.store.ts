@@ -3,10 +3,9 @@ import { IRootStore } from 'app/stores';
 import axios from 'axios';
 import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
 import { ICrudSearchAction } from 'app/shared/util/jhipster-types';
-import { IAlteration } from 'app/shared/model/alteration.model';
 
 const apiUrl = 'api/clinical-trials-gov-conditions';
-const apiSearchUrl = 'api/_search/clinical-trials-gov-conditions';
+const apiSearchUrl = 'api/clinical-trials-gov-conditions/search';
 
 export class ClinicalTrialsGovConditionStore extends PaginationCrudStore<IClinicalTrialsGovCondition> {
   searchEntities: ICrudSearchAction<IClinicalTrialsGovCondition> = this.readHandler(this.getSearch);

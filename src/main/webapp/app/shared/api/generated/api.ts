@@ -4641,7 +4641,7 @@ export const ArticleResourceApiAxiosParamCreator = function (configuration?: Con
       assertParamExists('searchArticles', 'query', query);
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('searchArticles', 'pageable', pageable);
-      const localVarPath = `/api/_search/articles`;
+      const localVarPath = `/api/articles/search`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -5874,7 +5874,7 @@ export const CancerTypeResourceApiAxiosParamCreator = function (configuration?: 
       assertParamExists('searchCancerTypes', 'query', query);
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('searchCancerTypes', 'pageable', pageable);
-      const localVarPath = `/api/_search/cancer-types`;
+      const localVarPath = `/api/cancer-types/search`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -6968,7 +6968,7 @@ export const ClinicalTrialsGovConditionResourceApiAxiosParamCreator = function (
       assertParamExists('searchClinicalTrialsGovConditions', 'query', query);
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('searchClinicalTrialsGovConditions', 'pageable', pageable);
-      const localVarPath = `/api/_search/clinical-trials-gov-conditions`;
+      const localVarPath = `/api/clinical-trials-gov-conditions/search`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -7622,7 +7622,7 @@ export const CompanionDiagnosticDeviceResourceApiAxiosParamCreator = function (c
     searchCompanionDiagnosticDevices: async (query: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'query' is not null or undefined
       assertParamExists('searchCompanionDiagnosticDevices', 'query', query);
-      const localVarPath = `/api/_search/companion-diagnostic-devices`;
+      const localVarPath = `/api/companion-diagnostic-devices/search`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -9313,7 +9313,7 @@ export const DrugResourceApiAxiosParamCreator = function (configuration?: Config
       assertParamExists('searchDrugs', 'query', query);
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('searchDrugs', 'pageable', pageable);
-      const localVarPath = `/api/_search/drugs`;
+      const localVarPath = `/api/drugs/search`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -11624,7 +11624,7 @@ export const FdaSubmissionResourceApiAxiosParamCreator = function (configuration
       assertParamExists('searchFdaSubmissions', 'query', query);
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('searchFdaSubmissions', 'pageable', pageable);
-      const localVarPath = `/api/_search/fda-submissions`;
+      const localVarPath = `/api/fda-submissions/search`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -15299,7 +15299,7 @@ export const SearchControllerApiAxiosParamCreator = function (configuration?: Co
     search: async (query: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'query' is not null or undefined
       assertParamExists('search', 'query', query);
-      const localVarPath = `/api/_search/all`;
+      const localVarPath = `/api/search`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;

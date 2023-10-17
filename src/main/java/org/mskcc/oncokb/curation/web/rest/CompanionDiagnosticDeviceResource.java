@@ -207,7 +207,7 @@ public class CompanionDiagnosticDeviceResource {
     }
 
     /**
-     * {@code SEARCH  /_search/companion-diagnostic-devices?query=:query} : search for the companionDiagnosticDevice corresponding
+     * {@code SEARCH  /companion-diagnostic-devices/search?query=:query} : search for the companionDiagnosticDevice corresponding
      * to the query.
      *
      * @param query the query of the companionDiagnosticDevice search.

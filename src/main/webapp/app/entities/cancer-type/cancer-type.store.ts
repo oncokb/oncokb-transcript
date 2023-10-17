@@ -5,7 +5,7 @@ import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
 import { ICrudSearchAction } from 'app/shared/util/jhipster-types';
 
 const apiUrl = 'api/cancer-types';
-const apiSearchUrl = 'api/_search/cancer-types';
+const apiSearchUrl = 'api/cancer-types/search';
 
 export class CancerTypeStore extends PaginationCrudStore<ICancerType> {
   searchEntities: ICrudSearchAction<ICancerType> = this.readHandler(this.getSearch);
