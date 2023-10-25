@@ -130,9 +130,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
         .map((key: ENTITY_TYPE) => {
           let frequency = 0;
           const target = _.find(frequencies, { type: ENTITY_TYPE[key] });
-          if (target) {
-            frequency = INTEGER_REGEX.test(target.frequency) ? parseInt(target.frequency, 10) : 0;
-          }
+          frequency = target && INTEGER_REGEX.test(target.frequency) ? parseInt(target.frequency, 10) : 0;
           return { type: ENTITY_TYPE[key], frequency };
         });
       setEntityMenuFrequencies(parsedFrequencies);
