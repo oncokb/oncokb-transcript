@@ -4033,12 +4033,15 @@ export const AlterationResourceApiAxiosParamCreator = function (configuration?: 
     /**
      *
      * @param {string} query
+     * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    searchAlterations: async (query: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    searchAlterations: async (query: string, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'query' is not null or undefined
       assertParamExists('searchAlterations', 'query', query);
+      // verify required parameter 'pageable' is not null or undefined
+      assertParamExists('searchAlterations', 'pageable', pageable);
       const localVarPath = `/api/alterations/search`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -4053,6 +4056,10 @@ export const AlterationResourceApiAxiosParamCreator = function (configuration?: 
 
       if (query !== undefined) {
         localVarQueryParameter['query'] = query;
+      }
+
+      if (pageable !== undefined) {
+        localVarQueryParameter['pageable'] = pageable;
       }
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -4193,14 +4200,16 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
     /**
      *
      * @param {string} query
+     * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async searchAlterations(
       query: string,
+      pageable: Pageable,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Alteration>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.searchAlterations(query, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.searchAlterations(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -4286,11 +4295,12 @@ export const AlterationResourceApiFactory = function (configuration?: Configurat
     /**
      *
      * @param {string} query
+     * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    searchAlterations(query: string, options?: any): AxiosPromise<Array<Alteration>> {
-      return localVarFp.searchAlterations(query, options).then(request => request(axios, basePath));
+    searchAlterations(query: string, pageable: Pageable, options?: any): AxiosPromise<Array<Alteration>> {
+      return localVarFp.searchAlterations(query, pageable, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -4394,13 +4404,14 @@ export class AlterationResourceApi extends BaseAPI {
   /**
    *
    * @param {string} query
+   * @param {Pageable} pageable
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof AlterationResourceApi
    */
-  public searchAlterations(query: string, options?: AxiosRequestConfig) {
+  public searchAlterations(query: string, pageable: Pageable, options?: AxiosRequestConfig) {
     return AlterationResourceApiFp(this.configuration)
-      .searchAlterations(query, options)
+      .searchAlterations(query, pageable, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -8921,177 +8932,6 @@ export class DrugBrandResourceApi extends BaseAPI {
 }
 
 /**
- * DrugControllerApi - axios parameter creator
- * @export
- */
-export const DrugControllerApiAxiosParamCreator = function (configuration?: Configuration) {
-  return {
-    /**
-     *
-     * @param {string} code
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    findDrugByCode: async (code: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'code' is not null or undefined
-      assertParamExists('findDrugByCode', 'code', code);
-      const localVarPath = `/api/drugs/search-by-code/{code}`.replace(`{${'code'}}`, encodeURIComponent(String(code)));
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {string} query
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    findDrugs: async (query: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'query' is not null or undefined
-      assertParamExists('findDrugs', 'query', query);
-      const localVarPath = `/api/drugs/search`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      if (query !== undefined) {
-        localVarQueryParameter['query'] = query;
-      }
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-  };
-};
-
-/**
- * DrugControllerApi - functional programming interface
- * @export
- */
-export const DrugControllerApiFp = function (configuration?: Configuration) {
-  const localVarAxiosParamCreator = DrugControllerApiAxiosParamCreator(configuration);
-  return {
-    /**
-     *
-     * @param {string} code
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async findDrugByCode(
-      code: string,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Drug>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.findDrugByCode(code, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {string} query
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async findDrugs(
-      query: string,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Drug>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.findDrugs(query, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-  };
-};
-
-/**
- * DrugControllerApi - factory interface
- * @export
- */
-export const DrugControllerApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-  const localVarFp = DrugControllerApiFp(configuration);
-  return {
-    /**
-     *
-     * @param {string} code
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    findDrugByCode(code: string, options?: any): AxiosPromise<Drug> {
-      return localVarFp.findDrugByCode(code, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {string} query
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    findDrugs(query: string, options?: any): AxiosPromise<Array<Drug>> {
-      return localVarFp.findDrugs(query, options).then(request => request(axios, basePath));
-    },
-  };
-};
-
-/**
- * DrugControllerApi - object-oriented interface
- * @export
- * @class DrugControllerApi
- * @extends {BaseAPI}
- */
-export class DrugControllerApi extends BaseAPI {
-  /**
-   *
-   * @param {string} code
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof DrugControllerApi
-   */
-  public findDrugByCode(code: string, options?: AxiosRequestConfig) {
-    return DrugControllerApiFp(this.configuration)
-      .findDrugByCode(code, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {string} query
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof DrugControllerApi
-   */
-  public findDrugs(query: string, options?: AxiosRequestConfig) {
-    return DrugControllerApiFp(this.configuration)
-      .findDrugs(query, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-}
-
-/**
  * DrugResourceApi - axios parameter creator
  * @export
  */
@@ -9304,15 +9144,12 @@ export const DrugResourceApiAxiosParamCreator = function (configuration?: Config
     /**
      *
      * @param {string} query
-     * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    searchDrugs: async (query: string, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    searchDrugs: async (query: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'query' is not null or undefined
       assertParamExists('searchDrugs', 'query', query);
-      // verify required parameter 'pageable' is not null or undefined
-      assertParamExists('searchDrugs', 'pageable', pageable);
       const localVarPath = `/api/drugs/search`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -9327,10 +9164,6 @@ export const DrugResourceApiAxiosParamCreator = function (configuration?: Config
 
       if (query !== undefined) {
         localVarQueryParameter['query'] = query;
-      }
-
-      if (pageable !== undefined) {
-        localVarQueryParameter['pageable'] = pageable;
       }
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -9464,16 +9297,14 @@ export const DrugResourceApiFp = function (configuration?: Configuration) {
     /**
      *
      * @param {string} query
-     * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async searchDrugs(
       query: string,
-      pageable: Pageable,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Drug>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.searchDrugs(query, pageable, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.searchDrugs(query, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -9560,12 +9391,11 @@ export const DrugResourceApiFactory = function (configuration?: Configuration, b
     /**
      *
      * @param {string} query
-     * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    searchDrugs(query: string, pageable: Pageable, options?: any): AxiosPromise<Array<Drug>> {
-      return localVarFp.searchDrugs(query, pageable, options).then(request => request(axios, basePath));
+    searchDrugs(query: string, options?: any): AxiosPromise<Array<Drug>> {
+      return localVarFp.searchDrugs(query, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -9670,14 +9500,13 @@ export class DrugResourceApi extends BaseAPI {
   /**
    *
    * @param {string} query
-   * @param {Pageable} pageable
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof DrugResourceApi
    */
-  public searchDrugs(query: string, pageable: Pageable, options?: AxiosRequestConfig) {
+  public searchDrugs(query: string, options?: AxiosRequestConfig) {
     return DrugResourceApiFp(this.configuration)
-      .searchDrugs(query, pageable, options)
+      .searchDrugs(query, options)
       .then(request => request(this.axios, this.basePath));
   }
 
