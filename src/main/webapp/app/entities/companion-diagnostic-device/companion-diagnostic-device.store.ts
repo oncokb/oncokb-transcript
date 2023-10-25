@@ -4,7 +4,7 @@ import CrudStore from 'app/shared/util/crud-store';
 import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
 
 const apiUrl = 'api/companion-diagnostic-devices';
-const apiSearchUrl = 'api/_search/companion-diagnostic-devices';
+const apiSearchUrl = 'api/companion-diagnostic-devices/search';
 
 export class CompanionDiagnosticDeviceStore extends CrudStore<ICompanionDiagnosticDevice> {
   searchEntities = this.readHandler(this.getSearch);

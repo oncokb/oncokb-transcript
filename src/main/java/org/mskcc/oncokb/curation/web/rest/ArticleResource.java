@@ -195,14 +195,14 @@ public class ArticleResource {
     }
 
     /**
-     * {@code SEARCH  /_search/articles?query=:query} : search for the article corresponding
+     * {@code SEARCH  /articles/search?query=:query} : search for the article corresponding
      * to the query.
      *
      * @param query the query of the article search.
      * @param pageable the pagination information.
      * @return the result of the search.
      */
-    @GetMapping("/_search/articles")
+    @GetMapping("/articles/search")
     public ResponseEntity<List<Article>> searchArticles(@RequestParam String query, Pageable pageable) {
         log.debug("REST request to search for a page of Articles for query {}", query);
         Page<Article> page = articleQueryService.findBySearchQuery(query, pageable);

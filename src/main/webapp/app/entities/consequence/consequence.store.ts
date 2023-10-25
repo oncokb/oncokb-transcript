@@ -5,7 +5,7 @@ import CrudStore from 'app/shared/util/crud-store';
 import { ICrudSearchAction } from 'app/shared/util/jhipster-types';
 
 const apiUrl = 'api/consequences';
-const apiSearchUrl = 'api/_search/consequences';
+const apiSearchUrl = 'api/consequences/search';
 
 export class ConsequenceStore extends CrudStore<IConsequence> {
   searchEntities: ICrudSearchAction<IConsequence> = this.readHandler(this.getSearch);

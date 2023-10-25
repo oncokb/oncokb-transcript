@@ -220,14 +220,14 @@ public class FdaSubmissionResource {
     }
 
     /**
-     * {@code SEARCH  /_search/fda-submissions?query=:query} : search for the fdaSubmission corresponding
+     * {@code SEARCH  /fda-submissions/search?query=:query} : search for the fdaSubmission corresponding
      * to the query.
      *
      * @param query the query of the fdaSubmission search.
      * @param pageable the pagination information.
      * @return the result of the search.
      */
-    @GetMapping("/_search/fda-submissions")
+    @GetMapping("/fda-submissions/search")
     public ResponseEntity<List<FdaSubmission>> searchFdaSubmissions(@RequestParam String query, Pageable pageable) {
         log.debug("REST request to search for a page of FdaSubmissions for query {}", query);
         Page<FdaSubmission> page = fdaSubmissionQueryService.findBySearchQuery(query, pageable);

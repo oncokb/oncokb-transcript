@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -204,14 +203,14 @@ public class CancerTypeResource {
     }
 
     /**
-     * {@code SEARCH  /_search/cancer-types?query=:query} : search for the cancerType corresponding
+     * {@code SEARCH  /cancer-types/search?query=:query} : search for the cancerType corresponding
      * to the query.
      *
      * @param query the query of the cancerType search.
      * @param pageable the pagination information.
      * @return the result of the search.
      */
-    @GetMapping("/_search/cancer-types")
+    @GetMapping("/cancer-types/search")
     public ResponseEntity<List<CancerType>> searchCancerTypes(@RequestParam String query, Pageable pageable) {
         log.debug("REST request to search for a page of CancerTypes for query {}", query);
         Page<CancerType> page = cancerTypeQueryService.findBySearchQuery(query, pageable);

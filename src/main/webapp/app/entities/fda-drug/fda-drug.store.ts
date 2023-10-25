@@ -5,7 +5,7 @@ import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
 import { ICrudSearchAction } from 'app/shared/util/jhipster-types';
 
 const apiUrl = 'api/fda-drugs';
-const apiSearchUrl = 'api/_search/fda-drugs';
+const apiSearchUrl = 'api/fda-drugs/search';
 
 export class FdaDrugStore extends PaginationCrudStore<IFdaDrug> {
   searchEntities: ICrudSearchAction<IFdaDrug> = this.readHandler(this.getSearch);
