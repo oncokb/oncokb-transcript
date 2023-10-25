@@ -97,7 +97,7 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
       Header: 'Last Updated',
 
       Cell(cell: { original: ICompanionDiagnosticDevice }) {
-        return cell.original ? <TextFormat value={cell.original.lastUpdated} type="date" format={APP_DATE_FORMAT} /> : null;
+        return cell.original?.lastUpdated ? <TextFormat value={cell.original.lastUpdated} type="date" format={APP_DATE_FORMAT} /> : null;
       },
     },
     getEntityTableActionsColumn(ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE),
@@ -116,13 +116,7 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
       </h2>
       <div>
         {companionDiagnosticDeviceList && (
-          <OncoKBTable
-            columns={columns}
-            data={companionDiagnosticDeviceList.concat()}
-            loading={loading}
-            showPagination
-            defaultPageSize={5}
-          />
+          <OncoKBTable columns={columns} data={companionDiagnosticDeviceList.concat()} loading={loading} showPagination />
         )}
       </div>
     </div>

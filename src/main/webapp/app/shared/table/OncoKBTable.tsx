@@ -67,6 +67,7 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
           showPagination={showPagination}
           className={`-striped -highlight oncokbReactTable ${props.fixedHeight ? 'fixedHeight' : ''} ${props.className}`}
           data={filteredData}
+          defaultPageSize={10}
         />
       </div>
     </div>

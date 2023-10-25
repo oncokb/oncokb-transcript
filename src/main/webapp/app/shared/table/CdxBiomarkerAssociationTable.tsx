@@ -101,7 +101,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
   return (
     <>
       <h4>Biomarker Associations</h4>
-      <OncoKBTable data={props.biomarkerAssociations.concat()} columns={columns} showPagination defaultPageSize={5} />
+      <OncoKBTable data={props.biomarkerAssociations.concat()} columns={columns} showPagination />
       <SimpleConfirmModal
         show={showModal}
         onCancel={handleCancel}

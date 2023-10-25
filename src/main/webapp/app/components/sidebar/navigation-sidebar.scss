@@ -1,11 +1,11 @@
 @import '../../variables.scss';
 
-.ps-menu-divider {
+.nav-menu-divider {
   margin: 0rem 1rem 0 1rem;
   border-bottom: 1px solid $medium-grey;
 }
 
-.ps-collapse-btn-wrapper {
+.nav-collapse-btn-wrapper {
   margin-bottom: 1rem;
   display: flex;
   justify-content: center;
@@ -20,11 +20,13 @@
   }
 }
 
+// Override ProSidebar styles here
 .ps-sidebar-root {
   height: 100vh;
   position: fixed !important;
   border-right: 1px solid $medium-grey !important;
   z-index: 999 !important;
+  overflow: hidden !important;
 }
 
 .ps-sidebar-container {

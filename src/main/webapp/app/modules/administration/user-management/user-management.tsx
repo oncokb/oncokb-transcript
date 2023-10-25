@@ -75,11 +75,7 @@ export const UserManagement = (props: IUserManagementProps) => {
         Users
         <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.USER} entityAction={ENTITY_ACTION.CREATE} />
       </h2>
-      <div>
-        {props.users && (
-          <OncoKBTable data={props.users.concat()} columns={columns} loading={props.loading} showPagination defaultPageSize={10} />
-        )}
-      </div>
+      <div>{props.users && <OncoKBTable data={props.users.concat()} columns={columns} loading={props.loading} showPagination />}</div>
     </div>
   );
 };

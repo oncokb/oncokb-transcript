@@ -73,7 +73,7 @@ const GeneListPage = (props: StoreProps) => {
       <Then>
         <Row>
           <Col>
-            <OncoKBTable data={geneMeta} columns={columns} showPagination defaultPageSize={20} />
+            <OncoKBTable data={geneMeta} columns={columns} showPagination />
           </Col>
         </Row>
       </Then>

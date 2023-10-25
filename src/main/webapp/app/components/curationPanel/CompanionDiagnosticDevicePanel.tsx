@@ -83,7 +83,7 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
               <AlterationSelect isMulti geneId={selectedGeneId} onChange={onAlterationChange} />
             </div>
             <DefaultTooltip overlay={'Create new alteration'}>
-              <Button color="primary" onClick={redirectToCreateAlteration}>
+              <Button className="ml-1" color="primary" onClick={redirectToCreateAlteration}>
                 <FontAwesomeIcon icon={faPlus} size="sm" />
               </Button>
             </DefaultTooltip>
@@ -101,7 +101,7 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
               <FdaSubmissionSelect cdxId={id} isMulti onChange={onFdaSubmissionChange} />
             </div>
             <DefaultTooltip overlay={'Create new Fda Submission'}>
-              <Button color="primary" onClick={redirectToCreateFdaSubmission}>
+              <Button className="ml-1" color="primary" onClick={redirectToCreateFdaSubmission}>
                 <FontAwesomeIcon icon={faPlus} size="sm" />
               </Button>
             </DefaultTooltip>
