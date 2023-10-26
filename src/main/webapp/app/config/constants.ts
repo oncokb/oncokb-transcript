@@ -183,6 +183,8 @@ export enum GERMLINE_INHERITANCE_MECHANISM {
 export const CBIOPORTAL = 'cBioPortal';
 export const COSMIC = 'COSMIC';
 
+export const DEFAULT_NAV_ICON_SIZE = 25;
+
 /* Regex constants */
 export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');
 export const UUID_REGEX = new RegExp('\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}');

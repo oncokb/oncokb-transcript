@@ -3,7 +3,7 @@ import './navigation-sidebar.scss';
 import oncokbLogo from 'oncokb-styles/dist/images/logo/oncokb.svg';
 import oncokbSmallLogo from 'oncokb-styles/dist/images/oncogenic.svg';
 import { observer } from 'mobx-react';
-import { AUTHORITIES, ENTITY_BASE_PATHS, ENTITY_TYPE, INTEGER_REGEX, PAGE_ROUTE } from 'app/config/constants';
+import { AUTHORITIES, DEFAULT_NAV_ICON_SIZE, ENTITY_BASE_PATHS, ENTITY_TYPE, INTEGER_REGEX, PAGE_ROUTE } from 'app/config/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { NavLink } from 'react-router-dom';
@@ -124,8 +124,9 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
 
   useEffect(() => {
     const frequencies = JSON.parse(localStorage.getItem(PRIORITY_ENTITY_MENU_ITEM_KEY));
+    let parsedFrequencies = entityMenuFrequencies;
     if (frequencies) {
-      const parsedFrequencies = Object.keys(ENTITY_TYPE)
+      parsedFrequencies = Object.keys(ENTITY_TYPE)
         .filter((key: ENTITY_TYPE) => DEFAULT_ENTITY_MENU_ORDER.includes(ENTITY_TYPE[key]))
         .map((key: ENTITY_TYPE) => {
           let frequency = 0;
@@ -135,17 +136,14 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
         });
       setEntityMenuFrequencies(parsedFrequencies);
     }
-  }, []);
-
-  useEffect(() => {
-    const order = _.chain(entityMenuFrequencies)
+    const order = _.chain(parsedFrequencies)
       .sortBy(e => e.frequency)
       .reverse()
       .map(item => item.type)
       .value();
 
     setEntityMenuOrder(order);
-  }, [entityMenuFrequencies]);
+  }, []);
 
   return (
     <Sidebar collapsed={props.isNavSidebarCollapsed} width={`${SIDEBAR_EXPANDED_WIDTH}px`} collapsedWidth={`${SIDEBAR_COLLAPSED_WIDTH}px`}>
@@ -161,7 +159,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
         </div>
         <div className="nav-collapse-btn-wrapper">
           <Button size="sm" color="light" onClick={props.toggleNavigationSidebar}>
-            <HiMiniBars3 size={25} />
+            <HiMiniBars3 size={DEFAULT_NAV_ICON_SIZE} />
           </Button>
         </div>
         <MenuDivider />
@@ -171,16 +169,16 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
             <MenuItemCollapsible
               isCollapsed={props.isNavSidebarCollapsed}
               text="Curation"
-              icon={<FiFileText size={25} />}
+              icon={<FiFileText size={DEFAULT_NAV_ICON_SIZE} />}
               nav={<NavLink to={PAGE_ROUTE.CURATION} />}
             />
             <MenuItemCollapsible
               isCollapsed={props.isNavSidebarCollapsed}
               text={'Search'}
-              icon={<BiSearchAlt size={25} />}
+              icon={<BiSearchAlt size={DEFAULT_NAV_ICON_SIZE} />}
               nav={<NavLink to={PAGE_ROUTE.SEARCH} />}
             />
-            <SubMenu defaultOpen label="Entities" icon={<GoDatabase size={25} />}>
+            <SubMenu defaultOpen label="Entities" icon={<GoDatabase size={DEFAULT_NAV_ICON_SIZE} />}>
               {entityMenuOrder.map(entityType => (
                 <PriorityEntityMenuItem key={entityType} type={entityType} handlePriorityMenuItemClick={handlePriorityMenuItemClick}>
                   {ENTITY_MENU_NAME[entityType]}
@@ -191,14 +189,14 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
         </div>
         <MenuDivider />
         <Menu>
-          <SubMenu label={props.account.firstName} icon={<FaUserCircle size={25} />}>
+          <SubMenu label={props.account.firstName} icon={<FaUserCircle size={DEFAULT_NAV_ICON_SIZE} />}>
             <MenuItem component={<NavLink to={PAGE_ROUTE.ACCOUNT} />}>Account Settings</MenuItem>
             <MenuItem component={<NavLink to={PAGE_ROUTE.ADMIN_USER_MANAGEMENT} />}>User Management</MenuItem>
           </SubMenu>
           <MenuItemCollapsible
             isCollapsed={props.isNavSidebarCollapsed}
             text={'Sign out'}
-            icon={<FaSignOutAlt size={25} />}
+            icon={<FaSignOutAlt size={DEFAULT_NAV_ICON_SIZE} />}
             nav={<NavLink to={PAGE_ROUTE.LOGOUT} />}
           />
         </Menu>
