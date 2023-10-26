@@ -16,7 +16,9 @@ import org.mskcc.oncokb.curation.config.Constants;
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.domain.User;
 import org.mskcc.oncokb.curation.repository.UserRepository;
+import org.mskcc.oncokb.curation.service.UserService;
 import org.mskcc.oncokb.curation.service.dto.KeycloakUserDTO;
+import org.mskcc.oncokb.curation.service.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -34,7 +36,7 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
     private ApplicationProperties applicationProperties;
@@ -47,17 +49,21 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String json = gson.toJson(attributes);
         KeycloakUserDTO keycloakUser = gson.fromJson(json, KeycloakUserDTO.class);
 
-        Optional<User> user = userRepository.findOneByEmailIgnoreCase(keycloakUser.getEmail());
+        Optional<UserDTO> optionalUser = userService.findOneByEmailIgnoreCase(keycloakUser.getEmail());
         // If user is in db, then let spring security handle authentication success.
         // When we use the OncoKB public user table, then an activated user is not neccesarily
         // allowed to access this service. We will need to add a ROLE_CURATOR role to public
         // and check that the role exists here.
-        if (user.isPresent() && user.get().isActivated()) {
+        if (optionalUser.isPresent() && optionalUser.get().isActivated()) {
+            UserDTO user = optionalUser.get();
+            if (keycloakUser.getImageUrl() != null) {
+                user.setImageUrl(keycloakUser.getImageUrl());
+                userService.updateUser(user);
+            }
+
             Collection<? extends GrantedAuthority> authorities = user
-                .get()
                 .getAuthorities()
                 .stream()
-                .map(auth -> auth.getName())
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
             OAuth2AuthenticationToken authenticationWithAuthorities = new OAuth2AuthenticationToken(

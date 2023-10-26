@@ -1,93 +1,74 @@
-import React, { useMemo } from 'react';
-import { Table } from 'reactstrap';
-import { Column, useAbsoluteLayout, useBlockLayout, useFlexLayout, useResizeColumns, useTable } from 'react-table';
-import './OncoKBTable.scss';
-import LoadingIndicator from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
+import React, { useMemo, useState } from 'react';
+import ReactTable, { Column, TableProps } from 'react-table';
 
-export type IOncoKBTableProps<T> = {
-  columns: Column[];
-  data: T[];
-  loading?: boolean;
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/ban-types */
+export type SearchColumn<T> = Column<T> & {
+  onFilter?: (data: T, keyword: string) => boolean;
 };
 
-// The keys are supplied by react-table
-/* eslint-disable react/jsx-key */
-const OncoKBTable = props => {
-  const columns = useMemo(() => props.columns, [props.columns]);
-  const data = useMemo(() => props.data || [], [props.data]);
-  const defaultColumn = React.useMemo(
-    () => ({
-      width: 150,
-      maxWidth: 500,
-      minWidth: 150,
-    }),
-    []
-  );
+export interface ITableWithSearchBox<T> extends Partial<TableProps<T>> {
+  data: T[];
+  disableSearch?: boolean;
+  fixedHeight?: boolean;
+  showPagination?: boolean;
+  pageSize?: number;
+  minRows?: number;
+  columns: SearchColumn<T>[];
+  loading?: boolean;
+  filters?: React.FunctionComponent;
+  className?: string;
+}
 
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
-    {
-      columns,
-      data,
-      defaultColumn,
-    },
-    useFlexLayout
-  );
+export const OncoKBTable = <T extends object>({ disableSearch = false, showPagination = false, ...props }: ITableWithSearchBox<T>) => {
+  const [searchKeyword, setSearchKeyword] = useState('');
 
-  const tableRows = rows.map(row => {
-    prepareRow(row);
-    return (
-      <div className="rt-tr" {...row.getRowProps()}>
-        {row.cells.map(cell => {
-          return (
-            <div className="rt-td" {...cell.getCellProps()}>
-              {cell.render('Cell')}
-            </div>
-          );
-        })}
-      </div>
-    );
-  });
-
-  const getTableContents = () => {
-    if (props.loading) {
-      return (
-        <div className="rt-tr">
-          <div className="rt-td">
-            <div className="table-message">
-              <LoadingIndicator isLoading={true} />
-            </div>
-          </div>
-        </div>
-      );
-    } else if (data.length === 0) {
-      return (
-        <div className="rt-tr">
-          <div className="rt-td">
-            <div className="table-message">No rows found</div>
-          </div>
-        </div>
-      );
-    } else {
-      return tableRows;
-    }
-  };
+  const filteredData = useMemo(() => {
+    return props.data.filter((item: T) => {
+      const filterableColumns = props.columns.filter(column => !!column.onFilter);
+      if (filterableColumns.length > 0) {
+        return filterableColumns.map(column => column.onFilter(item, searchKeyword)).includes(true);
+      } else {
+        return true;
+      }
+    });
+  }, [searchKeyword, props.data, props.columns]);
 
   return (
-    <div {...getTableProps()} className="oncokb-table">
-      <div className="rt-table">
-        {headerGroups.map(headerGroup => (
-          <div className="rt-thead" {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map(column => {
-              const { render, getHeaderProps } = column;
-              return (
-                <div className="rt-th" {...getHeaderProps()}>
-                  {render('Header')}
+    <div>
+      {props.filters === undefined && disableSearch ? (
+        <></>
+      ) : (
+        <div className="row">
+          <div className="col-auto">{props.filters === undefined ? <></> : <props.filters />}</div>
+          <div className="col-sm">
+            {disableSearch ? (
+              <></>
+            ) : (
+              <div className="d-flex">
+                <div className="ml-auto">
+                  <input
+                    onChange={(event: any) => {
+                      setSearchKeyword(event.target.value.toLowerCase());
+                    }}
+                    className="form-control"
+                    type="text"
+                    placeholder="Search ..."
+                  />
                 </div>
-              );
-            })}
+              </div>
+            )}
           </div>
-        ))}
-        <div {...getTableBodyProps()}>{getTableContents()}</div>
+        </div>
+      )}
+      <div className="mt-2">
+        <ReactTable
+          {...props}
+          showPagination={showPagination}
+          className={`-striped -highlight oncokbReactTable ${props.fixedHeight ? 'fixedHeight' : ''} ${props.className}`}
+          data={filteredData}
+          defaultPageSize={10}
+        />
       </div>
     </div>
   );

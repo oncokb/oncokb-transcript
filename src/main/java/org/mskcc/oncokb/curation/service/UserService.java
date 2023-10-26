@@ -1,7 +1,6 @@
 package org.mskcc.oncokb.curation.service;
 
 import com.google.gson.Gson;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.mskcc.oncokb.curation.config.Constants;
@@ -11,7 +10,6 @@ import org.mskcc.oncokb.curation.domain.Authority;
 import org.mskcc.oncokb.curation.domain.User;
 import org.mskcc.oncokb.curation.repository.AuthorityRepository;
 import org.mskcc.oncokb.curation.repository.UserRepository;
-import org.mskcc.oncokb.curation.security.SecurityUtils;
 import org.mskcc.oncokb.curation.service.dto.KeycloakUserDTO;
 import org.mskcc.oncokb.curation.service.dto.UserDTO;
 import org.mskcc.oncokb.curation.service.mapper.UserMapper;
@@ -24,7 +22,6 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -131,8 +128,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserDTO> getAllManagedUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(UserDTO::new);
+    public List<UserDTO> getAllManagedUsers() {
+        return userMapper.usersToUserDTOs(userRepository.findAll());
     }
 
     @Transactional(readOnly = true)
@@ -175,9 +172,14 @@ public class UserService {
         Gson gson = new Gson();
         String json = gson.toJson(attributes);
         KeycloakUserDTO keycloakUser = gson.fromJson(json, KeycloakUserDTO.class);
-        Optional<User> user = userRepository.findOneByEmailIgnoreCase(keycloakUser.getEmail());
-        if (user.isPresent()) {
-            return Optional.of(userMapper.userToUserDTO(user.get()));
+        return findOneByEmailIgnoreCase(keycloakUser.getEmail());
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<UserDTO> findOneByEmailIgnoreCase(String email) {
+        Optional<User> optionalUser = userRepository.findOneByEmailIgnoreCase(email);
+        if (optionalUser.isPresent()) {
+            return Optional.of(userMapper.userToUserDTO(optionalUser.get()));
         }
         return Optional.empty();
     }

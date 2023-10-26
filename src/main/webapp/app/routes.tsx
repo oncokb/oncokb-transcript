@@ -37,9 +37,9 @@ const Routes = () => {
             <PrivateRoute exact path={PAGE_ROUTE.SEARCH} component={SearchPage} />
             <PrivateRoute exact path={PAGE_ROUTE.CURATION} component={GeneListPage} hasAnyAuthorities={[AUTHORITIES.FIREBASE]} />
             <PrivateRoute exact path={PAGE_ROUTE.CURATION_GENE} component={CurationPage} hasAnyAuthorities={[AUTHORITIES.FIREBASE]} />
+            <PrivateRoute exact path={PAGE_ROUTE.ACCOUNT} component={Account} hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]} />
             <PrivateRoute path="/admin" component={Admin} hasAnyAuthorities={[AUTHORITIES.ADMIN]} />
             <PrivateRoute path="/" component={Entities} hasAnyAuthorities={[AUTHORITIES.USER]} />
-            <PrivateRoute exact path={PAGE_ROUTE.ACCOUNT} component={Account} hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]} />
             <ErrorBoundaryRoute exact component={PageNotFound} />
           </Switch>
         </PageContainer>

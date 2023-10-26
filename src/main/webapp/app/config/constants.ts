@@ -77,19 +77,19 @@ export const ENTITY_ACTION_PATH: { [key in ENTITY_ACTION]: string } = {
 };
 
 export enum ENTITY_TYPE {
-  COMPANION_DIAGNOSTIC_DEVICE,
-  FDA_SUBMISSION,
-  SPECIMEN_TYPE,
-  GENE,
-  ALTERATION,
-  DRUG,
-  ARTICLE,
-  USER,
-  CT_GOV_CONDITION,
-  ENSEMBL_GENE,
-  TRANSCRIPT,
-  TRANSCRIPT_FLAG,
-  GENE_FLAG,
+  COMPANION_DIAGNOSTIC_DEVICE = 'companion-diagnostic-device',
+  FDA_SUBMISSION = 'fda-submission',
+  SPECIMEN_TYPE = 'specimen-type',
+  GENE = 'gene',
+  ALTERATION = 'alteration',
+  DRUG = 'drug',
+  ARTICLE = 'article',
+  USER = 'user',
+  CT_GOV_CONDITION = 'ct-gov-condition',
+  ENSEMBL_GENE = 'ensembl-gene',
+  TRANSCRIPT = 'transcript',
+  TRANSCRIPT_FLAG = 'transcript-flag',
+  GENE_FLAG = 'gene-flag',
 }
 
 export const ENTITY_BASE_PATHS: { [key in ENTITY_TYPE]: PAGE_ROUTE } = {
@@ -183,9 +183,12 @@ export enum GERMLINE_INHERITANCE_MECHANISM {
 export const CBIOPORTAL = 'cBioPortal';
 export const COSMIC = 'COSMIC';
 
+export const DEFAULT_NAV_ICON_SIZE = 25;
+
 /* Regex constants */
 export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');
 export const UUID_REGEX = new RegExp('\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}');
+export const INTEGER_REGEX = new RegExp('^\\d+$');
 
 /* Firebase constants */
 export enum FB_COLLECTION {

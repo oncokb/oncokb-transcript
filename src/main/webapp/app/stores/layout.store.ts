@@ -1,26 +1,37 @@
-import { action, observable, makeObservable } from 'mobx';
+import { action, observable, makeObservable, computed } from 'mobx';
 
-const SIDEBAR_COLLAPSED_WIDTH = 80;
-const SIDEBAR_EXPANDED_WIDTH = 200;
+const SPACE_BETWEEN = 15;
+
+export const SIDEBAR_COLLAPSED_WIDTH = 75;
+export const SIDEBAR_EXPANDED_WIDTH = 200;
+const CURATION_PANEL_WIDTH = 350;
 
 export class LayoutStore {
-  public isSideBarCollapsed = false;
-  public sidebarWidth = SIDEBAR_EXPANDED_WIDTH;
+  public isNavigationSidebarCollapsed = false;
+  public navigationSidebarWidth = SIDEBAR_EXPANDED_WIDTH;
   public showCurationPanel = false;
+  public curationPanelWidth = CURATION_PANEL_WIDTH;
 
   constructor() {
     makeObservable(this, {
-      isSideBarCollapsed: observable,
-      toggleSideBar: action.bound,
-      sidebarWidth: observable,
+      isNavigationSidebarCollapsed: observable,
+      toggleNavigationSidebar: action.bound,
+      navigationSidebarWidth: observable,
+      centerContentMargin: computed,
       showCurationPanel: observable,
       toggleCurationPanel: action.bound,
+      curationPanelWidth: observable,
     });
   }
 
-  toggleSideBar() {
-    this.isSideBarCollapsed = !this.isSideBarCollapsed;
-    this.sidebarWidth = this.isSideBarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
+  toggleNavigationSidebar() {
+    this.isNavigationSidebarCollapsed = !this.isNavigationSidebarCollapsed;
+    this.navigationSidebarWidth = this.isNavigationSidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
+  }
+
+  get centerContentMargin() {
+    const rightMargin = this.showCurationPanel ? this.curationPanelWidth + SPACE_BETWEEN : 0;
+    return `0 ${rightMargin}px 0 ${this.navigationSidebarWidth + SPACE_BETWEEN}px`;
   }
 
   toggleCurationPanel(value: boolean) {

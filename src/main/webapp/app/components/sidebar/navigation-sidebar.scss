@@ -1,20 +1,126 @@
 @import '../../variables.scss';
 
-$sidebar-bg-color: whitesmoke;
-$sidebar-color: $oncokb-blue;
-$submenu-bg-color: whitesmoke;
-$sidebar-width: 200px;
-$sidebar-collapsed-wdith: 80px;
-$highlight-color: $oncokb-darker-blue;
+.nav-menu-divider {
+  margin: 0rem 1rem 0 1rem;
+  border-bottom: 1px solid $medium-grey;
+}
 
-@import '~react-pro-sidebar/dist/scss/styles.scss';
+.nav-collapse-btn-wrapper {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  .btn.btn-light {
+    border: none;
+    background-color: white;
+    color: black;
+  }
+  .btn.btn-light:hover {
+    background-color: $oncokb-blue;
+    color: white;
+  }
+}
 
-.sidebar-wrapper {
-  position: fixed;
+// Override ProSidebar styles here
+.ps-sidebar-root {
   height: 100vh;
-  z-index: 1000;
+  position: fixed !important;
+  border-right: 1px solid $medium-grey !important;
+  z-index: 999 !important;
+  overflow: hidden !important;
+}
 
-  .pro-sidebar .pro-menu {
+.ps-sidebar-container {
+  background-color: white !important;
+}
+
+.ps-menu-item.ps-open {
+  color: $oncokb-blue !important;
+}
+
+.ps-menuitem-root {
+  padding: 0 1rem !important;
+}
+
+.ps-menu-button {
+  height: 2.5rem !important;
+  padding: 0 !important;
+}
+
+.ps-menu-button {
+  padding: 0 !important;
+
+  margin: 0.5rem 0 !important;
+  border-radius: 5px !important;
+  &.active {
+    font-weight: bold;
+    height: 80%;
+    color: white !important;
+    background-color: $oncokb-blue !important;
+  }
+  &:hover:not(.active) {
+    color: white !important;
+    background-color: $oncokb-blue !important;
+  }
+  .ps-menu-icon {
+    margin-left: 0.25rem;
+    margin-right: 0;
+  }
+}
+
+// Submenu styles
+.ps-submenu-root {
+  .ps-menu-button {
+    padding-right: 15px !important;
+  }
+
+  .ps-submenu-content {
+    z-index: 100;
+    background-color: white !important;
+    .ps-menu-button {
+      padding: 0 0.5rem !important;
+    }
+  }
+}
+
+.ps-submenu-root > .ps-menu-button {
+  margin-bottom: 0 !important;
+  &:hover {
+    color: inherit !important;
+    background-color: inherit !important;
+  }
+}
+
+// Collapsed styles
+.ps-collapsed {
+  .ps-collapse-btn-wrapper {
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .ps-sidebar-custom-header {
     padding: 0 !important;
+    flex: 1;
+    text-align: center;
+  }
+
+  .ps-menu-label {
+    display: none;
+  }
+
+  .ps-submenu-content {
+    .ps-menu-label {
+      display: flex;
+    }
+  }
+
+  .ps-menu-icon {
+    margin-left: 0.25rem !important;
+  }
+
+  .ps-submenu-root {
+    .ps-menu-button {
+      padding-right: 0 !important;
+    }
   }
 }

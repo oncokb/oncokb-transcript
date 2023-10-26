@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Column } from 'react-table';
 import { ITranscript } from 'app/shared/model/transcript.model';
 import axios from 'axios';
-import OncoKBTable from 'app/shared/table/OncoKBTable';
 import { Link } from 'react-router-dom';
-import Tooltip from 'rc-tooltip';
 import FlagBadge from 'app/shared/badge/FlagBadge';
+import OncoKBTable from 'app/shared/table/OncoKBTable';
 
 const apiUrl = 'api/transcripts';
 
@@ -49,16 +48,16 @@ export const TranscriptTable = (props: IGeneTranscriptsProps) => {
     {
       Header: 'Ensembl Transcript ID',
       minWidth: 180,
-      Cell: ({
-        cell: {
-          row: { original },
-        },
-      }) => <Link to={`/transcript/${original.id}`}>{original.ensemblTranscriptId}</Link>,
+      Cell(cell: { original: ITranscript }) {
+        return <Link to={`/transcript/${cell.original.id}`}>{cell.original.ensemblTranscriptId}</Link>;
+      },
     },
     {
       accessor: 'canonical',
       Header: 'Canonical',
-      Cell: ({ cell: { value } }) => `${value}`,
+      Cell(cell: { original: ITranscript }) {
+        return `${cell.original.canonical}`;
+      },
     },
     {
       accessor: 'ensemblProteinId',
@@ -69,37 +68,39 @@ export const TranscriptTable = (props: IGeneTranscriptsProps) => {
       accessor: 'flags',
       Header: 'Flags',
       minWidth: 200,
-      Cell: ({ cell: { value } }) => (
+      Cell(cell: { original: ITranscript }) {
         <div>
-          {value.map(flag => (
+          {cell.original.flags.map(flag => (
             <FlagBadge key={flag.flag} flag={flag} tagClassName={'mr-1'} />
           ))}
-        </div>
-      ),
+        </div>;
+      },
     },
     {
       id: 'alignment',
       Header: 'Align Transcript',
-      Cell: ({
-        cell: {
-          row: { original },
-        },
-      }) => (
-        <div>
-          <input
-            type={'checkbox'}
-            checked={props.selectedTranscriptIds.includes(original.id)}
-            disabled={props.disableTranscriptAlignment}
-            onChange={() => props.onToggleTranscript(original)}
-          />{' '}
-          {getComparisonOrder(original.id)}
-        </div>
-      ),
+      Cell(cell: { original: ITranscript }) {
+        return (
+          <div>
+            <input
+              type={'checkbox'}
+              checked={props.selectedTranscriptIds.includes(cell.original.id)}
+              disabled={props.disableTranscriptAlignment}
+              onChange={() => props.onToggleTranscript(cell.original)}
+            />{' '}
+            {getComparisonOrder(cell.original.id)}
+          </div>
+        );
+      },
     },
   ];
   return (
     <>
-      <div>{transcriptList && <OncoKBTable columns={columns} data={transcriptList} loading={loadingTranscripts}></OncoKBTable>}</div>
+      <div>
+        {transcriptList && (
+          <OncoKBTable data={transcriptList.concat()} columns={columns} loading={loadingTranscripts} showPagination pageSize={5} />
+        )}
+      </div>
     </>
   );
 };
