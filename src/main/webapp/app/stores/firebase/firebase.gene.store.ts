@@ -1,6 +1,6 @@
 import { Gene, GeneTypeString, TUMOR_SUPPRESSOR } from 'app/shared/model/firebase/firebase.model';
 import { IRootStore } from '../createStore';
-import { action, makeObservable, override } from 'mobx';
+import { action, makeObservable } from 'mobx';
 import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
 import { RecursiveKeyOf } from 'app/shared/util/firebase/firebase-crud-store';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';

@@ -21,7 +21,7 @@ import { ONCOGENE, TUMOR_SUPPRESSOR } from 'app/shared/model/firebase/firebase.m
 import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
 import WithSeparator from 'react-with-separator';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
-import { RealtimeBasicInput, RealtimeInputType } from 'app/shared/firebase/FirebaseRealtimeInput';
+import { RealtimeBasicInput, RealtimeDropdownInput, RealtimeInputType } from 'app/shared/firebase/FirebaseRealtimeInput';
 import { getFirebasePath, getMutationName, getTxName } from 'app/shared/util/firebase/firebase-utils';
 import Collapsible, { NestLevel } from 'app/pages/curation/collapsible/Collapsible';
 import styles from './styles.module.scss';
@@ -82,14 +82,12 @@ const CurationPage = (props: ICurationPageProps) => {
             </div>
           </div>
           <RealtimeBasicInput
+            data={props.data}
+            fieldKey="summary"
             label="Summary"
             labelClass="font-weight-bold"
             name="geneSummary"
             type={RealtimeInputType.TEXTAREA}
-            value={props.data.summary || ''}
-            onChange={e => {
-              props.updateReviewableContent(firebaseGenePath, 'summary', e.target.value);
-            }}
           />
           <div className="flex d-flex">
             <RealtimeBasicInput
