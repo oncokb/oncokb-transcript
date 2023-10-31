@@ -8,6 +8,7 @@ import { IUser } from 'app/shared/model/user.model';
 import { Column } from 'react-table';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import OncoKBTable from 'app/shared/table/OncoKBTable';
+import { getEntityTableActionsColumn } from 'app/shared/util/utils';
 
 export interface IUserManagementProps extends StoreProps, RouteComponentProps {}
 
@@ -67,6 +68,7 @@ export const UserManagement = (props: IUserManagementProps) => {
           : null;
       },
     },
+    getEntityTableActionsColumn(ENTITY_TYPE.USER),
   ];
 
   return (
