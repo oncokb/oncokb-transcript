@@ -2,12 +2,10 @@ import { IGene } from 'app/shared/model/gene.model';
 import { IRootStore } from 'app/stores';
 import axios from 'axios';
 import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
-import { ICrudGetAction, ICrudGetAllAction, ICrudSearchAction } from 'app/shared/util/jhipster-types';
-import { ensemblGeneClient, transcriptClient } from 'app/shared/api/clients';
-import { EnsemblGene, EnsemblGeneCriteria } from 'app/shared/api/generated';
-import { action, makeObservable, observable } from 'mobx';
-import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
-import { geneClient } from 'app/shared/api/clients';
+import { ICrudSearchAction } from 'app/shared/util/jhipster-types';
+import { transcriptClient } from 'app/shared/api/clients';
+import { EnsemblGene } from 'app/shared/api/generated';
+import { makeObservable } from 'mobx';
 
 const apiUrl = 'api/genes';
 const apiSearchUrl = 'api/genes/search';
@@ -40,8 +38,8 @@ export class GeneStore extends PaginationCrudStore<IGene> {
   }
 
   *findAllGene(hugoSymbol, page?, size?, sort?) {
-    const query = hugoSymbol ? `?hugoSymbol.equals=${hugoSymbol}` : '';
-    const result = yield axios.get<IGene[]>(`api/genes${query}`);
+    const query = hugoSymbol ? `?query=${hugoSymbol}` : '';
+    const result = yield axios.get<IGene[]>(`${apiSearchUrl}${query}`);
     this.entities = result.data;
     this.totalItems = result.headers['x-total-count'];
     return result;
