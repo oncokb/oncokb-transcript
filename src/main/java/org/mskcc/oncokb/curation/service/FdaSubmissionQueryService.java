@@ -115,18 +115,21 @@ public class FdaSubmissionQueryService extends QueryService<FdaSubmission> {
             if (criteria.getDecisionDate() != null) {
                 specification = specification.or(buildRangeSpecification(criteria.getDecisionDate(), FdaSubmission_.decisionDate));
             }
+            if (criteria.getPlatform() != null) {
+                specification = specification.or(buildStringSpecification(criteria.getPlatform(), FdaSubmission_.platform));
+            }
             if (criteria.getCurated() != null) {
                 specification = specification.or(buildSpecification(criteria.getCurated(), FdaSubmission_.curated));
             }
             if (criteria.getGenetic() != null) {
                 specification = specification.or(buildSpecification(criteria.getGenetic(), FdaSubmission_.genetic));
             }
-            if (criteria.getBiomarkerAssociationId() != null) {
+            if (criteria.getAssociationId() != null) {
                 specification =
                     specification.or(
                         buildSpecification(
-                            criteria.getBiomarkerAssociationId(),
-                            root -> root.join(FdaSubmission_.biomarkerAssociations, JoinType.LEFT).get(BiomarkerAssociation_.id)
+                            criteria.getAssociationId(),
+                            root -> root.join(FdaSubmission_.associations, JoinType.LEFT).get(Association_.id)
                         )
                     );
             }

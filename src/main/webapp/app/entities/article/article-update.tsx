@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 
-import { IArticle } from 'app/shared/model/article.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface IArticleUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
@@ -56,6 +52,7 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
     isNew
       ? {}
       : {
+          type: 'PMID',
           ...articleEntity,
         };
 
@@ -75,14 +72,21 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
               {!isNew ? <ValidatedField name="id" required readOnly id="article-id" label="ID" validate={{ required: true }} /> : null}
+              <ValidatedField label="Type" id="article-type" name="type" data-cy="type" type="select">
+                <option value="PMID">PMID</option>
+                <option value="ABSTRACT">ABSTRACT</option>
+              </ValidatedField>
+              <ValidatedField label="Content" id="article-content" name="content" data-cy="content" type="textarea" />
+              <ValidatedField label="Link" id="article-link" name="link" data-cy="link" type="text" />
               <ValidatedField label="Pmid" id="article-pmid" name="pmid" data-cy="pmid" type="text" />
+              <ValidatedField label="Elocation Id" id="article-elocationId" name="elocationId" data-cy="elocationId" type="text" />
               <ValidatedField label="Title" id="article-title" name="title" data-cy="title" type="textarea" />
+              <ValidatedField label="Authors" id="article-authors" name="authors" data-cy="authors" type="text" />
               <ValidatedField label="Journal" id="article-journal" name="journal" data-cy="journal" type="text" />
-              <ValidatedField label="Pub Date" id="article-pubDate" name="pubDate" data-cy="pubDate" type="text" />
               <ValidatedField label="Volume" id="article-volume" name="volume" data-cy="volume" type="text" />
               <ValidatedField label="Issue" id="article-issue" name="issue" data-cy="issue" type="text" />
               <ValidatedField label="Pages" id="article-pages" name="pages" data-cy="pages" type="text" />
-              <ValidatedField label="Authors" id="article-authors" name="authors" data-cy="authors" type="text" />
+              <ValidatedField label="Pub Date" id="article-pubDate" name="pubDate" data-cy="pubDate" type="text" />
               <SaveButton disabled={updating} />
             </ValidatedForm>
           )}

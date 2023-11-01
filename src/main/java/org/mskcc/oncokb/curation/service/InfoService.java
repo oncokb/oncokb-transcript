@@ -107,7 +107,7 @@ public class InfoService {
     }
 
     public void updateInfo(InfoType infoType, String newValue, Instant newLastUpdated) {
-        Optional<Info> infoRecord = this.infoRepository.findOneByType(infoType);
+        Optional<Info> infoRecord = this.infoRepository.findOneByType(infoType.name());
         if (infoRecord.isPresent()) {
             infoRecord.get().setValue(newValue);
             infoRecord.get().setLastUpdated(newLastUpdated);

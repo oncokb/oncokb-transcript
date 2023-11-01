@@ -4,15 +4,15 @@ import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import { fdaSubmissionClient } from 'app/shared/api/clients';
+import { ENTITY_TYPE } from 'app/config/constants';
+import { getEntityResourcePath } from 'app/shared/util/RouteUtils';
 
-const apiUrl = 'api/fda-submissions';
-const apiSearchUrl = 'api/fda-submissions/search';
+const apiUrl = getEntityResourcePath(ENTITY_TYPE.FDA_SUBMISSION);
 
 export class FdaSubmissionStore extends PaginationCrudStore<IFdaSubmission> {
   lookupFdaSubmission = this.readHandler(this.lookupFdaSubmissionGen);
-  searchEntities = this.readHandler(this.getSearch);
   constructor(protected rootStore: IRootStore) {
-    super(rootStore, apiUrl);
+    super(rootStore, ENTITY_TYPE.FDA_SUBMISSION);
   }
 
   *lookupFdaSubmissionGen(submissionNumber: string) {
@@ -26,15 +26,6 @@ export class FdaSubmissionStore extends PaginationCrudStore<IFdaSubmission> {
     } catch (error) {
       notifyError(error, `Could not find information for ${submissionNumber}.`);
     }
-  }
-
-  *getSearch({ query, page, size, sort }) {
-    const result = yield axios.get<IFdaSubmission[]>(
-      `${apiSearchUrl}?query=${query}${sort ? `&page=${page}&size=${size}&sort=${sort}` : ''}`
-    );
-    this.entities = result.data;
-    this.totalItems = result.headers['x-total-count'];
-    return this.entities;
   }
 
   *getFdaSubmissionsByCDx({ cdxId }) {

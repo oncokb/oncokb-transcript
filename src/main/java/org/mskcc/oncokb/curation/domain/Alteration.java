@@ -1,15 +1,18 @@
 package org.mskcc.oncokb.curation.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.annotations.ApiModel;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 
 /**
  * A Alteration.
  */
+@ApiModel(description = "Entity")
 @Entity
 @Table(name = "alteration")
 public class Alteration implements Serializable {
@@ -22,6 +25,11 @@ public class Alteration implements Serializable {
     private Long id;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private AlterationType type;
+
+    @NotNull
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -29,11 +37,15 @@ public class Alteration implements Serializable {
     @Column(name = "alteration", nullable = false)
     private String alteration;
 
-    @Column(name = "protein_start")
-    private Integer proteinStart;
+    @NotNull
+    @Column(name = "protein_change", nullable = false)
+    private String proteinChange;
 
-    @Column(name = "protein_end")
-    private Integer proteinEnd;
+    @Column(name = "start")
+    private Integer start;
+
+    @Column(name = "end")
+    private Integer end;
 
     @Column(name = "ref_residues")
     private String refResidues;
@@ -41,26 +53,45 @@ public class Alteration implements Serializable {
     @Column(name = "variant_residues")
     private String variantResidues;
 
-    @OneToMany(mappedBy = "alteration")
-    @JsonIgnoreProperties(value = { "alteration" }, allowSetters = true)
-    private Set<AlterationReferenceGenome> referenceGenomes = new HashSet<>();
-
     @ManyToMany
     @JoinTable(
         name = "rel_alteration__gene",
         joinColumns = @JoinColumn(name = "alteration_id"),
         inverseJoinColumns = @JoinColumn(name = "gene_id")
     )
-    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "biomarkerAssociations", "flags", "alterations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "ensemblGenes", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
     private Set<Gene> genes = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+        name = "rel_alteration__transcript",
+        joinColumns = @JoinColumn(name = "alteration_id"),
+        inverseJoinColumns = @JoinColumn(name = "transcript_id")
+    )
+    @JsonIgnoreProperties(value = { "sequences", "fragments", "flags", "ensemblGene", "gene", "alterations" }, allowSetters = true)
+    private Set<Transcript> transcripts = new HashSet<>();
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "alterations" }, allowSetters = true)
     private Consequence consequence;
 
     @ManyToMany(mappedBy = "alterations")
-    @JsonIgnoreProperties(value = { "alterations", "drugs", "fdaSubmissions", "cancerType", "gene" }, allowSetters = true)
-    private Set<BiomarkerAssociation> biomarkerAssociations = new HashSet<>();
+    @JsonIgnoreProperties(
+        value = {
+            "associationCancerTypes",
+            "alterations",
+            "articles",
+            "treatments",
+            "evidence",
+            "clinicalTrials",
+            "clinicalTrialArms",
+            "eligibilityCriteria",
+            "fdaSubmissions",
+            "genomicIndicators",
+        },
+        allowSetters = true
+    )
+    private Set<Association> associations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -75,6 +106,19 @@ public class Alteration implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public AlterationType getType() {
+        return this.type;
+    }
+
+    public Alteration type(AlterationType type) {
+        this.setType(type);
+        return this;
+    }
+
+    public void setType(AlterationType type) {
+        this.type = type;
     }
 
     public String getName() {
@@ -103,30 +147,43 @@ public class Alteration implements Serializable {
         this.alteration = alteration;
     }
 
-    public Integer getProteinStart() {
-        return this.proteinStart;
+    public String getProteinChange() {
+        return this.proteinChange;
     }
 
-    public Alteration proteinStart(Integer proteinStart) {
-        this.setProteinStart(proteinStart);
+    public Alteration proteinChange(String proteinChange) {
+        this.setProteinChange(proteinChange);
         return this;
     }
 
-    public void setProteinStart(Integer proteinStart) {
-        this.proteinStart = proteinStart;
+    public void setProteinChange(String proteinChange) {
+        this.proteinChange = proteinChange;
     }
 
-    public Integer getProteinEnd() {
-        return this.proteinEnd;
+    public Integer getStart() {
+        return this.start;
     }
 
-    public Alteration proteinEnd(Integer proteinEnd) {
-        this.setProteinEnd(proteinEnd);
+    public Alteration start(Integer start) {
+        this.setStart(start);
         return this;
     }
 
-    public void setProteinEnd(Integer proteinEnd) {
-        this.proteinEnd = proteinEnd;
+    public void setStart(Integer start) {
+        this.start = start;
+    }
+
+    public Integer getEnd() {
+        return this.end;
+    }
+
+    public Alteration end(Integer end) {
+        this.setEnd(end);
+        return this;
+    }
+
+    public void setEnd(Integer end) {
+        this.end = end;
     }
 
     public String getRefResidues() {
@@ -155,37 +212,6 @@ public class Alteration implements Serializable {
         this.variantResidues = variantResidues;
     }
 
-    public Set<AlterationReferenceGenome> getReferenceGenomes() {
-        return this.referenceGenomes;
-    }
-
-    public void setReferenceGenomes(Set<AlterationReferenceGenome> alterationReferenceGenomes) {
-        if (this.referenceGenomes != null) {
-            this.referenceGenomes.forEach(i -> i.setAlteration(null));
-        }
-        if (alterationReferenceGenomes != null) {
-            alterationReferenceGenomes.forEach(i -> i.setAlteration(this));
-        }
-        this.referenceGenomes = alterationReferenceGenomes;
-    }
-
-    public Alteration referenceGenomes(Set<AlterationReferenceGenome> alterationReferenceGenomes) {
-        this.setReferenceGenomes(alterationReferenceGenomes);
-        return this;
-    }
-
-    public Alteration addReferenceGenomes(AlterationReferenceGenome alterationReferenceGenome) {
-        this.referenceGenomes.add(alterationReferenceGenome);
-        alterationReferenceGenome.setAlteration(this);
-        return this;
-    }
-
-    public Alteration removeReferenceGenomes(AlterationReferenceGenome alterationReferenceGenome) {
-        this.referenceGenomes.remove(alterationReferenceGenome);
-        alterationReferenceGenome.setAlteration(null);
-        return this;
-    }
-
     public Set<Gene> getGenes() {
         return this.genes;
     }
@@ -211,6 +237,31 @@ public class Alteration implements Serializable {
         return this;
     }
 
+    public Set<Transcript> getTranscripts() {
+        return this.transcripts;
+    }
+
+    public void setTranscripts(Set<Transcript> transcripts) {
+        this.transcripts = transcripts;
+    }
+
+    public Alteration transcripts(Set<Transcript> transcripts) {
+        this.setTranscripts(transcripts);
+        return this;
+    }
+
+    public Alteration addTranscript(Transcript transcript) {
+        this.transcripts.add(transcript);
+        transcript.getAlterations().add(this);
+        return this;
+    }
+
+    public Alteration removeTranscript(Transcript transcript) {
+        this.transcripts.remove(transcript);
+        transcript.getAlterations().remove(this);
+        return this;
+    }
+
     public Consequence getConsequence() {
         return this.consequence;
     }
@@ -224,34 +275,34 @@ public class Alteration implements Serializable {
         return this;
     }
 
-    public Set<BiomarkerAssociation> getBiomarkerAssociations() {
-        return this.biomarkerAssociations;
+    public Set<Association> getAssociations() {
+        return this.associations;
     }
 
-    public void setBiomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
-        if (this.biomarkerAssociations != null) {
-            this.biomarkerAssociations.forEach(i -> i.removeAlteration(this));
+    public void setAssociations(Set<Association> associations) {
+        if (this.associations != null) {
+            this.associations.forEach(i -> i.removeAlteration(this));
         }
-        if (biomarkerAssociations != null) {
-            biomarkerAssociations.forEach(i -> i.addAlteration(this));
+        if (associations != null) {
+            associations.forEach(i -> i.addAlteration(this));
         }
-        this.biomarkerAssociations = biomarkerAssociations;
+        this.associations = associations;
     }
 
-    public Alteration biomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
-        this.setBiomarkerAssociations(biomarkerAssociations);
+    public Alteration associations(Set<Association> associations) {
+        this.setAssociations(associations);
         return this;
     }
 
-    public Alteration addBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
-        this.biomarkerAssociations.add(biomarkerAssociation);
-        biomarkerAssociation.getAlterations().add(this);
+    public Alteration addAssociation(Association association) {
+        this.associations.add(association);
+        association.getAlterations().add(this);
         return this;
     }
 
-    public Alteration removeBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
-        this.biomarkerAssociations.remove(biomarkerAssociation);
-        biomarkerAssociation.getAlterations().remove(this);
+    public Alteration removeAssociation(Association association) {
+        this.associations.remove(association);
+        association.getAlterations().remove(this);
         return this;
     }
 
@@ -279,10 +330,12 @@ public class Alteration implements Serializable {
     public String toString() {
         return "Alteration{" +
             "id=" + getId() +
+            ", type='" + getType() + "'" +
             ", name='" + getName() + "'" +
             ", alteration='" + getAlteration() + "'" +
-            ", proteinStart=" + getProteinStart() +
-            ", proteinEnd=" + getProteinEnd() +
+            ", proteinChange='" + getProteinChange() + "'" +
+            ", start=" + getStart() +
+            ", end=" + getEnd() +
             ", refResidues='" + getRefResidues() + "'" +
             ", variantResidues='" + getVariantResidues() + "'" +
             "}";

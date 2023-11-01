@@ -16,8 +16,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
+import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.FdaDrug;
 import org.mskcc.oncokb.curation.repository.FdaDrugRepository;
+import org.mskcc.oncokb.curation.service.criteria.FdaDrugCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -175,6 +177,166 @@ class FdaDrugResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(fdaDrug.getId().intValue()))
             .andExpect(jsonPath("$.applicationNumber").value(DEFAULT_APPLICATION_NUMBER));
+    }
+
+    @Test
+    @Transactional
+    void getFdaDrugsByIdFiltering() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        Long id = fdaDrug.getId();
+
+        defaultFdaDrugShouldBeFound("id.equals=" + id);
+        defaultFdaDrugShouldNotBeFound("id.notEquals=" + id);
+
+        defaultFdaDrugShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultFdaDrugShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultFdaDrugShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultFdaDrugShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsByApplicationNumberIsEqualToSomething() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where applicationNumber equals to DEFAULT_APPLICATION_NUMBER
+        defaultFdaDrugShouldBeFound("applicationNumber.equals=" + DEFAULT_APPLICATION_NUMBER);
+
+        // Get all the fdaDrugList where applicationNumber equals to UPDATED_APPLICATION_NUMBER
+        defaultFdaDrugShouldNotBeFound("applicationNumber.equals=" + UPDATED_APPLICATION_NUMBER);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsByApplicationNumberIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where applicationNumber not equals to DEFAULT_APPLICATION_NUMBER
+        defaultFdaDrugShouldNotBeFound("applicationNumber.notEquals=" + DEFAULT_APPLICATION_NUMBER);
+
+        // Get all the fdaDrugList where applicationNumber not equals to UPDATED_APPLICATION_NUMBER
+        defaultFdaDrugShouldBeFound("applicationNumber.notEquals=" + UPDATED_APPLICATION_NUMBER);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsByApplicationNumberIsInShouldWork() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where applicationNumber in DEFAULT_APPLICATION_NUMBER or UPDATED_APPLICATION_NUMBER
+        defaultFdaDrugShouldBeFound("applicationNumber.in=" + DEFAULT_APPLICATION_NUMBER + "," + UPDATED_APPLICATION_NUMBER);
+
+        // Get all the fdaDrugList where applicationNumber equals to UPDATED_APPLICATION_NUMBER
+        defaultFdaDrugShouldNotBeFound("applicationNumber.in=" + UPDATED_APPLICATION_NUMBER);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsByApplicationNumberIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where applicationNumber is not null
+        defaultFdaDrugShouldBeFound("applicationNumber.specified=true");
+
+        // Get all the fdaDrugList where applicationNumber is null
+        defaultFdaDrugShouldNotBeFound("applicationNumber.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsByApplicationNumberContainsSomething() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where applicationNumber contains DEFAULT_APPLICATION_NUMBER
+        defaultFdaDrugShouldBeFound("applicationNumber.contains=" + DEFAULT_APPLICATION_NUMBER);
+
+        // Get all the fdaDrugList where applicationNumber contains UPDATED_APPLICATION_NUMBER
+        defaultFdaDrugShouldNotBeFound("applicationNumber.contains=" + UPDATED_APPLICATION_NUMBER);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsByApplicationNumberNotContainsSomething() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where applicationNumber does not contain DEFAULT_APPLICATION_NUMBER
+        defaultFdaDrugShouldNotBeFound("applicationNumber.doesNotContain=" + DEFAULT_APPLICATION_NUMBER);
+
+        // Get all the fdaDrugList where applicationNumber does not contain UPDATED_APPLICATION_NUMBER
+        defaultFdaDrugShouldBeFound("applicationNumber.doesNotContain=" + UPDATED_APPLICATION_NUMBER);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsByDrugIsEqualToSomething() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+        Drug drug;
+        if (TestUtil.findAll(em, Drug.class).isEmpty()) {
+            drug = DrugResourceIT.createEntity(em);
+            em.persist(drug);
+            em.flush();
+        } else {
+            drug = TestUtil.findAll(em, Drug.class).get(0);
+        }
+        em.persist(drug);
+        em.flush();
+        fdaDrug.setDrug(drug);
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+        Long drugId = drug.getId();
+
+        // Get all the fdaDrugList where drug equals to drugId
+        defaultFdaDrugShouldBeFound("drugId.equals=" + drugId);
+
+        // Get all the fdaDrugList where drug equals to (drugId + 1)
+        defaultFdaDrugShouldNotBeFound("drugId.equals=" + (drugId + 1));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is returned.
+     */
+    private void defaultFdaDrugShouldBeFound(String filter) throws Exception {
+        restFdaDrugMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(fdaDrug.getId().intValue())))
+            .andExpect(jsonPath("$.[*].applicationNumber").value(hasItem(DEFAULT_APPLICATION_NUMBER)));
+
+        // Check, that the count call also returns 1
+        restFdaDrugMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("1"));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is not returned.
+     */
+    private void defaultFdaDrugShouldNotBeFound(String filter) throws Exception {
+        restFdaDrugMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$").isEmpty());
+
+        // Check, that the count call also returns 0
+        restFdaDrugMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("0"));
     }
 
     @Test

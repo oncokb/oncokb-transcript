@@ -49,5 +49,19 @@
         </loadData>
     </changeSet>
 
+    <changeSet id="20220401174649-1-relations" author="jhipster">
+
+        <createTable tableName="rel_cancer_type__synonym">
+            <column name="synonym_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cancer_type_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="cancer_type_id, synonym_id" tableName="rel_cancer_type__synonym"/>
+    </changeSet>
+
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
 </databaseChangeLog>

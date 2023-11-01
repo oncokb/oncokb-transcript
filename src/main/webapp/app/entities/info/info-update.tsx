@@ -101,6 +101,9 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
                 data-cy="created"
                 type="datetime-local"
                 placeholder="YYYY-MM-DD HH:mm"
+                validate={{
+                  required: { value: true, message: 'This field is required.' },
+                }}
               />
               <ValidatedField
                 label="Last Updated"

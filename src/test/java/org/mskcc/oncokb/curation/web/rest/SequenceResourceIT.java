@@ -17,8 +17,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Sequence;
+import org.mskcc.oncokb.curation.domain.Transcript;
 import org.mskcc.oncokb.curation.domain.enumeration.SequenceType;
 import org.mskcc.oncokb.curation.repository.SequenceRepository;
+import org.mskcc.oncokb.curation.service.criteria.SequenceCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -133,6 +135,28 @@ class SequenceResourceIT {
 
     @Test
     @Transactional
+    void checkSequenceTypeIsRequired() throws Exception {
+        int databaseSizeBeforeTest = sequenceRepository.findAll().size();
+        // set the field null
+        sequence.setSequenceType(null);
+
+        // Create the Sequence, which fails.
+
+        restSequenceMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(sequence))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<Sequence> sequenceList = sequenceRepository.findAll();
+        assertThat(sequenceList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllSequences() throws Exception {
         // Initialize the database
         sequenceRepository.saveAndFlush(sequence);
@@ -161,6 +185,141 @@ class SequenceResourceIT {
             .andExpect(jsonPath("$.id").value(sequence.getId().intValue()))
             .andExpect(jsonPath("$.sequenceType").value(DEFAULT_SEQUENCE_TYPE.toString()))
             .andExpect(jsonPath("$.sequence").value(DEFAULT_SEQUENCE.toString()));
+    }
+
+    @Test
+    @Transactional
+    void getSequencesByIdFiltering() throws Exception {
+        // Initialize the database
+        sequenceRepository.saveAndFlush(sequence);
+
+        Long id = sequence.getId();
+
+        defaultSequenceShouldBeFound("id.equals=" + id);
+        defaultSequenceShouldNotBeFound("id.notEquals=" + id);
+
+        defaultSequenceShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultSequenceShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultSequenceShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultSequenceShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllSequencesBySequenceTypeIsEqualToSomething() throws Exception {
+        // Initialize the database
+        sequenceRepository.saveAndFlush(sequence);
+
+        // Get all the sequenceList where sequenceType equals to DEFAULT_SEQUENCE_TYPE
+        defaultSequenceShouldBeFound("sequenceType.equals=" + DEFAULT_SEQUENCE_TYPE);
+
+        // Get all the sequenceList where sequenceType equals to UPDATED_SEQUENCE_TYPE
+        defaultSequenceShouldNotBeFound("sequenceType.equals=" + UPDATED_SEQUENCE_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllSequencesBySequenceTypeIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        sequenceRepository.saveAndFlush(sequence);
+
+        // Get all the sequenceList where sequenceType not equals to DEFAULT_SEQUENCE_TYPE
+        defaultSequenceShouldNotBeFound("sequenceType.notEquals=" + DEFAULT_SEQUENCE_TYPE);
+
+        // Get all the sequenceList where sequenceType not equals to UPDATED_SEQUENCE_TYPE
+        defaultSequenceShouldBeFound("sequenceType.notEquals=" + UPDATED_SEQUENCE_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllSequencesBySequenceTypeIsInShouldWork() throws Exception {
+        // Initialize the database
+        sequenceRepository.saveAndFlush(sequence);
+
+        // Get all the sequenceList where sequenceType in DEFAULT_SEQUENCE_TYPE or UPDATED_SEQUENCE_TYPE
+        defaultSequenceShouldBeFound("sequenceType.in=" + DEFAULT_SEQUENCE_TYPE + "," + UPDATED_SEQUENCE_TYPE);
+
+        // Get all the sequenceList where sequenceType equals to UPDATED_SEQUENCE_TYPE
+        defaultSequenceShouldNotBeFound("sequenceType.in=" + UPDATED_SEQUENCE_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllSequencesBySequenceTypeIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        sequenceRepository.saveAndFlush(sequence);
+
+        // Get all the sequenceList where sequenceType is not null
+        defaultSequenceShouldBeFound("sequenceType.specified=true");
+
+        // Get all the sequenceList where sequenceType is null
+        defaultSequenceShouldNotBeFound("sequenceType.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllSequencesByTranscriptIsEqualToSomething() throws Exception {
+        // Initialize the database
+        sequenceRepository.saveAndFlush(sequence);
+        Transcript transcript;
+        if (TestUtil.findAll(em, Transcript.class).isEmpty()) {
+            transcript = TranscriptResourceIT.createEntity(em);
+            em.persist(transcript);
+            em.flush();
+        } else {
+            transcript = TestUtil.findAll(em, Transcript.class).get(0);
+        }
+        em.persist(transcript);
+        em.flush();
+        sequence.setTranscript(transcript);
+        sequenceRepository.saveAndFlush(sequence);
+        Long transcriptId = transcript.getId();
+
+        // Get all the sequenceList where transcript equals to transcriptId
+        defaultSequenceShouldBeFound("transcriptId.equals=" + transcriptId);
+
+        // Get all the sequenceList where transcript equals to (transcriptId + 1)
+        defaultSequenceShouldNotBeFound("transcriptId.equals=" + (transcriptId + 1));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is returned.
+     */
+    private void defaultSequenceShouldBeFound(String filter) throws Exception {
+        restSequenceMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(sequence.getId().intValue())))
+            .andExpect(jsonPath("$.[*].sequenceType").value(hasItem(DEFAULT_SEQUENCE_TYPE.toString())))
+            .andExpect(jsonPath("$.[*].sequence").value(hasItem(DEFAULT_SEQUENCE.toString())));
+
+        // Check, that the count call also returns 1
+        restSequenceMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("1"));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is not returned.
+     */
+    private void defaultSequenceShouldNotBeFound(String filter) throws Exception {
+        restSequenceMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$").isEmpty());
+
+        // Check, that the count call also returns 0
+        restSequenceMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("0"));
     }
 
     @Test

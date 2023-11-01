@@ -96,7 +96,7 @@ export const GeneDetail = (props: IGeneDetailProps) => {
               <span>Gene ID: {geneEntity.id}</span>
               <span>Entrez Gene ID: {geneEntity.entrezGeneId}</span>
               <span>HGNC ID: {geneEntity.hgncId}</span>
-              <span>Gene Alias: {(geneEntity.geneAliases || []).map(alias => alias.name).join(', ')}</span>
+              <span>Gene Synonyms: {(geneEntity.synonyms || []).map(synonym => synonym.name).join(', ')}</span>
             </span>
           </div>
           <div>

@@ -26,12 +26,16 @@ export const Article = (props: IArticleProps) => {
 
   const columns: Column<IArticle>[] = [
     {
-      accessor: 'title',
-      Header: 'Title',
+      accessor: 'type',
+      Header: 'Type',
     },
     {
-      accessor: 'authors',
-      Header: 'Authors',
+      accessor: 'pmid',
+      Header: 'Pmid',
+    },
+    {
+      accessor: 'title',
+      Header: 'Title',
     },
     {
       id: 'citation',

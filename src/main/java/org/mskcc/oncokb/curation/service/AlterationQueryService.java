@@ -101,26 +101,17 @@ public class AlterationQueryService extends QueryService<Alteration> {
             if (criteria.getAlteration() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getAlteration(), Alteration_.alteration));
             }
-            if (criteria.getProteinStart() != null) {
-                specification = specification.or(buildRangeSpecification(criteria.getProteinStart(), Alteration_.proteinStart));
+            if (criteria.getStart() != null) {
+                specification = specification.or(buildRangeSpecification(criteria.getStart(), Alteration_.start));
             }
-            if (criteria.getProteinEnd() != null) {
-                specification = specification.or(buildRangeSpecification(criteria.getProteinEnd(), Alteration_.proteinEnd));
+            if (criteria.getEnd() != null) {
+                specification = specification.or(buildRangeSpecification(criteria.getEnd(), Alteration_.end));
             }
             if (criteria.getRefResidues() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getRefResidues(), Alteration_.refResidues));
             }
             if (criteria.getVariantResidues() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getVariantResidues(), Alteration_.variantResidues));
-            }
-            if (criteria.getReferenceGenomesId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getReferenceGenomesId(),
-                            root -> root.join(Alteration_.referenceGenomes, JoinType.LEFT).get(AlterationReferenceGenome_.id)
-                        )
-                    );
             }
             if (criteria.getGeneId() != null) {
                 specification =
@@ -137,12 +128,12 @@ public class AlterationQueryService extends QueryService<Alteration> {
                         )
                     );
             }
-            if (criteria.getBiomarkerAssociationId() != null) {
+            if (criteria.getAssociationId() != null) {
                 specification =
                     specification.or(
                         buildSpecification(
-                            criteria.getBiomarkerAssociationId(),
-                            root -> root.join(Alteration_.biomarkerAssociations, JoinType.LEFT).get(BiomarkerAssociation_.id)
+                            criteria.getAssociationId(),
+                            root -> root.join(Alteration_.associations, JoinType.LEFT).get(Association_.id)
                         )
                     );
             }

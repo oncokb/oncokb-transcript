@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.repository.FlagRepository;
 import org.mskcc.oncokb.curation.service.FlagQueryService;
@@ -195,5 +196,21 @@ public class FlagResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code SEARCH  /flags/search?query=:query} : search for the flag corresponding
+     * to the query.
+     *
+     * @param query the query of the flag search.
+     * @param pageable the pagination information.
+     * @return the result of the search.
+     */
+    @GetMapping("/flags/search")
+    public ResponseEntity<List<Flag>> searchFlags(@RequestParam String query, Pageable pageable) {
+        log.debug("REST request to search for a page of Flags for query {}", query);
+        Page<Flag> page = flagQueryService.findBySearchQuery(query, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

@@ -19,11 +19,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Alteration;
-import org.mskcc.oncokb.curation.domain.BiomarkerAssociation;
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
 import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.domain.Gene;
-import org.mskcc.oncokb.curation.domain.GeneAlias;
+import org.mskcc.oncokb.curation.domain.Synonym;
+import org.mskcc.oncokb.curation.domain.Transcript;
 import org.mskcc.oncokb.curation.repository.GeneRepository;
 import org.mskcc.oncokb.curation.service.GeneService;
 import org.mskcc.oncokb.curation.service.criteria.GeneCriteria;
@@ -147,6 +147,44 @@ class GeneResourceIT {
 
     @Test
     @Transactional
+    void checkEntrezGeneIdIsRequired() throws Exception {
+        int databaseSizeBeforeTest = geneRepository.findAll().size();
+        // set the field null
+        gene.setEntrezGeneId(null);
+
+        // Create the Gene, which fails.
+
+        restGeneMockMvc
+            .perform(
+                post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(gene))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<Gene> geneList = geneRepository.findAll();
+        assertThat(geneList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkHugoSymbolIsRequired() throws Exception {
+        int databaseSizeBeforeTest = geneRepository.findAll().size();
+        // set the field null
+        gene.setHugoSymbol(null);
+
+        // Create the Gene, which fails.
+
+        restGeneMockMvc
+            .perform(
+                post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(gene))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<Gene> geneList = geneRepository.findAll();
+        assertThat(geneList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllGenes() throws Exception {
         // Initialize the database
         geneRepository.saveAndFlush(gene);
@@ -160,6 +198,24 @@ class GeneResourceIT {
             .andExpect(jsonPath("$.[*].entrezGeneId").value(hasItem(DEFAULT_ENTREZ_GENE_ID)))
             .andExpect(jsonPath("$.[*].hugoSymbol").value(hasItem(DEFAULT_HUGO_SYMBOL)))
             .andExpect(jsonPath("$.[*].hgncId").value(hasItem(DEFAULT_HGNC_ID)));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllGenesWithEagerRelationshipsIsEnabled() throws Exception {
+        when(geneServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restGeneMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(geneServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllGenesWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(geneServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restGeneMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(geneServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test
@@ -459,32 +515,6 @@ class GeneResourceIT {
 
     @Test
     @Transactional
-    void getAllGenesByGeneAliasIsEqualToSomething() throws Exception {
-        // Initialize the database
-        geneRepository.saveAndFlush(gene);
-        GeneAlias geneAlias;
-        if (TestUtil.findAll(em, GeneAlias.class).isEmpty()) {
-            geneAlias = GeneAliasResourceIT.createEntity(em);
-            em.persist(geneAlias);
-            em.flush();
-        } else {
-            geneAlias = TestUtil.findAll(em, GeneAlias.class).get(0);
-        }
-        em.persist(geneAlias);
-        em.flush();
-        gene.addGeneAlias(geneAlias);
-        geneRepository.saveAndFlush(gene);
-        Long geneAliasId = geneAlias.getId();
-
-        // Get all the geneList where geneAlias equals to geneAliasId
-        defaultGeneShouldBeFound("geneAliasId.equals=" + geneAliasId);
-
-        // Get all the geneList where geneAlias equals to (geneAliasId + 1)
-        defaultGeneShouldNotBeFound("geneAliasId.equals=" + (geneAliasId + 1));
-    }
-
-    @Test
-    @Transactional
     void getAllGenesByEnsemblGeneIsEqualToSomething() throws Exception {
         // Initialize the database
         geneRepository.saveAndFlush(gene);
@@ -511,28 +541,28 @@ class GeneResourceIT {
 
     @Test
     @Transactional
-    void getAllGenesByBiomarkerAssociationIsEqualToSomething() throws Exception {
+    void getAllGenesByTranscriptIsEqualToSomething() throws Exception {
         // Initialize the database
         geneRepository.saveAndFlush(gene);
-        BiomarkerAssociation biomarkerAssociation;
-        if (TestUtil.findAll(em, BiomarkerAssociation.class).isEmpty()) {
-            biomarkerAssociation = BiomarkerAssociationResourceIT.createEntity(em);
-            em.persist(biomarkerAssociation);
+        Transcript transcript;
+        if (TestUtil.findAll(em, Transcript.class).isEmpty()) {
+            transcript = TranscriptResourceIT.createEntity(em);
+            em.persist(transcript);
             em.flush();
         } else {
-            biomarkerAssociation = TestUtil.findAll(em, BiomarkerAssociation.class).get(0);
+            transcript = TestUtil.findAll(em, Transcript.class).get(0);
         }
-        em.persist(biomarkerAssociation);
+        em.persist(transcript);
         em.flush();
-        gene.addBiomarkerAssociation(biomarkerAssociation);
+        gene.addTranscript(transcript);
         geneRepository.saveAndFlush(gene);
-        Long biomarkerAssociationId = biomarkerAssociation.getId();
+        Long transcriptId = transcript.getId();
 
-        // Get all the geneList where biomarkerAssociation equals to biomarkerAssociationId
-        defaultGeneShouldBeFound("biomarkerAssociationId.equals=" + biomarkerAssociationId);
+        // Get all the geneList where transcript equals to transcriptId
+        defaultGeneShouldBeFound("transcriptId.equals=" + transcriptId);
 
-        // Get all the geneList where biomarkerAssociation equals to (biomarkerAssociationId + 1)
-        defaultGeneShouldNotBeFound("biomarkerAssociationId.equals=" + (biomarkerAssociationId + 1));
+        // Get all the geneList where transcript equals to (transcriptId + 1)
+        defaultGeneShouldNotBeFound("transcriptId.equals=" + (transcriptId + 1));
     }
 
     @Test
@@ -559,6 +589,32 @@ class GeneResourceIT {
 
         // Get all the geneList where flag equals to (flagId + 1)
         defaultGeneShouldNotBeFound("flagId.equals=" + (flagId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesBySynonymIsEqualToSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+        Synonym synonym;
+        if (TestUtil.findAll(em, Synonym.class).isEmpty()) {
+            synonym = SynonymResourceIT.createEntity(em);
+            em.persist(synonym);
+            em.flush();
+        } else {
+            synonym = TestUtil.findAll(em, Synonym.class).get(0);
+        }
+        em.persist(synonym);
+        em.flush();
+        gene.addSynonym(synonym);
+        geneRepository.saveAndFlush(gene);
+        Long synonymId = synonym.getId();
+
+        // Get all the geneList where synonym equals to synonymId
+        defaultGeneShouldBeFound("synonymId.equals=" + synonymId);
+
+        // Get all the geneList where synonym equals to (synonymId + 1)
+        defaultGeneShouldNotBeFound("synonymId.equals=" + (synonymId + 1));
     }
 
     @Test

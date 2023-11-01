@@ -28,6 +28,8 @@ export const FdaDrugDetail = (props: IFdaDrugDetailProps) => {
             <span id="applicationNumber">Application Number</span>
           </dt>
           <dd>{fdaDrugEntity.applicationNumber}</dd>
+          <dt>Drug</dt>
+          <dd>{fdaDrugEntity.drug ? fdaDrugEntity.drug.name : ''}</dd>
         </dl>
         <Button tag={Link} to="/fda-drug" replace color="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>

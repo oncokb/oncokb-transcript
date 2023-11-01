@@ -9,6 +9,7 @@ import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
 import EntityActionButton from '../button/EntityActionButton';
 import { SORT } from './pagination.constants';
 import { PaginationState } from '../table/OncoKBAsyncTable';
+import { ITreatment } from 'app/shared/model/treatment.model';
 
 export const getCancerTypeName = (cancerType: ICancerType): string => {
   let name = '';
@@ -26,8 +27,12 @@ export const getGeneName = (gene: IGene): string => {
   return `${gene.entrezGeneId}: ${gene.hugoSymbol}`;
 };
 
-export const getTreatmentName = (drugs: IDrug[]): string => {
-  return drugs.map(drug => drug.name).join(' + ');
+export const getGeneNamesFromAlterations = (alterations: IAlteration[]) => {
+  return alterations.map(alteration => alteration.genes.map(gene => gene.hugoSymbol).join('::')).join(', ');
+};
+
+export const getTreatmentName = (treatments: ITreatment[]): string => {
+  return treatments.map(treatment => treatment.drugs?.map(drug => drug.name).join(' + ')).join(', ');
 };
 
 export const getAlterationName = (alterations: IAlteration[]): string => {

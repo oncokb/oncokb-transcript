@@ -6,6 +6,7 @@ import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 
+import { ISynonym } from 'app/shared/model/synonym.model';
 import { ICancerType } from 'app/shared/model/cancer-type.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
@@ -17,6 +18,7 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
   const cancerTypes = props.cancerTypes;
+  const synonyms = props.synonyms;
   const cancerTypeEntity = props.cancerTypeEntity;
   const loading = props.loading;
   const updating = props.updating;
@@ -34,6 +36,7 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
     }
 
     props.getCancerTypes({});
+    props.getSynonyms({});
   }, []);
 
   useEffect(() => {
@@ -46,6 +49,7 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
     const entity = {
       ...cancerTypeEntity,
       ...values,
+      synonyms: mapIdList(values.synonyms),
       parent: cancerTypes.find(it => it.id.toString() === values.parentId.toString()),
     };
 
@@ -62,6 +66,7 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
       : {
           tumorForm: 'SOLID',
           ...cancerTypeEntity,
+          synonyms: cancerTypeEntity?.synonyms?.map(e => e.id.toString()),
           parentId: cancerTypeEntity?.parent?.id,
         };
 
@@ -111,6 +116,16 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
                 <option value="LIQUID">LIQUID</option>
                 <option value="MIXED">MIXED</option>
               </ValidatedField>
+              <ValidatedField label="Synonym" id="cancer-type-synonym" data-cy="synonym" type="select" multiple name="synonyms">
+                <option value="" key="0" />
+                {synonyms
+                  ? synonyms.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.id}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
               <ValidatedField id="cancer-type-parent" name="parentId" data-cy="parent" label="Parent" type="select">
                 <option value="" key="0" />
                 {cancerTypes
@@ -132,11 +147,13 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
 
 const mapStoreToProps = (storeState: IRootStore) => ({
   cancerTypes: storeState.cancerTypeStore.entities,
+  synonyms: storeState.synonymStore.entities,
   cancerTypeEntity: storeState.cancerTypeStore.entity,
   loading: storeState.cancerTypeStore.loading,
   updating: storeState.cancerTypeStore.updating,
   updateSuccess: storeState.cancerTypeStore.updateSuccess,
   getCancerTypes: storeState.cancerTypeStore.getEntities,
+  getSynonyms: storeState.synonymStore.getEntities,
   getEntity: storeState.cancerTypeStore.getEntity,
   updateEntity: storeState.cancerTypeStore.updateEntity,
   createEntity: storeState.cancerTypeStore.createEntity,

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+    <!--
+        Added the constraints for entity Treatment.
+    -->
+    <changeSet id="20231101214351-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="treatment_id"
+                                 baseTableName="rel_treatment__drug"
+                                 constraintName="fk_rel_treatment__drug__treatment_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="treatment"/>
+
+        <addForeignKeyConstraint baseColumnNames="drug_id"
+                                 baseTableName="rel_treatment__drug"
+                                 constraintName="fk_rel_treatment__drug__drug_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="drug"/>
+    </changeSet>
+</databaseChangeLog>

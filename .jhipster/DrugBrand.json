@@ -3,12 +3,12 @@
   "fields": [
     {
       "fieldName": "name",
-      "fieldType": "String"
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "region",
-      "fieldType": "GeographicRegion",
-      "fieldValues": "US,EU"
+      "fieldType": "String"
     }
   ],
   "relationships": [
@@ -21,9 +21,9 @@
   ],
   "entityTableName": "drug_brand",
   "dto": "no",
-  "pagination": "no",
+  "pagination": "pagination",
   "service": "serviceClass",
-  "jpaMetamodelFiltering": false,
+  "jpaMetamodelFiltering": true,
   "fluentMethods": true,
   "readOnly": false,
   "embedded": false,

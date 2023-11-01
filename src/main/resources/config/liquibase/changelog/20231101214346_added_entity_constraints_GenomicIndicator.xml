@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+    <!--
+        Added the constraints for entity GenomicIndicator.
+    -->
+    <changeSet id="20231101214346-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="genomic_indicator_id"
+                                 baseTableName="rel_genomic_indicator__association"
+                                 constraintName="fk_rel_genomic_indicator__association__genomic_indicator_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="genomic_indicator"/>
+
+        <addForeignKeyConstraint baseColumnNames="association_id"
+                                 baseTableName="rel_genomic_indicator__association"
+                                 constraintName="fk_rel_genomic_indicator__association__association_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="association"/>
+    </changeSet>
+</databaseChangeLog>

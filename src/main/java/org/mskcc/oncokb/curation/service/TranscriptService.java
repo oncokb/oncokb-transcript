@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -158,9 +159,15 @@ public class TranscriptService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<TranscriptDTO> findAll(Pageable pageable) {
+    public Page<TranscriptDTO> findAllWithEagerRelationships(Pageable pageable) {
         log.debug("Request to get all Transcripts");
-        return transcriptRepository.findAll(pageable).map(transcriptMapper::toDto);
+        Page<Transcript> transcriptPage = transcriptRepository.findAll(pageable);
+        List<TranscriptDTO> transcriptDTOS = transcriptRepository
+            .findAllWithEagerRelationships(transcriptPage.getContent().stream().map(Transcript::getId).collect(Collectors.toList()))
+            .stream()
+            .map(transcriptMapper::toDto)
+            .collect(Collectors.toList());
+        return new PageImpl<>(transcriptDTOS, pageable, transcriptPage.getTotalElements());
     }
 
     @Transactional(readOnly = true)

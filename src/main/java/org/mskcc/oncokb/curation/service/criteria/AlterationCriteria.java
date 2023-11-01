@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.service.criteria;
 
 import java.io.Serializable;
 import java.util.Objects;
+import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 import tech.jhipster.service.Criteria;
 import tech.jhipster.service.filter.BooleanFilter;
 import tech.jhipster.service.filter.DoubleFilter;
@@ -22,29 +23,50 @@ import tech.jhipster.service.filter.StringFilter;
  */
 public class AlterationCriteria implements Serializable, Criteria {
 
+    /**
+     * Class for filtering AlterationType
+     */
+    public static class AlterationTypeFilter extends Filter<AlterationType> {
+
+        public AlterationTypeFilter() {}
+
+        public AlterationTypeFilter(AlterationTypeFilter filter) {
+            super(filter);
+        }
+
+        @Override
+        public AlterationTypeFilter copy() {
+            return new AlterationTypeFilter(this);
+        }
+    }
+
     private static final long serialVersionUID = 1L;
 
     private LongFilter id;
+
+    private AlterationTypeFilter type;
 
     private StringFilter name;
 
     private StringFilter alteration;
 
-    private IntegerFilter proteinStart;
+    private StringFilter proteinChange;
 
-    private IntegerFilter proteinEnd;
+    private IntegerFilter start;
+
+    private IntegerFilter end;
 
     private StringFilter refResidues;
 
     private StringFilter variantResidues;
 
-    private LongFilter referenceGenomesId;
-
     private LongFilter geneId;
+
+    private LongFilter transcriptId;
 
     private LongFilter consequenceId;
 
-    private LongFilter biomarkerAssociationId;
+    private LongFilter associationId;
 
     private Boolean distinct;
 
@@ -52,16 +74,18 @@ public class AlterationCriteria implements Serializable, Criteria {
 
     public AlterationCriteria(AlterationCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
+        this.type = other.type == null ? null : other.type.copy();
         this.name = other.name == null ? null : other.name.copy();
         this.alteration = other.alteration == null ? null : other.alteration.copy();
-        this.proteinStart = other.proteinStart == null ? null : other.proteinStart.copy();
-        this.proteinEnd = other.proteinEnd == null ? null : other.proteinEnd.copy();
+        this.proteinChange = other.proteinChange == null ? null : other.proteinChange.copy();
+        this.start = other.start == null ? null : other.start.copy();
+        this.end = other.end == null ? null : other.end.copy();
         this.refResidues = other.refResidues == null ? null : other.refResidues.copy();
         this.variantResidues = other.variantResidues == null ? null : other.variantResidues.copy();
-        this.referenceGenomesId = other.referenceGenomesId == null ? null : other.referenceGenomesId.copy();
         this.geneId = other.geneId == null ? null : other.geneId.copy();
+        this.transcriptId = other.transcriptId == null ? null : other.transcriptId.copy();
         this.consequenceId = other.consequenceId == null ? null : other.consequenceId.copy();
-        this.biomarkerAssociationId = other.biomarkerAssociationId == null ? null : other.biomarkerAssociationId.copy();
+        this.associationId = other.associationId == null ? null : other.associationId.copy();
         this.distinct = other.distinct;
     }
 
@@ -83,6 +107,21 @@ public class AlterationCriteria implements Serializable, Criteria {
 
     public void setId(LongFilter id) {
         this.id = id;
+    }
+
+    public AlterationTypeFilter getType() {
+        return type;
+    }
+
+    public AlterationTypeFilter type() {
+        if (type == null) {
+            type = new AlterationTypeFilter();
+        }
+        return type;
+    }
+
+    public void setType(AlterationTypeFilter type) {
+        this.type = type;
     }
 
     public StringFilter getName() {
@@ -115,34 +154,49 @@ public class AlterationCriteria implements Serializable, Criteria {
         this.alteration = alteration;
     }
 
-    public IntegerFilter getProteinStart() {
-        return proteinStart;
+    public StringFilter getProteinChange() {
+        return proteinChange;
     }
 
-    public IntegerFilter proteinStart() {
-        if (proteinStart == null) {
-            proteinStart = new IntegerFilter();
+    public StringFilter proteinChange() {
+        if (proteinChange == null) {
+            proteinChange = new StringFilter();
         }
-        return proteinStart;
+        return proteinChange;
     }
 
-    public void setProteinStart(IntegerFilter proteinStart) {
-        this.proteinStart = proteinStart;
+    public void setProteinChange(StringFilter proteinChange) {
+        this.proteinChange = proteinChange;
     }
 
-    public IntegerFilter getProteinEnd() {
-        return proteinEnd;
+    public IntegerFilter getStart() {
+        return start;
     }
 
-    public IntegerFilter proteinEnd() {
-        if (proteinEnd == null) {
-            proteinEnd = new IntegerFilter();
+    public IntegerFilter start() {
+        if (start == null) {
+            start = new IntegerFilter();
         }
-        return proteinEnd;
+        return start;
     }
 
-    public void setProteinEnd(IntegerFilter proteinEnd) {
-        this.proteinEnd = proteinEnd;
+    public void setStart(IntegerFilter start) {
+        this.start = start;
+    }
+
+    public IntegerFilter getEnd() {
+        return end;
+    }
+
+    public IntegerFilter end() {
+        if (end == null) {
+            end = new IntegerFilter();
+        }
+        return end;
+    }
+
+    public void setEnd(IntegerFilter end) {
+        this.end = end;
     }
 
     public StringFilter getRefResidues() {
@@ -175,21 +229,6 @@ public class AlterationCriteria implements Serializable, Criteria {
         this.variantResidues = variantResidues;
     }
 
-    public LongFilter getReferenceGenomesId() {
-        return referenceGenomesId;
-    }
-
-    public LongFilter referenceGenomesId() {
-        if (referenceGenomesId == null) {
-            referenceGenomesId = new LongFilter();
-        }
-        return referenceGenomesId;
-    }
-
-    public void setReferenceGenomesId(LongFilter referenceGenomesId) {
-        this.referenceGenomesId = referenceGenomesId;
-    }
-
     public LongFilter getGeneId() {
         return geneId;
     }
@@ -203,6 +242,21 @@ public class AlterationCriteria implements Serializable, Criteria {
 
     public void setGeneId(LongFilter geneId) {
         this.geneId = geneId;
+    }
+
+    public LongFilter getTranscriptId() {
+        return transcriptId;
+    }
+
+    public LongFilter transcriptId() {
+        if (transcriptId == null) {
+            transcriptId = new LongFilter();
+        }
+        return transcriptId;
+    }
+
+    public void setTranscriptId(LongFilter transcriptId) {
+        this.transcriptId = transcriptId;
     }
 
     public LongFilter getConsequenceId() {
@@ -220,19 +274,19 @@ public class AlterationCriteria implements Serializable, Criteria {
         this.consequenceId = consequenceId;
     }
 
-    public LongFilter getBiomarkerAssociationId() {
-        return biomarkerAssociationId;
+    public LongFilter getAssociationId() {
+        return associationId;
     }
 
-    public LongFilter biomarkerAssociationId() {
-        if (biomarkerAssociationId == null) {
-            biomarkerAssociationId = new LongFilter();
+    public LongFilter associationId() {
+        if (associationId == null) {
+            associationId = new LongFilter();
         }
-        return biomarkerAssociationId;
+        return associationId;
     }
 
-    public void setBiomarkerAssociationId(LongFilter biomarkerAssociationId) {
-        this.biomarkerAssociationId = biomarkerAssociationId;
+    public void setAssociationId(LongFilter associationId) {
+        this.associationId = associationId;
     }
 
     public Boolean getDistinct() {
@@ -254,16 +308,18 @@ public class AlterationCriteria implements Serializable, Criteria {
         final AlterationCriteria that = (AlterationCriteria) o;
         return (
             Objects.equals(id, that.id) &&
+            Objects.equals(type, that.type) &&
             Objects.equals(name, that.name) &&
             Objects.equals(alteration, that.alteration) &&
-            Objects.equals(proteinStart, that.proteinStart) &&
-            Objects.equals(proteinEnd, that.proteinEnd) &&
+            Objects.equals(proteinChange, that.proteinChange) &&
+            Objects.equals(start, that.start) &&
+            Objects.equals(end, that.end) &&
             Objects.equals(refResidues, that.refResidues) &&
             Objects.equals(variantResidues, that.variantResidues) &&
-            Objects.equals(referenceGenomesId, that.referenceGenomesId) &&
             Objects.equals(geneId, that.geneId) &&
+            Objects.equals(transcriptId, that.transcriptId) &&
             Objects.equals(consequenceId, that.consequenceId) &&
-            Objects.equals(biomarkerAssociationId, that.biomarkerAssociationId) &&
+            Objects.equals(associationId, that.associationId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
@@ -272,16 +328,18 @@ public class AlterationCriteria implements Serializable, Criteria {
     public int hashCode() {
         return Objects.hash(
             id,
+            type,
             name,
             alteration,
-            proteinStart,
-            proteinEnd,
+            proteinChange,
+            start,
+            end,
             refResidues,
             variantResidues,
-            referenceGenomesId,
             geneId,
+            transcriptId,
             consequenceId,
-            biomarkerAssociationId,
+            associationId,
             distinct
         );
     }
@@ -291,16 +349,18 @@ public class AlterationCriteria implements Serializable, Criteria {
     public String toString() {
         return "AlterationCriteria{" +
             (id != null ? "id=" + id + ", " : "") +
+            (type != null ? "type=" + type + ", " : "") +
             (name != null ? "name=" + name + ", " : "") +
             (alteration != null ? "alteration=" + alteration + ", " : "") +
-            (proteinStart != null ? "proteinStart=" + proteinStart + ", " : "") +
-            (proteinEnd != null ? "proteinEnd=" + proteinEnd + ", " : "") +
+            (proteinChange != null ? "proteinChange=" + proteinChange + ", " : "") +
+            (start != null ? "start=" + start + ", " : "") +
+            (end != null ? "end=" + end + ", " : "") +
             (refResidues != null ? "refResidues=" + refResidues + ", " : "") +
             (variantResidues != null ? "variantResidues=" + variantResidues + ", " : "") +
-            (referenceGenomesId != null ? "referenceGenomesId=" + referenceGenomesId + ", " : "") +
             (geneId != null ? "geneId=" + geneId + ", " : "") +
+            (transcriptId != null ? "transcriptId=" + transcriptId + ", " : "") +
             (consequenceId != null ? "consequenceId=" + consequenceId + ", " : "") +
-            (biomarkerAssociationId != null ? "biomarkerAssociationId=" + biomarkerAssociationId + ", " : "") +
+            (associationId != null ? "associationId=" + associationId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

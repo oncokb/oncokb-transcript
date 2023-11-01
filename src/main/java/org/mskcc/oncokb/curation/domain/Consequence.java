@@ -24,8 +24,8 @@ public class Consequence implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
-    private AlterationType type;
+    @Column(name = "alteration_type", nullable = false)
+    private AlterationType alterationType;
 
     @NotNull
     @Column(name = "term", nullable = false)
@@ -43,7 +43,7 @@ public class Consequence implements Serializable {
     private String description;
 
     @OneToMany(mappedBy = "consequence")
-    @JsonIgnoreProperties(value = { "referenceGenomes", "genes", "consequence", "biomarkerAssociations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "genes", "transcripts", "consequence", "associations" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -61,17 +61,17 @@ public class Consequence implements Serializable {
         this.id = id;
     }
 
-    public AlterationType getType() {
-        return this.type;
+    public AlterationType getAlterationType() {
+        return this.alterationType;
     }
 
-    public Consequence type(AlterationType type) {
-        this.setType(type);
+    public Consequence alterationType(AlterationType alterationType) {
+        this.setAlterationType(alterationType);
         return this;
     }
 
-    public void setType(AlterationType type) {
-        this.type = type;
+    public void setAlterationType(AlterationType alterationType) {
+        this.alterationType = alterationType;
     }
 
     public String getTerm() {
@@ -181,7 +181,7 @@ public class Consequence implements Serializable {
     public String toString() {
         return "Consequence{" +
             "id=" + getId() +
-            ", type='" + getType() + "'" +
+            ", alterationType='" + getAlterationType() + "'" +
             ", term='" + getTerm() + "'" +
             ", name='" + getName() + "'" +
             ", isGenerallyTruncating='" + getIsGenerallyTruncating() + "'" +

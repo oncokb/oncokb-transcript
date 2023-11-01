@@ -2,17 +2,23 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Sequence;
 import org.mskcc.oncokb.curation.repository.SequenceRepository;
+import org.mskcc.oncokb.curation.service.SequenceQueryService;
 import org.mskcc.oncokb.curation.service.SequenceService;
+import org.mskcc.oncokb.curation.service.criteria.SequenceCriteria;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -41,9 +47,16 @@ public class SequenceResource {
 
     private final SequenceRepository sequenceRepository;
 
-    public SequenceResource(SequenceService sequenceService, SequenceRepository sequenceRepository) {
+    private final SequenceQueryService sequenceQueryService;
+
+    public SequenceResource(
+        SequenceService sequenceService,
+        SequenceRepository sequenceRepository,
+        SequenceQueryService sequenceQueryService
+    ) {
         this.sequenceService = sequenceService;
         this.sequenceRepository = sequenceRepository;
+        this.sequenceQueryService = sequenceQueryService;
     }
 
     /**
@@ -54,7 +67,7 @@ public class SequenceResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/sequences")
-    public ResponseEntity<Sequence> createSequence(@RequestBody Sequence sequence) throws URISyntaxException {
+    public ResponseEntity<Sequence> createSequence(@Valid @RequestBody Sequence sequence) throws URISyntaxException {
         log.debug("REST request to save Sequence : {}", sequence);
         if (sequence.getId() != null) {
             throw new BadRequestAlertException("A new sequence cannot already have an ID", ENTITY_NAME, "idexists");
@@ -79,7 +92,7 @@ public class SequenceResource {
     @PutMapping("/sequences/{id}")
     public ResponseEntity<Sequence> updateSequence(
         @PathVariable(value = "id", required = false) final Long id,
-        @RequestBody Sequence sequence
+        @Valid @RequestBody Sequence sequence
     ) throws URISyntaxException {
         log.debug("REST request to update Sequence : {}, {}", id, sequence);
         if (sequence.getId() == null) {
@@ -114,7 +127,7 @@ public class SequenceResource {
     @PatchMapping(value = "/sequences/{id}", consumes = { "application/json", "application/merge-patch+json" })
     public ResponseEntity<Sequence> partialUpdateSequence(
         @PathVariable(value = "id", required = false) final Long id,
-        @RequestBody Sequence sequence
+        @NotNull @RequestBody Sequence sequence
     ) throws URISyntaxException {
         log.debug("REST request to partial update Sequence partially : {}, {}", id, sequence);
         if (sequence.getId() == null) {
@@ -140,14 +153,27 @@ public class SequenceResource {
      * {@code GET  /sequences} : get all the sequences.
      *
      * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of sequences in body.
      */
     @GetMapping("/sequences")
-    public ResponseEntity<List<Sequence>> getAllSequences(Pageable pageable) {
-        log.debug("REST request to get a page of Sequences");
-        Page<Sequence> page = sequenceService.findAll(pageable);
+    public ResponseEntity<List<Sequence>> getAllSequences(SequenceCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get Sequences by criteria: {}", criteria);
+        Page<Sequence> page = sequenceQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /sequences/count} : count all the sequences.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/sequences/count")
+    public ResponseEntity<Long> countSequences(SequenceCriteria criteria) {
+        log.debug("REST request to count Sequences by criteria: {}", criteria);
+        return ResponseEntity.ok().body(sequenceQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -177,5 +203,22 @@ public class SequenceResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code SEARCH  /sequences/search?query=:query} : search for the Sequence corresponding
+     * to the query.
+     *
+     * @param query the query of the Sequence search.
+     * @param pageable the pagination information.
+     * @return the result of the search.
+     */
+    @GetMapping("/sequences/search")
+    public ResponseEntity<List<Sequence>> searchSequences(@RequestParam String query, Pageable pageable) {
+        log.debug("REST request to search for a page of Sequences for query {}", query);
+        // TODO: implement the search
+        Page<Sequence> page = new PageImpl<>(new ArrayList<>());
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

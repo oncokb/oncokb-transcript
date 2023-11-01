@@ -24,7 +24,7 @@ public class AlterationUtils {
 
         Consequence consequence = new Consequence();
         consequence.setTerm(SVConsequence.FUSION.name());
-        consequence.setType(AlterationType.STRUCTURAL_VARIANT);
+        alteration.setType(AlterationType.STRUCTURAL_VARIANT);
         alteration.setConsequence(consequence);
 
         if (proteinChange.contains(FUSION_SEPARATOR) || proteinChange.contains(FUSION_ALTERNATIVE_SEPARATOR)) {
@@ -57,7 +57,7 @@ public class AlterationUtils {
         Alteration alteration = new Alteration();
         Consequence consequence = new Consequence();
         consequence.setTerm(cnaTerm.name());
-        consequence.setType(AlterationType.COPY_NUMBER_ALTERATION);
+        alteration.setType(AlterationType.COPY_NUMBER_ALTERATION);
         alteration.setConsequence(consequence);
 
         alteration.setAlteration(cnaTerm.name().substring(0, 1) + cnaTerm.name().toLowerCase().substring(1));
@@ -289,15 +289,15 @@ public class AlterationUtils {
         }
 
         Alteration alteration = new Alteration();
+        alteration.setType(AlterationType.PROTEIN_CHANGE);
         alteration.setRefResidues(ref);
         alteration.setVariantResidues(var);
-        alteration.setProteinStart(start);
-        alteration.setProteinEnd(end);
+        alteration.setStart(start);
+        alteration.setEnd(end);
         alteration.setAlteration(proteinChange);
 
         Consequence consequence = new Consequence();
         consequence.setTerm(Optional.ofNullable(term).orElse(MutationConsequence.UNKNOWN).name());
-        consequence.setType(AlterationType.MUTATION);
         alteration.setConsequence(consequence);
 
         // Change the positional name
@@ -338,9 +338,9 @@ public class AlterationUtils {
         boolean isPositionVariant = false;
         if (
             alteration != null &&
-            alteration.getProteinStart() != null &&
-            alteration.getProteinEnd() != null &&
-            alteration.getProteinStart().equals(alteration.getProteinEnd()) &&
+            alteration.getStart() != null &&
+            alteration.getEnd() != null &&
+            alteration.getStart().equals(alteration.getEnd()) &&
             alteration.getRefResidues() != null &&
             alteration.getRefResidues().length() == 1 &&
             alteration.getVariantResidues() == null &&

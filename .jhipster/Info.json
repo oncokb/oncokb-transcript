@@ -12,7 +12,8 @@
     },
     {
       "fieldName": "created",
-      "fieldType": "Instant"
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "lastUpdated",

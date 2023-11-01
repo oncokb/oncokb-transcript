@@ -72,7 +72,7 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
   });
   const biomarkerAssociations = _.uniq(
     (companionDiagnosticDeviceEntity.fdaSubmissions || []).reduce((acc, fdaSubmission) => {
-      acc.push(...fdaSubmission.biomarkerAssociations);
+      acc.push(...fdaSubmission.associations);
       return acc;
     }, [])
   );

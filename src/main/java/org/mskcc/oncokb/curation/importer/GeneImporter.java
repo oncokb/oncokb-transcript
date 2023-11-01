@@ -10,9 +10,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.domain.Gene;
-import org.mskcc.oncokb.curation.domain.GeneAlias;
+import org.mskcc.oncokb.curation.domain.Synonym;
 import org.mskcc.oncokb.curation.domain.enumeration.FlagType;
 import org.mskcc.oncokb.curation.domain.enumeration.InfoType;
+import org.mskcc.oncokb.curation.domain.enumeration.SynonymType;
 import org.mskcc.oncokb.curation.service.FlagService;
 import org.mskcc.oncokb.curation.service.GeneService;
 import org.mskcc.oncokb.curation.service.InfoService;
@@ -71,17 +72,18 @@ public class GeneImporter {
             String[] line = portalGenes.get(i);
             Integer entrezGeneId = Integer.parseInt(line[0]);
             String hugoSymbol = line[1];
-            Set<GeneAlias> geneAliases = new HashSet<>();
+            Set<Synonym> geneSynonyms = new HashSet<>();
 
             if (line.length > 5) {
-                geneAliases =
+                geneSynonyms =
                     Arrays
                         .stream(line[5].split(SYNONYM_SEPARATOR))
                         .filter(synonym -> StringUtils.isNotEmpty(synonym.trim()))
                         .map(synonym -> {
-                            GeneAlias geneAlias = new GeneAlias();
-                            geneAlias.setName(synonym.trim());
-                            return geneAlias;
+                            Synonym geneSynonym = new Synonym();
+                            geneSynonym.setName(synonym.trim());
+                            geneSynonym.setType(SynonymType.GENE.name());
+                            return geneSynonym;
                         })
                         .collect(Collectors.toSet());
             }
@@ -90,14 +92,14 @@ public class GeneImporter {
             if (geneOptional.isPresent()) {
                 Gene gene = geneOptional.get();
                 gene.setHugoSymbol(hugoSymbol);
-                gene.setGeneAliases(geneAliases);
+                gene.setSynonyms(geneSynonyms);
                 this.geneService.partialUpdate(gene);
                 log.debug("Updated gene {}", gene);
             } else {
                 Gene gene = new Gene();
                 gene.setEntrezGeneId(entrezGeneId);
                 gene.setHugoSymbol(hugoSymbol);
-                gene.setGeneAliases(geneAliases);
+                gene.setSynonyms(geneSynonyms);
                 this.geneService.save(gene);
                 log.debug("Saved gene {}", gene);
             }

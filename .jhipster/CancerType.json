@@ -37,28 +37,28 @@
   "relationships": [
     {
       "relationshipType": "one-to-many",
+      "otherEntityName": "associationCancerType",
+      "otherEntityRelationshipName": "cancerType",
+      "relationshipName": "associationCancerType"
+    },
+    {
+      "relationshipType": "one-to-many",
       "otherEntityName": "cancerType",
       "otherEntityRelationshipName": "parent",
       "relationshipName": "children"
     },
     {
-      "relationshipType": "one-to-many",
-      "otherEntityName": "biomarkerAssociation",
+      "relationshipType": "many-to-many",
+      "otherEntityName": "synonym",
       "otherEntityRelationshipName": "cancerType",
-      "relationshipName": "biomarkerAssociation"
+      "relationshipName": "synonym",
+      "ownerSide": true
     },
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "cancerType",
       "otherEntityRelationshipName": "children",
       "relationshipName": "parent"
-    },
-    {
-      "relationshipType": "many-to-many",
-      "otherEntityName": "clinicalTrialsGovCondition",
-      "otherEntityRelationshipName": "cancerType",
-      "relationshipName": "clinicalTrialsGovCondition",
-      "ownerSide": false
     }
   ],
   "entityTableName": "cancer_type",

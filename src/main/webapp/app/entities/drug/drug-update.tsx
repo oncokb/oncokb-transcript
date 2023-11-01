@@ -73,8 +73,7 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
               {!isNew ? <ValidatedField name="id" required readOnly id="drug-id" label="ID" validate={{ required: true }} /> : null}
               <ValidatedField label="Name" id="drug-name" name="name" data-cy="name" type="textarea" />
-              <ValidatedField label="Code" id="drug-code" name="code" data-cy="code" type="text" />
-              <ValidatedField label="Semantic Type" id="drug-semanticType" name="semanticType" data-cy="semanticType" type="textarea" />
+              <ValidatedField readOnly label="Code" id="drug-code" name="nciThesaurus.code" data-cy="nciThesaurus.code" type="text" />
               <SaveButton disabled={updating} />
             </ValidatedForm>
           )}

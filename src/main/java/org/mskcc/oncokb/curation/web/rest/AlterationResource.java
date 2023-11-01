@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.repository.AlterationRepository;
+import org.mskcc.oncokb.curation.service.AlterationQueryService;
 import org.mskcc.oncokb.curation.service.AlterationService;
 import org.mskcc.oncokb.curation.service.criteria.AlterationCriteria;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -43,9 +45,16 @@ public class AlterationResource {
 
     private final AlterationRepository alterationRepository;
 
-    public AlterationResource(AlterationService alterationService, AlterationRepository alterationRepository) {
+    private final AlterationQueryService alterationQueryService;
+
+    public AlterationResource(
+        AlterationService alterationService,
+        AlterationRepository alterationRepository,
+        AlterationQueryService alterationQueryService
+    ) {
         this.alterationService = alterationService;
         this.alterationRepository = alterationRepository;
+        this.alterationQueryService = alterationQueryService;
     }
 
     /**
@@ -71,7 +80,7 @@ public class AlterationResource {
     /**
      * {@code PUT  /alterations/:id} : Updates an existing alteration.
      *
-     * @param id         the id of the alteration to save.
+     * @param id the id of the alteration to save.
      * @param alteration the alteration to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated alteration,
      * or with status {@code 400 (Bad Request)} if the alteration is not valid,
@@ -105,7 +114,7 @@ public class AlterationResource {
     /**
      * {@code PATCH  /alterations/:id} : Partial updates given fields of an existing alteration, field will ignore if it is null
      *
-     * @param id         the id of the alteration to save.
+     * @param id the id of the alteration to save.
      * @param alteration the alteration to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated alteration,
      * or with status {@code 400 (Bad Request)} if the alteration is not valid,
@@ -147,9 +156,21 @@ public class AlterationResource {
     @GetMapping("/alterations")
     public ResponseEntity<List<Alteration>> getAllAlterations(Pageable pageable) {
         log.debug("REST request to get Alterations");
-        Page<Alteration> page = alterationService.findAll(pageable);
+        Page<Alteration> page = alterationService.findAllWithEagerRelationships(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /alterations/count} : count all the alterations.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/alterations/count")
+    public ResponseEntity<Long> countAlterations(AlterationCriteria criteria) {
+        log.debug("REST request to count Alterations by criteria: {}", criteria);
+        return ResponseEntity.ok().body(alterationQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -163,11 +184,6 @@ public class AlterationResource {
         log.debug("REST request to get Alteration : {}", id);
         Optional<Alteration> alteration = alterationService.findOne(id);
         return ResponseUtil.wrapOrNotFound(alteration);
-    }
-
-    @GetMapping("/alterations/gene/{id}")
-    public List<Alteration> findByGeneId(@PathVariable Long id) {
-        return alterationService.findByGeneId(id);
     }
 
     /**
@@ -199,5 +215,10 @@ public class AlterationResource {
         Page<Alteration> page = alterationService.search(query, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    @GetMapping("/alterations/gene/{id}")
+    public List<Alteration> findByGeneId(@PathVariable Long id) {
+        return alterationService.findByGeneId(id);
     }
 }

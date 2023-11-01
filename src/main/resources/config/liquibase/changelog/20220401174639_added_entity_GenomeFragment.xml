@@ -15,16 +15,16 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="start" type="integer">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="end" type="integer">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="strand" type="integer">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="type" type="varchar(255)">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="seq_region" type="varchar(255)">
                 <constraints nullable="true" />

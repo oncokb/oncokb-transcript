@@ -17,9 +17,13 @@ public interface CompanionDiagnosticDeviceRepository
         "select distinct companionDiagnosticDevice from CompanionDiagnosticDevice companionDiagnosticDevice" +
         " left join fetch companionDiagnosticDevice.specimenTypes" +
         " left join fetch companionDiagnosticDevice.fdaSubmissions fa" +
-        " left join fetch fa.biomarkerAssociations ba" +
-        " left join fetch ba.drugs" +
-        " left join fetch ba.alterations" +
+        " left join fetch fa.associations ba" +
+        " left join fetch ba.associationCancerTypes bact" +
+        " left join fetch bact.cancerType" +
+        " left join fetch ba.treatments bat" +
+        " left join fetch bat.drugs" +
+        " left join fetch ba.alterations baa" +
+        " left join fetch baa.genes" +
         " left join fetch ba.fdaSubmissions"
     )
     List<CompanionDiagnosticDevice> findAllWithEagerRelationships();
@@ -28,9 +32,13 @@ public interface CompanionDiagnosticDeviceRepository
         "select companionDiagnosticDevice from CompanionDiagnosticDevice companionDiagnosticDevice left join fetch companionDiagnosticDevice.specimenTypes" +
         " left join fetch companionDiagnosticDevice.specimenTypes" +
         " left join fetch companionDiagnosticDevice.fdaSubmissions fa" +
-        " left join fetch fa.biomarkerAssociations ba" +
-        " left join fetch ba.drugs" +
-        " left join fetch ba.alterations" +
+        " left join fetch fa.associations ba" +
+        " left join fetch ba.associationCancerTypes bact" +
+        " left join fetch bact.cancerType" +
+        " left join fetch ba.treatments bat" +
+        " left join fetch bat.drugs" +
+        " left join fetch ba.alterations baa" +
+        " left join fetch baa.genes" +
         " left join fetch ba.fdaSubmissions" +
         " where companionDiagnosticDevice.id =:id"
     )

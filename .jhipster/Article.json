@@ -2,7 +2,26 @@
   "name": "Article",
   "fields": [
     {
+      "fieldName": "type",
+      "fieldType": "ArticleType",
+      "fieldValues": "PMID,ABSTRACT",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "content",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    },
+    {
+      "fieldName": "link",
+      "fieldType": "String"
+    },
+    {
       "fieldName": "pmid",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "elocationId",
       "fieldType": "String"
     },
     {
@@ -11,11 +30,11 @@
       "fieldTypeBlobContent": "text"
     },
     {
-      "fieldName": "journal",
+      "fieldName": "authors",
       "fieldType": "String"
     },
     {
-      "fieldName": "pubDate",
+      "fieldName": "journal",
       "fieldType": "String"
     },
     {
@@ -31,11 +50,19 @@
       "fieldType": "String"
     },
     {
-      "fieldName": "authors",
+      "fieldName": "pubDate",
       "fieldType": "String"
     }
   ],
-  "relationships": [],
+  "relationships": [
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "association",
+      "otherEntityRelationshipName": "article",
+      "relationshipName": "association",
+      "ownerSide": false
+    }
+  ],
   "entityTableName": "article",
   "dto": "no",
   "pagination": "pagination",

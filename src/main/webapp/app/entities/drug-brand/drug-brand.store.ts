@@ -1,13 +1,11 @@
 import { IDrugBrand } from 'app/shared/model/drug-brand.model';
 import { IRootStore } from 'app/stores';
-import axios from 'axios';
-import CrudStore from 'app/shared/util/crud-store';
+import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
+import { ENTITY_TYPE } from 'app/config/constants';
 
-const apiUrl = 'api/drug-brands';
-
-export class DrugBrandStore extends CrudStore<IDrugBrand> {
+export class DrugBrandStore extends PaginationCrudStore<IDrugBrand> {
   constructor(protected rootStore: IRootStore) {
-    super(rootStore, apiUrl);
+    super(rootStore, ENTITY_TYPE.DRUG_BRAND);
   }
 }
 

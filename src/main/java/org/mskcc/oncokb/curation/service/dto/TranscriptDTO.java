@@ -8,6 +8,7 @@ import javax.validation.constraints.*;
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
 import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.domain.GenomeFragment;
+import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 
 /**
  * A DTO for the {@link org.mskcc.oncokb.curation.domain.Transcript} entity.
@@ -15,6 +16,8 @@ import org.mskcc.oncokb.curation.domain.GenomeFragment;
 public class TranscriptDTO implements Serializable {
 
     private Long id;
+
+    private ReferenceGenome referenceGenome;
 
     private String ensemblTranscriptId;
 
@@ -49,6 +52,14 @@ public class TranscriptDTO implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public ReferenceGenome getReferenceGenome() {
+        return referenceGenome;
+    }
+
+    public void setReferenceGenome(ReferenceGenome referenceGenome) {
+        this.referenceGenome = referenceGenome;
     }
 
     public String getEnsemblTranscriptId() {
@@ -181,6 +192,7 @@ public class TranscriptDTO implements Serializable {
     public String toString() {
         return "TranscriptDTO{" +
             "id=" + getId() +
+            ", referenceGenome='" + getReferenceGenome() + "'" +
             ", ensemblTranscriptId='" + getEnsemblTranscriptId() + "'" +
             ", canonical='" + getCanonical() + "'" +
             ", ensemblProteinId='" + getEnsemblProteinId() + "'" +

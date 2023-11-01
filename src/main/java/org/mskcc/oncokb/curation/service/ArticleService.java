@@ -48,17 +48,29 @@ public class ArticleService {
         return articleRepository
             .findById(article.getId())
             .map(existingArticle -> {
+                if (article.getType() != null) {
+                    existingArticle.setType(article.getType());
+                }
+                if (article.getContent() != null) {
+                    existingArticle.setContent(article.getContent());
+                }
+                if (article.getLink() != null) {
+                    existingArticle.setLink(article.getLink());
+                }
                 if (article.getPmid() != null) {
                     existingArticle.setPmid(article.getPmid());
+                }
+                if (article.getElocationId() != null) {
+                    existingArticle.setElocationId(article.getElocationId());
                 }
                 if (article.getTitle() != null) {
                     existingArticle.setTitle(article.getTitle());
                 }
+                if (article.getAuthors() != null) {
+                    existingArticle.setAuthors(article.getAuthors());
+                }
                 if (article.getJournal() != null) {
                     existingArticle.setJournal(article.getJournal());
-                }
-                if (article.getPubDate() != null) {
-                    existingArticle.setPubDate(article.getPubDate());
                 }
                 if (article.getVolume() != null) {
                     existingArticle.setVolume(article.getVolume());
@@ -69,8 +81,8 @@ public class ArticleService {
                 if (article.getPages() != null) {
                     existingArticle.setPages(article.getPages());
                 }
-                if (article.getAuthors() != null) {
-                    existingArticle.setAuthors(article.getAuthors());
+                if (article.getPubDate() != null) {
+                    existingArticle.setPubDate(article.getPubDate());
                 }
 
                 return existingArticle;

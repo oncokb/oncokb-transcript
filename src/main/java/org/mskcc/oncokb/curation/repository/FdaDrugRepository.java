@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface FdaDrugRepository extends JpaRepository<FdaDrug, Long> {
+public interface FdaDrugRepository extends JpaRepository<FdaDrug, Long>, JpaSpecificationExecutor<FdaDrug> {
     public Optional<FdaDrug> findFirstByApplicationNumber(String applicationNumber);
 }

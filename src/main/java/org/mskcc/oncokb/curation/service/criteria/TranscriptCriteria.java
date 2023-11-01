@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.service.criteria;
 
 import java.io.Serializable;
 import java.util.Objects;
+import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import tech.jhipster.service.Criteria;
 import tech.jhipster.service.filter.BooleanFilter;
 import tech.jhipster.service.filter.DoubleFilter;
@@ -22,9 +23,28 @@ import tech.jhipster.service.filter.StringFilter;
  */
 public class TranscriptCriteria implements Serializable, Criteria {
 
+    /**
+     * Class for filtering ReferenceGenome
+     */
+    public static class ReferenceGenomeFilter extends Filter<ReferenceGenome> {
+
+        public ReferenceGenomeFilter() {}
+
+        public ReferenceGenomeFilter(ReferenceGenomeFilter filter) {
+            super(filter);
+        }
+
+        @Override
+        public ReferenceGenomeFilter copy() {
+            return new ReferenceGenomeFilter(this);
+        }
+    }
+
     private static final long serialVersionUID = 1L;
 
     private LongFilter id;
+
+    private ReferenceGenomeFilter referenceGenome;
 
     private StringFilter ensemblTranscriptId;
 
@@ -36,13 +56,17 @@ public class TranscriptCriteria implements Serializable, Criteria {
 
     private StringFilter description;
 
-    private LongFilter fragmentsId;
-
     private LongFilter sequenceId;
+
+    private LongFilter fragmentsId;
 
     private LongFilter flagId;
 
     private LongFilter ensemblGeneId;
+
+    private LongFilter geneId;
+
+    private LongFilter alterationId;
 
     private Boolean distinct;
 
@@ -50,15 +74,18 @@ public class TranscriptCriteria implements Serializable, Criteria {
 
     public TranscriptCriteria(TranscriptCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
+        this.referenceGenome = other.referenceGenome == null ? null : other.referenceGenome.copy();
         this.ensemblTranscriptId = other.ensemblTranscriptId == null ? null : other.ensemblTranscriptId.copy();
         this.canonical = other.canonical == null ? null : other.canonical.copy();
         this.ensemblProteinId = other.ensemblProteinId == null ? null : other.ensemblProteinId.copy();
         this.referenceSequenceId = other.referenceSequenceId == null ? null : other.referenceSequenceId.copy();
         this.description = other.description == null ? null : other.description.copy();
-        this.fragmentsId = other.fragmentsId == null ? null : other.fragmentsId.copy();
         this.sequenceId = other.sequenceId == null ? null : other.sequenceId.copy();
+        this.fragmentsId = other.fragmentsId == null ? null : other.fragmentsId.copy();
         this.flagId = other.flagId == null ? null : other.flagId.copy();
         this.ensemblGeneId = other.ensemblGeneId == null ? null : other.ensemblGeneId.copy();
+        this.geneId = other.geneId == null ? null : other.geneId.copy();
+        this.alterationId = other.alterationId == null ? null : other.alterationId.copy();
         this.distinct = other.distinct;
     }
 
@@ -80,6 +107,21 @@ public class TranscriptCriteria implements Serializable, Criteria {
 
     public void setId(LongFilter id) {
         this.id = id;
+    }
+
+    public ReferenceGenomeFilter getReferenceGenome() {
+        return referenceGenome;
+    }
+
+    public ReferenceGenomeFilter referenceGenome() {
+        if (referenceGenome == null) {
+            referenceGenome = new ReferenceGenomeFilter();
+        }
+        return referenceGenome;
+    }
+
+    public void setReferenceGenome(ReferenceGenomeFilter referenceGenome) {
+        this.referenceGenome = referenceGenome;
     }
 
     public StringFilter getEnsemblTranscriptId() {
@@ -157,21 +199,6 @@ public class TranscriptCriteria implements Serializable, Criteria {
         this.description = description;
     }
 
-    public LongFilter getFragmentsId() {
-        return fragmentsId;
-    }
-
-    public LongFilter fragmentsId() {
-        if (fragmentsId == null) {
-            fragmentsId = new LongFilter();
-        }
-        return fragmentsId;
-    }
-
-    public void setFragmentsId(LongFilter fragmentsId) {
-        this.fragmentsId = fragmentsId;
-    }
-
     public LongFilter getSequenceId() {
         return sequenceId;
     }
@@ -185,6 +212,21 @@ public class TranscriptCriteria implements Serializable, Criteria {
 
     public void setSequenceId(LongFilter sequenceId) {
         this.sequenceId = sequenceId;
+    }
+
+    public LongFilter getFragmentsId() {
+        return fragmentsId;
+    }
+
+    public LongFilter fragmentsId() {
+        if (fragmentsId == null) {
+            fragmentsId = new LongFilter();
+        }
+        return fragmentsId;
+    }
+
+    public void setFragmentsId(LongFilter fragmentsId) {
+        this.fragmentsId = fragmentsId;
     }
 
     public LongFilter getFlagId() {
@@ -217,6 +259,36 @@ public class TranscriptCriteria implements Serializable, Criteria {
         this.ensemblGeneId = ensemblGeneId;
     }
 
+    public LongFilter getGeneId() {
+        return geneId;
+    }
+
+    public LongFilter geneId() {
+        if (geneId == null) {
+            geneId = new LongFilter();
+        }
+        return geneId;
+    }
+
+    public void setGeneId(LongFilter geneId) {
+        this.geneId = geneId;
+    }
+
+    public LongFilter getAlterationId() {
+        return alterationId;
+    }
+
+    public LongFilter alterationId() {
+        if (alterationId == null) {
+            alterationId = new LongFilter();
+        }
+        return alterationId;
+    }
+
+    public void setAlterationId(LongFilter alterationId) {
+        this.alterationId = alterationId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -236,15 +308,18 @@ public class TranscriptCriteria implements Serializable, Criteria {
         final TranscriptCriteria that = (TranscriptCriteria) o;
         return (
             Objects.equals(id, that.id) &&
+            Objects.equals(referenceGenome, that.referenceGenome) &&
             Objects.equals(ensemblTranscriptId, that.ensemblTranscriptId) &&
             Objects.equals(canonical, that.canonical) &&
             Objects.equals(ensemblProteinId, that.ensemblProteinId) &&
             Objects.equals(referenceSequenceId, that.referenceSequenceId) &&
             Objects.equals(description, that.description) &&
-            Objects.equals(fragmentsId, that.fragmentsId) &&
             Objects.equals(sequenceId, that.sequenceId) &&
+            Objects.equals(fragmentsId, that.fragmentsId) &&
             Objects.equals(flagId, that.flagId) &&
             Objects.equals(ensemblGeneId, that.ensemblGeneId) &&
+            Objects.equals(geneId, that.geneId) &&
+            Objects.equals(alterationId, that.alterationId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
@@ -253,15 +328,18 @@ public class TranscriptCriteria implements Serializable, Criteria {
     public int hashCode() {
         return Objects.hash(
             id,
+            referenceGenome,
             ensemblTranscriptId,
             canonical,
             ensemblProteinId,
             referenceSequenceId,
             description,
-            fragmentsId,
             sequenceId,
+            fragmentsId,
             flagId,
             ensemblGeneId,
+            geneId,
+            alterationId,
             distinct
         );
     }
@@ -271,15 +349,18 @@ public class TranscriptCriteria implements Serializable, Criteria {
     public String toString() {
         return "TranscriptCriteria{" +
             (id != null ? "id=" + id + ", " : "") +
+            (referenceGenome != null ? "referenceGenome=" + referenceGenome + ", " : "") +
             (ensemblTranscriptId != null ? "ensemblTranscriptId=" + ensemblTranscriptId + ", " : "") +
             (canonical != null ? "canonical=" + canonical + ", " : "") +
             (ensemblProteinId != null ? "ensemblProteinId=" + ensemblProteinId + ", " : "") +
             (referenceSequenceId != null ? "referenceSequenceId=" + referenceSequenceId + ", " : "") +
             (description != null ? "description=" + description + ", " : "") +
-            (fragmentsId != null ? "fragmentsId=" + fragmentsId + ", " : "") +
             (sequenceId != null ? "sequenceId=" + sequenceId + ", " : "") +
+            (fragmentsId != null ? "fragmentsId=" + fragmentsId + ", " : "") +
             (flagId != null ? "flagId=" + flagId + ", " : "") +
             (ensemblGeneId != null ? "ensemblGeneId=" + ensemblGeneId + ", " : "") +
+            (geneId != null ? "geneId=" + geneId + ", " : "") +
+            (alterationId != null ? "alterationId=" + alterationId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

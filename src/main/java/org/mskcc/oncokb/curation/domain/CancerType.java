@@ -47,21 +47,26 @@ public class CancerType implements Serializable {
     @Column(name = "tumor_form", nullable = false)
     private TumorForm tumorForm;
 
+    @OneToMany(mappedBy = "cancerType")
+    @JsonIgnoreProperties(value = { "association", "cancerType" }, allowSetters = true)
+    private Set<AssociationCancerType> associationCancerTypes = new HashSet<>();
+
     @OneToMany(mappedBy = "parent")
-    @JsonIgnoreProperties(value = { "children", "biomarkerAssociations", "parent", "clinicalTrialsGovConditions" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "associationCancerTypes", "children", "synonyms", "parent" }, allowSetters = true)
     private Set<CancerType> children = new HashSet<>();
 
-    @OneToMany(mappedBy = "cancerType")
-    @JsonIgnoreProperties(value = { "alterations", "drugs", "fdaSubmissions", "cancerType", "gene" }, allowSetters = true)
-    private Set<BiomarkerAssociation> biomarkerAssociations = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+        name = "rel_cancer_type__synonym",
+        joinColumns = @JoinColumn(name = "cancer_type_id"),
+        inverseJoinColumns = @JoinColumn(name = "synonym_id")
+    )
+    @JsonIgnoreProperties(value = { "cancerTypes", "genes", "nciThesauruses" }, allowSetters = true)
+    private Set<Synonym> synonyms = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "children", "biomarkerAssociations", "parent", "clinicalTrialsGovConditions" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "associationCancerTypes", "children", "synonyms", "parent" }, allowSetters = true)
     private CancerType parent;
-
-    @ManyToMany(mappedBy = "cancerTypes")
-    @JsonIgnoreProperties(value = { "cancerTypes" }, allowSetters = true)
-    private Set<ClinicalTrialsGovCondition> clinicalTrialsGovConditions = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -169,6 +174,37 @@ public class CancerType implements Serializable {
         this.tumorForm = tumorForm;
     }
 
+    public Set<AssociationCancerType> getAssociationCancerTypes() {
+        return this.associationCancerTypes;
+    }
+
+    public void setAssociationCancerTypes(Set<AssociationCancerType> associationCancerTypes) {
+        if (this.associationCancerTypes != null) {
+            this.associationCancerTypes.forEach(i -> i.setCancerType(null));
+        }
+        if (associationCancerTypes != null) {
+            associationCancerTypes.forEach(i -> i.setCancerType(this));
+        }
+        this.associationCancerTypes = associationCancerTypes;
+    }
+
+    public CancerType associationCancerTypes(Set<AssociationCancerType> associationCancerTypes) {
+        this.setAssociationCancerTypes(associationCancerTypes);
+        return this;
+    }
+
+    public CancerType addAssociationCancerType(AssociationCancerType associationCancerType) {
+        this.associationCancerTypes.add(associationCancerType);
+        associationCancerType.setCancerType(this);
+        return this;
+    }
+
+    public CancerType removeAssociationCancerType(AssociationCancerType associationCancerType) {
+        this.associationCancerTypes.remove(associationCancerType);
+        associationCancerType.setCancerType(null);
+        return this;
+    }
+
     public Set<CancerType> getChildren() {
         return this.children;
     }
@@ -200,34 +236,28 @@ public class CancerType implements Serializable {
         return this;
     }
 
-    public Set<BiomarkerAssociation> getBiomarkerAssociations() {
-        return this.biomarkerAssociations;
+    public Set<Synonym> getSynonyms() {
+        return this.synonyms;
     }
 
-    public void setBiomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
-        if (this.biomarkerAssociations != null) {
-            this.biomarkerAssociations.forEach(i -> i.setCancerType(null));
-        }
-        if (biomarkerAssociations != null) {
-            biomarkerAssociations.forEach(i -> i.setCancerType(this));
-        }
-        this.biomarkerAssociations = biomarkerAssociations;
+    public void setSynonyms(Set<Synonym> synonyms) {
+        this.synonyms = synonyms;
     }
 
-    public CancerType biomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
-        this.setBiomarkerAssociations(biomarkerAssociations);
+    public CancerType synonyms(Set<Synonym> synonyms) {
+        this.setSynonyms(synonyms);
         return this;
     }
 
-    public CancerType addBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
-        this.biomarkerAssociations.add(biomarkerAssociation);
-        biomarkerAssociation.setCancerType(this);
+    public CancerType addSynonym(Synonym synonym) {
+        this.synonyms.add(synonym);
+        synonym.getCancerTypes().add(this);
         return this;
     }
 
-    public CancerType removeBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
-        this.biomarkerAssociations.remove(biomarkerAssociation);
-        biomarkerAssociation.setCancerType(null);
+    public CancerType removeSynonym(Synonym synonym) {
+        this.synonyms.remove(synonym);
+        synonym.getCancerTypes().remove(this);
         return this;
     }
 
@@ -241,37 +271,6 @@ public class CancerType implements Serializable {
 
     public CancerType parent(CancerType cancerType) {
         this.setParent(cancerType);
-        return this;
-    }
-
-    public Set<ClinicalTrialsGovCondition> getClinicalTrialsGovConditions() {
-        return this.clinicalTrialsGovConditions;
-    }
-
-    public void setClinicalTrialsGovConditions(Set<ClinicalTrialsGovCondition> clinicalTrialsGovConditions) {
-        if (this.clinicalTrialsGovConditions != null) {
-            this.clinicalTrialsGovConditions.forEach(i -> i.removeCancerType(this));
-        }
-        if (clinicalTrialsGovConditions != null) {
-            clinicalTrialsGovConditions.forEach(i -> i.addCancerType(this));
-        }
-        this.clinicalTrialsGovConditions = clinicalTrialsGovConditions;
-    }
-
-    public CancerType clinicalTrialsGovConditions(Set<ClinicalTrialsGovCondition> clinicalTrialsGovConditions) {
-        this.setClinicalTrialsGovConditions(clinicalTrialsGovConditions);
-        return this;
-    }
-
-    public CancerType addClinicalTrialsGovCondition(ClinicalTrialsGovCondition clinicalTrialsGovCondition) {
-        this.clinicalTrialsGovConditions.add(clinicalTrialsGovCondition);
-        clinicalTrialsGovCondition.getCancerTypes().add(this);
-        return this;
-    }
-
-    public CancerType removeClinicalTrialsGovCondition(ClinicalTrialsGovCondition clinicalTrialsGovCondition) {
-        this.clinicalTrialsGovConditions.remove(clinicalTrialsGovCondition);
-        clinicalTrialsGovCondition.getCancerTypes().remove(this);
         return this;
     }
 

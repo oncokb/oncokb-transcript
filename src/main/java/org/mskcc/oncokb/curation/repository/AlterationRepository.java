@@ -15,24 +15,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AlterationRepository extends JpaRepository<Alteration, Long>, JpaSpecificationExecutor<Alteration> {
     @Query(
-        "select distinct alteration from Alteration alteration" +
-        " left join fetch alteration.genes" +
-        " left join fetch alteration.referenceGenomes"
+        value = "select distinct alteration from Alteration alteration" + " left join fetch alteration.genes",
+        countQuery = "select count(distinct alteration) from Alteration alteration"
     )
+    Page<Alteration> findAllWithEagerRelationships(Pageable pageable);
+
+    @Query("select distinct alteration from Alteration alteration" + " left join fetch alteration.genes")
     List<Alteration> findAllWithEagerRelationships();
 
-    @Query(
-        "select alteration from Alteration alteration" +
-        " left join fetch alteration.genes" +
-        " left join fetch alteration.referenceGenomes" +
-        " where alteration.id =:id"
-    )
+    @Query("select alteration from Alteration alteration" + " left join fetch alteration.genes" + " where alteration.id =:id")
     Optional<Alteration> findOneWithEagerRelationships(@Param("id") Long id);
 
     @Query(
         "select distinct alteration from Alteration alteration" +
         " left join fetch alteration.genes" +
-        " left join fetch alteration.referenceGenomes" +
         " left join fetch alteration.consequence" +
         " where alteration.id in (:ids)"
     )

@@ -24,7 +24,7 @@ export const DrugBrandUpdate = (props: IDrugBrandUpdateProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/drug-brand');
+    props.history.push('/drug-brand' + props.location.search);
   };
 
   useEffect(() => {
@@ -61,7 +61,6 @@ export const DrugBrandUpdate = (props: IDrugBrandUpdateProps) => {
     isNew
       ? {}
       : {
-          region: 'US',
           ...drugBrandEntity,
           drugId: drugBrandEntity?.drug?.id,
         };
@@ -82,11 +81,17 @@ export const DrugBrandUpdate = (props: IDrugBrandUpdateProps) => {
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
               {!isNew ? <ValidatedField name="id" required readOnly id="drug-brand-id" label="ID" validate={{ required: true }} /> : null}
-              <ValidatedField label="Name" id="drug-brand-name" name="name" data-cy="name" type="text" />
-              <ValidatedField label="Region" id="drug-brand-region" name="region" data-cy="region" type="select" defaultValue="US">
-                <option value="US">US</option>
-                <option value="EU">EU</option>
-              </ValidatedField>
+              <ValidatedField
+                label="Name"
+                id="drug-brand-name"
+                name="name"
+                data-cy="name"
+                type="text"
+                validate={{
+                  required: { value: true, message: 'This field is required.' },
+                }}
+              />
+              <ValidatedField label="Region" id="drug-brand-region" name="region" data-cy="region" type="text" />
               <ValidatedField id="drug-brand-drug" name="drugId" data-cy="drug" label="Drug" type="select">
                 <option value="" key="0" />
                 {drugs

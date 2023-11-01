@@ -9,7 +9,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Consequence;
 import org.mskcc.oncokb.curation.repository.ConsequenceRepository;
+import org.mskcc.oncokb.curation.service.ConsequenceQueryService;
 import org.mskcc.oncokb.curation.service.ConsequenceService;
+import org.mskcc.oncokb.curation.service.criteria.ConsequenceCriteria;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +39,16 @@ public class ConsequenceResource {
 
     private final ConsequenceRepository consequenceRepository;
 
-    public ConsequenceResource(ConsequenceService consequenceService, ConsequenceRepository consequenceRepository) {
+    private final ConsequenceQueryService consequenceQueryService;
+
+    public ConsequenceResource(
+        ConsequenceService consequenceService,
+        ConsequenceRepository consequenceRepository,
+        ConsequenceQueryService consequenceQueryService
+    ) {
         this.consequenceService = consequenceService;
         this.consequenceRepository = consequenceRepository;
+        this.consequenceQueryService = consequenceQueryService;
     }
 
     /**
@@ -135,12 +144,26 @@ public class ConsequenceResource {
     /**
      * {@code GET  /consequences} : get all the consequences.
      *
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of consequences in body.
      */
     @GetMapping("/consequences")
-    public List<Consequence> getAllConsequences() {
-        log.debug("REST request to get all Consequences");
-        return consequenceService.findAll();
+    public ResponseEntity<List<Consequence>> getAllConsequences(ConsequenceCriteria criteria) {
+        log.debug("REST request to get Consequences by criteria: {}", criteria);
+        List<Consequence> entityList = consequenceQueryService.findByCriteria(criteria);
+        return ResponseEntity.ok().body(entityList);
+    }
+
+    /**
+     * {@code GET  /consequences/count} : count all the consequences.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/consequences/count")
+    public ResponseEntity<Long> countConsequences(ConsequenceCriteria criteria) {
+        log.debug("REST request to count Consequences by criteria: {}", criteria);
+        return ResponseEntity.ok().body(consequenceQueryService.countByCriteria(criteria));
     }
 
     /**

@@ -2,10 +2,12 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -16,15 +18,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
-import org.mskcc.oncokb.curation.domain.BiomarkerAssociation;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.DrugBrand;
-import org.mskcc.oncokb.curation.domain.DrugSynonym;
+import org.mskcc.oncokb.curation.domain.DrugPriority;
 import org.mskcc.oncokb.curation.domain.FdaDrug;
+import org.mskcc.oncokb.curation.domain.Flag;
+import org.mskcc.oncokb.curation.domain.NciThesaurus;
+import org.mskcc.oncokb.curation.domain.Treatment;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
+import org.mskcc.oncokb.curation.service.DrugService;
 import org.mskcc.oncokb.curation.service.criteria.DrugCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -43,12 +50,6 @@ class DrugResourceIT {
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
 
-    private static final String DEFAULT_CODE = "AAAAAAAAAA";
-    private static final String UPDATED_CODE = "BBBBBBBBBB";
-
-    private static final String DEFAULT_SEMANTIC_TYPE = "AAAAAAAAAA";
-    private static final String UPDATED_SEMANTIC_TYPE = "BBBBBBBBBB";
-
     private static final String ENTITY_API_URL = "/api/drugs";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -57,6 +58,12 @@ class DrugResourceIT {
 
     @Autowired
     private DrugRepository drugRepository;
+
+    @Mock
+    private DrugRepository drugRepositoryMock;
+
+    @Mock
+    private DrugService drugServiceMock;
 
     @Autowired
     private EntityManager em;
@@ -73,7 +80,7 @@ class DrugResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Drug createEntity(EntityManager em) {
-        Drug drug = new Drug().name(DEFAULT_NAME).code(DEFAULT_CODE).semanticType(DEFAULT_SEMANTIC_TYPE);
+        Drug drug = new Drug().name(DEFAULT_NAME);
         return drug;
     }
 
@@ -84,7 +91,7 @@ class DrugResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Drug createUpdatedEntity(EntityManager em) {
-        Drug drug = new Drug().name(UPDATED_NAME).code(UPDATED_CODE).semanticType(UPDATED_SEMANTIC_TYPE);
+        Drug drug = new Drug().name(UPDATED_NAME);
         return drug;
     }
 
@@ -109,8 +116,6 @@ class DrugResourceIT {
         assertThat(drugList).hasSize(databaseSizeBeforeCreate + 1);
         Drug testDrug = drugList.get(drugList.size() - 1);
         assertThat(testDrug.getName()).isEqualTo(DEFAULT_NAME);
-        assertThat(testDrug.getCode()).isEqualTo(DEFAULT_CODE);
-        assertThat(testDrug.getSemanticType()).isEqualTo(DEFAULT_SEMANTIC_TYPE);
     }
 
     @Test
@@ -145,9 +150,25 @@ class DrugResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(drug.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
-            .andExpect(jsonPath("$.[*].code").value(hasItem(DEFAULT_CODE)))
-            .andExpect(jsonPath("$.[*].semanticType").value(hasItem(DEFAULT_SEMANTIC_TYPE.toString())));
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllDrugsWithEagerRelationshipsIsEnabled() throws Exception {
+        when(drugServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restDrugMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(drugServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllDrugsWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(drugServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restDrugMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(drugServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test
@@ -162,9 +183,7 @@ class DrugResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(drug.getId().intValue()))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()))
-            .andExpect(jsonPath("$.code").value(DEFAULT_CODE))
-            .andExpect(jsonPath("$.semanticType").value(DEFAULT_SEMANTIC_TYPE.toString()));
+            .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()));
     }
 
     @Test
@@ -187,132 +206,28 @@ class DrugResourceIT {
 
     @Test
     @Transactional
-    void getAllDrugsByCodeIsEqualToSomething() throws Exception {
+    void getAllDrugsByNciThesaurusIsEqualToSomething() throws Exception {
         // Initialize the database
         drugRepository.saveAndFlush(drug);
-
-        // Get all the drugList where code equals to DEFAULT_CODE
-        defaultDrugShouldBeFound("code.equals=" + DEFAULT_CODE);
-
-        // Get all the drugList where code equals to UPDATED_CODE
-        defaultDrugShouldNotBeFound("code.equals=" + UPDATED_CODE);
-    }
-
-    @Test
-    @Transactional
-    void getAllDrugsByCodeIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        drugRepository.saveAndFlush(drug);
-
-        // Get all the drugList where code not equals to DEFAULT_CODE
-        defaultDrugShouldNotBeFound("code.notEquals=" + DEFAULT_CODE);
-
-        // Get all the drugList where code not equals to UPDATED_CODE
-        defaultDrugShouldBeFound("code.notEquals=" + UPDATED_CODE);
-    }
-
-    @Test
-    @Transactional
-    void getAllDrugsByCodeIsInShouldWork() throws Exception {
-        // Initialize the database
-        drugRepository.saveAndFlush(drug);
-
-        // Get all the drugList where code in DEFAULT_CODE or UPDATED_CODE
-        defaultDrugShouldBeFound("code.in=" + DEFAULT_CODE + "," + UPDATED_CODE);
-
-        // Get all the drugList where code equals to UPDATED_CODE
-        defaultDrugShouldNotBeFound("code.in=" + UPDATED_CODE);
-    }
-
-    @Test
-    @Transactional
-    void getAllDrugsByCodeIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        drugRepository.saveAndFlush(drug);
-
-        // Get all the drugList where code is not null
-        defaultDrugShouldBeFound("code.specified=true");
-
-        // Get all the drugList where code is null
-        defaultDrugShouldNotBeFound("code.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllDrugsByCodeContainsSomething() throws Exception {
-        // Initialize the database
-        drugRepository.saveAndFlush(drug);
-
-        // Get all the drugList where code contains DEFAULT_CODE
-        defaultDrugShouldBeFound("code.contains=" + DEFAULT_CODE);
-
-        // Get all the drugList where code contains UPDATED_CODE
-        defaultDrugShouldNotBeFound("code.contains=" + UPDATED_CODE);
-    }
-
-    @Test
-    @Transactional
-    void getAllDrugsByCodeNotContainsSomething() throws Exception {
-        // Initialize the database
-        drugRepository.saveAndFlush(drug);
-
-        // Get all the drugList where code does not contain DEFAULT_CODE
-        defaultDrugShouldNotBeFound("code.doesNotContain=" + DEFAULT_CODE);
-
-        // Get all the drugList where code does not contain UPDATED_CODE
-        defaultDrugShouldBeFound("code.doesNotContain=" + UPDATED_CODE);
-    }
-
-    @Test
-    @Transactional
-    void getAllDrugsByFdaDrugIsEqualToSomething() throws Exception {
-        // Initialize the database
-        drugRepository.saveAndFlush(drug);
-        FdaDrug fdaDrug;
-        if (TestUtil.findAll(em, FdaDrug.class).isEmpty()) {
-            fdaDrug = FdaDrugResourceIT.createEntity(em);
-            em.persist(fdaDrug);
+        NciThesaurus nciThesaurus;
+        if (TestUtil.findAll(em, NciThesaurus.class).isEmpty()) {
+            nciThesaurus = NciThesaurusResourceIT.createEntity(em);
+            em.persist(nciThesaurus);
             em.flush();
         } else {
-            fdaDrug = TestUtil.findAll(em, FdaDrug.class).get(0);
+            nciThesaurus = TestUtil.findAll(em, NciThesaurus.class).get(0);
         }
-        em.persist(fdaDrug);
+        em.persist(nciThesaurus);
         em.flush();
-        drug.setFdaDrug(fdaDrug);
+        drug.setNciThesaurus(nciThesaurus);
         drugRepository.saveAndFlush(drug);
-        Long fdaDrugId = fdaDrug.getId();
+        Long nciThesaurusId = nciThesaurus.getId();
 
-        // Get all the drugList where fdaDrug equals to fdaDrugId
-        defaultDrugShouldBeFound("fdaDrugId.equals=" + fdaDrugId);
+        // Get all the drugList where nciThesaurus equals to nciThesaurusId
+        defaultDrugShouldBeFound("nciThesaurusId.equals=" + nciThesaurusId);
 
-        // Get all the drugList where fdaDrug equals to (fdaDrugId + 1)
-        defaultDrugShouldNotBeFound("fdaDrugId.equals=" + (fdaDrugId + 1));
-    }
-
-    @Test
-    @Transactional
-    void getAllDrugsBySynonymsIsEqualToSomething() throws Exception {
-        // Initialize the database
-        drugRepository.saveAndFlush(drug);
-        DrugSynonym synonyms;
-        if (TestUtil.findAll(em, DrugSynonym.class).isEmpty()) {
-            synonyms = DrugSynonymResourceIT.createEntity(em);
-            em.persist(synonyms);
-            em.flush();
-        } else {
-            synonyms = TestUtil.findAll(em, DrugSynonym.class).get(0);
-        }
-        em.persist(synonyms);
-        em.flush();
-        drug.addSynonyms(synonyms);
-        drugRepository.saveAndFlush(drug);
-        Long synonymsId = synonyms.getId();
-
-        // Get all the drugList where synonyms equals to synonymsId
-        defaultDrugShouldBeFound("synonymsId.equals=" + synonymsId);
-
-        // Get all the drugList where synonyms equals to (synonymsId + 1)
-        defaultDrugShouldNotBeFound("synonymsId.equals=" + (synonymsId + 1));
+        // Get all the drugList where nciThesaurus equals to (nciThesaurusId + 1)
+        defaultDrugShouldNotBeFound("nciThesaurusId.equals=" + (nciThesaurusId + 1));
     }
 
     @Test
@@ -343,28 +258,107 @@ class DrugResourceIT {
 
     @Test
     @Transactional
-    void getAllDrugsByBiomarkerAssociationIsEqualToSomething() throws Exception {
+    void getAllDrugsByDrugPriorityIsEqualToSomething() throws Exception {
         // Initialize the database
         drugRepository.saveAndFlush(drug);
-        BiomarkerAssociation biomarkerAssociation;
-        if (TestUtil.findAll(em, BiomarkerAssociation.class).isEmpty()) {
-            biomarkerAssociation = BiomarkerAssociationResourceIT.createEntity(em);
-            em.persist(biomarkerAssociation);
+        DrugPriority drugPriority;
+        if (TestUtil.findAll(em, DrugPriority.class).isEmpty()) {
+            drugPriority = DrugPriorityResourceIT.createEntity(em);
+            em.persist(drugPriority);
             em.flush();
         } else {
-            biomarkerAssociation = TestUtil.findAll(em, BiomarkerAssociation.class).get(0);
+            drugPriority = TestUtil.findAll(em, DrugPriority.class).get(0);
         }
-        em.persist(biomarkerAssociation);
+        em.persist(drugPriority);
         em.flush();
-        drug.addBiomarkerAssociation(biomarkerAssociation);
+        drug.addDrugPriority(drugPriority);
         drugRepository.saveAndFlush(drug);
-        Long biomarkerAssociationId = biomarkerAssociation.getId();
+        Long drugPriorityId = drugPriority.getId();
 
-        // Get all the drugList where biomarkerAssociation equals to biomarkerAssociationId
-        defaultDrugShouldBeFound("biomarkerAssociationId.equals=" + biomarkerAssociationId);
+        // Get all the drugList where drugPriority equals to drugPriorityId
+        defaultDrugShouldBeFound("drugPriorityId.equals=" + drugPriorityId);
 
-        // Get all the drugList where biomarkerAssociation equals to (biomarkerAssociationId + 1)
-        defaultDrugShouldNotBeFound("biomarkerAssociationId.equals=" + (biomarkerAssociationId + 1));
+        // Get all the drugList where drugPriority equals to (drugPriorityId + 1)
+        defaultDrugShouldNotBeFound("drugPriorityId.equals=" + (drugPriorityId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByFlagIsEqualToSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+        Flag flag;
+        if (TestUtil.findAll(em, Flag.class).isEmpty()) {
+            flag = FlagResourceIT.createEntity(em);
+            em.persist(flag);
+            em.flush();
+        } else {
+            flag = TestUtil.findAll(em, Flag.class).get(0);
+        }
+        em.persist(flag);
+        em.flush();
+        drug.addFlag(flag);
+        drugRepository.saveAndFlush(drug);
+        Long flagId = flag.getId();
+
+        // Get all the drugList where flag equals to flagId
+        defaultDrugShouldBeFound("flagId.equals=" + flagId);
+
+        // Get all the drugList where flag equals to (flagId + 1)
+        defaultDrugShouldNotBeFound("flagId.equals=" + (flagId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByFdaDrugIsEqualToSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+        FdaDrug fdaDrug;
+        if (TestUtil.findAll(em, FdaDrug.class).isEmpty()) {
+            fdaDrug = FdaDrugResourceIT.createEntity(em);
+            em.persist(fdaDrug);
+            em.flush();
+        } else {
+            fdaDrug = TestUtil.findAll(em, FdaDrug.class).get(0);
+        }
+        em.persist(fdaDrug);
+        em.flush();
+        drug.setFdaDrug(fdaDrug);
+        fdaDrug.setDrug(drug);
+        drugRepository.saveAndFlush(drug);
+        Long fdaDrugId = fdaDrug.getId();
+
+        // Get all the drugList where fdaDrug equals to fdaDrugId
+        defaultDrugShouldBeFound("fdaDrugId.equals=" + fdaDrugId);
+
+        // Get all the drugList where fdaDrug equals to (fdaDrugId + 1)
+        defaultDrugShouldNotBeFound("fdaDrugId.equals=" + (fdaDrugId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByTreatmentIsEqualToSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+        Treatment treatment;
+        if (TestUtil.findAll(em, Treatment.class).isEmpty()) {
+            treatment = TreatmentResourceIT.createEntity(em);
+            em.persist(treatment);
+            em.flush();
+        } else {
+            treatment = TestUtil.findAll(em, Treatment.class).get(0);
+        }
+        em.persist(treatment);
+        em.flush();
+        drug.addTreatment(treatment);
+        drugRepository.saveAndFlush(drug);
+        Long treatmentId = treatment.getId();
+
+        // Get all the drugList where treatment equals to treatmentId
+        defaultDrugShouldBeFound("treatmentId.equals=" + treatmentId);
+
+        // Get all the drugList where treatment equals to (treatmentId + 1)
+        defaultDrugShouldNotBeFound("treatmentId.equals=" + (treatmentId + 1));
     }
 
     /**
@@ -376,9 +370,7 @@ class DrugResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(drug.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())))
-            .andExpect(jsonPath("$.[*].code").value(hasItem(DEFAULT_CODE)))
-            .andExpect(jsonPath("$.[*].semanticType").value(hasItem(DEFAULT_SEMANTIC_TYPE.toString())));
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())));
 
         // Check, that the count call also returns 1
         restDrugMockMvc
@@ -426,7 +418,7 @@ class DrugResourceIT {
         Drug updatedDrug = drugRepository.findById(drug.getId()).get();
         // Disconnect from session so that the updates on updatedDrug are not directly saved in db
         em.detach(updatedDrug);
-        updatedDrug.name(UPDATED_NAME).code(UPDATED_CODE).semanticType(UPDATED_SEMANTIC_TYPE);
+        updatedDrug.name(UPDATED_NAME);
 
         restDrugMockMvc
             .perform(
@@ -442,8 +434,6 @@ class DrugResourceIT {
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
         Drug testDrug = drugList.get(drugList.size() - 1);
         assertThat(testDrug.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testDrug.getCode()).isEqualTo(UPDATED_CODE);
-        assertThat(testDrug.getSemanticType()).isEqualTo(UPDATED_SEMANTIC_TYPE);
     }
 
     @Test
@@ -518,7 +508,7 @@ class DrugResourceIT {
         Drug partialUpdatedDrug = new Drug();
         partialUpdatedDrug.setId(drug.getId());
 
-        partialUpdatedDrug.name(UPDATED_NAME).semanticType(UPDATED_SEMANTIC_TYPE);
+        partialUpdatedDrug.name(UPDATED_NAME);
 
         restDrugMockMvc
             .perform(
@@ -534,8 +524,6 @@ class DrugResourceIT {
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
         Drug testDrug = drugList.get(drugList.size() - 1);
         assertThat(testDrug.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testDrug.getCode()).isEqualTo(DEFAULT_CODE);
-        assertThat(testDrug.getSemanticType()).isEqualTo(UPDATED_SEMANTIC_TYPE);
     }
 
     @Test
@@ -550,7 +538,7 @@ class DrugResourceIT {
         Drug partialUpdatedDrug = new Drug();
         partialUpdatedDrug.setId(drug.getId());
 
-        partialUpdatedDrug.name(UPDATED_NAME).code(UPDATED_CODE).semanticType(UPDATED_SEMANTIC_TYPE);
+        partialUpdatedDrug.name(UPDATED_NAME);
 
         restDrugMockMvc
             .perform(
@@ -566,8 +554,6 @@ class DrugResourceIT {
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
         Drug testDrug = drugList.get(drugList.size() - 1);
         assertThat(testDrug.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testDrug.getCode()).isEqualTo(UPDATED_CODE);
-        assertThat(testDrug.getSemanticType()).isEqualTo(UPDATED_SEMANTIC_TYPE);
     }
 
     @Test

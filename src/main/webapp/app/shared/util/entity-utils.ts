@@ -1,5 +1,8 @@
 import pick from 'lodash/pick';
 import { IPaginationBaseState } from 'react-jhipster';
+import { ENTITY_TO_TITLE_MAPPING, ENTITY_TYPE, PAGE_ROUTE } from 'app/config/constants';
+import pluralize from 'pluralize';
+import _ from 'lodash';
 
 /**
  * Removes fields with an 'id' field that equals ''.
@@ -46,4 +49,19 @@ export const overridePaginationStateWithQueryParams = (paginationBaseState: IPag
 
 export const getEntityPaginationSortParameter = (field: string, sortDirection: string) => {
   return `${field},${sortDirection}`;
+};
+
+export const getEntityTitle = (entityType: string) => {
+  return (
+    ENTITY_TO_TITLE_MAPPING[entityType] ||
+    entityType
+      .split('-')
+      .map((word, index, words) => {
+        if (index === words.length - 1) {
+          word = pluralize(word);
+        }
+        return _.capitalize(word);
+      })
+      .join(' ')
+  );
 };

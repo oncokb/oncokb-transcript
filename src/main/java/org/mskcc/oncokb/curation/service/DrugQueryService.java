@@ -3,6 +3,7 @@ package org.mskcc.oncokb.curation.service;
 import java.util.List;
 import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
+import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
 import org.mskcc.oncokb.curation.service.criteria.DrugCriteria;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public class DrugQueryService extends QueryService<Drug> {
         DrugCriteria criteria = new DrugCriteria();
         StringFilter stringFilter = new StringFilter();
         stringFilter.setContains(query);
-        criteria.setCode(stringFilter);
+        criteria.setNcitCode(stringFilter);
         criteria.setName(stringFilter);
         return findByCriteria(criteria, page);
     }
@@ -98,34 +99,31 @@ public class DrugQueryService extends QueryService<Drug> {
             if (criteria.getName() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getName(), Drug_.name));
             }
-            if (criteria.getCode() != null) {
-                specification = specification.or(buildStringSpecification(criteria.getCode(), Drug_.code));
-            }
-            if (criteria.getSynonymsId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getSynonymsId(), root -> root.join(Drug_.synonyms, JoinType.LEFT).get(DrugSynonym_.id))
-                    );
-            }
-            if (criteria.getBiomarkerAssociationId() != null) {
+            if (criteria.getNcitCode() != null) {
                 specification =
                     specification.or(
                         buildSpecification(
-                            criteria.getBiomarkerAssociationId(),
-                            root -> root.join(Drug_.biomarkerAssociations, JoinType.LEFT).get(BiomarkerAssociation_.id)
+                            criteria.getNcitCode(),
+                            root -> root.join(Drug_.nciThesaurus, JoinType.LEFT).get(NciThesaurus_.code)
                         )
                     );
             }
-            if (criteria.getBrandsId() != null) {
+            if (criteria.getFlagId() != null) {
                 specification =
-                    specification.or(
-                        buildSpecification(criteria.getBrandsId(), root -> root.join(Drug_.brands, JoinType.LEFT).get(DrugBrand_.id))
+                    specification.and(
+                        buildSpecification(criteria.getFlagId(), root -> root.join(Drug_.flags, JoinType.LEFT).get(Flag_.id))
                     );
             }
-            if (criteria.getBrandsName() != null) {
+            if (criteria.getFdaDrugId() != null) {
                 specification =
-                    specification.or(
-                        buildSpecification(criteria.getBrandsName(), root -> root.join(Drug_.brands, JoinType.LEFT).get(DrugBrand_.name))
+                    specification.and(
+                        buildSpecification(criteria.getFdaDrugId(), root -> root.join(Drug_.fdaDrug, JoinType.LEFT).get(FdaDrug_.id))
+                    );
+            }
+            if (criteria.getTreatmentId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getTreatmentId(), root -> root.join(Drug_.treatments, JoinType.LEFT).get(Treatment_.id))
                     );
             }
         }

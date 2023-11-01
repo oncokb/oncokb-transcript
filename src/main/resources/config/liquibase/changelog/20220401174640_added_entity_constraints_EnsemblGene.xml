@@ -8,10 +8,10 @@
     -->
     <changeSet id="20220401174640-2" author="jhipster">
 
-        <addForeignKeyConstraint baseColumnNames="gene_id"
+        <addForeignKeyConstraint baseColumnNames="entrez_gene_id"
                                  baseTableName="ensembl_gene"
-                                 constraintName="fk_ensembl_gene__gene_id"
-                                 referencedColumnNames="id"
+                                 constraintName="fk_ensembl_gene__entrez_gene_id"
+                                 referencedColumnNames="entrez_gene_id"
                                  referencedTableName="gene"/>
 
         <addForeignKeyConstraint baseColumnNames="seq_region"

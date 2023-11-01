@@ -151,13 +151,12 @@ public class TranscriptResource {
      * {@code GET  /transcripts} : get all the transcripts.
      *
      * @param pageable the pagination information.
-     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of transcripts in body.
      */
     @GetMapping("/transcripts")
-    public ResponseEntity<List<TranscriptDTO>> getAllTranscripts(TranscriptCriteria criteria, Pageable pageable) {
-        log.debug("REST request to get Transcripts by criteria: {}", criteria);
-        Page<TranscriptDTO> page = transcriptQueryService.findByCriteria(criteria, pageable);
+    public ResponseEntity<List<TranscriptDTO>> getAllTranscripts(Pageable pageable) {
+        log.debug("REST request to get Transcripts");
+        Page<TranscriptDTO> page = transcriptService.findAllWithEagerRelationships(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

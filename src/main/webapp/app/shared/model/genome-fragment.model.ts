@@ -4,10 +4,10 @@ import { GenomeFragmentType } from 'app/shared/model/enumerations/genome-fragmen
 
 export interface IGenomeFragment {
   id?: number;
-  start?: number | null;
-  end?: number | null;
-  strand?: number | null;
-  type?: GenomeFragmentType | null;
+  start?: number;
+  end?: number;
+  strand?: number;
+  type?: GenomeFragmentType;
   seqRegion?: ISeqRegion | null;
   transcript?: ITranscript | null;
 }

@@ -118,6 +118,15 @@ public class CancerTypeQueryService extends QueryService<CancerType> {
             if (criteria.getTumorForm() != null) {
                 specification = specification.or(buildSpecification(criteria.getTumorForm(), CancerType_.tumorForm));
             }
+            if (criteria.getAssociationCancerTypeId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(
+                            criteria.getAssociationCancerTypeId(),
+                            root -> root.join(CancerType_.associationCancerTypes, JoinType.LEFT).get(AssociationCancerType_.id)
+                        )
+                    );
+            }
             if (criteria.getChildrenId() != null) {
                 specification =
                     specification.or(
@@ -127,28 +136,16 @@ public class CancerTypeQueryService extends QueryService<CancerType> {
                         )
                     );
             }
-            if (criteria.getBiomarkerAssociationId() != null) {
+            if (criteria.getSynonymId() != null) {
                 specification =
                     specification.or(
-                        buildSpecification(
-                            criteria.getBiomarkerAssociationId(),
-                            root -> root.join(CancerType_.biomarkerAssociations, JoinType.LEFT).get(BiomarkerAssociation_.id)
-                        )
+                        buildSpecification(criteria.getSynonymId(), root -> root.join(CancerType_.synonyms, JoinType.LEFT).get(Synonym_.id))
                     );
             }
             if (criteria.getParentId() != null) {
                 specification =
                     specification.or(
                         buildSpecification(criteria.getParentId(), root -> root.join(CancerType_.parent, JoinType.LEFT).get(CancerType_.id))
-                    );
-            }
-            if (criteria.getClinicalTrialsGovConditionId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getClinicalTrialsGovConditionId(),
-                            root -> root.join(CancerType_.clinicalTrialsGovConditions, JoinType.LEFT).get(ClinicalTrialsGovCondition_.id)
-                        )
                     );
             }
         }

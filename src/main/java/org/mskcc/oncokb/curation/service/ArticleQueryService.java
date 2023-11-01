@@ -116,6 +116,15 @@ public class ArticleQueryService extends QueryService<Article> {
             if (criteria.getAuthors() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getAuthors(), Article_.authors));
             }
+            if (criteria.getAssociationId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getAssociationId(),
+                            root -> root.join(Article_.associations, JoinType.LEFT).get(Association_.id)
+                        )
+                    );
+            }
         }
         return specification;
     }

@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
+import { IAssociation } from 'app/shared/model/association.model';
 import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
 import { IFdaSubmissionType } from 'app/shared/model/fda-submission-type.model';
-import { IBiomarkerAssociation } from 'app/shared/model/biomarker-association.model';
 
 export interface IFdaSubmission {
   id?: number;
@@ -15,10 +15,10 @@ export interface IFdaSubmission {
   platform?: string | null;
   curated?: boolean;
   genetic?: boolean;
-  additionalInfo?: string | null;
+  note?: string | null;
+  associations?: IAssociation[] | null;
   companionDiagnosticDevice?: ICompanionDiagnosticDevice | null;
   type?: IFdaSubmissionType | null;
-  biomarkerAssociations?: IBiomarkerAssociation[] | null;
 }
 
 export const defaultValue: Readonly<IFdaSubmission> = {

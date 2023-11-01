@@ -15,10 +15,10 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="sequence_type" type="varchar(255)">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="sequence" type="${clobType}">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="transcript_id" type="bigint">
                 <constraints nullable="true" />

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
+import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.domain.Transcript;
@@ -482,28 +483,28 @@ class FlagResourceIT {
 
     @Test
     @Transactional
-    void getAllFlagsByTranscriptIsEqualToSomething() throws Exception {
+    void getAllFlagsByDrugIsEqualToSomething() throws Exception {
         // Initialize the database
         flagRepository.saveAndFlush(flag);
-        Transcript transcript;
-        if (TestUtil.findAll(em, Transcript.class).isEmpty()) {
-            transcript = TranscriptResourceIT.createEntity(em);
-            em.persist(transcript);
+        Drug drug;
+        if (TestUtil.findAll(em, Drug.class).isEmpty()) {
+            drug = DrugResourceIT.createEntity(em);
+            em.persist(drug);
             em.flush();
         } else {
-            transcript = TestUtil.findAll(em, Transcript.class).get(0);
+            drug = TestUtil.findAll(em, Drug.class).get(0);
         }
-        em.persist(transcript);
+        em.persist(drug);
         em.flush();
-        flag.addTranscript(transcript);
+        flag.addDrug(drug);
         flagRepository.saveAndFlush(flag);
-        Long transcriptId = transcript.getId();
+        Long drugId = drug.getId();
 
-        // Get all the flagList where transcript equals to transcriptId
-        defaultFlagShouldBeFound("transcriptId.equals=" + transcriptId);
+        // Get all the flagList where drug equals to drugId
+        defaultFlagShouldBeFound("drugId.equals=" + drugId);
 
-        // Get all the flagList where transcript equals to (transcriptId + 1)
-        defaultFlagShouldNotBeFound("transcriptId.equals=" + (transcriptId + 1));
+        // Get all the flagList where drug equals to (drugId + 1)
+        defaultFlagShouldNotBeFound("drugId.equals=" + (drugId + 1));
     }
 
     @Test
@@ -530,6 +531,32 @@ class FlagResourceIT {
 
         // Get all the flagList where gene equals to (geneId + 1)
         defaultFlagShouldNotBeFound("geneId.equals=" + (geneId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllFlagsByTranscriptIsEqualToSomething() throws Exception {
+        // Initialize the database
+        flagRepository.saveAndFlush(flag);
+        Transcript transcript;
+        if (TestUtil.findAll(em, Transcript.class).isEmpty()) {
+            transcript = TranscriptResourceIT.createEntity(em);
+            em.persist(transcript);
+            em.flush();
+        } else {
+            transcript = TestUtil.findAll(em, Transcript.class).get(0);
+        }
+        em.persist(transcript);
+        em.flush();
+        flag.addTranscript(transcript);
+        flagRepository.saveAndFlush(flag);
+        Long transcriptId = transcript.getId();
+
+        // Get all the flagList where transcript equals to transcriptId
+        defaultFlagShouldBeFound("transcriptId.equals=" + transcriptId);
+
+        // Get all the flagList where transcript equals to (transcriptId + 1)
+        defaultFlagShouldNotBeFound("transcriptId.equals=" + (transcriptId + 1));
     }
 
     /**

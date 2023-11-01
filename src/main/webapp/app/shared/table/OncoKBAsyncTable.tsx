@@ -24,7 +24,7 @@ export type PaginationState<T> = {
 export const OncoKBAsyncTable = <T extends object>(props: IOncoKBAsyncTableProps<T>) => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [pageSize, setPageSize] = useState(props.defaultPageSize || ITEMS_PER_PAGE);
-  const [paginationState, setPaginationState] = useState(props.initialPaginationState);
+  const [paginationState, setPaginationState] = useState(props.initialPaginationState || { sort: 'id', activePage: 0, order: 'asc' });
 
   useEffect(() => {
     if (searchKeyword) {
