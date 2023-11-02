@@ -191,7 +191,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
         <Menu>
           <SubMenu label={props.account.firstName} icon={<FaUserCircle size={DEFAULT_NAV_ICON_SIZE} />}>
             <MenuItem component={<NavLink to={PAGE_ROUTE.ACCOUNT} />}>Account Settings</MenuItem>
-            <MenuItem component={<NavLink to={PAGE_ROUTE.ADMIN_USER_MANAGEMENT} />}>User Management</MenuItem>
+            {props.isAdmin && <MenuItem component={<NavLink to={PAGE_ROUTE.ADMIN_USER_MANAGEMENT} />}>User Management</MenuItem>}
           </SubMenu>
           <MenuItemCollapsible
             isCollapsed={props.isNavSidebarCollapsed}

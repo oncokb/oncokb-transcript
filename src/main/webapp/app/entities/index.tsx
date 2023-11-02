@@ -31,6 +31,7 @@ import SeqRegion from './seq-region';
 import Flag from './flag';
 import AlterationReferenceGenome from './alteration-reference-genome';
 import OncoKBBreadcrumb from 'app/shared/breadcrumb/OncoKBBreadcrumb';
+import PageNotFound from 'app/shared/error/page-not-found';
 /* jhipster-needle-add-route-import - JHipster will add routes here */
 
 const Routes = ({ match }) => (
@@ -69,6 +70,7 @@ const Routes = ({ match }) => (
       <ErrorBoundaryRoute path={`${match.url}alteration`} component={Alteration} />
       <ErrorBoundaryRoute path={`${match.url}article`} component={Article} />
       <ErrorBoundaryRoute path={`${match.url}alteration-reference-genome`} component={AlterationReferenceGenome} />
+      <ErrorBoundaryRoute exact component={PageNotFound} />
       {/* jhipster-needle-add-route-path - JHipster will add routes here */}
     </Switch>
   </div>
