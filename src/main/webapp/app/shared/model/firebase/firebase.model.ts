@@ -1,4 +1,4 @@
-import { GENE_TYPE, PENETRANCE } from 'app/config/constants';
+import { GENE_TYPE, GERMLINE_INHERITANCE_MECHANISM, PATHOGENICITY, PENETRANCE } from 'app/config/constants';
 import { generateUuid } from 'app/shared/util/utils';
 
 export type MetaCollection = {
@@ -168,13 +168,13 @@ export class MutationEffect {
 }
 
 export class GermlineMutation {
-  pathogenic = '';
+  pathogenic: `${PATHOGENICITY}` | '' = '';
   pathogenic_review?: Review;
   pathogenic_uuid: string = generateUuid();
-  penetrance = '';
+  penetrance: `${PENETRANCE}` | '' = '';
   penetrance_review?: Review;
   penetrance_uuid: string = generateUuid();
-  inheritanceMechanism: 'Autosomal Recessive' | 'Autosomal Dominant' | '' = '';
+  inheritanceMechanism: `${GERMLINE_INHERITANCE_MECHANISM}` | '' = '';
   inheritanceMechanism_review?: Review;
   inheritanceMechanism_uuid: string = generateUuid();
   cancerRisk = '';
