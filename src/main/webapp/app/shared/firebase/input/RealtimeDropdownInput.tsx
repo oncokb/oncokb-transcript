@@ -19,6 +19,8 @@ export interface IRealtimeDropdownInput extends SelectProps, StoreProps {
 const RealtimeDropdownInput = (props: IRealtimeDropdownInput) => {
   const { fieldKey, dropdownOptions, labelClass, label, updateReviewableContent, ...selectProps } = props;
 
+  const selectOptions = dropdownOptions.map(o => ({ label: o, value: o }));
+
   const onChangeHandler = (newValue, actionMeta) => {
     updateReviewableContent(getFirebasePath('GENE', props.data.name), fieldKey, newValue.value);
     if (props.onChange) {
@@ -29,7 +31,7 @@ const RealtimeDropdownInput = (props: IRealtimeDropdownInput) => {
     <div className="flex d-flex mb-2">
       <div>{props.label && <Label className={classNames(props.labelClass, 'mr-2', 'font-weight-bold')}>{props.label}:</Label>}</div>
       <div className="flex-grow-1">
-        <Select {...selectProps} onChange={onChangeHandler} />
+        <Select {...selectProps} onChange={onChangeHandler} options={selectOptions} />
       </div>
     </div>
   );
