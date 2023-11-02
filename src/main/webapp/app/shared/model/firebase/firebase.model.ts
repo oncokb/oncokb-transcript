@@ -1,8 +1,5 @@
+import { GENE_TYPE, PENETRANCE } from 'app/config/constants';
 import { generateUuid } from 'app/shared/util/utils';
-
-export const ONCOGENE = 'Oncogene';
-export const TUMOR_SUPPRESSOR = 'Tumor Suppressor';
-export type GeneTypeString = typeof ONCOGENE | typeof TUMOR_SUPPRESSOR;
 
 export type MetaCollection = {
   [hugoSymbol: string]: Meta;
@@ -17,6 +14,14 @@ export type MetaCollaborators = {
 export type DrugCollection = {
   [hugoSymbol: string]: Drug;
 };
+
+export enum ONCOGENICITY {
+  YES = 'Yes',
+  LIKELY = 'Likely',
+  LIKELY_NEUTRAL = 'Likely Neutral',
+  INCONCLUSIVE = 'Inconclusive',
+  RESISTANCE = 'Resistance',
+}
 
 export enum TX_LEVELS {
   LEVEL_NO = 'no',
@@ -107,7 +112,7 @@ export class Gene {
   summary = '';
   summary_review?: Review;
   summary_uuid: string = generateUuid();
-  penetrance? = '';
+  penetrance?: PENETRANCE | '' = '';
   penetrance_uuid? = generateUuid();
   penetrance_review?: Review;
   type: GeneType = new GeneType();
@@ -121,10 +126,10 @@ export class Gene {
 }
 
 export class GeneType {
-  ocg: typeof ONCOGENE | '' = '';
+  ocg: typeof GENE_TYPE.ONCOGENE | '' = '';
   ocg_review?: Review;
   ocg_uuid: string = generateUuid();
-  tsg: typeof TUMOR_SUPPRESSOR | '' = '';
+  tsg: typeof GENE_TYPE.TUMOR_SUPPRESSOR | '' = '';
   tsg_uuid: string = generateUuid();
   tsg_review?: Review;
 }

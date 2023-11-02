@@ -5,8 +5,8 @@ const mockRef = jest.fn().mockImplementation(db => {});
 import 'jest-expect-message';
 import { FirebaseGeneStore } from './firebase.gene.store';
 import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
-import { ONCOGENE, TUMOR_SUPPRESSOR } from 'app/shared/model/firebase/firebase.model';
 import FirebaseStore from './firebase.store';
+import { GENE_TYPE } from 'app/config/constants';
 
 jest.mock('firebase/database', () => {
   return {
@@ -16,6 +16,9 @@ jest.mock('firebase/database', () => {
   };
 });
 
+// @ts-ignore: Type instantiation is excessively deep and possibly infinite.
+// Complains because we have a recursive type to get all the keys starting from the Gene. We should see if we can
+// improve the type or if there's another way to eliminate this warning message.
 const updateReviewableContentMock = jest.spyOn(FirebaseReviewableCrudStore.prototype, 'updateReviewableContent').mockResolvedValue();
 
 class TestRootStore {
@@ -41,23 +44,23 @@ describe('FirebaseGeneStore', () => {
     it('should add oncogene to gene type', async () => {
       const store = new FirebaseGeneStore(rootStore);
 
-      await store.updateGeneType('Gene/ACKR3', 'Oncogene', true);
+      await store.updateReviewableContent('Gene/ACKR3', 'type/ocg', true);
 
-      expect(updateReviewableContentMock).toHaveBeenNthCalledWith(1, 'Gene/ACKR3', 'type/ocg', ONCOGENE);
+      expect(updateReviewableContentMock).toHaveBeenNthCalledWith(1, 'Gene/ACKR3', 'type/ocg', GENE_TYPE.ONCOGENE);
     });
 
     it('should add tumor suppressor to gene type', async () => {
       const store = new FirebaseGeneStore(rootStore);
 
-      await store.updateGeneType('Gene/ACKR3', 'Tumor Suppressor', true);
+      await store.updateReviewableContent('Gene/ACKR3', 'type/tsg', true);
 
-      expect(updateReviewableContentMock).toHaveBeenNthCalledWith(1, 'Gene/ACKR3', 'type/tsg', TUMOR_SUPPRESSOR);
+      expect(updateReviewableContentMock).toHaveBeenNthCalledWith(1, 'Gene/ACKR3', 'type/tsg', GENE_TYPE.TUMOR_SUPPRESSOR);
     });
 
     it('should remove oncogene from gene type', async () => {
       const store = new FirebaseGeneStore(rootStore);
 
-      await store.updateGeneType('Gene/ACKR3', 'Oncogene', false);
+      await store.updateReviewableContent('Gene/ACKR3', 'type/ocg', false);
 
       expect(updateReviewableContentMock).toHaveBeenNthCalledWith(1, 'Gene/ACKR3', 'type/ocg', '');
     });
@@ -65,7 +68,7 @@ describe('FirebaseGeneStore', () => {
     it('should remove tumor suppressor from gene type', async () => {
       const store = new FirebaseGeneStore(rootStore);
 
-      await store.updateGeneType('Gene/ACKR3', 'Tumor Suppressor', false);
+      await store.updateReviewableContent('Gene/ACKR3', 'type/tsg', false);
 
       expect(updateReviewableContentMock).toHaveBeenNthCalledWith(1, 'Gene/ACKR3', 'type/tsg', '');
     });

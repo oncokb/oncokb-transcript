@@ -1,3 +1,6 @@
+import { Gene } from 'app/shared/model/firebase/firebase.model';
+import { ExtractPathExpressions } from 'app/shared/util/firebase/firebase-crud-store';
+
 export const AUTHORITIES = {
   ADMIN: 'ROLE_ADMIN',
   USER: 'ROLE_USER',
@@ -181,6 +184,16 @@ export enum GERMLINE_INHERITANCE_MECHANISM {
   RECESSIVE = 'Autosomal Recessive',
   DOMINANT = 'Autosomal Dominant',
 }
+
+export enum GENE_TYPE {
+  TUMOR_SUPPRESSOR = 'Tumor Suppressor',
+  ONCOGENE = 'Oncogene',
+}
+
+export const GENE_TYPE_KEY: { [key in GENE_TYPE]: ExtractPathExpressions<Gene> } = {
+  [GENE_TYPE.ONCOGENE]: 'type/ocg',
+  [GENE_TYPE.TUMOR_SUPPRESSOR]: 'type/tsg',
+};
 
 export const CBIOPORTAL = 'cBioPortal';
 export const COSMIC = 'COSMIC';

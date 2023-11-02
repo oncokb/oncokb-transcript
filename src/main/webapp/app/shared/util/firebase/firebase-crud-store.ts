@@ -8,14 +8,17 @@ export type RecursivePartial<T> = {
   [P in keyof T]?: RecursivePartial<T[P]>;
 };
 
-/* eslint-disable @typescript-eslint/ban-types */
-export type RecursiveKeyOf<TObj extends object> = {
-  [TKey in keyof TObj & (string | number)]: TObj[TKey] extends any[]
-    ? `${TKey}`
-    : TObj[TKey] extends object
-    ? `${TKey}` | `${TKey}/${RecursiveKeyOf<TObj[TKey]>}`
-    : `${TKey}`;
-}[keyof TObj & (string | number)];
+// https://stackoverflow.com/questions/66621546/how-to-extract-path-expression-from-an-interface-in-typescript
+export type ExtractPathExpressions<T, Sep extends string = '/'> = Exclude<
+  keyof {
+    [P in Exclude<keyof T, symbol> as T[P] extends any[] | readonly any[]
+      ? P | `${P}/${number}` | `${P}/${number}${Sep}${Exclude<ExtractPathExpressions<T[P][number]>, keyof number | keyof string>}`
+      : T[P] extends { [x: string]: any }
+      ? `${P}${Sep}${ExtractPathExpressions<T[P]>}` | P
+      : P]: string;
+  },
+  symbol
+>;
 
 export class FirebaseCrudStore<T> {
   public data: Readonly<T> = undefined;

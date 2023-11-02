@@ -7,9 +7,10 @@ import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/load
 import {
   CBIOPORTAL,
   COSMIC,
+  GENE_TYPE,
+  GENE_TYPE_KEY,
   GERMLINE_INHERITANCE_MECHANISM,
   MUTATION_EFFECT,
-  ONCOGENICITY,
   PAGE_ROUTE,
   PATHOGENICITY,
   PENETRANCE,
@@ -17,15 +18,16 @@ import {
 import { PubmedGeneLink } from 'app/shared/links/PubmedGeneLink';
 import { InlineDivider, PubmedGeneArticlesLink } from 'app/shared/links/PubmedGeneArticlesLink';
 import { getCancerTypeName, getSectionClassName } from 'app/shared/util/utils';
-import { ONCOGENE, TUMOR_SUPPRESSOR } from 'app/shared/model/firebase/firebase.model';
 import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
 import WithSeparator from 'react-with-separator';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
-import { RealtimeBasicInput, RealtimeDropdownInput, RealtimeInputType } from 'app/shared/firebase/FirebaseRealtimeInput';
+import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/FirebaseRealtimeInput';
 import { getFirebasePath, getMutationName, getTxName } from 'app/shared/util/firebase/firebase-utils';
 import Collapsible, { NestLevel } from 'app/pages/curation/collapsible/Collapsible';
 import styles from './styles.module.scss';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { ONCOGENICITY, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -81,70 +83,35 @@ const CurationPage = (props: ICurationPageProps) => {
               </span>
             </div>
           </div>
-          <RealtimeBasicInput
-            data={props.data}
-            fieldKey="summary"
-            label="Summary"
-            labelClass="font-weight-bold"
-            name="geneSummary"
-            type={RealtimeInputType.TEXTAREA}
+          <RealtimeTextAreaInput fieldKey="summary" label="Summary" />
+          <RealtimeCheckedInputGroup
+            groupHeader="Gene Type"
+            options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
+              return {
+                label,
+                fieldKey: GENE_TYPE_KEY[label],
+              };
+            })}
           />
-          <div className="flex d-flex">
-            <RealtimeBasicInput
-              label="Tumor Supressor"
-              name="tumorSupressor"
-              type={RealtimeInputType.CHECKBOX}
-              checked={!!props.data.type?.tsg}
-              onChange={e => {
-                props.updateGeneType(firebaseGenePath, TUMOR_SUPPRESSOR, e.target.checked);
-              }}
-            />
-            <RealtimeBasicInput
-              className="ml-4"
-              label="Oncogene"
-              name="oncogene"
-              type={RealtimeInputType.CHECKBOX}
-              checked={!!props.data.type?.ocg}
-              onChange={e => {
-                props.updateGeneType(firebaseGenePath, ONCOGENE, e.target.checked);
-              }}
-            />
-          </div>
         </Col>
       </Row>
       <Row>
         <Col md={6}>
-          <div className="flex d-flex">
-            <span className="font-weight-bold">Penetrance:</span>
-            {['High', 'Intermediate', 'Low', 'Other'].map(label => {
-              return (
-                <RealtimeBasicInput
-                  key={label}
-                  className="ml-2"
-                  label={label}
-                  name={label.toLowerCase()}
-                  type={RealtimeInputType.CHECKBOX}
-                  checked={props.data.penetrance === label}
-                  onChange={e => {}}
-                />
-              );
+          <RealtimeCheckedInputGroup
+            groupHeader="Penetrance"
+            isRadio
+            options={[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER].map(label => {
+              return {
+                label,
+                fieldKey: 'penetrance',
+              };
             })}
-          </div>
+          />
         </Col>
       </Row>
       <Row className={'mb-5'}>
         <Col>
-          <RealtimeBasicInput
-            inputClass={styles.textarea}
-            label="Background"
-            labelClass="font-weight-bold"
-            name="geneBackground"
-            type={RealtimeInputType.TEXTAREA}
-            value={props.data.background || ''}
-            onChange={e => {
-              props.updateReviewableContent(firebaseGenePath, 'background', e.target.value);
-            }}
-          />
+          <RealtimeTextAreaInput fieldKey="background" inputClass={styles.textarea} label="Background" name="geneBackground" />
           <div className="mb-2">
             <AutoParseRefField summary={props.data.background} />
           </div>
@@ -177,164 +144,114 @@ const CurationPage = (props: ICurationPageProps) => {
             .filter(mutation => {
               return !mutationFilter || getMutationName(mutation).toLowerCase().includes(mutationFilter.toLowerCase());
             })
-            .map((mutation, index) => (
-              <Row key={index} className={'mb-2'}>
+            .map((mutation, mutationIndex) => (
+              <Row key={mutationIndex} className={'mb-2'}>
                 <Col>
                   <Collapsible nestLevel={NestLevel.MUTATION} className={'mb-1'} title={`Mutation: ${getMutationName(mutation)}`}>
                     <Collapsible nestLevel={NestLevel.MUTATION_EFFECT} title={'Mutation Effect'}>
                       <Collapsible nestLevel={NestLevel.BIOLOGICAL_EFFECT} title={'Biological Effect'}>
-                        <div className="flex d-flex">
-                          <span className="font-weight-bold text-nowrap">Mutation Effect:</span>
-                          <span className="d-flex flex-wrap">
-                            {[
-                              MUTATION_EFFECT.GAIN_OF_FUNCTION,
-                              MUTATION_EFFECT.LIKELY_GAIN_OF_FUNCTION,
-                              MUTATION_EFFECT.LOSS_OF_FUNCTION,
-                              MUTATION_EFFECT.LIKELY_LOSS_OF_FUNCTION,
-                              MUTATION_EFFECT.SWITCH_OF_FUNCTION,
-                              MUTATION_EFFECT.LIKELY_SWITCH_OF_FUNCTION,
-                              MUTATION_EFFECT.NEUTRAL,
-                              MUTATION_EFFECT.LIKELY_NEUTRAL,
-                              MUTATION_EFFECT.INCONCLUSIVE,
-                            ].map(label => {
-                              return (
-                                <RealtimeBasicInput
-                                  key={label}
-                                  className="ml-2"
-                                  label={label}
-                                  name={label.toLowerCase()}
-                                  type={RealtimeInputType.CHECKBOX}
-                                  checked={mutation.mutation_effect.effect === label}
-                                  onChange={e => {}}
-                                />
-                              );
-                            })}
-                          </span>
-                        </div>
-                        <RealtimeBasicInput
+                        <RealtimeCheckedInputGroup
+                          groupHeader="Mutation Effect"
+                          isRadio
+                          options={[
+                            MUTATION_EFFECT.GAIN_OF_FUNCTION,
+                            MUTATION_EFFECT.LIKELY_GAIN_OF_FUNCTION,
+                            MUTATION_EFFECT.LOSS_OF_FUNCTION,
+                            MUTATION_EFFECT.LIKELY_LOSS_OF_FUNCTION,
+                            MUTATION_EFFECT.SWITCH_OF_FUNCTION,
+                            MUTATION_EFFECT.LIKELY_SWITCH_OF_FUNCTION,
+                            MUTATION_EFFECT.NEUTRAL,
+                            MUTATION_EFFECT.LIKELY_NEUTRAL,
+                            MUTATION_EFFECT.INCONCLUSIVE,
+                          ].map(label => ({
+                            label,
+                            fieldKey: `mutations/${mutationIndex}/mutation_effect/effect`,
+                          }))}
+                        />
+                        <RealtimeTextAreaInput
+                          fieldKey={`mutations/${mutationIndex}/mutation_effect/description`}
                           inputClass={styles.textarea}
                           label="Description of Evidence"
-                          labelClass="font-weight-bold"
                           name="description"
-                          type={RealtimeInputType.TEXTAREA}
-                          value={mutation.mutation_effect.description || ''}
-                          onChange={e => {}}
                         />
                       </Collapsible>
                       <Collapsible nestLevel={NestLevel.SOMATIC} className={'mt-2'} title={'Somatic'}>
-                        <div className="flex d-flex">
-                          <span className="font-weight-bold">Oncogenic:</span>
-                          {[
-                            ONCOGENICITY.ONCOGENIC,
-                            ONCOGENICITY.LIKELY_ONCOGENIC,
+                        <RealtimeCheckedInputGroup
+                          groupHeader="Oncogenic"
+                          isRadio
+                          options={[
+                            ONCOGENICITY.YES,
+                            ONCOGENICITY.LIKELY,
                             ONCOGENICITY.LIKELY_NEUTRAL,
                             ONCOGENICITY.INCONCLUSIVE,
-                          ].map(label => {
-                            return (
-                              <RealtimeBasicInput
-                                key={label}
-                                className="ml-2"
-                                label={label}
-                                name={label.toLowerCase()}
-                                type={RealtimeInputType.CHECKBOX}
-                                checked={mutation.mutation_effect.oncogenic === label}
-                                onChange={e => {}}
-                              />
-                            );
-                          })}
-                        </div>
+                            ONCOGENICITY.RESISTANCE,
+                          ].map(label => ({
+                            label,
+                            fieldKey: `mutations/${mutationIndex}/mutation_effect/oncogenic`,
+                          }))}
+                        />
                       </Collapsible>
                       {mutation.mutation_effect.germline && (
                         <Collapsible nestLevel={NestLevel.GERMLINE} className={'mt-2'} title={'Germline'}>
-                          <div className="flex d-flex">
-                            <span className="font-weight-bold">Pathogenic:</span>
-                            {[
+                          <RealtimeCheckedInputGroup
+                            groupHeader="Pathogenic"
+                            isRadio
+                            options={[
                               PATHOGENICITY.PATHOGENIC,
                               PATHOGENICITY.LIKELY_PATHOGENIC,
                               PATHOGENICITY.BENIGN,
                               PATHOGENICITY.LIKELY_BENIGN,
                               PATHOGENICITY.UNKNOWN,
-                            ].map(label => {
-                              return (
-                                <RealtimeBasicInput
-                                  key={label}
-                                  className="ml-2"
-                                  label={label}
-                                  name={label.toLowerCase()}
-                                  type={RealtimeInputType.CHECKBOX}
-                                  checked={mutation.mutation_effect.germline.pathogenic === label}
-                                  onChange={e => {}}
-                                />
-                              );
-                            })}
-                          </div>
-                          <div className="flex d-flex">
-                            <span className="font-weight-bold">Penetrance:</span>
-                            {[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER].map(label => {
-                              return (
-                                <RealtimeBasicInput
-                                  key={label}
-                                  className="ml-2"
-                                  label={label}
-                                  name={label.toLowerCase()}
-                                  type={RealtimeInputType.CHECKBOX}
-                                  checked={mutation.mutation_effect.germline.penetrance === label}
-                                  onChange={e => {}}
-                                />
-                              );
-                            })}
-                          </div>
-                          <div className="flex d-flex">
-                            <span className="font-weight-bold">Mechanism of Inheritance:</span>
-                            {[GERMLINE_INHERITANCE_MECHANISM.RECESSIVE, GERMLINE_INHERITANCE_MECHANISM.DOMINANT].map(label => {
-                              return (
-                                <RealtimeBasicInput
-                                  key={label}
-                                  className="ml-2"
-                                  label={label}
-                                  name={label.toLowerCase()}
-                                  type={RealtimeInputType.CHECKBOX}
-                                  checked={mutation.mutation_effect.germline.inheritanceMechanism === label}
-                                  onChange={e => {}}
-                                />
-                              );
-                            })}
-                          </div>
-                          <RealtimeBasicInput
+                            ].map(label => ({
+                              label,
+                              fieldKey: `mutations/${mutationIndex}/mutation_effect/germline/pathogenic`,
+                            }))}
+                          />
+                          <RealtimeCheckedInputGroup
+                            groupHeader="Penetrance"
+                            isRadio
+                            options={[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER].map(label => ({
+                              label,
+                              fieldKey: `mutations/${mutationIndex}/mutation_effect/germline/penetrance`,
+                            }))}
+                          />
+                          <RealtimeCheckedInputGroup
+                            groupHeader="Mechanism of Inheritance"
+                            isRadio
+                            options={[GERMLINE_INHERITANCE_MECHANISM.RECESSIVE, GERMLINE_INHERITANCE_MECHANISM.DOMINANT].map(label => ({
+                              label,
+                              fieldKey: `mutations/${mutationIndex}/mutation_effect/germline/inheritanceMechanism`,
+                            }))}
+                          />
+                          <RealtimeTextAreaInput
+                            fieldKey={`mutations/${mutationIndex}/mutation_effect/germline/cancerRisk`}
                             inputClass={styles.textarea}
                             label="Cancer Risk"
-                            labelClass="font-weight-bold"
                             name="cancerRisk"
-                            type={RealtimeInputType.TEXTAREA}
-                            value={mutation.mutation_effect.germline.cancerRisk || ''}
-                            onChange={e => {}}
                           />
                         </Collapsible>
                       )}
                     </Collapsible>
                     {mutation.tumors &&
-                      mutation.tumors.map(tumor => (
+                      mutation.tumors.map((tumor, tumorIndex) => (
                         <Collapsible
                           className={'mt-2'}
                           key={tumor.cancerTypes_uuid}
                           nestLevel={NestLevel.CANCER_TYPE}
                           title={`Cancer Type: ${tumor.cancerTypes.map(cancerType => getCancerTypeName(cancerType)).join(', ')}`}
                         >
-                          <RealtimeBasicInput
+                          <RealtimeTextAreaInput
+                            fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/summary`}
                             inputClass={styles.textarea}
                             label="Therapeutic Summary (Optional)"
-                            labelClass="font-weight-bold"
                             name="txSummary"
-                            type={RealtimeInputType.TEXTAREA}
-                            value={tumor.summary || ''}
-                            onChange={e => {}}
                           />
-                          {tumor.TIs.reduce((accumulator, ti) => {
+                          {tumor.TIs.reduce((accumulator, ti, tiIndex) => {
                             if (!ti.treatments) {
                               return accumulator;
                             }
                             return accumulator.concat(
-                              ti.treatments.map(treatment => {
+                              ti.treatments.map((treatment, treatmentIndex) => {
                                 return (
                                   <Collapsible
                                     className={'mt-2'}
@@ -342,46 +259,35 @@ const CurationPage = (props: ICurationPageProps) => {
                                     nestLevel={NestLevel.THERAPY}
                                     title={`Therapy: ${getTxName(props.drugList, treatment.name)}`}
                                   >
-                                    <RealtimeBasicInput
+                                    <RealtimeDropdownInput
+                                      fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
                                       label="Highest level of evidence"
-                                      labelClass="font-weight-bold"
                                       name="level"
-                                      type={RealtimeInputType.INLINE_TEXT}
-                                      value={treatment.level || ''}
-                                      onChange={e => {}}
+                                      dropdownOptions={[TX_LEVELS.LEVEL_NO, TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_2]}
                                     />
-                                    <RealtimeBasicInput
+                                    <RealtimeDropdownInput
+                                      fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagation`}
                                       label="Level of Evidence in other solid tumor types"
-                                      labelClass="font-weight-bold"
                                       name="propagationLevel"
-                                      type={RealtimeInputType.INLINE_TEXT}
-                                      value={treatment.propagation || ''}
-                                      onChange={e => {}}
+                                      dropdownOptions={[]} // Todo
                                     />
-                                    <RealtimeBasicInput
+                                    <RealtimeDropdownInput
+                                      fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagationLiquid`}
                                       label="Level of Evidence in other liquid tumor types"
-                                      labelClass="font-weight-bold"
                                       name="propagationLiquidLevel"
-                                      type={RealtimeInputType.INLINE_TEXT}
-                                      value={treatment.propagationLiquid || ''}
-                                      onChange={e => {}}
+                                      dropdownOptions={[]}
                                     />
-                                    <RealtimeBasicInput
+                                    <RealtimeDropdownInput
+                                      fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/fdaLevel`}
                                       label="FDA Level of Evidence"
-                                      labelClass="font-weight-bold"
                                       name="propagationLiquidLevel"
-                                      type={RealtimeInputType.INLINE_TEXT}
-                                      value={treatment.fdaLevel || ''}
-                                      onChange={e => {}}
+                                      dropdownOptions={[]}
                                     />
-                                    <RealtimeBasicInput
+                                    <RealtimeTextAreaInput
+                                      fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/description`}
                                       inputClass={styles.textarea}
                                       label="Description of Evidence"
-                                      labelClass="font-weight-bold"
                                       name="evidenceDescription"
-                                      type={RealtimeInputType.TEXTAREA}
-                                      value={treatment.description || ''}
-                                      onChange={e => {}}
                                     />
                                     <div className="mb-2">
                                       <AutoParseRefField summary={treatment.description} />
@@ -413,7 +319,6 @@ const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, fire
   update: firebaseGeneStore.update,
   updateReviewableContent: firebaseGeneStore.updateReviewableContent,
   addMetaCollaboratorsListener: firebaseMetaStore.addMetaCollaboratorsListener,
-  updateGeneType: firebaseGeneStore.updateGeneType,
   metaData: firebaseMetaStore.data,
   drugList: firebaseDrugsStore.drugList,
   addDrugListListener: firebaseDrugsStore.addDrugListListener,
