@@ -80,8 +80,7 @@ export class AuthStore extends BaseStore {
   }
 
   get isAuthorized() {
-    const authorizedRoles = [AUTHORITIES.ADMIN, AUTHORITIES.USER];
-    return hasAnyAuthority(this.account.authorities, authorizedRoles);
+    return this.isAuthenticated && this.account?.authorities?.length !== 0;
   }
 
   get fullName() {

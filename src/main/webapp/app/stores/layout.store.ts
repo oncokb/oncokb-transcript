@@ -1,4 +1,5 @@
 import { action, observable, makeObservable, computed } from 'mobx';
+import { IRootStore } from './createStore';
 
 const SPACE_BETWEEN = 15;
 
@@ -12,7 +13,7 @@ export class LayoutStore {
   public showCurationPanel = false;
   public curationPanelWidth = CURATION_PANEL_WIDTH;
 
-  constructor() {
+  constructor(protected rootStore: IRootStore) {
     makeObservable(this, {
       isNavigationSidebarCollapsed: observable,
       toggleNavigationSidebar: action.bound,
@@ -31,7 +32,8 @@ export class LayoutStore {
 
   get centerContentMargin() {
     const rightMargin = this.showCurationPanel ? this.curationPanelWidth + SPACE_BETWEEN : 0;
-    return `0 ${rightMargin}px 0 ${this.navigationSidebarWidth + SPACE_BETWEEN}px`;
+    const leftMargin = this.rootStore.authStore.isAuthorized ? this.navigationSidebarWidth + SPACE_BETWEEN : 0;
+    return `0 ${rightMargin}px 0 ${leftMargin}px`;
   }
 
   toggleCurationPanel(value: boolean) {
