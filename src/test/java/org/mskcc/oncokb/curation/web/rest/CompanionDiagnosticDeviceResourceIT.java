@@ -232,24 +232,6 @@ class CompanionDiagnosticDeviceResourceIT {
             .andExpect(jsonPath("$.[*].lastUpdated").value(hasItem(DEFAULT_LAST_UPDATED.toString())));
     }
 
-    @SuppressWarnings({ "unchecked" })
-    void getAllCompanionDiagnosticDevicesWithEagerRelationshipsIsEnabled() throws Exception {
-        when(companionDiagnosticDeviceServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restCompanionDiagnosticDeviceMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(companionDiagnosticDeviceServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllCompanionDiagnosticDevicesWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(companionDiagnosticDeviceServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restCompanionDiagnosticDeviceMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(companionDiagnosticDeviceServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
     @Test
     @Transactional
     void getCompanionDiagnosticDevice() throws Exception {
