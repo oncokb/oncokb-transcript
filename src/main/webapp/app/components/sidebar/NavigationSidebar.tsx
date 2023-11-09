@@ -166,25 +166,31 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
 
         <div style={{ flex: '1 1 0%', overflowY: 'auto', minHeight: '200px' }}>
           <Menu>
-            <MenuItemCollapsible
-              isCollapsed={props.isNavSidebarCollapsed}
-              text="Curation"
-              icon={<FiFileText size={DEFAULT_NAV_ICON_SIZE} />}
-              nav={<NavLink to={PAGE_ROUTE.CURATION} />}
-            />
-            <MenuItemCollapsible
-              isCollapsed={props.isNavSidebarCollapsed}
-              text={'Search'}
-              icon={<BiSearchAlt size={DEFAULT_NAV_ICON_SIZE} />}
-              nav={<NavLink to={PAGE_ROUTE.SEARCH} />}
-            />
-            <SubMenu defaultOpen label="Entities" icon={<GoDatabase size={DEFAULT_NAV_ICON_SIZE} />}>
-              {entityMenuOrder.map(entityType => (
-                <PriorityEntityMenuItem key={entityType} type={entityType} handlePriorityMenuItemClick={handlePriorityMenuItemClick}>
-                  {ENTITY_MENU_NAME[entityType]}
-                </PriorityEntityMenuItem>
-              ))}
-            </SubMenu>
+            {props.isCurator && (
+              <MenuItemCollapsible
+                isCollapsed={props.isNavSidebarCollapsed}
+                text="Curation"
+                icon={<FiFileText size={DEFAULT_NAV_ICON_SIZE} />}
+                nav={<NavLink to={PAGE_ROUTE.CURATION} />}
+              />
+            )}
+            {props.isUser && (
+              <>
+                <MenuItemCollapsible
+                  isCollapsed={props.isNavSidebarCollapsed}
+                  text={'Search'}
+                  icon={<BiSearchAlt size={DEFAULT_NAV_ICON_SIZE} />}
+                  nav={<NavLink to={PAGE_ROUTE.SEARCH} />}
+                />
+                <SubMenu defaultOpen label="Entities" icon={<GoDatabase size={DEFAULT_NAV_ICON_SIZE} />}>
+                  {entityMenuOrder.map(entityType => (
+                    <PriorityEntityMenuItem key={entityType} type={entityType} handlePriorityMenuItemClick={handlePriorityMenuItemClick}>
+                      {ENTITY_MENU_NAME[entityType]}
+                    </PriorityEntityMenuItem>
+                  ))}
+                </SubMenu>
+              </>
+            )}
           </Menu>
         </div>
         <MenuDivider />
@@ -219,6 +225,8 @@ const mapStoreToProps = ({ layoutStore, authStore }: IRootStore) => ({
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,
   isAuthenticated: authStore.isAuthenticated,
   isAdmin: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.ADMIN]),
+  isCurator: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.CURATOR]),
+  isUser: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.USER]),
   account: authStore.account,
 });
 
@@ -228,6 +236,8 @@ type StoreProps = {
   navigationSidebarWidth?: number;
   isAuthenticated?: boolean;
   isAdmin?: boolean;
+  isCurator?: boolean;
+  isUser?: boolean;
   account?: IUser;
 };
 

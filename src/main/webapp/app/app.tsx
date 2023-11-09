@@ -25,11 +25,11 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
 
   useEffect(() => {
     let authSubscriber = undefined;
-    if (props.hasFirebaseAccess) {
+    if (props.isCurator) {
       authSubscriber = props.initializeFirebase();
     }
     return () => authSubscriber && authSubscriber();
-  }, [props.hasFirebaseAccess]);
+  }, [props.isCurator]);
 
   return (
     <Router basename={baseHref}>
@@ -51,7 +51,7 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
 
 const mapStoreToProps = ({ authStore, layoutStore, firebaseStore }: IRootStore) => ({
   isAuthorized: authStore.isAuthorized,
-  hasFirebaseAccess: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.FIREBASE]),
+  isCurator: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.CURATOR]),
   getSession: authStore.getSession,
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,
   toggleNavSidebar: layoutStore.toggleNavigationSidebar,

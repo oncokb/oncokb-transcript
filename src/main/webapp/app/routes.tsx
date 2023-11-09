@@ -35,8 +35,8 @@ const Routes = () => {
             <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGOUT} component={Logout} />
             <ErrorBoundaryRoute exact path={PAGE_ROUTE.OAUTH} component={LoginRedirect} />
             <PrivateRoute exact path={PAGE_ROUTE.SEARCH} component={SearchPage} />
-            <PrivateRoute exact path={PAGE_ROUTE.CURATION} component={GeneListPage} hasAnyAuthorities={[AUTHORITIES.FIREBASE]} />
-            <PrivateRoute exact path={PAGE_ROUTE.CURATION_GENE} component={CurationPage} hasAnyAuthorities={[AUTHORITIES.FIREBASE]} />
+            <PrivateRoute exact path={PAGE_ROUTE.CURATION} component={GeneListPage} hasAnyAuthorities={[AUTHORITIES.CURATOR]} />
+            <PrivateRoute exact path={PAGE_ROUTE.CURATION_GENE} component={CurationPage} hasAnyAuthorities={[AUTHORITIES.CURATOR]} />
             <PrivateRoute exact path={PAGE_ROUTE.ACCOUNT} component={Account} hasAnyAuthorities={[AUTHORITIES.ADMIN, AUTHORITIES.USER]} />
             <PrivateRoute path="/admin" component={Admin} hasAnyAuthorities={[AUTHORITIES.ADMIN]} />
             <PrivateRoute path="/" component={Entities} hasAnyAuthorities={[AUTHORITIES.USER]} />

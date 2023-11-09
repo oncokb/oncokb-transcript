@@ -54,7 +54,7 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         // When we use the OncoKB public user table, then an activated user is not neccesarily
         // allowed to access this service. We will need to add a ROLE_CURATOR role to public
         // and check that the role exists here.
-        if (optionalUser.isPresent() && optionalUser.get().isActivated()) {
+        if (optionalUser.isPresent() && optionalUser.get().isActivated() && !optionalUser.get().getAuthorities().isEmpty()) {
             UserDTO user = optionalUser.get();
             if (keycloakUser.getImageUrl() != null) {
                 user.setImageUrl(keycloakUser.getImageUrl());
@@ -88,8 +88,8 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     }
 
     private void addFirebaseTokenToAuthToken(OAuth2AuthenticationToken authenticationWithAuthorities) {
-        // Create a custom token for frontend Firebase authentication if user has ROLE_FIREBASE role
-        if (SecurityUtils.hasAuthenticationAnyOfAuthorities(authenticationWithAuthorities, AuthoritiesConstants.FIREBASE)) {
+        // Create a custom token for frontend Firebase authentication if user has ROLE_CURATOR role
+        if (SecurityUtils.hasAuthenticationAnyOfAuthorities(authenticationWithAuthorities, AuthoritiesConstants.CURATOR)) {
             String email = authenticationWithAuthorities.getPrincipal().getAttribute("email");
             String firebaseCustomToken = null;
             try {

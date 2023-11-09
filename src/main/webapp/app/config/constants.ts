@@ -1,7 +1,7 @@
 export const AUTHORITIES = {
   ADMIN: 'ROLE_ADMIN',
   USER: 'ROLE_USER',
-  FIREBASE: 'ROLE_FIREBASE',
+  CURATOR: 'ROLE_CURATOR',
 };
 
 export const messages = {
@@ -123,6 +123,7 @@ export enum SearchOptionType {
 export enum USER_AUTHORITY {
   ROLE_USER = 'ROLE_USER',
   ROLE_ADMIN = 'ROLE_ADMIN',
+  ROLE_CURATOR = 'ROLE_CURATOR',
 }
 
 export const DEFAULT_SORT_PARAMETER = 'id,ASC';

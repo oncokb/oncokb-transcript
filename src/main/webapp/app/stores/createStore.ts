@@ -156,7 +156,7 @@ export function createStores(history: History): IRootStore {
   rootStore.settingsStore = new SettingsStore(rootStore);
   rootStore.userStore = new UserStore(rootStore);
   rootStore.routerStore = new RouterStore(history);
-  rootStore.layoutStore = new LayoutStore();
+  rootStore.layoutStore = new LayoutStore(rootStore);
   rootStore.sequenceStore = new SequenceStore(rootStore);
   rootStore.transcriptStore = new TranscriptStore(rootStore);
   rootStore.infoStore = new InfoStore(rootStore);
