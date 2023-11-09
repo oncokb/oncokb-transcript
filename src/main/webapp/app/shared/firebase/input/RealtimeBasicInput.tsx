@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
-import { Input, Label } from 'reactstrap';
+import { Input, Label, LabelProps } from 'reactstrap';
 import { InputType } from 'reactstrap/es/Input';
 import classnames from 'classnames';
 import { ExtractPathExpressions } from '../../util/firebase/firebase-crud-store';
@@ -9,6 +9,25 @@ import { IRootStore } from 'app/stores';
 import { RealtimeInputType } from './FirebaseRealtimeInput';
 import { inject } from 'mobx-react';
 import { getFirebasePath, getValueByNestedKey } from 'app/shared/util/firebase/firebase-utils';
+
+export interface IRealtimeBasicLabel extends LabelProps {
+  id: string;
+  label: string;
+  labelClass?: string;
+}
+export const RealtimeBasicLabel: React.FunctionComponent<IRealtimeBasicLabel> = ({
+  label,
+  labelClass,
+  id,
+  ...labelProps
+}: IRealtimeBasicLabel) => {
+  const labelComponent = (
+    <Label {...labelProps} id={id} for={id} className={classnames(labelClass, 'text-nowrap')}>
+      {label}
+    </Label>
+  );
+  return labelComponent;
+};
 
 export type RealtimeBasicInput = Exclude<RealtimeInputType, RealtimeInputType.DROPDOWN>;
 
@@ -39,12 +58,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   const isCheckType = type === RealtimeInputType.CHECKBOX || type === RealtimeInputType.RADIO;
   const isInlineInputText = type === RealtimeInputType.INLINE_TEXT;
 
-  const labelComponent = label && (
-    <Label id={id} for={id} className={classnames(labelClass, 'text-nowrap', !isCheckType && 'font-weight-bold')}>
-      {label}
-    </Label>
-  );
-
+  const labelComponent = label && <RealtimeBasicLabel label={label} id={id} labelClass={isCheckType ? '' : 'font-weight-bold'} />;
   const inputValue = getValueByNestedKey(data, fieldKey);
   const inputChangeHandler = e => {
     const updateValue = isCheckType ? (e.target.checked ? label : '') : e.target.value;

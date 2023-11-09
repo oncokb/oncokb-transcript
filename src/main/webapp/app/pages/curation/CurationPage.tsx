@@ -7,14 +7,12 @@ import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/load
 import {
   CBIOPORTAL,
   COSMIC,
-  GENE_TYPE,
-  GENE_TYPE_KEY,
   GERMLINE_INHERITANCE_MECHANISM,
   MUTATION_EFFECT,
   PAGE_ROUTE,
   PATHOGENICITY,
   PENETRANCE,
-} from 'app/config/constants';
+} from 'app/config/constants/constants';
 import { PubmedGeneLink } from 'app/shared/links/PubmedGeneLink';
 import { InlineDivider, PubmedGeneArticlesLink } from 'app/shared/links/PubmedGeneArticlesLink';
 import { getCancerTypeName, getSectionClassName } from 'app/shared/util/utils';
@@ -28,6 +26,7 @@ import styles from './styles.module.scss';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { ONCOGENICITY, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
+import { GENE_TYPE, GENE_TYPE_KEY } from 'app/config/constants/firebase';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -263,25 +262,25 @@ const CurationPage = (props: ICurationPageProps) => {
                                       fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
                                       label="Highest level of evidence"
                                       name="level"
-                                      dropdownOptions={[TX_LEVELS.LEVEL_NO, TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_2]}
+                                      options={[TX_LEVELS.LEVEL_NO, TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_2]}
                                     />
                                     <RealtimeDropdownInput
                                       fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagation`}
                                       label="Level of Evidence in other solid tumor types"
                                       name="propagationLevel"
-                                      dropdownOptions={[]} // Todo
+                                      options={[]} // Todo
                                     />
                                     <RealtimeDropdownInput
                                       fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagationLiquid`}
                                       label="Level of Evidence in other liquid tumor types"
                                       name="propagationLiquidLevel"
-                                      dropdownOptions={[]}
+                                      options={[]}
                                     />
                                     <RealtimeDropdownInput
                                       fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/fdaLevel`}
                                       label="FDA Level of Evidence"
                                       name="propagationLiquidLevel"
-                                      dropdownOptions={[]}
+                                      options={[]}
                                     />
                                     <RealtimeTextAreaInput
                                       fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/description`}
