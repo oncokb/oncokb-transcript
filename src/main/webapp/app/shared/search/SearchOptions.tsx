@@ -5,7 +5,7 @@ import { IArticle } from 'app/shared/model/article.model';
 import { IDrug } from 'app/shared/model/drug.model';
 import { IGene } from 'app/shared/model/gene.model';
 import { IAlteration } from 'app/shared/model/alteration.model';
-import { PAGE_ROUTE, SearchOptionType } from 'app/config/constants';
+import { PAGE_ROUTE, SearchOptionType } from 'app/config/constants/constants';
 import { EntitySelectOption, SelectText } from '../select/SelectOption';
 
 type SearchOptionProps = {

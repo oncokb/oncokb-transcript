@@ -1,4 +1,5 @@
-import { GENE_TYPE, GERMLINE_INHERITANCE_MECHANISM, PATHOGENICITY, PENETRANCE } from 'app/config/constants';
+import { GERMLINE_INHERITANCE_MECHANISM, PATHOGENICITY, PENETRANCE } from 'app/config/constants/constants';
+import { GENE_TYPE } from 'app/config/constants/firebase';
 import { generateUuid } from 'app/shared/util/utils';
 
 export type MetaCollection = {

@@ -8,7 +8,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import { IRootStore } from 'app/stores';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
-import { AUTHORITIES } from 'app/config/constants';
+import { AUTHORITIES } from 'app/config/constants/constants';
 import AppRoutes from 'app/routes';
 import NavigationSidebar from 'app/components/sidebar/NavigationSidebar';
 import CurationPanel from './components/curationPanel/CurationPanel';

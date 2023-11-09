@@ -6,7 +6,7 @@ import 'jest-expect-message';
 import { FirebaseGeneStore } from './firebase.gene.store';
 import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
 import FirebaseStore from './firebase.store';
-import { GENE_TYPE } from 'app/config/constants';
+import { GENE_TYPE } from 'app/config/constants/firebase';
 
 jest.mock('firebase/database', () => {
   return {

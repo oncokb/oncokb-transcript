@@ -3,7 +3,7 @@ import { Props as SelectProps } from 'react-select';
 import _ from 'lodash';
 import { AsyncPaginate, reduceGroupedOptions } from 'react-select-async-paginate';
 import { defaultAdditional } from 'app/components/curationPanel/CompanionDiagnosticDevicePanel';
-import { DEFAULT_SORT_PARAMETER, SearchOptionType } from 'app/config/constants';
+import { DEFAULT_SORT_PARAMETER, SearchOptionType } from 'app/config/constants/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { connect } from '../util/typed-inject';
 import { ICancerType } from '../model/cancer-type.model';

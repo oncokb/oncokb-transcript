@@ -6,7 +6,7 @@ import { Translate } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IAlterationReferenceGenome } from 'app/shared/model/alteration-reference-genome.model';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 export interface IAlterationReferenceGenomeProps extends StoreProps, RouteComponentProps<{ url: string }> {}

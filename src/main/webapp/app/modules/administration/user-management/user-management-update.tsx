@@ -7,7 +7,7 @@ import { IRootStore } from 'app/stores/createStore';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import ValidatedForm from 'app/shared/form/ValidatedForm';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
-import { USER_AUTHORITY } from 'app/config/constants';
+import { USER_AUTHORITY } from 'app/config/constants/constants';
 
 export interface IUserManagementUpdateProps extends StoreProps, RouteComponentProps<{ login: string }> {}
 

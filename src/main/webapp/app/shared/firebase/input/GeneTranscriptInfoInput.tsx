@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row, Col } from 'reactstrap';
-import { REFERENCE_GENOME } from 'app/config/constants';
+import { REFERENCE_GENOME } from 'app/config/constants/constants';
 import { RealtimeInputType, RealtimeTextInput } from 'app/shared/firebase/input/FirebaseRealtimeInput';
 import RealtimeBasicInput from './RealtimeBasicInput';
 

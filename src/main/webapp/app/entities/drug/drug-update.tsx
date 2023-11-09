@@ -6,7 +6,7 @@ import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 export interface IDrugUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 

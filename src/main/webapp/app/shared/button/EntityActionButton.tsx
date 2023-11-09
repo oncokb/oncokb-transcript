@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, ButtonProps } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import { getEntityActionRoute } from '../util/RouteUtils';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

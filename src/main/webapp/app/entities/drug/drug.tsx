@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { IDrug } from 'app/shared/model/drug.model';
 import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import OncoKBAsyncTable, { PaginationState } from 'app/shared/table/OncoKBAsyncTable';
 import { getEntityTableActionsColumn, getPaginationFromSearchParams } from 'app/shared/util/utils';

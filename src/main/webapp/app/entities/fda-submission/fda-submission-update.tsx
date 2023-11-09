@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Button, Row, Col } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { FDA_SUBMISSION_REGEX } from 'app/config/constants';
+import { FDA_SUBMISSION_REGEX } from 'app/config/constants/constants';
 import FormSection from 'app/shared/form/FormSection';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
 import ValidatedForm from 'app/shared/form/ValidatedForm';

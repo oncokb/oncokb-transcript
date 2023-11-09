@@ -3,7 +3,7 @@ import { FirebaseCrudStore } from 'app/shared/util/firebase/firebase-crud-store'
 import { IRootStore } from '../createStore';
 import { action, makeObservable, observable } from 'mobx';
 import { onValue, ref } from 'firebase/database';
-import { FB_COLLECTION } from 'app/config/constants';
+import { FB_COLLECTION } from 'app/config/constants/firebase';
 
 export class FirebaseDrugsStore extends FirebaseCrudStore<Drug> {
   public drugList: DrugCollection = undefined;

@@ -6,7 +6,7 @@ import { byteSize, Translate, getSortState, JhiPagination, JhiItemCount } from '
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { ISequence } from 'app/shared/model/sequence.model';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants/constants';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 

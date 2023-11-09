@@ -6,7 +6,7 @@ import Logout from 'app/pages/login/logout';
 import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoute from 'app/shared/error/error-boundary-route';
 import PageNotFound from 'app/shared/error/page-not-found';
-import { AUTHORITIES, PAGE_ROUTE } from 'app/config/constants';
+import { AUTHORITIES, PAGE_ROUTE } from 'app/config/constants/constants';
 import SearchPage from './pages/SearchPage';
 import LoginRedirect from './pages/login/login-redirect';
 import Entities from 'app/entities';

@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { IGene } from 'app/shared/model/gene.model';
 import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';
-import { DEFAULT_ENTITY_SORT_FIELD, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { DEFAULT_ENTITY_SORT_FIELD, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import GeneFlags from 'app/entities/gene/gene-flags';
 import OncoKBAsyncTable, { PaginationState } from 'app/shared/table/OncoKBAsyncTable';
