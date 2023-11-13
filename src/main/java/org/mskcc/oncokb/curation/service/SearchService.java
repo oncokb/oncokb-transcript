@@ -83,7 +83,6 @@ public class SearchService {
 
         DrugCriteria drugCriteria = new DrugCriteria();
         drugCriteria.setName(stringContainsFilter);
-        drugCriteria.setBrandsName(stringContainsFilter);
         drugs = this.drugQueryService.findByCriteria(drugCriteria, defaultPageable).getContent();
 
         IntegerFilter entrezGeneIdFilter = new IntegerFilter();

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface GenomeFragmentRepository extends JpaRepository<GenomeFragment, Long> {
+public interface GenomeFragmentRepository extends JpaRepository<GenomeFragment, Long>, JpaSpecificationExecutor<GenomeFragment> {
     @Query("select genomeFragment from GenomeFragment genomeFragment where genomeFragment.transcript.id = ?1")
     List<GenomeFragment> findAllByTranscriptId(Long id);
 }

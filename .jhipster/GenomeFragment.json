@@ -3,20 +3,24 @@
   "fields": [
     {
       "fieldName": "start",
-      "fieldType": "Integer"
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "end",
-      "fieldType": "Integer"
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "strand",
-      "fieldType": "Integer"
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "type",
       "fieldType": "GenomeFragmentType",
-      "fieldValues": "GENE,EXON,FIVE_PRIME_UTR,THREE_PRIME_UTR"
+      "fieldValues": "GENE,EXON,FIVE_PRIME_UTR,THREE_PRIME_UTR",
+      "fieldValidateRules": ["required"]
     }
   ],
   "relationships": [
@@ -38,7 +42,7 @@
   "dto": "no",
   "pagination": "pagination",
   "service": "serviceClass",
-  "jpaMetamodelFiltering": false,
+  "jpaMetamodelFiltering": true,
   "fluentMethods": true,
   "readOnly": false,
   "embedded": false,

@@ -40,8 +40,7 @@ public class FdaSubmissionService {
      */
     public FdaSubmission save(FdaSubmission fdaSubmission) {
         log.debug("Request to save FdaSubmission : {}", fdaSubmission);
-        FdaSubmission result = fdaSubmissionRepository.save(fdaSubmission);
-        return result;
+        return fdaSubmissionRepository.save(fdaSubmission);
     }
 
     /**
@@ -86,16 +85,13 @@ public class FdaSubmissionService {
                 if (fdaSubmission.getGenetic() != null) {
                     existingFdaSubmission.setGenetic(fdaSubmission.getGenetic());
                 }
-                if (fdaSubmission.getAdditionalInfo() != null) {
-                    existingFdaSubmission.setAdditionalInfo(fdaSubmission.getAdditionalInfo());
+                if (fdaSubmission.getNote() != null) {
+                    existingFdaSubmission.setNote(fdaSubmission.getNote());
                 }
 
                 return existingFdaSubmission;
             })
-            .map(fdaSubmissionRepository::save)
-            .map(savedFdaSubmission -> {
-                return savedFdaSubmission;
-            });
+            .map(fdaSubmissionRepository::save);
     }
 
     /**
@@ -111,6 +107,15 @@ public class FdaSubmissionService {
     }
 
     /**
+     * Get all the fdaSubmissions with eager load of many-to-many relationships.
+     *
+     * @return the list of entities.
+     */
+    public Page<FdaSubmission> findAllWithEagerRelationships(Pageable pageable) {
+        return fdaSubmissionRepository.findAllWithEagerRelationships(pageable);
+    }
+
+    /**
      * Get one fdaSubmission by id.
      *
      * @param id the id of the entity.
@@ -119,7 +124,7 @@ public class FdaSubmissionService {
     @Transactional(readOnly = true)
     public Optional<FdaSubmission> findOne(Long id) {
         log.debug("Request to get FdaSubmission : {}", id);
-        return fdaSubmissionRepository.findById(id);
+        return fdaSubmissionRepository.findOneWithEagerRelationships(id);
     }
 
     /**

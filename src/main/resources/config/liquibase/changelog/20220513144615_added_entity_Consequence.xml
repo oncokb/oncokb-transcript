@@ -14,7 +14,7 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="type" type="varchar(255)">
+            <column name="alteration_type" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
             <column name="term" type="varchar(255)">
@@ -31,6 +31,11 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+        <addUniqueConstraint
+            columnNames="alteration_type, term"
+            constraintName="ux_consequence__alteration_type__term"
+            tableName="consequence"
+        />
 
         <loadData
             file="config/liquibase/data/consequence.csv"

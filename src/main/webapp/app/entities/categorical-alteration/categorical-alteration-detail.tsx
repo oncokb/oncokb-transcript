@@ -25,17 +25,17 @@ export const CategoricalAlterationDetail = (props: ICategoricalAlterationDetailP
           </dt>
           <dd>{categoricalAlterationEntity.id}</dd>
           <dt>
-            <span id="name">Name</span>
+            <span id="alterationType">Alteration Type</span>
           </dt>
-          <dd>{categoricalAlterationEntity.name}</dd>
+          <dd>{categoricalAlterationEntity.alterationType}</dd>
           <dt>
             <span id="type">Type</span>
           </dt>
           <dd>{categoricalAlterationEntity.type}</dd>
           <dt>
-            <span id="alterationType">Alteration Type</span>
+            <span id="name">Name</span>
           </dt>
-          <dd>{categoricalAlterationEntity.alterationType}</dd>
+          <dd>{categoricalAlterationEntity.name}</dd>
         </dl>
         <Button tag={Link} to="/categorical-alteration" replace color="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>

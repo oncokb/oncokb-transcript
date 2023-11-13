@@ -19,7 +19,11 @@ export const CompanionDiagnosticDeviceDetail = (props: ICompanionDiagnosticDevic
   const companionDiagnosticDeviceEntity = props.companionDiagnosticDeviceEntity;
   const biomarkerAssociations = _.uniq(
     (companionDiagnosticDeviceEntity.fdaSubmissions || []).reduce((acc, fdaSubmission) => {
-      acc.push(...fdaSubmission.biomarkerAssociations);
+      fdaSubmission.associations.map(ass => {
+        ass.fdaSubmissions = [fdaSubmission];
+        return acc;
+      });
+      acc.push(...fdaSubmission.associations);
       return acc;
     }, [])
   );

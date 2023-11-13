@@ -32,9 +32,11 @@ public class FlagCriteria implements Serializable, Criteria {
 
     private StringFilter name;
 
-    private LongFilter transcriptId;
+    private LongFilter drugId;
 
     private LongFilter geneId;
+
+    private LongFilter transcriptId;
 
     private Boolean distinct;
 
@@ -45,8 +47,9 @@ public class FlagCriteria implements Serializable, Criteria {
         this.type = other.type == null ? null : other.type.copy();
         this.flag = other.flag == null ? null : other.flag.copy();
         this.name = other.name == null ? null : other.name.copy();
-        this.transcriptId = other.transcriptId == null ? null : other.transcriptId.copy();
+        this.drugId = other.drugId == null ? null : other.drugId.copy();
         this.geneId = other.geneId == null ? null : other.geneId.copy();
+        this.transcriptId = other.transcriptId == null ? null : other.transcriptId.copy();
         this.distinct = other.distinct;
     }
 
@@ -115,19 +118,19 @@ public class FlagCriteria implements Serializable, Criteria {
         this.name = name;
     }
 
-    public LongFilter getTranscriptId() {
-        return transcriptId;
+    public LongFilter getDrugId() {
+        return drugId;
     }
 
-    public LongFilter transcriptId() {
-        if (transcriptId == null) {
-            transcriptId = new LongFilter();
+    public LongFilter drugId() {
+        if (drugId == null) {
+            drugId = new LongFilter();
         }
-        return transcriptId;
+        return drugId;
     }
 
-    public void setTranscriptId(LongFilter transcriptId) {
-        this.transcriptId = transcriptId;
+    public void setDrugId(LongFilter drugId) {
+        this.drugId = drugId;
     }
 
     public LongFilter getGeneId() {
@@ -143,6 +146,21 @@ public class FlagCriteria implements Serializable, Criteria {
 
     public void setGeneId(LongFilter geneId) {
         this.geneId = geneId;
+    }
+
+    public LongFilter getTranscriptId() {
+        return transcriptId;
+    }
+
+    public LongFilter transcriptId() {
+        if (transcriptId == null) {
+            transcriptId = new LongFilter();
+        }
+        return transcriptId;
+    }
+
+    public void setTranscriptId(LongFilter transcriptId) {
+        this.transcriptId = transcriptId;
     }
 
     public Boolean getDistinct() {
@@ -167,15 +185,16 @@ public class FlagCriteria implements Serializable, Criteria {
             Objects.equals(type, that.type) &&
             Objects.equals(flag, that.flag) &&
             Objects.equals(name, that.name) &&
-            Objects.equals(transcriptId, that.transcriptId) &&
+            Objects.equals(drugId, that.drugId) &&
             Objects.equals(geneId, that.geneId) &&
+            Objects.equals(transcriptId, that.transcriptId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, type, flag, name, transcriptId, geneId, distinct);
+        return Objects.hash(id, type, flag, name, drugId, geneId, transcriptId, distinct);
     }
 
     // prettier-ignore
@@ -186,8 +205,9 @@ public class FlagCriteria implements Serializable, Criteria {
             (type != null ? "type=" + type + ", " : "") +
             (flag != null ? "flag=" + flag + ", " : "") +
             (name != null ? "name=" + name + ", " : "") +
-            (transcriptId != null ? "transcriptId=" + transcriptId + ", " : "") +
+            (drugId != null ? "drugId=" + drugId + ", " : "") +
             (geneId != null ? "geneId=" + geneId + ", " : "") +
+            (transcriptId != null ? "transcriptId=" + transcriptId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

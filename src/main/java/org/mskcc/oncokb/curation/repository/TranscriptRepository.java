@@ -6,8 +6,6 @@ import org.mskcc.oncokb.curation.domain.EnsemblGene;
 import org.mskcc.oncokb.curation.domain.Transcript;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -15,7 +13,6 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the Transcript entity.
  */
-@SuppressWarnings("unused")
 @Repository
 public interface TranscriptRepository extends JpaRepository<Transcript, Long>, JpaSpecificationExecutor<Transcript> {
     @Query("select t from Transcript t join t.ensemblGene eg where eg.referenceGenome= ?1 and t.ensemblTranscriptId=?2")
@@ -36,15 +33,9 @@ public interface TranscriptRepository extends JpaRepository<Transcript, Long>, J
 
     List<Transcript> findAllByIdIn(List<Long> ids);
 
-    @Query(
-        value = "select distinct transcript from Transcript transcript left join fetch transcript.flags",
-        countQuery = "select count(distinct transcript) from Transcript transcript"
-    )
-    Page<Transcript> findAllWithEagerRelationships(Pageable pageable);
-
-    @Query("select distinct transcript from Transcript transcript left join fetch transcript.flags")
-    List<Transcript> findAllWithEagerRelationships();
-
     @Query("select transcript from Transcript transcript left join fetch transcript.flags where transcript.id =:id")
     Optional<Transcript> findOneWithEagerRelationships(@Param("id") Long id);
+
+    @Query("select transcript from Transcript transcript left join fetch transcript.flags where transcript.id in :ids")
+    List<Transcript> findAllWithEagerRelationships(@Param("ids") List<Long> ids);
 }

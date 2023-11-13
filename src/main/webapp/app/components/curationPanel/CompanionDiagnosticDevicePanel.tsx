@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
 import { Menu } from 'react-pro-sidebar';
 import { Button, Form } from 'reactstrap';
-import { ENTITY_ACTION, ENTITY_TYPE, SearchOptionType } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_PAGE_ROUTE, ENTITY_TYPE, SearchOptionType } from 'app/config/constants';
 import { useHistory, useLocation } from 'react-router-dom';
-import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import CancerTypeSelect from 'app/shared/select/CancerTypeSelect';
-import { biomarkerAssociationClient } from 'app/shared/api/clients';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import GeneSelect from 'app/shared/select/GeneSelect';
 import AlterationSelect from 'app/shared/select/AlterationSelect';
 import DrugSelect from 'app/shared/select/DrugSelect';
-import { BiomarkerAssociationDTO } from 'app/shared/api/generated';
 import FdaSubmissionSelect from 'app/shared/select/FdaSubmissionSelect';
 import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
@@ -41,20 +38,19 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
 
   const createBiomarkerAssociation = (e: any) => {
     e.preventDefault();
-    const biomarkerAssociationDTO: BiomarkerAssociationDTO = {
-      fdaSubmissions: fdaSubmissionValue.map(fdaSubmission => fdaSubmission.value),
-      alterations: alterationValue.map(alteration => alteration.value),
-      cancerType: cancerTypeValue.value as number,
-      drugs: drugValue.map(drug => drug.value),
-      gene: selectedGeneId,
-    };
-    biomarkerAssociationClient
-      .createBiomarkerAssociation(biomarkerAssociationDTO)
-      .then(() => {
-        notifySuccess('Biomarker association added.');
-        props.getBiomarkerAssociations(id);
-      })
-      .catch(error => notifyError(error));
+    // const biomarkerAssociationDTO: BiomarkerAssociationDTO = {
+    //   fdaSubmissions: fdaSubmissionValue.map(fdaSubmission => fdaSubmission.value),
+    //   alterations: alterationValue.map(alteration => alteration.value),
+    //   cancerType: cancerTypeValue.value as number,
+    //   drugs: drugValue.map(drug => drug.value),
+    //   gene: selectedGeneId,
+    // };
+    // biomarkerAssociationClient
+    //   .createBiomarkerAssociation(biomarkerAssociationDTO)
+    //   .then(() => {
+    //     notifySuccess('Biomarker association added.');
+    //   })
+    //   .catch(error => notifyError(error));
   };
 
   const redirectToCreateAlteration = () => {
@@ -115,9 +111,7 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
   );
 };
 
-const mapStoreToProps = ({ biomarkerAssociationStore }: IRootStore) => ({
-  getBiomarkerAssociations: biomarkerAssociationStore.getByCompanionDiagnosticDevice,
-});
+const mapStoreToProps = ({ associationStore }: IRootStore) => ({});
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 

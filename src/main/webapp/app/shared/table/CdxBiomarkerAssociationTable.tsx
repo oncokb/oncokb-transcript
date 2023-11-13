@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { connect } from '../util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { getFdaSubmissionLinks } from 'app/entities/companion-diagnostic-device/companion-diagnostic-device';
-import { IBiomarkerAssociation } from '../model/biomarker-association.model';
+import { IAssociation } from '../model/association.model';
 import { Column } from 'react-table';
-import { getAlterationName, getCancerTypeName, getTreatmentName } from '../util/utils';
+import { getAlterationName, getCancerTypeName, getGeneNamesFromAlterations, getTreatmentName } from '../util/utils';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { SimpleConfirmModal } from '../modal/SimpleConfirmModal';
 import { Button } from 'reactstrap';
@@ -13,7 +13,7 @@ import OncoKBTable from './OncoKBTable';
 
 interface CdxBiomarkerAssociationTableProps extends StoreProps {
   editable?: boolean;
-  biomarkerAssociations: IBiomarkerAssociation[];
+  biomarkerAssociations: IAssociation[];
   onDeleteBiomarkerAssociation: () => void;
 }
 
@@ -35,39 +35,39 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
     setCurrentBiomarkerAssociationId(null);
   };
 
-  const columns: Column<IBiomarkerAssociation>[] = [
+  const columns: Column<IAssociation>[] = [
     {
       id: 'gene',
       Header: 'Gene',
-      Cell(cell: { original: IBiomarkerAssociation }) {
-        return <div>{cell.original.gene?.hugoSymbol}</div>;
+      Cell(cell: { original: IAssociation }) {
+        return <div>{getGeneNamesFromAlterations(cell.original.alterations || [])}</div>;
       },
     },
     {
       id: 'alterations',
       Header: 'Alterations',
-      Cell(cell: { original: IBiomarkerAssociation }) {
+      Cell(cell: { original: IAssociation }) {
         return <>{cell.original.alterations && getAlterationName(cell.original.alterations)}</>;
       },
     },
     {
       id: 'cancerType',
       Header: 'Cancer Type',
-      Cell(cell: { original: IBiomarkerAssociation }) {
-        return <div>{getCancerTypeName(cell.original.cancerType)}</div>;
+      Cell(cell: { original: IAssociation }) {
+        return <div>{cell.original.associationCancerTypes.map(act => getCancerTypeName(act.cancerType)).join(', ')}</div>;
       },
     },
     {
       id: 'drugs',
       Header: 'Drug',
-      Cell(cell: { original: IBiomarkerAssociation }) {
-        return <>{cell.original.drugs && getTreatmentName(cell.original.drugs)}</>;
+      Cell(cell: { original: IAssociation }) {
+        return <>{cell.original.treatments && getTreatmentName(cell.original.treatments)}</>;
       },
     },
     {
       id: 'fdaSubmissions',
       Header: 'FDA Submissions',
-      Cell(cell: { original: IBiomarkerAssociation }) {
+      Cell(cell: { original: IAssociation }) {
         return <>{cell.original.fdaSubmissions && getFdaSubmissionLinks(cell.original.fdaSubmissions)}</>;
       },
     },
@@ -77,7 +77,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
     columns.push({
       id: 'remove',
       Header: 'Remove',
-      Cell(cell: { original: IBiomarkerAssociation }) {
+      Cell(cell: { original: IAssociation }) {
         return (
           <>
             <Button
@@ -112,8 +112,8 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
   );
 };
 
-const mapStoreToProps = ({ biomarkerAssociationStore }: IRootStore) => ({
-  deleteEntity: biomarkerAssociationStore.deleteEntity,
+const mapStoreToProps = ({ associationStore }: IRootStore) => ({
+  deleteEntity: associationStore.deleteEntity,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

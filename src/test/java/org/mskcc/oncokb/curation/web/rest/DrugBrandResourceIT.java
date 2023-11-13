@@ -16,9 +16,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
+import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.DrugBrand;
-import org.mskcc.oncokb.curation.domain.enumeration.GeographicRegion;
 import org.mskcc.oncokb.curation.repository.DrugBrandRepository;
+import org.mskcc.oncokb.curation.service.criteria.DrugBrandCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -38,8 +39,8 @@ class DrugBrandResourceIT {
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
 
-    private static final GeographicRegion DEFAULT_REGION = GeographicRegion.US;
-    private static final GeographicRegion UPDATED_REGION = GeographicRegion.EU;
+    private static final String DEFAULT_REGION = "AAAAAAAAAA";
+    private static final String UPDATED_REGION = "BBBBBBBBBB";
 
     private static final String ENTITY_API_URL = "/api/drug-brands";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -132,6 +133,28 @@ class DrugBrandResourceIT {
 
     @Test
     @Transactional
+    void checkNameIsRequired() throws Exception {
+        int databaseSizeBeforeTest = drugBrandRepository.findAll().size();
+        // set the field null
+        drugBrand.setName(null);
+
+        // Create the DrugBrand, which fails.
+
+        restDrugBrandMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(drugBrand))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<DrugBrand> drugBrandList = drugBrandRepository.findAll();
+        assertThat(drugBrandList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllDrugBrands() throws Exception {
         // Initialize the database
         drugBrandRepository.saveAndFlush(drugBrand);
@@ -143,7 +166,7 @@ class DrugBrandResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(drugBrand.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].region").value(hasItem(DEFAULT_REGION.toString())));
+            .andExpect(jsonPath("$.[*].region").value(hasItem(DEFAULT_REGION)));
     }
 
     @Test
@@ -159,7 +182,246 @@ class DrugBrandResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(drugBrand.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
-            .andExpect(jsonPath("$.region").value(DEFAULT_REGION.toString()));
+            .andExpect(jsonPath("$.region").value(DEFAULT_REGION));
+    }
+
+    @Test
+    @Transactional
+    void getDrugBrandsByIdFiltering() throws Exception {
+        // Initialize the database
+        drugBrandRepository.saveAndFlush(drugBrand);
+
+        Long id = drugBrand.getId();
+
+        defaultDrugBrandShouldBeFound("id.equals=" + id);
+        defaultDrugBrandShouldNotBeFound("id.notEquals=" + id);
+
+        defaultDrugBrandShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultDrugBrandShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultDrugBrandShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultDrugBrandShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugBrandsByNameIsEqualToSomething() throws Exception {
+        // Initialize the database
+        drugBrandRepository.saveAndFlush(drugBrand);
+
+        // Get all the drugBrandList where name equals to DEFAULT_NAME
+        defaultDrugBrandShouldBeFound("name.equals=" + DEFAULT_NAME);
+
+        // Get all the drugBrandList where name equals to UPDATED_NAME
+        defaultDrugBrandShouldNotBeFound("name.equals=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugBrandsByNameIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        drugBrandRepository.saveAndFlush(drugBrand);
+
+        // Get all the drugBrandList where name not equals to DEFAULT_NAME
+        defaultDrugBrandShouldNotBeFound("name.notEquals=" + DEFAULT_NAME);
+
+        // Get all the drugBrandList where name not equals to UPDATED_NAME
+        defaultDrugBrandShouldBeFound("name.notEquals=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugBrandsByNameIsInShouldWork() throws Exception {
+        // Initialize the database
+        drugBrandRepository.saveAndFlush(drugBrand);
+
+        // Get all the drugBrandList where name in DEFAULT_NAME or UPDATED_NAME
+        defaultDrugBrandShouldBeFound("name.in=" + DEFAULT_NAME + "," + UPDATED_NAME);
+
+        // Get all the drugBrandList where name equals to UPDATED_NAME
+        defaultDrugBrandShouldNotBeFound("name.in=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugBrandsByNameIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        drugBrandRepository.saveAndFlush(drugBrand);
+
+        // Get all the drugBrandList where name is not null
+        defaultDrugBrandShouldBeFound("name.specified=true");
+
+        // Get all the drugBrandList where name is null
+        defaultDrugBrandShouldNotBeFound("name.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugBrandsByNameContainsSomething() throws Exception {
+        // Initialize the database
+        drugBrandRepository.saveAndFlush(drugBrand);
+
+        // Get all the drugBrandList where name contains DEFAULT_NAME
+        defaultDrugBrandShouldBeFound("name.contains=" + DEFAULT_NAME);
+
+        // Get all the drugBrandList where name contains UPDATED_NAME
+        defaultDrugBrandShouldNotBeFound("name.contains=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugBrandsByNameNotContainsSomething() throws Exception {
+        // Initialize the database
+        drugBrandRepository.saveAndFlush(drugBrand);
+
+        // Get all the drugBrandList where name does not contain DEFAULT_NAME
+        defaultDrugBrandShouldNotBeFound("name.doesNotContain=" + DEFAULT_NAME);
+
+        // Get all the drugBrandList where name does not contain UPDATED_NAME
+        defaultDrugBrandShouldBeFound("name.doesNotContain=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugBrandsByRegionIsEqualToSomething() throws Exception {
+        // Initialize the database
+        drugBrandRepository.saveAndFlush(drugBrand);
+
+        // Get all the drugBrandList where region equals to DEFAULT_REGION
+        defaultDrugBrandShouldBeFound("region.equals=" + DEFAULT_REGION);
+
+        // Get all the drugBrandList where region equals to UPDATED_REGION
+        defaultDrugBrandShouldNotBeFound("region.equals=" + UPDATED_REGION);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugBrandsByRegionIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        drugBrandRepository.saveAndFlush(drugBrand);
+
+        // Get all the drugBrandList where region not equals to DEFAULT_REGION
+        defaultDrugBrandShouldNotBeFound("region.notEquals=" + DEFAULT_REGION);
+
+        // Get all the drugBrandList where region not equals to UPDATED_REGION
+        defaultDrugBrandShouldBeFound("region.notEquals=" + UPDATED_REGION);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugBrandsByRegionIsInShouldWork() throws Exception {
+        // Initialize the database
+        drugBrandRepository.saveAndFlush(drugBrand);
+
+        // Get all the drugBrandList where region in DEFAULT_REGION or UPDATED_REGION
+        defaultDrugBrandShouldBeFound("region.in=" + DEFAULT_REGION + "," + UPDATED_REGION);
+
+        // Get all the drugBrandList where region equals to UPDATED_REGION
+        defaultDrugBrandShouldNotBeFound("region.in=" + UPDATED_REGION);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugBrandsByRegionIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        drugBrandRepository.saveAndFlush(drugBrand);
+
+        // Get all the drugBrandList where region is not null
+        defaultDrugBrandShouldBeFound("region.specified=true");
+
+        // Get all the drugBrandList where region is null
+        defaultDrugBrandShouldNotBeFound("region.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugBrandsByRegionContainsSomething() throws Exception {
+        // Initialize the database
+        drugBrandRepository.saveAndFlush(drugBrand);
+
+        // Get all the drugBrandList where region contains DEFAULT_REGION
+        defaultDrugBrandShouldBeFound("region.contains=" + DEFAULT_REGION);
+
+        // Get all the drugBrandList where region contains UPDATED_REGION
+        defaultDrugBrandShouldNotBeFound("region.contains=" + UPDATED_REGION);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugBrandsByRegionNotContainsSomething() throws Exception {
+        // Initialize the database
+        drugBrandRepository.saveAndFlush(drugBrand);
+
+        // Get all the drugBrandList where region does not contain DEFAULT_REGION
+        defaultDrugBrandShouldNotBeFound("region.doesNotContain=" + DEFAULT_REGION);
+
+        // Get all the drugBrandList where region does not contain UPDATED_REGION
+        defaultDrugBrandShouldBeFound("region.doesNotContain=" + UPDATED_REGION);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugBrandsByDrugIsEqualToSomething() throws Exception {
+        // Initialize the database
+        drugBrandRepository.saveAndFlush(drugBrand);
+        Drug drug;
+        if (TestUtil.findAll(em, Drug.class).isEmpty()) {
+            drug = DrugResourceIT.createEntity(em);
+            em.persist(drug);
+            em.flush();
+        } else {
+            drug = TestUtil.findAll(em, Drug.class).get(0);
+        }
+        em.persist(drug);
+        em.flush();
+        drugBrand.setDrug(drug);
+        drugBrandRepository.saveAndFlush(drugBrand);
+        Long drugId = drug.getId();
+
+        // Get all the drugBrandList where drug equals to drugId
+        defaultDrugBrandShouldBeFound("drugId.equals=" + drugId);
+
+        // Get all the drugBrandList where drug equals to (drugId + 1)
+        defaultDrugBrandShouldNotBeFound("drugId.equals=" + (drugId + 1));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is returned.
+     */
+    private void defaultDrugBrandShouldBeFound(String filter) throws Exception {
+        restDrugBrandMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(drugBrand.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].region").value(hasItem(DEFAULT_REGION)));
+
+        // Check, that the count call also returns 1
+        restDrugBrandMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("1"));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is not returned.
+     */
+    private void defaultDrugBrandShouldNotBeFound(String filter) throws Exception {
+        restDrugBrandMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$").isEmpty());
+
+        // Check, that the count call also returns 0
+        restDrugBrandMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("0"));
     }
 
     @Test

@@ -3,11 +3,14 @@ package org.mskcc.oncokb.curation.service;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,11 +56,8 @@ public class DrugService {
                 if (drug.getName() != null) {
                     existingDrug.setName(drug.getName());
                 }
-                if (drug.getCode() != null) {
-                    existingDrug.setCode(drug.getCode());
-                }
-                if (drug.getSemanticType() != null) {
-                    existingDrug.setSemanticType(drug.getSemanticType());
+                if (drug.getNciThesaurus() != null) {
+                    existingDrug.setNciThesaurus(drug.getNciThesaurus());
                 }
 
                 return existingDrug;
@@ -75,6 +75,32 @@ public class DrugService {
     public Page<Drug> findAll(Pageable pageable) {
         log.debug("Request to get all Drugs");
         return drugRepository.findAll(pageable);
+    }
+
+    /**
+     * Get all the drugs with eager load of many-to-many relationships.
+     *
+     * @return the list of entities.
+     */
+    public Page<Drug> findAllWithEagerRelationships(Pageable pageable) {
+        Page<Drug> drugPage = drugRepository.findAll(pageable);
+        List<Drug> enrichedDrugs = drugRepository.findAllWithEagerRelationships(
+            drugPage.getContent().stream().map(Drug::getId).collect(Collectors.toList())
+        );
+        return new PageImpl<>(enrichedDrugs, pageable, drugPage.getTotalElements());
+    }
+
+    /**
+     *  Get all the drugs where FdaDrug is {@code null}.
+     *  @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<Drug> findAllWhereFdaDrugIsNull() {
+        log.debug("Request to get all drugs where FdaDrug is null");
+        return StreamSupport
+            .stream(drugRepository.findAll().spliterator(), false)
+            .filter(drug -> drug.getFdaDrug() == null)
+            .collect(Collectors.toList());
     }
 
     /**
@@ -139,10 +165,10 @@ class DrugComp implements Comparator<Drug> {
         Integer index1 = e1.getName().indexOf(this.keyword);
         Integer index2 = e2.getName().indexOf(this.keyword);
         if (index1.equals(index2)) {
-            index1 = e1.getCode().indexOf(this.keyword);
-            index2 = e2.getCode().indexOf(this.keyword);
+            index1 = e1.getNciThesaurus() == null ? 0 : e1.getNciThesaurus().getCode().indexOf(this.keyword);
+            index2 = e2.getNciThesaurus() == null ? 0 : e2.getNciThesaurus().getCode().indexOf(this.keyword);
             if (index1.equals(index2)) {
-                // In this moment, these are the matches from the synonyms. The order does not matter, so alphabetically sort base on drug name
+                // At this moment, these are the matches from the synonyms. The order does not matter, so alphabetically sort base on drug name
                 return e1.getName().compareTo(e2.getName());
             } else {
                 if (index1.equals(-1)) return 1;

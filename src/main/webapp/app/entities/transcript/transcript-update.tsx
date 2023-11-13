@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText, Label, Input, FormGroup } from 'reactstrap';
+import { Button, Row, Col, FormText } from 'reactstrap';
 import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 
 import { IFlag } from 'app/shared/model/flag.model';
 import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
+import { IGene } from 'app/shared/model/gene.model';
+import { IAlteration } from 'app/shared/model/alteration.model';
 import { ITranscript } from 'app/shared/model/transcript.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
@@ -18,8 +20,10 @@ export interface ITranscriptUpdateProps extends StoreProps, RouteComponentProps<
 export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
-  const flags = props.flags.filter(flag => flag.type === 'TRANSCRIPT');
+  const flags = props.flags;
   const ensemblGenes = props.ensemblGenes;
+  const genes = props.genes;
+  const alterations = props.alterations;
   const transcriptEntity = props.transcriptEntity;
   const loading = props.loading;
   const updating = props.updating;
@@ -38,6 +42,8 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
 
     props.getFlags({});
     props.getEnsemblGenes({});
+    props.getGenes({});
+    props.getAlterations({});
   }, []);
 
   useEffect(() => {
@@ -51,6 +57,8 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
       ...transcriptEntity,
       ...values,
       flags: mapIdList(values.flags),
+      ensemblGene: ensemblGenes.find(it => it.id.toString() === values.ensemblGeneId.toString()),
+      gene: genes.find(it => it.id.toString() === values.geneId.toString()),
     };
 
     if (isNew) {
@@ -60,18 +68,15 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
     }
   };
 
-  const ensemblGeneId = transcriptEntity?.ensemblGene?.id;
   const defaultValues = () =>
     isNew
       ? {}
       : {
+          referenceGenome: 'GRCh37',
           ...transcriptEntity,
           flags: transcriptEntity?.flags?.map(e => e.id.toString()),
-          ensemblGene: ensemblGeneId
-            ? {
-                id: ensemblGeneId,
-              }
-            : null,
+          ensemblGeneId: transcriptEntity?.ensemblGene?.id,
+          geneId: transcriptEntity?.gene?.id,
         };
 
   return (
@@ -90,6 +95,16 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
               {!isNew ? <ValidatedField name="id" required readOnly id="transcript-id" label="ID" validate={{ required: true }} /> : null}
+              <ValidatedField
+                label="Reference Genome"
+                id="transcript-referenceGenome"
+                name="referenceGenome"
+                data-cy="referenceGenome"
+                type="select"
+              >
+                <option value="GRCh37">GRCh37</option>
+                <option value="GRCh38">GRCh38</option>
+              </ValidatedField>
               <ValidatedField
                 label="Ensembl Transcript Id"
                 id="transcript-ensemblTranscriptId"
@@ -118,23 +133,31 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
                 {flags
                   ? flags.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.flag}
+                        {otherEntity.id}
                       </option>
                     ))
                   : null}
               </ValidatedField>
-              {!isNew && transcriptEntity?.ensemblGene ? (
-                <FormGroup>
-                  <Label for={'ensembl-gene'}>EnsemblGene</Label>
-                  <Input
-                    id={'ensembl-gene'}
-                    name={'ensembl-gene'}
-                    autoComplete="off"
-                    disabled
-                    value={transcriptEntity.ensemblGene.ensemblGeneId}
-                  />
-                </FormGroup>
-              ) : null}
+              <ValidatedField id="transcript-ensemblGene" name="ensemblGeneId" data-cy="ensemblGene" label="Ensembl Gene" type="select">
+                <option value="" key="0" />
+                {ensemblGenes
+                  ? ensemblGenes.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.id}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
+              <ValidatedField id="transcript-gene" name="geneId" data-cy="gene" label="Gene" type="select">
+                <option value="" key="0" />
+                {genes
+                  ? genes.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.entrezGeneId}: {otherEntity.hugoSymbol}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
               <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
@@ -147,12 +170,16 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
 const mapStoreToProps = (storeState: IRootStore) => ({
   flags: storeState.flagStore.entities,
   ensemblGenes: storeState.ensemblGeneStore.entities,
+  genes: storeState.geneStore.entities,
+  alterations: storeState.alterationStore.entities,
   transcriptEntity: storeState.transcriptStore.entity,
   loading: storeState.transcriptStore.loading,
   updating: storeState.transcriptStore.updating,
   updateSuccess: storeState.transcriptStore.updateSuccess,
   getFlags: storeState.flagStore.getEntities,
   getEnsemblGenes: storeState.ensemblGeneStore.getEntities,
+  getGenes: storeState.geneStore.getEntities,
+  getAlterations: storeState.alterationStore.getEntities,
   getEntity: storeState.transcriptStore.getEntity,
   updateEntity: storeState.transcriptStore.updateEntity,
   createEntity: storeState.transcriptStore.createEntity,

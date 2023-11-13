@@ -50,8 +50,8 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
   const getUniqDrugs = (fdaSubmissions: IFdaSubmission[]) => {
     const drugs = [];
     fdaSubmissions.forEach(fdaSubmission => {
-      fdaSubmission.biomarkerAssociations.reduce((acc, val) => {
-        acc.push(...(val.drugs || []).map(drug => drug.name));
+      fdaSubmission.associations?.reduce((acc, val) => {
+        acc.push(...(val.treatments || []).map(treatment => treatment.drugs.map(drug => drug.name).join('+')));
         return acc;
       }, drugs);
     });

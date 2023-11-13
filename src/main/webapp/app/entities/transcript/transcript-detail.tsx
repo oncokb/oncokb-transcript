@@ -26,6 +26,10 @@ export const TranscriptDetail = (props: ITranscriptDetailProps) => {
           </dt>
           <dd>{transcriptEntity.id}</dd>
           <dt>
+            <span id="referenceGenome">Reference Genome</span>
+          </dt>
+          <dd>{transcriptEntity.referenceGenome}</dd>
+          <dt>
             <span id="ensemblTranscriptId">Ensembl Transcript Id</span>
           </dt>
           <dd>{transcriptEntity.ensemblTranscriptId}</dd>
@@ -53,6 +57,8 @@ export const TranscriptDetail = (props: ITranscriptDetailProps) => {
           </dd>
           <dt>Ensembl Gene</dt>
           <dd>{transcriptEntity.ensemblGene ? transcriptEntity.ensemblGene.ensemblGeneId : ''}</dd>
+          <dt>Gene</dt>
+          <dd>{transcriptEntity.gene ? transcriptEntity.gene.entrezGeneId : ''}</dd>
         </dl>
         <Button tag={Link} to="/transcript" replace color="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>

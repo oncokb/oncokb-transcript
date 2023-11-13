@@ -26,20 +26,10 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
   const updating = props.updating;
   const updateSuccess = props.updateSuccess;
 
-  const alterationReferenceGenomes = props.alterationEntity.referenceGenomes?.map(rg => rg.referenceGenome) || [];
-  const referenceGenomeOptions = Object.keys(ReferenceGenome).map(key => {
-    if (alterationReferenceGenomes.includes(ReferenceGenome[key])) {
-      return {
-        label: ReferenceGenome[key],
-        value: props.alterationEntity.referenceGenomes.filter(rg => rg.referenceGenome === ReferenceGenome[key])[0].id,
-      };
-    } else {
-      return { label: ReferenceGenome[key], value: ReferenceGenome[key] };
-    }
-  });
   const consequenceOptions = consequences.map(consequence => ({ label: consequence.name, value: consequence.id }));
 
   const getDefaultValues = entity => ({
+    type: 'PROTEIN_CHANGE',
     ...entity,
     genes: entity ? entity.genes : [],
     referenceGenomes: entity ? entity.referenceGenomes : [],
@@ -156,11 +146,11 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
             <p>Loading...</p>
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
+              {!isNew ? <ValidatedField name="id" required readOnly id="alteration-id" label="ID" validate={{ required: true }} /> : null}
               <FormGroup>
                 <Label>Genes</Label>
                 <GeneSelect isMulti onChange={onGenesSelectChange} />
               </FormGroup>
-              {!isNew ? <ValidatedField name="id" required readOnly id="alteration-id" label="ID" validate={{ required: true }} /> : null}
               <ValidatedField
                 label="Alteration"
                 id="alteration-alteration"
@@ -173,7 +163,15 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
                 onChange={event => onChange(event.target.value)}
                 placeholder="Input protein change"
               />
-              <ValidatedSelect label="Reference Genomes" name={'referenceGenomes'} options={referenceGenomeOptions} isMulti />
+              <ValidatedField label="Type" id="alteration-type" name="type" data-cy="type" type="select">
+                <option value="UNKNOWN">UNKNOWN</option>
+                <option value="GENOMIC_CHANGE">GENOMIC_CHANGE</option>
+                <option value="CDNA_CHANGE">CDNA_CHANGE</option>
+                <option value="PROTEIN_CHANGE">PROTEIN_CHANGE</option>
+                <option value="COPY_NUMBER_ALTERATION">COPY_NUMBER_ALTERATION</option>
+                <option value="STRUCTURAL_VARIANT">STRUCTURAL_VARIANT</option>
+                <option value="NA">NA</option>
+              </ValidatedField>
               <ValidatedField
                 label="Name"
                 id="alteration-name"
@@ -184,8 +182,15 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
                   required: { value: true, message: 'This field is required.' },
                 }}
               />
-              <ValidatedField label="Protein Start" id="alteration-proteinStart" name="proteinStart" data-cy="proteinStart" type="text" />
-              <ValidatedField label="Protein End" id="alteration-proteinEnd" name="proteinEnd" data-cy="proteinEnd" type="text" />
+              <ValidatedField
+                label="Protein Change"
+                id="alteration-protein-change"
+                name="proteinChange"
+                data-cy="proteinChange"
+                type="text"
+              />
+              <ValidatedField label="Start" id="alteration-start" name="start" data-cy="start" type="text" />
+              <ValidatedField label="End" id="alteration-end" name="end" data-cy="end" type="text" />
               <ValidatedField label="Ref Residues" id="alteration-refResidues" name="refResidues" data-cy="refResidues" type="text" />
               <ValidatedField
                 label="Variant Residues"
@@ -205,12 +210,15 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
 };
 
 const mapStoreToProps = (storeState: IRootStore) => ({
+  genes: storeState.geneStore.entities,
+  transcripts: storeState.transcriptStore.entities,
   consequences: storeState.consequenceStore.entities,
   alterationEntity: storeState.alterationStore.entity,
   loading: storeState.alterationStore.loading,
   updating: storeState.alterationStore.updating,
   updateSuccess: storeState.alterationStore.updateSuccess,
   getGenes: storeState.geneStore.getEntities,
+  getTranscripts: storeState.transcriptStore.getEntities,
   getConsequences: storeState.consequenceStore.getEntities,
   getEntity: storeState.alterationStore.getEntity,
   annotateAlteration: flow(storeState.alterationStore.annotateAlteration),

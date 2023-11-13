@@ -50,7 +50,7 @@ export const EnsemblGene = (props: IEnsemblGeneProps) => {
       accessor: 'seqRegion',
       Header: 'Seg Region',
       Cell(cell: { original: IEnsemblGene }) {
-        cell.original.seqRegion.name;
+        return cell.original.seqRegion.name;
       },
     },
     {

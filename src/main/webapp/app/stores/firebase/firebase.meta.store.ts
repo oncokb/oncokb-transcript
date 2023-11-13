@@ -86,8 +86,8 @@ export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
       return Promise.reject(new Error('Cannot update collaborator with undefined name'));
     }
 
-    const collaboratorGeneList: string[] = this.metaCollaborators[name];
-    if (add && !this.metaCollaborators[name].includes(hugoSymbol)) {
+    const collaboratorGeneList: string[] = this.metaCollaborators[name] || [];
+    if (add && !collaboratorGeneList.includes(hugoSymbol)) {
       return this.update(getFirebasePath('META_COLLABORATOR', name), {
         [collaboratorGeneList.length]: hugoSymbol,
       });

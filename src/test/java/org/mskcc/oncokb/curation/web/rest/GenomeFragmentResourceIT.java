@@ -17,8 +17,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.GenomeFragment;
+import org.mskcc.oncokb.curation.domain.SeqRegion;
+import org.mskcc.oncokb.curation.domain.Transcript;
 import org.mskcc.oncokb.curation.domain.enumeration.GenomeFragmentType;
 import org.mskcc.oncokb.curation.repository.GenomeFragmentRepository;
+import org.mskcc.oncokb.curation.service.criteria.GenomeFragmentCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
@@ -37,12 +40,15 @@ class GenomeFragmentResourceIT {
 
     private static final Integer DEFAULT_START = 1;
     private static final Integer UPDATED_START = 2;
+    private static final Integer SMALLER_START = 1 - 1;
 
     private static final Integer DEFAULT_END = 1;
     private static final Integer UPDATED_END = 2;
+    private static final Integer SMALLER_END = 1 - 1;
 
     private static final Integer DEFAULT_STRAND = 1;
     private static final Integer UPDATED_STRAND = 2;
+    private static final Integer SMALLER_STRAND = 1 - 1;
 
     private static final GenomeFragmentType DEFAULT_TYPE = GenomeFragmentType.GENE;
     private static final GenomeFragmentType UPDATED_TYPE = GenomeFragmentType.EXON;
@@ -148,6 +154,94 @@ class GenomeFragmentResourceIT {
 
     @Test
     @Transactional
+    void checkStartIsRequired() throws Exception {
+        int databaseSizeBeforeTest = genomeFragmentRepository.findAll().size();
+        // set the field null
+        genomeFragment.setStart(null);
+
+        // Create the GenomeFragment, which fails.
+
+        restGenomeFragmentMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(genomeFragment))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<GenomeFragment> genomeFragmentList = genomeFragmentRepository.findAll();
+        assertThat(genomeFragmentList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkEndIsRequired() throws Exception {
+        int databaseSizeBeforeTest = genomeFragmentRepository.findAll().size();
+        // set the field null
+        genomeFragment.setEnd(null);
+
+        // Create the GenomeFragment, which fails.
+
+        restGenomeFragmentMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(genomeFragment))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<GenomeFragment> genomeFragmentList = genomeFragmentRepository.findAll();
+        assertThat(genomeFragmentList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkStrandIsRequired() throws Exception {
+        int databaseSizeBeforeTest = genomeFragmentRepository.findAll().size();
+        // set the field null
+        genomeFragment.setStrand(null);
+
+        // Create the GenomeFragment, which fails.
+
+        restGenomeFragmentMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(genomeFragment))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<GenomeFragment> genomeFragmentList = genomeFragmentRepository.findAll();
+        assertThat(genomeFragmentList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkTypeIsRequired() throws Exception {
+        int databaseSizeBeforeTest = genomeFragmentRepository.findAll().size();
+        // set the field null
+        genomeFragment.setType(null);
+
+        // Create the GenomeFragment, which fails.
+
+        restGenomeFragmentMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(genomeFragment))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<GenomeFragment> genomeFragmentList = genomeFragmentRepository.findAll();
+        assertThat(genomeFragmentList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllGenomeFragments() throws Exception {
         // Initialize the database
         genomeFragmentRepository.saveAndFlush(genomeFragment);
@@ -180,6 +274,481 @@ class GenomeFragmentResourceIT {
             .andExpect(jsonPath("$.end").value(DEFAULT_END))
             .andExpect(jsonPath("$.strand").value(DEFAULT_STRAND))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()));
+    }
+
+    @Test
+    @Transactional
+    void getGenomeFragmentsByIdFiltering() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        Long id = genomeFragment.getId();
+
+        defaultGenomeFragmentShouldBeFound("id.equals=" + id);
+        defaultGenomeFragmentShouldNotBeFound("id.notEquals=" + id);
+
+        defaultGenomeFragmentShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultGenomeFragmentShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultGenomeFragmentShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultGenomeFragmentShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStartIsEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where start equals to DEFAULT_START
+        defaultGenomeFragmentShouldBeFound("start.equals=" + DEFAULT_START);
+
+        // Get all the genomeFragmentList where start equals to UPDATED_START
+        defaultGenomeFragmentShouldNotBeFound("start.equals=" + UPDATED_START);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStartIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where start not equals to DEFAULT_START
+        defaultGenomeFragmentShouldNotBeFound("start.notEquals=" + DEFAULT_START);
+
+        // Get all the genomeFragmentList where start not equals to UPDATED_START
+        defaultGenomeFragmentShouldBeFound("start.notEquals=" + UPDATED_START);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStartIsInShouldWork() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where start in DEFAULT_START or UPDATED_START
+        defaultGenomeFragmentShouldBeFound("start.in=" + DEFAULT_START + "," + UPDATED_START);
+
+        // Get all the genomeFragmentList where start equals to UPDATED_START
+        defaultGenomeFragmentShouldNotBeFound("start.in=" + UPDATED_START);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStartIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where start is not null
+        defaultGenomeFragmentShouldBeFound("start.specified=true");
+
+        // Get all the genomeFragmentList where start is null
+        defaultGenomeFragmentShouldNotBeFound("start.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStartIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where start is greater than or equal to DEFAULT_START
+        defaultGenomeFragmentShouldBeFound("start.greaterThanOrEqual=" + DEFAULT_START);
+
+        // Get all the genomeFragmentList where start is greater than or equal to UPDATED_START
+        defaultGenomeFragmentShouldNotBeFound("start.greaterThanOrEqual=" + UPDATED_START);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStartIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where start is less than or equal to DEFAULT_START
+        defaultGenomeFragmentShouldBeFound("start.lessThanOrEqual=" + DEFAULT_START);
+
+        // Get all the genomeFragmentList where start is less than or equal to SMALLER_START
+        defaultGenomeFragmentShouldNotBeFound("start.lessThanOrEqual=" + SMALLER_START);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStartIsLessThanSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where start is less than DEFAULT_START
+        defaultGenomeFragmentShouldNotBeFound("start.lessThan=" + DEFAULT_START);
+
+        // Get all the genomeFragmentList where start is less than UPDATED_START
+        defaultGenomeFragmentShouldBeFound("start.lessThan=" + UPDATED_START);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStartIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where start is greater than DEFAULT_START
+        defaultGenomeFragmentShouldNotBeFound("start.greaterThan=" + DEFAULT_START);
+
+        // Get all the genomeFragmentList where start is greater than SMALLER_START
+        defaultGenomeFragmentShouldBeFound("start.greaterThan=" + SMALLER_START);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByEndIsEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where end equals to DEFAULT_END
+        defaultGenomeFragmentShouldBeFound("end.equals=" + DEFAULT_END);
+
+        // Get all the genomeFragmentList where end equals to UPDATED_END
+        defaultGenomeFragmentShouldNotBeFound("end.equals=" + UPDATED_END);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByEndIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where end not equals to DEFAULT_END
+        defaultGenomeFragmentShouldNotBeFound("end.notEquals=" + DEFAULT_END);
+
+        // Get all the genomeFragmentList where end not equals to UPDATED_END
+        defaultGenomeFragmentShouldBeFound("end.notEquals=" + UPDATED_END);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByEndIsInShouldWork() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where end in DEFAULT_END or UPDATED_END
+        defaultGenomeFragmentShouldBeFound("end.in=" + DEFAULT_END + "," + UPDATED_END);
+
+        // Get all the genomeFragmentList where end equals to UPDATED_END
+        defaultGenomeFragmentShouldNotBeFound("end.in=" + UPDATED_END);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByEndIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where end is not null
+        defaultGenomeFragmentShouldBeFound("end.specified=true");
+
+        // Get all the genomeFragmentList where end is null
+        defaultGenomeFragmentShouldNotBeFound("end.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByEndIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where end is greater than or equal to DEFAULT_END
+        defaultGenomeFragmentShouldBeFound("end.greaterThanOrEqual=" + DEFAULT_END);
+
+        // Get all the genomeFragmentList where end is greater than or equal to UPDATED_END
+        defaultGenomeFragmentShouldNotBeFound("end.greaterThanOrEqual=" + UPDATED_END);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByEndIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where end is less than or equal to DEFAULT_END
+        defaultGenomeFragmentShouldBeFound("end.lessThanOrEqual=" + DEFAULT_END);
+
+        // Get all the genomeFragmentList where end is less than or equal to SMALLER_END
+        defaultGenomeFragmentShouldNotBeFound("end.lessThanOrEqual=" + SMALLER_END);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByEndIsLessThanSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where end is less than DEFAULT_END
+        defaultGenomeFragmentShouldNotBeFound("end.lessThan=" + DEFAULT_END);
+
+        // Get all the genomeFragmentList where end is less than UPDATED_END
+        defaultGenomeFragmentShouldBeFound("end.lessThan=" + UPDATED_END);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByEndIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where end is greater than DEFAULT_END
+        defaultGenomeFragmentShouldNotBeFound("end.greaterThan=" + DEFAULT_END);
+
+        // Get all the genomeFragmentList where end is greater than SMALLER_END
+        defaultGenomeFragmentShouldBeFound("end.greaterThan=" + SMALLER_END);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStrandIsEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where strand equals to DEFAULT_STRAND
+        defaultGenomeFragmentShouldBeFound("strand.equals=" + DEFAULT_STRAND);
+
+        // Get all the genomeFragmentList where strand equals to UPDATED_STRAND
+        defaultGenomeFragmentShouldNotBeFound("strand.equals=" + UPDATED_STRAND);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStrandIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where strand not equals to DEFAULT_STRAND
+        defaultGenomeFragmentShouldNotBeFound("strand.notEquals=" + DEFAULT_STRAND);
+
+        // Get all the genomeFragmentList where strand not equals to UPDATED_STRAND
+        defaultGenomeFragmentShouldBeFound("strand.notEquals=" + UPDATED_STRAND);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStrandIsInShouldWork() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where strand in DEFAULT_STRAND or UPDATED_STRAND
+        defaultGenomeFragmentShouldBeFound("strand.in=" + DEFAULT_STRAND + "," + UPDATED_STRAND);
+
+        // Get all the genomeFragmentList where strand equals to UPDATED_STRAND
+        defaultGenomeFragmentShouldNotBeFound("strand.in=" + UPDATED_STRAND);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStrandIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where strand is not null
+        defaultGenomeFragmentShouldBeFound("strand.specified=true");
+
+        // Get all the genomeFragmentList where strand is null
+        defaultGenomeFragmentShouldNotBeFound("strand.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStrandIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where strand is greater than or equal to DEFAULT_STRAND
+        defaultGenomeFragmentShouldBeFound("strand.greaterThanOrEqual=" + DEFAULT_STRAND);
+
+        // Get all the genomeFragmentList where strand is greater than or equal to UPDATED_STRAND
+        defaultGenomeFragmentShouldNotBeFound("strand.greaterThanOrEqual=" + UPDATED_STRAND);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStrandIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where strand is less than or equal to DEFAULT_STRAND
+        defaultGenomeFragmentShouldBeFound("strand.lessThanOrEqual=" + DEFAULT_STRAND);
+
+        // Get all the genomeFragmentList where strand is less than or equal to SMALLER_STRAND
+        defaultGenomeFragmentShouldNotBeFound("strand.lessThanOrEqual=" + SMALLER_STRAND);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStrandIsLessThanSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where strand is less than DEFAULT_STRAND
+        defaultGenomeFragmentShouldNotBeFound("strand.lessThan=" + DEFAULT_STRAND);
+
+        // Get all the genomeFragmentList where strand is less than UPDATED_STRAND
+        defaultGenomeFragmentShouldBeFound("strand.lessThan=" + UPDATED_STRAND);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByStrandIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where strand is greater than DEFAULT_STRAND
+        defaultGenomeFragmentShouldNotBeFound("strand.greaterThan=" + DEFAULT_STRAND);
+
+        // Get all the genomeFragmentList where strand is greater than SMALLER_STRAND
+        defaultGenomeFragmentShouldBeFound("strand.greaterThan=" + SMALLER_STRAND);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByTypeIsEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where type equals to DEFAULT_TYPE
+        defaultGenomeFragmentShouldBeFound("type.equals=" + DEFAULT_TYPE);
+
+        // Get all the genomeFragmentList where type equals to UPDATED_TYPE
+        defaultGenomeFragmentShouldNotBeFound("type.equals=" + UPDATED_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByTypeIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where type not equals to DEFAULT_TYPE
+        defaultGenomeFragmentShouldNotBeFound("type.notEquals=" + DEFAULT_TYPE);
+
+        // Get all the genomeFragmentList where type not equals to UPDATED_TYPE
+        defaultGenomeFragmentShouldBeFound("type.notEquals=" + UPDATED_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByTypeIsInShouldWork() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where type in DEFAULT_TYPE or UPDATED_TYPE
+        defaultGenomeFragmentShouldBeFound("type.in=" + DEFAULT_TYPE + "," + UPDATED_TYPE);
+
+        // Get all the genomeFragmentList where type equals to UPDATED_TYPE
+        defaultGenomeFragmentShouldNotBeFound("type.in=" + UPDATED_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByTypeIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+
+        // Get all the genomeFragmentList where type is not null
+        defaultGenomeFragmentShouldBeFound("type.specified=true");
+
+        // Get all the genomeFragmentList where type is null
+        defaultGenomeFragmentShouldNotBeFound("type.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsBySeqRegionIsEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+        SeqRegion seqRegion;
+        if (TestUtil.findAll(em, SeqRegion.class).isEmpty()) {
+            seqRegion = SeqRegionResourceIT.createEntity(em);
+            em.persist(seqRegion);
+            em.flush();
+        } else {
+            seqRegion = TestUtil.findAll(em, SeqRegion.class).get(0);
+        }
+        em.persist(seqRegion);
+        em.flush();
+        genomeFragment.setSeqRegion(seqRegion);
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+        Long seqRegionId = seqRegion.getId();
+
+        // Get all the genomeFragmentList where seqRegion equals to seqRegionId
+        defaultGenomeFragmentShouldBeFound("seqRegionId.equals=" + seqRegionId);
+
+        // Get all the genomeFragmentList where seqRegion equals to (seqRegionId + 1)
+        defaultGenomeFragmentShouldNotBeFound("seqRegionId.equals=" + (seqRegionId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomeFragmentsByTranscriptIsEqualToSomething() throws Exception {
+        // Initialize the database
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+        Transcript transcript;
+        if (TestUtil.findAll(em, Transcript.class).isEmpty()) {
+            transcript = TranscriptResourceIT.createEntity(em);
+            em.persist(transcript);
+            em.flush();
+        } else {
+            transcript = TestUtil.findAll(em, Transcript.class).get(0);
+        }
+        em.persist(transcript);
+        em.flush();
+        genomeFragment.setTranscript(transcript);
+        genomeFragmentRepository.saveAndFlush(genomeFragment);
+        Long transcriptId = transcript.getId();
+
+        // Get all the genomeFragmentList where transcript equals to transcriptId
+        defaultGenomeFragmentShouldBeFound("transcriptId.equals=" + transcriptId);
+
+        // Get all the genomeFragmentList where transcript equals to (transcriptId + 1)
+        defaultGenomeFragmentShouldNotBeFound("transcriptId.equals=" + (transcriptId + 1));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is returned.
+     */
+    private void defaultGenomeFragmentShouldBeFound(String filter) throws Exception {
+        restGenomeFragmentMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(genomeFragment.getId().intValue())))
+            .andExpect(jsonPath("$.[*].start").value(hasItem(DEFAULT_START)))
+            .andExpect(jsonPath("$.[*].end").value(hasItem(DEFAULT_END)))
+            .andExpect(jsonPath("$.[*].strand").value(hasItem(DEFAULT_STRAND)))
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())));
+
+        // Check, that the count call also returns 1
+        restGenomeFragmentMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("1"));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is not returned.
+     */
+    private void defaultGenomeFragmentShouldNotBeFound(String filter) throws Exception {
+        restGenomeFragmentMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$").isEmpty());
+
+        // Check, that the count call also returns 0
+        restGenomeFragmentMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("0"));
     }
 
     @Test

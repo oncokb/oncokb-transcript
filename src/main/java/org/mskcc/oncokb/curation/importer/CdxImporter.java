@@ -15,22 +15,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.mskcc.oncokb.curation.domain.Alteration;
-import org.mskcc.oncokb.curation.domain.BiomarkerAssociation;
-import org.mskcc.oncokb.curation.domain.CancerType;
-import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
-import org.mskcc.oncokb.curation.domain.Drug;
-import org.mskcc.oncokb.curation.domain.FdaSubmission;
-import org.mskcc.oncokb.curation.domain.Gene;
-import org.mskcc.oncokb.curation.domain.SpecimenType;
-import org.mskcc.oncokb.curation.service.AlterationService;
-import org.mskcc.oncokb.curation.service.BiomarkerAssociationService;
-import org.mskcc.oncokb.curation.service.CancerTypeService;
-import org.mskcc.oncokb.curation.service.CompanionDiagnosticDeviceService;
-import org.mskcc.oncokb.curation.service.DrugService;
-import org.mskcc.oncokb.curation.service.FdaSubmissionService;
-import org.mskcc.oncokb.curation.service.GeneService;
-import org.mskcc.oncokb.curation.service.SpecimenTypeService;
+import org.mskcc.oncokb.curation.domain.*;
+import org.mskcc.oncokb.curation.domain.enumeration.AssociationCancerTypeRelation;
+import org.mskcc.oncokb.curation.service.*;
 import org.mskcc.oncokb.curation.util.CdxUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +31,7 @@ public class CdxImporter {
     private CdxUtils cdxUtils;
 
     @Autowired
-    private BiomarkerAssociationService biomarkerAssociationService;
+    private AssociationService associationService;
 
     @Autowired
     private CompanionDiagnosticDeviceService companionDiagnosticDeviceService;
@@ -153,13 +140,21 @@ public class CdxImporter {
         // Create BiomarkerAssociation entities
         for (Map.Entry<Gene, List<Alteration>> entry : geneAlterationMap.entrySet()) {
             for (List<Drug> drug : drugs) {
-                BiomarkerAssociation biomarkerAssociation = new BiomarkerAssociation();
-                biomarkerAssociation.setGene(entry.getKey());
+                Association biomarkerAssociation = new Association();
                 entry.getValue().stream().forEach(mutation -> biomarkerAssociation.addAlteration(mutation));
-                drug.stream().forEach(d -> biomarkerAssociation.addDrug(d));
-                biomarkerAssociation.setCancerType(cancerType);
+                drug
+                    .stream()
+                    .forEach(d -> {
+                        Treatment t = new Treatment();
+                        t.addDrug(d);
+                        biomarkerAssociation.addTreatment(t);
+                    });
+                AssociationCancerType associationCancerType = new AssociationCancerType();
+                associationCancerType.setRelation(AssociationCancerTypeRelation.INCLUSION);
+                associationCancerType.setCancerType(cancerType);
+                biomarkerAssociation.addAssociationCancerType(associationCancerType);
                 fdaSubmissions.stream().forEach(fdaSub -> biomarkerAssociation.addFdaSubmission(fdaSub));
-                biomarkerAssociationService.save(biomarkerAssociation);
+                associationService.save(biomarkerAssociation);
             }
         }
     }

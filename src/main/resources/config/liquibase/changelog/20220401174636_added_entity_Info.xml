@@ -21,7 +21,7 @@
                 <constraints nullable="true" />
             </column>
             <column name="created" type="${datetimeType}">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="last_updated" type="${datetimeType}">
                 <constraints nullable="true" />

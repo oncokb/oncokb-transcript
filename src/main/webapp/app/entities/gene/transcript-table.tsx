@@ -5,8 +5,10 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import FlagBadge from 'app/shared/badge/FlagBadge';
 import OncoKBTable from 'app/shared/table/OncoKBTable';
+import { getEntityResourcePath } from 'app/shared/util/RouteUtils';
+import { ENTITY_TYPE } from 'app/config/constants';
 
-const apiUrl = 'api/transcripts';
+const apiUrl = getEntityResourcePath(ENTITY_TYPE.TRANSCRIPT);
 
 export interface IGeneTranscriptsProps {
   ensemblGeneId: number;

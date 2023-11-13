@@ -88,6 +88,15 @@ public class CancerTypeService {
     }
 
     /**
+     * Get all the cancerTypes with eager load of many-to-many relationships.
+     *
+     * @return the list of entities.
+     */
+    public Page<CancerType> findAllWithEagerRelationships(Pageable pageable) {
+        return cancerTypeRepository.findAllWithEagerRelationships(pageable);
+    }
+
+    /**
      * Get one cancerType by id.
      *
      * @param id the id of the entity.
@@ -96,7 +105,7 @@ public class CancerTypeService {
     @Transactional(readOnly = true)
     public Optional<CancerType> findOne(Long id) {
         log.debug("Request to get CancerType : {}", id);
-        return cancerTypeRepository.findById(id);
+        return cancerTypeRepository.findOneWithEagerRelationships(id);
     }
 
     @Transactional(readOnly = true)

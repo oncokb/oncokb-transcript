@@ -3,11 +3,11 @@ import './navigation-sidebar.scss';
 import oncokbLogo from 'oncokb-styles/dist/images/logo/oncokb.svg';
 import oncokbSmallLogo from 'oncokb-styles/dist/images/oncogenic.svg';
 import { observer } from 'mobx-react';
-import { AUTHORITIES, DEFAULT_NAV_ICON_SIZE, ENTITY_BASE_PATHS, ENTITY_TYPE, INTEGER_REGEX, PAGE_ROUTE } from 'app/config/constants';
+import { AUTHORITIES, DEFAULT_NAV_ICON_SIZE, ENTITY_INFO, ENTITY_TYPE, INTEGER_REGEX, PAGE_ROUTE } from 'app/config/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { NavLink } from 'react-router-dom';
-import { Sidebar, Menu, MenuItem, SubMenu, MenuItemProps } from 'react-pro-sidebar';
+import { Menu, MenuItem, MenuItemProps, Sidebar, SubMenu } from 'react-pro-sidebar';
 import { hasAnyAuthority } from 'app/stores';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import OptimizedImage from 'app/oncokb-commons/components/image/OptimizedImage';
@@ -25,29 +25,55 @@ import _ from 'lodash';
 const PRIORITY_ENTITY_MENU_ITEM_KEY = 'oncokbCurationEntityMenuPriorityKey';
 
 const ENTITY_MENU_NAME: { [key in ENTITY_TYPE]?: string } = {
-  [ENTITY_TYPE.GENE]: 'Gene',
   [ENTITY_TYPE.ALTERATION]: 'Alteration',
-  [ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE]: 'CDx',
-  [ENTITY_TYPE.FDA_SUBMISSION]: 'FDA Submission',
-  [ENTITY_TYPE.DRUG]: 'Drug',
-  [ENTITY_TYPE.TRANSCRIPT]: 'Transcript',
-  [ENTITY_TYPE.ENSEMBL_GENE]: 'Ensembl Gene',
   [ENTITY_TYPE.ARTICLE]: 'Article',
+  [ENTITY_TYPE.CANCER_TYPE]: 'Cancer Type',
+  [ENTITY_TYPE.CATEGORICAL_ALTERATION]: 'Categorical Alts',
+  [ENTITY_TYPE.CLINICAL_TRIAL]: 'Clinical Trial',
+  [ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE]: 'CDx',
+  [ENTITY_TYPE.CONSEQUENCE]: 'Consequence',
+  [ENTITY_TYPE.DRUG]: 'Drug',
+  [ENTITY_TYPE.ENSEMBL_GENE]: 'Ensembl Gene',
+  [ENTITY_TYPE.FDA_DRUG]: 'FDA Drug',
+  [ENTITY_TYPE.FDA_SUBMISSION]: 'FDA Submission',
+  [ENTITY_TYPE.FLAG]: 'Flag',
+  [ENTITY_TYPE.GENE]: 'Gene',
+  [ENTITY_TYPE.GENOMIC_INDICATOR]: 'Genomic Indicator',
+  [ENTITY_TYPE.INFO]: 'Info',
+  [ENTITY_TYPE.LEVEL_OF_EVIDENCE]: 'Level of Evidence',
+  [ENTITY_TYPE.NCI_THESAURUS]: 'NCI Thesaurus',
+  [ENTITY_TYPE.SEQ_REGION]: 'Seq Region',
+  [ENTITY_TYPE.SEQUENCE]: 'Sequence',
   [ENTITY_TYPE.SPECIMEN_TYPE]: 'Specimen Type',
-  [ENTITY_TYPE.CT_GOV_CONDITION]: 'CT Condition',
+  [ENTITY_TYPE.SYNONYM]: 'Synonym',
+  [ENTITY_TYPE.TRANSCRIPT]: 'Transcript',
+  [ENTITY_TYPE.TREATMENT]: 'Treatment',
 };
 
-const DEFAULT_ENTITY_MENU_ORDER = [
-  ENTITY_TYPE.GENE,
+const DEFAULT_ENTITY_MENU_ORDER: ENTITY_TYPE[] = [
   ENTITY_TYPE.ALTERATION,
-  ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE,
-  ENTITY_TYPE.FDA_SUBMISSION,
-  ENTITY_TYPE.DRUG,
-  ENTITY_TYPE.TRANSCRIPT,
-  ENTITY_TYPE.ENSEMBL_GENE,
   ENTITY_TYPE.ARTICLE,
+  ENTITY_TYPE.CANCER_TYPE,
+  ENTITY_TYPE.CATEGORICAL_ALTERATION,
+  ENTITY_TYPE.CLINICAL_TRIAL,
+  ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE,
+  ENTITY_TYPE.CONSEQUENCE,
+  ENTITY_TYPE.DRUG,
+  ENTITY_TYPE.ENSEMBL_GENE,
+  ENTITY_TYPE.FDA_DRUG,
+  ENTITY_TYPE.FDA_SUBMISSION,
+  ENTITY_TYPE.FLAG,
+  ENTITY_TYPE.GENE,
+  ENTITY_TYPE.GENOMIC_INDICATOR,
+  ENTITY_TYPE.INFO,
+  ENTITY_TYPE.LEVEL_OF_EVIDENCE,
+  ENTITY_TYPE.NCI_THESAURUS,
+  ENTITY_TYPE.SEQ_REGION,
+  ENTITY_TYPE.SEQUENCE,
   ENTITY_TYPE.SPECIMEN_TYPE,
-  ENTITY_TYPE.CT_GOV_CONDITION,
+  ENTITY_TYPE.SYNONYM,
+  ENTITY_TYPE.TRANSCRIPT,
+  ENTITY_TYPE.TREATMENT,
 ];
 
 const getDefaultEntityMenuFrequencies = () => {
@@ -90,7 +116,7 @@ const PriorityEntityMenuItem = (props: IPriorityEntityMenuItem) => {
   return (
     <MenuItem
       {...otherProps}
-      component={<NavLink to={ENTITY_BASE_PATHS[props.type]} />}
+      component={<NavLink to={ENTITY_INFO[props.type].pageRoute} />}
       onClick={() => {
         props.handlePriorityMenuItemClick(props.type);
       }}
@@ -191,7 +217,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
         <Menu>
           <SubMenu label={props.account.firstName} icon={<FaUserCircle size={DEFAULT_NAV_ICON_SIZE} />}>
             <MenuItem component={<NavLink to={PAGE_ROUTE.ACCOUNT} />}>Account Settings</MenuItem>
-            {props.isAdmin && <MenuItem component={<NavLink to={PAGE_ROUTE.ADMIN_USER_MANAGEMENT} />}>User Management</MenuItem>}
+            {props.isAdmin && <MenuItem component={<NavLink to={PAGE_ROUTE.USER} />}>User Management</MenuItem>}
           </SubMenu>
           <MenuItemCollapsible
             isCollapsed={props.isNavSidebarCollapsed}

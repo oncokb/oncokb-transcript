@@ -17,6 +17,9 @@
             <column name="application_number" type="varchar(255)">
                 <constraints nullable="false" unique="true" uniqueConstraintName="ux_fda_drug__application_number" />
             </column>
+            <column name="drug_id" type="bigint">
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_fda_drug__drug_id" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
     </changeSet>

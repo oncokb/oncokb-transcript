@@ -36,7 +36,7 @@ const CurationPage = (props: ICurationPageProps) => {
   const [mutationFilter, setMutationFilter] = useState('');
 
   useEffect(() => {
-    props.findAllGeneEntities(hugoSymbol);
+    props.searchEntities({ query: hugoSymbol });
     const cleanupCallbacks = [];
     cleanupCallbacks.push(props.addListener(firebaseGenePath));
     cleanupCallbacks.push(props.addMetaCollaboratorsListener());
@@ -58,7 +58,7 @@ const CurationPage = (props: ICurationPageProps) => {
     }
   }, [props.metaCollaboratorsData, props.data]);
 
-  return !!props.data && props.drugList && !!geneEntity ? (
+  return !!props.data && props.drugList ? (
     <div>
       <Row>
         <Col>
@@ -68,18 +68,24 @@ const CurationPage = (props: ICurationPageProps) => {
       <Row className={`${getSectionClassName()} justify-content-between`}>
         <Col>
           <div className={'d-flex mb-2'}>
-            <div>
-              <span className="font-weight-bold">Entrez Gene:</span>
-              <span className="ml-1">
-                <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
-              </span>
-            </div>
-            <div className="ml-2">
-              <span className="font-weight-bold">Gene aliases:</span>
-              <span className="ml-1">
-                <PubmedGeneArticlesLink hugoSymbols={geneEntity.geneAliases?.map(alias => alias.name)} />
-              </span>
-            </div>
+            {geneEntity ? (
+              <>
+                <div>
+                  <span className="font-weight-bold">Entrez Gene:</span>
+                  <span className="ml-1">
+                    <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
+                  </span>
+                </div>
+                <div className="ml-2">
+                  <span className="font-weight-bold">Gene aliases:</span>
+                  <span className="ml-1">
+                    <PubmedGeneArticlesLink hugoSymbols={geneEntity.synonyms?.map(alias => alias.name) || []} />
+                  </span>
+                </div>
+              </>
+            ) : (
+              <span className="text-warning">This gene is not available in database.</span>
+            )}
           </div>
           <RealtimeBasicInput
             label="Summary"
@@ -408,7 +414,7 @@ const CurationPage = (props: ICurationPageProps) => {
 };
 
 const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, firebaseDrugsStore, authStore }: IRootStore) => ({
-  findAllGeneEntities: geneStore.findAllGeneEntities,
+  searchEntities: geneStore.searchEntities,
   entities: geneStore.entities,
   addListener: firebaseGeneStore.addListener,
   data: firebaseGeneStore.data,

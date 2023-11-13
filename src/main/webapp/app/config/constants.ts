@@ -23,42 +23,281 @@ export enum REFERENCE_GENOME {
   GRCH38 = 'GRCh38',
 }
 
-export enum PAGE_ROUTE {
+export enum ENTITY_TYPE {
+  ALTERATION = 'alteration',
+  ARTICLE = 'article',
+  ASSOCIATION = 'association',
+  ASSOCIATION_CANCER_TYPE = 'association-cancer-type',
+  CANCER_TYPE = 'cancer-type',
+  CATEGORICAL_ALTERATION = 'categorical-alteration',
+  CLINICAL_TRIAL = 'clinical-trial',
+  CLINICAL_TRIAL_ARM = 'clinical-trial-arm',
+  COMPANION_DIAGNOSTIC_DEVICE = 'companion-diagnostic-device',
+  CONSEQUENCE = 'consequence',
+  DRUG = 'drug',
+  DRUG_BRAND = 'drug-brand',
+  DRUG_PRIORITY = 'drug-priority',
+  ELIGIBILITY_CRITERIA = 'eligibility-criteria',
+  ENSEMBL_GENE = 'ensembl-gene',
+  EVIDENCE = 'evidence',
+  FDA_DRUG = 'fda-drug',
+  FDA_SUBMISSION = 'fda-submission',
+  FDA_SUBMISSION_TYPE = 'fda-submission-type',
+  FLAG = 'flag',
+  GENE = 'gene',
+  GENOME_FRAGMENT = 'genome-fragment',
+  GENOMIC_INDICATOR = 'genomic-indicator',
+  HISTORY = 'history',
+  INFO = 'info',
+  LEVEL_OF_EVIDENCE = 'level-of-evidence',
+  NCI_THESAURUS = 'nci-thesaurus',
+  SEQ_REGION = 'seq-region',
+  SEQUENCE = 'sequence',
+  SPECIMEN_TYPE = 'specimen-type',
+  SYNONYM = 'synonym',
+  TRANSCRIPT = 'transcript',
+  TREATMENT = 'treatment',
+  TREATMENT_PRIORITY = 'treatment-priority',
+  USER = 'user',
+}
+
+export enum ENTITY_PAGE_ROUTE {
+  ALTERATION = '/alteration',
+  ARTICLE = '/article',
+  CANCER_TYPE = '/cancer-type',
+  CATEGORICAL_ALTERATION = '/categorical-alteration',
+  CLINICAL_TRIAL = '/clinical-trial',
+  CLINICAL_TRIAL_ARM = '/clinical-trial-arm',
+  COMPANION_DIAGNOSTIC_DEVICE = '/companion-diagnostic-device',
+  CONSEQUENCE = '/consequence',
+  DRUG = '/drug',
+  DRUG_BRAND = '/drug-brand',
+  DRUG_PRIORITY = '/drug-priority',
+  ELIGIBILITY_CRITERIA = '/eligibility-criteria',
+  ENSEMBL_GENE = '/ensembl-gene',
+  EVIDENCE = '/evidence',
+  FDA_DRUG = '/fda-drug',
+  FDA_SUBMISSION = '/fda-submission',
+  FDA_SUBMISSION_TYPE = '/fda-submission-type',
+  FLAG = '/flag',
+  GENE = '/gene',
+  GENOME_FRAGMENT = '/genome-fragment',
+  GENOMIC_INDICATOR = '/genomic-indicator',
+  HISTORY = '/history',
+  INFO = '/info',
+  LEVEL_OF_EVIDENCE = '/level-of-evidence',
+  NCI_THESAURUS = '/nci-thesaurus',
+  SEQ_REGION = '/seq-region',
+  SEQUENCE = '/sequence',
+  SPECIMEN_TYPE = '/specimen-type',
+  SYNONYM = '/synonym',
+  TRANSCRIPT = '/transcript',
+  TREATMENT = '/treatment',
+  TREATMENT_PRIORITY = '/treatment-priority',
+  USER = '/admin/user-management',
+}
+
+export enum FEATURE_PAGE_ROUTE {
   HOME = '/',
   LOGIN = '/login',
   LOGOUT = '/logout',
   ACCOUNT = '/account',
   OAUTH = '/oauth2/authorization/oidc',
-  ADMIN_USER_MANAGEMENT = '/admin/user-management',
   SEARCH = '/search',
   /* Below are curation related paths */
   CURATION = '/curation',
   CURATION_GENE = '/curation/:hugoSymbol',
-  /* Below are the entity paths */
-  ARTICLE = '/article',
-  GENE = '/gene',
-  ALTERATION = '/alteration',
-  DRUG = '/drug',
-  FDA_SUBMISSION = '/fda-submission',
-  FDA_SUBMISSION_TYPE = '/fda-submission-type',
-  CDX = '/companion-diagnostic-device',
-  SPECIMEN_TYPE = '/specimen-type',
-  CT_GOV_CONDITION = '/clinical-trials-gov-condition',
-  ENSEMBL_GENE = '/ensembl-gene',
-  TRANSCRIPT = '/transcript',
-  TRANSCRIPT_FLAG = '/transcript-flag',
-  GENE_FLAG = '/gene-flag',
 }
 
-export const ENTITY_ROUTE_TO_TITLE_MAPPING: { [key in PAGE_ROUTE]?: string } = {
-  [PAGE_ROUTE.FDA_SUBMISSION]: 'FDA Submissions',
-  [PAGE_ROUTE.FDA_SUBMISSION_TYPE]: 'FDA Submission Type',
-  [PAGE_ROUTE.CDX]: 'Companion Diagnostic Devices',
-  [PAGE_ROUTE.ARTICLE]: 'Articles',
-  [PAGE_ROUTE.DRUG]: 'Drugs',
-  [PAGE_ROUTE.GENE]: 'Genes',
-  [PAGE_ROUTE.ALTERATION]: 'Alterations',
-  [PAGE_ROUTE.CT_GOV_CONDITION]: 'CT.gov Conditions',
+export const PAGE_ROUTE = {
+  ...FEATURE_PAGE_ROUTE,
+  ...ENTITY_PAGE_ROUTE,
+};
+export type PAGE_ROUTE = ENTITY_PAGE_ROUTE | FEATURE_PAGE_ROUTE;
+
+export enum ENTITY_RESOURCE_PATH {
+  ALTERATION = '/alterations',
+  ARTICLE = '/articles',
+  ASSOCIATION = '/associations',
+  ASSOCIATION_CANCER_TYPE = '/association-cancer-types',
+  CANCER_TYPE = '/cancer-types',
+  CATEGORICAL_ALTERATION = '/categorical-alterations',
+  CLINICAL_TRIAL = '/clinical-trials',
+  CLINICAL_TRIAL_ARM = '/clinical-trial-arms',
+  COMPANION_DIAGNOSTIC_DEVICE = '/companion-diagnostic-devices',
+  CONSEQUENCE = '/consequences',
+  DRUG = '/drugs',
+  DRUG_BRAND = '/drug-brands',
+  DRUG_PRIORITY = '/drug-priorities',
+  ELIGIBILITY_CRITERIA = '/eligibility-criteria',
+  ENSEMBL_GENE = '/ensembl-genes',
+  EVIDENCE = '/evidences',
+  FDA_DRUG = '/fda-drugs',
+  FDA_SUBMISSION = '/fda-submissions',
+  FDA_SUBMISSION_TYPE = '/fda-submission-types',
+  FLAG = '/flags',
+  GENE = '/genes',
+  GENOME_FRAGMENT = '/genome-fragments',
+  GENOMIC_INDICATOR = '/genomic-indicators',
+  HISTORY = '/histories',
+  INFO = '/infos',
+  LEVEL_OF_EVIDENCE = '/level-of-evidences',
+  NCI_THESAURUS = '/nci-thesauruses',
+  SEQ_REGION = '/seq-regions',
+  SEQUENCE = '/sequences',
+  SPECIMEN_TYPE = '/specimen-types',
+  SYNONYM = '/synonyms',
+  TRANSCRIPT = '/transcripts',
+  TREATMENT = '/treatments',
+  TREATMENT_PRIORITY = '/treatment-priorities',
+  USER = '/users',
+}
+
+export const ENTITY_INFO: { [key in ENTITY_TYPE]: { pageRoute?: ENTITY_PAGE_ROUTE; resourcePath: ENTITY_RESOURCE_PATH } } = {
+  [ENTITY_TYPE.ALTERATION]: {
+    pageRoute: ENTITY_PAGE_ROUTE.ALTERATION,
+    resourcePath: ENTITY_RESOURCE_PATH.ALTERATION,
+  },
+  [ENTITY_TYPE.ARTICLE]: {
+    pageRoute: ENTITY_PAGE_ROUTE.ARTICLE,
+    resourcePath: ENTITY_RESOURCE_PATH.ARTICLE,
+  },
+  [ENTITY_TYPE.ASSOCIATION]: {
+    resourcePath: ENTITY_RESOURCE_PATH.ASSOCIATION,
+  },
+  [ENTITY_TYPE.ASSOCIATION_CANCER_TYPE]: {
+    resourcePath: ENTITY_RESOURCE_PATH.ASSOCIATION_CANCER_TYPE,
+  },
+  [ENTITY_TYPE.CANCER_TYPE]: {
+    pageRoute: ENTITY_PAGE_ROUTE.CANCER_TYPE,
+    resourcePath: ENTITY_RESOURCE_PATH.CANCER_TYPE,
+  },
+  [ENTITY_TYPE.CATEGORICAL_ALTERATION]: {
+    pageRoute: ENTITY_PAGE_ROUTE.CATEGORICAL_ALTERATION,
+    resourcePath: ENTITY_RESOURCE_PATH.CATEGORICAL_ALTERATION,
+  },
+  [ENTITY_TYPE.CLINICAL_TRIAL]: {
+    pageRoute: ENTITY_PAGE_ROUTE.CLINICAL_TRIAL,
+    resourcePath: ENTITY_RESOURCE_PATH.CLINICAL_TRIAL,
+  },
+  [ENTITY_TYPE.CLINICAL_TRIAL_ARM]: {
+    pageRoute: ENTITY_PAGE_ROUTE.CLINICAL_TRIAL_ARM,
+    resourcePath: ENTITY_RESOURCE_PATH.CLINICAL_TRIAL_ARM,
+  },
+  [ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE]: {
+    pageRoute: ENTITY_PAGE_ROUTE.COMPANION_DIAGNOSTIC_DEVICE,
+    resourcePath: ENTITY_RESOURCE_PATH.COMPANION_DIAGNOSTIC_DEVICE,
+  },
+  [ENTITY_TYPE.CONSEQUENCE]: {
+    pageRoute: ENTITY_PAGE_ROUTE.CONSEQUENCE,
+    resourcePath: ENTITY_RESOURCE_PATH.CONSEQUENCE,
+  },
+  [ENTITY_TYPE.DRUG]: {
+    pageRoute: ENTITY_PAGE_ROUTE.DRUG,
+    resourcePath: ENTITY_RESOURCE_PATH.DRUG,
+  },
+  [ENTITY_TYPE.DRUG_BRAND]: {
+    pageRoute: ENTITY_PAGE_ROUTE.DRUG_BRAND,
+    resourcePath: ENTITY_RESOURCE_PATH.DRUG_BRAND,
+  },
+  [ENTITY_TYPE.DRUG_PRIORITY]: {
+    pageRoute: ENTITY_PAGE_ROUTE.DRUG_PRIORITY,
+    resourcePath: ENTITY_RESOURCE_PATH.DRUG_PRIORITY,
+  },
+  [ENTITY_TYPE.ELIGIBILITY_CRITERIA]: {
+    pageRoute: ENTITY_PAGE_ROUTE.ELIGIBILITY_CRITERIA,
+    resourcePath: ENTITY_RESOURCE_PATH.ELIGIBILITY_CRITERIA,
+  },
+  [ENTITY_TYPE.ENSEMBL_GENE]: {
+    pageRoute: ENTITY_PAGE_ROUTE.ENSEMBL_GENE,
+    resourcePath: ENTITY_RESOURCE_PATH.ENSEMBL_GENE,
+  },
+  [ENTITY_TYPE.EVIDENCE]: {
+    pageRoute: ENTITY_PAGE_ROUTE.EVIDENCE,
+    resourcePath: ENTITY_RESOURCE_PATH.EVIDENCE,
+  },
+  [ENTITY_TYPE.FDA_DRUG]: {
+    pageRoute: ENTITY_PAGE_ROUTE.FDA_DRUG,
+    resourcePath: ENTITY_RESOURCE_PATH.FDA_DRUG,
+  },
+  [ENTITY_TYPE.FDA_SUBMISSION]: {
+    pageRoute: ENTITY_PAGE_ROUTE.FDA_SUBMISSION,
+    resourcePath: ENTITY_RESOURCE_PATH.FDA_SUBMISSION,
+  },
+  [ENTITY_TYPE.FDA_SUBMISSION_TYPE]: {
+    pageRoute: ENTITY_PAGE_ROUTE.FDA_SUBMISSION_TYPE,
+    resourcePath: ENTITY_RESOURCE_PATH.FDA_SUBMISSION_TYPE,
+  },
+  [ENTITY_TYPE.FLAG]: {
+    pageRoute: ENTITY_PAGE_ROUTE.FLAG,
+    resourcePath: ENTITY_RESOURCE_PATH.FLAG,
+  },
+  [ENTITY_TYPE.GENE]: {
+    pageRoute: ENTITY_PAGE_ROUTE.GENE,
+    resourcePath: ENTITY_RESOURCE_PATH.GENE,
+  },
+  [ENTITY_TYPE.GENOME_FRAGMENT]: {
+    pageRoute: ENTITY_PAGE_ROUTE.GENOME_FRAGMENT,
+    resourcePath: ENTITY_RESOURCE_PATH.GENOME_FRAGMENT,
+  },
+  [ENTITY_TYPE.GENOMIC_INDICATOR]: {
+    pageRoute: ENTITY_PAGE_ROUTE.GENOMIC_INDICATOR,
+    resourcePath: ENTITY_RESOURCE_PATH.GENOMIC_INDICATOR,
+  },
+  [ENTITY_TYPE.HISTORY]: {
+    pageRoute: ENTITY_PAGE_ROUTE.HISTORY,
+    resourcePath: ENTITY_RESOURCE_PATH.HISTORY,
+  },
+  [ENTITY_TYPE.INFO]: {
+    pageRoute: ENTITY_PAGE_ROUTE.INFO,
+    resourcePath: ENTITY_RESOURCE_PATH.INFO,
+  },
+  [ENTITY_TYPE.LEVEL_OF_EVIDENCE]: {
+    pageRoute: ENTITY_PAGE_ROUTE.LEVEL_OF_EVIDENCE,
+    resourcePath: ENTITY_RESOURCE_PATH.LEVEL_OF_EVIDENCE,
+  },
+  [ENTITY_TYPE.NCI_THESAURUS]: {
+    pageRoute: ENTITY_PAGE_ROUTE.NCI_THESAURUS,
+    resourcePath: ENTITY_RESOURCE_PATH.NCI_THESAURUS,
+  },
+  [ENTITY_TYPE.SEQ_REGION]: {
+    pageRoute: ENTITY_PAGE_ROUTE.SEQ_REGION,
+    resourcePath: ENTITY_RESOURCE_PATH.SEQ_REGION,
+  },
+  [ENTITY_TYPE.SEQUENCE]: {
+    pageRoute: ENTITY_PAGE_ROUTE.SEQUENCE,
+    resourcePath: ENTITY_RESOURCE_PATH.SEQUENCE,
+  },
+  [ENTITY_TYPE.SPECIMEN_TYPE]: {
+    pageRoute: ENTITY_PAGE_ROUTE.SPECIMEN_TYPE,
+    resourcePath: ENTITY_RESOURCE_PATH.SPECIMEN_TYPE,
+  },
+  [ENTITY_TYPE.SYNONYM]: {
+    pageRoute: ENTITY_PAGE_ROUTE.SYNONYM,
+    resourcePath: ENTITY_RESOURCE_PATH.SYNONYM,
+  },
+  [ENTITY_TYPE.TRANSCRIPT]: {
+    pageRoute: ENTITY_PAGE_ROUTE.TRANSCRIPT,
+    resourcePath: ENTITY_RESOURCE_PATH.TRANSCRIPT,
+  },
+  [ENTITY_TYPE.TREATMENT]: {
+    pageRoute: ENTITY_PAGE_ROUTE.TREATMENT,
+    resourcePath: ENTITY_RESOURCE_PATH.TREATMENT,
+  },
+  [ENTITY_TYPE.TREATMENT_PRIORITY]: {
+    pageRoute: ENTITY_PAGE_ROUTE.TREATMENT_PRIORITY,
+    resourcePath: ENTITY_RESOURCE_PATH.TREATMENT_PRIORITY,
+  },
+  [ENTITY_TYPE.USER]: {
+    pageRoute: ENTITY_PAGE_ROUTE.USER,
+    resourcePath: ENTITY_RESOURCE_PATH.USER,
+  },
+};
+
+export const ENTITY_TO_TITLE_MAPPING: { [key in ENTITY_TYPE]?: string } = {
+  [ENTITY_TYPE.FDA_SUBMISSION]: 'FDA Submissions',
+  [ENTITY_TYPE.FDA_SUBMISSION_TYPE]: 'FDA Submission Types',
+  [ENTITY_TYPE.NCI_THESAURUS]: 'NCI Thesaurus Terms',
 };
 
 export enum ENTITY_ACTION {
@@ -77,38 +316,6 @@ export const ENTITY_ACTION_PATH: { [key in ENTITY_ACTION]: string } = {
   [ENTITY_ACTION.DELETE]: '/delete',
 };
 
-export enum ENTITY_TYPE {
-  COMPANION_DIAGNOSTIC_DEVICE = 'companion-diagnostic-device',
-  FDA_SUBMISSION = 'fda-submission',
-  SPECIMEN_TYPE = 'specimen-type',
-  GENE = 'gene',
-  ALTERATION = 'alteration',
-  DRUG = 'drug',
-  ARTICLE = 'article',
-  USER = 'user',
-  CT_GOV_CONDITION = 'ct-gov-condition',
-  ENSEMBL_GENE = 'ensembl-gene',
-  TRANSCRIPT = 'transcript',
-  TRANSCRIPT_FLAG = 'transcript-flag',
-  GENE_FLAG = 'gene-flag',
-}
-
-export const ENTITY_BASE_PATHS: { [key in ENTITY_TYPE]: PAGE_ROUTE } = {
-  [ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE]: PAGE_ROUTE.CDX,
-  [ENTITY_TYPE.FDA_SUBMISSION]: PAGE_ROUTE.FDA_SUBMISSION,
-  [ENTITY_TYPE.SPECIMEN_TYPE]: PAGE_ROUTE.SPECIMEN_TYPE,
-  [ENTITY_TYPE.GENE]: PAGE_ROUTE.GENE,
-  [ENTITY_TYPE.ALTERATION]: PAGE_ROUTE.ALTERATION,
-  [ENTITY_TYPE.DRUG]: PAGE_ROUTE.DRUG,
-  [ENTITY_TYPE.ARTICLE]: PAGE_ROUTE.ARTICLE,
-  [ENTITY_TYPE.USER]: PAGE_ROUTE.ADMIN_USER_MANAGEMENT,
-  [ENTITY_TYPE.CT_GOV_CONDITION]: PAGE_ROUTE.CT_GOV_CONDITION,
-  [ENTITY_TYPE.ENSEMBL_GENE]: PAGE_ROUTE.ENSEMBL_GENE,
-  [ENTITY_TYPE.TRANSCRIPT]: PAGE_ROUTE.TRANSCRIPT,
-  [ENTITY_TYPE.TRANSCRIPT_FLAG]: PAGE_ROUTE.TRANSCRIPT_FLAG,
-  [ENTITY_TYPE.GENE_FLAG]: PAGE_ROUTE.GENE_FLAG,
-};
-
 export enum SearchOptionType {
   FDA_SUBMISSION = 'FDA Submissions',
   CDX = 'Companion Diagnostic Devices',
@@ -117,7 +324,6 @@ export enum SearchOptionType {
   GENE = 'Genes',
   ALTERATION = 'Alterations',
   CANCER_TYPE = 'Cancer Types',
-  CT_GOV_CONDITION = 'CT.gov Conditions',
 }
 
 export enum USER_AUTHORITY {
@@ -134,7 +340,12 @@ export const DEFAULT_ENTITY_SORT_FIELD: { [key in ENTITY_TYPE]?: string } = {
   [ENTITY_TYPE.ALTERATION]: 'name',
   [ENTITY_TYPE.DRUG]: 'name',
   [ENTITY_TYPE.FDA_SUBMISSION]: 'deviceName',
-  [ENTITY_TYPE.CT_GOV_CONDITION]: 'name',
+  [ENTITY_TYPE.CLINICAL_TRIAL]: 'title',
+  [ENTITY_TYPE.GENOMIC_INDICATOR]: 'name',
+  [ENTITY_TYPE.NCI_THESAURUS]: 'code',
+  [ENTITY_TYPE.SYNONYM]: 'name',
+  [ENTITY_TYPE.TREATMENT]: 'drugs',
+  [ENTITY_TYPE.ARTICLE]: 'title',
 };
 
 export enum ONCOGENICITY {

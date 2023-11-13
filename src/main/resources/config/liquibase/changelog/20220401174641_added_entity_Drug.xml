@@ -15,19 +15,27 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="${clobType}">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
-            <column name="code" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
-            <column name="semantic_type" type="${clobType}">
-                <constraints nullable="true" />
-            </column>
-            <column name="fda_drug_id" type="bigint">
-                <constraints nullable="true" unique="true" uniqueConstraintName="ux_drug__fda_drug_id" />
+            <column name="ncit_code" type="varchar(255)">
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_drug__nci_thesaurus_code" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+    </changeSet>
+
+    <changeSet id="20220401174641-1-relations" author="jhipster">
+
+        <createTable tableName="rel_drug__flag">
+            <column name="flag_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="drug_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="drug_id, flag_id" tableName="rel_drug__flag"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

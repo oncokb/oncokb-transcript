@@ -75,7 +75,7 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
           <dt>
             <span id="additionalInfo">Additional Info</span>
           </dt>
-          <dd>{fdaSubmissionEntity.additionalInfo}</dd>
+          <dd>{fdaSubmissionEntity.note}</dd>
           <dt>Companion Diagnostic Device</dt>
           <dd>{fdaSubmissionEntity.companionDiagnosticDevice ? fdaSubmissionEntity.companionDiagnosticDevice.name : ''}</dd>
           <dt>Type</dt>

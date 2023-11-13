@@ -6,4 +6,5 @@ package org.mskcc.oncokb.curation.domain.enumeration;
 public enum SequenceType {
     PROTEIN,
     CDNA,
+    GENOMIC,
 }

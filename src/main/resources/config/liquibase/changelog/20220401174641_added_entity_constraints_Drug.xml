@@ -8,10 +8,22 @@
     -->
     <changeSet id="20220401174641-2" author="jhipster">
 
-        <addForeignKeyConstraint baseColumnNames="fda_drug_id"
+        <addForeignKeyConstraint baseColumnNames="ncit_code"
                                  baseTableName="drug"
-                                 constraintName="fk_drug__fda_drug_id"
+                                 constraintName="fk_drug__nci_thesaurus_code"
+                                 referencedColumnNames="code"
+                                 referencedTableName="nci_thesaurus"/>
+
+        <addForeignKeyConstraint baseColumnNames="drug_id"
+                                 baseTableName="rel_drug__flag"
+                                 constraintName="fk_rel_drug__flag__drug_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="fda_drug"/>
+                                 referencedTableName="drug"/>
+
+        <addForeignKeyConstraint baseColumnNames="flag_id"
+                                 baseTableName="rel_drug__flag"
+                                 constraintName="fk_rel_drug__flag__flag_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="flag"/>
     </changeSet>
 </databaseChangeLog>

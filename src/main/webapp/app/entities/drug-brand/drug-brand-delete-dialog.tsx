@@ -17,7 +17,7 @@ export const DrugBrandDeleteDialog = (props: IDrugBrandDeleteDialogProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
-    props.history.push('/drug-brand');
+    props.history.push('/drug-brand' + props.location.search);
   };
 
   useEffect(() => {

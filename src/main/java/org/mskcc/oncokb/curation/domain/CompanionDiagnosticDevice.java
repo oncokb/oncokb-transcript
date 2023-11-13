@@ -12,7 +12,7 @@ import javax.validation.constraints.*;
  * A CompanionDiagnosticDevice.
  */
 @Entity
-@Table(name = "companion_diagnostic_device", uniqueConstraints = { @UniqueConstraint(columnNames = { "name", "manufacturer" }) })
+@Table(name = "companion_diagnostic_device")
 public class CompanionDiagnosticDevice implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -40,6 +40,7 @@ public class CompanionDiagnosticDevice implements Serializable {
     private Instant lastUpdated;
 
     @OneToMany(mappedBy = "companionDiagnosticDevice")
+    @JsonIgnoreProperties(value = { "companionDiagnosticDevice", "type" }, allowSetters = true)
     private Set<FdaSubmission> fdaSubmissions = new HashSet<>();
 
     @ManyToMany

@@ -49,7 +49,7 @@ export const EnsemblGeneDetail = (props: IEnsemblGeneDetailProps) => {
           </dt>
           <dd>{ensemblGeneEntity.strand}</dd>
           <dt>Gene</dt>
-          <dd>{ensemblGeneEntity.gene ? ensemblGeneEntity.gene.id : ''}</dd>
+          <dd>{ensemblGeneEntity.gene ? ensemblGeneEntity.gene.entrezGeneId : ''}</dd>
           <dt>Seq Region</dt>
           <dd>{ensemblGeneEntity.seqRegion ? ensemblGeneEntity.seqRegion.name : ''}</dd>
         </dl>

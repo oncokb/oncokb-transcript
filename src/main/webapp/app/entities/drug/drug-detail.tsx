@@ -32,17 +32,13 @@ export const DrugDetail = (props: IDrugDetailProps) => {
           <dt>
             <span id="code">Code</span>
           </dt>
-          <dd>{drugEntity.code}</dd>
-          <dt>
-            <span id="semanticType">Semantic Type</span>
-          </dt>
-          <dd>{drugEntity.semanticType}</dd>
+          <dd>{drugEntity.nciThesaurus?.code}</dd>
           <dt>
             <span id="brandNames">Brand Names</span>
           </dt>
           <dd>{drugEntity.brands?.map(brand => brand.name).join(', ')}</dd>
         </dl>
-        <EntityActionButton color="primary" entityId={drugEntity.id} entityType={ENTITY_TYPE.GENE} entityAction={ENTITY_ACTION.EDIT} />
+        <EntityActionButton color="primary" entityId={drugEntity.id} entityType={ENTITY_TYPE.DRUG} entityAction={ENTITY_ACTION.EDIT} />
       </Col>
     </Row>
   );

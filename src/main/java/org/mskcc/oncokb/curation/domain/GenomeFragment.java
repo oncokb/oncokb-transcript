@@ -3,6 +3,7 @@ package org.mskcc.oncokb.curation.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import org.mskcc.oncokb.curation.domain.enumeration.GenomeFragmentType;
 
 /**
@@ -19,26 +20,30 @@ public class GenomeFragment implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "start")
+    @NotNull
+    @Column(name = "start", nullable = false)
     private Integer start;
 
-    @Column(name = "end")
+    @NotNull
+    @Column(name = "end", nullable = false)
     private Integer end;
 
-    @Column(name = "strand")
+    @NotNull
+    @Column(name = "strand", nullable = false)
     private Integer strand;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "type")
+    @Column(name = "type", nullable = false)
     private GenomeFragmentType type;
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "ensemblGenes", "genomeFragments" }, allowSetters = true)
-    @JoinColumn(name = "seqRegion", referencedColumnName = "name")
+    @JoinColumn(name = "seq_region", referencedColumnName = "name")
     private SeqRegion seqRegion;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "fragments", "sequences", "flags", "ensemblGene" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "sequences", "fragments", "flags", "ensemblGene", "gene", "alterations" }, allowSetters = true)
     private Transcript transcript;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -158,7 +163,6 @@ public class GenomeFragment implements Serializable {
     public String toString() {
         return "GenomeFragment{" +
             "id=" + getId() +
-            ", seqRegion='" + getSeqRegion() + "'" +
             ", start=" + getStart() +
             ", end=" + getEnd() +
             ", strand=" + getStrand() +

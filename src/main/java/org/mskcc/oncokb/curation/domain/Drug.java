@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
 /**
  * A Drug.
@@ -21,32 +22,34 @@ public class Drug implements Serializable {
     private Long id;
 
     @Lob
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "code")
-    private String code;
-
-    @Lob
-    @Column(name = "semantic_type")
-    private String semanticType;
-
-    @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "synonyms" }, allowSetters = true)
     @OneToOne
-    @JoinColumn(unique = true)
-    private FdaDrug fdaDrug;
-
-    @OneToMany(mappedBy = "drug")
-    @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
-    private Set<DrugSynonym> synonyms = new HashSet<>();
+    @JoinColumn(unique = true, name = "ncit_code", referencedColumnName = "code")
+    private NciThesaurus nciThesaurus;
 
     @OneToMany(mappedBy = "drug")
     @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
     private Set<DrugBrand> brands = new HashSet<>();
 
+    @OneToMany(mappedBy = "drug")
+    @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
+    private Set<DrugPriority> drugPriorities = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(name = "rel_drug__flag", joinColumns = @JoinColumn(name = "drug_id"), inverseJoinColumns = @JoinColumn(name = "flag_id"))
+    @JsonIgnoreProperties(value = { "drugs", "genes", "transcripts" }, allowSetters = true)
+    private Set<Flag> flags = new HashSet<>();
+
+    @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
+    @OneToOne(mappedBy = "drug")
+    private FdaDrug fdaDrug;
+
     @ManyToMany(mappedBy = "drugs")
-    @JsonIgnoreProperties(value = { "alterations", "drugs", "fdaSubmissions", "cancerType", "gene" }, allowSetters = true)
-    private Set<BiomarkerAssociation> biomarkerAssociations = new HashSet<>();
+    @JsonIgnoreProperties(value = { "treatmentPriorities", "drugs", "associations" }, allowSetters = true)
+    private Set<Treatment> treatments = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -76,73 +79,16 @@ public class Drug implements Serializable {
         this.name = name;
     }
 
-    public String getCode() {
-        return this.code;
+    public NciThesaurus getNciThesaurus() {
+        return this.nciThesaurus;
     }
 
-    public Drug code(String code) {
-        this.setCode(code);
-        return this;
+    public void setNciThesaurus(NciThesaurus nciThesaurus) {
+        this.nciThesaurus = nciThesaurus;
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getSemanticType() {
-        return this.semanticType;
-    }
-
-    public Drug semanticType(String semanticType) {
-        this.setSemanticType(semanticType);
-        return this;
-    }
-
-    public void setSemanticType(String semanticType) {
-        this.semanticType = semanticType;
-    }
-
-    public FdaDrug getFdaDrug() {
-        return this.fdaDrug;
-    }
-
-    public void setFdaDrug(FdaDrug fdaDrug) {
-        this.fdaDrug = fdaDrug;
-    }
-
-    public Drug fdaDrug(FdaDrug fdaDrug) {
-        this.setFdaDrug(fdaDrug);
-        return this;
-    }
-
-    public Set<DrugSynonym> getSynonyms() {
-        return this.synonyms;
-    }
-
-    public void setSynonyms(Set<DrugSynonym> drugSynonyms) {
-        if (this.synonyms != null) {
-            this.synonyms.forEach(i -> i.setDrug(null));
-        }
-        if (drugSynonyms != null) {
-            drugSynonyms.forEach(i -> i.setDrug(this));
-        }
-        this.synonyms = drugSynonyms;
-    }
-
-    public Drug synonyms(Set<DrugSynonym> drugSynonyms) {
-        this.setSynonyms(drugSynonyms);
-        return this;
-    }
-
-    public Drug addSynonyms(DrugSynonym drugSynonym) {
-        this.synonyms.add(drugSynonym);
-        drugSynonym.setDrug(this);
-        return this;
-    }
-
-    public Drug removeSynonyms(DrugSynonym drugSynonym) {
-        this.synonyms.remove(drugSynonym);
-        drugSynonym.setDrug(null);
+    public Drug nciThesaurus(NciThesaurus nciThesaurus) {
+        this.setNciThesaurus(nciThesaurus);
         return this;
     }
 
@@ -177,34 +123,109 @@ public class Drug implements Serializable {
         return this;
     }
 
-    public Set<BiomarkerAssociation> getBiomarkerAssociations() {
-        return this.biomarkerAssociations;
+    public Set<DrugPriority> getDrugPriorities() {
+        return this.drugPriorities;
     }
 
-    public void setBiomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
-        if (this.biomarkerAssociations != null) {
-            this.biomarkerAssociations.forEach(i -> i.removeDrug(this));
+    public void setDrugPriorities(Set<DrugPriority> drugPriorities) {
+        if (this.drugPriorities != null) {
+            this.drugPriorities.forEach(i -> i.setDrug(null));
         }
-        if (biomarkerAssociations != null) {
-            biomarkerAssociations.forEach(i -> i.addDrug(this));
+        if (drugPriorities != null) {
+            drugPriorities.forEach(i -> i.setDrug(this));
         }
-        this.biomarkerAssociations = biomarkerAssociations;
+        this.drugPriorities = drugPriorities;
     }
 
-    public Drug biomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
-        this.setBiomarkerAssociations(biomarkerAssociations);
+    public Drug drugPriorities(Set<DrugPriority> drugPriorities) {
+        this.setDrugPriorities(drugPriorities);
         return this;
     }
 
-    public Drug addBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
-        this.biomarkerAssociations.add(biomarkerAssociation);
-        biomarkerAssociation.getDrugs().add(this);
+    public Drug addDrugPriority(DrugPriority drugPriority) {
+        this.drugPriorities.add(drugPriority);
+        drugPriority.setDrug(this);
         return this;
     }
 
-    public Drug removeBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
-        this.biomarkerAssociations.remove(biomarkerAssociation);
-        biomarkerAssociation.getDrugs().remove(this);
+    public Drug removeDrugPriority(DrugPriority drugPriority) {
+        this.drugPriorities.remove(drugPriority);
+        drugPriority.setDrug(null);
+        return this;
+    }
+
+    public Set<Flag> getFlags() {
+        return this.flags;
+    }
+
+    public void setFlags(Set<Flag> flags) {
+        this.flags = flags;
+    }
+
+    public Drug flags(Set<Flag> flags) {
+        this.setFlags(flags);
+        return this;
+    }
+
+    public Drug addFlag(Flag flag) {
+        this.flags.add(flag);
+        flag.getDrugs().add(this);
+        return this;
+    }
+
+    public Drug removeFlag(Flag flag) {
+        this.flags.remove(flag);
+        flag.getDrugs().remove(this);
+        return this;
+    }
+
+    public FdaDrug getFdaDrug() {
+        return this.fdaDrug;
+    }
+
+    public void setFdaDrug(FdaDrug fdaDrug) {
+        if (this.fdaDrug != null) {
+            this.fdaDrug.setDrug(null);
+        }
+        if (fdaDrug != null) {
+            fdaDrug.setDrug(this);
+        }
+        this.fdaDrug = fdaDrug;
+    }
+
+    public Drug fdaDrug(FdaDrug fdaDrug) {
+        this.setFdaDrug(fdaDrug);
+        return this;
+    }
+
+    public Set<Treatment> getTreatments() {
+        return this.treatments;
+    }
+
+    public void setTreatments(Set<Treatment> treatments) {
+        if (this.treatments != null) {
+            this.treatments.forEach(i -> i.removeDrug(this));
+        }
+        if (treatments != null) {
+            treatments.forEach(i -> i.addDrug(this));
+        }
+        this.treatments = treatments;
+    }
+
+    public Drug treatments(Set<Treatment> treatments) {
+        this.setTreatments(treatments);
+        return this;
+    }
+
+    public Drug addTreatment(Treatment treatment) {
+        this.treatments.add(treatment);
+        treatment.getDrugs().add(this);
+        return this;
+    }
+
+    public Drug removeTreatment(Treatment treatment) {
+        this.treatments.remove(treatment);
+        treatment.getDrugs().remove(this);
         return this;
     }
 
@@ -233,8 +254,6 @@ public class Drug implements Serializable {
         return "Drug{" +
             "id=" + getId() +
             ", name='" + getName() + "'" +
-            ", code='" + getCode() + "'" +
-            ", semanticType='" + getSemanticType() + "'" +
             "}";
     }
 }

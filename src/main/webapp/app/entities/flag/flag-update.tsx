@@ -6,8 +6,9 @@ import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 
-import { ITranscript } from 'app/shared/model/transcript.model';
+import { IDrug } from 'app/shared/model/drug.model';
 import { IGene } from 'app/shared/model/gene.model';
+import { ITranscript } from 'app/shared/model/transcript.model';
 import { IFlag } from 'app/shared/model/flag.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
@@ -17,8 +18,9 @@ export interface IFlagUpdateProps extends StoreProps, RouteComponentProps<{ id: 
 export const FlagUpdate = (props: IFlagUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
-  const transcripts = props.transcripts;
+  const drugs = props.drugs;
   const genes = props.genes;
+  const transcripts = props.transcripts;
   const flagEntity = props.flagEntity;
   const loading = props.loading;
   const updating = props.updating;
@@ -35,8 +37,9 @@ export const FlagUpdate = (props: IFlagUpdateProps) => {
       props.getEntity(props.match.params.id);
     }
 
-    props.getTranscripts({});
+    props.getDrugs({});
     props.getGenes({});
+    props.getTranscripts({});
   }, []);
 
   useEffect(() => {
@@ -140,14 +143,16 @@ export const FlagUpdate = (props: IFlagUpdateProps) => {
 };
 
 const mapStoreToProps = (storeState: IRootStore) => ({
-  transcripts: storeState.transcriptStore.entities,
+  drugs: storeState.drugStore.entities,
   genes: storeState.geneStore.entities,
+  transcripts: storeState.transcriptStore.entities,
   flagEntity: storeState.flagStore.entity,
   loading: storeState.flagStore.loading,
   updating: storeState.flagStore.updating,
   updateSuccess: storeState.flagStore.updateSuccess,
-  getTranscripts: storeState.transcriptStore.getEntities,
+  getDrugs: storeState.drugStore.getEntities,
   getGenes: storeState.geneStore.getEntities,
+  getTranscripts: storeState.transcriptStore.getEntities,
   getEntity: storeState.flagStore.getEntity,
   updateEntity: storeState.flagStore.updateEntity,
   createEntity: storeState.flagStore.createEntity,

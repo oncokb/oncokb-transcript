@@ -2,6 +2,13 @@
   "name": "Alteration",
   "fields": [
     {
+      "fieldName": "type",
+      "fieldType": "AlterationType",
+      "fieldValues": "GENOMIC_CHANGE,CDNA_CHANGE,PROTEIN_CHANGE,COPY_NUMBER_ALTERATION,STRUCTURAL_VARIANT,UNKNOWN,NA",
+      "fieldTypeJavadoc": "Enumeration",
+      "fieldValidateRules": ["required"]
+    },
+    {
       "fieldName": "name",
       "fieldType": "String",
       "fieldValidateRules": ["required"]
@@ -12,11 +19,16 @@
       "fieldValidateRules": ["required"]
     },
     {
-      "fieldName": "proteinStart",
+      "fieldName": "proteinChange",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "start",
       "fieldType": "Integer"
     },
     {
-      "fieldName": "proteinEnd",
+      "fieldName": "end",
       "fieldType": "Integer"
     },
     {
@@ -30,12 +42,6 @@
   ],
   "relationships": [
     {
-      "relationshipType": "one-to-many",
-      "otherEntityName": "alterationReferenceGenome",
-      "otherEntityRelationshipName": "alteration",
-      "relationshipName": "referenceGenomes"
-    },
-    {
       "relationshipType": "many-to-many",
       "otherEntityName": "gene",
       "otherEntityRelationshipName": "alteration",
@@ -43,16 +49,24 @@
       "ownerSide": true
     },
     {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "transcript",
+      "otherEntityRelationshipName": "alteration",
+      "relationshipName": "transcript",
+      "ownerSide": true
+    },
+    {
       "relationshipType": "many-to-one",
       "otherEntityName": "consequence",
       "otherEntityRelationshipName": "alteration",
-      "relationshipName": "consequence"
+      "relationshipName": "consequence",
+      "otherEntityField": "term"
     },
     {
       "relationshipType": "many-to-many",
-      "otherEntityName": "biomarkerAssociation",
+      "otherEntityName": "association",
       "otherEntityRelationshipName": "alteration",
-      "relationshipName": "biomarkerAssociation",
+      "relationshipName": "association",
       "ownerSide": false
     }
   ],
@@ -65,5 +79,6 @@
   "readOnly": false,
   "embedded": false,
   "applications": "*",
-  "changelogDate": "20220401174648"
+  "changelogDate": "20220401174648",
+  "javadoc": "Entity"
 }

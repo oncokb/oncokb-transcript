@@ -3,7 +3,7 @@ import { AlterationType } from 'app/shared/model/enumerations/alteration-type.mo
 
 export interface IConsequence {
   id?: number;
-  type?: AlterationType;
+  alterationType?: AlterationType;
   term?: string;
   name?: string;
   isGenerallyTruncating?: boolean;

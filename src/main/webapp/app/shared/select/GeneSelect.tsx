@@ -9,7 +9,7 @@ import { IGene } from '../model/gene.model';
 import { ITEMS_PER_PAGE } from '../util/pagination.constants';
 import { getEntityPaginationSortParameter } from '../util/entity-utils';
 import { EntitySelectOption } from './SelectOption';
-import { IGeneAlias } from '../model/gene-alias.model';
+import { ISynonym } from 'app/shared/model/synonym.model';
 
 export interface IGeneSelectProps extends SelectProps, StoreProps {}
 
@@ -17,7 +17,7 @@ const sortParamter = getEntityPaginationSortParameter(DEFAULT_ENTITY_SORT_FIELD[
 
 interface GeneSelectOption {
   value: number;
-  geneAliases: IGeneAlias[];
+  synonyms: ISynonym[];
   label: string;
 }
 
@@ -37,7 +37,7 @@ const GeneSelect = (props: IGeneSelectProps) => {
 
     options = result?.data?.map((entity: IGene) => ({
       value: entity.id,
-      geneAliases: entity.geneAliases,
+      synonyms: entity.synonyms,
       label: entity.hugoSymbol,
     }));
 
@@ -54,10 +54,10 @@ const GeneSelect = (props: IGeneSelectProps) => {
   const Option: React.FunctionComponent = (optionProps: OptionProps<GeneSelectOption>) => {
     const searchKeyword = searchInput || '';
     const subTitles = [];
-    if (optionProps.data.geneAliases?.length > 0) {
+    if (optionProps.data.synonyms?.length > 0) {
       subTitles.push({
         label: 'Also known as ',
-        text: optionProps.data.geneAliases.map(alias => alias.name).join(', '),
+        text: optionProps.data.synonyms.map(alias => alias.name).join(', '),
         searchWords: [searchKeyword],
       });
     }

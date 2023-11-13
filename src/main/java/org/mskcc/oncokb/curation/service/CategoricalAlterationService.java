@@ -47,14 +47,14 @@ public class CategoricalAlterationService {
         return categoricalAlterationRepository
             .findById(categoricalAlteration.getId())
             .map(existingCategoricalAlteration -> {
-                if (categoricalAlteration.getName() != null) {
-                    existingCategoricalAlteration.setName(categoricalAlteration.getName());
+                if (categoricalAlteration.getAlterationType() != null) {
+                    existingCategoricalAlteration.setAlterationType(categoricalAlteration.getAlterationType());
                 }
                 if (categoricalAlteration.getType() != null) {
                     existingCategoricalAlteration.setType(categoricalAlteration.getType());
                 }
-                if (categoricalAlteration.getAlterationType() != null) {
-                    existingCategoricalAlteration.setAlterationType(categoricalAlteration.getAlterationType());
+                if (categoricalAlteration.getName() != null) {
+                    existingCategoricalAlteration.setName(categoricalAlteration.getName());
                 }
 
                 return existingCategoricalAlteration;

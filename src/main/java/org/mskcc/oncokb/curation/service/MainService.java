@@ -84,11 +84,16 @@ public class MainService {
 
     public void annotateAlteration(Alteration alteration) {
         Alteration pcAlteration = alterationUtils.parseProteinChange(alteration.getAlteration());
-
-        if (pcAlteration.getConsequence().getType().equals(STRUCTURAL_VARIANT) && !pcAlteration.getGenes().isEmpty()) {
+        if (pcAlteration.getType() != null) {
+            alteration.setType(pcAlteration.getType());
+        }
+        if (pcAlteration.getType().equals(STRUCTURAL_VARIANT) && !pcAlteration.getGenes().isEmpty()) {
             alteration.setGenes(pcAlteration.getGenes());
         }
         alteration.setAlteration(pcAlteration.getAlteration());
+        if (PROTEIN_CHANGE.equals(pcAlteration.getType())) {
+            alteration.setProteinChange(pcAlteration.getAlteration());
+        }
         Set<Gene> genes = alteration
             .getGenes()
             .stream()
@@ -101,7 +106,7 @@ public class MainService {
                 } else if (gene.getHugoSymbol() != null) {
                     geneOptional = geneService.findGeneByHugoSymbol(gene.getHugoSymbol());
                     if (geneOptional.isEmpty()) {
-                        geneOptional = geneService.findGeneByAlias(gene.getHugoSymbol());
+                        geneOptional = geneService.findGeneBySynonym(gene.getHugoSymbol());
                     }
                 }
                 if (geneOptional.isEmpty()) {
@@ -117,12 +122,11 @@ public class MainService {
 
         if (alteration.getConsequence() == null) {
             if (pcAlteration.getConsequence() != null) {
-                Optional<Consequence> consequenceOptional = consequenceService.findConsequenceByTypeAndTerm(
-                    pcAlteration.getConsequence().getType(),
+                Optional<Consequence> consequenceOptional = consequenceService.findConsequenceByTerm(
                     pcAlteration.getConsequence().getTerm()
                 );
                 if (consequenceOptional.isEmpty()) {
-                    consequenceOptional = consequenceService.findConsequenceByTypeAndTerm(AlterationType.UNKNOWN, "UNKNOWN");
+                    consequenceOptional = consequenceService.findConsequenceByTerm("UNKNOWN");
                 }
                 if (consequenceOptional.isPresent()) {
                     alteration.setConsequence(consequenceOptional.get());
@@ -130,11 +134,11 @@ public class MainService {
             }
         }
 
-        if (alteration.getProteinStart() == null) {
-            alteration.setProteinStart(pcAlteration.getProteinStart());
+        if (alteration.getStart() == null) {
+            alteration.setStart(pcAlteration.getStart());
         }
-        if (alteration.getProteinEnd() == null) {
-            alteration.setProteinEnd(pcAlteration.getProteinEnd());
+        if (alteration.getEnd() == null) {
+            alteration.setEnd(pcAlteration.getEnd());
         }
         if (alteration.getRefResidues() == null) {
             alteration.setRefResidues(pcAlteration.getRefResidues());
@@ -147,9 +151,9 @@ public class MainService {
         }
 
         // update reference genome
-        if (MUTATION.equals(alteration.getConsequence().getType())) {
+        if (alteration.getGenes().size() > 0 && PROTEIN_CHANGE.equals(alteration.getType())) {
             Gene gene = alteration.getGenes().iterator().next();
-            if (alteration.getProteinStart() != null) {
+            if (alteration.getStart() != null) {
                 Optional<Sequence> grch37Sequence = findSequenceByGene(
                     ReferenceGenome.GRCh37,
                     gene.getEntrezGeneId(),
@@ -161,40 +165,18 @@ public class MainService {
                     SequenceType.PROTEIN
                 );
 
-                if (grch37Sequence.isPresent() && alteration.getProteinStart() < grch37Sequence.get().getSequence().length()) {
-                    String refRe = String.valueOf(grch37Sequence.get().getSequence().charAt(alteration.getProteinStart() - 1));
+                if (grch37Sequence.isPresent() && alteration.getStart() < grch37Sequence.get().getSequence().length()) {
+                    String refRe = String.valueOf(grch37Sequence.get().getSequence().charAt(alteration.getStart() - 1));
                     if (StringUtils.isEmpty(alteration.getRefResidues())) {
                         alteration.setRefResidues(refRe);
                     }
-                    if (alteration.getRefResidues().equals(refRe)) {
-                        AlterationReferenceGenome alterationReferenceGenome = new AlterationReferenceGenome();
-                        alterationReferenceGenome.setReferenceGenome(ReferenceGenome.GRCh37);
-                        alterationReferenceGenome.setAlteration(alteration);
-                        alteration.getReferenceGenomes().add(alterationReferenceGenome);
-                    }
                 }
-                if (grch38Sequence.isPresent() && alteration.getProteinStart() < grch38Sequence.get().getSequence().length()) {
-                    String refRe = String.valueOf(grch38Sequence.get().getSequence().charAt(alteration.getProteinStart() - 1));
+                if (grch38Sequence.isPresent() && alteration.getStart() < grch38Sequence.get().getSequence().length()) {
+                    String refRe = String.valueOf(grch38Sequence.get().getSequence().charAt(alteration.getStart() - 1));
                     if (StringUtils.isEmpty(alteration.getRefResidues())) {
                         alteration.setRefResidues(refRe);
                     }
-                    if (alteration.getRefResidues().equals(refRe)) {
-                        AlterationReferenceGenome alterationReferenceGenome = new AlterationReferenceGenome();
-                        alterationReferenceGenome.setReferenceGenome(ReferenceGenome.GRCh38);
-                        alterationReferenceGenome.setAlteration(alteration);
-                        alteration.getReferenceGenomes().add(alterationReferenceGenome);
-                    }
                 }
-            }
-        } else if (
-            STRUCTURAL_VARIANT.equals(alteration.getConsequence().getType()) ||
-            COPY_NUMBER_ALTERATION.equals(alteration.getConsequence().getType())
-        ) {
-            for (ReferenceGenome rg : ReferenceGenome.values()) {
-                AlterationReferenceGenome alterationReferenceGenome = new AlterationReferenceGenome();
-                alterationReferenceGenome.setReferenceGenome(rg);
-                alterationReferenceGenome.setAlteration(alteration);
-                alteration.getReferenceGenomes().add(alterationReferenceGenome);
             }
         }
     }

@@ -14,16 +14,28 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
+            <column name="type" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="content" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="link" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
             <column name="pmid" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="elocation_id" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <column name="title" type="${clobType}">
                 <constraints nullable="true" />
             </column>
-            <column name="journal" type="varchar(255)">
+            <column name="authors" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="pub_date" type="varchar(255)">
+            <column name="journal" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <column name="volume" type="varchar(255)">
@@ -35,7 +47,7 @@
             <column name="pages" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="authors" type="varchar(255)">
+            <column name="pub_date" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->

@@ -12,10 +12,7 @@ import javax.validation.constraints.*;
  * A FdaSubmission.
  */
 @Entity
-@Table(
-    name = "fda_submission",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "number", "supplement_number", "companion_diagnostic_device_id" }) }
-)
+@Table(name = "fda_submission")
 public class FdaSubmission implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -25,14 +22,14 @@ public class FdaSubmission implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @NotEmpty
+    @NotNull
     @Column(name = "number", nullable = false)
     private String number;
 
     @Column(name = "supplement_number")
-    private String supplementNumber = "";
+    private String supplementNumber;
 
-    @NotEmpty
+    @NotNull
     @Column(name = "device_name", nullable = false)
     private String deviceName;
 
@@ -54,15 +51,27 @@ public class FdaSubmission implements Serializable {
 
     @NotNull
     @Column(name = "curated", nullable = false)
-    private Boolean curated = false;
+    private Boolean curated;
 
     @NotNull
     @Column(name = "genetic", nullable = false)
-    private Boolean genetic = false;
+    private Boolean genetic;
 
     @Lob
-    @Column(name = "additional_info")
-    private String additionalInfo;
+    @Column(name = "note")
+    private String note;
+
+    @ManyToMany
+    @JoinTable(
+        name = "rel_fda_submission__association",
+        joinColumns = @JoinColumn(name = "fda_submission_id"),
+        inverseJoinColumns = @JoinColumn(name = "association_id")
+    )
+    @JsonIgnoreProperties(
+        value = { "evidence", "clinicalTrials", "clinicalTrialArms", "eligibilityCriteria", "fdaSubmissions", "genomicIndicators" },
+        allowSetters = true
+    )
+    private Set<Association> associations = new HashSet<>();
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "fdaSubmissions", "specimenTypes" }, allowSetters = true)
@@ -71,9 +80,6 @@ public class FdaSubmission implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = { "fdaSubmissions" }, allowSetters = true)
     private FdaSubmissionType type;
-
-    @ManyToMany(mappedBy = "fdaSubmissions")
-    private Set<BiomarkerAssociation> biomarkerAssociations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -220,17 +226,42 @@ public class FdaSubmission implements Serializable {
         this.genetic = genetic;
     }
 
-    public String getAdditionalInfo() {
-        return this.additionalInfo;
+    public String getNote() {
+        return this.note;
     }
 
-    public FdaSubmission additionalInfo(String additionalInfo) {
-        this.setAdditionalInfo(additionalInfo);
+    public FdaSubmission note(String note) {
+        this.setNote(note);
         return this;
     }
 
-    public void setAdditionalInfo(String additionalInfo) {
-        this.additionalInfo = additionalInfo;
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public Set<Association> getAssociations() {
+        return this.associations;
+    }
+
+    public void setAssociations(Set<Association> associations) {
+        this.associations = associations;
+    }
+
+    public FdaSubmission associations(Set<Association> associations) {
+        this.setAssociations(associations);
+        return this;
+    }
+
+    public FdaSubmission addAssociation(Association association) {
+        this.associations.add(association);
+        association.getFdaSubmissions().add(this);
+        return this;
+    }
+
+    public FdaSubmission removeAssociation(Association association) {
+        this.associations.remove(association);
+        association.getFdaSubmissions().remove(this);
+        return this;
     }
 
     public CompanionDiagnosticDevice getCompanionDiagnosticDevice() {
@@ -256,37 +287,6 @@ public class FdaSubmission implements Serializable {
 
     public FdaSubmission type(FdaSubmissionType fdaSubmissionType) {
         this.setType(fdaSubmissionType);
-        return this;
-    }
-
-    public Set<BiomarkerAssociation> getBiomarkerAssociations() {
-        return this.biomarkerAssociations;
-    }
-
-    public void setBiomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
-        if (this.biomarkerAssociations != null) {
-            this.biomarkerAssociations.forEach(i -> i.removeFdaSubmission(this));
-        }
-        if (biomarkerAssociations != null) {
-            biomarkerAssociations.forEach(i -> i.addFdaSubmission(this));
-        }
-        this.biomarkerAssociations = biomarkerAssociations;
-    }
-
-    public FdaSubmission biomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
-        this.setBiomarkerAssociations(biomarkerAssociations);
-        return this;
-    }
-
-    public FdaSubmission addBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
-        this.biomarkerAssociations.add(biomarkerAssociation);
-        biomarkerAssociation.getFdaSubmissions().add(this);
-        return this;
-    }
-
-    public FdaSubmission removeBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
-        this.biomarkerAssociations.remove(biomarkerAssociation);
-        biomarkerAssociation.getFdaSubmissions().remove(this);
         return this;
     }
 
@@ -324,7 +324,7 @@ public class FdaSubmission implements Serializable {
             ", platform='" + getPlatform() + "'" +
             ", curated='" + getCurated() + "'" +
             ", genetic='" + getGenetic() + "'" +
-            ", additionalInfo='" + getAdditionalInfo() + "'" +
+            ", note='" + getNote() + "'" +
             "}";
     }
 }

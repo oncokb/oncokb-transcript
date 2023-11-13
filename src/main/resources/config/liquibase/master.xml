@@ -19,44 +19,60 @@
     <include file="config/liquibase/changelog/20220401174635_added_entity_Transcript.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174636_added_entity_Info.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174637_added_entity_Gene.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20220401174638_added_entity_GeneAlias.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174639_added_entity_GenomeFragment.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174640_added_entity_EnsemblGene.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174641_added_entity_Drug.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20220401174642_added_entity_DrugSynonym.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174643_added_entity_SpecimenType.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174644_added_entity_CompanionDiagnosticDevice.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174645_added_entity_FdaSubmissionType.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174646_added_entity_FdaSubmission.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174648_added_entity_Alteration.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174649_added_entity_CancerType.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20220401174650_added_entity_BiomarkerAssociation.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401213213_added_entity_Article.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220419220505_added_entity_DrugBrand.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220428161233_added_entity_CategoricalAlteration.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220513144615_added_entity_Consequence.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20220516220250_added_entity_AlterationReferenceGenome.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20230223171840_added_entity_ClinicalTrialsGovCondition.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230525144705_added_entity_FdaDrug.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230912194141_added_entity_SeqRegion.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20230916014824_added_entity_Flag.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214339_added_entity_Association.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214340_added_entity_AssociationCancerType.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214341_added_entity_ClinicalTrial.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214342_added_entity_ClinicalTrialArm.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214343_added_entity_DrugPriority.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214344_added_entity_EligibilityCriteria.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214345_added_entity_Evidence.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214346_added_entity_GenomicIndicator.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214347_added_entity_History.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214348_added_entity_LevelOfEvidence.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214349_added_entity_NciThesaurus.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214350_added_entity_Synonym.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214351_added_entity_Treatment.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214352_added_entity_TreatmentPriority.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="config/liquibase/changelog/20220401174634_added_entity_constraints_Sequence.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174635_added_entity_constraints_Transcript.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20220401174638_added_entity_constraints_GeneAlias.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174639_added_entity_constraints_GenomeFragment.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174640_added_entity_constraints_EnsemblGene.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20220401174642_added_entity_constraints_DrugSynonym.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174644_added_entity_constraints_CompanionDiagnosticDevice.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174646_added_entity_constraints_FdaSubmission.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174648_added_entity_constraints_Alteration.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174649_added_entity_constraints_CancerType.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20220401174650_added_entity_constraints_BiomarkerAssociation.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220419220505_added_entity_constraints_DrugBrand.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20220516220250_added_entity_constraints_AlterationReferenceGenome.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20230223171840_added_entity_constraints_ClinicalTrialsGovCondition.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174641_added_entity_constraints_Drug.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174637_added_entity_constraints_Gene.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20230525144705_added_entity_constraints_FdaDrug.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214339_added_entity_constraints_Association.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214340_added_entity_constraints_AssociationCancerType.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214341_added_entity_constraints_ClinicalTrial.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214342_added_entity_constraints_ClinicalTrialArm.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214343_added_entity_constraints_DrugPriority.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214344_added_entity_constraints_EligibilityCriteria.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214345_added_entity_constraints_Evidence.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214346_added_entity_constraints_GenomicIndicator.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214349_added_entity_constraints_NciThesaurus.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214351_added_entity_constraints_Treatment.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20231101214352_added_entity_constraints_TreatmentPriority.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>

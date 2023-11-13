@@ -2,20 +2,20 @@
   "name": "CategoricalAlteration",
   "fields": [
     {
-      "fieldName": "name",
-      "fieldType": "String",
+      "fieldName": "alterationType",
+      "fieldType": "AlterationType",
+      "fieldValues": "GENOMIC_CHANGE,CDNA_CHANGE,PROTEIN_CHANGE,COPY_NUMBER_ALTERATION,STRUCTURAL_VARIANT,UNKNOWN,NA",
+      "fieldTypeJavadoc": "Enumeration",
       "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "type",
-      "fieldType": "CategoricalAlterationType",
-      "fieldValues": "ONCOGENIC_MUTATIONS,GAIN_OF_FUNCTION_MUTATIONS,LOSS_OF_FUNCTION_MUTATIONS,SWITCH_OF_FUNCTION_MUTATIONS,VUS,TRUNCATING_MUTATIONS,FUSIONS,AMPLIFICATION,DELETION,PROMOTER,WILDTYPE",
+      "fieldType": "String",
       "fieldValidateRules": ["required"]
     },
     {
-      "fieldName": "alterationType",
-      "fieldType": "AlterationType",
-      "fieldValues": "MUTATION,COPY_NUMBER_ALTERATION,STRUCTURAL_VARIANT,UNKNOWN,NA",
+      "fieldName": "name",
+      "fieldType": "String",
       "fieldValidateRules": ["required"]
     }
   ],

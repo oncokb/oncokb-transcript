@@ -53,7 +53,9 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
     const entity = {
       ...ensemblGeneEntity,
       ...values,
-      gene: selectedGeneId,
+      gene: {
+        id: selectedGeneId,
+      },
       seqRegion: seqRegions.find(it => it.id.toString() === values.seqRegionId.toString()),
     };
 

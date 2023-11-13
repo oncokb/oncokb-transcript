@@ -1,13 +1,12 @@
 import { IInfo } from 'app/shared/model/info.model';
 import { IRootStore } from 'app/stores';
-import axios from 'axios';
 import CrudStore from 'app/shared/util/crud-store';
-
-const apiUrl = 'api/infos';
+import { ENTITY_TYPE } from 'app/config/constants';
+import { getEntityResourcePath } from 'app/shared/util/RouteUtils';
 
 export class InfoStore extends CrudStore<IInfo> {
   constructor(protected rootStore: IRootStore) {
-    super(rootStore, apiUrl);
+    super(rootStore, getEntityResourcePath(ENTITY_TYPE.INFO));
   }
 }
 

@@ -12,5 +12,5 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface InfoRepository extends JpaRepository<Info, Long> {
-    Optional<Info> findOneByType(InfoType type);
+    Optional<Info> findOneByType(String type);
 }

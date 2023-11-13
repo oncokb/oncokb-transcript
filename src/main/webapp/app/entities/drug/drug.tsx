@@ -23,13 +23,11 @@ export const Drug = (props: IDrugProps) => {
   const columns: Column<IDrug>[] = [
     { accessor: 'name', Header: 'Name' },
     {
-      accessor: 'code',
+      id: 'code',
       Header: 'Code',
-      maxWidth: 150,
-    },
-    {
-      accessor: 'semanticType',
-      Header: 'Semantic Type',
+      Cell(cell: { original }): JSX.Element {
+        return cell.original.nciThesaurus ? cell.original.nciThesaurus.code : '';
+      },
     },
     getEntityTableActionsColumn(ENTITY_TYPE.DRUG),
   ];

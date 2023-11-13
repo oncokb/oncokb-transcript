@@ -3,7 +3,7 @@ package org.mskcc.oncokb.curation.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import javax.persistence.*;
-import org.mskcc.oncokb.curation.domain.enumeration.GeographicRegion;
+import javax.validation.constraints.*;
 
 /**
  * A DrugBrand.
@@ -19,15 +19,15 @@ public class DrugBrand implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
+    @NotNull
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "region")
-    private GeographicRegion region;
+    private String region;
 
     @ManyToOne
-    @JsonIgnoreProperties(value = { "fdaDrug", "synonyms", "brands", "biomarkerAssociations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "nciThesaurus", "brands", "drugPriorities", "flags", "fdaDrug", "treatments" }, allowSetters = true)
     private Drug drug;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -58,16 +58,16 @@ public class DrugBrand implements Serializable {
         this.name = name;
     }
 
-    public GeographicRegion getRegion() {
+    public String getRegion() {
         return this.region;
     }
 
-    public DrugBrand region(GeographicRegion region) {
+    public DrugBrand region(String region) {
         this.setRegion(region);
         return this;
     }
 
-    public void setRegion(GeographicRegion region) {
+    public void setRegion(String region) {
         this.region = region;
     }
 
