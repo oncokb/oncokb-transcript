@@ -1,6 +1,6 @@
 import React from 'react';
-import mskLogo from '../../../content/images/msk-logo-primary-sans-medium-navy.svg';
-import mskIcon from '../../../content/images/msk-logo-arrow-sans-medium-navy.svg';
+import mskLogo from 'oncokb-styles/dist/images/msk/logo-primary-navy.svg';
+import mskIcon from 'oncokb-styles/dist/images/msk/logo-arrow-navy.svg';
 import OptimizedImage from 'app/oncokb-commons/components/image/OptimizedImage';
 
 interface IMskccLogoProps {
