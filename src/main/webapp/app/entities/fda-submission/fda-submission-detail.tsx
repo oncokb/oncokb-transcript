@@ -5,7 +5,7 @@ import { Row, Col } from 'reactstrap';
 import { TextFormat } from 'react-jhipster';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { APP_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 export interface IFdaSubmissionDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 

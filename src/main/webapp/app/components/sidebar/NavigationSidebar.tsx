@@ -3,7 +3,14 @@ import './navigation-sidebar.scss';
 import oncokbLogo from 'oncokb-styles/dist/images/logo/oncokb.svg';
 import oncokbSmallLogo from 'oncokb-styles/dist/images/oncogenic.svg';
 import { observer } from 'mobx-react';
-import { AUTHORITIES, DEFAULT_NAV_ICON_SIZE, ENTITY_BASE_PATHS, ENTITY_TYPE, INTEGER_REGEX, PAGE_ROUTE } from 'app/config/constants';
+import {
+  AUTHORITIES,
+  DEFAULT_NAV_ICON_SIZE,
+  ENTITY_BASE_PATHS,
+  ENTITY_TYPE,
+  INTEGER_REGEX,
+  PAGE_ROUTE,
+} from 'app/config/constants/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { NavLink } from 'react-router-dom';

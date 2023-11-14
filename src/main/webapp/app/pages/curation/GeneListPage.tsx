@@ -8,7 +8,7 @@ import { geneNeedsReview } from 'app/shared/util/firebase/firebase-utils';
 import _ from 'lodash';
 import { Column } from 'react-table';
 import { Link } from 'react-router-dom';
-import { PAGE_ROUTE } from 'app/config/constants';
+import { PAGE_ROUTE } from 'app/config/constants/constants';
 import OncoKBTable from 'app/shared/table/OncoKBTable';
 
 type GeneMetaInfo = {

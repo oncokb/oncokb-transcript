@@ -3,7 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 import BaseStore from 'app/shared/util/base-store';
 import { IRootStore } from 'app/stores/createStore';
 import { OncoKBError } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
-import { AUTHORITIES } from 'app/config/constants';
+import { AUTHORITIES } from 'app/config/constants/constants';
 import { IUser } from 'app/shared/model/user.model';
 
 export const AUTH_TOKEN_KEY = 'jhi-authenticationToken';

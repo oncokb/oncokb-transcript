@@ -6,7 +6,7 @@ import { byteSize, Translate } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IFdaSubmissionType } from 'app/shared/model/fda-submission-type.model';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 export interface IFdaSubmissionTypeProps extends StoreProps, RouteComponentProps<{ url: string }> {}

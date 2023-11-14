@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Menu } from 'react-pro-sidebar';
 import { Button, Form } from 'reactstrap';
-import { ENTITY_ACTION, ENTITY_TYPE, SearchOptionType } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE, SearchOptionType } from 'app/config/constants/constants';
 import { useHistory, useLocation } from 'react-router-dom';
 import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

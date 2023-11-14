@@ -6,7 +6,7 @@ import {} from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants/constants';
 export interface IConsequenceDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const ConsequenceDetail = (props: IConsequenceDetailProps) => {

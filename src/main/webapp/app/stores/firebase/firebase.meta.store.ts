@@ -3,8 +3,8 @@ import { FirebaseCrudStore } from 'app/shared/util/firebase/firebase-crud-store'
 import { IRootStore } from '../createStore';
 import { action, makeObservable, observable } from 'mobx';
 import { onValue, ref } from 'firebase/database';
-import { FB_COLLECTION } from 'app/config/constants';
 import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
+import { FB_COLLECTION } from 'app/config/constants/firebase';
 
 export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
   public metaList: MetaCollection = undefined;

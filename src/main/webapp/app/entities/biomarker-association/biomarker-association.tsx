@@ -6,7 +6,7 @@ import { Translate } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IBiomarkerAssociation } from 'app/shared/model/biomarker-association.model';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 import { getFdaSubmissionLinks } from '../companion-diagnostic-device/companion-diagnostic-device';

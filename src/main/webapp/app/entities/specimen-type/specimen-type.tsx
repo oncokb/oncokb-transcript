@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';
 import { ISpecimenType } from 'app/shared/model/specimen-type.model';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import { getEntityTableActionsColumn } from 'app/shared/util/utils';
 import OncoKBTable from 'app/shared/table/OncoKBTable';

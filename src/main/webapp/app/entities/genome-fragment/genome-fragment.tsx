@@ -6,7 +6,7 @@ import { Translate, getSortState, JhiPagination, JhiItemCount } from 'react-jhip
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IGenomeFragment } from 'app/shared/model/genome-fragment.model';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants/constants';
 import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 

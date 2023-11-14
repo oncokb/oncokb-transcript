@@ -1,6 +1,6 @@
 import { faInfo, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { SearchOptionType } from 'app/config/constants';
+import { SearchOptionType } from 'app/config/constants/constants';
 import _ from 'lodash';
 import React, { useState } from 'react';
 import { components } from 'react-select';

@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { APP_DATE_FORMAT, ENTITY_ACTION, PAGE_ROUTE } from 'app/config/constants';
+import { APP_DATE_FORMAT, ENTITY_ACTION, PAGE_ROUTE } from 'app/config/constants/constants';
 import { IRootStore } from 'app/stores';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import WithSeparator from 'react-with-separator';
-import { ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
 import { TextFormat } from 'react-jhipster';

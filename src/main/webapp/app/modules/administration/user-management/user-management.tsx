@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
 import { Badge, Button } from 'reactstrap';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { IUser } from 'app/shared/model/user.model';
 import { Column } from 'react-table';

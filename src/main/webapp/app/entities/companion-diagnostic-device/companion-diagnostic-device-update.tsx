@@ -1,4 +1,4 @@
-import { APP_DATE_FORMAT, PAGE_ROUTE } from 'app/config/constants';
+import { APP_DATE_FORMAT, PAGE_ROUTE } from 'app/config/constants/constants';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
 import ValidatedForm from 'app/shared/form/ValidatedForm';

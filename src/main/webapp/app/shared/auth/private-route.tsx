@@ -4,7 +4,7 @@ import { Route, Redirect, RouteProps } from 'react-router-dom';
 
 import { IRootStore } from 'app/stores';
 import ErrorBoundary from 'app/shared/error/error-boundary';
-import { PAGE_ROUTE } from 'app/config/constants';
+import { PAGE_ROUTE } from 'app/config/constants/constants';
 
 interface IOwnProps extends RouteProps {
   hasAnyAuthorities?: string[];
