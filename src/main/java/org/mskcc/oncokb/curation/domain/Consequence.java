@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 
 /**
@@ -42,6 +43,7 @@ public class Consequence implements Serializable {
     @Column(name = "description")
     private String description;
 
+    @DiffIgnore
     @OneToMany(mappedBy = "consequence")
     @JsonIgnoreProperties(value = { "genes", "transcripts", "consequence", "associations" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();

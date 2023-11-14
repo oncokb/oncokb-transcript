@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.EligibilityCriteria;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the EligibilityCriteria entity.
  */
+@JaversSpringDataAuditable
 @Repository
 public interface EligibilityCriteriaRepository
     extends JpaRepository<EligibilityCriteria, Long>, JpaSpecificationExecutor<EligibilityCriteria> {

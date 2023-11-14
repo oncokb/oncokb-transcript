@@ -4,7 +4,6 @@ import static org.mskcc.oncokb.curation.domain.enumeration.AlterationType.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.mail.Flags;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
@@ -122,11 +121,12 @@ public class MainService {
 
         if (alteration.getConsequence() == null) {
             if (pcAlteration.getConsequence() != null) {
-                Optional<Consequence> consequenceOptional = consequenceService.findConsequenceByTerm(
+                Optional<Consequence> consequenceOptional = consequenceService.findConsequenceByAlterationTypeAndTerm(
+                    pcAlteration.getType(),
                     pcAlteration.getConsequence().getTerm()
                 );
                 if (consequenceOptional.isEmpty()) {
-                    consequenceOptional = consequenceService.findConsequenceByTerm("UNKNOWN");
+                    consequenceOptional = consequenceService.findConsequenceByAlterationTypeAndTerm(AlterationType.UNKNOWN, "UNKNOWN");
                 }
                 if (consequenceOptional.isPresent()) {
                     alteration.setConsequence(consequenceOptional.get());

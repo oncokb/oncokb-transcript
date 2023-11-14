@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A ClinicalTrialArm.
@@ -25,6 +26,7 @@ public class ClinicalTrialArm implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_clinical_trial_arm__association",

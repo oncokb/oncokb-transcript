@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 
 /**
@@ -42,14 +43,17 @@ public class Transcript implements Serializable {
     @Column(name = "description")
     private String description;
 
+    @ShallowReference
     @OneToMany(mappedBy = "transcript")
     @JsonIgnoreProperties(value = { "transcript" }, allowSetters = true)
     private Set<Sequence> sequences = new HashSet<>();
 
+    @ShallowReference
     @OneToMany(mappedBy = "transcript")
     @JsonIgnoreProperties(value = { "seqRegion", "transcript" }, allowSetters = true)
     private Set<GenomeFragment> fragments = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_transcript__flag",
@@ -68,6 +72,7 @@ public class Transcript implements Serializable {
     @JoinColumn(name = "entrez_gene_id", referencedColumnName = "entrez_gene_id")
     private Gene gene;
 
+    @ShallowReference
     @ManyToMany(mappedBy = "transcripts")
     @JsonIgnoreProperties(value = { "genes", "transcripts", "consequence", "associations" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();

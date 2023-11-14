@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A ClinicalTrial.
@@ -34,14 +35,17 @@ public class ClinicalTrial implements Serializable {
     @Column(name = "status")
     private String status;
 
+    @ShallowReference
     @OneToMany(mappedBy = "clinicalTrial")
     @JsonIgnoreProperties(value = { "associations", "clinicalTrial" }, allowSetters = true)
     private Set<ClinicalTrialArm> clinicalTrialArms = new HashSet<>();
 
+    @ShallowReference
     @OneToMany(mappedBy = "clinicalTrial")
     @JsonIgnoreProperties(value = { "associations", "clinicalTrial" }, allowSetters = true)
     private Set<EligibilityCriteria> eligibilityCriteria = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_clinical_trial__association",

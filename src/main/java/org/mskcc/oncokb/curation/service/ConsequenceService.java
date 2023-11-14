@@ -3,6 +3,7 @@ package org.mskcc.oncokb.curation.service;
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.Consequence;
+import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 import org.mskcc.oncokb.curation.repository.ConsequenceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,9 +92,9 @@ public class ConsequenceService {
         return consequenceRepository.findById(id);
     }
 
-    public Optional<Consequence> findConsequenceByTerm(String term) {
-        log.debug("Request to get Consequence by alteration type and term : {}", term);
-        return consequenceRepository.findConsequenceByTerm(term);
+    public Optional<Consequence> findConsequenceByAlterationTypeAndTerm(AlterationType alterationType, String term) {
+        log.debug("Request to get Consequence by alteration type and term : {} {}", alterationType, term);
+        return consequenceRepository.findConsequenceByAlterationTypeAndTerm(alterationType, term);
     }
 
     /**

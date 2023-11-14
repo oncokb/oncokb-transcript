@@ -47,7 +47,6 @@ export enum ENTITY_TYPE {
   GENE = 'gene',
   GENOME_FRAGMENT = 'genome-fragment',
   GENOMIC_INDICATOR = 'genomic-indicator',
-  HISTORY = 'history',
   INFO = 'info',
   LEVEL_OF_EVIDENCE = 'level-of-evidence',
   NCI_THESAURUS = 'nci-thesaurus',
@@ -83,7 +82,6 @@ export enum ENTITY_PAGE_ROUTE {
   GENE = '/gene',
   GENOME_FRAGMENT = '/genome-fragment',
   GENOMIC_INDICATOR = '/genomic-indicator',
-  HISTORY = '/history',
   INFO = '/info',
   LEVEL_OF_EVIDENCE = '/level-of-evidence',
   NCI_THESAURUS = '/nci-thesaurus',
@@ -139,7 +137,6 @@ export enum ENTITY_RESOURCE_PATH {
   GENE = '/genes',
   GENOME_FRAGMENT = '/genome-fragments',
   GENOMIC_INDICATOR = '/genomic-indicators',
-  HISTORY = '/histories',
   INFO = '/infos',
   LEVEL_OF_EVIDENCE = '/level-of-evidences',
   NCI_THESAURUS = '/nci-thesauruses',
@@ -243,10 +240,6 @@ export const ENTITY_INFO: { [key in ENTITY_TYPE]: { pageRoute?: ENTITY_PAGE_ROUT
   [ENTITY_TYPE.GENOMIC_INDICATOR]: {
     pageRoute: ENTITY_PAGE_ROUTE.GENOMIC_INDICATOR,
     resourcePath: ENTITY_RESOURCE_PATH.GENOMIC_INDICATOR,
-  },
-  [ENTITY_TYPE.HISTORY]: {
-    pageRoute: ENTITY_PAGE_ROUTE.HISTORY,
-    resourcePath: ENTITY_RESOURCE_PATH.HISTORY,
   },
   [ENTITY_TYPE.INFO]: {
     pageRoute: ENTITY_PAGE_ROUTE.INFO,

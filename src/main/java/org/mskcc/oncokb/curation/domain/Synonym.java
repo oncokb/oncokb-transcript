@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 
 /**
  * A Synonym.
@@ -39,14 +40,17 @@ public class Synonym implements Serializable {
     @Column(name = "note")
     private String note;
 
+    @DiffIgnore
     @ManyToMany(mappedBy = "synonyms")
     @JsonIgnoreProperties(value = { "associationCancerTypes", "children", "synonyms", "parent" }, allowSetters = true)
     private Set<CancerType> cancerTypes = new HashSet<>();
 
+    @DiffIgnore
     @ManyToMany(mappedBy = "synonyms")
     @JsonIgnoreProperties(value = { "ensemblGenes", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
     private Set<Gene> genes = new HashSet<>();
 
+    @DiffIgnore
     @ManyToMany(mappedBy = "synonyms")
     @JsonIgnoreProperties(value = { "synonyms" }, allowSetters = true)
     private Set<NciThesaurus> nciThesauruses = new HashSet<>();

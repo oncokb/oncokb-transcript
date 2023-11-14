@@ -43,7 +43,7 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
     const entity = {
       ...geneEntity,
       ...values,
-      geneFlags: mapIdList(values.geneFlags),
+      flags: mapIdList(values.geneFlags),
     };
 
     if (isNew) {
@@ -58,7 +58,7 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
       ? {}
       : {
           ...geneEntity,
-          geneFlags: geneEntity?.flags?.map(e => e.id.toString()),
+          flags: geneEntity?.flags?.map(e => e.id.toString()),
         };
 
   return (

@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 
 /**
  * A SeqRegion.
@@ -32,10 +33,12 @@ public class SeqRegion implements Serializable {
     @Column(name = "description")
     private String description;
 
+    @DiffIgnore
     @OneToMany(mappedBy = "seqRegion")
     @JsonIgnoreProperties(value = { "transcripts", "gene", "seqRegion" }, allowSetters = true)
     private Set<EnsemblGene> ensemblGenes = new HashSet<>();
 
+    @DiffIgnore
     @OneToMany(mappedBy = "seqRegion")
     @JsonIgnoreProperties(value = { "seqRegion", "transcript" }, allowSetters = true)
     private Set<GenomeFragment> genomeFragments = new HashSet<>();

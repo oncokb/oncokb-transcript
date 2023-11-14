@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 
 /**
  * A LevelOfEvidence.
@@ -29,6 +30,7 @@ public class LevelOfEvidence implements Serializable {
     @Column(name = "level", nullable = false)
     private String level;
 
+    @DiffIgnore
     @ManyToMany(mappedBy = "levelOfEvidences")
     @JsonIgnoreProperties(value = { "association", "levelOfEvidences" }, allowSetters = true)
     private Set<Evidence> evidences = new HashSet<>();
