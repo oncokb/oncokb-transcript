@@ -1,13 +1,12 @@
 package org.mskcc.oncokb.curation.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
 import org.mskcc.oncokb.curation.repository.CompanionDiagnosticDeviceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +33,7 @@ public class CompanionDiagnosticDeviceService {
      */
     public CompanionDiagnosticDevice save(CompanionDiagnosticDevice companionDiagnosticDevice) {
         log.debug("Request to save CompanionDiagnosticDevice : {}", companionDiagnosticDevice);
+        companionDiagnosticDevice.setLastUpdated(Instant.now());
         return companionDiagnosticDeviceRepository.save(companionDiagnosticDevice);
     }
 
@@ -64,6 +64,8 @@ public class CompanionDiagnosticDeviceService {
                 if (companionDiagnosticDevice.getLastUpdated() != null) {
                     existingCompanionDiagnosticDevice.setLastUpdated(companionDiagnosticDevice.getLastUpdated());
                 }
+
+                existingCompanionDiagnosticDevice.setLastUpdated(Instant.now());
 
                 return existingCompanionDiagnosticDevice;
             })
