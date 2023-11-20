@@ -1,3 +1,5 @@
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 
@@ -5,6 +7,12 @@ export const SimpleConfirmModal: React.FunctionComponent<{
   title?: string;
   body?: string | JSX.Element;
   show: boolean;
+  cancelText?: string;
+  cancelColor?: string;
+  cancelIcon?: IconProp;
+  confirmText?: string;
+  confirmColor?: string;
+  confirmIcon?: IconProp;
   onCancel?: () => void;
   onConfirm?: () => void;
 }> = props => {
@@ -17,19 +25,38 @@ export const SimpleConfirmModal: React.FunctionComponent<{
       <ModalHeader toggle={() => onCancel()}>{props.title || 'Please confirm'}</ModalHeader>
       <ModalBody>{props.body ? props.body : 'Are you sure?'}</ModalBody>
       <ModalFooter>
-        <Button color="secondary" onClick={(event: any) => onCancel(event)}>
-          Cancel
+        <Button color={props.cancelColor || 'secondary'} onClick={(event: any) => onCancel(event)}>
+          {props.cancelIcon && (
+            <>
+              <FontAwesomeIcon icon={props.cancelIcon} /> &nbsp;
+            </>
+          )}{' '}
+          {props.cancelText || 'Cancel'}
         </Button>
         <Button
-          color="primary"
+          color={props.confirmColor || 'primary'}
           onClick={(event: any) => {
             event.preventDefault();
             if (props.onConfirm) props.onConfirm();
           }}
         >
-          Confirm
+          {props.confirmIcon && (
+            <>
+              <FontAwesomeIcon icon={props.confirmIcon} /> &nbsp;
+            </>
+          )}{' '}
+          {props.confirmText || 'Confirm'}
         </Button>
       </ModalFooter>
     </Modal>
   );
 };
+
+// <Button color="secondary" onClick={handleClose}>
+//           <FontAwesomeIcon icon="ban" />
+//           &nbsp; Cancel
+//         </Button>
+//         <Button id="jhi-confirm-delete-gene" data-cy="entityConfirmDeleteButton" color="danger" onClick={confirmDelete}>
+//           <FontAwesomeIcon icon="trash" />
+//           &nbsp; Delete
+//         </Button>

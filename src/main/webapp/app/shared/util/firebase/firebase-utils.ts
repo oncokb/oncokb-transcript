@@ -1,5 +1,5 @@
 import { UUID_REGEX } from 'app/config/constants/constants';
-import { Drug, Meta, Mutation } from 'app/shared/model/firebase/firebase.model';
+import { Drug, DrugCollection, Meta, Mutation } from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
 import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
 
@@ -51,7 +51,7 @@ export const getMutationName = (mutation: Mutation) => {
   }
 };
 
-export const getTxName = (drugList: { [key: string]: Drug }, txUuidName: string) => {
+export const getTxName = (drugList: DrugCollection, txUuidName: string) => {
   return txUuidName
     .split(',')
     .map(tx => {
