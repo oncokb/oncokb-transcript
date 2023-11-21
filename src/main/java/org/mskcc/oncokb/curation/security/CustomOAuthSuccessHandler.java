@@ -14,8 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.mskcc.oncokb.curation.config.Constants;
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
-import org.mskcc.oncokb.curation.domain.User;
-import org.mskcc.oncokb.curation.repository.UserRepository;
 import org.mskcc.oncokb.curation.service.UserService;
 import org.mskcc.oncokb.curation.service.dto.KeycloakUserDTO;
 import org.mskcc.oncokb.curation.service.dto.UserDTO;
@@ -63,9 +61,9 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 userService.updateUser(user);
             }
 
-            // Keycloak oauth token uses `sub` to get principal name which is an unique id.
+            // Keycloak oauth token uses `sub` to get principal name which is a unique id.
             // We like to use the `name` field instead, so it can be used to store in the audit.
-            OAuth2AuthenticationToken authenticationWithAuthorities = getoAuth2AuthenticationToken(
+            OAuth2AuthenticationToken authenticationWithAuthorities = getOAuth2AuthenticationToken(
                 (OAuth2AuthenticationToken) authentication,
                 user
             );
@@ -85,7 +83,7 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         clearAuthenticationAttributes(request);
     }
 
-    private static OAuth2AuthenticationToken getoAuth2AuthenticationToken(OAuth2AuthenticationToken authentication, UserDTO user) {
+    private static OAuth2AuthenticationToken getOAuth2AuthenticationToken(OAuth2AuthenticationToken authentication, UserDTO user) {
         Collection<? extends GrantedAuthority> authorities = user
             .getAuthorities()
             .stream()

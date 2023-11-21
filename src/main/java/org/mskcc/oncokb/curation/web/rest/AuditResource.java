@@ -110,7 +110,7 @@ public class AuditResource {
         Class entityTypeToFetch = Class.forName(ENTITY_PACKAGE_PATH + entityType);
 
         // Find the commit
-        QueryBuilder jqlQuery = QueryBuilder.byInstanceId(entityId, entityTypeToFetch).withCommitId(BigDecimal.valueOf(commitId)).limit(5);
+        QueryBuilder jqlQuery = QueryBuilder.byInstanceId(entityId, entityTypeToFetch).withCommitId(BigDecimal.valueOf(commitId)).limit(1);
 
         // Since we use random commit id, we need to find the list of commits that prior to the commitId
         List<CdoSnapshot> snapshots = javers.findSnapshots(jqlQuery.build());
@@ -118,7 +118,7 @@ public class AuditResource {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        // Return the first one.
+        // Return the previous one of commitId
         CdoSnapshot cdoSnapshot = snapshots.iterator().next();
         jqlQuery = QueryBuilder.byInstanceId(entityId, entityTypeToFetch).to(cdoSnapshot.getCommitMetadata().getCommitDate()).limit(2);
         snapshots = javers.findSnapshots(jqlQuery.build());
