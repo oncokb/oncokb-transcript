@@ -27,7 +27,7 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import { FIREBASE_ONCOGENICITY, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
 import { GENE_TYPE, GENE_TYPE_KEY } from 'app/config/constants/firebase';
-import VusTable from './vus-table';
+import VusTable from '../../shared/table/VusTable';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import classNames from 'classnames';
 import { FaAccessibleIcon } from 'react-icons/fa';
@@ -38,14 +38,12 @@ const CurationPage = (props: ICurationPageProps) => {
   const history = useHistory();
   const hugoSymbol = props.match.params.hugoSymbol;
   const firebaseGenePath = getFirebasePath('GENE', hugoSymbol);
-  const firebaseVusPath = getFirebasePath('VUS', hugoSymbol);
   const [mutationFilter, setMutationFilter] = useState('');
 
   useEffect(() => {
     props.findAllGeneEntities(hugoSymbol);
     const cleanupCallbacks = [];
     cleanupCallbacks.push(props.addListener(firebaseGenePath));
-    cleanupCallbacks.push(props.addVusListener(firebaseVusPath));
     cleanupCallbacks.push(props.addMetaCollaboratorsListener());
     cleanupCallbacks.push(props.addDrugListListener());
     cleanupCallbacks.push(() => props.metaCollaboratorsData && props.updateCollaborator(hugoSymbol, false));
@@ -317,29 +315,14 @@ const CurationPage = (props: ICurationPageProps) => {
             ))}
         </div>
       )}
-      {props.vusData && (
-        <VusTable
-          vusObjList={props.vusData}
-          hugoSymbol={hugoSymbol}
-          account={props.account}
-          handleFirebaseUpdate={props.updateVus}
-          handleFirebaseDelete={props.deleteVus}
-        />
-      )}
+      <VusTable hugoSymbol={hugoSymbol} />
     </div>
   ) : (
     <LoadingIndicator size={LoaderSize.LARGE} center={true} isLoading />
   );
 };
 
-const mapStoreToProps = ({
-  geneStore,
-  firebaseGeneStore,
-  firebaseMetaStore,
-  firebaseDrugsStore,
-  firebaseVusStore,
-  authStore,
-}: IRootStore) => ({
+const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, firebaseDrugsStore, authStore }: IRootStore) => ({
   findAllGeneEntities: geneStore.findAllGeneEntities,
   entities: geneStore.entities,
   addListener: firebaseGeneStore.addListener,
@@ -350,10 +333,6 @@ const mapStoreToProps = ({
   metaData: firebaseMetaStore.data,
   drugList: firebaseDrugsStore.drugList,
   addDrugListListener: firebaseDrugsStore.addDrugListListener,
-  vusData: firebaseVusStore.data,
-  addVusListener: firebaseVusStore.addListener,
-  updateVus: firebaseVusStore.update,
-  deleteVus: firebaseVusStore.delete,
   metaCollaboratorsData: firebaseMetaStore.metaCollaborators,
   updateCollaborator: firebaseMetaStore.updateCollaborator,
   account: authStore.account,

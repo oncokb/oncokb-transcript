@@ -51,12 +51,3 @@ export const SimpleConfirmModal: React.FunctionComponent<{
     </Modal>
   );
 };
-
-// <Button color="secondary" onClick={handleClose}>
-//           <FontAwesomeIcon icon="ban" />
-//           &nbsp; Cancel
-//         </Button>
-//         <Button id="jhi-confirm-delete-gene" data-cy="entityConfirmDeleteButton" color="danger" onClick={confirmDelete}>
-//           <FontAwesomeIcon icon="trash" />
-//           &nbsp; Delete
-//         </Button>

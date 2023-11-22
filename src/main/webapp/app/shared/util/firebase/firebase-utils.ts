@@ -1,5 +1,5 @@
 import { UUID_REGEX } from 'app/config/constants/constants';
-import { Drug, DrugCollection, Meta, Mutation } from 'app/shared/model/firebase/firebase.model';
+import { Comment, DrugCollection, Meta, Mutation } from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
 import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
 
@@ -78,3 +78,13 @@ export const geneNeedsReview = (meta: Meta | undefined) => {
 export const getFirebasePath = (type: keyof typeof FB_COLLECTION_PATH, ...params: string[]) => {
   return replaceUrlParams(FB_COLLECTION_PATH[type], ...params);
 };
+
+export function getMostRecentComment(comments: Comment[]) {
+  let latestComment = comments[0];
+  for (const comment of comments) {
+    if (parseInt(comment.date, 10) > parseInt(latestComment.date, 10)) {
+      latestComment = comment;
+    }
+  }
+  return latestComment;
+}

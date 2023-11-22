@@ -9,6 +9,7 @@ import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from '../button/EntityActionButton';
 import { SORT } from './pagination.constants';
 import { PaginationState } from '../table/OncoKBAsyncTable';
+import { IUser } from '../model/user.model';
 
 export const getCancerTypeName = (cancerType: ICancerType): string => {
   let name = '';
@@ -116,3 +117,26 @@ export const getEntityTableActionsColumn = (entityType: ENTITY_TYPE) => {
   };
   return actionsColumn;
 };
+
+export function getUserFullName(user: IUser) {
+  let name;
+  if (user.firstName && user.lastName) {
+    name = `${user.firstName} ${user.lastName}`;
+  } else if (user.firstName) {
+    name = user.firstName;
+  } else {
+    name = user.lastName;
+  }
+  return name;
+}
+
+export function formatDate(date: Date) {
+  return new Intl.DateTimeFormat('en-US', {
+    year: '2-digit',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  }).format(date);
+}
