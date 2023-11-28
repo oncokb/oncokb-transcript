@@ -323,7 +323,6 @@ const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, fire
   addListener: firebaseGeneStore.addListener,
   data: firebaseGeneStore.data,
   update: firebaseGeneStore.update,
-  nestLevelSummary: firebaseGeneStore.mutationSummaryStats,
   updateReviewableContent: firebaseGeneStore.updateReviewableContent,
   addMetaCollaboratorsListener: firebaseMetaStore.addMetaCollaboratorsListener,
   metaData: firebaseMetaStore.data,
