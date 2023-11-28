@@ -1,4 +1,4 @@
-import { Gene } from 'app/shared/model/firebase/firebase.model';
+import { Gene, ONCOGENICITY } from 'app/shared/model/firebase/firebase.model';
 import { ExtractPathExpressions } from 'app/shared/util/firebase/firebase-crud-store';
 
 export enum GENE_TYPE {
@@ -31,4 +31,12 @@ export const FB_COLLECTION_PATH = {
   META_COLLABORATORS: `${FB_COLLECTION.META}/collaborators`,
   META_COLLABORATOR: `${FB_COLLECTION.META}/collaborators/:name`,
   META_COLLABORATOR_GENE: `${FB_COLLECTION.META}/collaborators/:name/:index`,
+};
+
+export const ONCOGENICITY_CLASS_MAPPING: { [key in ONCOGENICITY]: string } = {
+  [ONCOGENICITY.YES]: 'oncogenic',
+  [ONCOGENICITY.LIKELY]: 'likely-oncogenic',
+  [ONCOGENICITY.RESISTANCE]: 'resistance',
+  [ONCOGENICITY.LIKELY_NEUTRAL]: 'likely-neutral',
+  [ONCOGENICITY.INCONCLUSIVE]: 'inconclusive',
 };

@@ -160,7 +160,7 @@ export class MutationEffect {
   effect = '';
   effect_review?: Review;
   effect_uuid: string = generateUuid();
-  oncogenic = '';
+  oncogenic: ONCOGENICITY | '' = '';
   oncogenic_review?: Review;
   oncogenic_uuid: string = generateUuid();
   germline?: GermlineMutation = new GermlineMutation();

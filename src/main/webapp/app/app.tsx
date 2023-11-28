@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
+import 'oncokb-styles/dist/oncokb.css';
 import './app.scss';
 import 'react-table/react-table.css';
 import { componentInject } from 'app/shared/util/typed-inject';
