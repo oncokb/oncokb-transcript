@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A Gene.
@@ -32,19 +34,23 @@ public class Gene implements Serializable {
     @Column(name = "hgnc_id")
     private String hgncId;
 
+    @DiffIgnore
     @OneToMany(mappedBy = "gene")
     @JsonIgnoreProperties(value = { "transcripts", "gene", "seqRegion" }, allowSetters = true)
     private Set<EnsemblGene> ensemblGenes = new HashSet<>();
 
+    @DiffIgnore
     @OneToMany(mappedBy = "gene")
     @JsonIgnoreProperties(value = { "sequences", "fragments", "flags", "ensemblGene", "gene", "alterations" }, allowSetters = true)
     private Set<Transcript> transcripts = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(name = "rel_gene__flag", joinColumns = @JoinColumn(name = "gene_id"), inverseJoinColumns = @JoinColumn(name = "flag_id"))
     @JsonIgnoreProperties(value = { "drugs", "genes", "transcripts" }, allowSetters = true)
     private Set<Flag> flags = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_gene__synonym",
@@ -54,6 +60,7 @@ public class Gene implements Serializable {
     @JsonIgnoreProperties(value = { "cancerTypes", "genes", "nciThesauruses" }, allowSetters = true)
     private Set<Synonym> synonyms = new HashSet<>();
 
+    @DiffIgnore
     @ManyToMany(mappedBy = "genes")
     @JsonIgnoreProperties(value = { "genes", "transcripts", "consequence", "associations" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();

@@ -32,7 +32,6 @@ import DrugPriority from './drug-priority';
 import EligibilityCriteria from './eligibility-criteria';
 import Evidence from './evidence';
 import GenomicIndicator from './genomic-indicator';
-import History from './history';
 import LevelOfEvidence from './level-of-evidence';
 import NciThesaurus from './nci-thesaurus';
 import Synonym from './synonym';
@@ -85,7 +84,6 @@ const Routes = ({ match }) => (
       <ErrorBoundaryRoute path={`${match.url}eligibility-criteria`} component={EligibilityCriteria} />
       <ErrorBoundaryRoute path={`${match.url}evidence`} component={Evidence} />
       <ErrorBoundaryRoute path={`${match.url}genomic-indicator`} component={GenomicIndicator} />
-      <ErrorBoundaryRoute path={`${match.url}history`} component={History} />
       <ErrorBoundaryRoute path={`${match.url}level-of-evidence`} component={LevelOfEvidence} />
       <ErrorBoundaryRoute path={`${match.url}nci-thesaurus`} component={NciThesaurus} />
       <ErrorBoundaryRoute path={`${match.url}synonym`} component={Synonym} />

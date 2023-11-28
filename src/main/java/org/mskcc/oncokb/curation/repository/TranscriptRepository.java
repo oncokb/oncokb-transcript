@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
 import org.mskcc.oncokb.curation.domain.Transcript;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the Transcript entity.
  */
+@JaversSpringDataAuditable
 @Repository
 public interface TranscriptRepository extends JpaRepository<Transcript, Long>, JpaSpecificationExecutor<Transcript> {
     @Query("select t from Transcript t join t.ensemblGene eg where eg.referenceGenome= ?1 and t.ensemblTranscriptId=?2")

@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the Gene entity.
  */
+@JaversSpringDataAuditable
 @Repository
 public interface GeneRepository extends JpaRepository<Gene, Long>, JpaSpecificationExecutor<Gene> {
     @Query(

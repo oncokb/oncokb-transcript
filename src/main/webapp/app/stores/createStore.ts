@@ -97,7 +97,6 @@ import DrugPriorityStore from 'app/entities/drug-priority/drug-priority.store';
 import EligibilityCriteriaStore from 'app/entities/eligibility-criteria/eligibility-criteria.store';
 import EvidenceStore from 'app/entities/evidence/evidence.store';
 import GenomicIndicatorStore from 'app/entities/genomic-indicator/genomic-indicator.store';
-import HistoryStore from 'app/entities/history/history.store';
 import LevelOfEvidenceStore from 'app/entities/level-of-evidence/level-of-evidence.store';
 import NciThesaurusStore from 'app/entities/nci-thesaurus/nci-thesaurus.store';
 import SynonymStore from 'app/entities/synonym/synonym.store';
@@ -140,7 +139,6 @@ export interface IRootStore {
   readonly eligibilityCriteriaStore: EligibilityCriteriaStore;
   readonly evidenceStore: EvidenceStore;
   readonly genomicIndicatorStore: GenomicIndicatorStore;
-  readonly historyStore: HistoryStore;
   readonly levelOfEvidenceStore: LevelOfEvidenceStore;
   readonly nciThesaurusStore: NciThesaurusStore;
   readonly synonymStore: SynonymStore;
@@ -191,7 +189,6 @@ export function createStores(history: History): IRootStore {
   rootStore.eligibilityCriteriaStore = new EligibilityCriteriaStore(rootStore);
   rootStore.evidenceStore = new EvidenceStore(rootStore);
   rootStore.genomicIndicatorStore = new GenomicIndicatorStore(rootStore);
-  rootStore.historyStore = new HistoryStore(rootStore);
   rootStore.levelOfEvidenceStore = new LevelOfEvidenceStore(rootStore);
   rootStore.nciThesaurusStore = new NciThesaurusStore(rootStore);
   rootStore.synonymStore = new SynonymStore(rootStore);

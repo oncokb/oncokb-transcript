@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.mskcc.oncokb.curation.domain.enumeration.FdaSubmissionTypeKey;
 
 /**
@@ -38,6 +39,7 @@ public class FdaSubmissionType implements Serializable {
     @Column(name = "description")
     private String description;
 
+    @DiffIgnore
     @OneToMany(mappedBy = "type")
     @JsonIgnoreProperties(value = { "associations", "companionDiagnosticDevice", "type" }, allowSetters = true)
     private Set<FdaSubmission> fdaSubmissions = new HashSet<>();

@@ -43,7 +43,6 @@
     <include file="config/liquibase/changelog/20231101214344_added_entity_EligibilityCriteria.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20231101214345_added_entity_Evidence.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20231101214346_added_entity_GenomicIndicator.xml" relativeToChangelogFile="false"/>
-    <include file="config/liquibase/changelog/20231101214347_added_entity_History.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20231101214348_added_entity_LevelOfEvidence.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20231101214349_added_entity_NciThesaurus.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20231101214350_added_entity_Synonym.xml" relativeToChangelogFile="false"/>

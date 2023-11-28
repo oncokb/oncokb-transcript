@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A Treatment.
@@ -23,10 +25,12 @@ public class Treatment implements Serializable {
     @Column(name = "name")
     private String name;
 
+    @ShallowReference
     @OneToMany(mappedBy = "treatment")
     @JsonIgnoreProperties(value = { "treatment" }, allowSetters = true)
     private Set<TreatmentPriority> treatmentPriorities = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_treatment__drug",
@@ -36,6 +40,7 @@ public class Treatment implements Serializable {
     @JsonIgnoreProperties(value = { "nciThesaurus", "brands", "drugPriorities", "flags", "fdaDrug", "treatments" }, allowSetters = true)
     private Set<Drug> drugs = new HashSet<>();
 
+    @DiffIgnore
     @ManyToMany(mappedBy = "treatments")
     @JsonIgnoreProperties(
         value = {

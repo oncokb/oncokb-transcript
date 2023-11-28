@@ -88,10 +88,6 @@ enum GenomicIndicatorType {
     GERMLINE
 }
 
-enum HistoryType{
-    CREATE, UPDATE, DELETE
-}
-
 enum InfoType {
     NCIT_VERSION,
     GENE_VERSION,
@@ -304,14 +300,6 @@ entity GenomicIndicator {
     name String required
 }
 
-entity History {
-    type String required
-    updatedTime Instant
-    updatedBy String
-    entityName String
-    entityId Integer
-}
-
 entity Info {
     type String unique required
     value String
@@ -428,13 +416,13 @@ relationship ManyToMany {
 
 paginate Alteration, Article, CancerType, ClinicalTrial, ClinicalTrialArm, Drug, DrugBrand,
 EligibilityCriteria, EnsemblGene, Evidence, FdaDrug, FdaSubmission, Flag , Gene, GenomeFragment,
-History, NciThesaurus, Sequence, Synonym, Transcript, Treatment with pagination
+NciThesaurus, Sequence, Synonym, Transcript, Treatment with pagination
 
 service * with serviceClass
 
 filter Alteration, Article, CancerType, ClinicalTrial, ClinicalTrialArm,
 CompanionDiagnosticDevice, Consequence, Drug, DrugBrand, EligibilityCriteria,
 EnsemblGene, Evidence, FdaDrug, FdaSubmission, Flag, Gene, GenomeFragment,
-GenomicIndicator, History, NciThesaurus, Sequence, Synonym, Transcript, Treatment
+GenomicIndicator, NciThesaurus, Sequence, Synonym, Transcript, Treatment
 
 dto Transcript with mapstruct

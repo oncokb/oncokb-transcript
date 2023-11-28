@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A CompanionDiagnosticDevice.
@@ -39,10 +40,12 @@ public class CompanionDiagnosticDevice implements Serializable {
     @Column(name = "last_updated")
     private Instant lastUpdated;
 
+    @ShallowReference
     @OneToMany(mappedBy = "companionDiagnosticDevice")
     @JsonIgnoreProperties(value = { "companionDiagnosticDevice", "type" }, allowSetters = true)
     private Set<FdaSubmission> fdaSubmissions = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_companion_diagnostic_device__specimen_type",

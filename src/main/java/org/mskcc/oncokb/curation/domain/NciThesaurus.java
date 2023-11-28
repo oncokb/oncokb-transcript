@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A NciThesaurus.
@@ -35,6 +36,7 @@ public class NciThesaurus implements Serializable {
     @Column(name = "display_name")
     private String displayName;
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_nci_thesaurus__synonym",

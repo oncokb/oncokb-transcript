@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 
 /**
@@ -46,6 +47,7 @@ public class EnsemblGene implements Serializable {
     @Column(name = "strand", nullable = false)
     private Integer strand;
 
+    @ShallowReference
     @OneToMany(mappedBy = "ensemblGene")
     @JsonIgnoreProperties(value = { "sequences", "fragments", "flags", "ensemblGene", "gene", "alterations" }, allowSetters = true)
     private Set<Transcript> transcripts = new HashSet<>();

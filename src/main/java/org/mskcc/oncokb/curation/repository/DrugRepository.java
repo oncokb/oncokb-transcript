@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the Drug entity.
  */
+@JaversSpringDataAuditable
 @Repository
 public interface DrugRepository extends JpaRepository<Drug, Long>, JpaSpecificationExecutor<Drug> {
     @Query("select distinct drug from Drug drug left join fetch drug.brands left join fetch drug.flags")

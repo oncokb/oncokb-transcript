@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Gene;
@@ -153,7 +154,14 @@ public class GeneResource {
         log.debug("REST request to get Genes by criteria: {}", criteria);
         Page<Gene> page = geneQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        return ResponseEntity
+            .ok()
+            .headers(headers)
+            .body(
+                geneService.findAllByIdInWithGeneAliasAndEnsemblGenes(
+                    page.getContent().stream().map(Gene::getId).collect(Collectors.toList())
+                )
+            );
     }
 
     /**

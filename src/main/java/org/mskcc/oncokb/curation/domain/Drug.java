@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A Drug.
@@ -30,14 +32,17 @@ public class Drug implements Serializable {
     @JoinColumn(unique = true, name = "ncit_code", referencedColumnName = "code")
     private NciThesaurus nciThesaurus;
 
+    @ShallowReference
     @OneToMany(mappedBy = "drug")
     @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
     private Set<DrugBrand> brands = new HashSet<>();
 
+    @DiffIgnore
     @OneToMany(mappedBy = "drug")
     @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
     private Set<DrugPriority> drugPriorities = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(name = "rel_drug__flag", joinColumns = @JoinColumn(name = "drug_id"), inverseJoinColumns = @JoinColumn(name = "flag_id"))
     @JsonIgnoreProperties(value = { "drugs", "genes", "transcripts" }, allowSetters = true)
@@ -47,6 +52,7 @@ public class Drug implements Serializable {
     @OneToOne(mappedBy = "drug")
     private FdaDrug fdaDrug;
 
+    @DiffIgnore
     @ManyToMany(mappedBy = "drugs")
     @JsonIgnoreProperties(value = { "treatmentPriorities", "drugs", "associations" }, allowSetters = true)
     private Set<Treatment> treatments = new HashSet<>();

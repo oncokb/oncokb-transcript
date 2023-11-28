@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A FdaSubmission.
@@ -61,6 +62,7 @@ public class FdaSubmission implements Serializable {
     @Column(name = "note")
     private String note;
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_fda_submission__association",

@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 
 /**
  * A Flag.
@@ -37,14 +38,17 @@ public class Flag implements Serializable {
     @Column(name = "description", nullable = false)
     private String description;
 
+    @DiffIgnore
     @ManyToMany(mappedBy = "flags")
     @JsonIgnoreProperties(value = { "nciThesaurus", "brands", "drugPriorities", "flags", "fdaDrug", "treatments" }, allowSetters = true)
     private Set<Drug> drugs = new HashSet<>();
 
+    @DiffIgnore
     @ManyToMany(mappedBy = "flags")
     @JsonIgnoreProperties(value = { "ensemblGenes", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
     private Set<Gene> genes = new HashSet<>();
 
+    @DiffIgnore
     @ManyToMany(mappedBy = "flags")
     @JsonIgnoreProperties(value = { "sequences", "fragments", "flags", "ensemblGene", "gene", "alterations" }, allowSetters = true)
     private Set<Transcript> transcripts = new HashSet<>();

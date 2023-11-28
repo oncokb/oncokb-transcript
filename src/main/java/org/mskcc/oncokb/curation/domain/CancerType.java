@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 import org.mskcc.oncokb.curation.domain.enumeration.TumorForm;
 
 /**
@@ -47,14 +48,17 @@ public class CancerType implements Serializable {
     @Column(name = "tumor_form", nullable = false)
     private TumorForm tumorForm;
 
+    @ShallowReference
     @OneToMany(mappedBy = "cancerType")
     @JsonIgnoreProperties(value = { "association", "cancerType" }, allowSetters = true)
     private Set<AssociationCancerType> associationCancerTypes = new HashSet<>();
 
+    @ShallowReference
     @OneToMany(mappedBy = "parent")
     @JsonIgnoreProperties(value = { "associationCancerTypes", "children", "synonyms", "parent" }, allowSetters = true)
     private Set<CancerType> children = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_cancer_type__synonym",
@@ -64,6 +68,7 @@ public class CancerType implements Serializable {
     @JsonIgnoreProperties(value = { "cancerTypes", "genes", "nciThesauruses" }, allowSetters = true)
     private Set<Synonym> synonyms = new HashSet<>();
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "associationCancerTypes", "children", "synonyms", "parent" }, allowSetters = true)
     private CancerType parent;

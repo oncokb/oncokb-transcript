@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
+import org.javers.core.metamodel.annotation.ShallowReference;
 import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 
 /**
@@ -53,6 +55,7 @@ public class Alteration implements Serializable {
     @Column(name = "variant_residues")
     private String variantResidues;
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_alteration__gene",
@@ -62,6 +65,7 @@ public class Alteration implements Serializable {
     @JsonIgnoreProperties(value = { "ensemblGenes", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
     private Set<Gene> genes = new HashSet<>();
 
+    @DiffIgnore
     @ManyToMany
     @JoinTable(
         name = "rel_alteration__transcript",
@@ -75,6 +79,7 @@ public class Alteration implements Serializable {
     @JsonIgnoreProperties(value = { "alterations" }, allowSetters = true)
     private Consequence consequence;
 
+    @DiffIgnore
     @ManyToMany(mappedBy = "alterations")
     @JsonIgnoreProperties(
         value = {

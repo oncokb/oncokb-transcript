@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A Association.
@@ -23,10 +24,12 @@ public class Association implements Serializable {
     @Column(name = "name")
     private String name;
 
+    @ShallowReference
     @OneToMany(mappedBy = "association")
     @JsonIgnoreProperties(value = { "association" }, allowSetters = true)
     private Set<AssociationCancerType> associationCancerTypes = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_association__alteration",
@@ -36,6 +39,7 @@ public class Association implements Serializable {
     @JsonIgnoreProperties(value = { "transcripts", "associations" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_association__article",
@@ -45,6 +49,7 @@ public class Association implements Serializable {
     @JsonIgnoreProperties(value = { "associations" }, allowSetters = true)
     private Set<Article> articles = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_association__treatment",
@@ -54,26 +59,32 @@ public class Association implements Serializable {
     @JsonIgnoreProperties(value = { "treatmentPriorities", "associations" }, allowSetters = true)
     private Set<Treatment> treatments = new HashSet<>();
 
+    @ShallowReference
     @JsonIgnoreProperties(value = { "association", "levelOfEvidences" }, allowSetters = true)
     @OneToOne(mappedBy = "association")
     private Evidence evidence;
 
+    @ShallowReference
     @ManyToMany(mappedBy = "associations")
     @JsonIgnoreProperties(value = { "clinicalTrialArms", "eligibilityCriteria", "associations" }, allowSetters = true)
     private Set<ClinicalTrial> clinicalTrials = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany(mappedBy = "associations")
     @JsonIgnoreProperties(value = { "associations", "clinicalTrial" }, allowSetters = true)
     private Set<ClinicalTrialArm> clinicalTrialArms = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany(mappedBy = "associations")
     @JsonIgnoreProperties(value = { "associations", "clinicalTrial" }, allowSetters = true)
     private Set<EligibilityCriteria> eligibilityCriteria = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany(mappedBy = "associations")
     @JsonIgnoreProperties(value = { "associations", "companionDiagnosticDevice", "type" }, allowSetters = true)
     private Set<FdaSubmission> fdaSubmissions = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany(mappedBy = "associations")
     @JsonIgnoreProperties(value = { "associations" }, allowSetters = true)
     private Set<GenomicIndicator> genomicIndicators = new HashSet<>();

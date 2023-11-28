@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.mskcc.oncokb.curation.domain.enumeration.ArticleType;
 
 /**
@@ -62,6 +63,7 @@ public class Article implements Serializable {
     @Column(name = "pub_date")
     private String pubDate;
 
+    @DiffIgnore
     @ManyToMany(mappedBy = "articles")
     @JsonIgnoreProperties(
         value = {

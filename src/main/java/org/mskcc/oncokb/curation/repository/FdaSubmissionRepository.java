@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the FdaSubmission entity.
  */
+@JaversSpringDataAuditable
 @Repository
 public interface FdaSubmissionRepository extends JpaRepository<FdaSubmission, Long>, JpaSpecificationExecutor<FdaSubmission> {
     @Query(

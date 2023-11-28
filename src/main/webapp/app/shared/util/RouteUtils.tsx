@@ -12,5 +12,5 @@ export const getEntityActionRoute = (entityType: ENTITY_TYPE, entityAction: ENTI
 };
 
 export const getEntityResourcePath = (entityType: ENTITY_TYPE) => {
-  return `api/${ENTITY_INFO[entityType].resourcePath}`;
+  return `api${ENTITY_INFO[entityType].resourcePath}`;
 };

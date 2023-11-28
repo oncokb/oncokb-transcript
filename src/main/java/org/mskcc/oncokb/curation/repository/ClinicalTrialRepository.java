@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.ClinicalTrial;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the ClinicalTrial entity.
  */
+@JaversSpringDataAuditable
 @Repository
 public interface ClinicalTrialRepository extends JpaRepository<ClinicalTrial, Long>, JpaSpecificationExecutor<ClinicalTrial> {
     @Query(
