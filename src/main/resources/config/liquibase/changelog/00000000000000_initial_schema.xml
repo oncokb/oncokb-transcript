@@ -65,29 +65,12 @@
                                  constraintName="fk_user_id"
                                  referencedColumnNames="id"
                                  referencedTableName="user"/>
-
         <loadData
-                  file="config/liquibase/data/user.csv"
-                  separator=";"
-                  tableName="user"
-                  usePreparedStatements="true">
-            <column name="activated" type="boolean"/>
-            <column name="created_date" type="timestamp"/>
-        </loadData>
-        <dropDefaultValue tableName="user" columnName="created_date" columnDataType="${datetimeType}"/>
-        <loadData
-                  file="config/liquibase/data/authority.csv"
-                  separator=";"
+                  file="config/liquibase/data/authority.tsv"
+                  separator="\t"
                   tableName="authority"
                   usePreparedStatements="true">
             <column name="name" type="string"/>
-        </loadData>
-        <loadData
-                  file="config/liquibase/data/user_authority.csv"
-                  separator=";"
-                  tableName="user_authority"
-                  usePreparedStatements="true">
-            <column name="user_id" type="bigint"/>
         </loadData>
     </changeSet>
 
