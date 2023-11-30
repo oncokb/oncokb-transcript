@@ -28,9 +28,6 @@ import { FIREBASE_ONCOGENICITY, TX_LEVELS } from 'app/shared/model/firebase/fire
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
 import { GENE_TYPE, GENE_TYPE_KEY } from 'app/config/constants/firebase';
 import VusTable from '../../shared/table/VusTable';
-import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
-import classNames from 'classnames';
-import { FaAccessibleIcon } from 'react-icons/fa';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -155,6 +152,10 @@ const CurationPage = (props: ICurationPageProps) => {
                     className={'mb-1'}
                     title={`Mutation: ${getMutationName(mutation)}`}
                     mutationUuid={mutation.name_uuid}
+                    deleteHandler={() =>
+                      props.deleteGeneSection(NestLevelType.MUTATION, getFirebasePath('MUTATIONS', hugoSymbol, mutationIndex))
+                    }
+                    isRemoveableWithoutReview={props.isRemoveableWithoutReview(NestLevelType.MUTATION, `mutations/${mutationIndex}`)}
                   >
                     <Collapsible nestLevel={NestLevelType.MUTATION_EFFECT} title={'Mutation Effect'}>
                       <Collapsible nestLevel={NestLevelType.BIOLOGICAL_EFFECT} title={'Biological Effect'}>
@@ -248,6 +249,12 @@ const CurationPage = (props: ICurationPageProps) => {
                           cancerTypeUuid={tumor.cancerTypes_uuid}
                           key={tumor.cancerTypes_uuid}
                           nestLevel={NestLevelType.CANCER_TYPE}
+                          deleteHandler={() =>
+                            props.deleteGeneSection(
+                              NestLevelType.CANCER_TYPE,
+                              getFirebasePath('TUMORS', hugoSymbol, mutationIndex, tumorIndex)
+                            )
+                          }
                           title={`Cancer Type: ${tumor.cancerTypes.map(cancerType => getCancerTypeName(cancerType)).join(', ')}`}
                         >
                           <RealtimeTextAreaInput
@@ -268,6 +275,12 @@ const CurationPage = (props: ICurationPageProps) => {
                                     key={tumor.cancerTypes_uuid}
                                     nestLevel={NestLevelType.THERAPY}
                                     title={`Therapy: ${getTxName(props.drugList, treatment.name)}`}
+                                    deleteHandler={() =>
+                                      props.deleteGeneSection(
+                                        NestLevelType.THERAPY,
+                                        getFirebasePath('TREATMENTS', hugoSymbol, mutationIndex, tumorIndex, tiIndex, treatmentIndex)
+                                      )
+                                    }
                                   >
                                     <RealtimeDropdownInput
                                       fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
@@ -329,6 +342,8 @@ const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, fire
   data: firebaseGeneStore.data,
   update: firebaseGeneStore.update,
   updateReviewableContent: firebaseGeneStore.updateReviewableContent,
+  deleteGeneSection: firebaseGeneStore.deleteGeneSection,
+  isRemoveableWithoutReview: firebaseGeneStore.isSectionRemoveableWithoutReview,
   addMetaCollaboratorsListener: firebaseMetaStore.addMetaCollaboratorsListener,
   metaData: firebaseMetaStore.data,
   drugList: firebaseDrugsStore.drugList,

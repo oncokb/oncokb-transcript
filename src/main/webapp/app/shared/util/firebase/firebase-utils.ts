@@ -75,7 +75,7 @@ export const geneNeedsReview = (meta: Meta | undefined) => {
   return needsReview;
 };
 
-export const getFirebasePath = (type: keyof typeof FB_COLLECTION_PATH, ...params: string[]) => {
+export const getFirebasePath = (type: keyof typeof FB_COLLECTION_PATH, ...params: (string | number)[]) => {
   return replaceUrlParams(FB_COLLECTION_PATH[type], ...params);
 };
 
@@ -88,3 +88,9 @@ export function getMostRecentComment(comments: Comment[]) {
   }
   return latestComment;
 }
+
+export const deleteFromArrayByIndex = (array: any[], index: number) => {
+  return array.filter((e, i) => {
+    return i !== index;
+  });
+};

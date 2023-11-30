@@ -192,6 +192,7 @@ export class Tumor {
   // We should remove this in future
   TIs: TI[] = [new TI(TI_TYPE.SS), new TI(TI_TYPE.SR), new TI(TI_TYPE.IS), new TI(TI_TYPE.IR)];
   cancerTypes: CancerType[] = [];
+  cancerTypes_review?: Review;
   cancerTypes_uuid: string = generateUuid();
   diagnostic: Implication = new Implication();
   diagnosticSummary = '';

@@ -23,7 +23,7 @@ export interface NestLevelSummaryProps {
 export const NestLevelSummary = (props: NestLevelSummaryProps) => {
   if (props.summaryStats) {
     return (
-      <div className="ml-auto d-flex flex-wrap">
+      <div className="d-flex flex-wrap">
         {Object.keys(props.summaryStats)
           .filter(k => props.summaryStats[k] && props.summaryStats[k] > 0)
           .map(k => {

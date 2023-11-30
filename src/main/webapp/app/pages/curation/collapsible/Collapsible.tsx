@@ -6,15 +6,17 @@ import { LEVELS } from 'app/config/colors';
 import styles from './styles.module.scss';
 import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
 import CancerTypeLevelSummary from '../nestLevelSummary/CancerTypeLevelSummary';
-import NestLevelSummary from '../nestLevelSummary/NestLevelSummary';
+import { DeleteSectionButton } from '../button/DeleteSectionButton';
 
-interface IProps {
+export interface IProps {
   title: string;
-  mutationUuid?: string;
-  cancerTypeUuid?: string;
   nestLevel: NestLevelType;
+  deleteHandler?: () => void;
   open?: boolean;
   className?: string;
+  isRemoveableWithoutReview?: boolean;
+  mutationUuid?: string;
+  cancerTypeUuid?: string;
 }
 
 export enum NestLevelType {
@@ -49,7 +51,19 @@ const NestLevelColor: { [key in NestLevel]: string } = {
   [NestLevel.LEVEL_3]: LEVELS['3'],
 };
 
-const Collapsible: React.FunctionComponent<IProps> = ({ open, children, title, className, nestLevel, mutationUuid, cancerTypeUuid }) => {
+export type RemoveableNestLevel = NestLevelType.MUTATION | NestLevelType.CANCER_TYPE | NestLevelType.THERAPY;
+
+const Collapsible: React.FunctionComponent<IProps> = ({
+  open,
+  children,
+  title,
+  className,
+  nestLevel,
+  deleteHandler,
+  isRemoveableWithoutReview,
+  mutationUuid,
+  cancerTypeUuid,
+}) => {
   const [isOpen, setIsOpen] = useState(open);
 
   const handleFilterOpening = () => {
@@ -57,12 +71,13 @@ const Collapsible: React.FunctionComponent<IProps> = ({ open, children, title, c
   };
 
   const showMutationLevelSummary = nestLevel === NestLevelType.MUTATION && !title.includes(',');
+  const removeableLevel = [NestLevelType.MUTATION, NestLevelType.CANCER_TYPE, NestLevelType.THERAPY].includes(nestLevel);
 
   return (
     <>
       <div className={classnames('card', className, styles.main)}>
         <div
-          className={classnames('card-header d-flex align-items-center border border-light p-1 bg-transparent', styles.header)}
+          className={classnames('card-header d-flex align-items-center p-1 bg-transparent pr-2', styles.header)}
           ref={node => {
             if (node) {
               node.style.setProperty('border-left-color', NestLevelColor[NestLevelMapping[nestLevel]], 'important');
@@ -72,10 +87,13 @@ const Collapsible: React.FunctionComponent<IProps> = ({ open, children, title, c
           <button type="button" className="btn" onClick={handleFilterOpening}>
             {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
           </button>
-          <span className="font-weight-bold font-weight-bold">{title}</span>
+          <span className="font-weight-bold font-weight-bold mr-auto">{title}</span>
           {showMutationLevelSummary ? <MutationLevelSummary mutationUuid={mutationUuid} /> : undefined}
           {nestLevel === NestLevelType.CANCER_TYPE ? (
             <CancerTypeLevelSummary mutationUuid={mutationUuid} cancerTypeUuid={cancerTypeUuid} />
+          ) : undefined}
+          {removeableLevel ? (
+            <DeleteSectionButton sectionName={title} deleteHandler={deleteHandler} isRemoveableWithoutReview={isRemoveableWithoutReview} />
           ) : undefined}
         </div>
         {isOpen && <div className={classnames('card-body', styles.body)}>{children}</div>}
