@@ -90,6 +90,12 @@ public class FdaSubmissionTypeService {
     }
 
     @Transactional(readOnly = true)
+    public Optional<FdaSubmissionType> findByType(FdaSubmissionTypeKey typeKey) {
+        log.debug("Request to get FdaSubmissionTypeKey : {}", typeKey);
+        return fdaSubmissionTypeRepository.findByType(typeKey);
+    }
+
+    @Transactional(readOnly = true)
     public Optional<FdaSubmissionType> findOneBySubmissionNumber(String submissionNumber) {
         log.debug("Request to get FdaSubmissionType : {}", submissionNumber);
         String[] splitSubmission = submissionNumber.split("[0-9]");

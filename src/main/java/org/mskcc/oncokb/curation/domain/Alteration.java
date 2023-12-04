@@ -75,6 +75,7 @@ public class Alteration implements Serializable {
     @JsonIgnoreProperties(value = { "sequences", "fragments", "flags", "ensemblGene", "gene", "alterations" }, allowSetters = true)
     private Set<Transcript> transcripts = new HashSet<>();
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "alterations" }, allowSetters = true)
     private Consequence consequence;

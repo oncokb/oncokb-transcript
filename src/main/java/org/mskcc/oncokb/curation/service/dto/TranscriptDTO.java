@@ -7,6 +7,7 @@ import java.util.Objects;
 import javax.validation.constraints.*;
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
 import org.mskcc.oncokb.curation.domain.Flag;
+import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.domain.GenomeFragment;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 
@@ -29,6 +30,8 @@ public class TranscriptDTO implements Serializable {
     private String referenceSequenceId;
 
     private String description;
+
+    private Gene gene;
 
     private EnsemblGene ensemblGene;
 
@@ -150,6 +153,14 @@ public class TranscriptDTO implements Serializable {
         this.utrs = utrs;
     }
 
+    public Gene getGene() {
+        return gene;
+    }
+
+    public void setGene(Gene gene) {
+        this.gene = gene;
+    }
+
     public EnsemblGene getEnsemblGene() {
         return ensemblGene;
     }
@@ -200,6 +211,7 @@ public class TranscriptDTO implements Serializable {
             ", description='" + getDescription() + "'" +
             ", flags=" + getFlags() +
             ", ensemblGene=" + getEnsemblGene() +
+            ", gene=" + getGene() +
             "}";
     }
 }

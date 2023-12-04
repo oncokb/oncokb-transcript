@@ -66,8 +66,8 @@
                                  referencedColumnNames="id"
                                  referencedTableName="user"/>
         <loadData
-                  file="config/liquibase/data/authority.tsv"
-                  separator="\t"
+                  file="config/liquibase/data/authority.csv"
+                  separator=";"
                   tableName="authority"
                   usePreparedStatements="true">
             <column name="name" type="string"/>

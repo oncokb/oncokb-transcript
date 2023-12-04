@@ -94,6 +94,11 @@ public class CompanionDiagnosticDeviceService {
     }
 
     @Transactional(readOnly = true)
+    public Optional<CompanionDiagnosticDevice> findByName(String name) {
+        return companionDiagnosticDeviceRepository.findByName(name);
+    }
+
+    @Transactional(readOnly = true)
     public List<CompanionDiagnosticDevice> findByNameAndManufacturer(String name, String manufacturer) {
         return companionDiagnosticDeviceRepository.findByNameIgnoreCaseAndManufacturerIgnoreCase(name, manufacturer);
     }

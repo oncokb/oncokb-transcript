@@ -59,6 +59,7 @@ public class EligibilityCriteria implements Serializable {
     )
     private Set<Association> associations = new HashSet<>();
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "clinicalTrialArms", "eligibilityCriteria", "associations" }, allowSetters = true)
     private ClinicalTrial clinicalTrial;

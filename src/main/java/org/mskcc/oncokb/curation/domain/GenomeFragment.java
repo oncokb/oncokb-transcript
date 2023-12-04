@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 import org.mskcc.oncokb.curation.domain.enumeration.GenomeFragmentType;
 
 /**
@@ -37,11 +38,13 @@ public class GenomeFragment implements Serializable {
     @Column(name = "type", nullable = false)
     private GenomeFragmentType type;
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "ensemblGenes", "genomeFragments" }, allowSetters = true)
     @JoinColumn(name = "seq_region", referencedColumnName = "name")
     private SeqRegion seqRegion;
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "sequences", "fragments", "flags", "ensemblGene", "gene", "alterations" }, allowSetters = true)
     private Transcript transcript;

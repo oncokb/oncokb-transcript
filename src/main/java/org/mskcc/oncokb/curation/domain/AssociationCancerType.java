@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 import org.mskcc.oncokb.curation.domain.enumeration.AssociationCancerTypeRelation;
 
 /**
@@ -25,6 +26,7 @@ public class AssociationCancerType implements Serializable {
     @Column(name = "relation", nullable = false)
     private AssociationCancerTypeRelation relation;
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(
         value = {
@@ -43,6 +45,7 @@ public class AssociationCancerType implements Serializable {
     )
     private Association association;
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "associationCancerTypes", "children", "synonyms", "parent" }, allowSetters = true)
     private CancerType cancerType;

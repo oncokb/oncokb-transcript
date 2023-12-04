@@ -52,11 +52,13 @@ public class EnsemblGene implements Serializable {
     @JsonIgnoreProperties(value = { "sequences", "fragments", "flags", "ensemblGene", "gene", "alterations" }, allowSetters = true)
     private Set<Transcript> transcripts = new HashSet<>();
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "ensemblGenes", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
     @JoinColumn(name = "entrez_gene_id", referencedColumnName = "entrez_gene_id")
     private Gene gene;
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "ensemblGenes", "genomeFragments" }, allowSetters = true)
     @JoinColumn(name = "seq_region", referencedColumnName = "name")

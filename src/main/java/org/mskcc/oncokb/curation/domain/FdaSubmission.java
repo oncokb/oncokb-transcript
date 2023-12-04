@@ -75,10 +75,12 @@ public class FdaSubmission implements Serializable {
     )
     private Set<Association> associations = new HashSet<>();
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "fdaSubmissions", "specimenTypes" }, allowSetters = true)
     private CompanionDiagnosticDevice companionDiagnosticDevice;
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "fdaSubmissions" }, allowSetters = true)
     private FdaSubmissionType type;

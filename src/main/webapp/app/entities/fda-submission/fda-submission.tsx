@@ -62,7 +62,7 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
       Header: 'Type',
       Cell(cell: { original: IFdaSubmission }) {
         return cell.original.type.shortName ? (
-          <Link to={`fda-submission-type/${cell.original.id}`}>{cell.original.type.shortName}</Link>
+          <Link to={`fda-submission-type/${cell.original.type.id}`}>{cell.original.type.shortName}</Link>
         ) : undefined;
       },
       maxWidth: 100,

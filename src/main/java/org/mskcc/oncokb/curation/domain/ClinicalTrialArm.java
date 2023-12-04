@@ -50,6 +50,7 @@ public class ClinicalTrialArm implements Serializable {
     )
     private Set<Association> associations = new HashSet<>();
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "clinicalTrialArms", "eligibilityCriteria", "associations" }, allowSetters = true)
     private ClinicalTrial clinicalTrial;

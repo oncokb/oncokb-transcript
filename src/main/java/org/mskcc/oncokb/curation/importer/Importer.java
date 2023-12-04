@@ -36,6 +36,9 @@ import org.springframework.stereotype.Component;
 public class Importer {
 
     @Autowired
+    private MetaImporter metaImporter;
+
+    @Autowired
     private GeneImporter geneImporter;
 
     @Autowired
@@ -89,7 +92,7 @@ public class Importer {
         //        importAlteration();
         //                this.transcriptImporter.importTranscripts();
         //        this.ensemblImporter.importSeqRegion();
-        this.geneImporter.importGenePanels();
+        this.metaImporter.generalImport();
     }
 
     private void checkOncoKbTranscriptSequenceAcrossRG() throws ApiException {

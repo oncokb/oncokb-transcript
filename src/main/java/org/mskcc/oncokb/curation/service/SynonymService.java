@@ -1,7 +1,9 @@
 package org.mskcc.oncokb.curation.service;
 
 import java.util.Optional;
+import javax.swing.text.html.Option;
 import org.mskcc.oncokb.curation.domain.Synonym;
+import org.mskcc.oncokb.curation.domain.enumeration.SynonymType;
 import org.mskcc.oncokb.curation.repository.SynonymRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +93,10 @@ public class SynonymService {
     public Optional<Synonym> findOne(Long id) {
         log.debug("Request to get Synonym : {}", id);
         return synonymRepository.findById(id);
+    }
+
+    public Optional<Synonym> findByTypeAndName(SynonymType synonymType, String name) {
+        return synonymRepository.findByTypeAndName(synonymType.name(), name);
     }
 
     /**

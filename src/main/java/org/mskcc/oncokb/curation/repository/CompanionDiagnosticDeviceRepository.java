@@ -46,5 +46,7 @@ public interface CompanionDiagnosticDeviceRepository
     )
     Optional<CompanionDiagnosticDevice> findOneWithEagerRelationships(@Param("id") Long id);
 
+    Optional<CompanionDiagnosticDevice> findByName(String name);
+
     List<CompanionDiagnosticDevice> findByNameIgnoreCaseAndManufacturerIgnoreCase(String name, String manufacturer);
 }

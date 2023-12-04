@@ -132,6 +132,11 @@ public class TranscriptService {
         return transcriptMapper.toDto(savedTranscript);
     }
 
+    public Transcript save(Transcript transcript) {
+        log.debug("Request to save Transcript : {}", transcript);
+        return transcriptRepository.save(transcript);
+    }
+
     /**
      * Partially update a transcript.
      *
@@ -171,9 +176,9 @@ public class TranscriptService {
     }
 
     @Transactional(readOnly = true)
-    public List<TranscriptDTO> findAllByIdIn(List<Long> ids) {
+    public List<TranscriptDTO> findAllWithEagerRelationshipsByIdIn(List<Long> ids) {
         return transcriptRepository
-            .findAllByIdIn(ids)
+            .findAllWithEagerRelationships(ids)
             .stream()
             .sorted(Comparator.comparingInt(o -> ids.indexOf(o.getId())))
             .map(transcriptMapper::toDto)
@@ -300,7 +305,7 @@ public class TranscriptService {
     }
 
     public ClustalOResp alignTranscripts(List<Long> transcriptToCompare) throws InterruptedException {
-        List<TranscriptDTO> transcripts = findAllByIdIn(transcriptToCompare);
+        List<TranscriptDTO> transcripts = findAllWithEagerRelationshipsByIdIn(transcriptToCompare);
         StringBuilder sb = new StringBuilder();
         for (TranscriptDTO transcript : transcripts) {
             Optional<Sequence> sequenceOptional = sequenceService.findOneByTranscriptAndSequenceType(

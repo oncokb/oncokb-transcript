@@ -85,6 +85,10 @@ public class GeneService {
                     existingGene.getFlags().clear();
                     existingGene.getFlags().addAll(gene.getFlags());
                 }
+                if (gene.getSynonyms() != null) {
+                    existingGene.getSynonyms().clear();
+                    existingGene.getSynonyms().addAll(gene.getSynonyms());
+                }
 
                 return existingGene;
             })
@@ -171,9 +175,9 @@ public class GeneService {
 
     @Transactional(readOnly = true)
     public Optional<Gene> findGeneBySynonym(String synonym) {
-        List<Synonym> synonymOptional = synonymRepository.findAllByTypeAndName("GENE", synonym);
-        if (synonymOptional.size() > 0) {
-            return Optional.of(synonymOptional.get(0).getGenes().iterator().next());
+        Optional<Synonym> synonymOptional = synonymRepository.findByTypeAndName("GENE", synonym);
+        if (synonymOptional.isPresent()) {
+            return Optional.of(synonymOptional.get().getGenes().iterator().next());
         } else {
             return Optional.empty();
         }

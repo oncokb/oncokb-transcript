@@ -317,6 +317,7 @@ export enum SearchOptionType {
   GENE = 'Genes',
   ALTERATION = 'Alterations',
   CANCER_TYPE = 'Cancer Types',
+  NCIT = 'NCI Thesaurus Codes',
 }
 
 export enum USER_AUTHORITY {

@@ -3995,13 +3995,13 @@ export interface Transcript {
    * @type {EnsemblGene}
    * @memberof Transcript
    */
-  ensemblGene?: EnsemblGene;
+  ensemblGene: EnsemblGene;
   /**
    *
    * @type {Gene}
    * @memberof Transcript
    */
-  gene?: Gene;
+  gene: Gene;
   /**
    *
    * @type {Set<Alteration>}
@@ -4206,6 +4206,12 @@ export interface TranscriptDTO {
    * @memberof TranscriptDTO
    */
   description?: string;
+  /**
+   *
+   * @type {Gene}
+   * @memberof TranscriptDTO
+   */
+  gene?: Gene;
   /**
    *
    * @type {EnsemblGene}
@@ -24212,11 +24218,14 @@ export const TranscriptResourceApiAxiosParamCreator = function (configuration?: 
     },
     /**
      *
+     * @param {TranscriptCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllTranscripts: async (pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    getAllTranscripts: async (criteria: TranscriptCriteria, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('getAllTranscripts', 'criteria', criteria);
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('getAllTranscripts', 'pageable', pageable);
       const localVarPath = `/api/transcripts`;
@@ -24230,6 +24239,10 @@ export const TranscriptResourceApiAxiosParamCreator = function (configuration?: 
       const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
+
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
+      }
 
       if (pageable !== undefined) {
         localVarQueryParameter['pageable'] = pageable;
@@ -24451,15 +24464,17 @@ export const TranscriptResourceApiFp = function (configuration?: Configuration) 
     },
     /**
      *
+     * @param {TranscriptCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getAllTranscripts(
+      criteria: TranscriptCriteria,
       pageable: Pageable,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<TranscriptDTO>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllTranscripts(pageable, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllTranscripts(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -24568,12 +24583,13 @@ export const TranscriptResourceApiFactory = function (configuration?: Configurat
     },
     /**
      *
+     * @param {TranscriptCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllTranscripts(pageable: Pageable, options?: any): AxiosPromise<Array<TranscriptDTO>> {
-      return localVarFp.getAllTranscripts(pageable, options).then(request => request(axios, basePath));
+    getAllTranscripts(criteria: TranscriptCriteria, pageable: Pageable, options?: any): AxiosPromise<Array<TranscriptDTO>> {
+      return localVarFp.getAllTranscripts(criteria, pageable, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -24678,14 +24694,15 @@ export class TranscriptResourceApi extends BaseAPI {
 
   /**
    *
+   * @param {TranscriptCriteria} criteria
    * @param {Pageable} pageable
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof TranscriptResourceApi
    */
-  public getAllTranscripts(pageable: Pageable, options?: AxiosRequestConfig) {
+  public getAllTranscripts(criteria: TranscriptCriteria, pageable: Pageable, options?: AxiosRequestConfig) {
     return TranscriptResourceApiFp(this.configuration)
-      .getAllTranscripts(pageable, options)
+      .getAllTranscripts(criteria, pageable, options)
       .then(request => request(this.axios, this.basePath));
   }
 

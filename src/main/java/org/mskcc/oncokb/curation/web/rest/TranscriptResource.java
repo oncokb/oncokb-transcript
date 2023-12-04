@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.repository.TranscriptRepository;
@@ -154,11 +155,14 @@ public class TranscriptResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of transcripts in body.
      */
     @GetMapping("/transcripts")
-    public ResponseEntity<List<TranscriptDTO>> getAllTranscripts(Pageable pageable) {
-        log.debug("REST request to get Transcripts");
-        Page<TranscriptDTO> page = transcriptService.findAllWithEagerRelationships(pageable);
+    public ResponseEntity<List<TranscriptDTO>> getAllTranscripts(TranscriptCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get Transcripts by criteria: {}", criteria);
+        Page<TranscriptDTO> page = transcriptQueryService.findByCriteria(criteria, pageable);
+        List<TranscriptDTO> transcriptDTOS = transcriptService.findAllWithEagerRelationshipsByIdIn(
+            page.getContent().stream().map(TranscriptDTO::getId).collect(Collectors.toList())
+        );
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        return ResponseEntity.ok().headers(headers).body(transcriptDTOS);
     }
 
     /**
