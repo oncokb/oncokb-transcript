@@ -31,6 +31,10 @@ interface ITimeSeriesPropsNoGroupByDay {
 export type ITimeSeriesProps = ITimeSeriesPropsGroupByDay | ITimeSeriesPropsNoGroupByDay;
 
 const TimeSeries = ({ data, groupByDay = true }: ITimeSeriesProps) => {
+  if (data.length === 0) {
+    return <div>No history available</div>;
+  }
+
   const dataForEachDay = groupTimeSeriesDataByDay(data);
 
   const days = Object.keys(dataForEachDay);
@@ -145,7 +149,7 @@ const TimeSeriesEvent = ({
   return (
     <TimelineEvent
       bubbleStyle={{ backgroundColor: bubbleColor, borderWidth: '0px', width: '20px', height: '20px', cursor: 'initial' }}
-      contentStyle={{ boxShadow: 'none', padding: '0px', width: '100%' }}
+      contentStyle={{ boxShadow: 'none', padding: '0px 20px 0px 0px', width: '100%' }}
       subtitleStyle={{ fontSize: '100%', marginTop: '8px', color: '#212529' }}
       title={
         groupByDay ? (

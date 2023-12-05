@@ -20,6 +20,10 @@ export type VusObjList = {
   [uuid: string]: Vus;
 };
 
+export type HistoryList = {
+  [uuid: string]: History;
+};
+
 export enum FIREBASE_ONCOGENICITY {
   YES = 'Yes',
   LIKELY = 'Likely',

@@ -15,7 +15,7 @@ export const APP_DATETIME_FORMAT = 'MM/DD/YYYY h:mm A';
 export const APP_LOCAL_DATETIME_FORMAT = 'YYYY-MM-DDTHH:mm';
 export const APP_WHOLE_NUMBER_FORMAT = '0,0';
 export const APP_TWO_DIGITS_AFTER_POINT_NUMBER_FORMAT = '0,0.[00]';
-export const APP_HISTORY_FORMAT = 'MMM, D YYYY';
+export const APP_HISTORY_FORMAT = 'MMM D, YYYY';
 export const APP_TIME_FORMAT = 'h:mm A';
 
 export const REDIRECT_TIMEOUT_MILLISECONDS = 10000;
@@ -191,6 +191,8 @@ export const CBIOPORTAL = 'cBioPortal';
 export const COSMIC = 'COSMIC';
 
 export const DEFAULT_NAV_ICON_SIZE = 25;
+
+export const CANCER_TYPE_THERAPY_INDENTIFIER = '&';
 
 /* Regex constants */
 export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');

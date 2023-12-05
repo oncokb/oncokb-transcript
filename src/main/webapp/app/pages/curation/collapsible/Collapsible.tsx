@@ -20,6 +20,7 @@ export interface IProps {
   className?: string;
   mutationUuid?: string;
   cancerTypeUuid?: string;
+  actions?: JSX.Element[];
 }
 
 export enum NestLevelType {
@@ -65,6 +66,7 @@ const Collapsible: React.FunctionComponent<IProps & StoreProps> = ({
   cancerTypeUuid,
   deleteSection,
   data,
+  actions,
 }) => {
   const [isOpen, setIsOpen] = useState(open);
 
@@ -99,6 +101,12 @@ const Collapsible: React.FunctionComponent<IProps & StoreProps> = ({
           {removableLevel ? (
             <>
               <div className={classnames(styles.divider)} />
+              {actions &&
+                actions.map((action, index) => (
+                  <span key={index} style={{ marginRight: '.75rem' }}>
+                    {action}
+                  </span>
+                ))}
               <DeleteSectionButton
                 sectionName={title}
                 deleteHandler={() => deleteSection(nestLevel as RemovableNestLevel, firebasePath)}
