@@ -6,6 +6,7 @@ import { LEVELS } from 'app/config/colors';
 import styles from './styles.module.scss';
 import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
 import CancerTypeLevelSummary from '../nestLevelSummary/CancerTypeLevelSummary';
+import NestLevelSummary from '../nestLevelSummary/NestLevelSummary';
 
 interface IProps {
   title: string;
@@ -55,6 +56,8 @@ const Collapsible: React.FunctionComponent<IProps> = ({ open, children, title, c
     setIsOpen(prev => !prev);
   };
 
+  const showMutationLevelSummary = nestLevel === NestLevelType.MUTATION && !title.includes(',');
+
   return (
     <>
       <div className={classnames('card', className, styles.main)}>
@@ -70,7 +73,7 @@ const Collapsible: React.FunctionComponent<IProps> = ({ open, children, title, c
             {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
           </button>
           <span className="font-weight-bold font-weight-bold">{title}</span>
-          {nestLevel === NestLevelType.MUTATION ? <MutationLevelSummary mutationUuid={mutationUuid} /> : undefined}
+          {showMutationLevelSummary ? <MutationLevelSummary mutationUuid={mutationUuid} /> : undefined}
           {nestLevel === NestLevelType.CANCER_TYPE ? (
             <CancerTypeLevelSummary mutationUuid={mutationUuid} cancerTypeUuid={cancerTypeUuid} />
           ) : undefined}

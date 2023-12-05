@@ -16,12 +16,13 @@ export type DrugCollection = {
   [hugoSymbol: string]: Drug;
 };
 
-export enum ONCOGENICITY {
+export enum FIREBASE_ONCOGENICITY {
   YES = 'Yes',
   LIKELY = 'Likely',
   LIKELY_NEUTRAL = 'Likely Neutral',
   INCONCLUSIVE = 'Inconclusive',
   RESISTANCE = 'Resistance',
+  UNKNOWN = 'Unknown',
 }
 
 export enum TX_LEVELS {
@@ -160,7 +161,7 @@ export class MutationEffect {
   effect = '';
   effect_review?: Review;
   effect_uuid: string = generateUuid();
-  oncogenic: ONCOGENICITY | '' = '';
+  oncogenic: FIREBASE_ONCOGENICITY | '' = '';
   oncogenic_review?: Review;
   oncogenic_uuid: string = generateUuid();
   germline?: GermlineMutation = new GermlineMutation();

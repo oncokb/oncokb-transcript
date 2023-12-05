@@ -24,9 +24,12 @@ import { getFirebasePath, getMutationName, getTxName } from 'app/shared/util/fir
 import Collapsible, { NestLevelType } from 'app/pages/curation/collapsible/Collapsible';
 import styles from './styles.module.scss';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { ONCOGENICITY, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import { FIREBASE_ONCOGENICITY, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
 import { GENE_TYPE, GENE_TYPE_KEY } from 'app/config/constants/firebase';
+import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
+import classNames from 'classnames';
+import { FaAccessibleIcon } from 'react-icons/fa';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -184,11 +187,11 @@ const CurationPage = (props: ICurationPageProps) => {
                           groupHeader="Oncogenic"
                           isRadio
                           options={[
-                            ONCOGENICITY.YES,
-                            ONCOGENICITY.LIKELY,
-                            ONCOGENICITY.LIKELY_NEUTRAL,
-                            ONCOGENICITY.INCONCLUSIVE,
-                            ONCOGENICITY.RESISTANCE,
+                            FIREBASE_ONCOGENICITY.YES,
+                            FIREBASE_ONCOGENICITY.LIKELY,
+                            FIREBASE_ONCOGENICITY.LIKELY_NEUTRAL,
+                            FIREBASE_ONCOGENICITY.INCONCLUSIVE,
+                            FIREBASE_ONCOGENICITY.RESISTANCE,
                           ].map(label => ({
                             label,
                             fieldKey: `mutations/${mutationIndex}/mutation_effect/oncogenic`,

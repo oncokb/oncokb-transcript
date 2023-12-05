@@ -1,5 +1,6 @@
-import { ONCOGENICITY_CLASS_MAPPING } from 'app/config/constants/firebase';
+import { FIREBASE_ONCOGENICITY_MAPPING, ONCOGENICITY_CLASS_MAPPING } from 'app/config/constants/firebase';
 import CountBadge from 'app/shared/badge/CountBadge';
+import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import classNames from 'classnames';
 import _ from 'lodash';
 import React from 'react';
@@ -23,13 +24,6 @@ export const NestLevelSummary = (props: NestLevelSummaryProps) => {
   if (props.summaryStats) {
     return (
       <div className="ml-auto d-flex flex-wrap">
-        {props.summaryStats.oncogenicity ? (
-          <CountBadge
-            hideWhenOne
-            count={1}
-            base={<span className={classNames('oncokb', 'icon', `${ONCOGENICITY_CLASS_MAPPING[props.summaryStats.oncogenicity]}`)}></span>}
-          />
-        ) : undefined}
         {Object.keys(props.summaryStats)
           .filter(k => props.summaryStats[k] && props.summaryStats[k] > 0)
           .map(k => {
@@ -62,6 +56,21 @@ export const NestLevelSummary = (props: NestLevelSummaryProps) => {
             />
           );
         })}
+        {props.summaryStats.oncogenicity ? (
+          <CountBadge
+            hideWhenOne
+            count={1}
+            base={
+              <DefaultTooltip
+                placement="top"
+                showArrow={false}
+                overlay={<span>{FIREBASE_ONCOGENICITY_MAPPING[props.summaryStats.oncogenicity]}</span>}
+              >
+                <span className={classNames('oncokb', 'icon', `${ONCOGENICITY_CLASS_MAPPING[props.summaryStats.oncogenicity]}`)}></span>
+              </DefaultTooltip>
+            }
+          />
+        ) : undefined}
       </div>
     );
   }

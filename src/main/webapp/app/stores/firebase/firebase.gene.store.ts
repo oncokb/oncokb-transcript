@@ -1,4 +1,4 @@
-import { DX_LEVELS, Gene, ONCOGENICITY, PX_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import { DX_LEVELS, Gene, FIREBASE_ONCOGENICITY, PX_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import { IRootStore } from '../createStore';
 import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
 import { ExtractPathExpressions } from 'app/shared/util/firebase/firebase-crud-store';
@@ -9,7 +9,7 @@ export type AllLevelSummary = {
   [mutationUuid: string]: {
     [cancerTypesUuid: string]: {
       TT: number;
-      oncogenicity: ONCOGENICITY | '';
+      oncogenicity: FIREBASE_ONCOGENICITY | '';
       TTS: number;
       DxS: number;
       PxS: number;

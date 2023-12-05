@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { observer } from 'mobx-react';
 import React, { useMemo } from 'react';
 import NestLevelSummary from './NestLevelSummary';
+import { ONCOGENICITY } from 'app/config/constants/constants';
 
 export interface MutationLevelSummaryProps extends StoreProps {
   mutationUuid: string;
@@ -17,7 +18,7 @@ const MutationLevelSummary = (props: MutationLevelSummaryProps) => {
     if (summaryStats) {
       const cancerTypeLevelSummaries = Object.keys(summaryStats).map(mutation => summaryStats[mutation]);
       const mutLevelSummary = {
-        oncogenicity: cancerTypeLevelSummaries[0]?.oncogenicity,
+        oncogenicity: cancerTypeLevelSummaries[0]?.oncogenicity || ONCOGENICITY.UNKNOWN,
         TT: _.sumBy(cancerTypeLevelSummaries, 'TT'),
         TTS: _.sumBy(cancerTypeLevelSummaries, 'TTS'),
         DxS: _.sumBy(cancerTypeLevelSummaries, 'DxS'),
