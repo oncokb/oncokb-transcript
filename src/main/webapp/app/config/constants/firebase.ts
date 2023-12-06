@@ -1,5 +1,6 @@
-import { Gene } from 'app/shared/model/firebase/firebase.model';
+import { Gene, FIREBASE_ONCOGENICITY } from 'app/shared/model/firebase/firebase.model';
 import { ExtractPathExpressions } from 'app/shared/util/firebase/firebase-crud-store';
+import { ONCOGENICITY } from './constants';
 
 export enum GENE_TYPE {
   TUMOR_SUPPRESSOR = 'Tumor Suppressor',
@@ -31,4 +32,22 @@ export const FB_COLLECTION_PATH = {
   META_COLLABORATORS: `${FB_COLLECTION.META}/collaborators`,
   META_COLLABORATOR: `${FB_COLLECTION.META}/collaborators/:name`,
   META_COLLABORATOR_GENE: `${FB_COLLECTION.META}/collaborators/:name/:index`,
+};
+
+export const ONCOGENICITY_CLASS_MAPPING: { [key in FIREBASE_ONCOGENICITY]: string } = {
+  [FIREBASE_ONCOGENICITY.YES]: 'oncogenic',
+  [FIREBASE_ONCOGENICITY.LIKELY]: 'likely-oncogenic',
+  [FIREBASE_ONCOGENICITY.RESISTANCE]: 'resistance',
+  [FIREBASE_ONCOGENICITY.LIKELY_NEUTRAL]: 'likely-neutral',
+  [FIREBASE_ONCOGENICITY.INCONCLUSIVE]: 'inconclusive',
+  [FIREBASE_ONCOGENICITY.UNKNOWN]: 'unknown',
+};
+
+export const FIREBASE_ONCOGENICITY_MAPPING: { [key in FIREBASE_ONCOGENICITY]: string } = {
+  [FIREBASE_ONCOGENICITY.YES]: ONCOGENICITY.ONCOGENIC,
+  [FIREBASE_ONCOGENICITY.LIKELY]: ONCOGENICITY.LIKELY_ONCOGENIC,
+  [FIREBASE_ONCOGENICITY.LIKELY_NEUTRAL]: ONCOGENICITY.LIKELY_NEUTRAL,
+  [FIREBASE_ONCOGENICITY.RESISTANCE]: ONCOGENICITY.RESISTANCE,
+  [FIREBASE_ONCOGENICITY.UNKNOWN]: `${ONCOGENICITY.UNKNOWN} Oncogenic Effect`,
+  [FIREBASE_ONCOGENICITY.INCONCLUSIVE]: ONCOGENICITY.INCONCLUSIVE,
 };

@@ -68,12 +68,7 @@ module.exports = async options => {
           },
           {
             test: /\.(jpe?g|png|gif|svg|woff2?|otf|ttf|eot|ppt|pdf|zip)$/i,
-            loader: 'file-loader',
-            options: {
-              digest: 'hex',
-              hash: 'sha512',
-              name: 'content/[name].[ext]',
-            },
+            type: 'asset/resource',
           },
           /*
        ,

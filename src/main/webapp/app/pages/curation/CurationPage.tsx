@@ -21,12 +21,15 @@ import WithSeparator from 'react-with-separator';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
 import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/FirebaseRealtimeInput';
 import { getFirebasePath, getMutationName, getTxName } from 'app/shared/util/firebase/firebase-utils';
-import Collapsible, { NestLevel } from 'app/pages/curation/collapsible/Collapsible';
+import Collapsible, { NestLevelType } from 'app/pages/curation/collapsible/Collapsible';
 import styles from './styles.module.scss';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { ONCOGENICITY, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import { FIREBASE_ONCOGENICITY, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
 import { GENE_TYPE, GENE_TYPE_KEY } from 'app/config/constants/firebase';
+import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
+import classNames from 'classnames';
+import { FaAccessibleIcon } from 'react-icons/fa';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -146,9 +149,14 @@ const CurationPage = (props: ICurationPageProps) => {
             .map((mutation, mutationIndex) => (
               <Row key={mutationIndex} className={'mb-2'}>
                 <Col>
-                  <Collapsible nestLevel={NestLevel.MUTATION} className={'mb-1'} title={`Mutation: ${getMutationName(mutation)}`}>
-                    <Collapsible nestLevel={NestLevel.MUTATION_EFFECT} title={'Mutation Effect'}>
-                      <Collapsible nestLevel={NestLevel.BIOLOGICAL_EFFECT} title={'Biological Effect'}>
+                  <Collapsible
+                    nestLevel={NestLevelType.MUTATION}
+                    className={'mb-1'}
+                    title={`Mutation: ${getMutationName(mutation)}`}
+                    mutationUuid={mutation.name_uuid}
+                  >
+                    <Collapsible nestLevel={NestLevelType.MUTATION_EFFECT} title={'Mutation Effect'}>
+                      <Collapsible nestLevel={NestLevelType.BIOLOGICAL_EFFECT} title={'Biological Effect'}>
                         <RealtimeCheckedInputGroup
                           groupHeader="Mutation Effect"
                           isRadio
@@ -174,16 +182,16 @@ const CurationPage = (props: ICurationPageProps) => {
                           name="description"
                         />
                       </Collapsible>
-                      <Collapsible nestLevel={NestLevel.SOMATIC} className={'mt-2'} title={'Somatic'}>
+                      <Collapsible nestLevel={NestLevelType.SOMATIC} className={'mt-2'} title={'Somatic'}>
                         <RealtimeCheckedInputGroup
                           groupHeader="Oncogenic"
                           isRadio
                           options={[
-                            ONCOGENICITY.YES,
-                            ONCOGENICITY.LIKELY,
-                            ONCOGENICITY.LIKELY_NEUTRAL,
-                            ONCOGENICITY.INCONCLUSIVE,
-                            ONCOGENICITY.RESISTANCE,
+                            FIREBASE_ONCOGENICITY.YES,
+                            FIREBASE_ONCOGENICITY.LIKELY,
+                            FIREBASE_ONCOGENICITY.LIKELY_NEUTRAL,
+                            FIREBASE_ONCOGENICITY.INCONCLUSIVE,
+                            FIREBASE_ONCOGENICITY.RESISTANCE,
                           ].map(label => ({
                             label,
                             fieldKey: `mutations/${mutationIndex}/mutation_effect/oncogenic`,
@@ -191,7 +199,7 @@ const CurationPage = (props: ICurationPageProps) => {
                         />
                       </Collapsible>
                       {mutation.mutation_effect.germline && (
-                        <Collapsible nestLevel={NestLevel.GERMLINE} className={'mt-2'} title={'Germline'}>
+                        <Collapsible nestLevel={NestLevelType.GERMLINE} className={'mt-2'} title={'Germline'}>
                           <RealtimeCheckedInputGroup
                             groupHeader="Pathogenic"
                             isRadio
@@ -235,8 +243,10 @@ const CurationPage = (props: ICurationPageProps) => {
                       mutation.tumors.map((tumor, tumorIndex) => (
                         <Collapsible
                           className={'mt-2'}
+                          mutationUuid={mutation.name_uuid}
+                          cancerTypeUuid={tumor.cancerTypes_uuid}
                           key={tumor.cancerTypes_uuid}
-                          nestLevel={NestLevel.CANCER_TYPE}
+                          nestLevel={NestLevelType.CANCER_TYPE}
                           title={`Cancer Type: ${tumor.cancerTypes.map(cancerType => getCancerTypeName(cancerType)).join(', ')}`}
                         >
                           <RealtimeTextAreaInput
@@ -255,7 +265,7 @@ const CurationPage = (props: ICurationPageProps) => {
                                   <Collapsible
                                     className={'mt-2'}
                                     key={tumor.cancerTypes_uuid}
-                                    nestLevel={NestLevel.THERAPY}
+                                    nestLevel={NestLevelType.THERAPY}
                                     title={`Therapy: ${getTxName(props.drugList, treatment.name)}`}
                                   >
                                     <RealtimeDropdownInput
