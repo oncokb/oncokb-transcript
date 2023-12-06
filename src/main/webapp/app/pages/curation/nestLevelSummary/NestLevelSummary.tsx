@@ -61,11 +61,7 @@ export const NestLevelSummary = (props: NestLevelSummaryProps) => {
             hideWhenOne
             count={1}
             base={
-              <DefaultTooltip
-                placement="top"
-                showArrow={false}
-                overlay={<span>{FIREBASE_ONCOGENICITY_MAPPING[props.summaryStats.oncogenicity]}</span>}
-              >
+              <DefaultTooltip placement="top" overlay={<span>{FIREBASE_ONCOGENICITY_MAPPING[props.summaryStats.oncogenicity]}</span>}>
                 <span className={classNames('oncokb', 'icon', `${ONCOGENICITY_CLASS_MAPPING[props.summaryStats.oncogenicity]}`)}></span>
               </DefaultTooltip>
             }
