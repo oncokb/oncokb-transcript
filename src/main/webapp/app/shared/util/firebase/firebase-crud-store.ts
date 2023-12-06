@@ -1,5 +1,5 @@
 import { IRootStore } from 'app/stores';
-import { DataSnapshot, Database, onValue, push, ref, remove, set, update } from 'firebase/database';
+import { DataSnapshot, Database, onValue, push, ref, remove, runTransaction, set, update } from 'firebase/database';
 import { action, autorun, makeObservable, observable } from 'mobx';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { convertNestedObject } from './firebase-utils';
@@ -34,6 +34,7 @@ export class FirebaseCrudStore<T> {
       update: action.bound,
       push: action.bound,
       delete: action.bound,
+      deleteFromArray: action.bound,
     });
     autorun(() => {
       this.setDatabase(rootStore.firebaseStore.firebaseDb);
@@ -71,5 +72,17 @@ export class FirebaseCrudStore<T> {
 
   delete(path: string) {
     return remove(ref(this.db, path));
+  }
+
+  async deleteFromArray(path: string, indices: number[]) {
+    return await runTransaction(ref(this.db, path), (currentData: any[]) => {
+      const newData = [];
+      for (let i = 0; i < currentData.length; i++) {
+        if (!indices.includes(i)) {
+          newData.push(currentData[i]);
+        }
+      }
+      return newData;
+    });
   }
 }

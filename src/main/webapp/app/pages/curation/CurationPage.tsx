@@ -27,6 +27,7 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import { FIREBASE_ONCOGENICITY, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
 import { GENE_TYPE, GENE_TYPE_KEY } from 'app/config/constants/firebase';
+import VusTable from '../../shared/table/VusTable';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import classNames from 'classnames';
 import { FaAccessibleIcon } from 'react-icons/fa';
@@ -131,7 +132,7 @@ const CurationPage = (props: ICurationPageProps) => {
         </Col>
       </Row>
       {props.data.mutations && (
-        <>
+        <div className={'mb-5'}>
           <Row>
             <Col>
               <div className={'d-flex justify-content-between align-items-center mb-2'}>
@@ -312,8 +313,9 @@ const CurationPage = (props: ICurationPageProps) => {
                 </Col>
               </Row>
             ))}
-        </>
+        </div>
       )}
+      <VusTable hugoSymbol={hugoSymbol} />
     </div>
   ) : (
     <LoadingIndicator size={LoaderSize.LARGE} center={true} isLoading />

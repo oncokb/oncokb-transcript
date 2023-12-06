@@ -13,7 +13,11 @@ export type MetaCollaborators = {
 };
 
 export type DrugCollection = {
-  [hugoSymbol: string]: Drug;
+  [uuid: string]: Drug;
+};
+
+export type VusObjList = {
+  [uuid: string]: Vus;
 };
 
 export enum FIREBASE_ONCOGENICITY {
