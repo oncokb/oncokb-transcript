@@ -5,7 +5,7 @@ import { ENTITY_ACTION, ENTITY_TYPE, SearchOptionType } from 'app/config/constan
 import { useHistory, useLocation } from 'react-router-dom';
 import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
+import { faPlus, width } from '@fortawesome/free-solid-svg-icons/faPlus';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import CancerTypeSelect from 'app/shared/select/CancerTypeSelect';
 import { biomarkerAssociationClient } from 'app/shared/api/clients';
@@ -66,52 +66,55 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
   };
 
   return (
-    <Menu>
-      <Form onSubmit={createBiomarkerAssociation}>
-        <SidebarMenuItem>Add Biomarker Association</SidebarMenuItem>
-        <SidebarMenuItem>
-          <GeneSelect
-            onChange={option => {
-              const geneId = option ? option.value : null;
-              setSelectedGeneId(geneId);
-            }}
-          />
-        </SidebarMenuItem>
-        <SidebarMenuItem>
-          <div style={{ display: 'flex' }}>
-            <div style={{ flex: 1 }}>
-              <AlterationSelect isMulti geneId={selectedGeneId} onChange={onAlterationChange} />
+    <div>
+      <h4 style={{ marginBottom: '2rem', marginLeft: '1rem' }}>Curation Panel</h4>
+      <Menu>
+        <Form onSubmit={createBiomarkerAssociation}>
+          <SidebarMenuItem>Add Biomarker Association</SidebarMenuItem>
+          <SidebarMenuItem>
+            <GeneSelect
+              onChange={option => {
+                const geneId = option ? option.value : null;
+                setSelectedGeneId(geneId);
+              }}
+            />
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <div style={{ display: 'flex' }}>
+              <div style={{ flex: 1 }}>
+                <AlterationSelect isMulti geneId={selectedGeneId} onChange={onAlterationChange} />
+              </div>
+              <DefaultTooltip overlay={'Create new alteration'}>
+                <Button className="ml-1" color="primary" onClick={redirectToCreateAlteration}>
+                  <FontAwesomeIcon icon={faPlus} size="sm" />
+                </Button>
+              </DefaultTooltip>
             </div>
-            <DefaultTooltip overlay={'Create new alteration'}>
-              <Button className="ml-1" color="primary" onClick={redirectToCreateAlteration}>
-                <FontAwesomeIcon icon={faPlus} size="sm" />
-              </Button>
-            </DefaultTooltip>
-          </div>
-        </SidebarMenuItem>
-        <SidebarMenuItem>
-          <CancerTypeSelect onChange={onCancerTypeChange} />
-        </SidebarMenuItem>
-        <SidebarMenuItem>
-          <DrugSelect isMulti onChange={onDrugChange} />
-        </SidebarMenuItem>
-        <SidebarMenuItem>
-          <div style={{ display: 'flex' }}>
-            <div style={{ flex: 1 }}>
-              <FdaSubmissionSelect cdxId={id} isMulti onChange={onFdaSubmissionChange} />
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <CancerTypeSelect onChange={onCancerTypeChange} />
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <DrugSelect isMulti onChange={onDrugChange} />
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <div style={{ display: 'flex' }}>
+              <div style={{ flex: 1 }}>
+                <FdaSubmissionSelect cdxId={id} isMulti onChange={onFdaSubmissionChange} />
+              </div>
+              <DefaultTooltip overlay={'Create new Fda Submission'}>
+                <Button className="ml-1" color="primary" onClick={redirectToCreateFdaSubmission}>
+                  <FontAwesomeIcon icon={faPlus} size="sm" />
+                </Button>
+              </DefaultTooltip>
             </div>
-            <DefaultTooltip overlay={'Create new Fda Submission'}>
-              <Button className="ml-1" color="primary" onClick={redirectToCreateFdaSubmission}>
-                <FontAwesomeIcon icon={faPlus} size="sm" />
-              </Button>
-            </DefaultTooltip>
-          </div>
-        </SidebarMenuItem>
-        <SidebarMenuItem>
-          <SaveButton />
-        </SidebarMenuItem>
-      </Form>
-    </Menu>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SaveButton />
+          </SidebarMenuItem>
+        </Form>
+      </Menu>
+    </div>
   );
 };
 
