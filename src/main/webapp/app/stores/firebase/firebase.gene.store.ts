@@ -101,8 +101,6 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
   };
 
   async deleteGeneSection(nestLevel: NestLevelType, path: string) {
-    /* eslint-disable no-console */
-
     if (![NestLevelType.MUTATION, NestLevelType.CANCER_TYPE, NestLevelType.THERAPY].includes(nestLevel)) {
       return Promise.reject(new Error('Cannot delete an invalid section'));
     }

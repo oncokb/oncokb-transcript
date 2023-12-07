@@ -88,9 +88,3 @@ export function getMostRecentComment(comments: Comment[]) {
   }
   return latestComment;
 }
-
-export const deleteFromArrayByIndex = (array: any[], index: number) => {
-  return array.filter((e, i) => {
-    return i !== index;
-  });
-};
