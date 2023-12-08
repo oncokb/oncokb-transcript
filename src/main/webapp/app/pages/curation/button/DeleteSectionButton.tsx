@@ -5,7 +5,7 @@ import { FaRegTrashAlt } from 'react-icons/fa';
 export interface DeleteSectionButtonProps {
   sectionName: string;
   deleteHandler: () => void;
-  isRemoveableWithoutReview: boolean;
+  isRemovableWithoutReview: boolean;
 }
 
 export const DeleteSectionButton = (props: DeleteSectionButtonProps) => {
@@ -13,7 +13,7 @@ export const DeleteSectionButton = (props: DeleteSectionButtonProps) => {
 
   return (
     <>
-      <span className="text-danger" style={{ cursor: 'pointer' }} onClick={() => setShowModal(true)}>
+      <span style={{ cursor: 'pointer' }} onClick={() => setShowModal(true)}>
         <FaRegTrashAlt size={16} />
       </span>
       <SimpleConfirmModal
@@ -23,12 +23,10 @@ export const DeleteSectionButton = (props: DeleteSectionButtonProps) => {
             <div>
               You are deleting the section <b>{props.sectionName}</b> and all underlying section(s).
             </div>
-            {props.isRemoveableWithoutReview ? (
-              <div className="mt-2 text-danger">
-                This section will be removed immediately since it is newly added and has not been reviewed yet.
-              </div>
+            {props.isRemovableWithoutReview ? (
+              <div className="mt-2">This section will be removed immediately since it is newly added and has not been reviewed yet.</div>
             ) : (
-              <div className="mt-2 text-warning">This deletion will need to be reviewed before it is fully removed from our system.</div>
+              <div className="mt-2">This deletion will need to be reviewed before it is fully removed from our system.</div>
             )}
           </>
         }

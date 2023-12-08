@@ -25,6 +25,9 @@ describe('UrlUtils', () => {
       expect(replaceUrlParams('/:hugoSymbol', '')).toBe('');
       expect(replaceUrlParams('/:hugoSymbol/mutations/:index', '', undefined)).toBe('');
       expect(replaceUrlParams('/:hugoSymbol', undefined)).toBe('');
+
+      expect(replaceUrlParams('/:index', 0)).toBe('/0');
+      expect(replaceUrlParams('/:index', '0')).toBe('/0');
     });
   });
 });

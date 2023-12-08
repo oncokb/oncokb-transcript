@@ -3,6 +3,7 @@ import CountBadge from 'app/shared/badge/CountBadge';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import classNames from 'classnames';
 import _ from 'lodash';
+import './nest-level-summary.scss';
 import React from 'react';
 
 export type NestLevelSummaryStats = {
@@ -21,9 +22,11 @@ export interface NestLevelSummaryProps {
 }
 
 export const NestLevelSummary = (props: NestLevelSummaryProps) => {
+  const wrapperMarginRight = props.summaryStats.oncogenicity ? undefined : 'mr-2';
+
   if (props.summaryStats) {
     return (
-      <div className="d-flex flex-wrap">
+      <div className={classNames('d-flex align-items-center flex-wrap', wrapperMarginRight)}>
         {Object.keys(props.summaryStats)
           .filter(k => props.summaryStats[k] && props.summaryStats[k] > 0)
           .map(k => {

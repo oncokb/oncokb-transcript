@@ -7,14 +7,17 @@ import styles from './styles.module.scss';
 import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
 import CancerTypeLevelSummary from '../nestLevelSummary/CancerTypeLevelSummary';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
+import { componentInject } from 'app/shared/util/typed-inject';
+import { observer } from 'mobx-react';
+import { IRootStore } from 'app/stores';
+import { isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
 
 export interface IProps {
   title: string;
   nestLevel: NestLevelType;
-  deleteHandler?: () => void;
+  firebasePath?: string;
   open?: boolean;
   className?: string;
-  isRemoveableWithoutReview?: boolean;
   mutationUuid?: string;
   cancerTypeUuid?: string;
 }
@@ -51,18 +54,19 @@ const NestLevelColor: { [key in NestLevel]: string } = {
   [NestLevel.LEVEL_3]: LEVELS['3'],
 };
 
-export type RemoveableNestLevel = NestLevelType.MUTATION | NestLevelType.CANCER_TYPE | NestLevelType.THERAPY;
+export type RemovableNestLevel = NestLevelType.MUTATION | NestLevelType.CANCER_TYPE | NestLevelType.THERAPY;
 
-const Collapsible: React.FunctionComponent<IProps> = ({
+const Collapsible: React.FunctionComponent<IProps & StoreProps> = ({
   open,
   children,
   title,
   className,
   nestLevel,
-  deleteHandler,
-  isRemoveableWithoutReview,
+  firebasePath,
   mutationUuid,
   cancerTypeUuid,
+  deleteSection,
+  data,
 }) => {
   const [isOpen, setIsOpen] = useState(open);
 
@@ -71,7 +75,7 @@ const Collapsible: React.FunctionComponent<IProps> = ({
   };
 
   const showMutationLevelSummary = nestLevel === NestLevelType.MUTATION && !title.includes(',');
-  const removeableLevel = [NestLevelType.MUTATION, NestLevelType.CANCER_TYPE, NestLevelType.THERAPY].includes(nestLevel);
+  const removableLevel = [NestLevelType.MUTATION, NestLevelType.CANCER_TYPE, NestLevelType.THERAPY].includes(nestLevel);
 
   return (
     <>
@@ -84,16 +88,25 @@ const Collapsible: React.FunctionComponent<IProps> = ({
             }
           }}
         >
-          <button type="button" className="btn" onClick={handleFilterOpening}>
-            {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
-          </button>
-          <span className="font-weight-bold font-weight-bold mr-auto">{title}</span>
+          <div className="mr-auto d-flex align-items-center">
+            <button type="button" className="btn" onClick={handleFilterOpening}>
+              {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
+            </button>
+            <span className="font-weight-bold font-weight-bold">{title}</span>
+          </div>
           {showMutationLevelSummary ? <MutationLevelSummary mutationUuid={mutationUuid} /> : undefined}
           {nestLevel === NestLevelType.CANCER_TYPE ? (
             <CancerTypeLevelSummary mutationUuid={mutationUuid} cancerTypeUuid={cancerTypeUuid} />
           ) : undefined}
-          {removeableLevel ? (
-            <DeleteSectionButton sectionName={title} deleteHandler={deleteHandler} isRemoveableWithoutReview={isRemoveableWithoutReview} />
+          {removableLevel ? (
+            <>
+              <div className={classnames(styles.divider)} />
+              <DeleteSectionButton
+                sectionName={title}
+                deleteHandler={() => deleteSection(nestLevel as RemovableNestLevel, firebasePath)}
+                isRemovableWithoutReview={isSectionRemovableWithoutReview(data, nestLevel as RemovableNestLevel, firebasePath)}
+              />
+            </>
           ) : undefined}
         </div>
         {isOpen && <div className={classnames('card-body', styles.body)}>{children}</div>}
@@ -102,4 +115,11 @@ const Collapsible: React.FunctionComponent<IProps> = ({
   );
 };
 
-export default Collapsible;
+const mapStoreToProps = ({ firebaseGeneStore }: IRootStore) => ({
+  data: firebaseGeneStore.data,
+  deleteSection: firebaseGeneStore.deleteSection,
+});
+
+type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
+
+export default componentInject(mapStoreToProps)(observer(Collapsible));

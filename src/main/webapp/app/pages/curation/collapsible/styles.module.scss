@@ -12,3 +12,12 @@
   padding-bottom: 0 !important;
   padding-right: 0 !important;
 }
+
+.divider {
+  height: 1rem;
+  background: $grey;
+  width: 1px;
+  margin-right: 0.75rem;
+  margin-top: 0.5rem;
+  border-radius: 5px;
+}

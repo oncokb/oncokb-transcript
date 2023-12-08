@@ -15,7 +15,7 @@ export const replaceUrlParams = (url: string, ...params: (string | number)[]) =>
   }
 
   for (let i = 0; i < paramMatches.length; i++) {
-    if (params[i] === undefined) {
+    if (params[i] === undefined || params[i] === '') {
       return '';
     }
     url = url.replace(paramMatches[i], `/${params[i]}`);

@@ -1,7 +1,16 @@
 import 'jest-expect-message';
-import { convertNestedObject, geneNeedsReview, getMutationName, getTxName, getValueByNestedKey } from './firebase-utils';
-import { Drug, Meta, MetaReview, Mutation } from 'app/shared/model/firebase/firebase.model';
+import {
+  convertNestedObject,
+  geneNeedsReview,
+  getFirebasePath,
+  getMutationName,
+  getTxName,
+  getValueByNestedKey,
+  isSectionRemovableWithoutReview,
+} from './firebase-utils';
+import { CancerType, Drug, Gene, Meta, MetaReview, Mutation, Review, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { generateUuid } from '../utils';
+import { NestLevelType } from 'app/pages/curation/collapsible/Collapsible';
 
 describe('FirebaseUtils', () => {
   describe('convertNestedObject', () => {
@@ -192,6 +201,54 @@ describe('FirebaseUtils', () => {
 
       // Edge cases
       expect(geneNeedsReview(undefined), 'undefined input should return false').toBe(false);
+    });
+  });
+
+  describe('isSectionRemovableWithoutReview', () => {
+    it('mutation should be removable', () => {
+      const gene = new Gene('BRAF');
+      const mutation = new Mutation('V600E');
+      mutation.name_review = new Review('user', undefined, true);
+      gene.mutations.push(mutation);
+
+      const isRemovable = isSectionRemovableWithoutReview(gene, NestLevelType.MUTATION, getFirebasePath('MUTATIONS', 'BRAF', '0'));
+      expect(isRemovable).toBeTruthy();
+    });
+
+    it('mutation needs to be reviewed', () => {
+      const gene = new Gene('BRAF');
+      const mutation = new Mutation('V600E');
+      mutation.name_review = new Review('user');
+      gene.mutations.push(mutation);
+
+      const isRemovable = isSectionRemovableWithoutReview(gene, NestLevelType.MUTATION, getFirebasePath('MUTATIONS', 'BRAF', '0'));
+      expect(isRemovable).toBeFalsy();
+    });
+
+    it('tumor should be removable', () => {
+      const gene = new Gene('BRAF');
+      const mutation = new Mutation('V600E');
+      mutation.name_review = new Review('user');
+      gene.mutations.push(mutation);
+      const tumor = new Tumor();
+      tumor.cancerTypes_review = new Review('user', undefined, true);
+      mutation.tumors.push(tumor);
+
+      const isRemovable = isSectionRemovableWithoutReview(gene, NestLevelType.CANCER_TYPE, getFirebasePath('TUMORS', 'BRAF', '0', '0'));
+      expect(isRemovable).toBeTruthy();
+    });
+
+    it('tumor needs to be reviewed', () => {
+      const gene = new Gene('BRAF');
+      const mutation = new Mutation('V600E');
+      mutation.name_review = new Review('user');
+      gene.mutations.push(mutation);
+      const tumor = new Tumor();
+      tumor.cancerTypes_review = new Review('user');
+      mutation.tumors.push(tumor);
+
+      const isRemovable = isSectionRemovableWithoutReview(gene, NestLevelType.CANCER_TYPE, getFirebasePath('TUMORS', 'BRAF', '0', '0'));
+      expect(isRemovable).toBeFalsy();
     });
   });
 });

@@ -156,6 +156,10 @@ export class Mutation {
   name_uuid: string = generateUuid();
   tumors: Tumor[] = [];
   tumors_uuid: string = generateUuid();
+
+  constructor(name: string) {
+    this.name = name;
+  }
 }
 
 export class MutationEffect {
@@ -316,9 +320,18 @@ export class Review {
   added?: boolean;
   removed?: boolean;
 
-  constructor(updatedBy: string) {
+  constructor(updatedBy: string, lastReviewed?: string, added?: boolean, removed?: boolean) {
     this.updatedBy = updatedBy;
     this.updateTime = new Date().getTime();
+    if (lastReviewed) {
+      this.lastReviewed = lastReviewed;
+    }
+    if (added) {
+      this.added = added;
+    }
+    if (removed) {
+      this.removed = removed;
+    }
   }
 }
 

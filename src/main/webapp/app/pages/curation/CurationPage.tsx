@@ -20,7 +20,7 @@ import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
 import WithSeparator from 'react-with-separator';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
 import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/FirebaseRealtimeInput';
-import { getFirebasePath, getMutationName, getTxName } from 'app/shared/util/firebase/firebase-utils';
+import { getFirebasePath, getMutationName, getTxName, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
 import Collapsible, { NestLevelType } from 'app/pages/curation/collapsible/Collapsible';
 import styles from './styles.module.scss';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
@@ -152,10 +152,7 @@ const CurationPage = (props: ICurationPageProps) => {
                     className={'mb-1'}
                     title={`Mutation: ${getMutationName(mutation)}`}
                     mutationUuid={mutation.name_uuid}
-                    deleteHandler={() =>
-                      props.deleteGeneSection(NestLevelType.MUTATION, getFirebasePath('MUTATIONS', hugoSymbol, mutationIndex))
-                    }
-                    isRemoveableWithoutReview={props.isRemoveableWithoutReview(NestLevelType.MUTATION, `mutations/${mutationIndex}`)}
+                    firebasePath={getFirebasePath('MUTATIONS', hugoSymbol, mutationIndex)}
                   >
                     <Collapsible nestLevel={NestLevelType.MUTATION_EFFECT} title={'Mutation Effect'}>
                       <Collapsible nestLevel={NestLevelType.BIOLOGICAL_EFFECT} title={'Biological Effect'}>
@@ -249,12 +246,7 @@ const CurationPage = (props: ICurationPageProps) => {
                           cancerTypeUuid={tumor.cancerTypes_uuid}
                           key={tumor.cancerTypes_uuid}
                           nestLevel={NestLevelType.CANCER_TYPE}
-                          deleteHandler={() =>
-                            props.deleteGeneSection(
-                              NestLevelType.CANCER_TYPE,
-                              getFirebasePath('TUMORS', hugoSymbol, mutationIndex, tumorIndex)
-                            )
-                          }
+                          firebasePath={getFirebasePath('TUMORS', hugoSymbol, mutationIndex, tumorIndex)}
                           title={`Cancer Type: ${tumor.cancerTypes.map(cancerType => getCancerTypeName(cancerType)).join(', ')}`}
                         >
                           <RealtimeTextAreaInput
@@ -275,12 +267,14 @@ const CurationPage = (props: ICurationPageProps) => {
                                     key={tumor.cancerTypes_uuid}
                                     nestLevel={NestLevelType.THERAPY}
                                     title={`Therapy: ${getTxName(props.drugList, treatment.name)}`}
-                                    deleteHandler={() =>
-                                      props.deleteGeneSection(
-                                        NestLevelType.THERAPY,
-                                        getFirebasePath('TREATMENTS', hugoSymbol, mutationIndex, tumorIndex, tiIndex, treatmentIndex)
-                                      )
-                                    }
+                                    firebasePath={getFirebasePath(
+                                      'TREATMENTS',
+                                      hugoSymbol,
+                                      mutationIndex,
+                                      tumorIndex,
+                                      tiIndex,
+                                      treatmentIndex
+                                    )}
                                   >
                                     <RealtimeDropdownInput
                                       fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
@@ -342,8 +336,7 @@ const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, fire
   data: firebaseGeneStore.data,
   update: firebaseGeneStore.update,
   updateReviewableContent: firebaseGeneStore.updateReviewableContent,
-  deleteGeneSection: firebaseGeneStore.deleteGeneSection,
-  isRemoveableWithoutReview: firebaseGeneStore.isSectionRemoveableWithoutReview,
+  deleteSection: firebaseGeneStore.deleteSection,
   addMetaCollaboratorsListener: firebaseMetaStore.addMetaCollaboratorsListener,
   metaData: firebaseMetaStore.data,
   drugList: firebaseDrugsStore.drugList,
