@@ -28,6 +28,8 @@ public interface CancerTypeRepository extends JpaRepository<CancerType, Long>, J
     @Query("select cancerType from CancerType cancerType left join fetch cancerType.synonyms where cancerType.id =:id")
     Optional<CancerType> findOneWithEagerRelationships(@Param("id") Long id);
 
+    List<CancerType> findAllByMainTypeIs(@Param("maintype") String mainType);
+
     Optional<CancerType> findOneByCodeIgnoreCase(String code);
 
     Optional<CancerType> findOneBySubtypeIgnoreCase(String subtype);

@@ -6,6 +6,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 public class FileUtils {
@@ -96,5 +97,48 @@ public class FileUtils {
         }
 
         return rows;
+    }
+
+    public static List<List<String>> parseDelimitedFile(String filePath, String delimiter, boolean trim) {
+        File file = new File(filePath);
+        List<String> readmeFileLines;
+        try {
+            InputStream is = new FileInputStream(file);
+            readmeFileLines = readTrimmedLinesStream(is);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        // remove the first line which includes the column headers
+        if (readmeFileLines.size() > 0) {
+            String header = readmeFileLines.remove(0);
+            final int numOfColumns = header.split(delimiter).length;
+            return readmeFileLines
+                .stream()
+                .map(line -> {
+                    List<String> cellList = Arrays.stream(line.split(delimiter)).collect(Collectors.toList());
+                    if (cellList.size() < numOfColumns) {
+                        for (int i = cellList.size() - 1; i < numOfColumns; i++) {
+                            cellList.add(null);
+                        }
+                    }
+                    if (trim) {
+                        cellList =
+                            cellList
+                                .stream()
+                                .map(cell -> {
+                                    if (cell == null) {
+                                        return "";
+                                    } else {
+                                        return cell.trim();
+                                    }
+                                })
+                                .collect(Collectors.toList());
+                    }
+                    return cellList;
+                })
+                .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
     }
 }

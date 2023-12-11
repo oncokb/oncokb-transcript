@@ -39,7 +39,6 @@ public class Alteration implements Serializable {
     @Column(name = "alteration", nullable = false)
     private String alteration;
 
-    @NotNull
     @Column(name = "protein_change", nullable = false)
     private String proteinChange;
 

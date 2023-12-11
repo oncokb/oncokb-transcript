@@ -91,7 +91,7 @@ public class MainService {
         }
         alteration.setAlteration(pcAlteration.getAlteration());
         if (PROTEIN_CHANGE.equals(pcAlteration.getType())) {
-            alteration.setProteinChange(pcAlteration.getAlteration());
+            alteration.setProteinChange(pcAlteration.getProteinChange());
         }
         Set<Gene> genes = alteration
             .getGenes()

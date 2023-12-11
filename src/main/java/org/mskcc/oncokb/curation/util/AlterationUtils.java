@@ -93,6 +93,8 @@ public class AlterationUtils {
             proteinChange = proteinChange.substring(0, proteinChange.indexOf("["));
         }
 
+        String altStr = proteinChange;
+
         // we need to deal with the exclusion format so the protein change can properly be interpreted.
         String excludedStr = "";
         Matcher exclusionMatch = getExclusionCriteriaMatcher(proteinChange);
@@ -294,7 +296,8 @@ public class AlterationUtils {
         alteration.setVariantResidues(var);
         alteration.setStart(start);
         alteration.setEnd(end);
-        alteration.setAlteration(proteinChange);
+        alteration.setAlteration(altStr);
+        alteration.setProteinChange(proteinChange);
 
         Consequence consequence = new Consequence();
         consequence.setTerm(Optional.ofNullable(term).orElse(MutationConsequence.UNKNOWN).name());

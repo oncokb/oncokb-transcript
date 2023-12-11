@@ -24,7 +24,7 @@
                 <constraints nullable="false" />
             </column>
             <column name="protein_change" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints nullable="true" />
             </column>
             <column name="start" type="integer">
                 <constraints nullable="true" />

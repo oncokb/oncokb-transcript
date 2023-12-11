@@ -57,7 +57,7 @@ public class GeneImporter {
             .filter(line -> {
                 // as long as gene has entrez gene id and hugo symbol, we import
                 if (line.length >= 2) {
-                    return StringUtils.isNumeric(line[0]);
+                    return StringUtils.isNumeric(line[0]) && Integer.parseInt(line[0]) > 0;
                 } else {
                     return false;
                 }

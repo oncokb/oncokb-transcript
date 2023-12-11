@@ -1,5 +1,7 @@
 package org.mskcc.oncokb.curation.repository;
 
+import io.lettuce.core.dynamic.annotation.Param;
+import java.util.Optional;
 import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.Article;
 import org.springframework.data.jpa.repository.*;
@@ -10,4 +12,10 @@ import org.springframework.stereotype.Repository;
  */
 @JaversSpringDataAuditable
 @Repository
-public interface ArticleRepository extends JpaRepository<Article, Long>, JpaSpecificationExecutor<Article> {}
+public interface ArticleRepository extends JpaRepository<Article, Long>, JpaSpecificationExecutor<Article> {
+    Optional<Article> findByContent(@Param("content") String content);
+
+    Optional<Article> findByLink(@Param("link") String link);
+
+    Optional<Article> findByPmid(@Param("pmid") String pmid);
+}

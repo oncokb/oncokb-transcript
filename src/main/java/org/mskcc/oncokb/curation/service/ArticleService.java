@@ -102,6 +102,24 @@ public class ArticleService {
         return articleRepository.findAll(pageable);
     }
 
+    @Transactional(readOnly = true)
+    public Optional<Article> findByContent(String content) {
+        log.debug("Request to get Article : {}", content);
+        return articleRepository.findByContent(content);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Article> findByLink(String link) {
+        log.debug("Request to get Article : {}", link);
+        return articleRepository.findByLink(link);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Article> findByPmid(String pmid) {
+        log.debug("Request to get Article : {}", pmid);
+        return articleRepository.findByPmid(pmid);
+    }
+
     /**
      * Get one article by id.
      *

@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.curation.importer;
 
+import static org.mskcc.oncokb.curation.util.FileUtils.parseDelimitedFile;
 import static org.mskcc.oncokb.curation.util.FileUtils.readTrimmedLinesStream;
 import static org.mskcc.oncokb.curation.util.TimeUtil.parseDbStringInstant;
 
@@ -103,6 +104,12 @@ public class MetaImporter {
     @Autowired
     private SynonymService synonymService;
 
+    @Autowired
+    private OncoTreeImporter oncoTreeImporter;
+
+    @Autowired
+    private CoreImporter coreImporter;
+
     private final Logger log = LoggerFactory.getLogger(MetaImporter.class);
 
     final String META_DATA_FOLDER_PATH = "/Users/zhangh2/origin-repos/oncokb-data/curation/meta";
@@ -128,11 +135,19 @@ public class MetaImporter {
         //        above are included in meta-4.sql
 
         //        this.importGenomeFragment();
-        //        above are included in meta-5.sql Only partial gneome fragment was generated
+        //        above are included in meta-5.sql Only partial genome fragment was generated
+
+        //          meta-6.sql trims the double quotes.
+
+        //        oncoTreeImporter.generalImport();
+        //          meta-7.sql trims the double quotes.
+
+        //          meta-8.sql includes article/alterations
+        coreImporter.generalImport();
     }
 
     private void importFlag() {
-        List<List<String>> flagLines = parseTsvMetaFile("flag.tsv", 5);
+        List<List<String>> flagLines = parseTsvMetaFile("flag.tsv");
         flagLines.forEach(flagLine -> {
             Flag flagEntity = new Flag();
             String type = flagLine.get(1);
@@ -148,7 +163,7 @@ public class MetaImporter {
     }
 
     private void importCdx() {
-        List<List<String>> lines = parseTsvMetaFile("companion_diagnostic_device.tsv", 5);
+        List<List<String>> lines = parseTsvMetaFile("companion_diagnostic_device.tsv");
         lines.forEach(line -> {
             CompanionDiagnosticDevice cdx = new CompanionDiagnosticDevice();
             Long id = Long.valueOf(line.get(0));
@@ -163,7 +178,7 @@ public class MetaImporter {
     }
 
     private void importFdaSubmissionType() {
-        List<List<String>> lines = parseTsvMetaFile("fda_submission_type.tsv", 5);
+        List<List<String>> lines = parseTsvMetaFile("fda_submission_type.tsv");
         lines.forEach(line -> {
             FdaSubmissionType fdaSubmissionType = new FdaSubmissionType();
             String type = line.get(1);
@@ -179,7 +194,7 @@ public class MetaImporter {
     }
 
     private void importFdaSubmission() {
-        List<List<String>> lines = parseTsvMetaFile("fda_submission.tsv", 11);
+        List<List<String>> lines = parseTsvMetaFile("fda_submission.tsv");
         lines.forEach(line -> {
             FdaSubmission fdaSubmission = new FdaSubmission();
             String number = line.get(0);
@@ -216,7 +231,7 @@ public class MetaImporter {
     }
 
     private void importGene() {
-        List<List<String>> lines = parseTsvMetaFile("gene_10_2023.tsv", 8);
+        List<List<String>> lines = parseTsvMetaFile("gene_10_2023.tsv");
         lines.forEach(line -> {
             Integer entrezGeneId = Integer.parseInt(line.get(0));
             String hugoSymbol = line.get(1);
@@ -251,7 +266,7 @@ public class MetaImporter {
     }
 
     private void importGeneFlag() {
-        List<List<String>> lines = parseTsvMetaFile("gene_flag.tsv", 3);
+        List<List<String>> lines = parseTsvMetaFile("gene_flag.tsv");
         lines.forEach(line -> {
             if (StringUtils.isNotEmpty(line.get(2))) {
                 Integer entrezGeneId = Integer.parseInt(line.get(0));
@@ -266,7 +281,7 @@ public class MetaImporter {
     }
 
     private void importSeqRegion() {
-        List<List<String>> lines = parseTsvMetaFile("seq_region.tsv", 4);
+        List<List<String>> lines = parseTsvMetaFile("seq_region.tsv");
         lines.forEach(line -> {
             SeqRegion seqRegion = new SeqRegion();
             seqRegion.setName(line.get(1));
@@ -277,7 +292,7 @@ public class MetaImporter {
     }
 
     private void importEnsemblGene() {
-        List<List<String>> lines = parseTsvMetaFile("ensembl_gene.tsv", 9);
+        List<List<String>> lines = parseTsvMetaFile("ensembl_gene.tsv");
         lines.forEach(line -> {
             EnsemblGene ensemblGene = new EnsemblGene();
             Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(Integer.parseInt(line.get(0)));
@@ -299,7 +314,7 @@ public class MetaImporter {
     }
 
     private void importGenomeFragment() {
-        List<List<String>> lines = parseTsvMetaFile("genome_fragment.tsv", 10);
+        List<List<String>> lines = parseTsvMetaFile("genome_fragment.tsv");
         lines.forEach(line -> {
             GenomeFragment genomeFragment = new GenomeFragment();
             Optional<EnsemblGene> ensemblGeneOptional = ensemblGeneService.findByEnsemblGeneIdAndReferenceGenome(
@@ -326,7 +341,7 @@ public class MetaImporter {
     }
 
     private void importTranscript() {
-        List<List<String>> lines = parseTsvMetaFile("transcript.tsv", 9);
+        List<List<String>> lines = parseTsvMetaFile("transcript.tsv");
         lines.forEach(line -> {
             Transcript transcript = new Transcript();
             Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(Integer.parseInt(line.get(0)));
@@ -356,7 +371,7 @@ public class MetaImporter {
     }
 
     private void importTranscriptFlag() {
-        List<List<String>> lines = parseTsvMetaFile("transcript_flag.tsv", 6);
+        List<List<String>> lines = parseTsvMetaFile("transcript_flag.tsv");
         lines.forEach(line -> {
             if (StringUtils.isNotEmpty(line.get(5))) {
                 String referenceGenome = line.get(2);
@@ -379,7 +394,7 @@ public class MetaImporter {
     }
 
     private void importSequence() {
-        List<List<String>> lines = parseTsvMetaFile("sequence.tsv", 7);
+        List<List<String>> lines = parseTsvMetaFile("sequence.tsv");
         lines.forEach(line -> {
             Sequence sequence = new Sequence();
             Optional<EnsemblGene> ensemblGeneOptional = ensemblGeneService.findByEnsemblGeneIdAndReferenceGenome(
@@ -405,30 +420,7 @@ public class MetaImporter {
         });
     }
 
-    private List<List<String>> parseTsvMetaFile(String fileName, int numOfColumns) {
-        File file = new File(META_DATA_FOLDER_PATH + "/" + fileName);
-        List<String> readmeFileLines;
-        try {
-            InputStream is = new FileInputStream(file);
-            readmeFileLines = readTrimmedLinesStream(is);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        // remove the first line which includes the column headers
-        if (readmeFileLines.size() > 0) {
-            readmeFileLines.remove(0);
-        }
-        return readmeFileLines
-            .stream()
-            .map(line -> {
-                List<String> cellList = Arrays.stream(line.split("\t")).collect(Collectors.toList());
-                if (cellList.size() < numOfColumns) {
-                    for (int i = cellList.size() - 1; i < numOfColumns; i++) {
-                        cellList.add(null);
-                    }
-                }
-                return cellList;
-            })
-            .collect(Collectors.toList());
+    private List<List<String>> parseTsvMetaFile(String fileName) {
+        return parseDelimitedFile(META_DATA_FOLDER_PATH + "/" + fileName, "\t", true);
     }
 }
