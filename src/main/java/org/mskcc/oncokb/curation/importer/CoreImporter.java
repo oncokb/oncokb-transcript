@@ -43,12 +43,12 @@ public class CoreImporter {
         this.mainService = mainService;
     }
 
-    public void generalImport() throws FileNotFoundException {
+    public void generalImport() throws IOException {
         //        importArticle();
         importAlteration();
     }
 
-    private void importArticle() {
+    private void importArticle() throws IOException {
         List<List<String>> articleLines = parseDelimitedFile(DATA_DIRECTORY + "article_v4_11.tsv", "\t", true);
         articleLines.forEach(line -> {
             Article article = new Article();
@@ -90,7 +90,7 @@ public class CoreImporter {
         });
     }
 
-    private void importAlteration() {
+    private void importAlteration() throws IOException {
         List<List<String>> alterationLines = parseDelimitedFile(DATA_DIRECTORY + "alteration_v4_11.tsv", "\t", true);
         alterationLines.forEach(line -> {
             Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(Integer.parseInt(line.get(0)));

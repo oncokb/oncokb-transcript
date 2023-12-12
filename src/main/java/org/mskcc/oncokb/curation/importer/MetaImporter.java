@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.importer;
 
+import static org.mskcc.oncokb.curation.config.DataVersions.NCIT_VERSION;
 import static org.mskcc.oncokb.curation.util.FileUtils.parseDelimitedFile;
-import static org.mskcc.oncokb.curation.util.FileUtils.readTrimmedLinesStream;
 import static org.mskcc.oncokb.curation.util.TimeUtil.parseDbStringInstant;
 
 import java.io.File;
@@ -108,11 +108,15 @@ public class MetaImporter {
     private OncoTreeImporter oncoTreeImporter;
 
     @Autowired
+    private NciThesaurusService nciThesaurusService;
+
+    @Autowired
     private CoreImporter coreImporter;
 
     private final Logger log = LoggerFactory.getLogger(MetaImporter.class);
 
-    final String META_DATA_FOLDER_PATH = "/Users/zhangh2/origin-repos/oncokb-data/curation/meta";
+    final String DATA_DIRECTORY = "/Users/zhangh2/origin-repos/oncokb-data/curation";
+    final String META_DATA_FOLDER_PATH = DATA_DIRECTORY + "/meta";
 
     public void generalImport() throws ApiException, IOException {
         //        this.importFlag();
@@ -143,10 +147,12 @@ public class MetaImporter {
         //          meta-7.sql trims the double quotes.
 
         //          meta-8.sql includes article/alterations
-        coreImporter.generalImport();
+        //        coreImporter.generalImport();
+        //        this.importNcit();
+        //          meta-9.sql includes above
     }
 
-    private void importFlag() {
+    private void importFlag() throws IOException {
         List<List<String>> flagLines = parseTsvMetaFile("flag.tsv");
         flagLines.forEach(flagLine -> {
             Flag flagEntity = new Flag();
@@ -162,7 +168,7 @@ public class MetaImporter {
         });
     }
 
-    private void importCdx() {
+    private void importCdx() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("companion_diagnostic_device.tsv");
         lines.forEach(line -> {
             CompanionDiagnosticDevice cdx = new CompanionDiagnosticDevice();
@@ -177,7 +183,7 @@ public class MetaImporter {
         });
     }
 
-    private void importFdaSubmissionType() {
+    private void importFdaSubmissionType() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("fda_submission_type.tsv");
         lines.forEach(line -> {
             FdaSubmissionType fdaSubmissionType = new FdaSubmissionType();
@@ -193,7 +199,7 @@ public class MetaImporter {
         });
     }
 
-    private void importFdaSubmission() {
+    private void importFdaSubmission() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("fda_submission.tsv");
         lines.forEach(line -> {
             FdaSubmission fdaSubmission = new FdaSubmission();
@@ -230,7 +236,7 @@ public class MetaImporter {
         });
     }
 
-    private void importGene() {
+    private void importGene() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("gene_10_2023.tsv");
         lines.forEach(line -> {
             Integer entrezGeneId = Integer.parseInt(line.get(0));
@@ -265,7 +271,7 @@ public class MetaImporter {
         });
     }
 
-    private void importGeneFlag() {
+    private void importGeneFlag() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("gene_flag.tsv");
         lines.forEach(line -> {
             if (StringUtils.isNotEmpty(line.get(2))) {
@@ -280,7 +286,7 @@ public class MetaImporter {
         });
     }
 
-    private void importSeqRegion() {
+    private void importSeqRegion() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("seq_region.tsv");
         lines.forEach(line -> {
             SeqRegion seqRegion = new SeqRegion();
@@ -291,7 +297,7 @@ public class MetaImporter {
         });
     }
 
-    private void importEnsemblGene() {
+    private void importEnsemblGene() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("ensembl_gene.tsv");
         lines.forEach(line -> {
             EnsemblGene ensemblGene = new EnsemblGene();
@@ -313,7 +319,7 @@ public class MetaImporter {
         });
     }
 
-    private void importGenomeFragment() {
+    private void importGenomeFragment() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("genome_fragment.tsv");
         lines.forEach(line -> {
             GenomeFragment genomeFragment = new GenomeFragment();
@@ -340,7 +346,7 @@ public class MetaImporter {
         });
     }
 
-    private void importTranscript() {
+    private void importTranscript() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("transcript.tsv");
         lines.forEach(line -> {
             Transcript transcript = new Transcript();
@@ -370,7 +376,7 @@ public class MetaImporter {
         });
     }
 
-    private void importTranscriptFlag() {
+    private void importTranscriptFlag() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("transcript_flag.tsv");
         lines.forEach(line -> {
             if (StringUtils.isNotEmpty(line.get(5))) {
@@ -393,7 +399,7 @@ public class MetaImporter {
         });
     }
 
-    private void importSequence() {
+    private void importSequence() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("sequence.tsv");
         lines.forEach(line -> {
             Sequence sequence = new Sequence();
@@ -420,7 +426,49 @@ public class MetaImporter {
         });
     }
 
-    private List<List<String>> parseTsvMetaFile(String fileName) {
+    public void saveAllNcitData(List<List<String>> lines) {
+        String SYNONYMS_SEPARATOR_REGEX = "\\|";
+        lines.forEach(line -> {
+            NciThesaurus nciThesaurus = new NciThesaurus();
+            nciThesaurus.setCode(line.get(0));
+            nciThesaurus.setDisplayName(line.get(5));
+            nciThesaurus.setVersion(NCIT_VERSION);
+
+            List<String> synonymStrs = new ArrayList<>(
+                Arrays.asList((Optional.ofNullable(line.get(3)).orElse("")).split(SYNONYMS_SEPARATOR_REGEX))
+            );
+            if (synonymStrs.size() > 0) {
+                nciThesaurus.setPreferredName(synonymStrs.remove(0));
+                if (StringUtils.isEmpty(nciThesaurus.getDisplayName())) {
+                    nciThesaurus.setDisplayName(nciThesaurus.getPreferredName());
+                }
+            } else {
+                nciThesaurus.setPreferredName(nciThesaurus.getDisplayName());
+            }
+            Set<Synonym> synonyms = synonymStrs
+                .stream()
+                .map(synonymStr -> {
+                    synonymStr = synonymStr.trim();
+                    Synonym synonym = new Synonym();
+                    synonym.setType(SynonymType.NCIT.name());
+                    synonym.setName(synonymStr);
+                    synonym.setSource("NCIT");
+                    return synonym;
+                })
+                .distinct()
+                .map(synonym -> synonymService.save(synonym))
+                .collect(Collectors.toSet());
+            nciThesaurus.setSynonyms(synonyms);
+            nciThesaurusService.save(nciThesaurus);
+        });
+    }
+
+    private void importNcit() throws IOException {
+        List<List<String>> lines = parseDelimitedFile(DATA_DIRECTORY + "/ncit/Thesaurus_" + NCIT_VERSION + ".tsv", "\t", true);
+        saveAllNcitData(lines);
+    }
+
+    private List<List<String>> parseTsvMetaFile(String fileName) throws IOException {
         return parseDelimitedFile(META_DATA_FOLDER_PATH + "/" + fileName, "\t", true);
     }
 }

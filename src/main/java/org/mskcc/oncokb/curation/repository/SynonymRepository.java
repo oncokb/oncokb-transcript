@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the Synonym entity.
  */
-@JaversSpringDataAuditable
 @Repository
 public interface SynonymRepository extends JpaRepository<Synonym, Long>, JpaSpecificationExecutor<Synonym> {
     Optional<Synonym> findByTypeAndName(String type, String name);

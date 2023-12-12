@@ -99,46 +99,49 @@ public class FileUtils {
         return rows;
     }
 
-    public static List<List<String>> parseDelimitedFile(String filePath, String delimiter, boolean trim) {
-        File file = new File(filePath);
-        List<String> readmeFileLines;
-        try {
-            InputStream is = new FileInputStream(file);
-            readmeFileLines = readTrimmedLinesStream(is);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public static List<List<String>> parseDelimitedFileWithoutHeader(String filePath, String delimiter, boolean trim, int numOfColumns)
+        throws IOException {
+        List<String> readmeFileLines = readTrimmedLinesStream(new FileInputStream(filePath));
+        // remove the first line which includes the column headers
+        return parseDelimitedFile(readmeFileLines, delimiter, trim, numOfColumns);
+    }
+
+    public static List<List<String>> parseDelimitedFile(String filePath, String delimiter, boolean trim) throws IOException {
+        List<String> readmeFileLines = readTrimmedLinesStream(new FileInputStream(filePath));
         // remove the first line which includes the column headers
         if (readmeFileLines.size() > 0) {
             String header = readmeFileLines.remove(0);
             final int numOfColumns = header.split(delimiter).length;
-            return readmeFileLines
-                .stream()
-                .map(line -> {
-                    List<String> cellList = Arrays.stream(line.split(delimiter)).collect(Collectors.toList());
-                    if (cellList.size() < numOfColumns) {
-                        for (int i = cellList.size() - 1; i < numOfColumns; i++) {
-                            cellList.add(null);
-                        }
-                    }
-                    if (trim) {
-                        cellList =
-                            cellList
-                                .stream()
-                                .map(cell -> {
-                                    if (cell == null) {
-                                        return "";
-                                    } else {
-                                        return cell.trim();
-                                    }
-                                })
-                                .collect(Collectors.toList());
-                    }
-                    return cellList;
-                })
-                .collect(Collectors.toList());
-        } else {
-            return new ArrayList<>();
+            return parseDelimitedFile(readmeFileLines, delimiter, trim, numOfColumns);
         }
+        return new ArrayList<>();
+    }
+
+    private static List<List<String>> parseDelimitedFile(List<String> fileLines, String delimiter, boolean trim, int numOfColumns) {
+        return fileLines
+            .stream()
+            .map(line -> {
+                List<String> cellList = Arrays.stream(line.split(delimiter)).collect(Collectors.toList());
+                if (cellList.size() < numOfColumns) {
+                    for (int i = cellList.size() - 1; i < numOfColumns; i++) {
+                        cellList.add(null);
+                    }
+                }
+                if (trim) {
+                    cellList =
+                        cellList
+                            .stream()
+                            .map(cell -> {
+                                if (cell == null) {
+                                    return "";
+                                } else {
+                                    return cell.trim();
+                                }
+                            })
+                            .collect(Collectors.toList());
+                }
+                return cellList;
+            })
+            .collect(Collectors.toList());
     }
 }

@@ -162,42 +162,4 @@ public class Importer {
             }
         }
     }
-
-    private void importAlteration() throws IOException {
-        URL alterationFileUrl = this.getClass().getClassLoader().getResource("alteration.tsv");
-        if (alterationFileUrl != null) {
-            Integer count = 0;
-            try (Stream<String> stream = Files.lines(Paths.get(alterationFileUrl.getPath()), StandardCharsets.UTF_8)) {
-                stream.forEach(line -> {
-                    if (line.startsWith("#")) {
-                        return;
-                    }
-                    String parts[] = line.split("\t");
-                    if (parts.length < 9) {
-                        throw new IllegalArgumentException("Missing elements, parts: " + parts.length + " for line: " + line);
-                    }
-                    // E255K	E255K	MUTATION	255	255	E	K	missense_variant	25
-                    String alteration = parts[0];
-                    String entrezGeneId = parts[8];
-                    log.info("{} {}", entrezGeneId, alteration);
-
-                    Optional<org.mskcc.oncokb.curation.domain.Gene> geneOptional = geneService.findGeneByEntrezGeneId(
-                        Integer.parseInt(entrezGeneId)
-                    );
-                    if (geneOptional.isPresent()) {
-                        Alteration alt = new Alteration();
-                        alt.setAlteration(alteration);
-                        alt.setGenes(Collections.singleton(geneOptional.get()));
-                        mainService.annotateAlteration(alt);
-                        alterationService.save(alt);
-                    } else {
-                        log.error("Gene does not exist {}", entrezGeneId);
-                    }
-                });
-            } catch (Exception e) {
-                log.warn("Failed to get string from text file");
-                throw e;
-            }
-        }
-    }
 }

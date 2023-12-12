@@ -50,7 +50,7 @@ public class Gene implements Serializable {
     @JsonIgnoreProperties(value = { "drugs", "genes", "transcripts" }, allowSetters = true)
     private Set<Flag> flags = new HashSet<>();
 
-    @ShallowReference
+    @DiffIgnore
     @ManyToMany
     @JoinTable(
         name = "rel_gene__synonym",
