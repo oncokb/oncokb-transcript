@@ -1,0 +1,185 @@
+import { APP_HISTORY_FORMAT, APP_TIME_FORMAT } from 'app/config/constants/constants';
+import React, { useEffect, useRef, useState } from 'react';
+import { Timeline, TimelineEvent } from 'react-event-timeline';
+import { TextFormat } from 'react-jhipster';
+import { Col, Row } from 'reactstrap';
+import './time-series.scss';
+import { groupTimeSeriesDataByDay } from './time-series-utils';
+
+export type RequiredTimeSeriesEventData = {
+  createdAt: Date;
+  editBy: string;
+  operation: string;
+  bubbleColor: string;
+  content: React.ReactNode;
+};
+
+export type ExtraTimeSeriesEventData = RequiredTimeSeriesEventData & {
+  title: string;
+  subtitle: string;
+};
+interface ITimeSeriesPropsGroupByDay {
+  groupByDay?: true;
+  data: ExtraTimeSeriesEventData[];
+}
+
+interface ITimeSeriesPropsNoGroupByDay {
+  groupByDay: false;
+  data: RequiredTimeSeriesEventData[];
+}
+
+export type ITimeSeriesProps = ITimeSeriesPropsGroupByDay | ITimeSeriesPropsNoGroupByDay;
+
+const TimeSeries = ({ data, groupByDay = true }: ITimeSeriesProps) => {
+  const dataForEachDay = groupTimeSeriesDataByDay(data);
+
+  const days = Object.keys(dataForEachDay);
+  days.sort((day1, day2) => new Date(day2).getTime() - new Date(day1).getTime());
+
+  return groupByDay ? (
+    <>
+      {days.map(day => (
+        <TimeSeriesInfo key={day} date={new Date(day)}>
+          {dataForEachDay[day].map((eventData: ExtraTimeSeriesEventData) => (
+            <TimeSeriesEvent
+              key={`${day}-${eventData.createdAt.toString()}`}
+              title={eventData.title}
+              subtitle={eventData.subtitle}
+              createdAt={eventData.createdAt}
+              editBy={eventData.editBy}
+              operation={eventData.operation}
+              bubbleColor={eventData.bubbleColor}
+              content={eventData.content}
+            />
+          ))}
+        </TimeSeriesInfo>
+      ))}
+    </>
+  ) : (
+    <>
+      {days.map(day =>
+        dataForEachDay[day].map((eventData: RequiredTimeSeriesEventData) => (
+          <TimeSeriesInfo key={`${day}-${eventData.createdAt.toString()}`}>
+            <TimeSeriesEvent
+              createdAt={eventData.createdAt}
+              editBy={eventData.editBy}
+              operation={eventData.operation}
+              bubbleColor={eventData.bubbleColor}
+              content={eventData.content}
+              groupByDay={false}
+            />
+          </TimeSeriesInfo>
+        ))
+      )}
+    </>
+  );
+};
+
+export interface ITimeSeriesInfoProps {
+  date?: Date;
+  children: React.ReactNode;
+}
+
+const TimeSeriesInfo = ({ date, children }: ITimeSeriesInfoProps) => {
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const lastChildRef = useRef<HTMLDivElement>(null);
+
+  const [lineHeight, setLineHeight] = useState(0);
+
+  useEffect(() => {
+    function updateLineHeight() {
+      setLineHeight(timelineRef.current.clientHeight - lastChildRef.current.clientHeight - 10); // 10 is height of margin from react-event-timeline
+    }
+
+    updateLineHeight();
+    window.addEventListener('resize', updateLineHeight);
+
+    return () => {
+      window.removeEventListener('resize', updateLineHeight);
+    };
+  }, []);
+
+  return (
+    <Col>
+      {date && (
+        <Row className="pl-1">
+          <h5>
+            <TextFormat value={date} type="date" format={APP_HISTORY_FORMAT} />
+          </h5>
+        </Row>
+      )}
+      <Row>
+        <div ref={timelineRef}>
+          <Timeline
+            style={{ padding: '0px', width: '100%', fontSize: '100%', fontWeight: 'normal' }}
+            lineStyle={{ height: `${lineHeight}px`, top: '10px', left: '10px' }}
+            lineColor="#B0B0B0"
+          >
+            {React.Children.map(children, (child, index) => {
+              if (index === React.Children.count(children) - 1) {
+                return <div ref={lastChildRef}>{child}</div>;
+              }
+              return child;
+            })}
+          </Timeline>
+        </div>
+      </Row>
+    </Col>
+  );
+};
+
+export interface ITimeSeriesEventProps extends Partial<ExtraTimeSeriesEventData> {
+  groupByDay?: boolean;
+}
+
+const TimeSeriesEvent = ({
+  title,
+  subtitle,
+  createdAt,
+  editBy,
+  operation,
+  bubbleColor,
+  content,
+  groupByDay = true,
+}: ITimeSeriesEventProps) => {
+  return (
+    <TimelineEvent
+      bubbleStyle={{ backgroundColor: bubbleColor, borderWidth: '0px', width: '20px', height: '20px', cursor: 'initial' }}
+      contentStyle={{ boxShadow: 'none', padding: '0px', width: '100%' }}
+      subtitleStyle={{ fontSize: '100%', marginTop: '8px', color: '#212529' }}
+      title={
+        groupByDay ? (
+          <div>
+            <span>{`${editBy} ${operation}`}</span>{' '}
+            <span className="time-series-event-timestamp">
+              <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />
+            </span>
+          </div>
+        ) : (
+          <h5>
+            <TextFormat value={createdAt} type="date" format={APP_HISTORY_FORMAT} />
+          </h5>
+        )
+      }
+      subtitle={
+        groupByDay ? (
+          <div>
+            {title && <h5 className="mb-1">{title}</h5>}
+            {subtitle && <h6>{subtitle}</h6>}
+          </div>
+        ) : (
+          <div>
+            <span>{`${editBy} ${operation}`}</span>{' '}
+            <span className="time-series-event-timestamp">
+              <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />
+            </span>
+          </div>
+        )
+      }
+    >
+      {content}
+    </TimelineEvent>
+  );
+};
+
+export default TimeSeries;
