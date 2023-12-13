@@ -27,6 +27,7 @@ export const FB_COLLECTION_PATH = {
   GENE: `${FB_COLLECTION.GENES}/:hugoSymbol`,
   MUTATIONS: `${FB_COLLECTION.GENES}/:hugoSymbol/mutations/:index`,
   TUMORS: `${FB_COLLECTION.GENES}/:hugoSymbol/mutations/:index/tumors/:index`,
+  TREATMENTS: `${FB_COLLECTION.GENES}/:hugoSymbol/mutations/:index/tumors/:index/TIs/:index/treatments/:index`,
   META_GENE: `${FB_COLLECTION.META}/:hugoSymbol`,
   META_GENE_REVIEW: `${FB_COLLECTION.META}/:hugoSymbol/review/:uuid`,
   META_COLLABORATORS: `${FB_COLLECTION.META}/collaborators`,

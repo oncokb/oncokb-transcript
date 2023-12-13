@@ -1,7 +1,9 @@
 import { UUID_REGEX } from 'app/config/constants/constants';
-import { Comment, DrugCollection, Meta, Mutation } from 'app/shared/model/firebase/firebase.model';
+import { Comment, DrugCollection, Gene, Meta, Mutation, Review } from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
 import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
+import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/Collapsible';
+import { parseFirebaseGenePath } from './firebase-path-utils';
 
 /* Convert a nested object into an object where the key is the path to the object.
   Example:
@@ -75,7 +77,7 @@ export const geneNeedsReview = (meta: Meta | undefined) => {
   return needsReview;
 };
 
-export const getFirebasePath = (type: keyof typeof FB_COLLECTION_PATH, ...params: string[]) => {
+export const getFirebasePath = (type: keyof typeof FB_COLLECTION_PATH, ...params: (string | number)[]) => {
   return replaceUrlParams(FB_COLLECTION_PATH[type], ...params);
 };
 
@@ -88,3 +90,17 @@ export function getMostRecentComment(comments: Comment[]) {
   }
   return latestComment;
 }
+
+export const isSectionRemovableWithoutReview = (geneData: Gene, nestLevel: RemovableNestLevel, fullPath: string) => {
+  let reviewKey;
+  if (nestLevel === NestLevelType.MUTATION || nestLevel === NestLevelType.THERAPY) {
+    reviewKey = 'name_review';
+  } else {
+    reviewKey = 'cancerTypes_review';
+  }
+
+  const pathDetails = parseFirebaseGenePath(fullPath);
+
+  const review: Review = getValueByNestedKey(geneData, `${pathDetails.pathFromGene}/${reviewKey}`);
+  return !!review && !!review.added;
+};

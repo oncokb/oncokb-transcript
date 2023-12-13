@@ -1,9 +1,13 @@
-import { DX_LEVELS, Gene, FIREBASE_ONCOGENICITY, PX_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import { DX_LEVELS, Gene, FIREBASE_ONCOGENICITY, PX_LEVELS, TX_LEVELS, Review } from 'app/shared/model/firebase/firebase.model';
 import { IRootStore } from '../createStore';
 import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
 import { ExtractPathExpressions } from 'app/shared/util/firebase/firebase-crud-store';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { computed, makeObservable } from 'mobx';
+import { action, computed, makeObservable } from 'mobx';
+import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/Collapsible';
+import { ref, update } from 'firebase/database';
+import { getValueByNestedKey, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
+import { parseFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {
@@ -25,6 +29,7 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
     super(rootStore);
     makeObservable(this, {
       mutationSummaryStats: computed,
+      deleteSection: action.bound,
     });
   }
 
@@ -83,5 +88,43 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
     } catch (error) {
       notifyError(error, `Could not update ${key} at location ${path}`);
     }
+  }
+
+  async deleteSection(nestLevel: RemovableNestLevel, path: string) {
+    const name = this.rootStore.authStore.fullName;
+    const pathDetails = parseFirebaseGenePath(path);
+    if (pathDetails === undefined) {
+      return Promise.reject(new Error('Cannot parse firebase gene path'));
+    }
+    const hugoSymbol = pathDetails.hugoSymbol;
+    const pathFromGene = pathDetails.pathFromGene;
+
+    // Check if section can be removed immediately
+    const removeWithoutReview = isSectionRemovableWithoutReview(this.data, nestLevel, path);
+    let key: string;
+    let review: Review;
+
+    if (nestLevel === NestLevelType.MUTATION || nestLevel === NestLevelType.THERAPY) {
+      key = 'name';
+      review = new Review(name, undefined, undefined, true);
+    } else if (nestLevel === NestLevelType.CANCER_TYPE) {
+      key = 'cancerTypes';
+      review = new Review(name, undefined, undefined, true);
+    }
+
+    if (removeWithoutReview) {
+      const pathParts = path.split('/');
+      const indexToRemove = parseInt(pathParts.pop(), 10);
+      const arrayPath = pathParts.join('/');
+      return this.deleteFromArray(arrayPath, [indexToRemove]);
+    }
+
+    const uuid = getValueByNestedKey(this.data, `${pathFromGene}/${key}_uuid`);
+
+    // Let the deletion be reviewed
+    return update(ref(this.db, path), { [`${key}_review`]: review }).then(() => {
+      this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol);
+      this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, true);
+    });
   }
 }

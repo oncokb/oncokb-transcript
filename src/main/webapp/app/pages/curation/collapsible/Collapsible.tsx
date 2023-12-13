@@ -6,15 +6,20 @@ import { LEVELS } from 'app/config/colors';
 import styles from './styles.module.scss';
 import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
 import CancerTypeLevelSummary from '../nestLevelSummary/CancerTypeLevelSummary';
-import NestLevelSummary from '../nestLevelSummary/NestLevelSummary';
+import { DeleteSectionButton } from '../button/DeleteSectionButton';
+import { componentInject } from 'app/shared/util/typed-inject';
+import { observer } from 'mobx-react';
+import { IRootStore } from 'app/stores';
+import { isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
 
-interface IProps {
+export interface IProps {
   title: string;
-  mutationUuid?: string;
-  cancerTypeUuid?: string;
   nestLevel: NestLevelType;
+  firebasePath?: string;
   open?: boolean;
   className?: string;
+  mutationUuid?: string;
+  cancerTypeUuid?: string;
 }
 
 export enum NestLevelType {
@@ -23,7 +28,6 @@ export enum NestLevelType {
   SOMATIC,
   GERMLINE,
   CANCER_TYPE,
-  BIOLOGICAL_EFFECT,
   THERAPY,
 }
 
@@ -33,7 +37,6 @@ export const NestLevelMapping: { [key in NestLevelType]: string } = {
   [NestLevelType.SOMATIC]: '3',
   [NestLevelType.GERMLINE]: '3',
   [NestLevelType.CANCER_TYPE]: '2',
-  [NestLevelType.BIOLOGICAL_EFFECT]: '3',
   [NestLevelType.THERAPY]: '3',
 };
 
@@ -49,7 +52,20 @@ const NestLevelColor: { [key in NestLevel]: string } = {
   [NestLevel.LEVEL_3]: LEVELS['3'],
 };
 
-const Collapsible: React.FunctionComponent<IProps> = ({ open, children, title, className, nestLevel, mutationUuid, cancerTypeUuid }) => {
+export type RemovableNestLevel = NestLevelType.MUTATION | NestLevelType.CANCER_TYPE | NestLevelType.THERAPY;
+
+const Collapsible: React.FunctionComponent<IProps & StoreProps> = ({
+  open,
+  children,
+  title,
+  className,
+  nestLevel,
+  firebasePath,
+  mutationUuid,
+  cancerTypeUuid,
+  deleteSection,
+  data,
+}) => {
   const [isOpen, setIsOpen] = useState(open);
 
   const handleFilterOpening = () => {
@@ -57,25 +73,38 @@ const Collapsible: React.FunctionComponent<IProps> = ({ open, children, title, c
   };
 
   const showMutationLevelSummary = nestLevel === NestLevelType.MUTATION && !title.includes(',');
+  const removableLevel = [NestLevelType.MUTATION, NestLevelType.CANCER_TYPE, NestLevelType.THERAPY].includes(nestLevel);
 
   return (
     <>
       <div className={classnames('card', className, styles.main)}>
         <div
-          className={classnames('card-header d-flex align-items-center border border-light p-1 bg-transparent', styles.header)}
+          className={classnames('card-header d-flex align-items-center p-1 bg-transparent pr-2', styles.header)}
           ref={node => {
             if (node) {
               node.style.setProperty('border-left-color', NestLevelColor[NestLevelMapping[nestLevel]], 'important');
             }
           }}
         >
-          <button type="button" className="btn" onClick={handleFilterOpening}>
-            {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
-          </button>
-          <span className="font-weight-bold font-weight-bold">{title}</span>
+          <div className="mr-auto d-flex align-items-center">
+            <button type="button" className="btn" onClick={handleFilterOpening}>
+              {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
+            </button>
+            <span className="font-weight-bold font-weight-bold">{title}</span>
+          </div>
           {showMutationLevelSummary ? <MutationLevelSummary mutationUuid={mutationUuid} /> : undefined}
           {nestLevel === NestLevelType.CANCER_TYPE ? (
             <CancerTypeLevelSummary mutationUuid={mutationUuid} cancerTypeUuid={cancerTypeUuid} />
+          ) : undefined}
+          {removableLevel ? (
+            <>
+              <div className={classnames(styles.divider)} />
+              <DeleteSectionButton
+                sectionName={title}
+                deleteHandler={() => deleteSection(nestLevel as RemovableNestLevel, firebasePath)}
+                isRemovableWithoutReview={isSectionRemovableWithoutReview(data, nestLevel as RemovableNestLevel, firebasePath)}
+              />
+            </>
           ) : undefined}
         </div>
         {isOpen && <div className={classnames('card-body', styles.body)}>{children}</div>}
@@ -84,4 +113,11 @@ const Collapsible: React.FunctionComponent<IProps> = ({ open, children, title, c
   );
 };
 
-export default Collapsible;
+const mapStoreToProps = ({ firebaseGeneStore }: IRootStore) => ({
+  data: firebaseGeneStore.data,
+  deleteSection: firebaseGeneStore.deleteSection,
+});
+
+type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
+
+export default componentInject(mapStoreToProps)(observer(Collapsible));

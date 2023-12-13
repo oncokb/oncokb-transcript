@@ -20,7 +20,6 @@ export type PaginationState<T> = {
   activePage: number;
 };
 
-/* eslint-disable no-console */
 export const OncoKBAsyncTable = <T extends object>(props: IOncoKBAsyncTableProps<T>) => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [pageSize, setPageSize] = useState(props.defaultPageSize || ITEMS_PER_PAGE);

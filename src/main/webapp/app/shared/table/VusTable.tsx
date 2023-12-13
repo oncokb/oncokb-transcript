@@ -30,7 +30,6 @@ const LAST_EDITED_BY = 'Last Edited By';
 const LAST_EDITED_AT = 'Last Edited At';
 const LATEST_COMMENT = 'Latest Comment';
 
-/* eslint-disable no-console */
 const VusTable = ({
   hugoSymbol,
   account,

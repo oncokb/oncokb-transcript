@@ -20,7 +20,7 @@ import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
 import WithSeparator from 'react-with-separator';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
 import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/FirebaseRealtimeInput';
-import { getFirebasePath, getMutationName, getTxName } from 'app/shared/util/firebase/firebase-utils';
+import { getFirebasePath, getMutationName, getTxName, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
 import Collapsible, { NestLevelType } from 'app/pages/curation/collapsible/Collapsible';
 import styles from './styles.module.scss';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
@@ -28,9 +28,6 @@ import { FIREBASE_ONCOGENICITY, TX_LEVELS } from 'app/shared/model/firebase/fire
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
 import { GENE_TYPE, GENE_TYPE_KEY } from 'app/config/constants/firebase';
 import VusTable from '../../shared/table/VusTable';
-import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
-import classNames from 'classnames';
-import { FaAccessibleIcon } from 'react-icons/fa';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -155,9 +152,24 @@ const CurationPage = (props: ICurationPageProps) => {
                     className={'mb-1'}
                     title={`Mutation: ${getMutationName(mutation)}`}
                     mutationUuid={mutation.name_uuid}
+                    firebasePath={getFirebasePath('MUTATIONS', hugoSymbol, mutationIndex)}
                   >
                     <Collapsible nestLevel={NestLevelType.MUTATION_EFFECT} title={'Mutation Effect'}>
-                      <Collapsible nestLevel={NestLevelType.BIOLOGICAL_EFFECT} title={'Biological Effect'}>
+                      <Collapsible nestLevel={NestLevelType.SOMATIC} title={'Somatic'}>
+                        <RealtimeCheckedInputGroup
+                          groupHeader="Oncogenic"
+                          isRadio
+                          options={[
+                            FIREBASE_ONCOGENICITY.YES,
+                            FIREBASE_ONCOGENICITY.LIKELY,
+                            FIREBASE_ONCOGENICITY.LIKELY_NEUTRAL,
+                            FIREBASE_ONCOGENICITY.INCONCLUSIVE,
+                            FIREBASE_ONCOGENICITY.RESISTANCE,
+                          ].map(label => ({
+                            label,
+                            fieldKey: `mutations/${mutationIndex}/mutation_effect/oncogenic`,
+                          }))}
+                        />
                         <RealtimeCheckedInputGroup
                           groupHeader="Mutation Effect"
                           isRadio
@@ -181,22 +193,6 @@ const CurationPage = (props: ICurationPageProps) => {
                           inputClass={styles.textarea}
                           label="Description of Evidence"
                           name="description"
-                        />
-                      </Collapsible>
-                      <Collapsible nestLevel={NestLevelType.SOMATIC} className={'mt-2'} title={'Somatic'}>
-                        <RealtimeCheckedInputGroup
-                          groupHeader="Oncogenic"
-                          isRadio
-                          options={[
-                            FIREBASE_ONCOGENICITY.YES,
-                            FIREBASE_ONCOGENICITY.LIKELY,
-                            FIREBASE_ONCOGENICITY.LIKELY_NEUTRAL,
-                            FIREBASE_ONCOGENICITY.INCONCLUSIVE,
-                            FIREBASE_ONCOGENICITY.RESISTANCE,
-                          ].map(label => ({
-                            label,
-                            fieldKey: `mutations/${mutationIndex}/mutation_effect/oncogenic`,
-                          }))}
                         />
                       </Collapsible>
                       {mutation.mutation_effect.germline && (
@@ -248,6 +244,7 @@ const CurationPage = (props: ICurationPageProps) => {
                           cancerTypeUuid={tumor.cancerTypes_uuid}
                           key={tumor.cancerTypes_uuid}
                           nestLevel={NestLevelType.CANCER_TYPE}
+                          firebasePath={getFirebasePath('TUMORS', hugoSymbol, mutationIndex, tumorIndex)}
                           title={`Cancer Type: ${tumor.cancerTypes.map(cancerType => getCancerTypeName(cancerType)).join(', ')}`}
                         >
                           <RealtimeTextAreaInput
@@ -268,6 +265,14 @@ const CurationPage = (props: ICurationPageProps) => {
                                     key={tumor.cancerTypes_uuid}
                                     nestLevel={NestLevelType.THERAPY}
                                     title={`Therapy: ${getTxName(props.drugList, treatment.name)}`}
+                                    firebasePath={getFirebasePath(
+                                      'TREATMENTS',
+                                      hugoSymbol,
+                                      mutationIndex,
+                                      tumorIndex,
+                                      tiIndex,
+                                      treatmentIndex
+                                    )}
                                   >
                                     <RealtimeDropdownInput
                                       fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
@@ -329,6 +334,7 @@ const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, fire
   data: firebaseGeneStore.data,
   update: firebaseGeneStore.update,
   updateReviewableContent: firebaseGeneStore.updateReviewableContent,
+  deleteSection: firebaseGeneStore.deleteSection,
   addMetaCollaboratorsListener: firebaseMetaStore.addMetaCollaboratorsListener,
   metaData: firebaseMetaStore.data,
   drugList: firebaseDrugsStore.drugList,

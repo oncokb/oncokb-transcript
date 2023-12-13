@@ -3,6 +3,7 @@ import CountBadge from 'app/shared/badge/CountBadge';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import classNames from 'classnames';
 import _ from 'lodash';
+import './nest-level-summary.scss';
 import React from 'react';
 
 export type NestLevelSummaryStats = {
@@ -21,54 +22,80 @@ export interface NestLevelSummaryProps {
 }
 
 export const NestLevelSummary = (props: NestLevelSummaryProps) => {
-  if (props.summaryStats) {
-    return (
-      <div className="ml-auto d-flex flex-wrap">
-        {Object.keys(props.summaryStats)
-          .filter(k => props.summaryStats[k] && props.summaryStats[k] > 0)
-          .map(k => {
-            return <CountBadge count={props.summaryStats[k]} base={k} key={`summaries-${k}`} />;
-          })}
-        {Object.keys(props.summaryStats.txLevels).map(k => {
+  const summaryKeys: (keyof NestLevelSummaryStats)[] = ['TTS', 'DxS', 'PxS'];
+
+  let lastBadgeHasHiddenNumber = false;
+
+  const badges = (
+    <>
+      {Object.keys(props.summaryStats)
+        .filter(k => props.summaryStats[k] && props.summaryStats[k] > 0)
+        .map(k => {
+          const hideWhenOne = summaryKeys.includes(k as keyof NestLevelSummaryStats);
+          if (hideWhenOne) {
+            lastBadgeHasHiddenNumber = true;
+          }
           return (
             <CountBadge
-              count={props.summaryStats.txLevels[k]}
-              base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
-              key={`tx-levels-${k}`}
+              count={props.summaryStats[k]}
+              base={k}
+              key={`summaries-${k}`}
+              hideWhenOne={summaryKeys.includes(k as keyof NestLevelSummaryStats)}
             />
           );
         })}
-        {Object.keys(props.summaryStats.dxLevels).map(k => {
-          return (
-            <CountBadge
-              count={props.summaryStats.dxLevels[k]}
-              base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
-              key={`dx-levels-${k}`}
-            />
-          );
-        })}
-        {Object.keys(props.summaryStats.pxLevels).map(k => {
-          return (
-            <CountBadge
-              count={props.summaryStats.pxLevels[k]}
-              base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
-              key={`px-levels-${k}`}
-            />
-          );
-        })}
-        {props.summaryStats.oncogenicity ? (
+      {Object.keys(props.summaryStats.txLevels).map(k => {
+        lastBadgeHasHiddenNumber = false;
+        return (
           <CountBadge
-            hideWhenOne
-            count={1}
-            base={
-              <DefaultTooltip placement="top" overlay={<span>{FIREBASE_ONCOGENICITY_MAPPING[props.summaryStats.oncogenicity]}</span>}>
-                <span className={classNames('oncokb', 'icon', `${ONCOGENICITY_CLASS_MAPPING[props.summaryStats.oncogenicity]}`)}></span>
-              </DefaultTooltip>
-            }
+            count={props.summaryStats.txLevels[k]}
+            base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
+            key={`tx-levels-${k}`}
           />
-        ) : undefined}
-      </div>
-    );
+        );
+      })}
+      {Object.keys(props.summaryStats.dxLevels).map(k => {
+        lastBadgeHasHiddenNumber = false;
+        return (
+          <CountBadge
+            count={props.summaryStats.dxLevels[k]}
+            base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
+            key={`dx-levels-${k}`}
+          />
+        );
+      })}
+      {Object.keys(props.summaryStats.pxLevels).map(k => {
+        lastBadgeHasHiddenNumber = false;
+        return (
+          <CountBadge
+            count={props.summaryStats.pxLevels[k]}
+            base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
+            key={`px-levels-${k}`}
+          />
+        );
+      })}
+      {props.summaryStats.oncogenicity ? (
+        <CountBadge
+          hideWhenOne
+          count={1}
+          base={
+            <DefaultTooltip placement="top" overlay={<span>{FIREBASE_ONCOGENICITY_MAPPING[props.summaryStats.oncogenicity]}</span>}>
+              <span className={classNames('oncokb', 'icon', `${ONCOGENICITY_CLASS_MAPPING[props.summaryStats.oncogenicity]}`)}></span>
+            </DefaultTooltip>
+          }
+        />
+      ) : undefined}
+    </>
+  );
+
+  if (props.summaryStats.oncogenicity) {
+    lastBadgeHasHiddenNumber = true;
+  }
+
+  const wrapperMarginRight = lastBadgeHasHiddenNumber ? undefined : 'mr-2';
+
+  if (props.summaryStats) {
+    return <div className={classNames('d-flex align-items-center', wrapperMarginRight)}>{badges}</div>;
   }
   return <div></div>;
 };
