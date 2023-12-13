@@ -28,7 +28,6 @@ export enum NestLevelType {
   SOMATIC,
   GERMLINE,
   CANCER_TYPE,
-  BIOLOGICAL_EFFECT,
   THERAPY,
 }
 
@@ -38,7 +37,6 @@ export const NestLevelMapping: { [key in NestLevelType]: string } = {
   [NestLevelType.SOMATIC]: '3',
   [NestLevelType.GERMLINE]: '3',
   [NestLevelType.CANCER_TYPE]: '2',
-  [NestLevelType.BIOLOGICAL_EFFECT]: '3',
   [NestLevelType.THERAPY]: '3',
 };
 

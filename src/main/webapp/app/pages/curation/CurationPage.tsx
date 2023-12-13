@@ -155,7 +155,21 @@ const CurationPage = (props: ICurationPageProps) => {
                     firebasePath={getFirebasePath('MUTATIONS', hugoSymbol, mutationIndex)}
                   >
                     <Collapsible nestLevel={NestLevelType.MUTATION_EFFECT} title={'Mutation Effect'}>
-                      <Collapsible nestLevel={NestLevelType.BIOLOGICAL_EFFECT} title={'Biological Effect'}>
+                      <Collapsible nestLevel={NestLevelType.SOMATIC} title={'Somatic'}>
+                        <RealtimeCheckedInputGroup
+                          groupHeader="Oncogenic"
+                          isRadio
+                          options={[
+                            FIREBASE_ONCOGENICITY.YES,
+                            FIREBASE_ONCOGENICITY.LIKELY,
+                            FIREBASE_ONCOGENICITY.LIKELY_NEUTRAL,
+                            FIREBASE_ONCOGENICITY.INCONCLUSIVE,
+                            FIREBASE_ONCOGENICITY.RESISTANCE,
+                          ].map(label => ({
+                            label,
+                            fieldKey: `mutations/${mutationIndex}/mutation_effect/oncogenic`,
+                          }))}
+                        />
                         <RealtimeCheckedInputGroup
                           groupHeader="Mutation Effect"
                           isRadio
@@ -179,22 +193,6 @@ const CurationPage = (props: ICurationPageProps) => {
                           inputClass={styles.textarea}
                           label="Description of Evidence"
                           name="description"
-                        />
-                      </Collapsible>
-                      <Collapsible nestLevel={NestLevelType.SOMATIC} className={'mt-2'} title={'Somatic'}>
-                        <RealtimeCheckedInputGroup
-                          groupHeader="Oncogenic"
-                          isRadio
-                          options={[
-                            FIREBASE_ONCOGENICITY.YES,
-                            FIREBASE_ONCOGENICITY.LIKELY,
-                            FIREBASE_ONCOGENICITY.LIKELY_NEUTRAL,
-                            FIREBASE_ONCOGENICITY.INCONCLUSIVE,
-                            FIREBASE_ONCOGENICITY.RESISTANCE,
-                          ].map(label => ({
-                            label,
-                            fieldKey: `mutations/${mutationIndex}/mutation_effect/oncogenic`,
-                          }))}
                         />
                       </Collapsible>
                       {mutation.mutation_effect.germline && (

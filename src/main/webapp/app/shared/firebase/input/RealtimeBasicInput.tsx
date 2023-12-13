@@ -72,7 +72,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     <Input
       className={classNames(inputClass, isCheckType && 'ml-1 position-relative')}
       id={id}
-      name={label.toLowerCase()}
+      name={`${id}-${label.toLowerCase()}`}
       autoComplete="off"
       onChange={e => {
         inputChangeHandler(e);
