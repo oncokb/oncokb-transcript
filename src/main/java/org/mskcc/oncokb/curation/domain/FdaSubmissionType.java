@@ -35,6 +35,7 @@ public class FdaSubmissionType implements Serializable {
     @Column(name = "short_name")
     private String shortName;
 
+    @DiffIgnore
     @Lob
     @Column(name = "description")
     private String description;

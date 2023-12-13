@@ -6,9 +6,8 @@ import static org.mskcc.oncokb.curation.util.FileUtils.parseDelimitedFile;
 import java.io.*;
 import java.util.*;
 import jodd.util.StringUtil;
-import org.mskcc.oncokb.curation.domain.Alteration;
-import org.mskcc.oncokb.curation.domain.Article;
-import org.mskcc.oncokb.curation.domain.Gene;
+import liquibase.pro.packaged.D;
+import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.ArticleType;
 import org.mskcc.oncokb.curation.service.*;
 import org.mskcc.oncokb.curation.service.criteria.ArticleCriteria;
@@ -25,6 +24,8 @@ public class CoreImporter {
     final ArticleService articleService;
     final GeneService geneService;
     final AlterationService alterationService;
+    final DrugService drugService;
+    final NciThesaurusService nciThesaurusService;
     final MainService mainService;
     final String DATA_DIRECTORY = "/Users/zhangh2/origin-repos/oncokb-data/curation/oncokb/";
     final String MIXED = "MIXED";
@@ -34,12 +35,16 @@ public class CoreImporter {
         ArticleService articleService,
         GeneService geneService,
         AlterationService alterationService,
+        DrugService drugService,
+        NciThesaurusService nciThesaurusService,
         MainService mainService
     ) {
         this.cancerTypeService = cancerTypeService;
         this.articleService = articleService;
         this.geneService = geneService;
         this.alterationService = alterationService;
+        this.drugService = drugService;
+        this.nciThesaurusService = nciThesaurusService;
         this.mainService = mainService;
     }
 
@@ -104,6 +109,28 @@ public class CoreImporter {
             alteration.setGenes(Collections.singleton(geneOptional.get()));
             mainService.annotateAlteration(alteration);
             alterationService.save(alteration);
+        });
+    }
+
+    public void importDrug() throws IOException {
+        List<List<String>> drugLines = parseDelimitedFile(DATA_DIRECTORY + "drug_v4_11.tsv", "\t", true);
+        drugLines.forEach(line -> {
+            String name = line.get(2);
+            String code = line.get(3);
+
+            Drug drug = new Drug();
+            drug.setName(name);
+            if (StringUtil.isEmpty(code)) {
+                log.warn("The drug does not have a code {}", name);
+            } else {
+                Optional<NciThesaurus> nciThesaurusOptional = nciThesaurusService.findByCode(code);
+                if (nciThesaurusOptional.isPresent()) {
+                    drug.setNciThesaurus(nciThesaurusOptional.get());
+                } else {
+                    log.warn("The code cannot be found {}", code);
+                }
+            }
+            drugService.save(drug);
         });
     }
 }

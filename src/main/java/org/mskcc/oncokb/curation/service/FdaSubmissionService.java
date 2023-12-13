@@ -88,6 +88,9 @@ public class FdaSubmissionService {
                 if (fdaSubmission.getNote() != null) {
                     existingFdaSubmission.setNote(fdaSubmission.getNote());
                 }
+                if (fdaSubmission.getAssociations() != null) {
+                    existingFdaSubmission.setAssociations(fdaSubmission.getAssociations());
+                }
 
                 return existingFdaSubmission;
             })

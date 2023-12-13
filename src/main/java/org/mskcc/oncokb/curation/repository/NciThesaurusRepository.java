@@ -18,6 +18,8 @@ public interface NciThesaurusRepository extends JpaRepository<NciThesaurus, Long
     @Query("select nciThesaurus from NciThesaurus nciThesaurus left join fetch nciThesaurus.synonyms where nciThesaurus.id =:id")
     Optional<NciThesaurus> findOneWithEagerRelationships(@Param("id") Long id);
 
+    Optional<NciThesaurus> findByCode(String code);
+
     @Query(
         "select distinct nciThesaurus from NciThesaurus nciThesaurus left join fetch nciThesaurus.synonyms where nciThesaurus.id in :ids"
     )

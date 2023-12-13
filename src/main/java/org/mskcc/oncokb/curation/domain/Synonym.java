@@ -36,6 +36,7 @@ public class Synonym implements Serializable {
     @Column(name = "name")
     private String name;
 
+    @DiffIgnore
     @Lob
     @Column(name = "note")
     private String note;

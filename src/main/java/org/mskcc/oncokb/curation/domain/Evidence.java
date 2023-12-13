@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 
 /**
  * A Evidence.
@@ -31,10 +32,12 @@ public class Evidence implements Serializable {
     @Column(name = "known_effect")
     private String knownEffect;
 
+    @DiffIgnore
     @Lob
     @Column(name = "description")
     private String description;
 
+    @DiffIgnore
     @Lob
     @Column(name = "note")
     private String note;

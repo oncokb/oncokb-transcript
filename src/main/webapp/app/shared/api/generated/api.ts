@@ -6978,42 +6978,6 @@ export const AssociationResourceApiAxiosParamCreator = function (configuration?:
     },
     /**
      *
-     * @param {number} id
-     * @param {Association} association
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    partialUpdateAssociation: async (id: number, association: Association, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'id' is not null or undefined
-      assertParamExists('partialUpdateAssociation', 'id', id);
-      // verify required parameter 'association' is not null or undefined
-      assertParamExists('partialUpdateAssociation', 'association', association);
-      const localVarPath = `/api/associations/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(association, localVarRequestOptions, configuration);
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
      * @param {string} query
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
@@ -7047,42 +7011,6 @@ export const AssociationResourceApiAxiosParamCreator = function (configuration?:
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
       localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {Association} association
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateAssociation: async (id: number, association: Association, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'id' is not null or undefined
-      assertParamExists('updateAssociation', 'id', id);
-      // verify required parameter 'association' is not null or undefined
-      assertParamExists('updateAssociation', 'association', association);
-      const localVarPath = `/api/associations/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(association, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -7155,21 +7083,6 @@ export const AssociationResourceApiFp = function (configuration?: Configuration)
     },
     /**
      *
-     * @param {number} id
-     * @param {Association} association
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async partialUpdateAssociation(
-      id: number,
-      association: Association,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Association>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateAssociation(id, association, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
      * @param {string} query
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
@@ -7181,21 +7094,6 @@ export const AssociationResourceApiFp = function (configuration?: Configuration)
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Association>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchAssociations(query, pageable, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {Association} association
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async updateAssociation(
-      id: number,
-      association: Association,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Association>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.updateAssociation(id, association, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
   };
@@ -7247,16 +7145,6 @@ export const AssociationResourceApiFactory = function (configuration?: Configura
     },
     /**
      *
-     * @param {number} id
-     * @param {Association} association
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    partialUpdateAssociation(id: number, association: Association, options?: any): AxiosPromise<Association> {
-      return localVarFp.partialUpdateAssociation(id, association, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
      * @param {string} query
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
@@ -7264,16 +7152,6 @@ export const AssociationResourceApiFactory = function (configuration?: Configura
      */
     searchAssociations(query: string, pageable: Pageable, options?: any): AxiosPromise<Array<Association>> {
       return localVarFp.searchAssociations(query, pageable, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {Association} association
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateAssociation(id: number, association: Association, options?: any): AxiosPromise<Association> {
-      return localVarFp.updateAssociation(id, association, options).then(request => request(axios, basePath));
     },
   };
 };
@@ -7340,20 +7218,6 @@ export class AssociationResourceApi extends BaseAPI {
 
   /**
    *
-   * @param {number} id
-   * @param {Association} association
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof AssociationResourceApi
-   */
-  public partialUpdateAssociation(id: number, association: Association, options?: AxiosRequestConfig) {
-    return AssociationResourceApiFp(this.configuration)
-      .partialUpdateAssociation(id, association, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
    * @param {string} query
    * @param {Pageable} pageable
    * @param {*} [options] Override http request option.
@@ -7363,20 +7227,6 @@ export class AssociationResourceApi extends BaseAPI {
   public searchAssociations(query: string, pageable: Pageable, options?: AxiosRequestConfig) {
     return AssociationResourceApiFp(this.configuration)
       .searchAssociations(query, pageable, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {number} id
-   * @param {Association} association
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof AssociationResourceApi
-   */
-  public updateAssociation(id: number, association: Association, options?: AxiosRequestConfig) {
-    return AssociationResourceApiFp(this.configuration)
-      .updateAssociation(id, association, options)
       .then(request => request(this.axios, this.basePath));
   }
 }

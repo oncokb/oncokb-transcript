@@ -1,17 +1,22 @@
 package org.mskcc.oncokb.curation.service;
 
+import com.google.api.Http;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.mskcc.oncokb.curation.domain.Association;
+import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.mskcc.oncokb.curation.repository.AssociationRepository;
+import org.mskcc.oncokb.curation.web.rest.errors.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * Service Implementation for managing {@link Association}.
@@ -24,8 +29,11 @@ public class AssociationService {
 
     private final AssociationRepository associationRepository;
 
-    public AssociationService(AssociationRepository associationRepository) {
+    private final FdaSubmissionService fdaSubmissionService;
+
+    public AssociationService(AssociationRepository associationRepository, FdaSubmissionService fdaSubmissionService) {
         this.associationRepository = associationRepository;
+        this.fdaSubmissionService = fdaSubmissionService;
     }
 
     /**
@@ -36,28 +44,21 @@ public class AssociationService {
      */
     public Association save(Association association) {
         log.debug("Request to save Association : {}", association);
-        return associationRepository.save(association);
-    }
-
-    /**
-     * Partially update a association.
-     *
-     * @param association the entity to update partially.
-     * @return the persisted entity.
-     */
-    public Optional<Association> partialUpdate(Association association) {
-        log.debug("Request to partially update Association : {}", association);
-
-        return associationRepository
-            .findById(association.getId())
-            .map(existingAssociation -> {
-                if (association.getName() != null) {
-                    existingAssociation.setName(association.getName());
-                }
-
-                return existingAssociation;
-            })
-            .map(associationRepository::save);
+        Association savedAssociation = associationRepository.save(association);
+        // FDA Submission needs to be updated individually, FDASubmission is the owner of the m2m relationship
+        if (!association.getFdaSubmissions().isEmpty()) {
+            association
+                .getFdaSubmissions()
+                .forEach(fdaSubmission -> {
+                    if (fdaSubmission.getId() != null) {
+                        Optional<FdaSubmission> fdaSubmissionOptional = fdaSubmissionService.findOne(fdaSubmission.getId());
+                        if (fdaSubmissionOptional.isPresent()) {
+                            fdaSubmissionOptional.get().getAssociations().add(savedAssociation);
+                        }
+                    }
+                });
+        }
+        return this.findOne(savedAssociation.getId()).get();
     }
 
     /**
@@ -112,6 +113,24 @@ public class AssociationService {
      */
     public void delete(Long id) {
         log.debug("Request to delete Association : {}", id);
-        associationRepository.deleteById(id);
+        Optional<Association> associationOptional = findOne(id);
+        if (associationOptional.isEmpty()) {
+            throw new BadRequestException("Association id: " + id + " does not exist");
+        }
+        if (associationOptional.get().getFdaSubmissions() != null) {
+            associationOptional.get().getFdaSubmissions().remove(this);
+            Iterator<FdaSubmission> iterator = associationOptional.get().getFdaSubmissions().iterator();
+            if (iterator.hasNext()) {
+                FdaSubmission fdaSubmission = iterator.next();
+                if (fdaSubmission.getId() != null) {
+                    Optional<FdaSubmission> fdaSubmissionOptional = fdaSubmissionService.findOne(fdaSubmission.getId());
+                    if (fdaSubmissionOptional.isPresent()) {
+                        fdaSubmissionOptional.get().getAssociations().remove(associationOptional.get());
+                        fdaSubmissionService.save(fdaSubmissionOptional.get());
+                    }
+                }
+            }
+        }
+        associationRepository.delete(associationOptional.get());
     }
 }

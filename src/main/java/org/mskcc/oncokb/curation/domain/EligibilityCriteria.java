@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.javers.core.metamodel.annotation.ShallowReference;
 import org.mskcc.oncokb.curation.domain.enumeration.EligibilityCriteriaType;
 
@@ -31,6 +32,7 @@ public class EligibilityCriteria implements Serializable {
     @Column(name = "priority")
     private Integer priority;
 
+    @DiffIgnore
     @Lob
     @Column(name = "criteria")
     private String criteria;

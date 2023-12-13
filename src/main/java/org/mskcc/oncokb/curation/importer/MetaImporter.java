@@ -150,6 +150,8 @@ public class MetaImporter {
         //        coreImporter.generalImport();
         //        this.importNcit();
         //          meta-9.sql includes above
+
+        coreImporter.importDrug();
     }
 
     private void importFlag() throws IOException {

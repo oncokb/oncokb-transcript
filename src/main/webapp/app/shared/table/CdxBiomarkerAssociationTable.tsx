@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { connect } from '../util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { getFdaSubmissionLinks } from 'app/entities/companion-diagnostic-device/companion-diagnostic-device';
@@ -10,10 +10,12 @@ import { SimpleConfirmModal } from '../modal/SimpleConfirmModal';
 import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import OncoKBTable from './OncoKBTable';
+import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
+import _ from 'lodash';
 
 interface CdxBiomarkerAssociationTableProps extends StoreProps {
   editable?: boolean;
-  biomarkerAssociations: IAssociation[];
+  fdaSubmissions: IFdaSubmission[];
   onDeleteBiomarkerAssociation: () => void;
 }
 
@@ -34,6 +36,22 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
     setShowModal(false);
     setCurrentBiomarkerAssociationId(null);
   };
+
+  const biomarkerAssociations: IAssociation[] = useMemo(() => {
+    return _.reduce(
+      props.fdaSubmissions,
+      (acc, next) => {
+        next.associations.forEach(association => {
+          acc.push({
+            ...association,
+            fdaSubmissions: [next],
+          });
+        });
+        return acc;
+      },
+      []
+    );
+  }, [props.fdaSubmissions]);
 
   const columns: Column<IAssociation>[] = [
     {
@@ -101,7 +119,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
   return (
     <>
       <h4>Biomarker Associations</h4>
-      <OncoKBTable data={props.biomarkerAssociations.concat()} columns={columns} showPagination />
+      <OncoKBTable data={biomarkerAssociations} columns={columns} showPagination />
       <SimpleConfirmModal
         show={showModal}
         onCancel={handleCancel}

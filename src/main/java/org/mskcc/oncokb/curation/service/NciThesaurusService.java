@@ -115,6 +115,12 @@ public class NciThesaurusService {
         return nciThesaurusRepository.findOneWithEagerRelationships(id);
     }
 
+    @Transactional(readOnly = true)
+    public Optional<NciThesaurus> findByCode(String code) {
+        log.debug("Request to get NciThesaurus by code: {}", code);
+        return nciThesaurusRepository.findByCode(code);
+    }
+
     /**
      * Delete the nciThesaurus by id.
      *

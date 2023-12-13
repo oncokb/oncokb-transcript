@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.javers.core.metamodel.annotation.ShallowReference;
 import org.mskcc.oncokb.curation.domain.enumeration.SequenceType;
 
@@ -26,6 +27,7 @@ public class Sequence implements Serializable {
     @Column(name = "sequence_type", nullable = false)
     private SequenceType sequenceType;
 
+    @DiffIgnore
     @Lob
     @Column(name = "sequence", nullable = false)
     private String sequence;

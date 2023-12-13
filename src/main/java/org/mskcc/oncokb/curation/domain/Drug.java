@@ -23,6 +23,7 @@ public class Drug implements Serializable {
     @Column(name = "id")
     private Long id;
 
+    @DiffIgnore
     @Lob
     @Column(name = "name", nullable = false)
     private String name;

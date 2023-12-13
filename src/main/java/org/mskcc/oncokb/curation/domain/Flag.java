@@ -34,6 +34,7 @@ public class Flag implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @DiffIgnore
     @Lob
     @Column(name = "description", nullable = false)
     private String description;
