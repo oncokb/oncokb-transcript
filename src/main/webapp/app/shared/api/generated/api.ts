@@ -191,16 +191,16 @@ export interface Alteration {
   variantResidues?: string;
   /**
    *
-   * @type {Set<Gene>}
+   * @type {Array<Gene>}
    * @memberof Alteration
    */
-  genes?: Set<Gene>;
+  genes?: Array<Gene>;
   /**
    *
-   * @type {Set<Transcript>}
+   * @type {Array<Transcript>}
    * @memberof Alteration
    */
-  transcripts?: Set<Transcript>;
+  transcripts?: Array<Transcript>;
   /**
    *
    * @type {Consequence}
@@ -209,10 +209,10 @@ export interface Alteration {
   consequence?: Consequence;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof Alteration
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
 }
 
 export const AlterationTypeEnum = {
@@ -487,10 +487,10 @@ export interface Article {
   pubDate?: string;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof Article
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
 }
 
 export const ArticleTypeEnum = {
@@ -674,28 +674,28 @@ export interface Association {
   name?: string;
   /**
    *
-   * @type {Set<AssociationCancerType>}
+   * @type {Array<AssociationCancerType>}
    * @memberof Association
    */
-  associationCancerTypes?: Set<AssociationCancerType>;
+  associationCancerTypes?: Array<AssociationCancerType>;
   /**
    *
-   * @type {Set<Alteration>}
+   * @type {Array<Alteration>}
    * @memberof Association
    */
-  alterations?: Set<Alteration>;
+  alterations?: Array<Alteration>;
   /**
    *
-   * @type {Set<Article>}
+   * @type {Array<Article>}
    * @memberof Association
    */
-  articles?: Set<Article>;
+  articles?: Array<Article>;
   /**
    *
-   * @type {Set<Treatment>}
+   * @type {Array<Treatment>}
    * @memberof Association
    */
-  treatments?: Set<Treatment>;
+  treatments?: Array<Treatment>;
   /**
    *
    * @type {Evidence}
@@ -704,34 +704,34 @@ export interface Association {
   evidence?: Evidence;
   /**
    *
-   * @type {Set<ClinicalTrial>}
+   * @type {Array<ClinicalTrial>}
    * @memberof Association
    */
-  clinicalTrials?: Set<ClinicalTrial>;
+  clinicalTrials?: Array<ClinicalTrial>;
   /**
    *
-   * @type {Set<ClinicalTrialArm>}
+   * @type {Array<ClinicalTrialArm>}
    * @memberof Association
    */
-  clinicalTrialArms?: Set<ClinicalTrialArm>;
+  clinicalTrialArms?: Array<ClinicalTrialArm>;
   /**
    *
-   * @type {Set<EligibilityCriteria>}
+   * @type {Array<EligibilityCriteria>}
    * @memberof Association
    */
-  eligibilityCriteria?: Set<EligibilityCriteria>;
+  eligibilityCriteria?: Array<EligibilityCriteria>;
   /**
    *
-   * @type {Set<FdaSubmission>}
+   * @type {Array<FdaSubmission>}
    * @memberof Association
    */
-  fdaSubmissions?: Set<FdaSubmission>;
+  fdaSubmissions?: Array<FdaSubmission>;
   /**
    *
-   * @type {Set<GenomicIndicator>}
+   * @type {Array<GenomicIndicator>}
    * @memberof Association
    */
-  genomicIndicators?: Set<GenomicIndicator>;
+  genomicIndicators?: Array<GenomicIndicator>;
 }
 /**
  *
@@ -885,22 +885,22 @@ export interface CancerType {
   tumorForm: CancerTypeTumorFormEnum;
   /**
    *
-   * @type {Set<AssociationCancerType>}
+   * @type {Array<AssociationCancerType>}
    * @memberof CancerType
    */
-  associationCancerTypes?: Set<AssociationCancerType>;
+  associationCancerTypes?: Array<AssociationCancerType>;
   /**
    *
-   * @type {Set<CancerType>}
+   * @type {Array<CancerType>}
    * @memberof CancerType
    */
-  children?: Set<CancerType>;
+  children?: Array<CancerType>;
   /**
    *
-   * @type {Set<Synonym>}
+   * @type {Array<Synonym>}
    * @memberof CancerType
    */
-  synonyms?: Set<Synonym>;
+  synonyms?: Array<Synonym>;
   /**
    *
    * @type {CancerType}
@@ -1085,22 +1085,22 @@ export interface ClinicalTrial {
   status?: string;
   /**
    *
-   * @type {Set<ClinicalTrialArm>}
+   * @type {Array<ClinicalTrialArm>}
    * @memberof ClinicalTrial
    */
-  clinicalTrialArms?: Set<ClinicalTrialArm>;
+  clinicalTrialArms?: Array<ClinicalTrialArm>;
   /**
    *
-   * @type {Set<EligibilityCriteria>}
+   * @type {Array<EligibilityCriteria>}
    * @memberof ClinicalTrial
    */
-  eligibilityCriteria?: Set<EligibilityCriteria>;
+  eligibilityCriteria?: Array<EligibilityCriteria>;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof ClinicalTrial
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
 }
 /**
  *
@@ -1122,10 +1122,10 @@ export interface ClinicalTrialArm {
   name: string;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof ClinicalTrialArm
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
   /**
    *
    * @type {ClinicalTrial}
@@ -1497,22 +1497,22 @@ export interface Drug {
   nciThesaurus?: NciThesaurus;
   /**
    *
-   * @type {Set<DrugBrand>}
+   * @type {Array<DrugBrand>}
    * @memberof Drug
    */
-  brands?: Set<DrugBrand>;
+  brands?: Array<DrugBrand>;
   /**
    *
-   * @type {Set<DrugPriority>}
+   * @type {Array<DrugPriority>}
    * @memberof Drug
    */
-  drugPriorities?: Set<DrugPriority>;
+  drugPriorities?: Array<DrugPriority>;
   /**
    *
-   * @type {Set<Flag>}
+   * @type {Array<Flag>}
    * @memberof Drug
    */
-  flags?: Set<Flag>;
+  flags?: Array<Flag>;
   /**
    *
    * @type {FdaDrug}
@@ -1521,10 +1521,10 @@ export interface Drug {
   fdaDrug?: FdaDrug;
   /**
    *
-   * @type {Set<Treatment>}
+   * @type {Array<Treatment>}
    * @memberof Drug
    */
-  treatments?: Set<Treatment>;
+  treatments?: Array<Treatment>;
 }
 /**
  *
@@ -1700,10 +1700,10 @@ export interface EligibilityCriteria {
   criteria?: string;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof EligibilityCriteria
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
   /**
    *
    * @type {ClinicalTrial}
@@ -1879,10 +1879,10 @@ export interface EnsemblGene {
   strand: number;
   /**
    *
-   * @type {Set<Transcript>}
+   * @type {Array<Transcript>}
    * @memberof EnsemblGene
    */
-  transcripts?: Set<Transcript>;
+  transcripts?: Array<Transcript>;
   /**
    *
    * @type {Gene}
@@ -2364,10 +2364,10 @@ export interface FdaSubmission {
   note?: string;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof FdaSubmission
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
   /**
    *
    * @type {CompanionDiagnosticDevice}
@@ -2557,22 +2557,22 @@ export interface Flag {
   description?: string;
   /**
    *
-   * @type {Set<Drug>}
+   * @type {Array<Drug>}
    * @memberof Flag
    */
-  drugs?: Set<Drug>;
+  drugs?: Array<Drug>;
   /**
    *
-   * @type {Set<Gene>}
+   * @type {Array<Gene>}
    * @memberof Flag
    */
-  genes?: Set<Gene>;
+  genes?: Array<Gene>;
   /**
    *
-   * @type {Set<Transcript>}
+   * @type {Array<Transcript>}
    * @memberof Flag
    */
-  transcripts?: Set<Transcript>;
+  transcripts?: Array<Transcript>;
 }
 /**
  *
@@ -2661,34 +2661,34 @@ export interface Gene {
   hgncId?: string;
   /**
    *
-   * @type {Set<EnsemblGene>}
+   * @type {Array<EnsemblGene>}
    * @memberof Gene
    */
-  ensemblGenes?: Set<EnsemblGene>;
+  ensemblGenes?: Array<EnsemblGene>;
   /**
    *
-   * @type {Set<Transcript>}
+   * @type {Array<Transcript>}
    * @memberof Gene
    */
-  transcripts?: Set<Transcript>;
+  transcripts?: Array<Transcript>;
   /**
    *
-   * @type {Set<Flag>}
+   * @type {Array<Flag>}
    * @memberof Gene
    */
-  flags?: Set<Flag>;
+  flags?: Array<Flag>;
   /**
    *
-   * @type {Set<Synonym>}
+   * @type {Array<Synonym>}
    * @memberof Gene
    */
-  synonyms?: Set<Synonym>;
+  synonyms?: Array<Synonym>;
   /**
    *
-   * @type {Set<Alteration>}
+   * @type {Array<Alteration>}
    * @memberof Gene
    */
-  alterations?: Set<Alteration>;
+  alterations?: Array<Alteration>;
 }
 /**
  *
@@ -2969,10 +2969,10 @@ export interface GenomicIndicator {
   name: string;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof GenomicIndicator
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
 }
 /**
  *
@@ -3196,10 +3196,10 @@ export interface LevelOfEvidence {
   level: string;
   /**
    *
-   * @type {Set<Evidence>}
+   * @type {Array<Evidence>}
    * @memberof LevelOfEvidence
    */
-  evidences?: Set<Evidence>;
+  evidences?: Array<Evidence>;
 }
 /**
  *
@@ -3349,10 +3349,10 @@ export interface NciThesaurus {
   displayName?: string;
   /**
    *
-   * @type {Set<Synonym>}
+   * @type {Array<Synonym>}
    * @memberof NciThesaurus
    */
-  synonyms?: Set<Synonym>;
+  synonyms?: Array<Synonym>;
 }
 /**
  *
@@ -3754,10 +3754,10 @@ export interface SpecimenType {
   name: string;
   /**
    *
-   * @type {Set<CompanionDiagnosticDevice>}
+   * @type {Array<CompanionDiagnosticDevice>}
    * @memberof SpecimenType
    */
-  companionDiagnosticDevices?: Set<CompanionDiagnosticDevice>;
+  companionDiagnosticDevices?: Array<CompanionDiagnosticDevice>;
 }
 /**
  *
@@ -3852,22 +3852,22 @@ export interface Synonym {
   note?: string;
   /**
    *
-   * @type {Set<CancerType>}
+   * @type {Array<CancerType>}
    * @memberof Synonym
    */
-  cancerTypes?: Set<CancerType>;
+  cancerTypes?: Array<CancerType>;
   /**
    *
-   * @type {Set<Gene>}
+   * @type {Array<Gene>}
    * @memberof Synonym
    */
-  genes?: Set<Gene>;
+  genes?: Array<Gene>;
   /**
    *
-   * @type {Set<NciThesaurus>}
+   * @type {Array<NciThesaurus>}
    * @memberof Synonym
    */
-  nciThesauruses?: Set<NciThesaurus>;
+  nciThesauruses?: Array<NciThesaurus>;
 }
 /**
  *
@@ -3980,22 +3980,22 @@ export interface Transcript {
   description?: string;
   /**
    *
-   * @type {Set<Sequence>}
+   * @type {Array<Sequence>}
    * @memberof Transcript
    */
-  sequences?: Set<Sequence>;
+  sequences?: Array<Sequence>;
   /**
    *
-   * @type {Set<GenomeFragment>}
+   * @type {Array<GenomeFragment>}
    * @memberof Transcript
    */
-  fragments?: Set<GenomeFragment>;
+  fragments?: Array<GenomeFragment>;
   /**
    *
-   * @type {Set<Flag>}
+   * @type {Array<Flag>}
    * @memberof Transcript
    */
-  flags?: Set<Flag>;
+  flags?: Array<Flag>;
   /**
    *
    * @type {EnsemblGene}
@@ -4010,10 +4010,10 @@ export interface Transcript {
   gene: Gene;
   /**
    *
-   * @type {Set<Alteration>}
+   * @type {Array<Alteration>}
    * @memberof Transcript
    */
-  alterations?: Set<Alteration>;
+  alterations?: Array<Alteration>;
 }
 
 export const TranscriptReferenceGenomeEnum = {
@@ -4382,22 +4382,22 @@ export interface Treatment {
   name?: string;
   /**
    *
-   * @type {Set<TreatmentPriority>}
+   * @type {Array<TreatmentPriority>}
    * @memberof Treatment
    */
-  treatmentPriorities?: Set<TreatmentPriority>;
+  treatmentPriorities?: Array<TreatmentPriority>;
   /**
    *
-   * @type {Set<Drug>}
+   * @type {Array<Drug>}
    * @memberof Treatment
    */
-  drugs?: Set<Drug>;
+  drugs?: Array<Drug>;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof Treatment
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
 }
 /**
  *
@@ -4700,10 +4700,10 @@ export interface UserDTO {
   lastModifiedDate?: string;
   /**
    *
-   * @type {Set<string>}
+   * @type {Array<string>}
    * @memberof UserDTO
    */
-  authorities?: Set<string>;
+  authorities?: Array<string>;
 }
 
 /**
@@ -17481,7 +17481,7 @@ export const GeneControllerApiFp = function (configuration?: Configuration) {
     async findGenesBySymbols(
       requestBody: Array<string>,
       options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Set<Gene>>> {
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Gene>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.findGenesBySymbols(requestBody, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
@@ -17510,7 +17510,7 @@ export const GeneControllerApiFactory = function (configuration?: Configuration,
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    findGenesBySymbols(requestBody: Array<string>, options?: any): AxiosPromise<Set<Gene>> {
+    findGenesBySymbols(requestBody: Array<string>, options?: any): AxiosPromise<Array<Gene>> {
       return localVarFp.findGenesBySymbols(requestBody, options).then(request => request(axios, basePath));
     },
   };
