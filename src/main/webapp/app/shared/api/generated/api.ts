@@ -164,7 +164,7 @@ export interface Alteration {
    * @type {string}
    * @memberof Alteration
    */
-  proteinChange: string;
+  proteinChange?: string;
   /**
    *
    * @type {number}
@@ -518,6 +518,12 @@ export interface ArticleCriteria {
    * @memberof ArticleCriteria
    */
   type?: ArticleTypeFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof ArticleCriteria
+   */
+  content?: StringFilter;
   /**
    *
    * @type {StringFilter}
