@@ -119,36 +119,36 @@ public class MetaImporter {
     final String META_DATA_FOLDER_PATH = DATA_DIRECTORY + "/meta";
 
     public void generalImport() throws ApiException, IOException {
-        //        this.importFlag();
-        //        this.importCdx();
-        //        this.importFdaSubmissionType();
-        //        this.importFdaSubmission();
-        //        this.importGene();
+        //                this.importFlag();
+        //                this.importCdx();
+        //                this.importFdaSubmissionType();
+        //                this.importFdaSubmission();
+        //                this.importGene();
         //        above are included in meta-1.sql
 
-        //        this.importGeneFlag();
-        //        this.importSeqRegion();
-        //        this.importEnsemblGene();
+        //                this.importGeneFlag();
+        //                this.importSeqRegion();
+        //                this.importEnsemblGene();
         //        above are included in meta-2.sql
 
-        //        this.importTranscript();
+        //                this.importTranscript();
         //        above are included in meta-3.sql
 
-        //        this.importTranscriptFlag();
-        //        this.importSequence();
+        //                this.importTranscriptFlag();
+        //                this.importSequence();
         //        above are included in meta-4.sql
 
-        //        this.importGenomeFragment();
+        //                this.importGenomeFragment();
         //        above are included in meta-5.sql Only partial genome fragment was generated
 
         //          meta-6.sql trims the double quotes.
 
-        //        oncoTreeImporter.generalImport();
+        //                oncoTreeImporter.generalImport();
         //          meta-7.sql trims the double quotes.
 
         //          meta-8.sql includes article/alterations
-        //        coreImporter.generalImport();
-        //        this.importNcit();
+        coreImporter.generalImport();
+        this.importNcit();
         //          meta-9.sql includes above
 
         coreImporter.importDrug();
@@ -271,6 +271,12 @@ public class MetaImporter {
             geneService.partialUpdate(savedGene);
             log.debug("Saved gene {}", gene);
         });
+
+        // import special genes
+        Gene gene = new Gene();
+        gene.setEntrezGeneId(-2);
+        gene.setHugoSymbol("Other Biomarkers");
+        this.geneService.save(gene);
     }
 
     private void importGeneFlag() throws IOException {
@@ -329,6 +335,10 @@ public class MetaImporter {
                 line.get(3),
                 ReferenceGenome.valueOf(line.get(2))
             );
+            if (ensemblGeneOptional.isEmpty()) {
+                log.error("Cannot find ensembl gene {} {}", line.get(3), ReferenceGenome.valueOf(line.get(2)));
+                return;
+            }
             Optional<TranscriptDTO> transcriptOptional = transcriptService.findByEnsemblGeneAndEnsemblTranscriptId(
                 ensemblGeneOptional.get(),
                 line.get(4)

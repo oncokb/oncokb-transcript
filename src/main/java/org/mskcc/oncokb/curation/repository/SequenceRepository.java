@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the Sequence entity.
  */
-@JaversSpringDataAuditable
 @Repository
 public interface SequenceRepository extends JpaRepository<Sequence, Long>, JpaSpecificationExecutor<Sequence> {
     Optional<Sequence> findOneByTranscriptAndSequenceType(Transcript transcript, SequenceType sequenceType);

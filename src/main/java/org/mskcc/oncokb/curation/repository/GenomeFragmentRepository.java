@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the GenomeFragment entity.
  */
-@JaversSpringDataAuditable
 @Repository
 public interface GenomeFragmentRepository extends JpaRepository<GenomeFragment, Long>, JpaSpecificationExecutor<GenomeFragment> {
     @Query("select genomeFragment from GenomeFragment genomeFragment where genomeFragment.transcript.id = ?1")

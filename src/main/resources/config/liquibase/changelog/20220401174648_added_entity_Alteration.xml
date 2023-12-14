@@ -38,7 +38,7 @@
             <column name="variant_residues" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="consequence_id" type="bigint">
+            <column name="consequence" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->

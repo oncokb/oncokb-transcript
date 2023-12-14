@@ -33,15 +33,15 @@ public class Alteration implements Serializable {
 
     @NotNull
     @Column(name = "name", nullable = false)
-    private String name;
+    private String name = "";
 
     @NotNull
     @Column(name = "alteration", nullable = false)
-    private String alteration;
+    private String alteration = "";
 
     @NotNull
     @Column(name = "protein_change", nullable = false)
-    private String proteinChange;
+    private String proteinChange = "";
 
     @Column(name = "start")
     private Integer start;

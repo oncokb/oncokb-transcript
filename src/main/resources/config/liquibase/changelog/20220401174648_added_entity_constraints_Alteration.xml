@@ -32,10 +32,10 @@
                                  referencedColumnNames="id"
                                  referencedTableName="transcript"/>
 
-        <addForeignKeyConstraint baseColumnNames="consequence_id"
+        <addForeignKeyConstraint baseColumnNames="consequence"
                                  baseTableName="alteration"
-                                 constraintName="fk_alteration__consequence_id"
-                                 referencedColumnNames="id"
+                                 constraintName="fk_alteration__consequence"
+                                 referencedColumnNames="term"
                                  referencedTableName="consequence"/>
     </changeSet>
 </databaseChangeLog>

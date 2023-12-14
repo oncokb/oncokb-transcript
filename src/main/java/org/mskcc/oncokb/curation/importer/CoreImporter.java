@@ -49,7 +49,7 @@ public class CoreImporter {
     }
 
     public void generalImport() throws IOException {
-        //        importArticle();
+        importArticle();
         importAlteration();
     }
 
