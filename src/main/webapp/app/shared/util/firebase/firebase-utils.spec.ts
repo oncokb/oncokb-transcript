@@ -6,6 +6,8 @@ import {
   getMutationName,
   getTxName,
   getValueByNestedKey,
+  isNestedObjectEmpty,
+  isSectionEmpty,
   isSectionRemovableWithoutReview,
 } from './firebase-utils';
 import { CancerType, Drug, Gene, Meta, MetaReview, Mutation, Review, Tumor } from 'app/shared/model/firebase/firebase.model';
@@ -249,6 +251,141 @@ describe('FirebaseUtils', () => {
 
       const isRemovable = isSectionRemovableWithoutReview(gene, NestLevelType.CANCER_TYPE, getFirebasePath('TUMORS', 'BRAF', '0', '0'));
       expect(isRemovable).toBeFalsy();
+    });
+  });
+
+  describe('isNestedObjectEmpty', () => {
+    it('should return true', () => {
+      let testObject = {};
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = undefined;
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = null;
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = [];
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = '';
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = '    ';
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = {
+        key: '',
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = {
+        key: undefined,
+        key2: [],
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = {
+        key: null,
+        key2: '',
+        obj: {
+          nestedKey: [],
+        },
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      // With ignoredKeySubstrings parameter
+      testObject = {};
+      expect(isNestedObjectEmpty(testObject, ['key_review'])).toBeTruthy();
+
+      testObject = {
+        key: null,
+        key_review: 'review value',
+      };
+      expect(isNestedObjectEmpty(testObject, ['key_review'])).toBeTruthy();
+
+      testObject = {
+        obj: { nestedKey: '', key_review: 'review value' },
+      };
+      expect(isNestedObjectEmpty(testObject, ['key_review'])).toBeTruthy();
+    });
+
+    it('should return false', () => {
+      let testObject: any = {
+        key: 'value',
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
+
+      testObject = {
+        key: ['value', 'value2'],
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
+
+      testObject = {
+        key: 0,
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
+
+      testObject = {
+        key: new Date().toString(),
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
+
+      testObject = {
+        key: 'value',
+        key2: '',
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
+
+      testObject = {
+        key: 'value',
+        obj: {
+          nestedKey: undefined,
+          nestedArray: [],
+        },
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
+
+      // With ignoredKeySubstrings parameter
+      testObject = {
+        key: 'value',
+        key_review: undefined,
+      };
+      expect(isNestedObjectEmpty(testObject, ['_review'])).toBeFalsy();
+
+      testObject = {
+        key: 'value',
+        key_review: undefined,
+        obj: { nestedKey: 'value', key_review: '' },
+      };
+      expect(isNestedObjectEmpty(testObject, ['_review'])).toBeFalsy();
+    });
+  });
+
+  describe('isSectionEmpty', () => {
+    it('should return false when one or more fields have values', () => {
+      const firebasePath = getFirebasePath('MUTATIONS', 'BRAF', '0');
+      const gene = new Gene('BRAF');
+      const mutation = new Mutation('V600E');
+      gene.mutations.push(mutation);
+
+      expect(isSectionEmpty(gene, firebasePath), 'mutation has a name').toBeFalsy();
+    });
+
+    it('should ignore review and uuid fields', () => {
+      const firebasePath = getFirebasePath('MUTATIONS', 'BRAF', '0');
+      const gene = new Gene('BRAF');
+      const mutation = new Mutation('V600E');
+      mutation.name = '';
+      gene.mutations.push(mutation);
+
+      expect(isSectionEmpty(gene, firebasePath), 'review field should be ignored').toBeTruthy();
+
+      mutation.name_uuid = '';
+      expect(isSectionEmpty(gene, firebasePath), 'uuid field should be ignored').toBeTruthy();
+
+      mutation.name_uuid = undefined;
+      expect(isSectionEmpty(gene, firebasePath), 'uuid field should be ignored').toBeTruthy();
     });
   });
 });

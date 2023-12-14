@@ -28,9 +28,14 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
   constructor(rootStore: IRootStore) {
     super(rootStore);
     makeObservable(this, {
+      hugoSymbol: computed,
       mutationSummaryStats: computed,
       deleteSection: action.bound,
     });
+  }
+
+  get hugoSymbol() {
+    return this.data?.name;
   }
 
   get mutationSummaryStats() {

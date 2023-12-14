@@ -203,10 +203,18 @@ const CurationPage = (props: ICurationPageProps) => {
                         location={getMutationName(mutation)}
                       />,
                     ]}
-                    firebasePath={getFirebasePath('MUTATIONS', hugoSymbol, mutationIndex)}
+                    geneFieldKey={`mutations/${mutationIndex}`}
                   >
-                    <Collapsible nestLevel={NestLevelType.MUTATION_EFFECT} title={'Mutation Effect'}>
-                      <Collapsible nestLevel={NestLevelType.SOMATIC} title={'Somatic'}>
+                    <Collapsible
+                      nestLevel={NestLevelType.MUTATION_EFFECT}
+                      title={'Mutation Effect'}
+                      geneFieldKey={`mutations/${mutationIndex}/mutation_effect`}
+                    >
+                      <Collapsible
+                        nestLevel={NestLevelType.SOMATIC}
+                        title={'Somatic'}
+                        geneFieldKey={`mutations/${mutationIndex}/mutation_effect/oncogenic`}
+                      >
                         <RealtimeCheckedInputGroup
                           groupHeader={
                             <>
@@ -275,7 +283,12 @@ const CurationPage = (props: ICurationPageProps) => {
                         />
                       </Collapsible>
                       {mutation.mutation_effect.germline && (
-                        <Collapsible nestLevel={NestLevelType.GERMLINE} className={'mt-2'} title={'Germline'}>
+                        <Collapsible
+                          nestLevel={NestLevelType.GERMLINE}
+                          className={'mt-2'}
+                          title={'Germline'}
+                          geneFieldKey="mutations/0/mutation_effect/germline"
+                        >
                           <RealtimeCheckedInputGroup
                             groupHeader="Pathogenic"
                             isRadio
@@ -326,7 +339,7 @@ const CurationPage = (props: ICurationPageProps) => {
                             cancerTypeUuid={tumor.cancerTypes_uuid}
                             key={tumor.cancerTypes_uuid}
                             nestLevel={NestLevelType.CANCER_TYPE}
-                            firebasePath={getFirebasePath('TUMORS', hugoSymbol, mutationIndex, tumorIndex)}
+                            geneFieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}`}
                             actions={[
                               <GeneHistoryTooltip
                                 key={'gene-history-tooltip'}
@@ -360,14 +373,7 @@ const CurationPage = (props: ICurationPageProps) => {
                                       key={tumor.cancerTypes_uuid}
                                       nestLevel={NestLevelType.THERAPY}
                                       title={`Therapy: ${getTxName(props.drugList, treatment.name)}`}
-                                      firebasePath={getFirebasePath(
-                                        'TREATMENTS',
-                                        hugoSymbol,
-                                        mutationIndex,
-                                        tumorIndex,
-                                        tiIndex,
-                                        treatmentIndex
-                                      )}
+                                      geneFieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}`}
                                     >
                                       <RealtimeDropdownInput
                                         fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
