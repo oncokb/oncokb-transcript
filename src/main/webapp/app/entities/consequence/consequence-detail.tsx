@@ -26,7 +26,6 @@ export const ConsequenceDetail = (props: IConsequenceDetailProps) => {
           <dt>
             <span id="alterationType">Alteration Type</span>
           </dt>
-          <dd>{consequenceEntity.alterationType}</dd>
           <dt>
             <span id="term">Term</span>
           </dt>

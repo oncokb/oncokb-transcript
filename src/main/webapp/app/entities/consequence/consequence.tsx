@@ -16,7 +16,6 @@ export const Consequence = (props: IConsequenceProps) => {
     props.getEntities({});
   }, []);
   const columns: SearchColumn<IConsequence>[] = [
-    { accessor: 'alterationType', Header: 'Alteration Type' },
     { accessor: 'term', Header: 'Term' },
     { accessor: 'name', Header: 'Name' },
     {

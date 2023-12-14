@@ -52,7 +52,6 @@ export const ConsequenceUpdate = (props: IConsequenceUpdateProps) => {
     isNew
       ? {}
       : {
-          alterationType: 'GENOMIC_CHANGE',
           ...consequenceEntity,
         };
 
@@ -72,21 +71,6 @@ export const ConsequenceUpdate = (props: IConsequenceUpdateProps) => {
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
               {!isNew ? <ValidatedField name="id" required readOnly id="consequence-id" label="ID" validate={{ required: true }} /> : null}
-              <ValidatedField
-                label="Alteration Type"
-                id="consequence-alterationType"
-                name="alterationType"
-                data-cy="alterationType"
-                type="select"
-              >
-                <option value="GENOMIC_CHANGE">GENOMIC_CHANGE</option>
-                <option value="CDNA_CHANGE">CDNA_CHANGE</option>
-                <option value="PROTEIN_CHANGE">PROTEIN_CHANGE</option>
-                <option value="COPY_NUMBER_ALTERATION">COPY_NUMBER_ALTERATION</option>
-                <option value="STRUCTURAL_VARIANT">STRUCTURAL_VARIANT</option>
-                <option value="UNKNOWN">UNKNOWN</option>
-                <option value="NA">NA</option>
-              </ValidatedField>
               <ValidatedField
                 label="Term"
                 id="consequence-term"

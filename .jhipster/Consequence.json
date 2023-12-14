@@ -2,16 +2,9 @@
   "name": "Consequence",
   "fields": [
     {
-      "fieldName": "alterationType",
-      "fieldType": "AlterationType",
-      "fieldValues": "GENOMIC_CHANGE,CDNA_CHANGE,PROTEIN_CHANGE,COPY_NUMBER_ALTERATION,STRUCTURAL_VARIANT,UNKNOWN,NA",
-      "fieldTypeJavadoc": "Enumeration",
-      "fieldValidateRules": ["required"]
-    },
-    {
       "fieldName": "term",
       "fieldType": "String",
-      "fieldValidateRules": ["required"]
+      "fieldValidateRules": ["required", "unique"]
     },
     {
       "fieldName": "name",
@@ -34,6 +27,12 @@
       "otherEntityName": "alteration",
       "otherEntityRelationshipName": "consequence",
       "relationshipName": "alteration"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "categoricalAlteration",
+      "otherEntityRelationshipName": "consequence",
+      "relationshipName": "categoricalAlteration"
     }
   ],
   "entityTableName": "consequence",

@@ -72,6 +72,7 @@
     <include file="config/liquibase/changelog/20231101214349_added_entity_constraints_NciThesaurus.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20231101214351_added_entity_constraints_Treatment.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20231101214352_added_entity_constraints_TreatmentPriority.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20220428161233_added_entity_constraints_CategoricalAlteration.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>

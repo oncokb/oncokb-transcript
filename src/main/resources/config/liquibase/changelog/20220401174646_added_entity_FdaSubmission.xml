@@ -55,7 +55,11 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <addUniqueConstraint tableName="fda_submission" columnNames="number, supplement_number, companion_diagnostic_device_id"/>
+        <addUniqueConstraint
+            tableName="fda_submission"
+            columnNames="number, supplement_number, companion_diagnostic_device_id"
+            constraintName="ux_number__sn__cdd"
+        />
         <dropDefaultValue tableName="fda_submission" columnName="date_received" columnDataType="${datetimeType}"/>
         <dropDefaultValue tableName="fda_submission" columnName="decision_date" columnDataType="${datetimeType}"/>
 

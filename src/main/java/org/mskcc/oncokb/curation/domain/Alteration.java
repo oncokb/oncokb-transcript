@@ -39,6 +39,7 @@ public class Alteration implements Serializable {
     @Column(name = "alteration", nullable = false)
     private String alteration;
 
+    @NotNull
     @Column(name = "protein_change", nullable = false)
     private String proteinChange;
 
@@ -77,6 +78,7 @@ public class Alteration implements Serializable {
     @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "alterations" }, allowSetters = true)
+    @JoinColumn(name = "consequence", referencedColumnName = "term")
     private Consequence consequence;
 
     @DiffIgnore

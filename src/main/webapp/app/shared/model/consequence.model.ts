@@ -1,9 +1,7 @@
 import { IAlteration } from 'app/shared/model/alteration.model';
-import { AlterationType } from 'app/shared/model/enumerations/alteration-type.model';
 
 export interface IConsequence {
   id?: number;
-  alterationType?: AlterationType;
   term?: string;
   name?: string;
   isGenerallyTruncating?: boolean;

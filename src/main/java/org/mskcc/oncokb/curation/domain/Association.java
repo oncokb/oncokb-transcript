@@ -5,10 +5,9 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
-import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
- * A Association.
+ * An Association.
  */
 @Entity
 @Table(name = "association")

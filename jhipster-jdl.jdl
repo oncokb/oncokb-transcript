@@ -6,8 +6,10 @@ enum AlterationType {
     GENOMIC_CHANGE,
     CDNA_CHANGE,
     PROTEIN_CHANGE,
+    MUTATION,
     COPY_NUMBER_ALTERATION,
     STRUCTURAL_VARIANT,
+    ANY,
     UNKNOWN,
     NA
 }
@@ -25,6 +27,19 @@ enum CategoricalAlterationType{
     GAIN_OF_FUNCTION_MUTATIONS,
     LOSS_OF_FUNCTION_MUTATIONS,
     SWITCH_OF_FUNCTION_MUTATIONS,
+    KINASE_DOMAIN_DUPLICATIONS,
+    INTERNAL_TANDEM_DUPLICATIONS,
+    PARTIAL_TANDEM_DUPLICATIONS,
+    OVEREXPRESSION,
+    HYPERMETHYLATION,
+    MSIH,
+    TMBH,
+    EPIGENETIC_SILENCING,
+    VI,
+    VII,
+    VIII,
+    VIV,
+    VV
     VUS,
     TRUNCATING_MUTATIONS,
     FUSIONS,
@@ -178,7 +193,7 @@ entity CancerType {
 
 entity CategoricalAlteration {
     alterationType AlterationType required
-    type String required
+    type String required unique
     name String required
 }
 
@@ -202,8 +217,7 @@ entity CompanionDiagnosticDevice {
 }
 
 entity Consequence {
-    alterationType AlterationType required
-    term String required
+    term String required unique
     name String required
     isGenerallyTruncating Boolean required
     description String
@@ -309,7 +323,7 @@ entity Info {
 
 entity LevelOfEvidence {
     type String  required
-    level String  required
+    level String  required unique
 }
 
 entity NciThesaurus {
@@ -368,7 +382,7 @@ entity TreatmentPriority {
 relationship OneToOne {
     Drug{nciThesaurus(code)} to NciThesaurus
     Evidence to Association
-      FdaDrug to Drug
+    FdaDrug to Drug
 }
 
 relationship OneToMany {
@@ -379,6 +393,7 @@ relationship OneToMany {
     ClinicalTrial to EligibilityCriteria
     CompanionDiagnosticDevice to FdaSubmission
     Consequence to Alteration {consequence(term)}
+    Consequence to CategoricalAlteration {consequence(term)}
     Drug{brands} to DrugBrand
     Drug to DrugPriority
     EnsemblGene to Transcript

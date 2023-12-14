@@ -17,8 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Alteration;
+import org.mskcc.oncokb.curation.domain.CategoricalAlteration;
 import org.mskcc.oncokb.curation.domain.Consequence;
-import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 import org.mskcc.oncokb.curation.repository.ConsequenceRepository;
 import org.mskcc.oncokb.curation.service.criteria.ConsequenceCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureMockMvc
 @WithMockUser
 class ConsequenceResourceIT {
-
-    private static final AlterationType DEFAULT_ALTERATION_TYPE = AlterationType.GENOMIC_CHANGE;
-    private static final AlterationType UPDATED_ALTERATION_TYPE = AlterationType.CDNA_CHANGE;
 
     private static final String DEFAULT_TERM = "AAAAAAAAAA";
     private static final String UPDATED_TERM = "BBBBBBBBBB";
@@ -77,7 +74,6 @@ class ConsequenceResourceIT {
      */
     public static Consequence createEntity(EntityManager em) {
         Consequence consequence = new Consequence()
-            .alterationType(DEFAULT_ALTERATION_TYPE)
             .term(DEFAULT_TERM)
             .name(DEFAULT_NAME)
             .isGenerallyTruncating(DEFAULT_IS_GENERALLY_TRUNCATING)
@@ -93,7 +89,6 @@ class ConsequenceResourceIT {
      */
     public static Consequence createUpdatedEntity(EntityManager em) {
         Consequence consequence = new Consequence()
-            .alterationType(UPDATED_ALTERATION_TYPE)
             .term(UPDATED_TERM)
             .name(UPDATED_NAME)
             .isGenerallyTruncating(UPDATED_IS_GENERALLY_TRUNCATING)
@@ -124,7 +119,6 @@ class ConsequenceResourceIT {
         List<Consequence> consequenceList = consequenceRepository.findAll();
         assertThat(consequenceList).hasSize(databaseSizeBeforeCreate + 1);
         Consequence testConsequence = consequenceList.get(consequenceList.size() - 1);
-        assertThat(testConsequence.getAlterationType()).isEqualTo(DEFAULT_ALTERATION_TYPE);
         assertThat(testConsequence.getTerm()).isEqualTo(DEFAULT_TERM);
         assertThat(testConsequence.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testConsequence.getIsGenerallyTruncating()).isEqualTo(DEFAULT_IS_GENERALLY_TRUNCATING);
@@ -152,28 +146,6 @@ class ConsequenceResourceIT {
         // Validate the Consequence in the database
         List<Consequence> consequenceList = consequenceRepository.findAll();
         assertThat(consequenceList).hasSize(databaseSizeBeforeCreate);
-    }
-
-    @Test
-    @Transactional
-    void checkAlterationTypeIsRequired() throws Exception {
-        int databaseSizeBeforeTest = consequenceRepository.findAll().size();
-        // set the field null
-        consequence.setAlterationType(null);
-
-        // Create the Consequence, which fails.
-
-        restConsequenceMockMvc
-            .perform(
-                post(ENTITY_API_URL)
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(consequence))
-            )
-            .andExpect(status().isBadRequest());
-
-        List<Consequence> consequenceList = consequenceRepository.findAll();
-        assertThat(consequenceList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -254,7 +226,6 @@ class ConsequenceResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(consequence.getId().intValue())))
-            .andExpect(jsonPath("$.[*].alterationType").value(hasItem(DEFAULT_ALTERATION_TYPE.toString())))
             .andExpect(jsonPath("$.[*].term").value(hasItem(DEFAULT_TERM)))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].isGenerallyTruncating").value(hasItem(DEFAULT_IS_GENERALLY_TRUNCATING.booleanValue())))
@@ -273,7 +244,6 @@ class ConsequenceResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(consequence.getId().intValue()))
-            .andExpect(jsonPath("$.alterationType").value(DEFAULT_ALTERATION_TYPE.toString()))
             .andExpect(jsonPath("$.term").value(DEFAULT_TERM))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.isGenerallyTruncating").value(DEFAULT_IS_GENERALLY_TRUNCATING.booleanValue()))
@@ -296,58 +266,6 @@ class ConsequenceResourceIT {
 
         defaultConsequenceShouldBeFound("id.lessThanOrEqual=" + id);
         defaultConsequenceShouldNotBeFound("id.lessThan=" + id);
-    }
-
-    @Test
-    @Transactional
-    void getAllConsequencesByAlterationTypeIsEqualToSomething() throws Exception {
-        // Initialize the database
-        consequenceRepository.saveAndFlush(consequence);
-
-        // Get all the consequenceList where alterationType equals to DEFAULT_ALTERATION_TYPE
-        defaultConsequenceShouldBeFound("alterationType.equals=" + DEFAULT_ALTERATION_TYPE);
-
-        // Get all the consequenceList where alterationType equals to UPDATED_ALTERATION_TYPE
-        defaultConsequenceShouldNotBeFound("alterationType.equals=" + UPDATED_ALTERATION_TYPE);
-    }
-
-    @Test
-    @Transactional
-    void getAllConsequencesByAlterationTypeIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        consequenceRepository.saveAndFlush(consequence);
-
-        // Get all the consequenceList where alterationType not equals to DEFAULT_ALTERATION_TYPE
-        defaultConsequenceShouldNotBeFound("alterationType.notEquals=" + DEFAULT_ALTERATION_TYPE);
-
-        // Get all the consequenceList where alterationType not equals to UPDATED_ALTERATION_TYPE
-        defaultConsequenceShouldBeFound("alterationType.notEquals=" + UPDATED_ALTERATION_TYPE);
-    }
-
-    @Test
-    @Transactional
-    void getAllConsequencesByAlterationTypeIsInShouldWork() throws Exception {
-        // Initialize the database
-        consequenceRepository.saveAndFlush(consequence);
-
-        // Get all the consequenceList where alterationType in DEFAULT_ALTERATION_TYPE or UPDATED_ALTERATION_TYPE
-        defaultConsequenceShouldBeFound("alterationType.in=" + DEFAULT_ALTERATION_TYPE + "," + UPDATED_ALTERATION_TYPE);
-
-        // Get all the consequenceList where alterationType equals to UPDATED_ALTERATION_TYPE
-        defaultConsequenceShouldNotBeFound("alterationType.in=" + UPDATED_ALTERATION_TYPE);
-    }
-
-    @Test
-    @Transactional
-    void getAllConsequencesByAlterationTypeIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        consequenceRepository.saveAndFlush(consequence);
-
-        // Get all the consequenceList where alterationType is not null
-        defaultConsequenceShouldBeFound("alterationType.specified=true");
-
-        // Get all the consequenceList where alterationType is null
-        defaultConsequenceShouldNotBeFound("alterationType.specified=false");
     }
 
     @Test
@@ -664,6 +582,32 @@ class ConsequenceResourceIT {
         defaultConsequenceShouldNotBeFound("alterationId.equals=" + (alterationId + 1));
     }
 
+    @Test
+    @Transactional
+    void getAllConsequencesByCategoricalAlterationIsEqualToSomething() throws Exception {
+        // Initialize the database
+        consequenceRepository.saveAndFlush(consequence);
+        CategoricalAlteration categoricalAlteration;
+        if (TestUtil.findAll(em, CategoricalAlteration.class).isEmpty()) {
+            categoricalAlteration = CategoricalAlterationResourceIT.createEntity(em);
+            em.persist(categoricalAlteration);
+            em.flush();
+        } else {
+            categoricalAlteration = TestUtil.findAll(em, CategoricalAlteration.class).get(0);
+        }
+        em.persist(categoricalAlteration);
+        em.flush();
+        consequence.addCategoricalAlteration(categoricalAlteration);
+        consequenceRepository.saveAndFlush(consequence);
+        Long categoricalAlterationId = categoricalAlteration.getId();
+
+        // Get all the consequenceList where categoricalAlteration equals to categoricalAlterationId
+        defaultConsequenceShouldBeFound("categoricalAlterationId.equals=" + categoricalAlterationId);
+
+        // Get all the consequenceList where categoricalAlteration equals to (categoricalAlterationId + 1)
+        defaultConsequenceShouldNotBeFound("categoricalAlterationId.equals=" + (categoricalAlterationId + 1));
+    }
+
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -673,7 +617,6 @@ class ConsequenceResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(consequence.getId().intValue())))
-            .andExpect(jsonPath("$.[*].alterationType").value(hasItem(DEFAULT_ALTERATION_TYPE.toString())))
             .andExpect(jsonPath("$.[*].term").value(hasItem(DEFAULT_TERM)))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].isGenerallyTruncating").value(hasItem(DEFAULT_IS_GENERALLY_TRUNCATING.booleanValue())))
@@ -726,7 +669,6 @@ class ConsequenceResourceIT {
         // Disconnect from session so that the updates on updatedConsequence are not directly saved in db
         em.detach(updatedConsequence);
         updatedConsequence
-            .alterationType(UPDATED_ALTERATION_TYPE)
             .term(UPDATED_TERM)
             .name(UPDATED_NAME)
             .isGenerallyTruncating(UPDATED_IS_GENERALLY_TRUNCATING)
@@ -745,7 +687,6 @@ class ConsequenceResourceIT {
         List<Consequence> consequenceList = consequenceRepository.findAll();
         assertThat(consequenceList).hasSize(databaseSizeBeforeUpdate);
         Consequence testConsequence = consequenceList.get(consequenceList.size() - 1);
-        assertThat(testConsequence.getAlterationType()).isEqualTo(UPDATED_ALTERATION_TYPE);
         assertThat(testConsequence.getTerm()).isEqualTo(UPDATED_TERM);
         assertThat(testConsequence.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testConsequence.getIsGenerallyTruncating()).isEqualTo(UPDATED_IS_GENERALLY_TRUNCATING);
@@ -827,7 +768,7 @@ class ConsequenceResourceIT {
         Consequence partialUpdatedConsequence = new Consequence();
         partialUpdatedConsequence.setId(consequence.getId());
 
-        partialUpdatedConsequence.alterationType(UPDATED_ALTERATION_TYPE).term(UPDATED_TERM).name(UPDATED_NAME);
+        partialUpdatedConsequence.term(UPDATED_TERM).name(UPDATED_NAME).isGenerallyTruncating(UPDATED_IS_GENERALLY_TRUNCATING);
 
         restConsequenceMockMvc
             .perform(
@@ -842,10 +783,9 @@ class ConsequenceResourceIT {
         List<Consequence> consequenceList = consequenceRepository.findAll();
         assertThat(consequenceList).hasSize(databaseSizeBeforeUpdate);
         Consequence testConsequence = consequenceList.get(consequenceList.size() - 1);
-        assertThat(testConsequence.getAlterationType()).isEqualTo(UPDATED_ALTERATION_TYPE);
         assertThat(testConsequence.getTerm()).isEqualTo(UPDATED_TERM);
         assertThat(testConsequence.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testConsequence.getIsGenerallyTruncating()).isEqualTo(DEFAULT_IS_GENERALLY_TRUNCATING);
+        assertThat(testConsequence.getIsGenerallyTruncating()).isEqualTo(UPDATED_IS_GENERALLY_TRUNCATING);
         assertThat(testConsequence.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
     }
 
@@ -862,7 +802,6 @@ class ConsequenceResourceIT {
         partialUpdatedConsequence.setId(consequence.getId());
 
         partialUpdatedConsequence
-            .alterationType(UPDATED_ALTERATION_TYPE)
             .term(UPDATED_TERM)
             .name(UPDATED_NAME)
             .isGenerallyTruncating(UPDATED_IS_GENERALLY_TRUNCATING)
@@ -881,7 +820,6 @@ class ConsequenceResourceIT {
         List<Consequence> consequenceList = consequenceRepository.findAll();
         assertThat(consequenceList).hasSize(databaseSizeBeforeUpdate);
         Consequence testConsequence = consequenceList.get(consequenceList.size() - 1);
-        assertThat(testConsequence.getAlterationType()).isEqualTo(UPDATED_ALTERATION_TYPE);
         assertThat(testConsequence.getTerm()).isEqualTo(UPDATED_TERM);
         assertThat(testConsequence.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testConsequence.getIsGenerallyTruncating()).isEqualTo(UPDATED_IS_GENERALLY_TRUNCATING);

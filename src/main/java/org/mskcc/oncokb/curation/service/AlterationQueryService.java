@@ -95,11 +95,17 @@ public class AlterationQueryService extends QueryService<Alteration> {
             if (criteria.getId() != null) {
                 specification = specification.or(buildRangeSpecification(criteria.getId(), Alteration_.id));
             }
+            if (criteria.getType() != null) {
+                specification = specification.or(buildSpecification(criteria.getType(), Alteration_.type));
+            }
             if (criteria.getName() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getName(), Alteration_.name));
             }
             if (criteria.getAlteration() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getAlteration(), Alteration_.alteration));
+            }
+            if (criteria.getProteinChange() != null) {
+                specification = specification.or(buildStringSpecification(criteria.getProteinChange(), Alteration_.proteinChange));
             }
             if (criteria.getStart() != null) {
                 specification = specification.or(buildRangeSpecification(criteria.getStart(), Alteration_.start));
@@ -117,6 +123,15 @@ public class AlterationQueryService extends QueryService<Alteration> {
                 specification =
                     specification.or(
                         buildSpecification(criteria.getGeneId(), root -> root.join(Alteration_.genes, JoinType.LEFT).get(Gene_.id))
+                    );
+            }
+            if (criteria.getTranscriptId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(
+                            criteria.getTranscriptId(),
+                            root -> root.join(Alteration_.transcripts, JoinType.LEFT).get(Transcript_.id)
+                        )
                     );
             }
             if (criteria.getConsequenceId() != null) {

@@ -22,6 +22,11 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+        <addUniqueConstraint
+            tableName="genomic_indicator"
+            columnNames="type, name"
+            constraintName="ux_type__name"
+        />
     </changeSet>
 
     <changeSet id="20231101214346-1-relations" author="jhipster">

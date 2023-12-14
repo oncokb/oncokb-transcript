@@ -40,6 +40,11 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+        <addUniqueConstraint
+            columnNames="reference_genome, ensembl_gene_id"
+            constraintName="ux_reference_genome__ensembl_gene_id"
+            tableName="ensembl_gene"
+        />
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

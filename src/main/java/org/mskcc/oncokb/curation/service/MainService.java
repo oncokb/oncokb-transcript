@@ -121,12 +121,9 @@ public class MainService {
 
         if (alteration.getConsequence() == null) {
             if (pcAlteration.getConsequence() != null) {
-                Optional<Consequence> consequenceOptional = consequenceService.findConsequenceByAlterationTypeAndTerm(
-                    pcAlteration.getType(),
-                    pcAlteration.getConsequence().getTerm()
-                );
+                Optional<Consequence> consequenceOptional = consequenceService.findByTerm(pcAlteration.getConsequence().getTerm());
                 if (consequenceOptional.isEmpty()) {
-                    consequenceOptional = consequenceService.findConsequenceByAlterationTypeAndTerm(AlterationType.UNKNOWN, "UNKNOWN");
+                    consequenceOptional = consequenceService.findByTerm("UNKNOWN");
                 }
                 if (consequenceOptional.isPresent()) {
                     alteration.setConsequence(consequenceOptional.get());

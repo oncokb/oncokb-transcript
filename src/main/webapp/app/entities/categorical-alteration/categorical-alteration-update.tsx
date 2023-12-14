@@ -6,16 +6,20 @@ import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 
 import { SaveButton } from 'app/shared/button/SaveButton';
+import { ValidatedSelect } from 'app/shared/form/ValidatedField';
 
 export interface ICategoricalAlterationUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const CategoricalAlterationUpdate = (props: ICategoricalAlterationUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
+  const consequences = props.consequences;
   const categoricalAlterationEntity = props.categoricalAlterationEntity;
   const loading = props.loading;
   const updating = props.updating;
   const updateSuccess = props.updateSuccess;
+
+  const consequenceOptions = consequences.map(consequence => ({ label: consequence.name, value: consequence.id }));
 
   const handleClose = () => {
     props.history.push('/categorical-alteration');
@@ -39,6 +43,7 @@ export const CategoricalAlterationUpdate = (props: ICategoricalAlterationUpdateP
     const entity = {
       ...categoricalAlterationEntity,
       ...values,
+      consequence: values.consequence ? { label: values?.consequence.name, value: values?.consequence.id } : null,
     };
 
     if (isNew) {
@@ -84,8 +89,10 @@ export const CategoricalAlterationUpdate = (props: ICategoricalAlterationUpdateP
                 <option value="GENOMIC_CHANGE">GENOMIC_CHANGE</option>
                 <option value="CDNA_CHANGE">CDNA_CHANGE</option>
                 <option value="PROTEIN_CHANGE">PROTEIN_CHANGE</option>
+                <option value="MUTATION">MUTATION</option>
                 <option value="COPY_NUMBER_ALTERATION">COPY_NUMBER_ALTERATION</option>
                 <option value="STRUCTURAL_VARIANT">STRUCTURAL_VARIANT</option>
+                <option value="ANY">ANY</option>
                 <option value="UNKNOWN">UNKNOWN</option>
                 <option value="NA">NA</option>
               </ValidatedField>
@@ -109,6 +116,7 @@ export const CategoricalAlterationUpdate = (props: ICategoricalAlterationUpdateP
                   required: { value: true, message: 'This field is required.' },
                 }}
               />
+              <ValidatedSelect label="Consequence" name={'consequence'} options={consequenceOptions} menuPlacement="top" isClearable />
               <SaveButton disabled={updating} />
             </ValidatedForm>
           )}
@@ -122,6 +130,7 @@ const mapStoreToProps = (storeState: IRootStore) => ({
   categoricalAlterationEntity: storeState.categoricalAlterationStore.entity,
   loading: storeState.categoricalAlterationStore.loading,
   updating: storeState.categoricalAlterationStore.updating,
+  consequences: storeState.consequenceStore.entities,
   updateSuccess: storeState.categoricalAlterationStore.updateSuccess,
   getEntity: storeState.categoricalAlterationStore.getEntity,
   updateEntity: storeState.categoricalAlterationStore.updateEntity,

@@ -20,6 +20,7 @@ export const CategoricalAlteration = (props: ICategoricalAlterationProps) => {
     { accessor: 'alterationType', Header: 'Alteration Type' },
     { accessor: 'type', Header: 'Type' },
     { accessor: 'name', Header: 'Name' },
+    { accessor: 'consequence', Header: 'Consequence' },
     getEntityTableActionsColumn(ENTITY_TYPE.CATEGORICAL_ALTERATION),
   ];
 

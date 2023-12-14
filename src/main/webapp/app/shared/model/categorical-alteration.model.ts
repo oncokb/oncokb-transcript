@@ -4,6 +4,7 @@ export interface ICategoricalAlteration {
   id?: number;
   alterationType?: AlterationType;
   type?: string;
+  consequence?: string;
   name?: string;
 }
 

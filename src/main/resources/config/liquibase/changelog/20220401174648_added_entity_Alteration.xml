@@ -10,7 +10,7 @@
         Added the entity Alteration.
     -->
     <changeSet id="20220401174648-1" author="jhipster">
-        <createTable tableName="alteration">
+        <createTable tableName="alteration" remarks="Entity">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -24,7 +24,7 @@
                 <constraints nullable="false" />
             </column>
             <column name="protein_change" type="varchar(255)">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="start" type="integer">
                 <constraints nullable="true" />

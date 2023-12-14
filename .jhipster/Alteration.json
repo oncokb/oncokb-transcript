@@ -4,7 +4,7 @@
     {
       "fieldName": "type",
       "fieldType": "AlterationType",
-      "fieldValues": "GENOMIC_CHANGE,CDNA_CHANGE,PROTEIN_CHANGE,COPY_NUMBER_ALTERATION,STRUCTURAL_VARIANT,UNKNOWN,NA",
+      "fieldValues": "GENOMIC_CHANGE,CDNA_CHANGE,PROTEIN_CHANGE,MUTATION,COPY_NUMBER_ALTERATION,STRUCTURAL_VARIANT,ANY,UNKNOWN,NA",
       "fieldTypeJavadoc": "Enumeration",
       "fieldValidateRules": ["required"]
     },

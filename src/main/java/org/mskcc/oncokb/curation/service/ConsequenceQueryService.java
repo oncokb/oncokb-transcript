@@ -85,9 +85,6 @@ public class ConsequenceQueryService extends QueryService<Consequence> {
             if (criteria.getId() != null) {
                 specification = specification.and(buildRangeSpecification(criteria.getId(), Consequence_.id));
             }
-            if (criteria.getAlterationType() != null) {
-                specification = specification.and(buildSpecification(criteria.getAlterationType(), Consequence_.alterationType));
-            }
             if (criteria.getTerm() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getTerm(), Consequence_.term));
             }
@@ -107,6 +104,15 @@ public class ConsequenceQueryService extends QueryService<Consequence> {
                         buildSpecification(
                             criteria.getAlterationId(),
                             root -> root.join(Consequence_.alterations, JoinType.LEFT).get(Alteration_.id)
+                        )
+                    );
+            }
+            if (criteria.getCategoricalAlterationId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getCategoricalAlterationId(),
+                            root -> root.join(Consequence_.categoricalAlterations, JoinType.LEFT).get(CategoricalAlteration_.id)
                         )
                     );
             }
