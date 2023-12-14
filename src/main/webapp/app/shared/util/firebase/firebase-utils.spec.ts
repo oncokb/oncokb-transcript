@@ -10,7 +10,7 @@ import {
   isSectionEmpty,
   isSectionRemovableWithoutReview,
 } from './firebase-utils';
-import { CancerType, Drug, Gene, Meta, MetaReview, Mutation, Review, Tumor } from 'app/shared/model/firebase/firebase.model';
+import { CancerType, Drug, Gene, Meta, MetaReview, Mutation, Review, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { generateUuid } from '../utils';
 import { NestLevelType } from 'app/pages/curation/collapsible/Collapsible';
 
@@ -386,6 +386,32 @@ describe('FirebaseUtils', () => {
 
       mutation.name_uuid = undefined;
       expect(isSectionEmpty(gene, firebasePath), 'uuid field should be ignored').toBeTruthy();
+    });
+
+    it('should check treatments when determining whether tumor section is empty', () => {
+      const firebasePath = getFirebasePath('TUMORS', 'BRAF', '0', '0');
+      const gene = new Gene('BRAF');
+      const mutation = new Mutation('V600');
+      gene.mutations.push(mutation);
+
+      const tumor = new Tumor();
+      mutation.tumors.push(tumor);
+
+      // Tumor is empty, but TIs has a therapy available
+      tumor.TIs[0].treatments = [new Treatment('Vemurafenib')];
+      expect(isSectionEmpty(gene, firebasePath)).toBeFalsy();
+
+      // Tumor is not empty
+      tumor.diagnosticSummary = 'Diagnostic Summary';
+      expect(isSectionEmpty(gene, firebasePath)).toBeFalsy();
+
+      // Tumor is not empty and no therapies available
+      tumor.TIs[0].treatments = [];
+      expect(isSectionEmpty(gene, firebasePath)).toBeFalsy();
+
+      // Tumor is empty and no therapies avaiable
+      tumor.diagnosticSummary = '';
+      expect(isSectionEmpty(gene, firebasePath)).toBeTruthy();
     });
   });
 });
