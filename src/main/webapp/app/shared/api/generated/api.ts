@@ -164,7 +164,7 @@ export interface Alteration {
    * @type {string}
    * @memberof Alteration
    */
-  proteinChange?: string;
+  proteinChange: string;
   /**
    *
    * @type {number}
@@ -219,8 +219,10 @@ export const AlterationTypeEnum = {
   GenomicChange: 'GENOMIC_CHANGE',
   CdnaChange: 'CDNA_CHANGE',
   ProteinChange: 'PROTEIN_CHANGE',
+  Mutation: 'MUTATION',
   CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
   StructuralVariant: 'STRUCTURAL_VARIANT',
+  Any: 'ANY',
   Unknown: 'UNKNOWN',
   Na: 'NA',
 } as const;
@@ -360,8 +362,10 @@ export const AlterationTypeFilterEqualsEnum = {
   GenomicChange: 'GENOMIC_CHANGE',
   CdnaChange: 'CDNA_CHANGE',
   ProteinChange: 'PROTEIN_CHANGE',
+  Mutation: 'MUTATION',
   CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
   StructuralVariant: 'STRUCTURAL_VARIANT',
+  Any: 'ANY',
   Unknown: 'UNKNOWN',
   Na: 'NA',
 } as const;
@@ -371,8 +375,10 @@ export const AlterationTypeFilterNotEqualsEnum = {
   GenomicChange: 'GENOMIC_CHANGE',
   CdnaChange: 'CDNA_CHANGE',
   ProteinChange: 'PROTEIN_CHANGE',
+  Mutation: 'MUTATION',
   CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
   StructuralVariant: 'STRUCTURAL_VARIANT',
+  Any: 'ANY',
   Unknown: 'UNKNOWN',
   Na: 'NA',
 } as const;
@@ -382,8 +388,10 @@ export const AlterationTypeFilterInEnum = {
   GenomicChange: 'GENOMIC_CHANGE',
   CdnaChange: 'CDNA_CHANGE',
   ProteinChange: 'PROTEIN_CHANGE',
+  Mutation: 'MUTATION',
   CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
   StructuralVariant: 'STRUCTURAL_VARIANT',
+  Any: 'ANY',
   Unknown: 'UNKNOWN',
   Na: 'NA',
 } as const;
@@ -393,8 +401,10 @@ export const AlterationTypeFilterNotInEnum = {
   GenomicChange: 'GENOMIC_CHANGE',
   CdnaChange: 'CDNA_CHANGE',
   ProteinChange: 'PROTEIN_CHANGE',
+  Mutation: 'MUTATION',
   CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
   StructuralVariant: 'STRUCTURAL_VARIANT',
+  Any: 'ANY',
   Unknown: 'UNKNOWN',
   Na: 'NA',
 } as const;
@@ -1032,14 +1042,22 @@ export interface CategoricalAlteration {
    * @memberof CategoricalAlteration
    */
   name: string;
+  /**
+   *
+   * @type {Consequence}
+   * @memberof CategoricalAlteration
+   */
+  consequence?: Consequence;
 }
 
 export const CategoricalAlterationAlterationTypeEnum = {
   GenomicChange: 'GENOMIC_CHANGE',
   CdnaChange: 'CDNA_CHANGE',
   ProteinChange: 'PROTEIN_CHANGE',
+  Mutation: 'MUTATION',
   CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
   StructuralVariant: 'STRUCTURAL_VARIANT',
+  Any: 'ANY',
   Unknown: 'UNKNOWN',
   Na: 'NA',
 } as const;
@@ -1377,12 +1395,6 @@ export interface Consequence {
    * @type {string}
    * @memberof Consequence
    */
-  alterationType: ConsequenceAlterationTypeEnum;
-  /**
-   *
-   * @type {string}
-   * @memberof Consequence
-   */
   term: string;
   /**
    *
@@ -1402,20 +1414,13 @@ export interface Consequence {
    * @memberof Consequence
    */
   description?: string;
+  /**
+   *
+   * @type {Array<CategoricalAlteration>}
+   * @memberof Consequence
+   */
+  categoricalAlterations?: Array<CategoricalAlteration>;
 }
-
-export const ConsequenceAlterationTypeEnum = {
-  GenomicChange: 'GENOMIC_CHANGE',
-  CdnaChange: 'CDNA_CHANGE',
-  ProteinChange: 'PROTEIN_CHANGE',
-  CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
-  StructuralVariant: 'STRUCTURAL_VARIANT',
-  Unknown: 'UNKNOWN',
-  Na: 'NA',
-} as const;
-
-export type ConsequenceAlterationTypeEnum = typeof ConsequenceAlterationTypeEnum[keyof typeof ConsequenceAlterationTypeEnum];
-
 /**
  *
  * @export
@@ -1428,12 +1433,6 @@ export interface ConsequenceCriteria {
    * @memberof ConsequenceCriteria
    */
   id?: LongFilter;
-  /**
-   *
-   * @type {AlterationTypeFilter}
-   * @memberof ConsequenceCriteria
-   */
-  alterationType?: AlterationTypeFilter;
   /**
    *
    * @type {StringFilter}
@@ -1464,6 +1463,12 @@ export interface ConsequenceCriteria {
    * @memberof ConsequenceCriteria
    */
   alterationId?: LongFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof ConsequenceCriteria
+   */
+  categoricalAlterationId?: LongFilter;
   /**
    *
    * @type {boolean}

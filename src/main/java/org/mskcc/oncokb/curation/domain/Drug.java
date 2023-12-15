@@ -28,7 +28,6 @@ public class Drug implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @JsonIgnoreProperties(value = { "synonyms" }, allowSetters = true)
     @OneToOne
     @JoinColumn(unique = true, name = "ncit_code", referencedColumnName = "code")
     private NciThesaurus nciThesaurus;
