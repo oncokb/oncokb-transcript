@@ -26,7 +26,7 @@ public class OncoTreeImporter {
 
     private final Logger log = LoggerFactory.getLogger(OncoTreeImporter.class);
     final CancerTypeService cancerTypeService;
-    final String FILE_PATH = "/Users/zhangh2/origin-repos/oncokb-data/curation/oncotree/oncotree_2019_12_01.json";
+    final String FILE_PATH = "/oncokb-data/curation/oncotree/oncotree_2019_12_01.json";
     final String MIXED = "MIXED";
 
     public OncoTreeImporter(CancerTypeService cancerTypeService) {

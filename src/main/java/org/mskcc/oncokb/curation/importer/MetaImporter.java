@@ -115,7 +115,7 @@ public class MetaImporter {
 
     private final Logger log = LoggerFactory.getLogger(MetaImporter.class);
 
-    final String DATA_DIRECTORY = "/Users/zhangh2/origin-repos/oncokb-data/curation";
+    final String DATA_DIRECTORY = "/oncokb-data/curation";
     final String META_DATA_FOLDER_PATH = DATA_DIRECTORY + "/meta";
 
     public void generalImport() throws ApiException, IOException {

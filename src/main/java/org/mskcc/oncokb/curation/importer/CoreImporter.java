@@ -27,7 +27,7 @@ public class CoreImporter {
     final DrugService drugService;
     final NciThesaurusService nciThesaurusService;
     final MainService mainService;
-    final String DATA_DIRECTORY = "/Users/zhangh2/origin-repos/oncokb-data/curation/oncokb/";
+    final String DATA_DIRECTORY = "/oncokb-data/curation/oncokb/";
     final String MIXED = "MIXED";
 
     public CoreImporter(
