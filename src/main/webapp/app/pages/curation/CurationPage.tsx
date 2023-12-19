@@ -5,6 +5,7 @@ import { Col, Input, Row } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import {
+  CANCER_TYPE_THERAPY_INDENTIFIER,
   CBIOPORTAL,
   COSMIC,
   GERMLINE_INHERITANCE_MECHANISM,
@@ -20,21 +21,25 @@ import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
 import WithSeparator from 'react-with-separator';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
 import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/FirebaseRealtimeInput';
-import { getFirebasePath, getMutationName, getTxName, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
+import { getFirebasePath, getMutationName, getTxName } from 'app/shared/util/firebase/firebase-utils';
 import Collapsible, { NestLevelType } from 'app/pages/curation/collapsible/Collapsible';
 import styles from './styles.module.scss';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { FIREBASE_ONCOGENICITY, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import { FIREBASE_ONCOGENICITY, HistoryRecord, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
 import { GENE_TYPE, GENE_TYPE_KEY } from 'app/config/constants/firebase';
+import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
 import VusTable from '../../shared/table/VusTable';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
+
+export type ParsedHistoryRecord = { record: HistoryRecord; timestamp: string };
 
 const CurationPage = (props: ICurationPageProps) => {
   const history = useHistory();
   const hugoSymbol = props.match.params.hugoSymbol;
   const firebaseGenePath = getFirebasePath('GENE', hugoSymbol);
+  const firebaseHistoryPath = getFirebasePath('HISTORY', hugoSymbol);
   const [mutationFilter, setMutationFilter] = useState('');
 
   useEffect(() => {
@@ -43,6 +48,7 @@ const CurationPage = (props: ICurationPageProps) => {
     cleanupCallbacks.push(props.addListener(firebaseGenePath));
     cleanupCallbacks.push(props.addMetaCollaboratorsListener());
     cleanupCallbacks.push(props.addDrugListListener());
+    cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
     cleanupCallbacks.push(() => props.metaCollaboratorsData && props.updateCollaborator(hugoSymbol, false));
     return () => cleanupCallbacks.forEach(callback => callback && callback());
   }, []);
@@ -59,6 +65,29 @@ const CurationPage = (props: ICurationPageProps) => {
       });
     }
   }, [props.metaCollaboratorsData, props.data]);
+
+  const parsedHistoryList = useMemo(() => {
+    if (!props.historyData) {
+      return;
+    }
+
+    const newList = new Map<string, ParsedHistoryRecord[]>();
+
+    for (const historyData of Object.values(props.historyData)) {
+      try {
+        for (const record of historyData.records) {
+          if (!newList.has(record.location)) {
+            newList.set(record.location, []);
+          }
+          newList.get(record.location).push({ record, timestamp: historyData.timeStamp });
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    return newList;
+  }, [props.historyData]);
 
   return !!props.data && props.drugList && !!geneEntity ? (
     <div>
@@ -83,9 +112,18 @@ const CurationPage = (props: ICurationPageProps) => {
               </span>
             </div>
           </div>
-          <RealtimeTextAreaInput fieldKey="summary" label="Summary" />
+          <RealtimeTextAreaInput
+            fieldKey="summary"
+            label="Summary"
+            labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />}
+          />
           <RealtimeCheckedInputGroup
-            groupHeader="Gene Type"
+            groupHeader={
+              <>
+                <span className="mr-2">Gene Type</span>
+                {<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Type'} />}
+              </>
+            }
             options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
               return {
                 label,
@@ -111,7 +149,13 @@ const CurationPage = (props: ICurationPageProps) => {
       </Row>
       <Row className={'mb-5'}>
         <Col>
-          <RealtimeTextAreaInput fieldKey="background" inputClass={styles.textarea} label="Background" name="geneBackground" />
+          <RealtimeTextAreaInput
+            fieldKey="background"
+            inputClass={styles.textarea}
+            label="Background"
+            name="geneBackground"
+            labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Background'} />}
+          />
           <div className="mb-2">
             <AutoParseRefField summary={props.data.background} />
           </div>
@@ -152,12 +196,30 @@ const CurationPage = (props: ICurationPageProps) => {
                     className={'mb-1'}
                     title={`Mutation: ${getMutationName(mutation)}`}
                     mutationUuid={mutation.name_uuid}
+                    actions={[
+                      <GeneHistoryTooltip
+                        key={'gene-history-tooltip'}
+                        historyData={parsedHistoryList}
+                        location={getMutationName(mutation)}
+                      />,
+                    ]}
                     firebasePath={getFirebasePath('MUTATIONS', hugoSymbol, mutationIndex)}
                   >
                     <Collapsible nestLevel={NestLevelType.MUTATION_EFFECT} title={'Mutation Effect'}>
                       <Collapsible nestLevel={NestLevelType.SOMATIC} title={'Somatic'}>
                         <RealtimeCheckedInputGroup
-                          groupHeader="Oncogenic"
+                          groupHeader={
+                            <>
+                              <span style={{ marginRight: '8px' }}>Oncogenic</span>
+                              {
+                                <GeneHistoryTooltip
+                                  historyData={parsedHistoryList}
+                                  location={`${getMutationName(mutation)}, Mutation Effect`}
+                                  contentFieldWhenObject="oncogenic"
+                                />
+                              }
+                            </>
+                          }
                           isRadio
                           options={[
                             FIREBASE_ONCOGENICITY.YES,
@@ -171,7 +233,18 @@ const CurationPage = (props: ICurationPageProps) => {
                           }))}
                         />
                         <RealtimeCheckedInputGroup
-                          groupHeader="Mutation Effect"
+                          groupHeader={
+                            <>
+                              <span style={{ marginRight: '8px' }}>Mutation Effect</span>
+                              {
+                                <GeneHistoryTooltip
+                                  historyData={parsedHistoryList}
+                                  location={`${getMutationName(mutation)}, Mutation Effect`}
+                                  contentFieldWhenObject="effect"
+                                />
+                              }
+                            </>
+                          }
                           isRadio
                           options={[
                             MUTATION_EFFECT.GAIN_OF_FUNCTION,
@@ -192,6 +265,12 @@ const CurationPage = (props: ICurationPageProps) => {
                           fieldKey={`mutations/${mutationIndex}/mutation_effect/description`}
                           inputClass={styles.textarea}
                           label="Description of Evidence"
+                          labelIcon={
+                            <GeneHistoryTooltip
+                              historyData={parsedHistoryList}
+                              location={`${getMutationName(mutation)}, Mutation Effect`}
+                            />
+                          }
                           name="description"
                         />
                       </Collapsible>
@@ -237,83 +316,108 @@ const CurationPage = (props: ICurationPageProps) => {
                       )}
                     </Collapsible>
                     {mutation.tumors &&
-                      mutation.tumors.map((tumor, tumorIndex) => (
-                        <Collapsible
-                          className={'mt-2'}
-                          mutationUuid={mutation.name_uuid}
-                          cancerTypeUuid={tumor.cancerTypes_uuid}
-                          key={tumor.cancerTypes_uuid}
-                          nestLevel={NestLevelType.CANCER_TYPE}
-                          firebasePath={getFirebasePath('TUMORS', hugoSymbol, mutationIndex, tumorIndex)}
-                          title={`Cancer Type: ${tumor.cancerTypes.map(cancerType => getCancerTypeName(cancerType)).join(', ')}`}
-                        >
-                          <RealtimeTextAreaInput
-                            fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/summary`}
-                            inputClass={styles.textarea}
-                            label="Therapeutic Summary (Optional)"
-                            name="txSummary"
-                          />
-                          {tumor.TIs.reduce((accumulator, ti, tiIndex) => {
-                            if (!ti.treatments) {
-                              return accumulator;
-                            }
-                            return accumulator.concat(
-                              ti.treatments.map((treatment, treatmentIndex) => {
-                                return (
-                                  <Collapsible
-                                    className={'mt-2'}
-                                    key={tumor.cancerTypes_uuid}
-                                    nestLevel={NestLevelType.THERAPY}
-                                    title={`Therapy: ${getTxName(props.drugList, treatment.name)}`}
-                                    firebasePath={getFirebasePath(
-                                      'TREATMENTS',
-                                      hugoSymbol,
-                                      mutationIndex,
-                                      tumorIndex,
-                                      tiIndex,
-                                      treatmentIndex
-                                    )}
-                                  >
-                                    <RealtimeDropdownInput
-                                      fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
-                                      label="Highest level of evidence"
-                                      name="level"
-                                      options={[TX_LEVELS.LEVEL_NO, TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_2]}
-                                    />
-                                    <RealtimeDropdownInput
-                                      fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagation`}
-                                      label="Level of Evidence in other solid tumor types"
-                                      name="propagationLevel"
-                                      options={[]} // Todo
-                                    />
-                                    <RealtimeDropdownInput
-                                      fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagationLiquid`}
-                                      label="Level of Evidence in other liquid tumor types"
-                                      name="propagationLiquidLevel"
-                                      options={[]}
-                                    />
-                                    <RealtimeDropdownInput
-                                      fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/fdaLevel`}
-                                      label="FDA Level of Evidence"
-                                      name="propagationLiquidLevel"
-                                      options={[]}
-                                    />
-                                    <RealtimeTextAreaInput
-                                      fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/description`}
-                                      inputClass={styles.textarea}
-                                      label="Description of Evidence"
-                                      name="evidenceDescription"
-                                    />
-                                    <div className="mb-2">
-                                      <AutoParseRefField summary={treatment.description} />
-                                    </div>
-                                  </Collapsible>
-                                );
-                              })
-                            );
-                          }, [])}
-                        </Collapsible>
-                      ))}
+                      mutation.tumors.map((tumor, tumorIndex) => {
+                        const cancerTypeName = tumor.cancerTypes.map(cancerType => getCancerTypeName(cancerType)).join(', ');
+
+                        return (
+                          <Collapsible
+                            className={'mt-2'}
+                            mutationUuid={mutation.name_uuid}
+                            cancerTypeUuid={tumor.cancerTypes_uuid}
+                            key={tumor.cancerTypes_uuid}
+                            nestLevel={NestLevelType.CANCER_TYPE}
+                            firebasePath={getFirebasePath('TUMORS', hugoSymbol, mutationIndex, tumorIndex)}
+                            actions={[
+                              <GeneHistoryTooltip
+                                key={'gene-history-tooltip'}
+                                historyData={parsedHistoryList}
+                                location={`${getMutationName(mutation)}, ${cancerTypeName}`}
+                              />,
+                            ]}
+                            title={`Cancer Type: ${cancerTypeName}`}
+                          >
+                            <RealtimeTextAreaInput
+                              fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/summary`}
+                              inputClass={styles.textarea}
+                              label="Therapeutic Summary (Optional)"
+                              labelIcon={
+                                <GeneHistoryTooltip
+                                  historyData={parsedHistoryList}
+                                  location={`${getMutationName(mutation)}, ${cancerTypeName}, Tumor Type Summary`}
+                                />
+                              }
+                              name="txSummary"
+                            />
+                            {tumor.TIs.reduce((accumulator, ti, tiIndex) => {
+                              if (!ti.treatments) {
+                                return accumulator;
+                              }
+                              return accumulator.concat(
+                                ti.treatments.map((treatment, treatmentIndex) => {
+                                  return (
+                                    <Collapsible
+                                      className={'mt-2'}
+                                      key={tumor.cancerTypes_uuid}
+                                      nestLevel={NestLevelType.THERAPY}
+                                      title={`Therapy: ${getTxName(props.drugList, treatment.name)}`}
+                                      firebasePath={getFirebasePath(
+                                        'TREATMENTS',
+                                        hugoSymbol,
+                                        mutationIndex,
+                                        tumorIndex,
+                                        tiIndex,
+                                        treatmentIndex
+                                      )}
+                                    >
+                                      <RealtimeDropdownInput
+                                        fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
+                                        label="Highest level of evidence"
+                                        name="level"
+                                        options={[TX_LEVELS.LEVEL_NO, TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_2]}
+                                      />
+                                      <RealtimeDropdownInput
+                                        fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagation`}
+                                        label="Level of Evidence in other solid tumor types"
+                                        name="propagationLevel"
+                                        options={[]} // Todo
+                                      />
+                                      <RealtimeDropdownInput
+                                        fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagationLiquid`}
+                                        label="Level of Evidence in other liquid tumor types"
+                                        name="propagationLiquidLevel"
+                                        options={[]}
+                                      />
+                                      <RealtimeDropdownInput
+                                        fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/fdaLevel`}
+                                        label="FDA Level of Evidence"
+                                        name="propagationLiquidLevel"
+                                        options={[]}
+                                      />
+                                      <RealtimeTextAreaInput
+                                        fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/description`}
+                                        inputClass={styles.textarea}
+                                        label="Description of Evidence"
+                                        labelIcon={
+                                          <GeneHistoryTooltip
+                                            historyData={parsedHistoryList}
+                                            location={`${CANCER_TYPE_THERAPY_INDENTIFIER}${getMutationName(mutation)}, ${cancerTypeName}, ${
+                                              treatment.name
+                                            }`}
+                                          />
+                                        }
+                                        name="evidenceDescription"
+                                      />
+                                      <div className="mb-2">
+                                        <AutoParseRefField summary={treatment.description} />
+                                      </div>
+                                    </Collapsible>
+                                  );
+                                })
+                              );
+                            }, [])}
+                          </Collapsible>
+                        );
+                      })}
                   </Collapsible>
                 </Col>
               </Row>
@@ -327,7 +431,14 @@ const CurationPage = (props: ICurationPageProps) => {
   );
 };
 
-const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, firebaseDrugsStore, authStore }: IRootStore) => ({
+const mapStoreToProps = ({
+  geneStore,
+  firebaseGeneStore,
+  firebaseMetaStore,
+  firebaseDrugsStore,
+  firebaseHistoryStore,
+  authStore,
+}: IRootStore) => ({
   findAllGeneEntities: geneStore.findAllGeneEntities,
   entities: geneStore.entities,
   addListener: firebaseGeneStore.addListener,
@@ -341,6 +452,8 @@ const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, fire
   addDrugListListener: firebaseDrugsStore.addDrugListListener,
   metaCollaboratorsData: firebaseMetaStore.metaCollaborators,
   updateCollaborator: firebaseMetaStore.updateCollaborator,
+  historyData: firebaseHistoryStore.data,
+  addHistoryListener: firebaseHistoryStore.addListener,
   account: authStore.account,
 });
 

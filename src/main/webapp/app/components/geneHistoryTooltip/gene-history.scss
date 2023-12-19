@@ -1,0 +1,16 @@
+@import '../../variables.scss';
+
+.gene-history-event-content {
+  border-radius: 4px;
+}
+
+.gene-history-error-content {
+  text-align: center;
+  padding: 8px;
+  background-color: $danger;
+  color: $light-grey;
+}
+
+.grey-tooltip {
+  color: $medium-grey;
+}

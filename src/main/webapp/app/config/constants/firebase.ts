@@ -34,6 +34,7 @@ export const FB_COLLECTION_PATH = {
   META_COLLABORATOR: `${FB_COLLECTION.META}/collaborators/:name`,
   META_COLLABORATOR_GENE: `${FB_COLLECTION.META}/collaborators/:name/:index`,
   VUS: `${FB_COLLECTION.VUS}/:hugoSymbol`,
+  HISTORY: `${FB_COLLECTION.HISTORY}/:hugoSymbol/api`,
 };
 
 export const ONCOGENICITY_CLASS_MAPPING: { [key in FIREBASE_ONCOGENICITY]: string } = {

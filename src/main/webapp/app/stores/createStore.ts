@@ -107,6 +107,7 @@ import flag, {
   FlagStore
 } from 'app/entities/flag/flag.store';
 import AlterationReferenceGenomeStore from 'app/entities/alteration-reference-genome/alteration-reference-genome.store';
+import { FirebaseHistoryStore } from './firebase/firebase.history.store';
 import { CommentStore } from './firebase/firebase.comment.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
@@ -144,6 +145,7 @@ export interface IRootStore {
   readonly firebaseGeneStore: FirebaseGeneStore;
   readonly firebaseMetaStore: FirebaseMetaStore;
   readonly firebaseDrugsStore: FirebaseDrugsStore;
+  readonly firebaseHistoryStore: FirebaseHistoryStore;
   readonly firebaseVusStore: FirebaseVusStore;
   readonly seqRegionStore: SeqRegionStore;
   readonly flagStore: FlagStore;
@@ -188,6 +190,7 @@ export function createStores(history: History): IRootStore {
   rootStore.firebaseGeneStore = new FirebaseGeneStore(rootStore);
   rootStore.firebaseMetaStore = new FirebaseMetaStore(rootStore);
   rootStore.firebaseDrugsStore = new FirebaseDrugsStore(rootStore);
+  rootStore.firebaseHistoryStore = new FirebaseHistoryStore(rootStore);
   rootStore.firebaseVusStore = new FirebaseVusStore(rootStore);
   rootStore.seqRegionStore = new SeqRegionStore(rootStore);
   rootStore.flagStore = new FlagStore(rootStore);

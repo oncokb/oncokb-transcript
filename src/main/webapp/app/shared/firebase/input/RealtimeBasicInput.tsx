@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
-import { Input, Label, LabelProps } from 'reactstrap';
+import { Input, Label, LabelProps, Row } from 'reactstrap';
 import { InputType } from 'reactstrap/es/Input';
 import classnames from 'classnames';
 import { ExtractPathExpressions } from '../../util/firebase/firebase-crud-store';
@@ -14,16 +14,20 @@ export interface IRealtimeBasicLabel extends LabelProps {
   id: string;
   label: string;
   labelClass?: string;
+  labelIcon?: JSX.Element;
 }
 export const RealtimeBasicLabel: React.FunctionComponent<IRealtimeBasicLabel> = ({
   label,
   labelClass,
+  labelIcon,
   id,
   ...labelProps
 }: IRealtimeBasicLabel) => {
   const labelComponent = (
     <Label {...labelProps} id={id} for={id} className={classnames(labelClass, 'text-nowrap')}>
       {label}
+      {labelIcon && <span className="mr-2" />}
+      {labelIcon}
     </Label>
   );
   return labelComponent;
@@ -36,6 +40,7 @@ export interface IRealtimeBasicInput extends React.InputHTMLAttributes<HTMLInput
   type: RealtimeBasicInput;
   label: string;
   labelClass?: string;
+  labelIcon?: JSX.Element;
   inputClass?: string;
 }
 
@@ -47,6 +52,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     className,
     labelClass,
     label,
+    labelIcon,
     id = fieldKey,
     inputClass,
     children,
@@ -58,7 +64,9 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   const isCheckType = type === RealtimeInputType.CHECKBOX || type === RealtimeInputType.RADIO;
   const isInlineInputText = type === RealtimeInputType.INLINE_TEXT;
 
-  const labelComponent = label && <RealtimeBasicLabel label={label} id={id} labelClass={isCheckType ? '' : 'font-weight-bold'} />;
+  const labelComponent = label && (
+    <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? '' : 'font-weight-bold'} />
+  );
   const inputValue = getValueByNestedKey(data, fieldKey);
   const inputChangeHandler = e => {
     const updateValue = isCheckType ? (e.target.checked ? label : '') : e.target.value;
