@@ -12,7 +12,6 @@ import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import { AUTHORITIES } from 'app/config/constants/constants';
 import AppRoutes from 'app/routes';
 import NavigationSidebar from 'app/components/sidebar/NavigationSidebar';
-import CurationPanel from './components/curationPanel/CurationPanel';
 import Layout from './layout';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
@@ -42,7 +41,6 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
             <div className="app-center-content-wrapper" style={{ margin: props.centerContentMargin }}>
               <AppRoutes />
             </div>
-            {props.showCurationPanel && <CurationPanel width={props.curationPanelWidth} />}
           </div>
         </div>
       </Layout>
@@ -56,8 +54,6 @@ const mapStoreToProps = ({ authStore, layoutStore, firebaseStore }: IRootStore) 
   getSession: authStore.getSession,
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,
   toggleNavSidebar: layoutStore.toggleNavigationSidebar,
-  showCurationPanel: layoutStore.showCurationPanel,
-  curationPanelWidth: layoutStore.curationPanelWidth,
   centerContentMargin: layoutStore.centerContentMargin,
   initializeFirebase: firebaseStore.initializeFirebase,
 });

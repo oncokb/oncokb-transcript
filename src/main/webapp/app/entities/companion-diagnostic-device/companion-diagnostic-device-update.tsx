@@ -14,6 +14,8 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import _ from 'lodash';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { convertDateTimeFromServer, convertDateTimeToServer } from 'app/shared/util/date-utils';
+import GenericSidebar from 'app/components/sidebar/OncoKBSidebar';
+import CompanionDiagnosticDevicePanel from 'app/components/panels/CompanionDiagnosticDevicePanel';
 
 export interface ICompanionDiagnosticDeviceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -183,6 +185,9 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
           ) : undefined}
         </>
       )}
+      <GenericSidebar>
+        <CompanionDiagnosticDevicePanel />
+      </GenericSidebar>
     </>
   );
 };
