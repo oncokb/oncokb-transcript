@@ -10,12 +10,15 @@ import { DeleteSectionButton } from '../button/DeleteSectionButton';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
 import { IRootStore } from 'app/stores';
-import { isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
+import { isSectionEmpty, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
+import { ExtractPathExpressions } from 'app/shared/util/firebase/firebase-crud-store';
+import { Gene } from 'app/shared/model/firebase/firebase.model';
+import { buildFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
 
 export interface IProps {
   title: string;
   nestLevel: NestLevelType;
-  firebasePath?: string;
+  geneFieldKey: ExtractPathExpressions<Gene>;
   open?: boolean;
   className?: string;
   mutationUuid?: string;
@@ -61,12 +64,13 @@ const Collapsible: React.FunctionComponent<IProps & StoreProps> = ({
   title,
   className,
   nestLevel,
-  firebasePath,
+  geneFieldKey,
   mutationUuid,
   cancerTypeUuid,
   deleteSection,
   data,
   actions,
+  hugoSymbol,
 }) => {
   const [isOpen, setIsOpen] = useState(open);
 
@@ -76,6 +80,7 @@ const Collapsible: React.FunctionComponent<IProps & StoreProps> = ({
 
   const showMutationLevelSummary = nestLevel === NestLevelType.MUTATION && !title.includes(',');
   const removableLevel = [NestLevelType.MUTATION, NestLevelType.CANCER_TYPE, NestLevelType.THERAPY].includes(nestLevel);
+  const firebasePath = buildFirebaseGenePath(hugoSymbol, geneFieldKey);
 
   return (
     <>
@@ -93,6 +98,11 @@ const Collapsible: React.FunctionComponent<IProps & StoreProps> = ({
               {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
             </button>
             <span className="font-weight-bold font-weight-bold">{title}</span>
+            {isSectionEmpty(data, firebasePath) ? (
+              <span className={`badge badge-pill badge-info ml-2 mr-2`} style={{ fontSize: '60%' }}>
+                No entry
+              </span>
+            ) : undefined}
           </div>
           {showMutationLevelSummary ? <MutationLevelSummary mutationUuid={mutationUuid} /> : undefined}
           {nestLevel === NestLevelType.CANCER_TYPE ? (
@@ -123,6 +133,7 @@ const Collapsible: React.FunctionComponent<IProps & StoreProps> = ({
 
 const mapStoreToProps = ({ firebaseGeneStore }: IRootStore) => ({
   data: firebaseGeneStore.data,
+  hugoSymbol: firebaseGeneStore.hugoSymbol,
   deleteSection: firebaseGeneStore.deleteSection,
 });
 

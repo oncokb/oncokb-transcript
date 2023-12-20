@@ -1,3 +1,7 @@
+import { Gene } from 'app/shared/model/firebase/firebase.model';
+import { ExtractPathExpressions } from './firebase-crud-store';
+import { FB_COLLECTION } from 'app/config/constants/firebase';
+
 type FirebaseGenePathDetails = {
   fullPath: string;
   hugoSymbol: string;
@@ -16,4 +20,11 @@ export const parseFirebaseGenePath = (path: string) => {
     hugoSymbol,
     pathFromGene,
   } as FirebaseGenePathDetails;
+};
+
+export const buildFirebaseGenePath = (hugoSymbol: string, fieldKey: ExtractPathExpressions<Gene>) => {
+  if (hugoSymbol.length === 0) {
+    return undefined;
+  }
+  return `${FB_COLLECTION.GENES}/${hugoSymbol}/${fieldKey}`;
 };

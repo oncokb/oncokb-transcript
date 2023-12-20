@@ -1,8 +1,8 @@
 import { FB_COLLECTION } from 'app/config/constants/firebase';
-import { parseFirebaseGenePath } from './firebase-path-utils';
+import { buildFirebaseGenePath, parseFirebaseGenePath } from './firebase-path-utils';
 
-describe('Firebase path utils test', () => {
-  describe('Parse firebase gene path', () => {
+describe('FirebasePathUtils', () => {
+  describe('parseFirebaseGenePath', () => {
     it('Should parse path', () => {
       const path = `${FB_COLLECTION.GENES}/BRAF/mutations/0`;
       const pathDetails = parseFirebaseGenePath(path);
@@ -19,6 +19,16 @@ describe('Firebase path utils test', () => {
 
       path = `${FB_COLLECTION.GENES}/BRAF/`;
       expect(parseFirebaseGenePath(path)).toBeUndefined();
+    });
+  });
+
+  describe('buildFirebaseGenePath', () => {
+    it('should return firebase path', () => {
+      const hugoSymbol = 'BRAF';
+      expect(buildFirebaseGenePath(hugoSymbol, 'mutations/0/name')).toEqual('Genes/BRAF/mutations/0/name');
+      expect(buildFirebaseGenePath(hugoSymbol, 'mutations/0/tumors/0/cancerTypes')).toEqual('Genes/BRAF/mutations/0/tumors/0/cancerTypes');
+
+      expect(buildFirebaseGenePath('', 'mutations_uuid')).toEqual(undefined);
     });
   });
 });

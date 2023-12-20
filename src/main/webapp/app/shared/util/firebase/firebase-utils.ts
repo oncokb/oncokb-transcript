@@ -1,5 +1,5 @@
 import { UUID_REGEX } from 'app/config/constants/constants';
-import { Comment, DrugCollection, Gene, Meta, Mutation, Review } from 'app/shared/model/firebase/firebase.model';
+import { Comment, DrugCollection, Gene, Meta, Mutation, Review, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
 import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/Collapsible';
@@ -103,4 +103,63 @@ export const isSectionRemovableWithoutReview = (geneData: Gene, nestLevel: Remov
 
   const review: Review = getValueByNestedKey(geneData, `${pathDetails.pathFromGene}/${reviewKey}`);
   return !!review && !!review.added;
+};
+
+export function isNestedObjectEmpty(obj: any, ignoredKeySubstrings: string[] = []) {
+  if (typeof obj === 'object' && obj !== undefined && obj !== null) {
+    let targetKeys = Object.keys(obj);
+    if (ignoredKeySubstrings !== undefined && ignoredKeySubstrings.length > 0) {
+      targetKeys = Object.keys(obj).filter(key => !ignoredKeySubstrings.some(suffix => key.includes(suffix)));
+    }
+    let isEmpty = true;
+    for (const key of targetKeys) {
+      isEmpty = isEmpty && isNestedObjectEmpty(obj[key], ignoredKeySubstrings);
+      if (!isEmpty) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  if (obj === undefined || obj === null) {
+    return true;
+  }
+
+  if (typeof obj === 'string') {
+    return obj.trim().length === 0;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.length === 0;
+  }
+
+  return false;
+}
+
+export const isSectionEmpty = (geneData: Gene, fullPath: string) => {
+  const path = parseFirebaseGenePath(fullPath).pathFromGene;
+  const value = getValueByNestedKey(geneData, path);
+  if (value === undefined) {
+    return true;
+  }
+
+  const ignoredKeySuffixes = ['_review', '_uuid', 'TIs', 'cancerTypes'];
+  const isEmpty = isNestedObjectEmpty(value, ignoredKeySuffixes);
+
+  if (!isEmpty) {
+    return isEmpty;
+  }
+
+  // If the section is not empty, we still need to check if there are treatments in the TIs array.
+  // We skipped the TIs key because TI.name and TI.type always has a value, which will
+  // make our function always return isEmpty=False
+  if (path.match(/tumors\/\d+$/g)) {
+    const implications = (value as Tumor).TIs;
+    for (const implication of implications) {
+      if (implication.treatments && implication.treatments.length > 0) {
+        return false;
+      }
+    }
+  }
+  return isEmpty;
 };
