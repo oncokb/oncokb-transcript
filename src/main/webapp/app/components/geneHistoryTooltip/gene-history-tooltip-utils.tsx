@@ -5,6 +5,7 @@ import React from 'react';
 
 export default function constructTimeSeriesData(
   record: HistoryRecord,
+  admin: string,
   timestamp: string,
   objectField: string
 ): RequiredTimeSeriesEventData | ExtraTimeSeriesEventData {
@@ -14,23 +15,23 @@ export default function constructTimeSeriesData(
 
   switch (record.operation) {
     case 'add':
-      operation = 'added';
+      operation = 'addition';
       bubbleColor = 'green';
       content = getTimeSeriesDataContent(objectField, record.new, record.old);
       break;
     case 'update':
       bubbleColor = 'orange';
-      operation = 'updated';
+      operation = 'update';
       content = getTimeSeriesDataContent(objectField, record.new, record.old);
       break;
     case 'delete':
       bubbleColor = 'red';
-      operation = 'deleted';
+      operation = 'deletion';
       content = <></>;
       break;
     case 'name change':
       bubbleColor = 'orange';
-      operation = 'changed name';
+      operation = 'name change';
       content = getTimeSeriesDataContent(objectField, record.new, record.old);
       break;
     default:
@@ -44,6 +45,7 @@ export default function constructTimeSeriesData(
 
   return {
     createdAt: new Date(timestamp),
+    admin,
     editBy: record.lastEditBy,
     operation,
     bubbleColor,

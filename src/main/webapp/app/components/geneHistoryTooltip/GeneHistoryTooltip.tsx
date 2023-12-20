@@ -49,7 +49,12 @@ function GeneHistoryTooltip({ location, historyData, contentFieldWhenObject = 'd
     parsedData: (RequiredTimeSeriesEventData | ExtraTimeSeriesEventData)[]
   ) {
     for (const parsedRecord of parsedRecords) {
-      const timeSeriesData = constructTimeSeriesData(parsedRecord.record, parsedRecord.timestamp, contentFieldWhenObject);
+      const timeSeriesData = constructTimeSeriesData(
+        parsedRecord.record,
+        parsedRecord.admin,
+        parsedRecord.timestamp,
+        contentFieldWhenObject
+      );
       if (timeSeriesData) {
         parsedData.push(timeSeriesData);
       }

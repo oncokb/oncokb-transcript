@@ -3,12 +3,9 @@ import constructTimeSeriesData, { getTimeSeriesDataContent } from './gene-histor
 import { HistoryRecord } from 'app/shared/model/firebase/firebase.model';
 import React from 'react';
 
-const USER_NAME = 'Test User 1';
-const TIMESTAMP = '518022762874';
-
 describe('GeneHistoryTooltipUtils', () => {
   describe('getTimeSeriesDataContent', () => {
-    it('should create non-emtpy time series data content with string new content', () => {
+    it('should create non-empty time series data content with string new content', () => {
       const objectField = 'description';
       const newContent = 'test';
       const oldContent = '';
@@ -17,7 +14,7 @@ describe('GeneHistoryTooltipUtils', () => {
       expect(timeSeriesDataContent).not.toEqual(<></>);
     });
 
-    it('should create non-emtpy time series data content with valid object new content', () => {
+    it('should create non-empty time series data content with valid object new content', () => {
       const objectField = 'description';
       const newContent = {
         description: 'test',
@@ -41,6 +38,11 @@ describe('GeneHistoryTooltipUtils', () => {
   });
 
   describe('constructTimeSeriesData', () => {
+    const USER_NAME = 'Test User 1';
+    const ADMIN = 'Test Admin 1';
+    const TIMESTAMP = '518022762874';
+    const OBJECT_FIELD = 'description';
+
     it('should create time series data with add operation', () => {
       const record: HistoryRecord = {
         lastEditBy: USER_NAME,
@@ -50,11 +52,9 @@ describe('GeneHistoryTooltipUtils', () => {
         operation: 'add',
         uuids: '',
       };
-      const timestamp = '518022762874';
-      const objectField = 'description';
 
-      const timeSeriesData = constructTimeSeriesData(record, timestamp, objectField);
-      expect(timeSeriesData.operation, 'operation should be "added"').toEqual('added');
+      const timeSeriesData = constructTimeSeriesData(record, ADMIN, TIMESTAMP, OBJECT_FIELD);
+      expect(timeSeriesData.operation, 'operation should be "added"').toEqual('addition');
       expect(timeSeriesData.bubbleColor, 'bubble color should be "green"').toEqual('green');
       expect(timeSeriesData.content, 'content should be non empty').not.toEqual(<></>);
     });
@@ -68,11 +68,9 @@ describe('GeneHistoryTooltipUtils', () => {
         operation: 'update',
         uuids: '',
       };
-      const timestamp = '518022762874';
-      const objectField = 'description';
 
-      const timeSeriesData = constructTimeSeriesData(record, timestamp, objectField);
-      expect(timeSeriesData.operation, 'operation should be "updated"').toEqual('updated');
+      const timeSeriesData = constructTimeSeriesData(record, ADMIN, TIMESTAMP, OBJECT_FIELD);
+      expect(timeSeriesData.operation, 'operation should be "updated"').toEqual('update');
       expect(timeSeriesData.bubbleColor, 'bubble color should be "orange"').toEqual('orange');
       expect(timeSeriesData.content, 'content should be non empty').not.toEqual(<></>);
     });
@@ -86,14 +84,13 @@ describe('GeneHistoryTooltipUtils', () => {
         operation: 'delete',
         uuids: '',
       };
-      const timestamp = '518022762874';
-      const objectField = 'description';
 
-      expect(JSON.stringify(constructTimeSeriesData(record, timestamp, objectField))).toEqual(
+      expect(JSON.stringify(constructTimeSeriesData(record, ADMIN, TIMESTAMP, OBJECT_FIELD))).toEqual(
         JSON.stringify({
-          createdAt: new Date(timestamp),
+          createdAt: new Date(TIMESTAMP),
+          admin: ADMIN,
           editBy: USER_NAME,
-          operation: 'deleted',
+          operation: 'deletion',
           bubbleColor: 'red',
           content: <></>,
         })
@@ -111,10 +108,8 @@ describe('GeneHistoryTooltipUtils', () => {
         operation: 'invalid',
         uuids: '',
       };
-      const timestamp = TIMESTAMP;
-      const objectField = 'description';
 
-      expect(constructTimeSeriesData(record, timestamp, objectField)).toBeUndefined();
+      expect(constructTimeSeriesData(record, ADMIN, TIMESTAMP, OBJECT_FIELD)).toBeUndefined();
     });
   });
 });
