@@ -33,7 +33,7 @@ import VusTable from '../../shared/table/VusTable';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
-export type ParsedHistoryRecord = { record: HistoryRecord; timestamp: string };
+export type ParsedHistoryRecord = { record: HistoryRecord; timestamp: string; admin: string };
 
 const CurationPage = (props: ICurationPageProps) => {
   const history = useHistory();
@@ -79,7 +79,7 @@ const CurationPage = (props: ICurationPageProps) => {
           if (!newList.has(record.location)) {
             newList.set(record.location, []);
           }
-          newList.get(record.location).push({ record, timestamp: historyData.timeStamp });
+          newList.get(record.location).push({ record, timestamp: historyData.timeStamp, admin: historyData.admin });
         }
       } catch {
         continue;

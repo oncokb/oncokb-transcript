@@ -8,6 +8,7 @@ import { groupTimeSeriesDataByDay } from './time-series-utils';
 
 export type RequiredTimeSeriesEventData = {
   createdAt: Date;
+  admin: string;
   editBy: string;
   operation: string;
   bubbleColor: string;
@@ -65,6 +66,7 @@ const TimeSeries = ({ data, groupByDay = true }: ITimeSeriesProps) => {
         dataForEachDay[day].map((eventData: RequiredTimeSeriesEventData) => (
           <TimeSeriesInfo key={`${day}-${eventData.createdAt.toString()}`}>
             <TimeSeriesEvent
+              admin={eventData.admin}
               createdAt={eventData.createdAt}
               editBy={eventData.editBy}
               operation={eventData.operation}
@@ -140,6 +142,7 @@ const TimeSeriesEvent = ({
   title,
   subtitle,
   createdAt,
+  admin,
   editBy,
   operation,
   bubbleColor,
@@ -154,10 +157,10 @@ const TimeSeriesEvent = ({
       title={
         groupByDay ? (
           <div>
-            <span>{`${editBy} ${operation}`}</span>{' '}
             <span className="time-series-event-timestamp">
               <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />
-            </span>
+            </span>{' '}
+            <span>{`${admin} approved ${operation} by ${editBy}`}</span>
           </div>
         ) : (
           <h5>
@@ -173,10 +176,10 @@ const TimeSeriesEvent = ({
           </div>
         ) : (
           <div>
-            <span>{`${editBy} ${operation}`}</span>{' '}
             <span className="time-series-event-timestamp">
               <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />
-            </span>
+            </span>{' '}
+            <span>{`${admin} approved ${operation} by ${editBy}`}</span>
           </div>
         )
       }
