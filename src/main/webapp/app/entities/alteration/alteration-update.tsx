@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
-import { Row, Col, FormGroup, Label } from 'reactstrap';
+import { Col, FormGroup, Label, Row } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 
 import ValidatedForm from 'app/shared/form/ValidatedForm';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
 import { flow, flowResult } from 'mobx';
 import _ from 'lodash';
-import { ReferenceGenome } from 'app/shared/model/enumerations/reference-genome.model';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import GeneSelect from 'app/shared/select/GeneSelect';
 
@@ -108,8 +107,8 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
     }
   };
 
-  if (isNew) {
-    useEffect(() => {
+  useEffect(() => {
+    if (isNew) {
       const setData = async () => {
         setProteinChangeAlteration(
           await flowResult(
@@ -121,8 +120,8 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
         );
       };
       setData();
-    }, [proteinChange, selectedGenes]);
-  }
+    }
+  }, [proteinChange, selectedGenes]);
 
   const onChange = _.debounce((newProteinChange: string) => {
     setProteinChange(newProteinChange);
