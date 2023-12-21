@@ -57,7 +57,7 @@ const NcitCodeSelect: React.FunctionComponent<INcitCodeSelectProps> = props => {
       defaultValue={props.ncit ? getOptionFromNcit(props.ncit) : null}
       loadOptions={loadNcitOptions}
       onChange={onNcitChange}
-      placeholder="Tyep to search NCI Thesaurus..."
+      placeholder="Type to search NCI Thesaurus..."
       isClearable
     />
   );
