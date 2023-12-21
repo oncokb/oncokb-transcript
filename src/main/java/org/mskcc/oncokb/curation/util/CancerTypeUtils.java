@@ -14,7 +14,7 @@ import org.mskcc.oncokb.curation.util.enumeration.SpecialCancerType;
 
 public class CancerTypeUtils {
 
-    private static final ImmutableList<String> LiquidTumorTissues = ImmutableList.of("Lymph", "Blood", "Lymphoid", "Myeloid");
+    private static final List<String> liquidTumorTissues = List.of("Lymph", "Blood", "Lymphoid", "Myeloid");
 
     public static Boolean isSolidTumor(CancerType cancerType) {
         return isDesiredTumorForm(cancerType, TumorForm.SOLID);
@@ -166,7 +166,7 @@ public class CancerTypeUtils {
 
     public static TumorForm getTumorForm(String tissue) {
         if (StringUtils.isNotEmpty(tissue)) {
-            if (LiquidTumorTissues.contains(tissue)) return TumorForm.LIQUID; else return TumorForm.SOLID;
+            if (liquidTumorTissues.contains(tissue)) return TumorForm.LIQUID; else return TumorForm.SOLID;
         }
         return null;
     }
