@@ -36,7 +36,7 @@ export const CategoricalAlteration = (props: ICategoricalAlterationProps) => {
       onFilter: (data: ICategoricalAlteration, keyword) => (data.name ? filterByKeyword(data.name, keyword) : false),
     },
     {
-      id: 'consequence',
+      accessor: 'consequence.term',
       Header: 'Consequence',
       Cell(cell: { original: ICategoricalAlteration }) {
         return cell.original.consequence ? cell.original.consequence.term : '';
