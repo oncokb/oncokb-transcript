@@ -1,7 +1,6 @@
 package org.mskcc.oncokb.curation.service;
 
 import java.util.Optional;
-import javax.swing.text.html.Option;
 import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.domain.Synonym;
 import org.mskcc.oncokb.curation.domain.enumeration.SynonymType;
