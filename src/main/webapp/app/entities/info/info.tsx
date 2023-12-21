@@ -30,7 +30,7 @@ export const Info = (props: IInfoProps) => {
         Infos
         <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.INFO} entityAction={ENTITY_ACTION.CREATE} />
       </h2>
-      <div>{props.infoList && <OncoKBTable data={props.infoList.concat()} columns={columns} loading={props.loading} />}</div>
+      <div>{props.infoList && <OncoKBTable data={props.infoList.concat()} columns={columns} loading={props.loading} showPagination />}</div>
     </div>
   );
 };

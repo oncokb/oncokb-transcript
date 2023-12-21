@@ -1,7 +1,6 @@
 package org.mskcc.oncokb.curation.repository;
 
 import java.util.Optional;
-import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.Sequence;
 import org.mskcc.oncokb.curation.domain.Transcript;
 import org.mskcc.oncokb.curation.domain.enumeration.SequenceType;

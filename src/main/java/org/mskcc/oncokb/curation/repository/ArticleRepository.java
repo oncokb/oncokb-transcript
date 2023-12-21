@@ -1,10 +1,10 @@
 package org.mskcc.oncokb.curation.repository;
 
-import io.lettuce.core.dynamic.annotation.Param;
 import java.util.Optional;
 import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.Article;
 import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**

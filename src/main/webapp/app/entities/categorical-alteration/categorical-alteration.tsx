@@ -59,7 +59,7 @@ export const CategoricalAlteration = (props: ICategoricalAlterationProps) => {
       </h2>
       <div>
         {props.categoricalAlterationList && (
-          <OncoKBTable data={props.categoricalAlterationList.concat()} columns={columns} loading={props.loading} />
+          <OncoKBTable data={props.categoricalAlterationList.concat()} columns={columns} loading={props.loading} showPagination />
         )}
       </div>
     </div>

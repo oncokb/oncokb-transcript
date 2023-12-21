@@ -1,7 +1,6 @@
 package org.mskcc.oncokb.curation.service;
 
 import java.util.List;
-import java.util.Optional;
 import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.Article;

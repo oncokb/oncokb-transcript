@@ -34,7 +34,11 @@ export const Consequence = (props: IConsequenceProps) => {
         Consequences
         <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.CONSEQUENCE} entityAction={ENTITY_ACTION.CREATE} />
       </h2>
-      <div>{props.consequenceList && <OncoKBTable data={props.consequenceList.concat()} columns={columns} loading={props.loading} />}</div>
+      <div>
+        {props.consequenceList && (
+          <OncoKBTable data={props.consequenceList.concat()} columns={columns} loading={props.loading} showPagination />
+        )}
+      </div>
     </div>
   );
 };

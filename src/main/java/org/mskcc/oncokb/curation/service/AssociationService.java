@@ -1,6 +1,5 @@
 package org.mskcc.oncokb.curation.service;
 
-import com.google.api.Http;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * Service Implementation for managing {@link Association}.

@@ -1,20 +1,16 @@
 package org.mskcc.oncokb.curation.importer;
 
-import static org.mskcc.oncokb.curation.util.CancerTypeUtils.getTumorForm;
 import static org.mskcc.oncokb.curation.util.FileUtils.parseDelimitedFile;
 
 import java.io.*;
 import java.util.*;
 import jodd.util.StringUtil;
-import liquibase.pro.packaged.D;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.ArticleType;
 import org.mskcc.oncokb.curation.service.*;
-import org.mskcc.oncokb.curation.service.criteria.ArticleCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import tech.jhipster.service.filter.StringFilter;
 
 @Component
 public class CoreImporter {
@@ -29,6 +25,7 @@ public class CoreImporter {
     final MainService mainService;
     final String DATA_DIRECTORY = "/oncokb-data/curation/oncokb/";
     final String MIXED = "MIXED";
+    final String CORE_DATA_VERSION = "v4.11";
 
     public CoreImporter(
         CancerTypeService cancerTypeService,
@@ -53,8 +50,12 @@ public class CoreImporter {
         importAlteration();
     }
 
+    private String getVersionInFileName() {
+        return CORE_DATA_VERSION.replace(".", "_");
+    }
+
     private void importArticle() throws IOException {
-        List<List<String>> articleLines = parseDelimitedFile(DATA_DIRECTORY + "article_v4_11.tsv", "\t", true);
+        List<List<String>> articleLines = parseDelimitedFile(DATA_DIRECTORY + "article_" + getVersionInFileName() + ".tsv", "\t", true);
         articleLines.forEach(line -> {
             Article article = new Article();
             ArticleType articleType = ArticleType.PMID;
@@ -96,7 +97,11 @@ public class CoreImporter {
     }
 
     private void importAlteration() throws IOException {
-        List<List<String>> alterationLines = parseDelimitedFile(DATA_DIRECTORY + "alteration_v4_11.tsv", "\t", true);
+        List<List<String>> alterationLines = parseDelimitedFile(
+            DATA_DIRECTORY + "alteration_" + getVersionInFileName() + ".tsv",
+            "\t",
+            true
+        );
         alterationLines.forEach(line -> {
             Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(Integer.parseInt(line.get(0)));
             if (geneOptional.isEmpty()) {
@@ -113,7 +118,7 @@ public class CoreImporter {
     }
 
     public void importDrug() throws IOException {
-        List<List<String>> drugLines = parseDelimitedFile(DATA_DIRECTORY + "drug_v4_11.tsv", "\t", true);
+        List<List<String>> drugLines = parseDelimitedFile(DATA_DIRECTORY + "drug_" + getVersionInFileName() + ".tsv", "\t", true);
         drugLines.forEach(line -> {
             String name = line.get(2);
             String code = line.get(3);
