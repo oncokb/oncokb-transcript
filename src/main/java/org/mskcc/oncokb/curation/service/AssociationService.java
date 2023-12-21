@@ -8,7 +8,6 @@ import java.util.stream.StreamSupport;
 import org.mskcc.oncokb.curation.domain.Association;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.mskcc.oncokb.curation.repository.AssociationRepository;
-import org.mskcc.oncokb.curation.web.rest.errors.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -109,11 +108,11 @@ public class AssociationService {
      *
      * @param id the id of the entity.
      */
-    public void delete(Long id) {
+    public void delete(Long id) throws Exception {
         log.debug("Request to delete Association : {}", id);
         Optional<Association> associationOptional = findOne(id);
         if (associationOptional.isEmpty()) {
-            throw new BadRequestException("Association id: " + id + " does not exist");
+            throw new Exception("Association id: " + id + " does not exist");
         }
         if (associationOptional.get().getFdaSubmissions() != null) {
             associationOptional.get().getFdaSubmissions().remove(this);

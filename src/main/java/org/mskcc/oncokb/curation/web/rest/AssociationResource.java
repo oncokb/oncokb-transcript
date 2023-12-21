@@ -107,7 +107,7 @@ public class AssociationResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/associations/{id}")
-    public ResponseEntity<Void> deleteAssociation(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAssociation(@PathVariable Long id) throws Exception {
         log.debug("REST request to delete Association : {}", id);
         associationService.delete(id);
         return ResponseEntity
