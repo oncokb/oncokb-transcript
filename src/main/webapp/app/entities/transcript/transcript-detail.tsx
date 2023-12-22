@@ -1,13 +1,13 @@
+import EntityActionButton from 'app/shared/button/EntityActionButton';
 import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col } from 'reactstrap';
-import {} from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Col, Row } from 'reactstrap';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
 import FlagBadge from 'app/shared/badge/FlagBadge';
+
 export interface ITranscriptDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const TranscriptDetail = (props: ITranscriptDetailProps) => {
@@ -64,13 +64,12 @@ export const TranscriptDetail = (props: ITranscriptDetailProps) => {
             </>
           )}
         </dl>
-        <Button tag={Link} to="/transcript" replace color="info" data-cy="entityDetailsBackButton">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
-        <Button tag={Link} to={`/transcript/${transcriptEntity.id}/edit`} replace color="primary">
-          <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-        </Button>
+        <EntityActionButton
+          color="primary"
+          entityId={transcriptEntity.id}
+          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityAction={ENTITY_ACTION.EDIT}
+        />
       </Col>
     </Row>
   );

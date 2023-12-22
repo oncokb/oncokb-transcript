@@ -117,7 +117,7 @@ public class AssociationService {
         if (associationOptional.get().getFdaSubmissions() != null) {
             associationOptional.get().getFdaSubmissions().remove(this);
             Iterator<FdaSubmission> iterator = associationOptional.get().getFdaSubmissions().iterator();
-            if (iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 FdaSubmission fdaSubmission = iterator.next();
                 if (fdaSubmission.getId() != null) {
                     Optional<FdaSubmission> fdaSubmissionOptional = fdaSubmissionService.findOne(fdaSubmission.getId());

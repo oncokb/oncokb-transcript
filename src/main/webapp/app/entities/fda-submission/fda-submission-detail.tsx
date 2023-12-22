@@ -1,12 +1,14 @@
-import React, { useEffect } from 'react';
-import { connect } from 'app/shared/util/typed-inject';
-import { RouteComponentProps } from 'react-router-dom';
-import { Row, Col } from 'reactstrap';
-import { TextFormat } from 'react-jhipster';
-
-import { IRootStore } from 'app/stores';
 import { APP_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
+import EntityPageLink from 'app/shared/links/EntityPageLink';
+import { connect } from 'app/shared/util/typed-inject';
+
+import { IRootStore } from 'app/stores';
+import React, { useEffect } from 'react';
+import { TextFormat } from 'react-jhipster';
+import { RouteComponentProps } from 'react-router-dom';
+import { Col, Row } from 'reactstrap';
+
 export interface IFdaSubmissionDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
@@ -77,7 +79,19 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
           </dt>
           <dd>{fdaSubmissionEntity.note}</dd>
           <dt>Companion Diagnostic Device</dt>
-          <dd>{fdaSubmissionEntity.companionDiagnosticDevice ? fdaSubmissionEntity.companionDiagnosticDevice.name : ''}</dd>
+          <dd>
+            {fdaSubmissionEntity.companionDiagnosticDevice ? (
+              <EntityPageLink
+                entityType={ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE}
+                entityAction={ENTITY_ACTION.VIEW}
+                entityId={fdaSubmissionEntity.companionDiagnosticDevice.id}
+              >
+                {fdaSubmissionEntity.companionDiagnosticDevice.name}
+              </EntityPageLink>
+            ) : (
+              ''
+            )}
+          </dd>
           <dt>Type</dt>
           <dd>{fdaSubmissionEntity.type ? fdaSubmissionEntity.type?.shortName : ''}</dd>
         </dl>
