@@ -38,7 +38,7 @@ public interface AlterationRepository extends JpaRepository<Alteration, Long>, J
 
     List<Alteration> findByGenesId(@Param("id") Long id);
 
-    Optional<Alteration> findByNameAndGenesId(String name, Long geneId);
+    List<Alteration> findByNameAndGenesId(String name, Long geneId);
 
     @Query(
         value = "select distinct a from Alteration a" +

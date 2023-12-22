@@ -105,6 +105,15 @@ public class MetaImporter {
     private SynonymService synonymService;
 
     @Autowired
+    private CancerTypeService cancerTypeService;
+
+    @Autowired
+    private DrugService drugService;
+
+    @Autowired
+    private AssociationService associationService;
+
+    @Autowired
     private OncoTreeImporter oncoTreeImporter;
 
     @Autowired
@@ -147,11 +156,12 @@ public class MetaImporter {
         //          meta-7.sql trims the double quotes.
 
         //          meta-8.sql includes article/alterations
-        coreImporter.generalImport();
-        this.importNcit();
+        //        coreImporter.generalImport();
+        //        this.importNcit();
         //          meta-9.sql includes above
 
-        coreImporter.importDrug();
+        //        coreImporter.importDrug();
+        importAssociations();
     }
 
     private void importFlag() throws IOException {
@@ -435,6 +445,103 @@ public class MetaImporter {
             sequence.setSequenceType(SequenceType.valueOf(line.get(5)));
             sequence.setSequence(line.get(6));
             sequenceService.save(sequence);
+        });
+    }
+
+    private void importAssociations() throws IOException {
+        List<List<String>> lines = parseTsvMetaFile("associations.tsv");
+        lines.forEach(line -> {
+            Association association = new Association();
+            Integer entrezGeneId = StringUtils.isEmpty(line.get(1)) ? null : Integer.parseInt(line.get(1));
+            if (entrezGeneId == null) {
+                log.error("Cannot find gene {}", line.get(1));
+                return;
+            }
+            Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(entrezGeneId);
+            if (geneOptional.isEmpty()) {
+                log.error("Cannot find gene {}", line.get(1));
+                return;
+            }
+            String cancerTypeMaintype = line.get(3);
+            String cancerTypeCode = line.get(4);
+            CancerType cancerType = null;
+            if (StringUtils.isEmpty(cancerTypeMaintype)) {
+                log.error("Every cancer type should have a main type associated {}", cancerTypeMaintype);
+                return;
+            }
+            if (StringUtils.isEmpty(cancerTypeCode)) {
+                Optional<CancerType> cancerTypeOptional = cancerTypeService.findOneByMainTypeIgnoreCaseAndLevel(cancerTypeMaintype, 0);
+                if (cancerTypeOptional.isEmpty()) {
+                    log.error("Cannot find cancer type by maintype {}", cancerTypeMaintype);
+                } else {
+                    cancerType = cancerTypeOptional.get();
+                }
+            } else {
+                Optional<CancerType> cancerTypeOptional = cancerTypeService.findOneByCode(cancerTypeCode);
+                if (cancerTypeOptional.isEmpty()) {
+                    log.error("Cannot find cancer type by coe=de {}", cancerTypeCode);
+                } else {
+                    cancerType = cancerTypeOptional.get();
+                }
+            }
+            if (cancerType != null) {
+                AssociationCancerType associationCancerType = new AssociationCancerType();
+                associationCancerType.setRelation(AssociationCancerTypeRelation.INCLUSION);
+                associationCancerType.setCancerType(cancerType);
+                associationCancerType.setAssociation(association);
+                association.getAssociationCancerTypes().add(associationCancerType);
+            }
+            String alterations = line.get(7);
+            for (String alteration : alterations.split(",")) {
+                List<Alteration> alterationList = alterationService.findByNameAndGeneId(alteration.trim(), geneOptional.get().getId());
+                if (alterationList.isEmpty()) {
+                    log.error("Cannot find alteration {}", alteration);
+                    return;
+                } else {
+                    association.getAlterations().addAll(alterationList);
+                }
+            }
+
+            String drugCodes = line.get(9);
+            for (String code : drugCodes.split(",")) {
+                Optional<Drug> drugOptional = drugService.findByCode(code.trim());
+                if (drugOptional.isEmpty()) {
+                    log.error("Cannot find drug by code {}", code);
+                    return;
+                } else {
+                    Treatment treatment = new Treatment();
+                    treatment.getDrugs().add(drugOptional.get());
+                    association.getTreatments().add(treatment);
+                }
+            }
+            Association savedAssociation = associationService.save(association);
+
+            List<String> fdaSubmissionNumbers = Arrays
+                .stream(line.get(5).split(","))
+                .map(number -> number.trim())
+                .collect(Collectors.toList());
+            if (fdaSubmissionNumbers.size() > 0) {
+                String supplementNumber = "";
+                if (fdaSubmissionNumbers.size() == 1) {
+                    supplementNumber = line.get(6);
+                }
+                for (String fdaSubmissionNumber : fdaSubmissionNumbers) {
+                    Optional<FdaSubmission> fdaSubmissionOptional = fdaSubmissionService.findByNumberAndSupplementNumber(
+                        fdaSubmissionNumber,
+                        supplementNumber
+                    );
+                    if (fdaSubmissionOptional.isEmpty()) {
+                        log.error("Cannot find fda submission {} {}", fdaSubmissionNumber, supplementNumber);
+                    } else {
+                        fdaSubmissionOptional.get().getAssociations().add(savedAssociation);
+                        fdaSubmissionService.partialUpdate(fdaSubmissionOptional.get());
+                    }
+                }
+            } else {
+                log.error("No fda submission {}", line);
+                return;
+            }
+            log.info("Saved association {}", line);
         });
     }
 
