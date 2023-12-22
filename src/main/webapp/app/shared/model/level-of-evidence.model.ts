@@ -4,6 +4,9 @@ export interface ILevelOfEvidence {
   id?: number;
   type?: string;
   level?: string;
+  description?: string;
+  htmlDescription?: string;
+  color?: string;
   evidences?: IEvidence[] | null;
 }
 

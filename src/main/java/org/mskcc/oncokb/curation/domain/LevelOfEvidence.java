@@ -30,6 +30,18 @@ public class LevelOfEvidence implements Serializable {
     @Column(name = "level", nullable = false, unique = true)
     private String level;
 
+    @NotNull
+    @Column(name = "description", nullable = false)
+    private String description;
+
+    @NotNull
+    @Column(name = "html_description", nullable = false)
+    private String htmlDescription;
+
+    @NotNull
+    @Column(name = "color", nullable = false)
+    private String color;
+
     @DiffIgnore
     @ManyToMany(mappedBy = "levelOfEvidences")
     @JsonIgnoreProperties(value = { "association", "levelOfEvidences" }, allowSetters = true)
@@ -74,6 +86,45 @@ public class LevelOfEvidence implements Serializable {
 
     public void setLevel(String level) {
         this.level = level;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public LevelOfEvidence description(String description) {
+        this.setDescription(description);
+        return this;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getHtmlDescription() {
+        return this.htmlDescription;
+    }
+
+    public LevelOfEvidence htmlDescription(String htmlDescription) {
+        this.setHtmlDescription(htmlDescription);
+        return this;
+    }
+
+    public void setHtmlDescription(String htmlDescription) {
+        this.htmlDescription = htmlDescription;
+    }
+
+    public String getColor() {
+        return this.color;
+    }
+
+    public LevelOfEvidence color(String color) {
+        this.setColor(color);
+        return this;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 
     public Set<Evidence> getEvidences() {
@@ -133,6 +184,9 @@ public class LevelOfEvidence implements Serializable {
             "id=" + getId() +
             ", type='" + getType() + "'" +
             ", level='" + getLevel() + "'" +
+            ", description='" + getDescription() + "'" +
+            ", htmlDescription='" + getHtmlDescription() + "'" +
+            ", color='" + getColor() + "'" +
             "}";
     }
 }

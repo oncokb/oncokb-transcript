@@ -32,6 +32,18 @@ export const LevelOfEvidenceDetail = (props: ILevelOfEvidenceDetailProps) => {
             <span id="level">Level</span>
           </dt>
           <dd>{levelOfEvidenceEntity.level}</dd>
+          <dt>
+            <span id="description">Description</span>
+          </dt>
+          <dd>{levelOfEvidenceEntity.description}</dd>
+          <dt>
+            <span id="htmlDescription">Html Description</span>
+          </dt>
+          <dd>{levelOfEvidenceEntity.htmlDescription}</dd>
+          <dt>
+            <span id="color">Color</span>
+          </dt>
+          <dd>{levelOfEvidenceEntity.color}</dd>
         </dl>
         <EntityActionButton
           color="primary"
