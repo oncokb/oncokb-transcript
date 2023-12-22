@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
+import { Button, Row, Col, FormText, Label } from 'reactstrap';
 import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
@@ -14,11 +14,13 @@ import { ITranscript } from 'app/shared/model/transcript.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
+import GeneSelect from 'app/shared/select/GeneSelect';
 
 export interface ITranscriptUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
+  const [selectedGeneId, setSelectedGeneId] = useState();
 
   const flags = props.flags;
   const ensemblGenes = props.ensemblGenes;
@@ -58,7 +60,7 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
       ...values,
       flags: mapIdList(values.flags),
       ensemblGene: ensemblGenes.find(it => it.id.toString() === values.ensemblGeneId.toString()),
-      gene: genes.find(it => it.id.toString() === values.geneId.toString()),
+      gene: genes.find(it => it.id.toString() === selectedGeneId),
     };
 
     if (isNew) {
@@ -131,11 +133,13 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
               <ValidatedField label="Flag" id="transcript-flag" data-cy="flag" type="select" multiple name="flags">
                 <option value="" key="0" />
                 {flags
-                  ? flags.map(otherEntity => (
-                      <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.id}
-                      </option>
-                    ))
+                  ? flags
+                      .filter(otherEntity => otherEntity.type === 'TRANSCRIPT')
+                      .map(otherEntity => (
+                        <option value={otherEntity.id} key={otherEntity.id}>
+                          {otherEntity.name}
+                        </option>
+                      ))
                   : null}
               </ValidatedField>
               <ValidatedField id="transcript-ensemblGene" name="ensemblGeneId" data-cy="ensemblGene" label="Ensembl Gene" type="select">
@@ -148,6 +152,21 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
                     ))
                   : null}
               </ValidatedField>
+              <Label>Gene</Label>
+              <GeneSelect
+                onChange={option => {
+                  setSelectedGeneId(option?.value);
+                }}
+                className={'mb-3'}
+                defaultValue={
+                  props.transcriptEntity?.gene
+                    ? {
+                        value: props.transcriptEntity.gene.id,
+                        label: props.transcriptEntity.gene.hugoSymbol,
+                      }
+                    : null
+                }
+              />
               <ValidatedField id="transcript-gene" name="geneId" data-cy="gene" label="Gene" type="select">
                 <option value="" key="0" />
                 {genes

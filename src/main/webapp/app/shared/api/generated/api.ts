@@ -191,16 +191,16 @@ export interface Alteration {
   variantResidues?: string;
   /**
    *
-   * @type {Set<Gene>}
+   * @type {Array<Gene>}
    * @memberof Alteration
    */
-  genes?: Set<Gene>;
+  genes?: Array<Gene>;
   /**
    *
-   * @type {Set<Transcript>}
+   * @type {Array<Transcript>}
    * @memberof Alteration
    */
-  transcripts?: Set<Transcript>;
+  transcripts?: Array<Transcript>;
   /**
    *
    * @type {Consequence}
@@ -209,18 +209,20 @@ export interface Alteration {
   consequence?: Consequence;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof Alteration
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
 }
 
 export const AlterationTypeEnum = {
   GenomicChange: 'GENOMIC_CHANGE',
   CdnaChange: 'CDNA_CHANGE',
   ProteinChange: 'PROTEIN_CHANGE',
+  Mutation: 'MUTATION',
   CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
   StructuralVariant: 'STRUCTURAL_VARIANT',
+  Any: 'ANY',
   Unknown: 'UNKNOWN',
   Na: 'NA',
 } as const;
@@ -360,8 +362,10 @@ export const AlterationTypeFilterEqualsEnum = {
   GenomicChange: 'GENOMIC_CHANGE',
   CdnaChange: 'CDNA_CHANGE',
   ProteinChange: 'PROTEIN_CHANGE',
+  Mutation: 'MUTATION',
   CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
   StructuralVariant: 'STRUCTURAL_VARIANT',
+  Any: 'ANY',
   Unknown: 'UNKNOWN',
   Na: 'NA',
 } as const;
@@ -371,8 +375,10 @@ export const AlterationTypeFilterNotEqualsEnum = {
   GenomicChange: 'GENOMIC_CHANGE',
   CdnaChange: 'CDNA_CHANGE',
   ProteinChange: 'PROTEIN_CHANGE',
+  Mutation: 'MUTATION',
   CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
   StructuralVariant: 'STRUCTURAL_VARIANT',
+  Any: 'ANY',
   Unknown: 'UNKNOWN',
   Na: 'NA',
 } as const;
@@ -382,8 +388,10 @@ export const AlterationTypeFilterInEnum = {
   GenomicChange: 'GENOMIC_CHANGE',
   CdnaChange: 'CDNA_CHANGE',
   ProteinChange: 'PROTEIN_CHANGE',
+  Mutation: 'MUTATION',
   CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
   StructuralVariant: 'STRUCTURAL_VARIANT',
+  Any: 'ANY',
   Unknown: 'UNKNOWN',
   Na: 'NA',
 } as const;
@@ -393,8 +401,10 @@ export const AlterationTypeFilterNotInEnum = {
   GenomicChange: 'GENOMIC_CHANGE',
   CdnaChange: 'CDNA_CHANGE',
   ProteinChange: 'PROTEIN_CHANGE',
+  Mutation: 'MUTATION',
   CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
   StructuralVariant: 'STRUCTURAL_VARIANT',
+  Any: 'ANY',
   Unknown: 'UNKNOWN',
   Na: 'NA',
 } as const;
@@ -487,10 +497,10 @@ export interface Article {
   pubDate?: string;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof Article
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
 }
 
 export const ArticleTypeEnum = {
@@ -518,6 +528,12 @@ export interface ArticleCriteria {
    * @memberof ArticleCriteria
    */
   type?: ArticleTypeFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof ArticleCriteria
+   */
+  content?: StringFilter;
   /**
    *
    * @type {StringFilter}
@@ -668,28 +684,28 @@ export interface Association {
   name?: string;
   /**
    *
-   * @type {Set<AssociationCancerType>}
+   * @type {Array<AssociationCancerType>}
    * @memberof Association
    */
-  associationCancerTypes?: Set<AssociationCancerType>;
+  associationCancerTypes?: Array<AssociationCancerType>;
   /**
    *
-   * @type {Set<Alteration>}
+   * @type {Array<Alteration>}
    * @memberof Association
    */
-  alterations?: Set<Alteration>;
+  alterations?: Array<Alteration>;
   /**
    *
-   * @type {Set<Article>}
+   * @type {Array<Article>}
    * @memberof Association
    */
-  articles?: Set<Article>;
+  articles?: Array<Article>;
   /**
    *
-   * @type {Set<Treatment>}
+   * @type {Array<Treatment>}
    * @memberof Association
    */
-  treatments?: Set<Treatment>;
+  treatments?: Array<Treatment>;
   /**
    *
    * @type {Evidence}
@@ -698,34 +714,34 @@ export interface Association {
   evidence?: Evidence;
   /**
    *
-   * @type {Set<ClinicalTrial>}
+   * @type {Array<ClinicalTrial>}
    * @memberof Association
    */
-  clinicalTrials?: Set<ClinicalTrial>;
+  clinicalTrials?: Array<ClinicalTrial>;
   /**
    *
-   * @type {Set<ClinicalTrialArm>}
+   * @type {Array<ClinicalTrialArm>}
    * @memberof Association
    */
-  clinicalTrialArms?: Set<ClinicalTrialArm>;
+  clinicalTrialArms?: Array<ClinicalTrialArm>;
   /**
    *
-   * @type {Set<EligibilityCriteria>}
+   * @type {Array<EligibilityCriteria>}
    * @memberof Association
    */
-  eligibilityCriteria?: Set<EligibilityCriteria>;
+  eligibilityCriteria?: Array<EligibilityCriteria>;
   /**
    *
-   * @type {Set<FdaSubmission>}
+   * @type {Array<FdaSubmission>}
    * @memberof Association
    */
-  fdaSubmissions?: Set<FdaSubmission>;
+  fdaSubmissions?: Array<FdaSubmission>;
   /**
    *
-   * @type {Set<GenomicIndicator>}
+   * @type {Array<GenomicIndicator>}
    * @memberof Association
    */
-  genomicIndicators?: Set<GenomicIndicator>;
+  genomicIndicators?: Array<GenomicIndicator>;
 }
 /**
  *
@@ -879,22 +895,22 @@ export interface CancerType {
   tumorForm: CancerTypeTumorFormEnum;
   /**
    *
-   * @type {Set<AssociationCancerType>}
+   * @type {Array<AssociationCancerType>}
    * @memberof CancerType
    */
-  associationCancerTypes?: Set<AssociationCancerType>;
+  associationCancerTypes?: Array<AssociationCancerType>;
   /**
    *
-   * @type {Set<CancerType>}
+   * @type {Array<CancerType>}
    * @memberof CancerType
    */
-  children?: Set<CancerType>;
+  children?: Array<CancerType>;
   /**
    *
-   * @type {Set<Synonym>}
+   * @type {Array<Synonym>}
    * @memberof CancerType
    */
-  synonyms?: Set<Synonym>;
+  synonyms?: Array<Synonym>;
   /**
    *
    * @type {CancerType}
@@ -1026,14 +1042,22 @@ export interface CategoricalAlteration {
    * @memberof CategoricalAlteration
    */
   name: string;
+  /**
+   *
+   * @type {Consequence}
+   * @memberof CategoricalAlteration
+   */
+  consequence?: Consequence;
 }
 
 export const CategoricalAlterationAlterationTypeEnum = {
   GenomicChange: 'GENOMIC_CHANGE',
   CdnaChange: 'CDNA_CHANGE',
   ProteinChange: 'PROTEIN_CHANGE',
+  Mutation: 'MUTATION',
   CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
   StructuralVariant: 'STRUCTURAL_VARIANT',
+  Any: 'ANY',
   Unknown: 'UNKNOWN',
   Na: 'NA',
 } as const;
@@ -1079,22 +1103,22 @@ export interface ClinicalTrial {
   status?: string;
   /**
    *
-   * @type {Set<ClinicalTrialArm>}
+   * @type {Array<ClinicalTrialArm>}
    * @memberof ClinicalTrial
    */
-  clinicalTrialArms?: Set<ClinicalTrialArm>;
+  clinicalTrialArms?: Array<ClinicalTrialArm>;
   /**
    *
-   * @type {Set<EligibilityCriteria>}
+   * @type {Array<EligibilityCriteria>}
    * @memberof ClinicalTrial
    */
-  eligibilityCriteria?: Set<EligibilityCriteria>;
+  eligibilityCriteria?: Array<EligibilityCriteria>;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof ClinicalTrial
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
 }
 /**
  *
@@ -1116,10 +1140,10 @@ export interface ClinicalTrialArm {
   name: string;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof ClinicalTrialArm
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
   /**
    *
    * @type {ClinicalTrial}
@@ -1371,12 +1395,6 @@ export interface Consequence {
    * @type {string}
    * @memberof Consequence
    */
-  alterationType: ConsequenceAlterationTypeEnum;
-  /**
-   *
-   * @type {string}
-   * @memberof Consequence
-   */
   term: string;
   /**
    *
@@ -1396,20 +1414,13 @@ export interface Consequence {
    * @memberof Consequence
    */
   description?: string;
+  /**
+   *
+   * @type {Array<CategoricalAlteration>}
+   * @memberof Consequence
+   */
+  categoricalAlterations?: Array<CategoricalAlteration>;
 }
-
-export const ConsequenceAlterationTypeEnum = {
-  GenomicChange: 'GENOMIC_CHANGE',
-  CdnaChange: 'CDNA_CHANGE',
-  ProteinChange: 'PROTEIN_CHANGE',
-  CopyNumberAlteration: 'COPY_NUMBER_ALTERATION',
-  StructuralVariant: 'STRUCTURAL_VARIANT',
-  Unknown: 'UNKNOWN',
-  Na: 'NA',
-} as const;
-
-export type ConsequenceAlterationTypeEnum = typeof ConsequenceAlterationTypeEnum[keyof typeof ConsequenceAlterationTypeEnum];
-
 /**
  *
  * @export
@@ -1422,12 +1433,6 @@ export interface ConsequenceCriteria {
    * @memberof ConsequenceCriteria
    */
   id?: LongFilter;
-  /**
-   *
-   * @type {AlterationTypeFilter}
-   * @memberof ConsequenceCriteria
-   */
-  alterationType?: AlterationTypeFilter;
   /**
    *
    * @type {StringFilter}
@@ -1458,6 +1463,12 @@ export interface ConsequenceCriteria {
    * @memberof ConsequenceCriteria
    */
   alterationId?: LongFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof ConsequenceCriteria
+   */
+  categoricalAlterationId?: LongFilter;
   /**
    *
    * @type {boolean}
@@ -1491,22 +1502,22 @@ export interface Drug {
   nciThesaurus?: NciThesaurus;
   /**
    *
-   * @type {Set<DrugBrand>}
+   * @type {Array<DrugBrand>}
    * @memberof Drug
    */
-  brands?: Set<DrugBrand>;
+  brands?: Array<DrugBrand>;
   /**
    *
-   * @type {Set<DrugPriority>}
+   * @type {Array<DrugPriority>}
    * @memberof Drug
    */
-  drugPriorities?: Set<DrugPriority>;
+  drugPriorities?: Array<DrugPriority>;
   /**
    *
-   * @type {Set<Flag>}
+   * @type {Array<Flag>}
    * @memberof Drug
    */
-  flags?: Set<Flag>;
+  flags?: Array<Flag>;
   /**
    *
    * @type {FdaDrug}
@@ -1515,10 +1526,10 @@ export interface Drug {
   fdaDrug?: FdaDrug;
   /**
    *
-   * @type {Set<Treatment>}
+   * @type {Array<Treatment>}
    * @memberof Drug
    */
-  treatments?: Set<Treatment>;
+  treatments?: Array<Treatment>;
 }
 /**
  *
@@ -1694,10 +1705,10 @@ export interface EligibilityCriteria {
   criteria?: string;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof EligibilityCriteria
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
   /**
    *
    * @type {ClinicalTrial}
@@ -1873,10 +1884,10 @@ export interface EnsemblGene {
   strand: number;
   /**
    *
-   * @type {Set<Transcript>}
+   * @type {Array<Transcript>}
    * @memberof EnsemblGene
    */
-  transcripts?: Set<Transcript>;
+  transcripts?: Array<Transcript>;
   /**
    *
    * @type {Gene}
@@ -2358,10 +2369,10 @@ export interface FdaSubmission {
   note?: string;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof FdaSubmission
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
   /**
    *
    * @type {CompanionDiagnosticDevice}
@@ -2551,22 +2562,22 @@ export interface Flag {
   description?: string;
   /**
    *
-   * @type {Set<Drug>}
+   * @type {Array<Drug>}
    * @memberof Flag
    */
-  drugs?: Set<Drug>;
+  drugs?: Array<Drug>;
   /**
    *
-   * @type {Set<Gene>}
+   * @type {Array<Gene>}
    * @memberof Flag
    */
-  genes?: Set<Gene>;
+  genes?: Array<Gene>;
   /**
    *
-   * @type {Set<Transcript>}
+   * @type {Array<Transcript>}
    * @memberof Flag
    */
-  transcripts?: Set<Transcript>;
+  transcripts?: Array<Transcript>;
 }
 /**
  *
@@ -2655,34 +2666,34 @@ export interface Gene {
   hgncId?: string;
   /**
    *
-   * @type {Set<EnsemblGene>}
+   * @type {Array<EnsemblGene>}
    * @memberof Gene
    */
-  ensemblGenes?: Set<EnsemblGene>;
+  ensemblGenes?: Array<EnsemblGene>;
   /**
    *
-   * @type {Set<Transcript>}
+   * @type {Array<Transcript>}
    * @memberof Gene
    */
-  transcripts?: Set<Transcript>;
+  transcripts?: Array<Transcript>;
   /**
    *
-   * @type {Set<Flag>}
+   * @type {Array<Flag>}
    * @memberof Gene
    */
-  flags?: Set<Flag>;
+  flags?: Array<Flag>;
   /**
    *
-   * @type {Set<Synonym>}
+   * @type {Array<Synonym>}
    * @memberof Gene
    */
-  synonyms?: Set<Synonym>;
+  synonyms?: Array<Synonym>;
   /**
    *
-   * @type {Set<Alteration>}
+   * @type {Array<Alteration>}
    * @memberof Gene
    */
-  alterations?: Set<Alteration>;
+  alterations?: Array<Alteration>;
 }
 /**
  *
@@ -2963,10 +2974,10 @@ export interface GenomicIndicator {
   name: string;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof GenomicIndicator
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
 }
 /**
  *
@@ -3190,10 +3201,10 @@ export interface LevelOfEvidence {
   level: string;
   /**
    *
-   * @type {Set<Evidence>}
+   * @type {Array<Evidence>}
    * @memberof LevelOfEvidence
    */
-  evidences?: Set<Evidence>;
+  evidences?: Array<Evidence>;
 }
 /**
  *
@@ -3343,10 +3354,10 @@ export interface NciThesaurus {
   displayName?: string;
   /**
    *
-   * @type {Set<Synonym>}
+   * @type {Array<Synonym>}
    * @memberof NciThesaurus
    */
-  synonyms?: Set<Synonym>;
+  synonyms?: Array<Synonym>;
 }
 /**
  *
@@ -3748,10 +3759,10 @@ export interface SpecimenType {
   name: string;
   /**
    *
-   * @type {Set<CompanionDiagnosticDevice>}
+   * @type {Array<CompanionDiagnosticDevice>}
    * @memberof SpecimenType
    */
-  companionDiagnosticDevices?: Set<CompanionDiagnosticDevice>;
+  companionDiagnosticDevices?: Array<CompanionDiagnosticDevice>;
 }
 /**
  *
@@ -3846,22 +3857,22 @@ export interface Synonym {
   note?: string;
   /**
    *
-   * @type {Set<CancerType>}
+   * @type {Array<CancerType>}
    * @memberof Synonym
    */
-  cancerTypes?: Set<CancerType>;
+  cancerTypes?: Array<CancerType>;
   /**
    *
-   * @type {Set<Gene>}
+   * @type {Array<Gene>}
    * @memberof Synonym
    */
-  genes?: Set<Gene>;
+  genes?: Array<Gene>;
   /**
    *
-   * @type {Set<NciThesaurus>}
+   * @type {Array<NciThesaurus>}
    * @memberof Synonym
    */
-  nciThesauruses?: Set<NciThesaurus>;
+  nciThesauruses?: Array<NciThesaurus>;
 }
 /**
  *
@@ -3974,40 +3985,40 @@ export interface Transcript {
   description?: string;
   /**
    *
-   * @type {Set<Sequence>}
+   * @type {Array<Sequence>}
    * @memberof Transcript
    */
-  sequences?: Set<Sequence>;
+  sequences?: Array<Sequence>;
   /**
    *
-   * @type {Set<GenomeFragment>}
+   * @type {Array<GenomeFragment>}
    * @memberof Transcript
    */
-  fragments?: Set<GenomeFragment>;
+  fragments?: Array<GenomeFragment>;
   /**
    *
-   * @type {Set<Flag>}
+   * @type {Array<Flag>}
    * @memberof Transcript
    */
-  flags?: Set<Flag>;
+  flags?: Array<Flag>;
   /**
    *
    * @type {EnsemblGene}
    * @memberof Transcript
    */
-  ensemblGene?: EnsemblGene;
+  ensemblGene: EnsemblGene;
   /**
    *
    * @type {Gene}
    * @memberof Transcript
    */
-  gene?: Gene;
+  gene: Gene;
   /**
    *
-   * @type {Set<Alteration>}
+   * @type {Array<Alteration>}
    * @memberof Transcript
    */
-  alterations?: Set<Alteration>;
+  alterations?: Array<Alteration>;
 }
 
 export const TranscriptReferenceGenomeEnum = {
@@ -4208,6 +4219,12 @@ export interface TranscriptDTO {
   description?: string;
   /**
    *
+   * @type {Gene}
+   * @memberof TranscriptDTO
+   */
+  gene?: Gene;
+  /**
+   *
    * @type {EnsemblGene}
    * @memberof TranscriptDTO
    */
@@ -4370,22 +4387,22 @@ export interface Treatment {
   name?: string;
   /**
    *
-   * @type {Set<TreatmentPriority>}
+   * @type {Array<TreatmentPriority>}
    * @memberof Treatment
    */
-  treatmentPriorities?: Set<TreatmentPriority>;
+  treatmentPriorities?: Array<TreatmentPriority>;
   /**
    *
-   * @type {Set<Drug>}
+   * @type {Array<Drug>}
    * @memberof Treatment
    */
-  drugs?: Set<Drug>;
+  drugs?: Array<Drug>;
   /**
    *
-   * @type {Set<Association>}
+   * @type {Array<Association>}
    * @memberof Treatment
    */
-  associations?: Set<Association>;
+  associations?: Array<Association>;
 }
 /**
  *
@@ -4688,10 +4705,10 @@ export interface UserDTO {
   lastModifiedDate?: string;
   /**
    *
-   * @type {Set<string>}
+   * @type {Array<string>}
    * @memberof UserDTO
    */
-  authorities?: Set<string>;
+  authorities?: Array<string>;
 }
 
 /**
@@ -6966,42 +6983,6 @@ export const AssociationResourceApiAxiosParamCreator = function (configuration?:
     },
     /**
      *
-     * @param {number} id
-     * @param {Association} association
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    partialUpdateAssociation: async (id: number, association: Association, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'id' is not null or undefined
-      assertParamExists('partialUpdateAssociation', 'id', id);
-      // verify required parameter 'association' is not null or undefined
-      assertParamExists('partialUpdateAssociation', 'association', association);
-      const localVarPath = `/api/associations/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(association, localVarRequestOptions, configuration);
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
      * @param {string} query
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
@@ -7035,42 +7016,6 @@ export const AssociationResourceApiAxiosParamCreator = function (configuration?:
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
       localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {Association} association
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateAssociation: async (id: number, association: Association, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'id' is not null or undefined
-      assertParamExists('updateAssociation', 'id', id);
-      // verify required parameter 'association' is not null or undefined
-      assertParamExists('updateAssociation', 'association', association);
-      const localVarPath = `/api/associations/{id}`.replace(`{${'id'}}`, encodeURIComponent(String(id)));
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(association, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -7143,21 +7088,6 @@ export const AssociationResourceApiFp = function (configuration?: Configuration)
     },
     /**
      *
-     * @param {number} id
-     * @param {Association} association
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async partialUpdateAssociation(
-      id: number,
-      association: Association,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Association>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateAssociation(id, association, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
      * @param {string} query
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
@@ -7169,21 +7099,6 @@ export const AssociationResourceApiFp = function (configuration?: Configuration)
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Association>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchAssociations(query, pageable, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {Association} association
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async updateAssociation(
-      id: number,
-      association: Association,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Association>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.updateAssociation(id, association, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
   };
@@ -7235,16 +7150,6 @@ export const AssociationResourceApiFactory = function (configuration?: Configura
     },
     /**
      *
-     * @param {number} id
-     * @param {Association} association
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    partialUpdateAssociation(id: number, association: Association, options?: any): AxiosPromise<Association> {
-      return localVarFp.partialUpdateAssociation(id, association, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
      * @param {string} query
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
@@ -7252,16 +7157,6 @@ export const AssociationResourceApiFactory = function (configuration?: Configura
      */
     searchAssociations(query: string, pageable: Pageable, options?: any): AxiosPromise<Array<Association>> {
       return localVarFp.searchAssociations(query, pageable, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {number} id
-     * @param {Association} association
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    updateAssociation(id: number, association: Association, options?: any): AxiosPromise<Association> {
-      return localVarFp.updateAssociation(id, association, options).then(request => request(axios, basePath));
     },
   };
 };
@@ -7328,20 +7223,6 @@ export class AssociationResourceApi extends BaseAPI {
 
   /**
    *
-   * @param {number} id
-   * @param {Association} association
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof AssociationResourceApi
-   */
-  public partialUpdateAssociation(id: number, association: Association, options?: AxiosRequestConfig) {
-    return AssociationResourceApiFp(this.configuration)
-      .partialUpdateAssociation(id, association, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
    * @param {string} query
    * @param {Pageable} pageable
    * @param {*} [options] Override http request option.
@@ -7351,20 +7232,6 @@ export class AssociationResourceApi extends BaseAPI {
   public searchAssociations(query: string, pageable: Pageable, options?: AxiosRequestConfig) {
     return AssociationResourceApiFp(this.configuration)
       .searchAssociations(query, pageable, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {number} id
-   * @param {Association} association
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof AssociationResourceApi
-   */
-  public updateAssociation(id: number, association: Association, options?: AxiosRequestConfig) {
-    return AssociationResourceApiFp(this.configuration)
-      .updateAssociation(id, association, options)
       .then(request => request(this.axios, this.basePath));
   }
 }
@@ -17469,7 +17336,7 @@ export const GeneControllerApiFp = function (configuration?: Configuration) {
     async findGenesBySymbols(
       requestBody: Array<string>,
       options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Set<Gene>>> {
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Gene>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.findGenesBySymbols(requestBody, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
@@ -17498,7 +17365,7 @@ export const GeneControllerApiFactory = function (configuration?: Configuration,
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    findGenesBySymbols(requestBody: Array<string>, options?: any): AxiosPromise<Set<Gene>> {
+    findGenesBySymbols(requestBody: Array<string>, options?: any): AxiosPromise<Array<Gene>> {
       return localVarFp.findGenesBySymbols(requestBody, options).then(request => request(axios, basePath));
     },
   };
@@ -24212,11 +24079,14 @@ export const TranscriptResourceApiAxiosParamCreator = function (configuration?: 
     },
     /**
      *
+     * @param {TranscriptCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllTranscripts: async (pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    getAllTranscripts: async (criteria: TranscriptCriteria, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'criteria' is not null or undefined
+      assertParamExists('getAllTranscripts', 'criteria', criteria);
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('getAllTranscripts', 'pageable', pageable);
       const localVarPath = `/api/transcripts`;
@@ -24230,6 +24100,10 @@ export const TranscriptResourceApiAxiosParamCreator = function (configuration?: 
       const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
+
+      if (criteria !== undefined) {
+        localVarQueryParameter['criteria'] = criteria;
+      }
 
       if (pageable !== undefined) {
         localVarQueryParameter['pageable'] = pageable;
@@ -24451,15 +24325,17 @@ export const TranscriptResourceApiFp = function (configuration?: Configuration) 
     },
     /**
      *
+     * @param {TranscriptCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async getAllTranscripts(
+      criteria: TranscriptCriteria,
       pageable: Pageable,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<TranscriptDTO>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllTranscripts(pageable, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllTranscripts(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -24568,12 +24444,13 @@ export const TranscriptResourceApiFactory = function (configuration?: Configurat
     },
     /**
      *
+     * @param {TranscriptCriteria} criteria
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllTranscripts(pageable: Pageable, options?: any): AxiosPromise<Array<TranscriptDTO>> {
-      return localVarFp.getAllTranscripts(pageable, options).then(request => request(axios, basePath));
+    getAllTranscripts(criteria: TranscriptCriteria, pageable: Pageable, options?: any): AxiosPromise<Array<TranscriptDTO>> {
+      return localVarFp.getAllTranscripts(criteria, pageable, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -24678,14 +24555,15 @@ export class TranscriptResourceApi extends BaseAPI {
 
   /**
    *
+   * @param {TranscriptCriteria} criteria
    * @param {Pageable} pageable
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof TranscriptResourceApi
    */
-  public getAllTranscripts(pageable: Pageable, options?: AxiosRequestConfig) {
+  public getAllTranscripts(criteria: TranscriptCriteria, pageable: Pageable, options?: AxiosRequestConfig) {
     return TranscriptResourceApiFp(this.configuration)
-      .getAllTranscripts(pageable, options)
+      .getAllTranscripts(criteria, pageable, options)
       .then(request => request(this.axios, this.basePath));
   }
 

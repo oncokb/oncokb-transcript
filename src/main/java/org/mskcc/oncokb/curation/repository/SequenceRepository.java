@@ -1,7 +1,6 @@
 package org.mskcc.oncokb.curation.repository;
 
 import java.util.Optional;
-import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.Sequence;
 import org.mskcc.oncokb.curation.domain.Transcript;
 import org.mskcc.oncokb.curation.domain.enumeration.SequenceType;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the Sequence entity.
  */
-@JaversSpringDataAuditable
 @Repository
 public interface SequenceRepository extends JpaRepository<Sequence, Long>, JpaSpecificationExecutor<Sequence> {
     Optional<Sequence> findOneByTranscriptAndSequenceType(Transcript transcript, SequenceType sequenceType);

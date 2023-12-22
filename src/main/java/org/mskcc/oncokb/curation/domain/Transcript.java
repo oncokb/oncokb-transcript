@@ -63,10 +63,14 @@ public class Transcript implements Serializable {
     @JsonIgnoreProperties(value = { "drugs", "genes", "transcripts" }, allowSetters = true)
     private Set<Flag> flags = new HashSet<>();
 
+    @NotNull
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "transcripts", "gene", "seqRegion" }, allowSetters = true)
     private EnsemblGene ensemblGene;
 
+    @NotNull
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "ensemblGenes", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
     @JoinColumn(name = "entrez_gene_id", referencedColumnName = "entrez_gene_id")

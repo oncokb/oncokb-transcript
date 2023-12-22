@@ -8,7 +8,8 @@ import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
 import { IRootStore } from 'app/stores';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
-import { getEntityTableActionsColumn } from 'app/shared/util/utils';
+import { filterByKeyword, getEntityTableActionsColumn } from 'app/shared/util/utils';
+import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
 export interface ISeqRegionProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const SeqRegion = (props: ISeqRegionProps) => {
@@ -17,9 +18,21 @@ export const SeqRegion = (props: ISeqRegionProps) => {
   }, []);
 
   const columns: SearchColumn<ISeqRegion>[] = [
-    { accessor: 'name', Header: 'Name' },
-    { accessor: 'chromosome', Header: 'Chromosome' },
-    { accessor: 'chromosome', Header: 'Chromosome' },
+    {
+      accessor: 'name',
+      Header: 'Name',
+      onFilter: (data: ISeqRegion, keyword) => (data.name ? filterByKeyword(data.name, keyword) : false),
+    },
+    {
+      accessor: 'chromosome',
+      Header: 'Chromosome',
+      onFilter: (data: ISeqRegion, keyword) => (data.chromosome ? filterByKeyword(data.chromosome, keyword) : false),
+    },
+    {
+      accessor: 'description',
+      Header: 'Description',
+      onFilter: (data: ISeqRegion, keyword) => (data.description ? filterByKeyword(data.description, keyword) : false),
+    },
     getEntityTableActionsColumn(ENTITY_TYPE.SEQ_REGION),
   ];
 
@@ -29,7 +42,11 @@ export const SeqRegion = (props: ISeqRegionProps) => {
         Seq Regions
         <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.SEQ_REGION} entityAction={ENTITY_ACTION.CREATE} />
       </h2>
-      <div>{props.seqRegionList && <OncoKBTable data={props.seqRegionList.concat()} columns={columns} loading={props.loading} />}</div>
+      <div>
+        {props.seqRegionList && (
+          <OncoKBTable data={props.seqRegionList.concat()} columns={columns} loading={props.loading} showPagination />
+        )}
+      </div>
     </div>
   );
 };

@@ -55,10 +55,14 @@ export const TranscriptDetail = (props: ITranscriptDetailProps) => {
               ? transcriptEntity.flags.map((val, i) => <FlagBadge key={`${val.id}`} flag={val} tagClassName={'mr-2'} />)
               : null}
           </dd>
-          <dt>Ensembl Gene</dt>
-          <dd>{transcriptEntity.ensemblGene ? transcriptEntity.ensemblGene.ensemblGeneId : ''}</dd>
-          <dt>Gene</dt>
-          <dd>{transcriptEntity.gene ? transcriptEntity.gene.entrezGeneId : ''}</dd>
+          {transcriptEntity.ensemblGene && (
+            <>
+              <dt>Ensembl Gene</dt>
+              <dd>{transcriptEntity.ensemblGene.ensemblGeneId}</dd>
+              <dt>Gene</dt>
+              <dd>{transcriptEntity.ensemblGene.gene.hugoSymbol}</dd>
+            </>
+          )}
         </dl>
         <Button tag={Link} to="/transcript" replace color="info" data-cy="entityDetailsBackButton">
           <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>

@@ -17,5 +17,8 @@ public final class Constants {
     // Name of additional JWT claim added for authorization to firebase.
     public static final String FIREBASE_AUTHORIZED_CLAIM = "firebaseAuthorizedUser";
 
+    public static final String NY_ZONE_ID = "US/Eastern";
+    public static final String UTC_ZONE_ID = "UTC";
+
     private Constants() {}
 }

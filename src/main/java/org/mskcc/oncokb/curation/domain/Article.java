@@ -28,6 +28,7 @@ public class Article implements Serializable {
     @Column(name = "type", nullable = false)
     private ArticleType type;
 
+    @DiffIgnore
     @Lob
     @Column(name = "content")
     private String content;
@@ -41,6 +42,7 @@ public class Article implements Serializable {
     @Column(name = "elocation_id")
     private String elocationId;
 
+    @DiffIgnore
     @Lob
     @Column(name = "title")
     private String title;

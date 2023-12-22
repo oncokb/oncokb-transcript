@@ -3,6 +3,7 @@ package org.mskcc.oncokb.curation.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.NciThesaurus;
 import org.mskcc.oncokb.curation.repository.NciThesaurusRepository;
@@ -37,6 +38,13 @@ public class NciThesaurusService {
      */
     public NciThesaurus save(NciThesaurus nciThesaurus) {
         log.debug("Request to save NciThesaurus : {}", nciThesaurus);
+        // we need to trim the display name and preferred name if it's too long.
+        if (StringUtils.isNotEmpty(nciThesaurus.getDisplayName()) && nciThesaurus.getDisplayName().length() > 255) {
+            nciThesaurus.setDisplayName(nciThesaurus.getDisplayName().substring(0, 255));
+        }
+        if (StringUtils.isNotEmpty(nciThesaurus.getPreferredName()) && nciThesaurus.getPreferredName().length() > 255) {
+            nciThesaurus.setPreferredName(nciThesaurus.getPreferredName().substring(0, 255));
+        }
         return nciThesaurusRepository.save(nciThesaurus);
     }
 
@@ -105,6 +113,12 @@ public class NciThesaurusService {
     public Optional<NciThesaurus> findOne(Long id) {
         log.debug("Request to get NciThesaurus : {}", id);
         return nciThesaurusRepository.findOneWithEagerRelationships(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<NciThesaurus> findByCode(String code) {
+        log.debug("Request to get NciThesaurus by code: {}", code);
+        return nciThesaurusRepository.findByCode(code);
     }
 
     /**

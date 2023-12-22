@@ -36,21 +36,19 @@ public class Synonym implements Serializable {
     @Column(name = "name")
     private String name;
 
+    @DiffIgnore
     @Lob
     @Column(name = "note")
     private String note;
 
-    @DiffIgnore
     @ManyToMany(mappedBy = "synonyms")
     @JsonIgnoreProperties(value = { "associationCancerTypes", "children", "synonyms", "parent" }, allowSetters = true)
     private Set<CancerType> cancerTypes = new HashSet<>();
 
-    @DiffIgnore
     @ManyToMany(mappedBy = "synonyms")
     @JsonIgnoreProperties(value = { "ensemblGenes", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
     private Set<Gene> genes = new HashSet<>();
 
-    @DiffIgnore
     @ManyToMany(mappedBy = "synonyms")
     @JsonIgnoreProperties(value = { "synonyms" }, allowSetters = true)
     private Set<NciThesaurus> nciThesauruses = new HashSet<>();

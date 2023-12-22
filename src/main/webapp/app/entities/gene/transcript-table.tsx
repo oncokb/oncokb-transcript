@@ -71,11 +71,13 @@ export const TranscriptTable = (props: IGeneTranscriptsProps) => {
       Header: 'Flags',
       minWidth: 200,
       Cell(cell: { original: ITranscript }) {
-        <div>
-          {cell.original.flags.map(flag => (
-            <FlagBadge key={flag.flag} flag={flag} tagClassName={'mr-1'} />
-          ))}
-        </div>;
+        return (
+          <div>
+            {(cell.original.flags || []).map(flag => (
+              <FlagBadge key={flag.flag} flag={flag} tagClassName={'mr-1'} />
+            ))}
+          </div>
+        );
       },
     },
     {

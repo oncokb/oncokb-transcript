@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.service;
 
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.domain.SeqRegion;
 import org.mskcc.oncokb.curation.repository.SeqRegionRepository;
 import org.slf4j.Logger;
@@ -78,6 +79,9 @@ public class SeqRegionService {
     }
 
     public Optional<SeqRegion> findByNameOrCreate(String name) {
+        if (StringUtils.isEmpty(name)) {
+            return Optional.empty();
+        }
         Optional<SeqRegion> seqRegionOptional = seqRegionRepository.findByName(name);
         if (seqRegionOptional.isEmpty()) {
             SeqRegion seqRegion = new SeqRegion();

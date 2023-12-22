@@ -2,8 +2,6 @@ package org.mskcc.oncokb.curation.repository;
 
 import java.util.List;
 import java.util.Optional;
-import org.javers.spring.annotation.JaversSpringDataAuditable;
-import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.NciThesaurus;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
@@ -12,11 +10,12 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the NciThesaurus entity.
  */
-@JaversSpringDataAuditable
 @Repository
 public interface NciThesaurusRepository extends JpaRepository<NciThesaurus, Long>, JpaSpecificationExecutor<NciThesaurus> {
     @Query("select nciThesaurus from NciThesaurus nciThesaurus left join fetch nciThesaurus.synonyms where nciThesaurus.id =:id")
     Optional<NciThesaurus> findOneWithEagerRelationships(@Param("id") Long id);
+
+    Optional<NciThesaurus> findByCode(String code);
 
     @Query(
         "select distinct nciThesaurus from NciThesaurus nciThesaurus left join fetch nciThesaurus.synonyms where nciThesaurus.id in :ids"

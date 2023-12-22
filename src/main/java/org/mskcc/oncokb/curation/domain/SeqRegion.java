@@ -29,6 +29,7 @@ public class SeqRegion implements Serializable {
     @Column(name = "chromosome")
     private String chromosome;
 
+    @DiffIgnore
     @Lob
     @Column(name = "description")
     private String description;

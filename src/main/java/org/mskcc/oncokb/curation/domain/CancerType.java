@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.javers.core.metamodel.annotation.ShallowReference;
 import org.mskcc.oncokb.curation.domain.enumeration.TumorForm;
 
@@ -58,7 +59,7 @@ public class CancerType implements Serializable {
     @JsonIgnoreProperties(value = { "associationCancerTypes", "children", "synonyms", "parent" }, allowSetters = true)
     private Set<CancerType> children = new HashSet<>();
 
-    @ShallowReference
+    @DiffIgnore
     @ManyToMany
     @JoinTable(
         name = "rel_cancer_type__synonym",

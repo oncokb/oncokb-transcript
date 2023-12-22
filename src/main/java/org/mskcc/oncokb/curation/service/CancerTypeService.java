@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.curation.service;
 
+import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.repository.CancerTypeRepository;
@@ -94,6 +95,10 @@ public class CancerTypeService {
      */
     public Page<CancerType> findAllWithEagerRelationships(Pageable pageable) {
         return cancerTypeRepository.findAllWithEagerRelationships(pageable);
+    }
+
+    public List<CancerType> findAllByMainTypeIs(String maintype) {
+        return cancerTypeRepository.findAllByMainTypeIs(maintype);
     }
 
     /**

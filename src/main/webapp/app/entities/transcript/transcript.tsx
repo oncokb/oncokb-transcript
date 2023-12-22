@@ -26,10 +26,16 @@ export const Transcript = (props: ITranscriptProps) => {
       id: 'gene',
       Header: 'Gene',
       Cell(cell: { original }): JSX.Element {
-        return cell.original.gene.hugoSymbol;
+        return cell.original.ensemblGene.gene.hugoSymbol;
       },
     },
-    { accessor: 'ensemblGeneId', Header: 'Ensembl Gene ID' },
+    {
+      id: 'ensemblGeneId',
+      Header: 'Ensembl Gene ID',
+      Cell(cell: { original }): JSX.Element {
+        return cell.original.ensemblGene.ensemblGeneId;
+      },
+    },
     { accessor: 'ensemblTranscriptId', Header: 'Ensembl Transcript ID' },
     { accessor: 'canonical', Header: 'Is Canonical' },
     { accessor: 'ensemblProteinId', Header: 'Ensembl Protein ID' },

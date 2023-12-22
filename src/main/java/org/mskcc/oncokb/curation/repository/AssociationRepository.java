@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the Association entity.
  */
-@JaversSpringDataAuditable
 @Repository
 public interface AssociationRepository extends JpaRepository<Association, Long> {
     @Query(

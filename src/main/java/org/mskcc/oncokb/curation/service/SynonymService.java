@@ -1,7 +1,9 @@
 package org.mskcc.oncokb.curation.service;
 
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.domain.Synonym;
+import org.mskcc.oncokb.curation.domain.enumeration.SynonymType;
 import org.mskcc.oncokb.curation.repository.SynonymRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +35,10 @@ public class SynonymService {
      */
     public Synonym save(Synonym synonym) {
         log.debug("Request to save Synonym : {}", synonym);
+        // we need to trim the name if it's too long.
+        if (StringUtils.isNotEmpty(synonym.getName()) && synonym.getName().length() > 255) {
+            synonym.setName(synonym.getName().substring(0, 255));
+        }
         return synonymRepository.save(synonym);
     }
 
@@ -91,6 +97,10 @@ public class SynonymService {
     public Optional<Synonym> findOne(Long id) {
         log.debug("Request to get Synonym : {}", id);
         return synonymRepository.findById(id);
+    }
+
+    public Optional<Synonym> findByTypeAndName(SynonymType synonymType, String name) {
+        return synonymRepository.findByTypeAndName(synonymType.name(), name);
     }
 
     /**

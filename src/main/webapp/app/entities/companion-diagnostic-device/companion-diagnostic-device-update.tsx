@@ -165,7 +165,7 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
         <Row className="mt-4">
           <Col>
             <CdxBiomarkerAssociationTable
-              biomarkerAssociations={biomarkerAssociations}
+              fdaSubmissions={companionDiagnosticDeviceEntity.fdaSubmissions || []}
               onDeleteBiomarkerAssociation={() => props.getEntity(props.match.params.id)}
               editable
             />

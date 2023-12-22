@@ -18,7 +18,7 @@
                 <constraints nullable="false" />
             </column>
             <column name="level" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_level_of_evidence__level" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>

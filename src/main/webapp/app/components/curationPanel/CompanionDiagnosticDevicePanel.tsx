@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Menu } from 'react-pro-sidebar';
 import { Button, Form } from 'reactstrap';
-import { ENTITY_ACTION, ENTITY_PAGE_ROUTE, ENTITY_TYPE, SearchOptionType } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE, SearchOptionType } from 'app/config/constants';
 import { useHistory, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
@@ -15,6 +15,9 @@ import FdaSubmissionSelect from 'app/shared/select/FdaSubmissionSelect';
 import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
+import { Association, CancerType } from 'app/shared/api/generated';
+import { associationClient } from 'app/shared/api/clients';
+import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 const SidebarMenuItem: React.FunctionComponent<{ style?: React.CSSProperties }> = ({ style, children }) => {
   return <div style={{ padding: '0.5rem 1rem', ...style }}>{children}</div>;
@@ -38,19 +41,39 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
 
   const createBiomarkerAssociation = (e: any) => {
     e.preventDefault();
-    // const biomarkerAssociationDTO: BiomarkerAssociationDTO = {
-    //   fdaSubmissions: fdaSubmissionValue.map(fdaSubmission => fdaSubmission.value),
-    //   alterations: alterationValue.map(alteration => alteration.value),
-    //   cancerType: cancerTypeValue.value as number,
-    //   drugs: drugValue.map(drug => drug.value),
-    //   gene: selectedGeneId,
-    // };
-    // biomarkerAssociationClient
-    //   .createBiomarkerAssociation(biomarkerAssociationDTO)
-    //   .then(() => {
-    //     notifySuccess('Biomarker association added.');
-    //   })
-    //   .catch(error => notifyError(error));
+    const association: Association = {
+      fdaSubmissions: fdaSubmissionValue.map(fdaSubmission => {
+        return {
+          id: fdaSubmission.value,
+        };
+      }),
+      alterations: alterationValue.map(alteration => {
+        return {
+          id: alteration.value,
+        };
+      }),
+      associationCancerTypes: [
+        {
+          relation: 'INCLUSION',
+          cancerType: { id: cancerTypeValue.value as number } as CancerType,
+        },
+      ],
+      treatments: [
+        {
+          drugs: drugValue.map(drug => {
+            return {
+              id: drug.value,
+            };
+          }),
+        },
+      ],
+    };
+    associationClient
+      .createAssociation(association)
+      .then(() => {
+        notifySuccess('Biomarker association added.');
+      })
+      .catch(error => notifyError(error));
   };
 
   const redirectToCreateAlteration = () => {

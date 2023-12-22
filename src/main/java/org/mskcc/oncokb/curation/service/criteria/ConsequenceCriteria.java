@@ -2,7 +2,6 @@ package org.mskcc.oncokb.curation.service.criteria;
 
 import java.io.Serializable;
 import java.util.Objects;
-import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 import tech.jhipster.service.Criteria;
 import tech.jhipster.service.filter.BooleanFilter;
 import tech.jhipster.service.filter.DoubleFilter;
@@ -23,28 +22,9 @@ import tech.jhipster.service.filter.StringFilter;
  */
 public class ConsequenceCriteria implements Serializable, Criteria {
 
-    /**
-     * Class for filtering AlterationType
-     */
-    public static class AlterationTypeFilter extends Filter<AlterationType> {
-
-        public AlterationTypeFilter() {}
-
-        public AlterationTypeFilter(AlterationTypeFilter filter) {
-            super(filter);
-        }
-
-        @Override
-        public AlterationTypeFilter copy() {
-            return new AlterationTypeFilter(this);
-        }
-    }
-
     private static final long serialVersionUID = 1L;
 
     private LongFilter id;
-
-    private AlterationTypeFilter alterationType;
 
     private StringFilter term;
 
@@ -56,18 +36,20 @@ public class ConsequenceCriteria implements Serializable, Criteria {
 
     private LongFilter alterationId;
 
+    private LongFilter categoricalAlterationId;
+
     private Boolean distinct;
 
     public ConsequenceCriteria() {}
 
     public ConsequenceCriteria(ConsequenceCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
-        this.alterationType = other.alterationType == null ? null : other.alterationType.copy();
         this.term = other.term == null ? null : other.term.copy();
         this.name = other.name == null ? null : other.name.copy();
         this.isGenerallyTruncating = other.isGenerallyTruncating == null ? null : other.isGenerallyTruncating.copy();
         this.description = other.description == null ? null : other.description.copy();
         this.alterationId = other.alterationId == null ? null : other.alterationId.copy();
+        this.categoricalAlterationId = other.categoricalAlterationId == null ? null : other.categoricalAlterationId.copy();
         this.distinct = other.distinct;
     }
 
@@ -89,21 +71,6 @@ public class ConsequenceCriteria implements Serializable, Criteria {
 
     public void setId(LongFilter id) {
         this.id = id;
-    }
-
-    public AlterationTypeFilter getAlterationType() {
-        return alterationType;
-    }
-
-    public AlterationTypeFilter alterationType() {
-        if (alterationType == null) {
-            alterationType = new AlterationTypeFilter();
-        }
-        return alterationType;
-    }
-
-    public void setAlterationType(AlterationTypeFilter alterationType) {
-        this.alterationType = alterationType;
     }
 
     public StringFilter getTerm() {
@@ -181,6 +148,21 @@ public class ConsequenceCriteria implements Serializable, Criteria {
         this.alterationId = alterationId;
     }
 
+    public LongFilter getCategoricalAlterationId() {
+        return categoricalAlterationId;
+    }
+
+    public LongFilter categoricalAlterationId() {
+        if (categoricalAlterationId == null) {
+            categoricalAlterationId = new LongFilter();
+        }
+        return categoricalAlterationId;
+    }
+
+    public void setCategoricalAlterationId(LongFilter categoricalAlterationId) {
+        this.categoricalAlterationId = categoricalAlterationId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -200,19 +182,19 @@ public class ConsequenceCriteria implements Serializable, Criteria {
         final ConsequenceCriteria that = (ConsequenceCriteria) o;
         return (
             Objects.equals(id, that.id) &&
-            Objects.equals(alterationType, that.alterationType) &&
             Objects.equals(term, that.term) &&
             Objects.equals(name, that.name) &&
             Objects.equals(isGenerallyTruncating, that.isGenerallyTruncating) &&
             Objects.equals(description, that.description) &&
             Objects.equals(alterationId, that.alterationId) &&
+            Objects.equals(categoricalAlterationId, that.categoricalAlterationId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, alterationType, term, name, isGenerallyTruncating, description, alterationId, distinct);
+        return Objects.hash(id, term, name, isGenerallyTruncating, description, alterationId, categoricalAlterationId, distinct);
     }
 
     // prettier-ignore
@@ -220,12 +202,12 @@ public class ConsequenceCriteria implements Serializable, Criteria {
     public String toString() {
         return "ConsequenceCriteria{" +
             (id != null ? "id=" + id + ", " : "") +
-            (alterationType != null ? "alterationType=" + alterationType + ", " : "") +
             (term != null ? "term=" + term + ", " : "") +
             (name != null ? "name=" + name + ", " : "") +
             (isGenerallyTruncating != null ? "isGenerallyTruncating=" + isGenerallyTruncating + ", " : "") +
             (description != null ? "description=" + description + ", " : "") +
             (alterationId != null ? "alterationId=" + alterationId + ", " : "") +
+            (categoricalAlterationId != null ? "categoricalAlterationId=" + categoricalAlterationId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

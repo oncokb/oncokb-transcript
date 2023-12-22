@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A DrugBrand.
@@ -26,6 +27,7 @@ public class DrugBrand implements Serializable {
     @Column(name = "region")
     private String region;
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "nciThesaurus", "brands", "drugPriorities", "flags", "fdaDrug", "treatments" }, allowSetters = true)
     private Drug drug;

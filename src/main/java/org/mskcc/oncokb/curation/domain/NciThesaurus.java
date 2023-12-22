@@ -5,8 +5,8 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
-import javax.validation.constraints.*;
-import org.javers.core.metamodel.annotation.ShallowReference;
+import javax.validation.constraints.NotNull;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 
 /**
  * A NciThesaurus.
@@ -36,8 +36,8 @@ public class NciThesaurus implements Serializable {
     @Column(name = "display_name")
     private String displayName;
 
-    @ShallowReference
-    @ManyToMany
+    @DiffIgnore
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rel_nci_thesaurus__synonym",
         joinColumns = @JoinColumn(name = "nci_thesaurus_id"),

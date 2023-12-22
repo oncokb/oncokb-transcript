@@ -45,6 +45,7 @@ public class ArticleCriteria implements Serializable, Criteria {
     private LongFilter id;
 
     private ArticleTypeFilter type;
+    private StringFilter content;
 
     private StringFilter link;
 
@@ -73,6 +74,7 @@ public class ArticleCriteria implements Serializable, Criteria {
     public ArticleCriteria(ArticleCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
         this.type = other.type == null ? null : other.type.copy();
+        this.content = other.content == null ? null : other.content.copy();
         this.link = other.link == null ? null : other.link.copy();
         this.pmid = other.pmid == null ? null : other.pmid.copy();
         this.elocationId = other.elocationId == null ? null : other.elocationId.copy();
@@ -119,6 +121,14 @@ public class ArticleCriteria implements Serializable, Criteria {
 
     public void setType(ArticleTypeFilter type) {
         this.type = type;
+    }
+
+    public StringFilter getContent() {
+        return content;
+    }
+
+    public void setContent(StringFilter content) {
+        this.content = content;
     }
 
     public StringFilter getLink() {
@@ -291,6 +301,7 @@ public class ArticleCriteria implements Serializable, Criteria {
         return (
             Objects.equals(id, that.id) &&
             Objects.equals(type, that.type) &&
+            Objects.equals(content, that.content) &&
             Objects.equals(link, that.link) &&
             Objects.equals(pmid, that.pmid) &&
             Objects.equals(elocationId, that.elocationId) &&
@@ -307,7 +318,22 @@ public class ArticleCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, type, link, pmid, elocationId, authors, journal, volume, issue, pages, pubDate, associationId, distinct);
+        return Objects.hash(
+            id,
+            type,
+            content,
+            link,
+            pmid,
+            elocationId,
+            authors,
+            journal,
+            volume,
+            issue,
+            pages,
+            pubDate,
+            associationId,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -316,6 +342,7 @@ public class ArticleCriteria implements Serializable, Criteria {
         return "ArticleCriteria{" +
             (id != null ? "id=" + id + ", " : "") +
             (type != null ? "type=" + type + ", " : "") +
+            (content != null ? "content=" + content + ", " : "") +
             (link != null ? "link=" + link + ", " : "") +
             (pmid != null ? "pmid=" + pmid + ", " : "") +
             (elocationId != null ? "elocationId=" + elocationId + ", " : "") +

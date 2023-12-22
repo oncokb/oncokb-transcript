@@ -21,7 +21,7 @@ export const Article = (props: IArticleProps) => {
   const articleList = props.articleList;
 
   const getArticleCitations = (article: IArticle) => {
-    return `${article.journal}. ${article.pubDate};${article.volume}(${article.issue}):${article.pages}`;
+    return article.pmid ? `${article.journal}. ${article.pubDate};${article.volume}(${article.issue}):${article.pages}` : '';
   };
 
   const columns: Column<IArticle>[] = [

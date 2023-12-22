@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
 import { getGeneName } from 'app/shared/util/utils';
+import FlagBadge from 'app/shared/badge/FlagBadge';
 export interface IFlagDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const FlagDetail = (props: IFlagDetailProps) => {

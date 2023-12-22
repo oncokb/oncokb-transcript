@@ -27,7 +27,7 @@ public class LevelOfEvidence implements Serializable {
     private String type;
 
     @NotNull
-    @Column(name = "level", nullable = false)
+    @Column(name = "level", nullable = false, unique = true)
     private String level;
 
     @DiffIgnore

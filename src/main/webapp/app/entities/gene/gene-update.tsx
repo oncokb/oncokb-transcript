@@ -19,10 +19,6 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
   const updating = props.updating;
   const updateSuccess = props.updateSuccess;
 
-  const handleClose = () => {
-    props.history.push('/gene' + props.location.search);
-  };
-
   useEffect(() => {
     if (isNew) {
       props.reset();
@@ -33,17 +29,11 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
     props.getGeneFlags({});
   }, []);
 
-  useEffect(() => {
-    if (updateSuccess) {
-      handleClose();
-    }
-  }, [updateSuccess]);
-
   const saveEntity = values => {
     const entity = {
       ...geneEntity,
       ...values,
-      flags: mapIdList(values.geneFlags),
+      flags: mapIdList(values.flags),
     };
 
     if (isNew) {
@@ -80,14 +70,16 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
               <ValidatedField label="Entrez Gene ID" id="gene-entrezGeneId" name="entrezGeneId" data-cy="entrezGeneId" type="text" />
               <ValidatedField label="Hugo Symbol" id="gene-hugoSymbol" name="hugoSymbol" data-cy="hugoSymbol" type="text" />
               <ValidatedField label="HGNC ID" id="gene-hgncId" name="hgncId" data-cy="hgncId" type="text" />
-              <ValidatedField label="Gene Flag" id="gene-geneFlag" data-cy="geneFlag" type="select" multiple name="geneFlags">
+              <ValidatedField label="Gene Flag" id="gene-geneFlag" data-cy="geneFlag" type="select" multiple name="flags">
                 <option value="" key="0" />
                 {geneFlags
-                  ? geneFlags.map(otherEntity => (
-                      <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.name}
-                      </option>
-                    ))
+                  ? geneFlags
+                      .filter(otherEntity => otherEntity.type === 'GENE')
+                      .map(otherEntity => (
+                        <option value={otherEntity.id} key={otherEntity.id}>
+                          {otherEntity.name}
+                        </option>
+                      ))
                   : null}
               </ValidatedField>
               <SaveButton disabled={updating} />

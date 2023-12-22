@@ -10,7 +10,7 @@
         Added the entity Alteration.
     -->
     <changeSet id="20220401174648-1" author="jhipster">
-        <createTable tableName="alteration">
+        <createTable tableName="alteration" remarks="Entity">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -38,7 +38,7 @@
             <column name="variant_residues" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="consequence_id" type="bigint">
+            <column name="consequence" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->

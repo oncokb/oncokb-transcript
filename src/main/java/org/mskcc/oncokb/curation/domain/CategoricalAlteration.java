@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.curation.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -25,12 +26,17 @@ public class CategoricalAlteration implements Serializable {
     private AlterationType alterationType;
 
     @NotNull
-    @Column(name = "type", nullable = false)
+    @Column(name = "type", nullable = false, unique = true)
     private String type;
 
     @NotNull
     @Column(name = "name", nullable = false)
     private String name;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "alterations", "categoricalAlterations" }, allowSetters = true)
+    @JoinColumn(name = "consequence", referencedColumnName = "term")
+    private Consequence consequence;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -84,6 +90,19 @@ public class CategoricalAlteration implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Consequence getConsequence() {
+        return this.consequence;
+    }
+
+    public void setConsequence(Consequence consequence) {
+        this.consequence = consequence;
+    }
+
+    public CategoricalAlteration consequence(Consequence consequence) {
+        this.setConsequence(consequence);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
@@ -43,6 +44,7 @@ public class FdaSubmission implements Serializable {
     @Column(name = "decision_date")
     private Instant decisionDate;
 
+    @DiffIgnore
     @Lob
     @Column(name = "description")
     private String description;
@@ -58,6 +60,7 @@ public class FdaSubmission implements Serializable {
     @Column(name = "genetic", nullable = false)
     private Boolean genetic;
 
+    @DiffIgnore
     @Lob
     @Column(name = "note")
     private String note;
@@ -75,10 +78,12 @@ public class FdaSubmission implements Serializable {
     )
     private Set<Association> associations = new HashSet<>();
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "fdaSubmissions", "specimenTypes" }, allowSetters = true)
     private CompanionDiagnosticDevice companionDiagnosticDevice;
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "fdaSubmissions" }, allowSetters = true)
     private FdaSubmissionType type;

@@ -33,7 +33,9 @@ export const LevelOfEvidence = (props: ILevelOfEvidenceProps) => {
           entityAction={ENTITY_ACTION.CREATE}
         />
       </h2>
-      {props.levelOfEvidenceList && <OncoKBTable data={props.levelOfEvidenceList.concat()} columns={columns} loading={props.loading} />}
+      {props.levelOfEvidenceList && (
+        <OncoKBTable data={props.levelOfEvidenceList.concat()} columns={columns} loading={props.loading} showPagination />
+      )}
     </div>
   );
 };

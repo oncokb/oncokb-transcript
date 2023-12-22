@@ -55,18 +55,14 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <addUniqueConstraint tableName="fda_submission" columnNames="number, supplement_number, companion_diagnostic_device_id"/>
+        <addUniqueConstraint
+            tableName="fda_submission"
+            columnNames="number, supplement_number, companion_diagnostic_device_id"
+            constraintName="ux_number__sn__cdd"
+        />
         <dropDefaultValue tableName="fda_submission" columnName="date_received" columnDataType="${datetimeType}"/>
         <dropDefaultValue tableName="fda_submission" columnName="decision_date" columnDataType="${datetimeType}"/>
 
-        <!-- This data was generated on 8/16/2022 12:00PM EST - Please update this when csv file is modified -->
-        <loadData
-            file="config/liquibase/data/fda_submission.csv"
-            separator="|"
-            tableName="fda_submission"
-            usePreparedStatements="true">
-            <column name="description" type="string"/>
-        </loadData>
     </changeSet>
 
     <changeSet id="20220401174646-1-relations" author="jhipster">

@@ -33,6 +33,10 @@ export const CategoricalAlterationDetail = (props: ICategoricalAlterationDetailP
           </dt>
           <dd>{categoricalAlterationEntity.type}</dd>
           <dt>
+            <span id="consequence">Consequence</span>
+          </dt>
+          <dd>{categoricalAlterationEntity.consequence ? categoricalAlterationEntity.consequence.term : ''}</dd>
+          <dt>
             <span id="name">Name</span>
           </dt>
           <dd>{categoricalAlterationEntity.name}</dd>

@@ -46,14 +46,21 @@ export const SearchOption: React.FunctionComponent<SearchOptionProps> = props =>
         const data: IDrug = props.data;
         path = PAGE_ROUTE.DRUG + path;
         title = { text: data.name, searchWords: [searchKeyword] };
-        subTitles = [
-          { label: 'Brands: ', text: data.brands?.map(brand => brand.name).join(', '), searchWords: [searchKeyword] },
-          {
+        subTitles = [];
+        if (data.brands) {
+          subTitles.push({
+            label: 'Brands: ',
+            text: data.brands?.map(brand => brand.name).join(', '),
+            searchWords: [searchKeyword],
+          });
+        }
+        if (data.nciThesaurus?.synonyms) {
+          subTitles.push({
             label: 'Also known as ',
             text: data.nciThesaurus?.synonyms.map(synonyms => synonyms.name).join(', '),
             searchWords: [searchKeyword],
-          },
-        ];
+          });
+        }
         break;
       }
       case SearchOptionType.GENE: {
