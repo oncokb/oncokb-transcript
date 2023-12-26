@@ -1,7 +1,8 @@
-import { HistoryRecord, HistoryRecordState } from 'app/shared/model/firebase/firebase.model';
+import { DrugCollection, HistoryRecord, HistoryRecordState } from 'app/shared/model/firebase/firebase.model';
 import { RequiredTimeSeriesEventData, ExtraTimeSeriesEventData } from '../timeSeries/TimeSeries';
 import ReactDiffViewer from 'react-diff-viewer-continued';
 import React from 'react';
+import { getTxName } from 'app/shared/util/firebase/firebase-utils';
 
 export default function constructTimeSeriesData(
   record: HistoryRecord,
@@ -50,6 +51,8 @@ export default function constructTimeSeriesData(
     operation,
     bubbleColor,
     content,
+    location: record.location,
+    objectField,
   };
 }
 
@@ -62,7 +65,7 @@ export function getTimeSeriesDataContent(objectField: string, newContent: Histor
         body = (
           <div>
             <div className="gene-history-event-content">
-              <ReactDiffViewer oldValue={oldContent} newValue={newContent} splitView={false} hideLineNumbers />
+              <ReactDiffViewer showDiffOnly={false} oldValue={oldContent} newValue={newContent} splitView={false} hideLineNumbers />
             </div>
           </div>
         );
@@ -75,7 +78,13 @@ export function getTimeSeriesDataContent(objectField: string, newContent: Histor
         body = (
           <div>
             <div className="gene-history-event-content">
-              <ReactDiffViewer oldValue={oldContent?.[objectField]} newValue={newContent[objectField]} splitView={false} hideLineNumbers />
+              <ReactDiffViewer
+                showDiffOnly={false}
+                oldValue={oldContent?.[objectField]}
+                newValue={newContent[objectField]}
+                splitView={false}
+                hideLineNumbers
+              />
             </div>
           </div>
         );
@@ -88,4 +97,35 @@ export function getTimeSeriesDataContent(objectField: string, newContent: Histor
   }
 
   return <div>{body}</div>;
+}
+
+export function formatLocation(location: string, drugList: DrugCollection, objectField: string) {
+  const locationSubstrings = location.split(',');
+  const lastSubstring = locationSubstrings[locationSubstrings.length - 1];
+  if (lastSubstring.endsWith('Mutation Effect')) {
+    if (objectField === 'description') {
+      return location + ', Description of Evidence';
+    } else if (objectField === 'oncogenic') {
+      return location + ', Oncogenic';
+    }
+  } else if (lastSubstring.endsWith('Tumor Type Summary')) {
+    return locationSubstrings.slice(0, -1).join(',') + ', Therapeutic Summary';
+  } else {
+    let index = -1;
+    for (let i = 0; i < locationSubstrings.length; i++) {
+      if (
+        locationSubstrings[i].includes('_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_') ||
+        locationSubstrings[i].includes('implications for') ||
+        locationSubstrings[i].includes('INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG')
+      ) {
+        index = i;
+        break;
+      }
+    }
+
+    if (index > -1) {
+      return locationSubstrings.slice(0, index) + ', ' + getTxName(drugList, locationSubstrings.slice(index + 1).join(','));
+    }
+  }
+  return location;
 }

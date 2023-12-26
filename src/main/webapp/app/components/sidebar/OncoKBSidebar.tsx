@@ -11,14 +11,14 @@ export interface IOncoKBSidebarProps extends StoreProps {
 
 const OncoKBSidebar = ({ children, showOncoKBSidebar, toggleOncoKBSidebar, oncoKBSidebarWidth }: IOncoKBSidebarProps) => {
   return showOncoKBSidebar ? (
-    <div style={{ width: oncoKBSidebarWidth }} className="generic-sidebar-expanded">
+    <div style={{ width: oncoKBSidebarWidth }} className="oncokb-sidebar-expanded">
       <div style={{ marginTop: '2rem', marginLeft: '1rem', display: 'flex' }}>
         <FaChevronRight cursor={'pointer'} style={{ marginTop: '6px' }} onClick={() => toggleOncoKBSidebar(false)} />
         {children}
       </div>
     </div>
   ) : (
-    <div className="generic-sidebar-collapsed">
+    <div className="oncokb-sidebar-collapsed">
       <FaChevronLeft
         cursor={'pointer'}
         style={{ position: 'absolute', right: '38', top: '38' }}

@@ -13,6 +13,8 @@ export type RequiredTimeSeriesEventData = {
   operation: string;
   bubbleColor: string;
   content: React.ReactNode;
+  location: string;
+  objectField?: string;
 };
 
 export type ExtraTimeSeriesEventData = RequiredTimeSeriesEventData & {

@@ -355,3 +355,15 @@ export class HistoryRecord {
   operation = '';
   uuids = '';
 }
+
+export class UsersCollection {
+  [email: string]: FirebaseUser;
+}
+export class FirebaseUser {
+  email = '';
+  genes = {
+    read: '',
+    write: '',
+  };
+  name = '';
+}

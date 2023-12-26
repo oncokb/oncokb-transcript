@@ -30,6 +30,9 @@ import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInp
 import { GENE_TYPE, GENE_TYPE_KEY } from 'app/config/constants/firebase';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
 import VusTable from '../../shared/table/VusTable';
+import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
+import Tabs from 'app/components/tabs/tabs';
+import CurationHistoryTab from 'app/components/tabs/CurationHistoryTab';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -90,348 +93,364 @@ const CurationPage = (props: ICurationPageProps) => {
   }, [props.historyData]);
 
   return !!props.data && props.drugList && !!geneEntity ? (
-    <div>
-      <Row>
-        <Col>
-          <h2>Gene: {props.data.name}</h2>
-        </Col>
-      </Row>
-      <Row className={`${getSectionClassName()} justify-content-between`}>
-        <Col>
-          <div className={'d-flex mb-2'}>
-            <div>
-              <span className="font-weight-bold">Entrez Gene:</span>
-              <span className="ml-1">
-                <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
-              </span>
-            </div>
-            <div className="ml-2">
-              <span className="font-weight-bold">Gene aliases:</span>
-              <span className="ml-1">
-                <PubmedGeneArticlesLink hugoSymbols={geneEntity.geneAliases?.map(alias => alias.name)} />
-              </span>
-            </div>
-          </div>
-          <RealtimeTextAreaInput
-            fieldKey="summary"
-            label="Summary"
-            labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />}
-          />
-          <RealtimeCheckedInputGroup
-            groupHeader={
-              <>
-                <span className="mr-2">Gene Type</span>
-                {<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Type'} />}
-              </>
-            }
-            options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
-              return {
-                label,
-                fieldKey: GENE_TYPE_KEY[label],
-              };
-            })}
-          />
-        </Col>
-      </Row>
-      <Row>
-        <Col md={6}>
-          <RealtimeCheckedInputGroup
-            groupHeader="Penetrance"
-            isRadio
-            options={[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER].map(label => {
-              return {
-                label,
-                fieldKey: 'penetrance',
-              };
-            })}
-          />
-        </Col>
-      </Row>
-      <Row className={'mb-5'}>
-        <Col>
-          <RealtimeTextAreaInput
-            fieldKey="background"
-            inputClass={styles.textarea}
-            label="Background"
-            name="geneBackground"
-            labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Background'} />}
-          />
-          <div className="mb-2">
-            <AutoParseRefField summary={props.data.background} />
-          </div>
-          <div>
-            <span className="font-weight-bold mr-2">External Links:</span>
-            <WithSeparator separator={InlineDivider}>
-              <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
-                {CBIOPORTAL} <ExternalLinkIcon />
-              </a>
-              <a href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`} target="_blank" rel="noopener noreferrer">
-                {COSMIC} <ExternalLinkIcon />
-              </a>
-            </WithSeparator>
-          </div>
-        </Col>
-      </Row>
-      {props.data.mutations && (
-        <div className={'mb-5'}>
-          <Row>
-            <Col>
-              <div className={'d-flex justify-content-between align-items-center mb-2'}>
-                <div className={'h5'}>Mutations:</div>
-                <div>
-                  <Input placeholder={'Search Mutation'} value={mutationFilter} onChange={event => setMutationFilter(event.target.value)} />
-                </div>
+    <>
+      <div>
+        <Row>
+          <Col>
+            <h2>Gene: {props.data.name}</h2>
+          </Col>
+        </Row>
+        <Row className={`${getSectionClassName()} justify-content-between`}>
+          <Col>
+            <div className={'d-flex mb-2'}>
+              <div>
+                <span className="font-weight-bold">Entrez Gene:</span>
+                <span className="ml-1">
+                  <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
+                </span>
               </div>
-            </Col>
-          </Row>
-          {props.data.mutations
-            .filter(mutation => {
-              return !mutationFilter || getMutationName(mutation).toLowerCase().includes(mutationFilter.toLowerCase());
-            })
-            .map((mutation, mutationIndex) => (
-              <Row key={mutationIndex} className={'mb-2'}>
-                <Col>
-                  <Collapsible
-                    nestLevel={NestLevelType.MUTATION}
-                    className={'mb-1'}
-                    title={`Mutation: ${getMutationName(mutation)}`}
-                    mutationUuid={mutation.name_uuid}
-                    actions={[
-                      <GeneHistoryTooltip
-                        key={'gene-history-tooltip'}
-                        historyData={parsedHistoryList}
-                        location={getMutationName(mutation)}
-                      />,
-                    ]}
-                    geneFieldKey={`mutations/${mutationIndex}`}
-                  >
+              <div className="ml-2">
+                <span className="font-weight-bold">Gene aliases:</span>
+                <span className="ml-1">
+                  <PubmedGeneArticlesLink hugoSymbols={geneEntity.geneAliases?.map(alias => alias.name)} />
+                </span>
+              </div>
+            </div>
+            <RealtimeTextAreaInput
+              fieldKey="summary"
+              label="Summary"
+              labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />}
+            />
+            <RealtimeCheckedInputGroup
+              groupHeader={
+                <>
+                  <span className="mr-2">Gene Type</span>
+                  {<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Type'} />}
+                </>
+              }
+              options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
+                return {
+                  label,
+                  fieldKey: GENE_TYPE_KEY[label],
+                };
+              })}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col md={6}>
+            <RealtimeCheckedInputGroup
+              groupHeader="Penetrance"
+              isRadio
+              options={[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER].map(label => {
+                return {
+                  label,
+                  fieldKey: 'penetrance',
+                };
+              })}
+            />
+          </Col>
+        </Row>
+        <Row className={'mb-5'}>
+          <Col>
+            <RealtimeTextAreaInput
+              fieldKey="background"
+              inputClass={styles.textarea}
+              label="Background"
+              name="geneBackground"
+              labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Background'} />}
+            />
+            <div className="mb-2">
+              <AutoParseRefField summary={props.data.background} />
+            </div>
+            <div>
+              <span className="font-weight-bold mr-2">External Links:</span>
+              <WithSeparator separator={InlineDivider}>
+                <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
+                  {CBIOPORTAL} <ExternalLinkIcon />
+                </a>
+                <a href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`} target="_blank" rel="noopener noreferrer">
+                  {COSMIC} <ExternalLinkIcon />
+                </a>
+              </WithSeparator>
+            </div>
+          </Col>
+        </Row>
+        {props.data.mutations && (
+          <div className={'mb-5'}>
+            <Row>
+              <Col>
+                <div className={'d-flex justify-content-between align-items-center mb-2'}>
+                  <div className={'h5'}>Mutations:</div>
+                  <div>
+                    <Input
+                      placeholder={'Search Mutation'}
+                      value={mutationFilter}
+                      onChange={event => setMutationFilter(event.target.value)}
+                    />
+                  </div>
+                </div>
+              </Col>
+            </Row>
+            {props.data.mutations
+              .filter(mutation => {
+                return !mutationFilter || getMutationName(mutation).toLowerCase().includes(mutationFilter.toLowerCase());
+              })
+              .map((mutation, mutationIndex) => (
+                <Row key={mutationIndex} className={'mb-2'}>
+                  <Col>
                     <Collapsible
-                      nestLevel={NestLevelType.MUTATION_EFFECT}
-                      title={'Mutation Effect'}
-                      geneFieldKey={`mutations/${mutationIndex}/mutation_effect`}
+                      nestLevel={NestLevelType.MUTATION}
+                      className={'mb-1'}
+                      title={`Mutation: ${getMutationName(mutation)}`}
+                      mutationUuid={mutation.name_uuid}
+                      actions={[
+                        <GeneHistoryTooltip
+                          key={'gene-history-tooltip'}
+                          historyData={parsedHistoryList}
+                          location={getMutationName(mutation)}
+                        />,
+                      ]}
+                      geneFieldKey={`mutations/${mutationIndex}`}
                     >
                       <Collapsible
-                        nestLevel={NestLevelType.SOMATIC}
-                        title={'Somatic'}
-                        geneFieldKey={`mutations/${mutationIndex}/mutation_effect/oncogenic`}
+                        nestLevel={NestLevelType.MUTATION_EFFECT}
+                        title={'Mutation Effect'}
+                        geneFieldKey={`mutations/${mutationIndex}/mutation_effect`}
                       >
-                        <RealtimeCheckedInputGroup
-                          groupHeader={
-                            <>
-                              <span style={{ marginRight: '8px' }}>Oncogenic</span>
-                              {
-                                <GeneHistoryTooltip
-                                  historyData={parsedHistoryList}
-                                  location={`${getMutationName(mutation)}, Mutation Effect`}
-                                  contentFieldWhenObject="oncogenic"
-                                />
-                              }
-                            </>
-                          }
-                          isRadio
-                          options={[
-                            FIREBASE_ONCOGENICITY.YES,
-                            FIREBASE_ONCOGENICITY.LIKELY,
-                            FIREBASE_ONCOGENICITY.LIKELY_NEUTRAL,
-                            FIREBASE_ONCOGENICITY.INCONCLUSIVE,
-                            FIREBASE_ONCOGENICITY.RESISTANCE,
-                          ].map(label => ({
-                            label,
-                            fieldKey: `mutations/${mutationIndex}/mutation_effect/oncogenic`,
-                          }))}
-                        />
-                        <RealtimeCheckedInputGroup
-                          groupHeader={
-                            <>
-                              <span style={{ marginRight: '8px' }}>Mutation Effect</span>
-                              {
-                                <GeneHistoryTooltip
-                                  historyData={parsedHistoryList}
-                                  location={`${getMutationName(mutation)}, Mutation Effect`}
-                                  contentFieldWhenObject="effect"
-                                />
-                              }
-                            </>
-                          }
-                          isRadio
-                          options={[
-                            MUTATION_EFFECT.GAIN_OF_FUNCTION,
-                            MUTATION_EFFECT.LIKELY_GAIN_OF_FUNCTION,
-                            MUTATION_EFFECT.LOSS_OF_FUNCTION,
-                            MUTATION_EFFECT.LIKELY_LOSS_OF_FUNCTION,
-                            MUTATION_EFFECT.SWITCH_OF_FUNCTION,
-                            MUTATION_EFFECT.LIKELY_SWITCH_OF_FUNCTION,
-                            MUTATION_EFFECT.NEUTRAL,
-                            MUTATION_EFFECT.LIKELY_NEUTRAL,
-                            MUTATION_EFFECT.INCONCLUSIVE,
-                          ].map(label => ({
-                            label,
-                            fieldKey: `mutations/${mutationIndex}/mutation_effect/effect`,
-                          }))}
-                        />
-                        <RealtimeTextAreaInput
-                          fieldKey={`mutations/${mutationIndex}/mutation_effect/description`}
-                          inputClass={styles.textarea}
-                          label="Description of Evidence"
-                          labelIcon={
-                            <GeneHistoryTooltip
-                              historyData={parsedHistoryList}
-                              location={`${getMutationName(mutation)}, Mutation Effect`}
-                            />
-                          }
-                          name="description"
-                        />
-                      </Collapsible>
-                      {mutation.mutation_effect.germline && (
                         <Collapsible
-                          nestLevel={NestLevelType.GERMLINE}
-                          className={'mt-2'}
-                          title={'Germline'}
-                          geneFieldKey="mutations/0/mutation_effect/germline"
+                          nestLevel={NestLevelType.SOMATIC}
+                          title={'Somatic'}
+                          geneFieldKey={`mutations/${mutationIndex}/mutation_effect/oncogenic`}
                         >
                           <RealtimeCheckedInputGroup
-                            groupHeader="Pathogenic"
+                            groupHeader={
+                              <>
+                                <span style={{ marginRight: '8px' }}>Oncogenic</span>
+                                {
+                                  <GeneHistoryTooltip
+                                    historyData={parsedHistoryList}
+                                    location={`${getMutationName(mutation)}, Mutation Effect`}
+                                    contentFieldWhenObject="oncogenic"
+                                  />
+                                }
+                              </>
+                            }
                             isRadio
                             options={[
-                              PATHOGENICITY.PATHOGENIC,
-                              PATHOGENICITY.LIKELY_PATHOGENIC,
-                              PATHOGENICITY.BENIGN,
-                              PATHOGENICITY.LIKELY_BENIGN,
-                              PATHOGENICITY.UNKNOWN,
+                              FIREBASE_ONCOGENICITY.YES,
+                              FIREBASE_ONCOGENICITY.LIKELY,
+                              FIREBASE_ONCOGENICITY.LIKELY_NEUTRAL,
+                              FIREBASE_ONCOGENICITY.INCONCLUSIVE,
+                              FIREBASE_ONCOGENICITY.RESISTANCE,
                             ].map(label => ({
                               label,
-                              fieldKey: `mutations/${mutationIndex}/mutation_effect/germline/pathogenic`,
+                              fieldKey: `mutations/${mutationIndex}/mutation_effect/oncogenic`,
                             }))}
                           />
                           <RealtimeCheckedInputGroup
-                            groupHeader="Penetrance"
+                            groupHeader={
+                              <>
+                                <span style={{ marginRight: '8px' }}>Mutation Effect</span>
+                                {
+                                  <GeneHistoryTooltip
+                                    historyData={parsedHistoryList}
+                                    location={`${getMutationName(mutation)}, Mutation Effect`}
+                                    contentFieldWhenObject="effect"
+                                  />
+                                }
+                              </>
+                            }
                             isRadio
-                            options={[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER].map(label => ({
+                            options={[
+                              MUTATION_EFFECT.GAIN_OF_FUNCTION,
+                              MUTATION_EFFECT.LIKELY_GAIN_OF_FUNCTION,
+                              MUTATION_EFFECT.LOSS_OF_FUNCTION,
+                              MUTATION_EFFECT.LIKELY_LOSS_OF_FUNCTION,
+                              MUTATION_EFFECT.SWITCH_OF_FUNCTION,
+                              MUTATION_EFFECT.LIKELY_SWITCH_OF_FUNCTION,
+                              MUTATION_EFFECT.NEUTRAL,
+                              MUTATION_EFFECT.LIKELY_NEUTRAL,
+                              MUTATION_EFFECT.INCONCLUSIVE,
+                            ].map(label => ({
                               label,
-                              fieldKey: `mutations/${mutationIndex}/mutation_effect/germline/penetrance`,
-                            }))}
-                          />
-                          <RealtimeCheckedInputGroup
-                            groupHeader="Mechanism of Inheritance"
-                            isRadio
-                            options={[GERMLINE_INHERITANCE_MECHANISM.RECESSIVE, GERMLINE_INHERITANCE_MECHANISM.DOMINANT].map(label => ({
-                              label,
-                              fieldKey: `mutations/${mutationIndex}/mutation_effect/germline/inheritanceMechanism`,
+                              fieldKey: `mutations/${mutationIndex}/mutation_effect/effect`,
                             }))}
                           />
                           <RealtimeTextAreaInput
-                            fieldKey={`mutations/${mutationIndex}/mutation_effect/germline/cancerRisk`}
+                            fieldKey={`mutations/${mutationIndex}/mutation_effect/description`}
                             inputClass={styles.textarea}
-                            label="Cancer Risk"
-                            name="cancerRisk"
+                            label="Description of Evidence"
+                            labelIcon={
+                              <GeneHistoryTooltip
+                                historyData={parsedHistoryList}
+                                location={`${getMutationName(mutation)}, Mutation Effect`}
+                              />
+                            }
+                            name="description"
                           />
                         </Collapsible>
-                      )}
-                    </Collapsible>
-                    {mutation.tumors &&
-                      mutation.tumors.map((tumor, tumorIndex) => {
-                        const cancerTypeName = tumor.cancerTypes.map(cancerType => getCancerTypeName(cancerType)).join(', ');
-
-                        return (
+                        {mutation.mutation_effect.germline && (
                           <Collapsible
+                            nestLevel={NestLevelType.GERMLINE}
                             className={'mt-2'}
-                            mutationUuid={mutation.name_uuid}
-                            cancerTypeUuid={tumor.cancerTypes_uuid}
-                            key={tumor.cancerTypes_uuid}
-                            nestLevel={NestLevelType.CANCER_TYPE}
-                            geneFieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}`}
-                            actions={[
-                              <GeneHistoryTooltip
-                                key={'gene-history-tooltip'}
-                                historyData={parsedHistoryList}
-                                location={`${getMutationName(mutation)}, ${cancerTypeName}`}
-                              />,
-                            ]}
-                            title={`Cancer Type: ${cancerTypeName}`}
+                            title={'Germline'}
+                            geneFieldKey="mutations/0/mutation_effect/germline"
                           >
-                            <RealtimeTextAreaInput
-                              fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/summary`}
-                              inputClass={styles.textarea}
-                              label="Therapeutic Summary (Optional)"
-                              labelIcon={
-                                <GeneHistoryTooltip
-                                  historyData={parsedHistoryList}
-                                  location={`${getMutationName(mutation)}, ${cancerTypeName}, Tumor Type Summary`}
-                                />
-                              }
-                              name="txSummary"
+                            <RealtimeCheckedInputGroup
+                              groupHeader="Pathogenic"
+                              isRadio
+                              options={[
+                                PATHOGENICITY.PATHOGENIC,
+                                PATHOGENICITY.LIKELY_PATHOGENIC,
+                                PATHOGENICITY.BENIGN,
+                                PATHOGENICITY.LIKELY_BENIGN,
+                                PATHOGENICITY.UNKNOWN,
+                              ].map(label => ({
+                                label,
+                                fieldKey: `mutations/${mutationIndex}/mutation_effect/germline/pathogenic`,
+                              }))}
                             />
-                            {tumor.TIs.reduce((accumulator, ti, tiIndex) => {
-                              if (!ti.treatments) {
-                                return accumulator;
-                              }
-                              return accumulator.concat(
-                                ti.treatments.map((treatment, treatmentIndex) => {
-                                  return (
-                                    <Collapsible
-                                      className={'mt-2'}
-                                      key={tumor.cancerTypes_uuid}
-                                      nestLevel={NestLevelType.THERAPY}
-                                      title={`Therapy: ${getTxName(props.drugList, treatment.name)}`}
-                                      geneFieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}`}
-                                    >
-                                      <RealtimeDropdownInput
-                                        fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
-                                        label="Highest level of evidence"
-                                        name="level"
-                                        options={[TX_LEVELS.LEVEL_NO, TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_2]}
-                                      />
-                                      <RealtimeDropdownInput
-                                        fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagation`}
-                                        label="Level of Evidence in other solid tumor types"
-                                        name="propagationLevel"
-                                        options={[]} // Todo
-                                      />
-                                      <RealtimeDropdownInput
-                                        fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagationLiquid`}
-                                        label="Level of Evidence in other liquid tumor types"
-                                        name="propagationLiquidLevel"
-                                        options={[]}
-                                      />
-                                      <RealtimeDropdownInput
-                                        fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/fdaLevel`}
-                                        label="FDA Level of Evidence"
-                                        name="propagationLiquidLevel"
-                                        options={[]}
-                                      />
-                                      <RealtimeTextAreaInput
-                                        fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/description`}
-                                        inputClass={styles.textarea}
-                                        label="Description of Evidence"
-                                        labelIcon={
-                                          <GeneHistoryTooltip
-                                            historyData={parsedHistoryList}
-                                            location={`${CANCER_TYPE_THERAPY_INDENTIFIER}${getMutationName(mutation)}, ${cancerTypeName}, ${
-                                              treatment.name
-                                            }`}
-                                          />
-                                        }
-                                        name="evidenceDescription"
-                                      />
-                                      <div className="mb-2">
-                                        <AutoParseRefField summary={treatment.description} />
-                                      </div>
-                                    </Collapsible>
-                                  );
-                                })
-                              );
-                            }, [])}
+                            <RealtimeCheckedInputGroup
+                              groupHeader="Penetrance"
+                              isRadio
+                              options={[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER].map(label => ({
+                                label,
+                                fieldKey: `mutations/${mutationIndex}/mutation_effect/germline/penetrance`,
+                              }))}
+                            />
+                            <RealtimeCheckedInputGroup
+                              groupHeader="Mechanism of Inheritance"
+                              isRadio
+                              options={[GERMLINE_INHERITANCE_MECHANISM.RECESSIVE, GERMLINE_INHERITANCE_MECHANISM.DOMINANT].map(label => ({
+                                label,
+                                fieldKey: `mutations/${mutationIndex}/mutation_effect/germline/inheritanceMechanism`,
+                              }))}
+                            />
+                            <RealtimeTextAreaInput
+                              fieldKey={`mutations/${mutationIndex}/mutation_effect/germline/cancerRisk`}
+                              inputClass={styles.textarea}
+                              label="Cancer Risk"
+                              name="cancerRisk"
+                            />
                           </Collapsible>
-                        );
-                      })}
-                  </Collapsible>
-                </Col>
-              </Row>
-            ))}
-        </div>
-      )}
-      <VusTable hugoSymbol={hugoSymbol} />
-    </div>
+                        )}
+                      </Collapsible>
+                      {mutation.tumors &&
+                        mutation.tumors.map((tumor, tumorIndex) => {
+                          const cancerTypeName = tumor.cancerTypes.map(cancerType => getCancerTypeName(cancerType)).join(', ');
+
+                          return (
+                            <Collapsible
+                              className={'mt-2'}
+                              mutationUuid={mutation.name_uuid}
+                              cancerTypeUuid={tumor.cancerTypes_uuid}
+                              key={tumor.cancerTypes_uuid}
+                              nestLevel={NestLevelType.CANCER_TYPE}
+                              geneFieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}`}
+                              actions={[
+                                <GeneHistoryTooltip
+                                  key={'gene-history-tooltip'}
+                                  historyData={parsedHistoryList}
+                                  location={`${getMutationName(mutation)}, ${cancerTypeName}`}
+                                />,
+                              ]}
+                              title={`Cancer Type: ${cancerTypeName}`}
+                            >
+                              <RealtimeTextAreaInput
+                                fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/summary`}
+                                inputClass={styles.textarea}
+                                label="Therapeutic Summary (Optional)"
+                                labelIcon={
+                                  <GeneHistoryTooltip
+                                    historyData={parsedHistoryList}
+                                    location={`${getMutationName(mutation)}, ${cancerTypeName}, Tumor Type Summary`}
+                                  />
+                                }
+                                name="txSummary"
+                              />
+                              {tumor.TIs.reduce((accumulator, ti, tiIndex) => {
+                                if (!ti.treatments) {
+                                  return accumulator;
+                                }
+                                return accumulator.concat(
+                                  ti.treatments.map((treatment, treatmentIndex) => {
+                                    return (
+                                      <Collapsible
+                                        className={'mt-2'}
+                                        key={tumor.cancerTypes_uuid}
+                                        nestLevel={NestLevelType.THERAPY}
+                                        title={`Therapy: ${getTxName(props.drugList, treatment.name)}`}
+                                        geneFieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}`}
+                                      >
+                                        <RealtimeDropdownInput
+                                          fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
+                                          label="Highest level of evidence"
+                                          name="level"
+                                          options={[TX_LEVELS.LEVEL_NO, TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_2]}
+                                        />
+                                        <RealtimeDropdownInput
+                                          fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagation`}
+                                          label="Level of Evidence in other solid tumor types"
+                                          name="propagationLevel"
+                                          options={[]} // Todo
+                                        />
+                                        <RealtimeDropdownInput
+                                          fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagationLiquid`}
+                                          label="Level of Evidence in other liquid tumor types"
+                                          name="propagationLiquidLevel"
+                                          options={[]}
+                                        />
+                                        <RealtimeDropdownInput
+                                          fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/fdaLevel`}
+                                          label="FDA Level of Evidence"
+                                          name="propagationLiquidLevel"
+                                          options={[]}
+                                        />
+                                        <RealtimeTextAreaInput
+                                          fieldKey={`mutations/${mutationIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/description`}
+                                          inputClass={styles.textarea}
+                                          label="Description of Evidence"
+                                          labelIcon={
+                                            <GeneHistoryTooltip
+                                              historyData={parsedHistoryList}
+                                              location={`${CANCER_TYPE_THERAPY_INDENTIFIER}${getMutationName(
+                                                mutation
+                                              )}, ${cancerTypeName}, ${treatment.name}`}
+                                            />
+                                          }
+                                          name="evidenceDescription"
+                                        />
+                                        <div className="mb-2">
+                                          <AutoParseRefField summary={treatment.description} />
+                                        </div>
+                                      </Collapsible>
+                                    );
+                                  })
+                                );
+                              }, [])}
+                            </Collapsible>
+                          );
+                        })}
+                    </Collapsible>
+                  </Col>
+                </Row>
+              ))}
+          </div>
+        )}
+        <VusTable hugoSymbol={hugoSymbol} />
+      </div>
+      <OncoKBSidebar>
+        <Tabs
+          tabs={[
+            {
+              title: 'History',
+              content: <CurationHistoryTab historyData={props.historyData} />,
+            },
+          ]}
+        />
+      </OncoKBSidebar>
+    </>
   ) : (
     <LoadingIndicator size={LoaderSize.LARGE} center={true} isLoading />
   );

@@ -1,15 +1,16 @@
 @import '../../variables.scss';
 
-.generic-sidebar-expanded {
+.oncokb-sidebar-expanded {
   position: fixed;
   top: 0;
   right: 0;
   background-color: white;
   height: 100vh;
   border-left: 1px solid $medium-grey;
+  overflow-y: auto;
 }
 
-.generic-sidebar-collapsed {
+.oncokb-sidebar-collapsed {
   position: fixed;
   top: 0;
   right: 0;
