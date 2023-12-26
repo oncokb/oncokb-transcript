@@ -25,5 +25,11 @@
                                  constraintName="fk_rel_evidence__level_of_evidence__level_of_evidence_id"
                                  referencedColumnNames="id"
                                  referencedTableName="level_of_evidence"/>
+
+        <addForeignKeyConstraint baseColumnNames="entrez_gene_id"
+                                 baseTableName="evidence"
+                                 constraintName="fk_evidence__entrez_gene_id"
+                                 referencedColumnNames="entrez_gene_id"
+                                 referencedTableName="gene"/>
     </changeSet>
 </databaseChangeLog>

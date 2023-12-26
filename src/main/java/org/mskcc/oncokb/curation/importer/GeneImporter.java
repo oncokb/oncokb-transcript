@@ -140,7 +140,7 @@ public class GeneImporter {
             String panel = line[0];
             Integer entrezGeneId = StringUtils.isEmpty(line[1]) ? null : Integer.parseInt(line[1]);
             String hugoSymbol = line.length > 2 ? line[2] : null;
-            Optional<Flag> geneFlagOptional = flagService.findByTypeAndFlag(FlagType.GENE, panel);
+            Optional<Flag> geneFlagOptional = flagService.findByTypeAndFlag(FlagType.GENE_PANEL, panel);
             if (geneFlagOptional.isEmpty()) {
                 log.error("Cannot find panel {}", panel);
                 continue;

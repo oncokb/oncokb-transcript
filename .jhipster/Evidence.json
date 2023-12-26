@@ -39,6 +39,13 @@
       "otherEntityRelationshipName": "evidence",
       "relationshipName": "levelOfEvidence",
       "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "gene",
+      "otherEntityRelationshipName": "evidence",
+      "relationshipName": "gene",
+      "otherEntityField": "entrezGeneId"
     }
   ],
   "entityTableName": "evidence",

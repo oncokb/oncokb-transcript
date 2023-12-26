@@ -41,6 +41,11 @@ public class Gene implements Serializable {
 
     @DiffIgnore
     @OneToMany(mappedBy = "gene")
+    @JsonIgnoreProperties(value = { "association", "levelOfEvidences", "gene" }, allowSetters = true)
+    private Set<Evidence> evidences = new HashSet<>();
+
+    @DiffIgnore
+    @OneToMany(mappedBy = "gene")
     @JsonIgnoreProperties(value = { "sequences", "fragments", "flags", "ensemblGene", "gene", "alterations" }, allowSetters = true)
     private Set<Transcript> transcripts = new HashSet<>();
 
@@ -147,6 +152,37 @@ public class Gene implements Serializable {
     public Gene removeEnsemblGene(EnsemblGene ensemblGene) {
         this.ensemblGenes.remove(ensemblGene);
         ensemblGene.setGene(null);
+        return this;
+    }
+
+    public Set<Evidence> getEvidences() {
+        return this.evidences;
+    }
+
+    public void setEvidences(Set<Evidence> evidences) {
+        if (this.evidences != null) {
+            this.evidences.forEach(i -> i.setGene(null));
+        }
+        if (evidences != null) {
+            evidences.forEach(i -> i.setGene(this));
+        }
+        this.evidences = evidences;
+    }
+
+    public Gene evidences(Set<Evidence> evidences) {
+        this.setEvidences(evidences);
+        return this;
+    }
+
+    public Gene addEvidence(Evidence evidence) {
+        this.evidences.add(evidence);
+        evidence.setGene(this);
+        return this;
+    }
+
+    public Gene removeEvidence(Evidence evidence) {
+        this.evidences.remove(evidence);
+        evidence.setGene(null);
         return this;
     }
 

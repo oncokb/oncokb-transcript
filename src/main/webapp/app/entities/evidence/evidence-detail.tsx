@@ -57,6 +57,8 @@ export const EvidenceDetail = (props: IEvidenceDetailProps) => {
                 ))
               : null}
           </dd>
+          <dt>Gene</dt>
+          <dd>{evidenceEntity.gene ? evidenceEntity.gene.entrezGeneId : ''}</dd>
         </dl>
         <EntityActionButton
           color="primary"

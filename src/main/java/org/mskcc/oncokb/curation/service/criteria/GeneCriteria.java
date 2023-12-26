@@ -34,6 +34,8 @@ public class GeneCriteria implements Serializable, Criteria {
 
     private LongFilter ensemblGeneId;
 
+    private LongFilter evidenceId;
+
     private LongFilter transcriptId;
 
     private LongFilter flagId;
@@ -52,6 +54,7 @@ public class GeneCriteria implements Serializable, Criteria {
         this.hugoSymbol = other.hugoSymbol == null ? null : other.hugoSymbol.copy();
         this.hgncId = other.hgncId == null ? null : other.hgncId.copy();
         this.ensemblGeneId = other.ensemblGeneId == null ? null : other.ensemblGeneId.copy();
+        this.evidenceId = other.evidenceId == null ? null : other.evidenceId.copy();
         this.transcriptId = other.transcriptId == null ? null : other.transcriptId.copy();
         this.flagId = other.flagId == null ? null : other.flagId.copy();
         this.synonymId = other.synonymId == null ? null : other.synonymId.copy();
@@ -139,6 +142,21 @@ public class GeneCriteria implements Serializable, Criteria {
         this.ensemblGeneId = ensemblGeneId;
     }
 
+    public LongFilter getEvidenceId() {
+        return evidenceId;
+    }
+
+    public LongFilter evidenceId() {
+        if (evidenceId == null) {
+            evidenceId = new LongFilter();
+        }
+        return evidenceId;
+    }
+
+    public void setEvidenceId(LongFilter evidenceId) {
+        this.evidenceId = evidenceId;
+    }
+
     public LongFilter getTranscriptId() {
         return transcriptId;
     }
@@ -222,6 +240,7 @@ public class GeneCriteria implements Serializable, Criteria {
             Objects.equals(hugoSymbol, that.hugoSymbol) &&
             Objects.equals(hgncId, that.hgncId) &&
             Objects.equals(ensemblGeneId, that.ensemblGeneId) &&
+            Objects.equals(evidenceId, that.evidenceId) &&
             Objects.equals(transcriptId, that.transcriptId) &&
             Objects.equals(flagId, that.flagId) &&
             Objects.equals(synonymId, that.synonymId) &&
@@ -232,7 +251,19 @@ public class GeneCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, entrezGeneId, hugoSymbol, hgncId, ensemblGeneId, transcriptId, flagId, synonymId, alterationId, distinct);
+        return Objects.hash(
+            id,
+            entrezGeneId,
+            hugoSymbol,
+            hgncId,
+            ensemblGeneId,
+            evidenceId,
+            transcriptId,
+            flagId,
+            synonymId,
+            alterationId,
+            distinct
+        );
     }
 
     // prettier-ignore
@@ -244,6 +275,7 @@ public class GeneCriteria implements Serializable, Criteria {
             (hugoSymbol != null ? "hugoSymbol=" + hugoSymbol + ", " : "") +
             (hgncId != null ? "hgncId=" + hgncId + ", " : "") +
             (ensemblGeneId != null ? "ensemblGeneId=" + ensemblGeneId + ", " : "") +
+            (evidenceId != null ? "evidenceId=" + evidenceId + ", " : "") +
             (transcriptId != null ? "transcriptId=" + transcriptId + ", " : "") +
             (flagId != null ? "flagId=" + flagId + ", " : "") +
             (synonymId != null ? "synonymId=" + synonymId + ", " : "") +

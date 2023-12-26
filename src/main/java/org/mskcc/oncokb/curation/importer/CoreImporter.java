@@ -1,9 +1,12 @@
 package org.mskcc.oncokb.curation.importer;
 
+import static org.mskcc.oncokb.curation.config.DataVersions.ONCOKB_CORE_VERSION;
 import static org.mskcc.oncokb.curation.util.FileUtils.parseDelimitedFile;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import jodd.util.StringUtil;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.ArticleType;
@@ -25,7 +28,6 @@ public class CoreImporter {
     final MainService mainService;
     final String DATA_DIRECTORY = "/oncokb-data/curation/oncokb/";
     final String MIXED = "MIXED";
-    final String CORE_DATA_VERSION = "v4.11";
 
     public CoreImporter(
         CancerTypeService cancerTypeService,
@@ -51,7 +53,7 @@ public class CoreImporter {
     }
 
     private String getVersionInFileName() {
-        return CORE_DATA_VERSION.replace(".", "_");
+        return ONCOKB_CORE_VERSION.replace(".", "_");
     }
 
     private void importArticle() throws IOException {

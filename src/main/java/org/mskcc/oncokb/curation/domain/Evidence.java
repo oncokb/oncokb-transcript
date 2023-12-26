@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.javers.core.metamodel.annotation.DiffIgnore;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A Evidence.
@@ -57,7 +58,8 @@ public class Evidence implements Serializable {
         },
         allowSetters = true
     )
-    @OneToOne
+    @ShallowReference
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(unique = true)
     private Association association;
 
@@ -69,6 +71,12 @@ public class Evidence implements Serializable {
     )
     @JsonIgnoreProperties(value = { "evidences" }, allowSetters = true)
     private Set<LevelOfEvidence> levelOfEvidences = new HashSet<>();
+
+    @ShallowReference
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "ensemblGenes", "evidences", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
+    @JoinColumn(name = "entrez_gene_id", referencedColumnName = "entrez_gene_id")
+    private Gene gene;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -185,6 +193,19 @@ public class Evidence implements Serializable {
     public Evidence removeLevelOfEvidence(LevelOfEvidence levelOfEvidence) {
         this.levelOfEvidences.remove(levelOfEvidence);
         levelOfEvidence.getEvidences().remove(this);
+        return this;
+    }
+
+    public Gene getGene() {
+        return this.gene;
+    }
+
+    public void setGene(Gene gene) {
+        this.gene = gene;
+    }
+
+    public Evidence gene(Gene gene) {
+        this.setGene(gene);
         return this;
     }
 

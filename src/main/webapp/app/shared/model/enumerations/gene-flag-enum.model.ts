@@ -1,4 +1,4 @@
-export enum GeneFlagEnum {
+export enum GenePanelFlagEnum {
   ONCOKB = 'ONCOKB',
 
   MSK_IMPACT_505 = 'MSK_IMPACT_505',

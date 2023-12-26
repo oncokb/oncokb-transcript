@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
+import org.mskcc.oncokb.curation.domain.Evidence;
 import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.domain.Synonym;
@@ -198,6 +199,24 @@ class GeneResourceIT {
             .andExpect(jsonPath("$.[*].entrezGeneId").value(hasItem(DEFAULT_ENTREZ_GENE_ID)))
             .andExpect(jsonPath("$.[*].hugoSymbol").value(hasItem(DEFAULT_HUGO_SYMBOL)))
             .andExpect(jsonPath("$.[*].hgncId").value(hasItem(DEFAULT_HGNC_ID)));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllGenesWithEagerRelationshipsIsEnabled() throws Exception {
+        when(geneServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restGeneMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(geneServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllGenesWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(geneServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restGeneMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(geneServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test
@@ -519,6 +538,32 @@ class GeneResourceIT {
 
         // Get all the geneList where ensemblGene equals to (ensemblGeneId + 1)
         defaultGeneShouldNotBeFound("ensemblGeneId.equals=" + (ensemblGeneId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllGenesByEvidenceIsEqualToSomething() throws Exception {
+        // Initialize the database
+        geneRepository.saveAndFlush(gene);
+        Evidence evidence;
+        if (TestUtil.findAll(em, Evidence.class).isEmpty()) {
+            evidence = EvidenceResourceIT.createEntity(em);
+            em.persist(evidence);
+            em.flush();
+        } else {
+            evidence = TestUtil.findAll(em, Evidence.class).get(0);
+        }
+        em.persist(evidence);
+        em.flush();
+        gene.addEvidence(evidence);
+        geneRepository.saveAndFlush(gene);
+        Long evidenceId = evidence.getId();
+
+        // Get all the geneList where evidence equals to evidenceId
+        defaultGeneShouldBeFound("evidenceId.equals=" + evidenceId);
+
+        // Get all the geneList where evidence equals to (evidenceId + 1)
+        defaultGeneShouldNotBeFound("evidenceId.equals=" + (evidenceId + 1));
     }
 
     @Test

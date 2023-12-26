@@ -25,6 +25,12 @@
     },
     {
       "relationshipType": "one-to-many",
+      "otherEntityName": "evidence",
+      "otherEntityRelationshipName": "gene",
+      "relationshipName": "evidence"
+    },
+    {
+      "relationshipType": "one-to-many",
       "otherEntityName": "transcript",
       "otherEntityRelationshipName": "gene",
       "relationshipName": "transcript"

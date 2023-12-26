@@ -83,6 +83,9 @@ public class Importer {
     @Autowired
     private ConsequenceService consequenceService;
 
+    @Autowired
+    private FirebaseService firebaseService;
+
     private final Logger log = LoggerFactory.getLogger(Importer.class);
 
     public void generalImport() throws ApiException, IOException {
@@ -92,7 +95,8 @@ public class Importer {
         //        importAlteration();
         //                this.transcriptImporter.importTranscripts();
         //        this.ensemblImporter.importSeqRegion();
-        this.metaImporter.generalImport();
+        //                this.metaImporter.generalImport();
+        //        firebaseService.readGene();
     }
 
     private void checkOncoKbTranscriptSequenceAcrossRG() throws ApiException {

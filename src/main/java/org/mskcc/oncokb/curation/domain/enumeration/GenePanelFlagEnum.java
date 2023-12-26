@@ -1,9 +1,9 @@
 package org.mskcc.oncokb.curation.domain.enumeration;
 
 /**
- * The GeneFlagEnum enumeration.
+ * The GenePanelFlagEnum enumeration.
  */
-public enum GeneFlagEnum {
+public enum GenePanelFlagEnum {
     ONCOKB,
     MSK_IMPACT_505,
     MSK_ACCESS,
