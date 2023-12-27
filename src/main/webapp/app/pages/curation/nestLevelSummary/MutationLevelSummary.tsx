@@ -1,6 +1,6 @@
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { AllLevelSummary } from 'app/stores/firebase/firebase.gene.store';
+import { AllLevelSummary, MutationLevelSummary } from 'app/stores/firebase/firebase.gene.store';
 import _ from 'lodash';
 import { observer } from 'mobx-react';
 import React, { useMemo } from 'react';
@@ -12,40 +12,16 @@ export interface MutationLevelSummaryProps extends StoreProps {
 }
 
 const MutationLevelSummary = (props: MutationLevelSummaryProps) => {
-  const summaryStats = props.mutationSummaryStats[props.mutationUuid];
-
-  const mutationLevelSummary = useMemo(() => {
-    if (summaryStats) {
-      const cancerTypeLevelSummaries = Object.keys(summaryStats).map(mutation => summaryStats[mutation]);
-      const mutLevelSummary = {
-        oncogenicity: cancerTypeLevelSummaries[0]?.oncogenicity || ONCOGENICITY.UNKNOWN,
-        TT: _.sumBy(cancerTypeLevelSummaries, 'TT'),
-        TTS: _.sumBy(cancerTypeLevelSummaries, 'TTS'),
-        DxS: _.sumBy(cancerTypeLevelSummaries, 'DxS'),
-        PxS: _.sumBy(cancerTypeLevelSummaries, 'PxS'),
-        txLevels: _.chain(_.flatten(cancerTypeLevelSummaries.map(t => t.txLevels)))
-          .countBy()
-          .value(),
-        dxLevels: _.chain(_.flatten(cancerTypeLevelSummaries.map(t => t.dxLevels)))
-          .countBy()
-          .value(),
-        pxLevels: _.chain(_.flatten(cancerTypeLevelSummaries.map(t => t.pxLevels)))
-          .countBy()
-          .value(),
-      };
-      return mutLevelSummary;
-    }
-  }, [summaryStats]);
-
+  const mutationLevelSummary = props.mutationSummaryStats[props.mutationUuid];
   return <NestLevelSummary summaryStats={mutationLevelSummary} />;
 };
 
 const mapStoreToProps = ({ firebaseGeneStore }: IRootStore) => ({
-  mutationSummaryStats: firebaseGeneStore.mutationSummaryStats,
+  mutationSummaryStats: firebaseGeneStore.mutationLevelMutationSummaryStats,
 });
 
 type StoreProps = {
-  mutationSummaryStats?: AllLevelSummary;
+  mutationSummaryStats?: MutationLevelSummary;
 };
 
 export default componentInject(mapStoreToProps)(observer(MutationLevelSummary));
