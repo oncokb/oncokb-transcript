@@ -19,6 +19,7 @@ export const LevelOfEvidence = (props: ILevelOfEvidenceProps) => {
   const columns: SearchColumn<ILevelOfEvidence>[] = [
     { accessor: 'type', Header: 'Type' },
     { accessor: 'level', Header: 'Level' },
+    { accessor: 'description', Header: 'Description' },
     getEntityTableActionsColumn(ENTITY_TYPE.LEVEL_OF_EVIDENCE),
   ];
 

@@ -167,16 +167,6 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
                     : null
                 }
               />
-              <ValidatedField id="transcript-gene" name="geneId" data-cy="gene" label="Gene" type="select">
-                <option value="" key="0" />
-                {genes
-                  ? genes.map(otherEntity => (
-                      <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.entrezGeneId}: {otherEntity.hugoSymbol}
-                      </option>
-                    ))
-                  : null}
-              </ValidatedField>
               <SaveButton disabled={updating} />
             </ValidatedForm>
           )}

@@ -10,6 +10,7 @@ import EntityActionButton from '../button/EntityActionButton';
 import { SORT } from './pagination.constants';
 import { PaginationState } from '../table/OncoKBAsyncTable';
 import { ITreatment } from 'app/shared/model/treatment.model';
+import _ from 'lodash';
 
 export const getCancerTypeName = (cancerType: ICancerType): string => {
   let name = '';
@@ -28,7 +29,7 @@ export const getGeneName = (gene: IGene): string => {
 };
 
 export const getGeneNamesFromAlterations = (alterations: IAlteration[]) => {
-  return alterations.map(alteration => alteration.genes.map(gene => gene.hugoSymbol).join('::')).join(', ');
+  return _.uniq(alterations.map(alteration => alteration.genes.map(gene => gene.hugoSymbol).join('::'))).join(', ');
 };
 
 export const getTreatmentName = (treatments: ITreatment[]): string => {

@@ -40,6 +40,15 @@ class LevelOfEvidenceResourceIT {
     private static final String DEFAULT_LEVEL = "AAAAAAAAAA";
     private static final String UPDATED_LEVEL = "BBBBBBBBBB";
 
+    private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
+    private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
+
+    private static final String DEFAULT_HTML_DESCRIPTION = "AAAAAAAAAA";
+    private static final String UPDATED_HTML_DESCRIPTION = "BBBBBBBBBB";
+
+    private static final String DEFAULT_COLOR = "AAAAAAAAAA";
+    private static final String UPDATED_COLOR = "BBBBBBBBBB";
+
     private static final String ENTITY_API_URL = "/api/level-of-evidences";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -64,7 +73,12 @@ class LevelOfEvidenceResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static LevelOfEvidence createEntity(EntityManager em) {
-        LevelOfEvidence levelOfEvidence = new LevelOfEvidence().type(DEFAULT_TYPE).level(DEFAULT_LEVEL);
+        LevelOfEvidence levelOfEvidence = new LevelOfEvidence()
+            .type(DEFAULT_TYPE)
+            .level(DEFAULT_LEVEL)
+            .description(DEFAULT_DESCRIPTION)
+            .htmlDescription(DEFAULT_HTML_DESCRIPTION)
+            .color(DEFAULT_COLOR);
         return levelOfEvidence;
     }
 
@@ -75,7 +89,12 @@ class LevelOfEvidenceResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static LevelOfEvidence createUpdatedEntity(EntityManager em) {
-        LevelOfEvidence levelOfEvidence = new LevelOfEvidence().type(UPDATED_TYPE).level(UPDATED_LEVEL);
+        LevelOfEvidence levelOfEvidence = new LevelOfEvidence()
+            .type(UPDATED_TYPE)
+            .level(UPDATED_LEVEL)
+            .description(UPDATED_DESCRIPTION)
+            .htmlDescription(UPDATED_HTML_DESCRIPTION)
+            .color(UPDATED_COLOR);
         return levelOfEvidence;
     }
 
@@ -104,6 +123,9 @@ class LevelOfEvidenceResourceIT {
         LevelOfEvidence testLevelOfEvidence = levelOfEvidenceList.get(levelOfEvidenceList.size() - 1);
         assertThat(testLevelOfEvidence.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testLevelOfEvidence.getLevel()).isEqualTo(DEFAULT_LEVEL);
+        assertThat(testLevelOfEvidence.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testLevelOfEvidence.getHtmlDescription()).isEqualTo(DEFAULT_HTML_DESCRIPTION);
+        assertThat(testLevelOfEvidence.getColor()).isEqualTo(DEFAULT_COLOR);
     }
 
     @Test
@@ -175,6 +197,72 @@ class LevelOfEvidenceResourceIT {
 
     @Test
     @Transactional
+    void checkDescriptionIsRequired() throws Exception {
+        int databaseSizeBeforeTest = levelOfEvidenceRepository.findAll().size();
+        // set the field null
+        levelOfEvidence.setDescription(null);
+
+        // Create the LevelOfEvidence, which fails.
+
+        restLevelOfEvidenceMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(levelOfEvidence))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<LevelOfEvidence> levelOfEvidenceList = levelOfEvidenceRepository.findAll();
+        assertThat(levelOfEvidenceList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkHtmlDescriptionIsRequired() throws Exception {
+        int databaseSizeBeforeTest = levelOfEvidenceRepository.findAll().size();
+        // set the field null
+        levelOfEvidence.setHtmlDescription(null);
+
+        // Create the LevelOfEvidence, which fails.
+
+        restLevelOfEvidenceMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(levelOfEvidence))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<LevelOfEvidence> levelOfEvidenceList = levelOfEvidenceRepository.findAll();
+        assertThat(levelOfEvidenceList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkColorIsRequired() throws Exception {
+        int databaseSizeBeforeTest = levelOfEvidenceRepository.findAll().size();
+        // set the field null
+        levelOfEvidence.setColor(null);
+
+        // Create the LevelOfEvidence, which fails.
+
+        restLevelOfEvidenceMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(levelOfEvidence))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<LevelOfEvidence> levelOfEvidenceList = levelOfEvidenceRepository.findAll();
+        assertThat(levelOfEvidenceList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllLevelOfEvidences() throws Exception {
         // Initialize the database
         levelOfEvidenceRepository.saveAndFlush(levelOfEvidence);
@@ -186,7 +274,10 @@ class LevelOfEvidenceResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(levelOfEvidence.getId().intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
-            .andExpect(jsonPath("$.[*].level").value(hasItem(DEFAULT_LEVEL)));
+            .andExpect(jsonPath("$.[*].level").value(hasItem(DEFAULT_LEVEL)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].htmlDescription").value(hasItem(DEFAULT_HTML_DESCRIPTION)))
+            .andExpect(jsonPath("$.[*].color").value(hasItem(DEFAULT_COLOR)));
     }
 
     @Test
@@ -202,7 +293,10 @@ class LevelOfEvidenceResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(levelOfEvidence.getId().intValue()))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
-            .andExpect(jsonPath("$.level").value(DEFAULT_LEVEL));
+            .andExpect(jsonPath("$.level").value(DEFAULT_LEVEL))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
+            .andExpect(jsonPath("$.htmlDescription").value(DEFAULT_HTML_DESCRIPTION))
+            .andExpect(jsonPath("$.color").value(DEFAULT_COLOR));
     }
 
     @Test
@@ -224,7 +318,12 @@ class LevelOfEvidenceResourceIT {
         LevelOfEvidence updatedLevelOfEvidence = levelOfEvidenceRepository.findById(levelOfEvidence.getId()).get();
         // Disconnect from session so that the updates on updatedLevelOfEvidence are not directly saved in db
         em.detach(updatedLevelOfEvidence);
-        updatedLevelOfEvidence.type(UPDATED_TYPE).level(UPDATED_LEVEL);
+        updatedLevelOfEvidence
+            .type(UPDATED_TYPE)
+            .level(UPDATED_LEVEL)
+            .description(UPDATED_DESCRIPTION)
+            .htmlDescription(UPDATED_HTML_DESCRIPTION)
+            .color(UPDATED_COLOR);
 
         restLevelOfEvidenceMockMvc
             .perform(
@@ -241,6 +340,9 @@ class LevelOfEvidenceResourceIT {
         LevelOfEvidence testLevelOfEvidence = levelOfEvidenceList.get(levelOfEvidenceList.size() - 1);
         assertThat(testLevelOfEvidence.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testLevelOfEvidence.getLevel()).isEqualTo(UPDATED_LEVEL);
+        assertThat(testLevelOfEvidence.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testLevelOfEvidence.getHtmlDescription()).isEqualTo(UPDATED_HTML_DESCRIPTION);
+        assertThat(testLevelOfEvidence.getColor()).isEqualTo(UPDATED_COLOR);
     }
 
     @Test
@@ -318,7 +420,7 @@ class LevelOfEvidenceResourceIT {
         LevelOfEvidence partialUpdatedLevelOfEvidence = new LevelOfEvidence();
         partialUpdatedLevelOfEvidence.setId(levelOfEvidence.getId());
 
-        partialUpdatedLevelOfEvidence.type(UPDATED_TYPE).level(UPDATED_LEVEL);
+        partialUpdatedLevelOfEvidence.type(UPDATED_TYPE).level(UPDATED_LEVEL).description(UPDATED_DESCRIPTION);
 
         restLevelOfEvidenceMockMvc
             .perform(
@@ -335,6 +437,9 @@ class LevelOfEvidenceResourceIT {
         LevelOfEvidence testLevelOfEvidence = levelOfEvidenceList.get(levelOfEvidenceList.size() - 1);
         assertThat(testLevelOfEvidence.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testLevelOfEvidence.getLevel()).isEqualTo(UPDATED_LEVEL);
+        assertThat(testLevelOfEvidence.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testLevelOfEvidence.getHtmlDescription()).isEqualTo(DEFAULT_HTML_DESCRIPTION);
+        assertThat(testLevelOfEvidence.getColor()).isEqualTo(DEFAULT_COLOR);
     }
 
     @Test
@@ -349,7 +454,12 @@ class LevelOfEvidenceResourceIT {
         LevelOfEvidence partialUpdatedLevelOfEvidence = new LevelOfEvidence();
         partialUpdatedLevelOfEvidence.setId(levelOfEvidence.getId());
 
-        partialUpdatedLevelOfEvidence.type(UPDATED_TYPE).level(UPDATED_LEVEL);
+        partialUpdatedLevelOfEvidence
+            .type(UPDATED_TYPE)
+            .level(UPDATED_LEVEL)
+            .description(UPDATED_DESCRIPTION)
+            .htmlDescription(UPDATED_HTML_DESCRIPTION)
+            .color(UPDATED_COLOR);
 
         restLevelOfEvidenceMockMvc
             .perform(
@@ -366,6 +476,9 @@ class LevelOfEvidenceResourceIT {
         LevelOfEvidence testLevelOfEvidence = levelOfEvidenceList.get(levelOfEvidenceList.size() - 1);
         assertThat(testLevelOfEvidence.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testLevelOfEvidence.getLevel()).isEqualTo(UPDATED_LEVEL);
+        assertThat(testLevelOfEvidence.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
+        assertThat(testLevelOfEvidence.getHtmlDescription()).isEqualTo(UPDATED_HTML_DESCRIPTION);
+        assertThat(testLevelOfEvidence.getColor()).isEqualTo(UPDATED_COLOR);
     }
 
     @Test

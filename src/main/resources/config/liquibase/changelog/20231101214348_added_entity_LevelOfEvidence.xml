@@ -20,8 +20,23 @@
             <column name="level" type="varchar(255)">
                 <constraints nullable="false" unique="true" uniqueConstraintName="ux_level_of_evidence__level" />
             </column>
+            <column name="description" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="html_description" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="color" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+        <loadData
+            file="config/liquibase/data/level_of_evidence.csv"
+            separator=";"
+            tableName="level_of_evidence"
+            usePreparedStatements="true">
+        </loadData>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

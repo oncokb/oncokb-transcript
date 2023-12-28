@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col } from 'reactstrap';
-import {} from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Col, Row } from 'reactstrap';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import EntityActionButton from 'app/shared/button/EntityActionButton';
+
 export interface IGenomeFragmentDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const GenomeFragmentDetail = (props: IGenomeFragmentDetailProps) => {
@@ -45,13 +45,12 @@ export const GenomeFragmentDetail = (props: IGenomeFragmentDetailProps) => {
           <dt>Transcript</dt>
           <dd>{genomeFragmentEntity.transcript ? genomeFragmentEntity.transcript.id : ''}</dd>
         </dl>
-        <Button tag={Link} to="/genome-fragment" replace color="info" data-cy="entityDetailsBackButton">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
-        <Button tag={Link} to={`/genome-fragment/${genomeFragmentEntity.id}/edit`} replace color="primary">
-          <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-        </Button>
+        <EntityActionButton
+          color="primary"
+          entityId={genomeFragmentEntity.id}
+          entityType={ENTITY_TYPE.GENOME_FRAGMENT}
+          entityAction={ENTITY_ACTION.EDIT}
+        />
       </Col>
     </Row>
   );

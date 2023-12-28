@@ -1,3 +1,4 @@
+import { FDA_SUBMISSION_TABLE_COLUMNS } from 'app/entities/fda-submission/constant';
 import React from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
@@ -23,53 +24,6 @@ export interface IFdaSubmissionProps extends StoreProps, RouteComponentProps<{ u
 export const FdaSubmission = (props: IFdaSubmissionProps) => {
   const fdaSubmissionList = props.fdaSubmissionList;
 
-  const columns: Column<IFdaSubmission>[] = [
-    {
-      accessor: 'deviceName',
-      Header: 'Device Name',
-      minWidth: 300,
-    },
-    {
-      accessor: 'number',
-      Header: 'number',
-    },
-    {
-      accessor: 'supplementNumber',
-      Header: 'Supplement Number',
-    },
-    {
-      accessor: 'platform',
-      Header: 'Platform',
-    },
-    {
-      accessor: 'genetic',
-      Header: 'Genetic',
-      Cell(cell: { original: IFdaSubmission }) {
-        return cell.original ? <FontAwesomeIcon icon={faCheck} /> : null;
-      },
-      maxWidth: 75,
-    },
-    {
-      accessor: 'curated',
-      Header: 'Curated',
-      Cell(cell: { original: IFdaSubmission }) {
-        return cell.original ? <FontAwesomeIcon icon={faCheck} /> : null;
-      },
-      maxWidth: 75,
-    },
-    {
-      accessor: 'type',
-      Header: 'Type',
-      Cell(cell: { original: IFdaSubmission }) {
-        return cell.original.type.shortName ? (
-          <Link to={`fda-submission-type/${cell.original.type.id}`}>{cell.original.type.shortName}</Link>
-        ) : undefined;
-      },
-      maxWidth: 100,
-    },
-    getEntityTableActionsColumn(ENTITY_TYPE.FDA_SUBMISSION),
-  ];
-
   return (
     <div>
       <h2 id="fda-submission-heading" data-cy="FdaSubmissionHeading">
@@ -80,7 +34,7 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
         {fdaSubmissionList && (
           <OncoKBAsyncTable
             data={fdaSubmissionList.concat()}
-            columns={columns}
+            columns={FDA_SUBMISSION_TABLE_COLUMNS}
             loading={props.loading}
             initialPaginationState={getPaginationFromSearchParams(props.location.search) || defaultPaginationState}
             searchEntities={props.searchEntities}

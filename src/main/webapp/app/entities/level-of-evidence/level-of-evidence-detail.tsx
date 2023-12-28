@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col } from 'reactstrap';
-import {} from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Col, Row } from 'reactstrap';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import EntityActionButton from 'app/shared/button/EntityActionButton';
+
 export interface ILevelOfEvidenceDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const LevelOfEvidenceDetail = (props: ILevelOfEvidenceDetailProps) => {
@@ -32,14 +32,25 @@ export const LevelOfEvidenceDetail = (props: ILevelOfEvidenceDetailProps) => {
             <span id="level">Level</span>
           </dt>
           <dd>{levelOfEvidenceEntity.level}</dd>
+          <dt>
+            <span id="description">Description</span>
+          </dt>
+          <dd>{levelOfEvidenceEntity.description}</dd>
+          <dt>
+            <span id="htmlDescription">Html Description</span>
+          </dt>
+          <dd>{levelOfEvidenceEntity.htmlDescription}</dd>
+          <dt>
+            <span id="color">Color</span>
+          </dt>
+          <dd>{levelOfEvidenceEntity.color}</dd>
         </dl>
-        <Button tag={Link} to="/level-of-evidence" replace color="info" data-cy="entityDetailsBackButton">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
-        <Button tag={Link} to={`/level-of-evidence/${levelOfEvidenceEntity.id}/edit`} replace color="primary">
-          <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-        </Button>
+        <EntityActionButton
+          color="primary"
+          entityId={levelOfEvidenceEntity.id}
+          entityType={ENTITY_TYPE.LEVEL_OF_EVIDENCE}
+          entityAction={ENTITY_ACTION.EDIT}
+        />
       </Col>
     </Row>
   );

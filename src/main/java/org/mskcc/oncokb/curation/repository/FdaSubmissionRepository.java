@@ -29,7 +29,13 @@ public interface FdaSubmissionRepository extends JpaRepository<FdaSubmission, Lo
     @Query("select fdaSubmission from FdaSubmission fdaSubmission left join fetch fdaSubmission.associations where fdaSubmission.id =:id")
     Optional<FdaSubmission> findOneWithEagerRelationships(@Param("id") Long id);
 
-    List<FdaSubmission> findByNumberAndSupplementNumber(String number, String supplementNumber);
+    @Query(
+        "select fdaSubmission from FdaSubmission fdaSubmission left join fetch fdaSubmission.associations where fdaSubmission.number =:number and fdaSubmission.supplementNumber =:supplementNumber"
+    )
+    Optional<FdaSubmission> findByNumberAndSupplementNumber(
+        @Param("number") String number,
+        @Param("supplementNumber") String supplementNumber
+    );
 
     List<FdaSubmission> findByNumberAndSupplementNumberAndCompanionDiagnosticDevice(
         String number,

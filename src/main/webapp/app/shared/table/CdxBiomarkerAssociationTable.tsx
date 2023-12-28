@@ -38,19 +38,21 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
   };
 
   const biomarkerAssociations: IAssociation[] = useMemo(() => {
-    return _.reduce(
-      props.fdaSubmissions,
-      (acc, next) => {
-        next.associations.forEach(association => {
-          acc.push({
-            ...association,
-            fdaSubmissions: [next],
-          });
-        });
-        return acc;
-      },
-      []
-    );
+    const associations: { [key: number]: IAssociation } = {};
+    (props.fdaSubmissions || []).forEach(fdaSubmission => {
+      fdaSubmission.associations.forEach(association => {
+        const assCopy = _.cloneDeep(association);
+        const assExists = assCopy.id in associations;
+        if (!assExists) {
+          if (assCopy.fdaSubmissions === undefined) {
+            assCopy.fdaSubmissions = [];
+          }
+          associations[assCopy.id] = assCopy;
+        }
+        associations[assCopy.id].fdaSubmissions.push(fdaSubmission);
+      });
+    });
+    return Object.values(associations);
   }, [props.fdaSubmissions]);
 
   const columns: Column<IAssociation>[] = [
@@ -119,7 +121,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
   return (
     <>
       <h4>Biomarker Associations</h4>
-      <OncoKBTable data={biomarkerAssociations} columns={columns} showPagination />
+      <OncoKBTable data={biomarkerAssociations} columns={columns} showPagination defaultPageSize={5} />
       <SimpleConfirmModal
         show={showModal}
         onCancel={handleCancel}

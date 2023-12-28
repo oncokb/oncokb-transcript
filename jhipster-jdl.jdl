@@ -324,6 +324,9 @@ entity Info {
 entity LevelOfEvidence {
     type String  required
     level String  required unique
+    description String required
+    htmlDescription String required
+    color String required
 }
 
 entity NciThesaurus {

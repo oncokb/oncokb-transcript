@@ -53,6 +53,15 @@ public class LevelOfEvidenceService {
                 if (levelOfEvidence.getLevel() != null) {
                     existingLevelOfEvidence.setLevel(levelOfEvidence.getLevel());
                 }
+                if (levelOfEvidence.getDescription() != null) {
+                    existingLevelOfEvidence.setDescription(levelOfEvidence.getDescription());
+                }
+                if (levelOfEvidence.getHtmlDescription() != null) {
+                    existingLevelOfEvidence.setHtmlDescription(levelOfEvidence.getHtmlDescription());
+                }
+                if (levelOfEvidence.getColor() != null) {
+                    existingLevelOfEvidence.setColor(levelOfEvidence.getColor());
+                }
 
                 return existingLevelOfEvidence;
             })

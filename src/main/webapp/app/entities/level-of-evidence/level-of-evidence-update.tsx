@@ -100,6 +100,36 @@ export const LevelOfEvidenceUpdate = (props: ILevelOfEvidenceUpdateProps) => {
                   required: { value: true, message: 'This field is required.' },
                 }}
               />
+              <ValidatedField
+                label="Description"
+                id="level-of-evidence-description"
+                name="description"
+                data-cy="description"
+                type="text"
+                validate={{
+                  required: { value: true, message: 'This field is required.' },
+                }}
+              />
+              <ValidatedField
+                label="Html Description"
+                id="level-of-evidence-htmlDescription"
+                name="htmlDescription"
+                data-cy="htmlDescription"
+                type="text"
+                validate={{
+                  required: { value: true, message: 'This field is required.' },
+                }}
+              />
+              <ValidatedField
+                label="Color"
+                id="level-of-evidence-color"
+                name="color"
+                data-cy="color"
+                type="text"
+                validate={{
+                  required: { value: true, message: 'This field is required.' },
+                }}
+              />
               <Button tag={Link} id="cancel-save" data-cy="entityCreateCancelButton" to="/level-of-evidence" replace color="info">
                 <FontAwesomeIcon icon="arrow-left" />
                 &nbsp;
