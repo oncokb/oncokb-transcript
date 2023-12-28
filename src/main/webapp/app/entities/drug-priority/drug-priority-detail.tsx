@@ -34,7 +34,7 @@ export const DrugPriorityDetail = (props: IDrugPriorityDetailProps) => {
         <EntityActionButton
           color="primary"
           entityId={drugPriorityEntity.id}
-          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityType={ENTITY_TYPE.DRUG_PRIORITY}
           entityAction={ENTITY_ACTION.EDIT}
         />
       </Col>

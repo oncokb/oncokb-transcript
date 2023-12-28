@@ -74,7 +74,12 @@ export const ArticleDetail = (props: IArticleDetailProps) => {
           </dt>
           <dd>{articleEntity.pubDate}</dd>
         </dl>
-        <EntityActionButton color="primary" entityId={articleEntity.id} entityType={ENTITY_TYPE.GENE} entityAction={ENTITY_ACTION.EDIT} />
+        <EntityActionButton
+          color="primary"
+          entityId={articleEntity.id}
+          entityType={ENTITY_TYPE.ARTICLE}
+          entityAction={ENTITY_ACTION.EDIT}
+        />
       </Col>
     </Row>
   );

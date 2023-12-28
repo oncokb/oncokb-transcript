@@ -41,7 +41,7 @@ export const SeqRegionDetail = (props: ISeqRegionDetailProps) => {
         <EntityActionButton
           color="primary"
           entityId={seqRegionEntity.id}
-          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityType={ENTITY_TYPE.SEQ_REGION}
           entityAction={ENTITY_ACTION.EDIT}
         />
       </Col>

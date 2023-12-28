@@ -48,7 +48,7 @@ export const LevelOfEvidenceDetail = (props: ILevelOfEvidenceDetailProps) => {
         <EntityActionButton
           color="primary"
           entityId={levelOfEvidenceEntity.id}
-          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityType={ENTITY_TYPE.LEVEL_OF_EVIDENCE}
           entityAction={ENTITY_ACTION.EDIT}
         />
       </Col>

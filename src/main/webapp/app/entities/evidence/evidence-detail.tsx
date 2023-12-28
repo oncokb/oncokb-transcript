@@ -61,7 +61,7 @@ export const EvidenceDetail = (props: IEvidenceDetailProps) => {
         <EntityActionButton
           color="primary"
           entityId={evidenceEntity.id}
-          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityType={ENTITY_TYPE.EVIDENCE}
           entityAction={ENTITY_ACTION.EDIT}
         />
       </Col>

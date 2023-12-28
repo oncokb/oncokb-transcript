@@ -45,7 +45,7 @@ export const ClinicalTrialArmDetail = (props: IClinicalTrialArmDetailProps) => {
         <EntityActionButton
           color="primary"
           entityId={clinicalTrialArmEntity.id}
-          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityType={ENTITY_TYPE.CLINICAL_TRIAL_ARM}
           entityAction={ENTITY_ACTION.EDIT}
         />
       </Col>

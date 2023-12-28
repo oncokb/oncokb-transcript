@@ -479,7 +479,7 @@ public class MetaImporter {
             } else {
                 Optional<CancerType> cancerTypeOptional = cancerTypeService.findOneByCode(cancerTypeCode);
                 if (cancerTypeOptional.isEmpty()) {
-                    log.error("Cannot find cancer type by coe=de {}", cancerTypeCode);
+                    log.error("Cannot find cancer type by code {}", cancerTypeCode);
                 } else {
                     cancerType = cancerTypeOptional.get();
                 }

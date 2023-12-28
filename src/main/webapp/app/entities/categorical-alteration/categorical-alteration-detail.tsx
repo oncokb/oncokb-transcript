@@ -44,7 +44,7 @@ export const CategoricalAlterationDetail = (props: ICategoricalAlterationDetailP
         <EntityActionButton
           color="primary"
           entityId={categoricalAlterationEntity.id}
-          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityType={ENTITY_TYPE.CATEGORICAL_ALTERATION}
           entityAction={ENTITY_ACTION.EDIT}
         />
       </Col>

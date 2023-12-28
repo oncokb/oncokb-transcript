@@ -34,7 +34,7 @@ export const TreatmentPriorityDetail = (props: ITreatmentPriorityDetailProps) =>
         <EntityActionButton
           color="primary"
           entityId={treatmentPriorityEntity.id}
-          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityType={ENTITY_TYPE.TREATMENT_PRIORITY}
           entityAction={ENTITY_ACTION.EDIT}
         />
       </Col>

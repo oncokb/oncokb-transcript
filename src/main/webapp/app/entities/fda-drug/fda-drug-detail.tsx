@@ -34,7 +34,7 @@ export const FdaDrugDetail = (props: IFdaDrugDetailProps) => {
         <EntityActionButton
           color="primary"
           entityId={fdaDrugEntity.id}
-          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityType={ENTITY_TYPE.FDA_DRUG}
           entityAction={ENTITY_ACTION.EDIT}
         />
       </Col>

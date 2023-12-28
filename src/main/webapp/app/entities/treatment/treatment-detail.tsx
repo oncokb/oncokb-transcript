@@ -35,7 +35,7 @@ export const TreatmentDetail = (props: ITreatmentDetailProps) => {
         <EntityActionButton
           color="primary"
           entityId={treatmentEntity.id}
-          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityType={ENTITY_TYPE.TREATMENT}
           entityAction={ENTITY_ACTION.EDIT}
         />
       </Col>

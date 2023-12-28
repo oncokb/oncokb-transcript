@@ -36,7 +36,7 @@ export const AssociationCancerTypeDetail = (props: IAssociationCancerTypeDetailP
         <EntityActionButton
           color="primary"
           entityId={associationCancerTypeEntity.id}
-          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityType={ENTITY_TYPE.ASSOCIATION_CANCER_TYPE}
           entityAction={ENTITY_ACTION.EDIT}
         />
       </Col>

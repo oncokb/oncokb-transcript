@@ -24,7 +24,7 @@ export const FdaDrug = (props: IFdaDrugProps) => {
     <div>
       <h2 id="fda-drug-heading" data-cy="FdaDrugHeading">
         Fda Drugs
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.GENOME_FRAGMENT} entityAction={ENTITY_ACTION.CREATE} />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.FDA_DRUG} entityAction={ENTITY_ACTION.CREATE} />
       </h2>
       <div>
         {props.fdaDrugList && (

@@ -53,7 +53,7 @@ export const EligibilityCriteriaDetail = (props: IEligibilityCriteriaDetailProps
         <EntityActionButton
           color="primary"
           entityId={eligibilityCriteriaEntity.id}
-          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityType={ENTITY_TYPE.ELIGIBILITY_CRITERIA}
           entityAction={ENTITY_ACTION.EDIT}
         />
       </Col>

@@ -61,12 +61,7 @@ export const FlagDetail = (props: IFlagDetailProps) => {
             })}
           </dd>
         </dl>
-        <EntityActionButton
-          color="primary"
-          entityId={flagEntity.id}
-          entityType={ENTITY_TYPE.TRANSCRIPT}
-          entityAction={ENTITY_ACTION.EDIT}
-        />
+        <EntityActionButton color="primary" entityId={flagEntity.id} entityType={ENTITY_TYPE.FLAG} entityAction={ENTITY_ACTION.EDIT} />
       </Col>
     </Row>
   );

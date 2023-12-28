@@ -48,7 +48,7 @@ export const GenomeFragmentDetail = (props: IGenomeFragmentDetailProps) => {
         <EntityActionButton
           color="primary"
           entityId={genomeFragmentEntity.id}
-          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityType={ENTITY_TYPE.GENOME_FRAGMENT}
           entityAction={ENTITY_ACTION.EDIT}
         />
       </Col>

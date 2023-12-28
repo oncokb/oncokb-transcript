@@ -47,7 +47,7 @@ export const GenomicIndicatorDetail = (props: IGenomicIndicatorDetailProps) => {
         <EntityActionButton
           color="primary"
           entityId={genomicIndicatorEntity.id}
-          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityType={ENTITY_TYPE.GENOMIC_INDICATOR}
           entityAction={ENTITY_ACTION.EDIT}
         />
       </Col>

@@ -55,7 +55,7 @@ export const NciThesaurusDetail = (props: INciThesaurusDetailProps) => {
         <EntityActionButton
           color="primary"
           entityId={nciThesaurusEntity.id}
-          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityType={ENTITY_TYPE.NCI_THESAURUS}
           entityAction={ENTITY_ACTION.EDIT}
         />
       </Col>
