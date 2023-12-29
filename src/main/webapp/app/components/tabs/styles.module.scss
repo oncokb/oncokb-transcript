@@ -1,0 +1,11 @@
+@import '../../variables.scss';
+
+.tab {
+  cursor: pointer;
+  padding: 0px 6px;
+  margin-right: 16px;
+}
+
+.selected {
+  border-bottom: 4px solid $oncokb-blue;
+}

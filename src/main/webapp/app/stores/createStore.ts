@@ -109,6 +109,8 @@ import flag, {
 import AlterationReferenceGenomeStore from 'app/entities/alteration-reference-genome/alteration-reference-genome.store';
 import { FirebaseHistoryStore } from './firebase/firebase.history.store';
 import { CommentStore } from './firebase/firebase.comment.store';
+import { FirebaseUsersStore } from './firebase/firebase.users.store';
+import { HistoryTabStore } from '../components/tabs/history-tab.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
@@ -140,6 +142,7 @@ export interface IRootStore {
   readonly drugBrandStore: DrugBrandStore;
   readonly categoricalAlterationStore: CategoricalAlterationStore;
   readonly clinicalTrialsGovConditionStore: ClinicalTrialsGovConditionStore;
+  readonly historyTabStore: HistoryTabStore;
   /* Firebase stores */
   readonly firebaseStore: FirebaseStore;
   readonly firebaseGeneStore: FirebaseGeneStore;
@@ -147,6 +150,7 @@ export interface IRootStore {
   readonly firebaseDrugsStore: FirebaseDrugsStore;
   readonly firebaseHistoryStore: FirebaseHistoryStore;
   readonly firebaseVusStore: FirebaseVusStore;
+  readonly firebaseUsersStore: FirebaseUsersStore;
   readonly seqRegionStore: SeqRegionStore;
   readonly flagStore: FlagStore;
   readonly alterationReferenceGenomeStore: AlterationReferenceGenomeStore;
@@ -185,6 +189,7 @@ export function createStores(history: History): IRootStore {
   rootStore.drugBrandStore = new DrugBrandStore(rootStore);
   rootStore.categoricalAlterationStore = new CategoricalAlterationStore(rootStore);
   rootStore.clinicalTrialsGovConditionStore = new ClinicalTrialsGovConditionStore(rootStore);
+  rootStore.historyTabStore = new HistoryTabStore();
   /* Firebase stores */
   rootStore.firebaseStore = new FirebaseStore(rootStore);
   rootStore.firebaseGeneStore = new FirebaseGeneStore(rootStore);
@@ -192,6 +197,7 @@ export function createStores(history: History): IRootStore {
   rootStore.firebaseDrugsStore = new FirebaseDrugsStore(rootStore);
   rootStore.firebaseHistoryStore = new FirebaseHistoryStore(rootStore);
   rootStore.firebaseVusStore = new FirebaseVusStore(rootStore);
+  rootStore.firebaseUsersStore = new FirebaseUsersStore(rootStore);
   rootStore.seqRegionStore = new SeqRegionStore(rootStore);
   rootStore.flagStore = new FlagStore(rootStore);
   rootStore.alterationReferenceGenomeStore = new AlterationReferenceGenomeStore(rootStore);
