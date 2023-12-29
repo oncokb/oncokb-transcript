@@ -46,11 +46,13 @@ const CurationPage = (props: ICurationPageProps) => {
     props.findAllGeneEntities(hugoSymbol);
     const cleanupCallbacks = [];
     cleanupCallbacks.push(props.addListener(firebaseGenePath));
-    cleanupCallbacks.push(props.addMetaCollaboratorsListener());
     cleanupCallbacks.push(props.addDrugListListener());
     cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
-    cleanupCallbacks.push(() => props.metaCollaboratorsData && props.updateCollaborator(hugoSymbol, false));
-    return () => cleanupCallbacks.forEach(callback => callback && callback());
+    cleanupCallbacks.push(() => props.updateCollaborator(hugoSymbol, false));
+    cleanupCallbacks.push(props.addMetaCollaboratorsListener());
+    return () => {
+      cleanupCallbacks.forEach(callback => callback && callback());
+    };
   }, []);
 
   const geneEntity = useMemo(() => {
@@ -59,7 +61,7 @@ const CurationPage = (props: ICurationPageProps) => {
 
   useEffect(() => {
     if (props.metaCollaboratorsData && props.data?.name) {
-      props.updateCollaborator(props.data.name, true).catch(error => {
+      props.updateCollaborator(hugoSymbol, true).catch(error => {
         notifyError(error);
         history.push(PAGE_ROUTE.CURATION);
       });
