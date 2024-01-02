@@ -7,7 +7,7 @@ import { ExtractPathExpressions } from '../../util/firebase/firebase-crud-store'
 import { Gene } from '../../model/firebase/firebase.model';
 import { IRootStore } from 'app/stores';
 import { inject } from 'mobx-react';
-import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
+import { getFirebasePath, getValueByNestedKey } from 'app/shared/util/firebase/firebase-utils';
 import { RealtimeBasicLabel } from './RealtimeBasicInput';
 
 export interface IRealtimeDropdownInput extends SelectProps, StoreProps {
@@ -20,7 +20,10 @@ export interface IRealtimeDropdownInput extends SelectProps, StoreProps {
 const RealtimeDropdownInput = (props: IRealtimeDropdownInput) => {
   const { fieldKey, options, labelClass, label, updateReviewableContent, ...selectProps } = props;
 
-  const selectOptions = options.map(o => ({ label: o, value: o }));
+  const getOption = (val: string) => ({ label: val, value: val });
+  const selectOptions = options.map(getOption);
+  const defaultLevel = getValueByNestedKey(props.data, fieldKey);
+  const defaultOption = defaultLevel ? getOption(defaultLevel) : undefined;
 
   const onChangeHandler = (newValue, actionMeta) => {
     updateReviewableContent(getFirebasePath('GENE', props.data.name), fieldKey, newValue.value);
@@ -32,7 +35,7 @@ const RealtimeDropdownInput = (props: IRealtimeDropdownInput) => {
     <div className="flex d-flex mb-2">
       <div>{props.label && <RealtimeBasicLabel label={props.label} id={props.label} labelClass="mr-2 font-weight-bold" />}</div>
       <div className="flex-grow-1">
-        <Select {...selectProps} onChange={onChangeHandler} options={selectOptions} />
+        <Select {...selectProps} onChange={onChangeHandler} options={selectOptions} defaultValue={defaultOption} />
       </div>
     </div>
   );
