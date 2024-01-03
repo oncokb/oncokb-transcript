@@ -24,12 +24,27 @@ export type AllLevelSummary = {
   };
 };
 
+export type MutationLevelSummary = {
+  [mutationUuid: string]: {
+    TT: number;
+    oncogenicity: FIREBASE_ONCOGENICITY | '';
+    mutationEffect: string;
+    TTS: number;
+    DxS: number;
+    PxS: number;
+    txLevels: { [txLevel in TX_LEVELS]: number };
+    dxLevels: { [dxLevel in DX_LEVELS]: number };
+    pxLevels: { [pxLevel in PX_LEVELS]: number };
+  };
+};
+
 export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
   constructor(rootStore: IRootStore) {
     super(rootStore);
     makeObservable(this, {
       hugoSymbol: computed,
-      mutationSummaryStats: computed,
+      allLevelMutationSummaryStats: computed,
+      mutationLevelMutationSummaryStats: computed,
       deleteSection: action.bound,
     });
   }
@@ -38,7 +53,7 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
     return this.data?.name;
   }
 
-  get mutationSummaryStats() {
+  get allLevelMutationSummaryStats() {
     const summary: AllLevelSummary = {};
     const mutations = this.data?.mutations;
     if (mutations) {
@@ -79,6 +94,66 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
             }
             if (tumor?.prognostic?.level) {
               summary[mutation.name_uuid][tumor.cancerTypes_uuid].pxLevels.push(tumor.prognostic.level as PX_LEVELS);
+            }
+          });
+        }
+      });
+    }
+    return summary;
+  }
+
+  get mutationLevelMutationSummaryStats() {
+    const summary: MutationLevelSummary = {};
+    const mutations = this.data?.mutations;
+    if (mutations) {
+      mutations.forEach(mutation => {
+        summary[mutation.name_uuid] = {
+          TT: 0,
+          oncogenicity: mutation.mutation_effect.oncogenic,
+          mutationEffect: mutation.mutation_effect.effect,
+          TTS: 0,
+          DxS: 0,
+          PxS: 0,
+          txLevels: {} as { [txLevel in TX_LEVELS]: number },
+          dxLevels: {} as { [dxLevel in DX_LEVELS]: number },
+          pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
+        };
+        if (mutation.tumors) {
+          mutation.tumors.forEach(tumor => {
+            summary[mutation.name_uuid].TT++;
+            if (tumor.summary) {
+              summary[mutation.name_uuid].TTS++;
+            }
+            if (tumor.diagnosticSummary) {
+              summary[mutation.name_uuid].DxS++;
+            }
+            if (tumor.prognosticSummary) {
+              summary[mutation.name_uuid].PxS++;
+            }
+            tumor.TIs.forEach(ti => {
+              if (ti.treatments) {
+                ti.treatments.forEach(treatment => {
+                  if (!summary[mutation.name_uuid].txLevels[treatment.level]) {
+                    summary[mutation.name_uuid].txLevels[treatment.level] = 1;
+                  } else {
+                    summary[mutation.name_uuid].txLevels[treatment.level]++;
+                  }
+                });
+              }
+            });
+            if (tumor?.diagnostic?.level) {
+              if (!summary[mutation.name_uuid].dxLevels[tumor.diagnostic.level]) {
+                summary[mutation.name_uuid].dxLevels[tumor.diagnostic.level] = 1;
+              } else {
+                summary[mutation.name_uuid].dxLevels[tumor.diagnostic.level]++;
+              }
+            }
+            if (tumor?.prognostic?.level) {
+              if (!summary[mutation.name_uuid].dxLevels[tumor.prognostic.level]) {
+                summary[mutation.name_uuid].dxLevels[tumor.prognostic.level] = 1;
+              } else {
+                summary[mutation.name_uuid].dxLevels[tumor.prognostic.level]++;
+              }
             }
           });
         }

@@ -379,3 +379,8 @@ http://stackoverflow.com/questions/23436430/bootstrap-3-input-group-100-width */
 .grey-tooltip {
   color: $medium-grey;
 }
+
+// Override popover
+.popover {
+  max-width: fit-content;
+}

@@ -27,7 +27,7 @@ const CancerTypeLevelSummary = (props: CancerTypeLevelSummaryProps) => {
 };
 
 const mapStoreToProps = ({ firebaseGeneStore }: IRootStore) => ({
-  mutationSummaryStats: firebaseGeneStore.mutationSummaryStats,
+  mutationSummaryStats: firebaseGeneStore.allLevelMutationSummaryStats,
 });
 
 type StoreProps = {
