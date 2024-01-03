@@ -4,22 +4,9 @@ import static org.mskcc.oncokb.curation.config.DataVersions.NCIT_VERSION;
 import static org.mskcc.oncokb.curation.util.FileUtils.parseDelimitedFile;
 import static org.mskcc.oncokb.curation.util.TimeUtil.parseDbStringInstant;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.swing.text.html.Option;
 import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.*;
@@ -128,39 +115,66 @@ public class MetaImporter {
     final String META_DATA_FOLDER_PATH = DATA_DIRECTORY + "/meta";
 
     public void generalImport() throws ApiException, IOException {
-        //                this.importFlag();
-        //                this.importCdx();
-        //                this.importFdaSubmissionType();
-        //                this.importFdaSubmission();
-        //                this.importGene();
+        log.info("Importing flag...");
+        this.importFlag();
+
+        log.info("Importing cdx...");
+        this.importCdx();
+
+        log.info("Importing FDA submission type...");
+        this.importFdaSubmissionType();
+
+        log.info("Importing FDA submission...");
+        this.importFdaSubmission();
+
+        log.info("Importing gene...");
+        this.importGene();
         //        above are included in meta-1.sql
 
-        //                this.importGeneFlag();
-        //                this.importSeqRegion();
-        //                this.importEnsemblGene();
+        log.info("Importing gene panel...");
+        this.importGenePanelFlag();
+
+        log.info("Importing seq region...");
+        this.importSeqRegion();
+
+        log.info("Importing ensembl gene...");
+        this.importEnsemblGene();
         //        above are included in meta-2.sql
 
-        //                this.importTranscript();
+        log.info("Importing transcript...");
+        this.importTranscript();
         //        above are included in meta-3.sql
 
-        //                this.importTranscriptFlag();
-        //                this.importSequence();
+        log.info("Importing transcript flag...");
+        this.importTranscriptFlag();
+
+        log.info("Importing sequence...");
+        this.importSequence();
         //        above are included in meta-4.sql
 
-        //                this.importGenomeFragment();
+        log.info("Importing genome fragment...");
+        this.importGenomeFragment();
         //        above are included in meta-5.sql Only partial genome fragment was generated
 
         //          meta-6.sql trims the double quotes.
 
-        //                oncoTreeImporter.generalImport();
+        log.info("Importing cancer type...");
+        oncoTreeImporter.generalImport();
         //          meta-7.sql trims the double quotes.
 
         //          meta-8.sql includes article/alterations
-        //        coreImporter.generalImport();
-        //        this.importNcit();
+
+        log.info("Importing core dataset...");
+        coreImporter.generalImport();
+
+        log.info("Importing NCIT...");
+        this.importNcit();
         //          meta-9.sql includes above
 
-        //        coreImporter.importDrug();
+        log.info("Importing drug...");
+        coreImporter.importDrug();
+
+        log.info("Importing association...");
         importAssociations();
     }
 
@@ -250,7 +264,8 @@ public class MetaImporter {
 
     private void importGene() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("gene_10_2023.tsv");
-        lines.forEach(line -> {
+        for (int i = 0; i < lines.size(); i++) {
+            List<String> line = lines.get(i);
             Integer entrezGeneId = Integer.parseInt(line.get(0));
             String hugoSymbol = line.get(1);
 
@@ -280,7 +295,10 @@ public class MetaImporter {
             savedGene.setSynonyms(savedSynonyms);
             geneService.partialUpdate(savedGene);
             log.debug("Saved gene {}", gene);
-        });
+            if ((i + 1) % 1000 == 0) {
+                log.info("Imported {}/{} gene", i + 1, lines.size());
+            }
+        }
 
         // import special genes
         Gene gene = new Gene();
@@ -289,15 +307,15 @@ public class MetaImporter {
         this.geneService.save(gene);
     }
 
-    private void importGeneFlag() throws IOException {
-        List<List<String>> lines = parseTsvMetaFile("gene_flag.tsv");
+    private void importGenePanelFlag() throws IOException {
+        List<List<String>> lines = parseTsvMetaFile("gene_panel_flag.tsv");
         lines.forEach(line -> {
             if (StringUtils.isNotEmpty(line.get(2))) {
                 Integer entrezGeneId = Integer.parseInt(line.get(0));
                 String flag = line.get(2);
 
                 Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(entrezGeneId);
-                Optional<Flag> flagOptional = flagService.findByTypeAndFlag(FlagType.GENE, flag);
+                Optional<Flag> flagOptional = flagService.findByTypeAndFlag(FlagType.GENE_PANEL, flag);
                 geneOptional.get().getFlags().add(flagOptional.get());
                 geneService.partialUpdate(geneOptional.get());
             }
@@ -317,7 +335,8 @@ public class MetaImporter {
 
     private void importEnsemblGene() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("ensembl_gene.tsv");
-        lines.forEach(line -> {
+        for (int i = 0; i < lines.size(); i++) {
+            List<String> line = lines.get(i);
             EnsemblGene ensemblGene = new EnsemblGene();
             Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(Integer.parseInt(line.get(0)));
             if (geneOptional.isEmpty()) {
@@ -334,12 +353,16 @@ public class MetaImporter {
             ensemblGene.setEnd(Integer.valueOf(line.get(7)));
             ensemblGene.setStrand(Integer.valueOf(line.get(8)));
             ensemblGeneService.save(ensemblGene);
-        });
+            if ((i + 1) % 1000 == 0) {
+                log.info("Imported {}/{} ensembl gene", i + 1, lines.size());
+            }
+        }
     }
 
     private void importGenomeFragment() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("genome_fragment.tsv");
-        lines.forEach(line -> {
+        for (int i = 0; i < lines.size(); i++) {
+            List<String> line = lines.get(i);
             GenomeFragment genomeFragment = new GenomeFragment();
             Optional<EnsemblGene> ensemblGeneOptional = ensemblGeneService.findByEnsemblGeneIdAndReferenceGenome(
                 line.get(3),
@@ -365,12 +388,16 @@ public class MetaImporter {
             genomeFragment.setEnd(Integer.parseInt(line.get(8)));
             genomeFragment.setStrand(Integer.parseInt(line.get(9)));
             genomeFragmentService.save(genomeFragment);
-        });
+            if ((i + 1) % 1000 == 0) {
+                log.info("Imported {}/{} genome fragment", i + 1, lines.size());
+            }
+        }
     }
 
     private void importTranscript() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("transcript.tsv");
-        lines.forEach(line -> {
+        for (int i = 0; i < lines.size(); i++) {
+            List<String> line = lines.get(i);
             Transcript transcript = new Transcript();
             Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(Integer.parseInt(line.get(0)));
             if (geneOptional.isEmpty()) {
@@ -395,12 +422,16 @@ public class MetaImporter {
             transcript.setReferenceSequenceId(line.get(7));
             transcript.setDescription(line.get(8));
             transcriptService.save(transcript);
-        });
+            if ((i + 1) % 1000 == 0) {
+                log.info("Imported {}/{} transcript", i + 1, lines.size());
+            }
+        }
     }
 
     private void importTranscriptFlag() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("transcript_flag.tsv");
-        lines.forEach(line -> {
+        for (int i = 0; i < lines.size(); i++) {
+            List<String> line = lines.get(i);
             if (StringUtils.isNotEmpty(line.get(5))) {
                 String referenceGenome = line.get(2);
                 String transcriptId = line.get(4);
@@ -418,12 +449,16 @@ public class MetaImporter {
                 transcriptOptional.get().getFlags().add(flagOptional.get());
                 transcriptService.partialUpdate(transcriptOptional.get());
             }
-        });
+            if ((i + 1) % 1000 == 0) {
+                log.info("Imported {}/{} transcript flag", i + 1, lines.size());
+            }
+        }
     }
 
     private void importSequence() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("sequence.tsv");
-        lines.forEach(line -> {
+        for (int i = 0; i < lines.size(); i++) {
+            List<String> line = lines.get(i);
             Sequence sequence = new Sequence();
             Optional<EnsemblGene> ensemblGeneOptional = ensemblGeneService.findByEnsemblGeneIdAndReferenceGenome(
                 line.get(3),
@@ -445,7 +480,10 @@ public class MetaImporter {
             sequence.setSequenceType(SequenceType.valueOf(line.get(5)));
             sequence.setSequence(line.get(6));
             sequenceService.save(sequence);
-        });
+            if ((i + 1) % 1000 == 0) {
+                log.info("Imported {}/{} sequence", i + 1, lines.size());
+            }
+        }
     }
 
     private void importAssociations() throws IOException {
@@ -547,7 +585,12 @@ public class MetaImporter {
 
     public void saveAllNcitData(List<List<String>> lines) {
         String SYNONYMS_SEPARATOR_REGEX = "\\|";
-        lines.forEach(line -> {
+        for (int i = 0; i < lines.size(); i++) {
+            List<String> line = lines.get(i);
+            Optional<NciThesaurus> nciThesaurusOptional = nciThesaurusService.findByCode(line.get(0));
+            if (nciThesaurusOptional.isPresent()) {
+                continue;
+            }
             NciThesaurus nciThesaurus = new NciThesaurus();
             nciThesaurus.setCode(line.get(0));
             nciThesaurus.setDisplayName(line.get(5));
@@ -566,20 +609,30 @@ public class MetaImporter {
             }
             Set<Synonym> synonyms = synonymStrs
                 .stream()
+                .map(synonymStr -> synonymStr.trim())
+                .distinct()
                 .map(synonymStr -> {
-                    synonymStr = synonymStr.trim();
                     Synonym synonym = new Synonym();
                     synonym.setType(SynonymType.NCIT.name());
                     synonym.setName(synonymStr);
                     synonym.setSource("NCIT");
                     return synonym;
                 })
-                .distinct()
-                .map(synonym -> synonymService.save(synonym))
+                .map(synonym -> {
+                    Optional<Synonym> synonymOptional = synonymService.findByTypeAndName(SynonymType.NCIT, synonym.getName());
+                    if (synonymOptional.isEmpty()) {
+                        return synonymService.save(synonym);
+                    } else {
+                        return synonymOptional.get();
+                    }
+                })
                 .collect(Collectors.toSet());
             nciThesaurus.setSynonyms(synonyms);
             nciThesaurusService.save(nciThesaurus);
-        });
+            if ((i + 1) % 1000 == 0) {
+                log.info("Imported {}/{} NCIT", i + 1, lines.size());
+            }
+        }
     }
 
     private void importNcit() throws IOException {

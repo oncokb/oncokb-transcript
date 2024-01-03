@@ -1,4 +1,5 @@
 import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
+import { IEvidence } from 'app/shared/model/evidence.model';
 import { ITranscript } from 'app/shared/model/transcript.model';
 import { IFlag } from 'app/shared/model/flag.model';
 import { ISynonym } from 'app/shared/model/synonym.model';
@@ -10,6 +11,7 @@ export interface IGene {
   hugoSymbol?: string;
   hgncId?: string | null;
   ensemblGenes?: IEnsemblGene[] | null;
+  evidences?: IEvidence[] | null;
   transcripts?: ITranscript[] | null;
   flags?: IFlag[] | null;
   synonyms?: ISynonym[] | null;

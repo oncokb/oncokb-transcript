@@ -114,6 +114,12 @@ public class GeneQueryService extends QueryService<Gene> {
                         )
                     );
             }
+            if (criteria.getEvidenceId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(criteria.getEvidenceId(), root -> root.join(Gene_.evidences, JoinType.LEFT).get(Evidence_.id))
+                    );
+            }
             if (criteria.getTranscriptId() != null) {
                 specification =
                     specification.or(

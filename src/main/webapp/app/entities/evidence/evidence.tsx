@@ -18,6 +18,7 @@ export const Evidence = (props: IEvidenceProps) => {
     { accessor: 'uuid', Header: 'UUID' },
     { accessor: 'evidenceType', Header: 'Evidence Type' },
     { accessor: 'knownEffect', Header: 'Known Effect' },
+    { accessor: 'gene.hugoSymbol', Header: 'Gene' },
     getEntityTableActionsColumn(ENTITY_TYPE.EVIDENCE),
   ];
 

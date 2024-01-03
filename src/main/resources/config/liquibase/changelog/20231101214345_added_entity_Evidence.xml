@@ -32,6 +32,9 @@
             <column name="association_id" type="bigint">
                 <constraints nullable="true" unique="true" uniqueConstraintName="ux_evidence__association_id" />
             </column>
+            <column name="entrez_gene_id" type="integer">
+                <constraints nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
     </changeSet>

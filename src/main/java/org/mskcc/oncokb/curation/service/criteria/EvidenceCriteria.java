@@ -36,6 +36,8 @@ public class EvidenceCriteria implements Serializable, Criteria {
 
     private LongFilter levelOfEvidenceId;
 
+    private LongFilter entrezGeneId;
+
     private Boolean distinct;
 
     public EvidenceCriteria() {}
@@ -47,6 +49,7 @@ public class EvidenceCriteria implements Serializable, Criteria {
         this.knownEffect = other.knownEffect == null ? null : other.knownEffect.copy();
         this.associationId = other.associationId == null ? null : other.associationId.copy();
         this.levelOfEvidenceId = other.levelOfEvidenceId == null ? null : other.levelOfEvidenceId.copy();
+        this.entrezGeneId = other.entrezGeneId == null ? null : other.entrezGeneId.copy();
         this.distinct = other.distinct;
     }
 
@@ -145,6 +148,21 @@ public class EvidenceCriteria implements Serializable, Criteria {
         this.levelOfEvidenceId = levelOfEvidenceId;
     }
 
+    public LongFilter getEntrezGeneId() {
+        return entrezGeneId;
+    }
+
+    public LongFilter entrezGeneId() {
+        if (entrezGeneId == null) {
+            entrezGeneId = new LongFilter();
+        }
+        return entrezGeneId;
+    }
+
+    public void setEntrezGeneId(LongFilter entrezGeneId) {
+        this.entrezGeneId = entrezGeneId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -169,13 +187,14 @@ public class EvidenceCriteria implements Serializable, Criteria {
             Objects.equals(knownEffect, that.knownEffect) &&
             Objects.equals(associationId, that.associationId) &&
             Objects.equals(levelOfEvidenceId, that.levelOfEvidenceId) &&
+            Objects.equals(entrezGeneId, that.entrezGeneId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, uuid, evidenceType, knownEffect, associationId, levelOfEvidenceId, distinct);
+        return Objects.hash(id, uuid, evidenceType, knownEffect, associationId, levelOfEvidenceId, entrezGeneId, distinct);
     }
 
     // prettier-ignore
@@ -188,6 +207,7 @@ public class EvidenceCriteria implements Serializable, Criteria {
             (knownEffect != null ? "knownEffect=" + knownEffect + ", " : "") +
             (associationId != null ? "associationId=" + associationId + ", " : "") +
             (levelOfEvidenceId != null ? "levelOfEvidenceId=" + levelOfEvidenceId + ", " : "") +
+            (entrezGeneId != null ? "entrezGeneId=" + entrezGeneId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

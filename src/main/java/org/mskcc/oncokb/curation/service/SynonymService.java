@@ -36,9 +36,7 @@ public class SynonymService {
     public Synonym save(Synonym synonym) {
         log.debug("Request to save Synonym : {}", synonym);
         // we need to trim the name if it's too long.
-        if (StringUtils.isNotEmpty(synonym.getName()) && synonym.getName().length() > 255) {
-            synonym.setName(synonym.getName().substring(0, 255));
-        }
+        synonym.setName(trimName(synonym.getName()));
         return synonymRepository.save(synonym);
     }
 
@@ -64,7 +62,7 @@ public class SynonymService {
                     existingSynonym.setCode(synonym.getCode());
                 }
                 if (synonym.getName() != null) {
-                    existingSynonym.setName(synonym.getName());
+                    existingSynonym.setName(trimName(synonym.getName()));
                 }
                 if (synonym.getNote() != null) {
                     existingSynonym.setNote(synonym.getNote());
@@ -100,7 +98,7 @@ public class SynonymService {
     }
 
     public Optional<Synonym> findByTypeAndName(SynonymType synonymType, String name) {
-        return synonymRepository.findByTypeAndName(synonymType.name(), name);
+        return synonymRepository.findByTypeAndName(synonymType.name(), trimName(name));
     }
 
     /**
@@ -111,5 +109,18 @@ public class SynonymService {
     public void delete(Long id) {
         log.debug("Request to delete Synonym : {}", id);
         synonymRepository.deleteById(id);
+    }
+
+    /**
+     * Limit the synonym name length. We only save no more than 255 characters.
+     *
+     * @param name Synonym name
+     * @return trimmed name
+     */
+    private String trimName(String name) {
+        if (StringUtils.isNotEmpty(name) && name.length() > 255) {
+            name = name.substring(0, 255);
+        }
+        return name;
     }
 }

@@ -66,7 +66,7 @@ public class FdaSubmission implements Serializable {
     private String note;
 
     @ShallowReference
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
         name = "rel_fda_submission__association",
         joinColumns = @JoinColumn(name = "fda_submission_id"),

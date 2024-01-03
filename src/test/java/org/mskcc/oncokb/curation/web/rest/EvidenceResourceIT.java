@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Association;
 import org.mskcc.oncokb.curation.domain.Evidence;
+import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.domain.LevelOfEvidence;
 import org.mskcc.oncokb.curation.repository.EvidenceRepository;
 import org.mskcc.oncokb.curation.service.EvidenceService;
@@ -546,6 +547,32 @@ class EvidenceResourceIT {
 
         // Get all the evidenceList where levelOfEvidence equals to (levelOfEvidenceId + 1)
         defaultEvidenceShouldNotBeFound("levelOfEvidenceId.equals=" + (levelOfEvidenceId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllEvidencesByGeneIsEqualToSomething() throws Exception {
+        // Initialize the database
+        evidenceRepository.saveAndFlush(evidence);
+        Gene gene;
+        if (TestUtil.findAll(em, Gene.class).isEmpty()) {
+            gene = GeneResourceIT.createEntity(em);
+            em.persist(gene);
+            em.flush();
+        } else {
+            gene = TestUtil.findAll(em, Gene.class).get(0);
+        }
+        em.persist(gene);
+        em.flush();
+        evidence.setGene(gene);
+        evidenceRepository.saveAndFlush(evidence);
+        Long geneId = gene.getId();
+
+        // Get all the evidenceList where gene equals to geneId
+        defaultEvidenceShouldBeFound("geneId.equals=" + geneId);
+
+        // Get all the evidenceList where gene equals to (geneId + 1)
+        defaultEvidenceShouldNotBeFound("geneId.equals=" + (geneId + 1));
     }
 
     /**

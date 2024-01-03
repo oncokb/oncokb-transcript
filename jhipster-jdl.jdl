@@ -55,12 +55,28 @@ enum EligibilityCriteriaType {
     INCLUSION, EXCLUSION
 }
 
+enum EvidenceType {
+    GENE_SUMMARY,
+    MUTATION_SUMMARY,
+    TUMOR_TYPE_SUMMARY,
+    GENE_TUMOR_TYPE_SUMMARY,
+    PROGNOSTIC_SUMMARY,
+    DIAGNOSTIC_SUMMARY,
+    GENE_BACKGROUND,
+    ONCOGENIC,
+    MUTATION_EFFECT,
+    VUS,
+    PROGNOSTIC_IMPLICATION,
+    DIAGNOSTIC_IMPLICATION
+}
+
 enum FdaSubmissionTypeKey {
     PMA, DE_NOVO, HDE, PMN
 }
 
 enum FlagType {
-    GENE
+    GENE_TYPE
+    GENE_PANEL
     TRANSCRIPT
     DRUG
 }
@@ -69,7 +85,7 @@ enum GeographicRegion {
     US, EU
 }
 
-enum GeneFlagEnum {
+enum GenePanelFlagEnum {
      ONCOKB,
      MSK_IMPACT_505,
      MSK_ACCESS,
@@ -402,6 +418,7 @@ relationship OneToMany {
     EnsemblGene to Transcript
     FdaSubmissionType to FdaSubmission{type(type)}
     Gene to EnsemblGene{gene(entrezGeneId)}
+    Gene to Evidence{gene(entrezGeneId)}
     Gene to Transcript{gene(entrezGeneId)}
     SeqRegion to EnsemblGene {seqRegion(name)}
     SeqRegion to GenomeFragment {seqRegion(name)}
