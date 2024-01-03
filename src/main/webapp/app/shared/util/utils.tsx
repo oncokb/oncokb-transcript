@@ -140,3 +140,12 @@ export function formatDate(date: Date) {
     hour12: true,
   }).format(date);
 }
+
+export async function isPromiseOk(promise: Promise<any>) {
+  try {
+    await promise;
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error };
+  }
+}

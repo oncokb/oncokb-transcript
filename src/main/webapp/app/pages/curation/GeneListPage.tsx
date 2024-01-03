@@ -11,6 +11,9 @@ import { APP_DATETIME_FORMAT, APP_DATE_FORMAT, PAGE_ROUTE } from 'app/config/con
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword } from 'app/shared/util/utils';
 import { TextFormat } from 'react-jhipster';
+import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
+import Tabs from 'app/components/tabs/tabs';
+import CurationToolsTab from 'app/components/tabs/CurationToolsTab';
 
 type GeneMetaInfo = {
   hugoSymbol: string;
@@ -74,28 +77,40 @@ const GeneListPage = (props: StoreProps) => {
   ];
 
   return (
-    <If condition={!!props.metaData && !!geneMeta}>
-      <Then>
-        <Row>
-          <Col>
-            <OncoKBTable
-              data={geneMeta}
-              columns={columns}
-              showPagination
-              defaultSorted={[
-                {
-                  id: 'needsReview',
-                  desc: true,
-                },
-              ]}
-            />
-          </Col>
-        </Row>
-      </Then>
-      <Else>
-        <LoadingIndicator size={LoaderSize.LARGE} center={true} isLoading />
-      </Else>
-    </If>
+    <>
+      <If condition={!!props.metaData && !!geneMeta}>
+        <Then>
+          <Row>
+            <Col>
+              <OncoKBTable
+                data={geneMeta}
+                columns={columns}
+                showPagination
+                defaultSorted={[
+                  {
+                    id: 'needsReview',
+                    desc: true,
+                  },
+                ]}
+              />
+            </Col>
+          </Row>
+        </Then>
+        <Else>
+          <LoadingIndicator size={LoaderSize.LARGE} center={true} isLoading />
+        </Else>
+      </If>
+      <OncoKBSidebar>
+        <Tabs
+          tabs={[
+            {
+              title: 'Tools',
+              content: <CurationToolsTab />,
+            },
+          ]}
+        />
+      </OncoKBSidebar>
+    </>
   );
 };
 
