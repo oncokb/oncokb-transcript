@@ -9,8 +9,20 @@ import {
   isNestedObjectEmpty,
   isSectionEmpty,
   isSectionRemovableWithoutReview,
+  sortByTxLevel,
 } from './firebase-utils';
-import { CancerType, Drug, Gene, Meta, MetaReview, Mutation, Review, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
+import {
+  CancerType,
+  Drug,
+  Gene,
+  Meta,
+  MetaReview,
+  Mutation,
+  Review,
+  TX_LEVELS,
+  Treatment,
+  Tumor,
+} from 'app/shared/model/firebase/firebase.model';
 import { generateUuid } from '../utils';
 import { NestLevelType } from 'app/pages/curation/collapsible/Collapsible';
 
@@ -412,6 +424,19 @@ describe('FirebaseUtils', () => {
       // Tumor is empty and no therapies avaiable
       tumor.diagnosticSummary = '';
       expect(isSectionEmpty(gene, firebasePath)).toBeTruthy();
+    });
+  });
+
+  describe('sortByTxLevel', () => {
+    it('should sort therapeutic levels', () => {
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_R1)).toEqual(-1);
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_R1, TX_LEVELS.LEVEL_2)).toEqual(-1);
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_2, TX_LEVELS.LEVEL_3A)).toEqual(-1);
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_3A, TX_LEVELS.LEVEL_3B)).toEqual(-1);
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_3B, TX_LEVELS.LEVEL_4)).toEqual(-1);
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_4, TX_LEVELS.LEVEL_R2)).toEqual(-1);
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_R2, TX_LEVELS.LEVEL_R3)).toEqual(-1);
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_R2, TX_LEVELS.LEVEL_NO)).toEqual(-1);
     });
   });
 });

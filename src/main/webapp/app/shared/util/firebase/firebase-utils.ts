@@ -1,5 +1,5 @@
 import { UUID_REGEX } from 'app/config/constants/constants';
-import { Comment, DrugCollection, Gene, Meta, Mutation, Review, Tumor } from 'app/shared/model/firebase/firebase.model';
+import { Comment, DrugCollection, Gene, Meta, Mutation, Review, TX_LEVELS, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
 import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/Collapsible';
@@ -162,4 +162,29 @@ export const isSectionEmpty = (geneData: Gene, fullPath: string) => {
     }
   }
   return isEmpty;
+};
+
+export const sortByTxLevel = (a: TX_LEVELS, b: TX_LEVELS) => {
+  const ordering = [
+    TX_LEVELS.LEVEL_1,
+    TX_LEVELS.LEVEL_R1,
+    TX_LEVELS.LEVEL_2,
+    TX_LEVELS.LEVEL_3A,
+    TX_LEVELS.LEVEL_3B,
+    TX_LEVELS.LEVEL_4,
+    TX_LEVELS.LEVEL_R2,
+    TX_LEVELS.LEVEL_R3,
+  ];
+  const aIndex = ordering.indexOf(a);
+  const bIndex = ordering.indexOf(b);
+  if (aIndex === bIndex) {
+    return 0;
+  }
+  if (aIndex === -1) {
+    return 1;
+  }
+  if (bIndex === -1) {
+    return -1;
+  }
+  return aIndex > bIndex ? 1 : -1;
 };

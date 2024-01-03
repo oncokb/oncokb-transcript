@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import _ from 'lodash';
 import './nest-level-summary.scss';
 import React from 'react';
+import { sortByTxLevel } from 'app/shared/util/firebase/firebase-utils';
 
 export type NestLevelSummaryStats = {
   TT?: number;
@@ -44,36 +45,42 @@ export const NestLevelSummary = (props: NestLevelSummaryProps) => {
             />
           );
         })}
-      {Object.keys(props.summaryStats.txLevels).map(k => {
-        lastBadgeHasHiddenNumber = false;
-        return (
-          <CountBadge
-            count={props.summaryStats.txLevels[k]}
-            base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
-            key={`tx-levels-${k}`}
-          />
-        );
-      })}
-      {Object.keys(props.summaryStats.dxLevels).map(k => {
-        lastBadgeHasHiddenNumber = false;
-        return (
-          <CountBadge
-            count={props.summaryStats.dxLevels[k]}
-            base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
-            key={`dx-levels-${k}`}
-          />
-        );
-      })}
-      {Object.keys(props.summaryStats.pxLevels).map(k => {
-        lastBadgeHasHiddenNumber = false;
-        return (
-          <CountBadge
-            count={props.summaryStats.pxLevels[k]}
-            base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
-            key={`px-levels-${k}`}
-          />
-        );
-      })}
+      {Object.keys(props.summaryStats.txLevels)
+        .sort(sortByTxLevel)
+        .map(k => {
+          lastBadgeHasHiddenNumber = false;
+          return (
+            <CountBadge
+              count={props.summaryStats.txLevels[k]}
+              base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
+              key={`tx-levels-${k}`}
+            />
+          );
+        })}
+      {Object.keys(props.summaryStats.dxLevels)
+        .sort()
+        .map(k => {
+          lastBadgeHasHiddenNumber = false;
+          return (
+            <CountBadge
+              count={props.summaryStats.dxLevels[k]}
+              base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
+              key={`dx-levels-${k}`}
+            />
+          );
+        })}
+      {Object.keys(props.summaryStats.pxLevels)
+        .sort()
+        .map(k => {
+          lastBadgeHasHiddenNumber = false;
+          return (
+            <CountBadge
+              count={props.summaryStats.pxLevels[k]}
+              base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
+              key={`px-levels-${k}`}
+            />
+          );
+        })}
       {props.summaryStats.oncogenicity ? (
         <CountBadge
           hideWhenOne
