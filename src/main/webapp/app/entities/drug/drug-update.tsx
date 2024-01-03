@@ -8,6 +8,7 @@ import { SaveButton } from 'app/shared/button/SaveButton';
 import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
 import NcitCodeSelect, { parseNcitUniqId } from 'app/shared/select/NcitCodeSelect';
+import { generateUuid } from 'app/shared/util/utils';
 
 export interface IDrugUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -68,7 +69,9 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
 
   const defaultValues = () =>
     isNew
-      ? {}
+      ? {
+          uuid: generateUuid(),
+        }
       : {
           ...drugEntity,
         };
@@ -89,6 +92,7 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
               {!isNew ? <ValidatedField name="id" required readOnly id="drug-id" label="ID" validate={{ required: true }} /> : null}
+              <ValidatedField name="uuid" required readOnly id="drug-uuid" label="UUID" validate={{ required: true }} />
               <ValidatedField label="Name" id="drug-name" name="name" data-cy="name" type="textarea" />
               <FormGroup>
                 <Label>Code</Label>

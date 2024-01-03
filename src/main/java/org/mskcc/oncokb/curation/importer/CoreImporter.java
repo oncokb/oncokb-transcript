@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import jodd.util.StringUtil;
+import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.ArticleType;
 import org.mskcc.oncokb.curation.service.*;
@@ -26,7 +27,8 @@ public class CoreImporter {
     final DrugService drugService;
     final NciThesaurusService nciThesaurusService;
     final MainService mainService;
-    final String DATA_DIRECTORY = "/oncokb-data/curation/oncokb/";
+    final ApplicationProperties applicationProperties;
+    final String DATA_DIRECTORY;
     final String MIXED = "MIXED";
 
     public CoreImporter(
@@ -36,7 +38,8 @@ public class CoreImporter {
         AlterationService alterationService,
         DrugService drugService,
         NciThesaurusService nciThesaurusService,
-        MainService mainService
+        MainService mainService,
+        ApplicationProperties applicationProperties
     ) {
         this.cancerTypeService = cancerTypeService;
         this.articleService = articleService;
@@ -45,11 +48,15 @@ public class CoreImporter {
         this.drugService = drugService;
         this.nciThesaurusService = nciThesaurusService;
         this.mainService = mainService;
+        this.applicationProperties = applicationProperties;
+
+        DATA_DIRECTORY = applicationProperties.getOncokbDataRepoPath() + "/curation/oncokb/";
     }
 
     public void generalImport() throws IOException {
         importArticle();
         importAlteration();
+        verifyGene();
     }
 
     private String getVersionInFileName() {
@@ -119,6 +126,26 @@ public class CoreImporter {
         });
     }
 
+    // Verify the gene hugo symbol is the latest from the cBioPortal genes
+    public void verifyGene() throws IOException {
+        List<List<String>> geneLines = parseDelimitedFile(DATA_DIRECTORY + "gene_" + getVersionInFileName() + ".tsv", "\t", true);
+        geneLines.forEach(line -> {
+            Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(Integer.parseInt(line.get(0)));
+            if (geneOptional.isEmpty()) {
+                log.error("Gene cannot be found {} {} ", line.get(0));
+                return;
+            }
+            String oncokbHugo = line.get(6);
+            if (StringUtil.isEmpty(oncokbHugo)) {
+                log.error("Line does not have hugo symbol {}", line);
+            } else {
+                if (!oncokbHugo.equals(geneOptional.get().getHugoSymbol())) {
+                    log.error("Hugo Symbol does not match oncokb: {}, cbioportal: {}", oncokbHugo, geneOptional.get().getHugoSymbol());
+                }
+            }
+        });
+    }
+
     public void importDrug() throws IOException {
         List<List<String>> drugLines = parseDelimitedFile(DATA_DIRECTORY + "drug_" + getVersionInFileName() + ".tsv", "\t", true);
         drugLines.forEach(line -> {
@@ -127,15 +154,17 @@ public class CoreImporter {
 
             Drug drug = new Drug();
             drug.setName(name);
+            Optional<NciThesaurus> nciThesaurusOptional = Optional.empty();
             if (StringUtil.isEmpty(code)) {
-                log.warn("The drug does not have a code {}", name);
+                log.warn("The drug does not have a code {}, will look for the name", name);
+                nciThesaurusOptional = nciThesaurusService.findOneByNamePriority(name);
             } else {
-                Optional<NciThesaurus> nciThesaurusOptional = nciThesaurusService.findByCode(code);
-                if (nciThesaurusOptional.isPresent()) {
-                    drug.setNciThesaurus(nciThesaurusOptional.get());
-                } else {
-                    log.warn("The code cannot be found {}", code);
-                }
+                nciThesaurusOptional = nciThesaurusService.findByCode(code);
+            }
+            if (nciThesaurusOptional.isPresent()) {
+                drug.setNciThesaurus(nciThesaurusOptional.get());
+            } else {
+                log.warn("The code cannot be found {}", code);
             }
             drugService.save(drug);
         });

@@ -25,6 +25,10 @@ export const DrugDetail = (props: IDrugDetailProps) => {
           </dt>
           <dd>{drugEntity.id}</dd>
           <dt>
+            <span id="name">UUID</span>
+          </dt>
+          <dd>{drugEntity.uuid}</dd>
+          <dt>
             <span id="name">Name</span>
           </dt>
           <dd>{drugEntity.name}</dd>

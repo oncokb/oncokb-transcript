@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.repository;
 
 import java.util.List;
 import java.util.Optional;
+import javax.swing.text.html.Option;
 import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.springframework.data.jpa.repository.*;
@@ -29,7 +30,7 @@ public interface DrugRepository extends JpaRepository<Drug, Long>, JpaSpecificat
     Optional<Drug> findOneByCodeWithEagerRelationships(@Param("code") String code);
 
     @Query("select distinct drug from Drug drug left join fetch drug.brands left join fetch drug.flags where drug.name=:name")
-    List<Drug> findByNameIgnoreCaseWithEagerRelationships(@Param("name") String name);
+    Optional<Drug> findByNameIgnoreCaseWithEagerRelationships(@Param("name") String name);
 
     @Query(
         "select distinct d from Drug d" +

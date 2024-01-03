@@ -26,6 +26,8 @@ public class DrugCriteria implements Serializable, Criteria {
 
     private LongFilter id;
 
+    private StringFilter uuid;
+
     private StringFilter name;
 
     private StringFilter ncitCode;
@@ -42,6 +44,7 @@ public class DrugCriteria implements Serializable, Criteria {
 
     public DrugCriteria(DrugCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
+        this.uuid = other.uuid == null ? null : other.uuid.copy();
         this.name = other.name == null ? null : other.name.copy();
         this.ncitCode = other.ncitCode == null ? null : other.ncitCode.copy();
         this.flagId = other.flagId == null ? null : other.flagId.copy();
@@ -68,6 +71,14 @@ public class DrugCriteria implements Serializable, Criteria {
 
     public void setId(LongFilter id) {
         this.id = id;
+    }
+
+    public StringFilter getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(StringFilter uuid) {
+        this.uuid = uuid;
     }
 
     public StringFilter getName() {
@@ -164,6 +175,7 @@ public class DrugCriteria implements Serializable, Criteria {
         final DrugCriteria that = (DrugCriteria) o;
         return (
             Objects.equals(id, that.id) &&
+            Objects.equals(uuid, that.uuid) &&
             Objects.equals(name, that.name) &&
             Objects.equals(ncitCode, that.ncitCode) &&
             Objects.equals(flagId, that.flagId) &&
@@ -183,6 +195,7 @@ public class DrugCriteria implements Serializable, Criteria {
     public String toString() {
         return "DrugCriteria{" +
             (id != null ? "id=" + id + ", " : "") +
+            (uuid != null ? "uuid=" + uuid + ", " : "") +
             (name != null ? "name=" + name + ", " : "") +
             (ncitCode != null ? "ncitCode=" + ncitCode + ", " : "") +
             (flagId != null ? "flagId=" + flagId + ", " : "") +

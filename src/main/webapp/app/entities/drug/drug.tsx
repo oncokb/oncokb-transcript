@@ -21,6 +21,7 @@ export const Drug = (props: IDrugProps) => {
   const drugList = props.drugList;
 
   const columns: Column<IDrug>[] = [
+    { accessor: 'uuid', Header: 'UUID' },
     { accessor: 'name', Header: 'Name' },
     {
       id: 'code',

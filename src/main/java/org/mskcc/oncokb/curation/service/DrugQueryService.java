@@ -99,6 +99,9 @@ public class DrugQueryService extends QueryService<Drug> {
             if (criteria.getName() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getName(), Drug_.name));
             }
+            if (criteria.getUuid() != null) {
+                specification = specification.or(buildStringSpecification(criteria.getUuid(), Drug_.uuid));
+            }
             if (criteria.getNcitCode() != null) {
                 specification =
                     specification.or(
@@ -110,19 +113,17 @@ public class DrugQueryService extends QueryService<Drug> {
             }
             if (criteria.getFlagId() != null) {
                 specification =
-                    specification.and(
-                        buildSpecification(criteria.getFlagId(), root -> root.join(Drug_.flags, JoinType.LEFT).get(Flag_.id))
-                    );
+                    specification.or(buildSpecification(criteria.getFlagId(), root -> root.join(Drug_.flags, JoinType.LEFT).get(Flag_.id)));
             }
             if (criteria.getFdaDrugId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(criteria.getFdaDrugId(), root -> root.join(Drug_.fdaDrug, JoinType.LEFT).get(FdaDrug_.id))
                     );
             }
             if (criteria.getTreatmentId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(criteria.getTreatmentId(), root -> root.join(Drug_.treatments, JoinType.LEFT).get(Treatment_.id))
                     );
             }

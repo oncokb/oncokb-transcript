@@ -240,6 +240,7 @@ entity Consequence {
 }
 
 entity Drug {
+    uuid String required unique
     name TextBlob required
 }
 

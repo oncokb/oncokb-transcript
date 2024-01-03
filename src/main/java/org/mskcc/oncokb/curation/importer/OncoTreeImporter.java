@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.swing.text.html.Option;
 import liquibase.pro.packaged.T;
 import org.apache.commons.lang3.StringUtils;
+import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.domain.enumeration.TumorForm;
 import org.mskcc.oncokb.curation.importer.model.OncotreeCancerType;
@@ -26,11 +27,15 @@ public class OncoTreeImporter {
 
     private final Logger log = LoggerFactory.getLogger(OncoTreeImporter.class);
     final CancerTypeService cancerTypeService;
-    final String FILE_PATH = "/oncokb-data/curation/oncotree/oncotree_2019_12_01.json";
+    final ApplicationProperties applicationProperties;
+    final String FILE_PATH;
     final String MIXED = "MIXED";
 
-    public OncoTreeImporter(CancerTypeService cancerTypeService) {
+    public OncoTreeImporter(CancerTypeService cancerTypeService, ApplicationProperties applicationProperties) {
         this.cancerTypeService = cancerTypeService;
+        this.applicationProperties = applicationProperties;
+
+        FILE_PATH = applicationProperties.getOncokbDataRepoPath() + "/curation/oncotree/oncotree_2019_12_01.json";
     }
 
     public void generalImport() throws FileNotFoundException {

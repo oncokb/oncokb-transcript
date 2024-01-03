@@ -53,6 +53,9 @@ public class DrugService {
         return drugRepository
             .findById(drug.getId())
             .map(existingDrug -> {
+                if (drug.getUuid() != null) {
+                    existingDrug.setUuid(drug.getUuid());
+                }
                 if (drug.getName() != null) {
                     existingDrug.setName(drug.getName());
                 }
@@ -119,7 +122,7 @@ public class DrugService {
         return drugRepository.findOneByCodeWithEagerRelationships(code);
     }
 
-    public List<Drug> findByName(String name) {
+    public Optional<Drug> findByName(String name) {
         return drugRepository.findByNameIgnoreCaseWithEagerRelationships(name);
     }
 

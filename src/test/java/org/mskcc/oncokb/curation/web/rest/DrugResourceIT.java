@@ -47,6 +47,9 @@ import org.springframework.util.Base64Utils;
 @WithMockUser
 class DrugResourceIT {
 
+    private static final String DEFAULT_UUID = "AAAAAAAAAA";
+    private static final String UPDATED_UUID = "BBBBBBBBBB";
+
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
 
@@ -80,7 +83,7 @@ class DrugResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Drug createEntity(EntityManager em) {
-        Drug drug = new Drug().name(DEFAULT_NAME);
+        Drug drug = new Drug().uuid(DEFAULT_UUID).name(DEFAULT_NAME);
         return drug;
     }
 
@@ -91,7 +94,7 @@ class DrugResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static Drug createUpdatedEntity(EntityManager em) {
-        Drug drug = new Drug().name(UPDATED_NAME);
+        Drug drug = new Drug().uuid(UPDATED_UUID).name(UPDATED_NAME);
         return drug;
     }
 
@@ -115,6 +118,7 @@ class DrugResourceIT {
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeCreate + 1);
         Drug testDrug = drugList.get(drugList.size() - 1);
+        assertThat(testDrug.getUuid()).isEqualTo(DEFAULT_UUID);
         assertThat(testDrug.getName()).isEqualTo(DEFAULT_NAME);
     }
 
@@ -140,6 +144,25 @@ class DrugResourceIT {
 
     @Test
     @Transactional
+    void checkUuidIsRequired() throws Exception {
+        int databaseSizeBeforeTest = drugRepository.findAll().size();
+        // set the field null
+        drug.setUuid(null);
+
+        // Create the Drug, which fails.
+
+        restDrugMockMvc
+            .perform(
+                post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(drug))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<Drug> drugList = drugRepository.findAll();
+        assertThat(drugList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllDrugs() throws Exception {
         // Initialize the database
         drugRepository.saveAndFlush(drug);
@@ -150,6 +173,7 @@ class DrugResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(drug.getId().intValue())))
+            .andExpect(jsonPath("$.[*].uuid").value(hasItem(DEFAULT_UUID)))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())));
     }
 
@@ -183,6 +207,7 @@ class DrugResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(drug.getId().intValue()))
+            .andExpect(jsonPath("$.uuid").value(DEFAULT_UUID))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()));
     }
 
@@ -202,6 +227,84 @@ class DrugResourceIT {
 
         defaultDrugShouldBeFound("id.lessThanOrEqual=" + id);
         defaultDrugShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByUuidIsEqualToSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+
+        // Get all the drugList where uuid equals to DEFAULT_UUID
+        defaultDrugShouldBeFound("uuid.equals=" + DEFAULT_UUID);
+
+        // Get all the drugList where uuid equals to UPDATED_UUID
+        defaultDrugShouldNotBeFound("uuid.equals=" + UPDATED_UUID);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByUuidIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+
+        // Get all the drugList where uuid not equals to DEFAULT_UUID
+        defaultDrugShouldNotBeFound("uuid.notEquals=" + DEFAULT_UUID);
+
+        // Get all the drugList where uuid not equals to UPDATED_UUID
+        defaultDrugShouldBeFound("uuid.notEquals=" + UPDATED_UUID);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByUuidIsInShouldWork() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+
+        // Get all the drugList where uuid in DEFAULT_UUID or UPDATED_UUID
+        defaultDrugShouldBeFound("uuid.in=" + DEFAULT_UUID + "," + UPDATED_UUID);
+
+        // Get all the drugList where uuid equals to UPDATED_UUID
+        defaultDrugShouldNotBeFound("uuid.in=" + UPDATED_UUID);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByUuidIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+
+        // Get all the drugList where uuid is not null
+        defaultDrugShouldBeFound("uuid.specified=true");
+
+        // Get all the drugList where uuid is null
+        defaultDrugShouldNotBeFound("uuid.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByUuidContainsSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+
+        // Get all the drugList where uuid contains DEFAULT_UUID
+        defaultDrugShouldBeFound("uuid.contains=" + DEFAULT_UUID);
+
+        // Get all the drugList where uuid contains UPDATED_UUID
+        defaultDrugShouldNotBeFound("uuid.contains=" + UPDATED_UUID);
+    }
+
+    @Test
+    @Transactional
+    void getAllDrugsByUuidNotContainsSomething() throws Exception {
+        // Initialize the database
+        drugRepository.saveAndFlush(drug);
+
+        // Get all the drugList where uuid does not contain DEFAULT_UUID
+        defaultDrugShouldNotBeFound("uuid.doesNotContain=" + DEFAULT_UUID);
+
+        // Get all the drugList where uuid does not contain UPDATED_UUID
+        defaultDrugShouldBeFound("uuid.doesNotContain=" + UPDATED_UUID);
     }
 
     @Test
@@ -370,6 +473,7 @@ class DrugResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(drug.getId().intValue())))
+            .andExpect(jsonPath("$.[*].uuid").value(hasItem(DEFAULT_UUID)))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())));
 
         // Check, that the count call also returns 1
@@ -418,7 +522,7 @@ class DrugResourceIT {
         Drug updatedDrug = drugRepository.findById(drug.getId()).get();
         // Disconnect from session so that the updates on updatedDrug are not directly saved in db
         em.detach(updatedDrug);
-        updatedDrug.name(UPDATED_NAME);
+        updatedDrug.uuid(UPDATED_UUID).name(UPDATED_NAME);
 
         restDrugMockMvc
             .perform(
@@ -433,6 +537,7 @@ class DrugResourceIT {
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
         Drug testDrug = drugList.get(drugList.size() - 1);
+        assertThat(testDrug.getUuid()).isEqualTo(UPDATED_UUID);
         assertThat(testDrug.getName()).isEqualTo(UPDATED_NAME);
     }
 
@@ -508,7 +613,7 @@ class DrugResourceIT {
         Drug partialUpdatedDrug = new Drug();
         partialUpdatedDrug.setId(drug.getId());
 
-        partialUpdatedDrug.name(UPDATED_NAME);
+        partialUpdatedDrug.uuid(UPDATED_UUID);
 
         restDrugMockMvc
             .perform(
@@ -523,7 +628,8 @@ class DrugResourceIT {
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
         Drug testDrug = drugList.get(drugList.size() - 1);
-        assertThat(testDrug.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testDrug.getUuid()).isEqualTo(UPDATED_UUID);
+        assertThat(testDrug.getName()).isEqualTo(DEFAULT_NAME);
     }
 
     @Test
@@ -538,7 +644,7 @@ class DrugResourceIT {
         Drug partialUpdatedDrug = new Drug();
         partialUpdatedDrug.setId(drug.getId());
 
-        partialUpdatedDrug.name(UPDATED_NAME);
+        partialUpdatedDrug.uuid(UPDATED_UUID).name(UPDATED_NAME);
 
         restDrugMockMvc
             .perform(
@@ -553,6 +659,7 @@ class DrugResourceIT {
         List<Drug> drugList = drugRepository.findAll();
         assertThat(drugList).hasSize(databaseSizeBeforeUpdate);
         Drug testDrug = drugList.get(drugList.size() - 1);
+        assertThat(testDrug.getUuid()).isEqualTo(UPDATED_UUID);
         assertThat(testDrug.getName()).isEqualTo(UPDATED_NAME);
     }
 

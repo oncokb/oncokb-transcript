@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.*;
 import org.mskcc.oncokb.curation.service.*;
@@ -109,10 +110,19 @@ public class MetaImporter {
     @Autowired
     private CoreImporter coreImporter;
 
+    private final ApplicationProperties applicationProperties;
+
     private final Logger log = LoggerFactory.getLogger(MetaImporter.class);
 
-    final String DATA_DIRECTORY = "/oncokb-data/curation";
-    final String META_DATA_FOLDER_PATH = DATA_DIRECTORY + "/meta";
+    final String DATA_DIRECTORY;
+    final String META_DATA_FOLDER_PATH;
+
+    public MetaImporter(ApplicationProperties applicationProperties) {
+        this.applicationProperties = applicationProperties;
+
+        DATA_DIRECTORY = applicationProperties.getOncokbDataRepoPath() + "/curation";
+        META_DATA_FOLDER_PATH = DATA_DIRECTORY + "/meta";
+    }
 
     public void generalImport() throws ApiException, IOException {
         log.info("Importing flag...");
@@ -173,6 +183,9 @@ public class MetaImporter {
 
         log.info("Importing drug...");
         coreImporter.importDrug();
+
+        log.info("Verifying the OncoKB gene hugo is the same with cBioPortal gene list");
+        coreImporter.verifyGene();
 
         log.info("Importing association...");
         importAssociations();
