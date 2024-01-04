@@ -36,6 +36,8 @@ public class MainService {
     private final ConsequenceService consequenceService;
     private final SeqRegionService seqRegionService;
 
+    private final CategoricalAlterationService categoricalAlterationService;
+
     public MainService(
         TranscriptService transcriptService,
         FlagService flagService,
@@ -47,7 +49,8 @@ public class MainService {
         TranscriptMapper transcriptMapper,
         AlterationUtils alterationUtils,
         ConsequenceService consequenceService,
-        SeqRegionService seqRegionService
+        SeqRegionService seqRegionService,
+        CategoricalAlterationService categoricalAlterationService
     ) {
         this.transcriptService = transcriptService;
         this.flagService = flagService;
@@ -60,6 +63,7 @@ public class MainService {
         this.alterationUtils = alterationUtils;
         this.consequenceService = consequenceService;
         this.seqRegionService = seqRegionService;
+        this.categoricalAlterationService = categoricalAlterationService;
     }
 
     public Optional<Sequence> findSequenceByGene(ReferenceGenome referenceGenome, Integer entrezGeneId, SequenceType sequenceType) {
@@ -82,9 +86,25 @@ public class MainService {
     }
 
     public void annotateAlteration(Alteration alteration) {
+        Optional<CategoricalAlteration> categoricalAlterationOptional = categoricalAlterationService.findOneByAlteration(alteration);
+        if (categoricalAlterationOptional.isPresent()) {
+            CategoricalAlteration categoricalAlteration = categoricalAlterationOptional.get();
+            alteration.setAlteration(categoricalAlteration.getName());
+            alteration.setName(categoricalAlteration.getName());
+            alteration.setType(categoricalAlteration.getAlterationType());
+            alteration.setConsequence(categoricalAlteration.getConsequence());
+            return;
+        }
+
         Alteration pcAlteration = alterationUtils.parseProteinChange(alteration.getAlteration());
         if (pcAlteration.getType() != null) {
             alteration.setType(pcAlteration.getType());
+        }
+        if (
+            alteration.getGenes().size() > 0 &&
+            alteration.getGenes().stream().filter(gene -> gene.getEntrezGeneId() < 0).findAny().isPresent()
+        ) {
+            alteration.setType(NA);
         }
         if (pcAlteration.getType().equals(STRUCTURAL_VARIANT) && !pcAlteration.getGenes().isEmpty()) {
             alteration.setGenes(pcAlteration.getGenes());
