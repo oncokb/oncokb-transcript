@@ -33,3 +33,5 @@ export const NestLevelColor: { [key in NestLevel]: string } = {
   [NestLevel.LEVEL_2]: LEVELS['2'],
   [NestLevel.LEVEL_3]: LEVELS['3'],
 };
+
+export type RemovableNestLevel = NestLevelType.MUTATION | NestLevelType.CANCER_TYPE | NestLevelType.THERAPY;

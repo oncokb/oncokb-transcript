@@ -1,13 +1,12 @@
 import React from 'react';
-import GenericCollapsible from './GenericCollapsible';
+import Collapsible from './Collapsible';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
 import { DX_LEVELS, Mutation, PX_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import { buildFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
 import { getMutationName, getTxName, isSectionEmpty, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
-import { NestLevelColor } from './NestLevel';
-import { NestLevelMapping, NestLevelType } from './Collapsible';
+import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
@@ -41,7 +40,7 @@ const MutationCollapsible = ({
   const showMutationLevelSummary = !title.includes(',');
 
   return (
-    <GenericCollapsible
+    <Collapsible
       className={'mb-1'}
       title={title}
       borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.MUTATION]]}
@@ -61,13 +60,13 @@ const MutationCollapsible = ({
       }
       isSectionEmpty={isSectionEmpty(data, mutationFirebasePath)}
     >
-      <GenericCollapsible
+      <Collapsible
         open
         title="Mutation Effect"
         borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.MUTATION_EFFECT]]}
         isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect`))}
       >
-        <GenericCollapsible
+        <Collapsible
           open
           title="Somatic"
           borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.SOMATIC]]}
@@ -121,9 +120,9 @@ const MutationCollapsible = ({
           <div className="mb-2">
             <AutoParseRefField summary={mutation.mutation_effect.description} />
           </div>
-        </GenericCollapsible>
+        </Collapsible>
         {mutation.mutation_effect.germline && (
-          <GenericCollapsible
+          <Collapsible
             open
             className={'mt-2'}
             title={'Germline'}
@@ -166,15 +165,15 @@ const MutationCollapsible = ({
               label="Cancer Risk"
               name="cancerRisk"
             />
-          </GenericCollapsible>
+          </Collapsible>
         )}
-      </GenericCollapsible>
+      </Collapsible>
       {mutation.tumors?.map((tumor, tumorIndex) => {
         const cancerTypeName = tumor.cancerTypes.map(cancerType => getCancerTypeName(cancerType)).join(', ');
         const cancerTypeFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}`);
 
         return (
-          <GenericCollapsible
+          <Collapsible
             className={'mt-2'}
             key={tumor.cancerTypes_uuid}
             title={`Cancer Type: ${cancerTypeName}`}
@@ -231,7 +230,7 @@ const MutationCollapsible = ({
               }
               name="pxSummary"
             />
-            <GenericCollapsible
+            <Collapsible
               className={'mt-2'}
               key={tumor.diagnostic_uuid}
               title="Diagnostic Implication"
@@ -256,8 +255,8 @@ const MutationCollapsible = ({
               <div className="mb-2">
                 <AutoParseRefField summary={tumor.diagnostic.description} />
               </div>
-            </GenericCollapsible>
-            <GenericCollapsible
+            </Collapsible>
+            <Collapsible
               className={'mt-2'}
               key={tumor.prognostic_uuid}
               title="Prognostic Implication"
@@ -282,7 +281,7 @@ const MutationCollapsible = ({
               <div className="mb-2">
                 <AutoParseRefField summary={tumor.prognostic.description} />
               </div>
-            </GenericCollapsible>
+            </Collapsible>
             {tumor.TIs.reduce((accumulator, ti, tiIndex) => {
               if (!ti.treatments) {
                 return accumulator;
@@ -295,7 +294,7 @@ const MutationCollapsible = ({
                   );
 
                   return (
-                    <GenericCollapsible
+                    <Collapsible
                       className={'mt-2'}
                       key={tumor.cancerTypes_uuid}
                       title={`Therapy: ${getTxName(drugList, treatment.name)}`}
@@ -350,15 +349,15 @@ const MutationCollapsible = ({
                       <div className="mb-2">
                         <AutoParseRefField summary={treatment.description} />
                       </div>
-                    </GenericCollapsible>
+                    </Collapsible>
                   );
                 })
               );
             }, [])}
-          </GenericCollapsible>
+          </Collapsible>
         );
       })}
-    </GenericCollapsible>
+    </Collapsible>
   );
 };
 
