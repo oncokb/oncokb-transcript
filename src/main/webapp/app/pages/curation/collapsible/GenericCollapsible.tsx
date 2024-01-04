@@ -38,7 +38,7 @@ export default function GenericCollapsible({
           }
         }}
       >
-        <div className="mr-auto d-flex align-items-center">
+        <div style={{ flexGrow: 1 }} className="d-flex align-items-center">
           <button type="button" className="btn" onClick={() => setIsOpen(_isOpen => !_isOpen)}>
             {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
           </button>
@@ -48,6 +48,7 @@ export default function GenericCollapsible({
               No entry
             </span>
           )}
+          <div className="mr-auto" />
           {info}
           {action && <div className={classNames(styles.divider)} />}
           {action}

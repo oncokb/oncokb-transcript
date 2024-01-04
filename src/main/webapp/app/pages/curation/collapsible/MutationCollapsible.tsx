@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import GenericCollapsible from './GenericCollapsible';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
 import { DX_LEVELS, Mutation, PX_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import { buildFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
-import { getFirebasePath, getMutationName, getTxName, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
+import { getMutationName, getTxName, isSectionEmpty, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
 import { NestLevelColor } from './NestLevel';
 import { NestLevelMapping, NestLevelType } from './Collapsible';
 import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
@@ -27,14 +27,11 @@ export interface IMutationCollapsibleProps extends StoreProps {
   parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
 }
 
-//TODO: Go back and add no entry logic
 const MutationCollapsible = ({
   data,
-  addListener,
   hugoSymbol,
   deleteSection,
   drugList,
-  addDrugListListener,
   mutation,
   firebaseIndex,
   parsedHistoryList,
@@ -43,16 +40,6 @@ const MutationCollapsible = ({
   const mutationFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}`);
   const showMutationLevelSummary = !title.includes(',');
 
-  useEffect(() => {
-    const cleanupCallbacks = [];
-    cleanupCallbacks.push(addListener(getFirebasePath('GENE', hugoSymbol)));
-    cleanupCallbacks.push(addDrugListListener());
-
-    return () => {
-      cleanupCallbacks.forEach(callback => callback && callback());
-    };
-  }, []);
-
   return (
     <GenericCollapsible
       className={'mb-1'}
@@ -60,18 +47,32 @@ const MutationCollapsible = ({
       borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.MUTATION]]}
       info={showMutationLevelSummary ? <MutationLevelSummary mutationUuid={mutation.name_uuid} /> : null}
       action={
-        <div>
-          <GeneHistoryTooltip key={'gene-history-tooltip'} historyData={parsedHistoryList} location={getMutationName(mutation)} />,
+        <>
+          <span>
+            <GeneHistoryTooltip key={'gene-history-tooltip'} historyData={parsedHistoryList} location={getMutationName(mutation)} />
+          </span>
+          <div className="mr-3" />
           <DeleteSectionButton
             sectionName={title}
             deleteHandler={() => deleteSection(NestLevelType.MUTATION, mutationFirebasePath)}
             isRemovableWithoutReview={isSectionRemovableWithoutReview(data, NestLevelType.MUTATION, mutationFirebasePath)}
           />
-        </div>
+        </>
       }
+      isSectionEmpty={isSectionEmpty(data, mutationFirebasePath)}
     >
-      <GenericCollapsible open title="Mutation Effect" borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.MUTATION_EFFECT]]}>
-        <GenericCollapsible open title="Somatic" borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.SOMATIC]]}>
+      <GenericCollapsible
+        open
+        title="Mutation Effect"
+        borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.MUTATION_EFFECT]]}
+        isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect`))}
+      >
+        <GenericCollapsible
+          open
+          title="Somatic"
+          borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.SOMATIC]]}
+          isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect/oncogenic`))}
+        >
           <RealtimeCheckedInputGroup
             groupHeader={
               <>
@@ -127,6 +128,7 @@ const MutationCollapsible = ({
             className={'mt-2'}
             title={'Germline'}
             borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.GERMLINE]]}
+            isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/0/mutation_effect/germline`))}
           >
             <RealtimeCheckedInputGroup
               groupHeader="Pathogenic"
@@ -177,22 +179,21 @@ const MutationCollapsible = ({
             key={tumor.cancerTypes_uuid}
             title={`Cancer Type: ${cancerTypeName}`}
             borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.CANCER_TYPE]]}
-            info={<CancerTypeLevelSummary mutationUuid={mutation.name} cancerTypeUuid={tumor.cancerTypes_uuid} />}
+            info={<CancerTypeLevelSummary mutationUuid={mutation.name_uuid} cancerTypeUuid={tumor.cancerTypes_uuid} />}
             action={
-              <div>
-                <GeneHistoryTooltip
-                  key={'gene-history-tooltip'}
-                  historyData={parsedHistoryList}
-                  location={`${getMutationName(mutation)}, ${cancerTypeName}`}
-                />
-                ,
+              <>
+                <span>
+                  <GeneHistoryTooltip key={'gene-history-tooltip'} historyData={parsedHistoryList} location={getMutationName(mutation)} />
+                </span>
+                <div className="mr-3" />
                 <DeleteSectionButton
                   sectionName={title}
                   deleteHandler={() => deleteSection(NestLevelType.CANCER_TYPE, cancerTypeFirebasePath)}
                   isRemovableWithoutReview={isSectionRemovableWithoutReview(data, NestLevelType.CANCER_TYPE, cancerTypeFirebasePath)}
                 />
-              </div>
+              </>
             }
+            isSectionEmpty={isSectionEmpty(data, cancerTypeFirebasePath)}
           >
             <RealtimeTextAreaInput
               fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/summary`}
@@ -235,6 +236,10 @@ const MutationCollapsible = ({
               key={tumor.diagnostic_uuid}
               title="Diagnostic Implication"
               borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.DIAGNOSTIC]]}
+              isSectionEmpty={isSectionEmpty(
+                data,
+                buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic`)
+              )}
             >
               <RealtimeDropdownInput
                 fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic/level`}
@@ -257,6 +262,10 @@ const MutationCollapsible = ({
               key={tumor.prognostic_uuid}
               title="Prognostic Implication"
               borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.PROGNOSTIC]]}
+              isSectionEmpty={isSectionEmpty(
+                data,
+                buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic`)
+              )}
             >
               <RealtimeDropdownInput
                 fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic/level`}
@@ -298,6 +307,7 @@ const MutationCollapsible = ({
                           isRemovableWithoutReview={isSectionRemovableWithoutReview(data, NestLevelType.THERAPY, therapyFirebasePath)}
                         />
                       }
+                      isSectionEmpty={isSectionEmpty(data, therapyFirebasePath)}
                     >
                       <RealtimeDropdownInput
                         fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
@@ -354,11 +364,9 @@ const MutationCollapsible = ({
 
 const mapStoreToProps = ({ firebaseGeneStore, firebaseDrugsStore }: IRootStore) => ({
   data: firebaseGeneStore.data,
-  addListener: firebaseGeneStore.addListener,
   hugoSymbol: firebaseGeneStore.hugoSymbol,
   deleteSection: firebaseGeneStore.deleteSection,
   drugList: firebaseDrugsStore.drugList,
-  addDrugListListener: firebaseDrugsStore.addDrugListListener,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

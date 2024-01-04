@@ -48,7 +48,7 @@ const CurationPage = (props: ICurationPageProps) => {
   const [mutationFilter, setMutationFilter] = useState('');
 
   const [showFilterModal, setShowFilterModal] = useState(false);
-  const [mutations, setMutations] = useState<(Mutation & { firebaseIndex: number })[]>(null);
+  const [mutations, setMutations] = useState<(Mutation & { firebaseIndex: number })[]>([]);
 
   const [oncogenicityFilter, setOncogenicityFilter] = useState(initFilterCheckboxState(ONCOGENICITY_OPTIONS));
   const [tempOncogenicityFilter, setTempOncogenicityFilter] = useState(initFilterCheckboxState(ONCOGENICITY_OPTIONS));
@@ -59,7 +59,7 @@ const CurationPage = (props: ICurationPageProps) => {
   const [txLevelFilter, setTxLevelFilter] = useState(initFilterCheckboxState(TX_LEVEL_OPTIONS));
   const [tempTxLevelFilter, setTempTxLevelFilter] = useState(initFilterCheckboxState(TX_LEVEL_OPTIONS));
 
-  const [enabledCheckboxes, setEnabledCheckboxes] = useState<string[]>(null);
+  const [enabledCheckboxes, setEnabledCheckboxes] = useState<string[]>([]);
 
   function initFilterCheckboxState(options: string[]) {
     return options.map(option => ({ label: option, selected: false, disabled: false }));
@@ -173,7 +173,7 @@ const CurationPage = (props: ICurationPageProps) => {
 
   function filterMutations() {
     setMutations(
-      props.data?.mutations.reduce<(Mutation & { firebaseIndex: number })[]>((filteredMutations, mutation, index) => {
+      props.data?.mutations?.reduce<(Mutation & { firebaseIndex: number })[]>((filteredMutations, mutation, index) => {
         const matchesName = !mutationFilter || getMutationName(mutation).toLowerCase().includes(mutationFilter.toLowerCase());
 
         const selectedOncogenicities = oncogenicityFilter.filter(filter => filter.selected);
@@ -351,13 +351,13 @@ const CurationPage = (props: ICurationPageProps) => {
                   >
                     <Collapsible
                       nestLevel={NestLevelType.MUTATION_EFFECT}
-                        open
+                      open
                       title={'Mutation Effect'}
                       geneFieldKey={`mutations/${mutation.firebaseIndex}/mutation_effect`}
                     >
                       <Collapsible
                         nestLevel={NestLevelType.SOMATIC}
-                          open
+                        open
                         title={'Somatic'}
                         geneFieldKey={`mutations/${mutation.firebaseIndex}/mutation_effect/oncogenic`}
                       >
@@ -411,14 +411,14 @@ const CurationPage = (props: ICurationPageProps) => {
                           }
                           name="description"
                         />
-                          <div className="mb-2">
-                            <AutoParseRefField summary={mutation.mutation_effect.description} />
-                          </div>
+                        <div className="mb-2">
+                          <AutoParseRefField summary={mutation.mutation_effect.description} />
+                        </div>
                       </Collapsible>
                       {mutation.mutation_effect.germline && (
                         <Collapsible
                           nestLevel={NestLevelType.GERMLINE}
-                            open
+                          open
                           className={'mt-2'}
                           title={'Germline'}
                           geneFieldKey={`mutations/0/mutation_effect/germline`}
@@ -495,76 +495,76 @@ const CurationPage = (props: ICurationPageProps) => {
                               }
                               name="txSummary"
                             />
-                              <RealtimeTextAreaInput
-                                fieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/diagnosticSummary`}
-                                inputClass={styles.summaryTextarea}
-                                label="Diagnostic Summary (Optional)"
-                                labelIcon={
-                                  <GeneHistoryTooltip
-                                    historyData={parsedHistoryList}
-                                    location={`${getMutationName(mutation)}, ${cancerTypeName}, Diagnostic Summary`}
-                                  />
-                                }
-                                name="dxSummary"
+                            <RealtimeTextAreaInput
+                              fieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/diagnosticSummary`}
+                              inputClass={styles.summaryTextarea}
+                              label="Diagnostic Summary (Optional)"
+                              labelIcon={
+                                <GeneHistoryTooltip
+                                  historyData={parsedHistoryList}
+                                  location={`${getMutationName(mutation)}, ${cancerTypeName}, Diagnostic Summary`}
+                                />
+                              }
+                              name="dxSummary"
+                            />
+                            <RealtimeTextAreaInput
+                              fieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/prognosticSummary`}
+                              inputClass={styles.summaryTextarea}
+                              label="Prognostic Summary (Optional)"
+                              labelIcon={
+                                <GeneHistoryTooltip
+                                  historyData={parsedHistoryList}
+                                  location={`${getMutationName(mutation)}, ${cancerTypeName}, Prognostic Summary`}
+                                />
+                              }
+                              name="pxSummary"
+                            />
+                            <Collapsible
+                              className={'mt-2'}
+                              key={tumor.diagnostic_uuid}
+                              nestLevel={NestLevelType.DIAGNOSTIC}
+                              title={'Diagnostic implication'}
+                              geneFieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/diagnostic`}
+                            >
+                              <RealtimeDropdownInput
+                                fieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/diagnostic/level`}
+                                label="Level of evidence"
+                                name="level"
+                                options={[DX_LEVELS.LEVEL_DX1, DX_LEVELS.LEVEL_DX2, DX_LEVELS.LEVEL_DX3]}
                               />
                               <RealtimeTextAreaInput
-                                fieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/prognosticSummary`}
-                                inputClass={styles.summaryTextarea}
-                                label="Prognostic Summary (Optional)"
-                                labelIcon={
-                                  <GeneHistoryTooltip
-                                    historyData={parsedHistoryList}
-                                    location={`${getMutationName(mutation)}, ${cancerTypeName}, Prognostic Summary`}
-                                  />
-                                }
-                                name="pxSummary"
+                                fieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/diagnostic/description`}
+                                inputClass={styles.textarea}
+                                label="Description of Evidence"
+                                name="evidenceDescription"
                               />
-                              <Collapsible
-                                className={'mt-2'}
-                                key={tumor.diagnostic_uuid}
-                                nestLevel={NestLevelType.DIAGNOSTIC}
-                                title={'Diagnostic implication'}
-                                geneFieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/diagnostic`}
-                              >
-                                <RealtimeDropdownInput
-                                  fieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/diagnostic/level`}
-                                  label="Level of evidence"
-                                  name="level"
-                                  options={[DX_LEVELS.LEVEL_DX1, DX_LEVELS.LEVEL_DX2, DX_LEVELS.LEVEL_DX3]}
-                                />
-                                <RealtimeTextAreaInput
-                                  fieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/diagnostic/description`}
-                                  inputClass={styles.textarea}
-                                  label="Description of Evidence"
-                                  name="evidenceDescription"
-                                />
-                                <div className="mb-2">
-                                  <AutoParseRefField summary={tumor.diagnostic.description} />
-                                </div>
-                              </Collapsible>
-                              <Collapsible
-                                className={'mt-2'}
-                                key={tumor.prognostic_uuid}
-                                nestLevel={NestLevelType.PROGNOSTIC}
-                                title={'Prognostic implication'}
-                                geneFieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/prognostic`}
-                              >
-                                <RealtimeDropdownInput
-                                  fieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/prognostic/level`}
-                                  label="Level of evidence"
-                                  name="level"
-                                  options={[PX_LEVELS.LEVEL_PX1, PX_LEVELS.LEVEL_PX2, PX_LEVELS.LEVEL_PX3]}
-                                />
-                                <RealtimeTextAreaInput
-                                  fieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/prognostic/description`}
-                                  inputClass={styles.textarea}
-                                  label="Description of Evidence"
-                                  name="evidenceDescription"
-                                />
-                                <div className="mb-2">
-                                  <AutoParseRefField summary={tumor.prognostic.description} />
-                                </div>
-                              </Collapsible>
+                              <div className="mb-2">
+                                <AutoParseRefField summary={tumor.diagnostic.description} />
+                              </div>
+                            </Collapsible>
+                            <Collapsible
+                              className={'mt-2'}
+                              key={tumor.prognostic_uuid}
+                              nestLevel={NestLevelType.PROGNOSTIC}
+                              title={'Prognostic implication'}
+                              geneFieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/prognostic`}
+                            >
+                              <RealtimeDropdownInput
+                                fieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/prognostic/level`}
+                                label="Level of evidence"
+                                name="level"
+                                options={[PX_LEVELS.LEVEL_PX1, PX_LEVELS.LEVEL_PX2, PX_LEVELS.LEVEL_PX3]}
+                              />
+                              <RealtimeTextAreaInput
+                                fieldKey={`mutations/${mutation.firebaseIndex}/tumors/${tumorIndex}/prognostic/description`}
+                                inputClass={styles.textarea}
+                                label="Description of Evidence"
+                                name="evidenceDescription"
+                              />
+                              <div className="mb-2">
+                                <AutoParseRefField summary={tumor.prognostic.description} />
+                              </div>
+                            </Collapsible>
                             {tumor.TIs.reduce((accumulator, ti, tiIndex) => {
                               if (!ti.treatments) {
                                 return accumulator;
