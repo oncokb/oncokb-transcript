@@ -1,7 +1,7 @@
 import { ICancerType } from 'app/shared/model/cancer-type.model';
 import { IRootStore } from 'app/stores';
 import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
-import { ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_TYPE } from 'app/config/constants/constants';
 
 export class CancerTypeStore extends PaginationCrudStore<ICancerType> {
   constructor(protected rootStore: IRootStore) {

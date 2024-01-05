@@ -5,7 +5,7 @@ import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
 import { transcriptClient } from 'app/shared/api/clients';
 import { EnsemblGene } from 'app/shared/api/generated';
 import { makeObservable } from 'mobx';
-import { ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_TYPE } from 'app/config/constants/constants';
 
 export class GeneStore extends PaginationCrudStore<IGene> {
   ensemblGenes: EnsemblGene[] = [];

@@ -3,7 +3,7 @@ import { IRootStore } from 'app/stores';
 import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
 import { Alteration } from 'app/shared/api/generated';
 import { alterationClient, alterationControllerClient } from 'app/shared/api/clients';
-import { ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_TYPE } from 'app/config/constants/constants';
 
 export class AlterationStore extends PaginationCrudStore<IAlteration> {
   public proteinChangeAlteration: IAlteration;

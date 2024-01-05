@@ -1,6 +1,6 @@
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_TYPE } from 'app/config/constants/constants';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import { getEntityTableActionsColumn } from 'app/shared/util/utils';
 import React from 'react';

@@ -3,7 +3,7 @@ import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
 
 import { ITreatment } from 'app/shared/model/treatment.model';
-import { DEFAULT_ENTITY_SORT_FIELD, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { DEFAULT_ENTITY_SORT_FIELD, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';

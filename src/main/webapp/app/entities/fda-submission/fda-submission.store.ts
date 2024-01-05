@@ -4,7 +4,7 @@ import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import { fdaSubmissionClient } from 'app/shared/api/clients';
-import { ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_TYPE } from 'app/config/constants/constants';
 import { getEntityResourcePath } from 'app/shared/util/RouteUtils';
 
 const apiUrl = getEntityResourcePath(ENTITY_TYPE.FDA_SUBMISSION);

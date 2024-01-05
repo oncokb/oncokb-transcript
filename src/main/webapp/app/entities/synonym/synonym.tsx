@@ -3,7 +3,7 @@ import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
 
 import { ISynonym } from 'app/shared/model/synonym.model';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 import OncoKBAsyncTable, { PaginationState } from 'app/shared/table/OncoKBAsyncTable';

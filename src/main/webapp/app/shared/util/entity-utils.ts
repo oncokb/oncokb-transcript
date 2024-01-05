@@ -1,6 +1,6 @@
 import pick from 'lodash/pick';
 import { IPaginationBaseState } from 'react-jhipster';
-import { ENTITY_TO_TITLE_MAPPING, ENTITY_TYPE, PAGE_ROUTE } from 'app/config/constants';
+import { ENTITY_TO_TITLE_MAPPING, ENTITY_TYPE, PAGE_ROUTE } from 'app/config/constants/constants';
 import pluralize from 'pluralize';
 import _ from 'lodash';
 

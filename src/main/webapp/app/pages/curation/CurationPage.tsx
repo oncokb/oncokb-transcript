@@ -240,7 +240,7 @@ const CurationPage = (props: ICurationPageProps) => {
               <div className="ml-2">
                 <span className="font-weight-bold">Gene aliases:</span>
                 <span className="ml-1">
-                  <PubmedGeneArticlesLink hugoSymbols={geneEntity.geneAliases?.map(alias => alias.name)} />
+                  <PubmedGeneArticlesLink hugoSymbols={geneEntity.synonyms?.map(synonym => synonym.name)} />
                 </span>
               </div>
             </div>
@@ -796,7 +796,6 @@ const mapStoreToProps = ({
   firebaseHistoryStore,
   authStore,
 }: IRootStore) => ({
-  findAllGeneEntities: geneStore.findAllGeneEntities,
   searchEntities: geneStore.searchEntities,
   entities: geneStore.entities,
   addListener: firebaseGeneStore.addListener,

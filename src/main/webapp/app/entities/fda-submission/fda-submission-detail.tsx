@@ -8,13 +8,6 @@ import { IRootStore } from 'app/stores';
 import { APP_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import EntityPageLink from 'app/shared/links/EntityPageLink';
-import { connect } from 'app/shared/util/typed-inject';
-
-import { IRootStore } from 'app/stores';
-import React, { useEffect } from 'react';
-import { TextFormat } from 'react-jhipster';
-import { RouteComponentProps } from 'react-router-dom';
-import { Col, Row } from 'reactstrap';
 
 export interface IFdaSubmissionDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 

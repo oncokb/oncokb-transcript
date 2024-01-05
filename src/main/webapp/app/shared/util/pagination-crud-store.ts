@@ -3,7 +3,7 @@ import { IRootStore } from 'app/stores';
 import BaseCrudStore from 'app/shared/util/base-crud-store';
 import _ from 'lodash';
 import { ICrudSearchAction } from 'app/shared/util/jhipster-types';
-import { ENTITY_INFO, ENTITY_RESOURCE_PATH, ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_INFO, ENTITY_RESOURCE_PATH, ENTITY_TYPE } from 'app/config/constants/constants';
 import { getEntityResourcePath } from 'app/shared/util/RouteUtils';
 
 export const debouncedSearchWithPagination = _.debounce(

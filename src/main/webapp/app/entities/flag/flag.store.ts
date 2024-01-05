@@ -3,7 +3,7 @@ import { IRootStore } from 'app/stores';
 import { action, makeObservable, observable } from 'mobx';
 import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
 import axios, { AxiosResponse } from 'axios';
-import { ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_TYPE } from 'app/config/constants/constants';
 import { getEntityResourcePath } from 'app/shared/util/RouteUtils';
 
 export class FlagStore extends PaginationCrudStore<IFlag> {

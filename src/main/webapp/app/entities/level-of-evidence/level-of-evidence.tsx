@@ -3,7 +3,7 @@ import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
 
 import { ILevelOfEvidence } from 'app/shared/model/level-of-evidence.model';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';

@@ -1,11 +1,10 @@
-import { ENTITY_ROUTE_TO_TITLE_MAPPING, PAGE_ROUTE } from 'app/config/constants/constants';
+import { PAGE_ROUTE } from 'app/config/constants/constants';
 import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Breadcrumb, BreadcrumbItem } from 'reactstrap';
 import './breadcrumb.scss';
-import { PAGE_ROUTE } from 'app/config/constants';
 import { getEntityTitle } from 'app/shared/util/entity-utils';
 
 const OncokbBreadcrumb: React.FunctionComponent<StoreProps> = props => {

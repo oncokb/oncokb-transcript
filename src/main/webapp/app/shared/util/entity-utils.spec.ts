@@ -1,5 +1,5 @@
 import { cleanEntity, getEntityTitle, mapIdList } from './entity-utils';
-import { ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_TYPE } from 'app/config/constants/constants';
 
 describe('Entity utils', () => {
   describe('cleanEntity', () => {
