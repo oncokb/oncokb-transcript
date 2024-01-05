@@ -3,7 +3,7 @@ import { ref, remove, update } from 'firebase/database';
 import { action, makeObservable } from 'mobx';
 import { Review } from '../../model/firebase/firebase.model';
 import { getValueByNestedKey } from './firebase-utils';
-import { FirebaseCrudStore, RecursiveKeyOf } from './firebase-crud-store';
+import { ExtractPathExpressions, FirebaseCrudStore } from './firebase-crud-store';
 import { generateUuid } from '../utils';
 
 /* eslint-disable @typescript-eslint/ban-types */
@@ -15,7 +15,7 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
     });
   }
 
-  updateReviewableContent(path: string, key: RecursiveKeyOf<T>, value: any) {
+  updateReviewableContent(path: string, key: ExtractPathExpressions<T>, value: any) {
     // Update Review
     const reviewableKey = `${key as string}_review`;
     let review: Review = getValueByNestedKey(this.data, reviewableKey);
@@ -24,11 +24,13 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
     }
     review.updateTime = new Date().getTime();
     review.updatedBy = this.rootStore.authStore.fullName;
-
     // Update Review when value is reverted to original
     let isChangeReverted = false;
-    if (review.lastReviewed === undefined) {
-      review.lastReviewed = getValueByNestedKey(this.data, key);
+    if (!('lastReviewed' in review)) {
+      review.lastReviewed = getValueByNestedKey(this.data, key as string);
+      if (review.lastReviewed === undefined) {
+        delete review.lastReviewed;
+      }
     } else {
       if (review.lastReviewed === value) {
         delete review.lastReviewed;

@@ -1,4 +1,4 @@
-import { PAGE_ROUTE, REDIRECT_TIMEOUT_MILLISECONDS } from 'app/config/constants';
+import { PAGE_ROUTE, REDIRECT_TIMEOUT_MILLISECONDS } from 'app/config/constants/constants';
 import React, { useEffect, useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Alert } from 'reactstrap';

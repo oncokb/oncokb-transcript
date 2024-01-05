@@ -1,8 +1,6 @@
+import { GERMLINE_INHERITANCE_MECHANISM, PATHOGENICITY, PENETRANCE } from 'app/config/constants/constants';
+import { GENE_TYPE } from 'app/config/constants/firebase';
 import { generateUuid } from 'app/shared/util/utils';
-
-export const ONCOGENE = 'Oncogene';
-export const TUMOR_SUPPRESSOR = 'Tumor Suppressor';
-export type GeneTypeString = typeof ONCOGENE | typeof TUMOR_SUPPRESSOR;
 
 export type MetaCollection = {
   [hugoSymbol: string]: Meta;
@@ -15,8 +13,25 @@ export type MetaCollaborators = {
 };
 
 export type DrugCollection = {
-  [hugoSymbol: string]: Drug;
+  [uuid: string]: Drug;
 };
+
+export type VusObjList = {
+  [uuid: string]: Vus;
+};
+
+export type HistoryList = {
+  [uuid: string]: History;
+};
+
+export enum FIREBASE_ONCOGENICITY {
+  YES = 'Yes',
+  LIKELY = 'Likely',
+  LIKELY_NEUTRAL = 'Likely Neutral',
+  INCONCLUSIVE = 'Inconclusive',
+  RESISTANCE = 'Resistance',
+  UNKNOWN = 'Unknown',
+}
 
 export enum TX_LEVELS {
   LEVEL_NO = 'no',
@@ -107,7 +122,7 @@ export class Gene {
   summary = '';
   summary_review?: Review;
   summary_uuid: string = generateUuid();
-  penetrance? = '';
+  penetrance?: PENETRANCE | '' = '';
   penetrance_uuid? = generateUuid();
   penetrance_review?: Review;
   type: GeneType = new GeneType();
@@ -121,10 +136,10 @@ export class Gene {
 }
 
 export class GeneType {
-  ocg: typeof ONCOGENE | '' = '';
+  ocg: typeof GENE_TYPE.ONCOGENE | '' = '';
   ocg_review?: Review;
   ocg_uuid: string = generateUuid();
-  tsg: typeof TUMOR_SUPPRESSOR | '' = '';
+  tsg: typeof GENE_TYPE.TUMOR_SUPPRESSOR | '' = '';
   tsg_uuid: string = generateUuid();
   tsg_review?: Review;
 }
@@ -145,6 +160,10 @@ export class Mutation {
   name_uuid: string = generateUuid();
   tumors: Tumor[] = [];
   tumors_uuid: string = generateUuid();
+
+  constructor(name: string) {
+    this.name = name;
+  }
 }
 
 export class MutationEffect {
@@ -154,7 +173,7 @@ export class MutationEffect {
   effect = '';
   effect_review?: Review;
   effect_uuid: string = generateUuid();
-  oncogenic = '';
+  oncogenic: FIREBASE_ONCOGENICITY | '' = '';
   oncogenic_review?: Review;
   oncogenic_uuid: string = generateUuid();
   germline?: GermlineMutation = new GermlineMutation();
@@ -163,13 +182,13 @@ export class MutationEffect {
 }
 
 export class GermlineMutation {
-  pathogenic = '';
+  pathogenic: `${PATHOGENICITY}` | '' = '';
   pathogenic_review?: Review;
   pathogenic_uuid: string = generateUuid();
-  penetrance = '';
+  penetrance: `${PENETRANCE}` | '' = '';
   penetrance_review?: Review;
   penetrance_uuid: string = generateUuid();
-  inheritanceMechanism: 'Autosomal Recessive' | 'Autosomal Dominant' | '' = '';
+  inheritanceMechanism: `${GERMLINE_INHERITANCE_MECHANISM}` | '' = '';
   inheritanceMechanism_review?: Review;
   inheritanceMechanism_uuid: string = generateUuid();
   cancerRisk = '';
@@ -181,6 +200,7 @@ export class Tumor {
   // We should remove this in future
   TIs: TI[] = [new TI(TI_TYPE.SS), new TI(TI_TYPE.SR), new TI(TI_TYPE.IS), new TI(TI_TYPE.IR)];
   cancerTypes: CancerType[] = [];
+  cancerTypes_review?: Review;
   cancerTypes_uuid: string = generateUuid();
   diagnostic: Implication = new Implication();
   diagnosticSummary = '';
@@ -304,9 +324,18 @@ export class Review {
   added?: boolean;
   removed?: boolean;
 
-  constructor(updatedBy: string) {
+  constructor(updatedBy: string, lastReviewed?: string, added?: boolean, removed?: boolean) {
     this.updatedBy = updatedBy;
     this.updateTime = new Date().getTime();
+    if (lastReviewed) {
+      this.lastReviewed = lastReviewed;
+    }
+    if (added) {
+      this.added = added;
+    }
+    if (removed) {
+      this.removed = removed;
+    }
   }
 }
 
@@ -325,4 +354,16 @@ export class HistoryRecord {
   old?: HistoryRecordState = '';
   operation = '';
   uuids = '';
+}
+
+export class UsersCollection {
+  [email: string]: FirebaseUser;
+}
+export class FirebaseUser {
+  email = '';
+  genes = {
+    read: '',
+    write: '',
+  };
+  name = '';
 }

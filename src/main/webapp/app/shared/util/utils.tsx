@@ -5,10 +5,11 @@ import { IDrug } from '../model/drug.model';
 import { v4 as uuidv4 } from 'uuid';
 import { IGene } from 'app/shared/model/gene.model';
 import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from '../button/EntityActionButton';
 import { SORT } from './pagination.constants';
 import { PaginationState } from '../table/OncoKBAsyncTable';
+import { IUser } from '../model/user.model';
 import { ITreatment } from 'app/shared/model/treatment.model';
 import _ from 'lodash';
 
@@ -122,3 +123,35 @@ export const getEntityTableActionsColumn = (entityType: ENTITY_TYPE) => {
   };
   return actionsColumn;
 };
+
+export function getUserFullName(user: IUser) {
+  let name;
+  if (user.firstName && user.lastName) {
+    name = `${user.firstName} ${user.lastName}`;
+  } else if (user.firstName) {
+    name = user.firstName;
+  } else {
+    name = user.lastName;
+  }
+  return name;
+}
+
+export function formatDate(date: Date) {
+  return new Intl.DateTimeFormat('en-US', {
+    year: '2-digit',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  }).format(date);
+}
+
+export async function isPromiseOk(promise: Promise<any>) {
+  try {
+    await promise;
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error };
+  }
+}

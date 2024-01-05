@@ -93,7 +93,7 @@ public class SecurityConfigurationOAuth extends WebSecurityConfigurerAdapter {
             .antMatchers("/api/logout").permitAll()
             .antMatchers("/api/admin/**").hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/audit/**").hasAuthority(AuthoritiesConstants.ADMIN)
-            .antMatchers("/api/account/firebase-token").hasAnyAuthority(AuthoritiesConstants.FIREBASE)
+            .antMatchers("/api/account/firebase-token").hasAnyAuthority(AuthoritiesConstants.CURATOR)
             .antMatchers("/api/**").authenticated()
         .and()
             .oauth2Login()

@@ -1,4 +1,4 @@
-import { APP_DATE_FORMAT, PAGE_ROUTE } from 'app/config/constants';
+import { APP_DATE_FORMAT, INTEGER_REGEX } from 'app/config/constants/constants';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
 import ValidatedForm from 'app/shared/form/ValidatedForm';
@@ -12,6 +12,10 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Col, Row } from 'reactstrap';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import _ from 'lodash';
+import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
+import { convertDateTimeFromServer, convertDateTimeToServer } from 'app/shared/util/date-utils';
+import GenericSidebar from 'app/components/sidebar/OncoKBSidebar';
+import CompanionDiagnosticDevicePanel from 'app/components/panels/CompanionDiagnosticDevicePanel';
 
 export interface ICompanionDiagnosticDeviceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -34,28 +38,32 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
   }, []);
 
   const saveEntity = async (values: any) => {
+    values.lastUpdated = convertDateTimeToServer(values.lastUpdated);
+
     const specimenTypeValues = mapSelectOptionList(values.specimenTypes);
-    for (const st of specimenTypeValues) {
-      if (typeof st.id === 'string') {
+    const updatedSpecimenTypes = [];
+    for (const stv of specimenTypeValues) {
+      if (!INTEGER_REGEX.test(stv.id)) {
         try {
-          const result = (await props.createSpecimenType({ type: st.id, name: st.id })) as any;
-          st.id = result.data.id;
+          const result = (await props.createSpecimenType({ type: stv.id, name: stv.id })) as any;
+          updatedSpecimenTypes.push(result.data);
         } catch (error) {
           notifyError(error, 'Could not create new specimen type');
         }
+      } else {
+        updatedSpecimenTypes.push(props.specimenTypes.find(st => st.id === parseInt(stv.id, 10)));
       }
     }
-
     const entity: ICompanionDiagnosticDevice = {
       ...companionDiagnosticDeviceEntity,
       ...values,
-      specimenTypes: specimenTypeValues,
+      specimenTypes: updatedSpecimenTypes,
     };
 
     if (isNew) {
       props.createEntity(entity);
     } else {
-      props.updateEntity(entity);
+      props.updateEntity(entity).then(() => props.getEntity(props.match.params.id));
     }
   };
 
@@ -65,14 +73,16 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
       : {
           ...companionDiagnosticDeviceEntity,
           specimenTypes: companionDiagnosticDeviceEntity?.specimenTypes?.map(e => ({ label: e.type, value: e.id.toString() })),
+          lastUpdated: convertDateTimeFromServer(companionDiagnosticDeviceEntity?.lastUpdated),
         };
 
   const specimenTypesOptions = specimenTypes?.map(specType => {
-    return { label: specType.type, value: specType.id };
+    return { label: specType.type, value: `${specType.id}` };
   });
+
   const biomarkerAssociations = _.uniq(
     (companionDiagnosticDeviceEntity.fdaSubmissions || []).reduce((acc, fdaSubmission) => {
-      acc.push(...fdaSubmission.associations);
+      acc.push(...(fdaSubmission?.associations || []));
       return acc;
     }, [])
   );
@@ -89,23 +99,34 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
           </h2>
         </Col>
       </Row>
-      <Row className="mt-4">
-        <Col md="8">
-          {loading ? (
-            <p>Loading...</p>
-          ) : (
-            <>
+      {loading ? (
+        <LoadingIndicator size={LoaderSize.LARGE} center={true} isLoading />
+      ) : (
+        <>
+          <Row className="mt-4">
+            <Col md="8">
               <h4>CDx Details</h4>
               <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
                 {!isNew ? (
-                  <ValidatedField
-                    name="id"
-                    required
-                    readOnly
-                    id="companion-diagnostic-device-id"
-                    label="ID"
-                    validate={{ required: true }}
-                  />
+                  <>
+                    <ValidatedField
+                      name="id"
+                      required
+                      readOnly
+                      id="companion-diagnostic-device-id"
+                      label="ID"
+                      validate={{ required: true }}
+                    />
+                    <ValidatedField
+                      label="Last Updated"
+                      id="fda-submission-lastUpdated"
+                      name="lastUpdated"
+                      data-cy="lastUpdated"
+                      type="date"
+                      disabled
+                      placeholder={APP_DATE_FORMAT}
+                    />
+                  </>
                 ) : null}
                 <ValidatedField
                   label="Name"
@@ -138,14 +159,6 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
                   data-cy="platformType"
                   type="text"
                 />
-                <ValidatedField
-                  label="Last Updated"
-                  id="fda-submission-lastUpdated"
-                  name="lastUpdated"
-                  data-cy="lastUpdated"
-                  type="date"
-                  placeholder={APP_DATE_FORMAT}
-                />
                 <ValidatedSelect
                   label="Specimen Types"
                   name={'specimenTypes'}
@@ -157,21 +170,24 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
                 />
                 <SaveButton disabled={updating} />
               </ValidatedForm>
-            </>
-          )}
-        </Col>
-      </Row>
-      {!isNew ? (
-        <Row className="mt-4">
-          <Col>
-            <CdxBiomarkerAssociationTable
-              fdaSubmissions={companionDiagnosticDeviceEntity.fdaSubmissions || []}
-              onDeleteBiomarkerAssociation={() => props.getEntity(props.match.params.id)}
-              editable
-            />
-          </Col>
-        </Row>
-      ) : undefined}
+            </Col>
+          </Row>
+          {!isNew ? (
+            <Row className="mt-4">
+              <Col>
+                <CdxBiomarkerAssociationTable
+                  fdaSubmissions={companionDiagnosticDeviceEntity.fdaSubmissions || []}
+                  onDeleteBiomarkerAssociation={() => props.getEntity(props.match.params.id)}
+                  editable
+                />
+              </Col>
+            </Row>
+          ) : undefined}
+        </>
+      )}
+      <GenericSidebar>
+        <CompanionDiagnosticDevicePanel />
+      </GenericSidebar>
     </>
   );
 };

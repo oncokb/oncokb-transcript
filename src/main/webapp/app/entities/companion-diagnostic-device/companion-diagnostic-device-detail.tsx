@@ -5,7 +5,7 @@ import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { Row, Col } from 'reactstrap';
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE, PAGE_ROUTE } from 'app/config/constants';
+import { APP_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE, PAGE_ROUTE } from 'app/config/constants/constants';
 import WithSeparator from 'react-with-separator';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import CdxBiomarkerAssociationTable from 'app/shared/table/CdxBiomarkerAssociationTable';

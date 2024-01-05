@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
+import 'oncokb-styles/dist/oncokb.css';
 import './app.scss';
 import 'react-table/react-table.css';
 import { componentInject } from 'app/shared/util/typed-inject';
@@ -8,10 +9,9 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import { IRootStore } from 'app/stores';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
-import { AUTHORITIES } from 'app/config/constants';
+import { AUTHORITIES } from 'app/config/constants/constants';
 import AppRoutes from 'app/routes';
 import NavigationSidebar from 'app/components/sidebar/NavigationSidebar';
-import CurationPanel from './components/curationPanel/CurationPanel';
 import Layout from './layout';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
@@ -25,11 +25,11 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
 
   useEffect(() => {
     let authSubscriber = undefined;
-    if (props.hasFirebaseAccess) {
+    if (props.isCurator) {
       authSubscriber = props.initializeFirebase();
     }
     return () => authSubscriber && authSubscriber();
-  }, [props.hasFirebaseAccess]);
+  }, [props.isCurator]);
 
   return (
     <Router basename={baseHref}>
@@ -41,7 +41,6 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
             <div className="app-center-content-wrapper" style={{ margin: props.centerContentMargin }}>
               <AppRoutes />
             </div>
-            {props.showCurationPanel && <CurationPanel width={props.curationPanelWidth} />}
           </div>
         </div>
       </Layout>
@@ -51,12 +50,10 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
 
 const mapStoreToProps = ({ authStore, layoutStore, firebaseStore }: IRootStore) => ({
   isAuthorized: authStore.isAuthorized,
-  hasFirebaseAccess: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.FIREBASE]),
+  isCurator: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.CURATOR]),
   getSession: authStore.getSession,
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,
   toggleNavSidebar: layoutStore.toggleNavigationSidebar,
-  showCurationPanel: layoutStore.showCurationPanel,
-  curationPanelWidth: layoutStore.curationPanelWidth,
   centerContentMargin: layoutStore.centerContentMargin,
   initializeFirebase: firebaseStore.initializeFirebase,
 });

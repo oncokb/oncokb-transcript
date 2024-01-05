@@ -1,6 +1,7 @@
 const mockUpdate = jest.fn().mockImplementation((db, value) => {});
 const mockRemove = jest.fn().mockImplementation((db, value) => {});
 const mockRef = jest.fn().mockImplementation(db => {});
+const mockRunTransaction = jest.fn().mockImplementation((db, transactionUpdate) => {});
 
 import 'jest-expect-message';
 import { FirebaseMetaStore } from './firebase.meta.store';
@@ -11,6 +12,7 @@ jest.mock('firebase/database', () => {
     ref: mockRef,
     update: mockUpdate,
     remove: mockRemove,
+    runTransaction: mockRunTransaction,
   };
 });
 
@@ -112,10 +114,9 @@ describe('FirebaseMetaStore', () => {
 
       await store.updateCollaborator('ABL1', false);
 
-      expect(mockRemove).toHaveBeenCalledTimes(1);
-
-      // Check the path for removed data
-      expect(mockRef).toHaveBeenNthCalledWith(1, undefined, `Meta/collaborators/${DEFAULT_USER}/0`);
+      // Should run transaction to remove the hugo symbol by index
+      expect(mockRunTransaction).toHaveBeenCalledTimes(1);
+      expect(mockRef).toHaveBeenNthCalledWith(1, undefined, `Meta/collaborators/${DEFAULT_USER}`);
     });
 
     it('should not call remove when gene is not in collaborator list', async () => {

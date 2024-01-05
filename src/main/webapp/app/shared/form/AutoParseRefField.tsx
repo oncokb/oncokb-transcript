@@ -24,7 +24,7 @@ export const AutoParseRefField: React.FunctionComponent<IAutoParseRefField> = pr
 
   content = _.uniqBy(content, 'content');
 
-  return (
+  return content.length > 0 ? (
     <div className={'d-flex flex-wrap'}>
       <span>References:</span>
       {content.map(c => (
@@ -35,5 +35,7 @@ export const AutoParseRefField: React.FunctionComponent<IAutoParseRefField> = pr
         </span>
       ))}
     </div>
+  ) : (
+    <></>
   );
 };

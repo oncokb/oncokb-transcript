@@ -1,4 +1,11 @@
-import { APP_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import React, { useEffect } from 'react';
+import { connect } from 'app/shared/util/typed-inject';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
+import { TextFormat } from 'react-jhipster';
+
+import { IRootStore } from 'app/stores';
+import { APP_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import EntityPageLink from 'app/shared/links/EntityPageLink';
 import { connect } from 'app/shared/util/typed-inject';

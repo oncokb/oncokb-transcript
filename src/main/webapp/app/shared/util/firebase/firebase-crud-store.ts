@@ -1,5 +1,5 @@
 import { IRootStore } from 'app/stores';
-import { DataSnapshot, Database, onValue, push, ref, remove, set, update } from 'firebase/database';
+import { DataSnapshot, Database, onValue, push, ref, remove, runTransaction, set, update } from 'firebase/database';
 import { action, autorun, makeObservable, observable } from 'mobx';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { convertNestedObject } from './firebase-utils';
@@ -8,14 +8,17 @@ export type RecursivePartial<T> = {
   [P in keyof T]?: RecursivePartial<T[P]>;
 };
 
-/* eslint-disable @typescript-eslint/ban-types */
-export type RecursiveKeyOf<TObj extends object> = {
-  [TKey in keyof TObj & (string | number)]: TObj[TKey] extends any[]
-    ? `${TKey}`
-    : TObj[TKey] extends object
-    ? `${TKey}` | `${TKey}/${RecursiveKeyOf<TObj[TKey]>}`
-    : `${TKey}`;
-}[keyof TObj & (string | number)];
+// https://stackoverflow.com/questions/66621546/how-to-extract-path-expression-from-an-interface-in-typescript
+export type ExtractPathExpressions<T, Sep extends string = '/'> = Exclude<
+  keyof {
+    [P in Exclude<keyof T, symbol> as T[P] extends any[] | readonly any[]
+      ? P | `${P}/${number}` | `${P}/${number}${Sep}${Exclude<ExtractPathExpressions<T[P][number]>, keyof number | keyof string>}`
+      : T[P] extends { [x: string]: any }
+      ? `${P}${Sep}${ExtractPathExpressions<T[P]>}` | P
+      : P]: string;
+  },
+  symbol
+>;
 
 export class FirebaseCrudStore<T> {
   public data: Readonly<T> = undefined;
@@ -31,6 +34,7 @@ export class FirebaseCrudStore<T> {
       update: action.bound,
       push: action.bound,
       delete: action.bound,
+      deleteFromArray: action.bound,
     });
     autorun(() => {
       this.setDatabase(rootStore.firebaseStore.firebaseDb);
@@ -68,5 +72,17 @@ export class FirebaseCrudStore<T> {
 
   delete(path: string) {
     return remove(ref(this.db, path));
+  }
+
+  async deleteFromArray(path: string, indices: number[]) {
+    return await runTransaction(ref(this.db, path), (currentData: any[]) => {
+      const newData = [];
+      for (let i = 0; i < currentData.length; i++) {
+        if (!indices.includes(i)) {
+          newData.push(currentData[i]);
+        }
+      }
+      return newData;
+    });
   }
 }

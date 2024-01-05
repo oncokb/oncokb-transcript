@@ -1,22 +1,27 @@
 export const AUTHORITIES = {
   ADMIN: 'ROLE_ADMIN',
   USER: 'ROLE_USER',
-  FIREBASE: 'ROLE_FIREBASE',
+  CURATOR: 'ROLE_CURATOR',
 };
 
 export const messages = {
   DATA_ERROR_ALERT: 'Internal Error',
 };
 
-export const APP_DATE_FORMAT = 'DD/MM/YY HH:mm';
-export const APP_TIMESTAMP_FORMAT = 'DD/MM/YY HH:mm:ss';
-export const APP_LOCAL_DATE_FORMAT = 'DD/MM/YYYY';
+export const APP_DATE_FORMAT = 'MM/DD/YY HH:mm';
+export const APP_TIMESTAMP_FORMAT = 'MM/DD/YY HH:mm:ss';
+export const APP_LOCAL_DATE_FORMAT = 'MM/DD/YYYY';
+export const APP_DATETIME_FORMAT = 'MM/DD/YYYY h:mm A';
 export const APP_LOCAL_DATETIME_FORMAT = 'YYYY-MM-DDTHH:mm';
 export const APP_WHOLE_NUMBER_FORMAT = '0,0';
 export const APP_TWO_DIGITS_AFTER_POINT_NUMBER_FORMAT = '0,0.[00]';
+export const APP_HISTORY_FORMAT = 'MMM D, YYYY';
+export const APP_TIME_FORMAT = 'h:mm A';
 
 export const REDIRECT_TIMEOUT_MILLISECONDS = 10000;
 export const SHORT_REDIRECT = 2000;
+export const CLOSE_TOOLTIP_DURATION_MILLISECONDS = 300;
+export const MAX_COMMENT_LENGTH = 100;
 
 export enum REFERENCE_GENOME {
   GRCH37 = 'GRCh37',
@@ -323,6 +328,7 @@ export enum SearchOptionType {
 export enum USER_AUTHORITY {
   ROLE_USER = 'ROLE_USER',
   ROLE_ADMIN = 'ROLE_ADMIN',
+  ROLE_CURATOR = 'ROLE_CURATOR',
 }
 
 export const DEFAULT_SORT_PARAMETER = 'id,ASC';
@@ -391,30 +397,12 @@ export const COSMIC = 'COSMIC';
 
 export const DEFAULT_NAV_ICON_SIZE = 25;
 
+export const CANCER_TYPE_THERAPY_INDENTIFIER = '&';
+
+/* Checkbox has margin of -18.75px, so can set to 0px and add margin to label can use this to adjust */
+export const CHECKBOX_LABEL_LEFT_MARGIN = 18.75;
+
 /* Regex constants */
 export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');
 export const UUID_REGEX = new RegExp('\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}');
 export const INTEGER_REGEX = new RegExp('^\\d+$');
-
-/* Firebase constants */
-export enum FB_COLLECTION {
-  DRUGS = 'Drugs',
-  GENES = 'Genes',
-  HISTORY = 'History',
-  MAP = 'Map',
-  META = 'Meta',
-  SETTING = 'Setting',
-  USERS = 'Users',
-  VUS = 'VUS',
-}
-
-export const FB_COLLECTION_PATH = {
-  GENE: `${FB_COLLECTION.GENES}/:hugoSymbol`,
-  MUTATIONS: `${FB_COLLECTION.GENES}/:hugoSymbol/mutations/:index`,
-  TUMORS: `${FB_COLLECTION.GENES}/:hugoSymbol/mutations/:index/tumors/:index`,
-  META_GENE: `${FB_COLLECTION.META}/:hugoSymbol`,
-  META_GENE_REVIEW: `${FB_COLLECTION.META}/:hugoSymbol/review/:uuid`,
-  META_COLLABORATORS: `${FB_COLLECTION.META}/collaborators`,
-  META_COLLABORATOR: `${FB_COLLECTION.META}/collaborators/:name`,
-  META_COLLABORATOR_GENE: `${FB_COLLECTION.META}/collaborators/:name/:index`,
-};

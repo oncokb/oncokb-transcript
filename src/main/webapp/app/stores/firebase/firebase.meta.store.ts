@@ -3,8 +3,8 @@ import { FirebaseCrudStore } from 'app/shared/util/firebase/firebase-crud-store'
 import { IRootStore } from '../createStore';
 import { action, makeObservable, observable } from 'mobx';
 import { onValue, ref } from 'firebase/database';
-import { FB_COLLECTION } from 'app/config/constants';
 import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
+import { FB_COLLECTION } from 'app/config/constants/firebase';
 
 export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
   public metaList: MetaCollection = undefined;
@@ -95,7 +95,7 @@ export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
 
     const index = collaboratorGeneList.findIndex(g => g === hugoSymbol);
     if (!add && index > -1) {
-      return this.delete(getFirebasePath('META_COLLABORATOR_GENE', name, index.toString()));
+      return this.deleteFromArray(getFirebasePath('META_COLLABORATOR', name), [index]);
     }
 
     return Promise.resolve();

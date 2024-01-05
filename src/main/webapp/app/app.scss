@@ -356,3 +356,31 @@ http://stackoverflow.com/questions/23436430/bootstrap-3-input-group-100-width */
     }
   }
 }
+
+// Override rc-tooltip styles
+.rc-tooltip {
+  opacity: 1 !important;
+  border-color: $light-grey;
+}
+
+// In rc-tooltip v6.1.2, there is a styling that causes the arrow to not be
+// in the middle. We are overriding the style here to fix that.
+.rc-tooltip-placement-top .rc-tooltip-arrow,
+.rc-tooltip-placement-topLeft .rc-tooltip-arrow,
+.rc-tooltip-placement-topRight .rc-tooltip-arrow {
+  transform: translate(0%, 5px) !important;
+}
+.rc-tooltip-placement-bottom .rc-tooltip-arrow,
+.rc-tooltip-placement-bottomLeft .rc-tooltip-arrow,
+.rc-tooltip-placement-bottomRight .rc-tooltip-arrow {
+  transform: translate(0%, -5px) !important;
+}
+
+.grey-tooltip {
+  color: $medium-grey;
+}
+
+// Override popover
+.popover {
+  max-width: fit-content;
+}

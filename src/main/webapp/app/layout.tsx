@@ -15,7 +15,7 @@ const Layout: React.FunctionComponent<StoreProps> = props => {
   useEffect(() => {
     history.listen((location, action) => {
       const matchedPath = includedPaths.filter(path => matchPath(location.pathname, { path, exact: true }))[0];
-      props.toggleCurationPanel(!!matchedPath);
+      props.toggleOncoKBSidebar(!!matchedPath);
     });
   }, []);
 
@@ -23,7 +23,7 @@ const Layout: React.FunctionComponent<StoreProps> = props => {
 };
 
 const mapStoreToProps = ({ layoutStore }: IRootStore) => ({
-  toggleCurationPanel: layoutStore.toggleCurationPanel,
+  toggleOncoKBSidebar: layoutStore.toggleOncoKBSidebar,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

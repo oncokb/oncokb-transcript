@@ -7,7 +7,7 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';
 import _ from 'lodash';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import OncoKBAsyncTable, { PaginationState } from 'app/shared/table/OncoKBAsyncTable';

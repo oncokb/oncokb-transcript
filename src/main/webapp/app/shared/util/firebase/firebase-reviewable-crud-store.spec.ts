@@ -7,6 +7,7 @@ import 'jest-expect-message';
 import { FirebaseReviewableCrudStore } from './firebase-reviewable-crud-store';
 import { FirebaseMetaStore } from 'app/stores/firebase/firebase.meta.store';
 import FirebaseStore from 'app/stores/firebase/firebase.store';
+import { Review } from 'app/shared/model/firebase/firebase.model';
 
 jest.mock('firebase/database', () => {
   return {
@@ -20,6 +21,12 @@ jest.mock('uuid', () => ({ v4: jest.fn().mockReturnValue(mockUuidReturnValue) })
 
 const updateGeneMetaContentMock = jest.spyOn(FirebaseMetaStore.prototype, 'updateGeneMetaContent').mockReturnValue(Promise.resolve());
 const updateGeneReviewUuidMock = jest.spyOn(FirebaseMetaStore.prototype, 'updateGeneReviewUuid').mockReturnValue(Promise.resolve());
+
+type Test = {
+  key: string;
+  key_uuid: string;
+  key_review?: Review;
+};
 
 describe('FirebaseReviewableCrudStore', () => {
   // Variables used in tests
@@ -55,7 +62,7 @@ describe('FirebaseReviewableCrudStore', () => {
     beforeEach(() => reset());
 
     it('should correctly update field that was already reviewed', async () => {
-      const store = new FirebaseReviewableCrudStore<any>(rootStore);
+      const store = new FirebaseReviewableCrudStore<Test>(rootStore);
       store.data = { key: DEFAULT_VALUE, key_uuid: DEFAULT_UUID };
 
       await store.updateReviewableContent('Gene/ABL1', 'key', UPDATED_VALUE_A);
@@ -75,7 +82,7 @@ describe('FirebaseReviewableCrudStore', () => {
     });
 
     it('should set lastReviewed to empty string when content has never been reviewed before', async () => {
-      const store = new FirebaseReviewableCrudStore<any>(rootStore);
+      const store = new FirebaseReviewableCrudStore<Test>(rootStore);
       store.data = { key: DEFAULT_INITIAL_VALUE, key_uuid: DEFAULT_UUID };
 
       await store.updateReviewableContent('Gene/ABL1', 'key', UPDATED_VALUE_A);
@@ -93,8 +100,8 @@ describe('FirebaseReviewableCrudStore', () => {
     });
 
     it('should not update lastReviewed when it is present', async () => {
-      const store = new FirebaseReviewableCrudStore<any>(rootStore);
-      store.data = { key: UPDATED_VALUE_A, key_uuid: DEFAULT_UUID, key_review: { lastReviewed: DEFAULT_VALUE } };
+      const store = new FirebaseReviewableCrudStore<Test>(rootStore);
+      store.data = { key: UPDATED_VALUE_A, key_uuid: DEFAULT_UUID, key_review: { lastReviewed: DEFAULT_VALUE } } as Test;
 
       await store.updateReviewableContent('Gene/ABL1', 'key', UPDATED_VALUE_B);
 
@@ -106,8 +113,8 @@ describe('FirebaseReviewableCrudStore', () => {
     });
 
     it('should add uuid when not present', async () => {
-      const store = new FirebaseReviewableCrudStore<any>(rootStore);
-      store.data = { key: DEFAULT_VALUE };
+      const store = new FirebaseReviewableCrudStore<Test>(rootStore);
+      store.data = { key: DEFAULT_VALUE } as Test;
 
       await store.updateReviewableContent('Gene/ABL1', 'key', UPDATED_VALUE_A);
 
@@ -122,7 +129,7 @@ describe('FirebaseReviewableCrudStore', () => {
       beforeEach(() => reset());
 
       it('should remove lastReviewed when original value was a non-empty string', async () => {
-        const store = new FirebaseReviewableCrudStore<any>(rootStore);
+        const store = new FirebaseReviewableCrudStore<Test>(rootStore);
         store.data = {
           key: UPDATED_VALUE_A,
           key_uuid: DEFAULT_UUID,
@@ -141,7 +148,7 @@ describe('FirebaseReviewableCrudStore', () => {
       });
 
       it('should remove lastReviewed when original value was empty string', async () => {
-        const store = new FirebaseReviewableCrudStore<any>(rootStore);
+        const store = new FirebaseReviewableCrudStore<Test>(rootStore);
         store.data = {
           key: UPDATED_VALUE_A,
           key_uuid: DEFAULT_UUID,
@@ -160,7 +167,7 @@ describe('FirebaseReviewableCrudStore', () => {
       });
 
       it('should remove uuid from meta', async () => {
-        const store = new FirebaseReviewableCrudStore<any>(rootStore);
+        const store = new FirebaseReviewableCrudStore<Test>(rootStore);
         store.data = {
           key: UPDATED_VALUE_A,
           key_uuid: DEFAULT_UUID,
@@ -180,7 +187,7 @@ describe('FirebaseReviewableCrudStore', () => {
     });
 
     it('should update timestamp and author', async () => {
-      const store = new FirebaseReviewableCrudStore<any>(rootStore);
+      const store = new FirebaseReviewableCrudStore<Test>(rootStore);
       store.data = {
         key: UPDATED_VALUE_A,
         key_uuid: DEFAULT_UUID,
@@ -197,7 +204,7 @@ describe('FirebaseReviewableCrudStore', () => {
     });
 
     it('should not update when path does not contain hugoSymbol', async () => {
-      const store = new FirebaseReviewableCrudStore<any>(rootStore);
+      const store = new FirebaseReviewableCrudStore<Test>(rootStore);
 
       await expect(store.updateReviewableContent('Gene', 'key', UPDATED_VALUE_A)).rejects.toThrow();
 

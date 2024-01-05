@@ -3,7 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 import BaseStore from 'app/shared/util/base-store';
 import { IRootStore } from 'app/stores/createStore';
 import { OncoKBError } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
-import { AUTHORITIES } from 'app/config/constants';
+import { AUTHORITIES } from 'app/config/constants/constants';
 import { IUser } from 'app/shared/model/user.model';
 
 export const AUTH_TOKEN_KEY = 'jhi-authenticationToken';
@@ -80,8 +80,7 @@ export class AuthStore extends BaseStore {
   }
 
   get isAuthorized() {
-    const authorizedRoles = [AUTHORITIES.ADMIN, AUTHORITIES.USER];
-    return hasAnyAuthority(this.account.authorities, authorizedRoles);
+    return this.isAuthenticated && this.account?.authorities?.length !== 0;
   }
 
   get fullName() {

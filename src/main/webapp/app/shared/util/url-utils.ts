@@ -1,4 +1,4 @@
-export const replaceUrlParams = (url: string, ...params: string[]) => {
+export const replaceUrlParams = (url: string, ...params: (string | number)[]) => {
   if (!url) {
     return '';
   }
@@ -15,7 +15,7 @@ export const replaceUrlParams = (url: string, ...params: string[]) => {
   }
 
   for (let i = 0; i < paramMatches.length; i++) {
-    if (!params[i]) {
+    if (params[i] === undefined || params[i] === '') {
       return '';
     }
     url = url.replace(paramMatches[i], `/${params[i]}`);

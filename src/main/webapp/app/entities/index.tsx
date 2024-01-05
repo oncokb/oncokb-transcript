@@ -17,7 +17,7 @@ import FdaSubmissionType from './fda-submission-type';
 import FdaSubmission from './fda-submission';
 import Alteration from './alteration';
 import CancerType from './cancer-type';
-import { PAGE_ROUTE } from 'app/config/constants';
+import { PAGE_ROUTE } from 'app/config/constants/constants';
 import Article from './article';
 import DrugBrand from './drug-brand';
 import CategoricalAlteration from './categorical-alteration';

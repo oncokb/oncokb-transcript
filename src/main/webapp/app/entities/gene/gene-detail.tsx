@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Button, Col, Row } from 'reactstrap';
 
 import { IRootStore } from 'app/stores';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import styles from './gene.module.scss';
 import classnames from 'classnames';

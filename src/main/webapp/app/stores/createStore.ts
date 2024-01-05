@@ -61,6 +61,7 @@ import FirebaseStore from './firebase/firebase.store';
 import { FirebaseGeneStore } from './firebase/firebase.gene.store';
 import { FirebaseMetaStore } from './firebase/firebase.meta.store';
 import { FirebaseDrugsStore } from 'app/stores/firebase/firebase.drugs.store';
+import { FirebaseVusStore } from './firebase/firebase.vus.store';
 // prettier-ignore
 import article, {
   ArticleStore
@@ -89,6 +90,10 @@ import seqRegion, {
 import flag, {
   FlagStore
 } from 'app/entities/flag/flag.store';
+import { FirebaseHistoryStore } from './firebase/firebase.history.store';
+import { CommentStore } from './firebase/firebase.comment.store';
+import { FirebaseUsersStore } from './firebase/firebase.users.store';
+import { HistoryTabStore } from '../components/tabs/history-tab.store';
 import AssociationStore from 'app/entities/association/association.store';
 import AssociationCancerTypeStore from 'app/entities/association-cancer-type/association-cancer-type.store';
 import ClinicalTrialStore from 'app/entities/clinical-trial/clinical-trial.store';
@@ -129,8 +134,7 @@ export interface IRootStore {
   readonly articleStore: ArticleStore;
   readonly drugBrandStore: DrugBrandStore;
   readonly categoricalAlterationStore: CategoricalAlterationStore;
-  readonly seqRegionStore: SeqRegionStore;
-  readonly flagStore: FlagStore;
+  readonly historyTabStore: HistoryTabStore;
   readonly associationStore: AssociationStore;
   readonly associationCancerTypeStore: AssociationCancerTypeStore;
   readonly clinicalTrialStore: ClinicalTrialStore;
@@ -149,6 +153,12 @@ export interface IRootStore {
   readonly firebaseGeneStore: FirebaseGeneStore;
   readonly firebaseMetaStore: FirebaseMetaStore;
   readonly firebaseDrugsStore: FirebaseDrugsStore;
+  readonly firebaseHistoryStore: FirebaseHistoryStore;
+  readonly firebaseVusStore: FirebaseVusStore;
+  readonly firebaseUsersStore: FirebaseUsersStore;
+  readonly seqRegionStore: SeqRegionStore;
+  readonly flagStore: FlagStore;
+  readonly commentStore: CommentStore;
   /* jhipster-needle-add-store-field - JHipster will add store here */
 }
 
@@ -160,7 +170,7 @@ export function createStores(history: History): IRootStore {
   rootStore.settingsStore = new SettingsStore(rootStore);
   rootStore.userStore = new UserStore(rootStore);
   rootStore.routerStore = new RouterStore(history);
-  rootStore.layoutStore = new LayoutStore();
+  rootStore.layoutStore = new LayoutStore(rootStore);
   rootStore.sequenceStore = new SequenceStore(rootStore);
   rootStore.transcriptStore = new TranscriptStore(rootStore);
   rootStore.infoStore = new InfoStore(rootStore);
@@ -179,8 +189,7 @@ export function createStores(history: History): IRootStore {
   rootStore.articleStore = new ArticleStore(rootStore);
   rootStore.drugBrandStore = new DrugBrandStore(rootStore);
   rootStore.categoricalAlterationStore = new CategoricalAlterationStore(rootStore);
-  rootStore.seqRegionStore = new SeqRegionStore(rootStore);
-  rootStore.flagStore = new FlagStore(rootStore);
+  rootStore.historyTabStore = new HistoryTabStore();
   rootStore.associationStore = new AssociationStore(rootStore);
   rootStore.associationCancerTypeStore = new AssociationCancerTypeStore(rootStore);
   rootStore.clinicalTrialStore = new ClinicalTrialStore(rootStore);
@@ -199,6 +208,12 @@ export function createStores(history: History): IRootStore {
   rootStore.firebaseGeneStore = new FirebaseGeneStore(rootStore);
   rootStore.firebaseMetaStore = new FirebaseMetaStore(rootStore);
   rootStore.firebaseDrugsStore = new FirebaseDrugsStore(rootStore);
+  rootStore.firebaseHistoryStore = new FirebaseHistoryStore(rootStore);
+  rootStore.firebaseVusStore = new FirebaseVusStore(rootStore);
+  rootStore.firebaseUsersStore = new FirebaseUsersStore(rootStore);
+  rootStore.seqRegionStore = new SeqRegionStore(rootStore);
+  rootStore.flagStore = new FlagStore(rootStore);
+  rootStore.commentStore = new CommentStore();
   /* jhipster-needle-add-store-init - JHipster will add store here */
   return rootStore;
 }

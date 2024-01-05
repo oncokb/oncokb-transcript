@@ -1,7 +1,30 @@
 import 'jest-expect-message';
-import { convertNestedObject, geneNeedsReview, getMutationName, getTxName, getValueByNestedKey } from './firebase-utils';
-import { Drug, Meta, MetaReview, Mutation } from 'app/shared/model/firebase/firebase.model';
+import {
+  convertNestedObject,
+  geneNeedsReview,
+  getFirebasePath,
+  getMutationName,
+  getTxName,
+  getValueByNestedKey,
+  isNestedObjectEmpty,
+  isSectionEmpty,
+  isSectionRemovableWithoutReview,
+  sortByTxLevel,
+} from './firebase-utils';
+import {
+  CancerType,
+  Drug,
+  Gene,
+  Meta,
+  MetaReview,
+  Mutation,
+  Review,
+  TX_LEVELS,
+  Treatment,
+  Tumor,
+} from 'app/shared/model/firebase/firebase.model';
 import { generateUuid } from '../utils';
+import { NestLevelType } from 'app/pages/curation/collapsible/Collapsible';
 
 describe('FirebaseUtils', () => {
   describe('convertNestedObject', () => {
@@ -192,6 +215,228 @@ describe('FirebaseUtils', () => {
 
       // Edge cases
       expect(geneNeedsReview(undefined), 'undefined input should return false').toBe(false);
+    });
+  });
+
+  describe('isSectionRemovableWithoutReview', () => {
+    it('mutation should be removable', () => {
+      const gene = new Gene('BRAF');
+      const mutation = new Mutation('V600E');
+      mutation.name_review = new Review('user', undefined, true);
+      gene.mutations.push(mutation);
+
+      const isRemovable = isSectionRemovableWithoutReview(gene, NestLevelType.MUTATION, getFirebasePath('MUTATIONS', 'BRAF', '0'));
+      expect(isRemovable).toBeTruthy();
+    });
+
+    it('mutation needs to be reviewed', () => {
+      const gene = new Gene('BRAF');
+      const mutation = new Mutation('V600E');
+      mutation.name_review = new Review('user');
+      gene.mutations.push(mutation);
+
+      const isRemovable = isSectionRemovableWithoutReview(gene, NestLevelType.MUTATION, getFirebasePath('MUTATIONS', 'BRAF', '0'));
+      expect(isRemovable).toBeFalsy();
+    });
+
+    it('tumor should be removable', () => {
+      const gene = new Gene('BRAF');
+      const mutation = new Mutation('V600E');
+      mutation.name_review = new Review('user');
+      gene.mutations.push(mutation);
+      const tumor = new Tumor();
+      tumor.cancerTypes_review = new Review('user', undefined, true);
+      mutation.tumors.push(tumor);
+
+      const isRemovable = isSectionRemovableWithoutReview(gene, NestLevelType.CANCER_TYPE, getFirebasePath('TUMORS', 'BRAF', '0', '0'));
+      expect(isRemovable).toBeTruthy();
+    });
+
+    it('tumor needs to be reviewed', () => {
+      const gene = new Gene('BRAF');
+      const mutation = new Mutation('V600E');
+      mutation.name_review = new Review('user');
+      gene.mutations.push(mutation);
+      const tumor = new Tumor();
+      tumor.cancerTypes_review = new Review('user');
+      mutation.tumors.push(tumor);
+
+      const isRemovable = isSectionRemovableWithoutReview(gene, NestLevelType.CANCER_TYPE, getFirebasePath('TUMORS', 'BRAF', '0', '0'));
+      expect(isRemovable).toBeFalsy();
+    });
+  });
+
+  describe('isNestedObjectEmpty', () => {
+    it('should return true', () => {
+      let testObject = {};
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = undefined;
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = null;
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = [];
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = '';
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = '    ';
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = {
+        key: '',
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = {
+        key: undefined,
+        key2: [],
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      testObject = {
+        key: null,
+        key2: '',
+        obj: {
+          nestedKey: [],
+        },
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
+
+      // With ignoredKeySubstrings parameter
+      testObject = {};
+      expect(isNestedObjectEmpty(testObject, ['key_review'])).toBeTruthy();
+
+      testObject = {
+        key: null,
+        key_review: 'review value',
+      };
+      expect(isNestedObjectEmpty(testObject, ['key_review'])).toBeTruthy();
+
+      testObject = {
+        obj: { nestedKey: '', key_review: 'review value' },
+      };
+      expect(isNestedObjectEmpty(testObject, ['key_review'])).toBeTruthy();
+    });
+
+    it('should return false', () => {
+      let testObject: any = {
+        key: 'value',
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
+
+      testObject = {
+        key: ['value', 'value2'],
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
+
+      testObject = {
+        key: 0,
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
+
+      testObject = {
+        key: new Date().toString(),
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
+
+      testObject = {
+        key: 'value',
+        key2: '',
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
+
+      testObject = {
+        key: 'value',
+        obj: {
+          nestedKey: undefined,
+          nestedArray: [],
+        },
+      };
+      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
+
+      // With ignoredKeySubstrings parameter
+      testObject = {
+        key: 'value',
+        key_review: undefined,
+      };
+      expect(isNestedObjectEmpty(testObject, ['_review'])).toBeFalsy();
+
+      testObject = {
+        key: 'value',
+        key_review: undefined,
+        obj: { nestedKey: 'value', key_review: '' },
+      };
+      expect(isNestedObjectEmpty(testObject, ['_review'])).toBeFalsy();
+    });
+  });
+
+  describe('isSectionEmpty', () => {
+    it('should return false when one or more fields have values', () => {
+      const firebasePath = getFirebasePath('MUTATIONS', 'BRAF', '0');
+      const gene = new Gene('BRAF');
+      const mutation = new Mutation('V600E');
+      gene.mutations.push(mutation);
+
+      expect(isSectionEmpty(gene, firebasePath), 'mutation has a name').toBeFalsy();
+    });
+
+    it('should ignore review and uuid fields', () => {
+      const firebasePath = getFirebasePath('MUTATIONS', 'BRAF', '0');
+      const gene = new Gene('BRAF');
+      const mutation = new Mutation('V600E');
+      mutation.name = '';
+      gene.mutations.push(mutation);
+
+      expect(isSectionEmpty(gene, firebasePath), 'review field should be ignored').toBeTruthy();
+
+      mutation.name_uuid = '';
+      expect(isSectionEmpty(gene, firebasePath), 'uuid field should be ignored').toBeTruthy();
+
+      mutation.name_uuid = undefined;
+      expect(isSectionEmpty(gene, firebasePath), 'uuid field should be ignored').toBeTruthy();
+    });
+
+    it('should check treatments when determining whether tumor section is empty', () => {
+      const firebasePath = getFirebasePath('TUMORS', 'BRAF', '0', '0');
+      const gene = new Gene('BRAF');
+      const mutation = new Mutation('V600');
+      gene.mutations.push(mutation);
+
+      const tumor = new Tumor();
+      mutation.tumors.push(tumor);
+
+      // Tumor is empty, but TIs has a therapy available
+      tumor.TIs[0].treatments = [new Treatment('Vemurafenib')];
+      expect(isSectionEmpty(gene, firebasePath)).toBeFalsy();
+
+      // Tumor is not empty
+      tumor.diagnosticSummary = 'Diagnostic Summary';
+      expect(isSectionEmpty(gene, firebasePath)).toBeFalsy();
+
+      // Tumor is not empty and no therapies available
+      tumor.TIs[0].treatments = [];
+      expect(isSectionEmpty(gene, firebasePath)).toBeFalsy();
+
+      // Tumor is empty and no therapies avaiable
+      tumor.diagnosticSummary = '';
+      expect(isSectionEmpty(gene, firebasePath)).toBeTruthy();
+    });
+  });
+
+  describe('sortByTxLevel', () => {
+    it('should sort therapeutic levels', () => {
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_R1)).toEqual(-1);
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_R1, TX_LEVELS.LEVEL_2)).toEqual(-1);
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_2, TX_LEVELS.LEVEL_3A)).toEqual(-1);
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_3A, TX_LEVELS.LEVEL_3B)).toEqual(-1);
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_3B, TX_LEVELS.LEVEL_4)).toEqual(-1);
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_4, TX_LEVELS.LEVEL_R2)).toEqual(-1);
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_R2, TX_LEVELS.LEVEL_R3)).toEqual(-1);
+      expect(sortByTxLevel(TX_LEVELS.LEVEL_R2, TX_LEVELS.LEVEL_NO)).toEqual(-1);
     });
   });
 });

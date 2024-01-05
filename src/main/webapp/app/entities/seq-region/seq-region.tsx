@@ -3,7 +3,7 @@ import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
 
 import { ISeqRegion } from 'app/shared/model/seq-region.model';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 import EntityActionButton from 'app/shared/button/EntityActionButton';

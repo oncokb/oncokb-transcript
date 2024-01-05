@@ -3,7 +3,7 @@ import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
 
 import { IFdaSubmissionType } from 'app/shared/model/fda-submission-type.model';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 import { getEntityTableActionsColumn } from 'app/shared/util/utils';

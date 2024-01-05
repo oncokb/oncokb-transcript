@@ -5,7 +5,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Col, Row } from 'reactstrap';
 
 import { IRootStore } from 'app/stores';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import FlagBadge from 'app/shared/badge/FlagBadge';
 
 export interface ITranscriptDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}

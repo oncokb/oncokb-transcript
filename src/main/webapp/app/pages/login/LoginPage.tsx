@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Redirect, RouteComponentProps } from 'react-router-dom';
 import { IRootStore } from 'app/stores';
-import { PAGE_ROUTE } from 'app/config/constants';
+import { PAGE_ROUTE } from 'app/config/constants/constants';
 
 export interface ILoginProps extends StoreProps, RouteComponentProps {}
 

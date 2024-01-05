@@ -1,4 +1,4 @@
-import { ENTITY_ACTION, ENTITY_ACTION_PATH, ENTITY_INFO, ENTITY_TYPE } from 'app/config/constants';
+import { ENTITY_ACTION, ENTITY_ACTION_PATH, ENTITY_INFO, ENTITY_BASE_PATHS, ENTITY_TYPE } from 'app/config/constants/constants';
 
 export const getEntityActionRoute = (entityType: ENTITY_TYPE, entityAction: ENTITY_ACTION, entityId?: number | string): string | null => {
   let actionRouteSuffix = ENTITY_ACTION_PATH[entityAction];
