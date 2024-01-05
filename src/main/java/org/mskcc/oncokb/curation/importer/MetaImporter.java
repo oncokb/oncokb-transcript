@@ -120,7 +120,7 @@ public class MetaImporter {
     public MetaImporter(ApplicationProperties applicationProperties) {
         this.applicationProperties = applicationProperties;
 
-        DATA_DIRECTORY = applicationProperties.getOncokbDataRepoPath() + "/curation";
+        DATA_DIRECTORY = applicationProperties.getOncokbDataRepoDir() + "/curation";
         META_DATA_FOLDER_PATH = DATA_DIRECTORY + "/meta";
     }
 

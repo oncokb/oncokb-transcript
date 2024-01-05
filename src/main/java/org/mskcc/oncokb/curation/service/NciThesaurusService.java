@@ -132,16 +132,16 @@ public class NciThesaurusService {
         List<NciThesaurus> matches = nciThesaurusRepository.findByName(name);
         if (matches.size() > 0) {
             matches.sort((o1, o2) -> {
-                if (o1.getDisplayName().equals(name)) {
+                if (o1.getDisplayName().equalsIgnoreCase(name)) {
                     return -1;
                 }
-                if (o2.getDisplayName().equals(name)) {
+                if (o2.getDisplayName().equalsIgnoreCase(name)) {
                     return 1;
                 }
-                if (o1.getPreferredName().equals(name)) {
+                if (o1.getPreferredName().equalsIgnoreCase(name)) {
                     return -1;
                 }
-                if (o2.getPreferredName().equals(name)) {
+                if (o2.getPreferredName().equalsIgnoreCase(name)) {
                     return 1;
                 }
                 return 0;

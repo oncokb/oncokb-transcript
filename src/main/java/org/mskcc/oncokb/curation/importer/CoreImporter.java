@@ -28,7 +28,7 @@ public class CoreImporter {
     final NciThesaurusService nciThesaurusService;
     final MainService mainService;
     final ApplicationProperties applicationProperties;
-    final String DATA_DIRECTORY;
+    final String DATA_DIRECTORY_PATH;
     final String MIXED = "MIXED";
 
     public CoreImporter(
@@ -50,7 +50,7 @@ public class CoreImporter {
         this.mainService = mainService;
         this.applicationProperties = applicationProperties;
 
-        DATA_DIRECTORY = applicationProperties.getOncokbDataRepoPath() + "/curation/oncokb/";
+        DATA_DIRECTORY_PATH = applicationProperties.getOncokbDataRepoDir() + "/curation/oncokb/";
     }
 
     public void generalImport() throws IOException {
@@ -64,7 +64,11 @@ public class CoreImporter {
     }
 
     private void importArticle() throws IOException {
-        List<List<String>> articleLines = parseDelimitedFile(DATA_DIRECTORY + "article_" + getVersionInFileName() + ".tsv", "\t", true);
+        List<List<String>> articleLines = parseDelimitedFile(
+            DATA_DIRECTORY_PATH + "article_" + getVersionInFileName() + ".tsv",
+            "\t",
+            true
+        );
         articleLines.forEach(line -> {
             Article article = new Article();
             ArticleType articleType = ArticleType.PMID;
@@ -107,7 +111,7 @@ public class CoreImporter {
 
     private void importAlteration() throws IOException {
         List<List<String>> alterationLines = parseDelimitedFile(
-            DATA_DIRECTORY + "alteration_" + getVersionInFileName() + ".tsv",
+            DATA_DIRECTORY_PATH + "alteration_" + getVersionInFileName() + ".tsv",
             "\t",
             true
         );
@@ -128,7 +132,7 @@ public class CoreImporter {
 
     // Verify the gene hugo symbol is the latest from the cBioPortal genes
     public void verifyGene() throws IOException {
-        List<List<String>> geneLines = parseDelimitedFile(DATA_DIRECTORY + "gene_" + getVersionInFileName() + ".tsv", "\t", true);
+        List<List<String>> geneLines = parseDelimitedFile(DATA_DIRECTORY_PATH + "gene_" + getVersionInFileName() + ".tsv", "\t", true);
         geneLines.forEach(line -> {
             Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(Integer.parseInt(line.get(0)));
             if (geneOptional.isEmpty()) {
@@ -147,7 +151,7 @@ public class CoreImporter {
     }
 
     public void importDrug() throws IOException {
-        List<List<String>> drugLines = parseDelimitedFile(DATA_DIRECTORY + "drug_" + getVersionInFileName() + ".tsv", "\t", true);
+        List<List<String>> drugLines = parseDelimitedFile(DATA_DIRECTORY_PATH + "drug_" + getVersionInFileName() + ".tsv", "\t", true);
         drugLines.forEach(line -> {
             String name = line.get(2);
             String code = line.get(3);
