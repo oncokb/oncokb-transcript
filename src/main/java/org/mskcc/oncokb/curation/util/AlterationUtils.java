@@ -391,4 +391,12 @@ public class AlterationUtils {
         String cnaUpperCase = alteration.toUpperCase();
         return getCNAConsequence(cnaUpperCase).isPresent();
     }
+
+    public static String removeExclusionCriteria(String proteinChange) {
+        Matcher exclusionMatch = getExclusionCriteriaMatcher(proteinChange);
+        if (exclusionMatch.matches()) {
+            proteinChange = exclusionMatch.group(1).trim();
+        }
+        return proteinChange;
+    }
 }

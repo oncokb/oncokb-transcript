@@ -23,6 +23,10 @@ public class Drug implements Serializable {
     @Column(name = "id")
     private Long id;
 
+    @NotNull
+    @Column(name = "uuid", nullable = false, unique = true)
+    private String uuid;
+
     @DiffIgnore
     @Lob
     @Column(name = "name", nullable = false)
@@ -70,6 +74,19 @@ public class Drug implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getUuid() {
+        return this.uuid;
+    }
+
+    public Drug uuid(String uuid) {
+        this.setUuid(uuid);
+        return this;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getName() {
@@ -259,6 +276,7 @@ public class Drug implements Serializable {
     public String toString() {
         return "Drug{" +
             "id=" + getId() +
+            ", uuid='" + getUuid() + "'" +
             ", name='" + getName() + "'" +
             "}";
     }

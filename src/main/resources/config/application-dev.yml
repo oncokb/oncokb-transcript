@@ -134,3 +134,4 @@ application:
     app-id:
     measurement-id:
     service-account-credentials-path:
+  oncokb-data-repo-dir:

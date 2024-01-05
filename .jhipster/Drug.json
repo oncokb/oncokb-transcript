@@ -2,6 +2,11 @@
   "name": "Drug",
   "fields": [
     {
+      "fieldName": "uuid",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique"]
+    },
+    {
       "fieldName": "name",
       "fieldType": "byte[]",
       "fieldTypeBlobContent": "text",

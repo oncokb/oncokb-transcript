@@ -14,6 +14,9 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
+            <column name="uuid" type="varchar(255)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_drug__uuid" />
+            </column>
             <column name="name" type="${clobType}">
                 <constraints nullable="false" />
             </column>

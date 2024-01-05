@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.NciThesaurus;
 import org.mskcc.oncokb.curation.repository.NciThesaurusRepository;
 import org.slf4j.Logger;
@@ -119,6 +118,38 @@ public class NciThesaurusService {
     public Optional<NciThesaurus> findByCode(String code) {
         log.debug("Request to get NciThesaurus by code: {}", code);
         return nciThesaurusRepository.findByCode(code);
+    }
+
+    @Transactional(readOnly = true)
+    public List<NciThesaurus> findByName(String name) {
+        log.debug("Request to get NciThesaurus by name: {}", name);
+        return nciThesaurusRepository.findByName(name);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<NciThesaurus> findOneByNamePriority(String name) {
+        log.debug("Request to get NciThesaurus by name: {}", name);
+        List<NciThesaurus> matches = nciThesaurusRepository.findByName(name);
+        if (matches.size() > 0) {
+            matches.sort((o1, o2) -> {
+                if (o1.getDisplayName().equalsIgnoreCase(name)) {
+                    return -1;
+                }
+                if (o2.getDisplayName().equalsIgnoreCase(name)) {
+                    return 1;
+                }
+                if (o1.getPreferredName().equalsIgnoreCase(name)) {
+                    return -1;
+                }
+                if (o2.getPreferredName().equalsIgnoreCase(name)) {
+                    return 1;
+                }
+                return 0;
+            });
+            return Optional.of(matches.get(0));
+        } else {
+            return Optional.empty();
+        }
     }
 
     /**

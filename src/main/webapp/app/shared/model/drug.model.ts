@@ -7,6 +7,7 @@ import { ITreatment } from 'app/shared/model/treatment.model';
 
 export interface IDrug {
   id?: number;
+  uuid?: string;
   name?: string;
   nciThesaurus?: INciThesaurus | null;
   brands?: IDrugBrand[] | null;
