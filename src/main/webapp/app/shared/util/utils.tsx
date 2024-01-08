@@ -10,8 +10,9 @@ import EntityActionButton from '../button/EntityActionButton';
 import { SORT } from './pagination.constants';
 import { PaginationState } from '../table/OncoKBAsyncTable';
 import { IUser } from '../model/user.model';
+import { CancerType } from '../model/firebase/firebase.model';
 
-export const getCancerTypeName = (cancerType: ICancerType): string => {
+export const getCancerTypeName = (cancerType: ICancerType | CancerType): string => {
   let name = '';
   if (cancerType) {
     if (cancerType.subtype) {

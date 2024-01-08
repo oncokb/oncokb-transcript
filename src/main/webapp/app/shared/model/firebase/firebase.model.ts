@@ -202,6 +202,8 @@ export class Tumor {
   cancerTypes: CancerType[] = [];
   cancerTypes_review?: Review;
   cancerTypes_uuid: string = generateUuid();
+  excludedCancerTypes?: CancerType[] = [];
+  excludedCancerTypes_uuid?: string = generateUuid();
   diagnostic: Implication = new Implication();
   diagnosticSummary = '';
   diagnosticSummary_uuid: string = generateUuid();
