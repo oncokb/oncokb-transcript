@@ -14,7 +14,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.service.QueryService;
-import tech.jhipster.service.filter.StringFilter;
 
 /**
  * Service for executing complex queries for {@link FdaSubmission} entities in the database.
@@ -114,9 +113,6 @@ public class FdaSubmissionQueryService extends QueryService<FdaSubmission> {
             }
             if (criteria.getDecisionDate() != null) {
                 specification = specification.or(buildRangeSpecification(criteria.getDecisionDate(), FdaSubmission_.decisionDate));
-            }
-            if (criteria.getPlatform() != null) {
-                specification = specification.or(buildStringSpecification(criteria.getPlatform(), FdaSubmission_.platform));
             }
             if (criteria.getCurated() != null) {
                 specification = specification.or(buildSpecification(criteria.getCurated(), FdaSubmission_.curated));

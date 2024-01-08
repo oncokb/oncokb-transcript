@@ -6,13 +6,12 @@ import { IFdaSubmissionType } from 'app/shared/model/fda-submission-type.model';
 export interface IFdaSubmission {
   id?: number;
   number?: string;
-  supplementNumber?: string | null;
+  supplementNumber?: string;
   deviceName?: string;
   genericName?: string | null;
   dateReceived?: string | null;
   decisionDate?: string | null;
   description?: string | null;
-  platform?: string | null;
   curated?: boolean;
   genetic?: boolean;
   note?: string | null;

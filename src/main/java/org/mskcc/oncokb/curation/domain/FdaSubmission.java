@@ -28,6 +28,7 @@ public class FdaSubmission implements Serializable {
     @Column(name = "number", nullable = false)
     private String number = "";
 
+    @NotNull
     @Column(name = "supplement_number", nullable = false)
     private String supplementNumber = "";
 
@@ -48,9 +49,6 @@ public class FdaSubmission implements Serializable {
     @Lob
     @Column(name = "description")
     private String description;
-
-    @Column(name = "platform", nullable = false)
-    private String platform = "";
 
     @NotNull
     @Column(name = "curated", nullable = false)
@@ -194,19 +192,6 @@ public class FdaSubmission implements Serializable {
         this.description = description;
     }
 
-    public String getPlatform() {
-        return this.platform;
-    }
-
-    public FdaSubmission platform(String platform) {
-        this.setPlatform(platform);
-        return this;
-    }
-
-    public void setPlatform(String platform) {
-        this.platform = platform;
-    }
-
     public Boolean getCurated() {
         return this.curated;
     }
@@ -328,7 +313,6 @@ public class FdaSubmission implements Serializable {
             ", dateReceived='" + getDateReceived() + "'" +
             ", decisionDate='" + getDecisionDate() + "'" +
             ", description='" + getDescription() + "'" +
-            ", platform='" + getPlatform() + "'" +
             ", curated='" + getCurated() + "'" +
             ", genetic='" + getGenetic() + "'" +
             ", note='" + getNote() + "'" +

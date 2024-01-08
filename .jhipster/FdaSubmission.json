@@ -8,7 +8,8 @@
     },
     {
       "fieldName": "supplementNumber",
-      "fieldType": "String"
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "deviceName",
@@ -31,10 +32,6 @@
       "fieldName": "description",
       "fieldType": "byte[]",
       "fieldTypeBlobContent": "text"
-    },
-    {
-      "fieldName": "platform",
-      "fieldType": "String"
     },
     {
       "fieldName": "curated",

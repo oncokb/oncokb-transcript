@@ -63,10 +63,6 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
           </dt>
           <dd>{fdaSubmissionEntity.description}</dd>
           <dt>
-            <span id="platform">Platform</span>
-          </dt>
-          <dd>{fdaSubmissionEntity.platform}</dd>
-          <dt>
             <span id="curated">Curated</span>
           </dt>
           <dd>{fdaSubmissionEntity.curated ? 'true' : 'false'}</dd>

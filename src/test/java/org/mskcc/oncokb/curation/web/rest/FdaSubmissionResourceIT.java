@@ -67,9 +67,6 @@ class FdaSubmissionResourceIT {
     private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
     private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
 
-    private static final String DEFAULT_PLATFORM = "AAAAAAAAAA";
-    private static final String UPDATED_PLATFORM = "BBBBBBBBBB";
-
     private static final Boolean DEFAULT_CURATED = false;
     private static final Boolean UPDATED_CURATED = true;
 
@@ -117,7 +114,6 @@ class FdaSubmissionResourceIT {
             .dateReceived(DEFAULT_DATE_RECEIVED)
             .decisionDate(DEFAULT_DECISION_DATE)
             .description(DEFAULT_DESCRIPTION)
-            .platform(DEFAULT_PLATFORM)
             .curated(DEFAULT_CURATED)
             .genetic(DEFAULT_GENETIC)
             .note(DEFAULT_NOTE);
@@ -139,7 +135,6 @@ class FdaSubmissionResourceIT {
             .dateReceived(UPDATED_DATE_RECEIVED)
             .decisionDate(UPDATED_DECISION_DATE)
             .description(UPDATED_DESCRIPTION)
-            .platform(UPDATED_PLATFORM)
             .curated(UPDATED_CURATED)
             .genetic(UPDATED_GENETIC)
             .note(UPDATED_NOTE);
@@ -176,7 +171,6 @@ class FdaSubmissionResourceIT {
         assertThat(testFdaSubmission.getDateReceived()).isEqualTo(DEFAULT_DATE_RECEIVED);
         assertThat(testFdaSubmission.getDecisionDate()).isEqualTo(DEFAULT_DECISION_DATE);
         assertThat(testFdaSubmission.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
-        assertThat(testFdaSubmission.getPlatform()).isEqualTo(DEFAULT_PLATFORM);
         assertThat(testFdaSubmission.getCurated()).isEqualTo(DEFAULT_CURATED);
         assertThat(testFdaSubmission.getGenetic()).isEqualTo(DEFAULT_GENETIC);
         assertThat(testFdaSubmission.getNote()).isEqualTo(DEFAULT_NOTE);
@@ -211,6 +205,28 @@ class FdaSubmissionResourceIT {
         int databaseSizeBeforeTest = fdaSubmissionRepository.findAll().size();
         // set the field null
         fdaSubmission.setNumber(null);
+
+        // Create the FdaSubmission, which fails.
+
+        restFdaSubmissionMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(fdaSubmission))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<FdaSubmission> fdaSubmissionList = fdaSubmissionRepository.findAll();
+        assertThat(fdaSubmissionList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkSupplementNumberIsRequired() throws Exception {
+        int databaseSizeBeforeTest = fdaSubmissionRepository.findAll().size();
+        // set the field null
+        fdaSubmission.setSupplementNumber(null);
 
         // Create the FdaSubmission, which fails.
 
@@ -312,7 +328,6 @@ class FdaSubmissionResourceIT {
             .andExpect(jsonPath("$.[*].dateReceived").value(hasItem(DEFAULT_DATE_RECEIVED.toString())))
             .andExpect(jsonPath("$.[*].decisionDate").value(hasItem(DEFAULT_DECISION_DATE.toString())))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
-            .andExpect(jsonPath("$.[*].platform").value(hasItem(DEFAULT_PLATFORM)))
             .andExpect(jsonPath("$.[*].curated").value(hasItem(DEFAULT_CURATED.booleanValue())))
             .andExpect(jsonPath("$.[*].genetic").value(hasItem(DEFAULT_GENETIC.booleanValue())))
             .andExpect(jsonPath("$.[*].note").value(hasItem(DEFAULT_NOTE.toString())));
@@ -355,7 +370,6 @@ class FdaSubmissionResourceIT {
             .andExpect(jsonPath("$.dateReceived").value(DEFAULT_DATE_RECEIVED.toString()))
             .andExpect(jsonPath("$.decisionDate").value(DEFAULT_DECISION_DATE.toString()))
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
-            .andExpect(jsonPath("$.platform").value(DEFAULT_PLATFORM))
             .andExpect(jsonPath("$.curated").value(DEFAULT_CURATED.booleanValue()))
             .andExpect(jsonPath("$.genetic").value(DEFAULT_GENETIC.booleanValue()))
             .andExpect(jsonPath("$.note").value(DEFAULT_NOTE.toString()));
@@ -797,84 +811,6 @@ class FdaSubmissionResourceIT {
 
     @Test
     @Transactional
-    void getAllFdaSubmissionsByPlatformIsEqualToSomething() throws Exception {
-        // Initialize the database
-        fdaSubmissionRepository.saveAndFlush(fdaSubmission);
-
-        // Get all the fdaSubmissionList where platform equals to DEFAULT_PLATFORM
-        defaultFdaSubmissionShouldBeFound("platform.equals=" + DEFAULT_PLATFORM);
-
-        // Get all the fdaSubmissionList where platform equals to UPDATED_PLATFORM
-        defaultFdaSubmissionShouldNotBeFound("platform.equals=" + UPDATED_PLATFORM);
-    }
-
-    @Test
-    @Transactional
-    void getAllFdaSubmissionsByPlatformIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        fdaSubmissionRepository.saveAndFlush(fdaSubmission);
-
-        // Get all the fdaSubmissionList where platform not equals to DEFAULT_PLATFORM
-        defaultFdaSubmissionShouldNotBeFound("platform.notEquals=" + DEFAULT_PLATFORM);
-
-        // Get all the fdaSubmissionList where platform not equals to UPDATED_PLATFORM
-        defaultFdaSubmissionShouldBeFound("platform.notEquals=" + UPDATED_PLATFORM);
-    }
-
-    @Test
-    @Transactional
-    void getAllFdaSubmissionsByPlatformIsInShouldWork() throws Exception {
-        // Initialize the database
-        fdaSubmissionRepository.saveAndFlush(fdaSubmission);
-
-        // Get all the fdaSubmissionList where platform in DEFAULT_PLATFORM or UPDATED_PLATFORM
-        defaultFdaSubmissionShouldBeFound("platform.in=" + DEFAULT_PLATFORM + "," + UPDATED_PLATFORM);
-
-        // Get all the fdaSubmissionList where platform equals to UPDATED_PLATFORM
-        defaultFdaSubmissionShouldNotBeFound("platform.in=" + UPDATED_PLATFORM);
-    }
-
-    @Test
-    @Transactional
-    void getAllFdaSubmissionsByPlatformIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        fdaSubmissionRepository.saveAndFlush(fdaSubmission);
-
-        // Get all the fdaSubmissionList where platform is not null
-        defaultFdaSubmissionShouldBeFound("platform.specified=true");
-
-        // Get all the fdaSubmissionList where platform is null
-        defaultFdaSubmissionShouldNotBeFound("platform.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllFdaSubmissionsByPlatformContainsSomething() throws Exception {
-        // Initialize the database
-        fdaSubmissionRepository.saveAndFlush(fdaSubmission);
-
-        // Get all the fdaSubmissionList where platform contains DEFAULT_PLATFORM
-        defaultFdaSubmissionShouldBeFound("platform.contains=" + DEFAULT_PLATFORM);
-
-        // Get all the fdaSubmissionList where platform contains UPDATED_PLATFORM
-        defaultFdaSubmissionShouldNotBeFound("platform.contains=" + UPDATED_PLATFORM);
-    }
-
-    @Test
-    @Transactional
-    void getAllFdaSubmissionsByPlatformNotContainsSomething() throws Exception {
-        // Initialize the database
-        fdaSubmissionRepository.saveAndFlush(fdaSubmission);
-
-        // Get all the fdaSubmissionList where platform does not contain DEFAULT_PLATFORM
-        defaultFdaSubmissionShouldNotBeFound("platform.doesNotContain=" + DEFAULT_PLATFORM);
-
-        // Get all the fdaSubmissionList where platform does not contain UPDATED_PLATFORM
-        defaultFdaSubmissionShouldBeFound("platform.doesNotContain=" + UPDATED_PLATFORM);
-    }
-
-    @Test
-    @Transactional
     void getAllFdaSubmissionsByCuratedIsEqualToSomething() throws Exception {
         // Initialize the database
         fdaSubmissionRepository.saveAndFlush(fdaSubmission);
@@ -1071,7 +1007,6 @@ class FdaSubmissionResourceIT {
             .andExpect(jsonPath("$.[*].dateReceived").value(hasItem(DEFAULT_DATE_RECEIVED.toString())))
             .andExpect(jsonPath("$.[*].decisionDate").value(hasItem(DEFAULT_DECISION_DATE.toString())))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
-            .andExpect(jsonPath("$.[*].platform").value(hasItem(DEFAULT_PLATFORM)))
             .andExpect(jsonPath("$.[*].curated").value(hasItem(DEFAULT_CURATED.booleanValue())))
             .andExpect(jsonPath("$.[*].genetic").value(hasItem(DEFAULT_GENETIC.booleanValue())))
             .andExpect(jsonPath("$.[*].note").value(hasItem(DEFAULT_NOTE.toString())));
@@ -1130,7 +1065,6 @@ class FdaSubmissionResourceIT {
             .dateReceived(UPDATED_DATE_RECEIVED)
             .decisionDate(UPDATED_DECISION_DATE)
             .description(UPDATED_DESCRIPTION)
-            .platform(UPDATED_PLATFORM)
             .curated(UPDATED_CURATED)
             .genetic(UPDATED_GENETIC)
             .note(UPDATED_NOTE);
@@ -1155,7 +1089,6 @@ class FdaSubmissionResourceIT {
         assertThat(testFdaSubmission.getDateReceived()).isEqualTo(UPDATED_DATE_RECEIVED);
         assertThat(testFdaSubmission.getDecisionDate()).isEqualTo(UPDATED_DECISION_DATE);
         assertThat(testFdaSubmission.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-        assertThat(testFdaSubmission.getPlatform()).isEqualTo(UPDATED_PLATFORM);
         assertThat(testFdaSubmission.getCurated()).isEqualTo(UPDATED_CURATED);
         assertThat(testFdaSubmission.getGenetic()).isEqualTo(UPDATED_GENETIC);
         assertThat(testFdaSubmission.getNote()).isEqualTo(UPDATED_NOTE);
@@ -1241,8 +1174,8 @@ class FdaSubmissionResourceIT {
             .deviceName(UPDATED_DEVICE_NAME)
             .dateReceived(UPDATED_DATE_RECEIVED)
             .decisionDate(UPDATED_DECISION_DATE)
-            .curated(UPDATED_CURATED)
-            .genetic(UPDATED_GENETIC);
+            .genetic(UPDATED_GENETIC)
+            .note(UPDATED_NOTE);
 
         restFdaSubmissionMockMvc
             .perform(
@@ -1264,10 +1197,9 @@ class FdaSubmissionResourceIT {
         assertThat(testFdaSubmission.getDateReceived()).isEqualTo(UPDATED_DATE_RECEIVED);
         assertThat(testFdaSubmission.getDecisionDate()).isEqualTo(UPDATED_DECISION_DATE);
         assertThat(testFdaSubmission.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
-        assertThat(testFdaSubmission.getPlatform()).isEqualTo(DEFAULT_PLATFORM);
-        assertThat(testFdaSubmission.getCurated()).isEqualTo(UPDATED_CURATED);
+        assertThat(testFdaSubmission.getCurated()).isEqualTo(DEFAULT_CURATED);
         assertThat(testFdaSubmission.getGenetic()).isEqualTo(UPDATED_GENETIC);
-        assertThat(testFdaSubmission.getNote()).isEqualTo(DEFAULT_NOTE);
+        assertThat(testFdaSubmission.getNote()).isEqualTo(UPDATED_NOTE);
     }
 
     @Test
@@ -1290,7 +1222,6 @@ class FdaSubmissionResourceIT {
             .dateReceived(UPDATED_DATE_RECEIVED)
             .decisionDate(UPDATED_DECISION_DATE)
             .description(UPDATED_DESCRIPTION)
-            .platform(UPDATED_PLATFORM)
             .curated(UPDATED_CURATED)
             .genetic(UPDATED_GENETIC)
             .note(UPDATED_NOTE);
@@ -1315,7 +1246,6 @@ class FdaSubmissionResourceIT {
         assertThat(testFdaSubmission.getDateReceived()).isEqualTo(UPDATED_DATE_RECEIVED);
         assertThat(testFdaSubmission.getDecisionDate()).isEqualTo(UPDATED_DECISION_DATE);
         assertThat(testFdaSubmission.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
-        assertThat(testFdaSubmission.getPlatform()).isEqualTo(UPDATED_PLATFORM);
         assertThat(testFdaSubmission.getCurated()).isEqualTo(UPDATED_CURATED);
         assertThat(testFdaSubmission.getGenetic()).isEqualTo(UPDATED_GENETIC);
         assertThat(testFdaSubmission.getNote()).isEqualTo(UPDATED_NOTE);
