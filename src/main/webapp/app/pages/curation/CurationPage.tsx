@@ -40,6 +40,10 @@ export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hu
 
 export type ParsedHistoryRecord = { record: HistoryRecord; timestamp: string; admin: string };
 
+export type FirebaseMutation = Mutation & {
+  firebaseIndex: number;
+};
+
 const CurationPage = (props: ICurationPageProps) => {
   const history = useHistory();
   const hugoSymbol = props.match.params.hugoSymbol;
@@ -48,7 +52,7 @@ const CurationPage = (props: ICurationPageProps) => {
   const [mutationFilter, setMutationFilter] = useState('');
 
   const [showFilterModal, setShowFilterModal] = useState(false);
-  const [mutations, setMutations] = useState<(Mutation & { firebaseIndex: number })[]>([]);
+  const [mutations, setMutations] = useState<FirebaseMutation[]>([]);
 
   const [oncogenicityFilter, setOncogenicityFilter] = useState(initFilterCheckboxState(ONCOGENICITY_OPTIONS));
   const [tempOncogenicityFilter, setTempOncogenicityFilter] = useState(initFilterCheckboxState(ONCOGENICITY_OPTIONS));
@@ -173,7 +177,7 @@ const CurationPage = (props: ICurationPageProps) => {
 
   function filterMutations() {
     setMutations(
-      props.data?.mutations?.reduce<(Mutation & { firebaseIndex: number })[]>((filteredMutations, mutation, index) => {
+      props.data?.mutations?.reduce<FirebaseMutation[]>((filteredMutations, mutation, index) => {
         const matchesName = !mutationFilter || getMutationName(mutation).toLowerCase().includes(mutationFilter.toLowerCase());
 
         const selectedOncogenicities = oncogenicityFilter.filter(filter => filter.selected);

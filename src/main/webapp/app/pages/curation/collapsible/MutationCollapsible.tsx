@@ -127,7 +127,7 @@ const MutationCollapsible = ({
             className={'mt-2'}
             title={'Germline'}
             borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.GERMLINE]]}
-            isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/0/mutation_effect/germline`))}
+            isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect/germline`))}
           >
             <RealtimeCheckedInputGroup
               groupHeader="Pathogenic"
