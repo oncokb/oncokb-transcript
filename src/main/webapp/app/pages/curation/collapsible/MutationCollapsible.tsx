@@ -296,7 +296,7 @@ const MutationCollapsible = ({
                   return (
                     <Collapsible
                       className={'mt-2'}
-                      key={tumor.cancerTypes_uuid}
+                      key={treatment.name_uuid}
                       title={`Therapy: ${getTxName(drugList, treatment.name)}`}
                       borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.THERAPY]]}
                       action={
