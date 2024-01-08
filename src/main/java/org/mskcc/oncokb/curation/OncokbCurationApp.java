@@ -91,7 +91,6 @@ public class OncokbCurationApp {
             env.getActiveProfiles().length == 0 ? env.getDefaultProfiles() : env.getActiveProfiles()
         );
         if (activeProfiles.contains("importer")) {
-            initFirebase();
             importer.generalImport();
         }
     }
