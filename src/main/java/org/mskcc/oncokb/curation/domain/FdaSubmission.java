@@ -26,14 +26,14 @@ public class FdaSubmission implements Serializable {
 
     @NotNull
     @Column(name = "number", nullable = false)
-    private String number;
+    private String number = "";
 
-    @Column(name = "supplement_number")
-    private String supplementNumber;
+    @Column(name = "supplement_number", nullable = false)
+    private String supplementNumber = "";
 
     @NotNull
     @Column(name = "device_name", nullable = false)
-    private String deviceName;
+    private String deviceName = "";
 
     @Column(name = "generic_name")
     private String genericName;
@@ -49,16 +49,16 @@ public class FdaSubmission implements Serializable {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "platform")
-    private String platform;
+    @Column(name = "platform", nullable = false)
+    private String platform = "";
 
     @NotNull
     @Column(name = "curated", nullable = false)
-    private Boolean curated;
+    private Boolean curated = false;
 
     @NotNull
     @Column(name = "genetic", nullable = false)
-    private Boolean genetic;
+    private Boolean genetic = false;
 
     @DiffIgnore
     @Lob

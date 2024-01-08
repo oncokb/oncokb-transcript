@@ -95,9 +95,6 @@ public class Treatment implements Serializable {
         if (this.treatmentPriorities != null) {
             this.treatmentPriorities.forEach(i -> i.setTreatment(null));
         }
-        if (treatmentPriorities != null) {
-            treatmentPriorities.forEach(i -> i.setTreatment(this));
-        }
         this.treatmentPriorities = treatmentPriorities;
     }
 
@@ -108,13 +105,11 @@ public class Treatment implements Serializable {
 
     public Treatment addTreatmentPriority(TreatmentPriority treatmentPriority) {
         this.treatmentPriorities.add(treatmentPriority);
-        treatmentPriority.setTreatment(this);
         return this;
     }
 
     public Treatment removeTreatmentPriority(TreatmentPriority treatmentPriority) {
         this.treatmentPriorities.remove(treatmentPriority);
-        treatmentPriority.setTreatment(null);
         return this;
     }
 
@@ -133,13 +128,11 @@ public class Treatment implements Serializable {
 
     public Treatment addDrug(Drug drug) {
         this.drugs.add(drug);
-        drug.getTreatments().add(this);
         return this;
     }
 
     public Treatment removeDrug(Drug drug) {
         this.drugs.remove(drug);
-        drug.getTreatments().remove(this);
         return this;
     }
 
@@ -151,9 +144,6 @@ public class Treatment implements Serializable {
         if (this.associations != null) {
             this.associations.forEach(i -> i.removeTreatment(this));
         }
-        if (associations != null) {
-            associations.forEach(i -> i.addTreatment(this));
-        }
         this.associations = associations;
     }
 
@@ -164,13 +154,11 @@ public class Treatment implements Serializable {
 
     public Treatment addAssociation(Association association) {
         this.associations.add(association);
-        association.getTreatments().add(this);
         return this;
     }
 
     public Treatment removeAssociation(Association association) {
         this.associations.remove(association);
-        association.getTreatments().remove(this);
         return this;
     }
 

@@ -152,13 +152,11 @@ public class Association implements Serializable {
 
     public Association addAlteration(Alteration alteration) {
         this.alterations.add(alteration);
-        alteration.getAssociations().add(this);
         return this;
     }
 
     public Association removeAlteration(Alteration alteration) {
         this.alterations.remove(alteration);
-        alteration.getAssociations().remove(this);
         return this;
     }
 
@@ -177,13 +175,11 @@ public class Association implements Serializable {
 
     public Association addArticle(Article article) {
         this.articles.add(article);
-        article.getAssociations().add(this);
         return this;
     }
 
     public Association removeArticle(Article article) {
         this.articles.remove(article);
-        article.getAssociations().remove(this);
         return this;
     }
 
@@ -202,13 +198,11 @@ public class Association implements Serializable {
 
     public Association addTreatment(Treatment treatment) {
         this.treatments.add(treatment);
-        treatment.getAssociations().add(this);
         return this;
     }
 
     public Association removeTreatment(Treatment treatment) {
         this.treatments.remove(treatment);
-        treatment.getAssociations().remove(this);
         return this;
     }
 
@@ -252,13 +246,11 @@ public class Association implements Serializable {
 
     public Association addClinicalTrial(ClinicalTrial clinicalTrial) {
         this.clinicalTrials.add(clinicalTrial);
-        clinicalTrial.getAssociations().add(this);
         return this;
     }
 
     public Association removeClinicalTrial(ClinicalTrial clinicalTrial) {
         this.clinicalTrials.remove(clinicalTrial);
-        clinicalTrial.getAssociations().remove(this);
         return this;
     }
 
@@ -283,13 +275,11 @@ public class Association implements Serializable {
 
     public Association addClinicalTrialArm(ClinicalTrialArm clinicalTrialArm) {
         this.clinicalTrialArms.add(clinicalTrialArm);
-        clinicalTrialArm.getAssociations().add(this);
         return this;
     }
 
     public Association removeClinicalTrialArm(ClinicalTrialArm clinicalTrialArm) {
         this.clinicalTrialArms.remove(clinicalTrialArm);
-        clinicalTrialArm.getAssociations().remove(this);
         return this;
     }
 
@@ -314,13 +304,11 @@ public class Association implements Serializable {
 
     public Association addEligibilityCriteria(EligibilityCriteria eligibilityCriteria) {
         this.eligibilityCriteria.add(eligibilityCriteria);
-        eligibilityCriteria.getAssociations().add(this);
         return this;
     }
 
     public Association removeEligibilityCriteria(EligibilityCriteria eligibilityCriteria) {
         this.eligibilityCriteria.remove(eligibilityCriteria);
-        eligibilityCriteria.getAssociations().remove(this);
         return this;
     }
 
@@ -345,13 +333,11 @@ public class Association implements Serializable {
 
     public Association addFdaSubmission(FdaSubmission fdaSubmission) {
         this.fdaSubmissions.add(fdaSubmission);
-        fdaSubmission.getAssociations().add(this);
         return this;
     }
 
     public Association removeFdaSubmission(FdaSubmission fdaSubmission) {
         this.fdaSubmissions.remove(fdaSubmission);
-        fdaSubmission.getAssociations().remove(this);
         return this;
     }
 
@@ -376,13 +362,11 @@ public class Association implements Serializable {
 
     public Association addGenomicIndicator(GenomicIndicator genomicIndicator) {
         this.genomicIndicators.add(genomicIndicator);
-        genomicIndicator.getAssociations().add(this);
         return this;
     }
 
     public Association removeGenomicIndicator(GenomicIndicator genomicIndicator) {
         this.genomicIndicators.remove(genomicIndicator);
-        genomicIndicator.getAssociations().remove(this);
         return this;
     }
 

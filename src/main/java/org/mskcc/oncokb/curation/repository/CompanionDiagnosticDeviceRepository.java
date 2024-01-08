@@ -19,6 +19,7 @@ public interface CompanionDiagnosticDeviceRepository
         "select distinct companionDiagnosticDevice from CompanionDiagnosticDevice companionDiagnosticDevice" +
         " left join fetch companionDiagnosticDevice.specimenTypes" +
         " left join fetch companionDiagnosticDevice.fdaSubmissions fa" +
+        " left join fetch companionDiagnosticDevice.specimenTypes st" +
         " left join fetch fa.associations ba" +
         " left join fetch ba.associationCancerTypes bact" +
         " left join fetch bact.cancerType" +
@@ -34,6 +35,7 @@ public interface CompanionDiagnosticDeviceRepository
         "select companionDiagnosticDevice from CompanionDiagnosticDevice companionDiagnosticDevice left join fetch companionDiagnosticDevice.specimenTypes" +
         " left join fetch companionDiagnosticDevice.specimenTypes" +
         " left join fetch companionDiagnosticDevice.fdaSubmissions fa" +
+        " left join fetch companionDiagnosticDevice.specimenTypes st" +
         " left join fetch fa.associations ba" +
         " left join fetch ba.associationCancerTypes bact" +
         " left join fetch bact.cancerType" +
@@ -48,5 +50,23 @@ public interface CompanionDiagnosticDeviceRepository
 
     Optional<CompanionDiagnosticDevice> findByName(String name);
 
-    List<CompanionDiagnosticDevice> findByNameIgnoreCaseAndManufacturerIgnoreCase(String name, String manufacturer);
+    @Query(
+        "select companionDiagnosticDevice from CompanionDiagnosticDevice companionDiagnosticDevice left join fetch companionDiagnosticDevice.specimenTypes" +
+        " left join fetch companionDiagnosticDevice.specimenTypes" +
+        " left join fetch companionDiagnosticDevice.fdaSubmissions fa" +
+        " left join fetch companionDiagnosticDevice.specimenTypes st" +
+        " left join fetch fa.associations ba" +
+        " left join fetch ba.associationCancerTypes bact" +
+        " left join fetch bact.cancerType" +
+        " left join fetch ba.treatments bat" +
+        " left join fetch bat.drugs" +
+        " left join fetch ba.alterations baa" +
+        " left join fetch baa.genes" +
+        " left join fetch ba.fdaSubmissions" +
+        " where companionDiagnosticDevice.name =:name and companionDiagnosticDevice.manufacturer=:manufacturer"
+    )
+    List<CompanionDiagnosticDevice> findByNameIgnoreCaseAndManufacturerIgnoreCase(
+        @Param("name") String name,
+        @Param("manufacturer") String manufacturer
+    );
 }

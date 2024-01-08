@@ -128,14 +128,8 @@ public class MetaImporter {
         log.info("Importing flag...");
         this.importFlag();
 
-        log.info("Importing cdx...");
-        this.importCdx();
-
         log.info("Importing FDA submission type...");
         this.importFdaSubmissionType();
-
-        log.info("Importing FDA submission...");
-        this.importFdaSubmission();
 
         log.info("Importing gene...");
         this.importGene();
@@ -176,19 +170,10 @@ public class MetaImporter {
 
         log.info("Importing core dataset...");
         coreImporter.generalImport();
-
-        log.info("Importing NCIT...");
-        this.importNcit();
         //          meta-9.sql includes above
-
-        log.info("Importing drug...");
-        coreImporter.importDrug();
 
         log.info("Verifying the OncoKB gene hugo is the same with cBioPortal gene list");
         coreImporter.verifyGene();
-
-        log.info("Importing association...");
-        importAssociations();
     }
 
     private void importFlag() throws IOException {
@@ -521,7 +506,7 @@ public class MetaImporter {
                 return;
             }
             if (StringUtils.isEmpty(cancerTypeCode)) {
-                Optional<CancerType> cancerTypeOptional = cancerTypeService.findOneByMainTypeIgnoreCaseAndLevel(cancerTypeMaintype, 0);
+                Optional<CancerType> cancerTypeOptional = cancerTypeService.findByMainTypeAndSubtypeIsNull(cancerTypeMaintype);
                 if (cancerTypeOptional.isEmpty()) {
                     log.error("Cannot find cancer type by maintype {}", cancerTypeMaintype);
                 } else {
@@ -544,7 +529,10 @@ public class MetaImporter {
             }
             String alterations = line.get(7);
             for (String alteration : alterations.split(",")) {
-                List<Alteration> alterationList = alterationService.findByNameAndGeneId(alteration.trim(), geneOptional.get().getId());
+                List<Alteration> alterationList = alterationService.findByNameOrAlterationAndGenesId(
+                    alteration.trim(),
+                    geneOptional.get().getId()
+                );
                 if (alterationList.isEmpty()) {
                     log.error("Cannot find alteration {}", alteration);
                     return;
@@ -648,7 +636,7 @@ public class MetaImporter {
         }
     }
 
-    private void importNcit() throws IOException {
+    public void importNcit() throws IOException {
         List<List<String>> lines = parseDelimitedFile(DATA_DIRECTORY + "/ncit/Thesaurus_" + NCIT_VERSION + ".tsv", "\t", true);
         saveAllNcitData(lines);
     }

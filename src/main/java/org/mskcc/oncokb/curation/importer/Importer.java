@@ -39,6 +39,9 @@ public class Importer {
     private MetaImporter metaImporter;
 
     @Autowired
+    private CdxImporter cdxImporter;
+
+    @Autowired
     private GeneImporter geneImporter;
 
     @Autowired
@@ -95,7 +98,9 @@ public class Importer {
         //        importAlteration();
         //                this.transcriptImporter.importTranscripts();
         //        this.ensemblImporter.importSeqRegion();
-        //                this.metaImporter.generalImport();
+        this.metaImporter.generalImport();
+        firebaseService.importDrugs();
+        cdxImporter.importCdxMain();
         //        firebaseService.readGene();
     }
 
