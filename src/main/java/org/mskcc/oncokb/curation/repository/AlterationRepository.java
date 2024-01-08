@@ -38,7 +38,14 @@ public interface AlterationRepository extends JpaRepository<Alteration, Long>, J
 
     List<Alteration> findByGenesId(@Param("id") Long id);
 
-    List<Alteration> findByNameOrAlterationAndGenesId(String name, String alteration, Long geneId);
+    @Query(
+        "select distinct alteration from Alteration alteration" +
+        " left join fetch alteration.genes g" +
+        " left join fetch alteration.consequence" +
+        " where g.id in (:id) and" +
+        " (alteration.name =:query or alteration.alteration=:query )"
+    )
+    List<Alteration> findByNameOrAlterationAndGenesId(@Param("query") String query, @Param("id") Long geneId);
 
     @Query(
         value = "select distinct a from Alteration a" +

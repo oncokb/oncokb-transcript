@@ -135,8 +135,8 @@ public class AlterationService {
         return page;
     }
 
-    public List<Alteration> findByNameOrAlterationAndGenesId(String name, Long geneId) {
-        return alterationRepository.findByNameOrAlterationAndGenesId(name, name, geneId);
+    public List<Alteration> findByNameOrAlterationAndGenesId(String query, Long geneId) {
+        return alterationRepository.findByNameOrAlterationAndGenesId(query, geneId);
     }
 
     /**
