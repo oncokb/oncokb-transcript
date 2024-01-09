@@ -4,10 +4,10 @@ import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-r
 import { ExtractPathExpressions } from 'app/shared/util/firebase/firebase-crud-store';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { action, computed, makeObservable } from 'mobx';
-import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/Collapsible';
 import { ref, update } from 'firebase/database';
 import { getValueByNestedKey, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
 import { parseFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
+import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {

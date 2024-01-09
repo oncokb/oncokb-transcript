@@ -24,7 +24,7 @@ import {
   Tumor,
 } from 'app/shared/model/firebase/firebase.model';
 import { generateUuid } from '../utils';
-import { NestLevelType } from 'app/pages/curation/collapsible/Collapsible';
+import { NestLevelType } from 'app/pages/curation/collapsible/NestLevel';
 
 describe('FirebaseUtils', () => {
   describe('convertNestedObject', () => {

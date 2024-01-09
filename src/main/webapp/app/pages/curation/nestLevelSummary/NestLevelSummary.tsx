@@ -27,7 +27,7 @@ export const NestLevelSummary = (props: NestLevelSummaryProps) => {
 
   let lastBadgeHasHiddenNumber = false;
 
-  const badges = (
+  const badges = props.summaryStats ? (
     <>
       {Object.keys(props.summaryStats)
         .filter(k => props.summaryStats[k] && props.summaryStats[k] > 0)
@@ -93,9 +93,11 @@ export const NestLevelSummary = (props: NestLevelSummaryProps) => {
         />
       ) : undefined}
     </>
+  ) : (
+    <></>
   );
 
-  if (props.summaryStats.oncogenicity) {
+  if (props.summaryStats?.oncogenicity) {
     lastBadgeHasHiddenNumber = true;
   }
 
