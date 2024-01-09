@@ -20,6 +20,7 @@ export type AllLevelSummary = {
       txLevels: TX_LEVELS[];
       dxLevels: DX_LEVELS[];
       pxLevels: PX_LEVELS[];
+      treatmentSummary: { [treatmentId: string]: TX_LEVELS[] };
     };
   };
 };
@@ -70,6 +71,7 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
               txLevels: [],
               dxLevels: [],
               pxLevels: [],
+              treatmentSummary: {},
             };
             summary[mutation.name_uuid][tumor.cancerTypes_uuid].TT++;
             summary[mutation.name_uuid][tumor.cancerTypes_uuid].oncogenicity = mutation.mutation_effect.oncogenic;
@@ -85,7 +87,13 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
             tumor.TIs.forEach(ti => {
               if (ti.treatments) {
                 ti.treatments.forEach(treatment => {
-                  summary[mutation.name_uuid][tumor.cancerTypes_uuid].txLevels.push(treatment.level);
+                  const cancerTypeSummary = summary[mutation.name_uuid][tumor.cancerTypes_uuid];
+                  cancerTypeSummary.txLevels.push(treatment.level);
+
+                  if (!cancerTypeSummary.treatmentSummary[treatment.name_uuid]) {
+                    cancerTypeSummary.treatmentSummary[treatment.name_uuid] = [];
+                  }
+                  cancerTypeSummary.treatmentSummary[treatment.name_uuid].push(treatment.level);
                 });
               }
             });

@@ -19,6 +19,7 @@ import { CANCER_TYPE_THERAPY_INDENTIFIER, GERMLINE_INHERITANCE_MECHANISM, PATHOG
 import { getCancerTypeName } from 'app/shared/util/utils';
 import CancerTypeLevelSummary from '../nestLevelSummary/CancerTypeLevelSummary';
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
+import TreatmentLevelSummary from '../nestLevelSummary/TreatmentLevelSummary';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutation: Mutation;
@@ -299,6 +300,13 @@ const MutationCollapsible = ({
                       key={treatment.name_uuid}
                       title={`Therapy: ${getTxName(drugList, treatment.name)}`}
                       borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.THERAPY]]}
+                      info={
+                        <TreatmentLevelSummary
+                          mutationUuid={mutation.name_uuid}
+                          cancerTypesUuid={tumor.cancerTypes_uuid}
+                          treatmentUuid={treatment.name_uuid}
+                        />
+                      }
                       action={
                         <DeleteSectionButton
                           sectionName={title}
