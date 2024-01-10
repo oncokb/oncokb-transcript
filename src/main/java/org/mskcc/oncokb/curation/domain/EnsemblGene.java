@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 
 /**
@@ -46,17 +47,21 @@ public class EnsemblGene implements Serializable {
     @Column(name = "strand", nullable = false)
     private Integer strand;
 
+    @ShallowReference
     @OneToMany(mappedBy = "ensemblGene")
-    @JsonIgnoreProperties(value = { "fragments", "sequences", "flags", "ensemblGene" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "sequences", "fragments", "flags", "ensemblGene", "gene", "alterations" }, allowSetters = true)
     private Set<Transcript> transcripts = new HashSet<>();
 
+    @ShallowReference
     @ManyToOne
-    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "biomarkerAssociations", "flags", "alterations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "ensemblGenes", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
+    @JoinColumn(name = "entrez_gene_id", referencedColumnName = "entrez_gene_id")
     private Gene gene;
 
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "ensemblGenes", "genomeFragments" }, allowSetters = true)
-    @JoinColumn(name = "seqRegion", referencedColumnName = "name")
+    @JoinColumn(name = "seq_region", referencedColumnName = "name")
     private SeqRegion seqRegion;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -236,7 +241,6 @@ public class EnsemblGene implements Serializable {
             ", referenceGenome='" + getReferenceGenome() + "'" +
             ", ensemblGeneId='" + getEnsemblGeneId() + "'" +
             ", canonical='" + getCanonical() + "'" +
-            ", seqRegion=" + getSeqRegion() +
             ", start=" + getStart() +
             ", end=" + getEnd() +
             ", strand=" + getStrand() +

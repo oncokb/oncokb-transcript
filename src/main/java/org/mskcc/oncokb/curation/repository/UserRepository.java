@@ -1,6 +1,7 @@
 package org.mskcc.oncokb.curation.repository;
 
 import java.util.Optional;
+import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.User;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data JPA repository for the {@link User} entity.
  */
+@JaversSpringDataAuditable
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findOneByEmailIgnoreCase(String email);

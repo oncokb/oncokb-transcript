@@ -31,7 +31,7 @@ export const SearchOption: React.FunctionComponent<SearchOptionProps> = props =>
       }
       case SearchOptionType.CDX: {
         const data: ICompanionDiagnosticDevice = props.data;
-        path = PAGE_ROUTE.CDX + path;
+        path = PAGE_ROUTE.COMPANION_DIAGNOSTIC_DEVICE + path;
         title = { text: data.name, searchWords: [searchKeyword] };
         subTitles = [{ label: 'Manufactured by ', text: data.manufacturer, searchWords: [searchKeyword] }];
         break;
@@ -46,23 +46,28 @@ export const SearchOption: React.FunctionComponent<SearchOptionProps> = props =>
         const data: IDrug = props.data;
         path = PAGE_ROUTE.DRUG + path;
         title = { text: data.name, searchWords: [searchKeyword] };
-        subTitles = [
-          { label: 'Brands: ', text: data.brands?.map(brand => brand.name).join(', '), searchWords: [searchKeyword] },
-          {
-            label: 'Also known as ',
-            text: data.synonyms?.map(synonyms => synonyms.name).join(', '),
+        subTitles = [];
+        if (data.brands) {
+          subTitles.push({
+            label: 'Brands: ',
+            text: data.brands?.map(brand => brand.name).join(', '),
             searchWords: [searchKeyword],
-          },
-        ];
+          });
+        }
+        if (data.nciThesaurus?.synonyms) {
+          subTitles.push({
+            label: 'Also known as ',
+            text: data.nciThesaurus?.synonyms.map(synonyms => synonyms.name).join(', '),
+            searchWords: [searchKeyword],
+          });
+        }
         break;
       }
       case SearchOptionType.GENE: {
         const data: IGene = props.data;
         path = PAGE_ROUTE.GENE + path;
         title = { text: `${data.hugoSymbol} (Entrez Gene: ${data.entrezGeneId})`, searchWords: [searchKeyword] };
-        subTitles = [
-          { label: 'Also known as ', text: data.geneAliases?.map(alias => alias.name).join(', '), searchWords: [searchKeyword] },
-        ];
+        subTitles = [{ label: 'Also known as ', text: data.synonyms?.map(alias => alias.name).join(', '), searchWords: [searchKeyword] }];
         break;
       }
       case SearchOptionType.ALTERATION: {

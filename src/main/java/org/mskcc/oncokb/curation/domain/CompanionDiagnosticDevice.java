@@ -7,12 +7,13 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A CompanionDiagnosticDevice.
  */
 @Entity
-@Table(name = "companion_diagnostic_device", uniqueConstraints = { @UniqueConstraint(columnNames = { "name", "manufacturer" }) })
+@Table(name = "companion_diagnostic_device")
 public class CompanionDiagnosticDevice implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -39,9 +40,12 @@ public class CompanionDiagnosticDevice implements Serializable {
     @Column(name = "last_updated")
     private Instant lastUpdated;
 
+    @ShallowReference
     @OneToMany(mappedBy = "companionDiagnosticDevice")
+    @JsonIgnoreProperties(value = { "companionDiagnosticDevice" }, allowSetters = true)
     private Set<FdaSubmission> fdaSubmissions = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_companion_diagnostic_device__specimen_type",
@@ -177,13 +181,11 @@ public class CompanionDiagnosticDevice implements Serializable {
 
     public CompanionDiagnosticDevice addSpecimenType(SpecimenType specimenType) {
         this.specimenTypes.add(specimenType);
-        specimenType.getCompanionDiagnosticDevices().add(this);
         return this;
     }
 
     public CompanionDiagnosticDevice removeSpecimenType(SpecimenType specimenType) {
         this.specimenTypes.remove(specimenType);
-        specimenType.getCompanionDiagnosticDevices().remove(this);
         return this;
     }
 

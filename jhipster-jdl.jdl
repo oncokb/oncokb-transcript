@@ -1,82 +1,122 @@
+/**
+ * Enumeration
+ */
 
-
-enum ReferenceGenome {
- GRCh37, GRCh38
+enum AlterationType {
+    GENOMIC_CHANGE,
+    CDNA_CHANGE,
+    PROTEIN_CHANGE,
+    MUTATION,
+    COPY_NUMBER_ALTERATION,
+    STRUCTURAL_VARIANT,
+    ANY,
+    UNKNOWN,
+    NA
 }
 
-entity Transcript {
-    ensemblTranscriptId String,
-    canonical Boolean required,
-    ensemblProteinId String,
-    referenceSequenceId String,
-    description String
+enum ArticleType {
+    PMID, ABSTRACT
 }
 
-enum TranscriptFlagEnum {
-	 MANE_SELECT,
-	 MANE_PLUS_CLINICAL,
-	 GN_CANONICAL,
-	 ONCOKB,
-	 ENSEMBL_CANONICAL
+enum AssociationCancerTypeRelation {
+    INCLUSION, EXCLUSION, RELEVANT
 }
 
-entity SeqRegion {
-    name String required unique,
-    chromosome String,
-    description TextBlob
+enum CategoricalAlterationType{
+    ONCOGENIC_MUTATIONS,
+    GAIN_OF_FUNCTION_MUTATIONS,
+    LOSS_OF_FUNCTION_MUTATIONS,
+    SWITCH_OF_FUNCTION_MUTATIONS,
+    KINASE_DOMAIN_DUPLICATIONS,
+    INTERNAL_TANDEM_DUPLICATIONS,
+    PARTIAL_TANDEM_DUPLICATIONS,
+    OVEREXPRESSION,
+    HYPERMETHYLATION,
+    MSIH,
+    TMBH,
+    EPIGENETIC_SILENCING,
+    VI,
+    VII,
+    VIII,
+    VIV,
+    VV
+    VUS,
+    TRUNCATING_MUTATIONS,
+    FUSIONS,
+    AMPLIFICATION,
+    DELETION,
+    GAIN,
+    LOSS,
+    PROMOTER,
+    WILDTYPE
 }
 
-entity EnsemblGene {
-    referenceGenome ReferenceGenome,
-    ensemblGeneId String required,
-    canonical Boolean required,
-    start Integer required,
-    end Integer required,
-    strand Integer required
+enum EligibilityCriteriaType {
+    INCLUSION, EXCLUSION
 }
 
-entity GenomeFragment {
-    start Integer,
-    end Integer,
-    strand Integer,
-    type GenomeFragmentType
+enum EvidenceType {
+    GENE_SUMMARY,
+    MUTATION_SUMMARY,
+    TUMOR_TYPE_SUMMARY,
+    GENE_TUMOR_TYPE_SUMMARY,
+    PROGNOSTIC_SUMMARY,
+    DIAGNOSTIC_SUMMARY,
+    GENE_BACKGROUND,
+    ONCOGENIC,
+    MUTATION_EFFECT,
+    VUS,
+    PROGNOSTIC_IMPLICATION,
+    DIAGNOSTIC_IMPLICATION
+}
+
+enum FdaSubmissionTypeKey {
+    PMA, DE_NOVO, HDE, PMN
+}
+
+enum FlagType {
+    GENE_TYPE
+    GENE_PANEL
+    TRANSCRIPT
+    DRUG
+}
+
+enum GeographicRegion {
+    US, EU
+}
+
+enum GenePanelFlagEnum {
+     ONCOKB,
+     MSK_IMPACT_505,
+     MSK_ACCESS,
+     MSK_HEME,
+     VOGELSTEIN,
+     CGC_T1,
+     FOUNDATION_ONE,
+     FOUNDATION_HEME,
+     TEMPUS_XT,
+     TEMPUS_XR,
+     TEMPUS_XF,
+     TEMPUS_XG,
+     TEMPUS_XG_PLUS,
+     TEMPUS_XE,
+     GUARDANT_360,
+     ONCOMINE_DX
+     ONCOMINE_CA_V3
+     ONCOMINE_CA_PLUS
+     CARIS_MI
+     TRUSIGHT_ONCOLOGY_500
 }
 
 enum GenomeFragmentType {
-	GENE,
-	EXON,
+    GENE,
+    EXON,
     FIVE_PRIME_UTR,
     THREE_PRIME_UTR
 }
 
-entity Sequence {
-    sequenceType SequenceType
-    sequence TextBlob
-}
-
-enum SequenceType {
-	PROTEIN, CDNA
-}
-
-entity Drug {
-    name TextBlob
-    code String
-    semanticType TextBlob
-}
-
-entity FdaDrug {
-    applicationNumber String unique required
-}
-
-entity DrugSynonym {
-    name TextBlob
-}
-
-entity Info {
-    type String unique required
-    value String
-    created Instant
-    lastUpdated Instant
+enum GenomicIndicatorType {
+    GERMLINE
 }
 
 enum InfoType {
@@ -87,171 +127,78 @@ enum InfoType {
     ENSEMBL_VERSION
 }
 
-entity Article {
-    pmid String,
-    title TextBlob,
-    journal String,
-    pubDate String,
-    volume String,
-    issue String,
-    pages String,
-    authors String,
+enum LevelOfEvidenceType {
+    TX, DX, PX, FDA, TX_LIQUID_PROPAGATION, TX_SOLID_PROPAGATION
 }
 
-entity Gene {
-    entrezGeneId Integer
-    hugoSymbol String
-    hgncId String
+enum ReferenceGenome {
+    GRCh37, GRCh38
 }
 
-entity GeneAlias {
-    name String
-}
-
-enum GeneFlagEnum {
-	 ONCOKB,
-	 MSK_IMPACT_505,
-	 MSK_ACCESS,
-	 MSK_HEME,
-	 VOGELSTEIN,
-	 CGC_T1,
-	 FOUNDATION_ONE,
-	 FOUNDATION_HEME,
-	 TEMPUS_XT,
-	 TEMPUS_XR,
-	 TEMPUS_XF,
-	 TEMPUS_XG,
-	 TEMPUS_XG_PLUS,
-	 TEMPUS_XE,
-	 GUARDANT_360,
-	 ONCOMINE_DX
-	 ONCOMINE_CA_V3
-	 ONCOMINE_CA_PLUS
-	 CARIS_MI
-	 TRUSIGHT_ONCOLOGY_500
-}
-
-enum FlagType {
-    GENE,
-    TRANSCRIPT
-}
-
-entity Flag {
-    type String required,
-    flag String required,
-    name String required,
-    description TextBlob required
-}
-
-entity SpecimenType{
-	type String required
-    name String required
-}
-
-entity CompanionDiagnosticDevice {
-	name String required
-    manufacturer String required
-    indicationDetails String
-    platformType String
-    lastUpdated Instant
-}
-
-enum FdaSubmissionTypeKey {
-	PMA, DE_NOVO, HDE, PMN
-}
-
-entity FdaSubmissionType {
-	type FdaSubmissionTypeKey required
-    name String required
-    shortName String
-    description TextBlob
-}
-
-entity FdaSubmission {
-    number String required
-    supplementNumber String
-
-	deviceName String required
-    genericName String
-
-    dateReceived Instant
-    decisionDate Instant
-
-    description TextBlob
-    platform String
-
-    curated Boolean required
-    genetic Boolean required
-
-    additionalInfo TextBlob
-}
-
-enum TumorForm {
-	SOLID, LIQUID, MIXED
-}
-
-enum AlterationType {
-	MUTATION,
-    COPY_NUMBER_ALTERATION,
-    STRUCTURAL_VARIANT,
-    UNKNOWN,
-    NA
-}
-
-enum CopyNumberAlterationType {
-	AMPLIFICATION,
-    DELETION,
-    GAIN,
-    LOSS
+enum SequenceType {
+    PROTEIN, CDNA, GENOMIC
 }
 
 enum StructuralVariantType {
-	FUSION
+    FUSION
 }
 
-entity Consequence {
-	type AlterationType required
-	term String required
-    name String required
-    isGenerallyTruncating Boolean required
-    description String
+enum SynonymType {
+    GENE, NCIT, CANCER_TYPE
 }
+
+enum TranscriptFlagEnum {
+     MANE_SELECT,
+     MANE_PLUS_CLINICAL,
+     GN_CANONICAL,
+     ONCOKB,
+     ENSEMBL_CANONICAL
+}
+
+enum TumorForm {
+    SOLID, LIQUID, MIXED
+}
+
+/**
+ * Entity
+ */
 
 entity Alteration {
+    type AlterationType required
     name String required
     alteration String required
-    proteinStart Integer
-    proteinEnd Integer
+    proteinChange String required
+    start Integer
+    end Integer
     refResidues String
     variantResidues String
 }
 
-entity AlterationReferenceGenome {
-    referenceGenome ReferenceGenome
+entity Article {
+    type ArticleType required
+    content TextBlob
+    link String
+    pmid String
+    elocationId String
+    title TextBlob
+    authors String
+    journal String
+    volume String
+    issue String
+    pages String
+    pubDate String
 }
 
-enum CategoricalAlterationType{
-	ONCOGENIC_MUTATIONS,
-    GAIN_OF_FUNCTION_MUTATIONS,
-    LOSS_OF_FUNCTION_MUTATIONS,
-    SWITCH_OF_FUNCTION_MUTATIONS,
-    VUS,
-	TRUNCATING_MUTATIONS,
-	FUSIONS,
-	AMPLIFICATION,
-	DELETION,
-    PROMOTER,
-    WILDTYPE
+entity Association {
+    name String
 }
 
-entity CategoricalAlteration {
-	name String required
-	type CategoricalAlterationType required
-    alterationType AlterationType required
+entity AssociationCancerType{
+    relation AssociationCancerTypeRelation required
 }
 
 entity CancerType {
-	code String
+    code String
     color String
     level Integer required
     mainType String required
@@ -260,58 +207,257 @@ entity CancerType {
     tumorForm TumorForm required
 }
 
-enum GeographicRegion {
-	US, EU
+entity CategoricalAlteration {
+    alterationType AlterationType required
+    type String required unique
+    name String required
+}
+
+entity ClinicalTrial {
+    nctId String
+    briefTitle String required
+    phase String
+    status String
+}
+
+entity ClinicalTrialArm {
+    name String required
+}
+
+entity CompanionDiagnosticDevice {
+    name String required
+    manufacturer String required
+    indicationDetails String
+    platformType String
+    lastUpdated Instant
+}
+
+entity Consequence {
+    term String required unique
+    name String required
+    isGenerallyTruncating Boolean required
+    description String
+}
+
+entity Drug {
+    uuid String required unique
+    name TextBlob required
 }
 
 entity DrugBrand {
-	name String
-    region GeographicRegion
+    name String required
+    region String
 }
 
-entity BiomarkerAssociation {
+entity DrugPriority {
+    priority Integer required
 }
 
-entity ClinicalTrialsGovCondition {
-	name String unique required
+entity EligibilityCriteria {
+    type EligibilityCriteriaType required
+    priority Integer
+    criteria TextBlob
 }
+
+entity EnsemblGene {
+    referenceGenome ReferenceGenome
+    ensemblGeneId String required
+    canonical Boolean required
+    start Integer required
+    end Integer required
+    strand Integer required
+}
+
+entity Evidence {
+    uuid String
+    evidenceType String required
+    knownEffect String
+    description TextBlob
+    note TextBlob
+}
+
+entity FdaDrug {
+    applicationNumber String unique required
+}
+
+entity FdaSubmission {
+    number String required
+    supplementNumber String required
+
+    deviceName String required
+    genericName String
+
+    dateReceived Instant
+    decisionDate Instant
+
+    description TextBlob
+
+    curated Boolean required
+    genetic Boolean required
+
+    note TextBlob
+}
+
+entity FdaSubmissionType {
+    type FdaSubmissionTypeKey required unique
+    name String required
+    shortName String
+    description TextBlob
+}
+
+entity Flag {
+    type String required
+    flag String required
+    name String required
+    description TextBlob required
+}
+
+entity Gene {
+    entrezGeneId Integer required unique
+    hugoSymbol String required
+    hgncId String
+}
+
+entity GenomeFragment {
+    start Integer required
+    end Integer required
+    strand Integer required
+    type GenomeFragmentType required
+}
+
+entity GenomicIndicator {
+     type String required
+    name String required
+}
+
+entity Info {
+    type String unique required
+    value String
+    created Instant required
+    lastUpdated Instant
+}
+
+entity LevelOfEvidence {
+    type String  required
+    level String  required unique
+    description String required
+    htmlDescription String required
+    color String required
+}
+
+entity NciThesaurus {
+    version String required
+    code String unique required
+    preferredName String
+    displayName String
+}
+
+
+entity SeqRegion {
+    name String required unique
+    chromosome String
+    description TextBlob
+}
+
+entity Sequence {
+    sequenceType SequenceType required
+    sequence TextBlob required
+}
+
+entity SpecimenType{
+    type String required
+    name String required
+}
+
+entity Synonym {
+    type String required
+    source String required
+    code String
+    name String
+    note TextBlob
+}
+
+entity Transcript {
+    referenceGenome ReferenceGenome
+    ensemblTranscriptId String
+    canonical Boolean required
+    ensemblProteinId String
+    referenceSequenceId String
+    description String
+}
+
+entity Treatment {
+    name String
+}
+
+entity TreatmentPriority {
+    priority Integer required
+}
+
+/**
+ * Relationship
+ */
 
 relationship OneToOne {
-  Drug{fdaDrug} to FdaDrug{drug}
+    Drug{nciThesaurus(code)} to NciThesaurus
+    Evidence to Association
+    FdaDrug to Drug
 }
 
 relationship OneToMany {
-	Drug{synonyms} to DrugSynonym
-	Gene to GeneAlias
-	Gene to EnsemblGene
-	SeqRegion to EnsemblGene {seqRegion(name)}
-	SeqRegion to GenomeFragment {seqRegion(name)}
+    Association to AssociationCancerType
+    CancerType to AssociationCancerType
     CancerType{children} to CancerType {parent}
-    Transcript{fragments} to GenomeFragment{transcript}
-    EnsemblGene to Transcript
-    Transcript to Sequence
+    ClinicalTrial to ClinicalTrialArm
+    ClinicalTrial to EligibilityCriteria
     CompanionDiagnosticDevice to FdaSubmission
-    Consequence to Alteration
-    FdaSubmissionType to FdaSubmission{type}
-	Alteration{referenceGenomes} to AlterationReferenceGenome
-	CancerType to BiomarkerAssociation
-    Gene to BiomarkerAssociation
+    Consequence to Alteration {consequence(term)}
+    Consequence to CategoricalAlteration {consequence(term)}
     Drug{brands} to DrugBrand
+    Drug to DrugPriority
+    EnsemblGene to Transcript
+    FdaSubmissionType to FdaSubmission{type(type)}
+    Gene to EnsemblGene{gene(entrezGeneId)}
+    Gene to Evidence{gene(entrezGeneId)}
+    Gene to Transcript{gene(entrezGeneId)}
+    SeqRegion to EnsemblGene {seqRegion(name)}
+    SeqRegion to GenomeFragment {seqRegion(name)}
+    Transcript to Sequence
+    Transcript{fragments} to GenomeFragment{transcript}
+    Treatment to TreatmentPriority
 }
 
 relationship ManyToMany {
     Alteration to Gene
+    Alteration to Transcript
+    Association to Alteration
+    Association to Article
+    Association to Treatment
+    CancerType to Synonym
+    ClinicalTrial to Association
+    ClinicalTrialArm to Association
     CompanionDiagnosticDevice to SpecimenType
-    ClinicalTrialsGovCondition to CancerType
-    BiomarkerAssociation to Alteration
-    BiomarkerAssociation to Drug
-    BiomarkerAssociation to FdaSubmission
-    Transcript to Flag
+    Drug to Flag
+    EligibilityCriteria to Association
+    Evidence to LevelOfEvidence
+    FdaSubmission to Association
     Gene to Flag
+    Gene to Synonym
+    GenomicIndicator to Association
+    NciThesaurus to Synonym
+    Transcript to Flag
+    Treatment to Drug
 }
 
-paginate Gene, EnsemblGene, Alteration, CancerType, Transcript, Sequence, GenomeFragment, Article, Drug, FdaDrug, ClinicalTrialsGovCondition, FdaSubmission, Flag with pagination
+paginate Alteration, Article, CancerType, ClinicalTrial, ClinicalTrialArm, Drug, DrugBrand,
+EligibilityCriteria, EnsemblGene, Evidence, FdaDrug, FdaSubmission, Flag , Gene, GenomeFragment,
+NciThesaurus, Sequence, Synonym, Transcript, Treatment with pagination
 
 service * with serviceClass
-filter Alteration, Gene, Article, Drug, CompanionDiagnosticDevice, FdaSubmission, ClinicalTrialsGovCondition, CancerType, EnsemblGene, Transcript, Flag
+
+filter Alteration, Article, CancerType, ClinicalTrial, ClinicalTrialArm,
+CompanionDiagnosticDevice, Consequence, Drug, DrugBrand, EligibilityCriteria,
+EnsemblGene, Evidence, FdaDrug, FdaSubmission, Flag, Gene, GenomeFragment,
+GenomicIndicator, NciThesaurus, Sequence, Synonym, Transcript, Treatment
+
 dto Transcript with mapstruct

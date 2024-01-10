@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col } from 'reactstrap';
-import {} from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
+import EntityActionButton from 'app/shared/button/EntityActionButton';
 export interface IConsequenceDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const ConsequenceDetail = (props: IConsequenceDetailProps) => {
@@ -25,9 +24,8 @@ export const ConsequenceDetail = (props: IConsequenceDetailProps) => {
           </dt>
           <dd>{consequenceEntity.id}</dd>
           <dt>
-            <span id="type">Type</span>
+            <span id="alterationType">Alteration Type</span>
           </dt>
-          <dd>{consequenceEntity.type}</dd>
           <dt>
             <span id="term">Term</span>
           </dt>
@@ -45,9 +43,12 @@ export const ConsequenceDetail = (props: IConsequenceDetailProps) => {
           </dt>
           <dd>{consequenceEntity.description}</dd>
         </dl>
-        <Button tag={Link} to={`/consequence/${consequenceEntity.id}/edit`} replace color="primary">
-          <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-        </Button>
+        <EntityActionButton
+          color="primary"
+          entityId={consequenceEntity.id}
+          entityType={ENTITY_TYPE.CONSEQUENCE}
+          entityAction={ENTITY_ACTION.EDIT}
+        />
       </Col>
     </Row>
   );

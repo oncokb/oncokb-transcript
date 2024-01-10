@@ -3,8 +3,8 @@ import { SequenceType } from 'app/shared/model/enumerations/sequence-type.model'
 
 export interface ISequence {
   id?: number;
-  sequenceType?: SequenceType | null;
-  sequence?: string | null;
+  sequenceType?: SequenceType;
+  sequence?: string;
   transcript?: ITranscript | null;
 }
 

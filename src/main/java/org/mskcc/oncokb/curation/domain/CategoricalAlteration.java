@@ -1,10 +1,10 @@
 package org.mskcc.oncokb.curation.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
-import org.mskcc.oncokb.curation.domain.enumeration.CategoricalAlterationType;
 
 /**
  * A CategoricalAlteration.
@@ -21,18 +21,22 @@ public class CategoricalAlteration implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "name", nullable = false)
-    private String name;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
-    private CategoricalAlterationType type;
-
-    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "alteration_type", nullable = false)
     private AlterationType alterationType;
+
+    @NotNull
+    @Column(name = "type", nullable = false, unique = true)
+    private String type;
+
+    @NotNull
+    @Column(name = "name", nullable = false)
+    private String name;
+
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "alterations", "categoricalAlterations" }, allowSetters = true)
+    @JoinColumn(name = "consequence", referencedColumnName = "term")
+    private Consequence consequence;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -49,6 +53,32 @@ public class CategoricalAlteration implements Serializable {
         this.id = id;
     }
 
+    public AlterationType getAlterationType() {
+        return this.alterationType;
+    }
+
+    public CategoricalAlteration alterationType(AlterationType alterationType) {
+        this.setAlterationType(alterationType);
+        return this;
+    }
+
+    public void setAlterationType(AlterationType alterationType) {
+        this.alterationType = alterationType;
+    }
+
+    public String getType() {
+        return this.type;
+    }
+
+    public CategoricalAlteration type(String type) {
+        this.setType(type);
+        return this;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public String getName() {
         return this.name;
     }
@@ -62,30 +92,17 @@ public class CategoricalAlteration implements Serializable {
         this.name = name;
     }
 
-    public CategoricalAlterationType getType() {
-        return this.type;
+    public Consequence getConsequence() {
+        return this.consequence;
     }
 
-    public CategoricalAlteration type(CategoricalAlterationType type) {
-        this.setType(type);
+    public void setConsequence(Consequence consequence) {
+        this.consequence = consequence;
+    }
+
+    public CategoricalAlteration consequence(Consequence consequence) {
+        this.setConsequence(consequence);
         return this;
-    }
-
-    public void setType(CategoricalAlterationType type) {
-        this.type = type;
-    }
-
-    public AlterationType getAlterationType() {
-        return this.alterationType;
-    }
-
-    public CategoricalAlteration alterationType(AlterationType alterationType) {
-        this.setAlterationType(alterationType);
-        return this;
-    }
-
-    public void setAlterationType(AlterationType alterationType) {
-        this.alterationType = alterationType;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
@@ -112,9 +129,9 @@ public class CategoricalAlteration implements Serializable {
     public String toString() {
         return "CategoricalAlteration{" +
             "id=" + getId() +
-            ", name='" + getName() + "'" +
-            ", type='" + getType() + "'" +
             ", alterationType='" + getAlterationType() + "'" +
+            ", type='" + getType() + "'" +
+            ", name='" + getName() + "'" +
             "}";
     }
 }

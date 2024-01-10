@@ -46,6 +46,7 @@ export const FdaDrugUpdate = (props: IFdaDrugUpdateProps) => {
     const entity = {
       ...fdaDrugEntity,
       ...values,
+      drug: drugs.find(it => it.id.toString() === values.drugId.toString()),
     };
 
     if (isNew) {
@@ -60,6 +61,7 @@ export const FdaDrugUpdate = (props: IFdaDrugUpdateProps) => {
       ? {}
       : {
           ...fdaDrugEntity,
+          drugId: fdaDrugEntity?.drug?.id,
         };
 
   return (
@@ -88,6 +90,16 @@ export const FdaDrugUpdate = (props: IFdaDrugUpdateProps) => {
                   required: { value: true, message: 'This field is required.' },
                 }}
               />
+              <ValidatedField id="fda-drug-drug" name="drugId" data-cy="drug" label="Drug" type="select">
+                <option value="" key="0" />
+                {drugs
+                  ? drugs.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.name}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
               <Button tag={Link} id="cancel-save" data-cy="entityCreateCancelButton" to="/fda-drug" replace color="info">
                 <FontAwesomeIcon icon="arrow-left" />
                 &nbsp;

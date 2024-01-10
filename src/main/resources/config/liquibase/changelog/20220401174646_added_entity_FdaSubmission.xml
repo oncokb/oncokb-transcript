@@ -18,7 +18,7 @@
                 <constraints nullable="false" />
             </column>
             <column name="supplement_number" type="varchar(255)">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="device_name" type="varchar(255)">
                 <constraints nullable="false" />
@@ -35,16 +35,13 @@
             <column name="description" type="${clobType}">
                 <constraints nullable="true" />
             </column>
-            <column name="platform" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
             <column name="curated" type="boolean">
                 <constraints nullable="false" />
             </column>
             <column name="genetic" type="boolean">
                 <constraints nullable="false" />
             </column>
-            <column name="additional_info" type="${clobType}">
+            <column name="note" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <column name="companion_diagnostic_device_id" type="bigint">
@@ -55,18 +52,27 @@
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-        <addUniqueConstraint tableName="fda_submission" columnNames="number, supplement_number, companion_diagnostic_device_id"/>
+        <addUniqueConstraint
+            tableName="fda_submission"
+            columnNames="number, supplement_number, companion_diagnostic_device_id"
+            constraintName="ux_number__sn__cdd"
+        />
         <dropDefaultValue tableName="fda_submission" columnName="date_received" columnDataType="${datetimeType}"/>
         <dropDefaultValue tableName="fda_submission" columnName="decision_date" columnDataType="${datetimeType}"/>
+    </changeSet>
 
-        <!-- This data was generated on 8/16/2022 12:00PM EST - Please update this when csv file is modified -->
-        <loadData
-            file="config/liquibase/data/fda_submission.csv"
-            separator="|"
-            tableName="fda_submission"
-            usePreparedStatements="true">
-            <column name="description" type="string"/>
-        </loadData>
+    <changeSet id="20220401174646-1-relations" author="jhipster">
+
+        <createTable tableName="rel_fda_submission__association">
+            <column name="association_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fda_submission_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="fda_submission_id, association_id" tableName="rel_fda_submission__association"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

@@ -105,15 +105,6 @@ public class GeneQueryService extends QueryService<Gene> {
             if (criteria.getHgncId() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getHgncId(), Gene_.hgncId));
             }
-            if (criteria.getGeneAliasId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getGeneAliasId(),
-                            root -> root.join(Gene_.geneAliases, JoinType.LEFT).get(GeneAlias_.id)
-                        )
-                    );
-            }
             if (criteria.getEnsemblGeneId() != null) {
                 specification =
                     specification.or(
@@ -123,18 +114,30 @@ public class GeneQueryService extends QueryService<Gene> {
                         )
                     );
             }
-            if (criteria.getBiomarkerAssociationId() != null) {
+            if (criteria.getEvidenceId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(criteria.getEvidenceId(), root -> root.join(Gene_.evidences, JoinType.LEFT).get(Evidence_.id))
+                    );
+            }
+            if (criteria.getTranscriptId() != null) {
                 specification =
                     specification.or(
                         buildSpecification(
-                            criteria.getBiomarkerAssociationId(),
-                            root -> root.join(Gene_.biomarkerAssociations, JoinType.LEFT).get(BiomarkerAssociation_.id)
+                            criteria.getTranscriptId(),
+                            root -> root.join(Gene_.transcripts, JoinType.LEFT).get(Transcript_.id)
                         )
                     );
             }
             if (criteria.getFlagId() != null) {
                 specification =
                     specification.or(buildSpecification(criteria.getFlagId(), root -> root.join(Gene_.flags, JoinType.LEFT).get(Flag_.id)));
+            }
+            if (criteria.getSynonymId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(criteria.getSynonymId(), root -> root.join(Gene_.synonyms, JoinType.LEFT).get(Synonym_.id))
+                    );
             }
             if (criteria.getAlterationId() != null) {
                 specification =

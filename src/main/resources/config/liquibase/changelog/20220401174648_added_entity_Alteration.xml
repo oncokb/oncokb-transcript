@@ -10,9 +10,12 @@
         Added the entity Alteration.
     -->
     <changeSet id="20220401174648-1" author="jhipster">
-        <createTable tableName="alteration">
+        <createTable tableName="alteration" remarks="Entity">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="varchar(255)">
+                <constraints nullable="false" />
             </column>
             <column name="name" type="varchar(255)">
                 <constraints nullable="false" />
@@ -20,10 +23,13 @@
             <column name="alteration" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="protein_start" type="integer">
+            <column name="protein_change" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="start" type="integer">
                 <constraints nullable="true" />
             </column>
-            <column name="protein_end" type="integer">
+            <column name="end" type="integer">
                 <constraints nullable="true" />
             </column>
             <column name="ref_residues" type="varchar(255)">
@@ -32,7 +38,7 @@
             <column name="variant_residues" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="consequence_id" type="bigint">
+            <column name="consequence" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
@@ -51,6 +57,17 @@
         </createTable>
 
         <addPrimaryKey columnNames="alteration_id, gene_id" tableName="rel_alteration__gene"/>
+
+        <createTable tableName="rel_alteration__transcript">
+            <column name="transcript_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="alteration_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="alteration_id, transcript_id" tableName="rel_alteration__transcript"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

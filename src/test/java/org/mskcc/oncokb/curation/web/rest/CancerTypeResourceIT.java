@@ -2,10 +2,12 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -16,15 +18,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
-import org.mskcc.oncokb.curation.domain.BiomarkerAssociation;
+import org.mskcc.oncokb.curation.domain.AssociationCancerType;
 import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.domain.CancerType;
-import org.mskcc.oncokb.curation.domain.ClinicalTrialsGovCondition;
+import org.mskcc.oncokb.curation.domain.Synonym;
 import org.mskcc.oncokb.curation.domain.enumeration.TumorForm;
 import org.mskcc.oncokb.curation.repository.CancerTypeRepository;
+import org.mskcc.oncokb.curation.service.CancerTypeService;
 import org.mskcc.oncokb.curation.service.criteria.CancerTypeCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -69,6 +74,12 @@ class CancerTypeResourceIT {
 
     @Autowired
     private CancerTypeRepository cancerTypeRepository;
+
+    @Mock
+    private CancerTypeRepository cancerTypeRepositoryMock;
+
+    @Mock
+    private CancerTypeService cancerTypeServiceMock;
 
     @Autowired
     private EntityManager em;
@@ -254,6 +265,24 @@ class CancerTypeResourceIT {
             .andExpect(jsonPath("$.[*].subtype").value(hasItem(DEFAULT_SUBTYPE)))
             .andExpect(jsonPath("$.[*].tissue").value(hasItem(DEFAULT_TISSUE)))
             .andExpect(jsonPath("$.[*].tumorForm").value(hasItem(DEFAULT_TUMOR_FORM.toString())));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllCancerTypesWithEagerRelationshipsIsEnabled() throws Exception {
+        when(cancerTypeServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restCancerTypeMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(cancerTypeServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllCancerTypesWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(cancerTypeServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restCancerTypeMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(cancerTypeServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test
@@ -843,6 +872,32 @@ class CancerTypeResourceIT {
 
     @Test
     @Transactional
+    void getAllCancerTypesByAssociationCancerTypeIsEqualToSomething() throws Exception {
+        // Initialize the database
+        cancerTypeRepository.saveAndFlush(cancerType);
+        AssociationCancerType associationCancerType;
+        if (TestUtil.findAll(em, AssociationCancerType.class).isEmpty()) {
+            associationCancerType = AssociationCancerTypeResourceIT.createEntity(em);
+            em.persist(associationCancerType);
+            em.flush();
+        } else {
+            associationCancerType = TestUtil.findAll(em, AssociationCancerType.class).get(0);
+        }
+        em.persist(associationCancerType);
+        em.flush();
+        cancerType.addAssociationCancerType(associationCancerType);
+        cancerTypeRepository.saveAndFlush(cancerType);
+        Long associationCancerTypeId = associationCancerType.getId();
+
+        // Get all the cancerTypeList where associationCancerType equals to associationCancerTypeId
+        defaultCancerTypeShouldBeFound("associationCancerTypeId.equals=" + associationCancerTypeId);
+
+        // Get all the cancerTypeList where associationCancerType equals to (associationCancerTypeId + 1)
+        defaultCancerTypeShouldNotBeFound("associationCancerTypeId.equals=" + (associationCancerTypeId + 1));
+    }
+
+    @Test
+    @Transactional
     void getAllCancerTypesByChildrenIsEqualToSomething() throws Exception {
         // Initialize the database
         cancerTypeRepository.saveAndFlush(cancerType);
@@ -869,28 +924,28 @@ class CancerTypeResourceIT {
 
     @Test
     @Transactional
-    void getAllCancerTypesByBiomarkerAssociationIsEqualToSomething() throws Exception {
+    void getAllCancerTypesBySynonymIsEqualToSomething() throws Exception {
         // Initialize the database
         cancerTypeRepository.saveAndFlush(cancerType);
-        BiomarkerAssociation biomarkerAssociation;
-        if (TestUtil.findAll(em, BiomarkerAssociation.class).isEmpty()) {
-            biomarkerAssociation = BiomarkerAssociationResourceIT.createEntity(em);
-            em.persist(biomarkerAssociation);
+        Synonym synonym;
+        if (TestUtil.findAll(em, Synonym.class).isEmpty()) {
+            synonym = SynonymResourceIT.createEntity(em);
+            em.persist(synonym);
             em.flush();
         } else {
-            biomarkerAssociation = TestUtil.findAll(em, BiomarkerAssociation.class).get(0);
+            synonym = TestUtil.findAll(em, Synonym.class).get(0);
         }
-        em.persist(biomarkerAssociation);
+        em.persist(synonym);
         em.flush();
-        cancerType.addBiomarkerAssociation(biomarkerAssociation);
+        cancerType.addSynonym(synonym);
         cancerTypeRepository.saveAndFlush(cancerType);
-        Long biomarkerAssociationId = biomarkerAssociation.getId();
+        Long synonymId = synonym.getId();
 
-        // Get all the cancerTypeList where biomarkerAssociation equals to biomarkerAssociationId
-        defaultCancerTypeShouldBeFound("biomarkerAssociationId.equals=" + biomarkerAssociationId);
+        // Get all the cancerTypeList where synonym equals to synonymId
+        defaultCancerTypeShouldBeFound("synonymId.equals=" + synonymId);
 
-        // Get all the cancerTypeList where biomarkerAssociation equals to (biomarkerAssociationId + 1)
-        defaultCancerTypeShouldNotBeFound("biomarkerAssociationId.equals=" + (biomarkerAssociationId + 1));
+        // Get all the cancerTypeList where synonym equals to (synonymId + 1)
+        defaultCancerTypeShouldNotBeFound("synonymId.equals=" + (synonymId + 1));
     }
 
     @Test
@@ -917,32 +972,6 @@ class CancerTypeResourceIT {
 
         // Get all the cancerTypeList where parent equals to (parentId + 1)
         defaultCancerTypeShouldNotBeFound("parentId.equals=" + (parentId + 1));
-    }
-
-    @Test
-    @Transactional
-    void getAllCancerTypesByClinicalTrialsGovConditionIsEqualToSomething() throws Exception {
-        // Initialize the database
-        cancerTypeRepository.saveAndFlush(cancerType);
-        ClinicalTrialsGovCondition clinicalTrialsGovCondition;
-        if (TestUtil.findAll(em, ClinicalTrialsGovCondition.class).isEmpty()) {
-            clinicalTrialsGovCondition = ClinicalTrialsGovConditionResourceIT.createEntity(em);
-            em.persist(clinicalTrialsGovCondition);
-            em.flush();
-        } else {
-            clinicalTrialsGovCondition = TestUtil.findAll(em, ClinicalTrialsGovCondition.class).get(0);
-        }
-        em.persist(clinicalTrialsGovCondition);
-        em.flush();
-        cancerType.addClinicalTrialsGovCondition(clinicalTrialsGovCondition);
-        cancerTypeRepository.saveAndFlush(cancerType);
-        Long clinicalTrialsGovConditionId = clinicalTrialsGovCondition.getId();
-
-        // Get all the cancerTypeList where clinicalTrialsGovCondition equals to clinicalTrialsGovConditionId
-        defaultCancerTypeShouldBeFound("clinicalTrialsGovConditionId.equals=" + clinicalTrialsGovConditionId);
-
-        // Get all the cancerTypeList where clinicalTrialsGovCondition equals to (clinicalTrialsGovConditionId + 1)
-        defaultCancerTypeShouldNotBeFound("clinicalTrialsGovConditionId.equals=" + (clinicalTrialsGovConditionId + 1));
     }
 
     /**

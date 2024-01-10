@@ -19,5 +19,17 @@
                                  constraintName="fk_rel_gene__flag__flag_id"
                                  referencedColumnNames="id"
                                  referencedTableName="flag"/>
+
+        <addForeignKeyConstraint baseColumnNames="gene_id"
+                                 baseTableName="rel_gene__synonym"
+                                 constraintName="fk_rel_gene__synonym__gene_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="gene"/>
+
+        <addForeignKeyConstraint baseColumnNames="synonym_id"
+                                 baseTableName="rel_gene__synonym"
+                                 constraintName="fk_rel_gene__synonym__synonym_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="synonym"/>
     </changeSet>
 </databaseChangeLog>

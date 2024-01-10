@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.curation.service;
 
+import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.repository.CancerTypeRepository;
@@ -88,6 +89,19 @@ public class CancerTypeService {
     }
 
     /**
+     * Get all the cancerTypes with eager load of many-to-many relationships.
+     *
+     * @return the list of entities.
+     */
+    public Page<CancerType> findAllWithEagerRelationships(Pageable pageable) {
+        return cancerTypeRepository.findAllWithEagerRelationships(pageable);
+    }
+
+    public List<CancerType> findAllByMainTypeIs(String maintype) {
+        return cancerTypeRepository.findAllByMainTypeIs(maintype);
+    }
+
+    /**
      * Get one cancerType by id.
      *
      * @param id the id of the entity.
@@ -96,7 +110,7 @@ public class CancerTypeService {
     @Transactional(readOnly = true)
     public Optional<CancerType> findOne(Long id) {
         log.debug("Request to get CancerType : {}", id);
-        return cancerTypeRepository.findById(id);
+        return cancerTypeRepository.findOneWithEagerRelationships(id);
     }
 
     @Transactional(readOnly = true)
@@ -110,8 +124,8 @@ public class CancerTypeService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<CancerType> findOneByMainTypeIgnoreCaseAndLevel(String mainType, Integer level) {
-        return cancerTypeRepository.findOneByMainTypeIgnoreCaseAndLevel(mainType, level);
+    public Optional<CancerType> findByMainTypeAndSubtypeIsNull(String mainType) {
+        return cancerTypeRepository.findByMainTypeAndSubtypeIsNull(mainType);
     }
 
     /**

@@ -162,6 +162,9 @@ info:
   # Comma separated list of profiles that will trigger the ribbon to show
   display-ribbon-on-profiles: 'dev'
 
+javers:
+  commitIdGenerator: random
+
 # ===================================================================
 # JHipster specific properties
 #

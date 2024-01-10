@@ -2,33 +2,25 @@
   "name": "Drug",
   "fields": [
     {
+      "fieldName": "uuid",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique"]
+    },
+    {
       "fieldName": "name",
       "fieldType": "byte[]",
-      "fieldTypeBlobContent": "text"
-    },
-    {
-      "fieldName": "code",
-      "fieldType": "String"
-    },
-    {
-      "fieldName": "semanticType",
-      "fieldType": "byte[]",
-      "fieldTypeBlobContent": "text"
+      "fieldTypeBlobContent": "text",
+      "fieldValidateRules": ["required"]
     }
   ],
   "relationships": [
     {
       "relationshipType": "one-to-one",
-      "otherEntityName": "fdaDrug",
+      "otherEntityName": "nciThesaurus",
       "otherEntityRelationshipName": "drug",
-      "relationshipName": "fdaDrug",
+      "relationshipName": "nciThesaurus",
+      "otherEntityField": "code",
       "ownerSide": true
-    },
-    {
-      "relationshipType": "one-to-many",
-      "otherEntityName": "drugSynonym",
-      "otherEntityRelationshipName": "drug",
-      "relationshipName": "synonyms"
     },
     {
       "relationshipType": "one-to-many",
@@ -37,10 +29,30 @@
       "relationshipName": "brands"
     },
     {
-      "relationshipType": "many-to-many",
-      "otherEntityName": "biomarkerAssociation",
+      "relationshipType": "one-to-many",
+      "otherEntityName": "drugPriority",
       "otherEntityRelationshipName": "drug",
-      "relationshipName": "biomarkerAssociation",
+      "relationshipName": "drugPriority"
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "flag",
+      "otherEntityRelationshipName": "drug",
+      "relationshipName": "flag",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "one-to-one",
+      "otherEntityName": "fdaDrug",
+      "otherEntityRelationshipName": "drug",
+      "relationshipName": "fdaDrug",
+      "ownerSide": false
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "treatment",
+      "otherEntityRelationshipName": "drug",
+      "relationshipName": "treatment",
       "ownerSide": false
     }
   ],

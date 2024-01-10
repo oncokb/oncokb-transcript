@@ -6,12 +6,13 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 
 /**
  * A SpecimenType.
  */
 @Entity
-@Table(name = "specimen_type", uniqueConstraints = { @UniqueConstraint(columnNames = { "type", "name" }) })
+@Table(name = "specimen_type")
 public class SpecimenType implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -29,6 +30,7 @@ public class SpecimenType implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @DiffIgnore
     @ManyToMany(mappedBy = "specimenTypes")
     @JsonIgnoreProperties(value = { "fdaSubmissions", "specimenTypes" }, allowSetters = true)
     private Set<CompanionDiagnosticDevice> companionDiagnosticDevices = new HashSet<>();

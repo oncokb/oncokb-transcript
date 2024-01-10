@@ -11,6 +11,8 @@ import { SORT } from './pagination.constants';
 import { PaginationState } from '../table/OncoKBAsyncTable';
 import { IUser } from '../model/user.model';
 import { CancerType } from '../model/firebase/firebase.model';
+import { ITreatment } from 'app/shared/model/treatment.model';
+import _ from 'lodash';
 
 export const getCancerTypeName = (cancerType: ICancerType | CancerType): string => {
   let name = '';
@@ -28,8 +30,12 @@ export const getGeneName = (gene: IGene): string => {
   return `${gene.entrezGeneId}: ${gene.hugoSymbol}`;
 };
 
-export const getTreatmentName = (drugs: IDrug[]): string => {
-  return drugs.map(drug => drug.name).join(' + ');
+export const getGeneNamesFromAlterations = (alterations: IAlteration[]) => {
+  return _.uniq(alterations.map(alteration => alteration.genes.map(gene => gene.hugoSymbol).join('::'))).join(', ');
+};
+
+export const getTreatmentName = (treatments: ITreatment[]): string => {
+  return treatments.map(treatment => treatment.drugs?.map(drug => drug.name).join(' + ')).join(', ');
 };
 
 export const getAlterationName = (alterations: IAlteration[]): string => {

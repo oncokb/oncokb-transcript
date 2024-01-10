@@ -25,8 +25,10 @@ export const AlterationDetail = (props: IAlterationDetailProps) => {
             <span id="id">ID</span>
           </dt>
           <dd>{alterationEntity.id}</dd>
-          <dt>Reference Genome</dt>
-          <dd>{alterationEntity.referenceGenomes?.map(rg => rg.referenceGenome).join(', ')}</dd>
+          <dt>
+            <span id="type">Type</span>
+          </dt>
+          <dd>{alterationEntity.type}</dd>
           <dt>
             <span id="name">Name</span>
           </dt>
@@ -36,13 +38,17 @@ export const AlterationDetail = (props: IAlterationDetailProps) => {
           </dt>
           <dd>{alterationEntity.alteration}</dd>
           <dt>
-            <span id="proteinStart">Protein Start</span>
+            <span id="proteinChange">Protein Change</span>
           </dt>
-          <dd>{alterationEntity.proteinStart}</dd>
+          <dd>{alterationEntity.proteinChange}</dd>
           <dt>
-            <span id="proteinEnd">Protein End</span>
+            <span id="start">Start</span>
           </dt>
-          <dd>{alterationEntity.proteinEnd}</dd>
+          <dd>{alterationEntity.start}</dd>
+          <dt>
+            <span id="end">End</span>
+          </dt>
+          <dd>{alterationEntity.end}</dd>
           <dt>
             <span id="refResidues">Ref Residues</span>
           </dt>
@@ -56,19 +62,30 @@ export const AlterationDetail = (props: IAlterationDetailProps) => {
             {alterationEntity.genes
               ? alterationEntity.genes.map((val, i) => (
                   <span key={val.id}>
-                    <Link to={`/gene/${val.id}`}>{val.hugoSymbol}</Link>
+                    <a>{val.id}</a>
                     {alterationEntity.genes && i === alterationEntity.genes.length - 1 ? '' : ', '}
                   </span>
                 ))
               : null}
           </dd>
+          <dt>Transcript</dt>
+          <dd>
+            {alterationEntity.transcripts
+              ? alterationEntity.transcripts.map((val, i) => (
+                  <span key={val.id}>
+                    <a>{val.id}</a>
+                    {alterationEntity.transcripts && i === alterationEntity.transcripts.length - 1 ? '' : ', '}
+                  </span>
+                ))
+              : null}
+          </dd>
           <dt>Consequence</dt>
-          <dd>{alterationEntity.consequence ? alterationEntity.consequence.id : ''}</dd>
+          <dd>{alterationEntity.consequence ? alterationEntity.consequence.term : ''}</dd>
         </dl>
         <EntityActionButton
           color="primary"
           entityId={alterationEntity.id}
-          entityType={ENTITY_TYPE.GENE}
+          entityType={ENTITY_TYPE.ALTERATION}
           entityAction={ENTITY_ACTION.EDIT}
         />
       </Col>

@@ -104,6 +104,9 @@ public class TranscriptQueryService extends QueryService<Transcript> {
             if (criteria.getId() != null) {
                 specification = specification.or(buildRangeSpecification(criteria.getId(), Transcript_.id));
             }
+            if (criteria.getReferenceGenome() != null) {
+                specification = specification.or(buildSpecification(criteria.getReferenceGenome(), Transcript_.referenceGenome));
+            }
             if (criteria.getEnsemblTranscriptId() != null) {
                 specification =
                     specification.or(buildStringSpecification(criteria.getEnsemblTranscriptId(), Transcript_.ensemblTranscriptId));
@@ -121,21 +124,21 @@ public class TranscriptQueryService extends QueryService<Transcript> {
             if (criteria.getDescription() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getDescription(), Transcript_.description));
             }
-            if (criteria.getFragmentsId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getFragmentsId(),
-                            root -> root.join(Transcript_.fragments, JoinType.LEFT).get(GenomeFragment_.id)
-                        )
-                    );
-            }
             if (criteria.getSequenceId() != null) {
                 specification =
                     specification.or(
                         buildSpecification(
                             criteria.getSequenceId(),
                             root -> root.join(Transcript_.sequences, JoinType.LEFT).get(Sequence_.id)
+                        )
+                    );
+            }
+            if (criteria.getFragmentsId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(
+                            criteria.getFragmentsId(),
+                            root -> root.join(Transcript_.fragments, JoinType.LEFT).get(GenomeFragment_.id)
                         )
                     );
             }
@@ -151,6 +154,21 @@ public class TranscriptQueryService extends QueryService<Transcript> {
                         buildSpecification(
                             criteria.getEnsemblGeneId(),
                             root -> root.join(Transcript_.ensemblGene, JoinType.LEFT).get(EnsemblGene_.id)
+                        )
+                    );
+            }
+            if (criteria.getGeneId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(criteria.getGeneId(), root -> root.join(Transcript_.gene, JoinType.LEFT).get(Gene_.id))
+                    );
+            }
+            if (criteria.getAlterationId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(
+                            criteria.getAlterationId(),
+                            root -> root.join(Transcript_.alterations, JoinType.LEFT).get(Alteration_.id)
                         )
                     );
             }

@@ -14,11 +14,8 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="type" type="varchar(255)">
-                <constraints nullable="false" />
-            </column>
             <column name="term" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_consequence__term" />
             </column>
             <column name="name" type="varchar(255)">
                 <constraints nullable="false" />

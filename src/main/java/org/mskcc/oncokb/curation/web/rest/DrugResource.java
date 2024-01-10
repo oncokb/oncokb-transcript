@@ -5,6 +5,9 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
 import org.mskcc.oncokb.curation.service.DrugQueryService;
@@ -17,17 +20,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
@@ -67,7 +62,7 @@ public class DrugResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/drugs")
-    public ResponseEntity<Drug> createDrug(@RequestBody Drug drug) throws URISyntaxException {
+    public ResponseEntity<Drug> createDrug(@Valid @RequestBody Drug drug) throws URISyntaxException {
         log.debug("REST request to save Drug : {}", drug);
         if (drug.getId() != null) {
             throw new BadRequestAlertException("A new drug cannot already have an ID", ENTITY_NAME, "idexists");
@@ -82,7 +77,7 @@ public class DrugResource {
     /**
      * {@code PUT  /drugs/:id} : Updates an existing drug.
      *
-     * @param id   the id of the drug to save.
+     * @param id the id of the drug to save.
      * @param drug the drug to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated drug,
      * or with status {@code 400 (Bad Request)} if the drug is not valid,
@@ -90,7 +85,7 @@ public class DrugResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/drugs/{id}")
-    public ResponseEntity<Drug> updateDrug(@PathVariable(value = "id", required = false) final Long id, @RequestBody Drug drug)
+    public ResponseEntity<Drug> updateDrug(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody Drug drug)
         throws URISyntaxException {
         log.debug("REST request to update Drug : {}, {}", id, drug);
         if (drug.getId() == null) {
@@ -114,7 +109,7 @@ public class DrugResource {
     /**
      * {@code PATCH  /drugs/:id} : Partial updates given fields of an existing drug, field will ignore if it is null
      *
-     * @param id   the id of the drug to save.
+     * @param id the id of the drug to save.
      * @param drug the drug to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated drug,
      * or with status {@code 400 (Bad Request)} if the drug is not valid,
@@ -123,8 +118,10 @@ public class DrugResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/drugs/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<Drug> partialUpdateDrug(@PathVariable(value = "id", required = false) final Long id, @RequestBody Drug drug)
-        throws URISyntaxException {
+    public ResponseEntity<Drug> partialUpdateDrug(
+        @PathVariable(value = "id", required = false) final Long id,
+        @NotNull @RequestBody Drug drug
+    ) throws URISyntaxException {
         log.debug("REST request to partial update Drug partially : {}, {}", id, drug);
         if (drug.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -149,13 +146,12 @@ public class DrugResource {
      * {@code GET  /drugs} : get all the drugs.
      *
      * @param pageable the pagination information.
-     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of drugs in body.
      */
     @GetMapping("/drugs")
-    public ResponseEntity<List<Drug>> getAllDrugs(DrugCriteria criteria, Pageable pageable) {
-        log.debug("REST request to get Drugs by criteria: {}", criteria);
-        Page<Drug> page = drugQueryService.findByCriteria(criteria, pageable);
+    public ResponseEntity<List<Drug>> getAllDrugs(Pageable pageable) {
+        log.debug("REST request to get Drugs");
+        Page<Drug> page = drugService.findAllWithEagerRelationships(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

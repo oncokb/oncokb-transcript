@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
+import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 
 /**
  * A Transcript.
@@ -20,6 +22,10 @@ public class Transcript implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "reference_genome")
+    private ReferenceGenome referenceGenome;
 
     @Column(name = "ensembl_transcript_id")
     private String ensemblTranscriptId;
@@ -37,26 +43,43 @@ public class Transcript implements Serializable {
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "transcript")
-    @JsonIgnoreProperties(value = { "seqRegion", "transcript" }, allowSetters = true)
-    private Set<GenomeFragment> fragments = new HashSet<>();
-
+    @ShallowReference
     @OneToMany(mappedBy = "transcript")
     @JsonIgnoreProperties(value = { "transcript" }, allowSetters = true)
     private Set<Sequence> sequences = new HashSet<>();
 
+    @ShallowReference
+    @OneToMany(mappedBy = "transcript")
+    @JsonIgnoreProperties(value = { "seqRegion", "transcript" }, allowSetters = true)
+    private Set<GenomeFragment> fragments = new HashSet<>();
+
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_transcript__flag",
         joinColumns = @JoinColumn(name = "transcript_id"),
         inverseJoinColumns = @JoinColumn(name = "flag_id")
     )
-    @JsonIgnoreProperties(value = { "transcripts", "genes" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "drugs", "genes", "transcripts" }, allowSetters = true)
     private Set<Flag> flags = new HashSet<>();
 
+    @NotNull
+    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "transcripts", "gene", "seqRegion" }, allowSetters = true)
     private EnsemblGene ensemblGene;
+
+    @NotNull
+    @ShallowReference
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "ensemblGenes", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
+    @JoinColumn(name = "entrez_gene_id", referencedColumnName = "entrez_gene_id")
+    private Gene gene;
+
+    @ShallowReference
+    @ManyToMany(mappedBy = "transcripts")
+    @JsonIgnoreProperties(value = { "genes", "transcripts", "consequence", "associations" }, allowSetters = true)
+    private Set<Alteration> alterations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -71,6 +94,19 @@ public class Transcript implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public ReferenceGenome getReferenceGenome() {
+        return this.referenceGenome;
+    }
+
+    public Transcript referenceGenome(ReferenceGenome referenceGenome) {
+        this.setReferenceGenome(referenceGenome);
+        return this;
+    }
+
+    public void setReferenceGenome(ReferenceGenome referenceGenome) {
+        this.referenceGenome = referenceGenome;
     }
 
     public String getEnsemblTranscriptId() {
@@ -138,37 +174,6 @@ public class Transcript implements Serializable {
         this.description = description;
     }
 
-    public Set<GenomeFragment> getFragments() {
-        return this.fragments;
-    }
-
-    public void setFragments(Set<GenomeFragment> genomeFragments) {
-        if (this.fragments != null) {
-            this.fragments.forEach(i -> i.setTranscript(null));
-        }
-        if (genomeFragments != null) {
-            genomeFragments.forEach(i -> i.setTranscript(this));
-        }
-        this.fragments = genomeFragments;
-    }
-
-    public Transcript fragments(Set<GenomeFragment> genomeFragments) {
-        this.setFragments(genomeFragments);
-        return this;
-    }
-
-    public Transcript addFragments(GenomeFragment genomeFragment) {
-        this.fragments.add(genomeFragment);
-        genomeFragment.setTranscript(this);
-        return this;
-    }
-
-    public Transcript removeFragments(GenomeFragment genomeFragment) {
-        this.fragments.remove(genomeFragment);
-        genomeFragment.setTranscript(null);
-        return this;
-    }
-
     public Set<Sequence> getSequences() {
         return this.sequences;
     }
@@ -197,6 +202,37 @@ public class Transcript implements Serializable {
     public Transcript removeSequence(Sequence sequence) {
         this.sequences.remove(sequence);
         sequence.setTranscript(null);
+        return this;
+    }
+
+    public Set<GenomeFragment> getFragments() {
+        return this.fragments;
+    }
+
+    public void setFragments(Set<GenomeFragment> genomeFragments) {
+        if (this.fragments != null) {
+            this.fragments.forEach(i -> i.setTranscript(null));
+        }
+        if (genomeFragments != null) {
+            genomeFragments.forEach(i -> i.setTranscript(this));
+        }
+        this.fragments = genomeFragments;
+    }
+
+    public Transcript fragments(Set<GenomeFragment> genomeFragments) {
+        this.setFragments(genomeFragments);
+        return this;
+    }
+
+    public Transcript addFragments(GenomeFragment genomeFragment) {
+        this.fragments.add(genomeFragment);
+        genomeFragment.setTranscript(this);
+        return this;
+    }
+
+    public Transcript removeFragments(GenomeFragment genomeFragment) {
+        this.fragments.remove(genomeFragment);
+        genomeFragment.setTranscript(null);
         return this;
     }
 
@@ -238,6 +274,50 @@ public class Transcript implements Serializable {
         return this;
     }
 
+    public Gene getGene() {
+        return this.gene;
+    }
+
+    public void setGene(Gene gene) {
+        this.gene = gene;
+    }
+
+    public Transcript gene(Gene gene) {
+        this.setGene(gene);
+        return this;
+    }
+
+    public Set<Alteration> getAlterations() {
+        return this.alterations;
+    }
+
+    public void setAlterations(Set<Alteration> alterations) {
+        if (this.alterations != null) {
+            this.alterations.forEach(i -> i.removeTranscript(this));
+        }
+        if (alterations != null) {
+            alterations.forEach(i -> i.addTranscript(this));
+        }
+        this.alterations = alterations;
+    }
+
+    public Transcript alterations(Set<Alteration> alterations) {
+        this.setAlterations(alterations);
+        return this;
+    }
+
+    public Transcript addAlteration(Alteration alteration) {
+        this.alterations.add(alteration);
+        alteration.getTranscripts().add(this);
+        return this;
+    }
+
+    public Transcript removeAlteration(Alteration alteration) {
+        this.alterations.remove(alteration);
+        alteration.getTranscripts().remove(this);
+        return this;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -262,6 +342,7 @@ public class Transcript implements Serializable {
     public String toString() {
         return "Transcript{" +
             "id=" + getId() +
+            ", referenceGenome='" + getReferenceGenome() + "'" +
             ", ensemblTranscriptId='" + getEnsemblTranscriptId() + "'" +
             ", canonical='" + getCanonical() + "'" +
             ", ensemblProteinId='" + getEnsemblProteinId() + "'" +

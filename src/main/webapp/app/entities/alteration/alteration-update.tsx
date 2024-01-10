@@ -1,14 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
-import { Row, Col, FormGroup, Label } from 'reactstrap';
+import { Col, FormGroup, Label, Row } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 
 import ValidatedForm from 'app/shared/form/ValidatedForm';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
 import { flow, flowResult } from 'mobx';
 import _ from 'lodash';
-import { ReferenceGenome } from 'app/shared/model/enumerations/reference-genome.model';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import GeneSelect from 'app/shared/select/GeneSelect';
 
@@ -26,22 +25,11 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
   const updating = props.updating;
   const updateSuccess = props.updateSuccess;
 
-  const alterationReferenceGenomes = props.alterationEntity.referenceGenomes?.map(rg => rg.referenceGenome) || [];
-  const referenceGenomeOptions = Object.keys(ReferenceGenome).map(key => {
-    if (alterationReferenceGenomes.includes(ReferenceGenome[key])) {
-      return {
-        label: ReferenceGenome[key],
-        value: props.alterationEntity.referenceGenomes.filter(rg => rg.referenceGenome === ReferenceGenome[key])[0].id,
-      };
-    } else {
-      return { label: ReferenceGenome[key], value: ReferenceGenome[key] };
-    }
-  });
-  const consequenceOptions = consequences.map(consequence => ({ label: consequence.name, value: consequence.id }));
+  const consequenceOptions = consequences.map(consequence => ({ label: consequence.term, value: consequence.id }));
 
   const getDefaultValues = entity => ({
+    type: 'UNKNOWN',
     ...entity,
-    genes: entity ? entity.genes : [],
     referenceGenomes: entity ? entity.referenceGenomes : [],
     consequence: entity?.consequence,
   });
@@ -53,18 +41,9 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
     } else {
       defaultAlt = isNew ? {} : getDefaultValues(props.alterationEntity);
     }
-
-    const _genes =
-      defaultAlt.genes && defaultAlt.genes.length > 0
-        ? defaultAlt.genes.map(gene => ({
-            label: gene.hugoSymbol,
-            value: gene.id,
-          }))
-        : selectedGenes;
     return {
       ...defaultAlt,
-      genes: _genes,
-      consequence: defaultAlt.consequence ? { label: defaultAlt?.consequence.name, value: defaultAlt?.consequence.id } : null,
+      consequence: defaultAlt.consequence ? { label: defaultAlt?.consequence.term, value: defaultAlt?.consequence.id } : null,
       referenceGenomes: defaultAlt.referenceGenomes
         ? defaultAlt.referenceGenomes.map(rg => ({
             label: rg.referenceGenome,
@@ -72,7 +51,18 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
           }))
         : null,
     };
-  }, [props.alterationEntity, proteinChangeAlteration, selectedGenes]);
+  }, [props.alterationEntity, proteinChangeAlteration]);
+
+  useEffect(() => {
+    const _genes =
+      props.alterationEntity.genes && props.alterationEntity.genes.length > 0
+        ? props.alterationEntity.genes.map(gene => ({
+            label: gene.hugoSymbol,
+            value: gene.id,
+          }))
+        : [];
+    setSelectedGenes(_genes);
+  }, [props.alterationEntity]);
 
   const handleClose = () => {
     props.history.push('/alteration' + props.location.search);
@@ -99,7 +89,7 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
     const entity = {
       ...alterationEntity,
       ...values,
-      genes: values.genes.map(gene => ({ id: gene.value, hugoSymbol: gene.label })),
+      genes: selectedGenes.map(gene => ({ id: gene.value, hugoSymbol: gene.label })),
       referenceGenomes: values.referenceGenomes?.map(rg => {
         if (rg.value === rg.label) {
           return { referenceGenome: rg.label };
@@ -118,17 +108,17 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
   };
 
   useEffect(() => {
-    const setData = async () => {
-      setProteinChangeAlteration(
-        await flowResult(
-          props.annotateAlteration({
-            geneIds: selectedGenes.map(selectedGene => selectedGene.value),
-            alteration: proteinChange,
-          })
-        )
-      );
-    };
     if (isNew) {
+      const setData = async () => {
+        setProteinChangeAlteration(
+          await flowResult(
+            props.annotateAlteration({
+              geneIds: selectedGenes.map(selectedGene => selectedGene.value),
+              alteration: proteinChange,
+            })
+          )
+        );
+      };
       setData();
     }
   }, [proteinChange, selectedGenes]);
@@ -156,11 +146,11 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
             <p>Loading...</p>
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
+              {!isNew ? <ValidatedField name="id" required readOnly id="alteration-id" label="ID" validate={{ required: true }} /> : null}
               <FormGroup>
                 <Label>Genes</Label>
-                <GeneSelect isMulti onChange={onGenesSelectChange} />
+                <GeneSelect isMulti onChange={onGenesSelectChange} defaultValue={selectedGenes} />
               </FormGroup>
-              {!isNew ? <ValidatedField name="id" required readOnly id="alteration-id" label="ID" validate={{ required: true }} /> : null}
               <ValidatedField
                 label="Alteration"
                 id="alteration-alteration"
@@ -173,7 +163,15 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
                 onChange={event => onChange(event.target.value)}
                 placeholder="Input protein change"
               />
-              <ValidatedSelect label="Reference Genomes" name={'referenceGenomes'} options={referenceGenomeOptions} isMulti />
+              <ValidatedField label="Type" id="alteration-type" name="type" data-cy="type" type="select">
+                <option value="UNKNOWN">UNKNOWN</option>
+                <option value="GENOMIC_CHANGE">GENOMIC_CHANGE</option>
+                <option value="CDNA_CHANGE">CDNA_CHANGE</option>
+                <option value="PROTEIN_CHANGE">PROTEIN_CHANGE</option>
+                <option value="COPY_NUMBER_ALTERATION">COPY_NUMBER_ALTERATION</option>
+                <option value="STRUCTURAL_VARIANT">STRUCTURAL_VARIANT</option>
+                <option value="NA">NA</option>
+              </ValidatedField>
               <ValidatedField
                 label="Name"
                 id="alteration-name"
@@ -184,8 +182,15 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
                   required: { value: true, message: 'This field is required.' },
                 }}
               />
-              <ValidatedField label="Protein Start" id="alteration-proteinStart" name="proteinStart" data-cy="proteinStart" type="text" />
-              <ValidatedField label="Protein End" id="alteration-proteinEnd" name="proteinEnd" data-cy="proteinEnd" type="text" />
+              <ValidatedField
+                label="Protein Change"
+                id="alteration-protein-change"
+                name="proteinChange"
+                data-cy="proteinChange"
+                type="text"
+              />
+              <ValidatedField label="Start" id="alteration-start" name="start" data-cy="start" type="text" />
+              <ValidatedField label="End" id="alteration-end" name="end" data-cy="end" type="text" />
               <ValidatedField label="Ref Residues" id="alteration-refResidues" name="refResidues" data-cy="refResidues" type="text" />
               <ValidatedField
                 label="Variant Residues"
@@ -205,12 +210,15 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
 };
 
 const mapStoreToProps = (storeState: IRootStore) => ({
+  genes: storeState.geneStore.entities,
+  transcripts: storeState.transcriptStore.entities,
   consequences: storeState.consequenceStore.entities,
   alterationEntity: storeState.alterationStore.entity,
   loading: storeState.alterationStore.loading,
   updating: storeState.alterationStore.updating,
   updateSuccess: storeState.alterationStore.updateSuccess,
   getGenes: storeState.geneStore.getEntities,
+  getTranscripts: storeState.transcriptStore.getEntities,
   getConsequences: storeState.consequenceStore.getEntities,
   getEntity: storeState.alterationStore.getEntity,
   annotateAlteration: flow(storeState.alterationStore.annotateAlteration),

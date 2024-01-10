@@ -52,6 +52,17 @@ export const CancerTypeDetail = (props: ICancerTypeDetailProps) => {
             <span id="tumorForm">Tumor Form</span>
           </dt>
           <dd>{cancerTypeEntity.tumorForm}</dd>
+          <dt>Synonym</dt>
+          <dd>
+            {cancerTypeEntity.synonyms
+              ? cancerTypeEntity.synonyms.map((val, i) => (
+                  <span key={val.id}>
+                    <a>{val.id}</a>
+                    {cancerTypeEntity.synonyms && i === cancerTypeEntity.synonyms.length - 1 ? '' : ', '}
+                  </span>
+                ))
+              : null}
+          </dd>
           <dt>Parent</dt>
           <dd>{cancerTypeEntity.parent ? cancerTypeEntity.parent.id : ''}</dd>
         </dl>

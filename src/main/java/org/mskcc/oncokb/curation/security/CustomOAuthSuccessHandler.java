@@ -14,8 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.mskcc.oncokb.curation.config.Constants;
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
-import org.mskcc.oncokb.curation.domain.User;
-import org.mskcc.oncokb.curation.repository.UserRepository;
 import org.mskcc.oncokb.curation.service.UserService;
 import org.mskcc.oncokb.curation.service.dto.KeycloakUserDTO;
 import org.mskcc.oncokb.curation.service.dto.UserDTO;
@@ -25,6 +23,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -61,15 +61,11 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 userService.updateUser(user);
             }
 
-            Collection<? extends GrantedAuthority> authorities = user
-                .getAuthorities()
-                .stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-            OAuth2AuthenticationToken authenticationWithAuthorities = new OAuth2AuthenticationToken(
-                ((OAuth2AuthenticationToken) authentication).getPrincipal(),
-                authorities,
-                ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId()
+            // Keycloak oauth token uses `sub` to get principal name which is a unique id.
+            // We like to use the `name` field instead, so it can be used to store in the audit.
+            OAuth2AuthenticationToken authenticationWithAuthorities = getOAuth2AuthenticationToken(
+                (OAuth2AuthenticationToken) authentication,
+                user
             );
 
             if (applicationProperties.getFirebase().isEnabled()) {
@@ -85,6 +81,22 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         }
 
         clearAuthenticationAttributes(request);
+    }
+
+    private static OAuth2AuthenticationToken getOAuth2AuthenticationToken(OAuth2AuthenticationToken authentication, UserDTO user) {
+        Collection<? extends GrantedAuthority> authorities = user
+            .getAuthorities()
+            .stream()
+            .map(SimpleGrantedAuthority::new)
+            .collect(Collectors.toList());
+
+        OAuth2User oAuth2User = authentication.getPrincipal();
+        OAuth2AuthenticationToken authenticationWithAuthorities = new OAuth2AuthenticationToken(
+            new DefaultOAuth2User(oAuth2User.getAuthorities(), oAuth2User.getAttributes(), "name"),
+            authorities,
+            authentication.getAuthorizedClientRegistrationId()
+        );
+        return authenticationWithAuthorities;
     }
 
     private void addFirebaseTokenToAuthToken(OAuth2AuthenticationToken authenticationWithAuthorities) {

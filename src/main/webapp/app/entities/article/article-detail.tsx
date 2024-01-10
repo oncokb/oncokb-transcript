@@ -26,21 +26,37 @@ export const ArticleDetail = (props: IArticleDetailProps) => {
           </dt>
           <dd>{articleEntity.id}</dd>
           <dt>
+            <span id="type">Type</span>
+          </dt>
+          <dd>{articleEntity.type}</dd>
+          <dt>
+            <span id="content">Content</span>
+          </dt>
+          <dd>{articleEntity.content}</dd>
+          <dt>
+            <span id="link">Link</span>
+          </dt>
+          <dd>{articleEntity.link}</dd>
+          <dt>
             <span id="pmid">Pmid</span>
           </dt>
           <dd>{articleEntity.pmid}</dd>
+          <dt>
+            <span id="elocationId">Elocation Id</span>
+          </dt>
+          <dd>{articleEntity.elocationId}</dd>
           <dt>
             <span id="title">Title</span>
           </dt>
           <dd>{articleEntity.title}</dd>
           <dt>
+            <span id="authors">Authors</span>
+          </dt>
+          <dd>{articleEntity.authors}</dd>
+          <dt>
             <span id="journal">Journal</span>
           </dt>
           <dd>{articleEntity.journal}</dd>
-          <dt>
-            <span id="pubDate">Pub Date</span>
-          </dt>
-          <dd>{articleEntity.pubDate}</dd>
           <dt>
             <span id="volume">Volume</span>
           </dt>
@@ -54,11 +70,16 @@ export const ArticleDetail = (props: IArticleDetailProps) => {
           </dt>
           <dd>{articleEntity.pages}</dd>
           <dt>
-            <span id="authors">Authors</span>
+            <span id="pubDate">Pub Date</span>
           </dt>
-          <dd>{articleEntity.authors}</dd>
+          <dd>{articleEntity.pubDate}</dd>
         </dl>
-        <EntityActionButton color="primary" entityId={articleEntity.id} entityType={ENTITY_TYPE.GENE} entityAction={ENTITY_ACTION.EDIT} />
+        <EntityActionButton
+          color="primary"
+          entityId={articleEntity.id}
+          entityType={ENTITY_TYPE.ARTICLE}
+          entityAction={ENTITY_ACTION.EDIT}
+        />
       </Col>
     </Row>
   );

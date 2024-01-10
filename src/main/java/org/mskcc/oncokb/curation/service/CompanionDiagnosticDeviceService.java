@@ -80,7 +80,7 @@ public class CompanionDiagnosticDeviceService {
     @Transactional(readOnly = true)
     public List<CompanionDiagnosticDevice> findAll() {
         log.debug("Request to get all CompanionDiagnosticDevices");
-        return companionDiagnosticDeviceRepository.findAll();
+        return companionDiagnosticDeviceRepository.findAllWithEagerRelationships();
     }
 
     /**
@@ -93,6 +93,11 @@ public class CompanionDiagnosticDeviceService {
     public Optional<CompanionDiagnosticDevice> findOne(Long id) {
         log.debug("Request to get CompanionDiagnosticDevice : {}", id);
         return companionDiagnosticDeviceRepository.findOneWithEagerRelationships(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<CompanionDiagnosticDevice> findByName(String name) {
+        return companionDiagnosticDeviceRepository.findByName(name);
     }
 
     @Transactional(readOnly = true)

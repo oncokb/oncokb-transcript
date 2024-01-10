@@ -1,13 +1,13 @@
+import EntityActionButton from 'app/shared/button/EntityActionButton';
 import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col } from 'reactstrap';
-import {} from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Col, Row } from 'reactstrap';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants/constants';
+import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import FlagBadge from 'app/shared/badge/FlagBadge';
+
 export interface ITranscriptDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const TranscriptDetail = (props: ITranscriptDetailProps) => {
@@ -25,6 +25,10 @@ export const TranscriptDetail = (props: ITranscriptDetailProps) => {
             <span id="id">ID</span>
           </dt>
           <dd>{transcriptEntity.id}</dd>
+          <dt>
+            <span id="referenceGenome">Reference Genome</span>
+          </dt>
+          <dd>{transcriptEntity.referenceGenome}</dd>
           <dt>
             <span id="ensemblTranscriptId">Ensembl Transcript Id</span>
           </dt>
@@ -51,16 +55,21 @@ export const TranscriptDetail = (props: ITranscriptDetailProps) => {
               ? transcriptEntity.flags.map((val, i) => <FlagBadge key={`${val.id}`} flag={val} tagClassName={'mr-2'} />)
               : null}
           </dd>
-          <dt>Ensembl Gene</dt>
-          <dd>{transcriptEntity.ensemblGene ? transcriptEntity.ensemblGene.ensemblGeneId : ''}</dd>
+          {transcriptEntity.ensemblGene && (
+            <>
+              <dt>Ensembl Gene</dt>
+              <dd>{transcriptEntity.ensemblGene.ensemblGeneId}</dd>
+              <dt>Gene</dt>
+              <dd>{transcriptEntity.ensemblGene.gene.hugoSymbol}</dd>
+            </>
+          )}
         </dl>
-        <Button tag={Link} to="/transcript" replace color="info" data-cy="entityDetailsBackButton">
-          <FontAwesomeIcon icon="arrow-left" /> <span className="d-none d-md-inline">Back</span>
-        </Button>
-        &nbsp;
-        <Button tag={Link} to={`/transcript/${transcriptEntity.id}/edit`} replace color="primary">
-          <FontAwesomeIcon icon="pencil-alt" /> <span className="d-none d-md-inline">Edit</span>
-        </Button>
+        <EntityActionButton
+          color="primary"
+          entityId={transcriptEntity.id}
+          entityType={ENTITY_TYPE.TRANSCRIPT}
+          entityAction={ENTITY_ACTION.EDIT}
+        />
       </Col>
     </Row>
   );

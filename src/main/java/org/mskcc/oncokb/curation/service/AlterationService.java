@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.mskcc.oncokb.curation.domain.Alteration;
-import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.repository.AlterationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,17 +51,23 @@ public class AlterationService {
         return alterationRepository
             .findById(alteration.getId())
             .map(existingAlteration -> {
+                if (alteration.getType() != null) {
+                    existingAlteration.setType(alteration.getType());
+                }
                 if (alteration.getName() != null) {
                     existingAlteration.setName(alteration.getName());
                 }
                 if (alteration.getAlteration() != null) {
                     existingAlteration.setAlteration(alteration.getAlteration());
                 }
-                if (alteration.getProteinStart() != null) {
-                    existingAlteration.setProteinStart(alteration.getProteinStart());
+                if (alteration.getProteinChange() != null) {
+                    existingAlteration.setProteinChange(alteration.getProteinChange());
                 }
-                if (alteration.getProteinEnd() != null) {
-                    existingAlteration.setProteinEnd(alteration.getProteinEnd());
+                if (alteration.getStart() != null) {
+                    existingAlteration.setStart(alteration.getStart());
+                }
+                if (alteration.getEnd() != null) {
+                    existingAlteration.setEnd(alteration.getEnd());
                 }
                 if (alteration.getRefResidues() != null) {
                     existingAlteration.setRefResidues(alteration.getRefResidues());
@@ -85,6 +90,15 @@ public class AlterationService {
     @Transactional(readOnly = true)
     public Page<Alteration> findAll(Pageable pageable) {
         log.debug("Request to get all Alterations");
+        return alterationRepository.findAll(pageable);
+    }
+
+    /**
+     * Get all the alterations with eager load of many-to-many relationships.
+     *
+     * @return the list of entities.
+     */
+    public Page<Alteration> findAllWithEagerRelationships(Pageable pageable) {
         Page<Alteration> alterationPage = alterationRepository.findAll(pageable);
         List<Alteration> enrichedAlterations = alterationRepository.findAllWithEagerRelationships(
             alterationPage.getContent().stream().map(Alteration::getId).collect(Collectors.toList())
@@ -121,8 +135,8 @@ public class AlterationService {
         return page;
     }
 
-    public Optional<Alteration> findByNameAndGeneId(String alterationName, Long geneId) {
-        return alterationRepository.findByNameAndGenesId(alterationName, geneId);
+    public List<Alteration> findByNameOrAlterationAndGenesId(String query, Long geneId) {
+        return alterationRepository.findByNameOrAlterationAndGenesId(query, geneId);
     }
 
     /**

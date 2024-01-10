@@ -14,14 +14,17 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="name" type="varchar(255)">
+            <column name="alteration_type" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
             <column name="type" type="varchar(255)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_categorical_alteration__type" />
+            </column>
+            <column name="name" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <column name="alteration_type" type="varchar(255)">
-                <constraints nullable="false" />
+            <column name="consequence" type="varchar(255)">
+                <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>

@@ -3,6 +3,9 @@ package org.mskcc.oncokb.curation.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import javax.persistence.*;
+import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
+import org.javers.core.metamodel.annotation.ShallowReference;
 import org.mskcc.oncokb.curation.domain.enumeration.SequenceType;
 
 /**
@@ -19,16 +22,19 @@ public class Sequence implements Serializable {
     @Column(name = "id")
     private Long id;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "sequence_type")
+    @Column(name = "sequence_type", nullable = false)
     private SequenceType sequenceType;
 
+    @DiffIgnore
     @Lob
-    @Column(name = "sequence")
+    @Column(name = "sequence", nullable = false)
     private String sequence;
 
+    @ShallowReference
     @ManyToOne
-    @JsonIgnoreProperties(value = { "fragments", "sequences", "flags", "ensemblGene" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "sequences", "fragments", "flags", "ensemblGene", "gene", "alterations" }, allowSetters = true)
     private Transcript transcript;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

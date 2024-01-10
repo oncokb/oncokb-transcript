@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 
 /**
  * A Flag.
@@ -33,17 +34,25 @@ public class Flag implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @DiffIgnore
     @Lob
     @Column(name = "description", nullable = false)
     private String description;
 
+    @DiffIgnore
     @ManyToMany(mappedBy = "flags")
-    @JsonIgnoreProperties(value = { "fragments", "sequences", "flags", "ensemblGene" }, allowSetters = true)
-    private Set<Transcript> transcripts = new HashSet<>();
+    @JsonIgnoreProperties(value = { "nciThesaurus", "brands", "drugPriorities", "flags", "fdaDrug", "treatments" }, allowSetters = true)
+    private Set<Drug> drugs = new HashSet<>();
 
+    @DiffIgnore
     @ManyToMany(mappedBy = "flags")
-    @JsonIgnoreProperties(value = { "geneAliases", "ensemblGenes", "biomarkerAssociations", "flags", "alterations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "ensemblGenes", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
     private Set<Gene> genes = new HashSet<>();
+
+    @DiffIgnore
+    @ManyToMany(mappedBy = "flags")
+    @JsonIgnoreProperties(value = { "sequences", "fragments", "flags", "ensemblGene", "gene", "alterations" }, allowSetters = true)
+    private Set<Transcript> transcripts = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -112,34 +121,34 @@ public class Flag implements Serializable {
         this.description = description;
     }
 
-    public Set<Transcript> getTranscripts() {
-        return this.transcripts;
+    public Set<Drug> getDrugs() {
+        return this.drugs;
     }
 
-    public void setTranscripts(Set<Transcript> transcripts) {
-        if (this.transcripts != null) {
-            this.transcripts.forEach(i -> i.removeFlag(this));
+    public void setDrugs(Set<Drug> drugs) {
+        if (this.drugs != null) {
+            this.drugs.forEach(i -> i.removeFlag(this));
         }
-        if (transcripts != null) {
-            transcripts.forEach(i -> i.addFlag(this));
+        if (drugs != null) {
+            drugs.forEach(i -> i.addFlag(this));
         }
-        this.transcripts = transcripts;
+        this.drugs = drugs;
     }
 
-    public Flag transcripts(Set<Transcript> transcripts) {
-        this.setTranscripts(transcripts);
+    public Flag drugs(Set<Drug> drugs) {
+        this.setDrugs(drugs);
         return this;
     }
 
-    public Flag addTranscript(Transcript transcript) {
-        this.transcripts.add(transcript);
-        transcript.getFlags().add(this);
+    public Flag addDrug(Drug drug) {
+        this.drugs.add(drug);
+        drug.getFlags().add(this);
         return this;
     }
 
-    public Flag removeTranscript(Transcript transcript) {
-        this.transcripts.remove(transcript);
-        transcript.getFlags().remove(this);
+    public Flag removeDrug(Drug drug) {
+        this.drugs.remove(drug);
+        drug.getFlags().remove(this);
         return this;
     }
 
@@ -171,6 +180,37 @@ public class Flag implements Serializable {
     public Flag removeGene(Gene gene) {
         this.genes.remove(gene);
         gene.getFlags().remove(this);
+        return this;
+    }
+
+    public Set<Transcript> getTranscripts() {
+        return this.transcripts;
+    }
+
+    public void setTranscripts(Set<Transcript> transcripts) {
+        if (this.transcripts != null) {
+            this.transcripts.forEach(i -> i.removeFlag(this));
+        }
+        if (transcripts != null) {
+            transcripts.forEach(i -> i.addFlag(this));
+        }
+        this.transcripts = transcripts;
+    }
+
+    public Flag transcripts(Set<Transcript> transcripts) {
+        this.setTranscripts(transcripts);
+        return this;
+    }
+
+    public Flag addTranscript(Transcript transcript) {
+        this.transcripts.add(transcript);
+        transcript.getFlags().add(this);
+        return this;
+    }
+
+    public Flag removeTranscript(Transcript transcript) {
+        this.transcripts.remove(transcript);
+        transcript.getFlags().remove(this);
         return this;
     }
 

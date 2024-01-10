@@ -3,11 +3,13 @@
   "fields": [
     {
       "fieldName": "entrezGeneId",
-      "fieldType": "Integer"
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "unique"]
     },
     {
       "fieldName": "hugoSymbol",
-      "fieldType": "String"
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "hgncId",
@@ -17,27 +19,34 @@
   "relationships": [
     {
       "relationshipType": "one-to-many",
-      "otherEntityName": "geneAlias",
-      "otherEntityRelationshipName": "gene",
-      "relationshipName": "geneAlias"
-    },
-    {
-      "relationshipType": "one-to-many",
       "otherEntityName": "ensemblGene",
       "otherEntityRelationshipName": "gene",
       "relationshipName": "ensemblGene"
     },
     {
       "relationshipType": "one-to-many",
-      "otherEntityName": "biomarkerAssociation",
+      "otherEntityName": "evidence",
       "otherEntityRelationshipName": "gene",
-      "relationshipName": "biomarkerAssociation"
+      "relationshipName": "evidence"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "transcript",
+      "otherEntityRelationshipName": "gene",
+      "relationshipName": "transcript"
     },
     {
       "relationshipType": "many-to-many",
       "otherEntityName": "flag",
       "otherEntityRelationshipName": "gene",
       "relationshipName": "flag",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "synonym",
+      "otherEntityRelationshipName": "gene",
+      "relationshipName": "synonym",
       "ownerSide": true
     },
     {

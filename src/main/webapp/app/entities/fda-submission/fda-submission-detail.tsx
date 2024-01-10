@@ -7,6 +7,8 @@ import { TextFormat } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 import { APP_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
+import EntityPageLink from 'app/shared/links/EntityPageLink';
+
 export interface IFdaSubmissionDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
@@ -61,10 +63,6 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
           </dt>
           <dd>{fdaSubmissionEntity.description}</dd>
           <dt>
-            <span id="platform">Platform</span>
-          </dt>
-          <dd>{fdaSubmissionEntity.platform}</dd>
-          <dt>
             <span id="curated">Curated</span>
           </dt>
           <dd>{fdaSubmissionEntity.curated ? 'true' : 'false'}</dd>
@@ -75,9 +73,21 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
           <dt>
             <span id="additionalInfo">Additional Info</span>
           </dt>
-          <dd>{fdaSubmissionEntity.additionalInfo}</dd>
+          <dd>{fdaSubmissionEntity.note}</dd>
           <dt>Companion Diagnostic Device</dt>
-          <dd>{fdaSubmissionEntity.companionDiagnosticDevice ? fdaSubmissionEntity.companionDiagnosticDevice.name : ''}</dd>
+          <dd>
+            {fdaSubmissionEntity.companionDiagnosticDevice ? (
+              <EntityPageLink
+                entityType={ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE}
+                entityAction={ENTITY_ACTION.VIEW}
+                entityId={fdaSubmissionEntity.companionDiagnosticDevice.id}
+              >
+                {fdaSubmissionEntity.companionDiagnosticDevice.name}
+              </EntityPageLink>
+            ) : (
+              ''
+            )}
+          </dd>
           <dt>Type</dt>
           <dd>{fdaSubmissionEntity.type ? fdaSubmissionEntity.type?.shortName : ''}</dd>
         </dl>

@@ -1,5 +1,5 @@
-import { IBiomarkerAssociation } from 'app/shared/model/biomarker-association.model';
-import { IClinicalTrialsGovCondition } from 'app/shared/model/clinical-trials-gov-condition.model';
+import { IAssociationCancerType } from 'app/shared/model/association-cancer-type.model';
+import { ISynonym } from 'app/shared/model/synonym.model';
 import { TumorForm } from 'app/shared/model/enumerations/tumor-form.model';
 
 export interface ICancerType {
@@ -11,10 +11,10 @@ export interface ICancerType {
   subtype?: string | null;
   tissue?: string | null;
   tumorForm?: TumorForm;
+  associationCancerTypes?: IAssociationCancerType[] | null;
   children?: ICancerType[] | null;
-  biomarkerAssociations?: IBiomarkerAssociation[] | null;
+  synonyms?: ISynonym[] | null;
   parent?: ICancerType | null;
-  clinicalTrialsGovConditions?: IClinicalTrialsGovCondition[] | null;
 }
 
 export const defaultValue: Readonly<ICancerType> = {};

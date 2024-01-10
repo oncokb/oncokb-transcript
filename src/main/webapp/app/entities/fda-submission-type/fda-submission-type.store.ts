@@ -1,14 +1,12 @@
 import { IFdaSubmissionType } from 'app/shared/model/fda-submission-type.model';
 import { IRootStore } from 'app/stores';
-import { action } from 'mobx';
-import axios from 'axios';
 import CrudStore from 'app/shared/util/crud-store';
-
-const apiUrl = 'api/fda-submission-types';
+import { ENTITY_TYPE } from 'app/config/constants/constants';
+import { getEntityResourcePath } from 'app/shared/util/RouteUtils';
 
 export class FdaSubmissionTypeStore extends CrudStore<IFdaSubmissionType> {
   constructor(protected rootStore: IRootStore) {
-    super(rootStore, apiUrl);
+    super(rootStore, getEntityResourcePath(ENTITY_TYPE.FDA_SUBMISSION_TYPE));
   }
 }
 

@@ -2,20 +2,25 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.GenomeFragment;
 import org.mskcc.oncokb.curation.repository.GenomeFragmentRepository;
+import org.mskcc.oncokb.curation.service.GenomeFragmentQueryService;
 import org.mskcc.oncokb.curation.service.GenomeFragmentService;
+import org.mskcc.oncokb.curation.service.criteria.GenomeFragmentCriteria;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -41,9 +46,16 @@ public class GenomeFragmentResource {
 
     private final GenomeFragmentRepository genomeFragmentRepository;
 
-    public GenomeFragmentResource(GenomeFragmentService genomeFragmentService, GenomeFragmentRepository genomeFragmentRepository) {
+    private final GenomeFragmentQueryService genomeFragmentQueryService;
+
+    public GenomeFragmentResource(
+        GenomeFragmentService genomeFragmentService,
+        GenomeFragmentRepository genomeFragmentRepository,
+        GenomeFragmentQueryService genomeFragmentQueryService
+    ) {
         this.genomeFragmentService = genomeFragmentService;
         this.genomeFragmentRepository = genomeFragmentRepository;
+        this.genomeFragmentQueryService = genomeFragmentQueryService;
     }
 
     /**
@@ -54,7 +66,8 @@ public class GenomeFragmentResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/genome-fragments")
-    public ResponseEntity<GenomeFragment> createGenomeFragment(@RequestBody GenomeFragment genomeFragment) throws URISyntaxException {
+    public ResponseEntity<GenomeFragment> createGenomeFragment(@Valid @RequestBody GenomeFragment genomeFragment)
+        throws URISyntaxException {
         log.debug("REST request to save GenomeFragment : {}", genomeFragment);
         if (genomeFragment.getId() != null) {
             throw new BadRequestAlertException("A new genomeFragment cannot already have an ID", ENTITY_NAME, "idexists");
@@ -79,7 +92,7 @@ public class GenomeFragmentResource {
     @PutMapping("/genome-fragments/{id}")
     public ResponseEntity<GenomeFragment> updateGenomeFragment(
         @PathVariable(value = "id", required = false) final Long id,
-        @RequestBody GenomeFragment genomeFragment
+        @Valid @RequestBody GenomeFragment genomeFragment
     ) throws URISyntaxException {
         log.debug("REST request to update GenomeFragment : {}, {}", id, genomeFragment);
         if (genomeFragment.getId() == null) {
@@ -114,7 +127,7 @@ public class GenomeFragmentResource {
     @PatchMapping(value = "/genome-fragments/{id}", consumes = { "application/json", "application/merge-patch+json" })
     public ResponseEntity<GenomeFragment> partialUpdateGenomeFragment(
         @PathVariable(value = "id", required = false) final Long id,
-        @RequestBody GenomeFragment genomeFragment
+        @NotNull @RequestBody GenomeFragment genomeFragment
     ) throws URISyntaxException {
         log.debug("REST request to partial update GenomeFragment partially : {}, {}", id, genomeFragment);
         if (genomeFragment.getId() == null) {
@@ -140,14 +153,27 @@ public class GenomeFragmentResource {
      * {@code GET  /genome-fragments} : get all the genomeFragments.
      *
      * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of genomeFragments in body.
      */
     @GetMapping("/genome-fragments")
-    public ResponseEntity<List<GenomeFragment>> getAllGenomeFragments(Pageable pageable) {
-        log.debug("REST request to get a page of GenomeFragments");
-        Page<GenomeFragment> page = genomeFragmentService.findAll(pageable);
+    public ResponseEntity<List<GenomeFragment>> getAllGenomeFragments(GenomeFragmentCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get GenomeFragments by criteria: {}", criteria);
+        Page<GenomeFragment> page = genomeFragmentQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /genome-fragments/count} : count all the genomeFragments.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/genome-fragments/count")
+    public ResponseEntity<Long> countGenomeFragments(GenomeFragmentCriteria criteria) {
+        log.debug("REST request to count GenomeFragments by criteria: {}", criteria);
+        return ResponseEntity.ok().body(genomeFragmentQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -177,5 +203,22 @@ public class GenomeFragmentResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code SEARCH  /genome-fragments/search?query=:query} : search for the GenomeFragment corresponding
+     * to the query.
+     *
+     * @param query    the query of the GenomeFragment search.
+     * @param pageable the pagination information.
+     * @return the result of the search.
+     */
+    @GetMapping("/genome-fragments/search")
+    public ResponseEntity<List<GenomeFragment>> searchGenomeFragments(@RequestParam String query, Pageable pageable) {
+        log.debug("REST request to search for a page of GenomeFragments for query {}", query);
+        // TODO: implement the search
+        Page<GenomeFragment> page = new PageImpl<>(new ArrayList<>());
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

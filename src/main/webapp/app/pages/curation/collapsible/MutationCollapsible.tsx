@@ -316,13 +316,13 @@ const MutationCollapsible = ({
                         title={`Therapy: ${getTxName(drugList, treatment.name)}`}
                         borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.THERAPY]]}
                         info={
-                        <TreatmentLevelSummary
-                          mutationUuid={mutation.name_uuid}
-                          cancerTypesUuid={tumor.cancerTypes_uuid}
-                          treatmentUuid={treatment.name_uuid}
-                        />
-                      }
-                      action={
+                          <TreatmentLevelSummary
+                            mutationUuid={mutation.name_uuid}
+                            cancerTypesUuid={tumor.cancerTypes_uuid}
+                            treatmentUuid={treatment.name_uuid}
+                          />
+                        }
+                        action={
                           <DeleteSectionButton
                             sectionName={title}
                             deleteHandler={() => deleteSection(NestLevelType.THERAPY, therapyFirebasePath)}

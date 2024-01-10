@@ -8,6 +8,18 @@
     -->
     <changeSet id="20220401174646-2" author="jhipster">
 
+        <addForeignKeyConstraint baseColumnNames="fda_submission_id"
+                                 baseTableName="rel_fda_submission__association"
+                                 constraintName="fk_rel_fda_submission__association__fda_submission_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="fda_submission"/>
+
+        <addForeignKeyConstraint baseColumnNames="association_id"
+                                 baseTableName="rel_fda_submission__association"
+                                 constraintName="fk_rel_fda_submission__association__association_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="association"/>
+
         <addForeignKeyConstraint baseColumnNames="companion_diagnostic_device_id"
                                  baseTableName="fda_submission"
                                  constraintName="fk_fda_submission__companion_diagnostic_device_id"

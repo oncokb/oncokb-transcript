@@ -4,7 +4,7 @@ export interface IInfo {
   id?: number;
   type?: string;
   value?: string | null;
-  created?: string | null;
+  created?: string;
   lastUpdated?: string | null;
 }
 

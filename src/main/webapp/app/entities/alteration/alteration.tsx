@@ -36,13 +36,6 @@ export const Alteration = (props: IAlterationProps) => {
       accessor: 'alteration',
       Header: 'Alteration',
     },
-    {
-      accessor: 'referenceGenomes',
-      Header: 'Reference Genomes',
-      Cell(cell: { original: IAlteration }) {
-        return <span> {cell.original.referenceGenomes?.map(rg => rg.referenceGenome).join(', ')}</span>;
-      },
-    },
     getEntityTableActionsColumn(ENTITY_TYPE.ALTERATION),
   ];
 

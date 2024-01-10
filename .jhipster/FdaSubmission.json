@@ -8,7 +8,8 @@
     },
     {
       "fieldName": "supplementNumber",
-      "fieldType": "String"
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "deviceName",
@@ -33,10 +34,6 @@
       "fieldTypeBlobContent": "text"
     },
     {
-      "fieldName": "platform",
-      "fieldType": "String"
-    },
-    {
       "fieldName": "curated",
       "fieldType": "Boolean",
       "fieldValidateRules": ["required"]
@@ -47,12 +44,19 @@
       "fieldValidateRules": ["required"]
     },
     {
-      "fieldName": "additionalInfo",
+      "fieldName": "note",
       "fieldType": "byte[]",
       "fieldTypeBlobContent": "text"
     }
   ],
   "relationships": [
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "association",
+      "otherEntityRelationshipName": "fdaSubmission",
+      "relationshipName": "association",
+      "ownerSide": true
+    },
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "companionDiagnosticDevice",
@@ -63,14 +67,8 @@
       "relationshipType": "many-to-one",
       "otherEntityName": "fdaSubmissionType",
       "otherEntityRelationshipName": "fdaSubmission",
-      "relationshipName": "type"
-    },
-    {
-      "relationshipType": "many-to-many",
-      "otherEntityName": "biomarkerAssociation",
-      "otherEntityRelationshipName": "fdaSubmission",
-      "relationshipName": "biomarkerAssociation",
-      "ownerSide": false
+      "relationshipName": "type",
+      "otherEntityField": "type"
     }
   ],
   "entityTableName": "fda_submission",

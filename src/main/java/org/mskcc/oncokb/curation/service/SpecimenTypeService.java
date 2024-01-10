@@ -87,6 +87,11 @@ public class SpecimenTypeService {
         return specimenTypeRepository.findOneByType(type);
     }
 
+    @Transactional(readOnly = true)
+    public Optional<SpecimenType> findOneByName(String name) {
+        return specimenTypeRepository.findOneByName(name);
+    }
+
     /**
      * Delete the specimenType by id.
      *

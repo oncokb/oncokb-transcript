@@ -26,12 +26,20 @@ const EntityActionButton: React.FunctionComponent<EntityActionButtonProps & Butt
     const { entityId, entityType, entityAction, showText = true, ...buttonProps } = props;
     const path = getEntityActionRoute(entityType, entityAction, entityId);
 
-    return (
-      <Button className="mr-2" tag={Link} to={path} {...buttonProps} size="sm">
-        <FontAwesomeIcon icon={ENTITY_ACTION_ICONS[entityAction]} />
-        {showText && <span className="ml-2">{entityAction}</span>}
-      </Button>
-    );
+    if (path === null) {
+      return (
+        <Button className="mr-2" {...buttonProps} size="sm" disabled>
+          Entity path not available
+        </Button>
+      );
+    } else {
+      return (
+        <Button className="mr-2" tag={Link} to={path} {...buttonProps} size="sm">
+          <FontAwesomeIcon icon={ENTITY_ACTION_ICONS[entityAction]} />
+          {showText && <span className="ml-2">{entityAction}</span>}
+        </Button>
+      );
+    }
   };
 
 export default EntityActionButton;

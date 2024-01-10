@@ -1,20 +1,23 @@
-import { IAlterationReferenceGenome } from 'app/shared/model/alteration-reference-genome.model';
 import { IGene } from 'app/shared/model/gene.model';
+import { ITranscript } from 'app/shared/model/transcript.model';
 import { IConsequence } from 'app/shared/model/consequence.model';
-import { IBiomarkerAssociation } from 'app/shared/model/biomarker-association.model';
+import { IAssociation } from 'app/shared/model/association.model';
+import { AlterationType } from 'app/shared/model/enumerations/alteration-type.model';
 
 export interface IAlteration {
   id?: number;
+  type?: AlterationType;
   name?: string;
   alteration?: string;
-  proteinStart?: number | null;
-  proteinEnd?: number | null;
+  proteinChange?: string;
+  start?: number | null;
+  end?: number | null;
   refResidues?: string | null;
   variantResidues?: string | null;
-  referenceGenomes?: IAlterationReferenceGenome[] | null;
   genes?: IGene[] | null;
+  transcripts?: ITranscript[] | null;
   consequence?: IConsequence | null;
-  biomarkerAssociations?: IBiomarkerAssociation[] | null;
+  associations?: IAssociation[] | null;
 }
 
 export const defaultValue: Readonly<IAlteration> = {};

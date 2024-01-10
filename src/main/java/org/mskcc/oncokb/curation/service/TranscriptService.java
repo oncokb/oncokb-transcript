@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -131,6 +132,11 @@ public class TranscriptService {
         return transcriptMapper.toDto(savedTranscript);
     }
 
+    public Transcript save(Transcript transcript) {
+        log.debug("Request to save Transcript : {}", transcript);
+        return transcriptRepository.save(transcript);
+    }
+
     /**
      * Partially update a transcript.
      *
@@ -158,15 +164,21 @@ public class TranscriptService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<TranscriptDTO> findAll(Pageable pageable) {
+    public Page<TranscriptDTO> findAllWithEagerRelationships(Pageable pageable) {
         log.debug("Request to get all Transcripts");
-        return transcriptRepository.findAll(pageable).map(transcriptMapper::toDto);
+        Page<Transcript> transcriptPage = transcriptRepository.findAll(pageable);
+        List<TranscriptDTO> transcriptDTOS = transcriptRepository
+            .findAllWithEagerRelationships(transcriptPage.getContent().stream().map(Transcript::getId).collect(Collectors.toList()))
+            .stream()
+            .map(transcriptMapper::toDto)
+            .collect(Collectors.toList());
+        return new PageImpl<>(transcriptDTOS, pageable, transcriptPage.getTotalElements());
     }
 
     @Transactional(readOnly = true)
-    public List<TranscriptDTO> findAllByIdIn(List<Long> ids) {
+    public List<TranscriptDTO> findAllWithEagerRelationshipsByIdIn(List<Long> ids) {
         return transcriptRepository
-            .findAllByIdIn(ids)
+            .findAllWithEagerRelationships(ids)
             .stream()
             .sorted(Comparator.comparingInt(o -> ids.indexOf(o.getId())))
             .map(transcriptMapper::toDto)
@@ -293,7 +305,7 @@ public class TranscriptService {
     }
 
     public ClustalOResp alignTranscripts(List<Long> transcriptToCompare) throws InterruptedException {
-        List<TranscriptDTO> transcripts = findAllByIdIn(transcriptToCompare);
+        List<TranscriptDTO> transcripts = findAllWithEagerRelationshipsByIdIn(transcriptToCompare);
         StringBuilder sb = new StringBuilder();
         for (TranscriptDTO transcript : transcripts) {
             Optional<Sequence> sequenceOptional = sequenceService.findOneByTranscriptAndSequenceType(

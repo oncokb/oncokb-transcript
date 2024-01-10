@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 
-import { IConsequence } from 'app/shared/model/consequence.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface IConsequenceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
@@ -56,7 +52,6 @@ export const ConsequenceUpdate = (props: IConsequenceUpdateProps) => {
     isNew
       ? {}
       : {
-          type: 'MUTATION',
           ...consequenceEntity,
         };
 
@@ -76,13 +71,6 @@ export const ConsequenceUpdate = (props: IConsequenceUpdateProps) => {
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
               {!isNew ? <ValidatedField name="id" required readOnly id="consequence-id" label="ID" validate={{ required: true }} /> : null}
-              <ValidatedField label="Type" id="consequence-type" name="type" data-cy="type" type="select">
-                <option value="MUTATION">MUTATION</option>
-                <option value="COPY_NUMBER_ALTERATION">COPY_NUMBER_ALTERATION</option>
-                <option value="STRUCTURAL_VARIANT">STRUCTURAL_VARIANT</option>
-                <option value="UNKNOWN">UNKNOWN</option>
-                <option value="NA">NA</option>
-              </ValidatedField>
               <ValidatedField
                 label="Term"
                 id="consequence-term"

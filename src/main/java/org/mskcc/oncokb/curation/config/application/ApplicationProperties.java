@@ -18,6 +18,8 @@ public class ApplicationProperties extends org.mskcc.oncokb.meta.model.applicati
 
     private FirebaseProperties firebase;
 
+    private String oncokbDataRepoDir;
+
     public OncoKbConfig getOncokb() {
         return oncokb;
     }
@@ -40,5 +42,13 @@ public class ApplicationProperties extends org.mskcc.oncokb.meta.model.applicati
 
     public void setFirebase(FirebaseProperties firebase) {
         this.firebase = firebase;
+    }
+
+    public String getOncokbDataRepoDir() {
+        return oncokbDataRepoDir;
+    }
+
+    public void setOncokbDataRepoDir(String oncokbDataRepoDir) {
+        this.oncokbDataRepoDir = oncokbDataRepoDir;
     }
 }

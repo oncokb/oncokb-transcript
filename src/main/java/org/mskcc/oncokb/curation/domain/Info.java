@@ -26,7 +26,8 @@ public class Info implements Serializable {
     @Column(name = "value")
     private String value;
 
-    @Column(name = "created")
+    @NotNull
+    @Column(name = "created", nullable = false)
     private Instant created;
 
     @Column(name = "last_updated")

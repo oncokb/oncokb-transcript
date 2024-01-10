@@ -2,15 +2,9 @@
   "name": "Consequence",
   "fields": [
     {
-      "fieldName": "type",
-      "fieldType": "AlterationType",
-      "fieldValues": "MUTATION,COPY_NUMBER_ALTERATION,STRUCTURAL_VARIANT,UNKNOWN,NA",
-      "fieldValidateRules": ["required"]
-    },
-    {
       "fieldName": "term",
       "fieldType": "String",
-      "fieldValidateRules": ["required"]
+      "fieldValidateRules": ["required", "unique"]
     },
     {
       "fieldName": "name",
@@ -33,13 +27,19 @@
       "otherEntityName": "alteration",
       "otherEntityRelationshipName": "consequence",
       "relationshipName": "alteration"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "categoricalAlteration",
+      "otherEntityRelationshipName": "consequence",
+      "relationshipName": "categoricalAlteration"
     }
   ],
   "entityTableName": "consequence",
   "dto": "no",
   "pagination": "no",
   "service": "serviceClass",
-  "jpaMetamodelFiltering": false,
+  "jpaMetamodelFiltering": true,
   "fluentMethods": true,
   "readOnly": false,
   "embedded": false,

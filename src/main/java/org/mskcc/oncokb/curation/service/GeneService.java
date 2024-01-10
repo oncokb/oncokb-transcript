@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 import org.mskcc.oncokb.curation.config.cache.CacheCategory;
 import org.mskcc.oncokb.curation.config.cache.CacheNameResolver;
 import org.mskcc.oncokb.curation.domain.Gene;
-import org.mskcc.oncokb.curation.domain.GeneAlias;
-import org.mskcc.oncokb.curation.repository.GeneAliasRepository;
+import org.mskcc.oncokb.curation.domain.Synonym;
 import org.mskcc.oncokb.curation.repository.GeneRepository;
+import org.mskcc.oncokb.curation.repository.SynonymRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
@@ -30,20 +30,20 @@ public class GeneService {
     private final Logger log = LoggerFactory.getLogger(GeneService.class);
 
     private final GeneRepository geneRepository;
-    private final GeneAliasRepository geneAliasRepository;
+    private final SynonymRepository synonymRepository;
     private final InfoService infoService;
     private final CacheNameResolver cacheNameResolver;
     private final Optional<CacheManager> optionalCacheManager;
 
     public GeneService(
         GeneRepository geneRepository,
-        GeneAliasRepository geneAliasRepository,
+        SynonymRepository synonymRepository,
         InfoService infoService,
         CacheNameResolver cacheNameResolver,
         Optional<CacheManager> optionalCacheManager
     ) {
         this.geneRepository = geneRepository;
-        this.geneAliasRepository = geneAliasRepository;
+        this.synonymRepository = synonymRepository;
         this.infoService = infoService;
         this.cacheNameResolver = cacheNameResolver;
         this.optionalCacheManager = optionalCacheManager;
@@ -84,6 +84,10 @@ public class GeneService {
                 if (gene.getFlags() != null) {
                     existingGene.getFlags().clear();
                     existingGene.getFlags().addAll(gene.getFlags());
+                }
+                if (gene.getSynonyms() != null) {
+                    existingGene.getSynonyms().clear();
+                    existingGene.getSynonyms().addAll(gene.getSynonyms());
                 }
 
                 return existingGene;
@@ -170,10 +174,10 @@ public class GeneService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Gene> findGeneByAlias(String alias) {
-        Optional<GeneAlias> geneAliasOptional = geneAliasRepository.findByName(alias.toLowerCase());
-        if (geneAliasOptional.isPresent()) {
-            return Optional.of(geneAliasOptional.get().getGene());
+    public Optional<Gene> findGeneBySynonym(String synonym) {
+        Optional<Synonym> synonymOptional = synonymRepository.findByTypeAndName("GENE", synonym);
+        if (synonymOptional.isPresent()) {
+            return Optional.of(synonymOptional.get().getGenes().iterator().next());
         } else {
             return Optional.empty();
         }

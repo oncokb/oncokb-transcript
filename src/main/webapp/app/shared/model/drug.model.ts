@@ -1,17 +1,20 @@
-import { IFdaDrug } from 'app/shared/model/fda-drug.model';
-import { IDrugSynonym } from 'app/shared/model/drug-synonym.model';
+import { INciThesaurus } from 'app/shared/model/nci-thesaurus.model';
 import { IDrugBrand } from 'app/shared/model/drug-brand.model';
-import { IBiomarkerAssociation } from 'app/shared/model/biomarker-association.model';
+import { IDrugPriority } from 'app/shared/model/drug-priority.model';
+import { IFlag } from 'app/shared/model/flag.model';
+import { IFdaDrug } from 'app/shared/model/fda-drug.model';
+import { ITreatment } from 'app/shared/model/treatment.model';
 
 export interface IDrug {
   id?: number;
-  name?: string | null;
-  code?: string | null;
-  semanticType?: string | null;
-  fdaDrug?: IFdaDrug | null;
-  synonyms?: IDrugSynonym[] | null;
+  uuid?: string;
+  name?: string;
+  nciThesaurus?: INciThesaurus | null;
   brands?: IDrugBrand[] | null;
-  biomarkerAssociations?: IBiomarkerAssociation[] | null;
+  drugPriorities?: IDrugPriority[] | null;
+  flags?: IFlag[] | null;
+  fdaDrug?: IFdaDrug | null;
+  treatments?: ITreatment[] | null;
 }
 
 export const defaultValue: Readonly<IDrug> = {};

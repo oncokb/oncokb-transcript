@@ -23,8 +23,9 @@ public class FdaDrug implements Serializable {
     @Column(name = "application_number", nullable = false, unique = true)
     private String applicationNumber;
 
-    @JsonIgnoreProperties(value = { "fdaDrug", "synonyms", "brands", "biomarkerAssociations" }, allowSetters = true)
-    @OneToOne(mappedBy = "fdaDrug")
+    @JsonIgnoreProperties(value = { "nciThesaurus", "brands", "drugPriorities", "flags", "fdaDrug", "treatments" }, allowSetters = true)
+    @OneToOne
+    @JoinColumn(unique = true)
     private Drug drug;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -60,12 +61,6 @@ public class FdaDrug implements Serializable {
     }
 
     public void setDrug(Drug drug) {
-        if (this.drug != null) {
-            this.drug.setFdaDrug(null);
-        }
-        if (drug != null) {
-            drug.setFdaDrug(this);
-        }
         this.drug = drug;
     }
 

@@ -20,10 +20,22 @@
                                  referencedColumnNames="id"
                                  referencedTableName="gene"/>
 
-        <addForeignKeyConstraint baseColumnNames="consequence_id"
-                                 baseTableName="alteration"
-                                 constraintName="fk_alteration__consequence_id"
+        <addForeignKeyConstraint baseColumnNames="alteration_id"
+                                 baseTableName="rel_alteration__transcript"
+                                 constraintName="fk_rel_alteration__transcript__alteration_id"
                                  referencedColumnNames="id"
+                                 referencedTableName="alteration"/>
+
+        <addForeignKeyConstraint baseColumnNames="transcript_id"
+                                 baseTableName="rel_alteration__transcript"
+                                 constraintName="fk_rel_alteration__transcript__transcript_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="transcript"/>
+
+        <addForeignKeyConstraint baseColumnNames="consequence"
+                                 baseTableName="alteration"
+                                 constraintName="fk_alteration__consequence"
+                                 referencedColumnNames="term"
                                  referencedTableName="consequence"/>
     </changeSet>
 </databaseChangeLog>

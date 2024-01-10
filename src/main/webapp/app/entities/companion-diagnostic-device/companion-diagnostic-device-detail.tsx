@@ -1,3 +1,5 @@
+import { FDA_SUBMISSION_TABLE_COLUMNS } from 'app/entities/fda-submission/constant';
+import OncoKBTable from 'app/shared/table/OncoKBTable';
 import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
@@ -9,6 +11,7 @@ import EntityActionButton from 'app/shared/button/EntityActionButton';
 import CdxBiomarkerAssociationTable from 'app/shared/table/CdxBiomarkerAssociationTable';
 import { TextFormat } from 'react-jhipster';
 import _ from 'lodash';
+
 export interface ICompanionDiagnosticDeviceDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const CompanionDiagnosticDeviceDetail = (props: ICompanionDiagnosticDeviceDetailProps) => {
@@ -17,12 +20,6 @@ export const CompanionDiagnosticDeviceDetail = (props: ICompanionDiagnosticDevic
   }, []);
 
   const companionDiagnosticDeviceEntity = props.companionDiagnosticDeviceEntity;
-  const biomarkerAssociations = _.uniq(
-    (companionDiagnosticDeviceEntity.fdaSubmissions || []).reduce((acc, fdaSubmission) => {
-      acc.push(...fdaSubmission.biomarkerAssociations);
-      return acc;
-    }, [])
-  );
 
   return (
     <>
@@ -81,7 +78,18 @@ export const CompanionDiagnosticDeviceDetail = (props: ICompanionDiagnosticDevic
       </Row>
       <Row className="mt-4">
         <Col>
-          <CdxBiomarkerAssociationTable biomarkerAssociations={biomarkerAssociations} />
+          <h4>Associated FDA Submissions</h4>
+          <OncoKBTable
+            showPagination
+            defaultPageSize={5}
+            data={companionDiagnosticDeviceEntity.fdaSubmissions || []}
+            columns={FDA_SUBMISSION_TABLE_COLUMNS}
+          />
+        </Col>
+      </Row>
+      <Row className="mt-4">
+        <Col>
+          <CdxBiomarkerAssociationTable fdaSubmissions={companionDiagnosticDeviceEntity.fdaSubmissions} />
         </Col>
       </Row>
     </>

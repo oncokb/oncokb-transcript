@@ -13,14 +13,14 @@
       "otherEntityName": "drug",
       "otherEntityRelationshipName": "fdaDrug",
       "relationshipName": "drug",
-      "ownerSide": false
+      "ownerSide": true
     }
   ],
   "entityTableName": "fda_drug",
   "dto": "no",
   "pagination": "pagination",
   "service": "serviceClass",
-  "jpaMetamodelFiltering": false,
+  "jpaMetamodelFiltering": true,
   "fluentMethods": true,
   "readOnly": false,
   "embedded": false,

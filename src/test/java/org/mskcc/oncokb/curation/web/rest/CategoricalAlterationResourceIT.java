@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.CategoricalAlteration;
 import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
-import org.mskcc.oncokb.curation.domain.enumeration.CategoricalAlterationType;
 import org.mskcc.oncokb.curation.repository.CategoricalAlterationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -36,14 +35,14 @@ import org.springframework.transaction.annotation.Transactional;
 @WithMockUser
 class CategoricalAlterationResourceIT {
 
+    private static final AlterationType DEFAULT_ALTERATION_TYPE = AlterationType.GENOMIC_CHANGE;
+    private static final AlterationType UPDATED_ALTERATION_TYPE = AlterationType.CDNA_CHANGE;
+
+    private static final String DEFAULT_TYPE = "AAAAAAAAAA";
+    private static final String UPDATED_TYPE = "BBBBBBBBBB";
+
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
-
-    private static final CategoricalAlterationType DEFAULT_TYPE = CategoricalAlterationType.ONCOGENIC_MUTATIONS;
-    private static final CategoricalAlterationType UPDATED_TYPE = CategoricalAlterationType.GAIN_OF_FUNCTION_MUTATIONS;
-
-    private static final AlterationType DEFAULT_ALTERATION_TYPE = AlterationType.MUTATION;
-    private static final AlterationType UPDATED_ALTERATION_TYPE = AlterationType.COPY_NUMBER_ALTERATION;
 
     private static final String ENTITY_API_URL = "/api/categorical-alterations";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -70,9 +69,9 @@ class CategoricalAlterationResourceIT {
      */
     public static CategoricalAlteration createEntity(EntityManager em) {
         CategoricalAlteration categoricalAlteration = new CategoricalAlteration()
-            .name(DEFAULT_NAME)
+            .alterationType(DEFAULT_ALTERATION_TYPE)
             .type(DEFAULT_TYPE)
-            .alterationType(DEFAULT_ALTERATION_TYPE);
+            .name(DEFAULT_NAME);
         return categoricalAlteration;
     }
 
@@ -84,9 +83,9 @@ class CategoricalAlterationResourceIT {
      */
     public static CategoricalAlteration createUpdatedEntity(EntityManager em) {
         CategoricalAlteration categoricalAlteration = new CategoricalAlteration()
-            .name(UPDATED_NAME)
+            .alterationType(UPDATED_ALTERATION_TYPE)
             .type(UPDATED_TYPE)
-            .alterationType(UPDATED_ALTERATION_TYPE);
+            .name(UPDATED_NAME);
         return categoricalAlteration;
     }
 
@@ -113,9 +112,9 @@ class CategoricalAlterationResourceIT {
         List<CategoricalAlteration> categoricalAlterationList = categoricalAlterationRepository.findAll();
         assertThat(categoricalAlterationList).hasSize(databaseSizeBeforeCreate + 1);
         CategoricalAlteration testCategoricalAlteration = categoricalAlterationList.get(categoricalAlterationList.size() - 1);
-        assertThat(testCategoricalAlteration.getName()).isEqualTo(DEFAULT_NAME);
-        assertThat(testCategoricalAlteration.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testCategoricalAlteration.getAlterationType()).isEqualTo(DEFAULT_ALTERATION_TYPE);
+        assertThat(testCategoricalAlteration.getType()).isEqualTo(DEFAULT_TYPE);
+        assertThat(testCategoricalAlteration.getName()).isEqualTo(DEFAULT_NAME);
     }
 
     @Test
@@ -143,10 +142,10 @@ class CategoricalAlterationResourceIT {
 
     @Test
     @Transactional
-    void checkNameIsRequired() throws Exception {
+    void checkAlterationTypeIsRequired() throws Exception {
         int databaseSizeBeforeTest = categoricalAlterationRepository.findAll().size();
         // set the field null
-        categoricalAlteration.setName(null);
+        categoricalAlteration.setAlterationType(null);
 
         // Create the CategoricalAlteration, which fails.
 
@@ -187,10 +186,10 @@ class CategoricalAlterationResourceIT {
 
     @Test
     @Transactional
-    void checkAlterationTypeIsRequired() throws Exception {
+    void checkNameIsRequired() throws Exception {
         int databaseSizeBeforeTest = categoricalAlterationRepository.findAll().size();
         // set the field null
-        categoricalAlteration.setAlterationType(null);
+        categoricalAlteration.setName(null);
 
         // Create the CategoricalAlteration, which fails.
 
@@ -219,9 +218,9 @@ class CategoricalAlterationResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(categoricalAlteration.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
-            .andExpect(jsonPath("$.[*].alterationType").value(hasItem(DEFAULT_ALTERATION_TYPE.toString())));
+            .andExpect(jsonPath("$.[*].alterationType").value(hasItem(DEFAULT_ALTERATION_TYPE.toString())))
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)));
     }
 
     @Test
@@ -236,9 +235,9 @@ class CategoricalAlterationResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(categoricalAlteration.getId().intValue()))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
-            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
-            .andExpect(jsonPath("$.alterationType").value(DEFAULT_ALTERATION_TYPE.toString()));
+            .andExpect(jsonPath("$.alterationType").value(DEFAULT_ALTERATION_TYPE.toString()))
+            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
+            .andExpect(jsonPath("$.name").value(DEFAULT_NAME));
     }
 
     @Test
@@ -260,7 +259,7 @@ class CategoricalAlterationResourceIT {
         CategoricalAlteration updatedCategoricalAlteration = categoricalAlterationRepository.findById(categoricalAlteration.getId()).get();
         // Disconnect from session so that the updates on updatedCategoricalAlteration are not directly saved in db
         em.detach(updatedCategoricalAlteration);
-        updatedCategoricalAlteration.name(UPDATED_NAME).type(UPDATED_TYPE).alterationType(UPDATED_ALTERATION_TYPE);
+        updatedCategoricalAlteration.alterationType(UPDATED_ALTERATION_TYPE).type(UPDATED_TYPE).name(UPDATED_NAME);
 
         restCategoricalAlterationMockMvc
             .perform(
@@ -275,9 +274,9 @@ class CategoricalAlterationResourceIT {
         List<CategoricalAlteration> categoricalAlterationList = categoricalAlterationRepository.findAll();
         assertThat(categoricalAlterationList).hasSize(databaseSizeBeforeUpdate);
         CategoricalAlteration testCategoricalAlteration = categoricalAlterationList.get(categoricalAlterationList.size() - 1);
-        assertThat(testCategoricalAlteration.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testCategoricalAlteration.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testCategoricalAlteration.getAlterationType()).isEqualTo(UPDATED_ALTERATION_TYPE);
+        assertThat(testCategoricalAlteration.getType()).isEqualTo(UPDATED_TYPE);
+        assertThat(testCategoricalAlteration.getName()).isEqualTo(UPDATED_NAME);
     }
 
     @Test
@@ -370,9 +369,9 @@ class CategoricalAlterationResourceIT {
         List<CategoricalAlteration> categoricalAlterationList = categoricalAlterationRepository.findAll();
         assertThat(categoricalAlterationList).hasSize(databaseSizeBeforeUpdate);
         CategoricalAlteration testCategoricalAlteration = categoricalAlterationList.get(categoricalAlterationList.size() - 1);
-        assertThat(testCategoricalAlteration.getName()).isEqualTo(DEFAULT_NAME);
-        assertThat(testCategoricalAlteration.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testCategoricalAlteration.getAlterationType()).isEqualTo(DEFAULT_ALTERATION_TYPE);
+        assertThat(testCategoricalAlteration.getType()).isEqualTo(UPDATED_TYPE);
+        assertThat(testCategoricalAlteration.getName()).isEqualTo(DEFAULT_NAME);
     }
 
     @Test
@@ -387,7 +386,7 @@ class CategoricalAlterationResourceIT {
         CategoricalAlteration partialUpdatedCategoricalAlteration = new CategoricalAlteration();
         partialUpdatedCategoricalAlteration.setId(categoricalAlteration.getId());
 
-        partialUpdatedCategoricalAlteration.name(UPDATED_NAME).type(UPDATED_TYPE).alterationType(UPDATED_ALTERATION_TYPE);
+        partialUpdatedCategoricalAlteration.alterationType(UPDATED_ALTERATION_TYPE).type(UPDATED_TYPE).name(UPDATED_NAME);
 
         restCategoricalAlterationMockMvc
             .perform(
@@ -402,9 +401,9 @@ class CategoricalAlterationResourceIT {
         List<CategoricalAlteration> categoricalAlterationList = categoricalAlterationRepository.findAll();
         assertThat(categoricalAlterationList).hasSize(databaseSizeBeforeUpdate);
         CategoricalAlteration testCategoricalAlteration = categoricalAlterationList.get(categoricalAlterationList.size() - 1);
-        assertThat(testCategoricalAlteration.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testCategoricalAlteration.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testCategoricalAlteration.getAlterationType()).isEqualTo(UPDATED_ALTERATION_TYPE);
+        assertThat(testCategoricalAlteration.getType()).isEqualTo(UPDATED_TYPE);
+        assertThat(testCategoricalAlteration.getName()).isEqualTo(UPDATED_NAME);
     }
 
     @Test

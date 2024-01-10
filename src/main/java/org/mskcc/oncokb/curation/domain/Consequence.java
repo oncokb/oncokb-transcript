@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
-import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 
 /**
  * A Consequence.
@@ -23,12 +23,7 @@ public class Consequence implements Serializable {
     private Long id;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
-    private AlterationType type;
-
-    @NotNull
-    @Column(name = "term", nullable = false)
+    @Column(name = "term", nullable = false, unique = true)
     private String term;
 
     @NotNull
@@ -42,9 +37,14 @@ public class Consequence implements Serializable {
     @Column(name = "description")
     private String description;
 
+    @DiffIgnore
     @OneToMany(mappedBy = "consequence")
-    @JsonIgnoreProperties(value = { "referenceGenomes", "genes", "consequence", "biomarkerAssociations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "genes", "transcripts", "consequence", "associations" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();
+
+    @OneToMany(mappedBy = "consequence")
+    @JsonIgnoreProperties(value = { "consequence" }, allowSetters = true)
+    private Set<CategoricalAlteration> categoricalAlterations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -59,19 +59,6 @@ public class Consequence implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public AlterationType getType() {
-        return this.type;
-    }
-
-    public Consequence type(AlterationType type) {
-        this.setType(type);
-        return this;
-    }
-
-    public void setType(AlterationType type) {
-        this.type = type;
     }
 
     public String getTerm() {
@@ -157,6 +144,37 @@ public class Consequence implements Serializable {
         return this;
     }
 
+    public Set<CategoricalAlteration> getCategoricalAlterations() {
+        return this.categoricalAlterations;
+    }
+
+    public void setCategoricalAlterations(Set<CategoricalAlteration> categoricalAlterations) {
+        if (this.categoricalAlterations != null) {
+            this.categoricalAlterations.forEach(i -> i.setConsequence(null));
+        }
+        if (categoricalAlterations != null) {
+            categoricalAlterations.forEach(i -> i.setConsequence(this));
+        }
+        this.categoricalAlterations = categoricalAlterations;
+    }
+
+    public Consequence categoricalAlterations(Set<CategoricalAlteration> categoricalAlterations) {
+        this.setCategoricalAlterations(categoricalAlterations);
+        return this;
+    }
+
+    public Consequence addCategoricalAlteration(CategoricalAlteration categoricalAlteration) {
+        this.categoricalAlterations.add(categoricalAlteration);
+        categoricalAlteration.setConsequence(this);
+        return this;
+    }
+
+    public Consequence removeCategoricalAlteration(CategoricalAlteration categoricalAlteration) {
+        this.categoricalAlterations.remove(categoricalAlteration);
+        categoricalAlteration.setConsequence(null);
+        return this;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -181,7 +199,6 @@ public class Consequence implements Serializable {
     public String toString() {
         return "Consequence{" +
             "id=" + getId() +
-            ", type='" + getType() + "'" +
             ", term='" + getTerm() + "'" +
             ", name='" + getName() + "'" +
             ", isGenerallyTruncating='" + getIsGenerallyTruncating() + "'" +

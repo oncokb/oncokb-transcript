@@ -15,7 +15,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="type" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_fda_submission_type__type" />
             </column>
             <column name="name" type="varchar(255)">
                 <constraints nullable="false" />
@@ -29,13 +29,6 @@
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
 
-        <loadData
-            file="config/liquibase/data/fda_submission_type.csv"
-            separator=";"
-            tableName="fda_submission_type"
-            usePreparedStatements="true">
-            <column name="description" type="string"/>
-        </loadData>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

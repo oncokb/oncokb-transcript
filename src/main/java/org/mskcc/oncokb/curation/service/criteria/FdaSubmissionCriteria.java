@@ -45,11 +45,11 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
 
     private BooleanFilter genetic;
 
+    private LongFilter associationId;
+
     private LongFilter companionDiagnosticDeviceId;
 
     private LongFilter typeId;
-
-    private LongFilter biomarkerAssociationId;
 
     private Boolean distinct;
 
@@ -66,9 +66,9 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
         this.platform = other.platform == null ? null : other.platform.copy();
         this.curated = other.curated == null ? null : other.curated.copy();
         this.genetic = other.genetic == null ? null : other.genetic.copy();
+        this.associationId = other.associationId == null ? null : other.associationId.copy();
         this.companionDiagnosticDeviceId = other.companionDiagnosticDeviceId == null ? null : other.companionDiagnosticDeviceId.copy();
         this.typeId = other.typeId == null ? null : other.typeId.copy();
-        this.biomarkerAssociationId = other.biomarkerAssociationId == null ? null : other.biomarkerAssociationId.copy();
         this.distinct = other.distinct;
     }
 
@@ -182,21 +182,6 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
         this.decisionDate = decisionDate;
     }
 
-    public StringFilter getPlatform() {
-        return platform;
-    }
-
-    public StringFilter platform() {
-        if (platform == null) {
-            platform = new StringFilter();
-        }
-        return platform;
-    }
-
-    public void setPlatform(StringFilter platform) {
-        this.platform = platform;
-    }
-
     public BooleanFilter getCurated() {
         return curated;
     }
@@ -225,6 +210,21 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
 
     public void setGenetic(BooleanFilter genetic) {
         this.genetic = genetic;
+    }
+
+    public LongFilter getAssociationId() {
+        return associationId;
+    }
+
+    public LongFilter associationId() {
+        if (associationId == null) {
+            associationId = new LongFilter();
+        }
+        return associationId;
+    }
+
+    public void setAssociationId(LongFilter associationId) {
+        this.associationId = associationId;
     }
 
     public LongFilter getCompanionDiagnosticDeviceId() {
@@ -257,21 +257,6 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
         this.typeId = typeId;
     }
 
-    public LongFilter getBiomarkerAssociationId() {
-        return biomarkerAssociationId;
-    }
-
-    public LongFilter biomarkerAssociationId() {
-        if (biomarkerAssociationId == null) {
-            biomarkerAssociationId = new LongFilter();
-        }
-        return biomarkerAssociationId;
-    }
-
-    public void setBiomarkerAssociationId(LongFilter biomarkerAssociationId) {
-        this.biomarkerAssociationId = biomarkerAssociationId;
-    }
-
     public Boolean getDistinct() {
         return distinct;
     }
@@ -300,9 +285,9 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
             Objects.equals(platform, that.platform) &&
             Objects.equals(curated, that.curated) &&
             Objects.equals(genetic, that.genetic) &&
+            Objects.equals(associationId, that.associationId) &&
             Objects.equals(companionDiagnosticDeviceId, that.companionDiagnosticDeviceId) &&
             Objects.equals(typeId, that.typeId) &&
-            Objects.equals(biomarkerAssociationId, that.biomarkerAssociationId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
@@ -320,9 +305,9 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
             platform,
             curated,
             genetic,
+            associationId,
             companionDiagnosticDeviceId,
             typeId,
-            biomarkerAssociationId,
             distinct
         );
     }
@@ -341,9 +326,9 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
             (platform != null ? "platform=" + platform + ", " : "") +
             (curated != null ? "curated=" + curated + ", " : "") +
             (genetic != null ? "genetic=" + genetic + ", " : "") +
+            (associationId != null ? "associationId=" + associationId + ", " : "") +
             (companionDiagnosticDeviceId != null ? "companionDiagnosticDeviceId=" + companionDiagnosticDeviceId + ", " : "") +
             (typeId != null ? "typeId=" + typeId + ", " : "") +
-            (biomarkerAssociationId != null ? "biomarkerAssociationId=" + biomarkerAssociationId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

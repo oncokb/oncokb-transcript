@@ -15,24 +15,16 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="entrez_gene_id" type="integer">
-                <constraints nullable="true" />
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_gene__entrez_gene_id" />
             </column>
             <column name="hugo_symbol" type="varchar(255)">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="hgnc_id" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-
-        <!-- This data was generated on 4/4/2022 12:00PM EST - Please update this when csv file is modified -->
-        <loadData
-            file="config/liquibase/data/gene.txt"
-            separator="|"
-            tableName="gene"
-            usePreparedStatements="true">
-        </loadData>
     </changeSet>
 
     <changeSet id="20220401174637-1-relations" author="jhipster">
@@ -47,6 +39,17 @@
         </createTable>
 
         <addPrimaryKey columnNames="gene_id, flag_id" tableName="rel_gene__flag"/>
+
+        <createTable tableName="rel_gene__synonym">
+            <column name="synonym_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="gene_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="gene_id, synonym_id" tableName="rel_gene__synonym"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

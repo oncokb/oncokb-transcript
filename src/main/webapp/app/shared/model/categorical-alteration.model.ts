@@ -1,11 +1,12 @@
-import { CategoricalAlterationType } from 'app/shared/model/enumerations/categorical-alteration-type.model';
 import { AlterationType } from 'app/shared/model/enumerations/alteration-type.model';
+import { IConsequence } from 'app/shared/model/consequence.model';
 
 export interface ICategoricalAlteration {
   id?: number;
-  name?: string;
-  type?: CategoricalAlterationType;
   alterationType?: AlterationType;
+  type?: string;
+  consequence?: IConsequence;
+  name?: string;
 }
 
 export const defaultValue: Readonly<ICategoricalAlteration> = {};

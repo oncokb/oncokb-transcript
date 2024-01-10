@@ -61,7 +61,7 @@ public class GeneController {
         } else {
             gene = geneService.findGeneByHugoSymbol(symbol);
             if (gene.isEmpty()) {
-                gene = geneService.findGeneByAlias(symbol);
+                gene = geneService.findGeneBySynonym(symbol);
             }
         }
         return gene;

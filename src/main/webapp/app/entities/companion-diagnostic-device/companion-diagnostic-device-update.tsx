@@ -82,7 +82,7 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
 
   const biomarkerAssociations = _.uniq(
     (companionDiagnosticDeviceEntity.fdaSubmissions || []).reduce((acc, fdaSubmission) => {
-      acc.push(...(fdaSubmission?.biomarkerAssociations || []));
+      acc.push(...(fdaSubmission?.associations || []));
       return acc;
     }, [])
   );
@@ -176,7 +176,7 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
             <Row className="mt-4">
               <Col>
                 <CdxBiomarkerAssociationTable
-                  biomarkerAssociations={biomarkerAssociations}
+                  fdaSubmissions={companionDiagnosticDeviceEntity.fdaSubmissions || []}
                   onDeleteBiomarkerAssociation={() => props.getEntity(props.match.params.id)}
                   editable
                 />

@@ -2,23 +2,25 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.FdaDrug;
 import org.mskcc.oncokb.curation.repository.FdaDrugRepository;
+import org.mskcc.oncokb.curation.service.FdaDrugQueryService;
 import org.mskcc.oncokb.curation.service.FdaDrugService;
+import org.mskcc.oncokb.curation.service.criteria.FdaDrugCriteria;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -44,9 +46,12 @@ public class FdaDrugResource {
 
     private final FdaDrugRepository fdaDrugRepository;
 
-    public FdaDrugResource(FdaDrugService fdaDrugService, FdaDrugRepository fdaDrugRepository) {
+    private final FdaDrugQueryService fdaDrugQueryService;
+
+    public FdaDrugResource(FdaDrugService fdaDrugService, FdaDrugRepository fdaDrugRepository, FdaDrugQueryService fdaDrugQueryService) {
         this.fdaDrugService = fdaDrugService;
         this.fdaDrugRepository = fdaDrugRepository;
+        this.fdaDrugQueryService = fdaDrugQueryService;
     }
 
     /**
@@ -143,19 +148,27 @@ public class FdaDrugResource {
      * {@code GET  /fda-drugs} : get all the fdaDrugs.
      *
      * @param pageable the pagination information.
-     * @param filter the filter of the request.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of fdaDrugs in body.
      */
     @GetMapping("/fda-drugs")
-    public ResponseEntity<List<FdaDrug>> getAllFdaDrugs(Pageable pageable, @RequestParam(required = false) String filter) {
-        if ("drug-is-null".equals(filter)) {
-            log.debug("REST request to get all FdaDrugs where drug is null");
-            return new ResponseEntity<>(fdaDrugService.findAllWhereDrugIsNull(), HttpStatus.OK);
-        }
-        log.debug("REST request to get a page of FdaDrugs");
-        Page<FdaDrug> page = fdaDrugService.findAll(pageable);
+    public ResponseEntity<List<FdaDrug>> getAllFdaDrugs(FdaDrugCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get FdaDrugs by criteria: {}", criteria);
+        Page<FdaDrug> page = fdaDrugQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /fda-drugs/count} : count all the fdaDrugs.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/fda-drugs/count")
+    public ResponseEntity<Long> countFdaDrugs(FdaDrugCriteria criteria) {
+        log.debug("REST request to count FdaDrugs by criteria: {}", criteria);
+        return ResponseEntity.ok().body(fdaDrugQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -185,5 +198,22 @@ public class FdaDrugResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code SEARCH  /fda-drugs/search?query=:query} : search for the FdaDrug corresponding
+     * to the query.
+     *
+     * @param query    the query of the FdaDrug search.
+     * @param pageable the pagination information.
+     * @return the result of the search.
+     */
+    @GetMapping("/fda-drugs/search")
+    public ResponseEntity<List<FdaDrug>> searchFdaDrugs(@RequestParam String query, Pageable pageable) {
+        log.debug("REST request to search for a page of FdaDrugs for query {}", query);
+        // TODO: implement the search
+        Page<FdaDrug> page = new PageImpl<>(new ArrayList<>());
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 }

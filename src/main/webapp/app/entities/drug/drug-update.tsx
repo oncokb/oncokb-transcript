@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
-import { Row, Col } from 'reactstrap';
+import { Row, Col, Label, FormGroup } from 'reactstrap';
 import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
+import NcitCodeSelect, { parseNcitUniqId } from 'app/shared/select/NcitCodeSelect';
+import { generateUuid } from 'app/shared/util/utils';
 
 export interface IDrugUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -14,6 +16,10 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
   const drugEntity = props.drugEntity;
+  const [selectedNcit, setSelectedNcit] = useState({
+    id: props.drugEntity?.nciThesaurus?.id,
+    code: props.drugEntity?.nciThesaurus?.code,
+  });
   const loading = props.loading;
   const updating = props.updating;
   const updateSuccess = props.updateSuccess;
@@ -36,11 +42,23 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
     }
   }, [updateSuccess]);
 
+  useEffect(() => {
+    setSelectedNcit({
+      id: drugEntity.nciThesaurus?.id,
+      code: drugEntity.nciThesaurus?.code,
+    });
+  }, [drugEntity]);
+
   const saveEntity = values => {
     const entity = {
       ...drugEntity,
       ...values,
     };
+    if (selectedNcit === undefined) {
+      delete entity.nciThesaurus;
+    } else {
+      entity.nciThesaurus = selectedNcit;
+    }
 
     if (isNew) {
       props.createEntity(entity);
@@ -51,7 +69,9 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
 
   const defaultValues = () =>
     isNew
-      ? {}
+      ? {
+          uuid: generateUuid(),
+        }
       : {
           ...drugEntity,
         };
@@ -72,9 +92,17 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
               {!isNew ? <ValidatedField name="id" required readOnly id="drug-id" label="ID" validate={{ required: true }} /> : null}
+              <ValidatedField name="uuid" required readOnly id="drug-uuid" label="UUID" validate={{ required: true }} />
               <ValidatedField label="Name" id="drug-name" name="name" data-cy="name" type="textarea" />
-              <ValidatedField label="Code" id="drug-code" name="code" data-cy="code" type="text" />
-              <ValidatedField label="Semantic Type" id="drug-semanticType" name="semanticType" data-cy="semanticType" type="textarea" />
+              <FormGroup>
+                <Label>Code</Label>
+                <NcitCodeSelect
+                  ncit={drugEntity.nciThesaurus}
+                  onChange={selectedOption => {
+                    setSelectedNcit(selectedOption ? parseNcitUniqId(selectedOption.value) : undefined);
+                  }}
+                />
+              </FormGroup>
               <SaveButton disabled={updating} />
             </ValidatedForm>
           )}

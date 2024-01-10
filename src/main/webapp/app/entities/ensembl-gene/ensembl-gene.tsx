@@ -7,7 +7,7 @@ import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import OncoKBAsyncTable, { PaginationState } from 'app/shared/table/OncoKBAsyncTable';
-import { getGeneName, getGenomicLocation, getPaginationFromSearchParams } from 'app/shared/util/utils';
+import { getEntityTableActionsColumn, getGeneName, getGenomicLocation, getPaginationFromSearchParams } from 'app/shared/util/utils';
 
 const defaultPaginationState: PaginationState<IEnsemblGene> = {
   order: 'asc',
@@ -50,7 +50,7 @@ export const EnsemblGene = (props: IEnsemblGeneProps) => {
       accessor: 'seqRegion',
       Header: 'Seg Region',
       Cell(cell: { original: IEnsemblGene }) {
-        cell.original.seqRegion.name;
+        return cell.original.seqRegion.name;
       },
     },
     {
@@ -67,6 +67,7 @@ export const EnsemblGene = (props: IEnsemblGeneProps) => {
         return <div>{getGeneName(cell.original.gene)}</div>;
       },
     },
+    getEntityTableActionsColumn(ENTITY_TYPE.ENSEMBL_GENE),
   ];
 
   return (

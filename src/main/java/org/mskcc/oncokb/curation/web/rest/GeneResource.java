@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.repository.GeneRepository;
 import org.mskcc.oncokb.curation.service.GeneQueryService;
@@ -16,12 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
@@ -46,9 +46,12 @@ public class GeneResource {
 
     private final GeneRepository geneRepository;
 
-    public GeneResource(GeneService geneService, GeneRepository geneRepository) {
+    private final GeneQueryService geneQueryService;
+
+    public GeneResource(GeneService geneService, GeneRepository geneRepository, GeneQueryService geneQueryService) {
         this.geneService = geneService;
         this.geneRepository = geneRepository;
+        this.geneQueryService = geneQueryService;
     }
 
     /**
@@ -59,7 +62,7 @@ public class GeneResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/genes")
-    public ResponseEntity<Gene> createGene(@RequestBody Gene gene) throws URISyntaxException {
+    public ResponseEntity<Gene> createGene(@Valid @RequestBody Gene gene) throws URISyntaxException {
         log.debug("REST request to save Gene : {}", gene);
         if (gene.getId() != null) {
             throw new BadRequestAlertException("A new gene cannot already have an ID", ENTITY_NAME, "idexists");
@@ -74,7 +77,7 @@ public class GeneResource {
     /**
      * {@code PUT  /genes/:id} : Updates an existing gene.
      *
-     * @param id   the id of the gene to save.
+     * @param id the id of the gene to save.
      * @param gene the gene to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated gene,
      * or with status {@code 400 (Bad Request)} if the gene is not valid,
@@ -82,7 +85,7 @@ public class GeneResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/genes/{id}")
-    public ResponseEntity<Gene> updateGene(@PathVariable(value = "id", required = false) final Long id, @RequestBody Gene gene)
+    public ResponseEntity<Gene> updateGene(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody Gene gene)
         throws URISyntaxException {
         log.debug("REST request to update Gene : {}, {}", id, gene);
         if (gene.getId() == null) {
@@ -106,7 +109,7 @@ public class GeneResource {
     /**
      * {@code PATCH  /genes/:id} : Partial updates given fields of an existing gene, field will ignore if it is null
      *
-     * @param id   the id of the gene to save.
+     * @param id the id of the gene to save.
      * @param gene the gene to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated gene,
      * or with status {@code 400 (Bad Request)} if the gene is not valid,
@@ -115,8 +118,10 @@ public class GeneResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/genes/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<Gene> partialUpdateGene(@PathVariable(value = "id", required = false) final Long id, @RequestBody Gene gene)
-        throws URISyntaxException {
+    public ResponseEntity<Gene> partialUpdateGene(
+        @PathVariable(value = "id", required = false) final Long id,
+        @NotNull @RequestBody Gene gene
+    ) throws URISyntaxException {
         log.debug("REST request to partial update Gene partially : {}, {}", id, gene);
         if (gene.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -141,14 +146,34 @@ public class GeneResource {
      * {@code GET  /genes} : get all the genes.
      *
      * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of genes in body.
      */
     @GetMapping("/genes")
-    public ResponseEntity<List<Gene>> getAllGenes(Pageable pageable) {
-        log.debug("REST request to get Genes");
-        Page<Gene> page = geneService.findAll(pageable);
+    public ResponseEntity<List<Gene>> getAllGenes(GeneCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get Genes by criteria: {}", criteria);
+        Page<Gene> page = geneQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        return ResponseEntity
+            .ok()
+            .headers(headers)
+            .body(
+                geneService.findAllByIdInWithGeneAliasAndEnsemblGenes(
+                    page.getContent().stream().map(Gene::getId).collect(Collectors.toList())
+                )
+            );
+    }
+
+    /**
+     * {@code GET  /genes/count} : count all the genes.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/genes/count")
+    public ResponseEntity<Long> countGenes(GeneCriteria criteria) {
+        log.debug("REST request to count Genes by criteria: {}", criteria);
+        return ResponseEntity.ok().body(geneQueryService.countByCriteria(criteria));
     }
 
     /**

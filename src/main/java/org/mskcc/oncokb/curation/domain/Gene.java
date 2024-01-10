@@ -5,6 +5,9 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
+import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A Gene.
@@ -20,34 +23,51 @@ public class Gene implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "entrez_gene_id")
+    @NotNull
+    @Column(name = "entrez_gene_id", nullable = false, unique = true)
     private Integer entrezGeneId;
 
-    @Column(name = "hugo_symbol")
+    @NotNull
+    @Column(name = "hugo_symbol", nullable = false)
     private String hugoSymbol;
 
     @Column(name = "hgnc_id")
     private String hgncId;
 
-    @OneToMany(mappedBy = "gene")
-    @JsonIgnoreProperties(value = { "gene" }, allowSetters = true)
-    private Set<GeneAlias> geneAliases = new HashSet<>();
-
+    @DiffIgnore
     @OneToMany(mappedBy = "gene")
     @JsonIgnoreProperties(value = { "transcripts", "gene", "seqRegion" }, allowSetters = true)
     private Set<EnsemblGene> ensemblGenes = new HashSet<>();
 
+    @DiffIgnore
     @OneToMany(mappedBy = "gene")
-    @JsonIgnoreProperties(value = { "alterations", "drugs", "fdaSubmissions", "cancerType", "gene" }, allowSetters = true)
-    private Set<BiomarkerAssociation> biomarkerAssociations = new HashSet<>();
+    @JsonIgnoreProperties(value = { "association", "levelOfEvidences", "gene" }, allowSetters = true)
+    private Set<Evidence> evidences = new HashSet<>();
 
+    @DiffIgnore
+    @OneToMany(mappedBy = "gene")
+    @JsonIgnoreProperties(value = { "sequences", "fragments", "flags", "ensemblGene", "gene", "alterations" }, allowSetters = true)
+    private Set<Transcript> transcripts = new HashSet<>();
+
+    @ShallowReference
     @ManyToMany
     @JoinTable(name = "rel_gene__flag", joinColumns = @JoinColumn(name = "gene_id"), inverseJoinColumns = @JoinColumn(name = "flag_id"))
-    @JsonIgnoreProperties(value = { "transcripts", "genes" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "drugs", "genes", "transcripts" }, allowSetters = true)
     private Set<Flag> flags = new HashSet<>();
 
+    @DiffIgnore
+    @ManyToMany
+    @JoinTable(
+        name = "rel_gene__synonym",
+        joinColumns = @JoinColumn(name = "gene_id"),
+        inverseJoinColumns = @JoinColumn(name = "synonym_id")
+    )
+    @JsonIgnoreProperties(value = { "cancerTypes", "genes", "nciThesauruses" }, allowSetters = true)
+    private Set<Synonym> synonyms = new HashSet<>();
+
+    @DiffIgnore
     @ManyToMany(mappedBy = "genes")
-    @JsonIgnoreProperties(value = { "referenceGenomes", "genes", "consequence", "biomarkerAssociations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "genes", "transcripts", "consequence", "associations" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -104,37 +124,6 @@ public class Gene implements Serializable {
         this.hgncId = hgncId;
     }
 
-    public Set<GeneAlias> getGeneAliases() {
-        return this.geneAliases;
-    }
-
-    public void setGeneAliases(Set<GeneAlias> geneAliases) {
-        if (this.geneAliases != null) {
-            this.geneAliases.forEach(i -> i.setGene(null));
-        }
-        if (geneAliases != null) {
-            geneAliases.forEach(i -> i.setGene(this));
-        }
-        this.geneAliases = geneAliases;
-    }
-
-    public Gene geneAliases(Set<GeneAlias> geneAliases) {
-        this.setGeneAliases(geneAliases);
-        return this;
-    }
-
-    public Gene addGeneAlias(GeneAlias geneAlias) {
-        this.geneAliases.add(geneAlias);
-        geneAlias.setGene(this);
-        return this;
-    }
-
-    public Gene removeGeneAlias(GeneAlias geneAlias) {
-        this.geneAliases.remove(geneAlias);
-        geneAlias.setGene(null);
-        return this;
-    }
-
     public Set<EnsemblGene> getEnsemblGenes() {
         return this.ensemblGenes;
     }
@@ -166,34 +155,65 @@ public class Gene implements Serializable {
         return this;
     }
 
-    public Set<BiomarkerAssociation> getBiomarkerAssociations() {
-        return this.biomarkerAssociations;
+    public Set<Evidence> getEvidences() {
+        return this.evidences;
     }
 
-    public void setBiomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
-        if (this.biomarkerAssociations != null) {
-            this.biomarkerAssociations.forEach(i -> i.setGene(null));
+    public void setEvidences(Set<Evidence> evidences) {
+        if (this.evidences != null) {
+            this.evidences.forEach(i -> i.setGene(null));
         }
-        if (biomarkerAssociations != null) {
-            biomarkerAssociations.forEach(i -> i.setGene(this));
+        if (evidences != null) {
+            evidences.forEach(i -> i.setGene(this));
         }
-        this.biomarkerAssociations = biomarkerAssociations;
+        this.evidences = evidences;
     }
 
-    public Gene biomarkerAssociations(Set<BiomarkerAssociation> biomarkerAssociations) {
-        this.setBiomarkerAssociations(biomarkerAssociations);
+    public Gene evidences(Set<Evidence> evidences) {
+        this.setEvidences(evidences);
         return this;
     }
 
-    public Gene addBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
-        this.biomarkerAssociations.add(biomarkerAssociation);
-        biomarkerAssociation.setGene(this);
+    public Gene addEvidence(Evidence evidence) {
+        this.evidences.add(evidence);
+        evidence.setGene(this);
         return this;
     }
 
-    public Gene removeBiomarkerAssociation(BiomarkerAssociation biomarkerAssociation) {
-        this.biomarkerAssociations.remove(biomarkerAssociation);
-        biomarkerAssociation.setGene(null);
+    public Gene removeEvidence(Evidence evidence) {
+        this.evidences.remove(evidence);
+        evidence.setGene(null);
+        return this;
+    }
+
+    public Set<Transcript> getTranscripts() {
+        return this.transcripts;
+    }
+
+    public void setTranscripts(Set<Transcript> transcripts) {
+        if (this.transcripts != null) {
+            this.transcripts.forEach(i -> i.setGene(null));
+        }
+        if (transcripts != null) {
+            transcripts.forEach(i -> i.setGene(this));
+        }
+        this.transcripts = transcripts;
+    }
+
+    public Gene transcripts(Set<Transcript> transcripts) {
+        this.setTranscripts(transcripts);
+        return this;
+    }
+
+    public Gene addTranscript(Transcript transcript) {
+        this.transcripts.add(transcript);
+        transcript.setGene(this);
+        return this;
+    }
+
+    public Gene removeTranscript(Transcript transcript) {
+        this.transcripts.remove(transcript);
+        transcript.setGene(null);
         return this;
     }
 
@@ -219,6 +239,31 @@ public class Gene implements Serializable {
     public Gene removeFlag(Flag flag) {
         this.flags.remove(flag);
         flag.getGenes().remove(this);
+        return this;
+    }
+
+    public Set<Synonym> getSynonyms() {
+        return this.synonyms;
+    }
+
+    public void setSynonyms(Set<Synonym> synonyms) {
+        this.synonyms = synonyms;
+    }
+
+    public Gene synonyms(Set<Synonym> synonyms) {
+        this.setSynonyms(synonyms);
+        return this;
+    }
+
+    public Gene addSynonym(Synonym synonym) {
+        this.synonyms.add(synonym);
+        synonym.getGenes().add(this);
+        return this;
+    }
+
+    public Gene removeSynonym(Synonym synonym) {
+        this.synonyms.remove(synonym);
+        synonym.getGenes().remove(this);
         return this;
     }
 

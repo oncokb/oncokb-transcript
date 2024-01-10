@@ -18,11 +18,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
+import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
 import org.mskcc.oncokb.curation.domain.Flag;
+import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.domain.GenomeFragment;
 import org.mskcc.oncokb.curation.domain.Sequence;
 import org.mskcc.oncokb.curation.domain.Transcript;
+import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.curation.repository.TranscriptRepository;
 import org.mskcc.oncokb.curation.service.TranscriptService;
 import org.mskcc.oncokb.curation.service.criteria.TranscriptCriteria;
@@ -45,6 +48,9 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureMockMvc
 @WithMockUser
 class TranscriptResourceIT {
+
+    private static final ReferenceGenome DEFAULT_REFERENCE_GENOME = ReferenceGenome.GRCh37;
+    private static final ReferenceGenome UPDATED_REFERENCE_GENOME = ReferenceGenome.GRCh38;
 
     private static final String DEFAULT_ENSEMBL_TRANSCRIPT_ID = "AAAAAAAAAA";
     private static final String UPDATED_ENSEMBL_TRANSCRIPT_ID = "BBBBBBBBBB";
@@ -95,6 +101,7 @@ class TranscriptResourceIT {
      */
     public static Transcript createEntity(EntityManager em) {
         Transcript transcript = new Transcript()
+            .referenceGenome(DEFAULT_REFERENCE_GENOME)
             .ensemblTranscriptId(DEFAULT_ENSEMBL_TRANSCRIPT_ID)
             .canonical(DEFAULT_CANONICAL)
             .ensemblProteinId(DEFAULT_ENSEMBL_PROTEIN_ID)
@@ -111,6 +118,7 @@ class TranscriptResourceIT {
      */
     public static Transcript createUpdatedEntity(EntityManager em) {
         Transcript transcript = new Transcript()
+            .referenceGenome(UPDATED_REFERENCE_GENOME)
             .ensemblTranscriptId(UPDATED_ENSEMBL_TRANSCRIPT_ID)
             .canonical(UPDATED_CANONICAL)
             .ensemblProteinId(UPDATED_ENSEMBL_PROTEIN_ID)
@@ -143,6 +151,7 @@ class TranscriptResourceIT {
         List<Transcript> transcriptList = transcriptRepository.findAll();
         assertThat(transcriptList).hasSize(databaseSizeBeforeCreate + 1);
         Transcript testTranscript = transcriptList.get(transcriptList.size() - 1);
+        assertThat(testTranscript.getReferenceGenome()).isEqualTo(DEFAULT_REFERENCE_GENOME);
         assertThat(testTranscript.getEnsemblTranscriptId()).isEqualTo(DEFAULT_ENSEMBL_TRANSCRIPT_ID);
         assertThat(testTranscript.getCanonical()).isEqualTo(DEFAULT_CANONICAL);
         assertThat(testTranscript.getEnsemblProteinId()).isEqualTo(DEFAULT_ENSEMBL_PROTEIN_ID);
@@ -209,11 +218,30 @@ class TranscriptResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(transcript.getId().intValue())))
+            .andExpect(jsonPath("$.[*].referenceGenome").value(hasItem(DEFAULT_REFERENCE_GENOME.toString())))
             .andExpect(jsonPath("$.[*].ensemblTranscriptId").value(hasItem(DEFAULT_ENSEMBL_TRANSCRIPT_ID)))
             .andExpect(jsonPath("$.[*].canonical").value(hasItem(DEFAULT_CANONICAL.booleanValue())))
             .andExpect(jsonPath("$.[*].ensemblProteinId").value(hasItem(DEFAULT_ENSEMBL_PROTEIN_ID)))
             .andExpect(jsonPath("$.[*].referenceSequenceId").value(hasItem(DEFAULT_REFERENCE_SEQUENCE_ID)))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllTranscriptsWithEagerRelationshipsIsEnabled() throws Exception {
+        when(transcriptServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restTranscriptMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(transcriptServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllTranscriptsWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(transcriptServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restTranscriptMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(transcriptServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test
@@ -228,6 +256,7 @@ class TranscriptResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(transcript.getId().intValue()))
+            .andExpect(jsonPath("$.referenceGenome").value(DEFAULT_REFERENCE_GENOME.toString()))
             .andExpect(jsonPath("$.ensemblTranscriptId").value(DEFAULT_ENSEMBL_TRANSCRIPT_ID))
             .andExpect(jsonPath("$.canonical").value(DEFAULT_CANONICAL.booleanValue()))
             .andExpect(jsonPath("$.ensemblProteinId").value(DEFAULT_ENSEMBL_PROTEIN_ID))
@@ -251,6 +280,58 @@ class TranscriptResourceIT {
 
         defaultTranscriptShouldBeFound("id.lessThanOrEqual=" + id);
         defaultTranscriptShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllTranscriptsByReferenceGenomeIsEqualToSomething() throws Exception {
+        // Initialize the database
+        transcriptRepository.saveAndFlush(transcript);
+
+        // Get all the transcriptList where referenceGenome equals to DEFAULT_REFERENCE_GENOME
+        defaultTranscriptShouldBeFound("referenceGenome.equals=" + DEFAULT_REFERENCE_GENOME);
+
+        // Get all the transcriptList where referenceGenome equals to UPDATED_REFERENCE_GENOME
+        defaultTranscriptShouldNotBeFound("referenceGenome.equals=" + UPDATED_REFERENCE_GENOME);
+    }
+
+    @Test
+    @Transactional
+    void getAllTranscriptsByReferenceGenomeIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        transcriptRepository.saveAndFlush(transcript);
+
+        // Get all the transcriptList where referenceGenome not equals to DEFAULT_REFERENCE_GENOME
+        defaultTranscriptShouldNotBeFound("referenceGenome.notEquals=" + DEFAULT_REFERENCE_GENOME);
+
+        // Get all the transcriptList where referenceGenome not equals to UPDATED_REFERENCE_GENOME
+        defaultTranscriptShouldBeFound("referenceGenome.notEquals=" + UPDATED_REFERENCE_GENOME);
+    }
+
+    @Test
+    @Transactional
+    void getAllTranscriptsByReferenceGenomeIsInShouldWork() throws Exception {
+        // Initialize the database
+        transcriptRepository.saveAndFlush(transcript);
+
+        // Get all the transcriptList where referenceGenome in DEFAULT_REFERENCE_GENOME or UPDATED_REFERENCE_GENOME
+        defaultTranscriptShouldBeFound("referenceGenome.in=" + DEFAULT_REFERENCE_GENOME + "," + UPDATED_REFERENCE_GENOME);
+
+        // Get all the transcriptList where referenceGenome equals to UPDATED_REFERENCE_GENOME
+        defaultTranscriptShouldNotBeFound("referenceGenome.in=" + UPDATED_REFERENCE_GENOME);
+    }
+
+    @Test
+    @Transactional
+    void getAllTranscriptsByReferenceGenomeIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        transcriptRepository.saveAndFlush(transcript);
+
+        // Get all the transcriptList where referenceGenome is not null
+        defaultTranscriptShouldBeFound("referenceGenome.specified=true");
+
+        // Get all the transcriptList where referenceGenome is null
+        defaultTranscriptShouldNotBeFound("referenceGenome.specified=false");
     }
 
     @Test
@@ -619,32 +700,6 @@ class TranscriptResourceIT {
 
     @Test
     @Transactional
-    void getAllTranscriptsByFragmentsIsEqualToSomething() throws Exception {
-        // Initialize the database
-        transcriptRepository.saveAndFlush(transcript);
-        GenomeFragment fragments;
-        if (TestUtil.findAll(em, GenomeFragment.class).isEmpty()) {
-            fragments = GenomeFragmentResourceIT.createEntity(em);
-            em.persist(fragments);
-            em.flush();
-        } else {
-            fragments = TestUtil.findAll(em, GenomeFragment.class).get(0);
-        }
-        em.persist(fragments);
-        em.flush();
-        transcript.addFragments(fragments);
-        transcriptRepository.saveAndFlush(transcript);
-        Long fragmentsId = fragments.getId();
-
-        // Get all the transcriptList where fragments equals to fragmentsId
-        defaultTranscriptShouldBeFound("fragmentsId.equals=" + fragmentsId);
-
-        // Get all the transcriptList where fragments equals to (fragmentsId + 1)
-        defaultTranscriptShouldNotBeFound("fragmentsId.equals=" + (fragmentsId + 1));
-    }
-
-    @Test
-    @Transactional
     void getAllTranscriptsBySequenceIsEqualToSomething() throws Exception {
         // Initialize the database
         transcriptRepository.saveAndFlush(transcript);
@@ -667,6 +722,32 @@ class TranscriptResourceIT {
 
         // Get all the transcriptList where sequence equals to (sequenceId + 1)
         defaultTranscriptShouldNotBeFound("sequenceId.equals=" + (sequenceId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllTranscriptsByFragmentsIsEqualToSomething() throws Exception {
+        // Initialize the database
+        transcriptRepository.saveAndFlush(transcript);
+        GenomeFragment fragments;
+        if (TestUtil.findAll(em, GenomeFragment.class).isEmpty()) {
+            fragments = GenomeFragmentResourceIT.createEntity(em);
+            em.persist(fragments);
+            em.flush();
+        } else {
+            fragments = TestUtil.findAll(em, GenomeFragment.class).get(0);
+        }
+        em.persist(fragments);
+        em.flush();
+        transcript.addFragments(fragments);
+        transcriptRepository.saveAndFlush(transcript);
+        Long fragmentsId = fragments.getId();
+
+        // Get all the transcriptList where fragments equals to fragmentsId
+        defaultTranscriptShouldBeFound("fragmentsId.equals=" + fragmentsId);
+
+        // Get all the transcriptList where fragments equals to (fragmentsId + 1)
+        defaultTranscriptShouldNotBeFound("fragmentsId.equals=" + (fragmentsId + 1));
     }
 
     @Test
@@ -721,6 +802,58 @@ class TranscriptResourceIT {
         defaultTranscriptShouldNotBeFound("ensemblGeneId.equals=" + (ensemblGeneId + 1));
     }
 
+    @Test
+    @Transactional
+    void getAllTranscriptsByGeneIsEqualToSomething() throws Exception {
+        // Initialize the database
+        transcriptRepository.saveAndFlush(transcript);
+        Gene gene;
+        if (TestUtil.findAll(em, Gene.class).isEmpty()) {
+            gene = GeneResourceIT.createEntity(em);
+            em.persist(gene);
+            em.flush();
+        } else {
+            gene = TestUtil.findAll(em, Gene.class).get(0);
+        }
+        em.persist(gene);
+        em.flush();
+        transcript.setGene(gene);
+        transcriptRepository.saveAndFlush(transcript);
+        Long geneId = gene.getId();
+
+        // Get all the transcriptList where gene equals to geneId
+        defaultTranscriptShouldBeFound("geneId.equals=" + geneId);
+
+        // Get all the transcriptList where gene equals to (geneId + 1)
+        defaultTranscriptShouldNotBeFound("geneId.equals=" + (geneId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllTranscriptsByAlterationIsEqualToSomething() throws Exception {
+        // Initialize the database
+        transcriptRepository.saveAndFlush(transcript);
+        Alteration alteration;
+        if (TestUtil.findAll(em, Alteration.class).isEmpty()) {
+            alteration = AlterationResourceIT.createEntity(em);
+            em.persist(alteration);
+            em.flush();
+        } else {
+            alteration = TestUtil.findAll(em, Alteration.class).get(0);
+        }
+        em.persist(alteration);
+        em.flush();
+        transcript.addAlteration(alteration);
+        transcriptRepository.saveAndFlush(transcript);
+        Long alterationId = alteration.getId();
+
+        // Get all the transcriptList where alteration equals to alterationId
+        defaultTranscriptShouldBeFound("alterationId.equals=" + alterationId);
+
+        // Get all the transcriptList where alteration equals to (alterationId + 1)
+        defaultTranscriptShouldNotBeFound("alterationId.equals=" + (alterationId + 1));
+    }
+
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -730,6 +863,7 @@ class TranscriptResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(transcript.getId().intValue())))
+            .andExpect(jsonPath("$.[*].referenceGenome").value(hasItem(DEFAULT_REFERENCE_GENOME.toString())))
             .andExpect(jsonPath("$.[*].ensemblTranscriptId").value(hasItem(DEFAULT_ENSEMBL_TRANSCRIPT_ID)))
             .andExpect(jsonPath("$.[*].canonical").value(hasItem(DEFAULT_CANONICAL.booleanValue())))
             .andExpect(jsonPath("$.[*].ensemblProteinId").value(hasItem(DEFAULT_ENSEMBL_PROTEIN_ID)))
@@ -783,6 +917,7 @@ class TranscriptResourceIT {
         // Disconnect from session so that the updates on updatedTranscript are not directly saved in db
         em.detach(updatedTranscript);
         updatedTranscript
+            .referenceGenome(UPDATED_REFERENCE_GENOME)
             .ensemblTranscriptId(UPDATED_ENSEMBL_TRANSCRIPT_ID)
             .canonical(UPDATED_CANONICAL)
             .ensemblProteinId(UPDATED_ENSEMBL_PROTEIN_ID)
@@ -803,6 +938,7 @@ class TranscriptResourceIT {
         List<Transcript> transcriptList = transcriptRepository.findAll();
         assertThat(transcriptList).hasSize(databaseSizeBeforeUpdate);
         Transcript testTranscript = transcriptList.get(transcriptList.size() - 1);
+        assertThat(testTranscript.getReferenceGenome()).isEqualTo(UPDATED_REFERENCE_GENOME);
         assertThat(testTranscript.getEnsemblTranscriptId()).isEqualTo(UPDATED_ENSEMBL_TRANSCRIPT_ID);
         assertThat(testTranscript.getCanonical()).isEqualTo(UPDATED_CANONICAL);
         assertThat(testTranscript.getEnsemblProteinId()).isEqualTo(UPDATED_ENSEMBL_PROTEIN_ID);
@@ -894,7 +1030,7 @@ class TranscriptResourceIT {
         Transcript partialUpdatedTranscript = new Transcript();
         partialUpdatedTranscript.setId(transcript.getId());
 
-        partialUpdatedTranscript.ensemblProteinId(UPDATED_ENSEMBL_PROTEIN_ID);
+        partialUpdatedTranscript.canonical(UPDATED_CANONICAL).description(UPDATED_DESCRIPTION);
 
         restTranscriptMockMvc
             .perform(
@@ -909,11 +1045,12 @@ class TranscriptResourceIT {
         List<Transcript> transcriptList = transcriptRepository.findAll();
         assertThat(transcriptList).hasSize(databaseSizeBeforeUpdate);
         Transcript testTranscript = transcriptList.get(transcriptList.size() - 1);
+        assertThat(testTranscript.getReferenceGenome()).isEqualTo(DEFAULT_REFERENCE_GENOME);
         assertThat(testTranscript.getEnsemblTranscriptId()).isEqualTo(DEFAULT_ENSEMBL_TRANSCRIPT_ID);
-        assertThat(testTranscript.getCanonical()).isEqualTo(DEFAULT_CANONICAL);
-        assertThat(testTranscript.getEnsemblProteinId()).isEqualTo(UPDATED_ENSEMBL_PROTEIN_ID);
+        assertThat(testTranscript.getCanonical()).isEqualTo(UPDATED_CANONICAL);
+        assertThat(testTranscript.getEnsemblProteinId()).isEqualTo(DEFAULT_ENSEMBL_PROTEIN_ID);
         assertThat(testTranscript.getReferenceSequenceId()).isEqualTo(DEFAULT_REFERENCE_SEQUENCE_ID);
-        assertThat(testTranscript.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testTranscript.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
     }
 
     @Test
@@ -929,6 +1066,7 @@ class TranscriptResourceIT {
         partialUpdatedTranscript.setId(transcript.getId());
 
         partialUpdatedTranscript
+            .referenceGenome(UPDATED_REFERENCE_GENOME)
             .ensemblTranscriptId(UPDATED_ENSEMBL_TRANSCRIPT_ID)
             .canonical(UPDATED_CANONICAL)
             .ensemblProteinId(UPDATED_ENSEMBL_PROTEIN_ID)
@@ -948,6 +1086,7 @@ class TranscriptResourceIT {
         List<Transcript> transcriptList = transcriptRepository.findAll();
         assertThat(transcriptList).hasSize(databaseSizeBeforeUpdate);
         Transcript testTranscript = transcriptList.get(transcriptList.size() - 1);
+        assertThat(testTranscript.getReferenceGenome()).isEqualTo(UPDATED_REFERENCE_GENOME);
         assertThat(testTranscript.getEnsemblTranscriptId()).isEqualTo(UPDATED_ENSEMBL_TRANSCRIPT_ID);
         assertThat(testTranscript.getCanonical()).isEqualTo(UPDATED_CANONICAL);
         assertThat(testTranscript.getEnsemblProteinId()).isEqualTo(UPDATED_ENSEMBL_PROTEIN_ID);

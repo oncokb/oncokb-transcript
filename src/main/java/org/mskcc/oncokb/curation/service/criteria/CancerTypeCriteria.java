@@ -58,13 +58,13 @@ public class CancerTypeCriteria implements Serializable, Criteria {
 
     private TumorFormFilter tumorForm;
 
+    private LongFilter associationCancerTypeId;
+
     private LongFilter childrenId;
 
-    private LongFilter biomarkerAssociationId;
+    private LongFilter synonymId;
 
     private LongFilter parentId;
-
-    private LongFilter clinicalTrialsGovConditionId;
 
     private Boolean distinct;
 
@@ -79,10 +79,10 @@ public class CancerTypeCriteria implements Serializable, Criteria {
         this.subtype = other.subtype == null ? null : other.subtype.copy();
         this.tissue = other.tissue == null ? null : other.tissue.copy();
         this.tumorForm = other.tumorForm == null ? null : other.tumorForm.copy();
+        this.associationCancerTypeId = other.associationCancerTypeId == null ? null : other.associationCancerTypeId.copy();
         this.childrenId = other.childrenId == null ? null : other.childrenId.copy();
-        this.biomarkerAssociationId = other.biomarkerAssociationId == null ? null : other.biomarkerAssociationId.copy();
+        this.synonymId = other.synonymId == null ? null : other.synonymId.copy();
         this.parentId = other.parentId == null ? null : other.parentId.copy();
-        this.clinicalTrialsGovConditionId = other.clinicalTrialsGovConditionId == null ? null : other.clinicalTrialsGovConditionId.copy();
         this.distinct = other.distinct;
     }
 
@@ -211,6 +211,21 @@ public class CancerTypeCriteria implements Serializable, Criteria {
         this.tumorForm = tumorForm;
     }
 
+    public LongFilter getAssociationCancerTypeId() {
+        return associationCancerTypeId;
+    }
+
+    public LongFilter associationCancerTypeId() {
+        if (associationCancerTypeId == null) {
+            associationCancerTypeId = new LongFilter();
+        }
+        return associationCancerTypeId;
+    }
+
+    public void setAssociationCancerTypeId(LongFilter associationCancerTypeId) {
+        this.associationCancerTypeId = associationCancerTypeId;
+    }
+
     public LongFilter getChildrenId() {
         return childrenId;
     }
@@ -226,19 +241,19 @@ public class CancerTypeCriteria implements Serializable, Criteria {
         this.childrenId = childrenId;
     }
 
-    public LongFilter getBiomarkerAssociationId() {
-        return biomarkerAssociationId;
+    public LongFilter getSynonymId() {
+        return synonymId;
     }
 
-    public LongFilter biomarkerAssociationId() {
-        if (biomarkerAssociationId == null) {
-            biomarkerAssociationId = new LongFilter();
+    public LongFilter synonymId() {
+        if (synonymId == null) {
+            synonymId = new LongFilter();
         }
-        return biomarkerAssociationId;
+        return synonymId;
     }
 
-    public void setBiomarkerAssociationId(LongFilter biomarkerAssociationId) {
-        this.biomarkerAssociationId = biomarkerAssociationId;
+    public void setSynonymId(LongFilter synonymId) {
+        this.synonymId = synonymId;
     }
 
     public LongFilter getParentId() {
@@ -254,21 +269,6 @@ public class CancerTypeCriteria implements Serializable, Criteria {
 
     public void setParentId(LongFilter parentId) {
         this.parentId = parentId;
-    }
-
-    public LongFilter getClinicalTrialsGovConditionId() {
-        return clinicalTrialsGovConditionId;
-    }
-
-    public LongFilter clinicalTrialsGovConditionId() {
-        if (clinicalTrialsGovConditionId == null) {
-            clinicalTrialsGovConditionId = new LongFilter();
-        }
-        return clinicalTrialsGovConditionId;
-    }
-
-    public void setClinicalTrialsGovConditionId(LongFilter clinicalTrialsGovConditionId) {
-        this.clinicalTrialsGovConditionId = clinicalTrialsGovConditionId;
     }
 
     public Boolean getDistinct() {
@@ -297,10 +297,10 @@ public class CancerTypeCriteria implements Serializable, Criteria {
             Objects.equals(subtype, that.subtype) &&
             Objects.equals(tissue, that.tissue) &&
             Objects.equals(tumorForm, that.tumorForm) &&
+            Objects.equals(associationCancerTypeId, that.associationCancerTypeId) &&
             Objects.equals(childrenId, that.childrenId) &&
-            Objects.equals(biomarkerAssociationId, that.biomarkerAssociationId) &&
+            Objects.equals(synonymId, that.synonymId) &&
             Objects.equals(parentId, that.parentId) &&
-            Objects.equals(clinicalTrialsGovConditionId, that.clinicalTrialsGovConditionId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
@@ -316,10 +316,10 @@ public class CancerTypeCriteria implements Serializable, Criteria {
             subtype,
             tissue,
             tumorForm,
+            associationCancerTypeId,
             childrenId,
-            biomarkerAssociationId,
+            synonymId,
             parentId,
-            clinicalTrialsGovConditionId,
             distinct
         );
     }
@@ -336,10 +336,10 @@ public class CancerTypeCriteria implements Serializable, Criteria {
             (subtype != null ? "subtype=" + subtype + ", " : "") +
             (tissue != null ? "tissue=" + tissue + ", " : "") +
             (tumorForm != null ? "tumorForm=" + tumorForm + ", " : "") +
+            (associationCancerTypeId != null ? "associationCancerTypeId=" + associationCancerTypeId + ", " : "") +
             (childrenId != null ? "childrenId=" + childrenId + ", " : "") +
-            (biomarkerAssociationId != null ? "biomarkerAssociationId=" + biomarkerAssociationId + ", " : "") +
+            (synonymId != null ? "synonymId=" + synonymId + ", " : "") +
             (parentId != null ? "parentId=" + parentId + ", " : "") +
-            (clinicalTrialsGovConditionId != null ? "clinicalTrialsGovConditionId=" + clinicalTrialsGovConditionId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

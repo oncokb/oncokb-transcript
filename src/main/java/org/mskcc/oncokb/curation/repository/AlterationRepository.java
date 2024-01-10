@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,27 +13,24 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the Alteration entity.
  */
+@JaversSpringDataAuditable
 @Repository
 public interface AlterationRepository extends JpaRepository<Alteration, Long>, JpaSpecificationExecutor<Alteration> {
     @Query(
-        "select distinct alteration from Alteration alteration" +
-        " left join fetch alteration.genes" +
-        " left join fetch alteration.referenceGenomes"
+        value = "select distinct alteration from Alteration alteration" + " left join fetch alteration.genes",
+        countQuery = "select count(distinct alteration) from Alteration alteration"
     )
+    Page<Alteration> findAllWithEagerRelationships(Pageable pageable);
+
+    @Query("select distinct alteration from Alteration alteration" + " left join fetch alteration.genes")
     List<Alteration> findAllWithEagerRelationships();
 
-    @Query(
-        "select alteration from Alteration alteration" +
-        " left join fetch alteration.genes" +
-        " left join fetch alteration.referenceGenomes" +
-        " where alteration.id =:id"
-    )
+    @Query("select alteration from Alteration alteration" + " left join fetch alteration.genes" + " where alteration.id =:id")
     Optional<Alteration> findOneWithEagerRelationships(@Param("id") Long id);
 
     @Query(
         "select distinct alteration from Alteration alteration" +
         " left join fetch alteration.genes" +
-        " left join fetch alteration.referenceGenomes" +
         " left join fetch alteration.consequence" +
         " where alteration.id in (:ids)"
     )
@@ -40,7 +38,14 @@ public interface AlterationRepository extends JpaRepository<Alteration, Long>, J
 
     List<Alteration> findByGenesId(@Param("id") Long id);
 
-    Optional<Alteration> findByNameAndGenesId(String name, Long geneId);
+    @Query(
+        "select distinct alteration from Alteration alteration" +
+        " left join fetch alteration.genes g" +
+        " left join fetch alteration.consequence" +
+        " where g.id in (:id) and" +
+        " (alteration.name =:query or alteration.alteration=:query )"
+    )
+    List<Alteration> findByNameOrAlterationAndGenesId(@Param("query") String query, @Param("id") Long geneId);
 
     @Query(
         value = "select distinct a from Alteration a" +

@@ -1,8 +1,12 @@
 package org.mskcc.oncokb.curation.service;
 
+import static org.mskcc.oncokb.curation.util.AlterationUtils.removeExclusionCriteria;
+
 import java.util.List;
 import java.util.Optional;
+import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.domain.CategoricalAlteration;
+import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 import org.mskcc.oncokb.curation.repository.CategoricalAlterationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,19 +51,26 @@ public class CategoricalAlterationService {
         return categoricalAlterationRepository
             .findById(categoricalAlteration.getId())
             .map(existingCategoricalAlteration -> {
-                if (categoricalAlteration.getName() != null) {
-                    existingCategoricalAlteration.setName(categoricalAlteration.getName());
+                if (categoricalAlteration.getAlterationType() != null) {
+                    existingCategoricalAlteration.setAlterationType(categoricalAlteration.getAlterationType());
                 }
                 if (categoricalAlteration.getType() != null) {
                     existingCategoricalAlteration.setType(categoricalAlteration.getType());
                 }
-                if (categoricalAlteration.getAlterationType() != null) {
-                    existingCategoricalAlteration.setAlterationType(categoricalAlteration.getAlterationType());
+                if (categoricalAlteration.getName() != null) {
+                    existingCategoricalAlteration.setName(categoricalAlteration.getName());
                 }
 
                 return existingCategoricalAlteration;
             })
             .map(categoricalAlterationRepository::save);
+    }
+
+    public Optional<CategoricalAlteration> findByAlterationTypeAndName(AlterationType alterationType, String name) {
+        if (alterationType == null) {
+            return Optional.empty();
+        }
+        return categoricalAlterationRepository.findByAlterationTypeAndName(alterationType, name);
     }
 
     /**
@@ -93,5 +104,10 @@ public class CategoricalAlterationService {
     public void delete(Long id) {
         log.debug("Request to delete CategoricalAlteration : {}", id);
         categoricalAlterationRepository.deleteById(id);
+    }
+
+    public Optional<CategoricalAlteration> findOneByAlteration(Alteration alteration) {
+        String trimmedAlteration = removeExclusionCriteria(alteration.getAlteration());
+        return findByAlterationTypeAndName(AlterationType.NA, trimmedAlteration);
     }
 }

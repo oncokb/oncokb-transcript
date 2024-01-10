@@ -19,10 +19,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Alteration;
-import org.mskcc.oncokb.curation.domain.AlterationReferenceGenome;
-import org.mskcc.oncokb.curation.domain.BiomarkerAssociation;
+import org.mskcc.oncokb.curation.domain.Association;
 import org.mskcc.oncokb.curation.domain.Consequence;
 import org.mskcc.oncokb.curation.domain.Gene;
+import org.mskcc.oncokb.curation.domain.Transcript;
+import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 import org.mskcc.oncokb.curation.repository.AlterationRepository;
 import org.mskcc.oncokb.curation.service.AlterationService;
 import org.mskcc.oncokb.curation.service.criteria.AlterationCriteria;
@@ -44,19 +45,25 @@ import org.springframework.transaction.annotation.Transactional;
 @WithMockUser
 class AlterationResourceIT {
 
+    private static final AlterationType DEFAULT_TYPE = AlterationType.GENOMIC_CHANGE;
+    private static final AlterationType UPDATED_TYPE = AlterationType.CDNA_CHANGE;
+
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
 
     private static final String DEFAULT_ALTERATION = "AAAAAAAAAA";
     private static final String UPDATED_ALTERATION = "BBBBBBBBBB";
 
-    private static final Integer DEFAULT_PROTEIN_START = 1;
-    private static final Integer UPDATED_PROTEIN_START = 2;
-    private static final Integer SMALLER_PROTEIN_START = 1 - 1;
+    private static final String DEFAULT_PROTEIN_CHANGE = "AAAAAAAAAA";
+    private static final String UPDATED_PROTEIN_CHANGE = "BBBBBBBBBB";
 
-    private static final Integer DEFAULT_PROTEIN_END = 1;
-    private static final Integer UPDATED_PROTEIN_END = 2;
-    private static final Integer SMALLER_PROTEIN_END = 1 - 1;
+    private static final Integer DEFAULT_START = 1;
+    private static final Integer UPDATED_START = 2;
+    private static final Integer SMALLER_START = 1 - 1;
+
+    private static final Integer DEFAULT_END = 1;
+    private static final Integer UPDATED_END = 2;
+    private static final Integer SMALLER_END = 1 - 1;
 
     private static final String DEFAULT_REF_RESIDUES = "AAAAAAAAAA";
     private static final String UPDATED_REF_RESIDUES = "BBBBBBBBBB";
@@ -95,10 +102,12 @@ class AlterationResourceIT {
      */
     public static Alteration createEntity(EntityManager em) {
         Alteration alteration = new Alteration()
+            .type(DEFAULT_TYPE)
             .name(DEFAULT_NAME)
             .alteration(DEFAULT_ALTERATION)
-            .proteinStart(DEFAULT_PROTEIN_START)
-            .proteinEnd(DEFAULT_PROTEIN_END)
+            .proteinChange(DEFAULT_PROTEIN_CHANGE)
+            .start(DEFAULT_START)
+            .end(DEFAULT_END)
             .refResidues(DEFAULT_REF_RESIDUES)
             .variantResidues(DEFAULT_VARIANT_RESIDUES);
         return alteration;
@@ -112,10 +121,12 @@ class AlterationResourceIT {
      */
     public static Alteration createUpdatedEntity(EntityManager em) {
         Alteration alteration = new Alteration()
+            .type(UPDATED_TYPE)
             .name(UPDATED_NAME)
             .alteration(UPDATED_ALTERATION)
-            .proteinStart(UPDATED_PROTEIN_START)
-            .proteinEnd(UPDATED_PROTEIN_END)
+            .proteinChange(UPDATED_PROTEIN_CHANGE)
+            .start(UPDATED_START)
+            .end(UPDATED_END)
             .refResidues(UPDATED_REF_RESIDUES)
             .variantResidues(UPDATED_VARIANT_RESIDUES);
         return alteration;
@@ -144,10 +155,12 @@ class AlterationResourceIT {
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeCreate + 1);
         Alteration testAlteration = alterationList.get(alterationList.size() - 1);
+        assertThat(testAlteration.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testAlteration.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testAlteration.getAlteration()).isEqualTo(DEFAULT_ALTERATION);
-        assertThat(testAlteration.getProteinStart()).isEqualTo(DEFAULT_PROTEIN_START);
-        assertThat(testAlteration.getProteinEnd()).isEqualTo(DEFAULT_PROTEIN_END);
+        assertThat(testAlteration.getProteinChange()).isEqualTo(DEFAULT_PROTEIN_CHANGE);
+        assertThat(testAlteration.getStart()).isEqualTo(DEFAULT_START);
+        assertThat(testAlteration.getEnd()).isEqualTo(DEFAULT_END);
         assertThat(testAlteration.getRefResidues()).isEqualTo(DEFAULT_REF_RESIDUES);
         assertThat(testAlteration.getVariantResidues()).isEqualTo(DEFAULT_VARIANT_RESIDUES);
     }
@@ -173,6 +186,28 @@ class AlterationResourceIT {
         // Validate the Alteration in the database
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    @Transactional
+    void checkTypeIsRequired() throws Exception {
+        int databaseSizeBeforeTest = alterationRepository.findAll().size();
+        // set the field null
+        alteration.setType(null);
+
+        // Create the Alteration, which fails.
+
+        restAlterationMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(alteration))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<Alteration> alterationList = alterationRepository.findAll();
+        assertThat(alterationList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -221,6 +256,28 @@ class AlterationResourceIT {
 
     @Test
     @Transactional
+    void checkProteinChangeIsRequired() throws Exception {
+        int databaseSizeBeforeTest = alterationRepository.findAll().size();
+        // set the field null
+        alteration.setProteinChange(null);
+
+        // Create the Alteration, which fails.
+
+        restAlterationMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(alteration))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<Alteration> alterationList = alterationRepository.findAll();
+        assertThat(alterationList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllAlterations() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
@@ -231,12 +288,32 @@ class AlterationResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(alteration.getId().intValue())))
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].alteration").value(hasItem(DEFAULT_ALTERATION)))
-            .andExpect(jsonPath("$.[*].proteinStart").value(hasItem(DEFAULT_PROTEIN_START)))
-            .andExpect(jsonPath("$.[*].proteinEnd").value(hasItem(DEFAULT_PROTEIN_END)))
+            .andExpect(jsonPath("$.[*].proteinChange").value(hasItem(DEFAULT_PROTEIN_CHANGE)))
+            .andExpect(jsonPath("$.[*].start").value(hasItem(DEFAULT_START)))
+            .andExpect(jsonPath("$.[*].end").value(hasItem(DEFAULT_END)))
             .andExpect(jsonPath("$.[*].refResidues").value(hasItem(DEFAULT_REF_RESIDUES)))
             .andExpect(jsonPath("$.[*].variantResidues").value(hasItem(DEFAULT_VARIANT_RESIDUES)));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllAlterationsWithEagerRelationshipsIsEnabled() throws Exception {
+        when(alterationServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restAlterationMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(alterationServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllAlterationsWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(alterationServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restAlterationMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(alterationServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test
@@ -251,10 +328,12 @@ class AlterationResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(alteration.getId().intValue()))
+            .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.alteration").value(DEFAULT_ALTERATION))
-            .andExpect(jsonPath("$.proteinStart").value(DEFAULT_PROTEIN_START))
-            .andExpect(jsonPath("$.proteinEnd").value(DEFAULT_PROTEIN_END))
+            .andExpect(jsonPath("$.proteinChange").value(DEFAULT_PROTEIN_CHANGE))
+            .andExpect(jsonPath("$.start").value(DEFAULT_START))
+            .andExpect(jsonPath("$.end").value(DEFAULT_END))
             .andExpect(jsonPath("$.refResidues").value(DEFAULT_REF_RESIDUES))
             .andExpect(jsonPath("$.variantResidues").value(DEFAULT_VARIANT_RESIDUES));
     }
@@ -275,6 +354,58 @@ class AlterationResourceIT {
 
         defaultAlterationShouldBeFound("id.lessThanOrEqual=" + id);
         defaultAlterationShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllAlterationsByTypeIsEqualToSomething() throws Exception {
+        // Initialize the database
+        alterationRepository.saveAndFlush(alteration);
+
+        // Get all the alterationList where type equals to DEFAULT_TYPE
+        defaultAlterationShouldBeFound("type.equals=" + DEFAULT_TYPE);
+
+        // Get all the alterationList where type equals to UPDATED_TYPE
+        defaultAlterationShouldNotBeFound("type.equals=" + UPDATED_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllAlterationsByTypeIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        alterationRepository.saveAndFlush(alteration);
+
+        // Get all the alterationList where type not equals to DEFAULT_TYPE
+        defaultAlterationShouldNotBeFound("type.notEquals=" + DEFAULT_TYPE);
+
+        // Get all the alterationList where type not equals to UPDATED_TYPE
+        defaultAlterationShouldBeFound("type.notEquals=" + UPDATED_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllAlterationsByTypeIsInShouldWork() throws Exception {
+        // Initialize the database
+        alterationRepository.saveAndFlush(alteration);
+
+        // Get all the alterationList where type in DEFAULT_TYPE or UPDATED_TYPE
+        defaultAlterationShouldBeFound("type.in=" + DEFAULT_TYPE + "," + UPDATED_TYPE);
+
+        // Get all the alterationList where type equals to UPDATED_TYPE
+        defaultAlterationShouldNotBeFound("type.in=" + UPDATED_TYPE);
+    }
+
+    @Test
+    @Transactional
+    void getAllAlterationsByTypeIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        alterationRepository.saveAndFlush(alteration);
+
+        // Get all the alterationList where type is not null
+        defaultAlterationShouldBeFound("type.specified=true");
+
+        // Get all the alterationList where type is null
+        defaultAlterationShouldNotBeFound("type.specified=false");
     }
 
     @Test
@@ -435,210 +566,288 @@ class AlterationResourceIT {
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinStartIsEqualToSomething() throws Exception {
+    void getAllAlterationsByProteinChangeIsEqualToSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinStart equals to DEFAULT_PROTEIN_START
-        defaultAlterationShouldBeFound("proteinStart.equals=" + DEFAULT_PROTEIN_START);
+        // Get all the alterationList where proteinChange equals to DEFAULT_PROTEIN_CHANGE
+        defaultAlterationShouldBeFound("proteinChange.equals=" + DEFAULT_PROTEIN_CHANGE);
 
-        // Get all the alterationList where proteinStart equals to UPDATED_PROTEIN_START
-        defaultAlterationShouldNotBeFound("proteinStart.equals=" + UPDATED_PROTEIN_START);
+        // Get all the alterationList where proteinChange equals to UPDATED_PROTEIN_CHANGE
+        defaultAlterationShouldNotBeFound("proteinChange.equals=" + UPDATED_PROTEIN_CHANGE);
     }
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinStartIsNotEqualToSomething() throws Exception {
+    void getAllAlterationsByProteinChangeIsNotEqualToSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinStart not equals to DEFAULT_PROTEIN_START
-        defaultAlterationShouldNotBeFound("proteinStart.notEquals=" + DEFAULT_PROTEIN_START);
+        // Get all the alterationList where proteinChange not equals to DEFAULT_PROTEIN_CHANGE
+        defaultAlterationShouldNotBeFound("proteinChange.notEquals=" + DEFAULT_PROTEIN_CHANGE);
 
-        // Get all the alterationList where proteinStart not equals to UPDATED_PROTEIN_START
-        defaultAlterationShouldBeFound("proteinStart.notEquals=" + UPDATED_PROTEIN_START);
+        // Get all the alterationList where proteinChange not equals to UPDATED_PROTEIN_CHANGE
+        defaultAlterationShouldBeFound("proteinChange.notEquals=" + UPDATED_PROTEIN_CHANGE);
     }
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinStartIsInShouldWork() throws Exception {
+    void getAllAlterationsByProteinChangeIsInShouldWork() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinStart in DEFAULT_PROTEIN_START or UPDATED_PROTEIN_START
-        defaultAlterationShouldBeFound("proteinStart.in=" + DEFAULT_PROTEIN_START + "," + UPDATED_PROTEIN_START);
+        // Get all the alterationList where proteinChange in DEFAULT_PROTEIN_CHANGE or UPDATED_PROTEIN_CHANGE
+        defaultAlterationShouldBeFound("proteinChange.in=" + DEFAULT_PROTEIN_CHANGE + "," + UPDATED_PROTEIN_CHANGE);
 
-        // Get all the alterationList where proteinStart equals to UPDATED_PROTEIN_START
-        defaultAlterationShouldNotBeFound("proteinStart.in=" + UPDATED_PROTEIN_START);
+        // Get all the alterationList where proteinChange equals to UPDATED_PROTEIN_CHANGE
+        defaultAlterationShouldNotBeFound("proteinChange.in=" + UPDATED_PROTEIN_CHANGE);
     }
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinStartIsNullOrNotNull() throws Exception {
+    void getAllAlterationsByProteinChangeIsNullOrNotNull() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinStart is not null
-        defaultAlterationShouldBeFound("proteinStart.specified=true");
+        // Get all the alterationList where proteinChange is not null
+        defaultAlterationShouldBeFound("proteinChange.specified=true");
 
-        // Get all the alterationList where proteinStart is null
-        defaultAlterationShouldNotBeFound("proteinStart.specified=false");
+        // Get all the alterationList where proteinChange is null
+        defaultAlterationShouldNotBeFound("proteinChange.specified=false");
     }
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinStartIsGreaterThanOrEqualToSomething() throws Exception {
+    void getAllAlterationsByProteinChangeContainsSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinStart is greater than or equal to DEFAULT_PROTEIN_START
-        defaultAlterationShouldBeFound("proteinStart.greaterThanOrEqual=" + DEFAULT_PROTEIN_START);
+        // Get all the alterationList where proteinChange contains DEFAULT_PROTEIN_CHANGE
+        defaultAlterationShouldBeFound("proteinChange.contains=" + DEFAULT_PROTEIN_CHANGE);
 
-        // Get all the alterationList where proteinStart is greater than or equal to UPDATED_PROTEIN_START
-        defaultAlterationShouldNotBeFound("proteinStart.greaterThanOrEqual=" + UPDATED_PROTEIN_START);
+        // Get all the alterationList where proteinChange contains UPDATED_PROTEIN_CHANGE
+        defaultAlterationShouldNotBeFound("proteinChange.contains=" + UPDATED_PROTEIN_CHANGE);
     }
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinStartIsLessThanOrEqualToSomething() throws Exception {
+    void getAllAlterationsByProteinChangeNotContainsSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinStart is less than or equal to DEFAULT_PROTEIN_START
-        defaultAlterationShouldBeFound("proteinStart.lessThanOrEqual=" + DEFAULT_PROTEIN_START);
+        // Get all the alterationList where proteinChange does not contain DEFAULT_PROTEIN_CHANGE
+        defaultAlterationShouldNotBeFound("proteinChange.doesNotContain=" + DEFAULT_PROTEIN_CHANGE);
 
-        // Get all the alterationList where proteinStart is less than or equal to SMALLER_PROTEIN_START
-        defaultAlterationShouldNotBeFound("proteinStart.lessThanOrEqual=" + SMALLER_PROTEIN_START);
+        // Get all the alterationList where proteinChange does not contain UPDATED_PROTEIN_CHANGE
+        defaultAlterationShouldBeFound("proteinChange.doesNotContain=" + UPDATED_PROTEIN_CHANGE);
     }
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinStartIsLessThanSomething() throws Exception {
+    void getAllAlterationsByStartIsEqualToSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinStart is less than DEFAULT_PROTEIN_START
-        defaultAlterationShouldNotBeFound("proteinStart.lessThan=" + DEFAULT_PROTEIN_START);
+        // Get all the alterationList where start equals to DEFAULT_START
+        defaultAlterationShouldBeFound("start.equals=" + DEFAULT_START);
 
-        // Get all the alterationList where proteinStart is less than UPDATED_PROTEIN_START
-        defaultAlterationShouldBeFound("proteinStart.lessThan=" + UPDATED_PROTEIN_START);
+        // Get all the alterationList where start equals to UPDATED_START
+        defaultAlterationShouldNotBeFound("start.equals=" + UPDATED_START);
     }
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinStartIsGreaterThanSomething() throws Exception {
+    void getAllAlterationsByStartIsNotEqualToSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinStart is greater than DEFAULT_PROTEIN_START
-        defaultAlterationShouldNotBeFound("proteinStart.greaterThan=" + DEFAULT_PROTEIN_START);
+        // Get all the alterationList where start not equals to DEFAULT_START
+        defaultAlterationShouldNotBeFound("start.notEquals=" + DEFAULT_START);
 
-        // Get all the alterationList where proteinStart is greater than SMALLER_PROTEIN_START
-        defaultAlterationShouldBeFound("proteinStart.greaterThan=" + SMALLER_PROTEIN_START);
+        // Get all the alterationList where start not equals to UPDATED_START
+        defaultAlterationShouldBeFound("start.notEquals=" + UPDATED_START);
     }
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinEndIsEqualToSomething() throws Exception {
+    void getAllAlterationsByStartIsInShouldWork() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinEnd equals to DEFAULT_PROTEIN_END
-        defaultAlterationShouldBeFound("proteinEnd.equals=" + DEFAULT_PROTEIN_END);
+        // Get all the alterationList where start in DEFAULT_START or UPDATED_START
+        defaultAlterationShouldBeFound("start.in=" + DEFAULT_START + "," + UPDATED_START);
 
-        // Get all the alterationList where proteinEnd equals to UPDATED_PROTEIN_END
-        defaultAlterationShouldNotBeFound("proteinEnd.equals=" + UPDATED_PROTEIN_END);
+        // Get all the alterationList where start equals to UPDATED_START
+        defaultAlterationShouldNotBeFound("start.in=" + UPDATED_START);
     }
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinEndIsNotEqualToSomething() throws Exception {
+    void getAllAlterationsByStartIsNullOrNotNull() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinEnd not equals to DEFAULT_PROTEIN_END
-        defaultAlterationShouldNotBeFound("proteinEnd.notEquals=" + DEFAULT_PROTEIN_END);
+        // Get all the alterationList where start is not null
+        defaultAlterationShouldBeFound("start.specified=true");
 
-        // Get all the alterationList where proteinEnd not equals to UPDATED_PROTEIN_END
-        defaultAlterationShouldBeFound("proteinEnd.notEquals=" + UPDATED_PROTEIN_END);
+        // Get all the alterationList where start is null
+        defaultAlterationShouldNotBeFound("start.specified=false");
     }
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinEndIsInShouldWork() throws Exception {
+    void getAllAlterationsByStartIsGreaterThanOrEqualToSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinEnd in DEFAULT_PROTEIN_END or UPDATED_PROTEIN_END
-        defaultAlterationShouldBeFound("proteinEnd.in=" + DEFAULT_PROTEIN_END + "," + UPDATED_PROTEIN_END);
+        // Get all the alterationList where start is greater than or equal to DEFAULT_START
+        defaultAlterationShouldBeFound("start.greaterThanOrEqual=" + DEFAULT_START);
 
-        // Get all the alterationList where proteinEnd equals to UPDATED_PROTEIN_END
-        defaultAlterationShouldNotBeFound("proteinEnd.in=" + UPDATED_PROTEIN_END);
+        // Get all the alterationList where start is greater than or equal to UPDATED_START
+        defaultAlterationShouldNotBeFound("start.greaterThanOrEqual=" + UPDATED_START);
     }
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinEndIsNullOrNotNull() throws Exception {
+    void getAllAlterationsByStartIsLessThanOrEqualToSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinEnd is not null
-        defaultAlterationShouldBeFound("proteinEnd.specified=true");
+        // Get all the alterationList where start is less than or equal to DEFAULT_START
+        defaultAlterationShouldBeFound("start.lessThanOrEqual=" + DEFAULT_START);
 
-        // Get all the alterationList where proteinEnd is null
-        defaultAlterationShouldNotBeFound("proteinEnd.specified=false");
+        // Get all the alterationList where start is less than or equal to SMALLER_START
+        defaultAlterationShouldNotBeFound("start.lessThanOrEqual=" + SMALLER_START);
     }
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinEndIsGreaterThanOrEqualToSomething() throws Exception {
+    void getAllAlterationsByStartIsLessThanSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinEnd is greater than or equal to DEFAULT_PROTEIN_END
-        defaultAlterationShouldBeFound("proteinEnd.greaterThanOrEqual=" + DEFAULT_PROTEIN_END);
+        // Get all the alterationList where start is less than DEFAULT_START
+        defaultAlterationShouldNotBeFound("start.lessThan=" + DEFAULT_START);
 
-        // Get all the alterationList where proteinEnd is greater than or equal to UPDATED_PROTEIN_END
-        defaultAlterationShouldNotBeFound("proteinEnd.greaterThanOrEqual=" + UPDATED_PROTEIN_END);
+        // Get all the alterationList where start is less than UPDATED_START
+        defaultAlterationShouldBeFound("start.lessThan=" + UPDATED_START);
     }
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinEndIsLessThanOrEqualToSomething() throws Exception {
+    void getAllAlterationsByStartIsGreaterThanSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinEnd is less than or equal to DEFAULT_PROTEIN_END
-        defaultAlterationShouldBeFound("proteinEnd.lessThanOrEqual=" + DEFAULT_PROTEIN_END);
+        // Get all the alterationList where start is greater than DEFAULT_START
+        defaultAlterationShouldNotBeFound("start.greaterThan=" + DEFAULT_START);
 
-        // Get all the alterationList where proteinEnd is less than or equal to SMALLER_PROTEIN_END
-        defaultAlterationShouldNotBeFound("proteinEnd.lessThanOrEqual=" + SMALLER_PROTEIN_END);
+        // Get all the alterationList where start is greater than SMALLER_START
+        defaultAlterationShouldBeFound("start.greaterThan=" + SMALLER_START);
     }
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinEndIsLessThanSomething() throws Exception {
+    void getAllAlterationsByEndIsEqualToSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinEnd is less than DEFAULT_PROTEIN_END
-        defaultAlterationShouldNotBeFound("proteinEnd.lessThan=" + DEFAULT_PROTEIN_END);
+        // Get all the alterationList where end equals to DEFAULT_END
+        defaultAlterationShouldBeFound("end.equals=" + DEFAULT_END);
 
-        // Get all the alterationList where proteinEnd is less than UPDATED_PROTEIN_END
-        defaultAlterationShouldBeFound("proteinEnd.lessThan=" + UPDATED_PROTEIN_END);
+        // Get all the alterationList where end equals to UPDATED_END
+        defaultAlterationShouldNotBeFound("end.equals=" + UPDATED_END);
     }
 
     @Test
     @Transactional
-    void getAllAlterationsByProteinEndIsGreaterThanSomething() throws Exception {
+    void getAllAlterationsByEndIsNotEqualToSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
 
-        // Get all the alterationList where proteinEnd is greater than DEFAULT_PROTEIN_END
-        defaultAlterationShouldNotBeFound("proteinEnd.greaterThan=" + DEFAULT_PROTEIN_END);
+        // Get all the alterationList where end not equals to DEFAULT_END
+        defaultAlterationShouldNotBeFound("end.notEquals=" + DEFAULT_END);
 
-        // Get all the alterationList where proteinEnd is greater than SMALLER_PROTEIN_END
-        defaultAlterationShouldBeFound("proteinEnd.greaterThan=" + SMALLER_PROTEIN_END);
+        // Get all the alterationList where end not equals to UPDATED_END
+        defaultAlterationShouldBeFound("end.notEquals=" + UPDATED_END);
+    }
+
+    @Test
+    @Transactional
+    void getAllAlterationsByEndIsInShouldWork() throws Exception {
+        // Initialize the database
+        alterationRepository.saveAndFlush(alteration);
+
+        // Get all the alterationList where end in DEFAULT_END or UPDATED_END
+        defaultAlterationShouldBeFound("end.in=" + DEFAULT_END + "," + UPDATED_END);
+
+        // Get all the alterationList where end equals to UPDATED_END
+        defaultAlterationShouldNotBeFound("end.in=" + UPDATED_END);
+    }
+
+    @Test
+    @Transactional
+    void getAllAlterationsByEndIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        alterationRepository.saveAndFlush(alteration);
+
+        // Get all the alterationList where end is not null
+        defaultAlterationShouldBeFound("end.specified=true");
+
+        // Get all the alterationList where end is null
+        defaultAlterationShouldNotBeFound("end.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllAlterationsByEndIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        alterationRepository.saveAndFlush(alteration);
+
+        // Get all the alterationList where end is greater than or equal to DEFAULT_END
+        defaultAlterationShouldBeFound("end.greaterThanOrEqual=" + DEFAULT_END);
+
+        // Get all the alterationList where end is greater than or equal to UPDATED_END
+        defaultAlterationShouldNotBeFound("end.greaterThanOrEqual=" + UPDATED_END);
+    }
+
+    @Test
+    @Transactional
+    void getAllAlterationsByEndIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        alterationRepository.saveAndFlush(alteration);
+
+        // Get all the alterationList where end is less than or equal to DEFAULT_END
+        defaultAlterationShouldBeFound("end.lessThanOrEqual=" + DEFAULT_END);
+
+        // Get all the alterationList where end is less than or equal to SMALLER_END
+        defaultAlterationShouldNotBeFound("end.lessThanOrEqual=" + SMALLER_END);
+    }
+
+    @Test
+    @Transactional
+    void getAllAlterationsByEndIsLessThanSomething() throws Exception {
+        // Initialize the database
+        alterationRepository.saveAndFlush(alteration);
+
+        // Get all the alterationList where end is less than DEFAULT_END
+        defaultAlterationShouldNotBeFound("end.lessThan=" + DEFAULT_END);
+
+        // Get all the alterationList where end is less than UPDATED_END
+        defaultAlterationShouldBeFound("end.lessThan=" + UPDATED_END);
+    }
+
+    @Test
+    @Transactional
+    void getAllAlterationsByEndIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        alterationRepository.saveAndFlush(alteration);
+
+        // Get all the alterationList where end is greater than DEFAULT_END
+        defaultAlterationShouldNotBeFound("end.greaterThan=" + DEFAULT_END);
+
+        // Get all the alterationList where end is greater than SMALLER_END
+        defaultAlterationShouldBeFound("end.greaterThan=" + SMALLER_END);
     }
 
     @Test
@@ -799,32 +1008,6 @@ class AlterationResourceIT {
 
     @Test
     @Transactional
-    void getAllAlterationsByReferenceGenomesIsEqualToSomething() throws Exception {
-        // Initialize the database
-        alterationRepository.saveAndFlush(alteration);
-        AlterationReferenceGenome referenceGenomes;
-        if (TestUtil.findAll(em, AlterationReferenceGenome.class).isEmpty()) {
-            referenceGenomes = AlterationReferenceGenomeResourceIT.createEntity(em);
-            em.persist(referenceGenomes);
-            em.flush();
-        } else {
-            referenceGenomes = TestUtil.findAll(em, AlterationReferenceGenome.class).get(0);
-        }
-        em.persist(referenceGenomes);
-        em.flush();
-        alteration.addReferenceGenomes(referenceGenomes);
-        alterationRepository.saveAndFlush(alteration);
-        Long referenceGenomesId = referenceGenomes.getId();
-
-        // Get all the alterationList where referenceGenomes equals to referenceGenomesId
-        defaultAlterationShouldBeFound("referenceGenomesId.equals=" + referenceGenomesId);
-
-        // Get all the alterationList where referenceGenomes equals to (referenceGenomesId + 1)
-        defaultAlterationShouldNotBeFound("referenceGenomesId.equals=" + (referenceGenomesId + 1));
-    }
-
-    @Test
-    @Transactional
     void getAllAlterationsByGeneIsEqualToSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
@@ -847,6 +1030,32 @@ class AlterationResourceIT {
 
         // Get all the alterationList where gene equals to (geneId + 1)
         defaultAlterationShouldNotBeFound("geneId.equals=" + (geneId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllAlterationsByTranscriptIsEqualToSomething() throws Exception {
+        // Initialize the database
+        alterationRepository.saveAndFlush(alteration);
+        Transcript transcript;
+        if (TestUtil.findAll(em, Transcript.class).isEmpty()) {
+            transcript = TranscriptResourceIT.createEntity(em);
+            em.persist(transcript);
+            em.flush();
+        } else {
+            transcript = TestUtil.findAll(em, Transcript.class).get(0);
+        }
+        em.persist(transcript);
+        em.flush();
+        alteration.addTranscript(transcript);
+        alterationRepository.saveAndFlush(alteration);
+        Long transcriptId = transcript.getId();
+
+        // Get all the alterationList where transcript equals to transcriptId
+        defaultAlterationShouldBeFound("transcriptId.equals=" + transcriptId);
+
+        // Get all the alterationList where transcript equals to (transcriptId + 1)
+        defaultAlterationShouldNotBeFound("transcriptId.equals=" + (transcriptId + 1));
     }
 
     @Test
@@ -877,28 +1086,28 @@ class AlterationResourceIT {
 
     @Test
     @Transactional
-    void getAllAlterationsByBiomarkerAssociationIsEqualToSomething() throws Exception {
+    void getAllAlterationsByAssociationIsEqualToSomething() throws Exception {
         // Initialize the database
         alterationRepository.saveAndFlush(alteration);
-        BiomarkerAssociation biomarkerAssociation;
-        if (TestUtil.findAll(em, BiomarkerAssociation.class).isEmpty()) {
-            biomarkerAssociation = BiomarkerAssociationResourceIT.createEntity(em);
-            em.persist(biomarkerAssociation);
+        Association association;
+        if (TestUtil.findAll(em, Association.class).isEmpty()) {
+            association = AssociationResourceIT.createEntity(em);
+            em.persist(association);
             em.flush();
         } else {
-            biomarkerAssociation = TestUtil.findAll(em, BiomarkerAssociation.class).get(0);
+            association = TestUtil.findAll(em, Association.class).get(0);
         }
-        em.persist(biomarkerAssociation);
+        em.persist(association);
         em.flush();
-        alteration.addBiomarkerAssociation(biomarkerAssociation);
+        alteration.addAssociation(association);
         alterationRepository.saveAndFlush(alteration);
-        Long biomarkerAssociationId = biomarkerAssociation.getId();
+        Long associationId = association.getId();
 
-        // Get all the alterationList where biomarkerAssociation equals to biomarkerAssociationId
-        defaultAlterationShouldBeFound("biomarkerAssociationId.equals=" + biomarkerAssociationId);
+        // Get all the alterationList where association equals to associationId
+        defaultAlterationShouldBeFound("associationId.equals=" + associationId);
 
-        // Get all the alterationList where biomarkerAssociation equals to (biomarkerAssociationId + 1)
-        defaultAlterationShouldNotBeFound("biomarkerAssociationId.equals=" + (biomarkerAssociationId + 1));
+        // Get all the alterationList where association equals to (associationId + 1)
+        defaultAlterationShouldNotBeFound("associationId.equals=" + (associationId + 1));
     }
 
     /**
@@ -910,10 +1119,12 @@ class AlterationResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(alteration.getId().intValue())))
+            .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].alteration").value(hasItem(DEFAULT_ALTERATION)))
-            .andExpect(jsonPath("$.[*].proteinStart").value(hasItem(DEFAULT_PROTEIN_START)))
-            .andExpect(jsonPath("$.[*].proteinEnd").value(hasItem(DEFAULT_PROTEIN_END)))
+            .andExpect(jsonPath("$.[*].proteinChange").value(hasItem(DEFAULT_PROTEIN_CHANGE)))
+            .andExpect(jsonPath("$.[*].start").value(hasItem(DEFAULT_START)))
+            .andExpect(jsonPath("$.[*].end").value(hasItem(DEFAULT_END)))
             .andExpect(jsonPath("$.[*].refResidues").value(hasItem(DEFAULT_REF_RESIDUES)))
             .andExpect(jsonPath("$.[*].variantResidues").value(hasItem(DEFAULT_VARIANT_RESIDUES)));
 
@@ -964,10 +1175,12 @@ class AlterationResourceIT {
         // Disconnect from session so that the updates on updatedAlteration are not directly saved in db
         em.detach(updatedAlteration);
         updatedAlteration
+            .type(UPDATED_TYPE)
             .name(UPDATED_NAME)
             .alteration(UPDATED_ALTERATION)
-            .proteinStart(UPDATED_PROTEIN_START)
-            .proteinEnd(UPDATED_PROTEIN_END)
+            .proteinChange(UPDATED_PROTEIN_CHANGE)
+            .start(UPDATED_START)
+            .end(UPDATED_END)
             .refResidues(UPDATED_REF_RESIDUES)
             .variantResidues(UPDATED_VARIANT_RESIDUES);
 
@@ -984,10 +1197,12 @@ class AlterationResourceIT {
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeUpdate);
         Alteration testAlteration = alterationList.get(alterationList.size() - 1);
+        assertThat(testAlteration.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testAlteration.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testAlteration.getAlteration()).isEqualTo(UPDATED_ALTERATION);
-        assertThat(testAlteration.getProteinStart()).isEqualTo(UPDATED_PROTEIN_START);
-        assertThat(testAlteration.getProteinEnd()).isEqualTo(UPDATED_PROTEIN_END);
+        assertThat(testAlteration.getProteinChange()).isEqualTo(UPDATED_PROTEIN_CHANGE);
+        assertThat(testAlteration.getStart()).isEqualTo(UPDATED_START);
+        assertThat(testAlteration.getEnd()).isEqualTo(UPDATED_END);
         assertThat(testAlteration.getRefResidues()).isEqualTo(UPDATED_REF_RESIDUES);
         assertThat(testAlteration.getVariantResidues()).isEqualTo(UPDATED_VARIANT_RESIDUES);
     }
@@ -1068,10 +1283,11 @@ class AlterationResourceIT {
         partialUpdatedAlteration.setId(alteration.getId());
 
         partialUpdatedAlteration
+            .type(UPDATED_TYPE)
             .name(UPDATED_NAME)
-            .alteration(UPDATED_ALTERATION)
-            .proteinEnd(UPDATED_PROTEIN_END)
-            .variantResidues(UPDATED_VARIANT_RESIDUES);
+            .proteinChange(UPDATED_PROTEIN_CHANGE)
+            .end(UPDATED_END)
+            .refResidues(UPDATED_REF_RESIDUES);
 
         restAlterationMockMvc
             .perform(
@@ -1086,12 +1302,14 @@ class AlterationResourceIT {
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeUpdate);
         Alteration testAlteration = alterationList.get(alterationList.size() - 1);
+        assertThat(testAlteration.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testAlteration.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testAlteration.getAlteration()).isEqualTo(UPDATED_ALTERATION);
-        assertThat(testAlteration.getProteinStart()).isEqualTo(DEFAULT_PROTEIN_START);
-        assertThat(testAlteration.getProteinEnd()).isEqualTo(UPDATED_PROTEIN_END);
-        assertThat(testAlteration.getRefResidues()).isEqualTo(DEFAULT_REF_RESIDUES);
-        assertThat(testAlteration.getVariantResidues()).isEqualTo(UPDATED_VARIANT_RESIDUES);
+        assertThat(testAlteration.getAlteration()).isEqualTo(DEFAULT_ALTERATION);
+        assertThat(testAlteration.getProteinChange()).isEqualTo(UPDATED_PROTEIN_CHANGE);
+        assertThat(testAlteration.getStart()).isEqualTo(DEFAULT_START);
+        assertThat(testAlteration.getEnd()).isEqualTo(UPDATED_END);
+        assertThat(testAlteration.getRefResidues()).isEqualTo(UPDATED_REF_RESIDUES);
+        assertThat(testAlteration.getVariantResidues()).isEqualTo(DEFAULT_VARIANT_RESIDUES);
     }
 
     @Test
@@ -1107,10 +1325,12 @@ class AlterationResourceIT {
         partialUpdatedAlteration.setId(alteration.getId());
 
         partialUpdatedAlteration
+            .type(UPDATED_TYPE)
             .name(UPDATED_NAME)
             .alteration(UPDATED_ALTERATION)
-            .proteinStart(UPDATED_PROTEIN_START)
-            .proteinEnd(UPDATED_PROTEIN_END)
+            .proteinChange(UPDATED_PROTEIN_CHANGE)
+            .start(UPDATED_START)
+            .end(UPDATED_END)
             .refResidues(UPDATED_REF_RESIDUES)
             .variantResidues(UPDATED_VARIANT_RESIDUES);
 
@@ -1127,10 +1347,12 @@ class AlterationResourceIT {
         List<Alteration> alterationList = alterationRepository.findAll();
         assertThat(alterationList).hasSize(databaseSizeBeforeUpdate);
         Alteration testAlteration = alterationList.get(alterationList.size() - 1);
+        assertThat(testAlteration.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testAlteration.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testAlteration.getAlteration()).isEqualTo(UPDATED_ALTERATION);
-        assertThat(testAlteration.getProteinStart()).isEqualTo(UPDATED_PROTEIN_START);
-        assertThat(testAlteration.getProteinEnd()).isEqualTo(UPDATED_PROTEIN_END);
+        assertThat(testAlteration.getProteinChange()).isEqualTo(UPDATED_PROTEIN_CHANGE);
+        assertThat(testAlteration.getStart()).isEqualTo(UPDATED_START);
+        assertThat(testAlteration.getEnd()).isEqualTo(UPDATED_END);
         assertThat(testAlteration.getRefResidues()).isEqualTo(UPDATED_REF_RESIDUES);
         assertThat(testAlteration.getVariantResidues()).isEqualTo(UPDATED_VARIANT_RESIDUES);
     }

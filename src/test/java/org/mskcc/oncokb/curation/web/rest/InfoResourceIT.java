@@ -154,6 +154,25 @@ class InfoResourceIT {
 
     @Test
     @Transactional
+    void checkCreatedIsRequired() throws Exception {
+        int databaseSizeBeforeTest = infoRepository.findAll().size();
+        // set the field null
+        info.setCreated(null);
+
+        // Create the Info, which fails.
+
+        restInfoMockMvc
+            .perform(
+                post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(info))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<Info> infoList = infoRepository.findAll();
+        assertThat(infoList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllInfos() throws Exception {
         // Initialize the database
         infoRepository.saveAndFlush(info);

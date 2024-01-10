@@ -5,7 +5,7 @@
       "fieldName": "type",
       "fieldType": "FdaSubmissionTypeKey",
       "fieldValues": "PMA,DE_NOVO,HDE,PMN",
-      "fieldValidateRules": ["required"]
+      "fieldValidateRules": ["required", "unique"]
     },
     {
       "fieldName": "name",

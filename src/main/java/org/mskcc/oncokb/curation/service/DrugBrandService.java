@@ -1,11 +1,12 @@
 package org.mskcc.oncokb.curation.service;
 
-import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.DrugBrand;
 import org.mskcc.oncokb.curation.repository.DrugBrandRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,12 +63,13 @@ public class DrugBrandService {
     /**
      * Get all the drugBrands.
      *
+     * @param pageable the pagination information.
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public List<DrugBrand> findAll() {
+    public Page<DrugBrand> findAll(Pageable pageable) {
         log.debug("Request to get all DrugBrands");
-        return drugBrandRepository.findAll();
+        return drugBrandRepository.findAll(pageable);
     }
 
     /**

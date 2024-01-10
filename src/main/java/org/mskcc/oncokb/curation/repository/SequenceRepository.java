@@ -10,8 +10,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the Sequence entity.
  */
-@SuppressWarnings("unused")
 @Repository
-public interface SequenceRepository extends JpaRepository<Sequence, Long> {
+public interface SequenceRepository extends JpaRepository<Sequence, Long>, JpaSpecificationExecutor<Sequence> {
     Optional<Sequence> findOneByTranscriptAndSequenceType(Transcript transcript, SequenceType sequenceType);
 }
