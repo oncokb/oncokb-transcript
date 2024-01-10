@@ -6,15 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import jodd.util.StringUtil;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.AssociationCancerTypeRelation;
 import org.mskcc.oncokb.curation.service.*;
@@ -67,14 +63,14 @@ public class CdxImporter {
                 continue; // Skipping header row
             }
             log.info("Processing row " + i);
+            List<String> row = parsedCdxContent.get(i);
             try {
-                List<String> row = parsedCdxContent.get(i);
                 CompanionDiagnosticDevice cdx = null;
                 List<FdaSubmission> fdaSubmissions = new ArrayList<>();
-                List<List<Drug>> drugs = new ArrayList<>();
+                List<Treatment> treatments = new ArrayList<>();
                 List<Gene> genes = new ArrayList<>();
                 Map<Gene, List<Alteration>> geneAlterationMap = new HashMap<>();
-                CancerType cancerType = null;
+                List<CancerType> cancerTypes = new ArrayList<>();
 
                 // Parse row
                 for (int colIndex = 0; colIndex < row.size(); colIndex++) {
@@ -83,29 +79,37 @@ public class CdxImporter {
                         case 0:
                             cdx = parseCdxNameColumn(columnValue);
                             break;
-                        case 7:
-                            fdaSubmissions = parseFdaSubmissionColumn(columnValue);
-                            break;
-                        case 8:
-                            parseFdaSubmissionDateColumn(fdaSubmissions, columnValue);
-                            break;
-                        case 9:
-                            cancerType = parseCancerTypeColumn(columnValue);
-                            break;
-                        case 10:
-                            drugs = parseDrugColumn(columnValue);
-                            break;
-                        case 11:
+                        case 5:
                             genes = parseGeneColumn(columnValue);
                             break;
-                        case 12:
+                        case 6:
                             geneAlterationMap = parseAlterationColumn(columnValue, genes);
+                            break;
+                        case 7:
+                            cancerTypes = parseCancerTypesColumn(columnValue);
+                            break;
+                        case 8:
+                            treatments = parseTreatmentColumn(columnValue);
+                            break;
+                        case 9:
+                            cdx.setPlatformType(columnValue);
+                            break;
+                        case 10:
+                            parseSpecimenTypeColumn(columnValue, cdx);
+                            break;
+                        case 12:
+                            for (String val : columnValue.split("and")) {
+                                Optional<FdaSubmission> fdaSubmissionOptional = parseFdaSubmissionColumn(val);
+                                if (fdaSubmissionOptional.isPresent()) {
+                                    fdaSubmissions.add(fdaSubmissionOptional.get());
+                                }
+                            }
                             break;
                         default:
                             break;
                     }
                 }
-                saveCdxInformation(cdx, fdaSubmissions, cancerType, drugs, geneAlterationMap);
+                saveCdxInformation(cdx, fdaSubmissions, cancerTypes, treatments, geneAlterationMap);
                 log.info("Successfully imported row {}", i);
             } catch (IllegalArgumentException e) {
                 String message = e.getMessage();
@@ -113,7 +117,7 @@ public class CdxImporter {
                     message = String.format("Could not parse column in row %s", i);
                 }
                 log.error(message);
-                log.error("Issue processing row {}, skipping...", i);
+                log.error("Issue processing row {} {}, skipping...", i, row);
                 continue;
             }
         }
@@ -122,41 +126,35 @@ public class CdxImporter {
     private void saveCdxInformation(
         CompanionDiagnosticDevice cdx,
         List<FdaSubmission> fdaSubmissions,
-        CancerType cancerType,
-        List<List<Drug>> drugs,
+        List<CancerType> cancerTypes,
+        List<Treatment> treatments,
         Map<Gene, List<Alteration>> geneAlterationMap
     ) {
+        CompanionDiagnosticDevice savedCdx = companionDiagnosticDeviceService.save(cdx);
         fdaSubmissions =
             fdaSubmissions
                 .stream()
                 .map(pma -> {
-                    FdaSubmission savedFdaSubmission = fdaSubmissionService.save(pma);
-                    cdx.addFdaSubmission(savedFdaSubmission);
-                    companionDiagnosticDeviceService.save(cdx);
-                    return savedFdaSubmission;
+                    pma.setCompanionDiagnosticDevice(savedCdx);
+                    return fdaSubmissionService.save(pma);
                 })
                 .collect(Collectors.toList());
 
-        // Create BiomarkerAssociation entities
+        Association biomarkerAssociation = new Association();
+        biomarkerAssociation.setTreatments(new HashSet<>(treatments));
+        Set<Alteration> allAlts = new HashSet<>();
         for (Map.Entry<Gene, List<Alteration>> entry : geneAlterationMap.entrySet()) {
-            for (List<Drug> drug : drugs) {
-                Association biomarkerAssociation = new Association();
-                entry.getValue().stream().forEach(mutation -> biomarkerAssociation.addAlteration(mutation));
-                drug
-                    .stream()
-                    .forEach(d -> {
-                        Treatment t = new Treatment();
-                        t.addDrug(d);
-                        biomarkerAssociation.addTreatment(t);
-                    });
-                AssociationCancerType associationCancerType = new AssociationCancerType();
-                associationCancerType.setRelation(AssociationCancerTypeRelation.INCLUSION);
-                associationCancerType.setCancerType(cancerType);
-                biomarkerAssociation.addAssociationCancerType(associationCancerType);
-                fdaSubmissions.stream().forEach(fdaSub -> biomarkerAssociation.addFdaSubmission(fdaSub));
-                associationService.save(biomarkerAssociation);
-            }
+            allAlts.addAll(entry.getValue());
         }
+        for (CancerType cancerType : cancerTypes) {
+            AssociationCancerType associationCancerType = new AssociationCancerType();
+            associationCancerType.setRelation(AssociationCancerTypeRelation.INCLUSION);
+            associationCancerType.setCancerType(cancerType);
+            biomarkerAssociation.addAssociationCancerType(associationCancerType);
+        }
+        fdaSubmissions.stream().forEach(fdaSub -> biomarkerAssociation.addFdaSubmission(fdaSub));
+        biomarkerAssociation.setAlterations(allAlts);
+        associationService.save(biomarkerAssociation);
     }
 
     private CompanionDiagnosticDevice parseCdxNameColumn(String columnValue) throws IllegalArgumentException {
@@ -178,70 +176,70 @@ public class CdxImporter {
         }
     }
 
-    private List<FdaSubmission> parseFdaSubmissionColumn(String columnValue) {
-        List<FdaSubmission> fdaSubmissions = new ArrayList<>();
-        String[] pmas = columnValue.split("and");
-        for (String pma : pmas) {
-            pma = pma.trim();
-            Pattern pattern = Pattern.compile("^([A-Za-z\\d]+)(\\/([A-Za-z\\d]+))?");
-            Matcher matcher = pattern.matcher(pma);
-            if (matcher.find() && matcher.group(1) != null) {
-                String number = matcher.group(1);
-                String supplementNumber = Optional.ofNullable(matcher.group(3)).orElse("");
-                Optional<FdaSubmission> optionalFdaSubmission = fdaSubmissionService.findOrFetchFdaSubmissionByNumber(
-                    number,
-                    supplementNumber,
-                    false
-                );
-                if (optionalFdaSubmission.isPresent()) {
-                    fdaSubmissions.add(optionalFdaSubmission.get());
-                } else {
-                    log.error("Could not find FDA Submission {}", pma);
+    private Optional<FdaSubmission> parseFdaSubmissionColumn(String columnValue) {
+        columnValue = columnValue.trim();
+        Pattern pattern = Pattern.compile("^([A-Za-z\\d]+)(\\/([A-Za-z\\d]+))?\\s*(\\((.*)\\))?");
+        Matcher matcher = pattern.matcher(columnValue);
+        if (matcher.find() && matcher.group(1) != null) {
+            String number = matcher.group(1);
+            String supplementNumber = Optional.ofNullable(matcher.group(3)).orElse("");
+            Optional<FdaSubmission> optionalFdaSubmission = fdaSubmissionService.findOrFetchFdaSubmissionByNumber(
+                number,
+                supplementNumber,
+                false
+            );
+            if (optionalFdaSubmission.isPresent()) {
+                Instant fdaSubmissionDate = cdxUtils.convertDateToInstant(matcher.group(5));
+                if (fdaSubmissionDate != null) {
+                    optionalFdaSubmission.get().setDecisionDate(fdaSubmissionDate);
+                    optionalFdaSubmission.get().curated(true);
                 }
+                return optionalFdaSubmission;
             } else {
-                log.error("Cannot find FDA Submission {}", pma);
+                log.error("Could not find FDA Submission {}", columnValue);
+            }
+        } else {
+            log.error("Cannot find FDA Submission {}", columnValue);
+        }
+        return Optional.empty();
+    }
+
+    private List<CancerType> parseCancerTypesColumn(String columnValue) throws IllegalArgumentException {
+        List<CancerType> cancerTypes = new ArrayList<>();
+        for (String cancerType : columnValue.split("\\|")) {
+            cancerType = cancerType.trim();
+            Optional<CancerType> optionalCancerType = cancerTypeService.findOneBySubtypeIgnoreCase(cancerType);
+            if (optionalCancerType.isPresent()) {
+                cancerTypes.add(optionalCancerType.get());
+            } else {
+                optionalCancerType = cancerTypeService.findByMainTypeAndSubtypeIsNull(cancerType);
+                if (optionalCancerType.isPresent()) {
+                    cancerTypes.add(optionalCancerType.get());
+                } else {
+                    throw new IllegalArgumentException();
+                }
             }
         }
-        return fdaSubmissions;
+        return cancerTypes;
     }
 
-    private void parseFdaSubmissionDateColumn(List<FdaSubmission> fdaSubmissions, String columnValue) {
-        String[] dates = columnValue.split("and");
-        for (int i = 0; i < dates.length; i++) {
-            String date = dates[i];
-            date = date.replace("(", "").replace(")", "").trim();
-            Instant fdaSubmissionDate = cdxUtils.convertDateToInstant(date);
-            fdaSubmissions.get(i).setDecisionDate(fdaSubmissionDate);
-        }
-    }
-
-    private CancerType parseCancerTypeColumn(String columnValue) throws IllegalArgumentException {
-        columnValue = columnValue.split(",")[0].trim();
-        Optional<CancerType> optionalCancerType = cancerTypeService.findOneBySubtypeIgnoreCase(columnValue);
-        if (optionalCancerType.isPresent()) {
-            return optionalCancerType.get();
-        }
-        optionalCancerType = cancerTypeService.findOneByMainTypeIgnoreCaseAndLevel(columnValue, Integer.valueOf(0));
-        return optionalCancerType.orElseThrow(IllegalArgumentException::new);
-    }
-
-    private List<List<Drug>> parseDrugColumn(String columnValue) {
-        List<List<Drug>> drugs = new ArrayList<>();
+    private List<Treatment> parseTreatmentColumn(String columnValue) {
+        List<Treatment> treatments = new ArrayList<>();
         for (String drugsString : columnValue.split(",\\s+")) {
-            List<Drug> combinationDrugs = new ArrayList<>();
+            Treatment treatment = new Treatment();
             for (String drugString : drugsString.split("\\+")) {
                 drugString = drugString.trim();
                 Optional<Drug> optionalDrug = drugService.findByName(drugString).stream().findFirst();
                 if (optionalDrug.isPresent()) {
-                    combinationDrugs.add(optionalDrug.get());
+                    treatment.addDrug(optionalDrug.get());
                 } else {
                     log.error("Could not find drug {}", drugString);
                     continue;
                 }
             }
-            drugs.add(combinationDrugs);
+            treatments.add(treatment);
         }
-        return drugs;
+        return treatments;
     }
 
     private List<Gene> parseGeneColumn(String columnValue) throws IllegalArgumentException {
@@ -271,7 +269,7 @@ public class CdxImporter {
             List<Alteration> alterations = new ArrayList<>();
             for (String alterationString : alterationStrings) {
                 alterationString = alterationString.trim();
-                List<Alteration> optionalAlteration = alterationService.findByNameAndGeneId(alterationString, geneId);
+                List<Alteration> optionalAlteration = alterationService.findByNameOrAlterationAndGenesId(alterationString, geneId);
                 if (optionalAlteration.size() > 0) {
                     if (geneAlterationMap.get(gene) == null) {
                         geneAlterationMap.put(gene, alterations);
@@ -286,12 +284,22 @@ public class CdxImporter {
     }
 
     private void parseSpecimenTypeColumn(String columnValue, CompanionDiagnosticDevice cdx) throws IllegalArgumentException {
-        Optional<SpecimenType> optionalSpecimenType = specimenTypeService.findOneByType(columnValue);
-        if (optionalSpecimenType.isPresent() && cdx != null) {
-            cdx.addSpecimenType(optionalSpecimenType.get());
-        } else {
-            throw new IllegalArgumentException();
+        if (StringUtil.isEmpty(columnValue) || StringUtil.isEmpty(columnValue.trim())) {
+            return;
         }
+        columnValue = columnValue.trim();
+        Arrays
+            .stream(columnValue.split(" or "))
+            .forEach(name -> {
+                name = name.trim();
+                Optional<SpecimenType> optionalSpecimenType = specimenTypeService.findOneByName(name);
+                if (optionalSpecimenType.isPresent() && cdx != null) {
+                    cdx.addSpecimenType(optionalSpecimenType.get());
+                } else {
+                    log.error("Cannot find the CDx specimen type {}", name);
+                    throw new IllegalArgumentException();
+                }
+            });
     }
 
     private List<List<String>> readInitialCdxFile() throws IOException {

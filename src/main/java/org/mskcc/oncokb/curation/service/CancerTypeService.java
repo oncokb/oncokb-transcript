@@ -124,8 +124,8 @@ public class CancerTypeService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<CancerType> findOneByMainTypeIgnoreCaseAndLevel(String mainType, Integer level) {
-        return cancerTypeRepository.findOneByMainTypeIgnoreCaseAndLevel(mainType, level);
+    public Optional<CancerType> findByMainTypeAndSubtypeIsNull(String mainType) {
+        return cancerTypeRepository.findByMainTypeAndSubtypeIsNull(mainType);
     }
 
     /**

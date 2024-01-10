@@ -181,13 +181,11 @@ public class CompanionDiagnosticDevice implements Serializable {
 
     public CompanionDiagnosticDevice addSpecimenType(SpecimenType specimenType) {
         this.specimenTypes.add(specimenType);
-        specimenType.getCompanionDiagnosticDevices().add(this);
         return this;
     }
 
     public CompanionDiagnosticDevice removeSpecimenType(SpecimenType specimenType) {
         this.specimenTypes.remove(specimenType);
-        specimenType.getCompanionDiagnosticDevices().remove(this);
         return this;
     }
 

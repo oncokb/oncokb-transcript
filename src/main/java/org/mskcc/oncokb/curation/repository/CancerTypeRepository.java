@@ -34,5 +34,5 @@ public interface CancerTypeRepository extends JpaRepository<CancerType, Long>, J
 
     Optional<CancerType> findOneBySubtypeIgnoreCase(String subtype);
 
-    Optional<CancerType> findOneByMainTypeIgnoreCaseAndLevel(String mainType, Integer level);
+    Optional<CancerType> findByMainTypeAndSubtypeIsNull(String mainType);
 }

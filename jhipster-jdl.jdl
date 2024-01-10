@@ -282,7 +282,7 @@ entity FdaDrug {
 
 entity FdaSubmission {
     number String required
-    supplementNumber String
+    supplementNumber String required
 
     deviceName String required
     genericName String
@@ -291,7 +291,6 @@ entity FdaSubmission {
     decisionDate Instant
 
     description TextBlob
-    platform String
 
     curated Boolean required
     genetic Boolean required

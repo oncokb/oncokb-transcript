@@ -128,14 +128,8 @@ public class MetaImporter {
         log.info("Importing flag...");
         this.importFlag();
 
-        log.info("Importing cdx...");
-        this.importCdx();
-
         log.info("Importing FDA submission type...");
         this.importFdaSubmissionType();
-
-        log.info("Importing FDA submission...");
-        this.importFdaSubmission();
 
         log.info("Importing gene...");
         this.importGene();
@@ -176,19 +170,10 @@ public class MetaImporter {
 
         log.info("Importing core dataset...");
         coreImporter.generalImport();
-
-        log.info("Importing NCIT...");
-        this.importNcit();
         //          meta-9.sql includes above
-
-        log.info("Importing drug...");
-        coreImporter.importDrug();
 
         log.info("Verifying the OncoKB gene hugo is the same with cBioPortal gene list");
         coreImporter.verifyGene();
-
-        log.info("Importing association...");
-        importAssociations();
     }
 
     private void importFlag() throws IOException {
@@ -207,21 +192,6 @@ public class MetaImporter {
         });
     }
 
-    private void importCdx() throws IOException {
-        List<List<String>> lines = parseTsvMetaFile("companion_diagnostic_device.tsv");
-        lines.forEach(line -> {
-            CompanionDiagnosticDevice cdx = new CompanionDiagnosticDevice();
-            Long id = Long.valueOf(line.get(0));
-            String name = line.get(1);
-            String manufacturer = line.get(2);
-            String platformType = line.get(4);
-            cdx.setName(name);
-            cdx.setManufacturer(manufacturer);
-            cdx.setPlatformType(platformType);
-            cdxService.save(cdx);
-        });
-    }
-
     private void importFdaSubmissionType() throws IOException {
         List<List<String>> lines = parseTsvMetaFile("fda_submission_type.tsv");
         lines.forEach(line -> {
@@ -235,43 +205,6 @@ public class MetaImporter {
             fdaSubmissionType.setShortName(shortName);
             fdaSubmissionType.setDescription(description);
             fdaSubmissionTypeService.save(fdaSubmissionType);
-        });
-    }
-
-    private void importFdaSubmission() throws IOException {
-        List<List<String>> lines = parseTsvMetaFile("fda_submission.tsv");
-        lines.forEach(line -> {
-            FdaSubmission fdaSubmission = new FdaSubmission();
-            String number = line.get(0);
-            String supplementNumber = line.get(1);
-            String deviceName = line.get(2);
-            String genericName = line.get(3);
-            String dateReceived = line.get(4);
-            String decisionDate = line.get(5);
-            String description = line.get(6);
-            String platform = line.get(7);
-            String curated = line.get(8);
-            String genetic = line.get(9);
-            String note = line.get(10);
-
-            String companionDiagnosticDeviceName = line.get(11);
-            Optional<CompanionDiagnosticDevice> companionDiagnosticDeviceOptional = cdxService.findByName(companionDiagnosticDeviceName);
-            String type = line.get(12);
-            Optional<FdaSubmissionType> fdaSubmissionTypeOptional = fdaSubmissionTypeService.findByType(FdaSubmissionTypeKey.valueOf(type));
-            fdaSubmission.setNumber(number);
-            fdaSubmission.setSupplementNumber(supplementNumber);
-            fdaSubmission.setDeviceName(deviceName);
-            fdaSubmission.setGenericName(genericName);
-            fdaSubmission.setDateReceived(parseDbStringInstant(dateReceived));
-            fdaSubmission.setDecisionDate(parseDbStringInstant(decisionDate));
-            fdaSubmission.setDescription(description);
-            fdaSubmission.setPlatform(platform);
-            fdaSubmission.setCurated(Boolean.valueOf(curated));
-            fdaSubmission.setGenetic(Boolean.valueOf(genetic));
-            fdaSubmission.setNote(note);
-            fdaSubmission.setCompanionDiagnosticDevice(companionDiagnosticDeviceOptional.get());
-            fdaSubmission.setType(fdaSubmissionTypeOptional.get());
-            fdaSubmissionService.save(fdaSubmission);
         });
     }
 
@@ -499,103 +432,6 @@ public class MetaImporter {
         }
     }
 
-    private void importAssociations() throws IOException {
-        List<List<String>> lines = parseTsvMetaFile("associations.tsv");
-        lines.forEach(line -> {
-            Association association = new Association();
-            Integer entrezGeneId = StringUtils.isEmpty(line.get(1)) ? null : Integer.parseInt(line.get(1));
-            if (entrezGeneId == null) {
-                log.error("Cannot find gene {}", line.get(1));
-                return;
-            }
-            Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(entrezGeneId);
-            if (geneOptional.isEmpty()) {
-                log.error("Cannot find gene {}", line.get(1));
-                return;
-            }
-            String cancerTypeMaintype = line.get(3);
-            String cancerTypeCode = line.get(4);
-            CancerType cancerType = null;
-            if (StringUtils.isEmpty(cancerTypeMaintype)) {
-                log.error("Every cancer type should have a main type associated {}", cancerTypeMaintype);
-                return;
-            }
-            if (StringUtils.isEmpty(cancerTypeCode)) {
-                Optional<CancerType> cancerTypeOptional = cancerTypeService.findOneByMainTypeIgnoreCaseAndLevel(cancerTypeMaintype, 0);
-                if (cancerTypeOptional.isEmpty()) {
-                    log.error("Cannot find cancer type by maintype {}", cancerTypeMaintype);
-                } else {
-                    cancerType = cancerTypeOptional.get();
-                }
-            } else {
-                Optional<CancerType> cancerTypeOptional = cancerTypeService.findOneByCode(cancerTypeCode);
-                if (cancerTypeOptional.isEmpty()) {
-                    log.error("Cannot find cancer type by code {}", cancerTypeCode);
-                } else {
-                    cancerType = cancerTypeOptional.get();
-                }
-            }
-            if (cancerType != null) {
-                AssociationCancerType associationCancerType = new AssociationCancerType();
-                associationCancerType.setRelation(AssociationCancerTypeRelation.INCLUSION);
-                associationCancerType.setCancerType(cancerType);
-                associationCancerType.setAssociation(association);
-                association.getAssociationCancerTypes().add(associationCancerType);
-            }
-            String alterations = line.get(7);
-            for (String alteration : alterations.split(",")) {
-                List<Alteration> alterationList = alterationService.findByNameAndGeneId(alteration.trim(), geneOptional.get().getId());
-                if (alterationList.isEmpty()) {
-                    log.error("Cannot find alteration {}", alteration);
-                    return;
-                } else {
-                    association.getAlterations().addAll(alterationList);
-                }
-            }
-
-            String drugCodes = line.get(9);
-            for (String code : drugCodes.split(",")) {
-                Optional<Drug> drugOptional = drugService.findByCode(code.trim());
-                if (drugOptional.isEmpty()) {
-                    log.error("Cannot find drug by code {}", code);
-                    return;
-                } else {
-                    Treatment treatment = new Treatment();
-                    treatment.getDrugs().add(drugOptional.get());
-                    association.getTreatments().add(treatment);
-                }
-            }
-            Association savedAssociation = associationService.save(association);
-
-            List<String> fdaSubmissionNumbers = Arrays
-                .stream(line.get(5).split(","))
-                .map(number -> number.trim())
-                .collect(Collectors.toList());
-            if (fdaSubmissionNumbers.size() > 0) {
-                String supplementNumber = "";
-                if (fdaSubmissionNumbers.size() == 1) {
-                    supplementNumber = line.get(6);
-                }
-                for (String fdaSubmissionNumber : fdaSubmissionNumbers) {
-                    Optional<FdaSubmission> fdaSubmissionOptional = fdaSubmissionService.findByNumberAndSupplementNumber(
-                        fdaSubmissionNumber,
-                        supplementNumber
-                    );
-                    if (fdaSubmissionOptional.isEmpty()) {
-                        log.error("Cannot find fda submission {} {}", fdaSubmissionNumber, supplementNumber);
-                    } else {
-                        fdaSubmissionOptional.get().getAssociations().add(savedAssociation);
-                        fdaSubmissionService.partialUpdate(fdaSubmissionOptional.get());
-                    }
-                }
-            } else {
-                log.error("No fda submission {}", line);
-                return;
-            }
-            log.info("Saved association {}", line);
-        });
-    }
-
     public void saveAllNcitData(List<List<String>> lines) {
         String SYNONYMS_SEPARATOR_REGEX = "\\|";
         for (int i = 0; i < lines.size(); i++) {
@@ -648,7 +484,7 @@ public class MetaImporter {
         }
     }
 
-    private void importNcit() throws IOException {
+    public void importNcit() throws IOException {
         List<List<String>> lines = parseDelimitedFile(DATA_DIRECTORY + "/ncit/Thesaurus_" + NCIT_VERSION + ".tsv", "\t", true);
         saveAllNcitData(lines);
     }

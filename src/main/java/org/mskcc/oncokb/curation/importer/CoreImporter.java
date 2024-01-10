@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import jodd.util.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.ArticleType;
@@ -159,6 +161,19 @@ public class CoreImporter {
             Drug drug = new Drug();
             drug.setName(name);
             Optional<NciThesaurus> nciThesaurusOptional = Optional.empty();
+
+            Optional<org.mskcc.oncokb.curation.domain.Drug> drugOptional = Optional.empty();
+            if (StringUtils.isEmpty(code)) {
+                drugOptional = drugService.findByName(name);
+            } else {
+                drugOptional = drugService.findByCode(code);
+            }
+
+            if (drugOptional.isPresent()) {
+                log.info("Drug exists {} {}, skipping", name, code);
+                return;
+            }
+
             if (StringUtil.isEmpty(code)) {
                 log.warn("The drug does not have a code {}, will look for the name", name);
                 nciThesaurusOptional = nciThesaurusService.findOneByNamePriority(name);
@@ -170,6 +185,7 @@ public class CoreImporter {
             } else {
                 log.warn("The code cannot be found {}", code);
             }
+            drug.setUuid(UUID.randomUUID().toString());
             drugService.save(drug);
         });
     }

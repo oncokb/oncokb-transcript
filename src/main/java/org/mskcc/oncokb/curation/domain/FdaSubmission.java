@@ -26,14 +26,15 @@ public class FdaSubmission implements Serializable {
 
     @NotNull
     @Column(name = "number", nullable = false)
-    private String number;
+    private String number = "";
 
-    @Column(name = "supplement_number")
-    private String supplementNumber;
+    @NotNull
+    @Column(name = "supplement_number", nullable = false)
+    private String supplementNumber = "";
 
     @NotNull
     @Column(name = "device_name", nullable = false)
-    private String deviceName;
+    private String deviceName = "";
 
     @Column(name = "generic_name")
     private String genericName;
@@ -49,16 +50,13 @@ public class FdaSubmission implements Serializable {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "platform")
-    private String platform;
-
     @NotNull
     @Column(name = "curated", nullable = false)
-    private Boolean curated;
+    private Boolean curated = false;
 
     @NotNull
     @Column(name = "genetic", nullable = false)
-    private Boolean genetic;
+    private Boolean genetic = false;
 
     @DiffIgnore
     @Lob
@@ -194,19 +192,6 @@ public class FdaSubmission implements Serializable {
         this.description = description;
     }
 
-    public String getPlatform() {
-        return this.platform;
-    }
-
-    public FdaSubmission platform(String platform) {
-        this.setPlatform(platform);
-        return this;
-    }
-
-    public void setPlatform(String platform) {
-        this.platform = platform;
-    }
-
     public Boolean getCurated() {
         return this.curated;
     }
@@ -328,7 +313,6 @@ public class FdaSubmission implements Serializable {
             ", dateReceived='" + getDateReceived() + "'" +
             ", decisionDate='" + getDecisionDate() + "'" +
             ", description='" + getDescription() + "'" +
-            ", platform='" + getPlatform() + "'" +
             ", curated='" + getCurated() + "'" +
             ", genetic='" + getGenetic() + "'" +
             ", note='" + getNote() + "'" +

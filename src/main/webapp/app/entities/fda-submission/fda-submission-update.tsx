@@ -177,7 +177,6 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
                 data-cy="description"
                 type="textarea"
               />
-              <ValidatedField label="Platform" id="fda-submission-platform" name="platform" data-cy="platform" type="text" />
               <ValidatedField
                 label="Curated"
                 id="fda-submission-curated"

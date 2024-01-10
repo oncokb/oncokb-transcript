@@ -22,10 +22,6 @@ export const FDA_SUBMISSION_TABLE_COLUMNS: Column<IFdaSubmission>[] = [
     Header: 'Supplement Number',
   },
   {
-    accessor: 'platform',
-    Header: 'Platform',
-  },
-  {
     accessor: 'genetic',
     Header: 'Genetic',
     Cell(cell: { original: IFdaSubmission }) {

@@ -182,21 +182,6 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
         this.decisionDate = decisionDate;
     }
 
-    public StringFilter getPlatform() {
-        return platform;
-    }
-
-    public StringFilter platform() {
-        if (platform == null) {
-            platform = new StringFilter();
-        }
-        return platform;
-    }
-
-    public void setPlatform(StringFilter platform) {
-        this.platform = platform;
-    }
-
     public BooleanFilter getCurated() {
         return curated;
     }

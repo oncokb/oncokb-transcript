@@ -115,9 +115,6 @@ public class FdaSubmissionQueryService extends QueryService<FdaSubmission> {
             if (criteria.getDecisionDate() != null) {
                 specification = specification.or(buildRangeSpecification(criteria.getDecisionDate(), FdaSubmission_.decisionDate));
             }
-            if (criteria.getPlatform() != null) {
-                specification = specification.or(buildStringSpecification(criteria.getPlatform(), FdaSubmission_.platform));
-            }
             if (criteria.getCurated() != null) {
                 specification = specification.or(buildSpecification(criteria.getCurated(), FdaSubmission_.curated));
             }

@@ -73,7 +73,7 @@ public class FirebaseService {
         }
 
         for (Mutation mutation : gene.getMutations()) {
-            List<Alteration> altList = alterationService.findByNameAndGeneId(mutation.getName(), geneOptional.get().getId());
+            List<Alteration> altList = alterationService.findByNameOrAlterationAndGenesId(mutation.getName(), geneOptional.get().getId());
             if (altList.isEmpty()) {
                 Alteration alteration = new Alteration();
                 alteration.setName(mutation.getName());

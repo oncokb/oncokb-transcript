@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -266,6 +267,9 @@ public class CdxUtils {
     }
 
     public Instant convertDateToInstant(String date) {
+        if (StringUtils.isEmpty(date)) {
+            return null;
+        }
         return LocalDate.parse(date, DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US)).atStartOfDay().toInstant(ZoneOffset.UTC);
     }
 
