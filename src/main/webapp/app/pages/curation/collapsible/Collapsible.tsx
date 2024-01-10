@@ -49,9 +49,11 @@ export default function Collapsible({
             </span>
           )}
           <div className="mr-auto" />
-          {info}
-          {action && <div className={classNames(styles.divider)} />}
-          {action}
+          <div className="d-flex align-items-center">
+            {info}
+            {action && <div className={classNames(styles.divider)} />}
+            {action}
+          </div>
         </div>
       </div>
       {isOpen && <div className={classNames('card-body', styles.body)}>{children}</div>}

@@ -12,6 +12,14 @@ import { getCancerTypeName } from 'app/shared/util/utils';
 
 interface ICancerTypeSelectProps extends SelectProps, StoreProps {}
 
+export type CancerTypeSelectOption = {
+  label: string;
+  value: number;
+  code: string;
+  mainType: string;
+  subtype: string;
+};
+
 const getAllMainTypes = (cancerTypeList: ICancerType[]) => {
   return _.uniq(cancerTypeList.filter(cancerType => cancerType.level <= 0)).sort();
 };
@@ -26,19 +34,25 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
       label: 'Cancer Type',
       options: _.uniq(getAllMainTypes(cancerTypeList).filter(cancerType => !cancerType.mainType.endsWith('NOS')))
         .sort()
-        .map(cancerType => {
+        .map<CancerTypeSelectOption>(cancerType => {
           return {
             value: cancerType.id,
             label: getCancerTypeName(cancerType),
+            code: cancerType.code,
+            mainType: cancerType.mainType,
+            subtype: cancerType.subtype,
           };
         }),
     },
     {
       label: 'Cancer Type Detailed',
-      options: _.sortBy(_.uniq(getAllSubtypes(cancerTypeList)), 'name').map(cancerType => {
+      options: _.sortBy(_.uniq(getAllSubtypes(cancerTypeList)), 'name').map<CancerTypeSelectOption>(cancerType => {
         return {
           value: cancerType.id,
           label: getCancerTypeName(cancerType),
+          code: cancerType.code,
+          mainType: cancerType.mainType,
+          subtype: cancerType.subtype,
         };
       }),
     },

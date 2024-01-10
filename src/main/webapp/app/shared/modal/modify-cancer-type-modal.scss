@@ -1,0 +1,7 @@
+@import '../../variables.scss';
+
+.warning-message {
+  display: flex;
+  align-items: center;
+  color: $danger;
+}
