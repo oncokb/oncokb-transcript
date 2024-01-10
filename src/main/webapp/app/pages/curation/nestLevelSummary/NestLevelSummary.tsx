@@ -3,9 +3,10 @@ import CountBadge from 'app/shared/badge/CountBadge';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import classNames from 'classnames';
 import _ from 'lodash';
-import './nest-level-summary.scss';
 import React from 'react';
 import { sortByTxLevel } from 'app/shared/util/firebase/firebase-utils';
+import './nest-level-summary.scss';
+import '../../../shared/badge/count-badge.scss';
 
 export type NestLevelSummaryStats = {
   TT?: number;
@@ -20,8 +21,10 @@ export type NestLevelSummaryStats = {
 
 export interface NestLevelSummaryProps {
   summaryStats: NestLevelSummaryStats;
+  isTreatmentStats?: boolean;
 }
 
+/* eslint-disable no-console */
 export const NestLevelSummary = (props: NestLevelSummaryProps) => {
   const summaryKeys: (keyof NestLevelSummaryStats)[] = ['TTS', 'DxS', 'PxS'];
 
@@ -49,7 +52,11 @@ export const NestLevelSummary = (props: NestLevelSummaryProps) => {
         .sort(sortByTxLevel)
         .map(k => {
           lastBadgeHasHiddenNumber = false;
-          return (
+          return props.isTreatmentStats ? (
+            <div key={`tx-levels-${k}`} className="mr-1 pt-2 count-badge-wrapper">
+              <span className={classNames('mr-1, pt-2, oncokb', 'icon', `level-${k}`)}></span>
+            </div>
+          ) : (
             <CountBadge
               count={props.summaryStats.txLevels[k]}
               base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
