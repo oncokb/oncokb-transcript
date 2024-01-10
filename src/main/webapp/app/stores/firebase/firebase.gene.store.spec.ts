@@ -6,12 +6,12 @@ const mockUuidReturnValue = 'fake-uuid';
 
 import 'jest-expect-message';
 import { FirebaseGeneStore } from './firebase.gene.store';
-import { NestLevelType } from 'app/pages/curation/collapsible/Collapsible';
 import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 import { CancerType, Gene, Mutation, Review, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { FirebaseMetaStore } from './firebase.meta.store';
 import { FirebaseCrudStore } from 'app/shared/util/firebase/firebase-crud-store';
 import FirebaseStore from './firebase.store';
+import { NestLevelType } from 'app/pages/curation/collapsible/NestLevel';
 
 jest.mock('uuid', () => ({ v4: jest.fn().mockReturnValue(mockUuidReturnValue) }));
 

@@ -13,6 +13,7 @@ export const SimpleConfirmModal: React.FunctionComponent<{
   confirmText?: string;
   confirmColor?: string;
   confirmIcon?: IconProp;
+  confirmDisabled?: boolean;
   onCancel?: () => void;
   onConfirm?: () => void;
 }> = props => {
@@ -34,6 +35,7 @@ export const SimpleConfirmModal: React.FunctionComponent<{
           {props.cancelText || 'Cancel'}
         </Button>
         <Button
+          disabled={props.confirmDisabled}
           color={props.confirmColor || 'primary'}
           onClick={(event: any) => {
             event.preventDefault();

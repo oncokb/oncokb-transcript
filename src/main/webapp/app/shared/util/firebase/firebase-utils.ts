@@ -2,8 +2,8 @@ import { UUID_REGEX } from 'app/config/constants/constants';
 import { Comment, DrugCollection, Gene, Meta, Mutation, Review, TX_LEVELS, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
 import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
-import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/Collapsible';
 import { parseFirebaseGenePath } from './firebase-path-utils';
+import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 
 /* Convert a nested object into an object where the key is the path to the object.
   Example:
