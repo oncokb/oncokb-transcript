@@ -40,12 +40,11 @@ const MutationCollapsible = ({
   mutation,
   firebaseIndex,
   parsedHistoryList,
+  modifyCancerTypeModalStore,
 }: IMutationCollapsibleProps) => {
   const title = getMutationName(mutation);
   const mutationFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}`);
   const showMutationLevelSummary = !title.includes(',');
-
-  const [openCancerTypesUuid, setOpenCancerTypesUuid] = useState(null);
 
   return (
     <Collapsible
@@ -193,7 +192,7 @@ const MutationCollapsible = ({
                   <FaEdit
                     style={{ cursor: 'pointer' }}
                     onClick={() => {
-                      setOpenCancerTypesUuid(tumor.cancerTypes_uuid);
+                      modifyCancerTypeModalStore.openModal(tumor.cancerTypes_uuid);
                     }}
                     className="mr-3"
                   />
@@ -379,9 +378,9 @@ const MutationCollapsible = ({
               }, [])}
             </Collapsible>
             <ModifyCancerTypeModal
+              cancerTypesUuid={tumor.cancerTypes_uuid}
               includedCancerTypes={tumor.cancerTypes}
               excludedCancerTypes={tumor.excludedCancerTypes || []}
-              open={openCancerTypesUuid === tumor.cancerTypes_uuid}
               onConfirm={async (includedCancerTypes, excludedCancerTypes) => {
                 const newTumor = _.cloneDeep(tumor);
                 newTumor.cancerTypes = includedCancerTypes;
@@ -396,10 +395,10 @@ const MutationCollapsible = ({
                   notifyError(error);
                 }
 
-                setOpenCancerTypesUuid(null);
+                modifyCancerTypeModalStore.closeModal();
               }}
               onCancel={() => {
-                setOpenCancerTypesUuid(null);
+                modifyCancerTypeModalStore.closeModal();
               }}
             />
           </>
@@ -409,12 +408,13 @@ const MutationCollapsible = ({
   );
 };
 
-const mapStoreToProps = ({ firebaseGeneStore, firebaseDrugsStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseGeneStore, firebaseDrugsStore, modifyCancerTypeModalStore }: IRootStore) => ({
   data: firebaseGeneStore.data,
   hugoSymbol: firebaseGeneStore.hugoSymbol,
   deleteSection: firebaseGeneStore.deleteSection,
   updateTumor: firebaseGeneStore.updateTumor,
   drugList: firebaseDrugsStore.drugList,
+  modifyCancerTypeModalStore,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
