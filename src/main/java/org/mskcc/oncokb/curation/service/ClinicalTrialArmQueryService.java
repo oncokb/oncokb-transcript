@@ -80,17 +80,17 @@ public class ClinicalTrialArmQueryService extends QueryService<ClinicalTrialArm>
         if (criteria != null) {
             // This has to be called first, because the distinct method returns null
             if (criteria.getDistinct() != null) {
-                specification = specification.and(distinct(criteria.getDistinct()));
+                specification = specification.or(distinct(criteria.getDistinct()));
             }
             if (criteria.getId() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getId(), ClinicalTrialArm_.id));
+                specification = specification.or(buildRangeSpecification(criteria.getId(), ClinicalTrialArm_.id));
             }
             if (criteria.getName() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getName(), ClinicalTrialArm_.name));
+                specification = specification.or(buildStringSpecification(criteria.getName(), ClinicalTrialArm_.name));
             }
             if (criteria.getAssociationId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getAssociationId(),
                             root -> root.join(ClinicalTrialArm_.associations, JoinType.LEFT).get(Association_.id)
@@ -99,7 +99,7 @@ public class ClinicalTrialArmQueryService extends QueryService<ClinicalTrialArm>
             }
             if (criteria.getClinicalTrialId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getClinicalTrialId(),
                             root -> root.join(ClinicalTrialArm_.clinicalTrial, JoinType.LEFT).get(ClinicalTrial_.id)

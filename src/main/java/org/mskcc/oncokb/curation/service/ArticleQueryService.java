@@ -118,7 +118,7 @@ public class ArticleQueryService extends QueryService<Article> {
             }
             if (criteria.getAssociationId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getAssociationId(),
                             root -> root.join(Article_.associations, JoinType.LEFT).get(Association_.id)

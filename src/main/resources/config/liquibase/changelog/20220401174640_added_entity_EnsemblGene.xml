@@ -32,7 +32,7 @@
             <column name="strand" type="integer">
                 <constraints nullable="false" />
             </column>
-            <column name="entrez_gene_id" type="integer">
+            <column name="gene_id" type="bigint">
                 <constraints nullable="true" />
             </column>
             <column name="seq_region" type="varchar(255)">

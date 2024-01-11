@@ -55,7 +55,6 @@ public class EnsemblGene implements Serializable {
     @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "ensemblGenes", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
-    @JoinColumn(name = "entrez_gene_id", referencedColumnName = "entrez_gene_id")
     private Gene gene;
 
     @ShallowReference

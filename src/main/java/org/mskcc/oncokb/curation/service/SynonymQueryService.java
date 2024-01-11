@@ -80,26 +80,26 @@ public class SynonymQueryService extends QueryService<Synonym> {
         if (criteria != null) {
             // This has to be called first, because the distinct method returns null
             if (criteria.getDistinct() != null) {
-                specification = specification.and(distinct(criteria.getDistinct()));
+                specification = specification.or(distinct(criteria.getDistinct()));
             }
             if (criteria.getId() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getId(), Synonym_.id));
+                specification = specification.or(buildRangeSpecification(criteria.getId(), Synonym_.id));
             }
             if (criteria.getType() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getType(), Synonym_.type));
+                specification = specification.or(buildStringSpecification(criteria.getType(), Synonym_.type));
             }
             if (criteria.getSource() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getSource(), Synonym_.source));
+                specification = specification.or(buildStringSpecification(criteria.getSource(), Synonym_.source));
             }
             if (criteria.getCode() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getCode(), Synonym_.code));
+                specification = specification.or(buildStringSpecification(criteria.getCode(), Synonym_.code));
             }
             if (criteria.getName() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getName(), Synonym_.name));
+                specification = specification.or(buildStringSpecification(criteria.getName(), Synonym_.name));
             }
             if (criteria.getCancerTypeId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getCancerTypeId(),
                             root -> root.join(Synonym_.cancerTypes, JoinType.LEFT).get(CancerType_.id)
@@ -108,13 +108,13 @@ public class SynonymQueryService extends QueryService<Synonym> {
             }
             if (criteria.getGeneId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(criteria.getGeneId(), root -> root.join(Synonym_.genes, JoinType.LEFT).get(Gene_.id))
                     );
             }
             if (criteria.getNciThesaurusId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getNciThesaurusId(),
                             root -> root.join(Synonym_.nciThesauruses, JoinType.LEFT).get(NciThesaurus_.id)

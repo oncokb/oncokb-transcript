@@ -80,17 +80,17 @@ public class SequenceQueryService extends QueryService<Sequence> {
         if (criteria != null) {
             // This has to be called first, because the distinct method returns null
             if (criteria.getDistinct() != null) {
-                specification = specification.and(distinct(criteria.getDistinct()));
+                specification = specification.or(distinct(criteria.getDistinct()));
             }
             if (criteria.getId() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getId(), Sequence_.id));
+                specification = specification.or(buildRangeSpecification(criteria.getId(), Sequence_.id));
             }
             if (criteria.getSequenceType() != null) {
-                specification = specification.and(buildSpecification(criteria.getSequenceType(), Sequence_.sequenceType));
+                specification = specification.or(buildSpecification(criteria.getSequenceType(), Sequence_.sequenceType));
             }
             if (criteria.getTranscriptId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getTranscriptId(),
                             root -> root.join(Sequence_.transcript, JoinType.LEFT).get(Transcript_.id)

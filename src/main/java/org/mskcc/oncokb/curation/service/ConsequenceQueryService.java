@@ -80,27 +80,27 @@ public class ConsequenceQueryService extends QueryService<Consequence> {
         if (criteria != null) {
             // This has to be called first, because the distinct method returns null
             if (criteria.getDistinct() != null) {
-                specification = specification.and(distinct(criteria.getDistinct()));
+                specification = specification.or(distinct(criteria.getDistinct()));
             }
             if (criteria.getId() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getId(), Consequence_.id));
+                specification = specification.or(buildRangeSpecification(criteria.getId(), Consequence_.id));
             }
             if (criteria.getTerm() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getTerm(), Consequence_.term));
+                specification = specification.or(buildStringSpecification(criteria.getTerm(), Consequence_.term));
             }
             if (criteria.getName() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getName(), Consequence_.name));
+                specification = specification.or(buildStringSpecification(criteria.getName(), Consequence_.name));
             }
             if (criteria.getIsGenerallyTruncating() != null) {
                 specification =
-                    specification.and(buildSpecification(criteria.getIsGenerallyTruncating(), Consequence_.isGenerallyTruncating));
+                    specification.or(buildSpecification(criteria.getIsGenerallyTruncating(), Consequence_.isGenerallyTruncating));
             }
             if (criteria.getDescription() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getDescription(), Consequence_.description));
+                specification = specification.or(buildStringSpecification(criteria.getDescription(), Consequence_.description));
             }
             if (criteria.getAlterationId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getAlterationId(),
                             root -> root.join(Consequence_.alterations, JoinType.LEFT).get(Alteration_.id)
@@ -109,7 +109,7 @@ public class ConsequenceQueryService extends QueryService<Consequence> {
             }
             if (criteria.getCategoricalAlterationId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getCategoricalAlterationId(),
                             root -> root.join(Consequence_.categoricalAlterations, JoinType.LEFT).get(CategoricalAlteration_.id)

@@ -80,20 +80,20 @@ public class DrugBrandQueryService extends QueryService<DrugBrand> {
         if (criteria != null) {
             // This has to be called first, because the distinct method returns null
             if (criteria.getDistinct() != null) {
-                specification = specification.and(distinct(criteria.getDistinct()));
+                specification = specification.or(distinct(criteria.getDistinct()));
             }
             if (criteria.getId() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getId(), DrugBrand_.id));
+                specification = specification.or(buildRangeSpecification(criteria.getId(), DrugBrand_.id));
             }
             if (criteria.getName() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getName(), DrugBrand_.name));
+                specification = specification.or(buildStringSpecification(criteria.getName(), DrugBrand_.name));
             }
             if (criteria.getRegion() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getRegion(), DrugBrand_.region));
+                specification = specification.or(buildStringSpecification(criteria.getRegion(), DrugBrand_.region));
             }
             if (criteria.getDrugId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(criteria.getDrugId(), root -> root.join(DrugBrand_.drug, JoinType.LEFT).get(Drug_.id))
                     );
             }

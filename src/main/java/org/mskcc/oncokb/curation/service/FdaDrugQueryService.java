@@ -80,17 +80,17 @@ public class FdaDrugQueryService extends QueryService<FdaDrug> {
         if (criteria != null) {
             // This has to be called first, because the distinct method returns null
             if (criteria.getDistinct() != null) {
-                specification = specification.and(distinct(criteria.getDistinct()));
+                specification = specification.or(distinct(criteria.getDistinct()));
             }
             if (criteria.getId() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getId(), FdaDrug_.id));
+                specification = specification.or(buildRangeSpecification(criteria.getId(), FdaDrug_.id));
             }
             if (criteria.getApplicationNumber() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getApplicationNumber(), FdaDrug_.applicationNumber));
+                specification = specification.or(buildStringSpecification(criteria.getApplicationNumber(), FdaDrug_.applicationNumber));
             }
             if (criteria.getDrugId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(criteria.getDrugId(), root -> root.join(FdaDrug_.drug, JoinType.LEFT).get(Drug_.id))
                     );
             }

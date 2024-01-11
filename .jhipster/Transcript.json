@@ -58,8 +58,7 @@
       "relationshipType": "many-to-one",
       "otherEntityName": "gene",
       "otherEntityRelationshipName": "transcript",
-      "relationshipName": "gene",
-      "otherEntityField": "entrezGeneId"
+      "relationshipName": "gene"
     },
     {
       "relationshipType": "many-to-many",

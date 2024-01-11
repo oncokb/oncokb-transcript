@@ -43,8 +43,7 @@
       "relationshipType": "many-to-one",
       "otherEntityName": "gene",
       "otherEntityRelationshipName": "ensemblGene",
-      "relationshipName": "gene",
-      "otherEntityField": "entrezGeneId"
+      "relationshipName": "gene"
     },
     {
       "relationshipType": "many-to-one",
