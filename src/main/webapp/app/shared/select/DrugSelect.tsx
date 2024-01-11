@@ -14,6 +14,7 @@ interface IDrugSelectProps extends SelectProps, StoreProps {}
 export type DrugSelectOption = {
   label: string;
   value: number;
+  uuid: string;
 };
 
 const sortParameter = getEntityPaginationSortParameter(DEFAULT_ENTITY_SORT_FIELD[ENTITY_TYPE.DRUG], DEFAULT_SORT_DIRECTION);
@@ -32,6 +33,7 @@ const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
     options = result?.data?.map((entity: IDrug) => ({
       value: entity.id,
       label: entity.name,
+      uuid: entity.uuid,
     }));
 
     return {

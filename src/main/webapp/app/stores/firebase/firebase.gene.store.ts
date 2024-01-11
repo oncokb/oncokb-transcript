@@ -1,4 +1,13 @@
-import { DX_LEVELS, Gene, FIREBASE_ONCOGENICITY, PX_LEVELS, TX_LEVELS, Review, Tumor } from 'app/shared/model/firebase/firebase.model';
+import {
+  DX_LEVELS,
+  Gene,
+  FIREBASE_ONCOGENICITY,
+  PX_LEVELS,
+  TX_LEVELS,
+  Review,
+  Tumor,
+  Treatment,
+} from 'app/shared/model/firebase/firebase.model';
 import { IRootStore } from '../createStore';
 import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
 import { ExtractPathExpressions } from 'app/shared/util/firebase/firebase-crud-store';
@@ -48,6 +57,7 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
       mutationLevelMutationSummaryStats: computed,
       deleteSection: action.bound,
       updateTumor: action.bound,
+      updateTreatment: action.bound,
     });
   }
 
@@ -219,5 +229,9 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
 
   async updateTumor(path: string, tumor: Tumor) {
     return await update(ref(this.db, path), tumor);
+  }
+
+  async updateTreatment(path: string, treatment: Treatment) {
+    return await update(ref(this.db, path), treatment);
   }
 }

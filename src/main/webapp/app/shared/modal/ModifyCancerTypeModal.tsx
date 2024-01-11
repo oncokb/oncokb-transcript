@@ -7,9 +7,9 @@ import { IRootStore } from 'app/stores';
 import { componentInject } from '../util/typed-inject';
 import { ICancerType } from '../model/cancer-type.model';
 import { FaExclamationCircle } from 'react-icons/fa';
-import './modify-cancer-type-modal.scss';
 import { Button, Spinner } from 'reactstrap';
 import { observer } from 'mobx-react-lite';
+import styles from './styles.module.scss';
 
 export interface IModifyCancerTypeModalProps extends StoreProps {
   cancerTypesUuid: string;
@@ -148,7 +148,7 @@ const ModifyCancerTypeModalContent = observer(
         body={
           <div>
             {modifyCancerTypeModalStore.isErrorFetchingICancerTypes && (
-              <div className="mb-4 warning-message">
+              <div className={`mb-4 ${styles.warning}`}>
                 <FaExclamationCircle className="mr-2" size={'25px'} />
                 <span className="mr-3">Error fetching cancer types</span>
                 <Button
@@ -176,7 +176,7 @@ const ModifyCancerTypeModalContent = observer(
                 isMulti
               />
               {isConfirmButtonDisabled && !modifyCancerTypeModalStore.isErrorFetchingICancerTypes ? (
-                <div className="mt-2 mb-4 warning-message">
+                <div className={`mt-2 mb-4 ${styles.warning}`}>
                   <FaExclamationCircle className="mr-2" size={'25px'} />
                   <span>You must include at least one cancer type</span>
                 </div>

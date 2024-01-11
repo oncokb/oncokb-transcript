@@ -25,7 +25,7 @@ import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/fir
 import { getFirebasePath, getMutationName, getTxName } from 'app/shared/util/firebase/firebase-utils';
 import styles from './styles.module.scss';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { CancerType, DX_LEVELS, HistoryRecord, Mutation, PX_LEVELS, TX_LEVELS, Treatment } from 'app/shared/model/firebase/firebase.model';
+import { CancerType, DX_LEVELS, HistoryRecord, Mutation, PX_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
 import { GENE_TYPE, GENE_TYPE_KEY, MUTATION_EFFECT_OPTIONS, ONCOGENICITY_OPTIONS, TX_LEVEL_OPTIONS } from 'app/config/constants/firebase';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
@@ -501,14 +501,6 @@ const CurationPage = (props: ICurationPageProps) => {
           </ModalBody>
         </Modal>
       </div>
-      <ModifyTherapyModal
-        onConfirm={() => {}}
-        treatment={
-          new Treatment(
-            '5fce3074-e420-4c36-9603-2423daf20118, 5fce3074-e420-4c36-9603-2423daf20118 + 3bbe37b1-edc8-4c54-93f8-5360d9a83d69, d7b1d12a-e942-4801-bb64-916c9bdfaaf3, d7b1d12a-e942-4801-bb64-916c9bdfaaf3 + 3bbe37b1-edc8-4c54-93f8-5360d9a83d69'
-          )
-        }
-      />
       <OncoKBSidebar>
         <Tabs
           tabs={[
