@@ -112,6 +112,12 @@ public class EvidenceQueryService extends QueryService<Evidence> {
                         )
                     );
             }
+            if (criteria.getGeneId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getGeneId(), root -> root.join(Evidence_.gene, JoinType.LEFT).get(Gene_.id))
+                    );
+            }
         }
         return specification;
     }

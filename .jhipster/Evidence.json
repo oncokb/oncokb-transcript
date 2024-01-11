@@ -44,8 +44,7 @@
       "relationshipType": "many-to-one",
       "otherEntityName": "gene",
       "otherEntityRelationshipName": "evidence",
-      "relationshipName": "gene",
-      "otherEntityField": "entrezGeneId"
+      "relationshipName": "gene"
     }
   ],
   "entityTableName": "evidence",

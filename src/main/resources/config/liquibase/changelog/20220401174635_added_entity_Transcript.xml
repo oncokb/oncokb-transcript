@@ -35,7 +35,7 @@
             <column name="ensembl_gene_id" type="bigint">
                 <constraints nullable="true" />
             </column>
-            <column name="entrez_gene_id" type="integer">
+            <column name="gene_id" type="bigint">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->

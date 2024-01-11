@@ -75,7 +75,6 @@ public class Evidence implements Serializable {
     @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "ensemblGenes", "evidences", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
-    @JoinColumn(name = "entrez_gene_id", referencedColumnName = "entrez_gene_id")
     private Gene gene;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

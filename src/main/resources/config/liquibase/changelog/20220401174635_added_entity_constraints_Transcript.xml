@@ -26,10 +26,10 @@
                                  referencedColumnNames="id"
                                  referencedTableName="ensembl_gene"/>
 
-        <addForeignKeyConstraint baseColumnNames="entrez_gene_id"
+        <addForeignKeyConstraint baseColumnNames="gene_id"
                                  baseTableName="transcript"
-                                 constraintName="fk_transcript__entrez_gene_id"
-                                 referencedColumnNames="entrez_gene_id"
+                                 constraintName="fk_transcript__gene_id"
+                                 referencedColumnNames="id"
                                  referencedTableName="gene"/>
     </changeSet>
 </databaseChangeLog>
