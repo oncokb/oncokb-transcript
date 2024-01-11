@@ -80,20 +80,20 @@ public class GenomicIndicatorQueryService extends QueryService<GenomicIndicator>
         if (criteria != null) {
             // This has to be called first, because the distinct method returns null
             if (criteria.getDistinct() != null) {
-                specification = specification.and(distinct(criteria.getDistinct()));
+                specification = specification.or(distinct(criteria.getDistinct()));
             }
             if (criteria.getId() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getId(), GenomicIndicator_.id));
+                specification = specification.or(buildRangeSpecification(criteria.getId(), GenomicIndicator_.id));
             }
             if (criteria.getType() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getType(), GenomicIndicator_.type));
+                specification = specification.or(buildStringSpecification(criteria.getType(), GenomicIndicator_.type));
             }
             if (criteria.getName() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getName(), GenomicIndicator_.name));
+                specification = specification.or(buildStringSpecification(criteria.getName(), GenomicIndicator_.name));
             }
             if (criteria.getAssociationId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getAssociationId(),
                             root -> root.join(GenomicIndicator_.associations, JoinType.LEFT).get(Association_.id)

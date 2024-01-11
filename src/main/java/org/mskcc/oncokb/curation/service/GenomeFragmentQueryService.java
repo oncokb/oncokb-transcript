@@ -80,26 +80,26 @@ public class GenomeFragmentQueryService extends QueryService<GenomeFragment> {
         if (criteria != null) {
             // This has to be called first, because the distinct method returns null
             if (criteria.getDistinct() != null) {
-                specification = specification.and(distinct(criteria.getDistinct()));
+                specification = specification.or(distinct(criteria.getDistinct()));
             }
             if (criteria.getId() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getId(), GenomeFragment_.id));
+                specification = specification.or(buildRangeSpecification(criteria.getId(), GenomeFragment_.id));
             }
             if (criteria.getStart() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getStart(), GenomeFragment_.start));
+                specification = specification.or(buildRangeSpecification(criteria.getStart(), GenomeFragment_.start));
             }
             if (criteria.getEnd() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getEnd(), GenomeFragment_.end));
+                specification = specification.or(buildRangeSpecification(criteria.getEnd(), GenomeFragment_.end));
             }
             if (criteria.getStrand() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getStrand(), GenomeFragment_.strand));
+                specification = specification.or(buildRangeSpecification(criteria.getStrand(), GenomeFragment_.strand));
             }
             if (criteria.getType() != null) {
-                specification = specification.and(buildSpecification(criteria.getType(), GenomeFragment_.type));
+                specification = specification.or(buildSpecification(criteria.getType(), GenomeFragment_.type));
             }
             if (criteria.getSeqRegionId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getSeqRegionId(),
                             root -> root.join(GenomeFragment_.seqRegion, JoinType.LEFT).get(SeqRegion_.id)
@@ -108,7 +108,7 @@ public class GenomeFragmentQueryService extends QueryService<GenomeFragment> {
             }
             if (criteria.getTranscriptId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getTranscriptId(),
                             root -> root.join(GenomeFragment_.transcript, JoinType.LEFT).get(Transcript_.id)

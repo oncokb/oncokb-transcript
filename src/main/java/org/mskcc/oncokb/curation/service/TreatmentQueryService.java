@@ -80,17 +80,17 @@ public class TreatmentQueryService extends QueryService<Treatment> {
         if (criteria != null) {
             // This has to be called first, because the distinct method returns null
             if (criteria.getDistinct() != null) {
-                specification = specification.and(distinct(criteria.getDistinct()));
+                specification = specification.or(distinct(criteria.getDistinct()));
             }
             if (criteria.getId() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getId(), Treatment_.id));
+                specification = specification.or(buildRangeSpecification(criteria.getId(), Treatment_.id));
             }
             if (criteria.getName() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getName(), Treatment_.name));
+                specification = specification.or(buildStringSpecification(criteria.getName(), Treatment_.name));
             }
             if (criteria.getTreatmentPriorityId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getTreatmentPriorityId(),
                             root -> root.join(Treatment_.treatmentPriorities, JoinType.LEFT).get(TreatmentPriority_.id)
@@ -99,13 +99,13 @@ public class TreatmentQueryService extends QueryService<Treatment> {
             }
             if (criteria.getDrugId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(criteria.getDrugId(), root -> root.join(Treatment_.drugs, JoinType.LEFT).get(Drug_.id))
                     );
             }
             if (criteria.getAssociationId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getAssociationId(),
                             root -> root.join(Treatment_.associations, JoinType.LEFT).get(Association_.id)

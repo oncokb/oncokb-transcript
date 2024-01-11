@@ -80,20 +80,20 @@ public class EligibilityCriteriaQueryService extends QueryService<EligibilityCri
         if (criteria != null) {
             // This has to be called first, because the distinct method returns null
             if (criteria.getDistinct() != null) {
-                specification = specification.and(distinct(criteria.getDistinct()));
+                specification = specification.or(distinct(criteria.getDistinct()));
             }
             if (criteria.getId() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getId(), EligibilityCriteria_.id));
+                specification = specification.or(buildRangeSpecification(criteria.getId(), EligibilityCriteria_.id));
             }
             if (criteria.getType() != null) {
-                specification = specification.and(buildSpecification(criteria.getType(), EligibilityCriteria_.type));
+                specification = specification.or(buildSpecification(criteria.getType(), EligibilityCriteria_.type));
             }
             if (criteria.getPriority() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getPriority(), EligibilityCriteria_.priority));
+                specification = specification.or(buildRangeSpecification(criteria.getPriority(), EligibilityCriteria_.priority));
             }
             if (criteria.getAssociationId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getAssociationId(),
                             root -> root.join(EligibilityCriteria_.associations, JoinType.LEFT).get(Association_.id)
@@ -102,7 +102,7 @@ public class EligibilityCriteriaQueryService extends QueryService<EligibilityCri
             }
             if (criteria.getClinicalTrialId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getClinicalTrialId(),
                             root -> root.join(EligibilityCriteria_.clinicalTrial, JoinType.LEFT).get(ClinicalTrial_.id)

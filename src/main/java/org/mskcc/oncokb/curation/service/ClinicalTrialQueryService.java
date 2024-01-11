@@ -80,26 +80,26 @@ public class ClinicalTrialQueryService extends QueryService<ClinicalTrial> {
         if (criteria != null) {
             // This has to be called first, because the distinct method returns null
             if (criteria.getDistinct() != null) {
-                specification = specification.and(distinct(criteria.getDistinct()));
+                specification = specification.or(distinct(criteria.getDistinct()));
             }
             if (criteria.getId() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getId(), ClinicalTrial_.id));
+                specification = specification.or(buildRangeSpecification(criteria.getId(), ClinicalTrial_.id));
             }
             if (criteria.getNctId() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getNctId(), ClinicalTrial_.nctId));
+                specification = specification.or(buildStringSpecification(criteria.getNctId(), ClinicalTrial_.nctId));
             }
             if (criteria.getBriefTitle() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getBriefTitle(), ClinicalTrial_.briefTitle));
+                specification = specification.or(buildStringSpecification(criteria.getBriefTitle(), ClinicalTrial_.briefTitle));
             }
             if (criteria.getPhase() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getPhase(), ClinicalTrial_.phase));
+                specification = specification.or(buildStringSpecification(criteria.getPhase(), ClinicalTrial_.phase));
             }
             if (criteria.getStatus() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getStatus(), ClinicalTrial_.status));
+                specification = specification.or(buildStringSpecification(criteria.getStatus(), ClinicalTrial_.status));
             }
             if (criteria.getClinicalTrialArmId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getClinicalTrialArmId(),
                             root -> root.join(ClinicalTrial_.clinicalTrialArms, JoinType.LEFT).get(ClinicalTrialArm_.id)
@@ -108,7 +108,7 @@ public class ClinicalTrialQueryService extends QueryService<ClinicalTrial> {
             }
             if (criteria.getEligibilityCriteriaId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getEligibilityCriteriaId(),
                             root -> root.join(ClinicalTrial_.eligibilityCriteria, JoinType.LEFT).get(EligibilityCriteria_.id)
@@ -117,7 +117,7 @@ public class ClinicalTrialQueryService extends QueryService<ClinicalTrial> {
             }
             if (criteria.getAssociationId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getAssociationId(),
                             root -> root.join(ClinicalTrial_.associations, JoinType.LEFT).get(Association_.id)

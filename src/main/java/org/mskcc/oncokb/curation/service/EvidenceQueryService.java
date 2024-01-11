@@ -80,23 +80,23 @@ public class EvidenceQueryService extends QueryService<Evidence> {
         if (criteria != null) {
             // This has to be called first, because the distinct method returns null
             if (criteria.getDistinct() != null) {
-                specification = specification.and(distinct(criteria.getDistinct()));
+                specification = specification.or(distinct(criteria.getDistinct()));
             }
             if (criteria.getId() != null) {
-                specification = specification.and(buildRangeSpecification(criteria.getId(), Evidence_.id));
+                specification = specification.or(buildRangeSpecification(criteria.getId(), Evidence_.id));
             }
             if (criteria.getUuid() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getUuid(), Evidence_.uuid));
+                specification = specification.or(buildStringSpecification(criteria.getUuid(), Evidence_.uuid));
             }
             if (criteria.getEvidenceType() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getEvidenceType(), Evidence_.evidenceType));
+                specification = specification.or(buildStringSpecification(criteria.getEvidenceType(), Evidence_.evidenceType));
             }
             if (criteria.getKnownEffect() != null) {
-                specification = specification.and(buildStringSpecification(criteria.getKnownEffect(), Evidence_.knownEffect));
+                specification = specification.or(buildStringSpecification(criteria.getKnownEffect(), Evidence_.knownEffect));
             }
             if (criteria.getAssociationId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getAssociationId(),
                             root -> root.join(Evidence_.association, JoinType.LEFT).get(Association_.id)
@@ -105,7 +105,7 @@ public class EvidenceQueryService extends QueryService<Evidence> {
             }
             if (criteria.getLevelOfEvidenceId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(
                             criteria.getLevelOfEvidenceId(),
                             root -> root.join(Evidence_.levelOfEvidences, JoinType.LEFT).get(LevelOfEvidence_.id)
@@ -114,7 +114,7 @@ public class EvidenceQueryService extends QueryService<Evidence> {
             }
             if (criteria.getGeneId() != null) {
                 specification =
-                    specification.and(
+                    specification.or(
                         buildSpecification(criteria.getGeneId(), root -> root.join(Evidence_.gene, JoinType.LEFT).get(Gene_.id))
                     );
             }
