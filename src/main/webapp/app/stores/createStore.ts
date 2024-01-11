@@ -108,6 +108,7 @@ import SynonymStore from 'app/entities/synonym/synonym.store';
 import TreatmentStore from 'app/entities/treatment/treatment.store';
 import TreatmentPriorityStore from 'app/entities/treatment-priority/treatment-priority.store';
 import { ModifyCancerTypeModalStore } from 'app/shared/modal/modify-cancer-type-modal.store';
+import { ModifyTherapyModalStore } from 'app/shared/modal/modify-therapy-modal.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
@@ -150,6 +151,7 @@ export interface IRootStore {
   readonly treatmentStore: TreatmentStore;
   readonly treatmentPriorityStore: TreatmentPriorityStore;
   readonly modifyCancerTypeModalStore: ModifyCancerTypeModalStore;
+  readonly modifyTherapyModalStore: ModifyTherapyModalStore;
   /* Firebase stores */
   readonly firebaseStore: FirebaseStore;
   readonly firebaseGeneStore: FirebaseGeneStore;
@@ -206,6 +208,7 @@ export function createStores(history: History): IRootStore {
   rootStore.treatmentStore = new TreatmentStore(rootStore);
   rootStore.treatmentPriorityStore = new TreatmentPriorityStore(rootStore);
   rootStore.modifyCancerTypeModalStore = new ModifyCancerTypeModalStore();
+  rootStore.modifyTherapyModalStore = new ModifyTherapyModalStore();
   /* Firebase stores */
   rootStore.firebaseStore = new FirebaseStore(rootStore);
   rootStore.firebaseGeneStore = new FirebaseGeneStore(rootStore);
