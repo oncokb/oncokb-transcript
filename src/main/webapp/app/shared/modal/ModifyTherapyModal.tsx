@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { SimpleConfirmModal } from './SimpleConfirmModal';
 import { Treatment } from '../model/firebase/firebase.model';
 import DrugSelect, { DrugSelectOption } from '../select/DrugSelect';
@@ -7,6 +7,8 @@ import { componentInject } from '../util/typed-inject';
 import { observer } from 'mobx-react';
 import { getTxName } from '../util/firebase/firebase-utils';
 import { IDrug } from '../model/drug.model';
+import { FaRegTrashAlt } from 'react-icons/fa';
+import './modify-therapy-modal.scss';
 
 export interface IModifyTherapyModalProps extends StoreProps {
   treatment: Treatment;
@@ -15,6 +17,7 @@ export interface IModifyTherapyModalProps extends StoreProps {
 
 /* eslint-disable no-console */
 function ModifyTherapyModal({ treatment, searchDrugs, drugList, modifyTherapyModalStore }: IModifyTherapyModalProps) {
+  const disableDeleteTherapy = modifyTherapyModalStore.selectedTreatments.length < 2;
   const [isOpen, setIsOpen] = useState(true);
 
   async function getDrugFromTreatmentUuid(treatmentId: string) {
@@ -59,7 +62,6 @@ function ModifyTherapyModal({ treatment, searchDrugs, drugList, modifyTherapyMod
         }
         selectedTreatments.push(selectedTreatmentList);
       }
-      console.log(selectedTreatments);
       modifyTherapyModalStore.setSelectedTreatments(selectedTreatments);
     }
 
@@ -72,14 +74,33 @@ function ModifyTherapyModal({ treatment, searchDrugs, drugList, modifyTherapyMod
       show={isOpen}
       onCancel={() => setIsOpen(false)}
       body={
-        <div>
-          {modifyTherapyModalStore.selectedTreatments.map((options, index) => {
+        <div className="mb-2">
+          {modifyTherapyModalStore.selectedTreatments.map((therapy, index) => {
             return (
-              <div key={index}>
-                {' '}
+              <div className={`${index === 0 ? 'mt-2' : 'mt-3'}`} key={index}>
                 {/* find better key */}
                 <h6 className="mb-2">Therapy</h6>
-                <DrugSelect isDisabled={modifyTherapyModalStore.isErrorFetchingTherapies} value={options} isMulti />
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div className="mr-3" style={{ flexGrow: 1 }}>
+                    <DrugSelect
+                      onChange={options => modifyTherapyModalStore.setTherapy(index, options)}
+                      isDisabled={disableDeleteTherapy}
+                      value={therapy}
+                      isMulti
+                    />
+                  </div>
+                  <FaRegTrashAlt
+                    className={`${disableDeleteTherapy ? 'delete-disabled' : 'delete-enabled'}`}
+                    onClick={
+                      disableDeleteTherapy
+                        ? null
+                        : () => {
+                            modifyTherapyModalStore.removeTherapy(index);
+                          }
+                    }
+                    size={16}
+                  />
+                </div>
               </div>
             );
           })}

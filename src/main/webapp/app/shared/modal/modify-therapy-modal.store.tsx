@@ -14,6 +14,8 @@ export class ModifyTherapyModalStore {
       openModal: action.bound,
       setSelectedTreatments: action.bound,
       setIsErrorFetchingTherapies: action.bound,
+      setTherapy: action.bound,
+      removeTherapy: action.bound,
     });
   }
 
@@ -27,5 +29,13 @@ export class ModifyTherapyModalStore {
 
   setIsErrorFetchingTherapies(isError: boolean) {
     this.isErrorFetchingTherapies = isError;
+  }
+
+  setTherapy(index: number, therapy: DrugSelectOption[]) {
+    this.selectedTreatments[index] = therapy;
+  }
+
+  removeTherapy(index: number) {
+    this.selectedTreatments.splice(index, 1);
   }
 }
