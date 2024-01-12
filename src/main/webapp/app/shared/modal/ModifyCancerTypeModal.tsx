@@ -61,8 +61,9 @@ const ModifyCancerTypeModalContent = observer(
 
     async function getICancerTypeFromCancerType(cancerType: CancerType) {
       try {
-        const iCancerType = await searchCancerTypes({ query: cancerType.subtype ? cancerType.code : cancerType.mainType });
-        return iCancerType['data'][0];
+        const isMainType = !cancerType.subtype;
+        const iCancerType = await searchCancerTypes({ query: isMainType ? cancerType.mainType : cancerType.code });
+        return isMainType ? iCancerType['data'].find(data => !data.subtype) : iCancerType['data'][0];
       } catch {
         modifyCancerTypeModalStore.setIsErrorFetchingICancerTypes(true);
         return null;
