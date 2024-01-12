@@ -11,6 +11,7 @@ import { FaExclamationCircle, FaRegTrashAlt } from 'react-icons/fa';
 import styles from './styles.module.scss';
 import './modify-therapy-modal.scss';
 import { Button, Spinner } from 'reactstrap';
+import { generateUuid } from '../util/utils';
 
 export interface IModifyTherapyModalProps extends StoreProps {
   treatment: Treatment;
@@ -157,8 +158,7 @@ const ModifyTherapyModalContent = observer(
             <div className="mb-2">
               {modifyTherapyModalStore.selectedTreatments.map((therapy, index) => {
                 return (
-                  <div className={`${index === 0 ? 'mt-2' : 'mt-3'}`} key={index}>
-                    {/* find better key */}
+                  <div className={`${index === 0 ? 'mt-2' : 'mt-3'}`} key={generateUuid()}>
                     <h6 className="mb-2">Therapy</h6>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <div className="mr-3" style={{ flexGrow: 1 }}>
