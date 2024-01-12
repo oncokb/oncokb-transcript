@@ -185,7 +185,7 @@ const ModifyTherapyModalContent = observer(
                 );
               })}
             </div>
-            <div style={{ textAlign: 'right' }} className="">
+            <div>
               <Button outline size="sm" className="mt-2" color="primary" onClick={modifyTherapyModalStore.addTherapy}>
                 Add Therapy
               </Button>
