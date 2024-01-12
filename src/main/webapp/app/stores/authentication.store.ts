@@ -52,6 +52,8 @@ export class AuthStore extends BaseStore {
       logout: action.bound,
       fetchingSession: observable,
     });
+
+    this.getSession();
   }
 
   resetBase() {
@@ -102,16 +104,19 @@ export class AuthStore extends BaseStore {
 
   *getSessionGen() {
     try {
+      this.loading = true;
       this.fetchingSession = true;
       const result: AxiosResponse = yield axios.get('/api/account');
       this.account = result.data;
       this.isAuthenticated = !!result.data;
       this.fetchingSession = false;
+      this.loading = false;
       return result;
     } catch (e) {
       this.isAuthenticated = false;
       this.fetchingSession = false;
       this.loginError = e;
+      this.loading = false;
       throw e;
     }
   }

@@ -175,7 +175,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
     <Sidebar collapsed={props.isNavSidebarCollapsed} width={`${SIDEBAR_EXPANDED_WIDTH}px`} collapsedWidth={`${SIDEBAR_COLLAPSED_WIDTH}px`}>
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div style={{ lineHeight: '5rem', display: 'flex', justifyContent: 'center' }}>
-          <NavbarBrand as={NavLink} to={PAGE_ROUTE.HOME}>
+          <NavbarBrand tag={NavLink} to={PAGE_ROUTE.HOME}>
             {props.isNavSidebarCollapsed ? (
               <OptimizedImage height={30} src={oncokbSmallLogo} alt={'OncoKB'} />
             ) : (

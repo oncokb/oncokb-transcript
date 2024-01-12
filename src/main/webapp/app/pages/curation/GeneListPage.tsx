@@ -1,13 +1,11 @@
 import React, { useEffect, useMemo } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { Row, Col } from 'reactstrap';
-import { If, Then, Else } from 'react-if';
+import { Col, Row } from 'reactstrap';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { geneNeedsReview } from 'app/shared/util/firebase/firebase-utils';
-import _ from 'lodash';
 import { Link } from 'react-router-dom';
-import { APP_DATETIME_FORMAT, APP_DATE_FORMAT, PAGE_ROUTE } from 'app/config/constants/constants';
+import { APP_DATETIME_FORMAT, PAGE_ROUTE } from 'app/config/constants/constants';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword } from 'app/shared/util/utils';
 import { TextFormat } from 'react-jhipster';
@@ -24,9 +22,11 @@ type GeneMetaInfo = {
 
 const GeneListPage = (props: StoreProps) => {
   useEffect(() => {
-    const unsubscribe = props.addMetaListener();
-    return () => unsubscribe && unsubscribe();
-  }, []);
+    if (props.firebaseInitSuccess) {
+      const unsubscribe = props.addMetaListener();
+      return () => unsubscribe && unsubscribe();
+    }
+  }, [props.firebaseInitSuccess]);
 
   const geneMeta = useMemo(() => {
     const ignoredKeys = ['collaborators', 'undefined'];
@@ -78,43 +78,47 @@ const GeneListPage = (props: StoreProps) => {
 
   return (
     <>
-      <If condition={!!props.metaData && !!geneMeta}>
-        <Then>
-          <Row>
-            <Col>
-              <OncoKBTable
-                data={geneMeta}
-                columns={columns}
-                showPagination
-                defaultSorted={[
-                  {
-                    id: 'needsReview',
-                    desc: true,
-                  },
-                ]}
-              />
-            </Col>
-          </Row>
-        </Then>
-        <Else>
-          <LoadingIndicator size={LoaderSize.LARGE} center={true} isLoading />
-        </Else>
-      </If>
-      <OncoKBSidebar>
-        <Tabs
-          tabs={[
-            {
-              title: 'Tools',
-              content: <GeneListPageToolsTab />,
-            },
-          ]}
-        />
-      </OncoKBSidebar>
+      {props.firebaseInitSuccess && (
+        <>
+          {!!props.metaData && !!geneMeta ? (
+            <Row>
+              <Col>
+                <OncoKBTable
+                  data={geneMeta}
+                  columns={columns}
+                  showPagination
+                  defaultSorted={[
+                    {
+                      id: 'needsReview',
+                      desc: true,
+                    },
+                  ]}
+                />
+              </Col>
+            </Row>
+          ) : (
+            <LoadingIndicator size={LoaderSize.LARGE} center={true} isLoading />
+          )}
+          <OncoKBSidebar>
+            <Tabs
+              tabs={[
+                {
+                  title: 'Tools',
+                  content: <GeneListPageToolsTab />,
+                },
+              ]}
+            />
+          </OncoKBSidebar>
+        </>
+      )}
+      {props.firebaseInitError && <div>Error loading Firebase.</div>}
     </>
   );
 };
 
-const mapStoreToProps = ({ firebaseMetaStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseMetaStore, firebaseStore }: IRootStore) => ({
+  firebaseInitSuccess: firebaseStore.firebaseInitSuccess,
+  firebaseInitError: firebaseStore.firebaseInitError,
   addMetaListener: firebaseMetaStore.addMetaListListener,
   metaData: firebaseMetaStore.metaList,
 });
