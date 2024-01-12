@@ -18,6 +18,7 @@ export class ModifyTherapyModalStore {
       setSelectedTreatments: action.bound,
       setIsErrorFetchingTherapies: action.bound,
       setIsRetryButtonClicked: action.bound,
+      addTherapy: action.bound,
       setTherapy: action.bound,
       removeTherapy: action.bound,
     });
@@ -44,6 +45,10 @@ export class ModifyTherapyModalStore {
 
   setIsRetryButtonClicked(isClicked: boolean) {
     this.isRetryButtonClicked = isClicked;
+  }
+
+  addTherapy() {
+    this.selectedTreatments.push([]);
   }
 
   setTherapy(index: number, therapy: DrugSelectOption[]) {

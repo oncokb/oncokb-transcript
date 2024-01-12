@@ -7,7 +7,7 @@ import { componentInject } from '../util/typed-inject';
 import { observer } from 'mobx-react';
 import { getTxName } from '../util/firebase/firebase-utils';
 import { IDrug } from '../model/drug.model';
-import { FaExclamationCircle, FaPlusCircle, FaRegTrashAlt } from 'react-icons/fa';
+import { FaExclamationCircle, FaRegTrashAlt } from 'react-icons/fa';
 import styles from './styles.module.scss';
 import './modify-therapy-modal.scss';
 import { Button, Spinner } from 'reactstrap';
@@ -18,19 +18,7 @@ export interface IModifyTherapyModalProps extends StoreProps {
   onCancel: () => void;
 }
 
-/* eslint-disable no-console */
 function ModifyTherapyModal({ treatment, onConfirm, onCancel, searchDrugs, drugList, modifyTherapyModalStore }: IModifyTherapyModalProps) {
-  return (
-    <ModifyTherapyModalContent
-      treatment={treatment}
-      onConfirm={onConfirm}
-      onCancel={onCancel}
-      searchDrugs={searchDrugs}
-      drugList={drugList}
-      modifyTherapyModalStore={modifyTherapyModalStore}
-    />
-  );
-
   return modifyTherapyModalStore.openTreatmentUuid === treatment.name_uuid ? (
     <ModifyTherapyModalContent
       treatment={treatment}
@@ -132,12 +120,7 @@ const ModifyTherapyModalContent = observer(
           </span>
         );
       }
-    }, [
-      modifyTherapyModalStore.selectedTreatments,
-      modifyTherapyModalStore.isErrorFetchingTherapies,
-      modifyTherapyModalStore.isErrorFetchingTherapies,
-      isEmptyTherapy,
-    ]);
+    }, [modifyTherapyModalStore.selectedTreatments, modifyTherapyModalStore.isErrorFetchingTherapies, isEmptyTherapy]);
 
     return (
       <SimpleConfirmModal
@@ -181,7 +164,7 @@ const ModifyTherapyModalContent = observer(
                       <div className="mr-3" style={{ flexGrow: 1 }}>
                         <DrugSelect
                           onChange={options => modifyTherapyModalStore.setTherapy(index, options)}
-                          isDisabled={disableDeleteTherapy}
+                          isDisabled={modifyTherapyModalStore.isErrorFetchingTherapies}
                           value={therapy}
                           isMulti
                         />
@@ -201,6 +184,11 @@ const ModifyTherapyModalContent = observer(
                   </div>
                 );
               })}
+            </div>
+            <div style={{ textAlign: 'right' }} className="">
+              <Button outline size="sm" className="mt-2" color="primary" onClick={modifyTherapyModalStore.addTherapy}>
+                Add Therapy
+              </Button>
             </div>
             <div className="mt-3">{bottomMessage}</div>
           </div>
