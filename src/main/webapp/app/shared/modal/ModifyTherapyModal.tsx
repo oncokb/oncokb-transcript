@@ -95,15 +95,7 @@ const ModifyTherapyModalContent = observer(
       modifyTherapyModalStore.setSelectedTreatments(selectedTreatments);
     }
 
-    useEffect(() => {
-      setSelectedTreatments();
-    }, []);
-
-    const isConfirmButtonDisabled = useMemo(() => {
-      return isEmptyTherapy || modifyTherapyModalStore.isErrorFetchingTherapies;
-    }, [isEmptyTherapy, modifyTherapyModalStore.isErrorFetchingTherapies]);
-
-    const bottomMessage = useMemo(() => {
+    function getBottomMessage() {
       if (modifyTherapyModalStore.isErrorFetchingTherapies) {
         return <></>;
       } else if (isEmptyTherapy && !modifyTherapyModalStore.isRetryButtonClicked) {
@@ -121,7 +113,15 @@ const ModifyTherapyModalContent = observer(
           </span>
         );
       }
-    }, [modifyTherapyModalStore.selectedTreatments, modifyTherapyModalStore.isErrorFetchingTherapies, isEmptyTherapy]);
+    }
+
+    useEffect(() => {
+      setSelectedTreatments();
+    }, []);
+
+    const isConfirmButtonDisabled = useMemo(() => {
+      return isEmptyTherapy || modifyTherapyModalStore.isErrorFetchingTherapies;
+    }, [isEmptyTherapy, modifyTherapyModalStore.isErrorFetchingTherapies]);
 
     return (
       <SimpleConfirmModal
@@ -190,7 +190,7 @@ const ModifyTherapyModalContent = observer(
                 Add Therapy
               </Button>
             </div>
-            <div className="mt-3">{bottomMessage}</div>
+            <div className="mt-3">{getBottomMessage()}</div>
           </div>
         }
       />
