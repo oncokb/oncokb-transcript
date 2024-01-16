@@ -114,7 +114,6 @@ const CurationPage = (props: ICurationPageProps) => {
     props.searchEntities({ query: hugoSymbol });
     const cleanupCallbacks = [];
     cleanupCallbacks.push(props.addListener(firebaseGenePath));
-    cleanupCallbacks.push(props.addDrugListListener());
     cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
     cleanupCallbacks.push(() => props.updateCollaborator(hugoSymbol, false));
     cleanupCallbacks.push(props.addMetaCollaboratorsListener());
@@ -220,7 +219,7 @@ const CurationPage = (props: ICurationPageProps) => {
           return [...filteredMutations, { ...mutation, firebaseIndex: index }];
         }
         return filteredMutations;
-      }, [])
+      }, []) || []
     );
   }
 
@@ -499,14 +498,7 @@ const CurationPage = (props: ICurationPageProps) => {
   );
 };
 
-const mapStoreToProps = ({
-  geneStore,
-  firebaseGeneStore,
-  firebaseMetaStore,
-  firebaseDrugsStore,
-  firebaseHistoryStore,
-  authStore,
-}: IRootStore) => ({
+const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, firebaseHistoryStore, drugStore, authStore }: IRootStore) => ({
   searchEntities: geneStore.searchEntities,
   entities: geneStore.entities,
   addListener: firebaseGeneStore.addListener,
@@ -517,8 +509,7 @@ const mapStoreToProps = ({
   mutationSummaryStats: firebaseGeneStore.mutationLevelMutationSummaryStats,
   addMetaCollaboratorsListener: firebaseMetaStore.addMetaCollaboratorsListener,
   metaData: firebaseMetaStore.data,
-  drugList: firebaseDrugsStore.drugList,
-  addDrugListListener: firebaseDrugsStore.addDrugListListener,
+  drugList: drugStore.drugList,
   metaCollaboratorsData: firebaseMetaStore.metaCollaborators,
   updateCollaborator: firebaseMetaStore.updateCollaborator,
   historyData: firebaseHistoryStore.data,

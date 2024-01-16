@@ -1,8 +1,9 @@
-import { DrugCollection, HistoryRecord, HistoryRecordState } from 'app/shared/model/firebase/firebase.model';
+import { HistoryRecord, HistoryRecordState } from 'app/shared/model/firebase/firebase.model';
 import { RequiredTimeSeriesEventData, ExtraTimeSeriesEventData } from '../timeSeries/TimeSeries';
 import ReactDiffViewer from 'react-diff-viewer-continued';
 import React from 'react';
 import { getTxName } from 'app/shared/util/firebase/firebase-utils';
+import { IDrug } from 'app/shared/model/drug.model';
 
 export default function constructTimeSeriesData(
   record: HistoryRecord,
@@ -99,7 +100,7 @@ export function getTimeSeriesDataContent(objectField: string, newContent: Histor
   return <div>{body}</div>;
 }
 
-export function formatLocation(location: string, drugList: DrugCollection, objectField: string) {
+export function formatLocation(location: string, drugList: IDrug[], objectField: string) {
   const locationSubstrings = location.split(',');
   const lastSubstring = locationSubstrings[locationSubstrings.length - 1];
   if (lastSubstring.endsWith('Mutation Effect')) {

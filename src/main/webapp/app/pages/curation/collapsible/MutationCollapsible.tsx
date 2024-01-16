@@ -36,11 +36,11 @@ const MutationCollapsible = ({
   hugoSymbol,
   deleteSection,
   updateTumor,
-  drugList,
   mutation,
   firebaseIndex,
   parsedHistoryList,
   modifyCancerTypeModalStore,
+  drugList,
 }: IMutationCollapsibleProps) => {
   const title = getMutationName(mutation);
   const mutationFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}`);
@@ -408,12 +408,12 @@ const MutationCollapsible = ({
   );
 };
 
-const mapStoreToProps = ({ firebaseGeneStore, firebaseDrugsStore, modifyCancerTypeModalStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseGeneStore, modifyCancerTypeModalStore, drugStore }: IRootStore) => ({
   data: firebaseGeneStore.data,
   hugoSymbol: firebaseGeneStore.hugoSymbol,
   deleteSection: firebaseGeneStore.deleteSection,
   updateTumor: firebaseGeneStore.updateTumor,
-  drugList: firebaseDrugsStore.drugList,
+  drugList: drugStore.drugList,
   modifyCancerTypeModalStore,
 });
 

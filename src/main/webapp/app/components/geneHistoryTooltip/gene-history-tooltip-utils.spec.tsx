@@ -125,22 +125,22 @@ describe('GeneHistoryTooltipUtils', () => {
 
       // Can always pass empty object for drug list since mocking getTxName
       let location = 'Gene Summary';
-      expect(formatLocation(location, {}, '')).toBe(location);
+      expect(formatLocation(location, [], '')).toBe(location);
 
       location = 'N127D, Mutation Effect';
-      expect(formatLocation(location, {}, 'description')).toBe('N127D, Mutation Effect, Description of Evidence');
+      expect(formatLocation(location, [], 'description')).toBe('N127D, Mutation Effect, Description of Evidence');
 
       location = 'N127D, Mutation Effect';
-      expect(formatLocation(location, {}, 'oncogenic')).toBe('N127D, Mutation Effect, Oncogenic');
+      expect(formatLocation(location, [], 'oncogenic')).toBe('N127D, Mutation Effect, Oncogenic');
 
       location =
         'BCR-ABL1 Fusion, B-Lymphoblastic Leukemia/Lymphoma, STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY, f42768c5-4918-4244-98dd-6ea97a4d3c2a';
-      expect(formatLocation(location, {}, '')).toBe(`BCR-ABL1 Fusion, B-Lymphoblastic Leukemia/Lymphoma, ${TX_NAME}`);
+      expect(formatLocation(location, [], '')).toBe(`BCR-ABL1 Fusion, B-Lymphoblastic Leukemia/Lymphoma, ${TX_NAME}`);
     });
 
     it('should return input location if improperly formatted', () => {
       const location = 'BCR-ABL1 Fusion, B-Lymphoblastic Leukemia/Lymphoma, tx_implication, f42768c5-4918-4244-98dd-6ea97a4d3c2a';
-      expect(formatLocation(location, {}, '')).toBe(location);
+      expect(formatLocation(location, [], '')).toBe(location);
     });
   });
 });
