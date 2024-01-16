@@ -11,20 +11,10 @@ import {
   isSectionRemovableWithoutReview,
   sortByTxLevel,
 } from './firebase-utils';
-import {
-  CancerType,
-  Drug,
-  Gene,
-  Meta,
-  MetaReview,
-  Mutation,
-  Review,
-  TX_LEVELS,
-  Treatment,
-  Tumor,
-} from 'app/shared/model/firebase/firebase.model';
+import { Gene, Meta, MetaReview, Mutation, Review, TX_LEVELS, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { generateUuid } from '../utils';
 import { NestLevelType } from 'app/pages/curation/collapsible/NestLevel';
+import { IDrug } from 'app/shared/model/drug.model';
 
 describe('FirebaseUtils', () => {
   describe('convertNestedObject', () => {
@@ -144,14 +134,16 @@ describe('FirebaseUtils', () => {
 
   describe('getTxName', () => {
     describe('Check name format when the input is appropriate', () => {
-      const drugList = {
-        'uuid-1': {
-          drugName: 'drug-1',
-        } as Drug,
-        'uuid-2': {
-          drugName: 'drug-2',
-        } as Drug,
-      };
+      const drugList = [
+        {
+          uuid: 'uuid-1',
+          name: 'drug-1',
+        } as IDrug,
+        {
+          uuid: 'uuid-2',
+          name: 'drug-2',
+        } as IDrug,
+      ];
       it('String with one drug', () => {
         const expectedTxName = 'drug-1';
         expect(getTxName(drugList, 'uuid-1'), 'Tx name is appropriate').toEqual(expectedTxName);
@@ -174,11 +166,12 @@ describe('FirebaseUtils', () => {
       });
     });
     describe('Check name format when the input is inappropriate', () => {
-      const drugList = {
-        'uuid-1': {
-          drugName: 'drug-1',
-        } as Drug,
-      };
+      const drugList = [
+        {
+          uuid: 'uuid-1',
+          name: 'drug-1',
+        } as IDrug,
+      ];
       it('Check when uuid is not in the drug list', () => {
         expect(getTxName(drugList, 'uuid-2'), 'Tx name is expected').toEqual('uuid-2');
         expect(getTxName(drugList, ' uuid-1, uuid-2'), 'Tx name is expected').toEqual('drug-1, uuid-2');

@@ -23,6 +23,8 @@ export const SHORT_REDIRECT = 2000;
 export const CLOSE_TOOLTIP_DURATION_MILLISECONDS = 300;
 export const MAX_COMMENT_LENGTH = 100;
 
+export const GET_ALL_DRUGS_PAGE_SIZE = 100000;
+
 export enum REFERENCE_GENOME {
   GRCH37 = 'GRCh37',
   GRCH38 = 'GRCh38',

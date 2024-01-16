@@ -4,6 +4,7 @@ import { replaceUrlParams } from '../url-utils';
 import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
+import { IDrug } from 'app/shared/model/drug.model';
 
 /* Convert a nested object into an object where the key is the path to the object.
   Example:
@@ -53,7 +54,7 @@ export const getMutationName = (mutation: Mutation) => {
   }
 };
 
-export const getTxName = (drugList: DrugCollection, txUuidName: string) => {
+export const getTxName = (drugList: IDrug[], txUuidName: string) => {
   return txUuidName
     .split(',')
     .map(tx => {
@@ -61,7 +62,8 @@ export const getTxName = (drugList: DrugCollection, txUuidName: string) => {
         .split('+')
         .map(drug => {
           drug = drug.trim();
-          return drugList[drug] ? drugList[drug].drugName : drug;
+          const drugInList = drugList.find(d => d.uuid === drug);
+          return drugInList ? drugInList.name : drug;
         })
         .join(' + ');
     })

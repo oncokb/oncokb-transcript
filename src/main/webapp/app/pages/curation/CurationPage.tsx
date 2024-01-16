@@ -10,6 +10,7 @@ import {
   CHECKBOX_LABEL_LEFT_MARGIN,
   COSMIC,
   GERMLINE_INHERITANCE_MECHANISM,
+  GET_ALL_DRUGS_PAGE_SIZE,
   PAGE_ROUTE,
   PATHOGENICITY,
   PENETRANCE,
@@ -35,6 +36,7 @@ import CurationHistoryTab from 'app/components/tabs/CurationHistoryTab';
 import { FaFilter } from 'react-icons/fa';
 import _ from 'lodash';
 import MutationCollapsible from './collapsible/MutationCollapsible';
+import { IDrug } from 'app/shared/model/drug.model';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -64,6 +66,8 @@ const CurationPage = (props: ICurationPageProps) => {
   const [tempTxLevelFilter, setTempTxLevelFilter] = useState(initFilterCheckboxState(TX_LEVEL_OPTIONS));
 
   const [enabledCheckboxes, setEnabledCheckboxes] = useState<string[]>([]);
+
+  const [drugList, setDrugList] = useState<IDrug[]>([]);
 
   function initFilterCheckboxState(options: string[]) {
     return options.map(option => ({ label: option, selected: false, disabled: false }));
@@ -114,7 +118,6 @@ const CurationPage = (props: ICurationPageProps) => {
     props.searchEntities({ query: hugoSymbol });
     const cleanupCallbacks = [];
     cleanupCallbacks.push(props.addListener(firebaseGenePath));
-    cleanupCallbacks.push(props.addDrugListListener());
     cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
     cleanupCallbacks.push(() => props.updateCollaborator(hugoSymbol, false));
     cleanupCallbacks.push(props.addMetaCollaboratorsListener());
@@ -151,6 +154,15 @@ const CurationPage = (props: ICurationPageProps) => {
       setEnabledCheckboxes([...allOncogenicities, ...allMutationEffects, ...allTxLevels]);
     }
   }, [props.mutationSummaryStats]);
+
+  useEffect(() => {
+    async function fetchAllDrugs() {
+      const drugs = await props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
+      setDrugList(drugs['data']);
+    }
+
+    fetchAllDrugs();
+  }, []);
 
   const parsedHistoryList = useMemo(() => {
     if (!props.historyData) {
@@ -220,11 +232,11 @@ const CurationPage = (props: ICurationPageProps) => {
           return [...filteredMutations, { ...mutation, firebaseIndex: index }];
         }
         return filteredMutations;
-      }, [])
+      }, []) || []
     );
   }
 
-  return !!props.data && props.drugList && !!geneEntity ? (
+  return !!props.data && drugList.length > 0 && !!geneEntity ? (
     <>
       <div>
         <Row>
@@ -339,7 +351,12 @@ const CurationPage = (props: ICurationPageProps) => {
             {mutations.map(mutation => (
               <Row key={mutation.firebaseIndex} className={'mb-2'}>
                 <Col>
-                  <MutationCollapsible mutation={mutation} firebaseIndex={mutation.firebaseIndex} parsedHistoryList={parsedHistoryList} />
+                  <MutationCollapsible
+                    mutation={mutation}
+                    firebaseIndex={mutation.firebaseIndex}
+                    parsedHistoryList={parsedHistoryList}
+                    drugList={drugList}
+                  />
                 </Col>
               </Row>
             ))}
@@ -499,14 +516,7 @@ const CurationPage = (props: ICurationPageProps) => {
   );
 };
 
-const mapStoreToProps = ({
-  geneStore,
-  firebaseGeneStore,
-  firebaseMetaStore,
-  firebaseDrugsStore,
-  firebaseHistoryStore,
-  authStore,
-}: IRootStore) => ({
+const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, firebaseHistoryStore, drugStore, authStore }: IRootStore) => ({
   searchEntities: geneStore.searchEntities,
   entities: geneStore.entities,
   addListener: firebaseGeneStore.addListener,
@@ -517,8 +527,7 @@ const mapStoreToProps = ({
   mutationSummaryStats: firebaseGeneStore.mutationLevelMutationSummaryStats,
   addMetaCollaboratorsListener: firebaseMetaStore.addMetaCollaboratorsListener,
   metaData: firebaseMetaStore.data,
-  drugList: firebaseDrugsStore.drugList,
-  addDrugListListener: firebaseDrugsStore.addDrugListListener,
+  getDrugs: drugStore.getEntities,
   metaCollaboratorsData: firebaseMetaStore.metaCollaborators,
   updateCollaborator: firebaseMetaStore.updateCollaborator,
   historyData: firebaseHistoryStore.data,
