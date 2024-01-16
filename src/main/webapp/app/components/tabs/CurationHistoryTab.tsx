@@ -1,11 +1,11 @@
-import { APP_HISTORY_FORMAT, APP_TIME_FORMAT } from 'app/config/constants/constants';
+import { APP_HISTORY_FORMAT, APP_TIME_FORMAT, GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
 import { HistoryList, HistoryRecord } from 'app/shared/model/firebase/firebase.model';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FaHistory } from 'react-icons/fa';
 import { TextFormat } from 'react-jhipster';
 import ReactSelect from 'react-select';
@@ -13,6 +13,7 @@ import { Button, Input, Label, Row } from 'reactstrap';
 import constructTimeSeriesData, { formatLocation } from '../geneHistoryTooltip/gene-history-tooltip-utils';
 import { ExtraTimeSeriesEventData, RequiredTimeSeriesEventData } from '../timeSeries/TimeSeries';
 import './curation-history-tab.scss';
+import { IDrug } from 'app/shared/model/drug.model';
 
 export interface ICurationHistoryTabProps extends StoreProps {
   historyData: HistoryList;
@@ -26,8 +27,10 @@ type HistoryTabData = {
   objectField?: string;
 };
 
-const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener, historyTabStore, drugList }: ICurationHistoryTabProps) => {
+const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener, historyTabStore, getDrugs }: ICurationHistoryTabProps) => {
   const firebaseUsersPath = getFirebasePath('USERS');
+
+  const [drugList, setDrugList] = useState<IDrug[]>([]);
 
   const parsedHistoryData: HistoryTabData[] = useMemo(() => {
     if (!historyData) {
@@ -101,6 +104,15 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
 
       historyTabStore.reset();
     };
+  }, []);
+
+  useEffect(() => {
+    async function fetchAllDrugs() {
+      const drugs = await getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
+      setDrugList(drugs['data']);
+    }
+
+    fetchAllDrugs();
   }, []);
 
   function getHistoryContent(historyTabData: HistoryTabData[], maxLength: number = null) {
@@ -243,7 +255,7 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
 const mapStoreToProps = ({ historyTabStore, firebaseUsersStore, drugStore }: IRootStore) => ({
   usersData: firebaseUsersStore.data,
   addUsersListener: firebaseUsersStore.addListener,
-  drugList: drugStore.drugList,
+  getDrugs: drugStore.getEntities,
   historyTabStore,
 });
 

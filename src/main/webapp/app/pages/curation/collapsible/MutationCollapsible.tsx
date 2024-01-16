@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Collapsible from './Collapsible';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
@@ -24,11 +24,13 @@ import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
 import _ from 'lodash';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import TreatmentLevelSummary from '../nestLevelSummary/TreatmentLevelSummary';
+import { IDrug } from 'app/shared/model/drug.model';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutation: Mutation;
   firebaseIndex: number;
   parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
+  drugList: IDrug[];
 }
 
 const MutationCollapsible = ({
@@ -408,12 +410,11 @@ const MutationCollapsible = ({
   );
 };
 
-const mapStoreToProps = ({ firebaseGeneStore, modifyCancerTypeModalStore, drugStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseGeneStore, modifyCancerTypeModalStore }: IRootStore) => ({
   data: firebaseGeneStore.data,
   hugoSymbol: firebaseGeneStore.hugoSymbol,
   deleteSection: firebaseGeneStore.deleteSection,
   updateTumor: firebaseGeneStore.updateTumor,
-  drugList: drugStore.drugList,
   modifyCancerTypeModalStore,
 });
 
