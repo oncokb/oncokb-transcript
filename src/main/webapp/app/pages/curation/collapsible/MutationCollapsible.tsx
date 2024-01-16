@@ -19,13 +19,13 @@ import { CANCER_TYPE_THERAPY_INDENTIFIER, GERMLINE_INHERITANCE_MECHANISM, PATHOG
 import { generateUuid, getCancerTypeName } from 'app/shared/util/utils';
 import CancerTypeLevelSummary from '../nestLevelSummary/CancerTypeLevelSummary';
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
-import { FaEdit } from 'react-icons/fa';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
 import _ from 'lodash';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import TreatmentLevelSummary from '../nestLevelSummary/TreatmentLevelSummary';
 import { IDrug } from 'app/shared/model/drug.model';
 import ModifyTherapyModal from 'app/shared/modal/ModifyTherapyModal';
+import OncoKBEdit from 'app/components/icons/OncoKBEdit';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutation: Mutation;
@@ -194,8 +194,7 @@ const MutationCollapsible = ({
               info={<CancerTypeLevelSummary mutationUuid={mutation.name_uuid} cancerTypeUuid={tumor.cancerTypes_uuid} />}
               action={
                 <>
-                  <FaEdit
-                    style={{ cursor: 'pointer' }}
+                  <OncoKBEdit
                     onClick={() => {
                       modifyCancerTypeModalStore.openModal(tumor.cancerTypes_uuid);
                     }}
@@ -329,8 +328,7 @@ const MutationCollapsible = ({
                           }
                           action={
                             <>
-                              <FaEdit
-                                style={{ cursor: 'pointer' }}
+                              <OncoKBEdit
                                 onClick={() => {
                                   modifyTherapyModalStore.openModal(treatment.name_uuid);
                                 }}
