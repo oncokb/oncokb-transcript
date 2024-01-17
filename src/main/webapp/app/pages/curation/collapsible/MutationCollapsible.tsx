@@ -25,7 +25,7 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import TreatmentLevelSummary from '../nestLevelSummary/TreatmentLevelSummary';
 import { IDrug } from 'app/shared/model/drug.model';
 import ModifyTherapyModal from 'app/shared/modal/ModifyTherapyModal';
-import OncoKBEdit from 'app/components/icons/OncoKBEdit';
+import EditIcon from 'app/shared/icons/EditIcon';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutation: Mutation;
@@ -194,7 +194,7 @@ const MutationCollapsible = ({
               info={<CancerTypeLevelSummary mutationUuid={mutation.name_uuid} cancerTypeUuid={tumor.cancerTypes_uuid} />}
               action={
                 <>
-                  <OncoKBEdit
+                  <EditIcon
                     onClick={() => {
                       modifyCancerTypeModalStore.openModal(tumor.cancerTypes_uuid);
                     }}
@@ -328,7 +328,7 @@ const MutationCollapsible = ({
                           }
                           action={
                             <>
-                              <OncoKBEdit
+                              <EditIcon
                                 onClick={() => {
                                   modifyTherapyModalStore.openModal(treatment.name_uuid);
                                 }}
