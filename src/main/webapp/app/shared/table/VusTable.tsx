@@ -9,7 +9,7 @@ import { TextFormat } from 'react-jhipster';
 import { APP_DATETIME_FORMAT, MAX_COMMENT_LENGTH } from 'app/config/constants/constants';
 import _ from 'lodash';
 import { formatDate, getUserFullName } from 'app/shared/util/utils';
-import CommentIcon from 'app/components/commentIcon/CommentIcon';
+import CommentIcon from 'app/shared/icons/CommentIcon';
 import { RecursivePartial } from 'app/shared/util/firebase/firebase-crud-store';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';

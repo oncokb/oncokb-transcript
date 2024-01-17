@@ -1,0 +1,9 @@
+@import '../../variables.scss';
+
+.delete-disabled {
+  color: $medium-grey;
+}
+
+.delete-enabled {
+  cursor: pointer;
+}
