@@ -387,6 +387,7 @@ const MutationCollapsible = ({
                         </Collapsible>
                         <ModifyTherapyModal
                           treatment={treatment}
+                          drugList={drugList}
                           onConfirm={async treatmentName => {
                             const newTreatment = _.cloneDeep(treatment);
                             newTreatment.name = treatmentName;

@@ -4,20 +4,14 @@ import { DrugSelectOption } from '../select/DrugSelect';
 export class ModifyTherapyModalStore {
   public openTreatmentUuid: string = null;
   public selectedTreatments: DrugSelectOption[][] = [];
-  public isErrorFetchingTherapies = false;
-  public isRetryButtonClicked = false;
 
   constructor() {
     makeObservable(this, {
       openTreatmentUuid: observable,
       selectedTreatments: observable,
-      isErrorFetchingTherapies: observable,
-      isRetryButtonClicked: observable,
       openModal: action.bound,
       closeModal: action.bound,
       setSelectedTreatments: action.bound,
-      setIsErrorFetchingTherapies: action.bound,
-      setIsRetryButtonClicked: action.bound,
       addTherapy: action.bound,
       setTherapy: action.bound,
       removeTherapy: action.bound,
@@ -31,20 +25,10 @@ export class ModifyTherapyModalStore {
   closeModal() {
     this.openTreatmentUuid = null;
     this.selectedTreatments = [];
-    this.isErrorFetchingTherapies = false;
-    this.isRetryButtonClicked = false;
   }
 
   setSelectedTreatments(treatments: DrugSelectOption[][]) {
     this.selectedTreatments = treatments;
-  }
-
-  setIsErrorFetchingTherapies(isError: boolean) {
-    this.isErrorFetchingTherapies = isError;
-  }
-
-  setIsRetryButtonClicked(isClicked: boolean) {
-    this.isRetryButtonClicked = isClicked;
   }
 
   addTherapy() {
