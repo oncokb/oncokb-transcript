@@ -42,8 +42,12 @@ export class PaginationCrudStore<T> extends BaseCrudStore<T> {
     return result;
   }
 
-  *getSearch({ query }) {
-    const result = yield axios.get<T[]>(`${this.apiUrl}/search?query=${query}`);
+  *getSearch({ query, exact }) {
+    let url = `${this.apiUrl}/search?query=${query}`;
+    if (exact !== undefined) {
+      url = `${url}&exact=${exact}`;
+    }
+    const result = yield axios.get<T[]>(url);
     this.entities = result.data;
     this.totalItems = result.data.length;
     return result;

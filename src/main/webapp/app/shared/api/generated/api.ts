@@ -1493,6 +1493,12 @@ export interface Drug {
    * @type {string}
    * @memberof Drug
    */
+  uuid: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Drug
+   */
   name?: string;
   /**
    *
@@ -1611,6 +1617,12 @@ export interface DrugCriteria {
    * @memberof DrugCriteria
    */
   id?: LongFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof DrugCriteria
+   */
+  uuid?: StringFilter;
   /**
    *
    * @type {StringFilter}
@@ -2146,6 +2158,12 @@ export interface Evidence {
    * @memberof Evidence
    */
   note?: string;
+  /**
+   *
+   * @type {Gene}
+   * @memberof Evidence
+   */
+  gene?: Gene;
 }
 /**
  *
@@ -2189,6 +2207,12 @@ export interface EvidenceCriteria {
    * @memberof EvidenceCriteria
    */
   levelOfEvidenceId?: LongFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof EvidenceCriteria
+   */
+  geneId?: LongFilter;
   /**
    *
    * @type {boolean}
@@ -2312,7 +2336,7 @@ export interface FdaSubmission {
    * @type {string}
    * @memberof FdaSubmission
    */
-  supplementNumber?: string;
+  supplementNumber: string;
   /**
    *
    * @type {string}
@@ -2343,12 +2367,6 @@ export interface FdaSubmission {
    * @memberof FdaSubmission
    */
   description?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof FdaSubmission
-   */
-  platform?: string;
   /**
    *
    * @type {boolean}
@@ -2434,12 +2452,6 @@ export interface FdaSubmissionCriteria {
    * @memberof FdaSubmissionCriteria
    */
   decisionDate?: InstantFilter;
-  /**
-   *
-   * @type {StringFilter}
-   * @memberof FdaSubmissionCriteria
-   */
-  platform?: StringFilter;
   /**
    *
    * @type {BooleanFilter}
@@ -2672,6 +2684,12 @@ export interface Gene {
   ensemblGenes?: Array<EnsemblGene>;
   /**
    *
+   * @type {Array<Evidence>}
+   * @memberof Gene
+   */
+  evidences?: Array<Evidence>;
+  /**
+   *
    * @type {Array<Transcript>}
    * @memberof Gene
    */
@@ -2731,6 +2749,12 @@ export interface GeneCriteria {
    * @memberof GeneCriteria
    */
   ensemblGeneId?: LongFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof GeneCriteria
+   */
+  evidenceId?: LongFilter;
   /**
    *
    * @type {LongFilter}
@@ -3199,6 +3223,24 @@ export interface LevelOfEvidence {
    * @memberof LevelOfEvidence
    */
   level: string;
+  /**
+   *
+   * @type {string}
+   * @memberof LevelOfEvidence
+   */
+  description: string;
+  /**
+   *
+   * @type {string}
+   * @memberof LevelOfEvidence
+   */
+  htmlDescription: string;
+  /**
+   *
+   * @type {string}
+   * @memberof LevelOfEvidence
+   */
+  color: string;
   /**
    *
    * @type {Array<Evidence>}
@@ -17618,13 +17660,16 @@ export const GeneResourceApiAxiosParamCreator = function (configuration?: Config
     /**
      *
      * @param {string} query
+     * @param {boolean} exact
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    searchGenes: async (query: string, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    searchGenes: async (query: string, exact: boolean, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'query' is not null or undefined
       assertParamExists('searchGenes', 'query', query);
+      // verify required parameter 'exact' is not null or undefined
+      assertParamExists('searchGenes', 'exact', exact);
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('searchGenes', 'pageable', pageable);
       const localVarPath = `/api/genes/search`;
@@ -17641,6 +17686,10 @@ export const GeneResourceApiAxiosParamCreator = function (configuration?: Config
 
       if (query !== undefined) {
         localVarQueryParameter['query'] = query;
+      }
+
+      if (exact !== undefined) {
+        localVarQueryParameter['exact'] = exact;
       }
 
       if (pageable !== undefined) {
@@ -17778,16 +17827,18 @@ export const GeneResourceApiFp = function (configuration?: Configuration) {
     /**
      *
      * @param {string} query
+     * @param {boolean} exact
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async searchGenes(
       query: string,
+      exact: boolean,
       pageable: Pageable,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Gene>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.searchGenes(query, pageable, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.searchGenes(query, exact, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -17874,12 +17925,13 @@ export const GeneResourceApiFactory = function (configuration?: Configuration, b
     /**
      *
      * @param {string} query
+     * @param {boolean} exact
      * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    searchGenes(query: string, pageable: Pageable, options?: any): AxiosPromise<Array<Gene>> {
-      return localVarFp.searchGenes(query, pageable, options).then(request => request(axios, basePath));
+    searchGenes(query: string, exact: boolean, pageable: Pageable, options?: any): AxiosPromise<Array<Gene>> {
+      return localVarFp.searchGenes(query, exact, pageable, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -17984,14 +18036,15 @@ export class GeneResourceApi extends BaseAPI {
   /**
    *
    * @param {string} query
+   * @param {boolean} exact
    * @param {Pageable} pageable
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof GeneResourceApi
    */
-  public searchGenes(query: string, pageable: Pageable, options?: AxiosRequestConfig) {
+  public searchGenes(query: string, exact: boolean, pageable: Pageable, options?: AxiosRequestConfig) {
     return GeneResourceApiFp(this.configuration)
-      .searchGenes(query, pageable, options)
+      .searchGenes(query, exact, pageable, options)
       .then(request => request(this.axios, this.basePath));
   }
 

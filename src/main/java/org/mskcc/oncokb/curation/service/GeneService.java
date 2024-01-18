@@ -200,8 +200,8 @@ public class GeneService {
         return geneRepository.findByHugoSymbolInIgnoreCase(searchValues.stream().collect(Collectors.toList()));
     }
 
-    public Page<Gene> search(String query, Pageable pageable) {
-        Page<Gene> genePage = geneRepository.searchGene(query, pageable);
+    public Page<Gene> blurSearchByHugoSymbol(String query, Pageable pageable) {
+        Page<Gene> genePage = geneRepository.blurSearchByHugoSymbol(query, pageable);
         Page<Gene> page = new PageImpl<>(
             geneRepository.findAllWithEagerRelationships(genePage.getContent().stream().map(Gene::getId).collect(Collectors.toList())),
             pageable,

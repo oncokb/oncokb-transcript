@@ -1,6 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
 import java.util.List;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.Gene;
@@ -35,10 +36,14 @@ public class GeneQueryService extends QueryService<Gene> {
     }
 
     @Transactional(readOnly = true)
-    public Page<Gene> findBySearchQuery(String query, Pageable page) {
+    public Page<Gene> findBySearchQuery(String query, Boolean exact, Pageable page) {
         GeneCriteria criteria = new GeneCriteria();
         StringFilter stringFilter = new StringFilter();
-        stringFilter.setContains(query);
+        if (exact) {
+            stringFilter.setEquals(query);
+        } else {
+            stringFilter.setContains(query);
+        }
         criteria.setHugoSymbol(stringFilter);
         final Specification<Gene> specification = createSpecification(criteria);
         return geneRepository.findAll(specification, page);

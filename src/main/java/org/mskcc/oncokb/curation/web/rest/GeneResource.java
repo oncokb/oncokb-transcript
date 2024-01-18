@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -213,10 +212,20 @@ public class GeneResource {
      * @return the result of the search.
      */
     @GetMapping("/genes/search")
-    public ResponseEntity<List<Gene>> searchGenes(@RequestParam String query, Pageable pageable) {
+    public ResponseEntity<List<Gene>> searchGenes(@RequestParam String query, @RequestParam Boolean exact, Pageable pageable) {
         log.debug("REST request to search for a page of Genes for query {}", query);
-        Page<Gene> page = geneService.search(query, pageable);
+        if (exact == null) {
+            exact = false;
+        }
+        Page<Gene> page = geneQueryService.findBySearchQuery(query, exact, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        return ResponseEntity
+            .ok()
+            .headers(headers)
+            .body(
+                geneService.findAllByIdInWithGeneAliasAndEnsemblGenes(
+                    page.getContent().stream().map(Gene::getId).collect(Collectors.toList())
+                )
+            );
     }
 }
