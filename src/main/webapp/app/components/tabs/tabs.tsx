@@ -13,13 +13,14 @@ export type Tab = {
 
 export interface ITabsProps {
   tabs: Tab[];
+  className?: string;
 }
 
-const Tabs = observer(({ tabs }: ITabsProps) => {
+const Tabs = observer(({ tabs, className }: ITabsProps) => {
   const [openTab, setOpenTab] = useState(tabs[0]?.title);
 
   return (
-    <Container className="mr-3 ml-2 mt-1" style={{ wordBreak: 'break-word' }}>
+    <Container className={className ? className : 'mr-3 ml-2 mt-1'} style={{ wordBreak: 'break-word' }}>
       <Row>
         <Col>
           <Row className="border-bottom mb-3">

@@ -109,6 +109,14 @@ export class Treatment {
   }
 }
 
+type AlleleState = 'monoallelic' | 'biallelic' | 'mosaic';
+
+export class GenomicIndicator {
+  indicator = '';
+  description = '';
+  alleleStates?: AlleleState[] = [];
+}
+
 export class Gene {
   name = '';
   names_comments?: Comment[] = [];
@@ -122,6 +130,10 @@ export class Gene {
   summary = '';
   summary_review?: Review;
   summary_uuid: string = generateUuid();
+  germline_summary = '';
+  germline_summary_review?: Review;
+  germline_summary_uuid: string = generateUuid();
+  germline_genomic_indicators: GenomicIndicator[] = [];
   penetrance?: PENETRANCE | '' = '';
   penetrance_uuid? = generateUuid();
   penetrance_review?: Review;
@@ -146,17 +158,19 @@ export class GeneType {
 
 export class Alteration {
   proteinChange = '';
-  cDna = '';
+  alteration = '';
+  name = '';
 }
 
 export class Mutation {
+  germline_genomic_indicators: GenomicIndicator[] = [];
   mutation_effect: MutationEffect = new MutationEffect();
   mutation_effect_uuid: string = generateUuid();
   name = '';
   name_review?: Review;
-  alteration? = new Alteration();
-  alteration_uuid?: string = generateUuid();
-  alteration_review?: Review;
+  alterations?: Alteration[] = [];
+  alterations_uuid?: string = generateUuid();
+  alterations_review?: Review;
   name_uuid: string = generateUuid();
   tumors: Tumor[] = [];
   tumors_uuid: string = generateUuid();
@@ -181,6 +195,18 @@ export class MutationEffect {
   short = '';
 }
 
+export class CancerRisk {
+  monoallelic = '';
+  monoallelic_review?: Review;
+  monoallelic_uuid: string = generateUuid();
+  biallelic = '';
+  biallelic_review?: Review;
+  biallelic_uuid: string = generateUuid();
+  mosaic = '';
+  mosaic_review?: Review;
+  mosaic_uuid: string = generateUuid();
+}
+
 export class GermlineMutation {
   pathogenic: `${PATHOGENICITY}` | '' = '';
   pathogenic_review?: Review;
@@ -188,12 +214,21 @@ export class GermlineMutation {
   penetrance: `${PENETRANCE}` | '' = '';
   penetrance_review?: Review;
   penetrance_uuid: string = generateUuid();
+  penetranceDescription: `${PENETRANCE}` | '' = '';
+  penetranceDescription_review?: Review;
+  penetranceDescription_uuid: string = generateUuid();
   inheritanceMechanism: `${GERMLINE_INHERITANCE_MECHANISM}` | '' = '';
   inheritanceMechanism_review?: Review;
   inheritanceMechanism_uuid: string = generateUuid();
-  cancerRisk = '';
+  inheritanceMechanismDescription: `${GERMLINE_INHERITANCE_MECHANISM}` | '' = '';
+  inheritanceMechanismDescription_review?: Review;
+  inheritanceMechanismDescription_uuid: string = generateUuid();
+  cancerRisk = new CancerRisk();
   cancerRisk_review?: Review;
   cancerRisk_uuid: string = generateUuid();
+  description = '';
+  description_review?: Review;
+  description_uuid: string = generateUuid();
 }
 
 export class Tumor {

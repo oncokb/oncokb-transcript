@@ -241,13 +241,11 @@ const CurationPage = (props: ICurationPageProps) => {
     <>
       <div>
         <Row>
-          <Col>
-            <h2>Gene: {props.data.name}</h2>
-          </Col>
-        </Row>
-        <Row className={`${getSectionClassName()} justify-content-between`}>
-          <Col>
-            <div className={'d-flex mb-2'}>
+          <Col className={'d-flex align-items-baseline flex-wrap'}>
+            <span style={{ fontSize: '3rem' }} className={'mr-2'}>
+              Gene: {props.data.name}
+            </span>
+            <span className={'d-flex mr-2'} style={{ fontSize: '1rem' }}>
               {geneEntity?.entrezGeneId && (
                 <div>
                   <span className="font-weight-bold">Entrez Gene:</span>
@@ -256,18 +254,28 @@ const CurationPage = (props: ICurationPageProps) => {
                   </span>
                 </div>
               )}
-              <div className="ml-2">
+              <span className="ml-2">
                 <span className="font-weight-bold">Gene aliases:</span>
                 <span className="ml-1">
                   <PubmedGeneArticlesLink hugoSymbols={(geneEntity?.synonyms || []).map(synonym => synonym.name)} />
                 </span>
-              </div>
-            </div>
-            <RealtimeTextAreaInput
-              fieldKey="summary"
-              label="Summary"
-              labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />}
-            />
+              </span>
+            </span>
+            <span>
+              <span className="font-weight-bold mr-2">External Links:</span>
+              <WithSeparator separator={InlineDivider}>
+                <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
+                  {CBIOPORTAL} <ExternalLinkIcon />
+                </a>
+                <a href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`} target="_blank" rel="noopener noreferrer">
+                  {COSMIC} <ExternalLinkIcon />
+                </a>
+              </WithSeparator>
+            </span>
+          </Col>
+        </Row>
+        <Row className={`${getSectionClassName()} justify-content-between`}>
+          <Col>
             <RealtimeCheckedInputGroup
               groupHeader={
                 <>
@@ -281,6 +289,16 @@ const CurationPage = (props: ICurationPageProps) => {
                   fieldKey: GENE_TYPE_KEY[label],
                 };
               })}
+            />
+            <RealtimeTextAreaInput
+              fieldKey="summary"
+              label="Somatic Gene Summary"
+              labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />}
+            />
+            <RealtimeTextAreaInput
+              fieldKey="germline_summary"
+              label="Germline Gene Summary"
+              labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Germline Gene Summary'} />}
             />
           </Col>
         </Row>
@@ -309,17 +327,6 @@ const CurationPage = (props: ICurationPageProps) => {
             />
             <div className="mb-2">
               <AutoParseRefField summary={props.data.background} />
-            </div>
-            <div>
-              <span className="font-weight-bold mr-2">External Links:</span>
-              <WithSeparator separator={InlineDivider}>
-                <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
-                  {CBIOPORTAL} <ExternalLinkIcon />
-                </a>
-                <a href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`} target="_blank" rel="noopener noreferrer">
-                  {COSMIC} <ExternalLinkIcon />
-                </a>
-              </WithSeparator>
             </div>
           </Col>
         </Row>
