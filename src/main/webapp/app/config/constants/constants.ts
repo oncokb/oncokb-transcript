@@ -401,6 +401,8 @@ export const DEFAULT_NAV_ICON_SIZE = 25;
 
 export const CANCER_TYPE_THERAPY_INDENTIFIER = '&';
 
+export const CURRENT_REVIEWER = 'currentReviewer';
+
 /* Checkbox has margin of -18.75px, so can set to 0px and add margin to label can use this to adjust */
 export const CHECKBOX_LABEL_LEFT_MARGIN = 18.75;
 
