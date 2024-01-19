@@ -42,8 +42,8 @@ export class PaginationCrudStore<T> extends BaseCrudStore<T> {
     return result;
   }
 
-  *getSearch({ query, exact }) {
-    let url = `${this.apiUrl}/search?query=${query}`;
+  *getSearch({ query, exact, page, size, sort }) {
+    let url = `${this.apiUrl}/search?query=${query}${page ? `&page=${page}` : ''}${size ? `&size=${size}` : ''}${sort ? `&sort=${sort}` : ''}`;
     if (exact !== undefined) {
       url = `${url}&exact=${exact}`;
     }
