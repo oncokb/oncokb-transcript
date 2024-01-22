@@ -14,6 +14,7 @@ export interface IQueryParams {
 
 export interface ISearchParams extends IQueryParams {
   search?: string;
+  exact?: boolean;
 }
 export type ICrudGetAllAction<T> = (params: IQueryParams) => IPayload<T[]>;
 export type ICrudSearchAction<T> = (params: ISearchParams) => IPayload<T[]>;

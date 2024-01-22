@@ -36,6 +36,7 @@ import { FaFilter } from 'react-icons/fa';
 import _ from 'lodash';
 import MutationCollapsible from './collapsible/MutationCollapsible';
 import { IDrug } from 'app/shared/model/drug.model';
+import { IGene } from 'app/shared/model/gene.model';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -114,7 +115,7 @@ const CurationPage = (props: ICurationPageProps) => {
   }
 
   useEffect(() => {
-    props.searchEntities({ query: hugoSymbol });
+    props.searchGeneEntities({ query: hugoSymbol, exact: true });
     const cleanupCallbacks = [];
     cleanupCallbacks.push(props.addListener(firebaseGenePath));
     cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
@@ -125,9 +126,9 @@ const CurationPage = (props: ICurationPageProps) => {
     };
   }, []);
 
-  const geneEntity = useMemo(() => {
-    return props.entities.find(gene => gene.hugoSymbol === hugoSymbol);
-  }, [props.entities]);
+  const geneEntity: IGene | undefined = useMemo(() => {
+    return props.geneEntities.find(gene => gene.hugoSymbol === hugoSymbol);
+  }, [props.geneEntities]);
 
   useEffect(() => {
     if (props.metaCollaboratorsData && props.data?.name) {
@@ -188,7 +189,7 @@ const CurationPage = (props: ICurationPageProps) => {
 
   function filterMutations() {
     setMutations(
-      props.data?.mutations?.reduce<FirebaseMutation[]>((filteredMutations, mutation, index) => {
+      (props.data?.mutations || []).reduce<FirebaseMutation[]>((filteredMutations, mutation, index) => {
         const matchesName = !mutationFilter || getMutationName(mutation).toLowerCase().includes(mutationFilter.toLowerCase());
 
         const selectedOncogenicities = oncogenicityFilter.filter(filter => filter.selected);
@@ -235,7 +236,7 @@ const CurationPage = (props: ICurationPageProps) => {
     );
   }
 
-  return !!props.data && drugList.length > 0 && !!geneEntity ? (
+  return !!props.data && drugList.length > 0 && !props.loadingGenes ? (
     <>
       <div>
         <Row>
@@ -246,16 +247,18 @@ const CurationPage = (props: ICurationPageProps) => {
         <Row className={`${getSectionClassName()} justify-content-between`}>
           <Col>
             <div className={'d-flex mb-2'}>
-              <div>
-                <span className="font-weight-bold">Entrez Gene:</span>
-                <span className="ml-1">
-                  <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
-                </span>
-              </div>
+              {geneEntity?.entrezGeneId && (
+                <div>
+                  <span className="font-weight-bold">Entrez Gene:</span>
+                  <span className="ml-1">
+                    <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
+                  </span>
+                </div>
+              )}
               <div className="ml-2">
                 <span className="font-weight-bold">Gene aliases:</span>
                 <span className="ml-1">
-                  <PubmedGeneArticlesLink hugoSymbols={geneEntity.synonyms?.map(synonym => synonym.name)} />
+                  <PubmedGeneArticlesLink hugoSymbols={(geneEntity?.synonyms || []).map(synonym => synonym.name)} />
                 </span>
               </div>
             </div>
@@ -516,8 +519,9 @@ const CurationPage = (props: ICurationPageProps) => {
 };
 
 const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, firebaseHistoryStore, drugStore, authStore }: IRootStore) => ({
-  searchEntities: geneStore.searchEntities,
-  entities: geneStore.entities,
+  searchGeneEntities: geneStore.searchEntities,
+  geneEntities: geneStore.entities,
+  loadingGenes: geneStore.loading,
   addListener: firebaseGeneStore.addListener,
   data: firebaseGeneStore.data,
   update: firebaseGeneStore.update,
