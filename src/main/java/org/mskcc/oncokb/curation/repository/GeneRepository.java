@@ -75,9 +75,9 @@ public interface GeneRepository extends JpaRepository<Gene, Long>, JpaSpecificat
 
     @Query(
         value = "select * from (" +
-        "(select * from Gene gene where gene.hugo_symbol ='apc')" +
-        " union (select * from Gene gene where lower(gene.hugo_symbol) like lower('%apc%'))" +
-        ") as t3",
+        "(select * from Gene gene where gene.hugo_symbol =:query)" +
+        " union (select * from Gene gene where lower(gene.hugo_symbol) like lower(concat('%', :query,'%'))" +
+        ") as t1",
         nativeQuery = true
     )
     Page<Gene> blurSearchByHugoSymbol(@Param("query") String query, Pageable pageable);
