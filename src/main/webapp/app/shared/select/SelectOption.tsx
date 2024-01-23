@@ -12,7 +12,7 @@ export type EntitySelectAdditionalInfo = { isLink: true; path: string } | { isLi
 
 export interface IEntitySelectOption {
   title: SelectText;
-  subTitles?: SelectText[];
+  subTitles?: (SelectText & { isOneLine?: boolean })[];
   additional?: EntitySelectAdditionalInfo;
 }
 
@@ -24,9 +24,13 @@ export const EntitySelectOption: React.FunctionComponent<IEntitySelectOption> = 
       </div>
       {props.subTitles &&
         props.subTitles.map((subTitle, index) => {
+          const additionalStyles: React.CSSProperties = subTitle.isOneLine
+            ? { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
+            : {};
+
           return (
             subTitle.text && (
-              <div style={{ color: 'grey', fontSize: '0.9em' }} key={index}>
+              <div style={{ color: 'grey', fontSize: '0.9em', ...additionalStyles }} key={index}>
                 <span>{subTitle.label}</span>
                 <Highlighter searchWords={subTitle.searchWords} textToHighlight={subTitle.text} />
               </div>

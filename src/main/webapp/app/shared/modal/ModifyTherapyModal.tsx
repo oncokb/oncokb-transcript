@@ -5,12 +5,11 @@ import DrugSelect, { DrugSelectOption } from '../select/DrugSelect';
 import { IRootStore } from 'app/stores';
 import { componentInject } from '../util/typed-inject';
 import { observer } from 'mobx-react';
-import { getTxName } from '../util/firebase/firebase-utils';
 import { IDrug } from '../model/drug.model';
 import { FaExclamationCircle, FaRegTrashAlt } from 'react-icons/fa';
 import styles from './styles.module.scss';
 import './modify-therapy-modal.scss';
-import { Button, Spinner } from 'reactstrap';
+import { Button } from 'reactstrap';
 import { generateUuid } from '../util/utils';
 
 export interface IModifyTherapyModalProps extends StoreProps {
@@ -103,7 +102,12 @@ const ModifyTherapyModalContent = observer(
                     <h6 className="mb-2">Therapy</h6>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <div className="mr-3" style={{ flexGrow: 1 }}>
-                        <DrugSelect onChange={options => modifyTherapyModalStore.setTherapy(index, options)} value={therapy} isMulti />
+                        <DrugSelect
+                          drugList={drugList}
+                          onChange={options => modifyTherapyModalStore.setTherapy(index, options)}
+                          value={therapy}
+                          isMulti
+                        />
                       </div>
                       <FaRegTrashAlt
                         className={`${disableDeleteTherapy ? 'delete-disabled' : 'delete-enabled'}`}
