@@ -13,7 +13,7 @@ import { filterByKeyword } from 'app/shared/util/utils';
 import { TextFormat } from 'react-jhipster';
 import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
 import Tabs from 'app/components/tabs/tabs';
-import CurationToolsTab from 'app/components/tabs/CurationToolsTab';
+import GeneListPageToolsTab from 'app/components/tabs/GeneListPageToolsTab';
 
 type GeneMetaInfo = {
   hugoSymbol: string;
@@ -105,7 +105,7 @@ const GeneListPage = (props: StoreProps) => {
           tabs={[
             {
               title: 'Tools',
-              content: <CurationToolsTab />,
+              content: <GeneListPageToolsTab />,
             },
           ]}
         />

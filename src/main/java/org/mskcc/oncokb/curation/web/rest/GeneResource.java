@@ -212,7 +212,11 @@ public class GeneResource {
      * @return the result of the search.
      */
     @GetMapping("/genes/search")
-    public ResponseEntity<List<Gene>> searchGenes(@RequestParam String query, @RequestParam Boolean exact, Pageable pageable) {
+    public ResponseEntity<List<Gene>> searchGenes(
+        @RequestParam String query,
+        @RequestParam(required = false) Boolean exact,
+        Pageable pageable
+    ) {
         log.debug("REST request to search for a page of Genes for query {}", query);
         if (exact == null) {
             exact = false;

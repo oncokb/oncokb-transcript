@@ -37,6 +37,7 @@ import _ from 'lodash';
 import MutationCollapsible from './collapsible/MutationCollapsible';
 import { IDrug } from 'app/shared/model/drug.model';
 import { IGene } from 'app/shared/model/gene.model';
+import CurationToolsTab from 'app/components/tabs/CurationToolsTab';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -505,6 +506,10 @@ const CurationPage = (props: ICurationPageProps) => {
       <OncoKBSidebar>
         <Tabs
           tabs={[
+            {
+              title: 'Tools',
+              content: <CurationToolsTab />,
+            },
             {
               title: 'History',
               content: <CurationHistoryTab historyData={props.historyData} />,
