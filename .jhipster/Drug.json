@@ -58,7 +58,7 @@
   ],
   "entityTableName": "drug",
   "dto": "no",
-  "pagination": "pagination",
+  "pagination": "no",
   "service": "serviceClass",
   "jpaMetamodelFiltering": true,
   "fluentMethods": true,

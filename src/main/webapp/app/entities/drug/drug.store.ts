@@ -1,11 +1,12 @@
 import { IDrug } from 'app/shared/model/drug.model';
 import { IRootStore } from 'app/stores';
-import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
-import { ENTITY_TYPE, GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
+import { ENTITY_TYPE } from 'app/config/constants/constants';
+import CrudStore from 'app/shared/util/crud-store';
+import { getEntityResourcePath } from 'app/shared/util/RouteUtils';
 
-export class DrugStore extends PaginationCrudStore<IDrug> {
+export class DrugStore extends CrudStore<IDrug> {
   constructor(protected rootStore: IRootStore) {
-    super(rootStore, ENTITY_TYPE.DRUG);
+    super(rootStore, getEntityResourcePath(ENTITY_TYPE.DRUG));
   }
 }
 

@@ -4,11 +4,12 @@ import { IDrugPriority } from 'app/shared/model/drug-priority.model';
 import { IFlag } from 'app/shared/model/flag.model';
 import { IFdaDrug } from 'app/shared/model/fda-drug.model';
 import { ITreatment } from 'app/shared/model/treatment.model';
+import { generateUuid } from 'app/shared/util/utils';
 
 export interface IDrug {
   id?: number;
-  uuid?: string;
-  name?: string;
+  uuid: string;
+  name: string;
   nciThesaurus?: INciThesaurus | null;
   brands?: IDrugBrand[] | null;
   drugPriorities?: IDrugPriority[] | null;
@@ -17,4 +18,7 @@ export interface IDrug {
   treatments?: ITreatment[] | null;
 }
 
-export const defaultValue: Readonly<IDrug> = {};
+export const defaultValue: Readonly<IDrug> = {
+  uuid: generateUuid(),
+  name: 'drug',
+};
