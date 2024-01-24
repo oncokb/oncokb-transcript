@@ -5,15 +5,8 @@ import { IDrug } from 'app/shared/model/drug.model';
 import { IRootStore } from 'app/stores';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
-import { PaginationState } from 'app/shared/table/OncoKBAsyncTable';
 import { filterByKeyword, getEntityTableActionsColumn } from 'app/shared/util/utils';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
-
-const defaultPaginationState: PaginationState<IDrug> = {
-  order: 'asc',
-  sort: 'name',
-  activePage: 1,
-};
 
 export interface IDrugProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
