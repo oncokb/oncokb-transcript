@@ -2144,6 +2144,58 @@ export interface EntityAuditEvent {
 /**
  *
  * @export
+ * @interface EntityStatusAlteration
+ */
+export interface EntityStatusAlteration {
+  /**
+   *
+   * @type {Alteration}
+   * @memberof EntityStatusAlteration
+   */
+  entity?: Alteration;
+  /**
+   *
+   * @type {string}
+   * @memberof EntityStatusAlteration
+   */
+  message?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof EntityStatusAlteration
+   */
+  type?: EntityStatusAlterationTypeEnum;
+  /**
+   *
+   * @type {boolean}
+   * @memberof EntityStatusAlteration
+   */
+  error?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof EntityStatusAlteration
+   */
+  warning?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof EntityStatusAlteration
+   */
+  ok?: boolean;
+}
+
+export const EntityStatusAlterationTypeEnum = {
+  Ok: 'OK',
+  Warning: 'WARNING',
+  Error: 'ERROR',
+} as const;
+
+export type EntityStatusAlterationTypeEnum = typeof EntityStatusAlterationTypeEnum[keyof typeof EntityStatusAlterationTypeEnum];
+
+/**
+ *
+ * @export
  * @interface Evidence
  */
 export interface Evidence {
@@ -5077,7 +5129,7 @@ export const AlterationControllerApiFp = function (configuration?: Configuration
     async annotateAlteration(
       alteration: Alteration,
       options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Alteration>> {
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EntityStatusAlteration>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.annotateAlteration(alteration, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
@@ -5097,7 +5149,7 @@ export const AlterationControllerApiFactory = function (configuration?: Configur
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    annotateAlteration(alteration: Alteration, options?: any): AxiosPromise<Alteration> {
+    annotateAlteration(alteration: Alteration, options?: any): AxiosPromise<EntityStatusAlteration> {
       return localVarFp.annotateAlteration(alteration, options).then(request => request(axios, basePath));
     },
   };

@@ -33,12 +33,13 @@ import VusTable from '../../shared/table/VusTable';
 import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
 import Tabs from 'app/components/tabs/tabs';
 import CurationHistoryTab from 'app/components/tabs/CurationHistoryTab';
-import { FaFilter } from 'react-icons/fa';
+import { FaFilter, FaPlus } from 'react-icons/fa';
 import _ from 'lodash';
 import MutationCollapsible from './collapsible/MutationCollapsible';
 import { IDrug } from 'app/shared/model/drug.model';
 import { IGene } from 'app/shared/model/gene.model';
 import CurationToolsTab from 'app/components/tabs/CurationToolsTab';
+import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import { HgncLink } from 'app/shared/links/HgncLink';
 
@@ -55,6 +56,8 @@ const CurationPage = (props: ICurationPageProps) => {
   const hugoSymbol = props.match.params.hugoSymbol;
   const firebaseGenePath = getFirebasePath('GENE', hugoSymbol);
   const firebaseHistoryPath = getFirebasePath('HISTORY', hugoSymbol);
+  const [showAddMutationModal, setShowAddMutationModal] = useState(false);
+
   const [mutationFilter, setMutationFilter] = useState('');
 
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -468,6 +471,16 @@ const CurationPage = (props: ICurationPageProps) => {
                 <div className={'d-flex justify-content-between align-items-center mb-2'}>
                   <div className="mb-2 d-flex align-items-center">
                     <h5 className="mb-0 mr-2">Mutations:</h5>{' '}
+                    <Button
+                      className="d-flex align-items-center mr-2"
+                      color="primary"
+                      outline
+                      size="sm"
+                      onClick={() => setShowAddMutationModal(show => !show)}
+                    >
+                      <FaPlus />
+                      <span className="ml-2">Create</span>
+                    </Button>
                     {mutationsAreFiltered && (
                       <span>{`Showing ${mutations.length} of ${props.data.mutations.length} matching the search`}</span>
                     )}
@@ -641,6 +654,19 @@ const CurationPage = (props: ICurationPageProps) => {
           </ModalBody>
         </Modal>
       </div>
+      <AddMutationModal
+        hugoSymbol={hugoSymbol}
+        isOpen={showAddMutationModal}
+        onConfirm={newMutations => {
+          if (newMutations.length > 0) {
+            props.updateMutations(`${firebaseGenePath}/mutations`, newMutations);
+          }
+          setShowAddMutationModal(show => !show);
+        }}
+        onCancel={() => {
+          setShowAddMutationModal(show => !show);
+        }}
+      />
       <OncoKBSidebar>
         <Tabs
           tabs={[
@@ -676,6 +702,7 @@ const mapStoreToProps = ({
   addListener: firebaseGeneStore.addListener,
   data: firebaseGeneStore.data,
   update: firebaseGeneStore.update,
+  updateMutations: firebaseGeneStore.pushToArrayFront,
   updateReviewableContent: firebaseGeneStore.updateReviewableContent,
   deleteSection: firebaseGeneStore.deleteSection,
   mutationSummaryStats: firebaseGeneStore.mutationLevelMutationSummaryStats,

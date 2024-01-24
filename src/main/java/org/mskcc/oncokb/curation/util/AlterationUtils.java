@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.*;
 import org.springframework.stereotype.Component;
@@ -66,16 +67,24 @@ public class AlterationUtils {
         return alteration;
     }
 
-    public Alteration parseProteinChange(String proteinChange) {
+    public EntityStatus<Alteration> parseProteinChange(String proteinChange) {
+        EntityStatus<Alteration> entityWithStatus = new EntityStatus<>();
+        String message = "";
+        EntityStatusType status = EntityStatusType.OK;
+
         if (StringUtils.isEmpty(proteinChange)) {
             return null;
         }
         if (isFusion(proteinChange)) {
-            return parseFusionProteinChange(proteinChange);
+            Alteration alteration = parseFusionProteinChange(proteinChange);
+            entityWithStatus.setEntity(alteration);
+            return entityWithStatus;
         }
 
         if (isCopyNumberAlteration(proteinChange)) {
-            return parseCnaProteinChange(proteinChange);
+            Alteration alteration = parseCnaProteinChange(proteinChange);
+            entityWithStatus.setEntity(alteration);
+            return entityWithStatus;
         }
 
         MutationConsequence term = UNKNOWN;
@@ -143,6 +152,8 @@ public class AlterationUtils {
                 } else if (refL == 1 && varL == 1) {
                     term = MISSENSE_VARIANT;
                 } else {
+                    status = EntityStatusType.WARNING;
+                    message = "Unable to determine consequence";
                     term = NA;
                 }
             }
@@ -189,33 +200,46 @@ public class AlterationUtils {
                     }
                     term = SPLICE_REGION_VARIANT;
                 } else {
-                    p = Pattern.compile("[A-Z]?([0-9]+)_[A-Z]?([0-9]+)(.+)");
+                    p = Pattern.compile("([A-Z]?)([0-9]+)_([A-Z]?)([0-9]+)(.+)");
                     m = p.matcher(proteinChange);
                     if (m.matches()) {
-                        start = Integer.valueOf(m.group(1));
-                        end = Integer.valueOf(m.group(2));
-                        String v = m.group(3);
-                        switch (v) {
-                            case "mis":
-                                term = MISSENSE_VARIANT;
-                                break;
-                            case "ins":
-                                term = INFRAME_INSERTION;
-                                break;
-                            case "del":
-                                term = INFRAME_DELETION;
-                                break;
-                            case "fs":
-                                term = FEATURE_TRUNCATION;
-                                break;
-                            case "trunc":
-                                term = FEATURE_TRUNCATION;
-                                break;
-                            case "dup":
-                                term = INFRAME_INSERTION;
-                                break;
-                            case "mut":
-                                term = ANY;
+                        start = Integer.valueOf(m.group(2));
+                        end = Integer.valueOf(m.group(4));
+                        String v = m.group(5);
+
+                        HashMap<String, MutationConsequence> termsToCheck = new HashMap<>();
+                        termsToCheck.put("mis", MISSENSE_VARIANT);
+                        termsToCheck.put("ins", INFRAME_INSERTION);
+                        termsToCheck.put("del", INFRAME_DELETION);
+                        termsToCheck.put("fs", FEATURE_TRUNCATION);
+                        termsToCheck.put("trunc", FEATURE_TRUNCATION);
+                        termsToCheck.put("dup", INFRAME_INSERTION);
+                        termsToCheck.put("mut", ANY);
+
+                        MutationConsequence consequence = termsToCheck.get(v);
+                        if (consequence != null) {
+                            term = consequence;
+                        } else {
+                            Double greatestSimilarity = -1.0;
+                            String termWithGreatestSimilarity = "";
+                            JaroWinklerSimilarity jw = new JaroWinklerSimilarity();
+                            for (Map.Entry<String, MutationConsequence> entry : termsToCheck.entrySet()) {
+                                double similarity = jw.apply(v, entry.getKey());
+                                if (similarity > greatestSimilarity) {
+                                    greatestSimilarity = similarity;
+                                    termWithGreatestSimilarity = entry.getKey();
+                                }
+                            }
+                            status = EntityStatusType.ERROR;
+                            message =
+                                "The alteration name is invalid, do you mean " +
+                                m.group(1) +
+                                m.group(2) +
+                                "_" +
+                                m.group(3) +
+                                m.group(4) +
+                                termWithGreatestSimilarity +
+                                "?";
                         }
                     } else {
                         p = Pattern.compile("([A-Z\\*])([0-9]+)[A-Z]?fs.*");
@@ -227,7 +251,7 @@ public class AlterationUtils {
 
                             term = FRAMESHIFT_VARIANT;
                         } else {
-                            p = Pattern.compile("([A-Z]+)?([0-9]+)((ins)|(del)|(dup))");
+                            p = Pattern.compile("([A-Z]+)?([0-9]+)([A-Za-z]]+)");
                             m = p.matcher(proteinChange);
                             if (m.matches()) {
                                 ref = m.group(1);
@@ -316,7 +340,11 @@ public class AlterationUtils {
         } else {
             alteration.setName(proteinChange);
         }
-        return alteration;
+
+        entityWithStatus.setEntity(alteration);
+        entityWithStatus.setType(status);
+        entityWithStatus.setMessage(message);
+        return entityWithStatus;
     }
 
     public List<String> getGenesStrs(String alteration) {
