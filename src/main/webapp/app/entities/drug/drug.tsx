@@ -3,13 +3,11 @@ import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
 import { IDrug } from 'app/shared/model/drug.model';
 import { IRootStore } from 'app/stores';
-import { Column } from 'react-table';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
-import OncoKBAsyncTable, { PaginationState } from 'app/shared/table/OncoKBAsyncTable';
-import { filterByKeyword, getEntityTableActionsColumn, getPaginationFromSearchParams } from 'app/shared/util/utils';
+import { PaginationState } from 'app/shared/table/OncoKBAsyncTable';
+import { filterByKeyword, getEntityTableActionsColumn } from 'app/shared/util/utils';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
-import { ICategoricalAlteration } from 'app/shared/model/categorical-alteration.model';
 
 const defaultPaginationState: PaginationState<IDrug> = {
   order: 'asc',
