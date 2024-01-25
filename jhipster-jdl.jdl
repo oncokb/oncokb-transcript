@@ -417,9 +417,9 @@ relationship OneToMany {
     Drug to DrugPriority
     EnsemblGene to Transcript
     FdaSubmissionType to FdaSubmission{type(type)}
-    Gene to EnsemblGene{gene(entrezGeneId)}
-    Gene to Evidence{gene(entrezGeneId)}
-    Gene to Transcript{gene(entrezGeneId)}
+    Gene to EnsemblGene
+    Gene to Evidence
+    Gene to Transcript
     SeqRegion to EnsemblGene {seqRegion(name)}
     SeqRegion to GenomeFragment {seqRegion(name)}
     Transcript to Sequence
@@ -449,7 +449,7 @@ relationship ManyToMany {
     Treatment to Drug
 }
 
-paginate Alteration, Article, CancerType, ClinicalTrial, ClinicalTrialArm, Drug, DrugBrand,
+paginate Alteration, Article, CancerType, ClinicalTrial, ClinicalTrialArm, DrugBrand,
 EligibilityCriteria, EnsemblGene, Evidence, FdaDrug, FdaSubmission, Flag , Gene, GenomeFragment,
 NciThesaurus, Sequence, Synonym, Transcript, Treatment with pagination
 
