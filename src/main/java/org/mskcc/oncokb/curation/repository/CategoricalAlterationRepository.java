@@ -14,4 +14,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CategoricalAlterationRepository extends JpaRepository<CategoricalAlteration, Long> {
     Optional<CategoricalAlteration> findByAlterationTypeAndName(AlterationType alterationType, String name);
+    Optional<CategoricalAlteration> findByName(String name);
 }

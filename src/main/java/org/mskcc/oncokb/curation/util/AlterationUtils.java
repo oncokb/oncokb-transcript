@@ -67,6 +67,9 @@ public class AlterationUtils {
     }
 
     public Alteration parseProteinChange(String proteinChange) {
+        if (StringUtils.isEmpty(proteinChange)) {
+            return null;
+        }
         if (isFusion(proteinChange)) {
             return parseFusionProteinChange(proteinChange);
         }

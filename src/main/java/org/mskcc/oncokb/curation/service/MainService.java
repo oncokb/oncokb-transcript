@@ -8,11 +8,15 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
 import org.mskcc.oncokb.curation.domain.*;
-import org.mskcc.oncokb.curation.domain.enumeration.*;
+import org.mskcc.oncokb.curation.domain.enumeration.GenomeFragmentType;
+import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
+import org.mskcc.oncokb.curation.domain.enumeration.SequenceType;
+import org.mskcc.oncokb.curation.domain.enumeration.TranscriptFlagEnum;
 import org.mskcc.oncokb.curation.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.curation.service.mapper.TranscriptMapper;
 import org.mskcc.oncokb.curation.util.AlterationUtils;
 import org.mskcc.oncokb.curation.vm.ensembl.EnsemblTranscript;
+import org.mskcc.oncokb.curation.web.rest.errors.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -85,7 +89,31 @@ public class MainService {
         return Optional.empty();
     }
 
+    private void enrichQuery(Alteration alteration) {
+        if (alteration.getGenes().size() > 0) {
+            alteration.setGenes(
+                alteration
+                    .getGenes()
+                    .stream()
+                    .map(gene -> {
+                        if (gene.getId() != null) {
+                            Optional<Gene> geneOptional = geneService.findOne(gene.getId());
+                            if (geneOptional.isEmpty()) {
+                                throw new BadRequestException("Cannot find matched gene using provided id.");
+                            } else {
+                                return geneOptional.get();
+                            }
+                        }
+                        return gene;
+                    })
+                    .collect(Collectors.toSet())
+            );
+        }
+    }
+
     public void annotateAlteration(Alteration alteration) {
+        enrichQuery(alteration);
+
         Optional<CategoricalAlteration> categoricalAlterationOptional = categoricalAlterationService.findOneByAlteration(alteration);
         if (categoricalAlterationOptional.isPresent()) {
             CategoricalAlteration categoricalAlteration = categoricalAlterationOptional.get();
@@ -97,6 +125,9 @@ public class MainService {
         }
 
         Alteration pcAlteration = alterationUtils.parseProteinChange(alteration.getAlteration());
+        if (pcAlteration == null) {
+            return;
+        }
         if (pcAlteration.getType() != null) {
             alteration.setType(pcAlteration.getType());
         }
@@ -110,6 +141,7 @@ public class MainService {
             alteration.setGenes(pcAlteration.getGenes());
         }
         alteration.setAlteration(pcAlteration.getAlteration());
+        alteration.setName(pcAlteration.getName());
         if (PROTEIN_CHANGE.equals(pcAlteration.getType())) {
             alteration.setProteinChange(pcAlteration.getProteinChange());
         }
