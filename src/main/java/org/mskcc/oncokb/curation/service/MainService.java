@@ -88,31 +88,7 @@ public class MainService {
         return Optional.empty();
     }
 
-    private void enrichQuery(Alteration alteration) {
-        if (alteration.getGenes().size() > 0) {
-            alteration.setGenes(
-                alteration
-                    .getGenes()
-                    .stream()
-                    .map(gene -> {
-                        if (gene.getId() != null) {
-                            Optional<Gene> geneOptional = geneService.findOne(gene.getId());
-                            if (geneOptional.isEmpty()) {
-                                return gene;
-                            } else {
-                                return geneOptional.get();
-                            }
-                        }
-                        return gene;
-                    })
-                    .collect(Collectors.toSet())
-            );
-        }
-    }
-
     public void annotateAlteration(Alteration alteration) {
-        enrichQuery(alteration);
-
         Optional<CategoricalAlteration> categoricalAlterationOptional = categoricalAlterationService.findOneByAlteration(alteration);
         if (categoricalAlterationOptional.isPresent()) {
             CategoricalAlteration categoricalAlteration = categoricalAlterationOptional.get();
@@ -130,22 +106,11 @@ public class MainService {
         if (pcAlteration.getType() != null) {
             alteration.setType(pcAlteration.getType());
         }
-        if (
-            alteration.getGenes().size() > 0 &&
-            alteration.getGenes().stream().filter(gene -> gene.getEntrezGeneId() < 0).findAny().isPresent()
-        ) {
-            alteration.setType(NA);
-        }
+        Set<Gene> genes = alteration.getGenes();
         if (pcAlteration.getType().equals(STRUCTURAL_VARIANT) && !pcAlteration.getGenes().isEmpty()) {
-            alteration.setGenes(pcAlteration.getGenes());
+            genes = pcAlteration.getGenes();
         }
-        alteration.setAlteration(pcAlteration.getAlteration());
-        alteration.setName(pcAlteration.getName());
-        if (PROTEIN_CHANGE.equals(pcAlteration.getType())) {
-            alteration.setProteinChange(pcAlteration.getProteinChange());
-        }
-        Set<Gene> genes = alteration
-            .getGenes()
+        Set<Gene> annotatedGenes = genes
             .stream()
             .map(gene -> {
                 Optional<Gene> geneOptional = Optional.empty();
@@ -168,7 +133,19 @@ public class MainService {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .collect(Collectors.toSet());
-        alteration.setGenes(genes);
+        alteration.setGenes(annotatedGenes);
+        alteration.setAlteration(pcAlteration.getAlteration());
+        alteration.setName(pcAlteration.getName());
+        if (PROTEIN_CHANGE.equals(pcAlteration.getType())) {
+            alteration.setProteinChange(pcAlteration.getProteinChange());
+        }
+
+        if (
+            alteration.getGenes().size() > 0 &&
+            alteration.getGenes().stream().filter(gene -> gene.getEntrezGeneId() < 0).findAny().isPresent()
+        ) {
+            alteration.setType(NA);
+        }
 
         if (alteration.getConsequence() == null) {
             if (pcAlteration.getConsequence() != null) {
