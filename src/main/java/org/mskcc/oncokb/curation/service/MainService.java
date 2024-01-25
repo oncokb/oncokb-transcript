@@ -16,7 +16,6 @@ import org.mskcc.oncokb.curation.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.curation.service.mapper.TranscriptMapper;
 import org.mskcc.oncokb.curation.util.AlterationUtils;
 import org.mskcc.oncokb.curation.vm.ensembl.EnsemblTranscript;
-import org.mskcc.oncokb.curation.web.rest.errors.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -99,7 +98,7 @@ public class MainService {
                         if (gene.getId() != null) {
                             Optional<Gene> geneOptional = geneService.findOne(gene.getId());
                             if (geneOptional.isEmpty()) {
-                                throw new BadRequestException("Cannot find matched gene using provided id.");
+                                return gene;
                             } else {
                                 return geneOptional.get();
                             }
