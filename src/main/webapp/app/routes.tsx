@@ -24,11 +24,19 @@ const Admin = Loadable({
   loading: () => <div>loading ...</div>,
 });
 
-const Routes = () => {
+export type IRoutesProps = {
+  isCurator: boolean;
+};
+
+const Routes: React.FunctionComponent<IRoutesProps> = (props: IRoutesProps) => {
   return (
     <div className="view-routes">
       <Switch>
-        <Redirect exact from={PAGE_ROUTE.HOME} to={PAGE_ROUTE.SEARCH} />
+        {props.isCurator ? (
+          <Redirect exact from={PAGE_ROUTE.HOME} to={PAGE_ROUTE.CURATION} />
+        ) : (
+          <Redirect exact from={PAGE_ROUTE.HOME} to={PAGE_ROUTE.SEARCH} />
+        )}
         <PageContainer>
           <Switch>
             <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGIN} component={Login} />

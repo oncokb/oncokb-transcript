@@ -51,6 +51,7 @@ export class FirebaseStore extends BaseStore {
         this.firebaseApp = initializeApp(this.firebaseOptions);
         this.firebaseDb = getDatabase(this.firebaseApp);
         const auth = getAuth();
+        this.firebaseInitSuccess = true;
         return onAuthStateChanged(auth, user => {
           if (!user) {
             this.signInToFirebase();

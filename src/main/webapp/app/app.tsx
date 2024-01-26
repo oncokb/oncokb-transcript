@@ -13,16 +13,13 @@ import { AUTHORITIES } from 'app/config/constants/constants';
 import AppRoutes from 'app/routes';
 import NavigationSidebar from 'app/components/sidebar/NavigationSidebar';
 import Layout from './layout';
+import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
 export type IAppProps = StoreProps;
 
 const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
-  useEffect(() => {
-    props.getSession();
-  }, []);
-
   useEffect(() => {
     let authSubscriber = undefined;
     if (props.isCurator) {
@@ -36,12 +33,16 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
       <Layout>
         <div className="app-container">
           <ToastContainer position={toast.POSITION.TOP_CENTER} className="toastify-container" toastClassName="toastify-toast" />
-          <div>
-            {props.isAuthorized && <NavigationSidebar />}
-            <div className="app-center-content-wrapper" style={{ margin: props.centerContentMargin }}>
-              <AppRoutes />
+          {props.loadingAuth ? (
+            <LoadingIndicator isLoading size={LoaderSize.LARGE} center={true} />
+          ) : (
+            <div>
+              {props.isAuthorized && <NavigationSidebar />}
+              <div className="app-center-content-wrapper" style={{ margin: props.centerContentMargin }}>
+                <AppRoutes isCurator={props.isCurator} />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </Layout>
     </Router>
@@ -50,8 +51,10 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
 
 const mapStoreToProps = ({ authStore, layoutStore, firebaseStore }: IRootStore) => ({
   isAuthorized: authStore.isAuthorized,
+  authorities: authStore.account.authorities,
   isCurator: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.CURATOR]),
   getSession: authStore.getSession,
+  loadingAuth: authStore.loading,
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,
   toggleNavSidebar: layoutStore.toggleNavigationSidebar,
   centerContentMargin: layoutStore.centerContentMargin,
