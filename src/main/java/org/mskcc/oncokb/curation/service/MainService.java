@@ -8,7 +8,10 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
 import org.mskcc.oncokb.curation.domain.*;
-import org.mskcc.oncokb.curation.domain.enumeration.*;
+import org.mskcc.oncokb.curation.domain.enumeration.GenomeFragmentType;
+import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
+import org.mskcc.oncokb.curation.domain.enumeration.SequenceType;
+import org.mskcc.oncokb.curation.domain.enumeration.TranscriptFlagEnum;
 import org.mskcc.oncokb.curation.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.curation.service.mapper.TranscriptMapper;
 import org.mskcc.oncokb.curation.util.AlterationUtils;
@@ -97,24 +100,17 @@ public class MainService {
         }
 
         Alteration pcAlteration = alterationUtils.parseProteinChange(alteration.getAlteration());
+        if (pcAlteration == null) {
+            return;
+        }
         if (pcAlteration.getType() != null) {
             alteration.setType(pcAlteration.getType());
         }
-        if (
-            alteration.getGenes().size() > 0 &&
-            alteration.getGenes().stream().filter(gene -> gene.getEntrezGeneId() < 0).findAny().isPresent()
-        ) {
-            alteration.setType(NA);
-        }
+        Set<Gene> genes = alteration.getGenes();
         if (pcAlteration.getType().equals(STRUCTURAL_VARIANT) && !pcAlteration.getGenes().isEmpty()) {
-            alteration.setGenes(pcAlteration.getGenes());
+            genes = pcAlteration.getGenes();
         }
-        alteration.setAlteration(pcAlteration.getAlteration());
-        if (PROTEIN_CHANGE.equals(pcAlteration.getType())) {
-            alteration.setProteinChange(pcAlteration.getProteinChange());
-        }
-        Set<Gene> genes = alteration
-            .getGenes()
+        Set<Gene> annotatedGenes = genes
             .stream()
             .map(gene -> {
                 Optional<Gene> geneOptional = Optional.empty();
@@ -137,7 +133,19 @@ public class MainService {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .collect(Collectors.toSet());
-        alteration.setGenes(genes);
+        alteration.setGenes(annotatedGenes);
+        alteration.setAlteration(pcAlteration.getAlteration());
+        alteration.setName(pcAlteration.getName());
+        if (PROTEIN_CHANGE.equals(pcAlteration.getType())) {
+            alteration.setProteinChange(pcAlteration.getProteinChange());
+        }
+
+        if (
+            alteration.getGenes().size() > 0 &&
+            alteration.getGenes().stream().filter(gene -> gene.getEntrezGeneId() < 0).findAny().isPresent()
+        ) {
+            alteration.setType(NA);
+        }
 
         if (alteration.getConsequence() == null) {
             if (pcAlteration.getConsequence() != null) {

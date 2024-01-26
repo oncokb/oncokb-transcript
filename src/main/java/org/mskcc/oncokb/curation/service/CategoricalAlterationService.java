@@ -73,6 +73,10 @@ public class CategoricalAlterationService {
         return categoricalAlterationRepository.findByAlterationTypeAndName(alterationType, name);
     }
 
+    public Optional<CategoricalAlteration> findByName(String name) {
+        return categoricalAlterationRepository.findByName(name);
+    }
+
     /**
      * Get all the categoricalAlterations.
      *
@@ -108,6 +112,6 @@ public class CategoricalAlterationService {
 
     public Optional<CategoricalAlteration> findOneByAlteration(Alteration alteration) {
         String trimmedAlteration = removeExclusionCriteria(alteration.getAlteration());
-        return findByAlterationTypeAndName(AlterationType.NA, trimmedAlteration);
+        return findByName(trimmedAlteration);
     }
 }
