@@ -20,4 +20,18 @@
                                  referencedColumnNames="id"
                                  referencedTableName="association"/>
     </changeSet>
+
+    <changeSet id="20240130000000-1" author="Hongxin Zhang">
+        <addForeignKeyConstraint baseColumnNames="genomic_indicator_id"
+                                 baseTableName="rel_genomic_indicator__allele_state"
+                                 constraintName="fk_rel_genomic_indicator__allele_state__genomic_indicator_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="genomic_indicator"/>
+
+        <addForeignKeyConstraint baseColumnNames="allele_state_id"
+                                 baseTableName="rel_genomic_indicator__allele_state"
+                                 constraintName="fk_rel_genomic_indicator__allele_state__allele_state_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="allele_state"/>
+    </changeSet>
 </databaseChangeLog>

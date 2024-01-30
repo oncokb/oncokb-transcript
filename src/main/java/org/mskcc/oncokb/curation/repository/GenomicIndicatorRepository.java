@@ -17,16 +17,29 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface GenomicIndicatorRepository extends JpaRepository<GenomicIndicator, Long>, JpaSpecificationExecutor<GenomicIndicator> {
     @Query(
-        value = "select distinct genomicIndicator from GenomicIndicator genomicIndicator left join fetch genomicIndicator.associations",
-        countQuery = "select count(distinct genomicIndicator) from GenomicIndicator genomicIndicator"
+        "select distinct genomicIndicator from GenomicIndicator genomicIndicator left join fetch genomicIndicator.alleleStates left join fetch genomicIndicator.associations acat " +
+        "left join fetch acat.alterations alts " +
+        "left join fetch alts.genes "
     )
-    Page<GenomicIndicator> findAllWithEagerRelationships(Pageable pageable);
-
-    @Query("select distinct genomicIndicator from GenomicIndicator genomicIndicator left join fetch genomicIndicator.associations")
     List<GenomicIndicator> findAllWithEagerRelationships();
 
     @Query(
-        "select genomicIndicator from GenomicIndicator genomicIndicator left join fetch genomicIndicator.associations where genomicIndicator.id =:id"
+        "select genomicIndicator from GenomicIndicator genomicIndicator left join fetch genomicIndicator.alleleStates left join fetch genomicIndicator.associations acat " +
+        "left join fetch acat.alterations alts " +
+        "left join fetch alts.genes " +
+        "where genomicIndicator.id =:id"
     )
     Optional<GenomicIndicator> findOneWithEagerRelationships(@Param("id") Long id);
+
+    @Query(
+        "select genomicIndicator from GenomicIndicator genomicIndicator " +
+        "left join fetch genomicIndicator.alleleStates " +
+        "left join fetch genomicIndicator.associations acat " +
+        "left join fetch acat.alterations alts " +
+        "left join fetch alts.genes " +
+        "where genomicIndicator.id in(:ids)"
+    )
+    List<GenomicIndicator> findByIdInWithEagerRelationships(@Param("ids") List<Long> ids);
+
+    Optional<GenomicIndicator> findByTypeAndName(String type, String name);
 }

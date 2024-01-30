@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.GenomicIndicator;
@@ -159,7 +160,9 @@ public class GenomicIndicatorResource {
     public ResponseEntity<List<GenomicIndicator>> getAllGenomicIndicators(GenomicIndicatorCriteria criteria) {
         log.debug("REST request to get GenomicIndicators by criteria: {}", criteria);
         List<GenomicIndicator> entityList = genomicIndicatorQueryService.findByCriteria(criteria);
-        return ResponseEntity.ok().body(entityList);
+        return ResponseEntity
+            .ok()
+            .body(genomicIndicatorService.findByIdIn(entityList.stream().map(GenomicIndicator::getId).collect(Collectors.toList())));
     }
 
     /**

@@ -85,11 +85,23 @@ public class GenomicIndicatorQueryService extends QueryService<GenomicIndicator>
             if (criteria.getId() != null) {
                 specification = specification.or(buildRangeSpecification(criteria.getId(), GenomicIndicator_.id));
             }
+            if (criteria.getUuid() != null) {
+                specification = specification.or(buildStringSpecification(criteria.getUuid(), GenomicIndicator_.uuid));
+            }
             if (criteria.getType() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getType(), GenomicIndicator_.type));
             }
             if (criteria.getName() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getName(), GenomicIndicator_.name));
+            }
+            if (criteria.getAlleleStateId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(
+                            criteria.getAlleleStateId(),
+                            root -> root.join(GenomicIndicator_.alleleStates, JoinType.LEFT).get(AlleleState_.id)
+                        )
+                    );
             }
             if (criteria.getAssociationId() != null) {
                 specification =

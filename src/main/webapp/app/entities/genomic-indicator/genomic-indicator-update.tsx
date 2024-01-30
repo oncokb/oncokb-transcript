@@ -7,6 +7,7 @@ import { IRootStore } from 'app/stores';
 
 import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
+import { generateUuid } from 'app/shared/util/utils';
 
 export interface IGenomicIndicatorUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -51,7 +52,9 @@ export const GenomicIndicatorUpdate = (props: IGenomicIndicatorUpdateProps) => {
 
   const defaultValues = () =>
     isNew
-      ? {}
+      ? {
+          uuid: generateUuid(),
+        }
       : {
           ...genomicIndicatorEntity,
         };
@@ -83,6 +86,17 @@ export const GenomicIndicatorUpdate = (props: IGenomicIndicatorUpdateProps) => {
                 validate={{
                   required: { value: true, message: 'This field is required.' },
                 }}
+              />
+              <ValidatedField
+                label="UUID"
+                id="genomic-indicator-uuid"
+                name="uuid"
+                data-cy="uuid"
+                type="text"
+                validate={{
+                  required: { value: true, message: 'This field is required.' },
+                }}
+                disabled
               />
               <ValidatedField
                 label="Name"

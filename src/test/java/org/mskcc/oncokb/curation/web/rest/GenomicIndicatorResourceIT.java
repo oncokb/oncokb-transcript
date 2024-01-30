@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
+import org.mskcc.oncokb.curation.domain.AlleleState;
 import org.mskcc.oncokb.curation.domain.Association;
 import org.mskcc.oncokb.curation.domain.GenomicIndicator;
 import org.mskcc.oncokb.curation.repository.GenomicIndicatorRepository;
@@ -31,6 +32,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Base64Utils;
 
 /**
  * Integration tests for the {@link GenomicIndicatorResource} REST controller.
@@ -41,11 +43,17 @@ import org.springframework.transaction.annotation.Transactional;
 @WithMockUser
 class GenomicIndicatorResourceIT {
 
+    private static final String DEFAULT_UUID = "AAAAAAAAAA";
+    private static final String UPDATED_UUID = "BBBBBBBBBB";
+
     private static final String DEFAULT_TYPE = "AAAAAAAAAA";
     private static final String UPDATED_TYPE = "BBBBBBBBBB";
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
+
+    private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
+    private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
 
     private static final String ENTITY_API_URL = "/api/genomic-indicators";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -77,7 +85,11 @@ class GenomicIndicatorResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static GenomicIndicator createEntity(EntityManager em) {
-        GenomicIndicator genomicIndicator = new GenomicIndicator().type(DEFAULT_TYPE).name(DEFAULT_NAME);
+        GenomicIndicator genomicIndicator = new GenomicIndicator()
+            .uuid(DEFAULT_UUID)
+            .type(DEFAULT_TYPE)
+            .name(DEFAULT_NAME)
+            .description(DEFAULT_DESCRIPTION);
         return genomicIndicator;
     }
 
@@ -88,7 +100,11 @@ class GenomicIndicatorResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static GenomicIndicator createUpdatedEntity(EntityManager em) {
-        GenomicIndicator genomicIndicator = new GenomicIndicator().type(UPDATED_TYPE).name(UPDATED_NAME);
+        GenomicIndicator genomicIndicator = new GenomicIndicator()
+            .uuid(UPDATED_UUID)
+            .type(UPDATED_TYPE)
+            .name(UPDATED_NAME)
+            .description(UPDATED_DESCRIPTION);
         return genomicIndicator;
     }
 
@@ -115,8 +131,10 @@ class GenomicIndicatorResourceIT {
         List<GenomicIndicator> genomicIndicatorList = genomicIndicatorRepository.findAll();
         assertThat(genomicIndicatorList).hasSize(databaseSizeBeforeCreate + 1);
         GenomicIndicator testGenomicIndicator = genomicIndicatorList.get(genomicIndicatorList.size() - 1);
+        assertThat(testGenomicIndicator.getUuid()).isEqualTo(DEFAULT_UUID);
         assertThat(testGenomicIndicator.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testGenomicIndicator.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(testGenomicIndicator.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
     }
 
     @Test
@@ -140,6 +158,28 @@ class GenomicIndicatorResourceIT {
         // Validate the GenomicIndicator in the database
         List<GenomicIndicator> genomicIndicatorList = genomicIndicatorRepository.findAll();
         assertThat(genomicIndicatorList).hasSize(databaseSizeBeforeCreate);
+    }
+
+    @Test
+    @Transactional
+    void checkUuidIsRequired() throws Exception {
+        int databaseSizeBeforeTest = genomicIndicatorRepository.findAll().size();
+        // set the field null
+        genomicIndicator.setUuid(null);
+
+        // Create the GenomicIndicator, which fails.
+
+        restGenomicIndicatorMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(genomicIndicator))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<GenomicIndicator> genomicIndicatorList = genomicIndicatorRepository.findAll();
+        assertThat(genomicIndicatorList).hasSize(databaseSizeBeforeTest);
     }
 
     @Test
@@ -198,26 +238,10 @@ class GenomicIndicatorResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(genomicIndicator.getId().intValue())))
+            .andExpect(jsonPath("$.[*].uuid").value(hasItem(DEFAULT_UUID)))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)));
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllGenomicIndicatorsWithEagerRelationshipsIsEnabled() throws Exception {
-        when(genomicIndicatorServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restGenomicIndicatorMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(genomicIndicatorServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllGenomicIndicatorsWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(genomicIndicatorServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restGenomicIndicatorMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(genomicIndicatorServiceMock, times(1)).findAllWithEagerRelationships(any());
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())));
     }
 
     @Test
@@ -232,8 +256,10 @@ class GenomicIndicatorResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(genomicIndicator.getId().intValue()))
+            .andExpect(jsonPath("$.uuid").value(DEFAULT_UUID))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE))
-            .andExpect(jsonPath("$.name").value(DEFAULT_NAME));
+            .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()));
     }
 
     @Test
@@ -252,6 +278,84 @@ class GenomicIndicatorResourceIT {
 
         defaultGenomicIndicatorShouldBeFound("id.lessThanOrEqual=" + id);
         defaultGenomicIndicatorShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomicIndicatorsByUuidIsEqualToSomething() throws Exception {
+        // Initialize the database
+        genomicIndicatorRepository.saveAndFlush(genomicIndicator);
+
+        // Get all the genomicIndicatorList where uuid equals to DEFAULT_UUID
+        defaultGenomicIndicatorShouldBeFound("uuid.equals=" + DEFAULT_UUID);
+
+        // Get all the genomicIndicatorList where uuid equals to UPDATED_UUID
+        defaultGenomicIndicatorShouldNotBeFound("uuid.equals=" + UPDATED_UUID);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomicIndicatorsByUuidIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        genomicIndicatorRepository.saveAndFlush(genomicIndicator);
+
+        // Get all the genomicIndicatorList where uuid not equals to DEFAULT_UUID
+        defaultGenomicIndicatorShouldNotBeFound("uuid.notEquals=" + DEFAULT_UUID);
+
+        // Get all the genomicIndicatorList where uuid not equals to UPDATED_UUID
+        defaultGenomicIndicatorShouldBeFound("uuid.notEquals=" + UPDATED_UUID);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomicIndicatorsByUuidIsInShouldWork() throws Exception {
+        // Initialize the database
+        genomicIndicatorRepository.saveAndFlush(genomicIndicator);
+
+        // Get all the genomicIndicatorList where uuid in DEFAULT_UUID or UPDATED_UUID
+        defaultGenomicIndicatorShouldBeFound("uuid.in=" + DEFAULT_UUID + "," + UPDATED_UUID);
+
+        // Get all the genomicIndicatorList where uuid equals to UPDATED_UUID
+        defaultGenomicIndicatorShouldNotBeFound("uuid.in=" + UPDATED_UUID);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomicIndicatorsByUuidIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        genomicIndicatorRepository.saveAndFlush(genomicIndicator);
+
+        // Get all the genomicIndicatorList where uuid is not null
+        defaultGenomicIndicatorShouldBeFound("uuid.specified=true");
+
+        // Get all the genomicIndicatorList where uuid is null
+        defaultGenomicIndicatorShouldNotBeFound("uuid.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomicIndicatorsByUuidContainsSomething() throws Exception {
+        // Initialize the database
+        genomicIndicatorRepository.saveAndFlush(genomicIndicator);
+
+        // Get all the genomicIndicatorList where uuid contains DEFAULT_UUID
+        defaultGenomicIndicatorShouldBeFound("uuid.contains=" + DEFAULT_UUID);
+
+        // Get all the genomicIndicatorList where uuid contains UPDATED_UUID
+        defaultGenomicIndicatorShouldNotBeFound("uuid.contains=" + UPDATED_UUID);
+    }
+
+    @Test
+    @Transactional
+    void getAllGenomicIndicatorsByUuidNotContainsSomething() throws Exception {
+        // Initialize the database
+        genomicIndicatorRepository.saveAndFlush(genomicIndicator);
+
+        // Get all the genomicIndicatorList where uuid does not contain DEFAULT_UUID
+        defaultGenomicIndicatorShouldNotBeFound("uuid.doesNotContain=" + DEFAULT_UUID);
+
+        // Get all the genomicIndicatorList where uuid does not contain UPDATED_UUID
+        defaultGenomicIndicatorShouldBeFound("uuid.doesNotContain=" + UPDATED_UUID);
     }
 
     @Test
@@ -445,8 +549,10 @@ class GenomicIndicatorResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(genomicIndicator.getId().intValue())))
+            .andExpect(jsonPath("$.[*].uuid").value(hasItem(DEFAULT_UUID)))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE)))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)));
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())));
 
         // Check, that the count call also returns 1
         restGenomicIndicatorMockMvc
@@ -494,7 +600,7 @@ class GenomicIndicatorResourceIT {
         GenomicIndicator updatedGenomicIndicator = genomicIndicatorRepository.findById(genomicIndicator.getId()).get();
         // Disconnect from session so that the updates on updatedGenomicIndicator are not directly saved in db
         em.detach(updatedGenomicIndicator);
-        updatedGenomicIndicator.type(UPDATED_TYPE).name(UPDATED_NAME);
+        updatedGenomicIndicator.uuid(UPDATED_UUID).type(UPDATED_TYPE).name(UPDATED_NAME).description(UPDATED_DESCRIPTION);
 
         restGenomicIndicatorMockMvc
             .perform(
@@ -509,8 +615,10 @@ class GenomicIndicatorResourceIT {
         List<GenomicIndicator> genomicIndicatorList = genomicIndicatorRepository.findAll();
         assertThat(genomicIndicatorList).hasSize(databaseSizeBeforeUpdate);
         GenomicIndicator testGenomicIndicator = genomicIndicatorList.get(genomicIndicatorList.size() - 1);
+        assertThat(testGenomicIndicator.getUuid()).isEqualTo(UPDATED_UUID);
         assertThat(testGenomicIndicator.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testGenomicIndicator.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testGenomicIndicator.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
     }
 
     @Test
@@ -588,6 +696,8 @@ class GenomicIndicatorResourceIT {
         GenomicIndicator partialUpdatedGenomicIndicator = new GenomicIndicator();
         partialUpdatedGenomicIndicator.setId(genomicIndicator.getId());
 
+        partialUpdatedGenomicIndicator.name(UPDATED_NAME);
+
         restGenomicIndicatorMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, partialUpdatedGenomicIndicator.getId())
@@ -601,8 +711,10 @@ class GenomicIndicatorResourceIT {
         List<GenomicIndicator> genomicIndicatorList = genomicIndicatorRepository.findAll();
         assertThat(genomicIndicatorList).hasSize(databaseSizeBeforeUpdate);
         GenomicIndicator testGenomicIndicator = genomicIndicatorList.get(genomicIndicatorList.size() - 1);
+        assertThat(testGenomicIndicator.getUuid()).isEqualTo(DEFAULT_UUID);
         assertThat(testGenomicIndicator.getType()).isEqualTo(DEFAULT_TYPE);
-        assertThat(testGenomicIndicator.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(testGenomicIndicator.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testGenomicIndicator.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
     }
 
     @Test
@@ -617,7 +729,7 @@ class GenomicIndicatorResourceIT {
         GenomicIndicator partialUpdatedGenomicIndicator = new GenomicIndicator();
         partialUpdatedGenomicIndicator.setId(genomicIndicator.getId());
 
-        partialUpdatedGenomicIndicator.type(UPDATED_TYPE).name(UPDATED_NAME);
+        partialUpdatedGenomicIndicator.uuid(UPDATED_UUID).type(UPDATED_TYPE).name(UPDATED_NAME).description(UPDATED_DESCRIPTION);
 
         restGenomicIndicatorMockMvc
             .perform(
@@ -632,8 +744,10 @@ class GenomicIndicatorResourceIT {
         List<GenomicIndicator> genomicIndicatorList = genomicIndicatorRepository.findAll();
         assertThat(genomicIndicatorList).hasSize(databaseSizeBeforeUpdate);
         GenomicIndicator testGenomicIndicator = genomicIndicatorList.get(genomicIndicatorList.size() - 1);
+        assertThat(testGenomicIndicator.getUuid()).isEqualTo(UPDATED_UUID);
         assertThat(testGenomicIndicator.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testGenomicIndicator.getName()).isEqualTo(UPDATED_NAME);
+        assertThat(testGenomicIndicator.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
     }
 
     @Test

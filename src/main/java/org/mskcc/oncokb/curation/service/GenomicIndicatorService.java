@@ -3,11 +3,10 @@ package org.mskcc.oncokb.curation.service;
 import java.util.List;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.GenomicIndicator;
+import org.mskcc.oncokb.curation.domain.enumeration.GenomicIndicatorType;
 import org.mskcc.oncokb.curation.repository.GenomicIndicatorRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,11 +48,25 @@ public class GenomicIndicatorService {
         return genomicIndicatorRepository
             .findById(genomicIndicator.getId())
             .map(existingGenomicIndicator -> {
+                if (genomicIndicator.getUuid() != null) {
+                    existingGenomicIndicator.setUuid(genomicIndicator.getUuid());
+                }
                 if (genomicIndicator.getType() != null) {
                     existingGenomicIndicator.setType(genomicIndicator.getType());
                 }
                 if (genomicIndicator.getName() != null) {
                     existingGenomicIndicator.setName(genomicIndicator.getName());
+                }
+                if (genomicIndicator.getDescription() != null) {
+                    existingGenomicIndicator.setDescription(genomicIndicator.getDescription());
+                }
+                if (genomicIndicator.getAlleleStates() != null) {
+                    existingGenomicIndicator.getAlleleStates().clear();
+                    existingGenomicIndicator.getAlleleStates().addAll(genomicIndicator.getAlleleStates());
+                }
+                if (genomicIndicator.getAssociations() != null) {
+                    existingGenomicIndicator.getAssociations().clear();
+                    existingGenomicIndicator.getAssociations().addAll(genomicIndicator.getAssociations());
                 }
 
                 return existingGenomicIndicator;
@@ -73,15 +86,6 @@ public class GenomicIndicatorService {
     }
 
     /**
-     * Get all the genomicIndicators with eager load of many-to-many relationships.
-     *
-     * @return the list of entities.
-     */
-    public Page<GenomicIndicator> findAllWithEagerRelationships(Pageable pageable) {
-        return genomicIndicatorRepository.findAllWithEagerRelationships(pageable);
-    }
-
-    /**
      * Get one genomicIndicator by id.
      *
      * @param id the id of the entity.
@@ -91,6 +95,36 @@ public class GenomicIndicatorService {
     public Optional<GenomicIndicator> findOne(Long id) {
         log.debug("Request to get GenomicIndicator : {}", id);
         return genomicIndicatorRepository.findOneWithEagerRelationships(id);
+    }
+
+    /**
+     * Get a list of genomicIndicators by ids
+     *
+     * @param ids the list of id for the entities
+     * @return list of entity
+     */
+    @Transactional(readOnly = true)
+    public List<GenomicIndicator> findByIdIn(List<Long> ids) {
+        log.debug("Request to get GenomicIndicators : {}", ids);
+        return genomicIndicatorRepository.findByIdInWithEagerRelationships(ids);
+    }
+
+    /**
+     * Get one genomicIndicator by type and name
+     *
+     * @param type genomic indicator type, GERMLINE
+     * @param name the name of the entity
+     * @return the entity
+     */
+    public Optional<GenomicIndicator> findByTypeAndName(GenomicIndicatorType type, String name) {
+        if (type == null) {
+            return Optional.empty();
+        }
+        Optional<GenomicIndicator> genomicIndicatorOptional = genomicIndicatorRepository.findByTypeAndName(type.name(), name);
+        if (genomicIndicatorOptional.isPresent()) {
+            return genomicIndicatorRepository.findOneWithEagerRelationships(genomicIndicatorOptional.get().getId());
+        }
+        return Optional.empty();
     }
 
     /**

@@ -89,9 +89,10 @@
       "NciThesaurus",
       "Synonym",
       "Treatment",
-      "TreatmentPriority"
+      "TreatmentPriority",
+      "AlleleState"
     ],
-    "lastLiquibaseTimestamp": 1698875032000,
+    "lastLiquibaseTimestamp": 1706575018000,
     "devServerPort": 9060,
     "enableGradleEnterprise": false
   }
