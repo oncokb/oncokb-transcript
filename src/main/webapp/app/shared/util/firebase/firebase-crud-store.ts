@@ -32,6 +32,7 @@ export class FirebaseCrudStore<T> {
       setDatabase: action.bound,
       create: action.bound,
       update: action.bound,
+      updateUntemplated: action.bound,
       push: action.bound,
       delete: action.bound,
       deleteFromArray: action.bound,
@@ -72,6 +73,15 @@ export class FirebaseCrudStore<T> {
     }
   }
 
+  async updateUntemplated(path: string, value: any) {
+    const convertValue = convertNestedObject(value);
+    try {
+      return await update(ref(this.db, path), convertValue);
+    } catch (e) {
+      notifyError(e, 'Error updating to Firebase');
+    }
+  }
+
   delete(path: string) {
     return remove(ref(this.db, path));
   }
@@ -79,7 +89,7 @@ export class FirebaseCrudStore<T> {
   async deleteFromArray(path: string, indices: number[]) {
     return await runTransaction(ref(this.db, path), (currentData: any[]) => {
       const newData = [];
-      for (let i = 0; i < currentData.length; i++) {
+      for (let i = 0; currentData !== null && i < currentData.length; i++) {
         if (!indices.includes(i)) {
           newData.push(currentData[i]);
         }

@@ -17,7 +17,7 @@ import {
 } from 'app/config/constants/constants';
 import { PubmedGeneLink } from 'app/shared/links/PubmedGeneLink';
 import { InlineDivider, PubmedGeneArticlesLink } from 'app/shared/links/PubmedGeneArticlesLink';
-import { getSectionClassName } from 'app/shared/util/utils';
+import { getSectionClassName, getUserFullName } from 'app/shared/util/utils';
 import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
 import WithSeparator from 'react-with-separator';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
@@ -25,7 +25,8 @@ import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/fir
 import { getFirebasePath, getMutationName } from 'app/shared/util/firebase/firebase-utils';
 import styles from './styles.module.scss';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { HistoryRecord, Mutation } from 'app/shared/model/firebase/firebase.model';
+import { CancerType, Comment, DX_LEVELS, HistoryRecord, Mutation, PX_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
 import { GENE_TYPE, GENE_TYPE_KEY, MUTATION_EFFECT_OPTIONS, ONCOGENICITY_OPTIONS, TX_LEVEL_OPTIONS } from 'app/config/constants/firebase';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
 import VusTable from '../../shared/table/VusTable';
@@ -38,6 +39,7 @@ import MutationCollapsible from './collapsible/MutationCollapsible';
 import { IDrug } from 'app/shared/model/drug.model';
 import { IGene } from 'app/shared/model/gene.model';
 import CurationToolsTab from 'app/components/tabs/CurationToolsTab';
+import CommentIcon from 'app/shared/icons/CommentIcon';
 import { HgncLink } from 'app/shared/links/HgncLink';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
@@ -114,6 +116,45 @@ const CurationPage = (props: ICurationPageProps) => {
         return filter;
       })
     );
+  }
+
+  async function handleCreateComment(path: string, content: string, currentCommentsLength: number) {
+    // replace with runTransaction?
+    const newComment = new Comment();
+    newComment.content = content;
+    newComment.email = props.account.email;
+    newComment.resolved = 'false';
+    newComment.userName = getUserFullName(props.account);
+
+    try {
+      await props.handleFirebaseUpdateUntemplated(path, [...Array(currentCommentsLength).fill({}), newComment]);
+    } catch (error) {
+      notifyError(error);
+    }
+  }
+
+  async function handleDeleteComments(path: string, indices: number[]) {
+    try {
+      await props.handleFirebaseDeleteFromArray(path, indices);
+    } catch (error) {
+      notifyError(error);
+    }
+  }
+
+  async function handleResolveComment(path: string) {
+    try {
+      await props.handleFirebaseUpdateUntemplated(path, { resolved: true });
+    } catch (error) {
+      notifyError(error);
+    }
+  }
+
+  async function handleUnresolveComment(path: string) {
+    try {
+      await props.handleFirebaseUpdateUntemplated(path, { resolved: false });
+    } catch (error) {
+      notifyError(error);
+    }
   }
 
   useEffect(() => {
@@ -244,63 +285,113 @@ const CurationPage = (props: ICurationPageProps) => {
     <>
       <div>
         <Row>
-          <Col className={'d-flex flex-row align-items-baseline flex-nowrap justify-content-between'}>
-            <div>
-              <span style={{ fontSize: '3rem' }} className={'mr-2'}>
-                {props.data.name}
-              </span>
-              <span>
-                {geneEntity?.entrezGeneId && (
-                  <span className="ml-2">
-                    <span className="font-weight-bold text-nowrap">Entrez Gene:</span>
-                    <span className="ml-1">
-                      <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
+          <Col className={'d-flex flex-row flex-nowrap align-items-baseline'}>
+            <span style={{ fontSize: '3rem' }} className={'mr-2'}>
+              {props.data.name}
+            </span>
+            <div className="d-flex align-items-baseline">
+              <div className="mr-2">
+                <CommentIcon
+                  id={`${hugoSymbol}_curation_page`}
+                  comments={props.data.name_comments || []}
+                  onCreateComment={content =>
+                    handleCreateComment(`${firebaseGenePath}/name_comments`, content, props.data.name_comments?.length || 0)
+                  }
+                  onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/name_comments`, indices)}
+                  onResolveComment={index => handleResolveComment(`${firebaseGenePath}/name_comments/${index}`)}
+                  onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/name_comments/${index}`)}
+                />
+              </div>
+              <div>
+                <span>
+                  {geneEntity?.entrezGeneId && (
+                    <span className="ml-2">
+                      <span className="font-weight-bold text-nowrap">Entrez Gene:</span>
+                      <span className="ml-1">
+                        <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
+                      </span>
                     </span>
-                  </span>
-                )}
-                {geneEntity?.hgncId && (
-                  <span className="ml-2">
-                    <span className="font-weight-bold">HGNC:</span>
-                    <span className="ml-1">
-                      <HgncLink id={geneEntity.hgncId} />
+                  )}
+                  {geneEntity?.hgncId && (
+                    <span className="ml-2">
+                      <span className="font-weight-bold">HGNC:</span>
+                      <span className="ml-1">
+                        <HgncLink id={geneEntity.hgncId} />
+                      </span>
                     </span>
-                  </span>
-                )}
-                {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
-                  <span className="ml-2">
-                    <span className="font-weight-bold">Gene aliases:</span>
-                    <span className="ml-1">
-                      <WithSeparator separator={', '}>
-                        {geneEntity.synonyms.map(synonym => (
-                          <span className={'text-nowrap'} key={synonym.name}>
-                            {synonym.name}
-                          </span>
-                        ))}
-                      </WithSeparator>
+                  )}
+                  {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
+                    <span className="ml-2">
+                      <span className="font-weight-bold">Gene aliases:</span>
+                      <span className="ml-1">
+                        <WithSeparator separator={', '}>
+                          {geneEntity.synonyms.map(synonym => (
+                            <span className={'text-nowrap'} key={synonym.name}>
+                              {synonym.name}
+                            </span>
+                          ))}
+                        </WithSeparator>
+                      </span>
                     </span>
+                  )}
+                  <span className="ml-2">
+                    <span className="font-weight-bold mr-2">External Links:</span>
+                    <WithSeparator separator={InlineDivider}>
+                      <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
+                        {CBIOPORTAL} <ExternalLinkIcon />
+                      </a>
+                      <a
+                        href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {COSMIC} <ExternalLinkIcon />
+                      </a>
+                    </WithSeparator>
                   </span>
-                )}
-                <span className="ml-2">
-                  <span className="font-weight-bold mr-2">External Links:</span>
-                  <WithSeparator separator={InlineDivider}>
-                    <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
-                      {CBIOPORTAL} <ExternalLinkIcon />
-                    </a>
-                    <a
-                      href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {COSMIC} <ExternalLinkIcon />
-                    </a>
-                  </WithSeparator>
                 </span>
-              </span>
+              </div>
             </div>
           </Col>
         </Row>
         <Row className={`${getSectionClassName()} justify-content-between`}>
           <Col>
+            <div className={'d-flex mb-2'}>
+              {geneEntity?.entrezGeneId && (
+                <div>
+                  <span className="font-weight-bold">Entrez Gene:</span>
+                  <span className="ml-1">
+                    <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
+                  </span>
+                </div>
+              )}
+              <div className="ml-2">
+                <span className="font-weight-bold">Gene aliases:</span>
+                <span className="ml-1">
+                  <PubmedGeneArticlesLink hugoSymbols={(geneEntity?.synonyms || []).map(synonym => synonym.name)} />
+                </span>
+              </div>
+            </div>
+            <RealtimeTextAreaInput
+              fieldKey="summary"
+              label="Summary"
+              labelIcon={
+                <>
+                  <GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />
+                  <div className="mr-3" />
+                  <CommentIcon
+                    id={props.data.summary_uuid}
+                    comments={props.data.summary_comments || []}
+                    onCreateComment={content =>
+                      handleCreateComment(`${firebaseGenePath}/summary_comments`, content, props.data.summary_comments?.length || 0)
+                    }
+                    onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/summary_comments`, indices)}
+                    onResolveComment={index => handleResolveComment(`${firebaseGenePath}/summary_comments/${index}`)}
+                    onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/summary_comments/${index}`)}
+                  />
+                </>
+              }
+            />
             <RealtimeCheckedInputGroup
               groupHeader={
                 <>
@@ -348,7 +439,22 @@ const CurationPage = (props: ICurationPageProps) => {
               inputClass={styles.textarea}
               label="Background"
               name="geneBackground"
-              labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Background'} />}
+              labelIcon={
+                <>
+                  <GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Background'} />
+                  <div className="mr-3" />
+                  <CommentIcon
+                    id={props.data.background_uuid}
+                    comments={props.data.background_comments || []}
+                    onCreateComment={content =>
+                      handleCreateComment(`${firebaseGenePath}/background_comments`, content, props.data.background_comments?.length || 0)
+                    }
+                    onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/background_comments`, indices)}
+                    onResolveComment={index => handleResolveComment(`${firebaseGenePath}/background_comments/${index}`)}
+                    onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/background_comments/${index}`)}
+                  />
+                </>
+              }
             />
             <div className="mb-2">
               <AutoParseRefField summary={props.data.background} />
@@ -580,6 +686,8 @@ const mapStoreToProps = ({
   updateCollaborator: firebaseMetaStore.updateCollaborator,
   historyData: firebaseHistoryStore.data,
   addHistoryListener: firebaseHistoryStore.addListener,
+  handleFirebaseUpdateUntemplated: firebaseGeneStore.updateUntemplated,
+  handleFirebaseDeleteFromArray: firebaseGeneStore.deleteFromArray,
   account: authStore.account,
   firebaseInitSuccess: firebaseStore.firebaseInitSuccess,
 });

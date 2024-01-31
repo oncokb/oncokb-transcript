@@ -19,15 +19,17 @@ describe('Firebase Models', () => {
 
       expect(gene).toEqual({
         name: 'EGFR',
-        names_comments: [],
+        name_comments: [],
         background: '',
         background_uuid: DEFAULT_UUID,
+        background_comments: [],
         dmp_refseq_id: '',
         isoform_override: '',
         mutations: [],
         mutations_uuid: DEFAULT_UUID,
         summary: '',
         summary_uuid: DEFAULT_UUID,
+        summary_comments: [],
         germline_summary: '',
         germline_summary_uuid: DEFAULT_UUID,
         penetrance: '',
