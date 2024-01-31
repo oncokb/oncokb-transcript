@@ -243,7 +243,7 @@ const CurationPage = (props: ICurationPageProps) => {
         <Row>
           <Col className={'d-flex align-items-baseline flex-wrap'}>
             <span style={{ fontSize: '3rem' }} className={'mr-2'}>
-              Gene: {props.data.name}
+              {props.data.name}
             </span>
             <span className={'d-flex mr-2'} style={{ fontSize: '1rem' }}>
               {geneEntity?.entrezGeneId && (
