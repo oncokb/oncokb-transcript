@@ -38,6 +38,7 @@ import MutationCollapsible from './collapsible/MutationCollapsible';
 import { IDrug } from 'app/shared/model/drug.model';
 import { IGene } from 'app/shared/model/gene.model';
 import CurationToolsTab from 'app/components/tabs/CurationToolsTab';
+import { HgncLink } from 'app/shared/links/HgncLink';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -241,37 +242,59 @@ const CurationPage = (props: ICurationPageProps) => {
     <>
       <div>
         <Row>
-          <Col className={'d-flex align-items-baseline flex-wrap'}>
-            <span style={{ fontSize: '3rem' }} className={'mr-2'}>
-              {props.data.name}
-            </span>
-            <span className={'d-flex mr-2'} style={{ fontSize: '1rem' }}>
-              {geneEntity?.entrezGeneId && (
-                <div>
-                  <span className="font-weight-bold">Entrez Gene:</span>
-                  <span className="ml-1">
-                    <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
+          <Col className={'d-flex flex-row align-items-baseline flex-nowrap justify-content-between'}>
+            <div>
+              <span style={{ fontSize: '3rem' }} className={'mr-2'}>
+                {props.data.name}
+              </span>
+              <span>
+                {geneEntity?.entrezGeneId && (
+                  <span className="ml-2">
+                    <span className="font-weight-bold text-nowrap">Entrez Gene:</span>
+                    <span className="ml-1">
+                      <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
+                    </span>
                   </span>
-                </div>
-              )}
-              <span className="ml-2">
-                <span className="font-weight-bold">Gene aliases:</span>
-                <span className="ml-1">
-                  <PubmedGeneArticlesLink hugoSymbols={(geneEntity?.synonyms || []).map(synonym => synonym.name)} />
+                )}
+                {geneEntity?.hgncId && (
+                  <span className="ml-2">
+                    <span className="font-weight-bold">HGNC:</span>
+                    <span className="ml-1">
+                      <HgncLink id={geneEntity.hgncId} />
+                    </span>
+                  </span>
+                )}
+                {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
+                  <span className="ml-2">
+                    <span className="font-weight-bold">Gene aliases:</span>
+                    <span className="ml-1">
+                      <WithSeparator separator={', '}>
+                        {geneEntity.synonyms.map(synonym => (
+                          <span className={'text-nowrap'} key={synonym.name}>
+                            {synonym.name}
+                          </span>
+                        ))}
+                      </WithSeparator>
+                    </span>
+                  </span>
+                )}
+                <span className="ml-2">
+                  <span className="font-weight-bold mr-2">External Links:</span>
+                  <WithSeparator separator={InlineDivider}>
+                    <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
+                      {CBIOPORTAL} <ExternalLinkIcon />
+                    </a>
+                    <a
+                      href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {COSMIC} <ExternalLinkIcon />
+                    </a>
+                  </WithSeparator>
                 </span>
               </span>
-            </span>
-            <span>
-              <span className="font-weight-bold mr-2">External Links:</span>
-              <WithSeparator separator={InlineDivider}>
-                <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
-                  {CBIOPORTAL} <ExternalLinkIcon />
-                </a>
-                <a href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`} target="_blank" rel="noopener noreferrer">
-                  {COSMIC} <ExternalLinkIcon />
-                </a>
-              </WithSeparator>
-            </span>
+            </div>
           </Col>
         </Row>
         <Row className={`${getSectionClassName()} justify-content-between`}>
