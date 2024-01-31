@@ -8,7 +8,7 @@ import { IDrug } from 'app/shared/model/drug.model';
 export default function constructTimeSeriesData(
   record: HistoryRecord,
   admin: string,
-  timestamp: string,
+  timestamp: number,
   objectField: string
 ): RequiredTimeSeriesEventData | ExtraTimeSeriesEventData {
   let operation: string;

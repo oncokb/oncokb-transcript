@@ -1,7 +1,8 @@
-import { Gene, FIREBASE_ONCOGENICITY, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import { Gene, FIREBASE_ONCOGENICITY, TX_LEVELS, TI_TYPE, HistoryOperationType } from 'app/shared/model/firebase/firebase.model';
 import { ExtractPathExpressions } from 'app/shared/util/firebase/firebase-crud-store';
 import { MUTATION_EFFECT, ONCOGENICITY } from './constants';
 
+/* eslint-disable @typescript-eslint/no-shadow */
 export enum GENE_TYPE {
   TUMOR_SUPPRESSOR = 'Tumor Suppressor',
   ONCOGENE = 'Oncogene',
@@ -97,3 +98,41 @@ export const TX_LEVEL_OPTIONS = [
   TX_LEVELS.LEVEL_R3,
   TX_LEVELS.LEVEL_NO,
 ];
+
+export enum HISTORY_LOCATION_STRINGS {
+  GENE_SUMMARY = 'Gene Summary',
+  GENE_BACKGROUND = 'Gene Background',
+  GENE_TYPE = 'Gene Type',
+  MUTATION_EFFECT = 'Mutation Effect',
+  TUMOR_TYPE_SUMMARY = 'Tumor Type Summary',
+  PROGNOSTIC_SUMMARY = 'Prognostic Summary',
+  DIAGNOSTIC_SUMMARY = 'Diagnostic Summary',
+  PROGNOSTIC = 'Prognostic',
+  DIAGNOSTIC = 'Diagnostic',
+}
+
+export enum ReviewAction {
+  CREATE,
+  DELETE,
+  UPDATE,
+  NAME_CHANGE,
+}
+
+export const ReviewActionToHistoryOperationMapping: { [key in ReviewAction]?: HistoryOperationType } = {
+  [ReviewAction.CREATE]: HistoryOperationType.ADD,
+  [ReviewAction.DELETE]: HistoryOperationType.DELETE,
+  [ReviewAction.UPDATE]: HistoryOperationType.UPDATE,
+  [ReviewAction.NAME_CHANGE]: HistoryOperationType.NAME_CHANGE,
+};
+
+export const TI_TYPE_TO_HISTORY_STRING: { [key in TI_TYPE]: string } = {
+  [TI_TYPE.SS]: 'STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY',
+  [TI_TYPE.SR]: 'STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE',
+  [TI_TYPE.IS]: 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY',
+  [TI_TYPE.IR]: 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_RESISTANCE',
+};
+
+export enum ReviewLevelType {
+  META, // This means that the review level is used for grouping purposes
+  REVIEWABLE, // This means that the review level has reviewable content
+}

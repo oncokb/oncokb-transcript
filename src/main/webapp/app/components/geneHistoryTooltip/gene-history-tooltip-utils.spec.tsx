@@ -1,6 +1,6 @@
 import 'jest-expect-message';
 import constructTimeSeriesData, { formatLocation, getTimeSeriesDataContent } from './gene-history-tooltip-utils';
-import { HistoryRecord } from 'app/shared/model/firebase/firebase.model';
+import { HistoryOperationType, HistoryRecord } from 'app/shared/model/firebase/firebase.model';
 import React from 'react';
 import * as firebaseUtils from 'app/shared/util/firebase/firebase-utils';
 
@@ -41,7 +41,7 @@ describe('GeneHistoryTooltipUtils', () => {
   describe('constructTimeSeriesData', () => {
     const USER_NAME = 'Test User 1';
     const ADMIN = 'Test Admin 1';
-    const TIMESTAMP = '518022762874';
+    const TIMESTAMP = 518022762874;
     const OBJECT_FIELD = 'description';
 
     it('should create time series data with add operation', () => {
@@ -50,7 +50,7 @@ describe('GeneHistoryTooltipUtils', () => {
         location: '',
         new: 'Test',
         old: '',
-        operation: 'add',
+        operation: HistoryOperationType.ADD,
         uuids: '',
       };
 
@@ -66,7 +66,7 @@ describe('GeneHistoryTooltipUtils', () => {
         location: '',
         new: 'Test',
         old: '',
-        operation: 'update',
+        operation: HistoryOperationType.UPDATE,
         uuids: '',
       };
 
@@ -82,7 +82,7 @@ describe('GeneHistoryTooltipUtils', () => {
         location: '',
         new: null,
         old: null,
-        operation: 'delete',
+        operation: HistoryOperationType.DELETE,
         uuids: '',
       };
 
@@ -108,7 +108,7 @@ describe('GeneHistoryTooltipUtils', () => {
         location: '',
         new: null,
         old: null,
-        operation: 'invalid',
+        operation: 'invalid' as HistoryOperationType,
         uuids: '',
       };
 
