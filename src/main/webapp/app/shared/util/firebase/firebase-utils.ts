@@ -54,6 +54,8 @@ export const getAlterationName = (alteration: Alteration) => {
       name += ` (p.${alteration.proteinChange})`;
     }
     return name;
+  } else if (alteration.proteinChange) {
+    return alteration.proteinChange;
   }
   return '';
 };
