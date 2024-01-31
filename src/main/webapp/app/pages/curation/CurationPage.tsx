@@ -116,16 +116,18 @@ const CurationPage = (props: ICurationPageProps) => {
   }
 
   useEffect(() => {
-    props.searchGeneEntities({ query: hugoSymbol, exact: true });
-    const cleanupCallbacks = [];
-    cleanupCallbacks.push(props.addListener(firebaseGenePath));
-    cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
-    cleanupCallbacks.push(() => props.updateCollaborator(hugoSymbol, false));
-    cleanupCallbacks.push(props.addMetaCollaboratorsListener());
-    return () => {
-      cleanupCallbacks.forEach(callback => callback && callback());
-    };
-  }, []);
+    if (props.firebaseInitSuccess) {
+      props.searchGeneEntities({ query: hugoSymbol, exact: true });
+      const cleanupCallbacks = [];
+      cleanupCallbacks.push(props.addListener(firebaseGenePath));
+      cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
+      cleanupCallbacks.push(() => props.updateCollaborator(hugoSymbol, false));
+      cleanupCallbacks.push(props.addMetaCollaboratorsListener());
+      return () => {
+        cleanupCallbacks.forEach(callback => callback && callback());
+      };
+    }
+  }, [props.firebaseInitSuccess]);
 
   const geneEntity: IGene | undefined = useMemo(() => {
     return props.geneEntities.find(gene => gene.hugoSymbol === hugoSymbol);
@@ -523,7 +525,15 @@ const CurationPage = (props: ICurationPageProps) => {
   );
 };
 
-const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, firebaseHistoryStore, drugStore, authStore }: IRootStore) => ({
+const mapStoreToProps = ({
+  geneStore,
+  firebaseGeneStore,
+  firebaseMetaStore,
+  firebaseHistoryStore,
+  drugStore,
+  authStore,
+  firebaseStore,
+}: IRootStore) => ({
   searchGeneEntities: geneStore.searchEntities,
   geneEntities: geneStore.entities,
   loadingGenes: geneStore.loading,
@@ -541,6 +551,7 @@ const mapStoreToProps = ({ geneStore, firebaseGeneStore, firebaseMetaStore, fire
   historyData: firebaseHistoryStore.data,
   addHistoryListener: firebaseHistoryStore.addListener,
   account: authStore.account,
+  firebaseInitSuccess: firebaseStore.firebaseInitSuccess,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
