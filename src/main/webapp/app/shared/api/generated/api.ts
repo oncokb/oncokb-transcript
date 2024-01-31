@@ -132,6 +132,31 @@ export interface AllReferenceTranscriptSuggestionVM {
 /**
  *
  * @export
+ * @interface AlleleState
+ */
+export interface AlleleState {
+  /**
+   *
+   * @type {number}
+   * @memberof AlleleState
+   */
+  id?: number;
+  /**
+   *
+   * @type {string}
+   * @memberof AlleleState
+   */
+  name: string;
+  /**
+   *
+   * @type {Array<GenomicIndicator>}
+   * @memberof AlleleState
+   */
+  genomicIndicators?: Array<GenomicIndicator>;
+}
+/**
+ *
+ * @export
  * @interface Alteration
  */
 export interface Alteration {
@@ -2989,6 +3014,12 @@ export interface GenomicIndicator {
    * @type {string}
    * @memberof GenomicIndicator
    */
+  uuid: string;
+  /**
+   *
+   * @type {string}
+   * @memberof GenomicIndicator
+   */
   type: string;
   /**
    *
@@ -2996,6 +3027,18 @@ export interface GenomicIndicator {
    * @memberof GenomicIndicator
    */
   name: string;
+  /**
+   *
+   * @type {string}
+   * @memberof GenomicIndicator
+   */
+  description?: string;
+  /**
+   *
+   * @type {Array<AlleleState>}
+   * @memberof GenomicIndicator
+   */
+  alleleStates?: Array<AlleleState>;
   /**
    *
    * @type {Array<Association>}
@@ -3020,6 +3063,12 @@ export interface GenomicIndicatorCriteria {
    * @type {StringFilter}
    * @memberof GenomicIndicatorCriteria
    */
+  uuid?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof GenomicIndicatorCriteria
+   */
   type?: StringFilter;
   /**
    *
@@ -3027,6 +3076,18 @@ export interface GenomicIndicatorCriteria {
    * @memberof GenomicIndicatorCriteria
    */
   name?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof GenomicIndicatorCriteria
+   */
+  description?: StringFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof GenomicIndicatorCriteria
+   */
+  alleleStateId?: LongFilter;
   /**
    *
    * @type {LongFilter}
@@ -12389,13 +12450,10 @@ export const DrugResourceApiAxiosParamCreator = function (configuration?: Config
     },
     /**
      *
-     * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllDrugs: async (pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'pageable' is not null or undefined
-      assertParamExists('getAllDrugs', 'pageable', pageable);
+    getAllDrugs: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       const localVarPath = `/api/drugs`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -12407,10 +12465,6 @@ export const DrugResourceApiAxiosParamCreator = function (configuration?: Config
       const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
-
-      if (pageable !== undefined) {
-        localVarQueryParameter['pageable'] = pageable;
-      }
 
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -12602,15 +12656,11 @@ export const DrugResourceApiFp = function (configuration?: Configuration) {
     },
     /**
      *
-     * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async getAllDrugs(
-      pageable: Pageable,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Drug>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllDrugs(pageable, options);
+    async getAllDrugs(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Drug>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getAllDrugs(options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -12705,12 +12755,11 @@ export const DrugResourceApiFactory = function (configuration?: Configuration, b
     },
     /**
      *
-     * @param {Pageable} pageable
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    getAllDrugs(pageable: Pageable, options?: any): AxiosPromise<Array<Drug>> {
-      return localVarFp.getAllDrugs(pageable, options).then(request => request(axios, basePath));
+    getAllDrugs(options?: any): AxiosPromise<Array<Drug>> {
+      return localVarFp.getAllDrugs(options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -12801,14 +12850,13 @@ export class DrugResourceApi extends BaseAPI {
 
   /**
    *
-   * @param {Pageable} pageable
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof DrugResourceApi
    */
-  public getAllDrugs(pageable: Pageable, options?: AxiosRequestConfig) {
+  public getAllDrugs(options?: AxiosRequestConfig) {
     return DrugResourceApiFp(this.configuration)
-      .getAllDrugs(pageable, options)
+      .getAllDrugs(options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -17660,16 +17708,14 @@ export const GeneResourceApiAxiosParamCreator = function (configuration?: Config
     /**
      *
      * @param {string} query
-     * @param {boolean} exact
      * @param {Pageable} pageable
+     * @param {boolean} [exact]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    searchGenes: async (query: string, exact: boolean, pageable: Pageable, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    searchGenes: async (query: string, pageable: Pageable, exact?: boolean, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'query' is not null or undefined
       assertParamExists('searchGenes', 'query', query);
-      // verify required parameter 'exact' is not null or undefined
-      assertParamExists('searchGenes', 'exact', exact);
       // verify required parameter 'pageable' is not null or undefined
       assertParamExists('searchGenes', 'pageable', pageable);
       const localVarPath = `/api/genes/search`;
@@ -17827,18 +17873,18 @@ export const GeneResourceApiFp = function (configuration?: Configuration) {
     /**
      *
      * @param {string} query
-     * @param {boolean} exact
      * @param {Pageable} pageable
+     * @param {boolean} [exact]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async searchGenes(
       query: string,
-      exact: boolean,
       pageable: Pageable,
+      exact?: boolean,
       options?: AxiosRequestConfig
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Gene>>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.searchGenes(query, exact, pageable, options);
+      const localVarAxiosArgs = await localVarAxiosParamCreator.searchGenes(query, pageable, exact, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -17925,13 +17971,13 @@ export const GeneResourceApiFactory = function (configuration?: Configuration, b
     /**
      *
      * @param {string} query
-     * @param {boolean} exact
      * @param {Pageable} pageable
+     * @param {boolean} [exact]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    searchGenes(query: string, exact: boolean, pageable: Pageable, options?: any): AxiosPromise<Array<Gene>> {
-      return localVarFp.searchGenes(query, exact, pageable, options).then(request => request(axios, basePath));
+    searchGenes(query: string, pageable: Pageable, exact?: boolean, options?: any): AxiosPromise<Array<Gene>> {
+      return localVarFp.searchGenes(query, pageable, exact, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -18036,15 +18082,15 @@ export class GeneResourceApi extends BaseAPI {
   /**
    *
    * @param {string} query
-   * @param {boolean} exact
    * @param {Pageable} pageable
+   * @param {boolean} [exact]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof GeneResourceApi
    */
-  public searchGenes(query: string, exact: boolean, pageable: Pageable, options?: AxiosRequestConfig) {
+  public searchGenes(query: string, pageable: Pageable, exact?: boolean, options?: AxiosRequestConfig) {
     return GeneResourceApiFp(this.configuration)
-      .searchGenes(query, exact, pageable, options)
+      .searchGenes(query, pageable, exact, options)
       .then(request => request(this.axios, this.basePath));
   }
 
