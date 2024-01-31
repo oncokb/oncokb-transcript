@@ -68,7 +68,7 @@ describe('FirebaseUtils', () => {
           ],
         } as Mutation;
         expect(getMutationName(mutation), 'Mutation name should include both protein change and cdna when available').toEqual(
-          'protein change (cdna)'
+          'cdna (p.protein change)'
         );
 
         mutation = {
@@ -101,7 +101,7 @@ describe('FirebaseUtils', () => {
           ],
         } as Mutation;
         expect(getMutationName(mutation), 'Mutation name should include both protein change and cdna when available').toEqual(
-          'protein change (cdna)'
+          'cdna (p.protein change)'
         );
 
         mutation = {
