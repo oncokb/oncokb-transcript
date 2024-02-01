@@ -3,8 +3,7 @@ import { getSectionClassName } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
-import { Button, Col, Row } from 'reactstrap';
-import { ReviewAlert } from './ReviewAlert';
+import { Alert, Button, Col, Row } from 'reactstrap';
 import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 import _ from 'lodash';
 import {
@@ -22,6 +21,7 @@ interface IReviewPageProps extends StoreProps {
   hugoSymbol: string;
   reviewFinished: boolean;
   handleReviewFinished: (isFinished: boolean) => void;
+  drugList: IDrug[];
 }
 
 const ReviewPage = (props: IReviewPageProps) => {
@@ -41,7 +41,7 @@ const ReviewPage = (props: IReviewPageProps) => {
 
   useEffect(() => {
     const reviewMap = new EditorReviewMap();
-    const reviews = findGeneLevelReviews(props.drugList.concat(), props.geneData, reviewUuids, reviewMap);
+    const reviews = findGeneLevelReviews(props.drugList, props.geneData, reviewUuids, reviewMap);
     Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
     setEditorReviewMap(reviewMap);
     setRootReview(reviews);
@@ -60,7 +60,20 @@ const ReviewPage = (props: IReviewPageProps) => {
     <>
       <Row className={`${getSectionClassName()} justify-content-between`}>
         <Col>
-          <ReviewAlert isReviewer isSuccess={props.reviewFinished} />
+          {props.reviewFinished ? (
+            <Alert color="success" fade={false}>
+              <div className="d-flex justify-content-center">All items have been reviewed. Click the Review Complete button to exit.</div>
+            </Alert>
+          ) : (
+            <Alert color="warning" fade={false}>
+              <div className="d-flex flex-column">
+                <div className="d-flex justify-content-center">
+                  You are currently in Review mode. Click the Review Complete button to exit.
+                </div>
+                <div className="d-flex justify-content-center">Your actions CANNOT be reverted.</div>
+              </div>
+            </Alert>
+          )}
         </Col>
       </Row>
       {!props.reviewFinished && (
@@ -110,10 +123,9 @@ const ReviewPage = (props: IReviewPageProps) => {
   );
 };
 
-const mapStoreToProps = ({ firebaseGeneStore, firebaseMetaStore, drugStore, authStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseGeneStore, firebaseMetaStore, authStore }: IRootStore) => ({
   geneData: firebaseGeneStore.data,
   metaData: firebaseMetaStore.data,
-  drugList: drugStore.entities,
   fullName: authStore.fullName,
   rejectReviewChangeHandler: firebaseGeneStore.rejectChanges,
   acceptReviewChangeHandler: firebaseGeneStore.acceptChanges,

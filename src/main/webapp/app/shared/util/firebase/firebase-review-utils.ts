@@ -7,6 +7,7 @@ import {
   Mutation,
   MutationEffect,
   Review,
+  Treatment,
   Tumor,
 } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
@@ -175,6 +176,7 @@ export const getCompactReviewInfo = (review: BaseReviewLevel) => {
   let childReview = Object.values(review.children)[0];
   childReview = getCompactReviewInfo(childReview);
   childReview.title = review.title + '/' + childReview.title;
+  childReview.isUnderCreationOrDeletion = review.isUnderCreationOrDeletion;
   return childReview;
 };
 
@@ -595,7 +597,9 @@ const findTreatmentLevelReviews = (
 
       const parentTreatmentReview = parentReview.children[treatmentTitle];
 
+      const skipTreatmentKeys: (keyof Treatment)[] = ['name_uuid'];
       for (const [treatmentKey, treatmentValue] of Object.entries(treatment)) {
+        if (skipTreatmentKeys.includes(treatmentKey as keyof Treatment)) continue;
         if (treatmentKey.endsWith('_uuid') && uuids.includes(treatmentValue as string)) {
           const { fieldKey, reviewKey, ...rest } = getRelevantKeysFromUuidKey(treatmentKey);
           const treatmentReview = new ReviewLevel(

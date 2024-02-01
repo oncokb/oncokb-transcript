@@ -56,7 +56,7 @@ export default function Collapsible({
           >
             {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
           </button>
-          <span className="font-weight-bold font-weight-bold">{title}</span>
+          <span className={classNames(disableLeftBorder ? undefined : 'font-weight-bold')}>{title}</span>
           {isSectionEmpty && (
             <span className={`badge badge-pill badge-info ml-2 mr-2`} style={{ fontSize: '60%' }}>
               No entry
