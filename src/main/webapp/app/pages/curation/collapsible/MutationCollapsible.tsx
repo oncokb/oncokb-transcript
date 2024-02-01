@@ -343,61 +343,61 @@ const MutationCollapsible = ({
                 }
                 name="pxSummary"
               />
-              <Collapsible
-                className={'mt-2'}
-                key={tumor.diagnostic_uuid}
-                title="Diagnostic Implication"
-                borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.DIAGNOSTIC]]}
-                isSectionEmpty={isSectionEmpty(
-                  data,
-                  buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic`)
-                )}
-              >
-                <RealtimeDropdownInput
-                  fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic/level`}
-                  label="Level of evidence"
-                  name="level"
-                  options={[DX_LEVELS.LEVEL_DX1, DX_LEVELS.LEVEL_DX2, DX_LEVELS.LEVEL_DX3]}
-                />
-                <RealtimeTextAreaInput
-                  fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic/description`}
-                  inputClass={styles.textarea}
-                  label="Description of Evidence"
-                  name="evidenceDescription"
-                />
-                <div className="mb-2">
-                  <AutoParseRefField summary={tumor.diagnostic.description} />
-                </div>
-              </Collapsible>
-              <Collapsible
-                className={'mt-2'}
-                key={tumor.prognostic_uuid}
-                title="Prognostic Implication"
-                borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.PROGNOSTIC]]}
-                isSectionEmpty={isSectionEmpty(
-                  data,
-                  buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic`)
-                )}
-              >
-                <RealtimeDropdownInput
-                  fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic/level`}
-                  label="Level of evidence"
-                  name="level"
-                  options={[PX_LEVELS.LEVEL_PX1, PX_LEVELS.LEVEL_PX2, PX_LEVELS.LEVEL_PX3]}
-                />
-                <RealtimeTextAreaInput
-                  fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic/description`}
-                  inputClass={styles.textarea}
-                  label="Description of Evidence"
-                  name="evidenceDescription"
-                />
-                <div className="mb-2">
-                  <AutoParseRefField summary={tumor.prognostic.description} />
-                </div>
-              </Collapsible>
-              {tumor.TIs.reduce((accumulator, ti, tiIndex) => {
-                const addTherapyModal = (
-                  <div className="mt-2">
+              <div className="mb-2">
+                <Collapsible
+                  className={'mt-2'}
+                  key={tumor.diagnostic_uuid}
+                  title="Diagnostic Implication"
+                  borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.DIAGNOSTIC]]}
+                  isSectionEmpty={isSectionEmpty(
+                    data,
+                    buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic`)
+                  )}
+                >
+                  <RealtimeDropdownInput
+                    fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic/level`}
+                    label="Level of evidence"
+                    name="level"
+                    options={[DX_LEVELS.LEVEL_DX1, DX_LEVELS.LEVEL_DX2, DX_LEVELS.LEVEL_DX3]}
+                  />
+                  <RealtimeTextAreaInput
+                    fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic/description`}
+                    inputClass={styles.textarea}
+                    label="Description of Evidence"
+                    name="evidenceDescription"
+                  />
+                  <div className="mb-2">
+                    <AutoParseRefField summary={tumor.diagnostic.description} />
+                  </div>
+                </Collapsible>
+                <Collapsible
+                  className={'mt-2'}
+                  key={tumor.prognostic_uuid}
+                  title="Prognostic Implication"
+                  borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.PROGNOSTIC]]}
+                  isSectionEmpty={isSectionEmpty(
+                    data,
+                    buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic`)
+                  )}
+                >
+                  <RealtimeDropdownInput
+                    fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic/level`}
+                    label="Level of evidence"
+                    name="level"
+                    options={[PX_LEVELS.LEVEL_PX1, PX_LEVELS.LEVEL_PX2, PX_LEVELS.LEVEL_PX3]}
+                  />
+                  <RealtimeTextAreaInput
+                    fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic/description`}
+                    inputClass={styles.textarea}
+                    label="Description of Evidence"
+                    name="evidenceDescription"
+                  />
+                  <div className="mb-2">
+                    <AutoParseRefField summary={tumor.prognostic.description} />
+                  </div>
+                </Collapsible>
+                {tumor.TIs.reduce((accumulator, ti, tiIndex) => {
+                  const addTherapyModal = (
                     <ModifyTherapyModal
                       treatmentUuid="new_treatment"
                       treatmentName=""
@@ -407,7 +407,10 @@ const MutationCollapsible = ({
 
                         try {
                           await firebasePushToArray(
-                            buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments`),
+                            buildFirebaseGenePath(
+                              hugoSymbol,
+                              `mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tumor.TIs.length - 1}/treatments`
+                            ),
                             [newTreatment]
                           );
                         } catch (error) {
@@ -418,115 +421,119 @@ const MutationCollapsible = ({
                       }}
                       onCancel={modifyTherapyModalStore.closeModal}
                     />
-                  </div>
-                );
+                  );
 
-                if (!ti.treatments) {
-                  return [...accumulator, addTherapyModal];
-                }
-                return accumulator.concat(
-                  ti.treatments.map((treatment, treatmentIndex) => {
-                    const therapyFirebasePath = buildFirebaseGenePath(
-                      hugoSymbol,
-                      `mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}`
-                    );
+                  if (!ti.treatments) {
+                    return [...accumulator, addTherapyModal];
+                  }
+                  return accumulator.concat(
+                    ti.treatments.map((treatment, treatmentIndex) => {
+                      const therapyFirebasePath = buildFirebaseGenePath(
+                        hugoSymbol,
+                        `mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}`
+                      );
 
-                    return (
-                      <>
-                        <Collapsible
-                          className={'mt-2'}
-                          key={treatment.name_uuid}
-                          title={`Therapy: ${getTxName(drugList, treatment.name)}`}
-                          borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.THERAPY]]}
-                          info={
-                            <TreatmentLevelSummary
-                              mutationUuid={mutation.name_uuid}
-                              cancerTypesUuid={tumor.cancerTypes_uuid}
-                              treatmentUuid={treatment.name_uuid}
+                      return (
+                        <>
+                          <Collapsible
+                            className={'mt-2'}
+                            key={treatment.name_uuid}
+                            title={`Therapy: ${getTxName(drugList, treatment.name)}`}
+                            borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.THERAPY]]}
+                            info={
+                              <TreatmentLevelSummary
+                                mutationUuid={mutation.name_uuid}
+                                cancerTypesUuid={tumor.cancerTypes_uuid}
+                                treatmentUuid={treatment.name_uuid}
+                              />
+                            }
+                            action={
+                              <>
+                                <EditIcon
+                                  onClick={() => {
+                                    modifyTherapyModalStore.openModal(treatment.name_uuid);
+                                  }}
+                                  className="mr-3"
+                                />
+                                <DeleteSectionButton
+                                  sectionName={title}
+                                  deleteHandler={() => deleteSection(NestLevelType.THERAPY, therapyFirebasePath)}
+                                  isRemovableWithoutReview={isSectionRemovableWithoutReview(
+                                    data,
+                                    NestLevelType.THERAPY,
+                                    therapyFirebasePath
+                                  )}
+                                />
+                              </>
+                            }
+                            isSectionEmpty={isSectionEmpty(data, therapyFirebasePath)}
+                          >
+                            <RealtimeDropdownInput
+                              fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
+                              label="Highest level of evidence"
+                              name="level"
+                              options={[TX_LEVELS.LEVEL_NO, TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_2]}
                             />
-                          }
-                          action={
-                            <>
-                              <EditIcon
-                                onClick={() => {
-                                  modifyTherapyModalStore.openModal(treatment.name_uuid);
-                                }}
-                                className="mr-3"
-                              />
-                              <DeleteSectionButton
-                                sectionName={title}
-                                deleteHandler={() => deleteSection(NestLevelType.THERAPY, therapyFirebasePath)}
-                                isRemovableWithoutReview={isSectionRemovableWithoutReview(data, NestLevelType.THERAPY, therapyFirebasePath)}
-                              />
-                            </>
-                          }
-                          isSectionEmpty={isSectionEmpty(data, therapyFirebasePath)}
-                        >
-                          <RealtimeDropdownInput
-                            fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
-                            label="Highest level of evidence"
-                            name="level"
-                            options={[TX_LEVELS.LEVEL_NO, TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_2]}
-                          />
-                          <RealtimeDropdownInput
-                            fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagation`}
-                            label="Level of Evidence in other solid tumor types"
-                            name="propagationLevel"
-                            options={[]} // Todo
-                          />
-                          <RealtimeDropdownInput
-                            fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagationLiquid`}
-                            label="Level of Evidence in other liquid tumor types"
-                            name="propagationLiquidLevel"
-                            options={[]}
-                          />
-                          <RealtimeDropdownInput
-                            fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/fdaLevel`}
-                            label="FDA Level of Evidence"
-                            name="propagationLiquidLevel"
-                            options={[]}
-                          />
-                          <RealtimeTextAreaInput
-                            fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/description`}
-                            inputClass={styles.textarea}
-                            label="Description of Evidence"
-                            labelIcon={
-                              <GeneHistoryTooltip
-                                historyData={parsedHistoryList}
-                                location={`${CANCER_TYPE_THERAPY_INDENTIFIER}${getMutationName(mutation)}, ${cancerTypeName}, ${
-                                  treatment.name
-                                }`}
-                              />
-                            }
-                            name="evidenceDescription"
-                          />
-                          <div className="mb-2">
-                            <AutoParseRefField summary={treatment.description} />
-                          </div>
-                        </Collapsible>
-                        <ModifyTherapyModal
-                          treatmentUuid={treatment.name_uuid}
-                          treatmentName={treatment.name}
-                          drugList={drugList}
-                          onConfirm={async treatmentName => {
-                            const newTreatment = _.cloneDeep(treatment);
-                            newTreatment.name = treatmentName;
+                            <RealtimeDropdownInput
+                              fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagation`}
+                              label="Level of Evidence in other solid tumor types"
+                              name="propagationLevel"
+                              options={[]} // Todo
+                            />
+                            <RealtimeDropdownInput
+                              fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagationLiquid`}
+                              label="Level of Evidence in other liquid tumor types"
+                              name="propagationLiquidLevel"
+                              options={[]}
+                            />
+                            <RealtimeDropdownInput
+                              fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/fdaLevel`}
+                              label="FDA Level of Evidence"
+                              name="propagationLiquidLevel"
+                              options={[]}
+                            />
+                            <RealtimeTextAreaInput
+                              fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/description`}
+                              inputClass={styles.textarea}
+                              label="Description of Evidence"
+                              labelIcon={
+                                <GeneHistoryTooltip
+                                  historyData={parsedHistoryList}
+                                  location={`${CANCER_TYPE_THERAPY_INDENTIFIER}${getMutationName(mutation)}, ${cancerTypeName}, ${
+                                    treatment.name
+                                  }`}
+                                />
+                              }
+                              name="evidenceDescription"
+                            />
+                            <div className="mb-2">
+                              <AutoParseRefField summary={treatment.description} />
+                            </div>
+                          </Collapsible>
+                          <ModifyTherapyModal
+                            treatmentUuid={treatment.name_uuid}
+                            treatmentName={treatment.name}
+                            drugList={drugList}
+                            onConfirm={async treatmentName => {
+                              const newTreatment = _.cloneDeep(treatment);
+                              newTreatment.name = treatmentName;
 
-                            try {
-                              await updateTreatment(therapyFirebasePath, newTreatment);
-                            } catch (error) {
-                              notifyError(error);
-                            }
+                              try {
+                                await updateTreatment(therapyFirebasePath, newTreatment);
+                              } catch (error) {
+                                notifyError(error);
+                              }
 
-                            modifyTherapyModalStore.closeModal();
-                          }}
-                          onCancel={modifyTherapyModalStore.closeModal}
-                        />
-                      </>
-                    );
-                  })
-                );
-              }, [])}
+                              modifyTherapyModalStore.closeModal();
+                            }}
+                            onCancel={modifyTherapyModalStore.closeModal}
+                          />
+                        </>
+                      );
+                    })
+                  );
+                }, [])}
+              </div>
               <Button outline color="primary" onClick={() => modifyTherapyModalStore.openModal('new_treatment')}>
                 Add Therapy
               </Button>
