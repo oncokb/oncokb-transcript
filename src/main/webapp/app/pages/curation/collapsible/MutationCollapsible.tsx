@@ -3,7 +3,7 @@ import Collapsible from './Collapsible';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
-import { Alteration, DX_LEVELS, Mutation, PX_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import { Alteration, DX_LEVELS, Mutation, PX_LEVELS, TX_LEVELS, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { buildFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
 import {
   getMutationName,
@@ -32,6 +32,7 @@ import TreatmentLevelSummary from '../nestLevelSummary/TreatmentLevelSummary';
 import { IDrug } from 'app/shared/model/drug.model';
 import ModifyTherapyModal from 'app/shared/modal/ModifyTherapyModal';
 import EditIcon from 'app/shared/icons/EditIcon';
+import { Button } from 'reactstrap';
 import Tabs from 'app/components/tabs/tabs';
 import { RealtimeBasicLabel } from 'app/shared/firebase/input/RealtimeBasicInput';
 import WithSeparator from 'react-with-separator';
@@ -55,6 +56,7 @@ const MutationCollapsible = ({
   modifyCancerTypeModalStore,
   modifyTherapyModalStore,
   drugList,
+  firebasePushToArray,
 }: IMutationCollapsibleProps) => {
   const title = getMutationName(mutation);
   const mutationFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}`);
@@ -278,10 +280,9 @@ const MutationCollapsible = ({
         const cancerTypeFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}`);
 
         return (
-          <>
+          <div key={tumor.cancerTypes_uuid} className="mb-2">
             <Collapsible
               className={'mt-2'}
-              key={tumor.cancerTypes_uuid}
               title={`Cancer Type: ${cancerTypeName}`}
               borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.CANCER_TYPE]]}
               info={<CancerTypeLevelSummary mutationUuid={mutation.name_uuid} cancerTypeUuid={tumor.cancerTypes_uuid} />}
@@ -395,8 +396,33 @@ const MutationCollapsible = ({
                 </div>
               </Collapsible>
               {tumor.TIs.reduce((accumulator, ti, tiIndex) => {
+                const addTherapyModal = (
+                  <div className="mt-2">
+                    <ModifyTherapyModal
+                      treatmentUuid="new_treatment"
+                      treatmentName=""
+                      drugList={drugList}
+                      onConfirm={async treatmentName => {
+                        const newTreatment = new Treatment(treatmentName);
+
+                        try {
+                          await firebasePushToArray(
+                            buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments`),
+                            [newTreatment]
+                          );
+                        } catch (error) {
+                          notifyError(error);
+                        }
+
+                        modifyTherapyModalStore.closeModal();
+                      }}
+                      onCancel={modifyTherapyModalStore.closeModal}
+                    />
+                  </div>
+                );
+
                 if (!ti.treatments) {
-                  return accumulator;
+                  return [...accumulator, addTherapyModal];
                 }
                 return accumulator.concat(
                   ti.treatments.map((treatment, treatmentIndex) => {
@@ -479,7 +505,8 @@ const MutationCollapsible = ({
                           </div>
                         </Collapsible>
                         <ModifyTherapyModal
-                          treatment={treatment}
+                          treatmentUuid={treatment.name_uuid}
+                          treatmentName={treatment.name}
                           drugList={drugList}
                           onConfirm={async treatmentName => {
                             const newTreatment = _.cloneDeep(treatment);
@@ -500,6 +527,9 @@ const MutationCollapsible = ({
                   })
                 );
               }, [])}
+              <Button outline color="primary" onClick={() => modifyTherapyModalStore.openModal('new_treatment')}>
+                Add Therapy
+              </Button>
             </Collapsible>
             <ModifyCancerTypeModal
               cancerTypesUuid={tumor.cancerTypes_uuid}
@@ -525,9 +555,33 @@ const MutationCollapsible = ({
                 modifyCancerTypeModalStore.closeModal();
               }}
             />
-          </>
+          </div>
         );
       })}
+      <Button outline color="primary" onClick={() => modifyCancerTypeModalStore.openModal('new_cancer_type')}>
+        Add Cancer Type
+      </Button>
+      <ModifyCancerTypeModal
+        cancerTypesUuid={'new_cancer_type'}
+        includedCancerTypes={[]}
+        excludedCancerTypes={[]}
+        onConfirm={async (includedCancerTypes, excludedCancerTypes) => {
+          const newTumor = new Tumor();
+          newTumor.cancerTypes = includedCancerTypes;
+          newTumor.excludedCancerTypes = excludedCancerTypes;
+
+          try {
+            await firebasePushToArray(buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors`), [newTumor]);
+          } catch (error) {
+            notifyError(error);
+          }
+
+          modifyCancerTypeModalStore.closeModal();
+        }}
+        onCancel={() => {
+          modifyCancerTypeModalStore.closeModal();
+        }}
+      />
     </Collapsible>
   );
 };
@@ -538,6 +592,7 @@ const mapStoreToProps = ({ firebaseGeneStore, modifyCancerTypeModalStore, modify
   deleteSection: firebaseGeneStore.deleteSection,
   updateTumor: firebaseGeneStore.updateTumor,
   updateTreatment: firebaseGeneStore.updateTreatment,
+  firebasePushToArray: firebaseGeneStore.pushToArray,
   modifyCancerTypeModalStore,
   modifyTherapyModalStore,
 });
