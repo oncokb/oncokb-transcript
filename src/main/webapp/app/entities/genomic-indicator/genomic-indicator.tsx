@@ -18,11 +18,13 @@ import { IAlleleState } from 'app/shared/model/allele-state.model';
 export interface IGenomicIndicatorProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 const getAssociatedAlterations = (associations?: IAssociation[]) => {
-  return associations
-    ?.map(association =>
-      association.alterations?.map(alt => `${alt.genes?.map(gene => gene.hugoSymbol).join('-')} ${alt.alteration}`).join()
-    )
-    .join();
+  return (
+    associations
+      ?.map(association =>
+        association.alterations?.map(alt => `${alt.genes?.map(gene => gene.hugoSymbol).join('-')} ${alt.alteration}`).join()
+      )
+      .join() || ''
+  );
 };
 
 const getAssociatedAlleleStates = (alleleStates?: IAlleleState[]) => {
@@ -47,6 +49,10 @@ export const GenomicIndicator = (props: IGenomicIndicatorProps) => {
     },
     {
       Header: 'Associated Allele States',
+      accessor: 'alleleStates',
+      sortMethod(a, b) {
+        return getAssociatedAlleleStates(a).localeCompare(getAssociatedAlleleStates(b));
+      },
       Cell(cell: { original }): JSX.Element {
         return <span>{getAssociatedAlleleStates(cell.original.alleleStates)}</span>;
       },
@@ -55,8 +61,12 @@ export const GenomicIndicator = (props: IGenomicIndicatorProps) => {
     },
     {
       Header: 'Associated Alterations',
+      accessor: 'alterations',
+      sortMethod(a, b) {
+        return getAssociatedAlterations(a).localeCompare(getAssociatedAlterations(b));
+      },
       Cell(cell: { original }): JSX.Element {
-        return <span>{getAssociatedAlterations(cell.original.alterations)}</span>;
+        return <span>{getAssociatedAlterations(cell.original.associations)}</span>;
       },
       onFilter: (data: IGenomicIndicator, keyword) =>
         data.associations ? filterByKeyword(getAssociatedAlterations(data.associations), keyword) : false,
