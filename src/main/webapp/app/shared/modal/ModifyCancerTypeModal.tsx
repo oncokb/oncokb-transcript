@@ -30,6 +30,7 @@ function ModifyCancerTypeModal({
 }: IModifyCancerTypeModalProps) {
   return modifyCancerTypeModalStore.openCancerTypesUuid === cancerTypesUuid ? (
     <ModifyCancerTypeModalContent
+      cancerTypesUuid={cancerTypesUuid}
       includedCancerTypes={includedCancerTypes}
       excludedCancerTypes={excludedCancerTypes}
       onConfirm={onConfirm}
@@ -44,13 +45,14 @@ function ModifyCancerTypeModal({
 
 const ModifyCancerTypeModalContent = observer(
   ({
+    cancerTypesUuid,
     includedCancerTypes,
     excludedCancerTypes,
     onConfirm,
     onCancel,
     searchCancerTypes,
     modifyCancerTypeModalStore,
-  }: Omit<IModifyCancerTypeModalProps, 'cancerTypesUuid'>) => {
+  }: IModifyCancerTypeModalProps) => {
     function getCancerTypeFromCancerTypeSelectOption(cancerTypeSelectOption: CancerTypeSelectOption) {
       const cancerType = new CancerType();
       cancerType.code = cancerTypeSelectOption.code;
@@ -136,7 +138,7 @@ const ModifyCancerTypeModalContent = observer(
     return (
       <SimpleConfirmModal
         show={true}
-        title="Modify Cancer Type(s)"
+        title={cancerTypesUuid === 'new_cancer_type' ? 'Add Cancer Type(s)' : 'Modify Cancer Type(s)'}
         onCancel={onCancel}
         confirmDisabled={isConfirmButtonDisabled}
         onConfirm={() => {

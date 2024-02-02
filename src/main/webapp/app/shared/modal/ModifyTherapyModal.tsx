@@ -30,6 +30,7 @@ function ModifyTherapyModal({
 }: IModifyTherapyModalProps) {
   return modifyTherapyModalStore.openTreatmentUuid === treatmentUuid ? (
     <ModifyTherapyModalContent
+      treatmentUuid={treatmentUuid}
       treatmentName={treatmentName}
       drugList={drugList}
       onConfirm={onConfirm}
@@ -43,7 +44,7 @@ function ModifyTherapyModal({
 
 /* eslint-disable no-console */
 const ModifyTherapyModalContent = observer(
-  ({ treatmentName, drugList, onConfirm, onCancel, modifyTherapyModalStore }: Omit<IModifyTherapyModalProps, 'treatmentUuid'>) => {
+  ({ treatmentUuid, treatmentName, drugList, onConfirm, onCancel, modifyTherapyModalStore }: IModifyTherapyModalProps) => {
     const disableDeleteTherapy = modifyTherapyModalStore.selectedTreatments.length < 2;
     const isEmptyTherapy = modifyTherapyModalStore.selectedTreatments.some(therapy => therapy.length === 0);
 
@@ -64,8 +65,8 @@ const ModifyTherapyModalContent = observer(
       if (treatmentLists) {
         for (const list of treatmentLists) {
           const selectedOptions: DrugSelectOption[] = [];
-          for (const treatmentUuid of list) {
-            const drug = getDrugFromTreatmentUuid(treatmentUuid);
+          for (const uuid of list) {
+            const drug = getDrugFromTreatmentUuid(uuid);
             selectedOptions.push({
               label: drug.name,
               value: drug.id,
@@ -102,7 +103,7 @@ const ModifyTherapyModalContent = observer(
 
     return (
       <SimpleConfirmModal
-        title="Modify Therapy(s)"
+        title={treatmentUuid === 'new_treatment' ? 'Add Therapy(s)' : 'Modify Therapy(s)'}
         show={true}
         onConfirm={() => {
           const name = modifyTherapyModalStore.selectedTreatments.map(therapy => therapy.map(drug => drug.uuid).join(' + ')).join(', ');
