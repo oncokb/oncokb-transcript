@@ -1,5 +1,15 @@
 import { UUID_REGEX } from 'app/config/constants/constants';
-import { Comment, DrugCollection, Gene, Meta, Mutation, Review, TX_LEVELS, Tumor } from 'app/shared/model/firebase/firebase.model';
+import {
+  Comment,
+  DrugCollection,
+  Gene,
+  Meta,
+  Mutation,
+  Review,
+  TX_LEVELS,
+  Tumor,
+  Alteration,
+} from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
 import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
 import { parseFirebaseGenePath } from './firebase-path-utils';
@@ -33,19 +43,26 @@ export const getValueByNestedKey = (obj: any, nestedKey = '') => {
   }, obj);
 };
 
+export const isDnaVariant = (alteration: Alteration) => {
+  return alteration.alteration && alteration.alteration.startsWith('c.');
+};
+
+export const getAlterationName = (alteration: Alteration) => {
+  if (alteration.alteration) {
+    let name = alteration.alteration;
+    if (alteration.proteinChange && alteration.proteinChange !== alteration.alteration) {
+      name += ` (p.${alteration.proteinChange})`;
+    }
+    return name;
+  } else if (alteration.proteinChange) {
+    return alteration.proteinChange;
+  }
+  return '';
+};
 export const getMutationName = (mutation: Mutation) => {
   const defaultNoName = '(No Name)';
-  if (mutation.alteration) {
-    if (mutation.alteration.proteinChange) {
-      let name = mutation.alteration.proteinChange;
-      if (mutation.alteration.cDna) {
-        name += ` (${mutation.alteration.cDna})`;
-      }
-      return name;
-    } else if (mutation.alteration.cDna) {
-      return mutation.alteration.cDna;
-    }
-    // continue execution, check other data fields
+  if (mutation.alterations) {
+    return mutation.alterations.map(alteration => getAlterationName(alteration)).join(', ');
   }
   if (mutation.name) {
     return mutation.name;

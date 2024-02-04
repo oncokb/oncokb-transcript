@@ -6,6 +6,15 @@ export enum GENE_TYPE {
   TUMOR_SUPPRESSOR = 'Tumor Suppressor',
   ONCOGENE = 'Oncogene',
 }
+export enum ZYGOSITY {
+  HETEROZYGOUS = 'Heterozygous',
+  HOMOZYGOUS = 'Homozygous',
+}
+export enum ALLELE_STATE {
+  MONOALLELIC = 'Monoallelic',
+  BIALLELIC = 'Biallelic',
+  MOSAIC = 'Mosaic',
+}
 
 export const GENE_TYPE_KEY: { [key in GENE_TYPE]: ExtractPathExpressions<Gene> } = {
   [GENE_TYPE.ONCOGENE]: 'type/ocg',

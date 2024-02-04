@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
-import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A GenomicIndicator.
@@ -23,6 +22,10 @@ public class GenomicIndicator implements Serializable {
     private Long id;
 
     @NotNull
+    @Column(name = "uuid", nullable = false, unique = true)
+    private String uuid;
+
+    @NotNull
     @Column(name = "type", nullable = false)
     private String type;
 
@@ -30,8 +33,20 @@ public class GenomicIndicator implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @ShallowReference
+    @Lob
+    @Column(name = "description")
+    private String description;
+
     @ManyToMany
+    @JoinTable(
+        name = "rel_genomic_indicator__allele_state",
+        joinColumns = @JoinColumn(name = "genomic_indicator_id"),
+        inverseJoinColumns = @JoinColumn(name = "allele_state_id")
+    )
+    @JsonIgnoreProperties(value = { "genomicIndicators" }, allowSetters = true)
+    private Set<AlleleState> alleleStates = new HashSet<>();
+
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
         name = "rel_genomic_indicator__association",
         joinColumns = @JoinColumn(name = "genomic_indicator_id"),
@@ -40,7 +55,6 @@ public class GenomicIndicator implements Serializable {
     @JsonIgnoreProperties(
         value = {
             "associationCancerTypes",
-            "alterations",
             "articles",
             "treatments",
             "evidence",
@@ -69,6 +83,19 @@ public class GenomicIndicator implements Serializable {
         this.id = id;
     }
 
+    public String getUuid() {
+        return this.uuid;
+    }
+
+    public GenomicIndicator uuid(String uuid) {
+        this.setUuid(uuid);
+        return this;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
     public String getType() {
         return this.type;
     }
@@ -93,6 +120,44 @@ public class GenomicIndicator implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public GenomicIndicator description(String description) {
+        this.setDescription(description);
+        return this;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Set<AlleleState> getAlleleStates() {
+        return this.alleleStates;
+    }
+
+    public void setAlleleStates(Set<AlleleState> alleleStates) {
+        this.alleleStates = alleleStates;
+    }
+
+    public GenomicIndicator alleleStates(Set<AlleleState> alleleStates) {
+        this.setAlleleStates(alleleStates);
+        return this;
+    }
+
+    public GenomicIndicator addAlleleState(AlleleState alleleState) {
+        this.alleleStates.add(alleleState);
+        alleleState.getGenomicIndicators().add(this);
+        return this;
+    }
+
+    public GenomicIndicator removeAlleleState(AlleleState alleleState) {
+        this.alleleStates.remove(alleleState);
+        alleleState.getGenomicIndicators().remove(this);
+        return this;
     }
 
     public Set<Association> getAssociations() {
@@ -144,8 +209,10 @@ public class GenomicIndicator implements Serializable {
     public String toString() {
         return "GenomicIndicator{" +
             "id=" + getId() +
+            ", uuid='" + getUuid() + "'" +
             ", type='" + getType() + "'" +
             ", name='" + getName() + "'" +
+            ", description='" + getDescription() + "'" +
             "}";
     }
 }

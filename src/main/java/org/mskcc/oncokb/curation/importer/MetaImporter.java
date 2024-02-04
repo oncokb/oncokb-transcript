@@ -2,7 +2,6 @@ package org.mskcc.oncokb.curation.importer;
 
 import static org.mskcc.oncokb.curation.config.DataVersions.NCIT_VERSION;
 import static org.mskcc.oncokb.curation.util.FileUtils.parseDelimitedFile;
-import static org.mskcc.oncokb.curation.util.TimeUtil.parseDbStringInstant;
 
 import java.io.IOException;
 import java.util.*;
@@ -110,6 +109,12 @@ public class MetaImporter {
     @Autowired
     private CoreImporter coreImporter;
 
+    @Autowired
+    private GenomicIndicatorService genomicIndicatorService;
+
+    @Autowired
+    private AlleleStateService alleleStateService;
+
     private final ApplicationProperties applicationProperties;
 
     private final Logger log = LoggerFactory.getLogger(MetaImporter.class);
@@ -133,7 +138,6 @@ public class MetaImporter {
 
         log.info("Importing gene...");
         this.importGene();
-        //        above are included in meta-1.sql
 
         log.info("Importing gene panel...");
         this.importGenePanelFlag();
@@ -143,34 +147,26 @@ public class MetaImporter {
 
         log.info("Importing ensembl gene...");
         this.importEnsemblGene();
-        //        above are included in meta-2.sql
 
         log.info("Importing transcript...");
         this.importTranscript();
-        //        above are included in meta-3.sql
 
         log.info("Importing transcript flag...");
         this.importTranscriptFlag();
 
         log.info("Importing sequence...");
         this.importSequence();
-        //        above are included in meta-4.sql
 
         log.info("Importing genome fragment...");
         this.importGenomeFragment();
-        //        above are included in meta-5.sql Only partial genome fragment was generated
 
-        //          meta-6.sql trims the double quotes.
-
+        log.info("Importing genomic indicator...");
+        this.importGenomicIndicator();
         log.info("Importing cancer type...");
         oncoTreeImporter.generalImport();
-        //          meta-7.sql trims the double quotes.
-
-        //          meta-8.sql includes article/alterations
 
         log.info("Importing core dataset...");
         coreImporter.generalImport();
-        //          meta-9.sql includes above
 
         log.info("Verifying the OncoKB gene hugo is the same with cBioPortal gene list");
         coreImporter.verifyGene();
@@ -336,6 +332,58 @@ public class MetaImporter {
             genomeFragmentService.save(genomeFragment);
             if ((i + 1) % 1000 == 0) {
                 log.info("Imported {}/{} genome fragment", i + 1, lines.size());
+            }
+        }
+    }
+
+    private void importGenomicIndicator() throws IOException {
+        List<List<String>> lines = parseTsvMetaFile("genomic_indicator.tsv");
+        for (int i = 0; i < lines.size(); i++) {
+            List<String> line = lines.get(i);
+
+            Optional<GenomicIndicator> existingGI = genomicIndicatorService.findByTypeAndName(GenomicIndicatorType.GERMLINE, line.get(3));
+            if (existingGI.isEmpty()) {
+                GenomicIndicator genomicIndicator = new GenomicIndicator();
+                genomicIndicator.setType(GenomicIndicatorType.GERMLINE.name());
+                genomicIndicator.setUuid(line.get(5));
+                genomicIndicator.setName(line.get(3));
+                if (StringUtils.isNotEmpty(line.get(4))) {
+                    Set<AlleleState> alleleStateList = Arrays
+                        .stream(line.get(4).split(","))
+                        .map(alleleState -> alleleStateService.findByName(alleleState.trim()).get())
+                        .collect(Collectors.toSet());
+                    genomicIndicator.setAlleleStates(alleleStateList);
+                }
+                existingGI = Optional.of(genomicIndicatorService.save(genomicIndicator));
+            }
+
+            Optional<Gene> geneOptional = geneService.findGeneByHugoSymbol(line.get(0));
+            if (geneOptional.isEmpty()) {
+                log.error("Cannot find the gene {}", line.get(0));
+                continue;
+            }
+            Alteration alteration;
+            List<Alteration> alterationList = alterationService.findByNameOrAlterationAndGenesId(line.get(1), geneOptional.get().getId());
+            if (alterationList.size() == 0) {
+                log.warn("Cannot find alteration {} in {}, will create a new one.", line.get(1), line.get(0));
+                Alteration newAlt = new Alteration();
+                newAlt.setGenes(Collections.singleton(geneOptional.get()));
+                newAlt.setAlteration(line.get(1));
+                newAlt.setType(AlterationType.ANY);
+                newAlt.setProteinChange(line.get(2));
+                alteration = alterationService.save(newAlt);
+            } else {
+                alteration = alterationList.get(0);
+                if (alterationList.size() > 1) {
+                    log.warn("Multiple alteration matches found, picked the first match");
+                }
+            }
+
+            if (alteration != null) {
+                Association association = new Association();
+                association.setAlterations(Collections.singleton(alteration));
+                existingGI.get().setAssociations(Collections.singleton(association));
+                genomicIndicatorService.partialUpdate(existingGI.get());
             }
         }
     }

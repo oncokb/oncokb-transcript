@@ -163,6 +163,10 @@ enum TumorForm {
  * Entity
  */
 
+entity AlleleState {
+	name String required unique
+}
+
 entity Alteration {
     type AlterationType required
     name String required
@@ -326,8 +330,10 @@ entity GenomeFragment {
 }
 
 entity GenomicIndicator {
-     type String required
+	uuid String required unique
+    type String required
     name String required
+	description TextBlob
 }
 
 entity Info {
@@ -443,6 +449,7 @@ relationship ManyToMany {
     FdaSubmission to Association
     Gene to Flag
     Gene to Synonym
+    GenomicIndicator to AlleleState
     GenomicIndicator to Association
     NciThesaurus to Synonym
     Transcript to Flag

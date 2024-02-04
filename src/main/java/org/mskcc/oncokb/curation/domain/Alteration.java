@@ -1,7 +1,6 @@
 package org.mskcc.oncokb.curation.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.swagger.annotations.ApiModel;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +13,6 @@ import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
 /**
  * A Alteration.
  */
-@ApiModel(description = "Entity")
 @Entity
 @Table(name = "alteration")
 public class Alteration implements Serializable {

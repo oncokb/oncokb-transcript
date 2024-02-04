@@ -38,6 +38,7 @@ import MutationCollapsible from './collapsible/MutationCollapsible';
 import { IDrug } from 'app/shared/model/drug.model';
 import { IGene } from 'app/shared/model/gene.model';
 import CurationToolsTab from 'app/components/tabs/CurationToolsTab';
+import { HgncLink } from 'app/shared/links/HgncLink';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -243,33 +244,63 @@ const CurationPage = (props: ICurationPageProps) => {
     <>
       <div>
         <Row>
-          <Col>
-            <h2>Gene: {props.data.name}</h2>
+          <Col className={'d-flex flex-row align-items-baseline flex-nowrap justify-content-between'}>
+            <div>
+              <span style={{ fontSize: '3rem' }} className={'mr-2'}>
+                {props.data.name}
+              </span>
+              <span>
+                {geneEntity?.entrezGeneId && (
+                  <span className="ml-2">
+                    <span className="font-weight-bold text-nowrap">Entrez Gene:</span>
+                    <span className="ml-1">
+                      <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
+                    </span>
+                  </span>
+                )}
+                {geneEntity?.hgncId && (
+                  <span className="ml-2">
+                    <span className="font-weight-bold">HGNC:</span>
+                    <span className="ml-1">
+                      <HgncLink id={geneEntity.hgncId} />
+                    </span>
+                  </span>
+                )}
+                {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
+                  <span className="ml-2">
+                    <span className="font-weight-bold">Gene aliases:</span>
+                    <span className="ml-1">
+                      <WithSeparator separator={', '}>
+                        {geneEntity.synonyms.map(synonym => (
+                          <span className={'text-nowrap'} key={synonym.name}>
+                            {synonym.name}
+                          </span>
+                        ))}
+                      </WithSeparator>
+                    </span>
+                  </span>
+                )}
+                <span className="ml-2">
+                  <span className="font-weight-bold mr-2">External Links:</span>
+                  <WithSeparator separator={InlineDivider}>
+                    <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
+                      {CBIOPORTAL} <ExternalLinkIcon />
+                    </a>
+                    <a
+                      href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {COSMIC} <ExternalLinkIcon />
+                    </a>
+                  </WithSeparator>
+                </span>
+              </span>
+            </div>
           </Col>
         </Row>
         <Row className={`${getSectionClassName()} justify-content-between`}>
           <Col>
-            <div className={'d-flex mb-2'}>
-              {geneEntity?.entrezGeneId && (
-                <div>
-                  <span className="font-weight-bold">Entrez Gene:</span>
-                  <span className="ml-1">
-                    <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
-                  </span>
-                </div>
-              )}
-              <div className="ml-2">
-                <span className="font-weight-bold">Gene aliases:</span>
-                <span className="ml-1">
-                  <PubmedGeneArticlesLink hugoSymbols={(geneEntity?.synonyms || []).map(synonym => synonym.name)} />
-                </span>
-              </div>
-            </div>
-            <RealtimeTextAreaInput
-              fieldKey="summary"
-              label="Summary"
-              labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />}
-            />
             <RealtimeCheckedInputGroup
               groupHeader={
                 <>
@@ -283,6 +314,16 @@ const CurationPage = (props: ICurationPageProps) => {
                   fieldKey: GENE_TYPE_KEY[label],
                 };
               })}
+            />
+            <RealtimeTextAreaInput
+              fieldKey="summary"
+              label="Somatic Gene Summary"
+              labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />}
+            />
+            <RealtimeTextAreaInput
+              fieldKey="germline_summary"
+              label="Germline Gene Summary"
+              labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Germline Gene Summary'} />}
             />
           </Col>
         </Row>
@@ -311,17 +352,6 @@ const CurationPage = (props: ICurationPageProps) => {
             />
             <div className="mb-2">
               <AutoParseRefField summary={props.data.background} />
-            </div>
-            <div>
-              <span className="font-weight-bold mr-2">External Links:</span>
-              <WithSeparator separator={InlineDivider}>
-                <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
-                  {CBIOPORTAL} <ExternalLinkIcon />
-                </a>
-                <a href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`} target="_blank" rel="noopener noreferrer">
-                  {COSMIC} <ExternalLinkIcon />
-                </a>
-              </WithSeparator>
             </div>
           </Col>
         </Row>

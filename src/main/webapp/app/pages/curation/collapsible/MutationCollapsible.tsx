@@ -3,9 +3,15 @@ import Collapsible from './Collapsible';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
-import { DX_LEVELS, Mutation, PX_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import { Alteration, DX_LEVELS, Mutation, PX_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import { buildFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
-import { getMutationName, getTxName, isSectionEmpty, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
+import {
+  getMutationName,
+  getTxName,
+  isDnaVariant,
+  isSectionEmpty,
+  isSectionRemovableWithoutReview,
+} from 'app/shared/util/firebase/firebase-utils';
 import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
@@ -26,6 +32,9 @@ import TreatmentLevelSummary from '../nestLevelSummary/TreatmentLevelSummary';
 import { IDrug } from 'app/shared/model/drug.model';
 import ModifyTherapyModal from 'app/shared/modal/ModifyTherapyModal';
 import EditIcon from 'app/shared/icons/EditIcon';
+import Tabs from 'app/components/tabs/tabs';
+import { RealtimeBasicLabel } from 'app/shared/firebase/input/RealtimeBasicInput';
+import WithSeparator from 'react-with-separator';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutation: Mutation;
@@ -50,6 +59,16 @@ const MutationCollapsible = ({
   const title = getMutationName(mutation);
   const mutationFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}`);
   const showMutationLevelSummary = !title.includes(',');
+
+  const dnaVariants = _.chain(data.mutations)
+    .reduce((acc, curr) => {
+      const alts = curr.alterations || [];
+      acc.push(...alts.filter(alt => isDnaVariant(alt)));
+      return acc;
+    }, [] as Alteration[])
+    .uniq()
+    .value();
+  const associatedDnaVariants = dnaVariants.filter(alt => alt.proteinChange === mutation.name).map(alt => alt.alteration);
 
   return (
     <Collapsible
@@ -78,6 +97,12 @@ const MutationCollapsible = ({
         borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.MUTATION_EFFECT]]}
         isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect`))}
       >
+        {associatedDnaVariants.length > 0 && (
+          <div className={'mb-3'}>
+            <b>Associated c. variant in the gene: </b>
+            <span>{associatedDnaVariants.join(',')}</span>
+          </div>
+        )}
         <Collapsible
           open
           title="Somatic"
@@ -141,6 +166,27 @@ const MutationCollapsible = ({
             borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.GERMLINE]]}
             isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect/germline`))}
           >
+            {mutation.germline_genomic_indicators && (
+              <div>
+                <b className="mb-2">Genomic Indicators: </b>
+                <WithSeparator separator={', '}>
+                  {mutation.germline_genomic_indicators?.map(indicator => {
+                    return (
+                      <span key={indicator.indicator}>
+                        {indicator.indicator}
+                        {indicator.alleleStates ? ` (${indicator.alleleStates.join(', ')})` : ''}
+                      </span>
+                    );
+                  })}
+                </WithSeparator>
+              </div>
+            )}
+            <RealtimeTextAreaInput
+              fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/description`}
+              inputClass={styles.shortTextarea}
+              label="Description"
+              name="description"
+            />
             <RealtimeCheckedInputGroup
               groupHeader="Pathogenic"
               isRadio
@@ -163,6 +209,12 @@ const MutationCollapsible = ({
                 fieldKey: `mutations/${firebaseIndex}/mutation_effect/germline/penetrance`,
               }))}
             />
+            <RealtimeTextAreaInput
+              fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/penetranceDescription`}
+              inputClass={styles.shortTextarea}
+              label="Description of penetrance"
+              name="penetranceDescription"
+            />
             <RealtimeCheckedInputGroup
               groupHeader="Mechanism of Inheritance"
               isRadio
@@ -172,11 +224,52 @@ const MutationCollapsible = ({
               }))}
             />
             <RealtimeTextAreaInput
-              fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk`}
-              inputClass={styles.textarea}
-              label="Cancer Risk"
-              name="cancerRisk"
+              fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/inheritanceMechanismDescription`}
+              inputClass={styles.shortTextarea}
+              label="Description of inheritance mechanism"
+              name="inheritanceMechanismDescription"
             />
+            <div className={'d-flex'}>
+              <RealtimeBasicLabel label={'Cancer Risk'} id={'cancer-risk'} labelClass="mr-2 font-weight-bold" />
+              <Tabs
+                className={'m-0'}
+                tabs={[
+                  {
+                    title: 'Monoallelic',
+                    content: (
+                      <RealtimeTextAreaInput
+                        fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk/monoallelic`}
+                        inputClass={styles.shortTextarea}
+                        label=""
+                        name="monoallelicCancerRisk"
+                      />
+                    ),
+                  },
+                  {
+                    title: 'Biallelic',
+                    content: (
+                      <RealtimeTextAreaInput
+                        fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk/biallelic`}
+                        inputClass={styles.shortTextarea}
+                        label=""
+                        name="biallelicCancerRisk"
+                      />
+                    ),
+                  },
+                  {
+                    title: 'Mosaic',
+                    content: (
+                      <RealtimeTextAreaInput
+                        fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk/mosaic`}
+                        inputClass={styles.shortTextarea}
+                        label=""
+                        name="mosaicCancerRisk"
+                      />
+                    ),
+                  },
+                ]}
+              />
+            </div>
           </Collapsible>
         )}
       </Collapsible>

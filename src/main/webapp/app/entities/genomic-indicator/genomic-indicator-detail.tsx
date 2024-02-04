@@ -6,6 +6,7 @@ import { Col, Row } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
+import { Association } from 'app/shared/api/generated';
 
 export interface IGenomicIndicatorDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -32,16 +33,19 @@ export const GenomicIndicatorDetail = (props: IGenomicIndicatorDetailProps) => {
             <span id="name">Name</span>
           </dt>
           <dd>{genomicIndicatorEntity.name}</dd>
-          <dt>Association</dt>
+          <dt>Associated Allele States</dt>
           <dd>
-            {genomicIndicatorEntity.associations
-              ? genomicIndicatorEntity.associations.map((val, i) => (
-                  <span key={val.id}>
-                    <a>{val.id}</a>
-                    {genomicIndicatorEntity.associations && i === genomicIndicatorEntity.associations.length - 1 ? '' : ', '}
-                  </span>
-                ))
-              : null}
+            <span>{genomicIndicatorEntity.alleleStates?.map(alleleState => alleleState.name).join() || 'NA'}</span>
+          </dd>
+          <dt>Associated Alterations</dt>
+          <dd>
+            <span>
+              {genomicIndicatorEntity.associations
+                ?.map(association =>
+                  association.alterations?.map(alt => `${alt.genes?.map(gene => gene.hugoSymbol).join('-')} ${alt.alteration}`).join()
+                )
+                .join() || 'NA'}
+            </span>
           </dd>
         </dl>
         <EntityActionButton

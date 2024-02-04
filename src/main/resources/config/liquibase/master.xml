@@ -48,6 +48,7 @@
     <include file="config/liquibase/changelog/20231101214350_added_entity_Synonym.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20231101214351_added_entity_Treatment.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20231101214352_added_entity_TreatmentPriority.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20240130000000_added_entity_AlleleState.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="config/liquibase/changelog/20220401174634_added_entity_constraints_Sequence.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20220401174635_added_entity_constraints_Transcript.xml" relativeToChangelogFile="false"/>

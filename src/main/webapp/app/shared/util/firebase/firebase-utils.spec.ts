@@ -60,53 +60,65 @@ describe('FirebaseUtils', () => {
       it('Mutation name is specified', () => {
         let mutation = {
           name: 'name',
-          alteration: {
-            proteinChange: 'protein change',
-            cDna: 'cdna',
-          },
+          alterations: [
+            {
+              proteinChange: 'protein change',
+              alteration: 'cdna',
+            },
+          ],
         } as Mutation;
         expect(getMutationName(mutation), 'Mutation name should include both protein change and cdna when available').toEqual(
-          'protein change (cdna)'
+          'cdna (p.protein change)'
         );
 
         mutation = {
           name: 'name',
-          alteration: {
-            proteinChange: 'protein change',
-          },
+          alterations: [
+            {
+              proteinChange: 'protein change',
+            },
+          ],
         } as Mutation;
         expect(getMutationName(mutation), 'Mutation name should include protein change').toEqual('protein change');
 
         mutation = {
           name: 'name',
-          alteration: {
-            cDna: 'cdna',
-          },
+          alterations: [
+            {
+              alteration: 'cdna',
+            },
+          ],
         } as Mutation;
         expect(getMutationName(mutation), 'Mutation name should include cdna').toEqual('cdna');
       });
       it('Mutation name is NOT specified', () => {
         let mutation = {
-          alteration: {
-            proteinChange: 'protein change',
-            cDna: 'cdna',
-          },
+          alterations: [
+            {
+              proteinChange: 'protein change',
+              alteration: 'cdna',
+            },
+          ],
         } as Mutation;
         expect(getMutationName(mutation), 'Mutation name should include both protein change and cdna when available').toEqual(
-          'protein change (cdna)'
+          'cdna (p.protein change)'
         );
 
         mutation = {
-          alteration: {
-            proteinChange: 'protein change',
-          },
+          alterations: [
+            {
+              proteinChange: 'protein change',
+            },
+          ],
         } as Mutation;
         expect(getMutationName(mutation), 'Mutation name should include protein change').toEqual('protein change');
 
         mutation = {
-          alteration: {
-            cDna: 'cdna',
-          },
+          alterations: [
+            {
+              alteration: 'cdna',
+            },
+          ],
         } as Mutation;
         expect(getMutationName(mutation), 'Mutation name should include cdna').toEqual('cdna');
       });

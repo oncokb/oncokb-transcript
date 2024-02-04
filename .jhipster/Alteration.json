@@ -79,6 +79,5 @@
   "readOnly": false,
   "embedded": false,
   "applications": "*",
-  "changelogDate": "20220401174648",
-  "javadoc": "Entity"
+  "changelogDate": "20220401174648"
 }

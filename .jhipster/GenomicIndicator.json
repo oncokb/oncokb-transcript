@@ -2,6 +2,11 @@
   "name": "GenomicIndicator",
   "fields": [
     {
+      "fieldName": "uuid",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique"]
+    },
+    {
       "fieldName": "type",
       "fieldType": "String",
       "fieldValidateRules": ["required"]
@@ -10,9 +15,21 @@
       "fieldName": "name",
       "fieldType": "String",
       "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
     }
   ],
   "relationships": [
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "alleleState",
+      "otherEntityRelationshipName": "genomicIndicator",
+      "relationshipName": "alleleState",
+      "ownerSide": true
+    },
     {
       "relationshipType": "many-to-many",
       "otherEntityName": "association",
