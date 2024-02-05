@@ -347,12 +347,14 @@ public class MetaImporter {
                 genomicIndicator.setType(GenomicIndicatorType.GERMLINE.name());
                 genomicIndicator.setUuid(line.get(5));
                 genomicIndicator.setName(line.get(3));
+                genomicIndicator = genomicIndicatorService.save(genomicIndicator);
                 if (StringUtils.isNotEmpty(line.get(4))) {
                     Set<AlleleState> alleleStateList = Arrays
                         .stream(line.get(4).split(","))
                         .map(alleleState -> alleleStateService.findByName(alleleState.trim()).get())
                         .collect(Collectors.toSet());
                     genomicIndicator.setAlleleStates(alleleStateList);
+                    genomicIndicatorService.partialUpdate(genomicIndicator);
                 }
                 existingGI = Optional.of(genomicIndicatorService.save(genomicIndicator));
             }
