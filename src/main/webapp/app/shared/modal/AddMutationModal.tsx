@@ -15,7 +15,7 @@ import { EntityStatusAlteration } from '../api/generated';
 import './add-mutation-modal.scss';
 import { IGene } from '../model/gene.model';
 import { FaChevronDown, FaChevronUp, FaExclamationTriangle } from 'react-icons/fa';
-import { Mutation } from '../model/firebase/firebase.model';
+import { Alteration, Mutation } from '../model/firebase/firebase.model';
 
 // Follow naming convention: all words start with uppercase, and space are denoted by _
 // This is used to populate field names
@@ -46,19 +46,20 @@ type MutationName = {
 interface IAddMutationModalProps extends StoreProps {
   hugoSymbol: string;
   isOpen: boolean;
-  onConfirm: (mutations: Mutation[]) => void;
+  onConfirm: (alterations: Alteration[]) => void;
   onCancel: () => void;
+  mutationToEdit?: Mutation;
 }
 
 function AddMutationModal(props: IAddMutationModalProps) {
   const { isOpen, ...rest } = props;
 
-  return <AddMutationModalContent {...rest} />;
   return isOpen ? <AddMutationModalContent {...rest} /> : <></>;
 }
 
 function AddMutationModalContent({
   hugoSymbol,
+  mutationToEdit,
   annotateAlteration,
   geneEntities,
   consequences,
@@ -80,6 +81,12 @@ function AddMutationModalContent({
 
   useEffect(() => {
     getConsequences({});
+  }, []);
+
+  useEffect(() => {
+    if (mutationToEdit) {
+      mutationToEdit.name.split(', ').map(name => fetchAlteration(name));
+    }
   }, []);
 
   function getFullMutationName(name: string, comment: string, excluding: string[]) {
@@ -561,6 +568,21 @@ function AddMutationModalContent({
     );
   }
 
+  function getAlterationFromMutationState(state: MutationState) {
+    const newAlteration = new Alteration();
+    newAlteration.alteration = state.Alteration;
+    newAlteration.name = state.Name;
+    newAlteration.proteinChange = state.Protein_Change;
+    newAlteration.proteinStart = state.Protein_Start.trim() === '' ? null : parseInt(state.Protein_Start, 10);
+    newAlteration.proteinEnd = state.Protein_End.trim() === '' ? null : parseInt(state.Protein_End, 10);
+    newAlteration.refResidues = state.Ref_Residues;
+    newAlteration.varResidues = state.Var_Residues;
+    newAlteration.consequence = state.Consequence;
+    newAlteration.comment = state.Comment || '';
+    newAlteration.excluding = state.Excluding.map(excluding => getAlterationFromMutationState(excluding));
+    return newAlteration;
+  }
+
   return (
     <Modal isOpen>
       <ModalBody>
@@ -604,7 +626,7 @@ function AddMutationModalContent({
         </Button>
         <Button
           onClick={() => {
-            onConfirm(mutationStates.map(state => new Mutation(state.Alteration)));
+            onConfirm(mutationStates.map(state => getAlterationFromMutationState(state)));
           }}
           color="primary"
         >

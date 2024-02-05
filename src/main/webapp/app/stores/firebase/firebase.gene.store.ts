@@ -7,6 +7,7 @@ import {
   Review,
   Tumor,
   Treatment,
+  Mutation,
 } from 'app/shared/model/firebase/firebase.model';
 import { IRootStore } from '../createStore';
 import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
@@ -58,6 +59,7 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
       deleteSection: action.bound,
       updateTumor: action.bound,
       updateTreatment: action.bound,
+      updateMutation: action.bound,
     });
   }
 
@@ -233,5 +235,9 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
 
   async updateTreatment(path: string, treatment: Treatment) {
     return await update(ref(this.db, path), treatment);
+  }
+
+  async updateMutation(path: string, mutation: Mutation) {
+    return await update(ref(this.db, path), mutation);
   }
 }

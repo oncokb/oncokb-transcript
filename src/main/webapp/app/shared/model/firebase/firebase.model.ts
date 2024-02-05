@@ -159,9 +159,16 @@ export class GeneType {
 }
 
 export class Alteration {
-  proteinChange = '';
   alteration = '';
   name = '';
+  proteinChange = '';
+  proteinStart?: number;
+  proteinEnd?: number;
+  refResidues = '';
+  varResidues = '';
+  consequence = '';
+  comment = '';
+  excluding: Alteration[] = [];
 }
 
 export class Mutation {

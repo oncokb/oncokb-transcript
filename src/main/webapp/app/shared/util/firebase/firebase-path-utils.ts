@@ -22,6 +22,8 @@ export const parseFirebaseGenePath = (path: string) => {
   } as FirebaseGenePathDetails;
 };
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 export const buildFirebaseGenePath = (hugoSymbol: string, fieldKey: ExtractPathExpressions<Gene>) => {
   if (hugoSymbol.length === 0) {
     return undefined;

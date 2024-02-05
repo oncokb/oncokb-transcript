@@ -657,9 +657,16 @@ const CurationPage = (props: ICurationPageProps) => {
       <AddMutationModal
         hugoSymbol={hugoSymbol}
         isOpen={showAddMutationModal}
-        onConfirm={newMutations => {
-          if (newMutations.length > 0) {
-            props.updateMutations(`${firebaseGenePath}/mutations`, newMutations);
+        onConfirm={async alterations => {
+          if (alterations.length > 0) {
+            const newMutation = new Mutation(alterations.map(alteration => alteration.alteration).join(', '));
+            newMutation.alterations = alterations;
+
+            try {
+              await props.updateMutations(`${firebaseGenePath}/mutations`, [newMutation]);
+            } catch (error) {
+              notifyError(error);
+            }
           }
           setShowAddMutationModal(show => !show);
         }}
