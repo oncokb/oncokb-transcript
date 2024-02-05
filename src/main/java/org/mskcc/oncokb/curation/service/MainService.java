@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
 import org.mskcc.oncokb.curation.domain.*;
+import org.mskcc.oncokb.curation.domain.enumeration.EntityStatusType;
 import org.mskcc.oncokb.curation.domain.enumeration.GenomeFragmentType;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.curation.domain.enumeration.SequenceType;
@@ -88,7 +89,28 @@ public class MainService {
         return Optional.empty();
     }
 
-    public void annotateAlteration(Alteration alteration) {
+    public String getAminoAcid(Gene gene, int positionStart, int length) {
+        Transcript canonical = null;
+        for (Transcript transcript : gene.getTranscripts()) {
+            if (transcript.getCanonical()) {
+                canonical = transcript;
+                break;
+            }
+        }
+
+        if (canonical != null) {
+            Optional<Sequence> sequence = sequenceService.findOneByTranscriptAndSequenceType(canonical, SequenceType.PROTEIN);
+            if (sequence.isPresent() && sequence.get().getSequence().length() >= (positionStart + length - 1)) {
+                return sequence.get().getSequence().substring(positionStart - 1, positionStart + length - 1);
+            }
+        }
+        return "";
+    }
+
+    public EntityStatus<Alteration> annotateAlteration(Alteration alteration) {
+        EntityStatus<Alteration> alterationWithStatus = new EntityStatus<>();
+        alterationWithStatus.setEntity(alteration);
+
         Optional<CategoricalAlteration> categoricalAlterationOptional = categoricalAlterationService.findOneByAlteration(alteration);
         if (categoricalAlterationOptional.isPresent()) {
             CategoricalAlteration categoricalAlteration = categoricalAlterationOptional.get();
@@ -96,13 +118,20 @@ public class MainService {
             alteration.setName(categoricalAlteration.getName());
             alteration.setType(categoricalAlteration.getAlterationType());
             alteration.setConsequence(categoricalAlteration.getConsequence());
-            return;
+
+            alterationWithStatus.setType(EntityStatusType.OK);
+            alterationWithStatus.setMessage("");
+            return alterationWithStatus;
         }
 
-        Alteration pcAlteration = alterationUtils.parseProteinChange(alteration.getAlteration());
-        if (pcAlteration == null) {
-            return;
+        EntityStatus<Alteration> pcAlterationWithStatus = alterationUtils.parseProteinChange(alteration.getAlteration());
+        if (pcAlterationWithStatus == null) {
+            alterationWithStatus.setMessage("No alteration provided");
+            alterationWithStatus.setType(EntityStatusType.ERROR);
+            return alterationWithStatus;
         }
+
+        Alteration pcAlteration = pcAlterationWithStatus.getEntity();
         if (pcAlteration.getType() != null) {
             alteration.setType(pcAlteration.getType());
         }
@@ -204,6 +233,22 @@ public class MainService {
                 }
             }
         }
+
+        if (pcAlterationWithStatus.getType().equals(EntityStatusType.OK)) { //check for additional warnings
+            if (alteration.getRefResidues() != null) {
+                Gene gene = alteration.getGenes().iterator().next();
+                String referenceAA = getAminoAcid(gene, alteration.getStart(), alteration.getRefResidues().length());
+                if (!StringUtils.isEmpty(referenceAA) && !referenceAA.equals(alteration.getRefResidues())) {
+                    alterationWithStatus.setMessage("The reference allele does not match with the transcript");
+                    alterationWithStatus.setType(EntityStatusType.WARNING);
+                    return alterationWithStatus;
+                }
+            }
+        }
+
+        alterationWithStatus.setMessage(pcAlterationWithStatus.getMessage());
+        alterationWithStatus.setType(pcAlterationWithStatus.getType());
+        return alterationWithStatus;
     }
 
     public void createCanonicalEnsemblGene(@NotNull ReferenceGenome referenceGenome, @NotNull Integer entrezGeneId) {

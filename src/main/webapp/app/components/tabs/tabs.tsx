@@ -1,48 +1,53 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Container, Row } from 'reactstrap';
-import { observer } from 'mobx-react-lite';
-import classNames from 'classnames';
-import { IRootStore } from 'app/stores/createStore';
-import { componentInject } from 'app/shared/util/typed-inject';
 import styles from './styles.module.scss';
 
 export type Tab = {
-  title: string;
+  title: React.ReactNode;
   content: React.ReactNode;
 };
 
 export interface ITabsProps {
   tabs: Tab[];
+  isCollapsed?: boolean;
   className?: string;
 }
 
-const Tabs = observer(({ tabs, className }: ITabsProps) => {
-  const [openTab, setOpenTab] = useState(tabs[0]?.title);
+const Tabs = ({ tabs, isCollapsed = false, className }: ITabsProps) => {
+  const [openTabIndex, setOpenTabIndex] = useState(0);
+
+  useEffect(() => {
+    if (openTabIndex >= tabs.length) {
+      setOpenTabIndex(tabs.length - 1);
+    }
+  }, [tabs.length]);
 
   return (
     <Container className={className ? className : 'mr-3 ml-2 mt-1'} style={{ wordBreak: 'break-word' }}>
       <Row>
         <Col>
-          <Row className="border-bottom mb-3">
-            {tabs.map(tab => {
+          <Row style={{ overflowX: 'auto', flexWrap: 'nowrap' }} className="border-bottom mb-3">
+            {tabs.map((tab, index) => {
               return (
                 <div
-                  onClick={() => setOpenTab(tab.title)}
-                  key={tab.title}
-                  className={`${styles.tab} ${tab.title === openTab ? styles.selected : ''}`}
+                  onClick={() => setOpenTabIndex(index)}
+                  key={index}
+                  className={`${styles.tab} ${index === openTabIndex ? styles.selected : ''}`}
                 >
                   <h6>{tab.title}</h6>
                 </div>
               );
             })}
           </Row>
-          <Row>
-            <Col>{tabs.find(tab => tab.title === openTab)?.content}</Col>
-          </Row>
+          {!isCollapsed && (
+            <Row>
+              <Col>{tabs[openTabIndex]?.content}</Col>
+            </Row>
+          )}
         </Col>
       </Row>
     </Container>
   );
-});
+};
 
 export default Tabs;

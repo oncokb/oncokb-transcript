@@ -157,3 +157,20 @@ export async function isPromiseOk(promise: Promise<any>) {
     return { ok: false, error };
   }
 }
+
+export function parseAlterationName(name: string) {
+  const regex = new RegExp('([A-Z][0-9]+)([^0-9/]+)/(.+)', 'i');
+  const parts = regex.exec(name);
+  if (!parts) {
+    return [name];
+  }
+
+  const alterations = [];
+  const firstPart = parts[1].trim();
+  alterations.push(firstPart + parts[2].trim());
+  const rest = parts[3].split('/');
+  for (const part of rest) {
+    alterations.push(firstPart + part.trim());
+  }
+  return alterations;
+}
