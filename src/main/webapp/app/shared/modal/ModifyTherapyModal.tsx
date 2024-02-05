@@ -42,7 +42,6 @@ function ModifyTherapyModal({
   );
 }
 
-/* eslint-disable no-console */
 const ModifyTherapyModalContent = observer(
   ({ treatmentUuid, treatmentName, drugList, onConfirm, onCancel, modifyTherapyModalStore }: IModifyTherapyModalProps) => {
     const disableDeleteTherapy = modifyTherapyModalStore.selectedTreatments.length < 2;
@@ -103,7 +102,7 @@ const ModifyTherapyModalContent = observer(
 
     return (
       <SimpleConfirmModal
-        title={treatmentUuid === 'new_treatment' ? 'Add Therapy(s)' : 'Modify Therapy(s)'}
+        title={treatmentUuid.startsWith('new_treatment_for') ? 'Add Therapy(s)' : 'Modify Therapy(s)'}
         show={true}
         onConfirm={() => {
           const name = modifyTherapyModalStore.selectedTreatments.map(therapy => therapy.map(drug => drug.uuid).join(' + ')).join(', ');

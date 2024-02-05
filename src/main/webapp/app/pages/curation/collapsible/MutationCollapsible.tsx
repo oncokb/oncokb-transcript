@@ -397,34 +397,8 @@ const MutationCollapsible = ({
                   </div>
                 </Collapsible>
                 {tumor.TIs.reduce((accumulator, ti, tiIndex) => {
-                  const addTherapyModal = (
-                    <ModifyTherapyModal
-                      treatmentUuid="new_treatment"
-                      treatmentName=""
-                      drugList={drugList}
-                      onConfirm={async treatmentName => {
-                        const newTreatment = new Treatment(treatmentName);
-
-                        try {
-                          await firebasePushToArray(
-                            buildFirebaseGenePath(
-                              hugoSymbol,
-                              `mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tumor.TIs.length - 1}/treatments`
-                            ),
-                            [newTreatment]
-                          );
-                        } catch (error) {
-                          notifyError(error);
-                        }
-
-                        modifyTherapyModalStore.closeModal();
-                      }}
-                      onCancel={modifyTherapyModalStore.closeModal}
-                    />
-                  );
-
                   if (!ti.treatments) {
-                    return [...accumulator, addTherapyModal];
+                    return accumulator;
                   }
                   return accumulator.concat(
                     ti.treatments.map((treatment, treatmentIndex) => {
@@ -534,10 +508,37 @@ const MutationCollapsible = ({
                   );
                 }, [])}
               </div>
-              <Button outline color="primary" onClick={() => modifyTherapyModalStore.openModal('new_treatment')}>
+              <Button
+                outline
+                color="primary"
+                onClick={() => modifyTherapyModalStore.openModal(`new_treatment_for_${tumor.cancerTypes_uuid}`)}
+              >
                 Add Therapy
               </Button>
             </Collapsible>
+            <ModifyTherapyModal
+              treatmentUuid={`new_treatment_for_${tumor.cancerTypes_uuid}`}
+              treatmentName=""
+              drugList={drugList}
+              onConfirm={async treatmentName => {
+                const newTreatment = new Treatment(treatmentName);
+
+                try {
+                  await firebasePushToArray(
+                    buildFirebaseGenePath(
+                      hugoSymbol,
+                      `mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tumor.TIs.length - 1}/treatments`
+                    ),
+                    [newTreatment]
+                  );
+                } catch (error) {
+                  notifyError(error);
+                }
+
+                modifyTherapyModalStore.closeModal();
+              }}
+              onCancel={modifyTherapyModalStore.closeModal}
+            />
             <ModifyCancerTypeModal
               cancerTypesUuid={tumor.cancerTypes_uuid}
               includedCancerTypes={tumor.cancerTypes}
@@ -565,11 +566,11 @@ const MutationCollapsible = ({
           </div>
         );
       })}
-      <Button outline color="primary" onClick={() => modifyCancerTypeModalStore.openModal('new_cancer_type')}>
+      <Button outline color="primary" onClick={() => modifyCancerTypeModalStore.openModal(`new_cancer_type_for_${mutation.name_uuid}`)}>
         Add Cancer Type
       </Button>
       <ModifyCancerTypeModal
-        cancerTypesUuid={'new_cancer_type'}
+        cancerTypesUuid={`new_cancer_type_for_${mutation.name_uuid}`}
         includedCancerTypes={[]}
         excludedCancerTypes={[]}
         onConfirm={async (includedCancerTypes, excludedCancerTypes) => {

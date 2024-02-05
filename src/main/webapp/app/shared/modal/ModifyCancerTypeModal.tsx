@@ -138,7 +138,7 @@ const ModifyCancerTypeModalContent = observer(
     return (
       <SimpleConfirmModal
         show={true}
-        title={cancerTypesUuid === 'new_cancer_type' ? 'Add Cancer Type(s)' : 'Modify Cancer Type(s)'}
+        title={cancerTypesUuid.startsWith('new_cancer_type_for') ? 'Add Cancer Type(s)' : 'Modify Cancer Type(s)'}
         onCancel={onCancel}
         confirmDisabled={isConfirmButtonDisabled}
         onConfirm={() => {
