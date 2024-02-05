@@ -336,7 +336,7 @@ const CurationPage = (props: ICurationPageProps) => {
     }
     return (
       <Col>
-        <div className="d-flex justify-content-end">{button}</div>
+        <div className="d-flex justify-content-end mb-2">{button}</div>
       </Col>
     );
   };
@@ -412,8 +412,8 @@ const CurationPage = (props: ICurationPageProps) => {
                 </span>
               </div>
             </div>
+            {getReviewButtons()}
           </Col>
-          {getReviewButtons()}
         </Row>
         {isReviewing ? (
           <ReviewPage
@@ -427,42 +427,6 @@ const CurationPage = (props: ICurationPageProps) => {
           <>
             <Row className={`${getSectionClassName()} justify-content-between`}>
               <Col>
-                <div className={'d-flex mb-2'}>
-                  {geneEntity?.entrezGeneId && (
-                    <div>
-                      <span className="font-weight-bold">Entrez Gene:</span>
-                      <span className="ml-1">
-                        <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
-                      </span>
-                    </div>
-                  )}
-                  <div className="ml-2">
-                    <span className="font-weight-bold">Gene aliases:</span>
-                    <span className="ml-1">
-                      <PubmedGeneArticlesLink hugoSymbols={(geneEntity?.synonyms || []).map(synonym => synonym.name)} />
-                    </span>
-                  </div>
-                </div>
-                <RealtimeTextAreaInput
-                  fieldKey="summary"
-                  label="Summary"
-                  labelIcon={
-                    <>
-                      <GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />
-                      <div className="mr-3" />
-                      <CommentIcon
-                        id={props.data.summary_uuid}
-                        comments={props.data.summary_comments || []}
-                        onCreateComment={content =>
-                          handleCreateComment(`${firebaseGenePath}/summary_comments`, content, props.data.summary_comments?.length || 0)
-                        }
-                        onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/summary_comments`, indices)}
-                        onResolveComment={index => handleResolveComment(`${firebaseGenePath}/summary_comments/${index}`)}
-                        onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/summary_comments/${index}`)}
-                      />
-                    </>
-                  }
-                />
                 <RealtimeCheckedInputGroup
                   groupHeader={
                     <>
