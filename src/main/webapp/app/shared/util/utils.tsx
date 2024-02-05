@@ -121,6 +121,7 @@ export const getEntityTableActionsColumn = (entityType: ENTITY_TYPE) => {
     },
     minWidth: 150,
     maxWidth: 150,
+    sortable: false,
   };
   return actionsColumn;
 };
