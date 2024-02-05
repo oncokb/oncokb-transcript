@@ -5,10 +5,13 @@ import { Badge, Button } from 'reactstrap';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { IUser } from 'app/shared/model/user.model';
-import { Column } from 'react-table';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
-import OncoKBTable from 'app/shared/table/OncoKBTable';
-import { getEntityTableActionsColumn } from 'app/shared/util/utils';
+import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import { filterByKeyword, getEntityTableActionsColumn, getUserFullName } from 'app/shared/util/utils';
+
+const getStatus = (activated: boolean) => {
+  return activated ? 'Activated' : 'Inactivated';
+};
 
 export interface IUserManagementProps extends StoreProps, RouteComponentProps {}
 
@@ -28,29 +31,29 @@ export const UserManagement = (props: IUserManagementProps) => {
       });
   };
 
-  const columns: Column<IUser>[] = [
+  const columns: SearchColumn<IUser>[] = [
     {
       id: 'username',
+      accessor: (data: IUser) => getUserFullName(data),
       Header: 'User Name',
+      onFilter: (data: IUser, keyword) => filterByKeyword(getUserFullName(data), keyword),
       Cell(cell: { original: IUser }) {
-        return `${cell.original.firstName} ${cell.original.lastName}`;
+        return getUserFullName(cell.original);
       },
     },
     {
       accessor: 'email',
       Header: 'Email',
+      onFilter: (data: IUser, keyword) => (data.email ? filterByKeyword(data.email, keyword) : false),
     },
     {
       accessor: 'activated',
       Header: 'Activated',
+      onFilter: (data: IUser, keyword) => (data.activated !== undefined ? filterByKeyword(getStatus(data.activated), keyword) : false),
       Cell(cell: { original: IUser }) {
-        return cell.original.activated ? (
-          <Button color="success" onClick={toggleActive(cell.original)}>
-            Activated
-          </Button>
-        ) : (
-          <Button color="danger" onClick={toggleActive(cell.original)}>
-            Deactivated
+        return (
+          <Button color={cell.original.activated ? 'success' : 'danger'} onClick={toggleActive(cell.original)}>
+            {getStatus(cell.original.activated)}
           </Button>
         );
       },
@@ -58,6 +61,7 @@ export const UserManagement = (props: IUserManagementProps) => {
     {
       accessor: 'authorities',
       Header: 'Profiles',
+      onFilter: (data: IUser, keyword) => (data.authorities ? filterByKeyword(data.authorities.join(','), keyword) : false),
       Cell(cell: { original: IUser }) {
         return cell.original.authorities
           ? cell.original.authorities.map((authority, i) => (
@@ -67,6 +71,7 @@ export const UserManagement = (props: IUserManagementProps) => {
             ))
           : null;
       },
+      sortable: false,
     },
     getEntityTableActionsColumn(ENTITY_TYPE.USER),
   ];
