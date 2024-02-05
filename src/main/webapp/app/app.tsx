@@ -53,7 +53,6 @@ const mapStoreToProps = ({ authStore, layoutStore, firebaseStore }: IRootStore) 
   isAuthorized: authStore.isAuthorized,
   authorities: authStore.account.authorities,
   isCurator: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.CURATOR]),
-  getSession: authStore.getSession,
   loadingAuth: authStore.loading,
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,
   toggleNavSidebar: layoutStore.toggleNavigationSidebar,

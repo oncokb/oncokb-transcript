@@ -1,15 +1,12 @@
 import React, { useEffect } from 'react';
-import { Badge, Button, Col, FormGroup, Input, Label, Row } from 'reactstrap';
+import { Badge, Col, FormGroup, Input, Label, Row } from 'reactstrap';
 import { connect } from 'app/shared/util/typed-inject';
-import { ValidatedField, ValidatedForm, isEmail } from 'react-jhipster';
-import { toast } from 'react-toastify';
 
 import { IRootStore } from 'app/stores';
 export type IUserSettingsProps = StoreProps;
 
 export const SettingsPage = (props: IUserSettingsProps) => {
   const account = props.account;
-  const successMessage = props.successMessage;
 
   useEffect(() => {
     props.getSession();
@@ -55,9 +52,7 @@ const mapStoreToProps = ({ authStore, settingsStore }: IRootStore) => ({
   fullName: authStore.fullName,
   isAuthenticated: authStore.isAuthenticated,
   getSession: authStore.getSession,
-  saveAccountSettings: settingsStore.saveAccountSettings,
   reset: settingsStore.reset,
-  successMessage: settingsStore.successMessage,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

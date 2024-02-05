@@ -103,6 +103,9 @@ export class AuthStore extends BaseStore {
   }
 
   *getSessionGen() {
+    if (this.isAuthenticated) {
+      return this.account;
+    }
     try {
       this.loading = true;
       this.fetchingSession = true;
