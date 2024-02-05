@@ -13,16 +13,25 @@ import { Button } from 'reactstrap';
 import { generateUuid } from '../util/utils';
 
 export interface IModifyTherapyModalProps extends StoreProps {
-  treatment: Treatment;
+  treatmentUuid: string;
+  treatmentName: string;
   drugList: IDrug[];
   onConfirm: (treatmentName: string) => void;
   onCancel: () => void;
 }
 
-function ModifyTherapyModal({ treatment, drugList, onConfirm, onCancel, modifyTherapyModalStore }: IModifyTherapyModalProps) {
-  return modifyTherapyModalStore.openTreatmentUuid === treatment.name_uuid ? (
+function ModifyTherapyModal({
+  treatmentUuid,
+  treatmentName,
+  drugList,
+  onConfirm,
+  onCancel,
+  modifyTherapyModalStore,
+}: IModifyTherapyModalProps) {
+  return modifyTherapyModalStore.openTreatmentUuid === treatmentUuid ? (
     <ModifyTherapyModalContent
-      treatment={treatment}
+      treatmentUuid={treatmentUuid}
+      treatmentName={treatmentName}
       drugList={drugList}
       onConfirm={onConfirm}
       onCancel={onCancel}
@@ -34,7 +43,7 @@ function ModifyTherapyModal({ treatment, drugList, onConfirm, onCancel, modifyTh
 }
 
 const ModifyTherapyModalContent = observer(
-  ({ treatment, drugList, onConfirm, onCancel, modifyTherapyModalStore }: IModifyTherapyModalProps) => {
+  ({ treatmentUuid, treatmentName, drugList, onConfirm, onCancel, modifyTherapyModalStore }: IModifyTherapyModalProps) => {
     const disableDeleteTherapy = modifyTherapyModalStore.selectedTreatments.length < 2;
     const isEmptyTherapy = modifyTherapyModalStore.selectedTreatments.some(therapy => therapy.length === 0);
 
@@ -43,20 +52,28 @@ const ModifyTherapyModalContent = observer(
     }
 
     function setSelectedTreatments() {
-      const treatmentLists = treatment.name.split(',').map(tx => tx.split('+').map(txId => txId.trim()));
+      if (!treatmentName) {
+        // only when creating new therapy
+        modifyTherapyModalStore.setSelectedTreatments([[]]);
+        return;
+      }
+
+      const treatmentLists = treatmentName.split(',').map(tx => tx.split('+').map(txId => txId.trim()));
 
       const selectedTreatments: DrugSelectOption[][] = [];
-      for (const list of treatmentLists) {
-        const selectedOptions: DrugSelectOption[] = [];
-        for (const treatmentUuid of list) {
-          const drug = getDrugFromTreatmentUuid(treatmentUuid);
-          selectedOptions.push({
-            label: drug.name,
-            value: drug.id,
-            uuid: drug.uuid,
-          });
+      if (treatmentLists) {
+        for (const list of treatmentLists) {
+          const selectedOptions: DrugSelectOption[] = [];
+          for (const uuid of list) {
+            const drug = getDrugFromTreatmentUuid(uuid);
+            selectedOptions.push({
+              label: drug.name,
+              value: drug.id,
+              uuid: drug.uuid,
+            });
+          }
+          selectedTreatments.push(selectedOptions);
         }
-        selectedTreatments.push(selectedOptions);
       }
       modifyTherapyModalStore.setSelectedTreatments(selectedTreatments);
     }
@@ -85,7 +102,7 @@ const ModifyTherapyModalContent = observer(
 
     return (
       <SimpleConfirmModal
-        title="Modify Therapy(s)"
+        title={treatmentUuid.startsWith('new_treatment_for') ? 'Add Therapy(s)' : 'Modify Therapy(s)'}
         show={true}
         onConfirm={() => {
           const name = modifyTherapyModalStore.selectedTreatments.map(therapy => therapy.map(drug => drug.uuid).join(' + ')).join(', ');
