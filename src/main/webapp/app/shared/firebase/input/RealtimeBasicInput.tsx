@@ -25,9 +25,11 @@ export const RealtimeBasicLabel: React.FunctionComponent<IRealtimeBasicLabel> = 
 }: IRealtimeBasicLabel) => {
   const labelComponent = (
     <Label {...labelProps} id={id} for={id} className={classnames(labelClass, 'text-nowrap')}>
-      {label}
-      {labelIcon && <span className="mr-2" />}
-      {labelIcon}
+      <div className="d-flex align-items-center">
+        {label}
+        {labelIcon && <span className="mr-2" />}
+        {labelIcon}
+      </div>
     </Label>
   );
   return labelComponent;

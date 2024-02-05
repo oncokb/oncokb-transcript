@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComment } from '@fortawesome/free-solid-svg-icons/faComment';
 import { Comment } from 'app/shared/model/firebase/firebase.model';
@@ -10,8 +10,12 @@ import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { runInAction } from 'mobx';
 import { TextFormat } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
-import { componentInject, connect } from 'app/shared/util/typed-inject';
+import { componentInject } from 'app/shared/util/typed-inject';
 import { CommentStore } from 'app/stores/firebase/firebase.comment.store';
+
+function isCommentResolved(comment: Comment) {
+  return typeof comment.resolved === 'boolean' ? comment.resolved : comment.resolved === 'true';
+}
 
 export interface ICommentIconProps extends StoreProps {
   id: string;
@@ -27,7 +31,7 @@ const CommentIcon = observer((props: ICommentIconProps) => {
   let color: string;
   if (!props.comments || props.comments.length === 0) {
     color = 'black';
-  } else if (props.comments.some(comment => comment.resolved === 'false')) {
+  } else if (props.comments.some(comment => !isCommentResolved(comment))) {
     color = 'gold';
   } else {
     color = 'green';
@@ -147,6 +151,7 @@ const CommentBox = observer((props: ICommentBoxProps) => {
         </div>
       )}
       <CommentInput
+        commentStore={props.commentStore}
         onCreateComment={content => {
           runInAction(() => props.commentStore.setOpenCommentsScrollPosition(0));
           props.onCreateComment(content);
@@ -157,17 +162,23 @@ const CommentBox = observer((props: ICommentBoxProps) => {
 });
 
 export interface ICommentInputProps {
+  commentStore: CommentStore;
   onCreateComment: (content: string) => void;
 }
 
-function CommentInput(props: ICommentInputProps) {
-  const [commentInputValue, setCommentInputValue] = useState('');
-
+const CommentInput = observer((props: ICommentInputProps) => {
   function handleKeyPress(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (commentInputValue !== '' && event.key === 'Enter') {
-      props.onCreateComment(commentInputValue);
+    if (props.commentStore.commentInputValue !== '' && event.key === 'Enter') {
+      props.onCreateComment(props.commentStore.commentInputValue);
+      props.commentStore.setCommentInputValue('');
     }
   }
+
+  useEffect(() => {
+    return () => {
+      props.commentStore.setCommentInputValue('');
+    };
+  }, []);
 
   return (
     <Container>
@@ -176,15 +187,17 @@ function CommentInput(props: ICommentInputProps) {
           <Input
             className="rounded-0"
             placeholder="Add comment"
-            onChange={event => setCommentInputValue(event.target.value)}
+            onChange={event => props.commentStore.setCommentInputValue(event.target.value)}
+            value={props.commentStore.commentInputValue}
             onKeyPress={handleKeyPress}
           />
           <Button
             className="rounded-0"
             outline
-            disabled={commentInputValue === ''}
+            disabled={props.commentStore.commentInputValue === ''}
             onClick={() => {
-              props.onCreateComment(commentInputValue);
+              props.onCreateComment(props.commentStore.commentInputValue);
+              props.commentStore.setCommentInputValue('');
             }}
           >
             <FontAwesomeIcon icon={'plus'} />
@@ -193,7 +206,7 @@ function CommentInput(props: ICommentInputProps) {
       </Row>
     </Container>
   );
-}
+});
 
 interface ICommentItemProps {
   commentStore: CommentStore;
@@ -204,7 +217,7 @@ interface ICommentItemProps {
 }
 
 const CommentItem = observer((props: ICommentItemProps) => {
-  const isResolved = props.comment.resolved === 'true';
+  const isResolved = isCommentResolved(props.comment);
 
   const isPendingDeletion = props.commentStore.commentIndiciesToDelete.includes(props.index);
 

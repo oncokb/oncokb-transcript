@@ -95,6 +95,7 @@ export class Treatment {
   fdaLevel_review?: Review;
   fdaLevel_uuid: string = generateUuid();
   name = '';
+  name_comments?: Comment[] = [];
   name_review?: Review;
   name_uuid: string = generateUuid();
   propagation: TX_LEVELS = TX_LEVELS.LEVEL_NO;
@@ -119,10 +120,11 @@ export class GenomicIndicator {
 
 export class Gene {
   name = '';
-  names_comments?: Comment[] = [];
+  name_comments?: Comment[] = [];
   background = '';
   background_review?: Review;
   background_uuid: string = generateUuid();
+  background_comments?: Comment[] = [];
   dmp_refseq_id = '';
   isoform_override = '';
   mutations: Mutation[] = [];
@@ -130,6 +132,7 @@ export class Gene {
   summary = '';
   summary_review?: Review;
   summary_uuid: string = generateUuid();
+  summary_comments?: Comment[] = [];
   germline_summary = '';
   germline_summary_review?: Review;
   germline_summary_uuid: string = generateUuid();
@@ -165,7 +168,9 @@ export class Mutation {
   germline_genomic_indicators: GenomicIndicator[] = [];
   mutation_effect: MutationEffect = new MutationEffect();
   mutation_effect_uuid: string = generateUuid();
+  mutation_effect_comments?: Comment[] = []; // used for somatic
   name = '';
+  name_comments?: Comment[] = [];
   name_review?: Review;
   alterations?: Alteration[] = [];
   alterations_uuid?: string = generateUuid();
@@ -191,6 +196,7 @@ export class MutationEffect {
   oncogenic_uuid: string = generateUuid();
   germline?: GermlineMutation = new GermlineMutation();
   germline_uuid?: string = generateUuid();
+  germline_comments?: Comment[] = [];
   short = '';
 }
 
@@ -236,15 +242,18 @@ export class Tumor {
   cancerTypes: CancerType[] = [];
   cancerTypes_review?: Review;
   cancerTypes_uuid: string = generateUuid();
+  cancerTypes_comments?: Comment[] = [];
   excludedCancerTypes?: CancerType[] = [];
   excludedCancerTypes_uuid?: string = generateUuid();
   diagnostic: Implication = new Implication();
   diagnosticSummary = '';
   diagnosticSummary_uuid: string = generateUuid();
+  diagnostic_comments?: Comment[] = [];
   diagnostic_uuid: string = generateUuid();
   prognostic: Implication = new Implication();
   prognosticSummary = '';
   prognosticSummary_uuid: string = generateUuid();
+  prognostic_comments?: Comment[] = [];
   prognostic_uuid: string = generateUuid();
   summary = '';
   summary_review?: Review;
@@ -349,7 +358,7 @@ export class Comment {
   userName = '';
   email = '';
   content = '';
-  resolved: BoolString = 'false';
+  resolved: BoolString | boolean = false;
 }
 
 export class Review {

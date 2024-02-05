@@ -3,7 +3,7 @@ import Collapsible from './Collapsible';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
-import { Alteration, DX_LEVELS, Mutation, PX_LEVELS, TX_LEVELS, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
+import { Comment, Alteration, DX_LEVELS, Mutation, PX_LEVELS, TX_LEVELS, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { buildFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
 import {
   getMutationName,
@@ -22,7 +22,7 @@ import { MUTATION_EFFECT_OPTIONS, ONCOGENICITY_OPTIONS } from 'app/config/consta
 import styles from './styles.module.scss';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
 import { CANCER_TYPE_THERAPY_INDENTIFIER, GERMLINE_INHERITANCE_MECHANISM, PATHOGENICITY, PENETRANCE } from 'app/config/constants/constants';
-import { generateUuid, getCancerTypeName } from 'app/shared/util/utils';
+import { generateUuid, getCancerTypeName, getUserFullName } from 'app/shared/util/utils';
 import CancerTypeLevelSummary from '../nestLevelSummary/CancerTypeLevelSummary';
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
@@ -32,6 +32,7 @@ import TreatmentLevelSummary from '../nestLevelSummary/TreatmentLevelSummary';
 import { IDrug } from 'app/shared/model/drug.model';
 import ModifyTherapyModal from 'app/shared/modal/ModifyTherapyModal';
 import EditIcon from 'app/shared/icons/EditIcon';
+import CommentIcon from 'app/shared/icons/CommentIcon';
 import { Button } from 'reactstrap';
 import Tabs from 'app/components/tabs/tabs';
 import { RealtimeBasicLabel } from 'app/shared/firebase/input/RealtimeBasicInput';
@@ -44,6 +45,7 @@ export interface IMutationCollapsibleProps extends StoreProps {
   drugList: IDrug[];
 }
 
+/* eslint-disable no-console */
 const MutationCollapsible = ({
   data,
   hugoSymbol,
@@ -56,11 +58,53 @@ const MutationCollapsible = ({
   modifyCancerTypeModalStore,
   modifyTherapyModalStore,
   drugList,
+  handleFirebaseUpdateUntemplated,
+  handleFirebaseDeleteFromArray,
+  account,
   firebasePushToArray,
 }: IMutationCollapsibleProps) => {
   const title = getMutationName(mutation);
   const mutationFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}`);
   const showMutationLevelSummary = !title.includes(',');
+
+  async function handleCreateComment(path: string, content: string, currentCommentsLength: number) {
+    // replace with runTransaction?
+    const newComment = new Comment();
+    newComment.content = content;
+    newComment.email = account.email;
+    newComment.resolved = 'false';
+    newComment.userName = getUserFullName(account);
+
+    try {
+      await handleFirebaseUpdateUntemplated(path, [...Array(currentCommentsLength).fill({}), newComment]);
+    } catch (error) {
+      notifyError(error);
+    }
+  }
+
+  async function handleDeleteComments(path: string, indices: number[]) {
+    try {
+      await handleFirebaseDeleteFromArray(path, indices);
+    } catch (error) {
+      notifyError(error);
+    }
+  }
+
+  async function handleResolveComment(path: string) {
+    try {
+      await handleFirebaseUpdateUntemplated(path, { resolved: true });
+    } catch (error) {
+      notifyError(error);
+    }
+  }
+
+  async function handleUnresolveComment(path: string) {
+    try {
+      await handleFirebaseUpdateUntemplated(path, { resolved: false });
+    } catch (error) {
+      notifyError(error);
+    }
+  }
 
   const dnaVariants = _.chain(data.mutations)
     .reduce((acc, curr) => {
@@ -80,9 +124,19 @@ const MutationCollapsible = ({
       info={showMutationLevelSummary ? <MutationLevelSummary mutationUuid={mutation.name_uuid} /> : null}
       action={
         <>
-          <span>
+          <span className="mr-3">
             <GeneHistoryTooltip key={'gene-history-tooltip'} historyData={parsedHistoryList} location={getMutationName(mutation)} />
           </span>
+          <CommentIcon
+            id={mutation.name_uuid}
+            comments={mutation.name_comments || []}
+            onCreateComment={content =>
+              handleCreateComment(`${mutationFirebasePath}/name_comments`, content, mutation.name_comments?.length || 0)
+            }
+            onDeleteComments={indices => handleDeleteComments(`${mutationFirebasePath}/name_comments`, indices)}
+            onResolveComment={index => handleResolveComment(`${mutationFirebasePath}/name_comments/${index}`)}
+            onUnresolveComment={index => handleUnresolveComment(`${mutationFirebasePath}/name_comments/${index}`)}
+          />
           <div className="mr-3" />
           <DeleteSectionButton
             sectionName={title}
@@ -109,6 +163,22 @@ const MutationCollapsible = ({
           open
           title="Somatic"
           borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.SOMATIC]]}
+          action={
+            <CommentIcon
+              id={mutation.mutation_effect_uuid}
+              comments={mutation.mutation_effect_comments || []}
+              onCreateComment={content =>
+                handleCreateComment(
+                  `${mutationFirebasePath}/mutation_effect_comments`,
+                  content,
+                  mutation.mutation_effect_comments?.length || 0
+                )
+              }
+              onDeleteComments={indices => handleDeleteComments(`${mutationFirebasePath}/mutation_effect_comments`, indices)}
+              onResolveComment={index => handleResolveComment(`${mutationFirebasePath}/mutation_effect_comments/${index}`)}
+              onUnresolveComment={index => handleUnresolveComment(`${mutationFirebasePath}/mutation_effect_comments/${index}`)}
+            />
+          }
           isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect/oncogenic`))}
         >
           <RealtimeCheckedInputGroup
@@ -166,6 +236,22 @@ const MutationCollapsible = ({
             className={'mt-2'}
             title={'Germline'}
             borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.GERMLINE]]}
+            action={
+              <CommentIcon
+                id={`${mutation.mutation_effect_uuid}_germline`}
+                comments={mutation.mutation_effect.germline_comments || []}
+                onCreateComment={content =>
+                  handleCreateComment(
+                    `${mutationFirebasePath}/mutation_effect/germline_comments`,
+                    content,
+                    mutation.mutation_effect.germline_comments?.length || 0
+                  )
+                }
+                onDeleteComments={indices => handleDeleteComments(`${mutationFirebasePath}/mutation_effect/germline_comments`, indices)}
+                onResolveComment={index => handleResolveComment(`${mutationFirebasePath}/mutation_effect/germline_comments/${index}`)}
+                onUnresolveComment={index => handleUnresolveComment(`${mutationFirebasePath}/mutation_effect/germline_comments/${index}`)}
+              />
+            }
             isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect/germline`))}
           >
             {mutation.germline_genomic_indicators && (
@@ -294,9 +380,23 @@ const MutationCollapsible = ({
                     }}
                     className="mr-3"
                   />
-                  <span>
+                  <span className="mr-3">
                     <GeneHistoryTooltip key={'gene-history-tooltip'} historyData={parsedHistoryList} location={getMutationName(mutation)} />
                   </span>
+                  <CommentIcon
+                    id={tumor.cancerTypes_uuid}
+                    comments={tumor.cancerTypes_comments || []}
+                    onCreateComment={content =>
+                      handleCreateComment(
+                        `${cancerTypeFirebasePath}/cancerTypes_comments`,
+                        content,
+                        tumor.cancerTypes_comments?.length || 0
+                      )
+                    }
+                    onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/cancerTypes_comments`, indices)}
+                    onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/cancerTypes_comments/${index}`)}
+                    onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/cancerTypes_comments/${index}`)}
+                  />
                   <div className="mr-3" />
                   <DeleteSectionButton
                     sectionName={title}
@@ -349,6 +449,18 @@ const MutationCollapsible = ({
                   key={tumor.diagnostic_uuid}
                   title="Diagnostic Implication"
                   borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.DIAGNOSTIC]]}
+                action={
+                  <CommentIcon
+                    id={tumor.diagnostic_uuid}
+                    comments={tumor.diagnostic_comments || []}
+                    onCreateComment={content =>
+                      handleCreateComment(`${cancerTypeFirebasePath}/diagnostic_comments`, content, tumor.diagnostic_comments?.length || 0)
+                    }
+                    onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/diagnostic_comments`, indices)}
+                    onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/diagnostic_comments/${index}`)}
+                    onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/diagnostic_comments/${index}`)}
+                  />
+                }
                   isSectionEmpty={isSectionEmpty(
                     data,
                     buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic`)
@@ -375,6 +487,18 @@ const MutationCollapsible = ({
                   key={tumor.prognostic_uuid}
                   title="Prognostic Implication"
                   borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.PROGNOSTIC]]}
+                action={
+                  <CommentIcon
+                    id={tumor.prognostic_uuid}
+                    comments={tumor.prognostic_comments || []}
+                    onCreateComment={content =>
+                      handleCreateComment(`${cancerTypeFirebasePath}/prognostic_comments`, content, tumor.prognostic_comments?.length || 0)
+                    }
+                    onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/prognostic_comments`, indices)}
+                    onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/prognostic_comments/${index}`)}
+                    onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/prognostic_comments/${index}`)}
+                  />
+                }
                   isSectionEmpty={isSectionEmpty(
                     data,
                     buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic`)
@@ -429,15 +553,36 @@ const MutationCollapsible = ({
                                   }}
                                   className="mr-3"
                                 />
-                                <DeleteSectionButton
-                                  sectionName={title}
-                                  deleteHandler={() => deleteSection(NestLevelType.THERAPY, therapyFirebasePath)}
-                                  isRemovableWithoutReview={isSectionRemovableWithoutReview(
-                                    data,
-                                    NestLevelType.THERAPY,
-                                    therapyFirebasePath
-                                  )}
+                              <>
+                                <CommentIcon
+                                  id={treatment.name_uuid}
+                                  comments={treatment.name_comments || []}
+                                  onCreateComment={content =>
+                                    handleCreateComment(
+                                      `${therapyFirebasePath}/name_comments`,
+                                      content,
+                                      treatment.name_comments?.length || 0
+                                    )
+                                  }
+                                  onDeleteComments={indices => handleDeleteComments(`${therapyFirebasePath}/name_comments`, indices)}
+                                  onResolveComment={index => handleResolveComment(`${therapyFirebasePath}/name_comments/${index}`)}
+                                  onUnresolveComment={index => handleUnresolveComment(`${therapyFirebasePath}/name_comments/${index}`)}
                                 />
+                                <div className="mr-3" />
+                                  <DeleteSectionButton
+                                    sectionName={title}
+                                    deleteHandler={() => deleteSection(NestLevelType.THERAPY, therapyFirebasePath)}
+                                    isRemovableWithoutReview={isSectionRemovableWithoutReview(
+                                    
+                                    data,
+                                   
+                                    NestLevelType.THERAPY,
+                                   
+                                    therapyFirebasePath
+                                  
+                                  )}
+                                  />
+                              </>
                               </>
                             }
                             isSectionEmpty={isSectionEmpty(data, therapyFirebasePath)}
@@ -594,7 +739,7 @@ const MutationCollapsible = ({
   );
 };
 
-const mapStoreToProps = ({ firebaseGeneStore, modifyCancerTypeModalStore, modifyTherapyModalStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseGeneStore, modifyCancerTypeModalStore, modifyTherapyModalStore, authStore }: IRootStore) => ({
   data: firebaseGeneStore.data,
   hugoSymbol: firebaseGeneStore.hugoSymbol,
   deleteSection: firebaseGeneStore.deleteSection,
@@ -603,6 +748,9 @@ const mapStoreToProps = ({ firebaseGeneStore, modifyCancerTypeModalStore, modify
   firebasePushToArray: firebaseGeneStore.pushToArray,
   modifyCancerTypeModalStore,
   modifyTherapyModalStore,
+  handleFirebaseDeleteFromArray: firebaseGeneStore.deleteFromArray,
+  handleFirebaseUpdateUntemplated: firebaseGeneStore.updateUntemplated,
+  account: authStore.account,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

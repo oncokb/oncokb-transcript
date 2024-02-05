@@ -5,15 +5,18 @@ export class CommentStore {
   public openCommentsId: string = null;
   public openCommentsScrollPosition: number = null;
   public commentIndiciesToDelete: number[] = [];
+  public commentInputValue = '';
 
   constructor() {
     makeObservable(this, {
       openCommentsId: observable,
       openCommentsScrollPosition: observable,
       commentIndiciesToDelete: observable,
+      commentInputValue: observable,
       addCommentToDeleteIndex: action.bound,
       removeIndexToDelete: action.bound,
       clearCommentsToDelete: action.bound,
+      setCommentInputValue: action.bound,
     });
   }
 
@@ -35,5 +38,9 @@ export class CommentStore {
 
   setOpenCommentsScrollPosition(position: number) {
     this.openCommentsScrollPosition = position;
+  }
+
+  setCommentInputValue(value: string) {
+    this.commentInputValue = value;
   }
 }
