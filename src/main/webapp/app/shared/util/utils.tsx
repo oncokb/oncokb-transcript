@@ -174,3 +174,16 @@ export function parseAlterationName(name: string) {
   }
   return alterations;
 }
+
+export function findIndexOfFirstCapital(str: string) {
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] >= 'A' && str[i] <= 'Z') {
+      return i;
+    }
+  }
+  return -1;
+}
+
+export function isNumeric(value: string) {
+  return /^-?\d+$/.test(value);
+}

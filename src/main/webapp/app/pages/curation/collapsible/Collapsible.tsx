@@ -7,17 +7,20 @@ import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons
 
 export interface CollapsibleProps {
   title: React.ReactNode;
-  borderLeftColor: string;
+  disableLeftBorder?: boolean;
+  borderLeftColor?: string;
   info?: React.ReactNode;
   action?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
   open?: boolean;
   isSectionEmpty?: boolean;
+  disableCollapsible?: boolean;
 }
 
 export default function Collapsible({
   title,
+  disableLeftBorder = false,
   borderLeftColor,
   info,
   action,
@@ -25,24 +28,35 @@ export default function Collapsible({
   className,
   open = false,
   isSectionEmpty = false,
+  disableCollapsible = false,
 }: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(open);
 
   return (
     <div className={classNames('card', className, styles.main)}>
       <div
-        className={classNames('card-header d-flex align-items-center p-1 bg-transparent pr-2', styles.header)}
+        className={classNames(
+          'card-header d-flex align-items-center p-1 bg-transparent pr-2',
+          styles.header,
+          disableLeftBorder ? styles.hiddenHeaderLeftBorder : undefined
+        )}
         ref={node => {
-          if (node) {
+          if (node && borderLeftColor) {
             node.style.setProperty('border-left-color', borderLeftColor, 'important');
           }
         }}
       >
         <div style={{ flexGrow: 1 }} className="d-flex align-items-center">
-          <button type="button" className="btn" onClick={() => setIsOpen(_isOpen => !_isOpen)}>
+          <button
+            disabled={disableCollapsible}
+            style={{ opacity: disableCollapsible ? '0' : '1' }}
+            type="button"
+            className="btn"
+            onClick={() => setIsOpen(_isOpen => !_isOpen)}
+          >
             {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
           </button>
-          <span className="font-weight-bold font-weight-bold">{title}</span>
+          <span className={classNames(disableLeftBorder ? undefined : 'font-weight-bold')}>{title}</span>
           {isSectionEmpty && (
             <span className={`badge badge-pill badge-info ml-2 mr-2`} style={{ fontSize: '60%' }}>
               No entry

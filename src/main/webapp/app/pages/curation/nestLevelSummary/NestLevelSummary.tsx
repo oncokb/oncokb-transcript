@@ -24,7 +24,6 @@ export interface NestLevelSummaryProps {
   isTreatmentStats?: boolean;
 }
 
-/* eslint-disable no-console */
 export const NestLevelSummary = (props: NestLevelSummaryProps) => {
   const summaryKeys: (keyof NestLevelSummaryStats)[] = ['TTS', 'DxS', 'PxS'];
 

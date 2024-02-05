@@ -21,7 +21,7 @@ export interface ICurationHistoryTabProps extends StoreProps {
 
 type HistoryTabData = {
   record: HistoryRecord;
-  timeStamp: string;
+  timeStamp: number;
   admin: string;
   location: string;
   objectField?: string;

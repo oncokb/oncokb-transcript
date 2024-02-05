@@ -394,18 +394,41 @@ export class Review {
 export class History {
   admin = '';
   records: HistoryRecord[] = [];
-  timeStamp = '';
+  timeStamp: number = new Date().getTime();
+
+  constructor(admin: string, records?: HistoryRecord[], timestamp?: number) {
+    this.admin = admin;
+    if (records) {
+      this.records = records;
+    }
+    if (timestamp) {
+      this.timeStamp = timestamp;
+    }
+  }
 }
 
-export type HistoryRecordState = string | Tumor | Treatment | Implication;
+export type HistoryRecordState =
+  | string
+  | Partial<Mutation>
+  | Partial<Tumor>
+  | Partial<Treatment>
+  | Partial<Implication>
+  | Partial<MutationEffect>;
+
+export enum HistoryOperationType {
+  ADD = 'add',
+  DELETE = 'delete',
+  UPDATE = 'update',
+  NAME_CHANGE = 'name change',
+}
 
 export class HistoryRecord {
   lastEditBy = '';
   location = '';
-  new: HistoryRecordState = '';
-  old?: HistoryRecordState = '';
-  operation = '';
-  uuids = '';
+  new?: HistoryRecordState = ''; // new is not required when operation is delete
+  old?: HistoryRecordState = ''; // old is not required when operation is add
+  operation: HistoryOperationType | '' = '';
+  uuids? = ''; // This is a comma seperated string of uuids. This helps identify which fields under CREATE has been updated
 }
 
 export class UsersCollection {
