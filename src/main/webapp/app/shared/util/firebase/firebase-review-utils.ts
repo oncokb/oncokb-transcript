@@ -127,8 +127,10 @@ export interface RelevantKeys {
   reviewKey: string;
   uuidKey: string;
 }
+
 export const getRelevantKeysFromUuidKey = (uuidKey: string) => {
-  const fieldKey = uuidKey.split('_')[0];
+  const lastUnderscoreIndex = uuidKey.lastIndexOf('_');
+  const fieldKey = uuidKey.substring(0, lastUnderscoreIndex);
   const reviewKey = fieldKey + '_review';
   const relevantKeys: RelevantKeys = {
     fieldKey,
