@@ -76,7 +76,7 @@ export const GenomeFragmentUpdate = (props: IGenomeFragmentUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.genomeFragment.home.createOrEditLabel" data-cy="GenomeFragmentCreateUpdateHeading">
-            Create or edit a GenomeFragment
+            Add or edit a GenomeFragment
           </h2>
         </Col>
       </Row>

@@ -73,7 +73,7 @@ export const TreatmentUpdate = (props: ITreatmentUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.treatment.home.createOrEditLabel" data-cy="TreatmentCreateUpdateHeading">
-            Create or edit a Treatment
+            Add or edit a Treatment
           </h2>
         </Col>
       </Row>

@@ -43,7 +43,7 @@ export const Treatment = (props: ITreatmentProps) => {
     <div>
       <h2 id="gene-heading" data-cy="GeneHeading">
         Treatments
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.TREATMENT} entityAction={ENTITY_ACTION.CREATE} />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.TREATMENT} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {treatmentList && (

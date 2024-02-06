@@ -32,7 +32,7 @@ export const ClinicalTrial = (props: IClinicalTrialProps) => {
     <div>
       <h2 id="clinical-trial-heading" data-cy="ClinicalTrialHeading">
         Clinical Trials
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.CLINICAL_TRIAL} entityAction={ENTITY_ACTION.CREATE} />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.CLINICAL_TRIAL} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {props.clinicalTrialList && (

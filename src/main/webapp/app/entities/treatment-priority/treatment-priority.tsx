@@ -26,12 +26,7 @@ export const TreatmentPriority = (props: ITreatmentPriorityProps) => {
     <div>
       <h2 id="treatment-priority-heading" data-cy="TreatmentPriorityHeading">
         Treatment Priorities
-        <EntityActionButton
-          className="ml-2"
-          color="primary"
-          entityType={ENTITY_TYPE.TREATMENT_PRIORITY}
-          entityAction={ENTITY_ACTION.CREATE}
-        />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.TREATMENT_PRIORITY} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {props.treatmentPriorityList && (

@@ -70,7 +70,7 @@ export const NciThesaurusUpdate = (props: INciThesaurusUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.nciThesaurus.home.createOrEditLabel" data-cy="NciThesaurusCreateUpdateHeading">
-            Create or edit a NciThesaurus
+            Add or edit a NciThesaurus
           </h2>
         </Col>
       </Row>

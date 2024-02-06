@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faComment } from '@fortawesome/free-solid-svg-icons/faComment';
 import { Comment } from 'app/shared/model/firebase/firebase.model';
 import { Button, Col, Container, Input, InputGroup, ListGroup, ListGroupItem, Row } from 'reactstrap';
 import { SizeProp } from '@fortawesome/fontawesome-svg-core';
@@ -12,6 +11,9 @@ import { TextFormat } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { CommentStore } from 'app/stores/firebase/firebase.comment.store';
+import { faComment as farComment } from '@fortawesome/free-regular-svg-icons';
+import { faComment as fasComment } from '@fortawesome/free-solid-svg-icons';
+import { GREY } from 'app/config/colors';
 
 function isCommentResolved(comment: Comment) {
   return typeof comment.resolved === 'boolean' ? comment.resolved : comment.resolved === 'true';
@@ -80,7 +82,12 @@ const CommentIcon = observer((props: ICommentIconProps) => {
         }
       >
         <div>
-          <FontAwesomeIcon size={props.size} id={props.id} icon={faComment} color={color} />
+          <FontAwesomeIcon
+            size={props.size}
+            id={props.id}
+            icon={props.comments?.length > 0 ? fasComment : farComment}
+            color={props.comments?.length > 0 ? color : GREY}
+          />
         </div>
       </DefaultTooltip>
     </div>

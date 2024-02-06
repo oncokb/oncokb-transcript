@@ -26,7 +26,7 @@ export const DrugPriority = (props: IDrugPriorityProps) => {
     <div>
       <h2 id="drug-priority-heading" data-cy="DrugPriorityHeading">
         Drug Priorities
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.DRUG_PRIORITY} entityAction={ENTITY_ACTION.CREATE} />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.DRUG_PRIORITY} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {props.drugPriorityList && <OncoKBTable data={props.drugPriorityList.concat()} columns={columns} loading={props.loading} />}

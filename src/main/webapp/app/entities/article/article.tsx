@@ -51,7 +51,7 @@ export const Article = (props: IArticleProps) => {
     <div>
       <h2 id="article-heading" data-cy="ArticleHeading">
         Articles
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.ARTICLE} entityAction={ENTITY_ACTION.CREATE} />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.ARTICLE} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {articleList && (

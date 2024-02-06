@@ -32,7 +32,7 @@ export const FdaSubmissionType = (props: IFdaSubmissionTypeProps) => {
           className="ml-2"
           color="primary"
           entityType={ENTITY_TYPE.FDA_SUBMISSION_TYPE}
-          entityAction={ENTITY_ACTION.CREATE}
+          entityAction={ENTITY_ACTION.ADD}
         />
       </h2>
       <div>

@@ -14,11 +14,11 @@ const CountBadge = (props: CountBadgeProps) => {
   const hideWhenOne = props.hideWhenOne !== undefined ? props.hideWhenOne : false;
 
   return (
-    <div className="mr-1">
-      <div className={classNames('pt-2', 'pr-2', 'count-badge-wrapper')}>
+    <div className="mx-1">
+      <div className={classNames('count-badge-wrapper')}>
         <span className="font-weight-bold">{props.base}</span>
         {hideWhenOne ? undefined : (
-          <span className="count-badge">
+          <span className="count-badge mb-2">
             <span className="badge rounded-pill bg-info text-white count-badge-content">{count}</span>
           </span>
         )}

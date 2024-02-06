@@ -376,11 +376,20 @@ http://stackoverflow.com/questions/23436430/bootstrap-3-input-group-100-width */
   transform: translate(0%, -5px) !important;
 }
 
-.grey-tooltip {
-  color: $medium-grey;
-}
-
 // Override popover
 .popover {
   max-width: fit-content;
+}
+
+.collapsible-action {
+  display: flex;
+  align-items: center;
+  > * {
+    margin: 0 0.2rem;
+  }
+}
+.all-children-margin {
+  > * {
+    margin: 0 0.2rem;
+  }
 }

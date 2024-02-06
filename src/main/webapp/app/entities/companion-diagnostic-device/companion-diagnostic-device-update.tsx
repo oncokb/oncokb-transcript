@@ -95,7 +95,7 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
             id="oncokbCurationApp.companionDiagnosticDevice.home.createOrEditLabel"
             data-cy="CompanionDiagnosticDeviceCreateUpdateHeading"
           >
-            {isNew ? 'Create' : 'Edit'} Companion Diagnostic Device
+            {isNew ? 'Add' : 'Edit'} Companion Diagnostic Device
           </h2>
         </Col>
       </Row>

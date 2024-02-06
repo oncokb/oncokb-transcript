@@ -75,7 +75,7 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.cancerType.home.createOrEditLabel" data-cy="CancerTypeCreateUpdateHeading">
-            Create or edit a CancerType
+            Add or edit a CancerType
           </h2>
         </Col>
       </Row>

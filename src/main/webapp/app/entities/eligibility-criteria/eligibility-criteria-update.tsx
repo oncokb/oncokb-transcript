@@ -75,7 +75,7 @@ export const EligibilityCriteriaUpdate = (props: IEligibilityCriteriaUpdateProps
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.eligibilityCriteria.home.createOrEditLabel" data-cy="EligibilityCriteriaCreateUpdateHeading">
-            Create or edit a EligibilityCriteria
+            Add or edit a EligibilityCriteria
           </h2>
         </Col>
       </Row>

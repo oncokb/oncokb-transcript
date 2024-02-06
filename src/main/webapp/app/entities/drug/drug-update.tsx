@@ -81,7 +81,7 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.drug.home.createOrEditLabel" data-cy="DrugCreateUpdateHeading">
-            Create or edit a Drug
+            Add or edit a Drug
           </h2>
         </Col>
       </Row>

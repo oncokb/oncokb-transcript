@@ -334,34 +334,28 @@ const CurationPage = (props: ICurationPageProps) => {
         return undefined;
       }
     }
-    return (
-      <Col>
-        <div className="d-flex justify-content-end mb-2">{button}</div>
-      </Col>
-    );
+    return <>{button}</>;
   };
 
   return !!props.data && drugList.length > 0 && !props.loadingGenes ? (
     <>
       <div>
-        <Row>
-          <Col className={'d-flex flex-row flex-nowrap align-items-baseline'}>
-            <span style={{ fontSize: '3rem' }} className={'mr-2'}>
-              {props.data.name}
-            </span>
-            <div className="d-flex align-items-baseline">
-              <div className="mr-2">
-                <CommentIcon
-                  id={`${hugoSymbol}_curation_page`}
-                  comments={props.data.name_comments || []}
-                  onCreateComment={content =>
-                    handleCreateComment(`${firebaseGenePath}/name_comments`, content, props.data.name_comments?.length || 0)
-                  }
-                  onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/name_comments`, indices)}
-                  onResolveComment={index => handleResolveComment(`${firebaseGenePath}/name_comments/${index}`)}
-                  onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/name_comments/${index}`)}
-                />
-              </div>
+        <Row className={'mb-2'}>
+          <Col className={'d-flex justify-content-between flex-row flex-nowrap align-items-end'}>
+            <div className="d-flex align-items-end all-children-margin">
+              <span style={{ fontSize: '3rem', lineHeight: 1 }} className={'mr-2'}>
+                {props.data.name}
+              </span>
+              <CommentIcon
+                id={`${hugoSymbol}_curation_page`}
+                comments={props.data.name_comments || []}
+                onCreateComment={content =>
+                  handleCreateComment(`${firebaseGenePath}/name_comments`, content, props.data.name_comments?.length || 0)
+                }
+                onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/name_comments`, indices)}
+                onResolveComment={index => handleResolveComment(`${firebaseGenePath}/name_comments/${index}`)}
+                onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/name_comments/${index}`)}
+              />
               <div>
                 <span>
                   {geneEntity?.entrezGeneId && (
@@ -549,7 +543,7 @@ const CurationPage = (props: ICurationPageProps) => {
                           onClick={() => setShowAddMutationModal(show => !show)}
                         >
                           <FaPlus />
-                          <span className="ml-2">Create</span>
+                          <span className="ml-2">Add</span>
                         </Button>
                         {mutationsAreFiltered && (
                           <span>{`Showing ${mutations.length} of ${props.data.mutations.length} matching the search`}</span>

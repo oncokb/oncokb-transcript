@@ -43,7 +43,7 @@ export const Drug = (props: IDrugProps) => {
     <div>
       <h2 id="drug-heading" data-cy="DrugHeading">
         Drugs
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.DRUG} entityAction={ENTITY_ACTION.CREATE} />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.DRUG} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>{drugList && <OncoKBTable data={props.drugList.concat()} columns={columns} loading={props.loading} showPagination />}</div>
     </div>

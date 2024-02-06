@@ -67,7 +67,7 @@ export const LevelOfEvidenceUpdate = (props: ILevelOfEvidenceUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.levelOfEvidence.home.createOrEditLabel" data-cy="LevelOfEvidenceCreateUpdateHeading">
-            Create or edit a LevelOfEvidence
+            Add or edit a LevelOfEvidence
           </h2>
         </Col>
       </Row>

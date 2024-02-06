@@ -14,6 +14,7 @@ import constructTimeSeriesData, { formatLocation } from '../geneHistoryTooltip/g
 import { ExtraTimeSeriesEventData, RequiredTimeSeriesEventData } from '../timeSeries/TimeSeries';
 import './curation-history-tab.scss';
 import { IDrug } from 'app/shared/model/drug.model';
+import { GREY } from 'app/config/colors';
 
 export interface ICurationHistoryTabProps extends StoreProps {
   historyData: HistoryList;
@@ -170,7 +171,7 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
               overlayInnerStyle={{ maxHeight: '400px', overflow: 'auto', maxWidth: 'inherit' }}
               overlay={isContentAvailable ? data.content : 'No history available'}
             >
-              <FaHistory className={!isContentAvailable && 'grey-tooltip'} />
+              <FaHistory color={isContentAvailable ? 'black' : GREY} />
             </DefaultTooltip>
           </Row>
           <Row className="mb-2">

@@ -60,7 +60,7 @@ export const ConsequenceUpdate = (props: IConsequenceUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.consequence.home.createOrEditLabel" data-cy="ConsequenceCreateUpdateHeading">
-            Create or edit a Consequence
+            Add or edit a Consequence
           </h2>
         </Col>
       </Row>

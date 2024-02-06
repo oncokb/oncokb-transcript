@@ -78,12 +78,7 @@ export const GenomicIndicator = (props: IGenomicIndicatorProps) => {
     <div>
       <h2 id="genomic-indicator-heading" data-cy="GenomicIndicatorHeading">
         Genomic Indicators
-        <EntityActionButton
-          className="ml-2"
-          color="primary"
-          entityType={ENTITY_TYPE.GENOMIC_INDICATOR}
-          entityAction={ENTITY_ACTION.CREATE}
-        />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.GENOMIC_INDICATOR} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {props.genomicIndicatorList && (

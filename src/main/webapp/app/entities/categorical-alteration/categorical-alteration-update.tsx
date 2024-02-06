@@ -76,7 +76,7 @@ export const CategoricalAlterationUpdate = (props: ICategoricalAlterationUpdateP
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.categoricalAlteration.home.createOrEditLabel" data-cy="CategoricalAlterationCreateUpdateHeading">
-            Create or edit a CategoricalAlteration
+            Add or edit a CategoricalAlteration
           </h2>
         </Col>
       </Row>

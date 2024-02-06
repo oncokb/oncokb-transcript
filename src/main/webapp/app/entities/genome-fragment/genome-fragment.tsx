@@ -29,7 +29,7 @@ export const GenomeFragment = (props: IGenomeFragmentProps) => {
     <div>
       <h2 id="genome-fragment-heading" data-cy="GenomeFragmentHeading">
         Genome Fragments
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.GENOME_FRAGMENT} entityAction={ENTITY_ACTION.CREATE} />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.GENOME_FRAGMENT} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {props.genomeFragmentList && (

@@ -111,7 +111,7 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
           className="ml-2"
           color="primary"
           entityType={ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE}
-          entityAction={ENTITY_ACTION.CREATE}
+          entityAction={ENTITY_ACTION.ADD}
         />
       </h2>
       <div>

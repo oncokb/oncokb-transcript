@@ -25,7 +25,7 @@ export const DrugBrand = (props: IDrugBrandProps) => {
     <div>
       <h2 id="drug-brand-heading" data-cy="DrugBrandHeading">
         Drug Brands
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.DRUG_BRAND} entityAction={ENTITY_ACTION.CREATE} />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.DRUG_BRAND} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {props.drugBrandList && (

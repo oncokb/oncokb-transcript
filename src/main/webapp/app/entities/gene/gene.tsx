@@ -49,7 +49,7 @@ export const Gene = (props: IGeneProps) => {
     <div>
       <h2 id="gene-heading" data-cy="GeneHeading">
         Genes
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.GENE} entityAction={ENTITY_ACTION.CREATE} />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.GENE} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {geneList && (

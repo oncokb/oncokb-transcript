@@ -31,7 +31,7 @@ export const CancerType = (props: ICancerTypeProps) => {
     <div>
       <h2 id="cancer-type-heading" data-cy="CancerTypeHeading">
         Cancer Types
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.CANCER_TYPE} entityAction={ENTITY_ACTION.CREATE} />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.CANCER_TYPE} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {props.cancerTypeList && (

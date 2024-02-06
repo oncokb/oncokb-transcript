@@ -302,7 +302,7 @@ export const ENTITY_TO_TITLE_MAPPING: { [key in ENTITY_TYPE]?: string } = {
 };
 
 export enum ENTITY_ACTION {
-  CREATE = 'Create',
+  ADD = 'Add',
   VIEW = 'View',
   EDIT = 'Edit',
   CURATE = 'Curate',
@@ -310,7 +310,7 @@ export enum ENTITY_ACTION {
 }
 
 export const ENTITY_ACTION_PATH: { [key in ENTITY_ACTION]: string } = {
-  [ENTITY_ACTION.CREATE]: '/new',
+  [ENTITY_ACTION.ADD]: '/new',
   [ENTITY_ACTION.VIEW]: '',
   [ENTITY_ACTION.EDIT]: '/edit',
   [ENTITY_ACTION.CURATE]: '/curate',

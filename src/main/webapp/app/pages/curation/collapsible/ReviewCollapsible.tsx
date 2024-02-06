@@ -14,6 +14,9 @@ import {
   reformatReviewTitle,
   reviewLevelSortMethod,
 } from 'app/shared/util/firebase/firebase-review-utils';
+import ActionIcon from 'app/shared/icons/ActionIcon';
+import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { DANGER, SUCCESS, WARNING } from 'app/config/colors';
 
 export enum ReviewType {
   CREATE,
@@ -29,10 +32,10 @@ const ReviewTypeTitle: { [key in ReviewAction]: string } = {
 };
 
 const ReviewCollapsibleColorClass: { [key in ReviewAction]: string } = {
-  [ReviewAction.CREATE]: '#28a745',
-  [ReviewAction.UPDATE]: '#ffc107',
-  [ReviewAction.DELETE]: '#dc3545',
-  [ReviewAction.NAME_CHANGE]: '#ffc107',
+  [ReviewAction.CREATE]: SUCCESS,
+  [ReviewAction.UPDATE]: WARNING,
+  [ReviewAction.DELETE]: DANGER,
+  [ReviewAction.NAME_CHANGE]: WARNING,
 };
 
 export interface IReviewCollapsibleProps {
@@ -67,25 +70,22 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
 
   const getReviewActions = () => {
     return !rootReview.isUnderCreationOrDeletion && rootReview.reviewLevelType !== ReviewLevelType.META ? (
-      <>
-        <span
-          className="mr-2"
-          style={{ cursor: 'pointer' }}
+      <span className={'collapsible-action'}>
+        <ActionIcon
+          icon={faCheck}
+          color={SUCCESS}
           onClick={() => {
             props.handleAccept(props.hugoSymbol, [props.baseReviewLevel as ReviewLevel]);
           }}
-        >
-          <FaRegCheckCircle size={16} className="text-success" />
-        </span>
-        <span
-          style={{ cursor: 'pointer' }}
+        />
+        <ActionIcon
+          icon={faTimes}
+          color={DANGER}
           onClick={() => {
             props.handleDelete(props.hugoSymbol, props.baseReviewLevel as ReviewLevel);
           }}
-        >
-          <FaRegCircleXmark size={16} className="text-danger" />
-        </span>
-      </>
+        />
+      </span>
     ) : undefined;
   };
 
@@ -96,7 +96,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       const editor = reviewLevel.review.updatedBy;
       const updatedTime = new Date(reviewLevel.review.updateTime).toString();
       return (
-        <span className="mr-2" style={{ fontSize: '90%' }}>
+        <span style={{ fontSize: '90%' }}>
           {action} by {editor} on{' '}
           <>
             <TextFormat value={updatedTime} type="date" format={APP_EXPANDED_DATETIME_FORMAT} />

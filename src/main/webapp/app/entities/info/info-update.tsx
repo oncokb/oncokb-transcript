@@ -72,7 +72,7 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.info.home.createOrEditLabel" data-cy="InfoCreateUpdateHeading">
-            Create or edit a Info
+            Add or edit a Info
           </h2>
         </Col>
       </Row>

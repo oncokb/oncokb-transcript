@@ -32,7 +32,7 @@ export const Sequence = (props: ISequenceProps) => {
     <div>
       <h2 id="sequence-heading" data-cy="SequenceHeading">
         Sequences
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.SEQUENCE} entityAction={ENTITY_ACTION.CREATE} />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.SEQUENCE} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {props.sequenceList && (
