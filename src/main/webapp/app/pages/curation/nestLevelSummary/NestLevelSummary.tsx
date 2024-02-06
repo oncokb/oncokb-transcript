@@ -52,8 +52,8 @@ export const NestLevelSummary = (props: NestLevelSummaryProps) => {
         .map(k => {
           lastBadgeHasHiddenNumber = false;
           return props.isTreatmentStats ? (
-            <div key={`tx-levels-${k}`} className="mr-1 pt-2 count-badge-wrapper">
-              <span className={classNames('mr-1, pt-2, oncokb', 'icon', `level-${k}`)}></span>
+            <div key={`tx-levels-${k}`} className="count-badge-wrapper all-children-margin">
+              <span className={classNames('oncokb', 'icon', `level-${k}`)}></span>
             </div>
           ) : (
             <CountBadge
@@ -107,10 +107,8 @@ export const NestLevelSummary = (props: NestLevelSummaryProps) => {
     lastBadgeHasHiddenNumber = true;
   }
 
-  const wrapperMarginRight = lastBadgeHasHiddenNumber ? undefined : 'mr-2';
-
   if (props.summaryStats) {
-    return <div className={classNames('d-flex align-items-center', wrapperMarginRight)}>{badges}</div>;
+    return <div className={classNames('d-flex align-items-center all-children-margin')}>{badges}</div>;
   }
   return <div></div>;
 };
