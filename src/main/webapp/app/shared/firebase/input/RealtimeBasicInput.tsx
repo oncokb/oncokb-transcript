@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { Input, Label, LabelProps, Row } from 'reactstrap';
 import { InputType } from 'reactstrap/es/Input';
 import classnames from 'classnames';
@@ -9,6 +9,7 @@ import { IRootStore } from 'app/stores';
 import { RealtimeInputType } from './FirebaseRealtimeInput';
 import { inject } from 'mobx-react';
 import { getFirebasePath, getValueByNestedKey } from 'app/shared/util/firebase/firebase-utils';
+import _ from 'lodash';
 
 export interface IRealtimeBasicLabel extends LabelProps {
   id: string;
@@ -69,10 +70,28 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   const labelComponent = label && (
     <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? '' : 'font-weight-bold'} />
   );
-  const inputValue = getValueByNestedKey(data, fieldKey);
+
+  const [inputValue, setInputValue] = useState(getValueByNestedKey(data, fieldKey));
+
+  const pushUpdateToFirebase = useCallback(
+    _.debounce((path: string, key: ExtractPathExpressions<Gene>, value: any) => {
+      updateReviewableContent(path, key, value);
+    }, 600),
+    []
+  );
+
   const inputChangeHandler = e => {
     const updateValue = isCheckType ? (e.target.checked ? label : '') : e.target.value;
-    updateReviewableContent(getFirebasePath('GENE', props.data.name), fieldKey, updateValue);
+
+    setInputValue(updateValue);
+
+    const firebaseGenePath = getFirebasePath('GENE', props.data.name);
+    if (type === RealtimeInputType.TEXT || type === RealtimeInputType.TEXTAREA || type === RealtimeInputType.INLINE_TEXT) {
+      pushUpdateToFirebase(firebaseGenePath, fieldKey, updateValue);
+    } else {
+      updateReviewableContent(firebaseGenePath, fieldKey, updateValue);
+    }
+
     if (onChange) {
       onChange(e);
     }
