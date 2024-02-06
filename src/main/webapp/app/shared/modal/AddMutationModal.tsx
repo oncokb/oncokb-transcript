@@ -629,6 +629,7 @@ function AddMutationModalContent({
             onConfirm(mutationStates.map(state => getAlterationFromMutationState(state)));
           }}
           color="primary"
+          disabled={mutationStates.length === 0}
         >
           Add
         </Button>
