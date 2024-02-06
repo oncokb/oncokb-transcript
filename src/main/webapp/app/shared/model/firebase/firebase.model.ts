@@ -136,6 +136,7 @@ export class Gene {
   germline_summary = '';
   germline_summary_review?: Review;
   germline_summary_uuid: string = generateUuid();
+  germline_summary_comments?: Comment[] = [];
   penetrance?: PENETRANCE | '' = '';
   penetrance_uuid? = generateUuid();
   penetrance_review?: Review;

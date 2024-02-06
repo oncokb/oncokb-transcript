@@ -32,6 +32,7 @@ describe('Firebase Models', () => {
         summary_comments: [],
         germline_summary: '',
         germline_summary_uuid: DEFAULT_UUID,
+        germline_summary_comments: [],
         penetrance: '',
         penetrance_uuid: DEFAULT_UUID,
         type: new GeneType(),
