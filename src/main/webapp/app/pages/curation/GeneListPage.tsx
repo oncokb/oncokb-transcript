@@ -22,11 +22,11 @@ type GeneMetaInfo = {
 
 const GeneListPage = (props: StoreProps) => {
   useEffect(() => {
-    if (props.firebaseInitSuccess) {
+    if (props.firebaseReady) {
       const unsubscribe = props.addMetaListener();
       return () => unsubscribe && unsubscribe();
     }
-  }, [props.firebaseInitSuccess]);
+  }, [props.firebaseReady]);
 
   const geneMeta = useMemo(() => {
     const ignoredKeys = ['collaborators', 'undefined'];
@@ -78,7 +78,7 @@ const GeneListPage = (props: StoreProps) => {
 
   return (
     <>
-      {props.firebaseInitSuccess && (
+      {props.firebaseReady && (
         <>
           {!!props.metaData && !!geneMeta ? (
             <Row>
@@ -112,13 +112,15 @@ const GeneListPage = (props: StoreProps) => {
         </>
       )}
       {props.firebaseInitError && <div>Error loading Firebase.</div>}
+      {props.firebaseLoginError && <div>Error login to Firebase.</div>}
     </>
   );
 };
 
 const mapStoreToProps = ({ firebaseMetaStore, firebaseStore }: IRootStore) => ({
-  firebaseInitSuccess: firebaseStore.firebaseInitSuccess,
+  firebaseReady: firebaseStore.firebaseReady,
   firebaseInitError: firebaseStore.firebaseInitError,
+  firebaseLoginError: firebaseStore.firebaseLoginError,
   addMetaListener: firebaseMetaStore.addMetaListListener,
   metaData: firebaseMetaStore.metaList,
 });

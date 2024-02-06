@@ -31,7 +31,11 @@ export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
       ref(this.db, FB_COLLECTION.META),
       action(snapshot => {
         this.metaList = snapshot.val();
-      })
+      }),
+      e => {
+        /* eslint-disable no-console */
+        console.log('addMetaListListener', 'cancelled', e);
+      }
     );
     return unsubscribe;
   }
