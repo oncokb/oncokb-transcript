@@ -443,13 +443,47 @@ const CurationPage = (props: ICurationPageProps) => {
                 />
                 <RealtimeTextAreaInput
                   fieldKey="summary"
-                  label="Somatic Gene Summary"
-                  labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />}
+                  label="Somatic Gene Summary "
+                  labelIcon={
+                    <>
+                      <GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />
+                      <div className="mr-3" />
+                      <CommentIcon
+                        id={props.data.summary_uuid}
+                        comments={props.data.summary_comments || []}
+                        onCreateComment={content =>
+                          handleCreateComment(`${firebaseGenePath}/summary_comments`, content, props.data.summary_comments?.length || 0)
+                        }
+                        onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/summary_comments`, indices)}
+                        onResolveComment={index => handleResolveComment(`${firebaseGenePath}/summary_comments/${index}`)}
+                        onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/summary_comments/${index}`)}
+                      />
+                    </>
+                  }
                 />
                 <RealtimeTextAreaInput
                   fieldKey="germline_summary"
                   label="Germline Gene Summary"
-                  labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Germline Gene Summary'} />}
+                  labelIcon={
+                    <>
+                      <GeneHistoryTooltip historyData={parsedHistoryList} location={'Germline Gene Summary'} />
+                      <div className="mr-3" />
+                      <CommentIcon
+                        id={props.data.germline_summary_uuid}
+                        comments={props.data.germline_summary_comments || []}
+                        onCreateComment={content =>
+                          handleCreateComment(
+                            `${firebaseGenePath}/germline_summary_comments`,
+                            content,
+                            props.data.germline_summary_comments?.length || 0
+                          )
+                        }
+                        onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/germline_summary_comments`, indices)}
+                        onResolveComment={index => handleResolveComment(`${firebaseGenePath}/germline_summary_comments/${index}`)}
+                        onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/germline_summary_comments/${index}`)}
+                      />
+                    </>
+                  }
                 />
               </Col>
             </Row>
