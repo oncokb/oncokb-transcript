@@ -22,10 +22,10 @@ const ActionIcon: React.FunctionComponent<IActionIcon> = (props: IActionIcon) =>
   const iconStyle: CSSProperties = {
     position: 'absolute',
     transition: 'opacity 0.2s ease',
-    fontSize: fontSize,
+    fontSize,
   };
   const containerStyle: CSSProperties = {
-    fontSize: fontSize,
+    fontSize,
     width: fontSize,
     display: 'inline-block',
     position: 'relative',
