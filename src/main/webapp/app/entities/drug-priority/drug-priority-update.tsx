@@ -69,7 +69,7 @@ export const DrugPriorityUpdate = (props: IDrugPriorityUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.drugPriority.home.createOrEditLabel" data-cy="DrugPriorityCreateUpdateHeading">
-            Create or edit a DrugPriority
+            Add or edit a DrugPriority
           </h2>
         </Col>
       </Row>

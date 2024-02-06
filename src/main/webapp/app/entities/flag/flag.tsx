@@ -27,7 +27,7 @@ export const Flag = (props: IFlagProps) => {
     <div>
       <h2 id="flag-heading" data-cy="FlagHeading">
         Flags
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.FLAG} entityAction={ENTITY_ACTION.CREATE} />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.FLAG} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {props.flagList && (

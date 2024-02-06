@@ -51,7 +51,7 @@ export default function Collapsible({
             disabled={disableCollapsible}
             style={{ opacity: disableCollapsible ? '0' : '1' }}
             type="button"
-            className="btn"
+            className={classNames('btn', 'py-1')}
             onClick={() => setIsOpen(_isOpen => !_isOpen)}
           >
             {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}

@@ -29,7 +29,7 @@ export const EligibilityCriteria = (props: IEligibilityCriteriaProps) => {
           className="ml-2"
           color="primary"
           entityType={ENTITY_TYPE.ELIGIBILITY_CRITERIA}
-          entityAction={ENTITY_ACTION.CREATE}
+          entityAction={ENTITY_ACTION.ADD}
         />
       </h2>
       <div>

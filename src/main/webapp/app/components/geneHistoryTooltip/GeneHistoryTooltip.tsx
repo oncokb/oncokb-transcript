@@ -6,6 +6,7 @@ import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { FaHistory } from 'react-icons/fa';
 import { ParsedHistoryRecord } from 'app/pages/curation/CurationPage';
 import constructTimeSeriesData from './gene-history-tooltip-utils';
+import { GREY } from 'app/config/colors';
 
 export interface IGeneHistoryTooltipProps {
   historyData: Map<string, ParsedHistoryRecord[]>;
@@ -67,7 +68,7 @@ function GeneHistoryTooltip({ location, historyData, contentFieldWhenObject = 'd
       overlayInnerStyle={{ maxWidth: '600px', width: 'fit-content', maxHeight: '400px', overflow: 'auto' }}
       overlay={<TimeSeries groupByDay={false} data={parsedHistoryData} />}
     >
-      <FaHistory className={parsedHistoryData.length === 0 && 'grey-tooltip'} />
+      <FaHistory color={parsedHistoryData.length === 0 ? GREY : 'black'} />
     </DefaultTooltip>
   );
 }

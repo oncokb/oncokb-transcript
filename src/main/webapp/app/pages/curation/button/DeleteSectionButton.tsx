@@ -1,6 +1,8 @@
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
 import React, { useState } from 'react';
-import { FaRegTrashAlt } from 'react-icons/fa';
+import ActionIcon from 'app/shared/icons/ActionIcon';
+import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { DANGER } from 'app/config/colors';
 
 export interface DeleteSectionButtonProps {
   sectionName: string;
@@ -13,9 +15,7 @@ export const DeleteSectionButton = (props: DeleteSectionButtonProps) => {
 
   return (
     <>
-      <span style={{ cursor: 'pointer' }} onClick={() => setShowModal(true)}>
-        <FaRegTrashAlt size={16} />
-      </span>
+      <ActionIcon icon={faTrashAlt} onClick={() => setShowModal(true)} color={DANGER} />
       <SimpleConfirmModal
         title={'Are you sure you want to delete this section?'}
         body={

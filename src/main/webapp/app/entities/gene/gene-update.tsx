@@ -56,7 +56,7 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.gene.home.createOrEditLabel" data-cy="GeneCreateUpdateHeading">
-            {isNew ? 'Create' : 'Edit'} Gene
+            {isNew ? 'Add' : 'Edit'} Gene
           </h2>
         </Col>
       </Row>

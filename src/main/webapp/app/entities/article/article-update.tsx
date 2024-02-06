@@ -61,7 +61,7 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.article.home.createOrEditLabel" data-cy="ArticleCreateUpdateHeading">
-            Create or edit a Article
+            Add or edit a Article
           </h2>
         </Col>
       </Row>

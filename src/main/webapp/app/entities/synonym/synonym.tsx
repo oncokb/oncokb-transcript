@@ -34,7 +34,7 @@ export const Synonym = (props: ISynonymProps) => {
     <div>
       <h2 id="synonym-heading" data-cy="SynonymHeading">
         Synonyms
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.SYNONYM} entityAction={ENTITY_ACTION.CREATE} />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.SYNONYM} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {props.synonymList && (

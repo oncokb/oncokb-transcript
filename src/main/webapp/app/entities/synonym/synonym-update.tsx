@@ -74,7 +74,7 @@ export const SynonymUpdate = (props: ISynonymUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.synonym.home.createOrEditLabel" data-cy="SynonymCreateUpdateHeading">
-            Create or edit a Synonym
+            Add or edit a Synonym
           </h2>
         </Col>
       </Row>

@@ -74,7 +74,7 @@ export const EvidenceUpdate = (props: IEvidenceUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.evidence.home.createOrEditLabel" data-cy="EvidenceCreateUpdateHeading">
-            Create or edit a Evidence
+            Add or edit a Evidence
           </h2>
         </Col>
       </Row>

@@ -136,7 +136,7 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.alteration.home.createOrEditLabel" data-cy="AlterationCreateUpdateHeading">
-            Create or edit a Alteration
+            Add or edit a Alteration
           </h2>
         </Col>
       </Row>

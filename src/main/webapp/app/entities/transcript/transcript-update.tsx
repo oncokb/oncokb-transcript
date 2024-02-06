@@ -86,7 +86,7 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.transcript.home.createOrEditLabel" data-cy="TranscriptCreateUpdateHeading">
-            Create or edit a Transcript
+            Add or edit a Transcript
           </h2>
         </Col>
       </Row>

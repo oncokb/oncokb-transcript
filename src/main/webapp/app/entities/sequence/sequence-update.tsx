@@ -71,7 +71,7 @@ export const SequenceUpdate = (props: ISequenceUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.sequence.home.createOrEditLabel" data-cy="SequenceCreateUpdateHeading">
-            Create or edit a Sequence
+            Add or edit a Sequence
           </h2>
         </Col>
       </Row>

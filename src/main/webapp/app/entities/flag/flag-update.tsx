@@ -73,7 +73,7 @@ export const FlagUpdate = (props: IFlagUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.flag.home.createOrEditLabel" data-cy="FlagCreateUpdateHeading">
-            Create or edit a Flag
+            Add or edit a Flag
           </h2>
         </Col>
       </Row>

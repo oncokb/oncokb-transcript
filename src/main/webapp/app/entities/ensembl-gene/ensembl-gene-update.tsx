@@ -81,7 +81,7 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.ensemblGene.home.createOrEditLabel" data-cy="EnsemblGeneCreateUpdateHeading">
-            Create or edit a EnsemblGene
+            Add or edit a EnsemblGene
           </h2>
         </Col>
       </Row>

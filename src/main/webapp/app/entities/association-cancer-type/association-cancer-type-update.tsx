@@ -75,7 +75,7 @@ export const AssociationCancerTypeUpdate = (props: IAssociationCancerTypeUpdateP
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.associationCancerType.home.createOrEditLabel" data-cy="AssociationCancerTypeCreateUpdateHeading">
-            Create or edit a AssociationCancerType
+            Add or edit a AssociationCancerType
           </h2>
         </Col>
       </Row>

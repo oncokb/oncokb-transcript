@@ -64,7 +64,7 @@ export const GenomicIndicatorUpdate = (props: IGenomicIndicatorUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.genomicIndicator.home.createOrEditLabel" data-cy="GenomicIndicatorCreateUpdateHeading">
-            Create or edit a GenomicIndicator
+            Add or edit a GenomicIndicator
           </h2>
         </Col>
       </Row>

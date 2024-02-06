@@ -128,33 +128,29 @@ const MutationCollapsible = ({
         borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.MUTATION]]}
         info={showMutationLevelSummary ? <MutationLevelSummary mutationUuid={mutation.name_uuid} /> : null}
         action={
-          <>
+          <span className={'collapsible-action'}>
+            <GeneHistoryTooltip key={'gene-history-tooltip'} historyData={parsedHistoryList} location={getMutationName(mutation)} />
+            <CommentIcon
+              id={mutation.name_uuid}
+              comments={mutation.name_comments || []}
+              onCreateComment={content =>
+                handleCreateComment(`${mutationFirebasePath}/name_comments`, content, mutation.name_comments?.length || 0)
+              }
+              onDeleteComments={indices => handleDeleteComments(`${mutationFirebasePath}/name_comments`, indices)}
+              onResolveComment={index => handleResolveComment(`${mutationFirebasePath}/name_comments/${index}`)}
+              onUnresolveComment={index => handleUnresolveComment(`${mutationFirebasePath}/name_comments/${index}`)}
+            />
             <EditIcon
               onClick={() => {
                 setIsEditingMutation(true);
               }}
-              className="mr-3"
             />
-            <span className="mr-3">
-              <GeneHistoryTooltip key={'gene-history-tooltip'} historyData={parsedHistoryList} location={getMutationName(mutation)} />
-            </span>
-            <CommentIcon
-            id={mutation.name_uuid}
-            comments={mutation.name_comments || []}
-            onCreateComment={content =>
-              handleCreateComment(`${mutationFirebasePath}/name_comments`, content, mutation.name_comments?.length || 0)
-            }
-            onDeleteComments={indices => handleDeleteComments(`${mutationFirebasePath}/name_comments`, indices)}
-            onResolveComment={index => handleResolveComment(`${mutationFirebasePath}/name_comments/${index}`)}
-            onUnresolveComment={index => handleUnresolveComment(`${mutationFirebasePath}/name_comments/${index}`)}
-          />
-          <div className="mr-3" />
             <DeleteSectionButton
               sectionName={title}
               deleteHandler={() => deleteSection(NestLevelType.MUTATION, mutationFirebasePath)}
               isRemovableWithoutReview={isSectionRemovableWithoutReview(data, NestLevelType.MUTATION, mutationFirebasePath)}
             />
-          </>
+          </span>
         }
         isSectionEmpty={isSectionEmpty(data, mutationFirebasePath)}
       >
@@ -175,22 +171,22 @@ const MutationCollapsible = ({
             title="Somatic"
             borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.SOMATIC]]}
             action={
-            <CommentIcon
-              id={mutation.mutation_effect_uuid}
-              comments={mutation.mutation_effect_comments || []}
-              onCreateComment={content =>
-                handleCreateComment(
-                  `${mutationFirebasePath}/mutation_effect_comments`,
-                  content,
-                  mutation.mutation_effect_comments?.length || 0
-                )
-              }
-              onDeleteComments={indices => handleDeleteComments(`${mutationFirebasePath}/mutation_effect_comments`, indices)}
-              onResolveComment={index => handleResolveComment(`${mutationFirebasePath}/mutation_effect_comments/${index}`)}
-              onUnresolveComment={index => handleUnresolveComment(`${mutationFirebasePath}/mutation_effect_comments/${index}`)}
-            />
-          }
-          isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect/oncogenic`))}
+              <CommentIcon
+                id={mutation.mutation_effect_uuid}
+                comments={mutation.mutation_effect_comments || []}
+                onCreateComment={content =>
+                  handleCreateComment(
+                    `${mutationFirebasePath}/mutation_effect_comments`,
+                    content,
+                    mutation.mutation_effect_comments?.length || 0
+                  )
+                }
+                onDeleteComments={indices => handleDeleteComments(`${mutationFirebasePath}/mutation_effect_comments`, indices)}
+                onResolveComment={index => handleResolveComment(`${mutationFirebasePath}/mutation_effect_comments/${index}`)}
+                onUnresolveComment={index => handleUnresolveComment(`${mutationFirebasePath}/mutation_effect_comments/${index}`)}
+              />
+            }
+            isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect/oncogenic`))}
           >
             <RealtimeCheckedInputGroup
               groupHeader={
@@ -248,22 +244,22 @@ const MutationCollapsible = ({
               title={'Germline'}
               borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.GERMLINE]]}
               action={
-              <CommentIcon
-                id={`${mutation.mutation_effect_uuid}_germline`}
-                comments={mutation.mutation_effect.germline_comments || []}
-                onCreateComment={content =>
-                  handleCreateComment(
-                    `${mutationFirebasePath}/mutation_effect/germline_comments`,
-                    content,
-                    mutation.mutation_effect.germline_comments?.length || 0
-                  )
-                }
-                onDeleteComments={indices => handleDeleteComments(`${mutationFirebasePath}/mutation_effect/germline_comments`, indices)}
-                onResolveComment={index => handleResolveComment(`${mutationFirebasePath}/mutation_effect/germline_comments/${index}`)}
-                onUnresolveComment={index => handleUnresolveComment(`${mutationFirebasePath}/mutation_effect/germline_comments/${index}`)}
-              />
-            }
-            isSectionEmpty={isSectionEmpty(
+                <CommentIcon
+                  id={`${mutation.mutation_effect_uuid}_germline`}
+                  comments={mutation.mutation_effect.germline_comments || []}
+                  onCreateComment={content =>
+                    handleCreateComment(
+                      `${mutationFirebasePath}/mutation_effect/germline_comments`,
+                      content,
+                      mutation.mutation_effect.germline_comments?.length || 0
+                    )
+                  }
+                  onDeleteComments={indices => handleDeleteComments(`${mutationFirebasePath}/mutation_effect/germline_comments`, indices)}
+                  onResolveComment={index => handleResolveComment(`${mutationFirebasePath}/mutation_effect/germline_comments/${index}`)}
+                  onUnresolveComment={index => handleUnresolveComment(`${mutationFirebasePath}/mutation_effect/germline_comments/${index}`)}
+                />
+              }
+              isSectionEmpty={isSectionEmpty(
                 data,
                 buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect/germline`)
               )}
@@ -383,7 +379,7 @@ const MutationCollapsible = ({
             <div key={tumor.cancerTypes_uuid} className="mb-2">
               <Collapsible
                 className={'mt-2'}
-                  title={`Cancer Type: ${cancerTypeName}`}
+                title={`Cancer Type: ${cancerTypeName}`}
                 borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.CANCER_TYPE]]}
                 info={<CancerTypeLevelSummary mutationUuid={mutation.name_uuid} cancerTypeUuid={tumor.cancerTypes_uuid} />}
                 action={
@@ -392,7 +388,6 @@ const MutationCollapsible = ({
                       onClick={() => {
                         modifyCancerTypeModalStore.openModal(tumor.cancerTypes_uuid);
                       }}
-                      className="mr-3"
                     />
                     <span className="mr-3">
                       <GeneHistoryTooltip
@@ -402,20 +397,20 @@ const MutationCollapsible = ({
                       />
                     </span>
                     <CommentIcon
-                    id={tumor.cancerTypes_uuid}
-                    comments={tumor.cancerTypes_comments || []}
-                    onCreateComment={content =>
-                      handleCreateComment(
-                        `${cancerTypeFirebasePath}/cancerTypes_comments`,
-                        content,
-                        tumor.cancerTypes_comments?.length || 0
-                      )
-                    }
-                    onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/cancerTypes_comments`, indices)}
-                    onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/cancerTypes_comments/${index}`)}
-                    onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/cancerTypes_comments/${index}`)}
-                  />
-                  <div className="mr-3" />
+                      id={tumor.cancerTypes_uuid}
+                      comments={tumor.cancerTypes_comments || []}
+                      onCreateComment={content =>
+                        handleCreateComment(
+                          `${cancerTypeFirebasePath}/cancerTypes_comments`,
+                          content,
+                          tumor.cancerTypes_comments?.length || 0
+                        )
+                      }
+                      onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/cancerTypes_comments`, indices)}
+                      onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/cancerTypes_comments/${index}`)}
+                      onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/cancerTypes_comments/${index}`)}
+                    />
+                    <div className="mr-3" />
                     <DeleteSectionButton
                       sectionName={title}
                       deleteHandler={() => deleteSection(NestLevelType.CANCER_TYPE, cancerTypeFirebasePath)}
@@ -462,24 +457,28 @@ const MutationCollapsible = ({
                   name="pxSummary"
                 />
                 <div className="mb-2">
-                <Collapsible
+                  <Collapsible
                     className={'mt-2'}
                     key={tumor.diagnostic_uuid}
                     title="Diagnostic Implication"
                     borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.DIAGNOSTIC]]}
-                  action={
-                  <CommentIcon
-                    id={tumor.diagnostic_uuid}
-                    comments={tumor.diagnostic_comments || []}
-                    onCreateComment={content =>
-                      handleCreateComment(`${cancerTypeFirebasePath}/diagnostic_comments`, content, tumor.diagnostic_comments?.length || 0)
+                    action={
+                      <CommentIcon
+                        id={tumor.diagnostic_uuid}
+                        comments={tumor.diagnostic_comments || []}
+                        onCreateComment={content =>
+                          handleCreateComment(
+                            `${cancerTypeFirebasePath}/diagnostic_comments`,
+                            content,
+                            tumor.diagnostic_comments?.length || 0
+                          )
+                        }
+                        onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/diagnostic_comments`, indices)}
+                        onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/diagnostic_comments/${index}`)}
+                        onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/diagnostic_comments/${index}`)}
+                      />
                     }
-                    onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/diagnostic_comments`, indices)}
-                    onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/diagnostic_comments/${index}`)}
-                    onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/diagnostic_comments/${index}`)}
-                  />
-                }
-                  isSectionEmpty={isSectionEmpty(
+                    isSectionEmpty={isSectionEmpty(
                       data,
                       buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic`)
                     )}
@@ -505,19 +504,23 @@ const MutationCollapsible = ({
                     key={tumor.prognostic_uuid}
                     title="Prognostic Implication"
                     borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.PROGNOSTIC]]}
-                  action={
-                  <CommentIcon
-                    id={tumor.prognostic_uuid}
-                    comments={tumor.prognostic_comments || []}
-                    onCreateComment={content =>
-                      handleCreateComment(`${cancerTypeFirebasePath}/prognostic_comments`, content, tumor.prognostic_comments?.length || 0)
+                    action={
+                      <CommentIcon
+                        id={tumor.prognostic_uuid}
+                        comments={tumor.prognostic_comments || []}
+                        onCreateComment={content =>
+                          handleCreateComment(
+                            `${cancerTypeFirebasePath}/prognostic_comments`,
+                            content,
+                            tumor.prognostic_comments?.length || 0
+                          )
+                        }
+                        onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/prognostic_comments`, indices)}
+                        onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/prognostic_comments/${index}`)}
+                        onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/prognostic_comments/${index}`)}
+                      />
                     }
-                    onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/prognostic_comments`, indices)}
-                    onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/prognostic_comments/${index}`)}
-                    onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/prognostic_comments/${index}`)}
-                  />
-                }
-                  isSectionEmpty={isSectionEmpty(
+                    isSectionEmpty={isSectionEmpty(
                       data,
                       buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic`)
                     )}
@@ -549,117 +552,115 @@ const MutationCollapsible = ({
                           `mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}`
                         );
 
-                      return (
-                        <>
-                          <Collapsible
-                            className={'mt-2'}
-                            key={treatment.name_uuid}
-                            title={`Therapy: ${getTxName(drugList, treatment.name)}`}
-                            borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.THERAPY]]}
-                            info={
-                              <TreatmentLevelSummary
-                                mutationUuid={mutation.name_uuid}
-                                cancerTypesUuid={tumor.cancerTypes_uuid}
-                                treatmentUuid={treatment.name_uuid}
-                              />
-                            }
-                            action={
-                              <>
-                                <EditIcon
-                                  onClick={() => {
-                                    modifyTherapyModalStore.openModal(treatment.name_uuid);
-                                  }}
-                                  className="mr-3"
+                        return (
+                          <>
+                            <Collapsible
+                              className={'mt-2'}
+                              key={treatment.name_uuid}
+                              title={`Therapy: ${getTxName(drugList, treatment.name)}`}
+                              borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.THERAPY]]}
+                              info={
+                                <TreatmentLevelSummary
+                                  mutationUuid={mutation.name_uuid}
+                                  cancerTypesUuid={tumor.cancerTypes_uuid}
+                                  treatmentUuid={treatment.name_uuid}
                                 />
-                              <>
-                                <CommentIcon
-                                  id={treatment.name_uuid}
-                                  comments={treatment.name_comments || []}
-                                  onCreateComment={content =>
-                                    handleCreateComment(
-                                      `${therapyFirebasePath}/name_comments`,
-                                      content,
-                                      treatment.name_comments?.length || 0
-                                    )
-                                  }
-                                  onDeleteComments={indices => handleDeleteComments(`${therapyFirebasePath}/name_comments`, indices)}
-                                  onResolveComment={index => handleResolveComment(`${therapyFirebasePath}/name_comments/${index}`)}
-                                  onUnresolveComment={index => handleUnresolveComment(`${therapyFirebasePath}/name_comments/${index}`)}
-                                />
-                                <div className="mr-3" />
-                                  <DeleteSectionButton
-                                    sectionName={title}
-                                    deleteHandler={() => deleteSection(NestLevelType.THERAPY, therapyFirebasePath)}
-                                    isRemovableWithoutReview={isSectionRemovableWithoutReview(
-                                    
-                                    data,
-                                   
-                                    NestLevelType.THERAPY,
-                                   
-                                    therapyFirebasePath
-                                  
-                                  )}
+                              }
+                              action={
+                                <>
+                                  <EditIcon
+                                    onClick={() => {
+                                      modifyTherapyModalStore.openModal(treatment.name_uuid);
+                                    }}
+                                    className="mr-3"
                                   />
-                              </>
-                              </>
-                            }
-                            isSectionEmpty={isSectionEmpty(data, therapyFirebasePath)}
-                          >
-                            <RealtimeDropdownInput
-                              fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
-                              label="Highest level of evidence"
-                              name="level"
-                              options={[TX_LEVELS.LEVEL_NO, TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_2]}
-                            />
-                            <RealtimeDropdownInput
-                              fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagation`}
-                              label="Level of Evidence in other solid tumor types"
-                              name="propagationLevel"
-                              options={[]} // Todo
-                            />
-                            <RealtimeDropdownInput
-                              fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagationLiquid`}
-                              label="Level of Evidence in other liquid tumor types"
-                              name="propagationLiquidLevel"
-                              options={[]}
-                            />
-                            <RealtimeDropdownInput
-                              fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/fdaLevel`}
-                              label="FDA Level of Evidence"
-                              name="propagationLiquidLevel"
-                              options={[]}
-                            />
-                            <RealtimeTextAreaInput
-                              fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/description`}
-                              inputClass={styles.textarea}
-                              label="Description of Evidence"
-                              labelIcon={
-                                <GeneHistoryTooltip
-                                  historyData={parsedHistoryList}
-                                  location={`${CANCER_TYPE_THERAPY_INDENTIFIER}${getMutationName(mutation)}, ${cancerTypeName}, ${
-                                    treatment.name
-                                  }`}
-                                />
-                              }
-                              name="evidenceDescription"
-                            />
-                            <div className="mb-2">
-                              <AutoParseRefField summary={treatment.description} />
-                            </div>
-                          </Collapsible>
-                          <ModifyTherapyModal
-                            treatmentUuid={treatment.name_uuid}
-                            treatmentName={treatment.name}
-                            drugList={drugList}
-                            onConfirm={async treatmentName => {
-                              const newTreatment = _.cloneDeep(treatment);
-                              newTreatment.name = treatmentName;
+                                  <>
+                                    <CommentIcon
+                                      id={treatment.name_uuid}
+                                      comments={treatment.name_comments || []}
+                                      onCreateComment={content =>
+                                        handleCreateComment(
+                                          `${therapyFirebasePath}/name_comments`,
+                                          content,
+                                          treatment.name_comments?.length || 0
+                                        )
+                                      }
+                                      onDeleteComments={indices => handleDeleteComments(`${therapyFirebasePath}/name_comments`, indices)}
+                                      onResolveComment={index => handleResolveComment(`${therapyFirebasePath}/name_comments/${index}`)}
+                                      onUnresolveComment={index => handleUnresolveComment(`${therapyFirebasePath}/name_comments/${index}`)}
+                                    />
+                                    <div className="mr-3" />
+                                    <DeleteSectionButton
+                                      sectionName={title}
+                                      deleteHandler={() => deleteSection(NestLevelType.THERAPY, therapyFirebasePath)}
+                                      isRemovableWithoutReview={isSectionRemovableWithoutReview(
+                                        data,
 
-                              try {
-                                await updateTreatment(therapyFirebasePath, newTreatment);
-                              } catch (error) {
-                                notifyError(error);
+                                        NestLevelType.THERAPY,
+
+                                        therapyFirebasePath
+                                      )}
+                                    />
+                                  </>
+                                </>
                               }
+                              isSectionEmpty={isSectionEmpty(data, therapyFirebasePath)}
+                            >
+                              <RealtimeDropdownInput
+                                fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
+                                label="Highest level of evidence"
+                                name="level"
+                                options={[TX_LEVELS.LEVEL_NO, TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_2]}
+                              />
+                              <RealtimeDropdownInput
+                                fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagation`}
+                                label="Level of Evidence in other solid tumor types"
+                                name="propagationLevel"
+                                options={[]} // Todo
+                              />
+                              <RealtimeDropdownInput
+                                fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagationLiquid`}
+                                label="Level of Evidence in other liquid tumor types"
+                                name="propagationLiquidLevel"
+                                options={[]}
+                              />
+                              <RealtimeDropdownInput
+                                fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/fdaLevel`}
+                                label="FDA Level of Evidence"
+                                name="propagationLiquidLevel"
+                                options={[]}
+                              />
+                              <RealtimeTextAreaInput
+                                fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/description`}
+                                inputClass={styles.textarea}
+                                label="Description of Evidence"
+                                labelIcon={
+                                  <GeneHistoryTooltip
+                                    historyData={parsedHistoryList}
+                                    location={`${CANCER_TYPE_THERAPY_INDENTIFIER}${getMutationName(mutation)}, ${cancerTypeName}, ${
+                                      treatment.name
+                                    }`}
+                                  />
+                                }
+                                name="evidenceDescription"
+                              />
+                              <div className="mb-2">
+                                <AutoParseRefField summary={treatment.description} />
+                              </div>
+                            </Collapsible>
+                            <ModifyTherapyModal
+                              treatmentUuid={treatment.name_uuid}
+                              treatmentName={treatment.name}
+                              drugList={drugList}
+                              onConfirm={async treatmentName => {
+                                const newTreatment = _.cloneDeep(treatment);
+                                newTreatment.name = treatmentName;
+
+                                try {
+                                  await updateTreatment(therapyFirebasePath, newTreatment);
+                                } catch (error) {
+                                  notifyError(error);
+                                }
 
                                 modifyTherapyModalStore.closeModal();
                               }}
@@ -671,38 +672,38 @@ const MutationCollapsible = ({
                     );
                   }, [])}
                 </div>
-              <Button
-                outline
-                color="primary"
-                onClick={() => modifyTherapyModalStore.openModal(`new_treatment_for_${tumor.cancerTypes_uuid}`)}
-              >
-                Add Therapy
-              </Button>
-            </Collapsible>
+                <Button
+                  outline
+                  color="primary"
+                  onClick={() => modifyTherapyModalStore.openModal(`new_treatment_for_${tumor.cancerTypes_uuid}`)}
+                >
+                  Add Therapy
+                </Button>
+              </Collapsible>
               <ModifyTherapyModal
-              treatmentUuid={`new_treatment_for_${tumor.cancerTypes_uuid}`}
-              treatmentName=""
-              drugList={drugList}
-              onConfirm={async treatmentName => {
-                const newTreatment = new Treatment(treatmentName);
+                treatmentUuid={`new_treatment_for_${tumor.cancerTypes_uuid}`}
+                treatmentName=""
+                drugList={drugList}
+                onConfirm={async treatmentName => {
+                  const newTreatment = new Treatment(treatmentName);
 
-                try {
-                  await firebasePushToArray(
-                    buildFirebaseGenePath(
-                      hugoSymbol,
-                      `mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tumor.TIs.length - 1}/treatments`
-                    ),
-                    [newTreatment]
-                  );
-                } catch (error) {
-                  notifyError(error);
-                }
+                  try {
+                    await firebasePushToArray(
+                      buildFirebaseGenePath(
+                        hugoSymbol,
+                        `mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tumor.TIs.length - 1}/treatments`
+                      ),
+                      [newTreatment]
+                    );
+                  } catch (error) {
+                    notifyError(error);
+                  }
 
-                modifyTherapyModalStore.closeModal();
-              }}
-              onCancel={modifyTherapyModalStore.closeModal}
-            />
-            <ModifyCancerTypeModal
+                  modifyTherapyModalStore.closeModal();
+                }}
+                onCancel={modifyTherapyModalStore.closeModal}
+              />
+              <ModifyCancerTypeModal
                 cancerTypesUuid={tumor.cancerTypes_uuid}
                 includedCancerTypes={tumor.cancerTypes}
                 excludedCancerTypes={tumor.excludedCancerTypes || []}
@@ -730,30 +731,30 @@ const MutationCollapsible = ({
           );
         })}
         <Button outline color="primary" onClick={() => modifyCancerTypeModalStore.openModal(`new_cancer_type_for_${mutation.name_uuid}`)}>
-        Add Cancer Type
-      </Button>
-      <ModifyCancerTypeModal
-        cancerTypesUuid={`new_cancer_type_for_${mutation.name_uuid}`}
-        includedCancerTypes={[]}
-        excludedCancerTypes={[]}
-        onConfirm={async (includedCancerTypes, excludedCancerTypes) => {
-          const newTumor = new Tumor();
-          newTumor.cancerTypes = includedCancerTypes;
-          newTumor.excludedCancerTypes = excludedCancerTypes;
+          Add Cancer Type
+        </Button>
+        <ModifyCancerTypeModal
+          cancerTypesUuid={`new_cancer_type_for_${mutation.name_uuid}`}
+          includedCancerTypes={[]}
+          excludedCancerTypes={[]}
+          onConfirm={async (includedCancerTypes, excludedCancerTypes) => {
+            const newTumor = new Tumor();
+            newTumor.cancerTypes = includedCancerTypes;
+            newTumor.excludedCancerTypes = excludedCancerTypes;
 
-          try {
-            await firebasePushToArray(buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors`), [newTumor]);
-          } catch (error) {
-            notifyError(error);
-          }
+            try {
+              await firebasePushToArray(buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors`), [newTumor]);
+            } catch (error) {
+              notifyError(error);
+            }
 
-          modifyCancerTypeModalStore.closeModal();
-        }}
-        onCancel={() => {
-          modifyCancerTypeModalStore.closeModal();
-        }}
-      />
-    </Collapsible>
+            modifyCancerTypeModalStore.closeModal();
+          }}
+          onCancel={() => {
+            modifyCancerTypeModalStore.closeModal();
+          }}
+        />
+      </Collapsible>
       <AddMutationModal
         hugoSymbol={hugoSymbol}
         mutationToEdit={isEditingMutation ? mutation : null}

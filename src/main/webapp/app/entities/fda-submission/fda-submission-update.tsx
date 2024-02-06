@@ -106,7 +106,7 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
           <ValidatedForm onSubmit={saveEntity} defaultValues={defaultValues()}>
             <FormSection isFirst>
               <h2 id="oncokbTranscriptApp.fdaSubmission.home.createOrEditLabel" data-cy="FdaSubmissionCreateUpdateHeading">
-                {isNew ? 'Create' : 'Edit'} FDA Submission
+                {isNew ? 'Add' : 'Edit'} FDA Submission
               </h2>
             </FormSection>
             {isNew ? (

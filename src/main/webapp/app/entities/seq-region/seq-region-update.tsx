@@ -63,7 +63,7 @@ export const SeqRegionUpdate = (props: ISeqRegionUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.seqRegion.home.createOrEditLabel" data-cy="SeqRegionCreateUpdateHeading">
-            Create or edit a SeqRegion
+            Add or edit a SeqRegion
           </h2>
         </Col>
       </Row>

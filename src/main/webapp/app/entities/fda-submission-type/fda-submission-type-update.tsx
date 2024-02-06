@@ -65,7 +65,7 @@ export const FdaSubmissionTypeUpdate = (props: IFdaSubmissionTypeUpdateProps) =>
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.fdaSubmissionType.home.createOrEditLabel" data-cy="FdaSubmissionTypeCreateUpdateHeading">
-            {isNew ? 'Create' : 'Edit'} FDA Submission Type
+            {isNew ? 'Add' : 'Edit'} FDA Submission Type
           </h2>
         </Col>
       </Row>

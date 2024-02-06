@@ -77,11 +77,11 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
   };
 
   const redirectToCreateAlteration = () => {
-    history.push(getEntityActionRoute(ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE, ENTITY_ACTION.CREATE));
+    history.push(getEntityActionRoute(ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE, ENTITY_ACTION.ADD));
   };
 
   const redirectToCreateFdaSubmission = () => {
-    history.push(getEntityActionRoute(ENTITY_TYPE.FDA_SUBMISSION, ENTITY_ACTION.CREATE));
+    history.push(getEntityActionRoute(ENTITY_TYPE.FDA_SUBMISSION, ENTITY_ACTION.ADD));
   };
 
   return (

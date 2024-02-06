@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { BoolString, Comment, Vus, VusObjList } from 'app/shared/model/firebase/firebase.model';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { Button, Container, Row } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
 import { getFirebasePath, getMostRecentComment } from 'app/shared/util/firebase/firebase-utils';
 import { TextFormat } from 'react-jhipster';
@@ -16,6 +15,11 @@ import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { downloadFile } from '../util/file-utils';
+import ActionIcon from 'app/shared/icons/ActionIcon';
+import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { DANGER, PRIMARY } from 'app/config/colors';
+import { faSync } from '@fortawesome/free-solid-svg-icons/faSync';
+import classNames from 'classnames';
 
 export interface IVusTableProps extends StoreProps {
   hugoSymbol: string;
@@ -185,7 +189,7 @@ const VusTable = ({
       Cell(cell: { original: VusTableData }) {
         return (
           <Container>
-            <Row>
+            <Row className={classNames('d-flex', 'align-items-center', 'collapsible-action')}>
               <CommentIcon
                 id={cell.original.uuid}
                 key={cell.original.uuid}
@@ -203,27 +207,21 @@ const VusTable = ({
                   await handleSetCommentResolved(cell.original.uuid, index, 'false');
                 }}
               />
-              <Button
-                className="mx-2"
-                size="sm"
-                color="primary"
+              <ActionIcon
+                icon={faSync}
+                color={PRIMARY}
                 onClick={async () => {
                   await handleRefresh(cell.original.uuid);
                 }}
-              >
-                <FontAwesomeIcon icon={'sync'} />
-              </Button>
-              <Button
-                className="mr-2"
-                size="sm"
-                color="danger"
+              />
+              <ActionIcon
+                icon={faTrashAlt}
+                color={DANGER}
                 onClick={() => {
                   currentActionVusUuid.current = cell.original.uuid;
                   setShowConfirmModal(true);
                 }}
-              >
-                <FontAwesomeIcon icon={'trash'} />
-              </Button>
+              />
             </Row>
           </Container>
         );
@@ -233,13 +231,11 @@ const VusTable = ({
 
   return vusData ? (
     <div className={'justify-content-between align-items-center mt-4'}>
-      <div style={{ marginBottom: '-35.5px', zIndex: 100, position: 'relative' }}>
-        <h5 className="mb-3">Variants of Unknown Signficance (Investigated and data not found):</h5>
-        <div>
-          <Button onClick={handleDownload} color="primary" size="md">
-            Download
-          </Button>
-        </div>
+      <div className={'d-flex align-items-baseline'}>
+        <span style={{ fontSize: '2rem' }}>Variants of Unknown Significance (Investigated and data not found)</span>
+        <Button onClick={handleDownload} color="primary" size="sm" outline className={'ml-2'}>
+          Download
+        </Button>
       </div>
       <OncoKBTable defaultSorted={[{ id: LAST_EDITED_AT, desc: false }]} data={vusList} columns={columns} showPagination />
       <SimpleConfirmModal

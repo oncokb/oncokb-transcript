@@ -69,7 +69,7 @@ export const FdaDrugUpdate = (props: IFdaDrugUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.fdaDrug.home.createOrEditLabel" data-cy="FdaDrugCreateUpdateHeading">
-            Create or edit a FdaDrug
+            Add or edit a FdaDrug
           </h2>
         </Col>
       </Row>

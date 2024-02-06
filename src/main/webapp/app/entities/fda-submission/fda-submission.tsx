@@ -28,7 +28,7 @@ export const FdaSubmission = (props: IFdaSubmissionProps) => {
     <div>
       <h2 id="fda-submission-heading" data-cy="FdaSubmissionHeading">
         FDA Submissions
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.FDA_SUBMISSION} entityAction={ENTITY_ACTION.CREATE} />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.FDA_SUBMISSION} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {fdaSubmissionList && (

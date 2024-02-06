@@ -97,7 +97,7 @@ export const AssociationUpdate = (props: IAssociationUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.association.home.createOrEditLabel" data-cy="AssociationCreateUpdateHeading">
-            Create or edit a Association
+            Add or edit a Association
           </h2>
         </Col>
       </Row>

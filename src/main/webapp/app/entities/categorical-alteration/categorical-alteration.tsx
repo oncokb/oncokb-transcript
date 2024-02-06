@@ -54,7 +54,7 @@ export const CategoricalAlteration = (props: ICategoricalAlterationProps) => {
           className="ml-2"
           color="primary"
           entityType={ENTITY_TYPE.CATEGORICAL_ALTERATION}
-          entityAction={ENTITY_ACTION.CREATE}
+          entityAction={ENTITY_ACTION.ADD}
         />
       </h2>
       <div>

@@ -69,7 +69,7 @@ export const ClinicalTrialUpdate = (props: IClinicalTrialUpdateProps) => {
       <Row className="justify-content-center">
         <Col md="8">
           <h2 id="oncokbCurationApp.clinicalTrial.home.createOrEditLabel" data-cy="ClinicalTrialCreateUpdateHeading">
-            Create or edit a ClinicalTrial
+            Add or edit a ClinicalTrial
           </h2>
         </Col>
       </Row>

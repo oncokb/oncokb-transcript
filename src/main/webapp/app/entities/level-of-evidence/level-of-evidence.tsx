@@ -27,12 +27,7 @@ export const LevelOfEvidence = (props: ILevelOfEvidenceProps) => {
     <div>
       <h2 id="level-of-evidence-heading" data-cy="LevelOfEvidenceHeading">
         Level Of Evidences
-        <EntityActionButton
-          className="ml-2"
-          color="primary"
-          entityType={ENTITY_TYPE.LEVEL_OF_EVIDENCE}
-          entityAction={ENTITY_ACTION.CREATE}
-        />
+        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.LEVEL_OF_EVIDENCE} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       {props.levelOfEvidenceList && (
         <OncoKBTable data={props.levelOfEvidenceList.concat()} columns={columns} loading={props.loading} showPagination />
