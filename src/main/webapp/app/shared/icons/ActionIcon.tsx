@@ -17,16 +17,16 @@ export interface IActionIcon extends SpanProps {
 const ActionIcon: React.FunctionComponent<IActionIcon> = (props: IActionIcon) => {
   const { icon, compact, size, color, className, onMouseLeave, onMouseEnter, ...rest } = props;
   const defaultCompact = compact || false;
-  const fontSize = size === 'lg' ? 1.5 : 1.2;
+  const fontSize = size === 'lg' ? '1.5.rem' : '1.2rem';
   const defaultColor = color || PRIMARY;
   const iconStyle: CSSProperties = {
     position: 'absolute',
     transition: 'opacity 0.2s ease',
-    fontSize: `${fontSize}rem`,
+    fontSize: fontSize,
   };
   const containerStyle: CSSProperties = {
-    fontSize: `${fontSize}rem`,
-    width: `${fontSize}rem`,
+    fontSize: fontSize,
+    width: fontSize,
     display: 'inline-block',
     position: 'relative',
     cursor: 'pointer',
