@@ -431,7 +431,6 @@ const CurationPage = (props: ICurationPageProps) => {
                   options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
                     return {
                       label,
-                      // @ts-ignore
                       fieldKey: GENE_TYPE_KEY[label],
                     };
                   })}
