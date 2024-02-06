@@ -1,4 +1,4 @@
-import { action, makeObservable, observable } from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 import axios, { AxiosResponse } from 'axios';
 import BaseStore from 'app/shared/util/base-store';
 import { IRootStore } from 'app/stores/createStore';
@@ -16,6 +16,8 @@ export class FirebaseStore extends BaseStore {
   public firebaseCustomToken = '';
   public firebaseInitSuccess = false;
   public firebaseInitError: Error | undefined = undefined;
+  public firebaseLoginSuccess = false;
+  public firebaseLoginError: Error | undefined = undefined;
 
   getFirebaseToken = this.readHandler(this.getFirebaseTokenGen);
 
@@ -29,11 +31,18 @@ export class FirebaseStore extends BaseStore {
       firebaseDb: observable,
       firebaseInitSuccess: observable,
       firebaseInitError: observable,
+      firebaseLoginSuccess: observable,
+      firebaseLoginError: observable,
+      firebaseReady: computed,
       initializeFirebase: action.bound,
       signInToFirebase: action.bound,
       signOutFromFirebase: action.bound,
       getFirebaseToken: action.bound,
     });
+  }
+
+  get firebaseReady() {
+    return this.firebaseInitSuccess && this.firebaseLoginSuccess;
   }
 
   *getFirebaseTokenGen() {
@@ -54,7 +63,10 @@ export class FirebaseStore extends BaseStore {
         this.firebaseInitSuccess = true;
         return onAuthStateChanged(auth, user => {
           if (!user) {
+            this.firebaseLoginSuccess = false;
             this.signInToFirebase();
+          } else {
+            this.firebaseLoginSuccess = true;
           }
         });
       } catch (error) {
@@ -69,12 +81,20 @@ export class FirebaseStore extends BaseStore {
     this.getFirebaseToken()
       .then(token => {
         const auth = getAuth();
-        return signInWithCustomToken(auth, token).catch(e => {
-          notifyError(e, 'Error signing into Firebase.');
-        });
+        return signInWithCustomToken(auth, token)
+          .then(() => {
+            this.firebaseLoginSuccess = true;
+          })
+          .catch(e => {
+            notifyError(e, 'Error signing into Firebase.');
+            this.firebaseLoginSuccess = false;
+            this.firebaseLoginError = e;
+          });
       })
       .catch(e => {
         notifyError(e, 'Error getting Firebase custom token');
+        this.firebaseLoginSuccess = false;
+        this.firebaseLoginError = e;
       });
   }
 
