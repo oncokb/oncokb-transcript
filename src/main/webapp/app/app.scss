@@ -384,9 +384,6 @@ http://stackoverflow.com/questions/23436430/bootstrap-3-input-group-100-width */
 .collapsible-action {
   display: flex;
   align-items: center;
-  > * {
-    margin: 0 0.2rem;
-  }
 }
 .all-children-margin {
   > * {

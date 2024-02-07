@@ -65,8 +65,12 @@ export default function Collapsible({
           <div className="mr-auto" />
           <div className="d-flex align-items-center">
             {info}
-            {action && <div className={classNames(styles.divider)} />}
-            {action}
+            {action && (
+              <>
+                <div className={classNames(styles.divider)} />
+                <div className={'collapsible-action all-children-margin'}>{action}</div>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -189,7 +189,7 @@ const VusTable = ({
       Cell(cell: { original: VusTableData }) {
         return (
           <Container>
-            <Row className={classNames('d-flex', 'align-items-center', 'collapsible-action')}>
+            <Row className={classNames('d-flex', 'align-items-center', 'all-children-margin')}>
               <CommentIcon
                 id={cell.original.uuid}
                 key={cell.original.uuid}

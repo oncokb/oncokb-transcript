@@ -70,7 +70,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
 
   const getReviewActions = () => {
     return !rootReview.isUnderCreationOrDeletion && rootReview.reviewLevelType !== ReviewLevelType.META ? (
-      <span className={'collapsible-action'}>
+      <>
         <ActionIcon
           icon={faCheck}
           color={SUCCESS}
@@ -85,7 +85,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
             props.handleDelete(props.hugoSymbol, props.baseReviewLevel as ReviewLevel);
           }}
         />
-      </span>
+      </>
     ) : undefined;
   };
 
