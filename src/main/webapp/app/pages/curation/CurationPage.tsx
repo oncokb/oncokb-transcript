@@ -372,65 +372,69 @@ const CurationPage = (props: ICurationPageProps) => {
               <span style={{ fontSize: '3rem', lineHeight: 1 }} className={'mr-2'}>
                 {props.data.name}
               </span>
-              <CommentIcon
-                id={`${hugoSymbol}_curation_page`}
-                comments={props.data.name_comments || []}
-                onCreateComment={content =>
-                  handleCreateComment(`${firebaseGenePath}/name_comments`, content, props.data.name_comments?.length || 0)
-                }
-                onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/name_comments`, indices)}
-                onResolveComment={index => handleResolveComment(`${firebaseGenePath}/name_comments/${index}`)}
-                onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/name_comments/${index}`)}
-              />
-              <div>
-                <span>
-                  {geneEntity?.entrezGeneId && (
-                    <span className="ml-2">
-                      <span className="font-weight-bold text-nowrap">Entrez Gene:</span>
-                      <span className="ml-1">
-                        <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
-                      </span>
-                    </span>
-                  )}
-                  {geneEntity?.hgncId && (
-                    <span className="ml-2">
-                      <span className="font-weight-bold">HGNC:</span>
-                      <span className="ml-1">
-                        <HgncLink id={geneEntity.hgncId} />
-                      </span>
-                    </span>
-                  )}
-                  {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
-                    <span className="ml-2">
-                      <span className="font-weight-bold">Gene aliases:</span>
-                      <span className="ml-1">
-                        <WithSeparator separator={', '}>
-                          {geneEntity.synonyms.map(synonym => (
-                            <span className={'text-nowrap'} key={synonym.name}>
-                              {synonym.name}
-                            </span>
-                          ))}
+              {!isReviewing && (
+                <>
+                  <CommentIcon
+                    id={`${hugoSymbol}_curation_page`}
+                    comments={props.data.name_comments || []}
+                    onCreateComment={content =>
+                      handleCreateComment(`${firebaseGenePath}/name_comments`, content, props.data.name_comments?.length || 0)
+                    }
+                    onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/name_comments`, indices)}
+                    onResolveComment={index => handleResolveComment(`${firebaseGenePath}/name_comments/${index}`)}
+                    onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/name_comments/${index}`)}
+                  />
+                  <div>
+                    <span>
+                      {geneEntity?.entrezGeneId && (
+                        <span className="ml-2">
+                          <span className="font-weight-bold text-nowrap">Entrez Gene:</span>
+                          <span className="ml-1">
+                            <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
+                          </span>
+                        </span>
+                      )}
+                      {geneEntity?.hgncId && (
+                        <span className="ml-2">
+                          <span className="font-weight-bold">HGNC:</span>
+                          <span className="ml-1">
+                            <HgncLink id={geneEntity.hgncId} />
+                          </span>
+                        </span>
+                      )}
+                      {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
+                        <span className="ml-2">
+                          <span className="font-weight-bold">Gene aliases:</span>
+                          <span className="ml-1">
+                            <WithSeparator separator={', '}>
+                              {geneEntity.synonyms.map(synonym => (
+                                <span className={'text-nowrap'} key={synonym.name}>
+                                  {synonym.name}
+                                </span>
+                              ))}
+                            </WithSeparator>
+                          </span>
+                        </span>
+                      )}
+                      <span className="ml-2">
+                        <span className="font-weight-bold mr-2">External Links:</span>
+                        <WithSeparator separator={InlineDivider}>
+                          <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
+                            {CBIOPORTAL} <ExternalLinkIcon />
+                          </a>
+                          <a
+                            href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {COSMIC} <ExternalLinkIcon />
+                          </a>
                         </WithSeparator>
                       </span>
                     </span>
-                  )}
-                  <span className="ml-2">
-                    <span className="font-weight-bold mr-2">External Links:</span>
-                    <WithSeparator separator={InlineDivider}>
-                      <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
-                        {CBIOPORTAL} <ExternalLinkIcon />
-                      </a>
-                      <a
-                        href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {COSMIC} <ExternalLinkIcon />
-                      </a>
-                    </WithSeparator>
-                  </span>
-                </span>
-              </div>
+                  </div>
+                </>
+              )}
             </div>
             {getReviewButtons()}
           </Col>
