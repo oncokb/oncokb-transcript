@@ -44,6 +44,7 @@ import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import { HgncLink } from 'app/shared/links/HgncLink';
 import ReviewPage from './review/ReviewPage';
+import AddMutationButton from './button/AddMutationButton';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -552,23 +553,17 @@ const CurationPage = (props: ICurationPageProps) => {
                 </div>
               </Col>
             </Row>
-            {props.data.mutations && (
+            {props.data.mutations ? (
               <div className={'mb-5'}>
                 <Row>
                   <Col>
                     <div className={'d-flex justify-content-between align-items-center mb-2'}>
                       <div className="mb-2 d-flex align-items-center">
                         <h5 className="mb-0 mr-2">Mutations:</h5>{' '}
-                        <Button
-                          className="d-flex align-items-center mr-2"
-                          color="primary"
-                          outline
-                          size="sm"
-                          onClick={() => setShowAddMutationModal(show => !show)}
-                        >
-                          <FaPlus />
-                          <span className="ml-2">Add</span>
-                        </Button>
+                        <AddMutationButton
+                          showAddMutationModal={showAddMutationModal}
+                          onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
+                        />
                         {mutationsAreFiltered && (
                           <span>{`Showing ${mutations.length} of ${props.data.mutations.length} matching the search`}</span>
                         )}
@@ -592,6 +587,13 @@ const CurationPage = (props: ICurationPageProps) => {
                 </Row>
                 {getMutationCollapsibles()}
               </div>
+            ) : (
+              <AddMutationButton
+                showAddMutationModal={showAddMutationModal}
+                onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
+                showFullTitle
+                showIcon={false}
+              />
             )}
             <VusTable hugoSymbol={hugoSymbol} />
             <Modal isOpen={showFilterModal} toggle={handleToggleFilterModal}>
