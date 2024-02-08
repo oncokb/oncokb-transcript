@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Input, Label, LabelProps, Row } from 'reactstrap';
 import { InputType } from 'reactstrap/es/Input';
 import classnames from 'classnames';
@@ -71,27 +71,10 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? '' : 'font-weight-bold'} />
   );
 
-  const [inputValue, setInputValue] = useState(getValueByNestedKey(data, fieldKey));
-
-  const pushUpdateToFirebase = useCallback(
-    _.debounce((path: string, key: ExtractPathExpressions<Gene>, value: any) => {
-      updateReviewableContent(path, key, value);
-    }, 600),
-    []
-  );
-
+  const inputValue = getValueByNestedKey(data, fieldKey);
   const inputChangeHandler = e => {
     const updateValue = isCheckType ? (e.target.checked ? label : '') : e.target.value;
-
-    setInputValue(updateValue);
-
-    const firebaseGenePath = getFirebasePath('GENE', props.data.name);
-    if (type === RealtimeInputType.TEXT || type === RealtimeInputType.TEXTAREA || type === RealtimeInputType.INLINE_TEXT) {
-      pushUpdateToFirebase(firebaseGenePath, fieldKey, updateValue);
-    } else {
-      updateReviewableContent(firebaseGenePath, fieldKey, updateValue);
-    }
-
+    updateReviewableContent(getFirebasePath('GENE', props.data.name), fieldKey, updateValue);
     if (onChange) {
       onChange(e);
     }

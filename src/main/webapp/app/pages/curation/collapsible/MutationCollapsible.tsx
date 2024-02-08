@@ -47,7 +47,6 @@ export interface IMutationCollapsibleProps extends StoreProps {
   drugList: IDrug[];
 }
 
-/* eslint-disable no-console */
 const MutationCollapsible = ({
   data,
   hugoSymbol,
