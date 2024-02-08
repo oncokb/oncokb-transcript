@@ -23,7 +23,13 @@ import { MUTATION_EFFECT_OPTIONS, ONCOGENICITY_OPTIONS } from 'app/config/consta
 import styles from './styles.module.scss';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
 import { CANCER_TYPE_THERAPY_INDENTIFIER, GERMLINE_INHERITANCE_MECHANISM, PATHOGENICITY, PENETRANCE } from 'app/config/constants/constants';
-import { generateUuid, getCancerTypeName, getUserFullName } from 'app/shared/util/utils';
+import {
+  generateUuid,
+  getCancerTypeName,
+  getCancerTypesName,
+  getCancerTypesNameWithExclusion,
+  getUserFullName,
+} from 'app/shared/util/utils';
 import CancerTypeLevelSummary from '../nestLevelSummary/CancerTypeLevelSummary';
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
@@ -368,7 +374,7 @@ const MutationCollapsible = ({
           </Collapsible>
         </Collapsible>
         {mutation.tumors?.map((tumor, tumorIndex) => {
-          const cancerTypeName = tumor.cancerTypes.map(cancerType => getCancerTypeName(cancerType)).join(', ');
+          const cancerTypeName = getCancerTypesNameWithExclusion(tumor.cancerTypes, tumor.excludedCancerTypes || [], true);
           const cancerTypeFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}`);
 
           return (

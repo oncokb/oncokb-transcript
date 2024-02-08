@@ -44,6 +44,7 @@ import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import { HgncLink } from 'app/shared/links/HgncLink';
 import ReviewPage from './review/ReviewPage';
+import AddMutationButton from './button/AddMutationButton';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -90,9 +91,10 @@ const CurationPage = (props: ICurationPageProps) => {
     return (
       oncogenicityFilter.some(filter => filter.selected) ||
       mutationEffectFilter.some(filter => filter.selected) ||
-      txLevelFilter.some(filter => filter.selected)
+      txLevelFilter.some(filter => filter.selected) ||
+      mutationFilter
     );
-  }, [oncogenicityFilter, mutationEffectFilter, txLevelFilter]);
+  }, [oncogenicityFilter, mutationEffectFilter, txLevelFilter, mutationFilter]);
 
   const showFilterModalCancelButton = useMemo(() => {
     return (
@@ -370,65 +372,69 @@ const CurationPage = (props: ICurationPageProps) => {
               <span style={{ fontSize: '3rem', lineHeight: 1 }} className={'mr-2'}>
                 {props.data.name}
               </span>
-              <CommentIcon
-                id={`${hugoSymbol}_curation_page`}
-                comments={props.data.name_comments || []}
-                onCreateComment={content =>
-                  handleCreateComment(`${firebaseGenePath}/name_comments`, content, props.data.name_comments?.length || 0)
-                }
-                onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/name_comments`, indices)}
-                onResolveComment={index => handleResolveComment(`${firebaseGenePath}/name_comments/${index}`)}
-                onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/name_comments/${index}`)}
-              />
-              <div>
-                <span>
-                  {geneEntity?.entrezGeneId && (
-                    <span className="ml-2">
-                      <span className="font-weight-bold text-nowrap">Entrez Gene:</span>
-                      <span className="ml-1">
-                        <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
-                      </span>
-                    </span>
-                  )}
-                  {geneEntity?.hgncId && (
-                    <span className="ml-2">
-                      <span className="font-weight-bold">HGNC:</span>
-                      <span className="ml-1">
-                        <HgncLink id={geneEntity.hgncId} />
-                      </span>
-                    </span>
-                  )}
-                  {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
-                    <span className="ml-2">
-                      <span className="font-weight-bold">Gene aliases:</span>
-                      <span className="ml-1">
-                        <WithSeparator separator={', '}>
-                          {geneEntity.synonyms.map(synonym => (
-                            <span className={'text-nowrap'} key={synonym.name}>
-                              {synonym.name}
-                            </span>
-                          ))}
+              {!isReviewing && (
+                <>
+                  <CommentIcon
+                    id={`${hugoSymbol}_curation_page`}
+                    comments={props.data.name_comments || []}
+                    onCreateComment={content =>
+                      handleCreateComment(`${firebaseGenePath}/name_comments`, content, props.data.name_comments?.length || 0)
+                    }
+                    onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/name_comments`, indices)}
+                    onResolveComment={index => handleResolveComment(`${firebaseGenePath}/name_comments/${index}`)}
+                    onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/name_comments/${index}`)}
+                  />
+                  <div>
+                    <span>
+                      {geneEntity?.entrezGeneId && (
+                        <span className="ml-2">
+                          <span className="font-weight-bold text-nowrap">Entrez Gene:</span>
+                          <span className="ml-1">
+                            <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
+                          </span>
+                        </span>
+                      )}
+                      {geneEntity?.hgncId && (
+                        <span className="ml-2">
+                          <span className="font-weight-bold">HGNC:</span>
+                          <span className="ml-1">
+                            <HgncLink id={geneEntity.hgncId} />
+                          </span>
+                        </span>
+                      )}
+                      {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
+                        <span className="ml-2">
+                          <span className="font-weight-bold">Gene aliases:</span>
+                          <span className="ml-1">
+                            <WithSeparator separator={', '}>
+                              {geneEntity.synonyms.map(synonym => (
+                                <span className={'text-nowrap'} key={synonym.name}>
+                                  {synonym.name}
+                                </span>
+                              ))}
+                            </WithSeparator>
+                          </span>
+                        </span>
+                      )}
+                      <span className="ml-2">
+                        <span className="font-weight-bold mr-2">External Links:</span>
+                        <WithSeparator separator={InlineDivider}>
+                          <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
+                            {CBIOPORTAL} <ExternalLinkIcon />
+                          </a>
+                          <a
+                            href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {COSMIC} <ExternalLinkIcon />
+                          </a>
                         </WithSeparator>
                       </span>
                     </span>
-                  )}
-                  <span className="ml-2">
-                    <span className="font-weight-bold mr-2">External Links:</span>
-                    <WithSeparator separator={InlineDivider}>
-                      <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
-                        {CBIOPORTAL} <ExternalLinkIcon />
-                      </a>
-                      <a
-                        href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {COSMIC} <ExternalLinkIcon />
-                      </a>
-                    </WithSeparator>
-                  </span>
-                </span>
-              </div>
+                  </div>
+                </>
+              )}
             </div>
             {getReviewButtons()}
           </Col>
@@ -552,23 +558,17 @@ const CurationPage = (props: ICurationPageProps) => {
                 </div>
               </Col>
             </Row>
-            {props.data.mutations && (
+            {props.data.mutations ? (
               <div className={'mb-5'}>
                 <Row>
                   <Col>
                     <div className={'d-flex justify-content-between align-items-center mb-2'}>
                       <div className="mb-2 d-flex align-items-center">
                         <h5 className="mb-0 mr-2">Mutations:</h5>{' '}
-                        <Button
-                          className="d-flex align-items-center mr-2"
-                          color="primary"
-                          outline
-                          size="sm"
-                          onClick={() => setShowAddMutationModal(show => !show)}
-                        >
-                          <FaPlus />
-                          <span className="ml-2">Add</span>
-                        </Button>
+                        <AddMutationButton
+                          showAddMutationModal={showAddMutationModal}
+                          onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
+                        />
                         {mutationsAreFiltered && (
                           <span>{`Showing ${mutations.length} of ${props.data.mutations.length} matching the search`}</span>
                         )}
@@ -592,6 +592,13 @@ const CurationPage = (props: ICurationPageProps) => {
                 </Row>
                 {getMutationCollapsibles()}
               </div>
+            ) : (
+              <AddMutationButton
+                showAddMutationModal={showAddMutationModal}
+                onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
+                showFullTitle
+                showIcon={false}
+              />
             )}
             <VusTable hugoSymbol={hugoSymbol} />
             <Modal isOpen={showFilterModal} toggle={handleToggleFilterModal}>

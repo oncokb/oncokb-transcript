@@ -7,6 +7,7 @@ import React from 'react';
 import { sortByTxLevel } from 'app/shared/util/firebase/firebase-utils';
 import './nest-level-summary.scss';
 import '../../../shared/badge/count-badge.scss';
+import { TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 
 export type NestLevelSummaryStats = {
   TT?: number;
@@ -48,6 +49,7 @@ export const NestLevelSummary = (props: NestLevelSummaryProps) => {
           );
         })}
       {Object.keys(props.summaryStats.txLevels)
+        .filter(k => k !== TX_LEVELS.LEVEL_NO)
         .sort(sortByTxLevel)
         .map(k => {
           lastBadgeHasHiddenNumber = false;
