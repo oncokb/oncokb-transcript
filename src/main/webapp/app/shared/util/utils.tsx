@@ -1,7 +1,6 @@
 import React from 'react';
 import { ICancerType } from 'app/shared/model/cancer-type.model';
 import { IAlteration } from '../model/alteration.model';
-import { IDrug } from '../model/drug.model';
 import { v4 as uuidv4 } from 'uuid';
 import { IGene } from 'app/shared/model/gene.model';
 import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
@@ -14,14 +13,33 @@ import { CancerType } from '../model/firebase/firebase.model';
 import { ITreatment } from 'app/shared/model/treatment.model';
 import _ from 'lodash';
 
-export const getCancerTypeName = (cancerType: ICancerType | CancerType): string => {
+export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
   let name = '';
   if (cancerType) {
     if (cancerType.subtype) {
-      name = `${cancerType.subtype} (${cancerType.code})`;
+      name = cancerType.subtype;
+      if (!omitCode) {
+        name += ` (${cancerType.code})`;
+      }
     } else {
       name = cancerType.mainType;
     }
+  }
+  return name;
+};
+
+export const getCancerTypesName = (cancerTypes: ICancerType[] | CancerType[], omitCode = false): string => {
+  return cancerTypes.map(cancerType => getCancerTypeName(cancerType, omitCode)).join(', ');
+};
+
+export const getCancerTypesNameWithExclusion = (
+  cancerTypes: ICancerType[] | CancerType[],
+  excludedCancerTypes: ICancerType[] | CancerType[],
+  omitCode = false
+): string => {
+  let name = getCancerTypesName(cancerTypes, omitCode);
+  if (excludedCancerTypes.length > 0) {
+    name += ` {excluding ${getCancerTypesName(excludedCancerTypes, omitCode)}}`;
   }
   return name;
 };
