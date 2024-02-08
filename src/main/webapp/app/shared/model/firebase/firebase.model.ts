@@ -103,6 +103,9 @@ export class Treatment {
   propagationLiquid_uuid: string = generateUuid();
   propagation_review?: Review;
   propagation_uuid: string = generateUuid();
+  relevantCancerTypes?: CancerType[] = [];
+  relevantCancerTypes_review?: Review;
+  relevantCancerTypes_uuid?: string = generateUuid();
   short = '';
 
   constructor(name: string) {
@@ -292,6 +295,9 @@ export class Implication {
   level: DX_LEVELS | PX_LEVELS | '' = '';
   level_review?: Review;
   level_uuid: string = generateUuid();
+  relevantCancerTypes?: CancerType[] = [];
+  relevantCancerTypes_review?: Review;
+  relevantCancerTypes_uuid?: string = generateUuid();
   short = '';
 }
 

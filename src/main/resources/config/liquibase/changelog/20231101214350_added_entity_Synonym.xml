@@ -10,6 +10,11 @@
         Added the entity Synonym.
     -->
     <changeSet id="20231101214350-1" author="jhipster">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="synonym"/>
+            </not>
+        </preConditions>
         <createTable tableName="synonym">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
@@ -33,7 +38,7 @@
         </createTable>
         <addUniqueConstraint
             columnNames="type, name"
-            constraintName="ux_type__name"
+            constraintName="ux_type__name_synonym"
             tableName="synonym"
         />
     </changeSet>

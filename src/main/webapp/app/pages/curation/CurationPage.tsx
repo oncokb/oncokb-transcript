@@ -42,6 +42,7 @@ import { HgncLink } from 'app/shared/links/HgncLink';
 import ReviewPage from './review/ReviewPage';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import AddMutationButton from './button/AddMutationButton';
+import RelevantCancerTypesModal from 'app/shared/modal/RelevantCancerTypesModal';
 import { UncuratedGeneAlert } from 'app/shared/alert/UncuratedGeneAlert';
 import GeneTranscriptInfoInput from 'app/shared/firebase/input/GeneTranscriptInfoInput';
 
@@ -805,6 +806,21 @@ const CurationPage = (props: ICurationPageProps) => {
           </>
         )}
       </div>
+      <RelevantCancerTypesModal
+        onConfirm={async (newRelevantCancerTypes, noneDeleted) => {
+          try {
+            if (noneDeleted) {
+              await props.setUntemplated(props.relevantCancerTypesModalStore.pathToRelevantCancerTypes, []);
+            } else {
+              await props.setUntemplated(props.relevantCancerTypesModalStore.pathToRelevantCancerTypes, newRelevantCancerTypes);
+            }
+            props.relevantCancerTypesModalStore.closeModal();
+          } catch (error) {
+            notifyError(error);
+          }
+        }}
+        onCancel={() => props.relevantCancerTypesModalStore.closeModal()}
+      />
       {showAddMutationModal ? (
         <AddMutationModal
           mutationList={props.data?.mutations}
@@ -857,6 +873,7 @@ const mapStoreToProps = ({
   drugStore,
   authStore,
   firebaseStore,
+  relevantCancerTypesModalStore,
 }: IRootStore) => ({
   searchGeneEntities: geneStore.searchEntities,
   geneEntities: geneStore.entities,
@@ -865,6 +882,7 @@ const mapStoreToProps = ({
   data: firebaseGeneStore.data,
   update: firebaseGeneStore.update,
   updateMutations: firebaseGeneStore.pushToArrayFront,
+  setUntemplated: firebaseGeneStore.createUntemplated,
   updateReviewableContent: firebaseGeneStore.updateReviewableContent,
   deleteSection: firebaseGeneStore.deleteSection,
   mutationSummaryStats: firebaseGeneStore.mutationLevelMutationSummaryStats,
@@ -884,6 +902,7 @@ const mapStoreToProps = ({
   account: authStore.account,
   firebaseInitSuccess: firebaseStore.firebaseInitSuccess,
   fullName: authStore.fullName,
+  relevantCancerTypesModalStore,
   addVusListener: firebaseVusStore.addListener,
   vusData: firebaseVusStore.data,
 });

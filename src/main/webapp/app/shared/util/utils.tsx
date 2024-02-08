@@ -4,12 +4,12 @@ import { IAlteration } from '../model/alteration.model';
 import { v4 as uuidv4 } from 'uuid';
 import { IGene } from 'app/shared/model/gene.model';
 import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
+import { ENTITY_ACTION, ENTITY_TYPE, SPECIAL_CANCER_TYPES } from 'app/config/constants/constants';
 import EntityActionButton from '../button/EntityActionButton';
 import { SORT } from './pagination.constants';
 import { PaginationState } from '../table/OncoKBAsyncTable';
 import { IUser } from '../model/user.model';
-import { CancerType } from '../model/firebase/firebase.model';
+import { CancerType, Tumor } from '../model/firebase/firebase.model';
 import { ITreatment } from 'app/shared/model/treatment.model';
 import _ from 'lodash';
 
@@ -272,4 +272,8 @@ export function isNumeric(value: string) {
 
 export function notNullOrUndefined(val) {
   return val !== null && val !== undefined;
+}
+
+export function tumorContainsSpecialCancerType(tumor: Tumor) {
+  return Object.values(SPECIAL_CANCER_TYPES).some(specialCancerType => tumor.cancerTypes.some(ct => ct.mainType === specialCancerType));
 }

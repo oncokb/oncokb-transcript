@@ -21,7 +21,7 @@ spring:
     name: oncokb-curation
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:h2:mem:oncokb-curation;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:oncokb_curation;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     name:
     username:
     password:
@@ -29,7 +29,7 @@ spring:
       auto-commit: false
   jackson:
     serialization:
-      write-durations-as-timestamps: false
+      indent-output: true
   jpa:
     database-platform: tech.jhipster.domain.util.FixedH2Dialect
     open-in-view: false
@@ -75,6 +75,8 @@ spring:
         provider:
           oidc:
             issuer-uri: http://DO_NOT_CALL:8080/auth/realms/oncokb-curation
+  session:
+    store-type: none
 
 server:
   port: 10344
@@ -100,6 +102,14 @@ jhipster:
   mail:
     from: test@localhost
     base-url: http://127.0.0.1:8080
+  security:
+    authentication:
+      jwt:
+        # This token must be encoded using Base64 and be at least 256 bits long (you can type `openssl rand -base64 64` on your command line to generate a 512 bits one)
+        base64-secret: NGUwNTlhNDNhOWQ2ZGJlMmEzODczOWJjYWM2MWY4NDAwOTM4YTBmNGFjM2UxNjczZDU2YWZjZjc3MjdkNmU4YjVhZmIwYzI1NDhjMDFkZThiYmE5Mjc5MjM0MGVhODU5MGFhMTAyOTE0M2I3ODA1MGUzZWFhYWUwNWY2ZDgyNjQ=
+        # Token is valid 24 hours
+        token-validity-in-seconds: 86400
+        token-validity-in-seconds-for-remember-me: 2592000
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
@@ -109,4 +119,6 @@ jhipster:
 # https://www.jhipster.tech/common-application-properties/
 # ===================================================================
 
-# application:
+application:
+  firebase:
+    enabled: false

@@ -8,6 +8,7 @@ import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.CancerType;
+import org.mskcc.oncokb.curation.domain.RelevantCancerTypeBody;
 import org.mskcc.oncokb.curation.repository.CancerTypeRepository;
 import org.mskcc.oncokb.curation.service.CancerTypeQueryService;
 import org.mskcc.oncokb.curation.service.CancerTypeService;
@@ -216,5 +217,21 @@ public class CancerTypeResource {
         Page<CancerType> page = cancerTypeQueryService.findBySearchQuery(query, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code POST  /cancer-types/relevant} : get the relevant cancer types corresponding
+     * to the cancer type queries.
+     *
+     * @param levelOfEvidence the level of evidence of the diagnostic implication (Dx), prognostic implication (Px), or treatment (Tx)
+     * @param cancerTypeQueries an object containing relevant cancer type queries consisting of main type and code, allowing for excluded queries as well
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the relevant cancer types in the body.
+     */
+    @PostMapping("cancer-types/relevant")
+    public ResponseEntity<List<CancerType>> getRelevantCancerTypes(
+        @RequestParam(required = false) String levelOfEvidence,
+        @Valid @RequestBody RelevantCancerTypeBody cancerTypeQueries
+    ) {
+        return ResponseEntity.ok().body(cancerTypeService.getRelevantCancerTypes(levelOfEvidence, cancerTypeQueries));
     }
 }

@@ -3679,6 +3679,44 @@ export type ReferenceGenomeFilterNotInEnum = typeof ReferenceGenomeFilterNotInEn
 /**
  *
  * @export
+ * @interface RelevantCancerTypeBody
+ */
+export interface RelevantCancerTypeBody {
+  /**
+   *
+   * @type {Array<RelevantCancerTypeQuery>}
+   * @memberof RelevantCancerTypeBody
+   */
+  relevantCancerTypeQueries?: Array<RelevantCancerTypeQuery>;
+  /**
+   *
+   * @type {Array<RelevantCancerTypeQuery>}
+   * @memberof RelevantCancerTypeBody
+   */
+  excludedRelevantCancerTypeQueries?: Array<RelevantCancerTypeQuery>;
+}
+/**
+ *
+ * @export
+ * @interface RelevantCancerTypeQuery
+ */
+export interface RelevantCancerTypeQuery {
+  /**
+   *
+   * @type {string}
+   * @memberof RelevantCancerTypeQuery
+   */
+  mainType?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof RelevantCancerTypeQuery
+   */
+  code?: string;
+}
+/**
+ *
+ * @export
  * @interface SearchResultDTO
  */
 export interface SearchResultDTO {
@@ -7952,6 +7990,48 @@ export const CancerTypeResourceApiAxiosParamCreator = function (configuration?: 
     },
     /**
      *
+     * @param {RelevantCancerTypeBody} relevantCancerTypeBody
+     * @param {string} [levelOfEvidence]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getRelevantCancerTypes: async (
+      relevantCancerTypeBody: RelevantCancerTypeBody,
+      levelOfEvidence?: string,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'relevantCancerTypeBody' is not null or undefined
+      assertParamExists('getRelevantCancerTypes', 'relevantCancerTypeBody', relevantCancerTypeBody);
+      const localVarPath = `/api/cancer-types/relevant`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (levelOfEvidence !== undefined) {
+        localVarQueryParameter['levelOfEvidence'] = levelOfEvidence;
+      }
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(relevantCancerTypeBody, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
      * @param {number} id
      * @param {CancerType} cancerType
      * @param {*} [options] Override http request option.
@@ -8142,6 +8222,21 @@ export const CancerTypeResourceApiFp = function (configuration?: Configuration) 
     },
     /**
      *
+     * @param {RelevantCancerTypeBody} relevantCancerTypeBody
+     * @param {string} [levelOfEvidence]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async getRelevantCancerTypes(
+      relevantCancerTypeBody: RelevantCancerTypeBody,
+      levelOfEvidence?: string,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CancerType>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.getRelevantCancerTypes(relevantCancerTypeBody, levelOfEvidence, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
      * @param {number} id
      * @param {CancerType} cancerType
      * @param {*} [options] Override http request option.
@@ -8240,6 +8335,20 @@ export const CancerTypeResourceApiFactory = function (configuration?: Configurat
      */
     getCancerType(id: number, options?: any): AxiosPromise<CancerType> {
       return localVarFp.getCancerType(id, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {RelevantCancerTypeBody} relevantCancerTypeBody
+     * @param {string} [levelOfEvidence]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getRelevantCancerTypes(
+      relevantCancerTypeBody: RelevantCancerTypeBody,
+      levelOfEvidence?: string,
+      options?: any
+    ): AxiosPromise<Array<CancerType>> {
+      return localVarFp.getRelevantCancerTypes(relevantCancerTypeBody, levelOfEvidence, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -8344,6 +8453,20 @@ export class CancerTypeResourceApi extends BaseAPI {
   public getCancerType(id: number, options?: AxiosRequestConfig) {
     return CancerTypeResourceApiFp(this.configuration)
       .getCancerType(id, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {RelevantCancerTypeBody} relevantCancerTypeBody
+   * @param {string} [levelOfEvidence]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof CancerTypeResourceApi
+   */
+  public getRelevantCancerTypes(relevantCancerTypeBody: RelevantCancerTypeBody, levelOfEvidence?: string, options?: AxiosRequestConfig) {
+    return CancerTypeResourceApiFp(this.configuration)
+      .getRelevantCancerTypes(relevantCancerTypeBody, levelOfEvidence, options)
       .then(request => request(this.axios, this.basePath));
   }
 

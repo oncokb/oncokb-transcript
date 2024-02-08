@@ -40,7 +40,7 @@ import {
   PENETRANCE,
   RADIO_OPTION_NONE,
 } from 'app/config/constants/constants';
-import { generateUuid, getCancerTypesNameWithExclusion, getUserFullName } from 'app/shared/util/utils';
+import { generateUuid, getCancerTypesNameWithExclusion, getUserFullName, tumorContainsSpecialCancerType } from 'app/shared/util/utils';
 import CancerTypeLevelSummary from '../nestLevelSummary/CancerTypeLevelSummary';
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
@@ -57,6 +57,7 @@ import { RealtimeBasicLabel } from 'app/shared/firebase/input/RealtimeBasicInput
 import WithSeparator from 'react-with-separator';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import NoEntryBadge from 'app/shared/badge/NoEntryBadge';
+import RCTButton from '../button/RCTButton';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationList: Mutation[];
@@ -83,6 +84,7 @@ const MutationCollapsible = ({
   parsedHistoryList,
   modifyCancerTypeModalStore,
   modifyTherapyModalStore,
+  relevantCancerTypesModalStore,
   drugList,
   handleFirebaseUpdateUntemplated,
   handleFirebaseDeleteFromArray,
@@ -94,6 +96,7 @@ const MutationCollapsible = ({
   const title = getMutationName(mutation);
   const mutationFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}`);
   const hideOncogenicityStat = title.includes(',');
+  const tooManyRCTsText = 'This cancer type contains too many RCTs. Please modify the excluding cancer types instead.';
 
   const [isEditingMutation, setIsEditingMutation] = useState(false);
 
@@ -415,6 +418,7 @@ const MutationCollapsible = ({
         {mutation.tumors?.map((tumor, tumorIndex) => {
           const cancerTypeName = getCancerTypesNameWithExclusion(tumor.cancerTypes, tumor.excludedCancerTypes || [], true);
           const cancerTypeFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}`);
+          const cancerTypeContainsSpecialCancerType = tumorContainsSpecialCancerType(tumor);
 
           return (
             <div key={tumor.cancerTypes_uuid} className="mb-2">
@@ -521,11 +525,13 @@ const MutationCollapsible = ({
                     .map(treatmentObj => {
                       const tiIndex = treatmentObj.tiIndex;
                       const treatmentIndex = treatmentObj.treatmentIndex;
-                      const treatment = treatmentObj.treatment;
+                      const treatment = treatmentObj.treatment as Treatment;
                       const therapyFirebasePath = buildFirebaseGenePath(
                         hugoSymbol,
                         `mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}`
                       );
+                      const disableRctButton = cancerTypeContainsSpecialCancerType || treatment.level === 'None';
+
                       return (
                         <>
                           <Collapsible
@@ -555,6 +561,26 @@ const MutationCollapsible = ({
                                   onDeleteComments={indices => handleDeleteComments(`${therapyFirebasePath}/name_comments`, indices)}
                                   onResolveComment={index => handleResolveComment(`${therapyFirebasePath}/name_comments/${index}`)}
                                   onUnresolveComment={index => handleUnresolveComment(`${therapyFirebasePath}/name_comments/${index}`)}
+                                />
+                                <RCTButton
+                                  tooltipProps={
+                                    disableRctButton
+                                      ? {
+                                          overlay: cancerTypeContainsSpecialCancerType
+                                            ? tooManyRCTsText
+                                            : 'Add a highest level of evidence to view RCTs',
+                                        }
+                                      : null
+                                  }
+                                  disabled={disableRctButton}
+                                  onClick={() => {
+                                    relevantCancerTypesModalStore.openModal(
+                                      `${therapyFirebasePath}/relevantCancerTypes`,
+                                      tumor,
+                                      treatment.level,
+                                      treatment.relevantCancerTypes
+                                    );
+                                  }}
                                 />
                                 <EditIcon
                                   onClick={() => {
@@ -659,20 +685,38 @@ const MutationCollapsible = ({
                     title="Diagnostic Implication"
                     borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.DIAGNOSTIC]]}
                     action={
-                      <CommentIcon
-                        id={tumor.diagnostic_uuid}
-                        comments={tumor.diagnostic_comments || []}
-                        onCreateComment={content =>
-                          handleCreateComment(
-                            `${cancerTypeFirebasePath}/diagnostic_comments`,
-                            content,
-                            tumor.diagnostic_comments?.length || 0
-                          )
-                        }
-                        onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/diagnostic_comments`, indices)}
-                        onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/diagnostic_comments/${index}`)}
-                        onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/diagnostic_comments/${index}`)}
-                      />
+                      <>
+                        <CommentIcon
+                          id={tumor.diagnostic_uuid}
+                          comments={tumor.diagnostic_comments || []}
+                          onCreateComment={content =>
+                            handleCreateComment(
+                              `${cancerTypeFirebasePath}/diagnostic_comments`,
+                              content,
+                              tumor.diagnostic_comments?.length || 0
+                            )
+                          }
+                          onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/diagnostic_comments`, indices)}
+                          onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/diagnostic_comments/${index}`)}
+                          onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/diagnostic_comments/${index}`)}
+                        />
+                        <RCTButton
+                          tooltipProps={
+                            cancerTypeContainsSpecialCancerType || !tumor.diagnostic.level
+                              ? { overlay: cancerTypeContainsSpecialCancerType ? tooManyRCTsText : 'Add a level of evidence to view RCTs' }
+                              : null
+                          }
+                          disabled={!tumor.diagnostic.level || cancerTypeContainsSpecialCancerType}
+                          onClick={() => {
+                            relevantCancerTypesModalStore.openModal(
+                              `${cancerTypeFirebasePath}/diagnostic/relevantCancerTypes`,
+                              tumor,
+                              tumor.diagnostic.level as DX_LEVELS,
+                              tumor.diagnostic.relevantCancerTypes
+                            );
+                          }}
+                        />
+                      </>
                     }
                     isSectionEmpty={isSectionEmpty(
                       data,
@@ -699,20 +743,38 @@ const MutationCollapsible = ({
                     title="Prognostic Implication"
                     borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.PROGNOSTIC]]}
                     action={
-                      <CommentIcon
-                        id={tumor.prognostic_uuid}
-                        comments={tumor.prognostic_comments || []}
-                        onCreateComment={content =>
-                          handleCreateComment(
-                            `${cancerTypeFirebasePath}/prognostic_comments`,
-                            content,
-                            tumor.prognostic_comments?.length || 0
-                          )
-                        }
-                        onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/prognostic_comments`, indices)}
-                        onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/prognostic_comments/${index}`)}
-                        onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/prognostic_comments/${index}`)}
-                      />
+                      <>
+                        <CommentIcon
+                          id={tumor.prognostic_uuid}
+                          comments={tumor.prognostic_comments || []}
+                          onCreateComment={content =>
+                            handleCreateComment(
+                              `${cancerTypeFirebasePath}/prognostic_comments`,
+                              content,
+                              tumor.prognostic_comments?.length || 0
+                            )
+                          }
+                          onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/prognostic_comments`, indices)}
+                          onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/prognostic_comments/${index}`)}
+                          onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/prognostic_comments/${index}`)}
+                        />
+                        <RCTButton
+                          tooltipProps={
+                            cancerTypeContainsSpecialCancerType || !tumor.prognostic.level
+                              ? { overlay: cancerTypeContainsSpecialCancerType ? tooManyRCTsText : 'Add a level of evidence to view RCTs' }
+                              : null
+                          }
+                          disabled={!tumor.prognostic.level || cancerTypeContainsSpecialCancerType}
+                          onClick={() => {
+                            relevantCancerTypesModalStore.openModal(
+                              `${cancerTypeFirebasePath}/prognostic/relevantCancerTypes`,
+                              tumor,
+                              tumor.prognostic.level as PX_LEVELS,
+                              tumor.prognostic.relevantCancerTypes
+                            );
+                          }}
+                        />
+                      </>
                     }
                     isSectionEmpty={isSectionEmpty(
                       data,
@@ -849,7 +911,13 @@ const MutationCollapsible = ({
   );
 };
 
-const mapStoreToProps = ({ firebaseGeneStore, modifyCancerTypeModalStore, modifyTherapyModalStore, authStore }: IRootStore) => ({
+const mapStoreToProps = ({
+  firebaseGeneStore,
+  modifyCancerTypeModalStore,
+  modifyTherapyModalStore,
+  relevantCancerTypesModalStore,
+  authStore,
+}: IRootStore) => ({
   data: firebaseGeneStore.data,
   hugoSymbol: firebaseGeneStore.hugoSymbol,
   deleteSection: firebaseGeneStore.deleteSection,
@@ -859,6 +927,7 @@ const mapStoreToProps = ({ firebaseGeneStore, modifyCancerTypeModalStore, modify
   firebasePushToArray: firebaseGeneStore.pushToArray,
   modifyCancerTypeModalStore,
   modifyTherapyModalStore,
+  relevantCancerTypesModalStore,
   handleFirebaseDeleteFromArray: firebaseGeneStore.deleteFromArray,
   handleFirebaseUpdateUntemplated: firebaseGeneStore.updateUntemplated,
   account: authStore.account,

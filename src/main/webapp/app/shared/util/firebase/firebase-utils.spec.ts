@@ -9,12 +9,26 @@ import {
   isNestedObjectEmpty,
   isSectionEmpty,
   isSectionRemovableWithoutReview,
+  sortByDxLevel,
+  sortByPxLevel,
   sortByTxLevel,
 } from './firebase-utils';
-import { Gene, Meta, MetaReview, Mutation, Review, TX_LEVELS, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
+import {
+  DX_LEVELS,
+  Gene,
+  Meta,
+  MetaReview,
+  Mutation,
+  PX_LEVELS,
+  Review,
+  TX_LEVELS,
+  Treatment,
+  Tumor,
+} from 'app/shared/model/firebase/firebase.model';
 import { generateUuid } from '../utils';
 import { NestLevelType } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
+import { LEVELS } from 'app/config/colors';
 
 describe('FirebaseUtils', () => {
   describe('convertNestedObject', () => {
@@ -435,7 +449,7 @@ describe('FirebaseUtils', () => {
   });
 
   describe('sortByTxLevel', () => {
-    it('should sort therapeutic levels', () => {
+    it('should compare therapeutic indexes using ascending', () => {
       expect(sortByTxLevel(TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_R1)).toEqual(-1);
       expect(sortByTxLevel(TX_LEVELS.LEVEL_R1, TX_LEVELS.LEVEL_2)).toEqual(-1);
       expect(sortByTxLevel(TX_LEVELS.LEVEL_2, TX_LEVELS.LEVEL_3A)).toEqual(-1);
@@ -443,6 +457,64 @@ describe('FirebaseUtils', () => {
       expect(sortByTxLevel(TX_LEVELS.LEVEL_3B, TX_LEVELS.LEVEL_4)).toEqual(-1);
       expect(sortByTxLevel(TX_LEVELS.LEVEL_4, TX_LEVELS.LEVEL_R2)).toEqual(-1);
       expect(sortByTxLevel(TX_LEVELS.LEVEL_R2, TX_LEVELS.LEVEL_NO)).toEqual(-1);
+    });
+
+    const levels = [
+      TX_LEVELS.LEVEL_3A,
+      TX_LEVELS.LEVEL_R1,
+      TX_LEVELS.LEVEL_1,
+      TX_LEVELS.LEVEL_2,
+      TX_LEVELS.LEVEL_3B,
+      TX_LEVELS.LEVEL_4,
+      TX_LEVELS.LEVEL_R2,
+    ];
+
+    it('should sort therapeutic levels ascending', () => {
+      expect(levels.sort(sortByTxLevel)).toEqual([
+        TX_LEVELS.LEVEL_1,
+        TX_LEVELS.LEVEL_R1,
+        TX_LEVELS.LEVEL_2,
+        TX_LEVELS.LEVEL_3A,
+        TX_LEVELS.LEVEL_3B,
+        TX_LEVELS.LEVEL_4,
+        TX_LEVELS.LEVEL_R2,
+      ]);
+    });
+
+    it('should sort therapeutic levels descending', () => {
+      expect(levels.sort((a, b) => sortByTxLevel(a, b, 'desc'))).toEqual([
+        TX_LEVELS.LEVEL_R2,
+        TX_LEVELS.LEVEL_4,
+        TX_LEVELS.LEVEL_3B,
+        TX_LEVELS.LEVEL_3A,
+        TX_LEVELS.LEVEL_2,
+        TX_LEVELS.LEVEL_R1,
+        TX_LEVELS.LEVEL_1,
+      ]);
+    });
+  });
+
+  describe('sortByDxLevel', () => {
+    const levels = [DX_LEVELS.LEVEL_DX2, DX_LEVELS.LEVEL_DX1, DX_LEVELS.LEVEL_DX3];
+
+    it('should sort diagnostic levels ascending', () => {
+      expect(levels.sort(sortByDxLevel)).toEqual([DX_LEVELS.LEVEL_DX1, DX_LEVELS.LEVEL_DX2, DX_LEVELS.LEVEL_DX3]);
+    });
+
+    it('should sort diagnostic levels descending', () => {
+      expect(levels.sort((a, b) => sortByDxLevel(a, b, 'desc'))).toEqual([DX_LEVELS.LEVEL_DX3, DX_LEVELS.LEVEL_DX2, DX_LEVELS.LEVEL_DX1]);
+    });
+  });
+
+  describe('sortByPxLevel', () => {
+    const levels = [PX_LEVELS.LEVEL_PX3, PX_LEVELS.LEVEL_PX1, PX_LEVELS.LEVEL_PX2];
+
+    it('should sort prognostic levels ascending', () => {
+      expect(levels.sort(sortByPxLevel)).toEqual([PX_LEVELS.LEVEL_PX1, PX_LEVELS.LEVEL_PX2, PX_LEVELS.LEVEL_PX3]);
+    });
+
+    it('should sort prognostic levels descending', () => {
+      expect(levels.sort((a, b) => sortByPxLevel(a, b, 'desc'))).toEqual([PX_LEVELS.LEVEL_PX3, PX_LEVELS.LEVEL_PX2, PX_LEVELS.LEVEL_PX1]);
     });
   });
 });
