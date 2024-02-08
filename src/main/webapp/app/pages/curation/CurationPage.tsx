@@ -91,9 +91,10 @@ const CurationPage = (props: ICurationPageProps) => {
     return (
       oncogenicityFilter.some(filter => filter.selected) ||
       mutationEffectFilter.some(filter => filter.selected) ||
-      txLevelFilter.some(filter => filter.selected)
+      txLevelFilter.some(filter => filter.selected) ||
+      mutationFilter
     );
-  }, [oncogenicityFilter, mutationEffectFilter, txLevelFilter]);
+  }, [oncogenicityFilter, mutationEffectFilter, txLevelFilter, mutationFilter]);
 
   const showFilterModalCancelButton = useMemo(() => {
     return (
