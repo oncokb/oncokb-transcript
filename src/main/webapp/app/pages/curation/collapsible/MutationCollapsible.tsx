@@ -238,139 +238,135 @@ const MutationCollapsible = ({
               <AutoParseRefField summary={mutation.mutation_effect.description} />
             </div>
           </Collapsible>
-          {mutation.mutation_effect.germline && (
-            <Collapsible
-              open
-              className={'mt-2'}
-              title={'Germline'}
-              borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.GERMLINE]]}
-              action={
-                <CommentIcon
-                  id={`${mutation.mutation_effect_uuid}_germline`}
-                  comments={mutation.mutation_effect.germline_comments || []}
-                  onCreateComment={content =>
-                    handleCreateComment(
-                      `${mutationFirebasePath}/mutation_effect/germline_comments`,
-                      content,
-                      mutation.mutation_effect.germline_comments?.length || 0
-                    )
-                  }
-                  onDeleteComments={indices => handleDeleteComments(`${mutationFirebasePath}/mutation_effect/germline_comments`, indices)}
-                  onResolveComment={index => handleResolveComment(`${mutationFirebasePath}/mutation_effect/germline_comments/${index}`)}
-                  onUnresolveComment={index => handleUnresolveComment(`${mutationFirebasePath}/mutation_effect/germline_comments/${index}`)}
-                />
-              }
-              isSectionEmpty={isSectionEmpty(
-                data,
-                buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect/germline`)
-              )}
-            >
-              {mutation.germline_genomic_indicators && (
-                <div>
-                  <b className="mb-2">Genomic Indicators: </b>
-                  <WithSeparator separator={', '}>
-                    {mutation.germline_genomic_indicators?.map(indicator => {
-                      return (
-                        <span key={indicator.indicator}>
-                          {indicator.indicator}
-                          {indicator.alleleStates ? ` (${indicator.alleleStates.join(', ')})` : ''}
-                        </span>
-                      );
-                    })}
-                  </WithSeparator>
-                </div>
-              )}
-              <RealtimeTextAreaInput
-                fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/description`}
-                inputClass={styles.shortTextarea}
-                label="Description"
-                name="description"
+
+          <Collapsible
+            open
+            className={'mt-2'}
+            title={'Germline'}
+            borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.GERMLINE]]}
+            action={
+              <CommentIcon
+                id={`${mutation.mutation_effect_uuid}_germline`}
+                comments={mutation.mutation_effect.germline_comments || []}
+                onCreateComment={content =>
+                  handleCreateComment(
+                    `${mutationFirebasePath}/mutation_effect/germline_comments`,
+                    content,
+                    mutation.mutation_effect.germline_comments?.length || 0
+                  )
+                }
+                onDeleteComments={indices => handleDeleteComments(`${mutationFirebasePath}/mutation_effect/germline_comments`, indices)}
+                onResolveComment={index => handleResolveComment(`${mutationFirebasePath}/mutation_effect/germline_comments/${index}`)}
+                onUnresolveComment={index => handleUnresolveComment(`${mutationFirebasePath}/mutation_effect/germline_comments/${index}`)}
               />
-              <RealtimeCheckedInputGroup
-                groupHeader="Pathogenic"
-                isRadio
-                options={[
-                  PATHOGENICITY.PATHOGENIC,
-                  PATHOGENICITY.LIKELY_PATHOGENIC,
-                  PATHOGENICITY.BENIGN,
-                  PATHOGENICITY.LIKELY_BENIGN,
-                  PATHOGENICITY.UNKNOWN,
-                ].map(label => ({
-                  label,
-                  fieldKey: `mutations/${firebaseIndex}/mutation_effect/germline/pathogenic`,
-                }))}
-              />
-              <RealtimeCheckedInputGroup
-                groupHeader="Penetrance"
-                isRadio
-                options={[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER].map(label => ({
-                  label,
-                  fieldKey: `mutations/${firebaseIndex}/mutation_effect/germline/penetrance`,
-                }))}
-              />
-              <RealtimeTextAreaInput
-                fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/penetranceDescription`}
-                inputClass={styles.shortTextarea}
-                label="Description of penetrance"
-                name="penetranceDescription"
-              />
-              <RealtimeCheckedInputGroup
-                groupHeader="Mechanism of Inheritance"
-                isRadio
-                options={[GERMLINE_INHERITANCE_MECHANISM.RECESSIVE, GERMLINE_INHERITANCE_MECHANISM.DOMINANT].map(label => ({
-                  label,
-                  fieldKey: `mutations/${firebaseIndex}/mutation_effect/germline/inheritanceMechanism`,
-                }))}
-              />
-              <RealtimeTextAreaInput
-                fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/inheritanceMechanismDescription`}
-                inputClass={styles.shortTextarea}
-                label="Description of inheritance mechanism"
-                name="inheritanceMechanismDescription"
-              />
-              <div className={'d-flex'}>
-                <RealtimeBasicLabel label={'Cancer Risk'} id={'cancer-risk'} labelClass="mr-2 font-weight-bold" />
-                <Tabs
-                  className={'m-0'}
-                  tabs={[
-                    {
-                      title: 'Monoallelic',
-                      content: (
-                        <RealtimeTextAreaInput
-                          fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk/monoallelic`}
-                          inputClass={styles.shortTextarea}
-                          label=""
-                          name="monoallelicCancerRisk"
-                        />
-                      ),
-                    },
-                    {
-                      title: 'Biallelic',
-                      content: (
-                        <RealtimeTextAreaInput
-                          fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk/biallelic`}
-                          inputClass={styles.shortTextarea}
-                          label=""
-                          name="biallelicCancerRisk"
-                        />
-                      ),
-                    },
-                    {
-                      title: 'Mosaic',
-                      content: (
-                        <RealtimeTextAreaInput
-                          fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk/mosaic`}
-                          inputClass={styles.shortTextarea}
-                          label=""
-                          name="mosaicCancerRisk"
-                        />
-                      ),
-                    },
-                  ]}
-                />
+            }
+            isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect/germline`))}
+          >
+            {mutation.germline_genomic_indicators && (
+              <div>
+                <b className="mb-2">Genomic Indicators: </b>
+                <WithSeparator separator={', '}>
+                  {mutation.germline_genomic_indicators?.map(indicator => {
+                    return (
+                      <span key={indicator.indicator}>
+                        {indicator.indicator}
+                        {indicator.alleleStates ? ` (${indicator.alleleStates.join(', ')})` : ''}
+                      </span>
+                    );
+                  })}
+                </WithSeparator>
               </div>
-            </Collapsible>
-          )}
+            )}
+            <RealtimeTextAreaInput
+              fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/description`}
+              inputClass={styles.shortTextarea}
+              label="Description"
+              name="description"
+            />
+            <RealtimeCheckedInputGroup
+              groupHeader="Pathogenic"
+              isRadio
+              options={[
+                PATHOGENICITY.PATHOGENIC,
+                PATHOGENICITY.LIKELY_PATHOGENIC,
+                PATHOGENICITY.BENIGN,
+                PATHOGENICITY.LIKELY_BENIGN,
+                PATHOGENICITY.UNKNOWN,
+              ].map(label => ({
+                label,
+                fieldKey: `mutations/${firebaseIndex}/mutation_effect/germline/pathogenic`,
+              }))}
+            />
+            <RealtimeCheckedInputGroup
+              groupHeader="Penetrance"
+              isRadio
+              options={[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER].map(label => ({
+                label,
+                fieldKey: `mutations/${firebaseIndex}/mutation_effect/germline/penetrance`,
+              }))}
+            />
+            <RealtimeTextAreaInput
+              fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/penetranceDescription`}
+              inputClass={styles.shortTextarea}
+              label="Description of penetrance"
+              name="penetranceDescription"
+            />
+            <RealtimeCheckedInputGroup
+              groupHeader="Mechanism of Inheritance"
+              isRadio
+              options={[GERMLINE_INHERITANCE_MECHANISM.RECESSIVE, GERMLINE_INHERITANCE_MECHANISM.DOMINANT].map(label => ({
+                label,
+                fieldKey: `mutations/${firebaseIndex}/mutation_effect/germline/inheritanceMechanism`,
+              }))}
+            />
+            <RealtimeTextAreaInput
+              fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/inheritanceMechanismDescription`}
+              inputClass={styles.shortTextarea}
+              label="Description of inheritance mechanism"
+              name="inheritanceMechanismDescription"
+            />
+            <div className={'d-flex'}>
+              <RealtimeBasicLabel label={'Cancer Risk'} id={'cancer-risk'} labelClass="mr-2 font-weight-bold" />
+              <Tabs
+                className={'m-0'}
+                tabs={[
+                  {
+                    title: 'Monoallelic',
+                    content: (
+                      <RealtimeTextAreaInput
+                        fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk/monoallelic`}
+                        inputClass={styles.shortTextarea}
+                        label=""
+                        name="monoallelicCancerRisk"
+                      />
+                    ),
+                  },
+                  {
+                    title: 'Biallelic',
+                    content: (
+                      <RealtimeTextAreaInput
+                        fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk/biallelic`}
+                        inputClass={styles.shortTextarea}
+                        label=""
+                        name="biallelicCancerRisk"
+                      />
+                    ),
+                  },
+                  {
+                    title: 'Mosaic',
+                    content: (
+                      <RealtimeTextAreaInput
+                        fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk/mosaic`}
+                        inputClass={styles.shortTextarea}
+                        label=""
+                        name="mosaicCancerRisk"
+                      />
+                    ),
+                  },
+                ]}
+              />
+            </div>
+          </Collapsible>
         </Collapsible>
         {mutation.tumors?.map((tumor, tumorIndex) => {
           const cancerTypeName = tumor.cancerTypes.map(cancerType => getCancerTypeName(cancerType)).join(', ');
