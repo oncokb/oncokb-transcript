@@ -113,6 +113,7 @@
     "react-table": "^6.10.3",
     "react-toastify": "8.0.2",
     "react-transition-group": "4.4.2",
+    "react-viewport-list": "^7.1.2",
     "react-with-separator": "^1.2.0",
     "reactstrap": "8.10.0",
     "tslib": "2.3.1",

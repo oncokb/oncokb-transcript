@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps, useHistory } from 'react-router-dom';
 import { Button, Col, Container, Input, InputGroup, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
+import { ViewportList } from 'react-viewport-list';
 import { IRootStore } from 'app/stores';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import {
@@ -337,6 +338,29 @@ const CurationPage = (props: ICurationPageProps) => {
     return <>{button}</>;
   };
 
+  const mutationScrollContainerRef = useRef<HTMLDivElement>(null);
+
+  function getMutationCollapsibles() {
+    return (
+      <div style={{ height: '550px', overflowY: 'auto', overflowX: 'hidden' }} ref={mutationScrollContainerRef}>
+        <ViewportList viewportRef={mutationScrollContainerRef} items={mutations}>
+          {mutation => (
+            <Row key={mutation.firebaseIndex} className={'mb-2'}>
+              <Col>
+                <MutationCollapsible
+                  mutation={mutation}
+                  firebaseIndex={mutation.firebaseIndex}
+                  parsedHistoryList={parsedHistoryList}
+                  drugList={drugList}
+                />
+              </Col>
+            </Row>
+          )}
+        </ViewportList>
+      </div>
+    );
+  }
+
   return !!props.data && drugList.length > 0 && !props.loadingGenes ? (
     <>
       <div>
@@ -566,18 +590,7 @@ const CurationPage = (props: ICurationPageProps) => {
                     </div>
                   </Col>
                 </Row>
-                {mutations.map(mutation => (
-                  <Row key={mutation.firebaseIndex} className={'mb-2'}>
-                    <Col>
-                      <MutationCollapsible
-                        mutation={mutation}
-                        firebaseIndex={mutation.firebaseIndex}
-                        parsedHistoryList={parsedHistoryList}
-                        drugList={drugList}
-                      />
-                    </Col>
-                  </Row>
-                ))}
+                {getMutationCollapsibles()}
               </div>
             )}
             <VusTable hugoSymbol={hugoSymbol} />
