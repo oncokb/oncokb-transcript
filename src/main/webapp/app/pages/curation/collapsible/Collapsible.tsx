@@ -4,6 +4,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import NoEntryBadge from 'app/shared/badge/NoEntryBadge';
 
 export interface CollapsibleProps {
   title: React.ReactNode;
@@ -57,11 +58,7 @@ export default function Collapsible({
             {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
           </button>
           <span className={classNames(disableLeftBorder ? undefined : 'font-weight-bold')}>{title}</span>
-          {isSectionEmpty && (
-            <span className={`badge badge-pill badge-info ml-2 mr-2`} style={{ fontSize: '60%' }}>
-              No entry
-            </span>
-          )}
+          {isSectionEmpty && <NoEntryBadge />}
           <div className="mr-auto" />
           <div className="d-flex align-items-center">
             {info}
