@@ -39,10 +39,10 @@ import MutationCollapsible from './collapsible/MutationCollapsible';
 import { IDrug } from 'app/shared/model/drug.model';
 import { IGene } from 'app/shared/model/gene.model';
 import CurationToolsTab from 'app/components/tabs/CurationToolsTab';
-import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import { HgncLink } from 'app/shared/links/HgncLink';
 import ReviewPage from './review/ReviewPage';
+import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import AddMutationButton from './button/AddMutationButton';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
@@ -355,6 +355,7 @@ const CurationPage = (props: ICurationPageProps) => {
               onToggle={() => {
                 setOpenMutationCollapsible(null);
               }}
+              mutationList={props.data.mutations}
               mutation={mutation}
               firebaseIndex={mutation.firebaseIndex}
               parsedHistoryList={parsedHistoryList}
@@ -381,6 +382,7 @@ const CurationPage = (props: ICurationPageProps) => {
                     setOpenMutationCollapsible(mutation);
                     setMutationCollapsibleScrollIndex(index);
                   }}
+                  mutationList={props.data?.mutations}
                   mutation={mutation}
                   firebaseIndex={mutation.firebaseIndex}
                   parsedHistoryList={parsedHistoryList}
@@ -788,11 +790,12 @@ const CurationPage = (props: ICurationPageProps) => {
         )}
       </div>
       <AddMutationModal
+        mutationList={props.data?.mutations}
         hugoSymbol={hugoSymbol}
         isOpen={showAddMutationModal}
         onConfirm={async alterations => {
           if (alterations.length > 0) {
-            const newMutation = new Mutation(alterations.map(alteration => alteration.alteration).join(', '));
+            const newMutation = new Mutation(alterations.map(alteration => alteration.name).join(', '));
             newMutation.alterations = alterations;
 
             try {

@@ -50,6 +50,7 @@ import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import NoEntryBadge from 'app/shared/badge/NoEntryBadge';
 
 export interface IMutationCollapsibleProps extends StoreProps {
+  mutationList: Mutation[];
   mutation: Mutation;
   firebaseIndex: number;
   parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
@@ -65,6 +66,7 @@ const MutationCollapsible = ({
   updateTumor,
   updateTreatment,
   updateMutation,
+  mutationList,
   mutation,
   firebaseIndex,
   parsedHistoryList,
@@ -800,12 +802,13 @@ const MutationCollapsible = ({
         />
       </Collapsible>
       <AddMutationModal
+        mutationList={mutationList}
         hugoSymbol={hugoSymbol}
         mutationToEdit={isEditingMutation ? mutation : null}
         isOpen={isEditingMutation}
         onConfirm={async alterations => {
           const newMutation = _.cloneDeep(mutation);
-          newMutation.name = alterations.map(alteration => alteration.alteration).join(', ');
+          newMutation.name = alterations.map(alteration => alteration.name).join(', ');
           newMutation.alterations = alterations;
 
           try {

@@ -1,5 +1,6 @@
 import { GERMLINE_INHERITANCE_MECHANISM, PATHOGENICITY, PENETRANCE } from 'app/config/constants/constants';
 import { GENE_TYPE } from 'app/config/constants/firebase';
+import { AlterationTypeEnum, Gene as OncoKBGene } from 'app/shared/api/generated';
 import { generateUuid } from 'app/shared/util/utils';
 
 export type MetaCollection = {
@@ -160,6 +161,7 @@ export class GeneType {
 }
 
 export class Alteration {
+  type: AlterationTypeEnum = AlterationTypeEnum.Any;
   alteration = '';
   name = '';
   proteinChange = '';
@@ -170,6 +172,7 @@ export class Alteration {
   consequence = '';
   comment = '';
   excluding: Alteration[] = [];
+  genes: OncoKBGene[] = [];
 }
 
 export class Mutation {
