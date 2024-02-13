@@ -5,6 +5,15 @@ import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import NoEntryBadge from 'app/shared/badge/NoEntryBadge';
+import { DANGER } from 'app/config/colors';
+import DefaultBadge from 'app/shared/badge/DefaultBadge';
+
+const deletedSectionTooltipOverlay = (
+  <div>
+    <div>This deletion is pending for review.</div>
+    <div>To confirm or revert the deletion, please enter review mode.</div>
+  </div>
+);
 
 export interface CollapsibleProps {
   title: React.ReactNode;
@@ -17,6 +26,7 @@ export interface CollapsibleProps {
   open?: boolean;
   isSectionEmpty?: boolean;
   disableCollapsible?: boolean;
+  isPendingDelete?: boolean;
 }
 
 export default function Collapsible({
@@ -30,8 +40,22 @@ export default function Collapsible({
   open = false,
   isSectionEmpty = false,
   disableCollapsible = false,
+  isPendingDelete = false,
 }: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(open);
+
+  if (isPendingDelete) {
+    disableCollapsible = true;
+  }
+
+  const getBadge = () => {
+    if (isPendingDelete) {
+      return <DefaultBadge color="danger" text="Deleted" tooltipOverlay={deletedSectionTooltipOverlay} />;
+    }
+    if (isSectionEmpty) {
+      return <NoEntryBadge />;
+    }
+  };
 
   return (
     <div className={classNames('card', className, styles.main)}>
@@ -43,6 +67,9 @@ export default function Collapsible({
         )}
         ref={node => {
           if (node && borderLeftColor) {
+            if (isPendingDelete) {
+              borderLeftColor = DANGER;
+            }
             node.style.setProperty('border-left-color', borderLeftColor, 'important');
           }
         }}
@@ -57,18 +84,27 @@ export default function Collapsible({
           >
             {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
           </button>
-          <span className={classNames(disableLeftBorder ? undefined : 'font-weight-bold')}>{title}</span>
-          {isSectionEmpty && <NoEntryBadge />}
-          <div className="mr-auto" />
-          <div className="d-flex align-items-center">
-            {info}
-            {action && (
-              <>
-                <div className={classNames(styles.divider)} />
-                <div className={'collapsible-action all-children-margin'}>{action}</div>
-              </>
+          <span
+            className={classNames(
+              disableLeftBorder ? undefined : 'font-weight-bold',
+              isPendingDelete ? 'text-decoration-line-through' : undefined
             )}
-          </div>
+          >
+            {title}
+          </span>
+          {getBadge()}
+          <div className="mr-auto" />
+          {!isPendingDelete ? (
+            <div className="d-flex align-items-center">
+              {info}
+              {action && (
+                <>
+                  <div className={classNames(styles.divider)} />
+                  <div className={'collapsible-action all-children-margin'}>{action}</div>
+                </>
+              )}
+            </div>
+          ) : undefined}
         </div>
       </div>
       {isOpen && <div className={classNames('card-body', styles.body)}>{children}</div>}
