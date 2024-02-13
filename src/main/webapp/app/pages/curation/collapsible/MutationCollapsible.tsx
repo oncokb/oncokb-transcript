@@ -128,7 +128,7 @@ const MutationCollapsible = ({
     .value();
   const associatedDnaVariants = dnaVariants.filter(alt => alt.proteinChange === mutation.name).map(alt => alt.alteration);
 
-  const getCancerRiskTabTitle = (crTitle, crKey) => {
+  const getCancerRiskTabTitle = (crTitle: string, crKey: string) => {
     const val = getValueByNestedKey(data, crKey);
     return (
       <span>
