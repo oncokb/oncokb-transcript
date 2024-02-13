@@ -136,7 +136,7 @@ export const GeneDetail = (props: IGeneDetailProps) => {
               Align Selected Transcripts
             </Button>
             {selectedTranscriptIds.length > 0 && (
-              <Button color={'primary'} className={'ml-2'} onClick={clearSelectedTranscripts}>
+              <Button color={'primary'} outline className={'ml-2'} onClick={clearSelectedTranscripts}>
                 Clear Selection
               </Button>
             )}
