@@ -8,6 +8,7 @@ import { buildFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-ut
 import {
   getMutationName,
   getTxName,
+  getValueByNestedKey,
   isDnaVariant,
   isSectionEmpty,
   isSectionRemovableWithoutReview,
@@ -45,6 +46,7 @@ import Tabs from 'app/components/tabs/tabs';
 import { RealtimeBasicLabel } from 'app/shared/firebase/input/RealtimeBasicInput';
 import WithSeparator from 'react-with-separator';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
+import NoEntryBadge from 'app/shared/badge/NoEntryBadge';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutation: Mutation;
@@ -126,6 +128,15 @@ const MutationCollapsible = ({
     .value();
   const associatedDnaVariants = dnaVariants.filter(alt => alt.proteinChange === mutation.name).map(alt => alt.alteration);
 
+  const getCancerRiskTabTitle = (crTitle: string, crKey: string) => {
+    const val = getValueByNestedKey(data, crKey);
+    return (
+      <span>
+        {crTitle}
+        {!val && <NoEntryBadge />}
+      </span>
+    );
+  };
   return (
     <>
       <Collapsible
@@ -173,7 +184,7 @@ const MutationCollapsible = ({
             </div>
           )}
           <Collapsible
-            open
+            open={!mutation.name.startsWith('c.')}
             title="Somatic"
             borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.SOMATIC]]}
             action={
@@ -245,7 +256,7 @@ const MutationCollapsible = ({
           </Collapsible>
 
           <Collapsible
-            open
+            open={mutation.name.startsWith('c.')}
             className={'mt-2'}
             title={'Germline'}
             borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.GERMLINE]]}
@@ -336,7 +347,10 @@ const MutationCollapsible = ({
                 className={'m-0'}
                 tabs={[
                   {
-                    title: 'Monoallelic',
+                    title: getCancerRiskTabTitle(
+                      'Monoallelic',
+                      `mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk/monoallelic`
+                    ),
                     content: (
                       <RealtimeTextAreaInput
                         fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk/monoallelic`}
@@ -347,7 +361,7 @@ const MutationCollapsible = ({
                     ),
                   },
                   {
-                    title: 'Biallelic',
+                    title: getCancerRiskTabTitle('Biallelic', `mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk/biallelic`),
                     content: (
                       <RealtimeTextAreaInput
                         fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk/biallelic`}
@@ -358,7 +372,7 @@ const MutationCollapsible = ({
                     ),
                   },
                   {
-                    title: 'Mosaic',
+                    title: getCancerRiskTabTitle('Mosaic', `mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk/mosaic`),
                     content: (
                       <RealtimeTextAreaInput
                         fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/cancerRisk/mosaic`}
@@ -742,7 +756,12 @@ const MutationCollapsible = ({
             </div>
           );
         })}
-        <Button outline color="primary" onClick={() => modifyCancerTypeModalStore.openModal(`new_cancer_type_for_${mutation.name_uuid}`)}>
+        <Button
+          className={'mt-2'}
+          outline
+          color="primary"
+          onClick={() => modifyCancerTypeModalStore.openModal(`new_cancer_type_for_${mutation.name_uuid}`)}
+        >
           Add Cancer Type
         </Button>
         <ModifyCancerTypeModal
