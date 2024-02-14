@@ -214,6 +214,7 @@ const VusTable = ({
                 onClick={async () => {
                   await handleRefresh(cell.original.uuid);
                 }}
+                tooltipProps={{ overlay: <div>After rechecking that the variant is still a VUS, click to update the date to today.</div> }}
               />
               <ActionIcon
                 icon={faTrashAlt}
