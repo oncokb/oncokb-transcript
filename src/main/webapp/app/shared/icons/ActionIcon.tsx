@@ -4,6 +4,7 @@ import { faCircle as farCircle } from '@fortawesome/free-regular-svg-icons';
 import { faCircle as fasCircle, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import { PRIMARY } from 'app/config/colors';
+import DefaultTooltip, { DefaultTooltipProps } from '../tooltip/DefaultTooltip';
 
 type SpanProps = JSX.IntrinsicElements['span'];
 
@@ -12,10 +13,11 @@ export interface IActionIcon extends SpanProps {
   compact?: boolean;
   size?: 'sm' | 'lg';
   color?: string;
+  tooltipProps?: Omit<DefaultTooltipProps, 'children'>; // Omit children because that will be supplied by ActionIcon component
 }
 
 const ActionIcon: React.FunctionComponent<IActionIcon> = (props: IActionIcon) => {
-  const { icon, compact, size, color, className, onMouseLeave, onMouseEnter, ...rest } = props;
+  const { icon, compact, size, color, className, onMouseLeave, onMouseEnter, tooltipProps, ...rest } = props;
   const defaultCompact = compact || false;
   const fontSize = size === 'lg' ? '1.5.rem' : '1.2rem';
   const defaultColor = color || PRIMARY;
@@ -33,7 +35,7 @@ const ActionIcon: React.FunctionComponent<IActionIcon> = (props: IActionIcon) =>
   };
 
   const [hover, setHover] = React.useState(false);
-  return defaultCompact ? (
+  const iconComponent = defaultCompact ? (
     <span {...rest} style={containerStyle}>
       <FontAwesomeIcon icon={icon} color={defaultColor} />
     </span>
@@ -72,6 +74,14 @@ const ActionIcon: React.FunctionComponent<IActionIcon> = (props: IActionIcon) =>
         style={{ ...iconStyle, opacity: 1 }} // Check icon always visible
       />
     </span>
+  );
+  if (!tooltipProps) {
+    return iconComponent;
+  }
+  return (
+    <DefaultTooltip {...tooltipProps} placement="top">
+      {iconComponent}
+    </DefaultTooltip>
   );
 };
 export default ActionIcon;
