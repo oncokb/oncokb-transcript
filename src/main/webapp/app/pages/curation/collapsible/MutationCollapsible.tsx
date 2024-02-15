@@ -10,6 +10,7 @@ import {
   getTxName,
   getValueByNestedKey,
   isDnaVariant,
+  isPendingDelete,
   isSectionEmpty,
   isSectionRemovableWithoutReview,
   sortByTxLevel,
@@ -137,6 +138,9 @@ const MutationCollapsible = ({
       </span>
     );
   };
+
+  const isMutationPendingDelete = isPendingDelete(data, NestLevelType.MUTATION, mutationFirebasePath);
+
   return (
     <>
       <Collapsible
@@ -170,6 +174,7 @@ const MutationCollapsible = ({
           </>
         }
         isSectionEmpty={isSectionEmpty(data, mutationFirebasePath)}
+        isPendingDelete={isMutationPendingDelete}
       >
         <Collapsible
           open
@@ -432,6 +437,7 @@ const MutationCollapsible = ({
                   </>
                 }
                 isSectionEmpty={isSectionEmpty(data, cancerTypeFirebasePath)}
+                isPendingDelete={isPendingDelete(data, NestLevelType.CANCER_TYPE, cancerTypeFirebasePath)}
               >
                 <RealtimeTextAreaInput
                   fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/summary`}
@@ -633,6 +639,7 @@ const MutationCollapsible = ({
                               </>
                             }
                             isSectionEmpty={isSectionEmpty(data, therapyFirebasePath)}
+                            isPendingDelete={isPendingDelete(data, NestLevelType.THERAPY, therapyFirebasePath)}
                           >
                             <RealtimeDropdownInput
                               fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}

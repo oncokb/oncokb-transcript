@@ -183,6 +183,21 @@ export const isSectionEmpty = (geneData: Gene, fullPath: string) => {
   return isEmpty;
 };
 
+export const isPendingDelete = (geneData: Gene, nestLevel: RemovableNestLevel, path: string) => {
+  const key = parseFirebaseGenePath(path).pathFromGene;
+  let reviewKey = key;
+  if (nestLevel === NestLevelType.CANCER_TYPE) {
+    reviewKey += '/cancerTypes_review';
+  } else {
+    reviewKey += '/name_review';
+  }
+  const review = getValueByNestedKey(geneData, reviewKey);
+  if ((review as Review)?.removed) {
+    return true;
+  }
+  return false;
+};
+
 export const sortByTxLevel = (a: TX_LEVELS, b: TX_LEVELS) => {
   const ordering = [
     TX_LEVELS.LEVEL_1,

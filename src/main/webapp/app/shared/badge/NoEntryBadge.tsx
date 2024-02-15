@@ -1,13 +1,8 @@
 import React from 'react';
-import classNames from 'classnames';
+import DefaultBadge from './DefaultBadge';
 
 const NoEntryBadge: React.FunctionComponent<React.HTMLAttributes<HTMLSpanElement>> = props => {
-  const { className, style, ...rest } = props;
-  return (
-    <span className={classNames(`badge badge-pill badge-info mx-1`, className)} style={{ fontSize: '0.6rem', ...style }} {...rest}>
-      No entry
-    </span>
-  );
+  return <DefaultBadge color={'info'} text={'No entry'} {...props} />;
 };
 
 export default NoEntryBadge;
