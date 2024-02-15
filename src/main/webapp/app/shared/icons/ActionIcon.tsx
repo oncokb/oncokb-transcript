@@ -13,7 +13,7 @@ export interface IActionIcon extends SpanProps {
   compact?: boolean;
   size?: 'sm' | 'lg';
   color?: string;
-  tooltipProps?: Omit<DefaultTooltipProps, 'children'>; // Omit children because that will be be supplied by ActionIcon component
+  tooltipProps?: Omit<DefaultTooltipProps, 'children'>; // Omit children because that will be supplied by ActionIcon component
 }
 
 const ActionIcon: React.FunctionComponent<IActionIcon> = (props: IActionIcon) => {
