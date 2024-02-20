@@ -76,7 +76,7 @@ const MutationCollapsible = ({
 }: IMutationCollapsibleProps) => {
   const title = getMutationName(mutation);
   const mutationFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}`);
-  const showMutationLevelSummary = !title.includes(',');
+  const hideOncogenicityStat = title.includes(',');
 
   const [isEditingMutation, setIsEditingMutation] = useState(false);
 
@@ -147,7 +147,7 @@ const MutationCollapsible = ({
         className={'mb-1'}
         title={title}
         borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.MUTATION]]}
-        info={showMutationLevelSummary ? <MutationLevelSummary mutationUuid={mutation.name_uuid} /> : null}
+        info={<MutationLevelSummary mutationUuid={mutation.name_uuid} hideOncogenicity={hideOncogenicityStat} />}
         action={
           <>
             <GeneHistoryTooltip key={'gene-history-tooltip'} historyData={parsedHistoryList} location={getMutationName(mutation)} />
@@ -285,7 +285,7 @@ const MutationCollapsible = ({
           >
             {mutation.germline_genomic_indicators && (
               <div>
-                <b className="mb-2">Genomic Indicators: </b>
+                <b className="mb-2">Genomic Indicators </b>
                 <WithSeparator separator={', '}>
                   {mutation.germline_genomic_indicators?.map(indicator => {
                     return (

@@ -54,17 +54,17 @@ export interface IRealtimeCheckedInputGroup {
 
 export const RealtimeCheckedInputGroup = (props: IRealtimeCheckedInputGroup) => {
   return (
-    <div className="flex d-flex">
-      <span className="font-weight-bold text-nowrap">{props.groupHeader}:</span>
-      <span className="d-flex flex-wrap">
+    <div className="mb-2">
+      <div className="d-flex align-items-center font-weight-bold text-nowrap">{props.groupHeader}</div>
+      <div className="d-flex flex-wrap">
         {props.options.map(option => {
           return props.isRadio ? (
-            <RealtimeRadioInput key={option.label} fieldKey={option.fieldKey} className="ml-2" label={option.label} />
+            <RealtimeRadioInput key={option.label} fieldKey={option.fieldKey} className="mr-2" label={option.label} />
           ) : (
-            <RealtimeCheckboxInput key={option.label} fieldKey={option.fieldKey} className="ml-2" label={option.label} />
+            <RealtimeCheckboxInput key={option.label} fieldKey={option.fieldKey} className="mr-2" label={option.label} />
           );
         })}
-      </span>
+      </div>
     </div>
   );
 };

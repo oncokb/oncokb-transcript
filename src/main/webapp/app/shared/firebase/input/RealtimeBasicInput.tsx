@@ -68,7 +68,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   const isInlineInputText = type === RealtimeInputType.INLINE_TEXT;
 
   const labelComponent = label && (
-    <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? '' : 'font-weight-bold'} />
+    <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'font-weight-bold'} />
   );
 
   const inputValue = getValueByNestedKey(data, fieldKey);
@@ -99,8 +99,13 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     </Input>
   );
 
+  const checkTypeCss: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+  };
+
   return (
-    <div className={classNames('mb-2', className)}>
+    <div className={classNames(!isCheckType ? 'mb-2' : undefined, className)} style={isCheckType ? checkTypeCss : undefined}>
       {isCheckType ? (
         <>
           {inputComponent}
