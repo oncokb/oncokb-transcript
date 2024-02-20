@@ -285,7 +285,7 @@ const MutationCollapsible = ({
           >
             {mutation.germline_genomic_indicators && (
               <div>
-                <b className="mb-2">Genomic Indicators: </b>
+                <b className="mb-2">Genomic Indicators </b>
                 <WithSeparator separator={', '}>
                   {mutation.germline_genomic_indicators?.map(indicator => {
                     return (
