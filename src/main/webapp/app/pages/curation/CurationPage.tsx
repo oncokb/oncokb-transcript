@@ -83,6 +83,9 @@ const CurationPage = (props: ICurationPageProps) => {
 
   const [drugList, setDrugList] = useState<IDrug[]>([]);
 
+  const [openMutationCollapsibleUuid, setOpenMutationCollapsibleUuid] = useState<string>(null);
+  const [mutationCollapsibleScrollIndex, setMutationCollapsibleScrollIndex] = useState(0);
+
   function initFilterCheckboxState(options: string[]) {
     return options.map(option => ({ label: option, selected: false, disabled: false }));
   }
@@ -343,13 +346,37 @@ const CurationPage = (props: ICurationPageProps) => {
   const mutationScrollContainerRef = useRef<HTMLDivElement>(null);
 
   function getMutationCollapsibles() {
+    if (openMutationCollapsibleUuid) {
+      const mutation = mutations.find(mut => mut.name_uuid === openMutationCollapsibleUuid);
+      return (
+        <Row style={{ transition: 'height 0.5s, opacity 0.5s' }} className={'mb-2'}>
+          <Col>
+            <MutationCollapsible
+              open
+              onToggle={isOpen => {
+                setOpenMutationCollapsibleUuid(null);
+              }}
+              mutation={mutation}
+              firebaseIndex={mutation.firebaseIndex}
+              parsedHistoryList={parsedHistoryList}
+              drugList={drugList}
+            />
+          </Col>
+        </Row>
+      );
+    }
+
     return (
       <div style={{ height: '550px', overflowY: 'auto', overflowX: 'hidden' }} ref={mutationScrollContainerRef}>
-        <ViewportList viewportRef={mutationScrollContainerRef} items={mutations}>
-          {mutation => (
+        <ViewportList viewportRef={mutationScrollContainerRef} items={mutations} initialIndex={mutationCollapsibleScrollIndex}>
+          {(mutation, index) => (
             <Row key={mutation.firebaseIndex} className={'mb-2'}>
               <Col>
                 <MutationCollapsible
+                  onToggle={isOpen => {
+                    setOpenMutationCollapsibleUuid(mutation.name_uuid);
+                    setMutationCollapsibleScrollIndex(index);
+                  }}
                   mutation={mutation}
                   firebaseIndex={mutation.firebaseIndex}
                   parsedHistoryList={parsedHistoryList}
