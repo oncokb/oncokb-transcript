@@ -352,7 +352,7 @@ const CurationPage = (props: ICurationPageProps) => {
           <Col>
             <MutationCollapsible
               open
-              onToggle={isOpen => {
+              onToggle={() => {
                 setOpenMutationCollapsible(null);
               }}
               mutation={mutation}
@@ -377,7 +377,7 @@ const CurationPage = (props: ICurationPageProps) => {
             <Row key={mutation.firebaseIndex} className={'mb-2'}>
               <Col>
                 <MutationCollapsible
-                  onToggle={isOpen => {
+                  onToggle={() => {
                     setOpenMutationCollapsible(mutation);
                     setMutationCollapsibleScrollIndex(index);
                   }}
