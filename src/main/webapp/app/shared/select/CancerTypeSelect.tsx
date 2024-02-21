@@ -10,7 +10,9 @@ import { ICancerType } from '../model/cancer-type.model';
 import { ITEMS_PER_PAGE } from '../util/pagination.constants';
 import { getCancerTypeName } from 'app/shared/util/utils';
 
-interface ICancerTypeSelectProps extends SelectProps, StoreProps {}
+interface ICancerTypeSelectProps extends SelectProps, StoreProps {
+  disabledOptions?: CancerTypeSelectOption[];
+}
 
 export type CancerTypeSelectOption = {
   label: string;
@@ -18,6 +20,7 @@ export type CancerTypeSelectOption = {
   code: string;
   mainType: string;
   subtype: string;
+  isDisabled?: boolean;
 };
 
 const getAllMainTypes = (cancerTypeList: ICancerType[]) => {
@@ -28,7 +31,7 @@ const getAllSubtypes = (cancerTypeList: ICancerType[]) => {
   return _.uniq(cancerTypeList.filter(cancerType => cancerType.subtype)).sort();
 };
 
-const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
+const getAllCancerTypesOptions = (cancerTypeList: ICancerType[], disabledOptions?: CancerTypeSelectOption[]) => {
   return [
     {
       label: 'Cancer Type',
@@ -41,6 +44,7 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
             code: cancerType.code,
             mainType: cancerType.mainType,
             subtype: cancerType.subtype,
+            isDisabled: disabledOptions?.some(option => option.value === cancerType.id) || false,
           };
         }),
     },
@@ -53,6 +57,7 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
           code: cancerType.code,
           mainType: cancerType.mainType,
           subtype: cancerType.subtype,
+          isDisabled: disabledOptions?.some(option => option.value === cancerType.id) || false,
         };
       }),
     },
@@ -60,7 +65,7 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
 };
 
 const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props => {
-  const { getCancerTypes, searchCancerTypes, ...selectProps } = props;
+  const { getCancerTypes, searchCancerTypes, disabledOptions, ...selectProps } = props;
   const loadCancerTypeOptions = async (
     searchWord: string,
     prevOptions: any[],
@@ -74,7 +79,7 @@ const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props 
       result = await props.getCancerTypes({ page: page - 1, size: ITEMS_PER_PAGE, sort: 'id,ASC' });
     }
 
-    options = getAllCancerTypesOptions(result.data);
+    options = getAllCancerTypesOptions(result.data, disabledOptions);
     options[0].options = _.uniqBy(options[0].options, 'label');
     options[1].options = _.uniqBy(options[1].options, 'label');
 

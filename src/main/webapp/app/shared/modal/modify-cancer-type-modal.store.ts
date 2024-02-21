@@ -6,6 +6,7 @@ export class ModifyCancerTypeModalStore {
   public includedCancerTypes: CancerTypeSelectOption[] = [];
   public excludedCancerTypes: CancerTypeSelectOption[] = [];
   public isErrorFetchingICancerTypes = false;
+  public isErrorIncludedAndExcluded = false;
   public isRetryButtonClicked = false;
 
   constructor() {
@@ -14,6 +15,7 @@ export class ModifyCancerTypeModalStore {
       includedCancerTypes: observable,
       excludedCancerTypes: observable,
       isErrorFetchingICancerTypes: observable,
+      isErrorIncludedAndExcluded: observable,
       isRetryButtonClicked: observable,
       setIncludedCancerTypes: action.bound,
       setExcludedCancerTypes: action.bound,
@@ -25,6 +27,11 @@ export class ModifyCancerTypeModalStore {
   }
 
   setIncludedCancerTypes(cancerTypes: CancerTypeSelectOption[]) {
+    if (cancerTypes.some(cancerType => this.excludedCancerTypes.some(ex => ex.value === cancerType.value))) {
+      this.isErrorIncludedAndExcluded = true;
+    } else {
+      this.isErrorIncludedAndExcluded = false;
+    }
     this.includedCancerTypes = cancerTypes;
   }
 

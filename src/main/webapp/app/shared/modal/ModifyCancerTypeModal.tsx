@@ -7,7 +7,7 @@ import { IRootStore } from 'app/stores';
 import { componentInject } from '../util/typed-inject';
 import { ICancerType } from '../model/cancer-type.model';
 import { FaExclamationCircle } from 'react-icons/fa';
-import { Button, Spinner } from 'reactstrap';
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 import { observer } from 'mobx-react-lite';
 import styles from './styles.module.scss';
 
@@ -64,8 +64,10 @@ const ModifyCancerTypeModalContent = observer(
     async function getICancerTypeFromCancerType(cancerType: CancerType) {
       try {
         const isMainType = !cancerType.subtype;
-        const iCancerType = await searchCancerTypes({ query: isMainType ? cancerType.mainType : cancerType.code });
-        return isMainType ? iCancerType['data'].find(data => !data.subtype) : iCancerType['data'][0];
+        const iCancerType = await searchCancerTypes({ query: cancerType.mainType, size: 10000 });
+        return isMainType
+          ? iCancerType['data'].find(data => !data.subtype)
+          : iCancerType['data'].find(data => data.subtype === cancerType.subtype);
       } catch {
         modifyCancerTypeModalStore.setIsErrorFetchingICancerTypes(true);
         return null;
@@ -131,23 +133,21 @@ const ModifyCancerTypeModalContent = observer(
     }, []);
 
     const isConfirmButtonDisabled = useMemo(
-      () => modifyCancerTypeModalStore.isErrorFetchingICancerTypes || modifyCancerTypeModalStore.includedCancerTypes.length < 1,
-      [modifyCancerTypeModalStore.includedCancerTypes, modifyCancerTypeModalStore.isErrorFetchingICancerTypes]
+      () =>
+        modifyCancerTypeModalStore.isErrorFetchingICancerTypes ||
+        modifyCancerTypeModalStore.isErrorIncludedAndExcluded ||
+        modifyCancerTypeModalStore.includedCancerTypes.length < 1,
+      [
+        modifyCancerTypeModalStore.includedCancerTypes,
+        modifyCancerTypeModalStore.isErrorFetchingICancerTypes,
+        modifyCancerTypeModalStore.isErrorIncludedAndExcluded,
+      ]
     );
 
     return (
-      <SimpleConfirmModal
-        show={true}
-        title={cancerTypesUuid.startsWith('new_cancer_type_for') ? 'Add Cancer Type(s)' : 'Modify Cancer Type(s)'}
-        onCancel={onCancel}
-        confirmDisabled={isConfirmButtonDisabled}
-        onConfirm={() => {
-          onConfirm(
-            modifyCancerTypeModalStore.includedCancerTypes.map(option => getCancerTypeFromCancerTypeSelectOption(option)),
-            modifyCancerTypeModalStore.excludedCancerTypes.map(option => getCancerTypeFromCancerTypeSelectOption(option))
-          );
-        }}
-        body={
+      <Modal isOpen>
+        <ModalHeader>{cancerTypesUuid.startsWith('new_cancer_type_for') ? 'Add Cancer Type(s)' : 'Modify Cancer Type(s)'}</ModalHeader>
+        <ModalBody>
           <div>
             {modifyCancerTypeModalStore.isErrorFetchingICancerTypes && (
               <div className={`mb-4 ${styles.warning}`}>
@@ -177,7 +177,9 @@ const ModifyCancerTypeModalContent = observer(
                 onChange={options => modifyCancerTypeModalStore.setIncludedCancerTypes(options)}
                 isMulti
               />
-              {isConfirmButtonDisabled && !modifyCancerTypeModalStore.isErrorFetchingICancerTypes ? (
+              {isConfirmButtonDisabled &&
+              !modifyCancerTypeModalStore.isErrorFetchingICancerTypes &&
+              !modifyCancerTypeModalStore.isErrorIncludedAndExcluded ? (
                 <div className={`mt-2 mb-4 ${styles.warning}`}>
                   <FaExclamationCircle className="mr-2" size={'25px'} />
                   <span>You must include at least one cancer type</span>
@@ -191,11 +193,41 @@ const ModifyCancerTypeModalContent = observer(
                 value={modifyCancerTypeModalStore.excludedCancerTypes}
                 onChange={options => modifyCancerTypeModalStore.setExcludedCancerTypes(options)}
                 isMulti
+                disabledOptions={modifyCancerTypeModalStore.includedCancerTypes}
               />
             </div>
           </div>
-        }
-      />
+        </ModalBody>
+        <ModalFooter style={{ display: 'inline-block' }}>
+          <div className="d-flex justify-content-between align-items-center">
+            {modifyCancerTypeModalStore.isErrorIncludedAndExcluded ? (
+              <div className={styles.warning}>
+                <FaExclamationCircle className="mr-2" size={'25px'} />
+                <span className="mr-3">Cancer types may not be both included and excluded</span>
+              </div>
+            ) : (
+              <div />
+            )}
+            <div style={{ flexShrink: 0 }}>
+              <Button className="mr-2" onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button
+                color="primary"
+                disabled={isConfirmButtonDisabled}
+                onClick={() => {
+                  onConfirm(
+                    modifyCancerTypeModalStore.includedCancerTypes.map(option => getCancerTypeFromCancerTypeSelectOption(option)),
+                    modifyCancerTypeModalStore.excludedCancerTypes.map(option => getCancerTypeFromCancerTypeSelectOption(option))
+                  );
+                }}
+              >
+                Confirm
+              </Button>
+            </div>
+          </div>
+        </ModalFooter>
+      </Modal>
     );
   }
 );
