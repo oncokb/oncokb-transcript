@@ -26,8 +26,7 @@ import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/fir
 import { geneNeedsReview, getFirebasePath, getMutationName } from 'app/shared/util/firebase/firebase-utils';
 import styles from './styles.module.scss';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { CancerType, Comment, DX_LEVELS, HistoryRecord, Mutation, PX_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
-import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
+import { Comment, HistoryRecord, Mutation } from 'app/shared/model/firebase/firebase.model';
 import { GENE_TYPE, GENE_TYPE_KEY, MUTATION_EFFECT_OPTIONS, ONCOGENICITY_OPTIONS, TX_LEVEL_OPTIONS } from 'app/config/constants/firebase';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
 import VusTable from '../../shared/table/VusTable';
@@ -83,7 +82,7 @@ const CurationPage = (props: ICurationPageProps) => {
 
   const [drugList, setDrugList] = useState<IDrug[]>([]);
 
-  const [openMutationCollapsibleUuid, setOpenMutationCollapsibleUuid] = useState<string>(null);
+  const [openMutationCollapsible, setOpenMutationCollapsible] = useState<Mutation>(null);
   const [mutationCollapsibleScrollIndex, setMutationCollapsibleScrollIndex] = useState(0);
 
   function initFilterCheckboxState(options: string[]) {
@@ -346,15 +345,15 @@ const CurationPage = (props: ICurationPageProps) => {
   const mutationScrollContainerRef = useRef<HTMLDivElement>(null);
 
   function getMutationCollapsibles() {
-    if (openMutationCollapsibleUuid) {
-      const mutation = mutations.find(mut => mut.name_uuid === openMutationCollapsibleUuid);
+    if (openMutationCollapsible) {
+      const mutation = mutations.find(mut => mut.name_uuid === openMutationCollapsible.name_uuid);
       return (
         <Row style={{ transition: 'height 0.5s, opacity 0.5s' }} className={'mb-2'}>
           <Col>
             <MutationCollapsible
               open
               onToggle={isOpen => {
-                setOpenMutationCollapsibleUuid(null);
+                setOpenMutationCollapsible(null);
               }}
               mutation={mutation}
               firebaseIndex={mutation.firebaseIndex}
@@ -368,13 +367,18 @@ const CurationPage = (props: ICurationPageProps) => {
 
     return (
       <div style={{ height: '550px', overflowY: 'auto', overflowX: 'hidden' }} ref={mutationScrollContainerRef}>
-        <ViewportList viewportRef={mutationScrollContainerRef} items={mutations} initialIndex={mutationCollapsibleScrollIndex}>
+        <ViewportList
+          viewportRef={mutationScrollContainerRef}
+          items={mutations}
+          initialIndex={mutationCollapsibleScrollIndex}
+          initialPrerender={10}
+        >
           {(mutation, index) => (
             <Row key={mutation.firebaseIndex} className={'mb-2'}>
               <Col>
                 <MutationCollapsible
                   onToggle={isOpen => {
-                    setOpenMutationCollapsibleUuid(mutation.name_uuid);
+                    setOpenMutationCollapsible(mutation);
                     setMutationCollapsibleScrollIndex(index);
                   }}
                   mutation={mutation}
@@ -587,36 +591,52 @@ const CurationPage = (props: ICurationPageProps) => {
             </Row>
             {props.data.mutations ? (
               <div className={'mb-5'}>
-                <Row>
-                  <Col>
-                    <div className={'d-flex justify-content-between align-items-center mb-2'}>
-                      <div className="mb-2 d-flex align-items-center">
-                        <h5 className="mb-0 mr-2">Mutations:</h5>{' '}
-                        <AddMutationButton
-                          showAddMutationModal={showAddMutationModal}
-                          onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
-                        />
-                        {mutationsAreFiltered && (
-                          <span>{`Showing ${mutations.length} of ${props.data.mutations.length} matching the search`}</span>
-                        )}
+                {openMutationCollapsible ? (
+                  <Row className="mb-4">
+                    <Col>
+                      <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <span className={styles.link} onClick={() => setOpenMutationCollapsible(null)}>
+                          Mutations
+                        </span>
+                        <span className="px-2" style={{ color: '#6c757d' }}>
+                          /
+                        </span>
+                        <span>{openMutationCollapsible.name}</span>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <FaFilter
-                          color={mutationsAreFiltered ? 'gold' : null}
-                          style={{ cursor: 'pointer' }}
-                          onClick={handleToggleFilterModal}
-                          className="mr-2"
-                          id="filter"
-                        />
-                        <Input
-                          placeholder={'Search Mutation'}
-                          value={mutationFilter}
-                          onChange={event => setMutationFilter(event.target.value)}
-                        />
+                    </Col>
+                  </Row>
+                ) : (
+                  <Row>
+                    <Col>
+                      <div className={'d-flex justify-content-between align-items-center mb-2'}>
+                        <div className="mb-2 d-flex align-items-center">
+                          <h5 className="mb-0 mr-2">Mutations:</h5>{' '}
+                          <AddMutationButton
+                            showAddMutationModal={showAddMutationModal}
+                            onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
+                          />
+                          {mutationsAreFiltered && (
+                            <span>{`Showing ${mutations.length} of ${props.data.mutations.length} matching the search`}</span>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <FaFilter
+                            color={mutationsAreFiltered ? 'gold' : null}
+                            style={{ cursor: 'pointer' }}
+                            onClick={handleToggleFilterModal}
+                            className="mr-2"
+                            id="filter"
+                          />
+                          <Input
+                            placeholder={'Search Mutation'}
+                            value={mutationFilter}
+                            onChange={event => setMutationFilter(event.target.value)}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  </Col>
-                </Row>
+                    </Col>
+                  </Row>
+                )}
                 {getMutationCollapsibles()}
               </div>
             ) : (
