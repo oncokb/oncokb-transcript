@@ -27,6 +27,7 @@ export interface CollapsibleProps {
   isSectionEmpty?: boolean;
   disableCollapsible?: boolean;
   isPendingDelete?: boolean;
+  onToggle?: (isOpen: boolean) => void;
 }
 
 export default function Collapsible({
@@ -41,6 +42,7 @@ export default function Collapsible({
   isSectionEmpty = false,
   disableCollapsible = false,
   isPendingDelete = false,
+  onToggle,
 }: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(open);
 
@@ -80,7 +82,10 @@ export default function Collapsible({
             style={{ opacity: disableCollapsible ? '0' : '1' }}
             type="button"
             className={classNames('btn', 'py-1')}
-            onClick={() => setIsOpen(_isOpen => !_isOpen)}
+            onClick={() => {
+              setIsOpen(_isOpen => !_isOpen);
+              onToggle && onToggle(!isOpen);
+            }}
           >
             {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
           </button>

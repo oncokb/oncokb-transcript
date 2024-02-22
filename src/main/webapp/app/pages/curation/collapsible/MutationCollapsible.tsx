@@ -54,6 +54,8 @@ export interface IMutationCollapsibleProps extends StoreProps {
   firebaseIndex: number;
   parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
   drugList: IDrug[];
+  open?: boolean;
+  onToggle?: (isOpen: boolean) => void;
 }
 
 const MutationCollapsible = ({
@@ -73,6 +75,8 @@ const MutationCollapsible = ({
   handleFirebaseDeleteFromArray,
   account,
   firebasePushToArray,
+  open = false,
+  onToggle,
 }: IMutationCollapsibleProps) => {
   const title = getMutationName(mutation);
   const mutationFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}`);
@@ -144,10 +148,12 @@ const MutationCollapsible = ({
   return (
     <>
       <Collapsible
+        open={open}
         className={'mb-1'}
         title={title}
         borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.MUTATION]]}
         info={<MutationLevelSummary mutationUuid={mutation.name_uuid} hideOncogenicity={hideOncogenicityStat} />}
+        onToggle={onToggle ? isOpen => onToggle(isOpen) : null}
         action={
           <>
             <GeneHistoryTooltip key={'gene-history-tooltip'} historyData={parsedHistoryList} location={getMutationName(mutation)} />
