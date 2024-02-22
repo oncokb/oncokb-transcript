@@ -10,7 +10,9 @@ import { ICancerType } from '../model/cancer-type.model';
 import { ITEMS_PER_PAGE } from '../util/pagination.constants';
 import { getCancerTypeName } from 'app/shared/util/utils';
 
-interface ICancerTypeSelectProps extends SelectProps, StoreProps {}
+interface ICancerTypeSelectProps extends SelectProps, StoreProps {
+  disabledOptions?: CancerTypeSelectOption[];
+}
 
 export type CancerTypeSelectOption = {
   label: string;
@@ -18,6 +20,7 @@ export type CancerTypeSelectOption = {
   code: string;
   mainType: string;
   subtype: string;
+  isDisabled?: boolean;
 };
 
 const getAllMainTypes = (cancerTypeList: ICancerType[]) => {
@@ -60,7 +63,7 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
 };
 
 const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props => {
-  const { getCancerTypes, searchCancerTypes, ...selectProps } = props;
+  const { getCancerTypes, searchCancerTypes, disabledOptions, ...selectProps } = props;
   const loadCancerTypeOptions = async (
     searchWord: string,
     prevOptions: any[],
@@ -101,6 +104,7 @@ const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props 
       additional={{ ...defaultAdditional, type: SearchOptionType.CANCER_TYPE }}
       loadOptions={loadCancerTypeOptions}
       reduceOptions={reduceGroupedOptions}
+      isOptionDisabled={option => disabledOptions?.some(disabled => disabled.value === option.value) || false}
       cacheUniqs={[props.value]}
       placeholder="Select a cancer type..."
       isClearable
