@@ -26,16 +26,25 @@ export class ModifyCancerTypeModalStore {
     });
   }
 
-  setIncludedCancerTypes(cancerTypes: CancerTypeSelectOption[]) {
-    if (cancerTypes.some(cancerType => this.excludedCancerTypes.some(ex => ex.value === cancerType.value))) {
-      this.isErrorIncludedAndExcluded = true;
-    } else {
-      this.isErrorIncludedAndExcluded = false;
+  private setIsErrorIncludedAndExcluded(cancerTypes1: CancerTypeSelectOption[], cancerTypes2: CancerTypeSelectOption[]) {
+    for (const ct1 of cancerTypes1) {
+      for (const ct2 of cancerTypes2) {
+        if (ct1.value === ct2.value) {
+          this.isErrorIncludedAndExcluded = true;
+          return;
+        }
+      }
     }
+    this.isErrorIncludedAndExcluded = false;
+  }
+
+  setIncludedCancerTypes(cancerTypes: CancerTypeSelectOption[]) {
+    this.setIsErrorIncludedAndExcluded(cancerTypes, this.excludedCancerTypes);
     this.includedCancerTypes = cancerTypes;
   }
 
   setExcludedCancerTypes(cancerTypes: CancerTypeSelectOption[]) {
+    this.setIsErrorIncludedAndExcluded(this.includedCancerTypes, cancerTypes);
     this.excludedCancerTypes = cancerTypes;
   }
 

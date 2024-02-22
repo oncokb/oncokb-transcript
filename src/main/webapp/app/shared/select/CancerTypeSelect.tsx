@@ -31,7 +31,7 @@ const getAllSubtypes = (cancerTypeList: ICancerType[]) => {
   return _.uniq(cancerTypeList.filter(cancerType => cancerType.subtype)).sort();
 };
 
-const getAllCancerTypesOptions = (cancerTypeList: ICancerType[], disabledOptions?: CancerTypeSelectOption[]) => {
+const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
   return [
     {
       label: 'Cancer Type',
@@ -44,7 +44,6 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[], disabledOptions
             code: cancerType.code,
             mainType: cancerType.mainType,
             subtype: cancerType.subtype,
-            isDisabled: disabledOptions?.some(option => option.value === cancerType.id) || false,
           };
         }),
     },
@@ -57,7 +56,6 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[], disabledOptions
           code: cancerType.code,
           mainType: cancerType.mainType,
           subtype: cancerType.subtype,
-          isDisabled: disabledOptions?.some(option => option.value === cancerType.id) || false,
         };
       }),
     },
@@ -79,7 +77,7 @@ const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props 
       result = await props.getCancerTypes({ page: page - 1, size: ITEMS_PER_PAGE, sort: 'id,ASC' });
     }
 
-    options = getAllCancerTypesOptions(result.data, disabledOptions);
+    options = getAllCancerTypesOptions(result.data);
     options[0].options = _.uniqBy(options[0].options, 'label');
     options[1].options = _.uniqBy(options[1].options, 'label');
 
@@ -106,6 +104,7 @@ const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props 
       additional={{ ...defaultAdditional, type: SearchOptionType.CANCER_TYPE }}
       loadOptions={loadCancerTypeOptions}
       reduceOptions={reduceGroupedOptions}
+      isOptionDisabled={option => disabledOptions?.some(disabled => disabled.value === option.value) || false}
       cacheUniqs={[props.value]}
       placeholder="Select a cancer type..."
       isClearable
