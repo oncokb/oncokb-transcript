@@ -78,12 +78,16 @@ public class AlterationUtils {
         if (isFusion(proteinChange)) {
             Alteration alteration = parseFusionProteinChange(proteinChange);
             entityWithStatus.setEntity(alteration);
+            entityWithStatus.setType(status);
+            entityWithStatus.setMessage(message);
             return entityWithStatus;
         }
 
         if (isCopyNumberAlteration(proteinChange)) {
             Alteration alteration = parseCnaProteinChange(proteinChange);
             entityWithStatus.setEntity(alteration);
+            entityWithStatus.setType(status);
+            entityWithStatus.setMessage(message);
             return entityWithStatus;
         }
 

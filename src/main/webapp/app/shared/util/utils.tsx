@@ -176,21 +176,85 @@ export async function isPromiseOk(promise: Promise<any>) {
   }
 }
 
-export function parseAlterationName(name: string) {
-  const regex = new RegExp('([A-Z][0-9]+)([^0-9/]+)/(.+)', 'i');
+// splits alteration name separated by / into multiple alterations
+export function expandAlterationName(name: string) {
+  const regex = new RegExp('^([A-Z])\\s*([0-9]+)\\s*([A-Z])\\s*((?:/\\s*[A-Z]\\s*)*)$', 'i');
   const parts = regex.exec(name);
+
   if (!parts) {
     return [name];
   }
 
-  const alterations = [];
-  const firstPart = parts[1].trim();
-  alterations.push(firstPart + parts[2].trim());
-  const rest = parts[3].split('/');
-  for (const part of rest) {
-    alterations.push(firstPart + part.trim());
+  const alterations: string[] = [];
+  const firstPart = parts[1] + parts[2];
+  alterations.push(firstPart + parts[3]);
+  const rest = parts[4].substring(1);
+  const alleles = rest ? rest.split('/') : [];
+  for (const allele of alleles) {
+    alterations.push(firstPart + allele.trim());
   }
   return alterations;
+}
+
+// splits alteration name into alteration, excluding and comment
+// if alteration is separated by /, applies the same excluding and comment to separated alterations
+export function parseAlterationName(alterationName: string): { alteration: string; excluding: string[]; comment: string; name: string }[] {
+  let regex = new RegExp('\\[(.*)\\]', 'i');
+  const nameSection = regex.exec(alterationName);
+  let name = '';
+  if (nameSection?.length > 1) {
+    name = nameSection[1];
+  }
+
+  const alterationNameWithoutVariantName = alterationName.replace(nameSection?.[0], '');
+
+  regex = new RegExp('({ *excluding[^}]+})', 'i');
+  const excludingSection = regex.exec(alterationName);
+  let alterationNameWithoutVariantNameAndExcluding = alterationNameWithoutVariantName;
+  const excluding: string[] = [];
+  if (excludingSection?.length > 1) {
+    alterationNameWithoutVariantNameAndExcluding = alterationNameWithoutVariantName.replace(excludingSection[1], '');
+
+    excludingSection[1] = excludingSection[1].slice(1, -1); // remove curly braces
+    excludingSection[1] = excludingSection[1].replace(/excluding/i, '');
+    const excludedNames = excludingSection[1].split(';');
+    for (const ex of excludedNames) {
+      excluding.push(...expandAlterationName(ex.trim()));
+    }
+  }
+
+  const parentheses = [];
+  let comment = '';
+  for (const c of alterationName) {
+    if (c === '(') {
+      if (parentheses.length > 0) {
+        comment += c;
+      }
+      parentheses.push(c);
+    } else if (c === ')') {
+      parentheses.pop();
+      if (parentheses.length > 0) {
+        comment += c;
+      }
+    } else if (parentheses.length > 0) {
+      comment += c;
+    }
+
+    if (parentheses.length === 0 && comment.length > 0) {
+      break;
+    }
+  }
+
+  const parsedAlteration = alterationNameWithoutVariantNameAndExcluding.replace('(' + comment + ')', '');
+
+  const alterationNames = expandAlterationName(parsedAlteration.trim());
+
+  return alterationNames.map(alteration => ({
+    alteration,
+    excluding,
+    comment,
+    name,
+  }));
 }
 
 export function findIndexOfFirstCapital(str: string) {
@@ -204,4 +268,8 @@ export function findIndexOfFirstCapital(str: string) {
 
 export function isNumeric(value: string) {
   return /^-?\d+$/.test(value);
+}
+
+export function notNullOrUndefined(val) {
+  return val !== null && val !== undefined;
 }

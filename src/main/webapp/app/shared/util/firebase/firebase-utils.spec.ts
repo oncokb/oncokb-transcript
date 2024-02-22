@@ -56,7 +56,7 @@ describe('FirebaseUtils', () => {
   });
 
   describe('getMutationName', () => {
-    describe('When alteration prop is specified', () => {
+    describe('When name and alteration prop are specified', () => {
       it('Mutation name is specified', () => {
         let mutation = {
           name: 'name',
@@ -64,11 +64,12 @@ describe('FirebaseUtils', () => {
             {
               proteinChange: 'protein change',
               alteration: 'cdna',
+              name: 'cdna (comment)',
             },
           ],
         } as Mutation;
         expect(getMutationName(mutation), 'Mutation name should include both protein change and cdna when available').toEqual(
-          'cdna (p.protein change)'
+          'cdna (comment) (p.protein change)'
         );
 
         mutation = {
@@ -85,7 +86,7 @@ describe('FirebaseUtils', () => {
           name: 'name',
           alterations: [
             {
-              alteration: 'cdna',
+              name: 'cdna',
             },
           ],
         } as Mutation;
@@ -96,12 +97,13 @@ describe('FirebaseUtils', () => {
           alterations: [
             {
               proteinChange: 'protein change',
+              name: 'cdna (comment)',
               alteration: 'cdna',
             },
           ],
         } as Mutation;
         expect(getMutationName(mutation), 'Mutation name should include both protein change and cdna when available').toEqual(
-          'cdna (p.protein change)'
+          'cdna (comment) (p.protein change)'
         );
 
         mutation = {
@@ -116,7 +118,7 @@ describe('FirebaseUtils', () => {
         mutation = {
           alterations: [
             {
-              alteration: 'cdna',
+              name: 'cdna',
             },
           ],
         } as Mutation;

@@ -48,8 +48,8 @@ export const isDnaVariant = (alteration: Alteration) => {
 };
 
 export const getAlterationName = (alteration: Alteration) => {
-  if (alteration.alteration) {
-    let name = alteration.alteration;
+  if (alteration.name) {
+    let name = alteration.name;
     if (alteration.proteinChange && alteration.proteinChange !== alteration.alteration) {
       name += ` (p.${alteration.proteinChange})`;
     }
