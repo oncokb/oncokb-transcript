@@ -59,6 +59,11 @@ export default function Collapsible({
     }
   };
 
+  const handleToggleCollapsible = () => {
+    setIsOpen(_isOpen => !_isOpen);
+    onToggle && onToggle(!isOpen);
+  };
+
   return (
     <div className={classNames('card', className, styles.main)}>
       <div
@@ -77,26 +82,25 @@ export default function Collapsible({
         }}
       >
         <div style={{ flexGrow: 1 }} className="d-flex align-items-center">
-          <button
-            disabled={disableCollapsible}
-            style={{ opacity: disableCollapsible ? '0' : '1' }}
-            type="button"
-            className={classNames('btn', 'py-1')}
-            onClick={() => {
-              setIsOpen(_isOpen => !_isOpen);
-              onToggle && onToggle(!isOpen);
-            }}
-          >
-            {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
-          </button>
-          <span
-            className={classNames(
-              disableLeftBorder ? undefined : 'font-weight-bold',
-              isPendingDelete ? 'text-decoration-line-through' : undefined
-            )}
-          >
-            {title}
-          </span>
+          <div className={styles.collapsibleTitleWrapper} onClick={handleToggleCollapsible}>
+            <button
+              disabled={disableCollapsible}
+              style={{ opacity: disableCollapsible ? '0' : '1' }}
+              type="button"
+              className={classNames('btn', 'py-1')}
+              onClick={handleToggleCollapsible}
+            >
+              {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
+            </button>
+            <span
+              className={classNames(
+                disableLeftBorder ? undefined : 'font-weight-bold',
+                isPendingDelete ? 'text-decoration-line-through' : undefined
+              )}
+            >
+              {title}
+            </span>
+          </div>
           {getBadge()}
           <div className="mr-auto" />
           {!isPendingDelete ? (
