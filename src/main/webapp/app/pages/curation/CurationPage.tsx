@@ -41,6 +41,8 @@ import { HgncLink } from 'app/shared/links/HgncLink';
 import ReviewPage from './review/ReviewPage';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import AddMutationButton from './button/AddMutationButton';
+import { UncuratedGeneAlert } from 'app/shared/alert/UncuratedGeneAlert';
+import GeneTranscriptInfoInput from 'app/shared/firebase/input/GeneTranscriptInfoInput';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -52,12 +54,10 @@ export type FirebaseMutation = Mutation & {
 
 const CurationPage = (props: ICurationPageProps) => {
   const history = useHistory();
-  const hugoSymbol = props.match.params.hugoSymbol;
+  const hugoSymbol = props.match.params.hugoSymbol.toUpperCase();
   const firebaseGenePath = getFirebasePath('GENE', hugoSymbol);
   const firebaseHistoryPath = getFirebasePath('HISTORY', hugoSymbol);
   const firebaseMetaPath = getFirebasePath('META_GENE', hugoSymbol);
-
-  const [finishedGeneSearch, setFinishedGeneSearch] = useState(false);
 
   const [isReviewing, setIsReviewing] = useState(false);
   const [isReviewFinished, setIsReviewFinished] = useState(false);
@@ -87,6 +87,12 @@ const CurationPage = (props: ICurationPageProps) => {
   function initFilterCheckboxState(options: string[]) {
     return options.map(option => ({ label: option, selected: false, disabled: false }));
   }
+
+  const isGeneCurated = useMemo(() => {
+    if (props.metaListData) {
+      return Object.keys(props.metaListData).includes(hugoSymbol);
+    }
+  }, [props.metaListData]);
 
   const mutationsAreFiltered = useMemo(() => {
     return (
@@ -171,20 +177,14 @@ const CurationPage = (props: ICurationPageProps) => {
 
   useEffect(() => {
     if (props.firebaseInitSuccess) {
-      props.searchGeneEntities({ query: hugoSymbol, exact: true });
       const cleanupCallbacks = [];
-      props
-        .searchGeneEntities({ query: hugoSymbol, exact: true })
-        .then(() => {
-          if (!props.geneNotFound) {
-            cleanupCallbacks.push(props.addListener(firebaseGenePath));
-            cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
-            cleanupCallbacks.push(props.addMetaListener(firebaseMetaPath));
-            cleanupCallbacks.push(() => props.updateCollaborator(hugoSymbol, false));
-            cleanupCallbacks.push(props.addMetaCollaboratorsListener());
-          }
-        })
-        .finally(() => setFinishedGeneSearch(true));
+      props.searchGeneEntities({ query: hugoSymbol, exact: true });
+      cleanupCallbacks.push(props.addListener(firebaseGenePath));
+      cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
+      cleanupCallbacks.push(props.addMetaListener(firebaseMetaPath));
+      cleanupCallbacks.push(props.addMetaListListener());
+      cleanupCallbacks.push(() => props.updateCollaborator(hugoSymbol, false));
+      cleanupCallbacks.push(props.addMetaCollaboratorsListener());
       return () => {
         cleanupCallbacks.forEach(callback => callback && callback());
       };
@@ -402,8 +402,8 @@ const CurationPage = (props: ICurationPageProps) => {
     );
   }
 
-  if (finishedGeneSearch && !props.loadingGenes && props.geneNotFound) {
-    return <UnknownGeneAlert />;
+  if (!isGeneCurated) {
+    return <UncuratedGeneAlert />;
   }
 
   return !!props.data && drugList.length > 0 && !props.loadingGenes ? (
@@ -861,7 +861,9 @@ const mapStoreToProps = ({
   mutationSummaryStats: firebaseGeneStore.mutationLevelMutationSummaryStats,
   addMetaListener: firebaseMetaStore.addListener,
   addMetaCollaboratorsListener: firebaseMetaStore.addMetaCollaboratorsListener,
+  addMetaListListener: firebaseMetaStore.addMetaListListener,
   metaData: firebaseMetaStore.data,
+  metaListData: firebaseMetaStore.metaList,
   getDrugs: drugStore.getEntities,
   metaCollaboratorsData: firebaseMetaStore.metaCollaborators,
   updateCollaborator: firebaseMetaStore.updateCollaborator,

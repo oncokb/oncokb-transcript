@@ -99,7 +99,7 @@ const GeneListPage = (props: StoreProps) => {
           ) : (
             <LoadingIndicator size={LoaderSize.LARGE} center={true} isLoading />
           )}
-          <OncoKBSidebar>
+          <OncoKBSidebar defaultOpen>
             <Tabs
               tabs={[
                 {

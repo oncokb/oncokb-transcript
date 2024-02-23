@@ -3,8 +3,9 @@ import { IRootStore } from 'app/stores';
 import BaseCrudStore from 'app/shared/util/base-crud-store';
 import _ from 'lodash';
 import { ICrudSearchAction } from 'app/shared/util/jhipster-types';
-import { ENTITY_INFO, ENTITY_RESOURCE_PATH, ENTITY_TYPE } from 'app/config/constants/constants';
+import { ENTITY_TYPE } from 'app/config/constants/constants';
 import { getEntityResourcePath } from 'app/shared/util/RouteUtils';
+import { computed, makeObservable } from 'mobx';
 
 export const debouncedSearchWithPagination = _.debounce(
   (query: string, page, size, sort, searchEntities) => {
@@ -43,7 +44,9 @@ export class PaginationCrudStore<T> extends BaseCrudStore<T> {
   }
 
   *getSearch({ query, exact, page, size, sort }) {
-    let url = `${this.apiUrl}/search?query=${query}${page ? `&page=${page}` : ''}${size ? `&size=${size}` : ''}${sort ? `&sort=${sort}` : ''}`;
+    let url = `${this.apiUrl}/search?query=${query}${page ? `&page=${page}` : ''}${size ? `&size=${size}` : ''}${
+      sort ? `&sort=${sort}` : ''
+    }`;
     if (exact !== undefined) {
       url = `${url}&exact=${exact}`;
     }
