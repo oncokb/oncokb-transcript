@@ -1,6 +1,6 @@
 import classNames from 'classnames';
-import React, { useCallback, useEffect, useState } from 'react';
-import { Input, Label, LabelProps, Row } from 'reactstrap';
+import React from 'react';
+import { Input, Label, LabelProps } from 'reactstrap';
 import { InputType } from 'reactstrap/es/Input';
 import classnames from 'classnames';
 import { ExtractPathExpressions } from '../../util/firebase/firebase-crud-store';
@@ -10,6 +10,7 @@ import { RealtimeInputType } from './FirebaseRealtimeInput';
 import { inject } from 'mobx-react';
 import { getFirebasePath, getValueByNestedKey } from 'app/shared/util/firebase/firebase-utils';
 import _ from 'lodash';
+import styles from './styles.module.scss';
 
 export interface IRealtimeBasicLabel extends LabelProps {
   id: string;
@@ -66,6 +67,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
 
   const isCheckType = type === RealtimeInputType.CHECKBOX || type === RealtimeInputType.RADIO;
   const isInlineInputText = type === RealtimeInputType.INLINE_TEXT;
+  const isTextType = [RealtimeInputType.INLINE_TEXT, RealtimeInputType.TEXT, RealtimeInputType.TEXTAREA].includes(type);
 
   const labelComponent = label && (
     <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'font-weight-bold'} />
@@ -82,7 +84,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
 
   const inputComponent = (
     <Input
-      className={classNames(inputClass, isCheckType && 'ml-1 position-relative')}
+      className={classNames(inputClass, isCheckType && 'ml-1 position-relative', isTextType && styles.editableTextBox)}
       id={id}
       name={`${id}-${label.toLowerCase()}`}
       autoComplete="off"

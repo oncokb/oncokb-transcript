@@ -6,18 +6,16 @@ import { ViewportList } from 'react-viewport-list';
 import { IRootStore } from 'app/stores';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import {
-  CANCER_TYPE_THERAPY_INDENTIFIER,
   CBIOPORTAL,
   CHECKBOX_LABEL_LEFT_MARGIN,
   COSMIC,
-  GERMLINE_INHERITANCE_MECHANISM,
   GET_ALL_DRUGS_PAGE_SIZE,
   PAGE_ROUTE,
-  PATHOGENICITY,
   PENETRANCE,
+  REFERENCE_GENOME,
 } from 'app/config/constants/constants';
 import { PubmedGeneLink } from 'app/shared/links/PubmedGeneLink';
-import { InlineDivider, PubmedGeneArticlesLink } from 'app/shared/links/PubmedGeneArticlesLink';
+import { InlineDivider } from 'app/shared/links/PubmedGeneArticlesLink';
 import { getSectionClassName, getUserFullName } from 'app/shared/util/utils';
 import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
 import WithSeparator from 'react-with-separator';
@@ -33,7 +31,7 @@ import VusTable from '../../shared/table/VusTable';
 import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
 import Tabs from 'app/components/tabs/tabs';
 import CurationHistoryTab from 'app/components/tabs/CurationHistoryTab';
-import { FaFilter, FaPlus } from 'react-icons/fa';
+import { FaFilter } from 'react-icons/fa';
 import _ from 'lodash';
 import MutationCollapsible from './collapsible/MutationCollapsible';
 import { IDrug } from 'app/shared/model/drug.model';
