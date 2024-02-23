@@ -12,7 +12,6 @@ import {
   GET_ALL_DRUGS_PAGE_SIZE,
   PAGE_ROUTE,
   PENETRANCE,
-  REFERENCE_GENOME,
 } from 'app/config/constants/constants';
 import { PubmedGeneLink } from 'app/shared/links/PubmedGeneLink';
 import { InlineDivider } from 'app/shared/links/PubmedGeneArticlesLink';
@@ -57,6 +56,8 @@ const CurationPage = (props: ICurationPageProps) => {
   const firebaseGenePath = getFirebasePath('GENE', hugoSymbol);
   const firebaseHistoryPath = getFirebasePath('HISTORY', hugoSymbol);
   const firebaseMetaPath = getFirebasePath('META_GENE', hugoSymbol);
+
+  const [finishedGeneSearch, setFinishedGeneSearch] = useState(false);
 
   const [isReviewing, setIsReviewing] = useState(false);
   const [isReviewFinished, setIsReviewFinished] = useState(false);
@@ -172,11 +173,18 @@ const CurationPage = (props: ICurationPageProps) => {
     if (props.firebaseInitSuccess) {
       props.searchGeneEntities({ query: hugoSymbol, exact: true });
       const cleanupCallbacks = [];
-      cleanupCallbacks.push(props.addListener(firebaseGenePath));
-      cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
-      cleanupCallbacks.push(props.addMetaListener(firebaseMetaPath));
-      cleanupCallbacks.push(() => props.updateCollaborator(hugoSymbol, false));
-      cleanupCallbacks.push(props.addMetaCollaboratorsListener());
+      props
+        .searchGeneEntities({ query: hugoSymbol, exact: true })
+        .then(() => {
+          if (!props.geneNotFound) {
+            cleanupCallbacks.push(props.addListener(firebaseGenePath));
+            cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
+            cleanupCallbacks.push(props.addMetaListener(firebaseMetaPath));
+            cleanupCallbacks.push(() => props.updateCollaborator(hugoSymbol, false));
+            cleanupCallbacks.push(props.addMetaCollaboratorsListener());
+          }
+        })
+        .finally(() => setFinishedGeneSearch(true));
       return () => {
         cleanupCallbacks.forEach(callback => callback && callback());
       };
@@ -392,6 +400,10 @@ const CurationPage = (props: ICurationPageProps) => {
         </ViewportList>
       </div>
     );
+  }
+
+  if (finishedGeneSearch && !props.loadingGenes && props.geneNotFound) {
+    return <UnknownGeneAlert />;
   }
 
   return !!props.data && drugList.length > 0 && !props.loadingGenes ? (
