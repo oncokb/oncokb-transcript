@@ -174,7 +174,7 @@ const VusTable = ({
         return (
           <>
             <TextFormat value={new Date(time)} type="date" format={APP_DATETIME_FORMAT} />
-            <span>{color && <DefaultBadge color={color} text={'Outdated'} />}</span>
+            <span>{color && <DefaultBadge color={color} text={'Outdated'} style={{ fontSize: '0.8rem' }} />}</span>
           </>
         );
       },
