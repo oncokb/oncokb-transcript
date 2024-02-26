@@ -13,12 +13,24 @@ export interface IDefaultBadgeProps {
 const DefaultBadge: React.FunctionComponent<IDefaultBadgeProps> = props => {
   const { className, style, color, text, tooltipOverlay } = props;
 
+  const badge = (
+    <span className={classNames(`badge badge-pill badge-${color} mx-1`, className)} style={{ fontSize: '0.6rem', ...style }}>
+      {text}
+    </span>
+  );
+
+  if (tooltipOverlay) {
+    return (
+      <DefaultTooltip placement="top" overlay={tooltipOverlay}>
+        {badge}
+      </DefaultTooltip>
+    );
+  }
+
   return (
-    <DefaultTooltip placement="top" overlay={tooltipOverlay}>
-      <span className={classNames(`badge badge-pill badge-${color} mx-1`, className)} style={{ fontSize: '0.6rem', ...style }}>
-        {text}
-      </span>
-    </DefaultTooltip>
+    <span className={classNames(`badge badge-pill badge-${color} mx-1`, className)} style={{ fontSize: '0.6rem', ...style }}>
+      {text}
+    </span>
   );
 };
 

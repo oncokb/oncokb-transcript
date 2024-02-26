@@ -221,3 +221,18 @@ export const sortByTxLevel = (a: TX_LEVELS, b: TX_LEVELS) => {
   }
   return aIndex > bIndex ? 1 : -1;
 };
+
+export const getVusTimestampClass = (time: string | number) => {
+  const vusTime = new Date(time);
+  const now = new Date();
+  const month = now.getMonth();
+  const year = now.getFullYear();
+  const monthDiff = (year - vusTime.getFullYear()) * 12 + month - vusTime.getMonth();
+  if (monthDiff > 6) {
+    return 'danger';
+  } else if (monthDiff > 3) {
+    return 'warning';
+  } else {
+    return '';
+  }
+};
