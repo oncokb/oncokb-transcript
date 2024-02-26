@@ -32,7 +32,7 @@ const RealtimeDropdownInput = (props: IRealtimeDropdownInput) => {
     }
   };
   return (
-    <div className="flex d-flex mb-2">
+    <div className="flex d-flex mb-2 align-items-center">
       <div>{props.label && <RealtimeBasicLabel label={props.label} id={props.label} labelClass="mr-2 font-weight-bold" />}</div>
       <div className="flex-grow-1">
         <Select {...selectProps} onChange={onChangeHandler} options={selectOptions} defaultValue={defaultOption} />

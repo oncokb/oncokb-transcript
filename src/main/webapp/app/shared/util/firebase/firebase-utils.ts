@@ -207,7 +207,6 @@ export const sortByTxLevel = (a: TX_LEVELS, b: TX_LEVELS) => {
     TX_LEVELS.LEVEL_3B,
     TX_LEVELS.LEVEL_4,
     TX_LEVELS.LEVEL_R2,
-    TX_LEVELS.LEVEL_R3,
   ];
   const aIndex = ordering.indexOf(a);
   const bIndex = ordering.indexOf(b);

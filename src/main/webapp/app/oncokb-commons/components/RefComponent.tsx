@@ -1,4 +1,4 @@
-import { getNCBIlink } from './lib/urls';
+import { getNCBIlink, getNCTlink } from './lib/urls';
 
 export type ParsedRef = {
   prefix?: string;
@@ -44,17 +44,16 @@ export const parseReferences = (content: string, seperatePMIDs = false): ParsedR
 
     if (content.toLowerCase().includes('pmid')) {
       prefix = 'PMID: ';
-    } else if (content.toLowerCase().includes('nct')) {
-      prefix = 'NCT';
-    }
-
-    if (prefix) {
       if (seperatePMIDs) {
         ids.forEach(id => {
           result.push({ prefix, content: id, link: getNCBIlink(`/pubmed/${id}`) });
         });
       } else {
         result.push({ prefix, content: ids.join(', '), link: getNCBIlink(`/pubmed/${ids.join(',')}`) });
+      }
+    } else if (content.toLowerCase().includes('nct')) {
+      if (ids[0]) {
+        result.push({ prefix, content: ids[0], link: getNCTlink(`/study/${prefix}${ids[0]}`) });
       }
     }
   }

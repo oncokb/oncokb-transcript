@@ -1,4 +1,4 @@
-import { PAGE_ROUTE } from 'app/config/constants/constants';
+import { CURATE_NEW_GENE_TEXT, PAGE_ROUTE } from 'app/config/constants/constants';
 import { Gene, Meta } from 'app/shared/model/firebase/firebase.model';
 import GeneSelect from 'app/shared/select/GeneSelect';
 import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
@@ -68,7 +68,7 @@ function GeneListPageToolsTab({ addMetaListener, metaData, createMetaGene, delet
     <div>
       <Row className="mb-2">
         <Col className="px-0">
-          <h6>Curate New Gene</h6>
+          <h6>{CURATE_NEW_GENE_TEXT}</h6>
         </Col>
       </Row>
       <Row className="mb-2">

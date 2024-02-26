@@ -484,90 +484,6 @@ const MutationCollapsible = ({
                   name="pxSummary"
                 />
                 <div className="mb-2">
-                  <Collapsible
-                    className={'mt-2'}
-                    key={tumor.diagnostic_uuid}
-                    title="Diagnostic Implication"
-                    borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.DIAGNOSTIC]]}
-                    action={
-                      <CommentIcon
-                        id={tumor.diagnostic_uuid}
-                        comments={tumor.diagnostic_comments || []}
-                        onCreateComment={content =>
-                          handleCreateComment(
-                            `${cancerTypeFirebasePath}/diagnostic_comments`,
-                            content,
-                            tumor.diagnostic_comments?.length || 0
-                          )
-                        }
-                        onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/diagnostic_comments`, indices)}
-                        onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/diagnostic_comments/${index}`)}
-                        onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/diagnostic_comments/${index}`)}
-                      />
-                    }
-                    isSectionEmpty={isSectionEmpty(
-                      data,
-                      buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic`)
-                    )}
-                  >
-                    <RealtimeDropdownInput
-                      fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic/level`}
-                      label="Level of evidence"
-                      name="level"
-                      options={[DX_LEVELS.LEVEL_DX1, DX_LEVELS.LEVEL_DX2, DX_LEVELS.LEVEL_DX3]}
-                    />
-                    <RealtimeTextAreaInput
-                      fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic/description`}
-                      inputClass={styles.textarea}
-                      label="Description of Evidence"
-                      name="evidenceDescription"
-                    />
-                    <div className="mb-2">
-                      <AutoParseRefField summary={tumor.diagnostic.description} />
-                    </div>
-                  </Collapsible>
-                  <Collapsible
-                    className={'mt-2'}
-                    key={tumor.prognostic_uuid}
-                    title="Prognostic Implication"
-                    borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.PROGNOSTIC]]}
-                    action={
-                      <CommentIcon
-                        id={tumor.prognostic_uuid}
-                        comments={tumor.prognostic_comments || []}
-                        onCreateComment={content =>
-                          handleCreateComment(
-                            `${cancerTypeFirebasePath}/prognostic_comments`,
-                            content,
-                            tumor.prognostic_comments?.length || 0
-                          )
-                        }
-                        onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/prognostic_comments`, indices)}
-                        onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/prognostic_comments/${index}`)}
-                        onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/prognostic_comments/${index}`)}
-                      />
-                    }
-                    isSectionEmpty={isSectionEmpty(
-                      data,
-                      buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic`)
-                    )}
-                  >
-                    <RealtimeDropdownInput
-                      fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic/level`}
-                      label="Level of evidence"
-                      name="level"
-                      options={[PX_LEVELS.LEVEL_PX1, PX_LEVELS.LEVEL_PX2, PX_LEVELS.LEVEL_PX3]}
-                    />
-                    <RealtimeTextAreaInput
-                      fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic/description`}
-                      inputClass={styles.textarea}
-                      label="Description of Evidence"
-                      name="evidenceDescription"
-                    />
-                    <div className="mb-2">
-                      <AutoParseRefField summary={tumor.prognostic.description} />
-                    </div>
-                  </Collapsible>
                   {tumor.TIs.reduce((accumulator, ti, tiIndex) => {
                     if (!ti.treatments) {
                       return accumulator;
@@ -712,6 +628,90 @@ const MutationCollapsible = ({
                         </>
                       );
                     })}
+                  <Collapsible
+                    className={'mt-2'}
+                    key={tumor.diagnostic_uuid}
+                    title="Diagnostic Implication"
+                    borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.DIAGNOSTIC]]}
+                    action={
+                      <CommentIcon
+                        id={tumor.diagnostic_uuid}
+                        comments={tumor.diagnostic_comments || []}
+                        onCreateComment={content =>
+                          handleCreateComment(
+                            `${cancerTypeFirebasePath}/diagnostic_comments`,
+                            content,
+                            tumor.diagnostic_comments?.length || 0
+                          )
+                        }
+                        onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/diagnostic_comments`, indices)}
+                        onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/diagnostic_comments/${index}`)}
+                        onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/diagnostic_comments/${index}`)}
+                      />
+                    }
+                    isSectionEmpty={isSectionEmpty(
+                      data,
+                      buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic`)
+                    )}
+                  >
+                    <RealtimeDropdownInput
+                      fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic/level`}
+                      label="Level of evidence"
+                      name="level"
+                      options={[DX_LEVELS.LEVEL_DX1, DX_LEVELS.LEVEL_DX2, DX_LEVELS.LEVEL_DX3]}
+                    />
+                    <RealtimeTextAreaInput
+                      fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic/description`}
+                      inputClass={styles.textarea}
+                      label="Description of Evidence"
+                      name="evidenceDescription"
+                    />
+                    <div className="mb-2">
+                      <AutoParseRefField summary={tumor.diagnostic.description} />
+                    </div>
+                  </Collapsible>
+                  <Collapsible
+                    className={'mt-2'}
+                    key={tumor.prognostic_uuid}
+                    title="Prognostic Implication"
+                    borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.PROGNOSTIC]]}
+                    action={
+                      <CommentIcon
+                        id={tumor.prognostic_uuid}
+                        comments={tumor.prognostic_comments || []}
+                        onCreateComment={content =>
+                          handleCreateComment(
+                            `${cancerTypeFirebasePath}/prognostic_comments`,
+                            content,
+                            tumor.prognostic_comments?.length || 0
+                          )
+                        }
+                        onDeleteComments={indices => handleDeleteComments(`${cancerTypeFirebasePath}/prognostic_comments`, indices)}
+                        onResolveComment={index => handleResolveComment(`${cancerTypeFirebasePath}/prognostic_comments/${index}`)}
+                        onUnresolveComment={index => handleUnresolveComment(`${cancerTypeFirebasePath}/prognostic_comments/${index}`)}
+                      />
+                    }
+                    isSectionEmpty={isSectionEmpty(
+                      data,
+                      buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic`)
+                    )}
+                  >
+                    <RealtimeDropdownInput
+                      fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic/level`}
+                      label="Level of evidence"
+                      name="level"
+                      options={[PX_LEVELS.LEVEL_PX1, PX_LEVELS.LEVEL_PX2, PX_LEVELS.LEVEL_PX3]}
+                    />
+                    <RealtimeTextAreaInput
+                      fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic/description`}
+                      inputClass={styles.textarea}
+                      label="Description of Evidence"
+                      name="evidenceDescription"
+                    />
+                    <div className="mb-2">
+                      <AutoParseRefField summary={tumor.prognostic.description} />
+                    </div>
+                  </Collapsible>
                 </div>
                 <Button
                   outline

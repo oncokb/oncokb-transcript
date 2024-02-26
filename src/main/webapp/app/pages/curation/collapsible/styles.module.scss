@@ -36,3 +36,11 @@
 .summaryTextarea {
   min-height: 20px;
 }
+
+.collapsibleTitleWrapper {
+  display: flex;
+  align-items: center;
+  :hover {
+    cursor: pointer;
+  }
+}

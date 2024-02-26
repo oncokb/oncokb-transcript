@@ -411,3 +411,5 @@ export const CHECKBOX_LABEL_LEFT_MARGIN = 18.75;
 export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');
 export const UUID_REGEX = new RegExp('\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}');
 export const INTEGER_REGEX = new RegExp('^\\d+$');
+
+export const CURATE_NEW_GENE_TEXT = 'Curate New Gene';

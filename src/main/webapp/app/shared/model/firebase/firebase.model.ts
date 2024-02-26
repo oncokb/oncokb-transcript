@@ -35,7 +35,7 @@ export enum FIREBASE_ONCOGENICITY {
 }
 
 export enum TX_LEVELS {
-  LEVEL_NO = 'no',
+  LEVEL_NO = 'None',
   LEVEL_1 = '1',
   LEVEL_2 = '2',
   LEVEL_3A = '3A',
@@ -43,7 +43,6 @@ export enum TX_LEVELS {
   LEVEL_4 = '4',
   LEVEL_R1 = 'R1',
   LEVEL_R2 = 'R2',
-  LEVEL_R3 = 'R3',
 }
 
 export enum DX_LEVELS {
