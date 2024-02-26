@@ -3,7 +3,7 @@ import { BoolString, Comment, Vus, VusObjList } from 'app/shared/model/firebase/
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { Button, Container, Row } from 'reactstrap';
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
-import { getFirebasePath, getMostRecentComment } from 'app/shared/util/firebase/firebase-utils';
+import { getFirebasePath, getMostRecentComment, getVusTimestampClass } from 'app/shared/util/firebase/firebase-utils';
 import { TextFormat } from 'react-jhipster';
 import { APP_DATETIME_FORMAT, MAX_COMMENT_LENGTH } from 'app/config/constants/constants';
 import _ from 'lodash';
@@ -20,6 +20,9 @@ import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { DANGER, PRIMARY } from 'app/config/colors';
 import { faSync } from '@fortawesome/free-solid-svg-icons/faSync';
 import classNames from 'classnames';
+import DefaultBadge from '../badge/DefaultBadge';
+import InfoIcon from '../icons/InfoIcon';
+import { VusRecencyInfoIcon } from '../icons/VusRecencyInfoIcon';
 
 export interface IVusTableProps extends StoreProps {
   hugoSymbol: string;
@@ -65,13 +68,13 @@ const VusTable = ({
   }, [vusData]);
 
   function handleDownload() {
-    const headerRow = `${VUS_NAME}\t${LAST_EDITED_BY}\t${LAST_EDITED_AT}\t${LATEST_COMMENT}`;
+    const headerRow = `${VUS_NAME}\t${LAST_EDITED_AT}\t${LAST_EDITED_BY}\t${LATEST_COMMENT}`;
     const dataRows = [];
     for (const vus of vusList) {
       const latestComment = vus.name_comments ? getMostRecentComment(vus.name_comments).content : '';
       const lastEditedAt = formatDate(new Date(vus.time.value));
 
-      dataRows.push(`${vus.name}\t${vus.time.by.name}\t${lastEditedAt}\t${latestComment}`);
+      dataRows.push(`${vus.name}\t${lastEditedAt}\t${vus.time.by.name}\t${latestComment}`);
     }
     const tsvContent = [headerRow, ...dataRows].join('\n');
 
@@ -157,19 +160,30 @@ const VusTable = ({
       },
     },
     {
-      Header: LAST_EDITED_BY,
-      accessor: 'time.by.name',
-      onFilter(data, keyword) {
-        return data.time.by.name.toLowerCase().includes(keyword);
-      },
-    },
-    {
-      Header: LAST_EDITED_AT,
+      Header: (
+        <>
+          <span>{LAST_EDITED_AT}</span>
+          <VusRecencyInfoIcon />
+        </>
+      ),
       id: LAST_EDITED_AT,
       accessor: 'time.value',
       Cell(cell: { original: VusTableData }) {
         const time = cell.original.time.value;
-        return <TextFormat value={new Date(time)} type="date" format={APP_DATETIME_FORMAT} />;
+        const color = getVusTimestampClass(time);
+        return (
+          <>
+            <TextFormat value={new Date(time)} type="date" format={APP_DATETIME_FORMAT} />
+            <span>{color && <DefaultBadge color={color} text={'Outdated'} style={{ fontSize: '0.8rem' }} />}</span>
+          </>
+        );
+      },
+    },
+    {
+      Header: LAST_EDITED_BY,
+      accessor: 'time.by.name',
+      onFilter(data, keyword) {
+        return data.time.by.name.toLowerCase().includes(keyword);
       },
     },
     {

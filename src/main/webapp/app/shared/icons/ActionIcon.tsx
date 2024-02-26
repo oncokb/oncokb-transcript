@@ -1,10 +1,10 @@
 import React, { CSSProperties } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircle as farCircle } from '@fortawesome/free-regular-svg-icons';
-import { faCircle as fasCircle, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import { PRIMARY } from 'app/config/colors';
 import DefaultTooltip, { DefaultTooltipProps } from '../tooltip/DefaultTooltip';
+import { CircleIcon } from './CircleIcon';
 
 type SpanProps = JSX.IntrinsicElements['span'];
 
@@ -40,10 +40,14 @@ const ActionIcon: React.FunctionComponent<IActionIcon> = (props: IActionIcon) =>
       <FontAwesomeIcon icon={icon} color={defaultColor} />
     </span>
   ) : (
-    <span
-      {...rest}
-      className={classNames('fa-layers fa-fw', className)}
-      style={containerStyle}
+    <CircleIcon
+      solid={hover}
+      innerIcon={icon}
+      innerIconColor={hover ? 'white' : defaultColor}
+      circleIconColor={defaultColor}
+      iconStyle={iconStyle}
+      containerClassNames={classNames(className)}
+      containerStyle={containerStyle}
       onMouseEnter={e => {
         setHover(true);
         if (onMouseEnter) {
@@ -56,24 +60,7 @@ const ActionIcon: React.FunctionComponent<IActionIcon> = (props: IActionIcon) =>
           onMouseLeave(e);
         }
       }}
-    >
-      <FontAwesomeIcon
-        icon={farCircle}
-        color={defaultColor}
-        style={{ ...iconStyle, opacity: hover ? 0 : 1 }} // Regular circle becomes transparent on hover
-      />
-      <FontAwesomeIcon
-        icon={fasCircle}
-        color={defaultColor}
-        style={{ ...iconStyle, opacity: hover ? 1 : 0 }} // Solid circle appears on hover
-      />
-      <FontAwesomeIcon
-        icon={icon}
-        color={hover ? 'white' : defaultColor}
-        transform="shrink-9"
-        style={{ ...iconStyle, opacity: 1 }} // Check icon always visible
-      />
-    </span>
+    />
   );
   if (!tooltipProps) {
     return iconComponent;
