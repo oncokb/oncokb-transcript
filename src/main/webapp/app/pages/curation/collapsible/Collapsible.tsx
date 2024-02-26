@@ -60,8 +60,10 @@ export default function Collapsible({
   };
 
   const handleToggleCollapsible = () => {
-    setIsOpen(_isOpen => !_isOpen);
-    onToggle && onToggle(!isOpen);
+    if (!disableCollapsible) {
+      setIsOpen(_isOpen => !_isOpen);
+      onToggle && onToggle(!isOpen);
+    }
   };
 
   return (
@@ -82,13 +84,15 @@ export default function Collapsible({
         }}
       >
         <div style={{ flexGrow: 1 }} className="d-flex align-items-center">
-          <div className={styles.collapsibleTitleWrapper} onClick={handleToggleCollapsible}>
+          <div
+            className={classNames(styles.collapsibleTitleWrapper, disableCollapsible && styles.disabledCollapsible)}
+            onClick={handleToggleCollapsible}
+          >
             <button
               disabled={disableCollapsible}
               style={{ opacity: disableCollapsible ? '0' : '1' }}
               type="button"
               className={classNames('btn', 'py-1')}
-              onClick={handleToggleCollapsible}
             >
               {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
             </button>

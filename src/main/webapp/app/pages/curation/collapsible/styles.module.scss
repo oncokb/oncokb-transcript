@@ -44,3 +44,9 @@
     cursor: pointer;
   }
 }
+
+.disabledCollapsible {
+  :hover {
+    cursor: default;
+  }
+}
