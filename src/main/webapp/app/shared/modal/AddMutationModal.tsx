@@ -82,19 +82,20 @@ function AddMutationModalContent({
   }, [geneEntities]);
 
   useEffect(() => {
-    const mutationNames = mutationList
-      .filter(mutation => mutationToEdit?.name_uuid !== mutation.name_uuid)
-      .map(mutation =>
-        mutation.name
-          .split(',')
-          .map(alt => {
-            const parsedAlteration = parseAlterationName(alt)[0];
-            const variantName = parsedAlteration.name ? ` [${parsedAlteration.name}]` : '';
-            const excluding = parsedAlteration.excluding.length > 0 ? ` {excluding ${parsedAlteration.excluding.join(' ; ')}}` : '';
-            return `${parsedAlteration.alteration}${variantName}${excluding}`.toLowerCase();
-          })
-          .sort()
-      );
+    const mutationNames =
+      mutationList
+        ?.filter(mutation => mutationToEdit?.name_uuid !== mutation.name_uuid)
+        .map(mutation =>
+          mutation.name
+            .split(',')
+            .map(alt => {
+              const parsedAlteration = parseAlterationName(alt)[0];
+              const variantName = parsedAlteration.name ? ` [${parsedAlteration.name}]` : '';
+              const excluding = parsedAlteration.excluding.length > 0 ? ` {excluding ${parsedAlteration.excluding.join(' ; ')}}` : '';
+              return `${parsedAlteration.alteration}${variantName}${excluding}`.toLowerCase();
+            })
+            .sort()
+        ) || [];
 
     const currentMutationName = tabStates.map(state => getFullAlterationName({ ...state, comment: '' }).toLowerCase()).sort();
 

@@ -24,7 +24,13 @@ import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/fir
 import { MUTATION_EFFECT_OPTIONS, ONCOGENICITY_OPTIONS } from 'app/config/constants/firebase';
 import styles from './styles.module.scss';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
-import { CANCER_TYPE_THERAPY_INDENTIFIER, GERMLINE_INHERITANCE_MECHANISM, PATHOGENICITY, PENETRANCE } from 'app/config/constants/constants';
+import {
+  CANCER_TYPE_THERAPY_INDENTIFIER,
+  GERMLINE_INHERITANCE_MECHANISM,
+  PATHOGENICITY,
+  PENETRANCE,
+  RADIO_OPTION_NONE,
+} from 'app/config/constants/constants';
 import {
   generateUuid,
   getCancerTypeName,
@@ -232,7 +238,7 @@ const MutationCollapsible = ({
                 </>
               }
               isRadio
-              options={ONCOGENICITY_OPTIONS.map(label => ({
+              options={[...ONCOGENICITY_OPTIONS, RADIO_OPTION_NONE].map(label => ({
                 label,
                 fieldKey: `mutations/${firebaseIndex}/mutation_effect/oncogenic`,
               }))}
@@ -251,7 +257,7 @@ const MutationCollapsible = ({
                 </>
               }
               isRadio
-              options={MUTATION_EFFECT_OPTIONS.map(label => ({
+              options={[...MUTATION_EFFECT_OPTIONS, RADIO_OPTION_NONE].map(label => ({
                 label,
                 fieldKey: `mutations/${firebaseIndex}/mutation_effect/effect`,
               }))}
@@ -321,6 +327,7 @@ const MutationCollapsible = ({
                 PATHOGENICITY.BENIGN,
                 PATHOGENICITY.LIKELY_BENIGN,
                 PATHOGENICITY.UNKNOWN,
+                RADIO_OPTION_NONE,
               ].map(label => ({
                 label,
                 fieldKey: `mutations/${firebaseIndex}/mutation_effect/germline/pathogenic`,
@@ -329,7 +336,7 @@ const MutationCollapsible = ({
             <RealtimeCheckedInputGroup
               groupHeader="Penetrance"
               isRadio
-              options={[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER].map(label => ({
+              options={[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER, RADIO_OPTION_NONE].map(label => ({
                 label,
                 fieldKey: `mutations/${firebaseIndex}/mutation_effect/germline/penetrance`,
               }))}
@@ -343,10 +350,12 @@ const MutationCollapsible = ({
             <RealtimeCheckedInputGroup
               groupHeader="Mechanism of Inheritance"
               isRadio
-              options={[GERMLINE_INHERITANCE_MECHANISM.RECESSIVE, GERMLINE_INHERITANCE_MECHANISM.DOMINANT].map(label => ({
-                label,
-                fieldKey: `mutations/${firebaseIndex}/mutation_effect/germline/inheritanceMechanism`,
-              }))}
+              options={[GERMLINE_INHERITANCE_MECHANISM.RECESSIVE, GERMLINE_INHERITANCE_MECHANISM.DOMINANT, RADIO_OPTION_NONE].map(
+                label => ({
+                  label,
+                  fieldKey: `mutations/${firebaseIndex}/mutation_effect/germline/inheritanceMechanism`,
+                })
+              )}
             />
             <RealtimeTextAreaInput
               fieldKey={`mutations/${firebaseIndex}/mutation_effect/germline/inheritanceMechanismDescription`}

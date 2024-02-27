@@ -12,6 +12,7 @@ import {
   GET_ALL_DRUGS_PAGE_SIZE,
   PAGE_ROUTE,
   PENETRANCE,
+  RADIO_OPTION_NONE,
 } from 'app/config/constants/constants';
 import { PubmedGeneLink } from 'app/shared/links/PubmedGeneLink';
 import { InlineDivider } from 'app/shared/links/PubmedGeneArticlesLink';
@@ -559,7 +560,7 @@ const CurationPage = (props: ICurationPageProps) => {
                 <RealtimeCheckedInputGroup
                   groupHeader="Penetrance"
                   isRadio
-                  options={[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER].map(label => {
+                  options={[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER, RADIO_OPTION_NONE].map(label => {
                     return {
                       label,
                       fieldKey: 'penetrance',
