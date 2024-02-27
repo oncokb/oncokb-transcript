@@ -70,7 +70,7 @@ export default function Collapsible({
     <div className={classNames('card', className, styles.main)}>
       <div
         className={classNames(
-          'card-header d-flex align-items-center p-1 bg-transparent pr-2',
+          'd-flex align-items-center p-1 bg-transparent pr-2',
           styles.header,
           disableLeftBorder ? styles.hiddenHeaderLeftBorder : undefined
         )}
