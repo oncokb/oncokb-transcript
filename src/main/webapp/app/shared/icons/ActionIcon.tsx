@@ -6,7 +6,7 @@ import { PRIMARY } from 'app/config/colors';
 import DefaultTooltip, { DefaultTooltipProps } from '../tooltip/DefaultTooltip';
 import { CircleIcon } from './CircleIcon';
 
-type SpanProps = JSX.IntrinsicElements['span'];
+export type SpanProps = JSX.IntrinsicElements['span'];
 
 export interface IActionIcon extends SpanProps {
   icon: IconDefinition;
@@ -41,6 +41,7 @@ const ActionIcon: React.FunctionComponent<IActionIcon> = (props: IActionIcon) =>
     </span>
   ) : (
     <CircleIcon
+      {...rest}
       solid={hover}
       innerIcon={icon}
       innerIconColor={hover ? 'white' : defaultColor}

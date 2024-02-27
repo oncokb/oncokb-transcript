@@ -93,6 +93,7 @@ const CurationPage = (props: ICurationPageProps) => {
     if (props.metaListData) {
       return Object.keys(props.metaListData).includes(hugoSymbol);
     }
+    return true;
   }, [props.metaListData]);
 
   const mutationsAreFiltered = useMemo(() => {

@@ -3,8 +3,9 @@ import { IconDefinition, faCircle as farCircle } from '@fortawesome/free-regular
 import { faCircle as fasCircle } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import React, { CSSProperties } from 'react';
+import { SpanProps } from './ActionIcon';
 
-export interface ICircleIconProps {
+export interface ICircleIconProps extends SpanProps {
   innerIcon: IconDefinition;
   solid?: boolean;
   containerClassNames?: string;
@@ -26,9 +27,11 @@ export const CircleIcon: React.FunctionComponent<ICircleIconProps> = ({
   onMouseEnter,
   onMouseLeave,
   iconStyle,
+  ...rest
 }: ICircleIconProps) => {
   return (
     <span
+      {...rest}
       className={classNames('fa-layers fa-fw', containerClassNames)}
       style={{ ...containerStyle }}
       onMouseEnter={onMouseEnter}
