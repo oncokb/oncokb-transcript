@@ -11,6 +11,7 @@ import { inject } from 'mobx-react';
 import { getFirebasePath, getValueByNestedKey } from 'app/shared/util/firebase/firebase-utils';
 import _ from 'lodash';
 import styles from './styles.module.scss';
+import { RADIO_OPTION_NONE } from 'app/config/constants/constants';
 
 export interface IRealtimeBasicLabel extends LabelProps {
   id: string;
@@ -75,12 +76,26 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
 
   const inputValue = getValueByNestedKey(data, fieldKey);
   const inputChangeHandler = e => {
-    const updateValue = isCheckType ? (e.target.checked ? label : '') : e.target.value;
+    let updateValue;
+    if (isCheckType) {
+      updateValue = e.target.checked && label !== RADIO_OPTION_NONE ? label : '';
+    } else {
+      updateValue = e.target.value;
+    }
+
     updateReviewableContent(getFirebasePath('GENE', props.data.name), fieldKey, updateValue);
     if (onChange) {
       onChange(e);
     }
   };
+
+  function isChecked() {
+    const value = getValueByNestedKey(data, fieldKey);
+    if (value) {
+      return value === label;
+    }
+    return label === RADIO_OPTION_NONE;
+  }
 
   const inputComponent = (
     <Input
@@ -94,7 +109,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
       type={props.type as InputType}
       style={isCheckType ? { marginRight: '0.25rem' } : null}
       value={inputValue}
-      checked={isCheckType && getValueByNestedKey(data, fieldKey) === label}
+      checked={isCheckType && isChecked()}
       {...otherProps}
     >
       {children}
