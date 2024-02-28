@@ -1,6 +1,6 @@
 import Tabs from 'app/components/tabs/tabs';
 import React, { KeyboardEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Button, Col, Input, Modal, ModalBody, ModalFooter, Row } from 'reactstrap';
+import { Alert, Button, Col, Input, Row } from 'reactstrap';
 import CreatableSelect from 'react-select/creatable';
 import _ from 'lodash';
 import { notNullOrUndefined, parseAlterationName } from '../util/utils';
@@ -10,11 +10,12 @@ import { flow, flowResult } from 'mobx';
 import { AlterationTypeEnum, EntityStatusAlteration, Gene } from '../api/generated';
 import './add-mutation-modal.scss';
 import { IGene } from '../model/gene.model';
-import { FaChevronDown, FaChevronUp, FaExclamationCircle, FaExclamationTriangle } from 'react-icons/fa';
-import { Alteration, Mutation } from '../model/firebase/firebase.model';
+import { FaChevronDown, FaChevronUp, FaExclamationTriangle } from 'react-icons/fa';
+import { Alteration, Mutation, VusObjList } from '../model/firebase/firebase.model';
 import ReactSelect, { MenuPlacement } from 'react-select';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import styles from './styles.module.scss';
+import { DefaultAddMutationModal } from './DefaultAddMutationModal';
+import { getDuplicateMutations } from '../util/firebase/firebase-utils';
 
 type AlterationData = {
   type: AlterationTypeEnum;
@@ -36,20 +37,14 @@ type AlterationData = {
 
 interface IAddMutationModalProps extends StoreProps {
   mutationList: Mutation[];
+  vusList: VusObjList;
   hugoSymbol: string;
-  isOpen: boolean;
   onConfirm: (alterations: Alteration[]) => void;
   onCancel: () => void;
   mutationToEdit?: Mutation;
 }
 
-function AddMutationModal(props: IAddMutationModalProps) {
-  const { isOpen, ...rest } = props;
-
-  return isOpen ? <AddMutationModalContent {...rest} /> : <></>;
-}
-
-function AddMutationModalContent({
+function AddMutationModal({
   mutationList,
   hugoSymbol,
   mutationToEdit,
@@ -59,7 +54,8 @@ function AddMutationModalContent({
   getConsequences,
   onConfirm,
   onCancel,
-}: Omit<IAddMutationModalProps, 'isOpen'>) {
+  vusList,
+}: IAddMutationModalProps) {
   const typeOptions: DropdownOption[] = [
     AlterationTypeEnum.ProteinChange,
     AlterationTypeEnum.CopyNumberAlteration,
@@ -82,28 +78,14 @@ function AddMutationModalContent({
   }, [geneEntities]);
 
   useEffect(() => {
-    const mutationNames =
-      mutationList
-        ?.filter(mutation => mutationToEdit?.name_uuid !== mutation.name_uuid)
-        .map(mutation =>
-          mutation.name
-            .split(',')
-            .map(alt => {
-              const parsedAlteration = parseAlterationName(alt)[0];
-              const variantName = parsedAlteration.name ? ` [${parsedAlteration.name}]` : '';
-              const excluding = parsedAlteration.excluding.length > 0 ? ` {excluding ${parsedAlteration.excluding.join(' ; ')}}` : '';
-              return `${parsedAlteration.alteration}${variantName}${excluding}`.toLowerCase();
-            })
-            .sort()
-        ) || [];
-
     const currentMutationName = tabStates.map(state => getFullAlterationName({ ...state, comment: '' }).toLowerCase()).sort();
 
-    if (mutationNames.some(mutation => _.isEqual(mutation, currentMutationName))) {
-      setMutationAlreadyExists(true);
-    } else {
-      setMutationAlreadyExists(false);
-    }
+    const dupMutations = getDuplicateMutations(currentMutationName, mutationList, vusList, {
+      useFullAlterationName: true,
+      excludedUuid: mutationToEdit?.name_uuid,
+      exact: true,
+    });
+    setMutationAlreadyExists(dupMutations.size > 0);
   }, [tabStates, mutationList]);
 
   useEffect(() => {
@@ -828,92 +810,77 @@ function AddMutationModalContent({
     );
   }
 
-  return (
-    <Modal isOpen>
-      <ModalBody>
-        <div>
-          <CreatableSelect
-            className="mb-3"
-            ref={inputRef}
-            components={{
-              DropdownIndicator: null,
-            }}
-            isMulti
-            menuIsOpen={false}
-            placeholder="Enter alteration(s)"
-            inputValue={inputValue}
-            onInputChange={newInput => setInputValue(newInput)}
-            value={tabStates.map(state => {
-              const fullAlterationName = getFullAlterationName(state);
-              return { label: fullAlterationName, value: fullAlterationName, ...state };
+  const modalBody = (
+    <>
+      <CreatableSelect
+        className="mb-3"
+        ref={inputRef}
+        components={{
+          DropdownIndicator: null,
+        }}
+        isMulti
+        menuIsOpen={false}
+        placeholder="Enter alteration(s)"
+        inputValue={inputValue}
+        onInputChange={newInput => setInputValue(newInput)}
+        value={tabStates.map(state => {
+          const fullAlterationName = getFullAlterationName(state);
+          return { label: fullAlterationName, value: fullAlterationName, ...state };
+        })}
+        onChange={(newAlterations: AlterationData[]) =>
+          setTabStates(states =>
+            states.filter(state => newAlterations.some(alt => getFullAlterationName(alt) === getFullAlterationName(state)))
+          )
+        }
+        onKeyDown={handleKeyDown}
+      />
+      {tabStates.length > 0 && (
+        <div className="pr-3">
+          <Tabs
+            tabs={tabStates.map((alterationData, index) => {
+              return {
+                title: getTabTitle(alterationData),
+                content: getTabContent(alterationData, index),
+              };
             })}
-            onChange={(newAlterations: AlterationData[]) =>
-              setTabStates(states =>
-                states.filter(state => newAlterations.some(alt => getFullAlterationName(alt) === getFullAlterationName(state)))
-              )
-            }
-            onKeyDown={handleKeyDown}
           />
-          {tabStates.length > 0 && (
-            <div className="pr-3">
-              <Tabs
-                tabs={tabStates.map((alterationData, index) => {
-                  return {
-                    title: getTabTitle(alterationData),
-                    content: getTabContent(alterationData, index),
-                  };
-                })}
-              />
-            </div>
-          )}
         </div>
-      </ModalBody>
-      <ModalFooter style={{ display: 'inline-block' }}>
-        <div className="d-flex justify-content-between">
-          {mutationAlreadyExists ? (
-            <div className={styles.warning}>
-              <FaExclamationCircle className="mr-2" size={'25px'} />
-              <span>Mutation already exists</span>
-            </div>
-          ) : (
-            <div />
-          )}
-          <div>
-            <Button className="mr-2" onClick={onCancel} outline color="danger">
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                function convertAlterationDataToAlteration(alterationData: AlterationData) {
-                  const alteration = new Alteration();
-                  alteration.type = alterationData.type;
-                  alteration.alteration = alterationData.alteration;
-                  alteration.name = getFullAlterationName(alterationData);
-                  alteration.proteinChange = alterationData.proteinChange || '';
-                  alteration.proteinStart = alterationData.proteinStart || -1;
-                  alteration.proteinEnd = alterationData.proteinEnd || -1;
-                  alteration.refResidues = alterationData.refResidues || '';
-                  alteration.varResidues = alterationData.varResidues || '';
-                  alteration.consequence = alterationData.consequence;
-                  alteration.comment = alterationData.comment;
-                  alteration.excluding = alterationData.excluding.map(ex => convertAlterationDataToAlteration(ex));
-                  alteration.genes = alterationData.genes || [];
-                  return alteration;
-                }
+      )}
+    </>
+  );
 
-                onConfirm(tabStates.map(state => convertAlterationDataToAlteration(state)));
-              }}
-              color="primary"
-              disabled={
-                tabStates.length === 0 || mutationAlreadyExists || tabStates.some(tab => tab.error || tab.excluding.some(ex => ex.error))
-              }
-            >
-              {mutationToEdit ? 'Update' : 'Add'}
-            </Button>
-          </div>
-        </div>
-      </ModalFooter>
-    </Modal>
+  const modalWarningMessage = mutationAlreadyExists ? 'Mutation already exists' : undefined;
+
+  return (
+    <DefaultAddMutationModal
+      isUpdate={!!mutationToEdit}
+      modalBody={modalBody}
+      onCancel={onCancel}
+      onConfirm={() => {
+        function convertAlterationDataToAlteration(alterationData: AlterationData) {
+          const alteration = new Alteration();
+          alteration.type = alterationData.type;
+          alteration.alteration = alterationData.alteration;
+          alteration.name = getFullAlterationName(alterationData);
+          alteration.proteinChange = alterationData.proteinChange || '';
+          alteration.proteinStart = alterationData.proteinStart || -1;
+          alteration.proteinEnd = alterationData.proteinEnd || -1;
+          alteration.refResidues = alterationData.refResidues || '';
+          alteration.varResidues = alterationData.varResidues || '';
+          alteration.consequence = alterationData.consequence;
+          alteration.comment = alterationData.comment;
+          alteration.excluding = alterationData.excluding.map(ex => convertAlterationDataToAlteration(ex));
+          alteration.genes = alterationData.genes || [];
+          return alteration;
+        }
+
+        onConfirm(tabStates.map(state => convertAlterationDataToAlteration(state)));
+      }}
+      warningMessage={modalWarningMessage}
+      confirmButtonDisabled={
+        tabStates.length === 0 || mutationAlreadyExists || tabStates.some(tab => tab.error || tab.excluding.some(ex => ex.error))
+      }
+    />
   );
 }
 

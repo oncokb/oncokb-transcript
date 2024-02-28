@@ -3,7 +3,17 @@ import Collapsible from './Collapsible';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
-import { Comment, Alteration, DX_LEVELS, Mutation, PX_LEVELS, TX_LEVELS, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
+import {
+  Comment,
+  Alteration,
+  DX_LEVELS,
+  Mutation,
+  PX_LEVELS,
+  TX_LEVELS,
+  Treatment,
+  Tumor,
+  VusObjList,
+} from 'app/shared/model/firebase/firebase.model';
 import { buildFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
 import {
   getMutationName,
@@ -57,6 +67,7 @@ import NoEntryBadge from 'app/shared/badge/NoEntryBadge';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationList: Mutation[];
+  vusList: VusObjList;
   mutation: Mutation;
   firebaseIndex: number;
   parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
@@ -73,6 +84,7 @@ const MutationCollapsible = ({
   updateTreatment,
   updateMutation,
   mutationList,
+  vusList,
   mutation,
   firebaseIndex,
   parsedHistoryList,
@@ -810,27 +822,29 @@ const MutationCollapsible = ({
           }}
         />
       </Collapsible>
-      <AddMutationModal
-        mutationList={mutationList}
-        hugoSymbol={hugoSymbol}
-        mutationToEdit={isEditingMutation ? mutation : null}
-        isOpen={isEditingMutation}
-        onConfirm={async alterations => {
-          const newMutation = _.cloneDeep(mutation);
-          newMutation.name = alterations.map(alteration => alteration.name).join(', ');
-          newMutation.alterations = alterations;
+      {isEditingMutation ? (
+        <AddMutationModal
+          mutationList={mutationList}
+          vusList={vusList}
+          hugoSymbol={hugoSymbol}
+          mutationToEdit={isEditingMutation ? mutation : null}
+          onConfirm={async alterations => {
+            const newMutation = _.cloneDeep(mutation);
+            newMutation.name = alterations.map(alteration => alteration.name).join(', ');
+            newMutation.alterations = alterations;
 
-          try {
-            await updateMutation(mutationFirebasePath, newMutation);
-          } catch (error) {
-            notifyError(error);
-          }
-          setIsEditingMutation(false);
-        }}
-        onCancel={() => {
-          setIsEditingMutation(false);
-        }}
-      />
+            try {
+              await updateMutation(mutationFirebasePath, newMutation);
+            } catch (error) {
+              notifyError(error);
+            }
+            setIsEditingMutation(false);
+          }}
+          onCancel={() => {
+            setIsEditingMutation(false);
+          }}
+        />
+      ) : undefined}
     </>
   );
 };

@@ -9,12 +9,15 @@ import {
   TX_LEVELS,
   Tumor,
   Alteration,
+  VusObjList,
 } from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
 import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
+import { parseAlterationName } from '../utils';
+import _ from 'lodash';
 
 /* Convert a nested object into an object where the key is the path to the object.
   Example:
@@ -235,4 +238,45 @@ export const getVusTimestampClass = (time: string | number) => {
   } else {
     return '';
   }
+};
+
+export const getDuplicateMutations = (
+  currentMutations: string[],
+  mutationList: Mutation[],
+  vusList: VusObjList,
+  options: { useFullAlterationName?: boolean; excludedUuid?: string; exact?: boolean }
+) => {
+  const mutationNames =
+    mutationList
+      ?.filter(mutation => options.excludedUuid !== mutation.name_uuid)
+      .map(mutation =>
+        mutation.name
+          .split(',')
+          .map(alt => {
+            const parsedAlteration = parseAlterationName(alt)[0];
+            const variantName = parsedAlteration.name ? ` [${parsedAlteration.name}]` : '';
+            const excluding = parsedAlteration.excluding.length > 0 ? ` {excluding ${parsedAlteration.excluding.join(' ; ')}}` : '';
+            if (options.useFullAlterationName) {
+              return `${parsedAlteration.alteration}${variantName}${excluding}`.toLowerCase();
+            }
+            return parsedAlteration.alteration.toLowerCase();
+          })
+          .sort()
+      ) || [];
+
+  const vusNames = Object.values(vusList || []).map(vus => {
+    return parseAlterationName(vus.name).map(parsedVus => parsedVus.alteration.toLowerCase());
+  });
+
+  const jointNames = [...mutationNames, ...vusNames];
+  const duplicates = new Set<string>();
+  if (options.exact) {
+    if (jointNames.some(mutation => _.isEqual(mutation, currentMutations))) {
+      duplicates.add(currentMutations.join(', '));
+    }
+  } else {
+    const flattenedJointNames = _.uniq(_.flatten(jointNames));
+    currentMutations.filter(currAlt => flattenedJointNames.includes(currAlt.toLowerCase())).forEach(mutation => duplicates.add(mutation));
+  }
+  return duplicates;
 };

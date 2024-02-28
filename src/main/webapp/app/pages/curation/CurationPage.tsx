@@ -59,6 +59,7 @@ const CurationPage = (props: ICurationPageProps) => {
   const firebaseGenePath = getFirebasePath('GENE', hugoSymbol);
   const firebaseHistoryPath = getFirebasePath('HISTORY', hugoSymbol);
   const firebaseMetaPath = getFirebasePath('META_GENE', hugoSymbol);
+  const firebaseVusPath = getFirebasePath('VUS', hugoSymbol);
 
   const [isReviewing, setIsReviewing] = useState(false);
   const [isReviewFinished, setIsReviewFinished] = useState(false);
@@ -182,6 +183,7 @@ const CurationPage = (props: ICurationPageProps) => {
       const cleanupCallbacks = [];
       props.searchGeneEntities({ query: hugoSymbol, exact: true });
       cleanupCallbacks.push(props.addListener(firebaseGenePath));
+      cleanupCallbacks.push(props.addVusListener(firebaseVusPath));
       cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
       cleanupCallbacks.push(props.addMetaListener(firebaseMetaPath));
       cleanupCallbacks.push(props.addMetaListListener());
@@ -364,6 +366,7 @@ const CurationPage = (props: ICurationPageProps) => {
                 setOpenMutationCollapsible(null);
               }}
               mutationList={props.data.mutations}
+              vusList={props.vusData}
               mutation={mutation}
               firebaseIndex={mutation.firebaseIndex}
               parsedHistoryList={parsedHistoryList}
@@ -391,6 +394,7 @@ const CurationPage = (props: ICurationPageProps) => {
                     setMutationCollapsibleScrollIndex(index);
                   }}
                   mutationList={props.data?.mutations}
+                  vusList={props.vusData}
                   mutation={mutation}
                   firebaseIndex={mutation.firebaseIndex}
                   parsedHistoryList={parsedHistoryList}
@@ -408,7 +412,7 @@ const CurationPage = (props: ICurationPageProps) => {
     return <UncuratedGeneAlert />;
   }
 
-  return !!props.data && drugList.length > 0 && !props.loadingGenes ? (
+  return !!props.data && !!props.vusData && drugList.length > 0 && !props.loadingGenes ? (
     <>
       <div>
         <Row className={'mb-2'}>
@@ -661,7 +665,7 @@ const CurationPage = (props: ICurationPageProps) => {
                 showIcon={false}
               />
             )}
-            <VusTable hugoSymbol={hugoSymbol} />
+            <VusTable hugoSymbol={hugoSymbol} mutationList={props.data.mutations} />
             <Modal isOpen={showFilterModal} toggle={handleToggleFilterModal}>
               <ModalHeader>
                 <Container>
@@ -801,27 +805,29 @@ const CurationPage = (props: ICurationPageProps) => {
           </>
         )}
       </div>
-      <AddMutationModal
-        mutationList={props.data?.mutations}
-        hugoSymbol={hugoSymbol}
-        isOpen={showAddMutationModal}
-        onConfirm={async alterations => {
-          if (alterations.length > 0) {
-            const newMutation = new Mutation(alterations.map(alteration => alteration.name).join(', '));
-            newMutation.alterations = alterations;
+      {showAddMutationModal ? (
+        <AddMutationModal
+          mutationList={props.data?.mutations}
+          vusList={props.vusData}
+          hugoSymbol={hugoSymbol}
+          onConfirm={async alterations => {
+            if (alterations.length > 0) {
+              const newMutation = new Mutation(alterations.map(alteration => alteration.name).join(', '));
+              newMutation.alterations = alterations;
 
-            try {
-              await props.updateMutations(`${firebaseGenePath}/mutations`, [newMutation]);
-            } catch (error) {
-              notifyError(error);
+              try {
+                await props.updateMutations(`${firebaseGenePath}/mutations`, [newMutation]);
+              } catch (error) {
+                notifyError(error);
+              }
             }
-          }
-          setShowAddMutationModal(show => !show);
-        }}
-        onCancel={() => {
-          setShowAddMutationModal(show => !show);
-        }}
-      />
+            setShowAddMutationModal(show => !show);
+          }}
+          onCancel={() => {
+            setShowAddMutationModal(show => !show);
+          }}
+        />
+      ) : undefined}
       <OncoKBSidebar>
         <Tabs
           tabs={[
@@ -845,6 +851,7 @@ const CurationPage = (props: ICurationPageProps) => {
 const mapStoreToProps = ({
   geneStore,
   firebaseGeneStore,
+  firebaseVusStore,
   firebaseMetaStore,
   firebaseHistoryStore,
   drugStore,
@@ -877,6 +884,8 @@ const mapStoreToProps = ({
   account: authStore.account,
   firebaseInitSuccess: firebaseStore.firebaseInitSuccess,
   fullName: authStore.fullName,
+  addVusListener: firebaseVusStore.addListener,
+  vusData: firebaseVusStore.data,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
