@@ -253,40 +253,44 @@ const VusTable = ({
     },
   ];
 
-  return vusData ? (
-    <div className={'justify-content-between align-items-center mt-4'}>
-      <div className={'d-flex align-items-center mb-2'}>
-        <span style={{ fontSize: '1.25rem' }}>Variants of Unknown Significance (Investigated and data not found)</span>
-        <AddButton className="ml-2" onClickHandler={() => setShowAddVusModal(true)} />
-        <Button onClick={handleDownload} color="primary" size="sm" outline className={'ml-2'}>
-          Download
-        </Button>
-      </div>
-      <OncoKBTable defaultSorted={[{ id: LAST_EDITED_AT, desc: false }]} data={vusList} columns={columns} showPagination />
-      <SimpleConfirmModal
-        title="Confirm deletion"
-        body={'Are you sure you want to delete this variant?'}
-        show={showConfirmModal}
-        confirmText="Delete"
-        confirmColor="danger"
-        confirmIcon="trash"
-        cancelIcon={'ban'}
-        onConfirm={async () => {
-          await handleDelete();
-          setShowConfirmModal(false);
-          currentActionVusUuid.current = null;
-        }}
-        onCancel={() => {
-          setShowConfirmModal(false);
-          currentActionVusUuid.current = null;
-        }}
-      />
+  return (
+    <>
+      {vusData ? (
+        <div className={'justify-content-between align-items-center mt-4'}>
+          <div className={'d-flex align-items-center mb-2'}>
+            <span style={{ fontSize: '1.25rem' }}>Variants of Unknown Significance (Investigated and data not found)</span>
+            <AddButton className="ml-2" onClickHandler={() => setShowAddVusModal(true)} />
+            <Button onClick={handleDownload} color="primary" size="sm" outline className={'ml-2'}>
+              Download
+            </Button>
+          </div>
+          <OncoKBTable defaultSorted={[{ id: LAST_EDITED_AT, desc: false }]} data={vusList} columns={columns} showPagination />
+          <SimpleConfirmModal
+            title="Confirm deletion"
+            body={'Are you sure you want to delete this variant?'}
+            show={showConfirmModal}
+            confirmText="Delete"
+            confirmColor="danger"
+            confirmIcon="trash"
+            cancelIcon={'ban'}
+            onConfirm={async () => {
+              await handleDelete();
+              setShowConfirmModal(false);
+              currentActionVusUuid.current = null;
+            }}
+            onCancel={() => {
+              setShowConfirmModal(false);
+              currentActionVusUuid.current = null;
+            }}
+          />
+        </div>
+      ) : (
+        <AddButton title="VUS" showIcon onClickHandler={() => setShowAddVusModal(true)} />
+      )}
       {showAddVusModal ? (
         <AddVusModal mutationList={mutationList} vusList={vusData} onCancel={() => setShowAddVusModal(false)} onConfirm={handleAddVus} />
       ) : undefined}
-    </div>
-  ) : (
-    <></>
+    </>
   );
 };
 

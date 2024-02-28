@@ -716,7 +716,7 @@ function AddMutationModal({
               }}
               isMulti
               menuIsOpen={false}
-              placeholder="Enter alteration(s)"
+              placeholder="Enter alteration(s) and press enter"
               inputValue={excludingInputValue}
               onInputChange={newInput => setExcludingInputValue(newInput)}
               value={tabStates[alterationIndex].excluding.map(state => {
@@ -820,7 +820,7 @@ function AddMutationModal({
         }}
         isMulti
         menuIsOpen={false}
-        placeholder="Enter alteration(s)"
+        placeholder="Enter alteration(s) and press enter"
         inputValue={inputValue}
         onInputChange={newInput => setInputValue(newInput)}
         value={tabStates.map(state => {

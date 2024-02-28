@@ -378,7 +378,7 @@ const CurationPage = (props: ICurationPageProps) => {
     }
 
     return (
-      <div style={{ height: '550px', overflowY: 'auto', overflowX: 'hidden' }} ref={mutationScrollContainerRef}>
+      <div style={{ maxHeight: '550px', overflowY: 'auto', overflowX: 'hidden' }} ref={mutationScrollContainerRef}>
         <ViewportList
           viewportRef={mutationScrollContainerRef}
           items={mutations}
@@ -412,7 +412,7 @@ const CurationPage = (props: ICurationPageProps) => {
     return <UncuratedGeneAlert />;
   }
 
-  return !!props.data && !!props.vusData && drugList.length > 0 && !props.loadingGenes ? (
+  return !!props.data && props.vusData !== undefined && drugList.length > 0 && !props.loadingGenes ? (
     <>
       <div>
         <Row className={'mb-2'}>
