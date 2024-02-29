@@ -2,6 +2,7 @@ import React from 'react';
 import { ExtractPathExpressions } from '../../util/firebase/firebase-crud-store';
 import { Gene } from '../../model/firebase/firebase.model';
 import RealtimeBasicInput, { IRealtimeBasicInput } from './RealtimeBasicInput';
+import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
 
 export enum RealtimeInputType {
   TEXT = 'text',
@@ -22,8 +23,17 @@ export const RealtimeTextInput = ({ inline = false, ...otherProps }: IRealtimeTe
   return <RealtimeBasicInput {...otherProps} type={inline ? RealtimeInputType.INLINE_TEXT : RealtimeInputType.TEXT} />;
 };
 
-export const RealtimeTextAreaInput = (props: Omit<IRealtimeBasicInput, 'type'>) => {
-  return <RealtimeBasicInput {...props} type={RealtimeInputType.TEXTAREA} />;
+export const RealtimeTextAreaInput = (props: { referenceText?: string } & Omit<IRealtimeBasicInput, 'type'>) => {
+  return (
+    <>
+      <RealtimeBasicInput {...props} type={RealtimeInputType.TEXTAREA} />
+      {props.referenceText && (
+        <div className="mb-2">
+          <AutoParseRefField summary={props.referenceText} />
+        </div>
+      )}
+    </>
+  );
 };
 
 /**

@@ -23,7 +23,6 @@ import { ParsedHistoryRecord } from '../CurationPage';
 import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/FirebaseRealtimeInput';
 import { MUTATION_EFFECT_OPTIONS, ONCOGENICITY_OPTIONS } from 'app/config/constants/firebase';
 import styles from './styles.module.scss';
-import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
 import {
   CANCER_TYPE_THERAPY_INDENTIFIER,
   GERMLINE_INHERITANCE_MECHANISM,
@@ -31,13 +30,7 @@ import {
   PENETRANCE,
   RADIO_OPTION_NONE,
 } from 'app/config/constants/constants';
-import {
-  generateUuid,
-  getCancerTypeName,
-  getCancerTypesName,
-  getCancerTypesNameWithExclusion,
-  getUserFullName,
-} from 'app/shared/util/utils';
+import { generateUuid, getCancerTypesNameWithExclusion, getUserFullName } from 'app/shared/util/utils';
 import CancerTypeLevelSummary from '../nestLevelSummary/CancerTypeLevelSummary';
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
@@ -268,10 +261,8 @@ const MutationCollapsible = ({
               label="Description of Evidence"
               labelIcon={<GeneHistoryTooltip historyData={parsedHistoryList} location={`${getMutationName(mutation)}, Mutation Effect`} />}
               name="description"
+              referenceText={mutation.mutation_effect.description}
             />
-            <div className="mb-2">
-              <AutoParseRefField summary={mutation.mutation_effect.description} />
-            </div>
           </Collapsible>
 
           <Collapsible
@@ -611,10 +602,23 @@ const MutationCollapsible = ({
                                 />
                               }
                               name="evidenceDescription"
+                              referenceText={treatment.description}
                             />
-                            <div className="mb-2">
-                              <AutoParseRefField summary={treatment.description} />
-                            </div>
+                            <RealtimeTextAreaInput
+                              fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/short`}
+                              inputClass={styles.shortTextarea}
+                              label="Additional Information (Optional)"
+                              labelIcon={
+                                <GeneHistoryTooltip
+                                  historyData={parsedHistoryList}
+                                  location={`${CANCER_TYPE_THERAPY_INDENTIFIER}${getMutationName(mutation)}, ${cancerTypeName}, ${
+                                    treatment.name
+                                  }`}
+                                />
+                              }
+                              name="additionalEvidenceDescription"
+                              referenceText={treatment.short}
+                            />
                           </Collapsible>
                           <ModifyTherapyModal
                             treatmentUuid={treatment.name_uuid}
@@ -674,10 +678,8 @@ const MutationCollapsible = ({
                       inputClass={styles.textarea}
                       label="Description of Evidence"
                       name="evidenceDescription"
+                      referenceText={tumor.diagnostic.description}
                     />
-                    <div className="mb-2">
-                      <AutoParseRefField summary={tumor.diagnostic.description} />
-                    </div>
                   </Collapsible>
                   <Collapsible
                     className={'mt-2'}
@@ -716,10 +718,8 @@ const MutationCollapsible = ({
                       inputClass={styles.textarea}
                       label="Description of Evidence"
                       name="evidenceDescription"
+                      referenceText={tumor.prognostic.description}
                     />
-                    <div className="mb-2">
-                      <AutoParseRefField summary={tumor.prognostic.description} />
-                    </div>
                   </Collapsible>
                 </div>
                 <Button
