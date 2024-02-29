@@ -44,6 +44,7 @@ import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import AddMutationButton from './button/AddMutationButton';
 import { UncuratedGeneAlert } from 'app/shared/alert/UncuratedGeneAlert';
 import GeneTranscriptInfoInput from 'app/shared/firebase/input/GeneTranscriptInfoInput';
+import PMIDIFrame from 'app/shared/iframe/PMIDIFrame';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
