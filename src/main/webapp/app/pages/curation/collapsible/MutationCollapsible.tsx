@@ -34,8 +34,15 @@ import { ParsedHistoryRecord } from '../CurationPage';
 import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/FirebaseRealtimeInput';
 import { MUTATION_EFFECT_OPTIONS, ONCOGENICITY_OPTIONS } from 'app/config/constants/firebase';
 import styles from './styles.module.scss';
+import {
+  CANCER_TYPE_THERAPY_INDENTIFIER,
+  GERMLINE_INHERITANCE_MECHANISM,
+  GET_ALL_DRUGS_PAGE_SIZE,
+  PATHOGENICITY,
+  PENETRANCE,
+  RADIO_OPTION_NONE,
+} from 'app/config/constants/constants';
 import { generateUuid, getCancerTypesNameWithExclusion, getUserFullName, tumorContainsSpecialCancerType } from 'app/shared/util/utils';
-import { CANCER_TYPE_THERAPY_INDENTIFIER, RADIO_OPTION_NONE } from 'app/config/constants/constants';
 import CancerTypeLevelSummary from '../nestLevelSummary/CancerTypeLevelSummary';
 import RealtimeDropdownInput from 'app/shared/firebase/input/RealtimeDropdownInput';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
@@ -59,7 +66,7 @@ export interface IMutationCollapsibleProps extends StoreProps {
   mutation: Mutation;
   firebaseIndex: number;
   parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
-  drugList: IDrug[];
+  drugList: readonly IDrug[];
   open?: boolean;
   onToggle?: (isOpen: boolean) => void;
 }
@@ -86,6 +93,8 @@ const MutationCollapsible = ({
   firebasePushToArray,
   open = false,
   onToggle,
+  createDrug,
+  getDrugs,
 }: IMutationCollapsibleProps) => {
   const title = getMutationName(mutation);
   const mutationFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}`);
@@ -282,6 +291,12 @@ const MutationCollapsible = ({
           const cancerTypeName = getCancerTypesNameWithExclusion(tumor.cancerTypes, tumor.excludedCancerTypes || [], true);
           const cancerTypeFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}`);
           const cancerTypeContainsSpecialCancerType = tumorContainsSpecialCancerType(tumor);
+          const currentTreatments = tumor.TIs.reduce<Treatment[]>((accumulator, currentTI) => {
+            if (currentTI.treatments) {
+              return accumulator.concat(currentTI.treatments);
+            }
+            return accumulator;
+          }, []);
 
           return (
             <div key={tumor.cancerTypes_uuid} className="mb-2">
@@ -530,11 +545,13 @@ const MutationCollapsible = ({
                               treatmentUuid={treatment.name_uuid}
                               treatmentName={treatment.name}
                               drugList={drugList}
-                              onConfirm={async treatmentName => {
+                              currentTreatments={currentTreatments}
+                              onConfirm={async (treatmentName, newDrugs) => {
                                 const newTreatment = _.cloneDeep(treatment);
                                 newTreatment.name = treatmentName;
 
                                 try {
+                                  await Promise.all(newDrugs.map(drug => createDrug(drug)));
                                   await updateTreatment(therapyFirebasePath, newTreatment);
                                 } catch (error) {
                                   notifyError(error);
@@ -677,10 +694,13 @@ const MutationCollapsible = ({
                 treatmentUuid={`new_treatment_for_${tumor.cancerTypes_uuid}`}
                 treatmentName=""
                 drugList={drugList}
-                onConfirm={async treatmentName => {
+                currentTreatments={currentTreatments}
+                onConfirm={async (treatmentName, newDrugs) => {
                   const newTreatment = new Treatment(treatmentName);
 
                   try {
+                    await Promise.all(newDrugs.map(drug => createDrug(drug)));
+                    await getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
                     await firebasePushToArray(
                       buildFirebaseGenePath(
                         hugoSymbol,
@@ -786,6 +806,7 @@ const mapStoreToProps = ({
   modifyTherapyModalStore,
   relevantCancerTypesModalStore,
   authStore,
+  drugStore,
 }: IRootStore) => ({
   data: firebaseGeneStore.data,
   hugoSymbol: firebaseGeneStore.hugoSymbol,
@@ -800,6 +821,8 @@ const mapStoreToProps = ({
   handleFirebaseDeleteFromArray: firebaseGeneStore.deleteFromArray,
   handleFirebaseUpdateUntemplated: firebaseGeneStore.updateUntemplated,
   account: authStore.account,
+  createDrug: drugStore.createEntity,
+  getDrugs: drugStore.getEntities,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

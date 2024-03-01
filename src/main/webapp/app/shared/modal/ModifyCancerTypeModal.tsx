@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { SimpleConfirmModal } from './SimpleConfirmModal';
+import React, { useEffect, useMemo } from 'react';
 import CancerTypeSelect, { CancerTypeSelectOption } from '../select/CancerTypeSelect';
 import { CancerType } from '../model/firebase/firebase.model';
 import { getCancerTypeName } from '../util/utils';
@@ -9,7 +8,7 @@ import { ICancerType } from '../model/cancer-type.model';
 import { FaExclamationCircle } from 'react-icons/fa';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 import { observer } from 'mobx-react-lite';
-import styles from './styles.module.scss';
+import { ERROR_EXCLAMATION_ICON_SIZE } from 'app/config/constants/constants';
 
 export interface IModifyCancerTypeModalProps extends StoreProps {
   cancerTypesUuid: string;
@@ -150,8 +149,8 @@ const ModifyCancerTypeModalContent = observer(
         <ModalBody>
           <div>
             {modifyCancerTypeModalStore.isErrorFetchingICancerTypes && (
-              <div className={`mb-4 ${styles.error}`}>
-                <FaExclamationCircle className="mr-2" size={'25px'} />
+              <div className={`mb-4 error-message`}>
+                <FaExclamationCircle className="mr-2" size={ERROR_EXCLAMATION_ICON_SIZE} />
                 <span className="mr-3">Error fetching cancer types</span>
                 <Button
                   disabled={modifyCancerTypeModalStore.isRetryButtonClicked}
@@ -180,8 +179,8 @@ const ModifyCancerTypeModalContent = observer(
               {isConfirmButtonDisabled &&
               !modifyCancerTypeModalStore.isErrorFetchingICancerTypes &&
               !modifyCancerTypeModalStore.isErrorIncludedAndExcluded ? (
-                <div className={`mt-2 mb-4 ${styles.error}`}>
-                  <FaExclamationCircle className="mr-2" size={'25px'} />
+                <div className={`mt-2 mb-4 error-message`}>
+                  <FaExclamationCircle className="mr-2" size={ERROR_EXCLAMATION_ICON_SIZE} />
                   <span>You must include at least one cancer type</span>
                 </div>
               ) : (
@@ -201,8 +200,8 @@ const ModifyCancerTypeModalContent = observer(
         <ModalFooter style={{ display: 'inline-block' }}>
           <div className="d-flex justify-content-between align-items-center">
             {modifyCancerTypeModalStore.isErrorIncludedAndExcluded ? (
-              <div className={styles.warning}>
-                <FaExclamationCircle className="mr-2" size={'25px'} />
+              <div className="error-message">
+                <FaExclamationCircle className="mr-2" size={ERROR_EXCLAMATION_ICON_SIZE} />
                 <span className="mr-3">Cancer types may not be both included and excluded</span>
               </div>
             ) : (

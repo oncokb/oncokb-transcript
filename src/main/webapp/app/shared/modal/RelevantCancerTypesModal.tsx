@@ -16,8 +16,7 @@ import DefaultBadge from '../badge/DefaultBadge';
 import { CancerType } from '../model/firebase/firebase.model';
 import { RelevantCancerType } from './relevant-cancer-types-modal-store';
 import { CancerType as FetchedCancerType, RelevantCancerTypeQuery } from '../api/generated';
-import styles from './styles.module.scss';
-import { FaExclamationCircle, FaInfoCircle } from 'react-icons/fa';
+import { FaExclamationCircle } from 'react-icons/fa';
 import InfoIcon from '../icons/InfoIcon';
 
 export interface IRelevantCancerTypesModalProps extends StoreProps {
@@ -214,7 +213,7 @@ const RelevantCancerTypesModalContent = observer(
         <ModalFooter style={{ display: 'inline-block' }}>
           <div className="d-flex justify-content-between">
             {allCancerTypesDeleted ? (
-              <div className={styles.error}>
+              <div className="error-message">
                 <FaExclamationCircle className="mr-2" size={'25px'} />
                 <span>You must include at least one cancer type</span>
               </div>
