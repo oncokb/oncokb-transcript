@@ -1,4 +1,4 @@
-import { LEVELS } from 'app/config/colors';
+import { GREY, LEVELS } from 'app/config/colors';
 
 export enum NestLevelType {
   MUTATION,
@@ -28,10 +28,17 @@ export enum NestLevel {
   LEVEL_3 = '3',
 }
 
-export const NestLevelColor: { [key in NestLevel]: string } = {
-  [NestLevel.LEVEL_1]: LEVELS['1'],
-  [NestLevel.LEVEL_2]: LEVELS['2'],
-  [NestLevel.LEVEL_3]: LEVELS['3'],
+export const NestLevelColor: { [key in NestLevelType]: { borderLeftColor: string; backgroundColor?: string } } = {
+  [NestLevelType.MUTATION]: { borderLeftColor: LEVELS[1], backgroundColor: LEVELS[1] },
+  [NestLevelType.MUTATION_EFFECT]: { borderLeftColor: LEVELS[1] },
+  [NestLevelType.CANCER_TYPE]: { borderLeftColor: LEVELS[2], backgroundColor: LEVELS[2] },
+  [NestLevelType.THERAPY]: { borderLeftColor: LEVELS[3], backgroundColor: LEVELS[3] },
+  [NestLevelType.DIAGNOSTIC]: { borderLeftColor: LEVELS[3] },
+  [NestLevelType.PROGNOSTIC]: { borderLeftColor: LEVELS[3] },
+  [NestLevelType.SOMATIC]: { borderLeftColor: LEVELS[3] },
+  [NestLevelType.GERMLINE]: { borderLeftColor: LEVELS[3] },
 };
+
+export const DISABLED_NEST_LEVEL_COLOR = GREY;
 
 export type RemovableNestLevel = NestLevelType.MUTATION | NestLevelType.CANCER_TYPE | NestLevelType.THERAPY;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Collapsible from './Collapsible';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
@@ -20,12 +20,13 @@ import {
   getTxName,
   getValueByNestedKey,
   isDnaVariant,
+  isMutationEffectCuratable,
   isPendingDelete,
   isSectionEmpty,
   isSectionRemovableWithoutReview,
   sortByTxLevel,
 } from 'app/shared/util/firebase/firebase-utils';
-import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
+import { DISABLED_NEST_LEVEL_COLOR, NestLevelColor, NestLevelType } from './NestLevel';
 import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
@@ -58,6 +59,7 @@ import WithSeparator from 'react-with-separator';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import NoEntryBadge from 'app/shared/badge/NoEntryBadge';
 import RCTButton from '../button/RCTButton';
+import NotCuratableBadge from 'app/shared/badge/NotCuratableBadge';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationList: Mutation[];
@@ -95,10 +97,17 @@ const MutationCollapsible = ({
 }: IMutationCollapsibleProps) => {
   const title = getMutationName(mutation);
   const mutationFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}`);
-  const hideOncogenicityStat = title.includes(',');
   const tooManyRCTsText = 'This cancer type contains too many RCTs. Please modify the excluding cancer types instead.';
 
   const [isEditingMutation, setIsEditingMutation] = useState(false);
+
+  const isStringMutation = useMemo(() => {
+    return title.includes(',');
+  }, [title]);
+
+  const isMECuratable = useMemo(() => {
+    return isMutationEffectCuratable(title);
+  }, [title]);
 
   async function handleCreateComment(path: string, content: string, currentCommentsLength: number) {
     // replace with runTransaction?
@@ -167,8 +176,9 @@ const MutationCollapsible = ({
         open={open}
         className={'mb-1'}
         title={title}
-        borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.MUTATION]]}
-        info={<MutationLevelSummary mutationUuid={mutation.name_uuid} hideOncogenicity={hideOncogenicityStat} />}
+        borderLeftColor={NestLevelColor[NestLevelType.MUTATION].borderLeftColor}
+        backgroundColor={NestLevelColor[NestLevelType.MUTATION].backgroundColor}
+        info={<MutationLevelSummary mutationUuid={mutation.name_uuid} hideOncogenicity={isStringMutation} />}
         onToggle={onToggle ? isOpen => onToggle(isOpen) : null}
         action={
           <>
@@ -199,9 +209,11 @@ const MutationCollapsible = ({
         isPendingDelete={isMutationPendingDelete}
       >
         <Collapsible
-          open
+          open={isMECuratable}
           title="Mutation Effect"
-          borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.MUTATION_EFFECT]]}
+          borderLeftColor={isMECuratable ? NestLevelColor[NestLevelType.MUTATION_EFFECT].borderLeftColor : DISABLED_NEST_LEVEL_COLOR}
+          disableCollapsible={!isMECuratable}
+          badgeOverride={!isMECuratable && <NotCuratableBadge mutationName={title} />}
           isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect`))}
         >
           {associatedDnaVariants.length > 0 && (
@@ -213,7 +225,7 @@ const MutationCollapsible = ({
           <Collapsible
             open={!mutation.name.startsWith('c.')}
             title="Somatic"
-            borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.SOMATIC]]}
+            borderLeftColor={NestLevelColor[NestLevelType.SOMATIC].borderLeftColor}
             action={
               <CommentIcon
                 id={mutation.mutation_effect_uuid}
@@ -284,7 +296,7 @@ const MutationCollapsible = ({
             open={mutation.name.startsWith('c.')}
             className={'mt-2'}
             title={'Germline'}
-            borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.GERMLINE]]}
+            borderLeftColor={NestLevelColor[NestLevelType.GERMLINE].borderLeftColor}
             action={
               <CommentIcon
                 id={`${mutation.mutation_effect_uuid}_germline`}
@@ -425,7 +437,8 @@ const MutationCollapsible = ({
               <Collapsible
                 className={'mt-2'}
                 title={`Cancer Type: ${cancerTypeName}`}
-                borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.CANCER_TYPE]]}
+                borderLeftColor={NestLevelColor[NestLevelType.CANCER_TYPE].borderLeftColor}
+                backgroundColor={NestLevelColor[NestLevelType.CANCER_TYPE].backgroundColor}
                 info={<CancerTypeLevelSummary mutationUuid={mutation.name_uuid} cancerTypeUuid={tumor.cancerTypes_uuid} />}
                 action={
                   <>
@@ -530,7 +543,7 @@ const MutationCollapsible = ({
                         hugoSymbol,
                         `mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}`
                       );
-                      const disableRctButton = cancerTypeContainsSpecialCancerType || treatment.level === 'None';
+                      const disableRctButton = cancerTypeContainsSpecialCancerType || treatment.level === 'no';
 
                       return (
                         <>
@@ -538,7 +551,8 @@ const MutationCollapsible = ({
                             className={'mt-2'}
                             key={treatment.name_uuid}
                             title={`Therapy: ${getTxName(drugList, treatment.name)}`}
-                            borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.THERAPY]]}
+                            borderLeftColor={NestLevelColor[NestLevelType.THERAPY].borderLeftColor}
+                            backgroundColor={NestLevelColor[NestLevelType.THERAPY].backgroundColor}
                             info={
                               <TreatmentLevelSummary
                                 mutationUuid={mutation.name_uuid}
@@ -683,7 +697,7 @@ const MutationCollapsible = ({
                     className={'mt-2'}
                     key={tumor.diagnostic_uuid}
                     title="Diagnostic Implication"
-                    borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.DIAGNOSTIC]]}
+                    borderLeftColor={NestLevelColor[NestLevelType.DIAGNOSTIC].borderLeftColor}
                     action={
                       <>
                         <CommentIcon
@@ -741,7 +755,7 @@ const MutationCollapsible = ({
                     className={'mt-2'}
                     key={tumor.prognostic_uuid}
                     title="Prognostic Implication"
-                    borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.PROGNOSTIC]]}
+                    borderLeftColor={NestLevelColor[NestLevelType.PROGNOSTIC].borderLeftColor}
                     action={
                       <>
                         <CommentIcon
