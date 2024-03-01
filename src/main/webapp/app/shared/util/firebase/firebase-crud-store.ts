@@ -34,6 +34,7 @@ export class FirebaseCrudStore<T> {
       update: action.bound,
       updateUntemplated: action.bound,
       push: action.bound,
+      pushMultiple: action.bound,
       delete: action.bound,
       deleteFromArray: action.bound,
       pushToArray: action.bound,
@@ -62,6 +63,16 @@ export class FirebaseCrudStore<T> {
     const listRef = ref(this.db, path);
     const newItemRef = push(listRef);
     return set(newItemRef, value);
+  }
+
+  pushMultiple(path: string, items: any[]) {
+    const listRef = ref(this.db, path);
+    const pushUpdates = {};
+    items.forEach(item => {
+      const postKey = push(listRef).key;
+      pushUpdates[postKey] = item;
+    });
+    return update(listRef, pushUpdates);
   }
 
   async update(path: string, value: RecursivePartial<T>) {

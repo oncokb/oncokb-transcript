@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { BoolString, Comment, Vus, VusObjList } from 'app/shared/model/firebase/firebase.model';
+import { BoolString, Comment, Mutation, Vus, VusObjList } from 'app/shared/model/firebase/firebase.model';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { Button, Container, Row } from 'reactstrap';
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
@@ -23,9 +23,13 @@ import classNames from 'classnames';
 import DefaultBadge from '../badge/DefaultBadge';
 import InfoIcon from '../icons/InfoIcon';
 import { VusRecencyInfoIcon } from '../icons/VusRecencyInfoIcon';
+import AddButton from 'app/pages/curation/button/AddButton';
+import AddMutationModal from '../modal/AddMutationModal';
+import { AddVusModal } from '../modal/AddVusModal';
 
 export interface IVusTableProps extends StoreProps {
   hugoSymbol: string;
+  mutationList: Mutation[];
 }
 
 type VusTableData = Vus & {
@@ -39,9 +43,11 @@ const LATEST_COMMENT = 'Latest Comment';
 
 const VusTable = ({
   hugoSymbol,
+  mutationList,
   account,
+  fullName,
   vusData,
-  addVusListener,
+  pushVusArray,
   handleFirebaseUpdate,
   handleFirebaseDelete,
   handleFirebaseDeleteFromArray,
@@ -49,15 +55,9 @@ const VusTable = ({
   const currentActionVusUuid = useRef<string>(null);
   const firebaseVusPath = getFirebasePath('VUS', hugoSymbol);
 
+  const [showAddVusModal, setShowAddVusModal] = useState(false);
+
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-
-  useEffect(() => {
-    const cleanupCallback = addVusListener(firebaseVusPath);
-
-    return () => {
-      cleanupCallback && cleanupCallback();
-    };
-  }, []);
 
   const vusList: VusTableData[] = useMemo(() => {
     return vusData
@@ -149,6 +149,14 @@ const VusTable = ({
     } catch (error) {
       notifyError(error);
     }
+  }
+
+  async function handleAddVus(variants: string[]) {
+    const newVusList = variants.map(variant => {
+      return new Vus(variant, account.email, fullName);
+    });
+    await pushVusArray(firebaseVusPath, newVusList);
+    setShowAddVusModal(false);
   }
 
   const columns: SearchColumn<VusTableData>[] = [
@@ -245,46 +253,55 @@ const VusTable = ({
     },
   ];
 
-  return vusData ? (
-    <div className={'justify-content-between align-items-center mt-4'}>
-      <div className={'d-flex align-items-baseline'}>
-        <span style={{ fontSize: '1.25rem' }}>Variants of Unknown Significance (Investigated and data not found)</span>
-        <Button onClick={handleDownload} color="primary" size="sm" outline className={'ml-2'}>
-          Download
-        </Button>
-      </div>
-      <OncoKBTable defaultSorted={[{ id: LAST_EDITED_AT, desc: false }]} data={vusList} columns={columns} showPagination />
-      <SimpleConfirmModal
-        title="Confirm deletion"
-        body={'Are you sure you want to delete this variant?'}
-        show={showConfirmModal}
-        confirmText="Delete"
-        confirmColor="danger"
-        confirmIcon="trash"
-        cancelIcon={'ban'}
-        onConfirm={async () => {
-          await handleDelete();
-          setShowConfirmModal(false);
-          currentActionVusUuid.current = null;
-        }}
-        onCancel={() => {
-          setShowConfirmModal(false);
-          currentActionVusUuid.current = null;
-        }}
-      />
-    </div>
-  ) : (
-    <></>
+  return (
+    <>
+      {vusData ? (
+        <div className={'justify-content-between align-items-center mt-4'}>
+          <div className={'d-flex align-items-center mb-2'}>
+            <span style={{ fontSize: '1.25rem' }}>Variants of Unknown Significance (Investigated and data not found)</span>
+            <AddButton className="ml-2" onClickHandler={() => setShowAddVusModal(true)} />
+            <Button onClick={handleDownload} color="primary" size="sm" outline className={'ml-2'}>
+              Download
+            </Button>
+          </div>
+          <OncoKBTable defaultSorted={[{ id: LAST_EDITED_AT, desc: false }]} data={vusList} columns={columns} showPagination />
+          <SimpleConfirmModal
+            title="Confirm deletion"
+            body={'Are you sure you want to delete this variant?'}
+            show={showConfirmModal}
+            confirmText="Delete"
+            confirmColor="danger"
+            confirmIcon="trash"
+            cancelIcon={'ban'}
+            onConfirm={async () => {
+              await handleDelete();
+              setShowConfirmModal(false);
+              currentActionVusUuid.current = null;
+            }}
+            onCancel={() => {
+              setShowConfirmModal(false);
+              currentActionVusUuid.current = null;
+            }}
+          />
+        </div>
+      ) : (
+        <AddButton title="VUS" showIcon onClickHandler={() => setShowAddVusModal(true)} />
+      )}
+      {showAddVusModal ? (
+        <AddVusModal mutationList={mutationList} vusList={vusData} onCancel={() => setShowAddVusModal(false)} onConfirm={handleAddVus} />
+      ) : undefined}
+    </>
   );
 };
 
 const mapStoreToProps = ({ firebaseVusStore, authStore }: IRootStore) => ({
   vusData: firebaseVusStore.data,
-  addVusListener: firebaseVusStore.addListener,
+  pushVusArray: firebaseVusStore.pushMultiple,
   handleFirebaseUpdate: firebaseVusStore.update,
   handleFirebaseDelete: firebaseVusStore.delete,
   handleFirebaseDeleteFromArray: firebaseVusStore.deleteFromArray,
   account: authStore.account,
+  fullName: authStore.fullName,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

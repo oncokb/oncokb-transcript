@@ -2,6 +2,7 @@
 
 .warning {
   display: flex;
-  align-items: center;
+  align-items: start;
   color: $danger;
+  margin-right: 0.5rem;
 }
