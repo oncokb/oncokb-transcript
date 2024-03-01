@@ -17,6 +17,7 @@ import {
 import ActionIcon from 'app/shared/icons/ActionIcon';
 import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { DANGER, SUCCESS, WARNING } from 'app/config/colors';
+import TextWithRefs from 'app/shared/links/TextWithRefs';
 
 export enum ReviewType {
   CREATE,
@@ -122,6 +123,9 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
             compareMethod={DiffMethod.CHARS}
             splitView={reviewLevel.review.lastReviewed && reviewLevel.currentVal}
             hideLineNumbers
+            renderContent={source => {
+              return <TextWithRefs content={source} />;
+            }}
           />
         </div>
       );
