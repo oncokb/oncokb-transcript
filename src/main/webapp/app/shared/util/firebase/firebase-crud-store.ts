@@ -31,6 +31,7 @@ export class FirebaseCrudStore<T> {
       addListener: action.bound,
       setDatabase: action.bound,
       create: action.bound,
+      createUntemplated: action.bound,
       update: action.bound,
       updateUntemplated: action.bound,
       push: action.bound,
@@ -56,6 +57,10 @@ export class FirebaseCrudStore<T> {
   }
 
   create(path: string, value: T) {
+    return set(ref(this.db, path), value);
+  }
+
+  createUntemplated(path: string, value: any) {
     return set(ref(this.db, path), value);
   }
 

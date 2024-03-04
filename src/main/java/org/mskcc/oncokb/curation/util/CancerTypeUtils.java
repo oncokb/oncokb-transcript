@@ -170,4 +170,23 @@ public class CancerTypeUtils {
         }
         return null;
     }
+
+    private static class SortByLevel implements Comparator<CancerType> {
+
+        @Override
+        public int compare(CancerType ct1, CancerType ct2) {
+            int levelComparison = Integer.compare(ct1.getLevel(), ct2.getLevel());
+            if (levelComparison != 0) {
+                return levelComparison;
+            }
+            String ct1Name = ct1.getSubtype() != null ? ct1.getSubtype() : ct1.getMainType();
+            String ct2Name = ct2.getSubtype() != null ? ct2.getSubtype() : ct2.getMainType();
+            return ct1Name.compareTo(ct2Name);
+        }
+    }
+
+    public static void sortByLevel(List<CancerType> cancerTypes) {
+        SortByLevel comparator = new SortByLevel();
+        cancerTypes.sort(comparator);
+    }
 }

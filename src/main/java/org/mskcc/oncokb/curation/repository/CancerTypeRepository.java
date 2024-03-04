@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.CancerType;
+import org.mskcc.oncokb.curation.domain.enumeration.TumorForm;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -30,9 +31,13 @@ public interface CancerTypeRepository extends JpaRepository<CancerType, Long>, J
 
     List<CancerType> findAllByMainTypeIs(@Param("maintype") String mainType);
 
+    List<CancerType> findByTumorFormIn(List<TumorForm> tumorForms);
+
     Optional<CancerType> findOneByCodeIgnoreCase(String code);
 
     Optional<CancerType> findOneBySubtypeIgnoreCase(String subtype);
+
+    Optional<CancerType> findOneByMainTypeIgnoreCaseAndCodeIsNull(String mainType);
 
     Optional<CancerType> findByMainTypeAndSubtypeIsNull(String mainType);
 }

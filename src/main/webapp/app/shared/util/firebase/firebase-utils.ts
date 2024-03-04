@@ -9,6 +9,8 @@ import {
   TX_LEVELS,
   Tumor,
   Alteration,
+  DX_LEVELS,
+  PX_LEVELS,
   VusObjList,
 } from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
@@ -26,6 +28,9 @@ import _ from 'lodash';
     {'type/ocg': 'Oncogene', 'name': 'ABL1'}
 */
 export const convertNestedObject = (obj: any, key = '', result = {}) => {
+  if (obj === null) {
+    return;
+  }
   if (typeof obj !== 'object') {
     result[key] = obj;
     return result;
@@ -201,7 +206,27 @@ export const isPendingDelete = (geneData: Gene, nestLevel: RemovableNestLevel, p
   return false;
 };
 
-export const sortByTxLevel = (a: TX_LEVELS, b: TX_LEVELS) => {
+export type SortOrder = 'asc' | 'desc';
+
+const sortByIndex = (aIndex: number, bIndex: number, order: SortOrder = 'asc') => {
+  if (aIndex === bIndex) {
+    return 0;
+  }
+  if (aIndex === -1) {
+    return 1;
+  }
+  if (bIndex === -1) {
+    return -1;
+  }
+
+  if (order === 'asc') {
+    return aIndex > bIndex ? 1 : -1;
+  } else {
+    return aIndex < bIndex ? 1 : -1;
+  }
+};
+
+export const sortByTxLevel = (a: TX_LEVELS, b: TX_LEVELS, order: SortOrder = 'asc') => {
   const ordering = [
     TX_LEVELS.LEVEL_1,
     TX_LEVELS.LEVEL_R1,
@@ -213,16 +238,21 @@ export const sortByTxLevel = (a: TX_LEVELS, b: TX_LEVELS) => {
   ];
   const aIndex = ordering.indexOf(a);
   const bIndex = ordering.indexOf(b);
-  if (aIndex === bIndex) {
-    return 0;
-  }
-  if (aIndex === -1) {
-    return 1;
-  }
-  if (bIndex === -1) {
-    return -1;
-  }
-  return aIndex > bIndex ? 1 : -1;
+  return sortByIndex(aIndex, bIndex, order);
+};
+
+export const sortByDxLevel = (a: DX_LEVELS, b: DX_LEVELS, order: SortOrder = 'asc') => {
+  const ordering = [DX_LEVELS.LEVEL_DX1, DX_LEVELS.LEVEL_DX2, DX_LEVELS.LEVEL_DX3];
+  const aIndex = ordering.indexOf(a);
+  const bIndex = ordering.indexOf(b);
+  return sortByIndex(aIndex, bIndex, order);
+};
+
+export const sortByPxLevel = (a: PX_LEVELS, b: PX_LEVELS, order: SortOrder = 'asc') => {
+  const ordering = [PX_LEVELS.LEVEL_PX1, PX_LEVELS.LEVEL_PX2, PX_LEVELS.LEVEL_PX3];
+  const aIndex = ordering.indexOf(a);
+  const bIndex = ordering.indexOf(b);
+  return sortByIndex(aIndex, bIndex, order);
 };
 
 export const getVusTimestampClass = (time: string | number) => {

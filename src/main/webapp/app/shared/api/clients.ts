@@ -8,6 +8,7 @@ import {
   FlagResourceApi,
   GeneResourceApi,
   AssociationResourceApi,
+  CancerTypeResourceApi,
 } from './generated/api';
 
 export const fdaSubmissionClient = new FdaSubmissionResourceApi(null, '', axiosInstance);
@@ -18,3 +19,4 @@ export const ensemblGeneClient = new EnsemblGeneResourceApi(null, '', axiosInsta
 export const transcriptClient = new TranscriptResourceApi(null, '', axiosInstance);
 export const flagClient = new FlagResourceApi(null, '', axiosInstance);
 export const associationClient = new AssociationResourceApi(null, '', axiosInstance);
+export const cancerTypeClient = new CancerTypeResourceApi(null, '', axiosInstance);

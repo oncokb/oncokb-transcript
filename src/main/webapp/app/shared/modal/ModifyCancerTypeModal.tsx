@@ -150,7 +150,7 @@ const ModifyCancerTypeModalContent = observer(
         <ModalBody>
           <div>
             {modifyCancerTypeModalStore.isErrorFetchingICancerTypes && (
-              <div className={`mb-4 ${styles.warning}`}>
+              <div className={`mb-4 ${styles.error}`}>
                 <FaExclamationCircle className="mr-2" size={'25px'} />
                 <span className="mr-3">Error fetching cancer types</span>
                 <Button
@@ -180,7 +180,7 @@ const ModifyCancerTypeModalContent = observer(
               {isConfirmButtonDisabled &&
               !modifyCancerTypeModalStore.isErrorFetchingICancerTypes &&
               !modifyCancerTypeModalStore.isErrorIncludedAndExcluded ? (
-                <div className={`mt-2 mb-4 ${styles.warning}`}>
+                <div className={`mt-2 mb-4 ${styles.error}`}>
                   <FaExclamationCircle className="mr-2" size={'25px'} />
                   <span>You must include at least one cancer type</span>
                 </div>

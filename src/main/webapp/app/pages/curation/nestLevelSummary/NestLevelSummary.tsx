@@ -4,7 +4,7 @@ import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import classNames from 'classnames';
 import _ from 'lodash';
 import React from 'react';
-import { sortByTxLevel } from 'app/shared/util/firebase/firebase-utils';
+import { sortByDxLevel, sortByPxLevel, sortByTxLevel } from 'app/shared/util/firebase/firebase-utils';
 import './nest-level-summary.scss';
 import '../../../shared/badge/count-badge.scss';
 import { TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
@@ -67,7 +67,7 @@ export const NestLevelSummary = ({ summaryStats, hideOncogenicity, isTreatmentSt
           );
         })}
       {Object.keys(summaryStats.dxLevels)
-        .sort()
+        .sort(sortByDxLevel)
         .map(k => {
           lastBadgeHasHiddenNumber = false;
           return (
@@ -79,7 +79,7 @@ export const NestLevelSummary = ({ summaryStats, hideOncogenicity, isTreatmentSt
           );
         })}
       {Object.keys(summaryStats.pxLevels)
-        .sort()
+        .sort(sortByPxLevel)
         .map(k => {
           lastBadgeHasHiddenNumber = false;
           return (

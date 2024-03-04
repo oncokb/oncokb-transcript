@@ -158,6 +158,16 @@ export enum ENTITY_RESOURCE_PATH {
   USER = '/users',
 }
 
+export enum SPECIAL_CANCER_TYPES {
+  ALL_TUMORS = 'All Tumors',
+  ALL_LIQUID_TUMORS = 'All Liquid Tumors',
+  ALL_SOLID_TUMORS = 'All Solid Tumors',
+  GERMLINE_DISPOSITION = 'Germline Disposition',
+  OTHER_TUMOR_TYPES = 'Other Tumor Types',
+  OTHER_SOLID_TUMOR_TYPES = 'Other Solid Tumor Types',
+  OTHER_LIQUID_TUMOR_TYPES = 'Other Liquid Tumor Types',
+}
+
 export const ENTITY_INFO: { [key in ENTITY_TYPE]: { pageRoute?: ENTITY_PAGE_ROUTE; resourcePath: ENTITY_RESOURCE_PATH } } = {
   [ENTITY_TYPE.ALTERATION]: {
     pageRoute: ENTITY_PAGE_ROUTE.ALTERATION,

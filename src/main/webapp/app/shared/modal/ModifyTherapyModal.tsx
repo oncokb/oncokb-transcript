@@ -81,7 +81,7 @@ const ModifyTherapyModalContent = observer(
     function getBottomMessage() {
       if (isEmptyTherapy) {
         return (
-          <div className={styles.warning}>
+          <div className={styles.error}>
             <FaExclamationCircle className="mr-2" size={'25px'} />
             <span>You must include at least one drug for each therapy</span>
           </div>
