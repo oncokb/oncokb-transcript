@@ -18,3 +18,10 @@ export const LEVELS = {
   R1: '#EE3424',
   R2: '#F79A92',
 };
+
+export const COLLAPSIBLE_LEVELS = {
+  1: '#33A02C',
+  2: '#FFBE02',
+  3: '#FF8834',
+  4: '#984EA3',
+};
