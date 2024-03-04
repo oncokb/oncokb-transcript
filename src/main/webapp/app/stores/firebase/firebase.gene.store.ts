@@ -154,10 +154,12 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
             tumor.TIs.forEach(ti => {
               if (ti.treatments) {
                 ti.treatments.forEach(treatment => {
-                  if (!summary[mutation.name_uuid].txLevels[treatment.level]) {
-                    summary[mutation.name_uuid].txLevels[treatment.level] = 1;
-                  } else {
-                    summary[mutation.name_uuid].txLevels[treatment.level]++;
+                  if (treatment.level !== TX_LEVELS.LEVEL_NO) {
+                    if (!summary[mutation.name_uuid].txLevels[treatment.level]) {
+                      summary[mutation.name_uuid].txLevels[treatment.level] = 1;
+                    } else {
+                      summary[mutation.name_uuid].txLevels[treatment.level]++;
+                    }
                   }
                 });
               }
