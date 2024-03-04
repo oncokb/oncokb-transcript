@@ -206,20 +206,22 @@ const MutationCollapsible = ({
           disableCollapsible={!isMECuratable}
           badgeOverride={!isMECuratable && <NotCuratableBadge mutationName={title} />}
           action={
-            <CommentIcon
-              id={mutation.mutation_effect_uuid}
-              comments={mutation.mutation_effect_comments || []}
-              onCreateComment={content =>
-                handleCreateComment(
-                  `${mutationFirebasePath}/mutation_effect_comments`,
-                  content,
-                  mutation.mutation_effect_comments?.length || 0
-                )
-              }
-              onDeleteComments={indices => handleDeleteComments(`${mutationFirebasePath}/mutation_effect_comments`, indices)}
-              onResolveComment={index => handleResolveComment(`${mutationFirebasePath}/mutation_effect_comments/${index}`)}
-              onUnresolveComment={index => handleUnresolveComment(`${mutationFirebasePath}/mutation_effect_comments/${index}`)}
-            />
+            isMECuratable && (
+              <CommentIcon
+                id={mutation.mutation_effect_uuid}
+                comments={mutation.mutation_effect_comments || []}
+                onCreateComment={content =>
+                  handleCreateComment(
+                    `${mutationFirebasePath}/mutation_effect_comments`,
+                    content,
+                    mutation.mutation_effect_comments?.length || 0
+                  )
+                }
+                onDeleteComments={indices => handleDeleteComments(`${mutationFirebasePath}/mutation_effect_comments`, indices)}
+                onResolveComment={index => handleResolveComment(`${mutationFirebasePath}/mutation_effect_comments/${index}`)}
+                onUnresolveComment={index => handleUnresolveComment(`${mutationFirebasePath}/mutation_effect_comments/${index}`)}
+              />
+            )
           }
           isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect`))}
         >
