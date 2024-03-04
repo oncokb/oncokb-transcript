@@ -45,7 +45,6 @@ public class Treatment implements Serializable {
     @JsonIgnoreProperties(
         value = {
             "associationCancerTypes",
-            "alterations",
             "articles",
             "treatments",
             "evidence",

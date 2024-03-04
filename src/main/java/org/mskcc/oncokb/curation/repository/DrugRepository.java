@@ -15,7 +15,15 @@ import org.springframework.stereotype.Repository;
 @JaversSpringDataAuditable
 @Repository
 public interface DrugRepository extends JpaRepository<Drug, Long>, JpaSpecificationExecutor<Drug> {
-    @Query("select distinct drug from Drug drug left join fetch drug.brands left join fetch drug.flags")
+    @Query(
+        "select distinct drug from Drug drug" +
+        " left join fetch drug.brands" +
+        " left join fetch drug.flags" +
+        " left join fetch drug.treatments t" +
+        " left join fetch t.associations ta" +
+        " left join fetch ta.alterations taa" +
+        " left join fetch taa.genes"
+    )
     List<Drug> findAllWithEagerRelationships();
 
     @Query("select distinct drug from Drug drug left join fetch drug.brands left join fetch drug.flags where drug.id=:id")

@@ -4,7 +4,7 @@ import { IRootStore } from 'app/stores';
 import { getFdaSubmissionLinks } from 'app/entities/companion-diagnostic-device/companion-diagnostic-device';
 import { IAssociation } from '../model/association.model';
 import { Column } from 'react-table';
-import { getAlterationName, getCancerTypeName, getGeneNamesFromAlterations, getTreatmentName } from '../util/utils';
+import { getAlterationName, getCancerTypeName, getGeneNamesStringFromAlterations, getTreatmentName } from '../util/utils';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { SimpleConfirmModal } from '../modal/SimpleConfirmModal';
 import { Button } from 'reactstrap';
@@ -60,7 +60,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
       id: 'gene',
       Header: 'Gene',
       Cell(cell: { original: IAssociation }) {
-        return <div>{getGeneNamesFromAlterations(cell.original.alterations || [])}</div>;
+        return <div>{getGeneNamesStringFromAlterations(cell.original.alterations || [])}</div>;
       },
     },
     {
