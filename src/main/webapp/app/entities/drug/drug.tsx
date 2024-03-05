@@ -75,9 +75,9 @@ export const Drug = (props: IDrugProps) => {
       onFilter: (data: IDrug, keyword) => filterByKeyword(data.nciThesaurus?.code || '', keyword),
     },
     {
-      id: 'biomarkers',
+      accessor: 'treatments',
       Header: 'Associated Biomarker(s)',
-      minWidth: 300,
+      minWidth: 250,
       Cell(cell: { original: IDrug }) {
         const uniqueGenes = getUniqueGenes(cell.original.treatments || []);
         return (
@@ -97,7 +97,8 @@ export const Drug = (props: IDrugProps) => {
         );
       },
       onFilter: (data: IDrug, keyword) => filterByKeyword(getAllGeneAlterationTexts(getUniqueGenes(data.treatments || [])), keyword, true),
-      sortable: false,
+      sortMethod: (a: ITreatment[], b: ITreatment[]) =>
+        getAllGeneAlterationTexts(getUniqueGenes(a || [])).localeCompare(getAllGeneAlterationTexts(getUniqueGenes(b || []))),
     },
     getEntityTableActionsColumn(ENTITY_TYPE.DRUG),
   ];
