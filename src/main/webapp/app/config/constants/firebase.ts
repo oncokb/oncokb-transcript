@@ -1,6 +1,17 @@
-import { Gene, FIREBASE_ONCOGENICITY, TX_LEVELS, TI_TYPE, HistoryOperationType } from 'app/shared/model/firebase/firebase.model';
+import {
+  Gene,
+  FIREBASE_ONCOGENICITY,
+  TX_LEVELS,
+  TI_TYPE,
+  HistoryOperationType,
+  PX_LEVELS,
+  DX_LEVELS,
+  FDA_LEVELS,
+} from 'app/shared/model/firebase/firebase.model';
 import { ExtractPathExpressions } from 'app/shared/util/firebase/firebase-crud-store';
 import { MUTATION_EFFECT, ONCOGENICITY } from './constants';
+import { LEVELS } from '../colors';
+import { FdaLevelIcon } from 'app/shared/icons/FdaLevelIcon';
 
 /* eslint-disable @typescript-eslint/no-shadow */
 export enum GENE_TYPE {
@@ -87,6 +98,113 @@ export const MUTATION_EFFECT_OPTIONS = [
   MUTATION_EFFECT.INCONCLUSIVE,
 ];
 
+/**
+ * We need this enum because FDA_LEVELS enum has the same value as TX_LEVELS enum.
+ * We cannot directly change FDA_LEVELS.LEVEL_FDA1 to 'Fda1' because we don't want to update firebase yet.
+ */
+export enum FDA_LEVEL_KEYS {
+  LEVEL_FDA1 = 'Fda1',
+  LEVEL_FDA2 = 'Fda2',
+  LEVEL_FDA3 = 'Fda3',
+  LEVEL_FDA_NO = 'FdaNo',
+}
+
+export const FDA_LEVEL_KEYS_MAPPING: { [key in FDA_LEVEL_KEYS]: FDA_LEVELS } = {
+  [FDA_LEVEL_KEYS.LEVEL_FDA1]: FDA_LEVELS.LEVEL_FDA1,
+  [FDA_LEVEL_KEYS.LEVEL_FDA2]: FDA_LEVELS.LEVEL_FDA2,
+  [FDA_LEVEL_KEYS.LEVEL_FDA3]: FDA_LEVELS.LEVEL_FDA3,
+  [FDA_LEVEL_KEYS.LEVEL_FDA_NO]: FDA_LEVELS.LEVEL_FDA_NO,
+};
+
+export const THERAPEUTIC_SENSITIVE_LEVELS = [
+  TX_LEVELS.LEVEL_1,
+  TX_LEVELS.LEVEL_2,
+  TX_LEVELS.LEVEL_3A,
+  TX_LEVELS.LEVEL_3B,
+  TX_LEVELS.LEVEL_4,
+];
+
+export const THERAPEUTIC_RESISTANCE_LEVELS = [TX_LEVELS.LEVEL_R1, TX_LEVELS.LEVEL_R2];
+
+export const THERAPEUTIC_LEVELS_ORDERING = [
+  TX_LEVELS.LEVEL_1,
+  TX_LEVELS.LEVEL_R1,
+  TX_LEVELS.LEVEL_2,
+  TX_LEVELS.LEVEL_3A,
+  TX_LEVELS.LEVEL_3B,
+  TX_LEVELS.LEVEL_4,
+  TX_LEVELS.LEVEL_R2,
+];
+
+export const PROGNOSTIC_LEVELS_ORDERING = [PX_LEVELS.LEVEL_PX1, PX_LEVELS.LEVEL_PX2, PX_LEVELS.LEVEL_PX3];
+
+export const DIAGNOSTIC_LEVELS_ORDERING = [DX_LEVELS.LEVEL_DX1, DX_LEVELS.LEVEL_DX2, DX_LEVELS.LEVEL_DX3];
+
+export const FDA_LEVELS_ORDERING = [FDA_LEVEL_KEYS.LEVEL_FDA1, FDA_LEVEL_KEYS.LEVEL_FDA2, FDA_LEVEL_KEYS.LEVEL_FDA3];
+
+export const ALL_LEVELS = [
+  ...THERAPEUTIC_LEVELS_ORDERING,
+  ...DIAGNOSTIC_LEVELS_ORDERING,
+  ...PROGNOSTIC_LEVELS_ORDERING,
+  ...FDA_LEVELS_ORDERING,
+];
+
+export const ALL_ONCOKB_LEVELS = [...THERAPEUTIC_LEVELS_ORDERING, ...DIAGNOSTIC_LEVELS_ORDERING, ...PROGNOSTIC_LEVELS_ORDERING];
+
+export const TX_LEVEL_NO_DESCRIPTIONS = {
+  [TX_LEVELS.LEVEL_NO]: 'No level',
+  [TX_LEVELS.LEVEL_EMPTY]: 'No level',
+};
+
+export const TX_SENSITIVE_LEVEL_DESCRIPTIONS = {
+  [TX_LEVELS.LEVEL_1]: 'FDA-recognized biomarker predictive of response to an FDA-approved drug in this indication',
+  [TX_LEVELS.LEVEL_2]:
+    'Standard care biomarker recommended by the NCCN or other expert panels predictive of response to an FDA-approved drug in this indication',
+  [TX_LEVELS.LEVEL_3A]: 'Compelling clinical evidence supports the biomarker as being predictive of response to a drug in this indication',
+  [TX_LEVELS.LEVEL_3B]:
+    'Standard care or investigational biomarker predictive of response to an FDA-approved or investigational drug in another indication',
+  [TX_LEVELS.LEVEL_4]: 'Compelling biological evidence supports the biomarker as being predictive of response to a drug',
+};
+
+export const TX_RESISTANCE_LEVEL_DESCRIPTIONS = {
+  [TX_LEVELS.LEVEL_R1]: 'Standard care biomarker predictive of resistance to an FDA-approved drug in this indication',
+  [TX_LEVELS.LEVEL_R2]: 'Compelling clinical evidence supports the biomarker as being predictive of resistance to a drug',
+};
+
+export const TX_LEVEL_DESCRIPTIONS: { [key in TX_LEVELS]: string } = {
+  ...TX_SENSITIVE_LEVEL_DESCRIPTIONS,
+  ...TX_RESISTANCE_LEVEL_DESCRIPTIONS,
+  ...TX_LEVEL_NO_DESCRIPTIONS,
+};
+
+export const PX_LEVEL_DESCRIPTIONS: { [key in PX_LEVELS]: string } = {
+  [PX_LEVELS.LEVEL_PX1]:
+    'FDA and/or professional guideline-recognized biomarker prognostic in this indication based on well-powered studie(s)',
+  [PX_LEVELS.LEVEL_PX2]:
+    'FDA and/or professional guideline-recognized biomarker prognostic in this indication based on a single or multiple small studies',
+  [PX_LEVELS.LEVEL_PX3]: 'Biomarker is prognostic in this indication based on clinical evidence in well-powered studies',
+};
+
+export const DX_LEVEL_DESCRIPTIONS: { [key in DX_LEVELS]: string } = {
+  [DX_LEVELS.LEVEL_DX1]: 'FDA and/or professional guideline-recognized biomarker required for diagnosis in this indication',
+  [DX_LEVELS.LEVEL_DX2]: 'FDA and/or professional guideline-recognized biomarker that supports diagnosis in this indication',
+  [DX_LEVELS.LEVEL_DX3]: 'Biomarker that may assist disease diagnosis in this indication based on clinical evidence',
+};
+
+export const FDA_LEVEL_DESCRIPTIONS: { [key in FDA_LEVEL_KEYS]: string } = {
+  [FDA_LEVEL_KEYS.LEVEL_FDA1]: 'Companion Diagnostics',
+  [FDA_LEVEL_KEYS.LEVEL_FDA2]: 'Cancer Mutations with Evidence of Clinical Significance',
+  [FDA_LEVEL_KEYS.LEVEL_FDA3]: 'Cancer Mutations with Potential of Clinical Significance',
+  [FDA_LEVEL_KEYS.LEVEL_FDA_NO]: 'No level',
+};
+
+export const ALL_LEVEL_DESCRIPTIONS = {
+  ...TX_LEVEL_DESCRIPTIONS,
+  ...DX_LEVEL_DESCRIPTIONS,
+  ...PX_LEVEL_DESCRIPTIONS,
+  ...FDA_LEVEL_DESCRIPTIONS,
+};
+
 export const TX_LEVEL_OPTIONS = [
   TX_LEVELS.LEVEL_1,
   TX_LEVELS.LEVEL_2,
@@ -97,6 +215,17 @@ export const TX_LEVEL_OPTIONS = [
   TX_LEVELS.LEVEL_R2,
   TX_LEVELS.LEVEL_NO,
 ];
+
+export const TX_LEVEL_LABELS = {
+  [TX_LEVELS.LEVEL_1]: '1',
+  [TX_LEVELS.LEVEL_2]: '2',
+  [TX_LEVELS.LEVEL_3A]: '3A',
+  [TX_LEVELS.LEVEL_3B]: '3B',
+  [TX_LEVELS.LEVEL_4]: '4',
+  [TX_LEVELS.LEVEL_R1]: 'R1',
+  [TX_LEVELS.LEVEL_R2]: 'R2',
+  [TX_LEVELS.LEVEL_NO]: 'None',
+};
 
 export enum HISTORY_LOCATION_STRINGS {
   GENE_SUMMARY = 'Gene Summary',
@@ -135,3 +264,5 @@ export enum ReviewLevelType {
   META, // This means that the review level is used for grouping purposes
   REVIEWABLE, // This means that the review level has reviewable content
 }
+
+export const tooManyRCTsText = 'This cancer type contains too many RCTs. Please modify the excluding cancer types instead.';

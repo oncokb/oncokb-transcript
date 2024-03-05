@@ -1,7 +1,6 @@
 import { UUID_REGEX } from 'app/config/constants/constants';
 import {
   Comment,
-  DrugCollection,
   Gene,
   Meta,
   Mutation,
@@ -12,14 +11,16 @@ import {
   DX_LEVELS,
   PX_LEVELS,
   VusObjList,
+  CancerType,
 } from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
-import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
+import { DX_LEVEL_DESCRIPTIONS, FB_COLLECTION_PATH, PX_LEVEL_DESCRIPTIONS } from 'app/config/constants/firebase';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
 import { parseAlterationName } from '../utils';
 import _ from 'lodash';
+import { ICancerType } from 'app/shared/model/cancer-type.model';
 
 /* Convert a nested object into an object where the key is the path to the object.
   Example:
@@ -208,7 +209,7 @@ export const isPendingDelete = (geneData: Gene, nestLevel: RemovableNestLevel, p
 
 export type SortOrder = 'asc' | 'desc';
 
-const sortByIndex = (aIndex: number, bIndex: number, order: SortOrder = 'asc') => {
+export const sortByIndex = (aIndex: number, bIndex: number, order: SortOrder = 'asc') => {
   if (aIndex === bIndex) {
     return 0;
   }
