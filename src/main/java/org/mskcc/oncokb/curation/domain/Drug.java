@@ -58,7 +58,7 @@ public class Drug implements Serializable {
 
     @DiffIgnore
     @ManyToMany(mappedBy = "drugs")
-    @JsonIgnoreProperties(value = { "treatmentPriorities", "drugs", "associations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "treatmentPriorities", "drugs" }, allowSetters = true)
     private Set<Treatment> treatments = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

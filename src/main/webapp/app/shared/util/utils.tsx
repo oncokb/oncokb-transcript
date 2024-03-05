@@ -48,8 +48,16 @@ export const getGeneName = (gene: IGene): string => {
   return `${gene.entrezGeneId}: ${gene.hugoSymbol}`;
 };
 
+export const getGeneNameFromAlteration = (alteration: IAlteration) => {
+  return alteration.genes.map(gene => gene.hugoSymbol).join('::');
+};
+
 export const getGeneNamesFromAlterations = (alterations: IAlteration[]) => {
-  return _.uniq(alterations.map(alteration => alteration.genes.map(gene => gene.hugoSymbol).join('::'))).join(', ');
+  return _.uniq(alterations.map(alteration => getGeneNameFromAlteration(alteration)));
+};
+
+export const getGeneNamesStringFromAlterations = (alterations: IAlteration[]) => {
+  return getGeneNamesFromAlterations(alterations).join(', ');
 };
 
 export const getTreatmentName = (treatments: ITreatment[]): string => {
@@ -57,7 +65,10 @@ export const getTreatmentName = (treatments: ITreatment[]): string => {
 };
 
 export const getAlterationName = (alterations: IAlteration[]): string => {
-  return alterations.map(alteration => alteration.name).join(', ');
+  return alterations
+    .map(alteration => alteration.name)
+    .sort()
+    .join(', ');
 };
 
 export const generateUuid = () => {
@@ -68,8 +79,12 @@ export function getSectionClassName(theFirst = false) {
   return `${theFirst ? 'pb-3' : 'border-top py-3'}`;
 }
 
-export function filterByKeyword(value: string | undefined | null, keyword: string): boolean {
-  return value ? value.toLowerCase().includes(keyword.trim()) : false;
+export function filterByKeyword(value: string | undefined | null, keyword: string, splitKeywords = false): boolean {
+  let keywords = [keyword];
+  if (splitKeywords) {
+    keywords = keyword.split(' ');
+  }
+  return keywords.filter(k => value?.toLowerCase().includes(k.trim())).length === keywords.length;
 }
 
 export const getGenomicLocation = (ensemblGene: IEnsemblGene) => {
