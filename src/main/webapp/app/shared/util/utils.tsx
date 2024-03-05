@@ -79,8 +79,12 @@ export function getSectionClassName(theFirst = false) {
   return `${theFirst ? 'pb-3' : 'border-top py-3'}`;
 }
 
-export function filterByKeyword(value: string | undefined | null, keyword: string): boolean {
-  return value ? value.toLowerCase().includes(keyword.trim()) : false;
+export function filterByKeyword(value: string | undefined | null, keyword: string, splitKeywords = false): boolean {
+  let keywords = [keyword];
+  if (splitKeywords) {
+    keywords = keyword.split(' ');
+  }
+  return keywords.filter(k => value?.toLowerCase().includes(k.trim())).length === keywords.length;
 }
 
 export const getGenomicLocation = (ensemblGene: IEnsemblGene) => {
