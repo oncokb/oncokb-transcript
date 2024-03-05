@@ -1,5 +1,7 @@
-.horizontalDivider {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-  border-bottom: 1px solid lightgrey;
+.biomarkersContainer:not(:last-child) {
+  .horizontalDivider {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid lightgrey;
+  }
 }

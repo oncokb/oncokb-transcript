@@ -84,13 +84,13 @@ export const Drug = (props: IDrugProps) => {
           <>
             {Object.keys(uniqueGenes)
               .sort()
-              .map((geneName, index) => {
+              .map(geneName => {
                 const alterations = _.uniqBy(uniqueGenes[geneName], 'id');
                 return (
-                  <>
+                  <div className={styles.biomarkersContainer}>
                     <div>{getGeneAlterationText(geneName, alterations)}</div>
-                    {index < Object.keys(uniqueGenes).length - 1 ? <div className={styles.horizontalDivider}></div> : undefined}
-                  </>
+                    <div className={styles.horizontalDivider}></div>
+                  </div>
                 );
               })}
           </>
