@@ -87,7 +87,7 @@ export const Drug = (props: IDrugProps) => {
               .map(geneName => {
                 const alterations = _.uniqBy(uniqueGenes[geneName], 'id');
                 return (
-                  <div className={styles.biomarkersContainer}>
+                  <div key={geneName} className={styles.biomarkersContainer}>
                     <div>{getGeneAlterationText(geneName, alterations)}</div>
                     <div className={styles.horizontalDivider}></div>
                   </div>
