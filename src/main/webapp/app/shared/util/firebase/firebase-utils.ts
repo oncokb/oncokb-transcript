@@ -310,3 +310,11 @@ export const getDuplicateMutations = (
   }
   return duplicates;
 };
+
+export const isMutationEffectCuratable = (mutationName: string) => {
+  if (mutationName.includes(',')) {
+    return false;
+  }
+  const excludedMutations = ['Oncogenic Mutations'];
+  return excludedMutations.filter(mutation => mutationName.toLowerCase().includes(mutation.toLowerCase())).length === 0;
+};

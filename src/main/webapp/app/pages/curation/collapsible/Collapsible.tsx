@@ -5,10 +5,12 @@ import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import NoEntryBadge from 'app/shared/badge/NoEntryBadge';
-import { DANGER } from 'app/config/colors';
+import { DANGER, GREY } from 'app/config/colors';
 import DefaultBadge from 'app/shared/badge/DefaultBadge';
+import { getHexColorWithAlpha } from 'app/shared/util/utils';
+import { DISABLED_NEST_LEVEL_COLOR } from './NestLevel';
 
-const deletedSectionTooltipOverlay = (
+const DELETED_SECTION_TOOLTIP_OVERLAY = (
   <div>
     <div>This deletion is pending for review.</div>
     <div>To confirm or revert the deletion, please enter review mode.</div>
@@ -27,6 +29,7 @@ export interface CollapsibleProps {
   isSectionEmpty?: boolean;
   disableCollapsible?: boolean;
   isPendingDelete?: boolean;
+  badgeOverride?: React.ReactNode;
   onToggle?: (isOpen: boolean) => void;
 }
 
@@ -42,6 +45,7 @@ export default function Collapsible({
   isSectionEmpty = false,
   disableCollapsible = false,
   isPendingDelete = false,
+  badgeOverride,
   onToggle,
 }: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(open);
@@ -51,8 +55,11 @@ export default function Collapsible({
   }
 
   const getBadge = () => {
+    if (badgeOverride) {
+      return badgeOverride;
+    }
     if (isPendingDelete) {
-      return <DefaultBadge color="danger" text="Deleted" tooltipOverlay={deletedSectionTooltipOverlay} />;
+      return <DefaultBadge color="danger" text="Deleted" tooltipOverlay={DELETED_SECTION_TOOLTIP_OVERLAY} />;
     }
     if (isSectionEmpty) {
       return <NoEntryBadge />;
@@ -76,10 +83,14 @@ export default function Collapsible({
         )}
         ref={node => {
           if (node && borderLeftColor) {
+            if (disableCollapsible) {
+              borderLeftColor = DISABLED_NEST_LEVEL_COLOR;
+            }
             if (isPendingDelete) {
               borderLeftColor = DANGER;
             }
             node.style.setProperty('border-left-color', borderLeftColor, 'important');
+            node.style.setProperty('background-color', getHexColorWithAlpha(borderLeftColor, 0.05), 'important');
           }
         }}
       >
