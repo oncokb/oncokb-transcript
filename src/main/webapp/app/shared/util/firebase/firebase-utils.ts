@@ -1,7 +1,6 @@
-import { UUID_REGEX } from 'app/config/constants/constants';
+import { ONCOGENICITY, UUID_REGEX } from 'app/config/constants/constants';
 import {
   Comment,
-  DrugCollection,
   Gene,
   Meta,
   Mutation,
@@ -12,14 +11,17 @@ import {
   DX_LEVELS,
   PX_LEVELS,
   VusObjList,
+  FIREBASE_ONCOGENICITY,
 } from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
 import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
-import { parseAlterationName } from '../utils';
+import { extractPositionFromSingleNucleotideAlteration, parseAlterationName } from '../utils';
 import _ from 'lodash';
+import { MutationLevelSummary } from 'app/stores/firebase/firebase.gene.store';
+import { CategoricalAlterationType } from 'app/shared/model/enumerations/categorical-alteration-type.model';
 
 /* Convert a nested object into an object where the key is the path to the object.
   Example:
@@ -255,6 +257,26 @@ export const sortByPxLevel = (a: PX_LEVELS, b: PX_LEVELS, order: SortOrder = 'as
   return sortByIndex(aIndex, bIndex, order);
 };
 
+export const compareFirebaseOncogenicities = (a: FIREBASE_ONCOGENICITY, b: FIREBASE_ONCOGENICITY, order: SortOrder = 'asc') => {
+  const samePriority = [FIREBASE_ONCOGENICITY.YES, FIREBASE_ONCOGENICITY.LIKELY, FIREBASE_ONCOGENICITY.RESISTANCE];
+
+  const aIsInSamePriority = samePriority.includes(a);
+  const bIsInSamePriority = samePriority.includes(b);
+  if (aIsInSamePriority && bIsInSamePriority) {
+    return 0;
+  } else if (aIsInSamePriority) {
+    return order === 'asc' ? -1 : 1;
+  } else if (bIsInSamePriority) {
+    return order === 'asc' ? 1 : -1;
+  }
+
+  const ordering = [FIREBASE_ONCOGENICITY.LIKELY_NEUTRAL, FIREBASE_ONCOGENICITY.INCONCLUSIVE, FIREBASE_ONCOGENICITY.UNKNOWN];
+
+  const aIndex = ordering.indexOf(a);
+  const bIndex = ordering.indexOf(b);
+  return sortByIndex(aIndex, bIndex, order);
+};
+
 export const getVusTimestampClass = (time: string | number) => {
   const vusTime = new Date(time);
   const now = new Date();
@@ -318,3 +340,154 @@ export const isMutationEffectCuratable = (mutationName: string) => {
   const excludedMutations = ['Oncogenic Mutations'];
   return excludedMutations.filter(mutation => mutationName.toLowerCase().includes(mutation.toLowerCase())).length === 0;
 };
+
+export function compareMutationsByDeleted(mut1: Mutation, mut2: Mutation) {
+  const mut1IsDeleted = mut1.name_review?.removed || false;
+  const mut2IsDeleted = mut2.name_review?.removed || false;
+
+  if ((mut1IsDeleted && mut2IsDeleted) || (!mut1IsDeleted && !mut2IsDeleted)) {
+    return 0;
+  } else if (mut1IsDeleted) {
+    return 1;
+  } else {
+    return -1;
+  }
+}
+
+export function compareMutationsByTxLevel(mut1: Mutation, mut2: Mutation, mutationLevelSummary: MutationLevelSummary) {
+  const mut1Levels = Object.keys(mutationLevelSummary[mut1.name_uuid]?.txLevels || []).sort(sortByTxLevel);
+  const mut2Levels = Object.keys(mutationLevelSummary[mut2.name_uuid]?.txLevels || []).sort(sortByTxLevel);
+
+  let index = 0;
+  while (mut1Levels[index] || mut2Levels[index]) {
+    if (!mut1Levels[index]) {
+      return 1;
+    } else if (!mut2Levels[index]) {
+      return -1;
+    }
+
+    const order = sortByTxLevel(mut1Levels[index] as TX_LEVELS, mut2Levels[index] as TX_LEVELS);
+    if (order !== 0) {
+      return order;
+    }
+
+    index++;
+  }
+
+  return 0;
+}
+
+export function compareMutationsByHasDxOrPx(mut1: Mutation, mut2: Mutation, mutationLevelSummary: MutationLevelSummary) {
+  const mut1HasDxOrPx = mutationLevelSummary[mut1.name_uuid].DxS > 0 || mutationLevelSummary[mut1.name_uuid].PxS > 0;
+  const mut2HasDxOrPx = mutationLevelSummary[mut2.name_uuid].DxS > 0 || mutationLevelSummary[mut2.name_uuid].PxS > 0;
+
+  if ((mut1HasDxOrPx && mut2HasDxOrPx) || (!mut1HasDxOrPx && !mut2HasDxOrPx)) {
+    return 0;
+  } else if (mut1HasDxOrPx) {
+    return -1;
+  } else {
+    return 1;
+  }
+}
+
+export function compareMutationsByOncogenicity(mut1: Mutation, mut2: Mutation) {
+  const mut1Oncogenicity = mut1.mutation_effect.oncogenic;
+  const mut2Oncogenicity = mut2.mutation_effect.oncogenic;
+
+  if (!mut1Oncogenicity && !mut2Oncogenicity) {
+    return 0;
+  } else if (!mut1Oncogenicity) {
+    return 1;
+  } else if (!mut2Oncogenicity) {
+    return -1;
+  }
+
+  return compareFirebaseOncogenicities(
+    mut1.mutation_effect.oncogenic as FIREBASE_ONCOGENICITY,
+    mut2.mutation_effect.oncogenic as FIREBASE_ONCOGENICITY
+  );
+}
+
+export function compareMutationsBySingleAlteration(mut1: Mutation, mut2: Mutation) {
+  const mut1Alterations = mut1.name.split(',');
+  const mut2Alterations = mut2.name.split(',');
+
+  if (mut1Alterations.length === 1 && mut2Alterations.length === 1) {
+    return 0;
+  } else if (mut1Alterations.length > 1) {
+    return 1;
+  } else {
+    return -1;
+  }
+}
+
+export function compareMutationsByProteinChangePosition(mut1: Mutation, mut2: Mutation) {
+  const mut1Position = extractPositionFromSingleNucleotideAlteration(mut1.name);
+  const mut2Position = extractPositionFromSingleNucleotideAlteration(mut2.name);
+
+  if (!mut1Position && !mut2Position) {
+    return 0;
+  } else if (!mut1Position) {
+    return 1;
+  } else if (!mut2Position) {
+    return -1;
+  }
+
+  return Number(mut1Position) - Number(mut2Position);
+}
+
+export function compareMutationsByCategoricalAlteration(mut1: Mutation, mut2: Mutation) {
+  const mut1IsCategorical = Object.values(CategoricalAlterationType).some(
+    categorical => categorical.toLowerCase() === mut1.name.toLowerCase()
+  );
+  const mut2IsCategorical = Object.values(CategoricalAlterationType).some(
+    categorical => categorical.toLowerCase() === mut2.name.toLowerCase()
+  );
+
+  if ((mut1IsCategorical && mut2IsCategorical) || (!mut1IsCategorical && !mut2IsCategorical)) {
+    return 0;
+  } else if (mut1IsCategorical) {
+    return -1;
+  } else if (mut2IsCategorical) {
+    return 1;
+  }
+}
+
+export function compareMutations(mut1: Mutation, mut2: Mutation, mutationLevelSummary: MutationLevelSummary) {
+  let order = compareMutationsByDeleted(mut1, mut2);
+  if (order !== 0) {
+    return order;
+  }
+
+  order = compareMutationsByTxLevel(mut1, mut2, mutationLevelSummary);
+  if (order !== 0) {
+    return order;
+  }
+
+  order = compareMutationsByHasDxOrPx(mut1, mut2, mutationLevelSummary);
+  if (order !== 0) {
+    return order;
+  }
+
+  order = compareMutationsByOncogenicity(mut1, mut2);
+  if (order !== 0) {
+    return order;
+  }
+
+  order = compareMutationsBySingleAlteration(mut1, mut2);
+  if (order !== 0) {
+    return order;
+  }
+
+  order = compareMutationsByProteinChangePosition(mut1, mut2);
+  if (order !== 0) {
+    return order;
+  }
+
+  order = compareMutationsByCategoricalAlteration(mut1, mut2);
+  if (order !== 0) {
+    return order;
+  }
+
+  return mut1.name.localeCompare(mut2.name);
+}

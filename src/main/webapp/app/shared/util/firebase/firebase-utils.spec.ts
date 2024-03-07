@@ -1,5 +1,8 @@
 import 'jest-expect-message';
 import {
+  compareFirebaseOncogenicities,
+  compareMutationsByCategoricalAlteration,
+  compareMutationsByProteinChangePosition,
   convertNestedObject,
   geneNeedsReview,
   getFirebasePath,
@@ -15,6 +18,7 @@ import {
 } from './firebase-utils';
 import {
   DX_LEVELS,
+  FIREBASE_ONCOGENICITY,
   Gene,
   Meta,
   MetaReview,
@@ -515,6 +519,64 @@ describe('FirebaseUtils', () => {
 
     it('should sort prognostic levels descending', () => {
       expect(levels.sort((a, b) => sortByPxLevel(a, b, 'desc'))).toEqual([PX_LEVELS.LEVEL_PX3, PX_LEVELS.LEVEL_PX2, PX_LEVELS.LEVEL_PX1]);
+    });
+  });
+
+  describe('compareFirebaseOncogenicities', () => {
+    const oncogencities = [
+      FIREBASE_ONCOGENICITY.LIKELY_NEUTRAL,
+      FIREBASE_ONCOGENICITY.YES,
+      FIREBASE_ONCOGENICITY.UNKNOWN,
+      FIREBASE_ONCOGENICITY.INCONCLUSIVE,
+    ];
+
+    it('should sort firebase oncogencities ascending', () => {
+      expect(oncogencities.sort(compareFirebaseOncogenicities)).toEqual([
+        FIREBASE_ONCOGENICITY.YES,
+        FIREBASE_ONCOGENICITY.LIKELY_NEUTRAL,
+        FIREBASE_ONCOGENICITY.INCONCLUSIVE,
+        FIREBASE_ONCOGENICITY.UNKNOWN,
+      ]);
+    });
+
+    it('should sort firebase oncogencities descending', () => {
+      expect(oncogencities.sort((a, b) => compareFirebaseOncogenicities(a, b, 'desc'))).toEqual([
+        FIREBASE_ONCOGENICITY.UNKNOWN,
+        FIREBASE_ONCOGENICITY.INCONCLUSIVE,
+        FIREBASE_ONCOGENICITY.LIKELY_NEUTRAL,
+        FIREBASE_ONCOGENICITY.YES,
+      ]);
+    });
+
+    it('should have the same priority', () => {
+      expect(compareFirebaseOncogenicities(FIREBASE_ONCOGENICITY.YES, FIREBASE_ONCOGENICITY.LIKELY)).toEqual(0);
+      expect(compareFirebaseOncogenicities(FIREBASE_ONCOGENICITY.LIKELY, FIREBASE_ONCOGENICITY.RESISTANCE)).toEqual(0);
+      expect(compareFirebaseOncogenicities(FIREBASE_ONCOGENICITY.RESISTANCE, FIREBASE_ONCOGENICITY.YES)).toEqual(0);
+    });
+  });
+
+  describe('compareMutationsByProteinChangePosition', () => {
+    it('should compare mutations correctly', () => {
+      expect(compareMutationsByProteinChangePosition(new Mutation('V600E'), new Mutation('V700E'))).toBeLessThan(0);
+
+      // No number to match, so go after
+      expect(compareMutationsByProteinChangePosition(new Mutation('V600E'), new Mutation('Amplification'))).toBeLessThan(0);
+
+      expect(compareMutationsByProteinChangePosition(new Mutation('V600E'), new Mutation('A10'))).toBeGreaterThan(0);
+
+      // Use start position as position
+      expect(compareMutationsByProteinChangePosition(new Mutation('B800'), new Mutation('T599_V600insV'))).toBeGreaterThan(0);
+
+      // Anything ending in "Fusion" should go after, even if there is a number
+      expect(compareMutationsByProteinChangePosition(new Mutation('AKAP9-BRAF Fusion'), new Mutation('B1G'))).toBeGreaterThan(0);
+    });
+  });
+
+  describe('compareMutationsByCategoricalAlteration', () => {
+    it('should compare mutations correctly', () => {
+      expect(compareMutationsByCategoricalAlteration(new Mutation('Oncogenic Mutations'), new Mutation('V700E'))).toBeLessThan(0);
+      expect(compareMutationsByCategoricalAlteration(new Mutation('Literally anything'), new Mutation('Amplification'))).toBeGreaterThan(0);
+      expect(compareMutationsByCategoricalAlteration(new Mutation('Truncating Mutations'), new Mutation('VUS'))).toEqual(0);
     });
   });
 });

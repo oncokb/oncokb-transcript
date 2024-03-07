@@ -21,7 +21,7 @@ import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
 import WithSeparator from 'react-with-separator';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
 import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/FirebaseRealtimeInput';
-import { geneNeedsReview, getFirebasePath, getMutationName } from 'app/shared/util/firebase/firebase-utils';
+import { compareMutations, geneNeedsReview, getFirebasePath, getMutationName } from 'app/shared/util/firebase/firebase-utils';
 import styles from './styles.module.scss';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { Comment, HistoryRecord, Mutation } from 'app/shared/model/firebase/firebase.model';
@@ -69,6 +69,7 @@ const CurationPage = (props: ICurationPageProps) => {
   const [mutationFilter, setMutationFilter] = useState('');
 
   const [showFilterModal, setShowFilterModal] = useState(false);
+  const [allMutations, setAllMutations] = useState<FirebaseMutation[]>(null);
   const [mutations, setMutations] = useState<FirebaseMutation[]>([]);
 
   const [oncogenicityFilter, setOncogenicityFilter] = useState(initFilterCheckboxState(ONCOGENICITY_OPTIONS));
@@ -217,8 +218,39 @@ const CurationPage = (props: ICurationPageProps) => {
   }, [props.metaCollaboratorsData, props.data]);
 
   useEffect(() => {
+    if (props.data?.mutations && props.mutationSummaryStats) {
+      const fetchedMutations: FirebaseMutation[] = _.cloneDeep(props.data.mutations).map((mutation, firebaseIndex) => ({
+        ...mutation,
+        firebaseIndex,
+      }));
+      if (!allMutations) {
+        // has not yet been sorted
+        setAllMutations(fetchedMutations.sort((mut1, mut2) => compareMutations(mut1, mut2, props.mutationSummaryStats)));
+      } else {
+        const fetchedMutationUuidToMutation: { [uuid: string]: FirebaseMutation } = {};
+        for (const fetchedMutation of fetchedMutations) {
+          fetchedMutationUuidToMutation[fetchedMutation.name_uuid] = fetchedMutation;
+        }
+
+        setAllMutations(currentMutations => {
+          const newMutations: FirebaseMutation[] = [];
+          for (const currentMutation of currentMutations) {
+            const fetchedMutation = fetchedMutationUuidToMutation[currentMutation.name_uuid];
+            if (fetchedMutation) {
+              newMutations.push(fetchedMutation);
+              delete fetchedMutationUuidToMutation[currentMutation.name_uuid];
+            }
+          }
+
+          return [...Object.values(fetchedMutationUuidToMutation), ...newMutations];
+        });
+      }
+    }
+  }, [props.data, props.mutationSummaryStats]);
+
+  useEffect(() => {
     filterMutations();
-  }, [props.data, mutationFilter, oncogenicityFilter, mutationEffectFilter, txLevelFilter]);
+  }, [allMutations, mutationFilter, oncogenicityFilter, mutationEffectFilter, txLevelFilter]);
 
   useEffect(() => {
     if (props.mutationSummaryStats) {
@@ -266,7 +298,7 @@ const CurationPage = (props: ICurationPageProps) => {
 
   function filterMutations() {
     setMutations(
-      (props.data?.mutations || []).reduce<FirebaseMutation[]>((filteredMutations, mutation, index) => {
+      (allMutations || []).reduce<FirebaseMutation[]>((filteredMutations, mutation) => {
         const matchesName = !mutationFilter || getMutationName(mutation).toLowerCase().includes(mutationFilter.toLowerCase());
 
         const selectedOncogenicities = oncogenicityFilter.filter(filter => filter.selected);
@@ -306,8 +338,9 @@ const CurationPage = (props: ICurationPageProps) => {
         }
 
         if (matchesName && matchesOncogenicity && matchesMutationEffect && matchesTxLevel()) {
-          return [...filteredMutations, { ...mutation, firebaseIndex: index }];
+          return [...filteredMutations, mutation];
         }
+
         return filteredMutations;
       }, []) || []
     );

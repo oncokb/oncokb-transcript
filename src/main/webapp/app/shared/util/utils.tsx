@@ -302,3 +302,13 @@ export function getHexColorWithAlpha(hexColor: string, alpha: number) {
   const alphaHex = `0${Math.round(255 * alpha).toString(16)}`.slice(-2).toUpperCase();
   return `${hexColor}${alphaHex}`;
 }
+
+export function extractPositionFromSingleNucleotideAlteration(alteration: string) {
+  const regex = /[a-zA-Z]+(\d+)(?!.*Fusion)/;
+  const match = regex.exec(alteration);
+  if (match) {
+    return match[1];
+  } else {
+    return null;
+  }
+}
