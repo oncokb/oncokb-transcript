@@ -26,15 +26,17 @@ export const parseNcitUniqId = (ncitId: string) => {
   }
 };
 
+export function getOptionFromNcit(ncit: INciThesaurus) {
+  return {
+    value: getNcitUniqId(ncit),
+    label: `${ncit.preferredName} (${ncit.code})`,
+    synonyms: ncit.synonyms,
+    ncit,
+  };
+}
+
 const NcitCodeSelect: React.FunctionComponent<INcitCodeSelectProps> = props => {
   const { searchEntities, ...selectProps } = props;
-
-  const getOptionFromNcit = (ncit: INciThesaurus) => {
-    return {
-      value: getNcitUniqId(ncit),
-      label: `${ncit.preferredName} (${ncit.code})`,
-    };
-  };
 
   const onNcitChange = (option, actionMeta) => {
     props.onChange(option, actionMeta);

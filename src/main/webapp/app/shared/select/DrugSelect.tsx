@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ReactSelect, { OptionProps, Props as SelectProps, components } from 'react-select';
+import ReactSelect, { NoticeProps, OptionProps, Props as SelectProps, components } from 'react-select';
 import { DEFAULT_ENTITY_SORT_FIELD, DEFAULT_SORT_DIRECTION, ENTITY_TYPE, GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { connect } from '../util/typed-inject';
@@ -9,6 +9,10 @@ import { ISynonym } from '../model/synonym.model';
 import { EntitySelectOption } from './SelectOption';
 import { FilterOptionOption } from 'react-select/dist/declarations/src/filters';
 import { filterByKeyword } from '../util/utils';
+import _ from 'lodash';
+import { getOptionFromNcit } from './NcitCodeSelect';
+import AsyncSelect from 'react-select/async';
+import { INciThesaurus } from '../model/nci-thesaurus.model';
 
 interface IDrugSelectProps extends SelectProps, StoreProps {
   drugList?: IDrug[];
@@ -16,26 +20,28 @@ interface IDrugSelectProps extends SelectProps, StoreProps {
 
 export type DrugSelectOption = {
   label: string;
-  value: number;
-  uuid: string;
+  value: any;
+  drugName?: string;
+  uuid?: string;
   synonyms?: ISynonym[];
+  ncit?: INciThesaurus;
 };
 
 const sortParameter = getEntityPaginationSortParameter(DEFAULT_ENTITY_SORT_FIELD[ENTITY_TYPE.DRUG], DEFAULT_SORT_DIRECTION);
 
-/* eslint-disable no-console */
 const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
-  const { getDrugs, onInputChange, ...selectProps } = props;
+  const { getDrugs, onInputChange, searchNciThesaurus, ...selectProps } = props;
 
   const [drugOptions, setDrugOptions] = useState<DrugSelectOption[]>([]);
   const [input, setInput] = useState('');
 
   useEffect(() => {
-    function getDrugSelectOptionsFromDrugs(drugs: IDrug[]) {
+    function getDrugSelectOptionsFromDrugs(drugs: IDrug[]): DrugSelectOption[] {
       return drugs?.map(entity => {
         return {
           value: entity.id,
-          label: entity.name,
+          label: `${entity.name}${entity.nciThesaurus ? ` (${entity.nciThesaurus.code})` : ''}`,
+          drugName: entity.name,
           uuid: entity.uuid,
           synonyms: entity.nciThesaurus?.synonyms,
         };
@@ -112,15 +118,32 @@ const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
     return false;
   }
 
+  const loadOptions = _.debounce((searchWord: string, callback: (options) => void) => {
+    const options = drugOptions.filter(drug => drug.label.toLowerCase().includes(searchWord.toLowerCase()));
+    if (options.length > 0) {
+      callback(options);
+      return;
+    }
+
+    if (searchWord) {
+      searchNciThesaurus({ query: searchWord }).then(response => {
+        callback(response.data.map(ncit => getOptionFromNcit(ncit)));
+      });
+    } else {
+      callback([]);
+    }
+  }, 500);
+
   return (
-    <ReactSelect
+    <AsyncSelect
       {...selectProps}
       components={{
         Option,
       }}
+      defaultOptions={drugOptions}
       filterOption={filterOptions}
-      classNamePrefix="lp-copy-sel"
       onInputChange={setInput}
+      loadOptions={loadOptions}
       options={drugOptions}
       placeholder="Select a drug..."
       isClearable
@@ -128,8 +151,9 @@ const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
   );
 };
 
-const mapStoreToProps = ({ drugStore }: IRootStore) => ({
+const mapStoreToProps = ({ drugStore, nciThesaurusStore }: IRootStore) => ({
   getDrugs: drugStore.getEntities,
+  searchNciThesaurus: nciThesaurusStore.searchEntities,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

@@ -92,6 +92,13 @@ Generic styles
   background-color: red;
 }
 
+.error-message {
+  display: flex;
+  align-items: center;
+  color: $danger;
+  margin-right: 0.5rem;
+}
+
 .break {
   white-space: normal;
   word-break: break-all;

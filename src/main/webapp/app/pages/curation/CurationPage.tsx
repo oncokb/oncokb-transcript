@@ -83,8 +83,6 @@ const CurationPage = (props: ICurationPageProps) => {
 
   const [enabledCheckboxes, setEnabledCheckboxes] = useState<string[]>([]);
 
-  const [drugList, setDrugList] = useState<IDrug[]>([]);
-
   const [openMutationCollapsible, setOpenMutationCollapsible] = useState<Mutation>(null);
   const [mutationCollapsibleScrollIndex, setMutationCollapsibleScrollIndex] = useState(0);
 
@@ -265,12 +263,7 @@ const CurationPage = (props: ICurationPageProps) => {
   }, [props.mutationSummaryStats]);
 
   useEffect(() => {
-    async function fetchAllDrugs() {
-      const drugs = await props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
-      setDrugList(drugs['data']);
-    }
-
-    fetchAllDrugs();
+    props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
   }, []);
 
   const parsedHistoryList = useMemo(() => {
@@ -404,7 +397,7 @@ const CurationPage = (props: ICurationPageProps) => {
               mutation={mutation}
               firebaseIndex={mutation.firebaseIndex}
               parsedHistoryList={parsedHistoryList}
-              drugList={drugList}
+              drugList={props.drugList}
             />
           </Col>
         </Row>
@@ -432,7 +425,7 @@ const CurationPage = (props: ICurationPageProps) => {
                   mutation={mutation}
                   firebaseIndex={mutation.firebaseIndex}
                   parsedHistoryList={parsedHistoryList}
-                  drugList={drugList}
+                  drugList={props.drugList}
                 />
               </Col>
             </Row>
@@ -446,7 +439,7 @@ const CurationPage = (props: ICurationPageProps) => {
     return <UncuratedGeneAlert />;
   }
 
-  return !!props.data && props.vusData !== undefined && drugList.length > 0 && !props.loadingGenes ? (
+  return !!props.data && props.vusData !== undefined && props.drugList.length > 0 && !props.loadingGenes ? (
     <>
       <div>
         <Row className={'mb-2'}>
@@ -528,7 +521,7 @@ const CurationPage = (props: ICurationPageProps) => {
             firebasePath={firebaseGenePath}
             reviewFinished={isReviewFinished}
             handleReviewFinished={handleReviewFinished}
-            drugList={drugList}
+            drugList={props.drugList}
           />
         ) : (
           <>
@@ -925,6 +918,7 @@ const mapStoreToProps = ({
   metaData: firebaseMetaStore.data,
   metaListData: firebaseMetaStore.metaList,
   getDrugs: drugStore.getEntities,
+  drugList: drugStore.entities,
   metaCollaboratorsData: firebaseMetaStore.metaCollaborators,
   updateCollaborator: firebaseMetaStore.updateCollaborator,
   updateMeta: firebaseMetaStore.update,

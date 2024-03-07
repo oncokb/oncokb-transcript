@@ -81,7 +81,7 @@ export const getMutationName = (mutation: Mutation) => {
   }
 };
 
-export const getTxName = (drugList: IDrug[], txUuidName: string) => {
+export const getTxName = (drugList: readonly IDrug[], txUuidName: string) => {
   return txUuidName
     .split(',')
     .map(tx => {

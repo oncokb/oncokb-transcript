@@ -286,7 +286,7 @@ const findGeneTypeReviews = (geneType: GeneType, uuids: string[], editorReviewMa
   }
 };
 
-export const findGeneLevelReviews = (drugList: IDrug[], gene: Gene, uuids: string[], editorReviewMap: EditorReviewMap) => {
+export const findGeneLevelReviews = (drugList: readonly IDrug[], gene: Gene, uuids: string[], editorReviewMap: EditorReviewMap) => {
   const rootReview: BaseReviewLevel = new BaseReviewLevel();
   rootReview.isRoot = true;
 
@@ -360,7 +360,7 @@ const findMutationEffectReviews = (
 };
 
 const findMutationLevelReviews = (
-  drugList: IDrug[],
+  drugList: readonly IDrug[],
   mutations: Mutation[],
   uuids: string[],
   editorReviewMap: EditorReviewMap,
@@ -490,7 +490,7 @@ const findPrognosticLevelReviews = (
 };
 
 const findTumorLevelReviews = (
-  drugList: IDrug[],
+  drugList: readonly IDrug[],
   tumors: Tumor[],
   uuids: string[],
   editorReviewMap: EditorReviewMap,
@@ -565,7 +565,7 @@ const findTumorLevelReviews = (
 };
 
 const findTreatmentLevelReviews = (
-  drugList: IDrug[],
+  drugList: readonly IDrug[],
   tumor: Tumor,
   uuids: string[],
   editorReviewMap: EditorReviewMap,
