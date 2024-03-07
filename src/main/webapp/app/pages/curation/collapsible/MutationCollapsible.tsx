@@ -95,7 +95,6 @@ const MutationCollapsible = ({
   firebasePushToArray,
   open = false,
   onToggle,
-  searchCancerTypes,
 }: IMutationCollapsibleProps) => {
   const title = getMutationName(mutation);
   const mutationFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}`);
@@ -794,7 +793,6 @@ const mapStoreToProps = ({
   handleFirebaseDeleteFromArray: firebaseGeneStore.deleteFromArray,
   handleFirebaseUpdateUntemplated: firebaseGeneStore.updateUntemplated,
   account: authStore.account,
-  searchCancerTypes: cancerTypeStore.searchEntities,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
