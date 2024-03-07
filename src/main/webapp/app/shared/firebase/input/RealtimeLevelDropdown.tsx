@@ -5,47 +5,22 @@ import { inject } from 'mobx-react';
 import { getFirebasePath, getValueByNestedKey } from 'app/shared/util/firebase/firebase-utils';
 import { LEVELS, getLevelDropdownOption, isTxLevelPresent } from 'app/shared/util/firebase/firebase-level-utils';
 import { TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
-import { FDA_LEVEL_KEYS } from 'app/config/constants/firebase';
-import { PropagationType } from 'app/pages/curation/collapsible/TherapyDropdownGroup';
+import { FDA_LEVEL_KEYS, FDA_LEVEL_KEYS_MAPPING } from 'app/config/constants/firebase';
 
 export interface IRealtimeLevelDropdown extends IRealtimeDropdownInput, StoreProps {
-  propagatedLevel?: TX_LEVELS;
   propagatedFdaLevel?: FDA_LEVEL_KEYS;
-  propagationType?: PropagationType;
 }
 
 export const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
-  const { data, fieldKey, propagationType, propagatedLevel, propagatedFdaLevel, updateReviewableContent, options, ...dropdownProps } =
-    props;
+  const { data, fieldKey, propagatedFdaLevel, updateReviewableContent, options, isDisabled, ...dropdownProps } = props;
   const [currentValue, setCurrentValue] = useState(getValueByNestedKey(data, fieldKey));
 
-  useEffect(() => {}, []);
-
-  const updatePropagatedLevel = () => {
-    if (propagatedLevel) {
-      setCurrentValue(propagatedLevel);
-      updateReviewableContent(getFirebasePath('GENE', props.data.name), fieldKey, propagatedLevel);
-    } else if (propagatedFdaLevel) {
-      setCurrentValue(propagatedFdaLevel);
-      console.log('Updating FDA to propagated level', propagatedFdaLevel);
-      updateReviewableContent(getFirebasePath('GENE', props.data.name), fieldKey, propagatedFdaLevel);
-    }
-  };
-
   useEffect(() => {
-    if (
-      propagationType === PropagationType.SOLID ||
-      propagationType === PropagationType.LIQUID ||
-      propagationType === PropagationType.FDA
-    ) {
-      if (options.length > 0 && options.filter(o => o.value === currentValue).length === 0) {
-        updatePropagatedLevel();
-      }
-    } else if ([FDA_LEVEL_KEYS.LEVEL_FDA_NO, TX_LEVELS.LEVEL_NO, TX_LEVELS.LEVEL_EMPTY].includes(currentValue)) {
-      // If the dropdowns don't already have a value, then we apply the default propagation levels
-      updatePropagatedLevel();
+    if (propagatedFdaLevel && propagatedFdaLevel !== currentValue) {
+      setCurrentValue(propagatedFdaLevel);
+      updateReviewableContent(getFirebasePath('GENE', props.data.name), fieldKey, FDA_LEVEL_KEYS_MAPPING[propagatedFdaLevel]);
     }
-  }, [propagatedLevel, propagatedFdaLevel, options]);
+  }, [propagatedFdaLevel]);
 
   const onChangeHandler = (newValue, actionMeta) => {
     let newLevel = newValue?.value;
@@ -53,6 +28,9 @@ export const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
       newLevel = TX_LEVELS.LEVEL_EMPTY;
     }
     setCurrentValue(newLevel);
+    if (Object.values(FDA_LEVEL_KEYS).includes(newLevel)) {
+      newLevel = FDA_LEVEL_KEYS_MAPPING[newLevel];
+    }
     updateReviewableContent(getFirebasePath('GENE', props.data.name), fieldKey, newLevel);
     if (props.onChange) {
       props.onChange(newLevel, actionMeta);
@@ -61,7 +39,7 @@ export const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
 
   let value = currentValue;
   let defaultValue = getLevelDropdownOption(value);
-  if (value === TX_LEVELS.LEVEL_EMPTY) {
+  if (value === TX_LEVELS.LEVEL_EMPTY || isDisabled) {
     value = undefined;
     defaultValue = undefined;
   }
@@ -69,11 +47,13 @@ export const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
   return (
     <RealtimeDropdownInput
       {...dropdownProps}
+      placeholder={'You must select a level'}
       options={options}
       defaultValue={defaultValue}
       value={defaultValue}
       fieldKey={fieldKey}
       onChange={onChangeHandler}
+      isDisabled={isDisabled}
     />
   );
 };

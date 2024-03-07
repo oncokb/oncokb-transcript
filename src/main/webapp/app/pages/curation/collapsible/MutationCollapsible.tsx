@@ -59,12 +59,7 @@ import NoEntryBadge from 'app/shared/badge/NoEntryBadge';
 import RCTButton from '../button/RCTButton';
 import NotCuratableBadge from 'app/shared/badge/NotCuratableBadge';
 import classNames from 'classnames';
-import {
-  getFdaLevelDropdownOptions,
-  getLevelDropdownOptions,
-  getTxLevelDropdownOptions,
-} from 'app/shared/util/firebase/firebase-level-utils';
-import { FdaLevelIcon } from 'app/shared/icons/FdaLevelIcon';
+import { getLevelDropdownOptions } from 'app/shared/util/firebase/firebase-level-utils';
 import { TherapyDropdownGroup } from './TherapyDropdownGroup';
 
 export interface IMutationCollapsibleProps extends StoreProps {
@@ -544,6 +539,14 @@ const MutationCollapsible = ({
                           </>
                         );
                       })}
+                    <Button
+                      className="mt-2"
+                      outline
+                      color="primary"
+                      onClick={() => modifyTherapyModalStore.openModal(`new_treatment_for_${tumor.cancerTypes_uuid}`)}
+                    >
+                      Add Therapy
+                    </Button>
                   </Collapsible>
                   <Collapsible
                     className={'mt-2'}
@@ -662,13 +665,6 @@ const MutationCollapsible = ({
                     />
                   </Collapsible>
                 </div>
-                <Button
-                  outline
-                  color="primary"
-                  onClick={() => modifyTherapyModalStore.openModal(`new_treatment_for_${tumor.cancerTypes_uuid}`)}
-                >
-                  Add Therapy
-                </Button>
               </Collapsible>
               <ModifyTherapyModal
                 treatmentUuid={`new_treatment_for_${tumor.cancerTypes_uuid}`}

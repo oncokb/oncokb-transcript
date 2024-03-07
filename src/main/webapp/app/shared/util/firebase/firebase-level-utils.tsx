@@ -85,7 +85,7 @@ export type PropagatedDropdownLevels = {
   propagationType: PropagationType;
 };
 
-export const getFdaLevelDropdownOptions = (txLevel: TX_LEVELS): PropagatedDropdownLevels => {
+export const getFdaPropagationInfo = (txLevel: TX_LEVELS): PropagatedDropdownLevels => {
   let propagationOptions: LEVELS[] = [];
   let defaultPropagation = '';
   if (txLevel === TX_LEVELS.LEVEL_1 || txLevel === TX_LEVELS.LEVEL_2 || txLevel === TX_LEVELS.LEVEL_R1) {
@@ -102,22 +102,12 @@ export const getFdaLevelDropdownOptions = (txLevel: TX_LEVELS): PropagatedDropdo
   };
 };
 
-export const getPropagatedLevelDropdownOptions = (
-  propagationType: PropagationType.LIQUID | PropagationType.SOLID,
-  txLevel: TX_LEVELS
-): PropagatedDropdownLevels => {
+export const getPropagatedLevelDropdownOptions = (txLevel: TX_LEVELS): RealtimeDropdownOptions[] => {
   let propagationOptions: LEVELS[] = [];
-  let defaultPropagation = '';
   if (txLevel === TX_LEVELS.LEVEL_1 || txLevel === TX_LEVELS.LEVEL_2 || txLevel === TX_LEVELS.LEVEL_3A) {
     propagationOptions = [TX_LEVELS.LEVEL_3B, TX_LEVELS.LEVEL_4, TX_LEVELS.LEVEL_NO];
-    defaultPropagation = TX_LEVELS.LEVEL_NO;
   } else if (txLevel === TX_LEVELS.LEVEL_4) {
     propagationOptions = [TX_LEVELS.LEVEL_4, TX_LEVELS.LEVEL_NO];
-    defaultPropagation = TX_LEVELS.LEVEL_NO;
   }
-  return {
-    dropdownOptions: getLevelDropdownOptions(propagationOptions),
-    defaultPropagation: defaultPropagation as TX_LEVELS | '',
-    propagationType,
-  };
+  return getLevelDropdownOptions(propagationOptions);
 };
