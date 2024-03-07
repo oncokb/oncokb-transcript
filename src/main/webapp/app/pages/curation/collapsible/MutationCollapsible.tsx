@@ -778,7 +778,6 @@ const mapStoreToProps = ({
   modifyTherapyModalStore,
   relevantCancerTypesModalStore,
   authStore,
-  cancerTypeStore,
 }: IRootStore) => ({
   data: firebaseGeneStore.data,
   hugoSymbol: firebaseGeneStore.hugoSymbol,
