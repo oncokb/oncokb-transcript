@@ -5,29 +5,36 @@ const SPACE_BETWEEN = 15;
 
 export const SIDEBAR_COLLAPSED_WIDTH = 75;
 export const SIDEBAR_EXPANDED_WIDTH = 200;
-const ONCOKB_SIDEBAR_WIDTH = 350;
+export const ONCOKB_SIDEBAR_MIN_WIDTH = 350;
 
 export class LayoutStore {
   public isNavigationSidebarCollapsed = false;
   public navigationSidebarWidth = SIDEBAR_EXPANDED_WIDTH;
   public showOncoKBSidebar = false;
-  public oncoKBSidebarWidth = ONCOKB_SIDEBAR_WIDTH;
+  public oncoKBSidebarWidth = ONCOKB_SIDEBAR_MIN_WIDTH;
 
   constructor(protected rootStore: IRootStore) {
     makeObservable(this, {
       isNavigationSidebarCollapsed: observable,
       toggleNavigationSidebar: action.bound,
+      closeNavigationSidebar: action.bound,
       navigationSidebarWidth: observable,
       centerContentMargin: computed,
       showOncoKBSidebar: observable,
       toggleOncoKBSidebar: action.bound,
       oncoKBSidebarWidth: observable,
+      setOncoKBSidebarWidth: action.bound,
     });
   }
 
   toggleNavigationSidebar() {
     this.isNavigationSidebarCollapsed = !this.isNavigationSidebarCollapsed;
     this.navigationSidebarWidth = this.isNavigationSidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
+  }
+
+  closeNavigationSidebar() {
+    this.isNavigationSidebarCollapsed = true;
+    this.navigationSidebarWidth = SIDEBAR_COLLAPSED_WIDTH;
   }
 
   get centerContentMargin() {
@@ -38,6 +45,10 @@ export class LayoutStore {
 
   toggleOncoKBSidebar(value: boolean) {
     this.showOncoKBSidebar = value;
+  }
+
+  setOncoKBSidebarWidth(value: number) {
+    this.oncoKBSidebarWidth = value;
   }
 }
 
