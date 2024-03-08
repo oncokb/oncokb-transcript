@@ -176,6 +176,7 @@ const VusTable = ({
       ),
       id: LAST_EDITED_AT,
       accessor: 'time.value',
+      width: 250,
       Cell(cell: { original: VusTableData }) {
         const time = cell.original.time.value;
         const color = getVusTimestampClass(time);
