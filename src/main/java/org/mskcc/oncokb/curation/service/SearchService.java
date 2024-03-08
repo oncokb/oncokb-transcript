@@ -78,7 +78,7 @@ public class SearchService {
         cdxs = this.companionDiagnosticDeviceQueryService.findByCriteria(cdxCriteria, defaultPageable).getContent();
 
         ArticleCriteria articleCriteria = new ArticleCriteria();
-        articleCriteria.setPmid(stringContainsFilter);
+        articleCriteria.setUid(stringContainsFilter);
         articles = this.articleQueryService.findByCriteria(articleCriteria, defaultPageable).getContent();
 
         DrugCriteria drugCriteria = new DrugCriteria();

@@ -1,6 +1,5 @@
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
 import { CANCER_TYPE_THERAPY_INDENTIFIER } from 'app/config/constants/constants';
-import treatment from 'app/entities/treatment';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import EditIcon from 'app/shared/icons/EditIcon';
 import ModifyTherapyModal from 'app/shared/modal/ModifyTherapyModal';
@@ -127,7 +126,7 @@ function TherapyCollapsible({
           labelIcon={
             <GeneHistoryTooltip
               historyData={parsedHistoryList}
-              location={`${CANCER_TYPE_THERAPY_INDENTIFIER}${mutationName}, ${cancerTypeName}, ${treatment.name}`}
+              location={`${CANCER_TYPE_THERAPY_INDENTIFIER}${mutationName}, ${cancerTypeName}, ${treatmentName}`}
             />
           }
           name="additionalEvidenceDescription"

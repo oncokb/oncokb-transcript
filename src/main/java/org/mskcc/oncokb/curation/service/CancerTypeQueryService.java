@@ -118,15 +118,6 @@ public class CancerTypeQueryService extends QueryService<CancerType> {
             if (criteria.getTumorForm() != null) {
                 specification = specification.or(buildSpecification(criteria.getTumorForm(), CancerType_.tumorForm));
             }
-            if (criteria.getAssociationCancerTypeId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getAssociationCancerTypeId(),
-                            root -> root.join(CancerType_.associationCancerTypes, JoinType.LEFT).get(AssociationCancerType_.id)
-                        )
-                    );
-            }
             if (criteria.getChildrenId() != null) {
                 specification =
                     specification.or(
@@ -146,6 +137,15 @@ public class CancerTypeQueryService extends QueryService<CancerType> {
                 specification =
                     specification.or(
                         buildSpecification(criteria.getParentId(), root -> root.join(CancerType_.parent, JoinType.LEFT).get(CancerType_.id))
+                    );
+            }
+            if (criteria.getAssociationId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(
+                            criteria.getAssociationId(),
+                            root -> root.join(CancerType_.associations, JoinType.LEFT).get(Association_.id)
+                        )
                     );
             }
         }

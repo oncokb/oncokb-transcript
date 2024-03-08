@@ -34,6 +34,8 @@ public class SynonymCriteria implements Serializable, Criteria {
 
     private StringFilter name;
 
+    private LongFilter articleId;
+
     private LongFilter cancerTypeId;
 
     private LongFilter geneId;
@@ -50,6 +52,7 @@ public class SynonymCriteria implements Serializable, Criteria {
         this.source = other.source == null ? null : other.source.copy();
         this.code = other.code == null ? null : other.code.copy();
         this.name = other.name == null ? null : other.name.copy();
+        this.articleId = other.articleId == null ? null : other.articleId.copy();
         this.cancerTypeId = other.cancerTypeId == null ? null : other.cancerTypeId.copy();
         this.geneId = other.geneId == null ? null : other.geneId.copy();
         this.nciThesaurusId = other.nciThesaurusId == null ? null : other.nciThesaurusId.copy();
@@ -136,6 +139,21 @@ public class SynonymCriteria implements Serializable, Criteria {
         this.name = name;
     }
 
+    public LongFilter getArticleId() {
+        return articleId;
+    }
+
+    public LongFilter articleId() {
+        if (articleId == null) {
+            articleId = new LongFilter();
+        }
+        return articleId;
+    }
+
+    public void setArticleId(LongFilter articleId) {
+        this.articleId = articleId;
+    }
+
     public LongFilter getCancerTypeId() {
         return cancerTypeId;
     }
@@ -204,6 +222,7 @@ public class SynonymCriteria implements Serializable, Criteria {
             Objects.equals(source, that.source) &&
             Objects.equals(code, that.code) &&
             Objects.equals(name, that.name) &&
+            Objects.equals(articleId, that.articleId) &&
             Objects.equals(cancerTypeId, that.cancerTypeId) &&
             Objects.equals(geneId, that.geneId) &&
             Objects.equals(nciThesaurusId, that.nciThesaurusId) &&
@@ -213,7 +232,7 @@ public class SynonymCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, type, source, code, name, cancerTypeId, geneId, nciThesaurusId, distinct);
+        return Objects.hash(id, type, source, code, name, articleId, cancerTypeId, geneId, nciThesaurusId, distinct);
     }
 
     // prettier-ignore
@@ -225,6 +244,7 @@ public class SynonymCriteria implements Serializable, Criteria {
             (source != null ? "source=" + source + ", " : "") +
             (code != null ? "code=" + code + ", " : "") +
             (name != null ? "name=" + name + ", " : "") +
+            (articleId != null ? "articleId=" + articleId + ", " : "") +
             (cancerTypeId != null ? "cancerTypeId=" + cancerTypeId + ", " : "") +
             (geneId != null ? "geneId=" + geneId + ", " : "") +
             (nciThesaurusId != null ? "nciThesaurusId=" + nciThesaurusId + ", " : "") +

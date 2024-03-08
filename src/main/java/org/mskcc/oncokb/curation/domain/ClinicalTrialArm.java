@@ -27,7 +27,7 @@ public class ClinicalTrialArm implements Serializable {
     private String name;
 
     @ShallowReference
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
         name = "rel_clinical_trial_arm__association",
         joinColumns = @JoinColumn(name = "clinical_trial_arm_id"),
@@ -35,10 +35,11 @@ public class ClinicalTrialArm implements Serializable {
     )
     @JsonIgnoreProperties(
         value = {
-            "associationCancerTypes",
+            "rules",
             "alterations",
             "articles",
-            "treatments",
+            "cancerTypes",
+            "drugs",
             "evidence",
             "clinicalTrials",
             "clinicalTrialArms",

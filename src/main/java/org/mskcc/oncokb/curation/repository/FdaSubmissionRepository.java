@@ -18,19 +18,23 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FdaSubmissionRepository extends JpaRepository<FdaSubmission, Long>, JpaSpecificationExecutor<FdaSubmission> {
     @Query(
-        value = "select distinct fdaSubmission from FdaSubmission fdaSubmission left join fetch fdaSubmission.associations",
+        value = "select distinct fdaSubmission from FdaSubmission fdaSubmission left join fetch fdaSubmission.articles left join fetch fdaSubmission.associations",
         countQuery = "select count(distinct fdaSubmission) from FdaSubmission fdaSubmission"
     )
     Page<FdaSubmission> findAllWithEagerRelationships(Pageable pageable);
 
-    @Query("select distinct fdaSubmission from FdaSubmission fdaSubmission left join fetch fdaSubmission.associations")
+    @Query(
+        "select distinct fdaSubmission from FdaSubmission fdaSubmission left join fetch fdaSubmission.articles left join fetch fdaSubmission.associations"
+    )
     List<FdaSubmission> findAllWithEagerRelationships();
 
-    @Query("select fdaSubmission from FdaSubmission fdaSubmission left join fetch fdaSubmission.associations where fdaSubmission.id =:id")
+    @Query(
+        "select fdaSubmission from FdaSubmission fdaSubmission left join fetch fdaSubmission.articles left join fetch fdaSubmission.associations where fdaSubmission.id =:id"
+    )
     Optional<FdaSubmission> findOneWithEagerRelationships(@Param("id") Long id);
 
     @Query(
-        "select fdaSubmission from FdaSubmission fdaSubmission left join fetch fdaSubmission.associations where fdaSubmission.number =:number and fdaSubmission.supplementNumber =:supplementNumber"
+        "select fdaSubmission from FdaSubmission fdaSubmission left join fetch fdaSubmission.articles left join fetch fdaSubmission.associations where fdaSubmission.number =:number and fdaSubmission.supplementNumber =:supplementNumber"
     )
     Optional<FdaSubmission> findByNumberAndSupplementNumber(
         @Param("number") String number,

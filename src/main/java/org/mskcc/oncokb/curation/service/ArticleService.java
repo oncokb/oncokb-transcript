@@ -3,6 +3,8 @@ package org.mskcc.oncokb.curation.service;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.repository.ArticleRepository;
+import org.mskcc.oncokb.curation.service.dto.pubmed.PubMedDTO;
+import org.mskcc.oncokb.curation.service.mapper.PubMedMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -20,9 +22,13 @@ public class ArticleService {
     private final Logger log = LoggerFactory.getLogger(ArticleService.class);
 
     private final ArticleRepository articleRepository;
+    private final NihEutilsService nihEutilsService;
+    private final PubMedMapper pubMedMapper;
 
-    public ArticleService(ArticleRepository articleRepository) {
+    public ArticleService(ArticleRepository articleRepository, NihEutilsService nihEutilsService, PubMedMapper pubMedMapper) {
         this.articleRepository = articleRepository;
+        this.nihEutilsService = nihEutilsService;
+        this.pubMedMapper = pubMedMapper;
     }
 
     /**
@@ -51,38 +57,23 @@ public class ArticleService {
                 if (article.getType() != null) {
                     existingArticle.setType(article.getType());
                 }
+                if (article.getUid() != null) {
+                    existingArticle.setUid(article.getUid());
+                }
+                if (article.getTitle() != null) {
+                    existingArticle.setTitle(article.getTitle());
+                }
                 if (article.getContent() != null) {
                     existingArticle.setContent(article.getContent());
                 }
                 if (article.getLink() != null) {
                     existingArticle.setLink(article.getLink());
                 }
-                if (article.getPmid() != null) {
-                    existingArticle.setPmid(article.getPmid());
-                }
-                if (article.getElocationId() != null) {
-                    existingArticle.setElocationId(article.getElocationId());
-                }
-                if (article.getTitle() != null) {
-                    existingArticle.setTitle(article.getTitle());
-                }
                 if (article.getAuthors() != null) {
                     existingArticle.setAuthors(article.getAuthors());
                 }
-                if (article.getJournal() != null) {
-                    existingArticle.setJournal(article.getJournal());
-                }
-                if (article.getVolume() != null) {
-                    existingArticle.setVolume(article.getVolume());
-                }
-                if (article.getIssue() != null) {
-                    existingArticle.setIssue(article.getIssue());
-                }
-                if (article.getPages() != null) {
-                    existingArticle.setPages(article.getPages());
-                }
-                if (article.getPubDate() != null) {
-                    existingArticle.setPubDate(article.getPubDate());
+                if (article.getDate() != null) {
+                    existingArticle.setDate(article.getDate());
                 }
 
                 return existingArticle;
@@ -116,8 +107,23 @@ public class ArticleService {
 
     @Transactional(readOnly = true)
     public Optional<Article> findByPmid(String pmid) {
-        log.debug("Request to get Article : {}", pmid);
-        return articleRepository.findByPmid(pmid);
+        log.debug("Request to get Article by PMID : {}", pmid);
+        return articleRepository.findByUid(pmid);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Article> findByUid(String uid) {
+        log.debug("Request to get Article : {}", uid);
+        return articleRepository.findByUid(uid);
+    }
+
+    /**
+     * Get all the articles with eager load of many-to-many relationships.
+     *
+     * @return the list of entities.
+     */
+    public Page<Article> findAllWithEagerRelationships(Pageable pageable) {
+        return articleRepository.findAllWithEagerRelationships(pageable);
     }
 
     /**
@@ -129,7 +135,7 @@ public class ArticleService {
     @Transactional(readOnly = true)
     public Optional<Article> findOne(Long id) {
         log.debug("Request to get Article : {}", id);
-        return articleRepository.findById(id);
+        return articleRepository.findOneWithEagerRelationships(id);
     }
 
     /**
@@ -140,5 +146,19 @@ public class ArticleService {
     public void delete(Long id) {
         log.debug("Request to delete Article : {}", id);
         articleRepository.deleteById(id);
+    }
+
+    public Article fetchAndSavePubMed(String pmid) {
+        PubMedDTO pubMedDTO = nihEutilsService.fetchPubmedArticle(pmid);
+        // We would like to retry if there is no data returned. Eutils sometime has glitch returning empty result but usually resolved in second try.
+        if (pubMedDTO == null) {
+            pubMedDTO = nihEutilsService.fetchPubmedArticle(pmid);
+        }
+        if (pubMedDTO == null) {
+            log.error("No PubMed info found for {}", pmid);
+            return null;
+        } else {
+            return this.save(pubMedMapper.pubMedDTOToArticle(pubMedDTO));
+        }
     }
 }

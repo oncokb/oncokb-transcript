@@ -8,6 +8,7 @@ import tech.jhipster.service.filter.BooleanFilter;
 import tech.jhipster.service.filter.DoubleFilter;
 import tech.jhipster.service.filter.Filter;
 import tech.jhipster.service.filter.FloatFilter;
+import tech.jhipster.service.filter.InstantFilter;
 import tech.jhipster.service.filter.IntegerFilter;
 import tech.jhipster.service.filter.LongFilter;
 import tech.jhipster.service.filter.StringFilter;
@@ -45,25 +46,18 @@ public class ArticleCriteria implements Serializable, Criteria {
     private LongFilter id;
 
     private ArticleTypeFilter type;
-    private StringFilter content;
+
+    private StringFilter uid;
 
     private StringFilter link;
 
-    private StringFilter pmid;
-
-    private StringFilter elocationId;
-
     private StringFilter authors;
 
-    private StringFilter journal;
+    private InstantFilter date;
 
-    private StringFilter volume;
+    private LongFilter flagId;
 
-    private StringFilter issue;
-
-    private StringFilter pages;
-
-    private StringFilter pubDate;
+    private LongFilter synonymId;
 
     private LongFilter associationId;
 
@@ -74,16 +68,12 @@ public class ArticleCriteria implements Serializable, Criteria {
     public ArticleCriteria(ArticleCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
         this.type = other.type == null ? null : other.type.copy();
-        this.content = other.content == null ? null : other.content.copy();
+        this.uid = other.uid == null ? null : other.uid.copy();
         this.link = other.link == null ? null : other.link.copy();
-        this.pmid = other.pmid == null ? null : other.pmid.copy();
-        this.elocationId = other.elocationId == null ? null : other.elocationId.copy();
         this.authors = other.authors == null ? null : other.authors.copy();
-        this.journal = other.journal == null ? null : other.journal.copy();
-        this.volume = other.volume == null ? null : other.volume.copy();
-        this.issue = other.issue == null ? null : other.issue.copy();
-        this.pages = other.pages == null ? null : other.pages.copy();
-        this.pubDate = other.pubDate == null ? null : other.pubDate.copy();
+        this.date = other.date == null ? null : other.date.copy();
+        this.flagId = other.flagId == null ? null : other.flagId.copy();
+        this.synonymId = other.synonymId == null ? null : other.synonymId.copy();
         this.associationId = other.associationId == null ? null : other.associationId.copy();
         this.distinct = other.distinct;
     }
@@ -123,12 +113,19 @@ public class ArticleCriteria implements Serializable, Criteria {
         this.type = type;
     }
 
-    public StringFilter getContent() {
-        return content;
+    public StringFilter getUid() {
+        return uid;
     }
 
-    public void setContent(StringFilter content) {
-        this.content = content;
+    public StringFilter uid() {
+        if (uid == null) {
+            uid = new StringFilter();
+        }
+        return uid;
+    }
+
+    public void setUid(StringFilter uid) {
+        this.uid = uid;
     }
 
     public StringFilter getLink() {
@@ -146,36 +143,6 @@ public class ArticleCriteria implements Serializable, Criteria {
         this.link = link;
     }
 
-    public StringFilter getPmid() {
-        return pmid;
-    }
-
-    public StringFilter pmid() {
-        if (pmid == null) {
-            pmid = new StringFilter();
-        }
-        return pmid;
-    }
-
-    public void setPmid(StringFilter pmid) {
-        this.pmid = pmid;
-    }
-
-    public StringFilter getElocationId() {
-        return elocationId;
-    }
-
-    public StringFilter elocationId() {
-        if (elocationId == null) {
-            elocationId = new StringFilter();
-        }
-        return elocationId;
-    }
-
-    public void setElocationId(StringFilter elocationId) {
-        this.elocationId = elocationId;
-    }
-
     public StringFilter getAuthors() {
         return authors;
     }
@@ -191,79 +158,49 @@ public class ArticleCriteria implements Serializable, Criteria {
         this.authors = authors;
     }
 
-    public StringFilter getJournal() {
-        return journal;
+    public InstantFilter getDate() {
+        return date;
     }
 
-    public StringFilter journal() {
-        if (journal == null) {
-            journal = new StringFilter();
+    public InstantFilter date() {
+        if (date == null) {
+            date = new InstantFilter();
         }
-        return journal;
+        return date;
     }
 
-    public void setJournal(StringFilter journal) {
-        this.journal = journal;
+    public void setDate(InstantFilter date) {
+        this.date = date;
     }
 
-    public StringFilter getVolume() {
-        return volume;
+    public LongFilter getFlagId() {
+        return flagId;
     }
 
-    public StringFilter volume() {
-        if (volume == null) {
-            volume = new StringFilter();
+    public LongFilter flagId() {
+        if (flagId == null) {
+            flagId = new LongFilter();
         }
-        return volume;
+        return flagId;
     }
 
-    public void setVolume(StringFilter volume) {
-        this.volume = volume;
+    public void setFlagId(LongFilter flagId) {
+        this.flagId = flagId;
     }
 
-    public StringFilter getIssue() {
-        return issue;
+    public LongFilter getSynonymId() {
+        return synonymId;
     }
 
-    public StringFilter issue() {
-        if (issue == null) {
-            issue = new StringFilter();
+    public LongFilter synonymId() {
+        if (synonymId == null) {
+            synonymId = new LongFilter();
         }
-        return issue;
+        return synonymId;
     }
 
-    public void setIssue(StringFilter issue) {
-        this.issue = issue;
-    }
-
-    public StringFilter getPages() {
-        return pages;
-    }
-
-    public StringFilter pages() {
-        if (pages == null) {
-            pages = new StringFilter();
-        }
-        return pages;
-    }
-
-    public void setPages(StringFilter pages) {
-        this.pages = pages;
-    }
-
-    public StringFilter getPubDate() {
-        return pubDate;
-    }
-
-    public StringFilter pubDate() {
-        if (pubDate == null) {
-            pubDate = new StringFilter();
-        }
-        return pubDate;
-    }
-
-    public void setPubDate(StringFilter pubDate) {
-        this.pubDate = pubDate;
+    public void setSynonymId(LongFilter synonymId) {
+        this.synonymId = synonymId;
     }
 
     public LongFilter getAssociationId() {
@@ -301,16 +238,12 @@ public class ArticleCriteria implements Serializable, Criteria {
         return (
             Objects.equals(id, that.id) &&
             Objects.equals(type, that.type) &&
-            Objects.equals(content, that.content) &&
+            Objects.equals(uid, that.uid) &&
             Objects.equals(link, that.link) &&
-            Objects.equals(pmid, that.pmid) &&
-            Objects.equals(elocationId, that.elocationId) &&
             Objects.equals(authors, that.authors) &&
-            Objects.equals(journal, that.journal) &&
-            Objects.equals(volume, that.volume) &&
-            Objects.equals(issue, that.issue) &&
-            Objects.equals(pages, that.pages) &&
-            Objects.equals(pubDate, that.pubDate) &&
+            Objects.equals(date, that.date) &&
+            Objects.equals(flagId, that.flagId) &&
+            Objects.equals(synonymId, that.synonymId) &&
             Objects.equals(associationId, that.associationId) &&
             Objects.equals(distinct, that.distinct)
         );
@@ -318,22 +251,7 @@ public class ArticleCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-            id,
-            type,
-            content,
-            link,
-            pmid,
-            elocationId,
-            authors,
-            journal,
-            volume,
-            issue,
-            pages,
-            pubDate,
-            associationId,
-            distinct
-        );
+        return Objects.hash(id, type, uid, link, authors, date, flagId, synonymId, associationId, distinct);
     }
 
     // prettier-ignore
@@ -342,16 +260,12 @@ public class ArticleCriteria implements Serializable, Criteria {
         return "ArticleCriteria{" +
             (id != null ? "id=" + id + ", " : "") +
             (type != null ? "type=" + type + ", " : "") +
-            (content != null ? "content=" + content + ", " : "") +
+            (uid != null ? "uid=" + uid + ", " : "") +
             (link != null ? "link=" + link + ", " : "") +
-            (pmid != null ? "pmid=" + pmid + ", " : "") +
-            (elocationId != null ? "elocationId=" + elocationId + ", " : "") +
             (authors != null ? "authors=" + authors + ", " : "") +
-            (journal != null ? "journal=" + journal + ", " : "") +
-            (volume != null ? "volume=" + volume + ", " : "") +
-            (issue != null ? "issue=" + issue + ", " : "") +
-            (pages != null ? "pages=" + pages + ", " : "") +
-            (pubDate != null ? "pubDate=" + pubDate + ", " : "") +
+            (date != null ? "date=" + date + ", " : "") +
+            (flagId != null ? "flagId=" + flagId + ", " : "") +
+            (synonymId != null ? "synonymId=" + synonymId + ", " : "") +
             (associationId != null ? "associationId=" + associationId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";

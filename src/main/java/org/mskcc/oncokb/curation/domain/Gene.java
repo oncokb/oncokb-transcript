@@ -41,7 +41,7 @@ public class Gene implements Serializable {
 
     @DiffIgnore
     @OneToMany(mappedBy = "gene")
-    @JsonIgnoreProperties(value = { "association", "levelOfEvidences", "gene" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "association", "gene", "levelOfEvidences" }, allowSetters = true)
     private Set<Evidence> evidences = new HashSet<>();
 
     @DiffIgnore
@@ -52,7 +52,7 @@ public class Gene implements Serializable {
     @ShallowReference
     @ManyToMany
     @JoinTable(name = "rel_gene__flag", joinColumns = @JoinColumn(name = "gene_id"), inverseJoinColumns = @JoinColumn(name = "flag_id"))
-    @JsonIgnoreProperties(value = { "drugs", "genes", "transcripts" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "alterations", "articles", "drugs", "genes", "transcripts" }, allowSetters = true)
     private Set<Flag> flags = new HashSet<>();
 
     @DiffIgnore

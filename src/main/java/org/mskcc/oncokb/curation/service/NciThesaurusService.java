@@ -102,6 +102,12 @@ public class NciThesaurusService {
         return new PageImpl<>(enrichedNciThesaurus, pageable, nciThesaurusPage.getTotalElements());
     }
 
+    @Transactional(readOnly = true)
+    public List<NciThesaurus> findAllWithEagerRelationships(List<Long> ids) {
+        log.debug("Request to get NciThesaurus : {}", ids);
+        return nciThesaurusRepository.findAllWithEagerRelationships(ids);
+    }
+
     /**
      * Get one nciThesaurus by id.
      *

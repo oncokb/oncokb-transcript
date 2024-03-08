@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A GenomicIndicator.
@@ -37,6 +38,7 @@ public class GenomicIndicator implements Serializable {
     @Column(name = "description")
     private String description;
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_genomic_indicator__allele_state",
@@ -46,6 +48,7 @@ public class GenomicIndicator implements Serializable {
     @JsonIgnoreProperties(value = { "genomicIndicators" }, allowSetters = true)
     private Set<AlleleState> alleleStates = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
         name = "rel_genomic_indicator__association",
@@ -54,9 +57,11 @@ public class GenomicIndicator implements Serializable {
     )
     @JsonIgnoreProperties(
         value = {
-            "associationCancerTypes",
+            "rules",
+            "alterations",
             "articles",
-            "treatments",
+            "cancerTypes",
+            "drugs",
             "evidence",
             "clinicalTrials",
             "clinicalTrialArms",

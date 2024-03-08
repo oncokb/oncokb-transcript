@@ -38,7 +38,7 @@ public class EligibilityCriteria implements Serializable {
     private String criteria;
 
     @ShallowReference
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
         name = "rel_eligibility_criteria__association",
         joinColumns = @JoinColumn(name = "eligibility_criteria_id"),
@@ -46,10 +46,11 @@ public class EligibilityCriteria implements Serializable {
     )
     @JsonIgnoreProperties(
         value = {
-            "associationCancerTypes",
+            "rules",
             "alterations",
             "articles",
-            "treatments",
+            "cancerTypes",
+            "drugs",
             "evidence",
             "clinicalTrials",
             "clinicalTrialArms",

@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
-import { Row, Col, Badge } from 'reactstrap';
+import { Row, Col } from 'reactstrap';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
+import SynonymBadge from 'app/shared/badge/SynonymBadge';
 
 export interface IDrugDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -25,7 +26,7 @@ export const DrugDetail = (props: IDrugDetailProps) => {
           </dt>
           <dd>{drugEntity.id}</dd>
           <dt>
-            <span id="name">UUID</span>
+            <span id="uuid">UUID</span>
           </dt>
           <dd>{drugEntity.uuid}</dd>
           <dt>
@@ -36,24 +37,23 @@ export const DrugDetail = (props: IDrugDetailProps) => {
             <span id="code">Code</span>
           </dt>
           <dd>{drugEntity.nciThesaurus?.code}</dd>
-          <dt>
-            <span id="brandNames">Brand Names</span>
-          </dt>
+          <dt>Flag</dt>
           <dd>
-            {drugEntity.brands?.map(brand => (
-              <Badge key={brand.name} pill color="info" className={'mr-2'}>
-                {brand.name})
-              </Badge>
-            ))}
+            {drugEntity.flags
+              ? drugEntity.flags.map((val, i) => (
+                  <span key={val.id}>
+                    <a>{val.id}</a>
+                    {drugEntity.flags && i === drugEntity.flags.length - 1 ? '' : ', '}
+                  </span>
+                ))
+              : null}
           </dd>
           <dt>
             <span id="brandNames">Also known as</span>
           </dt>
           <dd>
             {drugEntity.nciThesaurus?.synonyms.map((synonym, index) => (
-              <Badge key={`${synonym.name}-${index}`} pill color="info" className={'mr-2'}>
-                {synonym.name} ({synonym.source})
-              </Badge>
+              <SynonymBadge synonym={synonym} key={index} />
             ))}
           </dd>
         </dl>
