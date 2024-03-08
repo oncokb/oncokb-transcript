@@ -18,6 +18,7 @@ import { ref, update } from 'firebase/database';
 import { getValueByNestedKey, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
 import { parseFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
+import { isTxLevelPresent } from 'app/shared/util/firebase/firebase-level-utils';
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {
@@ -154,10 +155,12 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
             tumor.TIs.forEach(ti => {
               if (ti.treatments) {
                 ti.treatments.forEach(treatment => {
-                  if (!summary[mutation.name_uuid].txLevels[treatment.level]) {
-                    summary[mutation.name_uuid].txLevels[treatment.level] = 1;
-                  } else {
-                    summary[mutation.name_uuid].txLevels[treatment.level]++;
+                  if (isTxLevelPresent(treatment.level)) {
+                    if (!summary[mutation.name_uuid].txLevels[treatment.level]) {
+                      summary[mutation.name_uuid].txLevels[treatment.level] = 1;
+                    } else {
+                      summary[mutation.name_uuid].txLevels[treatment.level]++;
+                    }
                   }
                 });
               }

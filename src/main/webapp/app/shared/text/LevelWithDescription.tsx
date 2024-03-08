@@ -1,16 +1,16 @@
 import React from 'react';
-import { LEVELS } from '../util/firebase/firebase-level-utils';
-import classNames from 'classnames';
+import { LEVELS, ONCOKB_LEVELS } from '../util/firebase/firebase-level-utils';
 import { ALL_LEVEL_DESCRIPTIONS, FDA_LEVEL_KEYS } from 'app/config/constants/firebase';
 import { FdaLevelIcon } from '../icons/FdaLevelIcon';
 import { TX_LEVELS } from '../model/firebase/firebase.model';
+import { OncoKBIcon } from '../icons/OncoKBIcon';
 
 export interface ILevelWithDescriptionProps {
   level: LEVELS;
 }
 
 export const LevelWithDescription = (props: ILevelWithDescriptionProps) => {
-  let levelIcon = <span className={classNames('oncokb', 'icon', `level-${props.level}`)}></span>;
+  let levelIcon = <OncoKBIcon iconType="level" value={props.level as ONCOKB_LEVELS} />;
   if (Object.values(FDA_LEVEL_KEYS).includes(props.level as FDA_LEVEL_KEYS)) {
     levelIcon = <FdaLevelIcon level={props.level as FDA_LEVEL_KEYS} />;
   }
