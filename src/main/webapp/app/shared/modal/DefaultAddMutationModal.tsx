@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaExclamationCircle } from 'react-icons/fa';
 import { Button, Modal, ModalBody, ModalFooter } from 'reactstrap';
-import styles from './styles.module.scss';
+import { ERROR_EXCLAMATION_ICON_SIZE } from 'app/config/constants/constants';
 
 export interface IDefaultAddMutationModal {
   modalBody: JSX.Element;
@@ -21,10 +21,8 @@ export const DefaultAddMutationModal = (props: IDefaultAddMutationModal) => {
       <ModalFooter style={{ display: 'inline-block' }}>
         <div className="d-flex justify-content-between">
           {props.warningMessage ? (
-            <div className={styles.warning}>
-              <div>
-                <FaExclamationCircle className="mr-2" size={'25px'} />
-              </div>
+            <div className="error-message">
+              <FaExclamationCircle className="mr-2" size={ERROR_EXCLAMATION_ICON_SIZE} />
               <div>{props.warningMessage}</div>
             </div>
           ) : (

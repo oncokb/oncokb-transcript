@@ -21,7 +21,7 @@ import ExternalLinkIcon from 'app/shared/icons/ExternalLinkIcon';
 import WithSeparator from 'react-with-separator';
 import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
 import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/FirebaseRealtimeInput';
-import { geneNeedsReview, getFirebasePath, getMutationName } from 'app/shared/util/firebase/firebase-utils';
+import { compareMutations, geneNeedsReview, getFirebasePath, getMutationName } from 'app/shared/util/firebase/firebase-utils';
 import styles from './styles.module.scss';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { Comment, HistoryRecord, Mutation } from 'app/shared/model/firebase/firebase.model';
@@ -77,6 +77,7 @@ const CurationPage = (props: ICurationPageProps) => {
   const [mutationFilter, setMutationFilter] = useState('');
 
   const [showFilterModal, setShowFilterModal] = useState(false);
+  const [allMutations, setAllMutations] = useState<FirebaseMutation[]>(null);
   const [mutations, setMutations] = useState<FirebaseMutation[]>([]);
 
   const [oncogenicityFilter, setOncogenicityFilter] = useState(initFilterCheckboxState(ONCOGENICITY_OPTIONS));
@@ -89,8 +90,6 @@ const CurationPage = (props: ICurationPageProps) => {
   const [tempTxLevelFilter, setTempTxLevelFilter] = useState(initFilterCheckboxState(TX_LEVEL_OPTIONS));
 
   const [enabledCheckboxes, setEnabledCheckboxes] = useState<string[]>([]);
-
-  const [drugList, setDrugList] = useState<IDrug[]>([]);
 
   const [openMutationCollapsible, setOpenMutationCollapsible] = useState<Mutation>(null);
   const [mutationCollapsibleScrollIndex, setMutationCollapsibleScrollIndex] = useState(0);
@@ -225,8 +224,39 @@ const CurationPage = (props: ICurationPageProps) => {
   }, [props.metaCollaboratorsData, props.data]);
 
   useEffect(() => {
+    if (props.data?.mutations && props.mutationSummaryStats) {
+      const fetchedMutations: FirebaseMutation[] = _.cloneDeep(props.data.mutations).map((mutation, firebaseIndex) => ({
+        ...mutation,
+        firebaseIndex,
+      }));
+      if (!allMutations) {
+        // has not yet been sorted
+        setAllMutations(fetchedMutations.sort((mut1, mut2) => compareMutations(mut1, mut2, props.mutationSummaryStats)));
+      } else {
+        const fetchedMutationUuidToMutation: { [uuid: string]: FirebaseMutation } = {};
+        for (const fetchedMutation of fetchedMutations) {
+          fetchedMutationUuidToMutation[fetchedMutation.name_uuid] = fetchedMutation;
+        }
+
+        setAllMutations(currentMutations => {
+          const newMutations: FirebaseMutation[] = [];
+          for (const currentMutation of currentMutations) {
+            const fetchedMutation = fetchedMutationUuidToMutation[currentMutation.name_uuid];
+            if (fetchedMutation) {
+              newMutations.push(fetchedMutation);
+              delete fetchedMutationUuidToMutation[currentMutation.name_uuid];
+            }
+          }
+
+          return [...Object.values(fetchedMutationUuidToMutation), ...newMutations];
+        });
+      }
+    }
+  }, [props.data, props.mutationSummaryStats]);
+
+  useEffect(() => {
     filterMutations();
-  }, [props.data, mutationFilter, oncogenicityFilter, mutationEffectFilter, txLevelFilter]);
+  }, [allMutations, mutationFilter, oncogenicityFilter, mutationEffectFilter, txLevelFilter]);
 
   useEffect(() => {
     if (props.mutationSummaryStats) {
@@ -241,12 +271,7 @@ const CurationPage = (props: ICurationPageProps) => {
   }, [props.mutationSummaryStats]);
 
   useEffect(() => {
-    async function fetchAllDrugs() {
-      const drugs = await props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
-      setDrugList(drugs['data']);
-    }
-
-    fetchAllDrugs();
+    props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
   }, []);
 
   const parsedHistoryList = useMemo(() => {
@@ -274,7 +299,7 @@ const CurationPage = (props: ICurationPageProps) => {
 
   function filterMutations() {
     setMutations(
-      (props.data?.mutations || []).reduce<FirebaseMutation[]>((filteredMutations, mutation, index) => {
+      (allMutations || []).reduce<FirebaseMutation[]>((filteredMutations, mutation) => {
         const matchesName = !mutationFilter || getMutationName(mutation).toLowerCase().includes(mutationFilter.toLowerCase());
 
         const selectedOncogenicities = oncogenicityFilter.filter(filter => filter.selected);
@@ -314,8 +339,9 @@ const CurationPage = (props: ICurationPageProps) => {
         }
 
         if (matchesName && matchesOncogenicity && matchesMutationEffect && matchesTxLevel()) {
-          return [...filteredMutations, { ...mutation, firebaseIndex: index }];
+          return [...filteredMutations, mutation];
         }
+
         return filteredMutations;
       }, []) || []
     );
@@ -379,7 +405,7 @@ const CurationPage = (props: ICurationPageProps) => {
               mutation={mutation}
               firebaseIndex={mutation.firebaseIndex}
               parsedHistoryList={parsedHistoryList}
-              drugList={drugList}
+              drugList={props.drugList}
             />
           </Col>
         </Row>
@@ -407,7 +433,7 @@ const CurationPage = (props: ICurationPageProps) => {
                   mutation={mutation}
                   firebaseIndex={mutation.firebaseIndex}
                   parsedHistoryList={parsedHistoryList}
-                  drugList={drugList}
+                  drugList={props.drugList}
                 />
               </Col>
             </Row>
@@ -421,7 +447,7 @@ const CurationPage = (props: ICurationPageProps) => {
     return <UncuratedGeneAlert />;
   }
 
-  return !!props.data && props.vusData !== undefined && drugList.length > 0 && !props.loadingGenes ? (
+  return !!props.data && props.vusData !== undefined && props.drugList.length > 0 && !props.loadingGenes ? (
     <>
       <div>
         <Row className={'mb-2'}>
@@ -503,7 +529,7 @@ const CurationPage = (props: ICurationPageProps) => {
             firebasePath={firebaseGenePath}
             reviewFinished={isReviewFinished}
             handleReviewFinished={handleReviewFinished}
-            drugList={drugList}
+            drugList={props.drugList}
           />
         ) : (
           <>
@@ -900,6 +926,7 @@ const mapStoreToProps = ({
   metaData: firebaseMetaStore.data,
   metaListData: firebaseMetaStore.metaList,
   getDrugs: drugStore.getEntities,
+  drugList: drugStore.entities,
   metaCollaboratorsData: firebaseMetaStore.metaCollaborators,
   updateCollaborator: firebaseMetaStore.updateCollaborator,
   updateMeta: firebaseMetaStore.update,

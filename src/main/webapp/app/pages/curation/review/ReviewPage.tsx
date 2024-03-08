@@ -21,7 +21,7 @@ interface IReviewPageProps extends StoreProps {
   hugoSymbol: string;
   reviewFinished: boolean;
   handleReviewFinished: (isFinished: boolean) => void;
-  drugList: IDrug[];
+  drugList: readonly IDrug[];
 }
 
 const ReviewPage = (props: IReviewPageProps) => {
