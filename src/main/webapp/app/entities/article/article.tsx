@@ -20,29 +20,18 @@ export interface IArticleProps extends StoreProps, RouteComponentProps<{ url: st
 export const Article = (props: IArticleProps) => {
   const articleList = props.articleList;
 
-  const getArticleCitations = (article: IArticle) => {
-    return article.pmid ? `${article.journal}. ${article.pubDate};${article.volume}(${article.issue}):${article.pages}` : '';
-  };
-
   const columns: Column<IArticle>[] = [
     {
       accessor: 'type',
       Header: 'Type',
     },
     {
-      accessor: 'pmid',
-      Header: 'Pmid',
+      accessor: 'uid',
+      Header: 'UID',
     },
     {
       accessor: 'title',
       Header: 'Title',
-    },
-    {
-      id: 'citation',
-      Header: 'Citation',
-      Cell(cell: { original: IArticle }) {
-        return <div>{getArticleCitations(cell.original)}</div>;
-      },
     },
     getEntityTableActionsColumn(ENTITY_TYPE.ARTICLE),
   ];

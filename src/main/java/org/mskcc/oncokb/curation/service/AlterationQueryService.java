@@ -119,6 +119,12 @@ public class AlterationQueryService extends QueryService<Alteration> {
             if (criteria.getVariantResidues() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getVariantResidues(), Alteration_.variantResidues));
             }
+            if (criteria.getFlagId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(criteria.getFlagId(), root -> root.join(Alteration_.flags, JoinType.LEFT).get(Flag_.id))
+                    );
+            }
             if (criteria.getGeneId() != null) {
                 specification =
                     specification.or(

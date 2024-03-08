@@ -47,7 +47,6 @@ const ENTITY_MENU_NAME: { [key in ENTITY_TYPE]?: string } = {
   [ENTITY_TYPE.SPECIMEN_TYPE]: 'Specimen Type',
   [ENTITY_TYPE.SYNONYM]: 'Synonym',
   [ENTITY_TYPE.TRANSCRIPT]: 'Transcript',
-  [ENTITY_TYPE.TREATMENT]: 'Treatment',
 };
 
 const DEFAULT_ENTITY_MENU_ORDER: ENTITY_TYPE[] = [
@@ -73,7 +72,6 @@ const DEFAULT_ENTITY_MENU_ORDER: ENTITY_TYPE[] = [
   ENTITY_TYPE.SPECIMEN_TYPE,
   ENTITY_TYPE.SYNONYM,
   ENTITY_TYPE.TRANSCRIPT,
-  ENTITY_TYPE.TREATMENT,
 ];
 
 const getDefaultEntityMenuFrequencies = () => {

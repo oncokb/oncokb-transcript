@@ -58,13 +58,13 @@ public class CancerTypeCriteria implements Serializable, Criteria {
 
     private TumorFormFilter tumorForm;
 
-    private LongFilter associationCancerTypeId;
-
     private LongFilter childrenId;
 
     private LongFilter synonymId;
 
     private LongFilter parentId;
+
+    private LongFilter associationId;
 
     private Boolean distinct;
 
@@ -79,10 +79,10 @@ public class CancerTypeCriteria implements Serializable, Criteria {
         this.subtype = other.subtype == null ? null : other.subtype.copy();
         this.tissue = other.tissue == null ? null : other.tissue.copy();
         this.tumorForm = other.tumorForm == null ? null : other.tumorForm.copy();
-        this.associationCancerTypeId = other.associationCancerTypeId == null ? null : other.associationCancerTypeId.copy();
         this.childrenId = other.childrenId == null ? null : other.childrenId.copy();
         this.synonymId = other.synonymId == null ? null : other.synonymId.copy();
         this.parentId = other.parentId == null ? null : other.parentId.copy();
+        this.associationId = other.associationId == null ? null : other.associationId.copy();
         this.distinct = other.distinct;
     }
 
@@ -211,21 +211,6 @@ public class CancerTypeCriteria implements Serializable, Criteria {
         this.tumorForm = tumorForm;
     }
 
-    public LongFilter getAssociationCancerTypeId() {
-        return associationCancerTypeId;
-    }
-
-    public LongFilter associationCancerTypeId() {
-        if (associationCancerTypeId == null) {
-            associationCancerTypeId = new LongFilter();
-        }
-        return associationCancerTypeId;
-    }
-
-    public void setAssociationCancerTypeId(LongFilter associationCancerTypeId) {
-        this.associationCancerTypeId = associationCancerTypeId;
-    }
-
     public LongFilter getChildrenId() {
         return childrenId;
     }
@@ -271,6 +256,21 @@ public class CancerTypeCriteria implements Serializable, Criteria {
         this.parentId = parentId;
     }
 
+    public LongFilter getAssociationId() {
+        return associationId;
+    }
+
+    public LongFilter associationId() {
+        if (associationId == null) {
+            associationId = new LongFilter();
+        }
+        return associationId;
+    }
+
+    public void setAssociationId(LongFilter associationId) {
+        this.associationId = associationId;
+    }
+
     public Boolean getDistinct() {
         return distinct;
     }
@@ -297,10 +297,10 @@ public class CancerTypeCriteria implements Serializable, Criteria {
             Objects.equals(subtype, that.subtype) &&
             Objects.equals(tissue, that.tissue) &&
             Objects.equals(tumorForm, that.tumorForm) &&
-            Objects.equals(associationCancerTypeId, that.associationCancerTypeId) &&
             Objects.equals(childrenId, that.childrenId) &&
             Objects.equals(synonymId, that.synonymId) &&
             Objects.equals(parentId, that.parentId) &&
+            Objects.equals(associationId, that.associationId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
@@ -316,10 +316,10 @@ public class CancerTypeCriteria implements Serializable, Criteria {
             subtype,
             tissue,
             tumorForm,
-            associationCancerTypeId,
             childrenId,
             synonymId,
             parentId,
+            associationId,
             distinct
         );
     }
@@ -336,10 +336,10 @@ public class CancerTypeCriteria implements Serializable, Criteria {
             (subtype != null ? "subtype=" + subtype + ", " : "") +
             (tissue != null ? "tissue=" + tissue + ", " : "") +
             (tumorForm != null ? "tumorForm=" + tumorForm + ", " : "") +
-            (associationCancerTypeId != null ? "associationCancerTypeId=" + associationCancerTypeId + ", " : "") +
             (childrenId != null ? "childrenId=" + childrenId + ", " : "") +
             (synonymId != null ? "synonymId=" + synonymId + ", " : "") +
             (parentId != null ? "parentId=" + parentId + ", " : "") +
+            (associationId != null ? "associationId=" + associationId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

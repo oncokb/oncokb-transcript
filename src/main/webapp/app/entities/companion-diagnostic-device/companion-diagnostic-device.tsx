@@ -51,7 +51,7 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
     const drugs = [];
     fdaSubmissions.forEach(fdaSubmission => {
       fdaSubmission.associations?.reduce((acc, val) => {
-        acc.push(...(val.treatments || []).map(treatment => treatment.drugs.map(drug => drug.name).join('+')));
+        acc.push(...(val.drugs || []).map(drug => drug.name));
         return acc;
       }, drugs);
     });

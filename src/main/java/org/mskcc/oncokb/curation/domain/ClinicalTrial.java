@@ -46,7 +46,7 @@ public class ClinicalTrial implements Serializable {
     private Set<EligibilityCriteria> eligibilityCriteria = new HashSet<>();
 
     @ShallowReference
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
         name = "rel_clinical_trial__association",
         joinColumns = @JoinColumn(name = "clinical_trial_id"),
@@ -54,10 +54,11 @@ public class ClinicalTrial implements Serializable {
     )
     @JsonIgnoreProperties(
         value = {
-            "associationCancerTypes",
+            "rules",
             "alterations",
             "articles",
-            "treatments",
+            "cancerTypes",
+            "drugs",
             "evidence",
             "clinicalTrials",
             "clinicalTrialArms",

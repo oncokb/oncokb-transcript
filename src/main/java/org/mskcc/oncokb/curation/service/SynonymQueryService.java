@@ -97,6 +97,12 @@ public class SynonymQueryService extends QueryService<Synonym> {
             if (criteria.getName() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getName(), Synonym_.name));
             }
+            if (criteria.getArticleId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(criteria.getArticleId(), root -> root.join(Synonym_.articles, JoinType.LEFT).get(Article_.id))
+                    );
+            }
             if (criteria.getCancerTypeId() != null) {
                 specification =
                     specification.or(

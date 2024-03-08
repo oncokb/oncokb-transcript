@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Drug;
@@ -138,13 +139,14 @@ public class DrugResource {
     /**
      * {@code GET  /drugs} : get all the drugs.
      *
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of drugs in body.
      */
     @GetMapping("/drugs")
-    public ResponseEntity<List<Drug>> getAllDrugs() {
-        log.debug("REST request to get Drugs");
-        List<Drug> drugList = drugService.findAll();
-        return ResponseEntity.ok().body(drugList);
+    public ResponseEntity<List<Drug>> getAllDrugs(DrugCriteria criteria) {
+        log.debug("REST request to get Drugs by criteria: {}", criteria);
+        List<Drug> entityList = drugQueryService.findByCriteria(criteria);
+        return ResponseEntity.ok().body(drugService.findAllByIds(entityList.stream().map(Drug::getId).collect(Collectors.toList())));
     }
 
     /**

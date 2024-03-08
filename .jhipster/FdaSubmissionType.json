@@ -4,7 +4,7 @@
     {
       "fieldName": "type",
       "fieldType": "FdaSubmissionTypeKey",
-      "fieldValues": "PMA,DE_NOVO,HDE,PMN",
+      "fieldValues": "DEVICE_PMA,DEVICE_DENOVO,DEVICE_HDE,DEVICE_PMN,DRUG_NDA,DRUG_BLA",
       "fieldValidateRules": ["required", "unique"]
     },
     {
@@ -14,6 +14,14 @@
     },
     {
       "fieldName": "shortName",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "submissionPrefix",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "submissionLink",
       "fieldType": "String"
     },
     {

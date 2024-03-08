@@ -44,7 +44,7 @@ public class LevelOfEvidence implements Serializable {
 
     @DiffIgnore
     @ManyToMany(mappedBy = "levelOfEvidences")
-    @JsonIgnoreProperties(value = { "association", "levelOfEvidences" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "association", "levelOfEvidences", "gene" }, allowSetters = true)
     private Set<Evidence> evidences = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

@@ -32,8 +32,6 @@ public class GenomicIndicatorCriteria implements Serializable, Criteria {
 
     private StringFilter name;
 
-    private StringFilter description;
-
     private LongFilter alleleStateId;
 
     private LongFilter associationId;
@@ -47,7 +45,6 @@ public class GenomicIndicatorCriteria implements Serializable, Criteria {
         this.uuid = other.uuid == null ? null : other.uuid.copy();
         this.type = other.type == null ? null : other.type.copy();
         this.name = other.name == null ? null : other.name.copy();
-        this.description = other.description == null ? null : other.description.copy();
         this.alleleStateId = other.alleleStateId == null ? null : other.alleleStateId.copy();
         this.associationId = other.associationId == null ? null : other.associationId.copy();
         this.distinct = other.distinct;
@@ -118,21 +115,6 @@ public class GenomicIndicatorCriteria implements Serializable, Criteria {
         this.name = name;
     }
 
-    public StringFilter getDescription() {
-        return description;
-    }
-
-    public StringFilter description() {
-        if (description == null) {
-            description = new StringFilter();
-        }
-        return description;
-    }
-
-    public void setDescription(StringFilter description) {
-        this.description = description;
-    }
-
     public LongFilter getAlleleStateId() {
         return alleleStateId;
     }
@@ -185,7 +167,6 @@ public class GenomicIndicatorCriteria implements Serializable, Criteria {
             Objects.equals(uuid, that.uuid) &&
             Objects.equals(type, that.type) &&
             Objects.equals(name, that.name) &&
-            Objects.equals(description, that.description) &&
             Objects.equals(alleleStateId, that.alleleStateId) &&
             Objects.equals(associationId, that.associationId) &&
             Objects.equals(distinct, that.distinct)
@@ -194,7 +175,7 @@ public class GenomicIndicatorCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, uuid, type, name, description, alleleStateId, associationId, distinct);
+        return Objects.hash(id, uuid, type, name, alleleStateId, associationId, distinct);
     }
 
     // prettier-ignore
@@ -205,7 +186,6 @@ public class GenomicIndicatorCriteria implements Serializable, Criteria {
             (uuid != null ? "uuid=" + uuid + ", " : "") +
             (type != null ? "type=" + type + ", " : "") +
             (name != null ? "name=" + name + ", " : "") +
-            (description != null ? "description=" + description + ", " : "") +
             (alleleStateId != null ? "alleleStateId=" + alleleStateId + ", " : "") +
             (associationId != null ? "associationId=" + associationId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +

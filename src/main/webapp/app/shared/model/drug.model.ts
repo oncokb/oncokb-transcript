@@ -1,24 +1,16 @@
 import { INciThesaurus } from 'app/shared/model/nci-thesaurus.model';
-import { IDrugBrand } from 'app/shared/model/drug-brand.model';
-import { IDrugPriority } from 'app/shared/model/drug-priority.model';
-import { IFlag } from 'app/shared/model/flag.model';
 import { IFdaDrug } from 'app/shared/model/fda-drug.model';
-import { ITreatment } from 'app/shared/model/treatment.model';
-import { generateUuid } from 'app/shared/util/utils';
+import { IFlag } from 'app/shared/model/flag.model';
+import { IAssociation } from 'app/shared/model/association.model';
 
 export interface IDrug {
   id?: number;
-  uuid: string;
-  name: string;
+  uuid?: string;
+  name?: string;
   nciThesaurus?: INciThesaurus | null;
-  brands?: IDrugBrand[] | null;
-  drugPriorities?: IDrugPriority[] | null;
+  fdaDrugs?: IFdaDrug[] | null;
   flags?: IFlag[] | null;
-  fdaDrug?: IFdaDrug | null;
-  treatments?: ITreatment[] | null;
+  associations?: IAssociation[] | null;
 }
 
-export const defaultValue: Readonly<IDrug> = {
-  uuid: generateUuid(),
-  name: 'drug',
-};
+export const defaultValue: Readonly<IDrug> = {};

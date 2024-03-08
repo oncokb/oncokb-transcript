@@ -67,10 +67,6 @@ import article, {
   ArticleStore
 } from 'app/entities/article/article.store';
 // prettier-ignore
-import drugBrand, {
-  DrugBrandStore
-} from 'app/entities/drug-brand/drug-brand.store';
-// prettier-ignore
 import categoricalAlteration, {
   CategoricalAlterationStore
 } from 'app/entities/categorical-alteration/categorical-alteration.store';
@@ -95,18 +91,14 @@ import { CommentStore } from './firebase/firebase.comment.store';
 import { FirebaseUsersStore } from './firebase/firebase.users.store';
 import { HistoryTabStore } from '../components/tabs/history-tab.store';
 import AssociationStore from 'app/entities/association/association.store';
-import AssociationCancerTypeStore from 'app/entities/association-cancer-type/association-cancer-type.store';
 import ClinicalTrialStore from 'app/entities/clinical-trial/clinical-trial.store';
 import ClinicalTrialArmStore from 'app/entities/clinical-trial-arm/clinical-trial-arm.store';
-import DrugPriorityStore from 'app/entities/drug-priority/drug-priority.store';
 import EligibilityCriteriaStore from 'app/entities/eligibility-criteria/eligibility-criteria.store';
 import EvidenceStore from 'app/entities/evidence/evidence.store';
 import GenomicIndicatorStore from 'app/entities/genomic-indicator/genomic-indicator.store';
 import LevelOfEvidenceStore from 'app/entities/level-of-evidence/level-of-evidence.store';
 import NciThesaurusStore from 'app/entities/nci-thesaurus/nci-thesaurus.store';
 import SynonymStore from 'app/entities/synonym/synonym.store';
-import TreatmentStore from 'app/entities/treatment/treatment.store';
-import TreatmentPriorityStore from 'app/entities/treatment-priority/treatment-priority.store';
 import { ModifyCancerTypeModalStore } from 'app/shared/modal/modify-cancer-type-modal.store';
 import { ModifyTherapyModalStore } from 'app/shared/modal/modify-therapy-modal.store';
 import { RelevantCancerTypesModalStore } from 'app/shared/modal/relevant-cancer-types-modal-store';
@@ -138,22 +130,17 @@ export interface IRootStore {
   readonly alterationStore: AlterationStore;
   readonly cancerTypeStore: CancerTypeStore;
   readonly articleStore: ArticleStore;
-  readonly drugBrandStore: DrugBrandStore;
   readonly categoricalAlterationStore: CategoricalAlterationStore;
   readonly historyTabStore: HistoryTabStore;
   readonly associationStore: AssociationStore;
-  readonly associationCancerTypeStore: AssociationCancerTypeStore;
   readonly clinicalTrialStore: ClinicalTrialStore;
   readonly clinicalTrialArmStore: ClinicalTrialArmStore;
-  readonly drugPriorityStore: DrugPriorityStore;
   readonly eligibilityCriteriaStore: EligibilityCriteriaStore;
   readonly evidenceStore: EvidenceStore;
   readonly genomicIndicatorStore: GenomicIndicatorStore;
   readonly levelOfEvidenceStore: LevelOfEvidenceStore;
   readonly nciThesaurusStore: NciThesaurusStore;
   readonly synonymStore: SynonymStore;
-  readonly treatmentStore: TreatmentStore;
-  readonly treatmentPriorityStore: TreatmentPriorityStore;
   readonly modifyCancerTypeModalStore: ModifyCancerTypeModalStore;
   readonly modifyTherapyModalStore: ModifyTherapyModalStore;
   readonly relevantCancerTypesModalStore: RelevantCancerTypesModalStore;
@@ -198,22 +185,17 @@ export function createStores(history: History): IRootStore {
   rootStore.alterationStore = new AlterationStore(rootStore);
   rootStore.cancerTypeStore = new CancerTypeStore(rootStore);
   rootStore.articleStore = new ArticleStore(rootStore);
-  rootStore.drugBrandStore = new DrugBrandStore(rootStore);
   rootStore.categoricalAlterationStore = new CategoricalAlterationStore(rootStore);
   rootStore.historyTabStore = new HistoryTabStore();
   rootStore.associationStore = new AssociationStore(rootStore);
-  rootStore.associationCancerTypeStore = new AssociationCancerTypeStore(rootStore);
   rootStore.clinicalTrialStore = new ClinicalTrialStore(rootStore);
   rootStore.clinicalTrialArmStore = new ClinicalTrialArmStore(rootStore);
-  rootStore.drugPriorityStore = new DrugPriorityStore(rootStore);
   rootStore.eligibilityCriteriaStore = new EligibilityCriteriaStore(rootStore);
   rootStore.evidenceStore = new EvidenceStore(rootStore);
   rootStore.genomicIndicatorStore = new GenomicIndicatorStore(rootStore);
   rootStore.levelOfEvidenceStore = new LevelOfEvidenceStore(rootStore);
   rootStore.nciThesaurusStore = new NciThesaurusStore(rootStore);
   rootStore.synonymStore = new SynonymStore(rootStore);
-  rootStore.treatmentStore = new TreatmentStore(rootStore);
-  rootStore.treatmentPriorityStore = new TreatmentPriorityStore(rootStore);
   rootStore.modifyCancerTypeModalStore = new ModifyCancerTypeModalStore();
   rootStore.modifyTherapyModalStore = new ModifyTherapyModalStore();
   rootStore.relevantCancerTypesModalStore = new RelevantCancerTypesModalStore();

@@ -23,12 +23,17 @@
             <column name="short_name" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+            <column name="submission_prefix" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="submission_link" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
             <column name="description" type="${clobType}">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
