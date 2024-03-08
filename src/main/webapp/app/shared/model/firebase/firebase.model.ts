@@ -35,7 +35,8 @@ export enum FIREBASE_ONCOGENICITY {
 }
 
 export enum TX_LEVELS {
-  LEVEL_NO = 'no',
+  LEVEL_EMPTY = '', // Empty string denotes that a level has not been selected yet
+  LEVEL_NO = 'no', // No level is used by propagationSolid and propagationLiquid
   LEVEL_1 = '1',
   LEVEL_2 = '2',
   LEVEL_3A = '3A',
@@ -61,6 +62,7 @@ export enum FDA_LEVELS {
   LEVEL_FDA1 = '1',
   LEVEL_FDA2 = '2',
   LEVEL_FDA3 = '3',
+  LEVEL_FDA_NO = 'no',
 }
 
 // In future, we want to remove the TI Types because they distinguishable
@@ -88,10 +90,10 @@ export class Treatment {
   description_uuid: string = generateUuid();
   indication = '';
   indication_uuid: string = generateUuid();
-  level: TX_LEVELS = TX_LEVELS.LEVEL_NO;
+  level: TX_LEVELS = TX_LEVELS.LEVEL_EMPTY;
   level_review?: Review;
   level_uuid: string = generateUuid();
-  fdaLevel: FDA_LEVELS = FDA_LEVELS.LEVEL_FDA1;
+  fdaLevel: FDA_LEVELS = FDA_LEVELS.LEVEL_FDA_NO;
   fdaLevel_review?: Review;
   fdaLevel_uuid: string = generateUuid();
   name = '';

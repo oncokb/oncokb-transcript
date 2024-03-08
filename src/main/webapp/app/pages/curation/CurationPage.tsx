@@ -25,7 +25,14 @@ import { compareMutations, geneNeedsReview, getFirebasePath, getMutationName } f
 import styles from './styles.module.scss';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { Comment, HistoryRecord, Mutation } from 'app/shared/model/firebase/firebase.model';
-import { GENE_TYPE, GENE_TYPE_KEY, MUTATION_EFFECT_OPTIONS, ONCOGENICITY_OPTIONS, TX_LEVEL_OPTIONS } from 'app/config/constants/firebase';
+import {
+  FDA_LEVEL_KEYS,
+  GENE_TYPE,
+  GENE_TYPE_KEY,
+  MUTATION_EFFECT_OPTIONS,
+  ONCOGENICITY_OPTIONS,
+  TX_LEVEL_OPTIONS,
+} from 'app/config/constants/firebase';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
 import VusTable from '../../shared/table/VusTable';
 import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
@@ -45,6 +52,7 @@ import AddMutationButton from './button/AddMutationButton';
 import RelevantCancerTypesModal from 'app/shared/modal/RelevantCancerTypesModal';
 import { UncuratedGeneAlert } from 'app/shared/alert/UncuratedGeneAlert';
 import GeneTranscriptInfoInput from 'app/shared/firebase/input/GeneTranscriptInfoInput';
+import { FdaLevelIcon } from 'app/shared/icons/FdaLevelIcon';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 

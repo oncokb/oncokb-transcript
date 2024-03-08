@@ -14,7 +14,7 @@ import {
   FIREBASE_ONCOGENICITY,
 } from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
-import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
+import { DX_LEVEL_DESCRIPTIONS, FB_COLLECTION_PATH, PX_LEVEL_DESCRIPTIONS } from 'app/config/constants/firebase';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
@@ -210,7 +210,7 @@ export const isPendingDelete = (geneData: Gene, nestLevel: RemovableNestLevel, p
 
 export type SortOrder = 'asc' | 'desc';
 
-const sortByIndex = (aIndex: number, bIndex: number, order: SortOrder = 'asc') => {
+export const sortByIndex = (aIndex: number, bIndex: number, order: SortOrder = 'asc') => {
   if (aIndex === bIndex) {
     return 0;
   }

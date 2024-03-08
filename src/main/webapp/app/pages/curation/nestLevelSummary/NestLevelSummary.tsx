@@ -7,7 +7,8 @@ import React from 'react';
 import { sortByDxLevel, sortByPxLevel, sortByTxLevel } from 'app/shared/util/firebase/firebase-utils';
 import './nest-level-summary.scss';
 import '../../../shared/badge/count-badge.scss';
-import { TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import { DX_LEVELS, PX_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import { OncoKBIcon } from 'app/shared/icons/OncoKBIcon';
 
 export type NestLevelSummaryStats = {
   TT?: number;
@@ -56,12 +57,12 @@ export const NestLevelSummary = ({ summaryStats, hideOncogenicity, isTreatmentSt
           lastBadgeHasHiddenNumber = false;
           return isTreatmentStats ? (
             <div key={`tx-levels-${k}`} className="count-badge-wrapper all-children-margin">
-              <span className={classNames('oncokb', 'icon', `level-${k}`)}></span>
+              <OncoKBIcon iconType="level" value={k as TX_LEVELS} />
             </div>
           ) : (
             <CountBadge
               count={summaryStats.txLevels[k]}
-              base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
+              base={<OncoKBIcon iconType="level" value={k as TX_LEVELS} />}
               key={`tx-levels-${k}`}
             />
           );
@@ -73,7 +74,7 @@ export const NestLevelSummary = ({ summaryStats, hideOncogenicity, isTreatmentSt
           return (
             <CountBadge
               count={summaryStats.dxLevels[k]}
-              base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
+              base={<OncoKBIcon iconType="level" value={k as DX_LEVELS} />}
               key={`dx-levels-${k}`}
             />
           );
@@ -85,7 +86,7 @@ export const NestLevelSummary = ({ summaryStats, hideOncogenicity, isTreatmentSt
           return (
             <CountBadge
               count={summaryStats.pxLevels[k]}
-              base={<span className={classNames('oncokb', 'icon', `level-${k}`)}></span>}
+              base={<OncoKBIcon iconType="level" value={k as PX_LEVELS} />}
               key={`px-levels-${k}`}
             />
           );
@@ -96,7 +97,9 @@ export const NestLevelSummary = ({ summaryStats, hideOncogenicity, isTreatmentSt
           count={1}
           base={
             <DefaultTooltip placement="top" overlay={<span>{FIREBASE_ONCOGENICITY_MAPPING[summaryStats.oncogenicity]}</span>}>
-              <span className={classNames('oncokb', 'icon', `${ONCOGENICITY_CLASS_MAPPING[summaryStats.oncogenicity]}`)}></span>
+              <div>
+                <OncoKBIcon iconType="oncogenicity" value={ONCOGENICITY_CLASS_MAPPING[summaryStats.oncogenicity]} />
+              </div>
             </DefaultTooltip>
           }
         />

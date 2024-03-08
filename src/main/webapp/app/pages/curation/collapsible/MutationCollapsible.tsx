@@ -32,7 +32,14 @@ import { DeleteSectionButton } from '../button/DeleteSectionButton';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
 import { ParsedHistoryRecord } from '../CurationPage';
 import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/FirebaseRealtimeInput';
-import { MUTATION_EFFECT_OPTIONS, ONCOGENICITY_OPTIONS } from 'app/config/constants/firebase';
+import {
+  DIAGNOSTIC_LEVELS_ORDERING,
+  FDA_LEVEL_KEYS,
+  MUTATION_EFFECT_OPTIONS,
+  ONCOGENICITY_OPTIONS,
+  PROGNOSTIC_LEVELS_ORDERING,
+  tooManyRCTsText,
+} from 'app/config/constants/firebase';
 import styles from './styles.module.scss';
 import {
   CANCER_TYPE_THERAPY_INDENTIFIER,
@@ -59,6 +66,8 @@ import NoEntryBadge from 'app/shared/badge/NoEntryBadge';
 import RCTButton from '../button/RCTButton';
 import NotCuratableBadge from 'app/shared/badge/NotCuratableBadge';
 import classNames from 'classnames';
+import { getLevelDropdownOptions } from 'app/shared/util/firebase/firebase-level-utils';
+import { TherapyDropdownGroup } from './TherapyDropdownGroup';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationList: Mutation[];
@@ -98,7 +107,6 @@ const MutationCollapsible = ({
 }: IMutationCollapsibleProps) => {
   const title = getMutationName(mutation);
   const mutationFirebasePath = buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}`);
-  const tooManyRCTsText = 'This cancer type contains too many RCTs. Please modify the excluding cancer types instead.';
 
   const [isEditingMutation, setIsEditingMutation] = useState(false);
 
@@ -486,29 +494,12 @@ const MutationCollapsible = ({
                               isSectionEmpty={isSectionEmpty(data, therapyFirebasePath)}
                               isPendingDelete={isPendingDelete(data, NestLevelType.THERAPY, therapyFirebasePath)}
                             >
-                              <RealtimeDropdownInput
-                                fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/level`}
-                                label="Highest level of evidence"
-                                name="level"
-                                options={[TX_LEVELS.LEVEL_NO, TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_2]}
-                              />
-                              <RealtimeDropdownInput
-                                fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagation`}
-                                label="Level of Evidence in other solid tumor types"
-                                name="propagationLevel"
-                                options={[]} // Todo
-                              />
-                              <RealtimeDropdownInput
-                                fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/propagationLiquid`}
-                                label="Level of Evidence in other liquid tumor types"
-                                name="propagationLiquidLevel"
-                                options={[]}
-                              />
-                              <RealtimeDropdownInput
-                                fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/fdaLevel`}
-                                label="FDA Level of Evidence"
-                                name="propagationLiquidLevel"
-                                options={[]}
+                              <TherapyDropdownGroup
+                                defaultLevel={treatment.level}
+                                firebaseIndex={firebaseIndex}
+                                tumorIndex={tumorIndex}
+                                tiIndex={tiIndex}
+                                treatmentIndex={treatmentIndex}
                               />
                               <RealtimeTextAreaInput
                                 fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/TIs/${tiIndex}/treatments/${treatmentIndex}/description`}
@@ -564,6 +555,14 @@ const MutationCollapsible = ({
                           </>
                         );
                       })}
+                    <Button
+                      className="mt-2"
+                      outline
+                      color="primary"
+                      onClick={() => modifyTherapyModalStore.openModal(`new_treatment_for_${tumor.cancerTypes_uuid}`)}
+                    >
+                      Add Therapy
+                    </Button>
                   </Collapsible>
                   <Collapsible
                     className={'mt-2'}
@@ -613,7 +612,7 @@ const MutationCollapsible = ({
                       fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic/level`}
                       label="Level of evidence"
                       name="level"
-                      options={[DX_LEVELS.LEVEL_DX1, DX_LEVELS.LEVEL_DX2, DX_LEVELS.LEVEL_DX3]}
+                      options={getLevelDropdownOptions(DIAGNOSTIC_LEVELS_ORDERING)}
                     />
                     <RealtimeTextAreaInput
                       fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic/description`}
@@ -671,7 +670,7 @@ const MutationCollapsible = ({
                       fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic/level`}
                       label="Level of evidence"
                       name="level"
-                      options={[PX_LEVELS.LEVEL_PX1, PX_LEVELS.LEVEL_PX2, PX_LEVELS.LEVEL_PX3]}
+                      options={getLevelDropdownOptions(PROGNOSTIC_LEVELS_ORDERING)}
                     />
                     <RealtimeTextAreaInput
                       fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic/description`}
@@ -682,13 +681,6 @@ const MutationCollapsible = ({
                     />
                   </Collapsible>
                 </div>
-                <Button
-                  outline
-                  color="primary"
-                  onClick={() => modifyTherapyModalStore.openModal(`new_treatment_for_${tumor.cancerTypes_uuid}`)}
-                >
-                  Add Therapy
-                </Button>
               </Collapsible>
               <ModifyTherapyModal
                 treatmentUuid={`new_treatment_for_${tumor.cancerTypes_uuid}`}
