@@ -2,11 +2,12 @@ import { IRootStore } from 'app/stores';
 import { ref, remove, update } from 'firebase/database';
 import { action, makeObservable } from 'mobx';
 import { Review } from '../../model/firebase/firebase.model';
-import { getFirebasePath, getValueByNestedKey } from './firebase-utils';
-import { ExtractPathExpressions, FirebaseCrudStore } from './firebase-crud-store';
 import { generateUuid } from '../utils';
-import { ReviewAction, ReviewLevel, clearAllNestedReviews, getAllNestedReviewUuids } from './firebase-review-utils';
+import { FirebaseCrudStore } from './firebase-crud-store';
 import { buildHistoryFromReviews } from './firebase-history-utils';
+import { parseFirebaseGenePath } from './firebase-path-utils';
+import { ReviewAction, ReviewLevel, clearAllNestedReviews, getAllNestedReviewUuids } from './firebase-review-utils';
+import { getFirebasePath } from './firebase-utils';
 
 /* eslint-disable @typescript-eslint/ban-types */
 export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudStore<T> {
@@ -19,55 +20,99 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
     });
   }
 
-  updateReviewableContent(path: string, key: ExtractPathExpressions<T>, value: any) {
+  updateReviewableContent = (firebasePath: string, currentValue: any, updateValue: any, review: Review, uuid: string) => {
     // Update Review
-    const reviewableKey = `${key as string}_review`;
-    let review: Review = getValueByNestedKey(this.data, reviewableKey);
     if (!review) {
       review = new Review(this.rootStore.authStore.fullName);
     }
     review.updateTime = new Date().getTime();
     review.updatedBy = this.rootStore.authStore.fullName;
+
     // Update Review when value is reverted to original
     let isChangeReverted = false;
     if (!('lastReviewed' in review)) {
-      review.lastReviewed = getValueByNestedKey(this.data, key as string);
+      review.lastReviewed = currentValue;
       if (review.lastReviewed === undefined) {
         delete review.lastReviewed;
       }
     } else {
-      if (review.lastReviewed === value) {
+      if (review.lastReviewed === updateValue) {
         delete review.lastReviewed;
         isChangeReverted = true;
       }
     }
 
+    const { hugoSymbol, pathFromGene } = parseFirebaseGenePath(firebasePath);
+
     const updateObject = {
-      [key]: value,
-      [reviewableKey]: review,
+      [pathFromGene]: updateValue,
+      [`${pathFromGene}_review`]: review,
     };
 
     // Make sure that there is a UUID attached
-    const uuidKey = `${key as string}_uuid`;
-    const uuid = getValueByNestedKey(this.data, `${key as string}_uuid`);
     if (!uuid) {
-      updateObject[uuidKey] = generateUuid();
+      updateObject[`${pathFromGene}_uuid`] = generateUuid();
     }
 
-    const hugoSymbol = path.split('/')[1];
-    if (!hugoSymbol) {
-      return Promise.reject(new Error('Cannot update when hugoSymbol is undefined'));
-    }
-
-    return update(ref(this.db, path), updateObject).then(() => {
+    return update(ref(this.db, getFirebasePath('GENE', hugoSymbol)), updateObject).then(() => {
       if (isChangeReverted) {
-        remove(ref(this.db, `${path}/${reviewableKey}/lastReviewed`));
+        remove(ref(this.db, `${firebasePath}_review/lastReviewed`));
       }
       // Update Meta information
       this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol);
       this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, !isChangeReverted);
     });
-  }
+  };
+
+  // updateReviewableContent(path: string, key: ExtractPathExpressions<T>, value: any) {
+  //   // Update Review
+  //   const reviewableKey = `${key as string}_review`;
+  //   let review: Review = getValueByNestedKey(this.data, reviewableKey);
+  //   if (!review) {
+  //     review = new Review(this.rootStore.authStore.fullName);
+  //   }
+  //   review.updateTime = new Date().getTime();
+  //   review.updatedBy = this.rootStore.authStore.fullName;
+  //   // Update Review when value is reverted to original
+  //   let isChangeReverted = false;
+  //   if (!('lastReviewed' in review)) {
+  //     review.lastReviewed = getValueByNestedKey(this.data, key as string);
+  //     if (review.lastReviewed === undefined) {
+  //       delete review.lastReviewed;
+  //     }
+  //   } else {
+  //     if (review.lastReviewed === value) {
+  //       delete review.lastReviewed;
+  //       isChangeReverted = true;
+  //     }
+  //   }
+
+  //   const updateObject = {
+  //     [key]: value,
+  //     [reviewableKey]: review,
+  //   };
+
+  //   // Make sure that there is a UUID attached
+  //   const uuidKey = `${key as string}_uuid`;
+  //   const uuid = getValueByNestedKey(this.data, `${key as string}_uuid`);
+  //   if (!uuid) {
+  //     updateObject[uuidKey] = generateUuid();
+  //   }
+
+  //   const hugoSymbol = path.split('/')[1];
+  //   if (!hugoSymbol) {
+  //     return Promise.reject(new Error('Cannot update when hugoSymbol is undefined'));
+  //   }
+
+  //   return update(ref(this.db, path), updateObject).then(() => {
+  //     if (isChangeReverted) {
+  //       remove(ref(this.db, `${path}/${reviewableKey}/lastReviewed`));
+  //     }
+  //     // Update Meta information
+  //     this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol);
+  //     this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, !isChangeReverted);
+  //   });
+  // }
 
   async acceptChanges(hugoSymbol: string, reviewLevels: ReviewLevel[]) {
     const geneFirebasePath = getFirebasePath('GENE', hugoSymbol);

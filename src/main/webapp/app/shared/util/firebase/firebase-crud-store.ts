@@ -20,7 +20,7 @@ export type ExtractPathExpressions<T, Sep extends string = '/'> = Exclude<
   symbol
 >;
 
-export class FirebaseCrudStore<T> {
+export class FirebaseCrudStore<T = any> {
   public data: Readonly<T> = undefined;
   public db: Database = undefined;
 

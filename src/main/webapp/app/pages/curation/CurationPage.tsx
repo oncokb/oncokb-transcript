@@ -300,7 +300,8 @@ const CurationPage = (props: ICurationPageProps) => {
   function filterMutations() {
     setMutations(
       (allMutations || []).reduce<FirebaseMutation[]>((filteredMutations, mutation) => {
-        const matchesName = !mutationFilter || getMutationName(mutation).toLowerCase().includes(mutationFilter.toLowerCase());
+        const matchesName =
+          !mutationFilter || getMutationName(mutation.name, mutation.alterations).toLowerCase().includes(mutationFilter.toLowerCase());
 
         const selectedOncogenicities = oncogenicityFilter.filter(filter => filter.selected);
         const matchesOncogenicity =
@@ -447,455 +448,457 @@ const CurationPage = (props: ICurationPageProps) => {
     return <UncuratedGeneAlert />;
   }
 
-  return !!props.data && props.vusData !== undefined && props.drugList.length > 0 && !props.loadingGenes ? (
-    <>
-      <div>
-        <Row className={'mb-2'}>
-          <Col className={'d-flex justify-content-between flex-row flex-nowrap align-items-end'}>
-            <div className="d-flex align-items-end all-children-margin">
-              <span style={{ fontSize: '3rem', lineHeight: 1 }} className={'mr-2'}>
-                {props.data.name}
-              </span>
-              {!isReviewing && (
-                <>
-                  <CommentIcon
-                    id={`${hugoSymbol}_curation_page`}
-                    comments={props.data.name_comments || []}
-                    onCreateComment={content =>
-                      handleCreateComment(`${firebaseGenePath}/name_comments`, content, props.data.name_comments?.length || 0)
-                    }
-                    onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/name_comments`, indices)}
-                    onResolveComment={index => handleResolveComment(`${firebaseGenePath}/name_comments/${index}`)}
-                    onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/name_comments/${index}`)}
-                  />
-                  <div>
-                    <span>
-                      {geneEntity?.entrezGeneId && (
-                        <span className="ml-2">
-                          <span className="font-weight-bold text-nowrap">Entrez Gene:</span>
-                          <span className="ml-1">
-                            <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
-                          </span>
-                        </span>
-                      )}
-                      {geneEntity?.hgncId && (
-                        <span className="ml-2">
-                          <span className="font-weight-bold">HGNC:</span>
-                          <span className="ml-1">
-                            <HgncLink id={geneEntity.hgncId} />
-                          </span>
-                        </span>
-                      )}
-                      {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
-                        <span className="ml-2">
-                          <span className="font-weight-bold">Gene aliases:</span>
-                          <span className="ml-1">
-                            <WithSeparator separator={', '}>
-                              {geneEntity.synonyms.map(synonym => (
-                                <span className={'text-nowrap'} key={synonym.name}>
-                                  {synonym.name}
-                                </span>
-                              ))}
-                            </WithSeparator>
-                          </span>
-                        </span>
-                      )}
-                      <span className="ml-2">
-                        <span className="font-weight-bold mr-2">External Links:</span>
-                        <WithSeparator separator={InlineDivider}>
-                          <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
-                            {CBIOPORTAL} <ExternalLinkIcon />
-                          </a>
-                          <a
-                            href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {COSMIC} <ExternalLinkIcon />
-                          </a>
-                        </WithSeparator>
-                      </span>
-                    </span>
-                  </div>
-                </>
-              )}
-            </div>
-            {getReviewButtons()}
-          </Col>
-        </Row>
-        {isReviewing ? (
-          <ReviewPage
-            hugoSymbol={hugoSymbol}
-            firebasePath={firebaseGenePath}
-            reviewFinished={isReviewFinished}
-            handleReviewFinished={handleReviewFinished}
-            drugList={props.drugList}
-          />
-        ) : (
-          <>
-            <Row className={`${getSectionClassName()} justify-content-between`}>
-              <Col>
-                <RealtimeCheckedInputGroup
-                  groupHeader={
-                    <>
-                      <span className="mr-2">Gene Type</span>
-                      {<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Type'} />}
-                    </>
-                  }
-                  options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
-                    return {
-                      label,
-                      fieldKey: GENE_TYPE_KEY[label],
-                    };
-                  })}
-                />
-                <RealtimeTextAreaInput
-                  fieldKey="summary"
-                  label="Somatic Gene Summary "
-                  labelIcon={
-                    <>
-                      <GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />
-                      <div className="mr-3" />
-                      <CommentIcon
-                        id={props.data.summary_uuid}
-                        comments={props.data.summary_comments || []}
-                        onCreateComment={content =>
-                          handleCreateComment(`${firebaseGenePath}/summary_comments`, content, props.data.summary_comments?.length || 0)
-                        }
-                        onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/summary_comments`, indices)}
-                        onResolveComment={index => handleResolveComment(`${firebaseGenePath}/summary_comments/${index}`)}
-                        onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/summary_comments/${index}`)}
-                      />
-                    </>
-                  }
-                />
-                <RealtimeTextAreaInput
-                  fieldKey="germline_summary"
-                  label="Germline Gene Summary"
-                  labelIcon={
-                    <>
-                      <GeneHistoryTooltip historyData={parsedHistoryList} location={'Germline Gene Summary'} />
-                      <div className="mr-3" />
-                      <CommentIcon
-                        id={props.data.germline_summary_uuid}
-                        comments={props.data.germline_summary_comments || []}
-                        onCreateComment={content =>
-                          handleCreateComment(
-                            `${firebaseGenePath}/germline_summary_comments`,
-                            content,
-                            props.data.germline_summary_comments?.length || 0
-                          )
-                        }
-                        onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/germline_summary_comments`, indices)}
-                        onResolveComment={index => handleResolveComment(`${firebaseGenePath}/germline_summary_comments/${index}`)}
-                        onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/germline_summary_comments/${index}`)}
-                      />
-                    </>
-                  }
-                />
-              </Col>
-            </Row>
-            <Row>
-              <Col md={6}>
-                <RealtimeCheckedInputGroup
-                  groupHeader="Penetrance"
-                  isRadio
-                  options={[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER, RADIO_OPTION_NONE].map(label => {
-                    return {
-                      label,
-                      fieldKey: 'penetrance',
-                    };
-                  })}
-                />
-              </Col>
-            </Row>
-            <Row className={'mb-5'}>
-              <Col>
-                <RealtimeTextAreaInput
-                  fieldKey="background"
-                  inputClass={styles.textarea}
-                  label="Background"
-                  name="geneBackground"
-                  labelIcon={
-                    <>
-                      <GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Background'} />
-                      <div className="mr-3" />
-                      <CommentIcon
-                        id={props.data.background_uuid}
-                        comments={props.data.background_comments || []}
-                        onCreateComment={content =>
-                          handleCreateComment(
-                            `${firebaseGenePath}/background_comments`,
-                            content,
-                            props.data.background_comments?.length || 0
-                          )
-                        }
-                        onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/background_comments`, indices)}
-                        onResolveComment={index => handleResolveComment(`${firebaseGenePath}/background_comments/${index}`)}
-                        onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/background_comments/${index}`)}
-                      />
-                    </>
-                  }
-                />
-                <div className="mb-2">
-                  <AutoParseRefField summary={props.data.background} />
-                </div>
-              </Col>
-            </Row>
-            {props.data.mutations ? (
-              <div className={'mb-5'}>
-                {openMutationCollapsible ? (
-                  <Row className="mb-4">
-                    <Col>
-                      <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        <span className={styles.link} onClick={() => setOpenMutationCollapsible(null)}>
-                          Mutations
-                        </span>
-                        <span className="px-2" style={{ color: '#6c757d' }}>
-                          /
-                        </span>
-                        <span>{openMutationCollapsible.name}</span>
-                      </div>
-                    </Col>
-                  </Row>
-                ) : (
-                  <Row>
-                    <Col>
-                      <div className={'d-flex justify-content-between align-items-center mb-2'}>
-                        <div className="mb-2 d-flex align-items-center">
-                          <h5 className="mb-0 mr-2">Mutations:</h5>{' '}
-                          <AddMutationButton
-                            showAddMutationModal={showAddMutationModal}
-                            onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
-                          />
-                          {mutationsAreFiltered && (
-                            <span>{`Showing ${mutations.length} of ${props.data.mutations.length} matching the search`}</span>
-                          )}
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <FaFilter
-                            color={mutationsAreFiltered ? 'gold' : null}
-                            style={{ cursor: 'pointer' }}
-                            onClick={handleToggleFilterModal}
-                            className="mr-2"
-                            id="filter"
-                          />
-                          <Input
-                            placeholder={'Search Mutation'}
-                            value={mutationFilter}
-                            onChange={event => setMutationFilter(event.target.value)}
-                          />
-                        </div>
-                      </div>
-                    </Col>
-                  </Row>
-                )}
-                {getMutationCollapsibles()}
-              </div>
-            ) : (
-              <AddMutationButton
-                showAddMutationModal={showAddMutationModal}
-                onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
-                showFullTitle
-                showIcon={false}
-              />
-            )}
-            <VusTable hugoSymbol={hugoSymbol} mutationList={props.data.mutations} />
-            <Modal isOpen={showFilterModal} toggle={handleToggleFilterModal}>
-              <ModalHeader>
-                <Container>
-                  <Row>
-                    <Col>Filters</Col>
-                  </Row>
-                </Container>
-              </ModalHeader>
-              <ModalBody>
-                <Container>
-                  <h6 className="mb-2">Oncogenicity</h6>
-                  <Row>
-                    {tempOncogenicityFilter.map((filter, index) => {
-                      const isDisabled = !enabledCheckboxes.includes(filter.label);
-                      return (
-                        <Col className="col-6" key={filter.label}>
-                          <InputGroup>
-                            <Input
-                              id={`oncogenicity-filter-${filter.label}`}
-                              onChange={() => handleFilterCheckboxChange(index, setTempOncogenicityFilter)}
-                              checked={filter.selected}
-                              disabled={isDisabled}
-                              style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
-                              type="checkbox"
-                            />
-                            <Label
-                              for={`oncogenicity-filter-${filter.label}`}
-                              style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: CHECKBOX_LABEL_LEFT_MARGIN }}
-                            >
-                              {filter.label}
-                            </Label>
-                          </InputGroup>
-                        </Col>
-                      );
-                    })}
-                  </Row>
-                  <h6 className="mb-2 mt-2">Mutation effect</h6>
-                  <Row>
-                    {tempMutationEffectFilter.map((filter, index) => {
-                      const isDisabled = !enabledCheckboxes.includes(filter.label);
+  return <></>;
 
-                      return (
-                        <Col className="col-6" key={filter.label}>
-                          <InputGroup>
-                            <Input
-                              id={`mutation-effect-filter-${filter.label}`}
-                              onChange={() => handleFilterCheckboxChange(index, setTempMutationEffectFilter)}
-                              checked={filter.selected}
-                              disabled={isDisabled}
-                              style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
-                              type="checkbox"
-                            />
-                            <Label
-                              for={`mutation-effect-filter-${filter.label}`}
-                              style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: CHECKBOX_LABEL_LEFT_MARGIN }}
-                            >
-                              {filter.label}
-                            </Label>
-                          </InputGroup>
-                        </Col>
-                      );
-                    })}
-                  </Row>
-                  <h6 className="mb-2 mt-2">Therapeutic levels</h6>
-                  <Row className="align-items-start justify-content-start">
-                    {tempTxLevelFilter.map((filter, index) => {
-                      const isDisabled = !enabledCheckboxes.includes(filter.label);
+  // return !!props.data && props.vusData !== undefined && props.drugList.length > 0 && !props.loadingGenes ? (
+  //   <>
+  //     <div>
+  //       <Row className={'mb-2'}>
+  //         <Col className={'d-flex justify-content-between flex-row flex-nowrap align-items-end'}>
+  //           <div className="d-flex align-items-end all-children-margin">
+  //             <span style={{ fontSize: '3rem', lineHeight: 1 }} className={'mr-2'}>
+  //               {props.data.name}
+  //             </span>
+  //             {!isReviewing && (
+  //               <>
+  //                 <CommentIcon
+  //                   id={`${hugoSymbol}_curation_page`}
+  //                   comments={props.data.name_comments || []}
+  //                   onCreateComment={content =>
+  //                     handleCreateComment(`${firebaseGenePath}/name_comments`, content, props.data.name_comments?.length || 0)
+  //                   }
+  //                   onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/name_comments`, indices)}
+  //                   onResolveComment={index => handleResolveComment(`${firebaseGenePath}/name_comments/${index}`)}
+  //                   onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/name_comments/${index}`)}
+  //                 />
+  //                 <div>
+  //                   <span>
+  //                     {geneEntity?.entrezGeneId && (
+  //                       <span className="ml-2">
+  //                         <span className="font-weight-bold text-nowrap">Entrez Gene:</span>
+  //                         <span className="ml-1">
+  //                           <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
+  //                         </span>
+  //                       </span>
+  //                     )}
+  //                     {geneEntity?.hgncId && (
+  //                       <span className="ml-2">
+  //                         <span className="font-weight-bold">HGNC:</span>
+  //                         <span className="ml-1">
+  //                           <HgncLink id={geneEntity.hgncId} />
+  //                         </span>
+  //                       </span>
+  //                     )}
+  //                     {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
+  //                       <span className="ml-2">
+  //                         <span className="font-weight-bold">Gene aliases:</span>
+  //                         <span className="ml-1">
+  //                           <WithSeparator separator={', '}>
+  //                             {geneEntity.synonyms.map(synonym => (
+  //                               <span className={'text-nowrap'} key={synonym.name}>
+  //                                 {synonym.name}
+  //                               </span>
+  //                             ))}
+  //                           </WithSeparator>
+  //                         </span>
+  //                       </span>
+  //                     )}
+  //                     <span className="ml-2">
+  //                       <span className="font-weight-bold mr-2">External Links:</span>
+  //                       <WithSeparator separator={InlineDivider}>
+  //                         <a href={`https://cbioportal.mskcc.org/ln?q=${props.data.name}`} target="_blank" rel="noopener noreferrer">
+  //                           {CBIOPORTAL} <ExternalLinkIcon />
+  //                         </a>
+  //                         <a
+  //                           href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${props.data.name}`}
+  //                           target="_blank"
+  //                           rel="noopener noreferrer"
+  //                         >
+  //                           {COSMIC} <ExternalLinkIcon />
+  //                         </a>
+  //                       </WithSeparator>
+  //                     </span>
+  //                   </span>
+  //                 </div>
+  //               </>
+  //             )}
+  //           </div>
+  //           {getReviewButtons()}
+  //         </Col>
+  //       </Row>
+  //       {isReviewing ? (
+  //         <ReviewPage
+  //           hugoSymbol={hugoSymbol}
+  //           firebasePath={firebaseGenePath}
+  //           reviewFinished={isReviewFinished}
+  //           handleReviewFinished={handleReviewFinished}
+  //           drugList={props.drugList}
+  //         />
+  //       ) : (
+  //         <>
+  //           <Row className={`${getSectionClassName()} justify-content-between`}>
+  //             <Col>
+  //               <RealtimeCheckedInputGroup
+  //                 groupHeader={
+  //                   <>
+  //                     <span className="mr-2">Gene Type</span>
+  //                     {<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Type'} />}
+  //                   </>
+  //                 }
+  //                 options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
+  //                   return {
+  //                     label,
+  //                     fieldKey: GENE_TYPE_KEY[label],
+  //                   };
+  //                 })}
+  //               />
+  //               <RealtimeTextAreaInput
+  //                 fieldKey="summary"
+  //                 label="Somatic Gene Summary "
+  //                 labelIcon={
+  //                   <>
+  //                     <GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />
+  //                     <div className="mr-3" />
+  //                     <CommentIcon
+  //                       id={props.data.summary_uuid}
+  //                       comments={props.data.summary_comments || []}
+  //                       onCreateComment={content =>
+  //                         handleCreateComment(`${firebaseGenePath}/summary_comments`, content, props.data.summary_comments?.length || 0)
+  //                       }
+  //                       onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/summary_comments`, indices)}
+  //                       onResolveComment={index => handleResolveComment(`${firebaseGenePath}/summary_comments/${index}`)}
+  //                       onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/summary_comments/${index}`)}
+  //                     />
+  //                   </>
+  //                 }
+  //               />
+  //               <RealtimeTextAreaInput
+  //                 fieldKey="germline_summary"
+  //                 label="Germline Gene Summary"
+  //                 labelIcon={
+  //                   <>
+  //                     <GeneHistoryTooltip historyData={parsedHistoryList} location={'Germline Gene Summary'} />
+  //                     <div className="mr-3" />
+  //                     <CommentIcon
+  //                       id={props.data.germline_summary_uuid}
+  //                       comments={props.data.germline_summary_comments || []}
+  //                       onCreateComment={content =>
+  //                         handleCreateComment(
+  //                           `${firebaseGenePath}/germline_summary_comments`,
+  //                           content,
+  //                           props.data.germline_summary_comments?.length || 0
+  //                         )
+  //                       }
+  //                       onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/germline_summary_comments`, indices)}
+  //                       onResolveComment={index => handleResolveComment(`${firebaseGenePath}/germline_summary_comments/${index}`)}
+  //                       onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/germline_summary_comments/${index}`)}
+  //                     />
+  //                   </>
+  //                 }
+  //               />
+  //             </Col>
+  //           </Row>
+  //           <Row>
+  //             <Col md={6}>
+  //               <RealtimeCheckedInputGroup
+  //                 groupHeader="Penetrance"
+  //                 isRadio
+  //                 options={[PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER, RADIO_OPTION_NONE].map(label => {
+  //                   return {
+  //                     label,
+  //                     fieldKey: 'penetrance',
+  //                   };
+  //                 })}
+  //               />
+  //             </Col>
+  //           </Row>
+  //           <Row className={'mb-5'}>
+  //             <Col>
+  //               <RealtimeTextAreaInput
+  //                 fieldKey="background"
+  //                 inputClass={styles.textarea}
+  //                 label="Background"
+  //                 name="geneBackground"
+  //                 labelIcon={
+  //                   <>
+  //                     <GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Background'} />
+  //                     <div className="mr-3" />
+  //                     <CommentIcon
+  //                       id={props.data.background_uuid}
+  //                       comments={props.data.background_comments || []}
+  //                       onCreateComment={content =>
+  //                         handleCreateComment(
+  //                           `${firebaseGenePath}/background_comments`,
+  //                           content,
+  //                           props.data.background_comments?.length || 0
+  //                         )
+  //                       }
+  //                       onDeleteComments={indices => handleDeleteComments(`${firebaseGenePath}/background_comments`, indices)}
+  //                       onResolveComment={index => handleResolveComment(`${firebaseGenePath}/background_comments/${index}`)}
+  //                       onUnresolveComment={index => handleUnresolveComment(`${firebaseGenePath}/background_comments/${index}`)}
+  //                     />
+  //                   </>
+  //                 }
+  //               />
+  //               <div className="mb-2">
+  //                 <AutoParseRefField summary={props.data.background} />
+  //               </div>
+  //             </Col>
+  //           </Row>
+  //           {props.data.mutations ? (
+  //             <div className={'mb-5'}>
+  //               {openMutationCollapsible ? (
+  //                 <Row className="mb-4">
+  //                   <Col>
+  //                     <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+  //                       <span className={styles.link} onClick={() => setOpenMutationCollapsible(null)}>
+  //                         Mutations
+  //                       </span>
+  //                       <span className="px-2" style={{ color: '#6c757d' }}>
+  //                         /
+  //                       </span>
+  //                       <span>{openMutationCollapsible.name}</span>
+  //                     </div>
+  //                   </Col>
+  //                 </Row>
+  //               ) : (
+  //                 <Row>
+  //                   <Col>
+  //                     <div className={'d-flex justify-content-between align-items-center mb-2'}>
+  //                       <div className="mb-2 d-flex align-items-center">
+  //                         <h5 className="mb-0 mr-2">Mutations:</h5>{' '}
+  //                         <AddMutationButton
+  //                           showAddMutationModal={showAddMutationModal}
+  //                           onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
+  //                         />
+  //                         {mutationsAreFiltered && (
+  //                           <span>{`Showing ${mutations.length} of ${props.data.mutations.length} matching the search`}</span>
+  //                         )}
+  //                       </div>
+  //                       <div style={{ display: 'flex', alignItems: 'center' }}>
+  //                         <FaFilter
+  //                           color={mutationsAreFiltered ? 'gold' : null}
+  //                           style={{ cursor: 'pointer' }}
+  //                           onClick={handleToggleFilterModal}
+  //                           className="mr-2"
+  //                           id="filter"
+  //                         />
+  //                         <Input
+  //                           placeholder={'Search Mutation'}
+  //                           value={mutationFilter}
+  //                           onChange={event => setMutationFilter(event.target.value)}
+  //                         />
+  //                       </div>
+  //                     </div>
+  //                   </Col>
+  //                 </Row>
+  //               )}
+  //               {getMutationCollapsibles()}
+  //             </div>
+  //           ) : (
+  //             <AddMutationButton
+  //               showAddMutationModal={showAddMutationModal}
+  //               onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
+  //               showFullTitle
+  //               showIcon={false}
+  //             />
+  //           )}
+  //           <VusTable hugoSymbol={hugoSymbol} mutationList={props.data.mutations} />
+  //           <Modal isOpen={showFilterModal} toggle={handleToggleFilterModal}>
+  //             <ModalHeader>
+  //               <Container>
+  //                 <Row>
+  //                   <Col>Filters</Col>
+  //                 </Row>
+  //               </Container>
+  //             </ModalHeader>
+  //             <ModalBody>
+  //               <Container>
+  //                 <h6 className="mb-2">Oncogenicity</h6>
+  //                 <Row>
+  //                   {tempOncogenicityFilter.map((filter, index) => {
+  //                     const isDisabled = !enabledCheckboxes.includes(filter.label);
+  //                     return (
+  //                       <Col className="col-6" key={filter.label}>
+  //                         <InputGroup>
+  //                           <Input
+  //                             id={`oncogenicity-filter-${filter.label}`}
+  //                             onChange={() => handleFilterCheckboxChange(index, setTempOncogenicityFilter)}
+  //                             checked={filter.selected}
+  //                             disabled={isDisabled}
+  //                             style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
+  //                             type="checkbox"
+  //                           />
+  //                           <Label
+  //                             for={`oncogenicity-filter-${filter.label}`}
+  //                             style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: CHECKBOX_LABEL_LEFT_MARGIN }}
+  //                           >
+  //                             {filter.label}
+  //                           </Label>
+  //                         </InputGroup>
+  //                       </Col>
+  //                     );
+  //                   })}
+  //                 </Row>
+  //                 <h6 className="mb-2 mt-2">Mutation effect</h6>
+  //                 <Row>
+  //                   {tempMutationEffectFilter.map((filter, index) => {
+  //                     const isDisabled = !enabledCheckboxes.includes(filter.label);
 
-                      return (
-                        <Col style={{ flexGrow: 0 }} key={filter.label}>
-                          <InputGroup>
-                            <Input
-                              id={`tx-level-filter-${filter.label}`}
-                              onChange={() => handleFilterCheckboxChange(index, setTempTxLevelFilter)}
-                              checked={filter.selected}
-                              disabled={isDisabled}
-                              style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
-                              type="checkbox"
-                            />
-                            <Label
-                              for={`tx-level-filter-${filter.label}`}
-                              style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: CHECKBOX_LABEL_LEFT_MARGIN }}
-                            >
-                              {filter.label}
-                            </Label>
-                          </InputGroup>
-                        </Col>
-                      );
-                    })}
-                  </Row>
-                  <Row className="justify-content-end">
-                    {showFilterModalCancelButton && (
-                      <Col className="px-0 mr-2" style={{ flexGrow: 0 }}>
-                        <Button
-                          outline
-                          color="danger"
-                          onClick={() => {
-                            setTempOncogenicityFilter(initFilterCheckboxState(ONCOGENICITY_OPTIONS));
-                            setTempMutationEffectFilter(initFilterCheckboxState(MUTATION_EFFECT_OPTIONS));
-                            setTempTxLevelFilter(initFilterCheckboxState(TX_LEVEL_OPTIONS));
-                          }}
-                        >
-                          Reset
-                        </Button>
-                      </Col>
-                    )}
-                    <Col className="px-0 mr-2" style={{ flexGrow: 0 }}>
-                      <Button
-                        color="primary"
-                        onClick={() => {
-                          setOncogenicityFilter(tempOncogenicityFilter);
-                          setMutationEffectFilter(tempMutationEffectFilter);
-                          setTxLevelFilter(tempTxLevelFilter);
-                          setShowFilterModal(false);
-                        }}
-                      >
-                        Confirm
-                      </Button>
-                    </Col>
-                    <Col className="px-0" style={{ flexGrow: 0 }}>
-                      <Button
-                        color="secondary"
-                        onClick={() => {
-                          setTempOncogenicityFilter(oncogenicityFilter);
-                          setTempMutationEffectFilter(mutationEffectFilter);
-                          setTempTxLevelFilter(txLevelFilter);
-                          setShowFilterModal(false);
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    </Col>
-                  </Row>
-                </Container>
-              </ModalBody>
-            </Modal>
-          </>
-        )}
-      </div>
-      <RelevantCancerTypesModal
-        onConfirm={async (newRelevantCancerTypes, noneDeleted) => {
-          try {
-            if (noneDeleted) {
-              await props.setUntemplated(props.relevantCancerTypesModalStore.pathToRelevantCancerTypes, []);
-            } else {
-              await props.setUntemplated(props.relevantCancerTypesModalStore.pathToRelevantCancerTypes, newRelevantCancerTypes);
-            }
-            props.relevantCancerTypesModalStore.closeModal();
-          } catch (error) {
-            notifyError(error);
-          }
-        }}
-        onCancel={() => props.relevantCancerTypesModalStore.closeModal()}
-      />
-      {showAddMutationModal ? (
-        <AddMutationModal
-          mutationList={props.data?.mutations}
-          vusList={props.vusData}
-          hugoSymbol={hugoSymbol}
-          onConfirm={async alterations => {
-            if (alterations.length > 0) {
-              const newMutation = new Mutation(alterations.map(alteration => alteration.name).join(', '));
-              newMutation.alterations = alterations;
+  //                     return (
+  //                       <Col className="col-6" key={filter.label}>
+  //                         <InputGroup>
+  //                           <Input
+  //                             id={`mutation-effect-filter-${filter.label}`}
+  //                             onChange={() => handleFilterCheckboxChange(index, setTempMutationEffectFilter)}
+  //                             checked={filter.selected}
+  //                             disabled={isDisabled}
+  //                             style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
+  //                             type="checkbox"
+  //                           />
+  //                           <Label
+  //                             for={`mutation-effect-filter-${filter.label}`}
+  //                             style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: CHECKBOX_LABEL_LEFT_MARGIN }}
+  //                           >
+  //                             {filter.label}
+  //                           </Label>
+  //                         </InputGroup>
+  //                       </Col>
+  //                     );
+  //                   })}
+  //                 </Row>
+  //                 <h6 className="mb-2 mt-2">Therapeutic levels</h6>
+  //                 <Row className="align-items-start justify-content-start">
+  //                   {tempTxLevelFilter.map((filter, index) => {
+  //                     const isDisabled = !enabledCheckboxes.includes(filter.label);
 
-              try {
-                await props.updateMutations(`${firebaseGenePath}/mutations`, [newMutation]);
-              } catch (error) {
-                notifyError(error);
-              }
-            }
-            setShowAddMutationModal(show => !show);
-          }}
-          onCancel={() => {
-            setShowAddMutationModal(show => !show);
-          }}
-        />
-      ) : undefined}
-      <OncoKBSidebar>
-        <Tabs
-          tabs={[
-            {
-              title: 'Tools',
-              content: <CurationToolsTab />,
-            },
-            {
-              title: 'History',
-              content: <CurationHistoryTab historyData={props.historyData} />,
-            },
-          ]}
-        />
-      </OncoKBSidebar>
-    </>
-  ) : (
-    <LoadingIndicator size={LoaderSize.LARGE} center={true} isLoading />
-  );
+  //                     return (
+  //                       <Col style={{ flexGrow: 0 }} key={filter.label}>
+  //                         <InputGroup>
+  //                           <Input
+  //                             id={`tx-level-filter-${filter.label}`}
+  //                             onChange={() => handleFilterCheckboxChange(index, setTempTxLevelFilter)}
+  //                             checked={filter.selected}
+  //                             disabled={isDisabled}
+  //                             style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
+  //                             type="checkbox"
+  //                           />
+  //                           <Label
+  //                             for={`tx-level-filter-${filter.label}`}
+  //                             style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: CHECKBOX_LABEL_LEFT_MARGIN }}
+  //                           >
+  //                             {filter.label}
+  //                           </Label>
+  //                         </InputGroup>
+  //                       </Col>
+  //                     );
+  //                   })}
+  //                 </Row>
+  //                 <Row className="justify-content-end">
+  //                   {showFilterModalCancelButton && (
+  //                     <Col className="px-0 mr-2" style={{ flexGrow: 0 }}>
+  //                       <Button
+  //                         outline
+  //                         color="danger"
+  //                         onClick={() => {
+  //                           setTempOncogenicityFilter(initFilterCheckboxState(ONCOGENICITY_OPTIONS));
+  //                           setTempMutationEffectFilter(initFilterCheckboxState(MUTATION_EFFECT_OPTIONS));
+  //                           setTempTxLevelFilter(initFilterCheckboxState(TX_LEVEL_OPTIONS));
+  //                         }}
+  //                       >
+  //                         Reset
+  //                       </Button>
+  //                     </Col>
+  //                   )}
+  //                   <Col className="px-0 mr-2" style={{ flexGrow: 0 }}>
+  //                     <Button
+  //                       color="primary"
+  //                       onClick={() => {
+  //                         setOncogenicityFilter(tempOncogenicityFilter);
+  //                         setMutationEffectFilter(tempMutationEffectFilter);
+  //                         setTxLevelFilter(tempTxLevelFilter);
+  //                         setShowFilterModal(false);
+  //                       }}
+  //                     >
+  //                       Confirm
+  //                     </Button>
+  //                   </Col>
+  //                   <Col className="px-0" style={{ flexGrow: 0 }}>
+  //                     <Button
+  //                       color="secondary"
+  //                       onClick={() => {
+  //                         setTempOncogenicityFilter(oncogenicityFilter);
+  //                         setTempMutationEffectFilter(mutationEffectFilter);
+  //                         setTempTxLevelFilter(txLevelFilter);
+  //                         setShowFilterModal(false);
+  //                       }}
+  //                     >
+  //                       Cancel
+  //                     </Button>
+  //                   </Col>
+  //                 </Row>
+  //               </Container>
+  //             </ModalBody>
+  //           </Modal>
+  //         </>
+  //       )}
+  //     </div>
+  //     <RelevantCancerTypesModal
+  //       onConfirm={async (newRelevantCancerTypes, noneDeleted) => {
+  //         try {
+  //           if (noneDeleted) {
+  //             await props.setUntemplated(props.relevantCancerTypesModalStore.pathToRelevantCancerTypes, []);
+  //           } else {
+  //             await props.setUntemplated(props.relevantCancerTypesModalStore.pathToRelevantCancerTypes, newRelevantCancerTypes);
+  //           }
+  //           props.relevantCancerTypesModalStore.closeModal();
+  //         } catch (error) {
+  //           notifyError(error);
+  //         }
+  //       }}
+  //       onCancel={() => props.relevantCancerTypesModalStore.closeModal()}
+  //     />
+  //     {showAddMutationModal ? (
+  //       <AddMutationModal
+  //         mutationList={props.data?.mutations}
+  //         vusList={props.vusData}
+  //         hugoSymbol={hugoSymbol}
+  //         onConfirm={async alterations => {
+  //           if (alterations.length > 0) {
+  //             const newMutation = new Mutation(alterations.map(alteration => alteration.name).join(', '));
+  //             newMutation.alterations = alterations;
+
+  //             try {
+  //               await props.updateMutations(`${firebaseGenePath}/mutations`, [newMutation]);
+  //             } catch (error) {
+  //               notifyError(error);
+  //             }
+  //           }
+  //           setShowAddMutationModal(show => !show);
+  //         }}
+  //         onCancel={() => {
+  //           setShowAddMutationModal(show => !show);
+  //         }}
+  //       />
+  //     ) : undefined}
+  //     <OncoKBSidebar>
+  //       <Tabs
+  //         tabs={[
+  //           {
+  //             title: 'Tools',
+  //             content: <CurationToolsTab />,
+  //           },
+  //           {
+  //             title: 'History',
+  //             content: <CurationHistoryTab historyData={props.historyData} />,
+  //           },
+  //         ]}
+  //       />
+  //     </OncoKBSidebar>
+  //   </>
+  // ) : (
+  //   <LoadingIndicator size={LoaderSize.LARGE} center={true} isLoading />
+  // );
 };
 
 const mapStoreToProps = ({
