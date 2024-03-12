@@ -1,7 +1,5 @@
 import React, { useMemo } from 'react';
 import Collapsible from './Collapsible';
-import { FaRegCheckCircle } from 'react-icons/fa';
-import { FaRegCircleXmark } from 'react-icons/fa6';
 import { TextFormat } from 'react-jhipster';
 import { APP_EXPANDED_DATETIME_FORMAT } from 'app/config/constants/constants';
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
@@ -18,6 +16,7 @@ import ActionIcon from 'app/shared/icons/ActionIcon';
 import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { DANGER, SUCCESS, WARNING } from 'app/config/colors';
 import TextWithRefs from 'app/shared/links/TextWithRefs';
+import DefaultBadge from 'app/shared/badge/DefaultBadge';
 
 export enum ReviewType {
   CREATE,
@@ -39,11 +38,19 @@ const ReviewCollapsibleColorClass: { [key in ReviewAction]: string } = {
   [ReviewAction.NAME_CHANGE]: WARNING,
 };
 
+const ReviewCollapsibleBootstrapClass = {
+  [ReviewAction.CREATE]: 'success',
+  [ReviewAction.UPDATE]: 'warning',
+  [ReviewAction.DELETE]: 'danger',
+  [ReviewAction.NAME_CHANGE]: 'warning',
+};
+
 export interface IReviewCollapsibleProps {
   hugoSymbol: string;
   baseReviewLevel: BaseReviewLevel;
   handleDelete?: (hugoSymbol: string, reviewLevel: ReviewLevel) => void;
   handleAccept?: (hugoSymbol: string, reviewLevels: ReviewLevel[]) => void;
+  splitView?: boolean;
 }
 
 export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
@@ -107,21 +114,38 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
     }
   };
 
+  const newStyles = {
+    contentText: {
+      fontFamily: 'inherit',
+    },
+    codeFold: {
+      fontFamily: 'inherit',
+      backgroundColor: 'white',
+    },
+  };
+
   const getCollapsibleContent = () => {
     if (reviewAction === ReviewAction.DELETE) {
       return undefined;
     }
     if (reviewAction === ReviewAction.UPDATE) {
       const reviewLevel = props.baseReviewLevel as ReviewLevel;
+      let oldValue = reviewLevel.review.lastReviewed;
+      let newValue = reviewLevel.currentVal.toString();
+      if (!reviewLevel.isUnderCreationOrDeletion) {
+        oldValue = oldValue.replace(/\.\s+/g, '.\n');
+        newValue = newValue.replace(/\.\s+/g, '.\n');
+      }
       return (
         <div className="mb-2">
           <ReactDiffViewer
+            styles={newStyles}
             showDiffOnly
             extraLinesSurroundingDiff={0}
-            oldValue={reviewLevel.review.lastReviewed?.replace(/\.\s+/g, '.\n')}
-            newValue={reviewLevel.currentVal.toString().replace(/\.\s+/g, '.\n')}
-            compareMethod={DiffMethod.CHARS}
-            splitView={reviewLevel.review.lastReviewed && reviewLevel.currentVal}
+            oldValue={oldValue}
+            newValue={newValue}
+            compareMethod={reviewLevel?.diffMethod || DiffMethod.CHARS}
+            splitView={props.splitView ? reviewLevel.review.lastReviewed && reviewLevel.currentVal : false}
             hideLineNumbers
             renderContent={source => {
               return <TextWithRefs content={source} />;
@@ -139,9 +163,17 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       title={reformatReviewTitle(props.baseReviewLevel.title)}
       disableLeftBorder={props.baseReviewLevel.isUnderCreationOrDeletion || props.baseReviewLevel.reviewLevelType === ReviewLevelType.META}
       borderLeftColor={borderLeftColor}
+      backgroundColor={'#FFFFFF'}
       info={getEditorInfo()}
       action={getReviewActions()}
       disableCollapsible={reviewAction === ReviewAction.DELETE}
+      isPendingDelete={reviewAction === ReviewAction.DELETE}
+      badgeOverride={
+        props.baseReviewLevel.reviewLevelType !== ReviewLevelType.META &&
+        !props.baseReviewLevel.isUnderCreationOrDeletion && (
+          <DefaultBadge color={ReviewCollapsibleBootstrapClass[reviewAction]} text={reviewAction} />
+        )
+      }
     >
       {props.baseReviewLevel.hasChildren()
         ? Object.values(rootReview.children)
@@ -149,6 +181,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
             ?.map(childReview => {
               return (
                 <ReviewCollapsible
+                  splitView={props.splitView}
                   key={childReview.title}
                   baseReviewLevel={childReview}
                   hugoSymbol={props.hugoSymbol}

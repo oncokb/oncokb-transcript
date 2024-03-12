@@ -3,7 +3,7 @@ import { getSectionClassName } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
-import { Alert, Button, Col, Row } from 'reactstrap';
+import { Alert, Button, Col, Form, FormGroup, Input, Label, Row } from 'reactstrap';
 import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 import _ from 'lodash';
 import {
@@ -28,6 +28,7 @@ const ReviewPage = (props: IReviewPageProps) => {
   const [reviewUuids, setReviewUuids] = useState([]);
   const [rootReview, setRootReview] = useState(new BaseReviewLevel());
   const [editorReviewMap, setEditorReviewMap] = useState(new EditorReviewMap());
+  const [splitView, setSplitView] = useState(false);
 
   useEffect(() => {
     const uuids = [];
@@ -76,6 +77,24 @@ const ReviewPage = (props: IReviewPageProps) => {
           )}
         </Col>
       </Row>
+      <Row className="mb-4">
+        <Col>
+          <FormGroup check inline>
+            <Input
+              type="radio"
+              checked={!splitView}
+              onChange={() => {
+                setSplitView(false);
+              }}
+            />
+            <Label check>Unified View</Label>
+          </FormGroup>
+          <FormGroup check inline>
+            <Input type="radio" checked={splitView} onChange={() => setSplitView(true)} />
+            <Label check>Split View</Label>
+          </FormGroup>
+        </Col>
+      </Row>
       {!props.reviewFinished && (
         <Row>
           <Col>
@@ -110,6 +129,7 @@ const ReviewPage = (props: IReviewPageProps) => {
             .sort(reviewLevelSortMethod)
             .map(reviewLevel => (
               <ReviewCollapsible
+                splitView={splitView}
                 hugoSymbol={props.hugoSymbol}
                 key={reviewLevel.currentValPath}
                 baseReviewLevel={reviewLevel}
