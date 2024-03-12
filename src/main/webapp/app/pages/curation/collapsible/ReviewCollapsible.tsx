@@ -1,7 +1,5 @@
-import React, { CSSProperties, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import Collapsible from './Collapsible';
-import { FaRegCheckCircle } from 'react-icons/fa';
-import { FaRegCircleXmark } from 'react-icons/fa6';
 import { TextFormat } from 'react-jhipster';
 import { APP_EXPANDED_DATETIME_FORMAT } from 'app/config/constants/constants';
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
@@ -19,7 +17,6 @@ import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { DANGER, SUCCESS, WARNING } from 'app/config/colors';
 import TextWithRefs from 'app/shared/links/TextWithRefs';
 import DefaultBadge from 'app/shared/badge/DefaultBadge';
-import classNames from 'classnames';
 
 export enum ReviewType {
   CREATE,
@@ -46,18 +43,6 @@ const ReviewCollapsibleBootstrapClass = {
   [ReviewAction.UPDATE]: 'warning',
   [ReviewAction.DELETE]: 'danger',
   [ReviewAction.NAME_CHANGE]: 'warning',
-};
-
-export interface IDiffContentWrapper {
-  content: string;
-  styles: string;
-}
-export const DiffContentWrapper = ({ content, styles }) => {
-  return (
-    <div style={{ ...styles, display: 'inline-flex' }}>
-      <TextWithRefs content={content} />
-    </div>
-  );
 };
 
 export interface IReviewCollapsibleProps {
