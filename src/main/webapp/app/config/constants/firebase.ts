@@ -251,6 +251,13 @@ export const ReviewActionToHistoryOperationMapping: { [key in ReviewAction]?: Hi
   [ReviewAction.NAME_CHANGE]: HistoryOperationType.NAME_CHANGE,
 };
 
+export const ReviewActionLabels: { [key in ReviewAction]: string } = {
+  [ReviewAction.CREATE]: 'Created',
+  [ReviewAction.DELETE]: 'Deleted',
+  [ReviewAction.UPDATE]: 'Updated',
+  [ReviewAction.NAME_CHANGE]: 'Updated',
+};
+
 export const TI_TYPE_TO_HISTORY_STRING: { [key in TI_TYPE]: string } = {
   [TI_TYPE.SS]: 'STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY',
   [TI_TYPE.SR]: 'STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE',
