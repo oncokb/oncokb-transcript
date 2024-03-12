@@ -289,10 +289,6 @@ export function notNullOrUndefined(val) {
   return val !== null && val !== undefined;
 }
 
-export function tumorContainsSpecialCancerType(tumor: Tumor) {
-  return Object.values(SPECIAL_CANCER_TYPES).some(specialCancerType => tumor.cancerTypes.some(ct => ct.mainType === specialCancerType));
-}
-
 /**
  * @param hexColor A string representing a hex color
  * @param alpha A decimal in the range [0.0, 1.0]

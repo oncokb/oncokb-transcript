@@ -1,21 +1,22 @@
 import Tabs from 'app/components/tabs/tabs';
-import React, { KeyboardEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Button, Col, Input, Row } from 'reactstrap';
-import CreatableSelect from 'react-select/creatable';
-import _ from 'lodash';
-import { notNullOrUndefined, parseAlterationName } from '../util/utils';
-import { IRootStore } from 'app/stores';
-import { componentInject } from '../util/typed-inject';
-import { flow, flowResult } from 'mobx';
-import { AlterationTypeEnum, EntityStatusAlteration, Gene } from '../api/generated';
-import './add-mutation-modal.scss';
-import { IGene } from '../model/gene.model';
-import { FaChevronDown, FaChevronUp, FaExclamationTriangle } from 'react-icons/fa';
-import { Alteration, Mutation, VusObjList } from '../model/firebase/firebase.model';
-import ReactSelect, { MenuPlacement } from 'react-select';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { IRootStore } from 'app/stores';
+import { onValue, ref } from 'firebase/database';
+import _ from 'lodash';
+import { flow, flowResult } from 'mobx';
+import React, { KeyboardEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FaChevronDown, FaChevronUp, FaExclamationTriangle } from 'react-icons/fa';
+import ReactSelect, { MenuPlacement } from 'react-select';
+import CreatableSelect from 'react-select/creatable';
+import { Alert, Button, Col, Input, Row } from 'reactstrap';
+import { AlterationTypeEnum, EntityStatusAlteration, Gene } from '../api/generated';
+import { Alteration, Mutation } from '../model/firebase/firebase.model';
+import { IGene } from '../model/gene.model';
+import { getDuplicateMutations, getFirebasePath } from '../util/firebase/firebase-utils';
+import { componentInject } from '../util/typed-inject';
+import { notNullOrUndefined, parseAlterationName } from '../util/utils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
-import { getDuplicateMutations } from '../util/firebase/firebase-utils';
+import './add-mutation-modal.scss';
 
 type AlterationData = {
   type: AlterationTypeEnum;
@@ -36,18 +37,15 @@ type AlterationData = {
 };
 
 interface IAddMutationModalProps extends StoreProps {
-  mutationList: Mutation[];
-  vusList: VusObjList;
   hugoSymbol: string;
-  onConfirm: (alterations: Alteration[]) => void;
+  onConfirm: (mutation: Mutation) => void;
   onCancel: () => void;
-  mutationToEdit?: Mutation;
+  mutationToEditPath?: string;
 }
 
 function AddMutationModal({
-  mutationList,
   hugoSymbol,
-  mutationToEdit,
+  mutationToEditPath,
   annotateAlteration,
   geneEntities,
   consequences,
@@ -55,6 +53,7 @@ function AddMutationModal({
   onConfirm,
   onCancel,
   vusList,
+  firebaseDb,
 }: IAddMutationModalProps) {
   const typeOptions: DropdownOption[] = [
     AlterationTypeEnum.ProteinChange,
@@ -70,12 +69,33 @@ function AddMutationModal({
   const [excludingInputValue, setExcludingInputValue] = useState('');
   const [excludingCollapsed, setExcludingCollapsed] = useState(true);
   const [mutationAlreadyExists, setMutationAlreadyExists] = useState(false);
+  const [mutationList, setMutationList] = useState<Mutation[]>([]);
+  const [mutationToEdit, setMutationToEdit] = useState<Mutation>(null);
 
   const inputRef = useRef(null);
 
   const geneEntity: IGene | undefined = useMemo(() => {
     return geneEntities.find(gene => gene.hugoSymbol === hugoSymbol);
   }, [geneEntities]);
+
+  useEffect(() => {
+    const callbacks = [];
+    callbacks.push(
+      onValue(ref(firebaseDb, `${getFirebasePath('GENE', hugoSymbol)}/mutations`), snapshot => {
+        setMutationList(snapshot.val() || []);
+      })
+    );
+
+    if (mutationToEditPath) {
+      callbacks.push(
+        onValue(ref(firebaseDb, mutationToEditPath), snapshot => {
+          setMutationToEdit(snapshot.val());
+        })
+      );
+    }
+
+    return () => callbacks.forEach(callback => callback?.());
+  }, []);
 
   useEffect(() => {
     const currentMutationName = tabStates.map(state => getFullAlterationName({ ...state, comment: '' }).toLowerCase()).sort();
@@ -874,7 +894,12 @@ function AddMutationModal({
           return alteration;
         }
 
-        onConfirm(tabStates.map(state => convertAlterationDataToAlteration(state)));
+        const newMutation = mutationToEdit ? _.cloneDeep(mutationToEdit) : new Mutation('');
+        const newAlterations = tabStates.map(state => convertAlterationDataToAlteration(state));
+        newMutation.name = newAlterations.map(alteration => alteration.name).join(', ');
+        newMutation.alterations = newAlterations;
+
+        onConfirm(newMutation);
       }}
       warningMessage={modalWarningMessage}
       confirmButtonDisabled={
@@ -935,11 +960,13 @@ function AddMutationModalDropdown({ label, value, options, menuPlacement, onChan
   );
 }
 
-const mapStoreToProps = ({ alterationStore, consequenceStore, geneStore }: IRootStore) => ({
+const mapStoreToProps = ({ alterationStore, consequenceStore, geneStore, firebaseStore, firebaseVusStore }: IRootStore) => ({
   annotateAlteration: flow(alterationStore.annotateAlteration),
   geneEntities: geneStore.entities,
   consequences: consequenceStore.entities,
   getConsequences: consequenceStore.getEntities,
+  firebaseDb: firebaseStore.firebaseDb,
+  vusList: firebaseVusStore.data,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

@@ -110,6 +110,9 @@ import TreatmentPriorityStore from 'app/entities/treatment-priority/treatment-pr
 import { ModifyCancerTypeModalStore } from 'app/shared/modal/modify-cancer-type-modal.store';
 import { ModifyTherapyModalStore } from 'app/shared/modal/modify-therapy-modal.store';
 import { RelevantCancerTypesModalStore } from 'app/shared/modal/relevant-cancer-types-modal-store';
+import { FirebaseCrudStore } from 'app/shared/util/firebase/firebase-crud-store';
+import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
+import { Gene } from 'app/shared/model/firebase/firebase.model';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
@@ -155,6 +158,8 @@ export interface IRootStore {
   readonly modifyTherapyModalStore: ModifyTherapyModalStore;
   readonly relevantCancerTypesModalStore: RelevantCancerTypesModalStore;
   /* Firebase stores */
+  readonly firebaseCrudStore: FirebaseCrudStore;
+  readonly firebaseGeneReviewStore: FirebaseReviewableCrudStore<Gene>;
   readonly firebaseStore: FirebaseStore;
   readonly firebaseGeneStore: FirebaseGeneStore;
   readonly firebaseMetaStore: FirebaseMetaStore;
@@ -213,7 +218,9 @@ export function createStores(history: History): IRootStore {
   rootStore.modifyTherapyModalStore = new ModifyTherapyModalStore();
   rootStore.relevantCancerTypesModalStore = new RelevantCancerTypesModalStore();
   /* Firebase stores */
-  rootStore.firebaseStore = new FirebaseStore(rootStore);
+  rootStore.firebaseStore = new FirebaseStore(rootStore); // this store needs to be initialized first
+  rootStore.firebaseCrudStore = new FirebaseCrudStore(rootStore);
+  rootStore.firebaseGeneReviewStore = new FirebaseReviewableCrudStore(rootStore);
   rootStore.firebaseGeneStore = new FirebaseGeneStore(rootStore);
   rootStore.firebaseMetaStore = new FirebaseMetaStore(rootStore);
   rootStore.firebaseDrugsStore = new FirebaseDrugsStore(rootStore);

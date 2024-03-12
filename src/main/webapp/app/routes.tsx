@@ -12,7 +12,7 @@ import LoginRedirect from './pages/login/login-redirect';
 import Entities from 'app/entities';
 import PageContainer from './components/PageContainer';
 import GeneListPage from './pages/curation/GeneListPage';
-import CurationPage from './pages/curation/CurationPage';
+import CurationPage from './pages/curation-v2/CurationPage';
 
 const Account = Loadable({
   loader: () => import(/* webpackChunkName: "account" */ './pages/account/SettingsPage'),

@@ -18,7 +18,7 @@ export const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
   useEffect(() => {
     if (propagatedFdaLevel && propagatedFdaLevel !== currentValue) {
       setCurrentValue(propagatedFdaLevel);
-      updateReviewableContent(getFirebasePath('GENE', props.data.name), fieldKey, FDA_LEVEL_KEYS_MAPPING[propagatedFdaLevel]);
+      // updateReviewableContent(getFirebasePath('GENE', props.data.name), fieldKey, FDA_LEVEL_KEYS_MAPPING[propagatedFdaLevel]);
     }
   }, [propagatedFdaLevel]);
 
@@ -31,7 +31,7 @@ export const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
     if (Object.values(FDA_LEVEL_KEYS).includes(newLevel)) {
       newLevel = FDA_LEVEL_KEYS_MAPPING[newLevel];
     }
-    updateReviewableContent(getFirebasePath('GENE', props.data.name), fieldKey, newLevel);
+    // updateReviewableContent(getFirebasePath('GENE', props.data.name), fieldKey, newLevel);
     if (props.onChange) {
       props.onChange(newLevel, actionMeta);
     }
