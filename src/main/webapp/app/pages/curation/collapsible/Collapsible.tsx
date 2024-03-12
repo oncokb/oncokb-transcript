@@ -21,6 +21,7 @@ export interface CollapsibleProps {
   title: React.ReactNode;
   disableLeftBorder?: boolean;
   borderLeftColor?: string;
+  backgroundColor?: string;
   info?: React.ReactNode;
   action?: React.ReactNode;
   children: React.ReactNode;
@@ -45,6 +46,7 @@ export default function Collapsible({
   isSectionEmpty = false,
   disableCollapsible = false,
   isPendingDelete = false,
+  backgroundColor,
   badgeOverride,
   onToggle,
 }: CollapsibleProps) {
@@ -83,14 +85,23 @@ export default function Collapsible({
         )}
         ref={node => {
           if (node && borderLeftColor) {
+            const hadBackgroundColor = backgroundColor;
             if (disableCollapsible) {
               borderLeftColor = DISABLED_NEST_LEVEL_COLOR;
+              if (!hadBackgroundColor) {
+                backgroundColor = DISABLED_NEST_LEVEL_COLOR;
+              }
             }
             if (isPendingDelete) {
               borderLeftColor = DANGER;
+              backgroundColor = DANGER;
             }
+
+            if (!backgroundColor) {
+              backgroundColor = borderLeftColor;
+            }
+            node.style.setProperty('background-color', getHexColorWithAlpha(backgroundColor, hadBackgroundColor ? 0 : 0.05), 'important');
             node.style.setProperty('border-left-color', borderLeftColor, 'important');
-            node.style.setProperty('background-color', getHexColorWithAlpha(borderLeftColor, 0.05), 'important');
           }
         }}
       >

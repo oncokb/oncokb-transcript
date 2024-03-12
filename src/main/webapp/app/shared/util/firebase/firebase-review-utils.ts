@@ -15,6 +15,7 @@ import { findIndexOfFirstCapital, getCancerTypeName } from '../utils';
 import { getTxName } from './firebase-utils';
 import { HISTORY_LOCATION_STRINGS, TI_TYPE_TO_HISTORY_STRING } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
+import { DiffMethod } from 'react-diff-viewer-continued';
 
 const REVIEW_TITLE_PATH_SEP = ' / ';
 const FIREBASE_PATH_SEP = '/';
@@ -25,10 +26,10 @@ export enum ReviewLevelType {
 }
 
 export enum ReviewAction {
-  CREATE,
-  DELETE,
-  UPDATE,
-  NAME_CHANGE,
+  CREATE = 'Created',
+  DELETE = 'Deleted',
+  UPDATE = 'Updated',
+  NAME_CHANGE = 'Name Updated',
 }
 
 export interface ReviewChildren {
@@ -81,6 +82,7 @@ export class ReviewLevel extends BaseReviewLevel {
   newState?: HistoryRecordState;
   oldState?: HistoryRecordState;
   deleteIndex?: number;
+  diffMethod?: DiffMethod = DiffMethod.CHARS;
 
   constructor(
     title: string,
@@ -279,6 +281,7 @@ const findGeneTypeReviews = (geneType: GeneType, uuids: string[], editorReviewMa
         geneType[fieldKey],
         geneType[reviewKey].lastReviewed
       );
+      geneTypeReview.diffMethod = DiffMethod.WORDS;
       geneTypeReview.historyLocationString = getHistoryLocationString(parentReview, HISTORY_LOCATION_STRINGS.GENE_TYPE);
       editorReviewMap.add(getEditorFromReview(geneType[reviewKey] as Review), geneTypeReview);
       parentReview.addChild(geneTypeReview);
@@ -352,6 +355,9 @@ const findMutationEffectReviews = (
         { [fieldKey]: mutationEffect[reviewKey].lastReviewed },
         isNestedUnderCreateOrDelete(parentReview)
       );
+      if (fieldKey === 'oncogenic' || fieldKey === 'effect') {
+        meReview.diffMethod = DiffMethod.WORDS;
+      }
       meReview.historyLocationString = getHistoryLocationString(parentReview, HISTORY_LOCATION_STRINGS.MUTATION_EFFECT);
       parentReview.addChild(meReview);
       editorReviewMap.add(getEditorFromReview(mutationEffect[reviewKey]), meReview);
