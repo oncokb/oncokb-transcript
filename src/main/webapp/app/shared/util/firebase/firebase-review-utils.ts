@@ -26,10 +26,10 @@ export enum ReviewLevelType {
 }
 
 export enum ReviewAction {
-  CREATE = 'Created',
-  DELETE = 'Deleted',
-  UPDATE = 'Updated',
-  NAME_CHANGE = 'Name Updated',
+  CREATE,
+  DELETE,
+  UPDATE,
+  NAME_CHANGE,
 }
 
 export interface ReviewChildren {

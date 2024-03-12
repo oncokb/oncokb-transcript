@@ -17,6 +17,7 @@ import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { DANGER, SUCCESS, WARNING } from 'app/config/colors';
 import TextWithRefs from 'app/shared/links/TextWithRefs';
 import DefaultBadge from 'app/shared/badge/DefaultBadge';
+import { ReviewActionLabels } from 'app/config/constants/firebase';
 
 export enum ReviewType {
   CREATE,
@@ -132,9 +133,9 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       const reviewLevel = props.baseReviewLevel as ReviewLevel;
       let oldValue = reviewLevel.review.lastReviewed;
       let newValue = reviewLevel.currentVal.toString();
-      if (!reviewLevel.isUnderCreationOrDeletion) {
-        oldValue = oldValue.replace(/\.\s+/g, '.\n');
-        newValue = newValue.replace(/\.\s+/g, '.\n');
+      if (!reviewLevel.isUnderCreationOrDeletion && oldValue !== '' && newValue !== '') {
+        oldValue = oldValue?.replace(/\.\s+/g, '.\n');
+        newValue = newValue?.replace(/\.\s+/g, '.\n');
       }
       return (
         <div className="mb-2">
@@ -171,7 +172,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       badgeOverride={
         props.baseReviewLevel.reviewLevelType !== ReviewLevelType.META &&
         !props.baseReviewLevel.isUnderCreationOrDeletion && (
-          <DefaultBadge color={ReviewCollapsibleBootstrapClass[reviewAction]} text={reviewAction} />
+          <DefaultBadge color={ReviewCollapsibleBootstrapClass[reviewAction]} text={ReviewActionLabels[reviewAction]} />
         )
       }
     >
