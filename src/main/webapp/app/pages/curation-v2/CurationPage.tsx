@@ -22,6 +22,7 @@ import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryToo
 import RelevantCancerTypesModal from 'app/shared/modal/RelevantCancerTypesModal';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import MutationsSection from './MutationsSection';
+import VusTable from './VusTable';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -201,6 +202,7 @@ export const CurationPage = (props: ICurationPageProps) => {
         </Col>
       </Row>
       <MutationsSection mutationsPath={`${firebaseGenePath}/mutations`} hugoSymbol={hugoSymbol} parsedHistoryList={parsedHistoryList} />
+      <VusTable hugoSymbol={hugoSymbol} />
       <RelevantCancerTypesModal
         onConfirm={async (newRelevantCancerTypes, noneDeleted) => {
           try {
