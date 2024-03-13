@@ -25,16 +25,11 @@ const CancerTypeLevelSummary = ({ cancerTypePath, firebaseDb }: CancerTypeLevelS
     return () => callbacks.forEach(callback => callback?.());
   }, []);
 
-  const summaryStats = useMemo(() => {
-    return {
-      ...cancerTypeStats,
-      txLevels: _.chain(cancerTypeStats.txLevels).countBy().value(),
-      dxLevels: _.chain(cancerTypeStats.dxLevels).countBy().value(),
-      pxLevels: _.chain(cancerTypeStats.pxLevels).countBy().value(),
-    };
-  }, [cancerTypeStats]);
+  if (!cancerTypeStats) {
+    return <></>;
+  }
 
-  return <NestLevelSummary summaryStats={undefined} />;
+  return <NestLevelSummary summaryStats={cancerTypeStats} />;
 };
 
 const mapStoreToProps = ({ firebaseStore }: IRootStore) => ({

@@ -19,7 +19,7 @@ import { DX_LEVEL_DESCRIPTIONS, FB_COLLECTION_PATH, PX_LEVEL_DESCRIPTIONS } from
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
-import { extractPositionFromSingleNucleotideAlteration, parseAlterationName } from '../utils';
+import { extractPositionFromSingleNucleotideAlteration, getCancerTypeName, getCancerTypesName, parseAlterationName } from '../utils';
 import _ from 'lodash';
 import { MutationLevelSummary } from 'app/stores/firebase/firebase.gene.store';
 import { CategoricalAlterationType } from 'app/shared/model/enumerations/categorical-alteration-type.model';
@@ -482,6 +482,7 @@ export function compareMutations(mut1: Mutation, mut2: Mutation, mutationLevelSu
   return mut1.name.localeCompare(mut2.name);
 }
 
+// Todo: The stats need to be refactored
 export const getMutationStats = (mutation?: Mutation) => {
   const stats = {
     TT: 0,
@@ -580,8 +581,21 @@ export const getCancerTypeStats = (tumor?: Tumor) => {
       stats.dxLevels[tumor.prognostic.level]++;
     }
   }
+  return stats;
 };
 
 export const getTreatmentStats = (treatment?: Treatment) => {
-  return treatment.level;
+  const stats = {
+    TT: 0,
+    TTS: 0,
+    DxS: 0,
+    PxS: 0,
+    txLevels: {} as { [txLevel in TX_LEVELS]: number },
+    dxLevels: {} as { [dxLevel in DX_LEVELS]: number },
+    pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
+  };
+  if (treatment.level) {
+    stats.txLevels[treatment.level] = 1;
+  }
+  return stats;
 };

@@ -3,27 +3,60 @@ import { Review, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import { getLevelDropdownOption } from 'app/shared/util/firebase/firebase-level-utils';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
-import { inject } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import RealtimeDropdownInput, { IRealtimeDropdownInput } from './RealtimeDropdownInput';
+import { componentInject } from 'app/shared/util/typed-inject';
 
-export interface IRealtimeLevelDropdown extends IRealtimeDropdownInput, StoreProps {
-  propagatedFdaLevel?: FDA_LEVEL_KEYS;
-  firebaseLevelPath: string;
+export enum LevelOfEvidenceType {
+  HIGHEST_LEVEL,
+  PROPAGATED_LIQUID,
+  PROPAGATED_SOLID,
+  PROPAGATED_FDA,
+  DIAGNOSTIC,
+  PROGNOSTIC,
 }
 
-export const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
-  const { firebaseDb, propagatedFdaLevel, firebaseLevelPath, updateReviewableContent, options, isDisabled, ...dropdownProps } = props;
+export interface IRealtimeLevelDropdown extends IRealtimeDropdownInput, StoreProps {
+  levelOfEvidenceType: LevelOfEvidenceType;
+  firebaseLevelPath: string;
+  highestLevel?: TX_LEVELS; // Required for propagated levels
+  propagatedFdaLevel?: FDA_LEVEL_KEYS;
+  placeholder?: string;
+}
+
+const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
+  const {
+    firebaseDb,
+    highestLevel,
+    levelOfEvidenceType,
+    propagatedFdaLevel,
+    firebaseLevelPath,
+    updateReviewableContent,
+    options,
+    isDisabled,
+    placeholder,
+    ...dropdownProps
+  } = props;
 
   const [currentLOE, setCurrentLOE] = useState(undefined);
   const [LOEReview, setLOEReview] = useState<Review>(undefined);
   const [LOEUuid, setLOEUuid] = useState<string>(undefined);
 
+  const [defaultValue, setDefaultValue] = useState(undefined);
+
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
       onValue(ref(firebaseDb, firebaseLevelPath), snapshot => {
-        setCurrentLOE(snapshot.val());
+        let level = snapshot.val();
+        if (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_FDA) {
+          for (const k of Object.keys(FDA_LEVEL_KEYS_MAPPING)) {
+            if (FDA_LEVEL_KEYS_MAPPING[k] === level) {
+              level = k;
+            }
+          }
+        }
+        setCurrentLOE(level);
       })
     );
     callbacks.push(
@@ -38,14 +71,32 @@ export const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
       },
       { onlyOnce: true }
     );
+
     return () => {
       callbacks.forEach(callback => callback?.());
     };
   }, []);
 
   useEffect(() => {
+    let defaultVal = getLevelDropdownOption(currentLOE);
+    if (currentLOE === TX_LEVELS.LEVEL_EMPTY || isDisabled) {
+      defaultVal = undefined;
+    }
+    setDefaultValue(defaultVal);
+  }, [currentLOE]);
+
+  useEffect(() => {
+    // When highest level changes, the propagated levels should reset to no level
+    if (
+      highestLevel &&
+      (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_SOLID || levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_LIQUID)
+    ) {
+      updateReviewableContent(firebaseLevelPath, currentLOE, TX_LEVELS.LEVEL_NO, LOEReview, LOEUuid);
+    }
+  }, [highestLevel]);
+
+  useEffect(() => {
     if (propagatedFdaLevel && propagatedFdaLevel !== currentLOE) {
-      // setCurrentLOE(propagatedFdaLevel);
       updateReviewableContent(firebaseLevelPath, currentLOE, FDA_LEVEL_KEYS_MAPPING[propagatedFdaLevel], LOEReview, LOEUuid);
     }
   }, [propagatedFdaLevel]);
@@ -55,8 +106,7 @@ export const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
     if (!newLevel) {
       newLevel = TX_LEVELS.LEVEL_EMPTY;
     }
-    setCurrentLOE(newLevel);
-    if (Object.values(FDA_LEVEL_KEYS).includes(newLevel)) {
+    if (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_FDA) {
       newLevel = FDA_LEVEL_KEYS_MAPPING[newLevel];
     }
     updateReviewableContent(firebaseLevelPath, currentLOE, newLevel, LOEReview, LOEUuid);
@@ -65,17 +115,10 @@ export const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
     }
   };
 
-  let value = currentLOE;
-  let defaultValue = getLevelDropdownOption(value);
-  if (value === TX_LEVELS.LEVEL_EMPTY || isDisabled) {
-    value = undefined;
-    defaultValue = undefined;
-  }
-
   return (
     <RealtimeDropdownInput
       {...dropdownProps}
-      placeholder={'You must select a level'}
+      placeholder={placeholder ? placeholder : 'Select a level'}
       options={options}
       defaultValue={defaultValue}
       value={defaultValue}
@@ -92,4 +135,4 @@ const mapStoreToProps = ({ firebaseGeneReviewStore, firebaseStore }: IRootStore)
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
 
-export default inject(mapStoreToProps)(RealtimeLevelDropdown);
+export default componentInject(mapStoreToProps)(RealtimeLevelDropdown);
