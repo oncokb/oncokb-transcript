@@ -19,6 +19,10 @@ import { DeleteSectionButton } from '../curation/button/DeleteSectionButton';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import _ from 'lodash';
+import CancerTypeLevelSummary from './nestLevelSummary/CancerTypeLevelSummary';
+import RealtimeLevelDropdownInput, { LevelOfEvidenceType } from './input/RealtimeLevelDropdownInput';
+import { getLevelDropdownOptions } from 'app/shared/util/firebase/firebase-level-utils';
+import { DIAGNOSTIC_LEVELS_ORDERING, PROGNOSTIC_LEVELS_ORDERING } from 'app/config/constants/firebase';
 
 interface ICancerTypeCollapsibleProps extends StoreProps {
   cancerTypePath: string;
@@ -85,7 +89,7 @@ function CancerTypeCollapsible({
         className="mt-2"
         title={`Cancer Type: ${cancerTypeName}`}
         borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.CANCER_TYPE]]}
-        // info={<CancerTypeLevelSummary mutationUuid={mutation.name_uuid} cancerTypeUuid={tumor.cancerTypes_uuid} />}
+        info={<CancerTypeLevelSummary cancerTypePath={cancerTypePath} />}
         action={
           <>
             <GeneHistoryTooltip
@@ -163,12 +167,13 @@ function CancerTypeCollapsible({
           //     buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic`)
           // )}
         >
-          {/* <RealtimeDropdownInput
-            fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic/level`}
+          <RealtimeLevelDropdownInput
+            firebaseLevelPath={`${cancerTypePath}/diagnostic/level`}
+            levelOfEvidenceType={LevelOfEvidenceType.DIAGNOSTIC}
             label="Level of evidence"
-            name="level"
+            name="diagnosticLevel"
             options={getLevelDropdownOptions(DIAGNOSTIC_LEVELS_ORDERING)}
-        /> */}
+          />
           <RealtimeTextAreaInput
             firebasePath={`${cancerTypePath}/diagnostic/description`}
             // inputClass={styles.textarea}
@@ -193,12 +198,13 @@ function CancerTypeCollapsible({
           //     buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic`)
           // )}
         >
-          {/* <RealtimeDropdownInput
-            fieldKey={`mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic/level`}
+          <RealtimeLevelDropdownInput
+            firebaseLevelPath={`${cancerTypePath}/prognostic/level`}
+            levelOfEvidenceType={LevelOfEvidenceType.PROGNOSTIC}
             label="Level of evidence"
-            name="level"
+            name="prognosticLevel"
             options={getLevelDropdownOptions(PROGNOSTIC_LEVELS_ORDERING)}
-        /> */}
+          />
           <RealtimeTextAreaInput
             firebasePath={`${cancerTypePath}/prognostic/description`}
             // inputClass={styles.textarea}

@@ -12,8 +12,6 @@ export interface TreatmentLevelSummaryProps extends StoreProps {
 }
 
 const TreatmentLevelSummary = ({ firebaseDb, treatmentPath }: TreatmentLevelSummaryProps) => {
-  //   const treatmentLevelSummary = props.allLevelSummaryStats[props.mutationUuid][props.cancerTypesUuid].treatmentSummary[props.treatmentUuid];
-
   const [treatmentStats, setTreatmentStats] = useState(undefined);
 
   useEffect(() => {
@@ -26,23 +24,8 @@ const TreatmentLevelSummary = ({ firebaseDb, treatmentPath }: TreatmentLevelSumm
     );
     return () => callbacks.forEach(callback => callback?.());
   }, []);
-  return (
-    <NestLevelSummary
-      isTreatmentStats
-      summaryStats={{
-        TTS: 0,
-        DxS: 0,
-        PxS: 0,
-        txLevels: [],
-        // txLevels: treatmentLevelSummary.reduce((obj, level) => {
-        //   obj[level] = 1;
-        //   return obj;
-        // }, {}),
-        dxLevels: [],
-        pxLevels: [],
-      }}
-    />
-  );
+
+  return <NestLevelSummary isTreatmentStats summaryStats={treatmentStats} />;
 };
 
 const mapStoreToProps = ({ firebaseStore }: IRootStore) => ({

@@ -17,8 +17,9 @@ import Collapsible from '../curation/collapsible/Collapsible';
 import { NestLevelColor, NestLevelMapping, NestLevelType } from '../curation/collapsible/NestLevel';
 import CommentIcon from './CommentIcon';
 import { ParsedHistoryRecord } from './CurationPage';
-import { TherapyDropdownGroup } from './TherapyDropdownGroup';
 import { RealtimeTextAreaInput } from './input/RealtimeInputs';
+import TreatmentLevelSummary from './nestLevelSummary/TreatmentLevelSummary';
+import TherapyDropdownGroup from './TherapyDropdownGroup';
 
 export interface ITherapyCollapsibleProps extends StoreProps {
   therapyPath: string;
@@ -79,14 +80,7 @@ function TherapyCollapsible({
         key={treatmentUuid}
         title={`Therapy: ${getTxName(drugList, treatmentName)}`}
         borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.THERAPY]]}
-        info={
-          <></>
-          // <TreatmentLevelSummary
-          // mutationUuid={mutation.name_uuid}
-          // cancerTypesUuid={tumor.cancerTypes_uuid}
-          // treatmentUuid={treatment.name_uuid}
-          // />
-        }
+        info={<TreatmentLevelSummary treatmentPath={therapyPath} />}
         action={
           <>
             <CommentIcon id={treatmentUuid} path={`${therapyPath}/name_comments`} />
