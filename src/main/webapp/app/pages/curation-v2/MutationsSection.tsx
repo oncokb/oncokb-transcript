@@ -64,6 +64,7 @@ function MutationsSection({ mutationsPath, hugoSymbol, parsedHistoryList, update
           <div style={{ maxHeight: '1000px', overflowY: 'auto', overflowX: 'hidden' }} ref={mutationScrollContainerRef}>
             <FirebaseList
               path={mutationsPath}
+              pushDirection="front"
               itemBuilder={index => {
                 return (
                   <MutationCollapsible

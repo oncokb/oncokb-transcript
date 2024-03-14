@@ -5,35 +5,124 @@ import { observer } from 'mobx-react';
 import { onValue, ref } from 'firebase/database';
 import { ViewportList, ViewportListPropsBase } from 'react-viewport-list';
 
-export interface IFirebaseListProps extends StoreProps, ViewportListPropsBase {
+export interface IFirebaseListProps<T> extends StoreProps, ViewportListPropsBase {
   path: string;
   itemBuilder: (firebaseIndex: number) => React.ReactNode;
+  pushDirection: 'front' | 'back';
   filter?: (firebaseIndex: number) => boolean;
   onLengthChange?: (oldLength: number, newLength: number) => void;
+  defaultSort?: (a: T, b: T) => number;
 }
 
-function FirebaseList({ path, itemBuilder, filter, onLengthChange, firebaseDb, ...rest }: IFirebaseListProps) {
-  const [length, setLength] = useState<number>(0);
+/* eslint-disable no-console */
+function FirebaseList<T>({
+  path,
+  itemBuilder,
+  pushDirection,
+  filter,
+  onLengthChange,
+  defaultSort,
+  firebaseDb,
+  ...rest
+}: IFirebaseListProps<T>) {
+  const [indices, setIndices] = useState<number[]>(null);
+  const [numItemsAdded, setNumItemsAdded] = useState(0);
+
+  // useEffect(() => {
+  //   const listRef = ref(firebaseDb, path);
+  //   const unsubscribe = onValue(ref(firebaseDb, path), test);
+
+  //   return () => unsubscribe?.();
+  // }, [indicies]);
+
+  // function test(snapshot) {
+  //   console.log(snapshot.size);
+  //   console.log(indicies?.length);
+
+  //   if (!indicies) {
+  //     const items = snapshot.val();
+  //     const itemsWithIndices = items.map((item, index) => ({...item, index}));
+  //     setIndices(defaultSort ? itemsWithIndices.sort((a, b) => {
+  //       const {aIndex, ...aWithoutIndex} = a;
+  //       const {bIndex, ...bWithoutIndex} = b;
+  //       return defaultSort(aWithoutIndex, bWithoutIndex);
+  //     }).map(item => item.index) : itemsWithIndices.map(item => item.index));
+  //   } else if (snapshot.size !== indicies.length + numItemsAdded) {
+  //     console.log('HERE');
+  //     setNumItemsAdded(num => num + snapshot.size - indicies.length);
+  //     onLengthChange?.(indicies.length, snapshot.size);
+  //   }
+  // }
 
   useEffect(() => {
     const listRef = ref(firebaseDb, path);
     const unsubscribe = onValue(listRef, snapshot => {
-      if (snapshot.size !== length) {
-        setLength(snapshot.size);
-        onLengthChange?.(length, snapshot.size);
+      console.log(`Snapshot: ${snapshot.size}`);
+      console.log(`Indices: ${indices?.length}`);
+      console.log(`numItemsAdded: ${numItemsAdded}`);
+
+      if (!indices) {
+        const items = snapshot.val();
+        const itemsWithIndices = items.map((item, index) => ({ ...item, index }));
+        setIndices(
+          defaultSort
+            ? itemsWithIndices
+                .sort((a, b) => {
+                  const { aIndex, ...aWithoutIndex } = a;
+                  const { bIndex, ...bWithoutIndex } = b;
+                  return defaultSort(aWithoutIndex, bWithoutIndex);
+                })
+                .map(item => item.index)
+            : itemsWithIndices.map(item => item.index)
+        );
+      } else if (snapshot.size !== indices.length + numItemsAdded) {
+        setNumItemsAdded(num => {
+          console.log('Num ' + num);
+          return num + snapshot.size - indices.length;
+        });
+        // onLengthChange?.(indices.length, snapshot.size);
       }
     });
 
     return () => unsubscribe?.();
-  }, [length, onLengthChange]);
+  }, [indices, numItemsAdded, onLengthChange, setNumItemsAdded]);
+
+  // snapshot: 16
+  // indicies: 15
+  // numItems: 1
 
   const listItems = useMemo(() => {
+    if (!indices) {
+      return [];
+    }
+
     const items: JSX.Element[] = [];
-    for (let i = 0; i < length; i++) {
-      items.push(<div key={i}>{itemBuilder(i)}</div>); // is using index as key ok? I think it might since firebase order not chagning
+
+    let allItemIndices: number[];
+    let existingItemIndices = indices;
+    if (pushDirection === 'front') {
+      const addedItemIndices: number[] = [];
+      for (let i = 0; i < numItemsAdded; i++) {
+        addedItemIndices.push(i);
+      }
+
+      existingItemIndices = existingItemIndices.map(index => index + numItemsAdded);
+
+      allItemIndices = [...addedItemIndices, ...existingItemIndices];
+    } else if (pushDirection === 'back') {
+      const addedItemIndices: number[] = [];
+      for (let i = 0; i < numItemsAdded; i++) {
+        addedItemIndices.push(i + existingItemIndices.length);
+      }
+
+      allItemIndices = [...existingItemIndices, ...addedItemIndices];
+    }
+
+    for (const index of allItemIndices) {
+      items.push(<div key={index}>{itemBuilder(index)}</div>); // is using index as key ok? I think it might since firebase order not chagning
     }
     return items;
-  }, [length]);
+  }, [indices, numItemsAdded]);
 
   function getList() {
     if (!filter) {
