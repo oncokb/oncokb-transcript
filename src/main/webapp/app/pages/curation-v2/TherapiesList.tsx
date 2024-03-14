@@ -81,7 +81,7 @@ const TherapiesList = ({
     });
 
     return () => unsubscribe?.();
-  }, [txObjects]);
+  }, [txObjects, firebaseDb, tisPath]);
 
   return (
     <>

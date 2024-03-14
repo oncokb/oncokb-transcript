@@ -67,7 +67,7 @@ function TherapyCollapsible({
       },
       { onlyOnce: true }
     );
-  }, []);
+  }, [therapyPath, firebaseDb]);
 
   if (!treatmentUuid || !treatmentName) {
     return <></>;
