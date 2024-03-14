@@ -23,6 +23,10 @@ import RelevantCancerTypesModal from 'app/shared/modal/RelevantCancerTypesModal'
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import MutationsSection from './MutationsSection';
 import VusTable from './VusTable';
+import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
+import CurationHistoryTab from 'app/components/tabs/CurationHistoryTab';
+import CurationToolsTab from 'app/components/tabs/CurationToolsTab';
+import Tabs from 'app/components/tabs/tabs';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -87,138 +91,154 @@ export const CurationPage = (props: ICurationPageProps) => {
   }, [props.historyData]);
 
   return props.firebaseInitSuccess && !props.loadingGenes && !!geneName && props.drugList.length > 0 ? (
-    <div>
-      <Row className={'mb-2'}>
-        <Col className={'d-flex justify-content-between flex-row flex-nowrap align-items-end'}>
-          <div className="d-flex align-items-end all-children-margin">
-            <span style={{ fontSize: '3rem', lineHeight: 1 }} className={'mr-2'}>
-              {geneName}
-            </span>
-            {!isReviewing && (
-              <>
-                <CommentIcon id={`${hugoSymbol}_curation_page`} path={`${firebaseGenePath}/name_comments`} />
-                <div>
-                  <span>
-                    {geneEntity?.entrezGeneId && (
-                      <span className="ml-2">
-                        <span className="font-weight-bold text-nowrap">Entrez Gene:</span>
-                        <span className="ml-1">
-                          <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
+    <>
+      <div>
+        <Row className={'mb-2'}>
+          <Col className={'d-flex justify-content-between flex-row flex-nowrap align-items-end'}>
+            <div className="d-flex align-items-end all-children-margin">
+              <span style={{ fontSize: '3rem', lineHeight: 1 }} className={'mr-2'}>
+                {geneName}
+              </span>
+              {!isReviewing && (
+                <>
+                  <CommentIcon id={`${hugoSymbol}_curation_page`} path={`${firebaseGenePath}/name_comments`} />
+                  <div>
+                    <span>
+                      {geneEntity?.entrezGeneId && (
+                        <span className="ml-2">
+                          <span className="font-weight-bold text-nowrap">Entrez Gene:</span>
+                          <span className="ml-1">
+                            <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
+                          </span>
                         </span>
-                      </span>
-                    )}
-                    {geneEntity?.hgncId && (
-                      <span className="ml-2">
-                        <span className="font-weight-bold">HGNC:</span>
-                        <span className="ml-1">
-                          <HgncLink id={geneEntity.hgncId} />
+                      )}
+                      {geneEntity?.hgncId && (
+                        <span className="ml-2">
+                          <span className="font-weight-bold">HGNC:</span>
+                          <span className="ml-1">
+                            <HgncLink id={geneEntity.hgncId} />
+                          </span>
                         </span>
-                      </span>
-                    )}
-                    {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
-                      <span className="ml-2">
-                        <span className="font-weight-bold">Gene aliases:</span>
-                        <span className="ml-1">
-                          <WithSeparator separator={', '}>
-                            {geneEntity.synonyms.map(synonym => (
-                              <span className={'text-nowrap'} key={synonym.name}>
-                                {synonym.name}
-                              </span>
-                            ))}
-                          </WithSeparator>
+                      )}
+                      {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
+                        <span className="ml-2">
+                          <span className="font-weight-bold">Gene aliases:</span>
+                          <span className="ml-1">
+                            <WithSeparator separator={', '}>
+                              {geneEntity.synonyms.map(synonym => (
+                                <span className={'text-nowrap'} key={synonym.name}>
+                                  {synonym.name}
+                                </span>
+                              ))}
+                            </WithSeparator>
+                          </span>
                         </span>
+                      )}
+                      <span className="ml-2">
+                        <span className="font-weight-bold mr-2">External Links:</span>
+                        <WithSeparator separator={InlineDivider}>
+                          <a href={`https://cbioportal.mskcc.org/ln?q=${geneName}`} target="_blank" rel="noopener noreferrer">
+                            {CBIOPORTAL} <ExternalLinkIcon />
+                          </a>
+                          <a
+                            href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${geneName}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {COSMIC} <ExternalLinkIcon />
+                          </a>
+                        </WithSeparator>
                       </span>
-                    )}
-                    <span className="ml-2">
-                      <span className="font-weight-bold mr-2">External Links:</span>
-                      <WithSeparator separator={InlineDivider}>
-                        <a href={`https://cbioportal.mskcc.org/ln?q=${geneName}`} target="_blank" rel="noopener noreferrer">
-                          {CBIOPORTAL} <ExternalLinkIcon />
-                        </a>
-                        <a
-                          href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${geneName}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {COSMIC} <ExternalLinkIcon />
-                        </a>
-                      </WithSeparator>
                     </span>
-                  </span>
-                </div>
-              </>
-            )}
-          </div>
-          {/* {getReviewButtons()} */}
-        </Col>
-      </Row>
-      <Row className={`${getSectionClassName()} justify-content-between`}>
-        <Col>
-          <RealtimeCheckedInputGroup
-            groupHeader={
-              <>
-                <span className="mr-2">Gene Type</span>
-                {/* {<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Type'} />} */}
-              </>
+                  </div>
+                </>
+              )}
+            </div>
+            {/* {getReviewButtons()} */}
+          </Col>
+        </Row>
+        <Row className={`${getSectionClassName()} justify-content-between`}>
+          <Col>
+            <RealtimeCheckedInputGroup
+              groupHeader={
+                <>
+                  <span className="mr-2">Gene Type</span>
+                  {/* {<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Type'} />} */}
+                </>
+              }
+              options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
+                return {
+                  label,
+                  firebasePath: `${firebaseGenePath}/${GENE_TYPE_KEY[label]}`,
+                };
+              })}
+            />
+            <RealtimeTextAreaInput
+              firebasePath={`${firebaseGenePath}/summary`}
+              inputClass={styles.textarea}
+              label="Gene Summary"
+              name="geneSummary"
+              labelIcon={
+                <>
+                  <GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />
+                  <div className="mr-3" />
+                  <CommentIcon id={`${hugoSymbol}_gene_summary`} path={`${firebaseGenePath}/summary_comments`} />
+                </>
+              }
+            />
+          </Col>
+        </Row>
+        <Row className={'mb-5'}>
+          <Col>
+            <RealtimeTextAreaInput
+              firebasePath={`${firebaseGenePath}/background`}
+              inputClass={styles.textarea}
+              label="Background"
+              name="geneBackground"
+              parseRefs
+              labelIcon={
+                <>
+                  <GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Background'} />
+                  <div className="mr-3" />
+                  <CommentIcon id={`${hugoSymbol}_gene_background`} path={`${firebaseGenePath}/background_comments`} />
+                </>
+              }
+            />
+          </Col>
+        </Row>
+        <MutationsSection mutationsPath={`${firebaseGenePath}/mutations`} hugoSymbol={hugoSymbol} parsedHistoryList={parsedHistoryList} />
+        <VusTable hugoSymbol={hugoSymbol} />
+        <RelevantCancerTypesModal
+          onConfirm={async (newRelevantCancerTypes, noneDeleted) => {
+            try {
+              if (noneDeleted) {
+                await props.setUntemplated(props.relevantCancerTypesModalStore.pathToRelevantCancerTypes, []);
+              } else {
+                await props.setUntemplated(props.relevantCancerTypesModalStore.pathToRelevantCancerTypes, newRelevantCancerTypes);
+              }
+              props.relevantCancerTypesModalStore.closeModal();
+            } catch (error) {
+              notifyError(error);
             }
-            options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
-              return {
-                label,
-                firebasePath: `${firebaseGenePath}/${GENE_TYPE_KEY[label]}`,
-              };
-            })}
+          }}
+          onCancel={() => props.relevantCancerTypesModalStore.closeModal()}
+        />
+        <OncoKBSidebar>
+          <Tabs
+            tabs={[
+              {
+                title: 'Tools',
+                content: <CurationToolsTab genePath={firebaseGenePath} />,
+              },
+              {
+                title: 'History',
+                content: <CurationHistoryTab historyData={props.historyData} />,
+              },
+            ]}
           />
-          <RealtimeTextAreaInput
-            firebasePath={`${firebaseGenePath}/summary`}
-            inputClass={styles.textarea}
-            label="Gene Summary"
-            name="geneSummary"
-            labelIcon={
-              <>
-                <GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />
-                <div className="mr-3" />
-                <CommentIcon id={`${hugoSymbol}_gene_summary`} path={`${firebaseGenePath}/summary_comments`} />
-              </>
-            }
-          />
-        </Col>
-      </Row>
-      <Row className={'mb-5'}>
-        <Col>
-          <RealtimeTextAreaInput
-            firebasePath={`${firebaseGenePath}/background`}
-            inputClass={styles.textarea}
-            label="Background"
-            name="geneBackground"
-            parseRefs
-            labelIcon={
-              <>
-                <GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Background'} />
-                <div className="mr-3" />
-                <CommentIcon id={`${hugoSymbol}_gene_background`} path={`${firebaseGenePath}/background_comments`} />
-              </>
-            }
-          />
-        </Col>
-      </Row>
-      <MutationsSection mutationsPath={`${firebaseGenePath}/mutations`} hugoSymbol={hugoSymbol} parsedHistoryList={parsedHistoryList} />
-      <VusTable hugoSymbol={hugoSymbol} />
-      <RelevantCancerTypesModal
-        onConfirm={async (newRelevantCancerTypes, noneDeleted) => {
-          try {
-            if (noneDeleted) {
-              await props.setUntemplated(props.relevantCancerTypesModalStore.pathToRelevantCancerTypes, []);
-            } else {
-              await props.setUntemplated(props.relevantCancerTypesModalStore.pathToRelevantCancerTypes, newRelevantCancerTypes);
-            }
-            props.relevantCancerTypesModalStore.closeModal();
-          } catch (error) {
-            notifyError(error);
-          }
-        }}
-        onCancel={() => props.relevantCancerTypesModalStore.closeModal()}
-      />
-    </div>
+        </OncoKBSidebar>
+      </div>
+    </>
   ) : (
     <></>
   );
