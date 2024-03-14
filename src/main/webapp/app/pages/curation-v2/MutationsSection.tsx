@@ -12,6 +12,8 @@ import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
+import { Mutation } from 'app/shared/model/firebase/firebase.model';
+import { compareMutations } from 'app/shared/util/firebase/firebase-utils';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
@@ -62,9 +64,10 @@ function MutationsSection({ mutationsPath, hugoSymbol, parsedHistoryList, update
           }}
         >
           <div style={{ maxHeight: '1000px', overflowY: 'auto', overflowX: 'hidden' }} ref={mutationScrollContainerRef}>
-            <FirebaseList
+            <FirebaseList<Mutation>
               path={mutationsPath}
               pushDirection="front"
+              defaultSort={compareMutations}
               itemBuilder={index => {
                 return (
                   <MutationCollapsible

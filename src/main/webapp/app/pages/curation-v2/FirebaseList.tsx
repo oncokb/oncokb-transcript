@@ -14,7 +14,6 @@ export interface IFirebaseListProps<T> extends StoreProps, ViewportListPropsBase
   defaultSort?: (a: T, b: T) => number;
 }
 
-/* eslint-disable no-console */
 function FirebaseList<T>({
   path,
   itemBuilder,
@@ -28,38 +27,13 @@ function FirebaseList<T>({
   const [indices, setIndices] = useState<number[]>(null);
   const [numItemsAdded, setNumItemsAdded] = useState(0);
 
-  // useEffect(() => {
-  //   const listRef = ref(firebaseDb, path);
-  //   const unsubscribe = onValue(ref(firebaseDb, path), test);
-
-  //   return () => unsubscribe?.();
-  // }, [indicies]);
-
-  // function test(snapshot) {
-  //   console.log(snapshot.size);
-  //   console.log(indicies?.length);
-
-  //   if (!indicies) {
-  //     const items = snapshot.val();
-  //     const itemsWithIndices = items.map((item, index) => ({...item, index}));
-  //     setIndices(defaultSort ? itemsWithIndices.sort((a, b) => {
-  //       const {aIndex, ...aWithoutIndex} = a;
-  //       const {bIndex, ...bWithoutIndex} = b;
-  //       return defaultSort(aWithoutIndex, bWithoutIndex);
-  //     }).map(item => item.index) : itemsWithIndices.map(item => item.index));
-  //   } else if (snapshot.size !== indicies.length + numItemsAdded) {
-  //     console.log('HERE');
-  //     setNumItemsAdded(num => num + snapshot.size - indicies.length);
-  //     onLengthChange?.(indicies.length, snapshot.size);
-  //   }
-  // }
-
   useEffect(() => {
     const listRef = ref(firebaseDb, path);
     const unsubscribe = onValue(listRef, snapshot => {
-      console.log(`Snapshot: ${snapshot.size}`);
-      console.log(`Indices: ${indices?.length}`);
-      console.log(`numItemsAdded: ${numItemsAdded}`);
+      if (!snapshot.val()) {
+        // this happens for emtpy array, such as tumors for a new mutation
+        return;
+      }
 
       if (!indices) {
         const items = snapshot.val();
@@ -76,27 +50,20 @@ function FirebaseList<T>({
             : itemsWithIndices.map(item => item.index)
         );
       } else if (snapshot.size !== indices.length + numItemsAdded) {
-        setNumItemsAdded(num => {
-          console.log('Num ' + num);
-          return num + snapshot.size - indices.length;
-        });
-        // onLengthChange?.(indices.length, snapshot.size);
+        setNumItemsAdded(snapshot.size - indices.length);
+        onLengthChange?.(indices.length, snapshot.size);
       }
     });
 
     return () => unsubscribe?.();
   }, [indices, numItemsAdded, onLengthChange, setNumItemsAdded]);
 
-  // snapshot: 16
-  // indicies: 15
-  // numItems: 1
-
   const listItems = useMemo(() => {
     if (!indices) {
       return [];
     }
 
-    const items: JSX.Element[] = [];
+    const items: { item: JSX.Element; index: number }[] = [];
 
     let allItemIndices: number[];
     let existingItemIndices = indices;
@@ -119,7 +86,7 @@ function FirebaseList<T>({
     }
 
     for (const index of allItemIndices) {
-      items.push(<div key={index}>{itemBuilder(index)}</div>); // is using index as key ok? I think it might since firebase order not chagning
+      items.push({ item: <div key={index}>{itemBuilder(index)}</div>, index }); // is using index as key ok? I think it might since firebase order not chagning
     }
     return items;
   }, [indices, numItemsAdded]);
@@ -128,12 +95,12 @@ function FirebaseList<T>({
     if (!filter) {
       return listItems;
     }
-    return listItems.filter((_item, index) => filter(index));
+    return listItems.filter(item => filter(item.index));
   }
 
   return (
     <ViewportList {...rest} items={getList()}>
-      {item => item}
+      {item => item.item}
     </ViewportList>
   );
 }
