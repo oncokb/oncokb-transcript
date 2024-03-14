@@ -231,7 +231,7 @@ const CurationPage = (props: ICurationPageProps) => {
       }));
       if (!allMutations) {
         // has not yet been sorted
-        setAllMutations(fetchedMutations.sort((mut1, mut2) => compareMutations(mut1, mut2, props.mutationSummaryStats)));
+        // setAllMutations(fetchedMutations.sort((mut1, mut2) => compareMutations(mut1, mut2, props.mutationSummaryStats)));
       } else {
         const fetchedMutationUuidToMutation: { [uuid: string]: FirebaseMutation } = {};
         for (const fetchedMutation of fetchedMutations) {

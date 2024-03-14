@@ -184,6 +184,7 @@ const MutationCollapsible = ({
         </Collapsible>
         <FirebaseList
           path={`${mutationPath}/tumors`}
+          pushDirection="back"
           itemBuilder={index => {
             return (
               <CancerTypeCollapsible

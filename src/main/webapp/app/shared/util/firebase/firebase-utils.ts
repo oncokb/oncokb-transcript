@@ -348,9 +348,9 @@ export function compareMutationsByDeleted(mut1: Mutation, mut2: Mutation) {
   }
 }
 
-export function compareMutationsByTxLevel(mut1: Mutation, mut2: Mutation, mutationLevelSummary: MutationLevelSummary) {
-  const mut1Levels = Object.keys(mutationLevelSummary[mut1.name_uuid]?.txLevels || []).sort(sortByTxLevel);
-  const mut2Levels = Object.keys(mutationLevelSummary[mut2.name_uuid]?.txLevels || []).sort(sortByTxLevel);
+export function compareMutationsByTxLevel(mut1: Mutation, mut2: Mutation) {
+  const mut1Levels = Object.keys(getMutationStats(mut1).txLevels).sort(sortByTxLevel);
+  const mut2Levels = Object.keys(getMutationStats(mut2).txLevels).sort(sortByTxLevel);
 
   let index = 0;
   while (mut1Levels[index] || mut2Levels[index]) {
@@ -371,9 +371,12 @@ export function compareMutationsByTxLevel(mut1: Mutation, mut2: Mutation, mutati
   return 0;
 }
 
-export function compareMutationsByHasDxOrPx(mut1: Mutation, mut2: Mutation, mutationLevelSummary: MutationLevelSummary) {
-  const mut1HasDxOrPx = mutationLevelSummary[mut1.name_uuid].DxS > 0 || mutationLevelSummary[mut1.name_uuid].PxS > 0;
-  const mut2HasDxOrPx = mutationLevelSummary[mut2.name_uuid].DxS > 0 || mutationLevelSummary[mut2.name_uuid].PxS > 0;
+export function compareMutationsByHasDxOrPx(mut1: Mutation, mut2: Mutation) {
+  const mut1Stats = getMutationStats(mut1);
+  const mut1HasDxOrPx = mut1Stats.DxS > 0 || mut1Stats.PxS > 0;
+
+  const mut2Stats = getMutationStats(mut2);
+  const mut2HasDxOrPx = mut2Stats.DxS > 0 || mut2Stats.PxS > 0;
 
   if ((mut1HasDxOrPx && mut2HasDxOrPx) || (!mut1HasDxOrPx && !mut2HasDxOrPx)) {
     return 0;
@@ -447,18 +450,18 @@ export function compareMutationsByCategoricalAlteration(mut1: Mutation, mut2: Mu
   }
 }
 
-export function compareMutations(mut1: Mutation, mut2: Mutation, mutationLevelSummary: MutationLevelSummary) {
+export function compareMutations(mut1: Mutation, mut2: Mutation) {
   let order = compareMutationsByDeleted(mut1, mut2);
   if (order !== 0) {
     return order;
   }
 
-  order = compareMutationsByTxLevel(mut1, mut2, mutationLevelSummary);
+  order = compareMutationsByTxLevel(mut1, mut2);
   if (order !== 0) {
     return order;
   }
 
-  order = compareMutationsByHasDxOrPx(mut1, mut2, mutationLevelSummary);
+  order = compareMutationsByHasDxOrPx(mut1, mut2);
   if (order !== 0) {
     return order;
   }
@@ -514,6 +517,75 @@ export const getFilterModalStats = (mutations: Mutation[]) => {
     mutationEffects,
     txLevels,
   };
+};
+
+export type AllLevelSummary = {
+  [mutationUuid: string]: {
+    [cancerTypesUuid: string]: {
+      TT: number;
+      oncogenicity: FIREBASE_ONCOGENICITY | '';
+      TTS: number;
+      DxS: number;
+      PxS: number;
+      txLevels: TX_LEVELS[];
+      dxLevels: DX_LEVELS[];
+      pxLevels: PX_LEVELS[];
+      treatmentSummary: { [treatmentId: string]: TX_LEVELS[] };
+    };
+  };
+};
+
+export const getAllLevelSummaryStats = (mutations: Mutation[]) => {
+  const summary: AllLevelSummary = {};
+  mutations.forEach(mutation => {
+    summary[mutation.name_uuid] = {};
+    if (mutation.tumors) {
+      mutation.tumors.forEach(tumor => {
+        summary[mutation.name_uuid][tumor.cancerTypes_uuid] = {
+          TT: 0,
+          oncogenicity: '',
+          TTS: 0,
+          DxS: 0,
+          PxS: 0,
+          txLevels: [],
+          dxLevels: [],
+          pxLevels: [],
+          treatmentSummary: {},
+        };
+        summary[mutation.name_uuid][tumor.cancerTypes_uuid].TT++;
+        summary[mutation.name_uuid][tumor.cancerTypes_uuid].oncogenicity = mutation.mutation_effect.oncogenic;
+        if (tumor.summary) {
+          summary[mutation.name_uuid][tumor.cancerTypes_uuid].TTS++;
+        }
+        if (tumor.diagnosticSummary) {
+          summary[mutation.name_uuid][tumor.cancerTypes_uuid].DxS++;
+        }
+        if (tumor.prognosticSummary) {
+          summary[mutation.name_uuid][tumor.cancerTypes_uuid].PxS++;
+        }
+        tumor.TIs.forEach(ti => {
+          if (ti.treatments) {
+            ti.treatments.forEach(treatment => {
+              const cancerTypeSummary = summary[mutation.name_uuid][tumor.cancerTypes_uuid];
+              cancerTypeSummary.txLevels.push(treatment.level);
+
+              if (!cancerTypeSummary.treatmentSummary[treatment.name_uuid]) {
+                cancerTypeSummary.treatmentSummary[treatment.name_uuid] = [];
+              }
+              cancerTypeSummary.treatmentSummary[treatment.name_uuid].push(treatment.level);
+            });
+          }
+        });
+        if (tumor?.diagnostic?.level) {
+          summary[mutation.name_uuid][tumor.cancerTypes_uuid].dxLevels.push(tumor.diagnostic.level as DX_LEVELS);
+        }
+        if (tumor?.prognostic?.level) {
+          summary[mutation.name_uuid][tumor.cancerTypes_uuid].pxLevels.push(tumor.prognostic.level as PX_LEVELS);
+        }
+      });
+    }
+  });
+  return summary;
 };
 
 // Todo: The stats need to be refactored
