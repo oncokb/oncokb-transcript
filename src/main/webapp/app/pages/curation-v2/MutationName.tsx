@@ -17,7 +17,7 @@ function MutationName({ mutationPath, firebaseDb }: IMutationNameProps) {
     });
 
     return () => unsubscribe?.();
-  }, []);
+  }, [mutationPath]);
 
   return <span>{mutationName}</span>;
 }

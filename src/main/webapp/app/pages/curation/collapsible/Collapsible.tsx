@@ -29,6 +29,7 @@ export interface CollapsibleProps {
   open?: boolean;
   isSectionEmpty?: boolean;
   disableCollapsible?: boolean;
+  disableOpen?: boolean; // this prop is only used for the mutation collapsible, since it doesn't actually open when clicked
   isPendingDelete?: boolean;
   badgeOverride?: React.ReactNode;
   onToggle?: (isOpen: boolean) => void;
@@ -45,6 +46,7 @@ export default function Collapsible({
   open = false,
   isSectionEmpty = false,
   disableCollapsible = false,
+  disableOpen = false, //
   isPendingDelete = false,
   backgroundColor,
   badgeOverride,
@@ -70,7 +72,9 @@ export default function Collapsible({
 
   const handleToggleCollapsible = () => {
     if (!disableCollapsible) {
-      setIsOpen(_isOpen => !_isOpen);
+      if (!disableOpen) {
+        setIsOpen(_isOpen => !_isOpen);
+      }
       onToggle && onToggle(!isOpen);
     }
   };

@@ -8,7 +8,7 @@ import { inject } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { Input, Label, LabelProps } from 'reactstrap';
 import { InputType } from 'reactstrap/es/Input';
-import styles from './styles.module.scss';
+// import styles from './styles.module.scss';
 
 export enum RealtimeInputType {
   TEXT = 'text',
@@ -70,6 +70,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     inputClass,
     children,
     parseRefs = false,
+    updateReviewableContent,
     ...otherProps
   } = props;
 
@@ -117,7 +118,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
       updateValue = e.target.value;
     }
 
-    props.updateReviewableContent(firebasePath, inputValue, updateValue, inputValueReview, inputValueUuid);
+    updateReviewableContent(firebasePath, inputValue, updateValue, inputValueReview, inputValueUuid);
 
     if (onChange) {
       onChange(e);
@@ -133,7 +134,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
 
   const inputComponent = (
     <Input
-      className={classNames(inputClass, isCheckType && 'ml-1 position-relative', isTextType && styles.editableTextBox)}
+      className={classNames(inputClass, isCheckType && 'ml-1 position-relative')}
       id={id}
       name={`${id}-${label.toLowerCase()}`}
       autoComplete="off"

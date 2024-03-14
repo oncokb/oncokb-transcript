@@ -75,7 +75,7 @@ function CancerTypeCollapsible({
     );
 
     return () => callbacks.forEach(callback => callback?.());
-  }, []);
+  }, [cancerTypePath, firebaseDb]);
 
   if (!cancerTypes || !cancerTypesUuid) {
     return <></>;

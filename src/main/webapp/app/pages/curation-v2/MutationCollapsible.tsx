@@ -28,6 +28,7 @@ export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
   hugoSymbol: string;
   open?: boolean;
+  disableOpen?: boolean;
   onToggle?: (isOpen: boolean) => void;
   parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
 }
@@ -36,6 +37,7 @@ const MutationCollapsible = ({
   mutationPath,
   hugoSymbol,
   open,
+  disableOpen = false,
   onToggle,
   firebaseDb,
   parsedHistoryList,
@@ -81,7 +83,7 @@ const MutationCollapsible = ({
     );
 
     return () => callbacks.forEach(callback => callback?.());
-  }, []);
+  }, [mutationPath, firebaseDb]);
 
   if (!mutationUuid || !mutationName) {
     return <></>;
@@ -95,6 +97,7 @@ const MutationCollapsible = ({
     <>
       <Collapsible
         open={open}
+        disableOpen={disableOpen}
         className="mb-1"
         title={title}
         borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.MUTATION]]}
