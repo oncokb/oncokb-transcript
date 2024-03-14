@@ -5,12 +5,12 @@ import { observer } from 'mobx-react';
 import { onValue, ref } from 'firebase/database';
 import { TI, Treatment } from 'app/shared/model/firebase/firebase.model';
 import { getTxName, sortByTxLevel } from 'app/shared/util/firebase/firebase-utils';
-import TherapyCollapsible from './TherapyCollapsible';
-import { ParsedHistoryRecord } from './CurationPage';
+import { ParsedHistoryRecord } from '../CurationPage';
 import { Button } from 'reactstrap';
 import ModifyTherapyModal from 'app/shared/modal/ModifyTherapyModal';
 import { GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import TherapyCollapsible from '../collapsible/TherapyCollapsible';
 
 export interface ITherapiesList extends StoreProps {
   tisPath: string;

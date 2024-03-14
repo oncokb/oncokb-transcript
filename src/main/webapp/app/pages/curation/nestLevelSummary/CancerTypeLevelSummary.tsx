@@ -1,37 +1,41 @@
+import { getCancerTypeStats } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { AllLevelSummary } from 'app/stores/firebase/firebase.gene.store';
+import { onValue, ref } from 'firebase/database';
 import _ from 'lodash';
 import { observer } from 'mobx-react';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import NestLevelSummary from './NestLevelSummary';
 
 export interface CancerTypeLevelSummaryProps extends StoreProps {
-  mutationUuid: string;
-  cancerTypeUuid: string;
+  cancerTypePath: string;
 }
 
-const CancerTypeLevelSummary = (props: CancerTypeLevelSummaryProps) => {
-  const summaryStats = useMemo(() => {
-    const stats = props.mutationSummaryStats[props.mutationUuid][props.cancerTypeUuid];
-    const { TT, oncogenicity, ...rest } = stats;
-    return {
-      ...rest,
-      txLevels: _.chain(stats.txLevels).countBy().value(),
-      dxLevels: _.chain(stats.dxLevels).countBy().value(),
-      pxLevels: _.chain(stats.pxLevels).countBy().value(),
-    };
-  }, [props.mutationSummaryStats, props.mutationUuid, props.cancerTypeUuid]);
+const CancerTypeLevelSummary = ({ cancerTypePath, firebaseDb }: CancerTypeLevelSummaryProps) => {
+  const [cancerTypeStats, setCancerTypeStats] = useState(undefined);
 
-  return <NestLevelSummary summaryStats={summaryStats} />;
+  useEffect(() => {
+    const callbacks = [];
+    callbacks.push(
+      onValue(ref(firebaseDb, cancerTypePath), snapshot => {
+        const calcCancerTypeStats = getCancerTypeStats(snapshot.val());
+        setCancerTypeStats(calcCancerTypeStats);
+      })
+    );
+    return () => callbacks.forEach(callback => callback?.());
+  }, []);
+
+  if (!cancerTypeStats) {
+    return <></>;
+  }
+
+  return <NestLevelSummary summaryStats={cancerTypeStats} />;
 };
 
-const mapStoreToProps = ({ firebaseGeneStore }: IRootStore) => ({
-  mutationSummaryStats: firebaseGeneStore.allLevelMutationSummaryStats,
+const mapStoreToProps = ({ firebaseStore }: IRootStore) => ({
+  firebaseDb: firebaseStore.firebaseDb,
 });
 
-type StoreProps = {
-  mutationSummaryStats?: AllLevelSummary;
-};
+type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
 
 export default componentInject(mapStoreToProps)(observer(CancerTypeLevelSummary));

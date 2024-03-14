@@ -7,13 +7,13 @@ import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import WithSeparator from 'react-with-separator';
-import CommentIcon from './CommentIcon';
 import { InlineDivider } from 'app/shared/links/PubmedGeneArticlesLink';
 import { onValue, ref } from 'firebase/database';
 import { geneMetaReviewHasUuids, getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 import { IGene } from 'app/shared/model/gene.model';
 import { MetaReview } from 'app/shared/model/firebase/firebase.model';
 import { Button } from 'reactstrap';
+import CommentIcon from 'app/shared/icons/CommentIcon';
 
 export interface IGeneHeaderProps extends StoreProps {
   firebaseGenePath: string;

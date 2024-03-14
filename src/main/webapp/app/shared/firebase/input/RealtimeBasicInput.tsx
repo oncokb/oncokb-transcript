@@ -1,17 +1,25 @@
-import classNames from 'classnames';
-import React from 'react';
+import { RADIO_OPTION_NONE } from 'app/config/constants/constants';
+import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
+import { Review } from 'app/shared/model/firebase/firebase.model';
+import { IRootStore } from 'app/stores';
+import { default as classNames, default as classnames } from 'classnames';
+import { onValue, ref } from 'firebase/database';
+import { inject } from 'mobx-react';
+import React, { useEffect, useState } from 'react';
 import { Input, Label, LabelProps } from 'reactstrap';
 import { InputType } from 'reactstrap/es/Input';
-import classnames from 'classnames';
-import { ExtractPathExpressions } from '../../util/firebase/firebase-crud-store';
-import { Gene } from '../../model/firebase/firebase.model';
-import { IRootStore } from 'app/stores';
-import { RealtimeInputType } from './FirebaseRealtimeInput';
-import { inject } from 'mobx-react';
-import { getFirebasePath, getValueByNestedKey } from 'app/shared/util/firebase/firebase-utils';
-import _ from 'lodash';
 import styles from './styles.module.scss';
-import { RADIO_OPTION_NONE } from 'app/config/constants/constants';
+
+export enum RealtimeInputType {
+  TEXT = 'text',
+  INLINE_TEXT = 'inline_text',
+  TEXTAREA = 'textarea',
+  CHECKBOX = 'checkbox',
+  RADIO = 'radio',
+  DROPDOWN = 'dropdown',
+}
+
+export type RealtimeBasicInputType = Exclude<RealtimeInputType, RealtimeInputType.DROPDOWN>;
 
 export interface IRealtimeBasicLabel extends LabelProps {
   id: string;
@@ -38,43 +46,70 @@ export const RealtimeBasicLabel: React.FunctionComponent<IRealtimeBasicLabel> = 
   return labelComponent;
 };
 
-export type RealtimeBasicInput = Exclude<RealtimeInputType, RealtimeInputType.DROPDOWN>;
-
 export interface IRealtimeBasicInput extends React.InputHTMLAttributes<HTMLInputElement>, StoreProps {
-  fieldKey: ExtractPathExpressions<Gene>;
-  type: RealtimeBasicInput;
+  firebasePath: string; // firebase path that component needs to listen to
+  type: RealtimeBasicInputType;
   label: string;
   labelClass?: string;
   labelIcon?: JSX.Element;
   inputClass?: string;
+  parseRefs?: boolean;
 }
 
 const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props: IRealtimeBasicInput) => {
   const {
-    fieldKey,
+    db,
+    firebasePath,
     type,
     onChange,
     className,
     labelClass,
     label,
     labelIcon,
-    id = fieldKey,
+    id = firebasePath,
     inputClass,
     children,
-    data,
+    parseRefs = false,
     updateReviewableContent,
     ...otherProps
   } = props;
+
+  const [inputValue, setInputValue] = useState(null);
+  const [inputValueReview, setInputValueReview] = useState<Review>(null);
+  const [inputValueUuid, setInputValueUuid] = useState(null);
 
   const isCheckType = type === RealtimeInputType.CHECKBOX || type === RealtimeInputType.RADIO;
   const isInlineInputText = type === RealtimeInputType.INLINE_TEXT;
   const isTextType = [RealtimeInputType.INLINE_TEXT, RealtimeInputType.TEXT, RealtimeInputType.TEXTAREA].includes(type);
 
+  useEffect(() => {
+    const callbacks = [];
+    callbacks.push(
+      onValue(ref(db, firebasePath), snapshot => {
+        setInputValue(snapshot.val());
+      })
+    );
+    callbacks.push(
+      onValue(ref(db, `${firebasePath}_review`), snapshot => {
+        setInputValueReview(snapshot.val());
+      })
+    );
+    onValue(
+      ref(db, `${firebasePath}_uuid`),
+      snapshot => {
+        setInputValueUuid(snapshot.val());
+      },
+      { onlyOnce: true }
+    );
+    return () => {
+      callbacks.forEach(callback => callback?.());
+    };
+  }, []);
+
   const labelComponent = label && (
     <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'font-weight-bold'} />
   );
 
-  const inputValue = getValueByNestedKey(data, fieldKey);
   const inputChangeHandler = e => {
     let updateValue;
     if (isCheckType) {
@@ -83,16 +118,16 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
       updateValue = e.target.value;
     }
 
-    updateReviewableContent(getFirebasePath('GENE', props.data.name), fieldKey, updateValue);
+    updateReviewableContent(firebasePath, inputValue, updateValue, inputValueReview, inputValueUuid);
+
     if (onChange) {
       onChange(e);
     }
   };
 
   function isChecked() {
-    const value = getValueByNestedKey(data, fieldKey);
-    if (value) {
-      return value === label;
+    if (inputValue) {
+      return inputValue === label;
     }
     return label === RADIO_OPTION_NONE;
   }
@@ -139,18 +174,16 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
           {inputComponent}
         </>
       )}
+      <div className="mt-2">{parseRefs && !!inputValue ? <AutoParseRefField summary={inputValue} /> : undefined}</div>
     </div>
   );
 };
 
-const mapStoreToProps = ({ firebaseGeneStore }: IRootStore) => ({
-  data: firebaseGeneStore.data,
-  updateReviewableContent: firebaseGeneStore.updateReviewableContent,
+const mapStoreToProps = ({ firebaseStore, firebaseGeneReviewStore }: IRootStore) => ({
+  db: firebaseStore.firebaseDb,
+  updateReviewableContent: firebaseGeneReviewStore.updateReviewableContent,
 });
 
-type StoreProps = {
-  data?: Readonly<Gene>;
-  updateReviewableContent?: (path: string, key: ExtractPathExpressions<Gene>, value: any) => void;
-};
+type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
 
 export default inject(mapStoreToProps)(RealtimeBasicInput);

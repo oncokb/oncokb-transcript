@@ -1,12 +1,11 @@
 import { notNullOrUndefined } from 'app/shared/util/utils';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'reactstrap';
-import { ParsedHistoryRecord } from './CurationPage';
-import FirebaseList from './FirebaseList';
-import MutationCollapsible from './MutationCollapsible';
+import { ParsedHistoryRecord } from '../CurationPage';
+import FirebaseList from '../list/FirebaseList';
 import MutationName from './MutationName';
 import MutationsFilterSection from './MutationsFilterSection';
-import AddMutationButton from '../curation/button/AddMutationButton';
+import AddMutationButton from '../button/AddMutationButton';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import { componentInject } from 'app/shared/util/typed-inject';
@@ -14,6 +13,7 @@ import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
 import { Mutation } from 'app/shared/model/firebase/firebase.model';
 import { compareMutations } from 'app/shared/util/firebase/firebase-utils';
+import MutationCollapsible from '../collapsible/MutationCollapsible';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
@@ -70,15 +70,17 @@ function MutationsSection({ mutationsPath, hugoSymbol, parsedHistoryList, update
               defaultSort={compareMutations}
               itemBuilder={index => {
                 return (
-                  <MutationCollapsible
-                    disableOpen
-                    mutationPath={`${mutationsPath}/${index}`}
-                    hugoSymbol={hugoSymbol}
-                    parsedHistoryList={parsedHistoryList}
-                    onToggle={() => {
-                      setOpenMutationCollapsibleIndex(index);
-                    }}
-                  />
+                  <div className="mb-2">
+                    <MutationCollapsible
+                      disableOpen
+                      mutationPath={`${mutationsPath}/${index}`}
+                      hugoSymbol={hugoSymbol}
+                      parsedHistoryList={parsedHistoryList}
+                      onToggle={() => {
+                        setOpenMutationCollapsibleIndex(index);
+                      }}
+                    />
+                  </div>
                 );
               }}
               filter={index => {

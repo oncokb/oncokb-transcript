@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Comment } from 'app/shared/model/firebase/firebase.model';
 import { Button, Col, Container, Input, InputGroup, ListGroup, ListGroupItem, Row } from 'reactstrap';
@@ -14,6 +14,9 @@ import { CommentStore } from 'app/stores/firebase/firebase.comment.store';
 import { faComment as farComment } from '@fortawesome/free-regular-svg-icons';
 import { faComment as fasComment } from '@fortawesome/free-solid-svg-icons';
 import { GREY } from 'app/config/colors';
+import { onValue, ref } from 'firebase/database';
+import { getUserFullName } from 'app/shared/util/utils';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 function isCommentResolved(comment: Comment) {
   return typeof comment.resolved === 'boolean' ? comment.resolved : comment.resolved === 'true';
@@ -22,18 +25,24 @@ function isCommentResolved(comment: Comment) {
 export interface ICommentIconProps extends StoreProps {
   id: string;
   size?: SizeProp;
-  comments: Comment[];
-  onCreateComment: (content: string) => void;
-  onResolveComment: (index: number) => void;
-  onUnresolveComment: (index: number) => void;
-  onDeleteComments: (indices: number[]) => void;
+  path: string;
 }
 
 const CommentIcon = observer((props: ICommentIconProps) => {
+  const [comments, setComments] = useState<Comment[]>([]);
+
+  useEffect(() => {
+    const unsubscribe = onValue(ref(props.firebaseDb, props.path), snapshot => {
+      setComments(snapshot.val() || []);
+    });
+
+    return () => unsubscribe?.();
+  }, []);
+
   let color: string;
-  if (!props.comments || props.comments.length === 0) {
+  if (comments.length === 0) {
     color = 'black';
-  } else if (props.comments.some(comment => !isCommentResolved(comment))) {
+  } else if (comments.some(comment => !isCommentResolved(comment))) {
     color = 'gold';
   } else {
     color = 'green';
@@ -58,6 +67,45 @@ const CommentIcon = observer((props: ICommentIconProps) => {
     timeoutId.current = id;
   }
 
+  async function handleCreateComment(content: string) {
+    // replace with runTransaction?
+    const newComment = new Comment();
+    newComment.content = content;
+    newComment.email = props.account.email;
+    newComment.resolved = 'false';
+    newComment.userName = getUserFullName(props.account);
+
+    try {
+      await props.handleFirebaseUpdateUntemplated(props.path, [...Array(comments.length).fill({}), newComment]);
+    } catch (error) {
+      notifyError(error);
+    }
+  }
+
+  async function handleDeleteComments(indices: number[]) {
+    try {
+      await props.handleFirebaseDeleteFromArray(props.path, indices);
+    } catch (error) {
+      notifyError(error);
+    }
+  }
+
+  async function handleResolveComment(index: number) {
+    try {
+      await props.handleFirebaseUpdateUntemplated(`${props.path}/${index}`, { resolved: true });
+    } catch (error) {
+      notifyError(error);
+    }
+  }
+
+  async function handleUnresolveComment(index: number) {
+    try {
+      await props.handleFirebaseUpdateUntemplated(`${props.path}/${index}`, { resolved: false });
+    } catch (error) {
+      notifyError(error);
+    }
+  }
+
   return (
     <div
       style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
@@ -73,11 +121,11 @@ const CommentIcon = observer((props: ICommentIconProps) => {
           <CommentBox
             commentStore={props.commentStore}
             openCommentsId={props.id}
-            comments={props.comments}
-            onCreateComment={props.onCreateComment}
-            onResolveComment={props.onResolveComment}
-            onUnresolveComment={props.onUnresolveComment}
-            onDeleteComments={props.onDeleteComments}
+            comments={comments}
+            onCreateComment={handleCreateComment}
+            onResolveComment={handleResolveComment}
+            onUnresolveComment={handleUnresolveComment}
+            onDeleteComments={handleDeleteComments}
           />
         }
       >
@@ -85,8 +133,8 @@ const CommentIcon = observer((props: ICommentIconProps) => {
           <FontAwesomeIcon
             size={props.size}
             id={props.id}
-            icon={props.comments?.length > 0 ? fasComment : farComment}
-            color={props.comments?.length > 0 ? color : GREY}
+            icon={comments.length > 0 ? fasComment : farComment}
+            color={comments.length > 0 ? color : GREY}
           />
         </div>
       </DefaultTooltip>
@@ -271,8 +319,13 @@ const CommentItem = observer((props: ICommentItemProps) => {
   );
 });
 
-const mapStoreToProps = ({ commentStore }: IRootStore) => ({
+const mapStoreToProps = ({ commentStore, firebaseStore, authStore, firebaseCrudStore }: IRootStore) => ({
   commentStore,
+  firebaseDb: firebaseStore.firebaseDb,
+  firebaseCrudStoreDb: firebaseCrudStore.db,
+  account: authStore.account,
+  handleFirebaseUpdateUntemplated: firebaseCrudStore.updateUntemplated,
+  handleFirebaseDeleteFromArray: firebaseCrudStore.deleteFromArray,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
