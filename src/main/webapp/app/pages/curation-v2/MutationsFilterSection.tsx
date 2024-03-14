@@ -1,6 +1,7 @@
 import { CHECKBOX_LABEL_LEFT_MARGIN } from 'app/config/constants/constants';
 import { ONCOGENICITY_OPTIONS, MUTATION_EFFECT_OPTIONS, TX_LEVEL_OPTIONS } from 'app/config/constants/firebase';
 import { Mutation } from 'app/shared/model/firebase/firebase.model';
+import { getFilterModalStats, getMutationName } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
@@ -41,16 +42,56 @@ function MutationsFilterSection({ mutationsPath, filteredIndices, setFilteredInd
 
   useEffect(() => {
     const newFilteredIndices = mutations.reduce((accumulator: number[], mutation, index) => {
-      if (!mutation.name.toLowerCase().includes(mutationFilter.toLowerCase())) {
+      const matchesName =
+        !mutationFilter || getMutationName(mutation.name, mutation.alterations).toLowerCase().includes(mutationFilter.toLowerCase());
+
+      const selectedOncogenicities = oncogenicityFilter.filter(filter => filter.selected);
+      const matchesOncogenicity =
+        selectedOncogenicities.length === 0 ||
+        selectedOncogenicities.some(oncogenicity => oncogenicity.label === mutation.mutation_effect.oncogenic);
+
+      const selectedMutationEffects = mutationEffectFilter.filter(filter => filter.selected);
+      const matchesMutationEffect =
+        selectedMutationEffects.length === 0 ||
+        selectedMutationEffects.some(mutationEffect => mutationEffect.label === mutation.mutation_effect.effect);
+
+      function matchesTxLevel() {
+        const selectedTxLevels = txLevelFilter.filter(txLevel => txLevel.selected);
+        if (selectedTxLevels.length === 0) {
+          return true;
+        }
+
+        if (!mutation.tumors) {
+          return false;
+        }
+
+        for (const tumor of mutation.tumors) {
+          for (const TI of tumor.TIs) {
+            if (!TI.treatments) {
+              continue;
+            }
+
+            for (const treatment of TI.treatments) {
+              if (selectedTxLevels.some(txLevel => txLevel.label === treatment.level)) {
+                return true;
+              }
+            }
+          }
+        }
+        return false;
+      }
+
+      if (!matchesName || !matchesOncogenicity || !matchesMutationEffect || !matchesTxLevel()) {
         return [...accumulator, index];
       }
+
       return accumulator;
     }, []);
 
     if (!_.isEqual(filteredIndices, newFilteredIndices)) {
       setFilteredIndices(newFilteredIndices);
     }
-  }, [mutations, filteredIndices, mutationFilter]);
+  }, [mutations, filteredIndices, mutationFilter, oncogenicityFilter, mutationEffectFilter, txLevelFilter]);
 
   const showFilterModalCancelButton = useMemo(() => {
     return (
@@ -68,6 +109,11 @@ function MutationsFilterSection({ mutationsPath, filteredIndices, setFilteredInd
       mutationFilter
     );
   }, [oncogenicityFilter, mutationEffectFilter, txLevelFilter, mutationFilter]);
+
+  useEffect(() => {
+    const availableFilters = getFilterModalStats(mutations);
+    setEnabledCheckboxes([...availableFilters.oncogencities, ...availableFilters.mutationEffects, ...availableFilters.txLevels]);
+  }, [mutations]);
 
   function handleToggleFilterModal() {
     setShowFilterModal(showModal => !showModal);

@@ -136,7 +136,7 @@ const OncoKBSidebarExpanded = observer(
           onMouseOut={handleMouseOut}
           onMouseDown={handleMouseDown}
         />
-        <div className="pl-1" style={{ marginTop: '2.25rem' }}>
+        <div style={{ marginTop: '2.25rem' }}>
           {oncoKBSidebarWidth !== maxWidth && (
             <ActionIcon
               size="lg"
@@ -157,7 +157,7 @@ const OncoKBSidebarExpanded = observer(
             }}
           />
         </div>
-        <div style={{ marginTop: '2rem', marginLeft: '1rem', display: 'flex', width: '100%' }}>{children}</div>
+        <div style={{ marginTop: '2rem', display: 'flex', width: '100%' }}>{children}</div>
       </div>
     );
   }

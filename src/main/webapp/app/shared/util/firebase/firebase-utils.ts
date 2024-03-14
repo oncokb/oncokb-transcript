@@ -482,6 +482,36 @@ export function compareMutations(mut1: Mutation, mut2: Mutation, mutationLevelSu
   return mut1.name.localeCompare(mut2.name);
 }
 
+export const getFilterModalStats = (mutations: Mutation[]) => {
+  const oncogencities: FIREBASE_ONCOGENICITY[] = [];
+  const mutationEffects: string[] = [];
+  const txLevels: TX_LEVELS[] = [];
+
+  const mutationStats = mutations.map(mutation => getMutationStats(mutation));
+  for (const stat of mutationStats) {
+    for (const txLevel of Object.keys(stat.txLevels)) {
+      if (stat.oncogenicity && !oncogencities.includes(stat.oncogenicity)) {
+        oncogencities.push(stat.oncogenicity);
+      }
+
+      if (stat.mutationEffect && !mutationEffects.includes(stat.mutationEffect)) {
+        mutationEffects.push(stat.mutationEffect);
+      }
+
+      if (txLevel && !txLevels.includes(txLevel as TX_LEVELS)) {
+        // exclude empty
+        txLevels.push(txLevel as TX_LEVELS);
+      }
+    }
+  }
+
+  return {
+    oncogencities,
+    mutationEffects,
+    txLevels,
+  };
+};
+
 // Todo: The stats need to be refactored
 export const getMutationStats = (mutation?: Mutation) => {
   const stats = {
