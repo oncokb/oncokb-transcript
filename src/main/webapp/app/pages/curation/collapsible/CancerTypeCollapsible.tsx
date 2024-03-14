@@ -5,24 +5,25 @@ import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
-import Collapsible from '../curation/collapsible/Collapsible';
-import { NestLevelColor, NestLevelMapping, NestLevelType } from '../curation/collapsible/NestLevel';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
-import { ParsedHistoryRecord } from './CurationPage';
 import { isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
-import CommentIcon from './CommentIcon';
 import EditIcon from 'app/shared/icons/EditIcon';
-import { RealtimeTextAreaInput } from './input/RealtimeInputs';
-import RCTButton from '../curation/button/RCTButton';
-import TherapiesList from './TherapiesList';
-import { DeleteSectionButton } from '../curation/button/DeleteSectionButton';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import _ from 'lodash';
-import CancerTypeLevelSummary from './nestLevelSummary/CancerTypeLevelSummary';
-import RealtimeLevelDropdownInput, { LevelOfEvidenceType } from './input/RealtimeLevelDropdownInput';
 import { getLevelDropdownOptions } from 'app/shared/util/firebase/firebase-level-utils';
 import { DIAGNOSTIC_LEVELS_ORDERING, PROGNOSTIC_LEVELS_ORDERING } from 'app/config/constants/firebase';
+import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
+import RealtimeLevelDropdownInput, { LevelOfEvidenceType } from 'app/shared/firebase/input/RealtimeLevelDropdownInput';
+import CommentIcon from 'app/shared/icons/CommentIcon';
+import { ParsedHistoryRecord } from '../CurationPage';
+import { DeleteSectionButton } from '../button/DeleteSectionButton';
+import RCTButton from '../button/RCTButton';
+import TherapiesList from '../list/TherapiesList';
+import CancerTypeLevelSummary from '../nestLevelSummary/CancerTypeLevelSummary';
+import Collapsible from './Collapsible';
+import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
+import styles from '../styles.module.scss';
 
 interface ICancerTypeCollapsibleProps extends StoreProps {
   cancerTypePath: string;
@@ -117,7 +118,7 @@ function CancerTypeCollapsible({
       >
         <RealtimeTextAreaInput
           firebasePath={`${cancerTypePath}/summary`}
-          // inputClass={styles.summaryTextarea}
+          inputClass={styles.summaryTextarea}
           label="Therapeutic Summary (Optional)"
           labelIcon={
             <GeneHistoryTooltip historyData={parsedHistoryList} location={`${mutationName}, ${cancerTypeName}, Tumor Type Summary`} />
@@ -126,7 +127,7 @@ function CancerTypeCollapsible({
         />
         <RealtimeTextAreaInput
           firebasePath={`${cancerTypePath}/diagnosticSummary`}
-          // inputClass={styles.summaryTextarea}
+          inputClass={styles.summaryTextarea}
           label="Diagnostic Summary (Optional)"
           labelIcon={
             <GeneHistoryTooltip historyData={parsedHistoryList} location={`${mutationName}, ${cancerTypeName}, Diagnostic Summary`} />
@@ -135,7 +136,7 @@ function CancerTypeCollapsible({
         />
         <RealtimeTextAreaInput
           firebasePath={`${cancerTypePath}/prognosticSummary`}
-          // inputClass={styles.summaryTextarea}
+          inputClass={styles.summaryTextarea}
           label="Prognostic Summary (Optional)"
           labelIcon={
             <GeneHistoryTooltip historyData={parsedHistoryList} location={`${mutationName}, ${cancerTypeName}, Prognostic Summary`} />
@@ -176,7 +177,7 @@ function CancerTypeCollapsible({
           />
           <RealtimeTextAreaInput
             firebasePath={`${cancerTypePath}/diagnostic/description`}
-            // inputClass={styles.textarea}
+            inputClass={styles.textarea}
             label="Description of Evidence"
             name="evidenceDescription"
             parseRefs
@@ -207,7 +208,7 @@ function CancerTypeCollapsible({
           />
           <RealtimeTextAreaInput
             firebasePath={`${cancerTypePath}/prognostic/description`}
-            // inputClass={styles.textarea}
+            inputClass={styles.textarea}
             label="Description of Evidence"
             name="evidenceDescription"
             parseRefs

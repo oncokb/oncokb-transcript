@@ -5,10 +5,14 @@ import { parseAlterationName } from '../util/utils';
 import _ from 'lodash';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
-import { getDuplicateMutations } from '../util/firebase/firebase-utils';
+import { getDuplicateMutations, getFirebasePath } from '../util/firebase/firebase-utils';
+import { componentInject } from '../util/typed-inject';
+import { observer } from 'mobx-react';
+import { IRootStore } from 'app/stores';
+import { onValue, ref } from 'firebase/database';
 
-export interface IAddVusModalProps {
-  mutationList: Mutation[];
+export interface IAddVusModalProps extends StoreProps {
+  hugoSymbol: string;
   vusList: VusObjList;
   onCancel: () => void;
   onConfirm: (variants: string[]) => void;
@@ -24,20 +28,31 @@ const createOption = (label: string) => ({
   value: label,
 });
 
-export const AddVusModal = (props: IAddVusModalProps) => {
+const AddVusModalV2 = (props: IAddVusModalProps) => {
+  const firebaseMutationPath = `${getFirebasePath('GENE', props.hugoSymbol)}/mutations`;
+  const [mutationList, setMutationList] = useState<Mutation[]>(undefined);
   const [duplicateAlterations, setDuplicateAlterations] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [variants, setVariants] = useState<readonly Option[]>([]);
 
   useEffect(() => {
-    const dupAlts = getDuplicateMutations(
-      variants.map(o => o.label),
-      props.mutationList,
-      props.vusList,
-      { useFullAlterationName: false, exact: false }
-    );
-    setDuplicateAlterations(Array.from(dupAlts));
-  }, [variants, props.mutationList, props.vusList]);
+    const subscribe = onValue(ref(props.firebaseDb, firebaseMutationPath), snapshot => {
+      setMutationList(snapshot.val());
+    });
+    return () => subscribe();
+  }, []);
+
+  useEffect(() => {
+    if (mutationList) {
+      const dupAlts = getDuplicateMutations(
+        variants.map(o => o.label),
+        mutationList,
+        props.vusList,
+        { useFullAlterationName: false, exact: false }
+      );
+      setDuplicateAlterations(Array.from(dupAlts));
+    }
+  }, [variants, mutationList, props.vusList]);
 
   const handleKeyDown = event => {
     if (!inputValue) return;
@@ -94,3 +109,11 @@ export const AddVusModal = (props: IAddVusModalProps) => {
     />
   );
 };
+
+const mapStoreToProps = ({ firebaseStore }: IRootStore) => ({
+  firebaseDb: firebaseStore.firebaseDb,
+});
+
+type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
+
+export default componentInject(mapStoreToProps)(observer(AddVusModalV2));

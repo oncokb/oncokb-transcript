@@ -1,11 +1,5 @@
 import React from 'react';
-import { GroupBase, OptionsOrGroups, Props as SelectProps } from 'react-select';
-import Select from 'react-select';
-import { ExtractPathExpressions } from '../../util/firebase/firebase-crud-store';
-import { Gene } from '../../model/firebase/firebase.model';
-import { IRootStore } from 'app/stores';
-import { inject } from 'mobx-react';
-import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
+import Select, { GroupBase, OptionsOrGroups, Props as SelectProps } from 'react-select';
 import { RealtimeBasicLabel } from './RealtimeBasicInput';
 
 export type RealtimeDropdownOptions = {
@@ -18,14 +12,13 @@ export const getDefaultOptions = (values: string[]) => {
 };
 
 export interface IRealtimeDropdownInput extends SelectProps {
-  fieldKey: ExtractPathExpressions<Gene>;
   options: OptionsOrGroups<any, GroupBase<any>>;
   labelClass?: string;
   label?: string;
 }
 
 const RealtimeDropdownInput = (props: IRealtimeDropdownInput) => {
-  const { fieldKey, options, labelClass, label, onChange, defaultValue, ...selectProps } = props;
+  const { options, labelClass, label, onChange, defaultValue, ...selectProps } = props;
 
   return (
     <div className="flex d-flex mb-2 align-items-center">

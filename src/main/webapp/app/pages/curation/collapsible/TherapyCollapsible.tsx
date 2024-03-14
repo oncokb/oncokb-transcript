@@ -11,15 +11,16 @@ import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
-import { DeleteSectionButton } from '../curation/button/DeleteSectionButton';
-import RCTButton from '../curation/button/RCTButton';
-import Collapsible from '../curation/collapsible/Collapsible';
-import { NestLevelColor, NestLevelMapping, NestLevelType } from '../curation/collapsible/NestLevel';
-import CommentIcon from './CommentIcon';
-import { ParsedHistoryRecord } from './CurationPage';
-import { RealtimeTextAreaInput } from './input/RealtimeInputs';
-import TreatmentLevelSummary from './nestLevelSummary/TreatmentLevelSummary';
 import TherapyDropdownGroup from './TherapyDropdownGroup';
+import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
+import CommentIcon from 'app/shared/icons/CommentIcon';
+import { ParsedHistoryRecord } from '../CurationPage';
+import { DeleteSectionButton } from '../button/DeleteSectionButton';
+import RCTButton from '../button/RCTButton';
+import TreatmentLevelSummary from '../nestLevelSummary/TreatmentLevelSummary';
+import Collapsible from './Collapsible';
+import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
+import styles from '../styles.module.scss';
 
 export interface ITherapyCollapsibleProps extends StoreProps {
   therapyPath: string;
@@ -103,7 +104,7 @@ function TherapyCollapsible({
         <TherapyDropdownGroup treatmentPath={therapyPath} />
         <RealtimeTextAreaInput
           firebasePath={`${therapyPath}/description`}
-          // inputClass={styles.textarea}
+          inputClass={styles.textarea}
           label="Description of Evidence"
           labelIcon={
             <GeneHistoryTooltip
@@ -116,7 +117,7 @@ function TherapyCollapsible({
         />
         <RealtimeTextAreaInput
           firebasePath={`${therapyPath}/short`}
-          // inputClass={styles.shortTextarea}
+          inputClass={styles.shortTextarea}
           label="Additional Information (Optional)"
           labelIcon={
             <GeneHistoryTooltip
