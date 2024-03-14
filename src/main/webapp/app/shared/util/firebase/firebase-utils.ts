@@ -13,6 +13,7 @@ import {
   VusObjList,
   FIREBASE_ONCOGENICITY,
   Treatment,
+  MetaReview,
 } from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
 import { DX_LEVEL_DESCRIPTIONS, FB_COLLECTION_PATH, PX_LEVEL_DESCRIPTIONS } from 'app/config/constants/firebase';
@@ -99,8 +100,11 @@ export const getTxName = (drugList: readonly IDrug[], txUuidName: string) => {
 };
 
 export const geneNeedsReview = (meta: Meta | undefined) => {
+  return geneMetaReviewHasUuids(meta?.review);
+};
+
+export const geneMetaReviewHasUuids = (metaReview: MetaReview) => {
   let needsReview = false;
-  const metaReview = meta?.review;
   if (metaReview) {
     needsReview = !!Object.keys(metaReview).find(key => UUID_REGEX.test(key));
   }
