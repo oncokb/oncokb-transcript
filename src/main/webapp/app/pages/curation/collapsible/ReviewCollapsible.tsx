@@ -169,12 +169,12 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       action={getReviewActions()}
       disableCollapsible={reviewAction === ReviewAction.DELETE}
       isPendingDelete={reviewAction === ReviewAction.DELETE}
-      // badgeOverride={
-      //   props.baseReviewLevel.reviewLevelType !== ReviewLevelType.META &&
-      //   !props.baseReviewLevel.isUnderCreationOrDeletion && (
-      //     <DefaultBadge color={ReviewCollapsibleBootstrapClass[reviewAction]} text={ReviewActionLabels[reviewAction]} />
-      //   )
-      // }
+      badge={
+        props.baseReviewLevel.reviewLevelType !== ReviewLevelType.META &&
+        !props.baseReviewLevel.isUnderCreationOrDeletion && (
+          <DefaultBadge color={ReviewCollapsibleBootstrapClass[reviewAction]} text={ReviewActionLabels[reviewAction]} />
+        )
+      }
     >
       {props.baseReviewLevel.hasChildren()
         ? Object.values(rootReview.children)
