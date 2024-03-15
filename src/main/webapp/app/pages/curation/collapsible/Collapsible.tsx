@@ -1,4 +1,4 @@
-import { ReactElement, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import styles from './styles.module.scss';
 import React from 'react';
 import classNames from 'classnames';
@@ -8,6 +8,7 @@ import { DANGER } from 'app/config/colors';
 import { getHexColorWithAlpha } from 'app/shared/util/utils';
 import { DISABLED_NEST_LEVEL_COLOR } from './NestLevel';
 import { IBadgeGroupProps } from '../BadgeGroup';
+import { IDefaultBadgeProps } from 'app/shared/badge/DefaultBadge';
 
 export interface CollapsibleProps {
   title: React.ReactNode;
@@ -23,7 +24,7 @@ export interface CollapsibleProps {
   disableOpen?: boolean; // this prop is only used for the mutation collapsible, since it doesn't actually open when clicked
   isPendingDelete?: boolean;
   onToggle?: (isOpen: boolean) => void;
-  badge?: ReactElement<IBadgeGroupProps>;
+  badge?: ReactElement<IBadgeGroupProps> | ReactElement<IDefaultBadgeProps>;
 }
 
 export default function Collapsible({
@@ -47,6 +48,12 @@ export default function Collapsible({
   if (isPendingDelete) {
     disableCollapsible = true;
   }
+
+  useEffect(() => {
+    if (isPendingDelete) {
+      setIsOpen(false);
+    }
+  }, [isPendingDelete]);
 
   const handleToggleCollapsible = () => {
     if (!disableCollapsible) {
@@ -111,17 +118,15 @@ export default function Collapsible({
           </div>
           {badge}
           <div className="mr-auto" />
-          {!isPendingDelete ? (
-            <div className="d-flex align-items-center">
-              {info}
-              {action && (
-                <>
-                  <div className={classNames(styles.divider)} />
-                  <div className={'collapsible-action all-children-margin'}>{action}</div>
-                </>
-              )}
-            </div>
-          ) : undefined}
+          <div className="d-flex align-items-center">
+            {info}
+            {action && (
+              <>
+                <div className={classNames(styles.divider)} />
+                <div className={'collapsible-action all-children-margin'}>{action}</div>
+              </>
+            )}
+          </div>
         </div>
       </div>
       {isOpen && <div className={classNames('card-body', styles.body)}>{children}</div>}

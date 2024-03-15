@@ -166,7 +166,7 @@ export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
     return true;
   }
 
-  const ignoredKeySuffixes = ['_review', '_uuid', 'TIs', 'cancerTypes', 'name'];
+  const ignoredKeySuffixes = ['_review', '_uuid', 'TIs', 'cancerTypes', 'name', 'alterations'];
   const isEmpty = isNestedObjectEmpty(sectionValue, ignoredKeySuffixes);
 
   if (!isEmpty) {
@@ -653,8 +653,6 @@ export const getCancerTypeStats = (tumor?: Tumor) => {
     dxLevels: {} as { [dxLevel in DX_LEVELS]: number },
     pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
   };
-
-  return stats;
 
   if (tumor.summary) {
     stats.TTS++;
