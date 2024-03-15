@@ -1,3 +1,9 @@
+describe('FirebaseReviewableCrudStore', () => {
+  it('placeholder', () => {
+    // TODO: reimplement tests
+  });
+});
+
 // const mockUpdate = jest.fn().mockImplementation((db, value) => Promise.resolve());
 // const mockRemove = jest.fn().mockImplementation((db, value) => {});
 // const mockRef = jest.fn().mockImplementation(db => {});
