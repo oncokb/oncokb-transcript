@@ -21,6 +21,7 @@ import TreatmentLevelSummary from '../nestLevelSummary/TreatmentLevelSummary';
 import Collapsible from './Collapsible';
 import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import styles from '../styles.module.scss';
+import BadgeGroup from '../BadgeGroup';
 
 export interface ITherapyCollapsibleProps extends StoreProps {
   therapyPath: string;
@@ -98,7 +99,7 @@ function TherapyCollapsible({
             />
           </>
         }
-        // isSectionEmpty={isSectionEmpty(data, therapyFirebasePath)}
+        badge={<BadgeGroup firebasePath={therapyPath} showDeletedBadge={treatmentReview?.removed || false} />}
         isPendingDelete={treatmentReview?.removed || false}
       >
         <TherapyDropdownGroup treatmentPath={therapyPath} />

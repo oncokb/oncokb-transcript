@@ -24,6 +24,7 @@ import CancerTypeLevelSummary from '../nestLevelSummary/CancerTypeLevelSummary';
 import Collapsible from './Collapsible';
 import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import styles from '../styles.module.scss';
+import BadgeGroup from '../BadgeGroup';
 
 interface ICancerTypeCollapsibleProps extends StoreProps {
   cancerTypePath: string;
@@ -112,7 +113,7 @@ function CancerTypeCollapsible({
             />
           </>
         }
-        // isSectionEmpty={isSectionEmpty(data, cancerTypeFirebasePath)}
+        badge={<BadgeGroup firebasePath={cancerTypePath} showDeletedBadge={cancerTypesReview?.removed || false} />}
         isPendingDelete={cancerTypesReview?.removed || false}
       >
         <RealtimeTextAreaInput
@@ -142,7 +143,12 @@ function CancerTypeCollapsible({
           }
           name="pxSummary"
         />
-        <Collapsible open title="Therapeutic Implications" borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.THERAPEUTIC]]}>
+        <Collapsible
+          open
+          title="Therapeutic Implications"
+          borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.THERAPEUTIC]]}
+          badge={<BadgeGroup firebasePath={`${cancerTypePath}/TIs`} />}
+        >
           <TherapiesList
             parsedHistoryList={parsedHistoryList}
             mutationName={mutationName}
@@ -162,10 +168,7 @@ function CancerTypeCollapsible({
               <RCTButton cancerTypePath={cancerTypePath} relevantCancerTypesInfoPath={`${cancerTypePath}/diagnostic`} />
             </>
           }
-          // isSectionEmpty={isSectionEmpty(
-          //     data,
-          //     buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/diagnostic`)
-          // )}
+          badge={<BadgeGroup firebasePath={`${cancerTypePath}/diagnostic`} />}
         >
           <RealtimeLevelDropdownInput
             firebaseLevelPath={`${cancerTypePath}/diagnostic/level`}
@@ -193,10 +196,7 @@ function CancerTypeCollapsible({
               <RCTButton cancerTypePath={cancerTypePath} relevantCancerTypesInfoPath={`${cancerTypePath}/prognostic`} />
             </>
           }
-          // isSectionEmpty={isSectionEmpty(
-          //     data,
-          //     buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/tumors/${tumorIndex}/prognostic`)
-          // )}
+          badge={<BadgeGroup firebasePath={`${cancerTypePath}/prognostic`} />}
         >
           <RealtimeLevelDropdownInput
             firebaseLevelPath={`${cancerTypePath}/prognostic/level`}

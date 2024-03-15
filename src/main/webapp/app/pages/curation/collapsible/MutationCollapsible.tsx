@@ -24,6 +24,7 @@ import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
 import CancerTypeCollapsible from './CancerTypeCollapsible';
 import { NestLevelColor, NestLevelMapping, NestLevelType, DISABLED_NEST_LEVEL_COLOR } from './NestLevel';
 import styles from '../styles.module.scss';
+import BadgeGroup from '../BadgeGroup';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
@@ -124,7 +125,7 @@ const MutationCollapsible = ({
             />
           </>
         }
-        //   isSectionEmpty={isSectionEmpty(null, mutationPath)}
+        badge={<BadgeGroup firebasePath={mutationPath} showDeletedBadge={mutationNameReview?.removed || false} />}
         isPendingDelete={mutationNameReview?.removed || false}
       >
         <Collapsible
@@ -132,9 +133,13 @@ const MutationCollapsible = ({
           title="Mutation Effect"
           borderLeftColor={isMECuratable ? NestLevelColor[NestLevelMapping[NestLevelType.MUTATION_EFFECT]] : DISABLED_NEST_LEVEL_COLOR}
           disableCollapsible={!isMECuratable}
-          badgeOverride={!isMECuratable && <NotCuratableBadge mutationName={title} />}
+          badge={
+            <BadgeGroup
+              firebasePath={`${mutationPath}/mutation_effect`}
+              showNotCuratableBadge={{ show: !isMECuratable, mutationName: title }}
+            />
+          }
           action={isMECuratable && <CommentIcon id={`${mutationUuid}_mutation_effect`} path={`${mutationPath}/mutation_effect_comments`} />}
-          // isSectionEmpty={isSectionEmpty(data, buildFirebaseGenePath(hugoSymbol, `mutations/${firebaseIndex}/mutation_effect`))}
         >
           <RealtimeCheckedInputGroup
             groupHeader={

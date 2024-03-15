@@ -24,6 +24,7 @@ const MutationLevelSummary = ({ mutationPath, firebaseDb, hideOncogenicity = fal
         setMutationStats(calcMutationStats);
       })
     );
+    return () => callbacks.forEach(callback => callback?.());
   }, []);
   return <NestLevelSummary summaryStats={mutationStats} hideOncogenicity={hideOncogenicity} />;
 };
