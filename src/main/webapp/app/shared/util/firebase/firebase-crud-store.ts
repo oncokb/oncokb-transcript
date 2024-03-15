@@ -39,7 +39,6 @@ export class FirebaseCrudStore<T = any> {
       delete: action.bound,
       deleteFromArray: action.bound,
       pushToArray: action.bound,
-      pushToArrayFront: action.bound,
     });
     autorun(() => {
       this.setDatabase(rootStore.firebaseStore.firebaseDb);
@@ -121,15 +120,6 @@ export class FirebaseCrudStore<T = any> {
       }
       currentData.push(...values);
       return currentData;
-    });
-  }
-
-  async pushToArrayFront(path: string, values: any[]) {
-    return await runTransaction(ref(this.db, path), (currentData: any[]) => {
-      if (!currentData) {
-        return values;
-      }
-      return [...values, ...currentData];
     });
   }
 }

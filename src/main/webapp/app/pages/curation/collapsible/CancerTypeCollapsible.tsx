@@ -37,7 +37,6 @@ function CancerTypeCollapsible({
   parsedHistoryList,
   firebaseDb,
   modifyCancerTypeModalStore,
-  relevantCancerTypesModalStore,
   updateTumor,
   deleteSection,
 }: ICancerTypeCollapsibleProps) {
@@ -238,7 +237,6 @@ function CancerTypeCollapsible({
 const mapStoreToProps = ({ firebaseStore, firebaseGeneStore, modifyCancerTypeModalStore, relevantCancerTypesModalStore }: IRootStore) => ({
   firebaseDb: firebaseStore.firebaseDb,
   modifyCancerTypeModalStore,
-  relevantCancerTypesModalStore,
   updateTumor: firebaseGeneStore.updateTumor,
   deleteSection: firebaseGeneStore.deleteSection,
 });

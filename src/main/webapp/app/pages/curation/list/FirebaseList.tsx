@@ -10,20 +10,10 @@ export interface IFirebaseListProps<T> extends StoreProps, ViewportListPropsBase
   itemBuilder: (firebaseIndex: number) => React.ReactNode;
   pushDirection: 'front' | 'back';
   filter?: (firebaseIndex: number) => boolean;
-  onLengthChange?: (oldLength: number, newLength: number) => void;
   defaultSort?: (a: T, b: T) => number;
 }
 
-function FirebaseList<T>({
-  path,
-  itemBuilder,
-  pushDirection,
-  filter,
-  onLengthChange,
-  defaultSort,
-  firebaseDb,
-  ...rest
-}: IFirebaseListProps<T>) {
+function FirebaseList<T>({ path, itemBuilder, pushDirection, filter, defaultSort, firebaseDb, ...rest }: IFirebaseListProps<T>) {
   const [indices, setIndices] = useState<number[]>(null);
   const [numItemsAdded, setNumItemsAdded] = useState(0);
 
@@ -51,12 +41,11 @@ function FirebaseList<T>({
         );
       } else if (snapshot.size !== indices.length + numItemsAdded) {
         setNumItemsAdded(snapshot.size - indices.length);
-        onLengthChange?.(indices.length, snapshot.size);
       }
     });
 
     return () => unsubscribe?.();
-  }, [indices, numItemsAdded, onLengthChange, setNumItemsAdded]);
+  }, [path, firebaseDb, indices, numItemsAdded, setNumItemsAdded]);
 
   const listItems = useMemo(() => {
     if (!indices) {
@@ -65,31 +54,23 @@ function FirebaseList<T>({
 
     const items: { item: JSX.Element; index: number }[] = [];
 
+    const addedItemIndices: number[] = [];
+    for (let i = 0; i < numItemsAdded; i++) {
+      addedItemIndices.push(i + indices.length);
+    }
+
     let allItemIndices: number[];
-    let existingItemIndices = indices;
     if (pushDirection === 'front') {
-      const addedItemIndices: number[] = [];
-      for (let i = 0; i < numItemsAdded; i++) {
-        addedItemIndices.push(i);
-      }
-
-      existingItemIndices = existingItemIndices.map(index => index + numItemsAdded);
-
-      allItemIndices = [...addedItemIndices, ...existingItemIndices];
+      allItemIndices = [...addedItemIndices.reverse(), ...indices];
     } else if (pushDirection === 'back') {
-      const addedItemIndices: number[] = [];
-      for (let i = 0; i < numItemsAdded; i++) {
-        addedItemIndices.push(i + existingItemIndices.length);
-      }
-
-      allItemIndices = [...existingItemIndices, ...addedItemIndices];
+      allItemIndices = [...indices, ...addedItemIndices];
     }
 
     for (const index of allItemIndices) {
       items.push({ item: <div key={index}>{itemBuilder(index)}</div>, index }); // is using index as key ok? I think it might since firebase order not chagning
     }
     return items;
-  }, [indices, numItemsAdded]);
+  }, [indices, numItemsAdded, path]);
 
   function getList() {
     if (!filter) {

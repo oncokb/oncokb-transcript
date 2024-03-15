@@ -81,7 +81,7 @@ function MutationsFilterSection({ mutationsPath, filteredIndices, setFilteredInd
         return false;
       }
 
-      if (!matchesName || !matchesOncogenicity || !matchesMutationEffect || !matchesTxLevel()) {
+      if (matchesName && matchesOncogenicity && matchesMutationEffect && matchesTxLevel()) {
         return [...accumulator, index];
       }
 
@@ -146,15 +146,18 @@ function MutationsFilterSection({ mutationsPath, filteredIndices, setFilteredInd
 
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <FaFilter
-          color={mutationsAreFiltered ? 'gold' : null}
-          style={{ cursor: 'pointer' }}
-          onClick={handleToggleFilterModal}
-          className="mr-2"
-          id="filter"
-        />
-        <Input placeholder={'Search Mutation'} value={mutationFilter} onChange={event => setMutationFilter(event.target.value)} />
+      <div style={{ width: '100%' }} className="d-flex align-items-center justify-content-between mb-2">
+        {mutationsAreFiltered ? <span>{`Showing ${filteredIndices.length} of ${mutations.length} matching the search`}</span> : <span />}
+        <div className="d-flex align-items-center">
+          <FaFilter
+            color={mutationsAreFiltered ? 'gold' : null}
+            style={{ cursor: 'pointer' }}
+            onClick={handleToggleFilterModal}
+            className="mr-2"
+            id="filter"
+          />
+          <Input placeholder={'Search Mutation'} value={mutationFilter} onChange={event => setMutationFilter(event.target.value)} />
+        </div>
       </div>
       <Modal isOpen={showFilterModal} toggle={handleToggleFilterModal}>
         <ModalHeader>
