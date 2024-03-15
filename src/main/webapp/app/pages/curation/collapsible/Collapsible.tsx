@@ -1,21 +1,13 @@
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
 import styles from './styles.module.scss';
 import React from 'react';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import NoEntryBadge from 'app/shared/badge/NoEntryBadge';
-import { DANGER, GREY } from 'app/config/colors';
-import DefaultBadge from 'app/shared/badge/DefaultBadge';
+import { DANGER } from 'app/config/colors';
 import { getHexColorWithAlpha } from 'app/shared/util/utils';
 import { DISABLED_NEST_LEVEL_COLOR } from './NestLevel';
-
-const DELETED_SECTION_TOOLTIP_OVERLAY = (
-  <div>
-    <div>This deletion is pending for review.</div>
-    <div>To confirm or revert the deletion, please enter review mode.</div>
-  </div>
-);
+import { IBadgeGroupProps } from '../BadgeGroup';
 
 export interface CollapsibleProps {
   title: React.ReactNode;
@@ -27,12 +19,11 @@ export interface CollapsibleProps {
   children: React.ReactNode;
   className?: string;
   open?: boolean;
-  isSectionEmpty?: boolean;
   disableCollapsible?: boolean;
   disableOpen?: boolean; // this prop is only used for the mutation collapsible, since it doesn't actually open when clicked
   isPendingDelete?: boolean;
-  badgeOverride?: React.ReactNode;
   onToggle?: (isOpen: boolean) => void;
+  badge?: ReactElement<IBadgeGroupProps>;
 }
 
 export default function Collapsible({
@@ -44,31 +35,18 @@ export default function Collapsible({
   children,
   className,
   open = false,
-  isSectionEmpty = false,
   disableCollapsible = false,
-  disableOpen = false, //
+  disableOpen = false,
   isPendingDelete = false,
   backgroundColor,
-  badgeOverride,
   onToggle,
+  badge,
 }: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(open);
 
   if (isPendingDelete) {
     disableCollapsible = true;
   }
-
-  const getBadge = () => {
-    if (badgeOverride) {
-      return badgeOverride;
-    }
-    if (isPendingDelete) {
-      return <DefaultBadge color="danger" text="Deleted" tooltipOverlay={DELETED_SECTION_TOOLTIP_OVERLAY} />;
-    }
-    if (isSectionEmpty) {
-      return <NoEntryBadge />;
-    }
-  };
 
   const handleToggleCollapsible = () => {
     if (!disableCollapsible) {
@@ -131,7 +109,7 @@ export default function Collapsible({
               {title}
             </span>
           </div>
-          {getBadge()}
+          {badge}
           <div className="mr-auto" />
           {!isPendingDelete ? (
             <div className="d-flex align-items-center">

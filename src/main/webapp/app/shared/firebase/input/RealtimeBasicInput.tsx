@@ -74,7 +74,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     ...otherProps
   } = props;
 
-  const [inputValue, setInputValue] = useState(null);
+  const [inputValue, setInputValue] = useState(undefined);
   const [inputValueReview, setInputValueReview] = useState<Review>(null);
   const [inputValueUuid, setInputValueUuid] = useState(null);
 

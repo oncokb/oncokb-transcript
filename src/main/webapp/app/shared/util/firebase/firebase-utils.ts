@@ -166,7 +166,7 @@ export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
     return true;
   }
 
-  const ignoredKeySuffixes = ['_review', '_uuid', 'TIs', 'cancerTypes'];
+  const ignoredKeySuffixes = ['_review', '_uuid', 'TIs', 'cancerTypes', 'name'];
   const isEmpty = isNestedObjectEmpty(sectionValue, ignoredKeySuffixes);
 
   if (!isEmpty) {

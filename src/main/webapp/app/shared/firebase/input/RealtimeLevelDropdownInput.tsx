@@ -78,11 +78,13 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
   }, []);
 
   useEffect(() => {
-    let defaultVal = getLevelDropdownOption(currentLOE);
-    if (currentLOE === TX_LEVELS.LEVEL_EMPTY || isDisabled) {
-      defaultVal = undefined;
+    if (currentLOE) {
+      let defaultVal = getLevelDropdownOption(currentLOE);
+      if (currentLOE === TX_LEVELS.LEVEL_EMPTY || isDisabled) {
+        defaultVal = undefined;
+      }
+      setDefaultValue(defaultVal);
     }
-    setDefaultValue(defaultVal);
   }, [currentLOE]);
 
   useEffect(() => {
