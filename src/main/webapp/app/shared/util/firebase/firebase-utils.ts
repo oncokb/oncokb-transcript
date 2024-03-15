@@ -496,15 +496,15 @@ export const getFilterModalStats = (mutations: Mutation[]) => {
 
   const mutationStats = mutations.map(mutation => getMutationStats(mutation));
   for (const stat of mutationStats) {
+    if (stat.oncogenicity && !oncogencities.includes(stat.oncogenicity)) {
+      oncogencities.push(stat.oncogenicity);
+    }
+
+    if (stat.mutationEffect && !mutationEffects.includes(stat.mutationEffect)) {
+      mutationEffects.push(stat.mutationEffect);
+    }
+
     for (const txLevel of Object.keys(stat.txLevels)) {
-      if (stat.oncogenicity && !oncogencities.includes(stat.oncogenicity)) {
-        oncogencities.push(stat.oncogenicity);
-      }
-
-      if (stat.mutationEffect && !mutationEffects.includes(stat.mutationEffect)) {
-        mutationEffects.push(stat.mutationEffect);
-      }
-
       if (txLevel && !txLevels.includes(txLevel as TX_LEVELS)) {
         // exclude empty
         txLevels.push(txLevel as TX_LEVELS);
@@ -653,6 +653,9 @@ export const getCancerTypeStats = (tumor?: Tumor) => {
     dxLevels: {} as { [dxLevel in DX_LEVELS]: number },
     pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
   };
+
+  return stats;
+
   if (tumor.summary) {
     stats.TTS++;
   }

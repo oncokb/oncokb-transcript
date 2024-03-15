@@ -14,6 +14,7 @@ import { observer } from 'mobx-react';
 import { Mutation } from 'app/shared/model/firebase/firebase.model';
 import { compareMutations } from 'app/shared/util/firebase/firebase-utils';
 import MutationCollapsible from '../collapsible/MutationCollapsible';
+import styles from '../styles.module.scss';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
@@ -27,17 +28,6 @@ function MutationsSection({ mutationsPath, hugoSymbol, parsedHistoryList, update
   const [openMutationCollapsibleIndex, setOpenMutationCollapsibleIndex] = useState<number>(null);
 
   const mutationScrollContainerRef = useRef<HTMLDivElement>(null);
-
-  const handleMutationListLengthChange = useCallback(
-    (oldLength: number, newLength: number) => {
-      if (notNullOrUndefined(openMutationCollapsibleIndex)) {
-        setOpenMutationCollapsibleIndex(index => {
-          return index + newLength - oldLength;
-        });
-      }
-    },
-    [openMutationCollapsibleIndex, setOpenMutationCollapsibleIndex]
-  );
 
   function getMutationCollapsibles() {
     return (
@@ -84,9 +74,8 @@ function MutationsSection({ mutationsPath, hugoSymbol, parsedHistoryList, update
                 );
               }}
               filter={index => {
-                return !filteredIndices.includes(index);
+                return filteredIndices.includes(index);
               }}
-              onLengthChange={handleMutationListLengthChange}
               viewportRef={mutationScrollContainerRef}
             />
           </div>
@@ -107,7 +96,9 @@ function MutationsSection({ mutationsPath, hugoSymbol, parsedHistoryList, update
         >
           <Col>
             <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              <span onClick={() => setOpenMutationCollapsibleIndex(null)}>Mutations</span>
+              <span className={styles.link} onClick={() => setOpenMutationCollapsibleIndex(null)}>
+                Mutations
+              </span>
               <span className="px-2" style={{ color: '#6c757d' }}>
                 /
               </span>
@@ -122,16 +113,13 @@ function MutationsSection({ mutationsPath, hugoSymbol, parsedHistoryList, update
           }}
         >
           <Col>
-            <div className={'d-flex justify-content-between align-items-center mb-2'}>
+            <div className={'d-flex align-items-center mb-2'}>
               <div className="mb-2 d-flex align-items-center">
                 <h5 className="mb-0 mr-2">Mutations:</h5>{' '}
                 <AddMutationButton
                   showAddMutationModal={showAddMutationModal}
                   onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
                 />
-                {/* {mutationsAreFiltered && (
-                <span>{`Showing ${mutations.length} of ${props.data.mutations.length} matching the search`}</span>
-              )} */}
               </div>
               <MutationsFilterSection
                 mutationsPath={mutationsPath}
@@ -146,13 +134,13 @@ function MutationsSection({ mutationsPath, hugoSymbol, parsedHistoryList, update
       {showAddMutationModal && (
         <AddMutationModal
           hugoSymbol={hugoSymbol}
-          onConfirm={async newMutation => {
+          onConfirm={newMutation => {
             try {
-              await updateMutations(mutationsPath, [newMutation]);
+              updateMutations(mutationsPath, [newMutation]);
+              setShowAddMutationModal(show => !show);
             } catch (error) {
               notifyError(error);
             }
-            setShowAddMutationModal(show => !show);
           }}
           onCancel={() => {
             setShowAddMutationModal(show => !show);
@@ -164,7 +152,7 @@ function MutationsSection({ mutationsPath, hugoSymbol, parsedHistoryList, update
 }
 
 const mapStoreToProps = ({ firebaseCrudStore }: IRootStore) => ({
-  updateMutations: firebaseCrudStore.pushToArrayFront,
+  updateMutations: firebaseCrudStore.pushToArray,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
