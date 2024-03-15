@@ -41,52 +41,53 @@ function MutationsFilterSection({ mutationsPath, filteredIndices, setFilteredInd
   }, []);
 
   useEffect(() => {
-    const newFilteredIndices = mutations.reduce((accumulator: number[], mutation, index) => {
-      const matchesName =
-        !mutationFilter || getMutationName(mutation.name, mutation.alterations).toLowerCase().includes(mutationFilter.toLowerCase());
+    const newFilteredIndices =
+      mutations?.reduce((accumulator: number[], mutation, index) => {
+        const matchesName =
+          !mutationFilter || getMutationName(mutation.name, mutation.alterations).toLowerCase().includes(mutationFilter.toLowerCase());
 
-      const selectedOncogenicities = oncogenicityFilter.filter(filter => filter.selected);
-      const matchesOncogenicity =
-        selectedOncogenicities.length === 0 ||
-        selectedOncogenicities.some(oncogenicity => oncogenicity.label === mutation.mutation_effect.oncogenic);
+        const selectedOncogenicities = oncogenicityFilter.filter(filter => filter.selected);
+        const matchesOncogenicity =
+          selectedOncogenicities.length === 0 ||
+          selectedOncogenicities.some(oncogenicity => oncogenicity.label === mutation.mutation_effect.oncogenic);
 
-      const selectedMutationEffects = mutationEffectFilter.filter(filter => filter.selected);
-      const matchesMutationEffect =
-        selectedMutationEffects.length === 0 ||
-        selectedMutationEffects.some(mutationEffect => mutationEffect.label === mutation.mutation_effect.effect);
+        const selectedMutationEffects = mutationEffectFilter.filter(filter => filter.selected);
+        const matchesMutationEffect =
+          selectedMutationEffects.length === 0 ||
+          selectedMutationEffects.some(mutationEffect => mutationEffect.label === mutation.mutation_effect.effect);
 
-      function matchesTxLevel() {
-        const selectedTxLevels = txLevelFilter.filter(txLevel => txLevel.selected);
-        if (selectedTxLevels.length === 0) {
-          return true;
-        }
+        function matchesTxLevel() {
+          const selectedTxLevels = txLevelFilter.filter(txLevel => txLevel.selected);
+          if (selectedTxLevels.length === 0) {
+            return true;
+          }
 
-        if (!mutation.tumors) {
-          return false;
-        }
+          if (!mutation.tumors) {
+            return false;
+          }
 
-        for (const tumor of mutation.tumors) {
-          for (const TI of tumor.TIs) {
-            if (!TI.treatments) {
-              continue;
-            }
+          for (const tumor of mutation.tumors) {
+            for (const TI of tumor.TIs) {
+              if (!TI.treatments) {
+                continue;
+              }
 
-            for (const treatment of TI.treatments) {
-              if (selectedTxLevels.some(txLevel => txLevel.label === treatment.level)) {
-                return true;
+              for (const treatment of TI.treatments) {
+                if (selectedTxLevels.some(txLevel => txLevel.label === treatment.level)) {
+                  return true;
+                }
               }
             }
           }
+          return false;
         }
-        return false;
-      }
 
-      if (matchesName && matchesOncogenicity && matchesMutationEffect && matchesTxLevel()) {
-        return [...accumulator, index];
-      }
+        if (matchesName && matchesOncogenicity && matchesMutationEffect && matchesTxLevel()) {
+          return [...accumulator, index];
+        }
 
-      return accumulator;
-    }, []);
+        return accumulator;
+      }, []) || [];
 
     if (!_.isEqual(filteredIndices, newFilteredIndices)) {
       setFilteredIndices(newFilteredIndices);
@@ -148,16 +149,18 @@ function MutationsFilterSection({ mutationsPath, filteredIndices, setFilteredInd
     <>
       <div style={{ width: '100%' }} className="d-flex align-items-center justify-content-between mb-2">
         {mutationsAreFiltered ? <span>{`Showing ${filteredIndices.length} of ${mutations.length} matching the search`}</span> : <span />}
-        <div className="d-flex align-items-center">
-          <FaFilter
-            color={mutationsAreFiltered ? 'gold' : null}
-            style={{ cursor: 'pointer' }}
-            onClick={handleToggleFilterModal}
-            className="mr-2"
-            id="filter"
-          />
-          <Input placeholder={'Search Mutation'} value={mutationFilter} onChange={event => setMutationFilter(event.target.value)} />
-        </div>
+        {mutations?.length > 0 && (
+          <div className="d-flex align-items-center">
+            <FaFilter
+              color={mutationsAreFiltered ? 'gold' : null}
+              style={{ cursor: 'pointer' }}
+              onClick={handleToggleFilterModal}
+              className="mr-2"
+              id="filter"
+            />
+            <Input placeholder={'Search Mutation'} value={mutationFilter} onChange={event => setMutationFilter(event.target.value)} />
+          </div>
+        )}
       </div>
       <Modal isOpen={showFilterModal} toggle={handleToggleFilterModal}>
         <ModalHeader>

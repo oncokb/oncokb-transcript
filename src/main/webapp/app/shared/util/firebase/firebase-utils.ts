@@ -494,7 +494,7 @@ export const getFilterModalStats = (mutations: Mutation[]) => {
   const mutationEffects: string[] = [];
   const txLevels: TX_LEVELS[] = [];
 
-  const mutationStats = mutations.map(mutation => getMutationStats(mutation));
+  const mutationStats = mutations?.map(mutation => getMutationStats(mutation)) || [];
   for (const stat of mutationStats) {
     if (stat.oncogenicity && !oncogencities.includes(stat.oncogenicity)) {
       oncogencities.push(stat.oncogenicity);
