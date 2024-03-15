@@ -1,3 +1,9 @@
+describe('FirebaseGeneStore', () => {
+  it('placeholder', () => {
+    // TODO: reimplement tests
+  });
+});
+
 // const mockUpdate = jest.fn().mockImplementation((db, value) => Promise.resolve());
 // const mockRemove = jest.fn().mockImplementation((db, value) => {});
 // const mockRef = jest.fn().mockImplementation(db => {});
@@ -27,7 +33,6 @@
 // const deleteFromArrayMock = jest.spyOn(FirebaseCrudStore.prototype, 'deleteFromArray').mockReturnValue(Promise.resolve(undefined));
 // const updateGeneMetaContentMock = jest.spyOn(FirebaseMetaStore.prototype, 'updateGeneMetaContent').mockReturnValue(Promise.resolve());
 // const updateGeneReviewUuidMock = jest.spyOn(FirebaseMetaStore.prototype, 'updateGeneReviewUuid').mockReturnValue(Promise.resolve());
-
 // describe('FirebaseGeneStore', () => {
 //   // Variables used in tests
 //   let rootStore = undefined;
