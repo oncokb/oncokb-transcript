@@ -53,7 +53,8 @@ export const parseReferences = (content: string, seperatePMIDs = false): ParsedR
       }
     } else if (content.toLowerCase().includes('nct')) {
       if (ids[0]) {
-        result.push({ prefix, content: ids[0], link: getNCTlink(`/study/${prefix}${ids[0]}`) });
+        prefix = 'NCT';
+        result.push({ prefix: 'NCT', content: ids[0], link: getNCTlink(`/study/${prefix}${ids[0]}`) });
       }
     }
   }

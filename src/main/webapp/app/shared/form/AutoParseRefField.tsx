@@ -3,25 +3,15 @@ import React from 'react';
 import WithSeparator from 'react-with-separator';
 import { InlineDivider } from '../links/PubmedGeneArticlesLink';
 import _ from 'lodash';
+import { parseTextForReferences } from '../util/utils';
 import { REFERENCE_LINK_REGEX } from 'app/config/constants/constants';
 
 interface IAutoParseRefField {
   summary: string;
 }
 
-/* eslint-disable @typescript-eslint/prefer-regexp-exec */
 export const AutoParseRefField: React.FunctionComponent<IAutoParseRefField> = props => {
-  let content: Array<ParsedRef> = [];
-
-  const parts = props.summary.split(REFERENCE_LINK_REGEX);
-  parts.forEach((part: string) => {
-    if (part.match(REFERENCE_LINK_REGEX)) {
-      const parsedRef = parseReferences(part, true);
-      parsedRef.filter(ref => ref.link).forEach(ref => content.push(ref));
-    }
-  });
-
-  content = _.uniqBy(content, 'content');
+  const content = parseTextForReferences(props.summary);
 
   return content.length > 0 ? (
     <div className={'d-flex flex-wrap'}>

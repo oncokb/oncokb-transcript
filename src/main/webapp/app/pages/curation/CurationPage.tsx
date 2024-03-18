@@ -24,6 +24,7 @@ import GeneHeader from './gene/GeneHeader';
 import ReviewPage from './review/ReviewPage';
 import VusTable from 'app/shared/table/VusTable';
 import styles from './styles.module.scss';
+import CurationReferencesTab from 'app/components/tabs/CurationReferencesTab';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -195,6 +196,10 @@ export const CurationPage = (props: ICurationPageProps) => {
                 {
                   title: 'History',
                   content: <CurationHistoryTab historyData={props.historyData} />,
+                },
+                {
+                  title: 'References',
+                  content: <CurationReferencesTab genePath={firebaseGenePath} />,
                 },
               ]}
             />
