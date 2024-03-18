@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SimpleConfirmModal } from './SimpleConfirmModal';
 import DrugSelect, { DrugSelectOption } from '../select/DrugSelect';
 import { IRootStore } from 'app/stores';
@@ -11,36 +11,39 @@ import { Button } from 'reactstrap';
 import { generateUuid } from '../util/utils';
 import { parseNcitUniqId } from '../select/NcitCodeSelect';
 import _ from 'lodash';
-import { Treatment } from '../model/firebase/firebase.model';
+import { Treatment, Tumor } from '../model/firebase/firebase.model';
 import { ERROR_EXCLAMATION_ICON_SIZE } from 'app/config/constants/constants';
+import { onValue, ref } from 'firebase/database';
 
 export interface IModifyTherapyModalProps extends StoreProps {
   treatmentUuid: string;
-  treatmentName: string;
+  treatmentToEditPath?: string;
   drugList: readonly IDrug[];
-  currentTreatments: Treatment[];
-  onConfirm: (treatmentName: string, newDrugs: IDrug[]) => void;
+  cancerTypePath: string;
+  onConfirm: (newTreatment: Treatment, newDrugs: IDrug[]) => void;
   onCancel: () => void;
 }
 
 function ModifyTherapyModal({
   treatmentUuid,
-  treatmentName,
+  treatmentToEditPath,
   drugList,
-  currentTreatments,
+  cancerTypePath,
   onConfirm,
   onCancel,
   modifyTherapyModalStore,
+  firebaseDb,
 }: IModifyTherapyModalProps) {
   return modifyTherapyModalStore.openTreatmentUuid === treatmentUuid ? (
     <ModifyTherapyModalContent
       treatmentUuid={treatmentUuid}
-      treatmentName={treatmentName}
+      treatmentToEditPath={treatmentToEditPath}
       drugList={drugList}
-      currentTreatments={currentTreatments}
+      cancerTypePath={cancerTypePath}
       onConfirm={onConfirm}
       onCancel={onCancel}
       modifyTherapyModalStore={modifyTherapyModalStore}
+      firebaseDb={firebaseDb}
     />
   ) : (
     <></>
@@ -50,13 +53,17 @@ function ModifyTherapyModal({
 const ModifyTherapyModalContent = observer(
   ({
     treatmentUuid,
-    treatmentName,
+    treatmentToEditPath,
     drugList,
-    currentTreatments,
+    cancerTypePath,
     onConfirm,
     onCancel,
     modifyTherapyModalStore,
+    firebaseDb,
   }: IModifyTherapyModalProps) => {
+    const [currentTreatments, setCurrentTreatments] = useState<Treatment[]>([]);
+    const [treatmentToEdit, setTreatmentToEdit] = useState<Treatment>(null);
+
     const disableDeleteTherapy = modifyTherapyModalStore.selectedTreatments.length < 2;
     const isEmptyTherapy = modifyTherapyModalStore.selectedTreatments.some(therapy => therapy.length === 0);
     const isDuplicate = isDuplicateTreatment();
@@ -123,13 +130,13 @@ const ModifyTherapyModalContent = observer(
     }
 
     function setSelectedTreatments() {
-      if (!treatmentName) {
+      if (!treatmentToEdit) {
         // only when creating new therapy
         modifyTherapyModalStore.setSelectedTreatments([[]]);
         return;
       }
 
-      const treatmentLists = treatmentName.split(',').map(tx => tx.split('+').map(txId => txId.trim()));
+      const treatmentLists = treatmentToEdit.name.split(',').map(tx => tx.split('+').map(txId => txId.trim()));
 
       const selectedTreatments: DrugSelectOption[][] = [];
       if (treatmentLists) {
@@ -187,8 +194,35 @@ const ModifyTherapyModalContent = observer(
     }
 
     useEffect(() => {
+      const callbacks = [];
+      callbacks.push(
+        onValue(ref(firebaseDb, cancerTypePath), snapshot => {
+          const cancerType = snapshot.val() as Tumor;
+          const currentTreatmentsForCancerType = cancerType.TIs.reduce((accumulator: Treatment[], ti) => {
+            if (!ti.treatments) {
+              return accumulator;
+            }
+
+            return accumulator.concat(ti.treatments);
+          }, []);
+          setCurrentTreatments(currentTreatmentsForCancerType);
+        })
+      );
+
+      if (treatmentToEditPath) {
+        callbacks.push(
+          onValue(ref(firebaseDb, treatmentToEditPath), snapshot => {
+            setTreatmentToEdit(snapshot.val());
+          })
+        );
+      }
+
+      return () => callbacks.forEach(callback => callback?.());
+    }, [cancerTypePath, treatmentToEditPath]);
+
+    useEffect(() => {
       setSelectedTreatments();
-    }, []);
+    }, [treatmentToEdit]);
 
     return (
       <SimpleConfirmModal
@@ -206,7 +240,7 @@ const ModifyTherapyModalContent = observer(
             return accumulator.concat(drugs);
           }, []);
 
-          const name = modifyTherapyModalStore.selectedTreatments
+          const newTreatmentName = modifyTherapyModalStore.selectedTreatments
             .map(therapy =>
               therapy
                 .map(drug =>
@@ -216,7 +250,9 @@ const ModifyTherapyModalContent = observer(
             )
             .join(', ');
 
-          onConfirm(name, newDrugs);
+          const newTreatment = treatmentToEdit ? _.cloneDeep(treatmentToEdit) : new Treatment('');
+          newTreatment.name = newTreatmentName;
+          onConfirm(newTreatment, newDrugs);
         }}
         confirmDisabled={isEmptyTherapy || isDuplicate || alreadyExists}
         onCancel={onCancel}
@@ -268,7 +304,8 @@ const ModifyTherapyModalContent = observer(
   }
 );
 
-const mapStoreToProps = ({ modifyTherapyModalStore }: IRootStore) => ({
+const mapStoreToProps = ({ modifyTherapyModalStore, firebaseStore }: IRootStore) => ({
+  firebaseDb: firebaseStore.firebaseDb,
   modifyTherapyModalStore,
 });
 

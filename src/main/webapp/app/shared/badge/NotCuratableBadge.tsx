@@ -12,7 +12,7 @@ export interface INotCuratableBadgeProps {
 
 const NotCuratableBadge: React.FunctionComponent<INotCuratableBadgeProps> = (props: INotCuratableBadgeProps) => {
   const { mutationName } = props;
-  const text = mutationName.includes(',') ? NOT_CURATABLE_TOOLTIP_TEXT.stringMutations : NOT_CURATABLE_TOOLTIP_TEXT.default;
+  const text = mutationName?.includes(',') ? NOT_CURATABLE_TOOLTIP_TEXT.stringMutations : NOT_CURATABLE_TOOLTIP_TEXT.default;
   return <DefaultBadge color={'warning'} text={'Not Curatable'} tooltipOverlay={<div>{text}</div>} />;
 };
 

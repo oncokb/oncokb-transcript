@@ -1,21 +1,14 @@
-import { useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import styles from './styles.module.scss';
 import React from 'react';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import NoEntryBadge from 'app/shared/badge/NoEntryBadge';
-import { DANGER, GREY } from 'app/config/colors';
-import DefaultBadge from 'app/shared/badge/DefaultBadge';
+import { DANGER } from 'app/config/colors';
 import { getHexColorWithAlpha } from 'app/shared/util/utils';
 import { DISABLED_NEST_LEVEL_COLOR } from './NestLevel';
-
-const DELETED_SECTION_TOOLTIP_OVERLAY = (
-  <div>
-    <div>This deletion is pending for review.</div>
-    <div>To confirm or revert the deletion, please enter review mode.</div>
-  </div>
-);
+import { IBadgeGroupProps } from '../BadgeGroup';
+import { IDefaultBadgeProps } from 'app/shared/badge/DefaultBadge';
 
 export interface CollapsibleProps {
   title: React.ReactNode;
@@ -27,11 +20,11 @@ export interface CollapsibleProps {
   children: React.ReactNode;
   className?: string;
   open?: boolean;
-  isSectionEmpty?: boolean;
   disableCollapsible?: boolean;
+  disableOpen?: boolean; // this prop is only used for the mutation collapsible, since it doesn't actually open when clicked
   isPendingDelete?: boolean;
-  badgeOverride?: React.ReactNode;
   onToggle?: (isOpen: boolean) => void;
+  badge?: ReactElement<IBadgeGroupProps> | ReactElement<IDefaultBadgeProps>;
 }
 
 export default function Collapsible({
@@ -43,12 +36,12 @@ export default function Collapsible({
   children,
   className,
   open = false,
-  isSectionEmpty = false,
   disableCollapsible = false,
+  disableOpen = false,
   isPendingDelete = false,
   backgroundColor,
-  badgeOverride,
   onToggle,
+  badge,
 }: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(open);
 
@@ -56,21 +49,17 @@ export default function Collapsible({
     disableCollapsible = true;
   }
 
-  const getBadge = () => {
-    if (badgeOverride) {
-      return badgeOverride;
-    }
+  useEffect(() => {
     if (isPendingDelete) {
-      return <DefaultBadge color="danger" text="Deleted" tooltipOverlay={DELETED_SECTION_TOOLTIP_OVERLAY} />;
+      setIsOpen(false);
     }
-    if (isSectionEmpty) {
-      return <NoEntryBadge />;
-    }
-  };
+  }, [isPendingDelete]);
 
   const handleToggleCollapsible = () => {
     if (!disableCollapsible) {
-      setIsOpen(_isOpen => !_isOpen);
+      if (!disableOpen) {
+        setIsOpen(_isOpen => !_isOpen);
+      }
       onToggle && onToggle(!isOpen);
     }
   };
@@ -127,19 +116,17 @@ export default function Collapsible({
               {title}
             </span>
           </div>
-          {getBadge()}
+          {badge}
           <div className="mr-auto" />
-          {!isPendingDelete ? (
-            <div className="d-flex align-items-center">
-              {info}
-              {action && (
-                <>
-                  <div className={classNames(styles.divider)} />
-                  <div className={'collapsible-action all-children-margin'}>{action}</div>
-                </>
-              )}
-            </div>
-          ) : undefined}
+          <div className="d-flex align-items-center">
+            {info}
+            {action && (
+              <>
+                <div className={classNames(styles.divider)} />
+                <div className={'collapsible-action all-children-margin'}>{action}</div>
+              </>
+            )}
+          </div>
         </div>
       </div>
       {isOpen && <div className={classNames('card-body', styles.body)}>{children}</div>}

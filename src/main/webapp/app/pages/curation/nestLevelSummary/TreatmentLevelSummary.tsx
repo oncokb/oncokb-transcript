@@ -1,41 +1,49 @@
+import { getTreatmentStats } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import _ from 'lodash';
+import { DataSnapshot, onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
-import React from 'react';
-import classNames from 'classnames';
-import './nest-level-summary.scss';
-import { sortByTxLevel } from 'app/shared/util/firebase/firebase-utils';
+import React, { useCallback, useEffect, useState } from 'react';
 import NestLevelSummary from './NestLevelSummary';
+import './nest-level-summary.scss';
+import _ from 'lodash';
+import { UPDATE_SUMMARY_STATS_DEBOUNCE_MILLISECONDS } from 'app/config/constants/constants';
 
 export interface TreatmentLevelSummaryProps extends StoreProps {
-  mutationUuid: string;
-  cancerTypesUuid: string;
-  treatmentUuid: string;
+  treatmentPath: string;
 }
 
-const TreatmentLevelSummary = (props: TreatmentLevelSummaryProps) => {
-  const treatmentLevelSummary = props.allLevelSummaryStats[props.mutationUuid][props.cancerTypesUuid].treatmentSummary[props.treatmentUuid];
-  return (
-    <NestLevelSummary
-      isTreatmentStats
-      summaryStats={{
-        TTS: 0,
-        DxS: 0,
-        PxS: 0,
-        txLevels: treatmentLevelSummary.reduce((obj, level) => {
-          obj[level] = 1;
-          return obj;
-        }, {}),
-        dxLevels: [],
-        pxLevels: [],
-      }}
-    />
-  );
+const TreatmentLevelSummary = ({ firebaseDb, treatmentPath }: TreatmentLevelSummaryProps) => {
+  const [treatmentStatsInitialized, setTreatmentStatsInitialized] = useState(false);
+  const [treatmentStats, setTreatmentStats] = useState(undefined);
+
+  const updateTreatmentStats = (snapshot: DataSnapshot) => {
+    const calcTreatmentStats = getTreatmentStats(snapshot.val());
+    setTreatmentStats(calcTreatmentStats);
+  };
+
+  const updateTreatmentStatsDebounced = _.debounce(updateTreatmentStats, UPDATE_SUMMARY_STATS_DEBOUNCE_MILLISECONDS);
+
+  useEffect(() => {
+    const callbacks = [];
+    callbacks.push(
+      onValue(ref(firebaseDb, treatmentPath), snapshot => {
+        if (treatmentStatsInitialized) {
+          updateTreatmentStatsDebounced(snapshot);
+        } else {
+          updateTreatmentStats(snapshot);
+          setTreatmentStatsInitialized(true);
+        }
+      })
+    );
+    return () => callbacks.forEach(callback => callback?.());
+  }, [treatmentStatsInitialized]);
+
+  return <NestLevelSummary isTreatmentStats summaryStats={treatmentStats} />;
 };
 
-const mapStoreToProps = ({ firebaseGeneStore }: IRootStore) => ({
-  allLevelSummaryStats: firebaseGeneStore.allLevelMutationSummaryStats,
+const mapStoreToProps = ({ firebaseStore }: IRootStore) => ({
+  firebaseDb: firebaseStore.firebaseDb,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

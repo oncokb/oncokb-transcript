@@ -416,6 +416,10 @@ export const CURRENT_REVIEWER = 'currentReviewer';
 
 export const RADIO_OPTION_NONE = 'None';
 
+export const UPDATE_SUMMARY_STATS_DEBOUNCE_MILLISECONDS = 400;
+
+export const UPDATE_MUTATION_FILTERS_DEBOUNCE_MILLISECONDS = 1000;
+
 /* Checkbox has margin of -18.75px, so can set to 0px and add margin to label can use this to adjust */
 export const CHECKBOX_LABEL_LEFT_MARGIN = 18.75;
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { BoolString, Comment, Mutation, Vus, VusObjList } from 'app/shared/model/firebase/firebase.model';
+import { Vus } from 'app/shared/model/firebase/firebase.model';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { Button, Container, Row } from 'reactstrap';
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
@@ -9,27 +9,23 @@ import { APP_DATETIME_FORMAT, MAX_COMMENT_LENGTH } from 'app/config/constants/co
 import _ from 'lodash';
 import { formatDate, getUserFullName } from 'app/shared/util/utils';
 import CommentIcon from 'app/shared/icons/CommentIcon';
-import { RecursivePartial } from 'app/shared/util/firebase/firebase-crud-store';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { downloadFile } from '../util/file-utils';
-import ActionIcon from 'app/shared/icons/ActionIcon';
-import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
-import { DANGER, PRIMARY } from 'app/config/colors';
-import { faSync } from '@fortawesome/free-solid-svg-icons/faSync';
 import classNames from 'classnames';
-import DefaultBadge from '../badge/DefaultBadge';
-import InfoIcon from '../icons/InfoIcon';
-import { VusRecencyInfoIcon } from '../icons/VusRecencyInfoIcon';
 import AddButton from 'app/pages/curation/button/AddButton';
-import AddMutationModal from '../modal/AddMutationModal';
-import { AddVusModal } from '../modal/AddVusModal';
+import { onValue, ref } from 'firebase/database';
+import { downloadFile } from 'app/shared/util/file-utils';
+import { VusRecencyInfoIcon } from 'app/shared/icons/VusRecencyInfoIcon';
+import DefaultBadge from 'app/shared/badge/DefaultBadge';
+import ActionIcon from 'app/shared/icons/ActionIcon';
+import { faSync, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { DANGER, PRIMARY } from 'app/config/colors';
+import AddVusModal from '../modal/AddVusModal';
 
 export interface IVusTableProps extends StoreProps {
   hugoSymbol: string;
-  mutationList: Mutation[];
 }
 
 type VusTableData = Vus & {
@@ -42,22 +38,32 @@ const LAST_EDITED_AT = 'Last Edited At';
 const LATEST_COMMENT = 'Latest Comment';
 
 const VusTable = ({
+  firebaseDb,
   hugoSymbol,
-  mutationList,
   account,
   fullName,
-  vusData,
   pushVusArray,
   handleFirebaseUpdate,
   handleFirebaseDelete,
-  handleFirebaseDeleteFromArray,
 }: IVusTableProps) => {
-  const currentActionVusUuid = useRef<string>(null);
   const firebaseVusPath = getFirebasePath('VUS', hugoSymbol);
+  const currentActionVusUuid = useRef<string>(null);
 
+  const [vusData, setVusData] = useState(null);
   const [showAddVusModal, setShowAddVusModal] = useState(false);
-
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  useEffect(() => {
+    const callbacks = [];
+    callbacks.push(
+      onValue(ref(firebaseDb, firebaseVusPath), snapshot => {
+        setVusData(snapshot.val());
+      })
+    );
+    return () => {
+      callbacks.forEach(callback => callback?.());
+    };
+  }, []);
 
   const vusList: VusTableData[] = useMemo(() => {
     return vusData
@@ -98,54 +104,6 @@ const VusTable = ({
   async function handleDelete() {
     try {
       await handleFirebaseDelete(`${firebaseVusPath}/${currentActionVusUuid.current}`);
-    } catch (error) {
-      notifyError(error);
-    }
-  }
-
-  async function handleCreateComment(variantUuid: string, content: string) {
-    const newComment = new Comment();
-    newComment.content = content;
-    newComment.email = account.email;
-    newComment.resolved = 'false';
-    newComment.userName = getUserFullName(account);
-
-    const prevCommentsLength = vusData[variantUuid].name_comments?.length || 0;
-    const updateObject: RecursivePartial<VusObjList> = {
-      [variantUuid]: {
-        name_comments: [...Array(prevCommentsLength).fill({}), newComment],
-      },
-    };
-
-    try {
-      await handleFirebaseUpdate(firebaseVusPath, updateObject);
-    } catch (error) {
-      notifyError(error);
-    }
-  }
-
-  async function handleDeleteComments(variantUuid: string, indices: number[]) {
-    try {
-      await handleFirebaseDeleteFromArray(`${firebaseVusPath}/${variantUuid}/name_comments`, indices);
-    } catch (error) {
-      notifyError(error);
-    }
-  }
-
-  async function handleSetCommentResolved(variantUuid: string, index: number, isResolved: BoolString) {
-    const updateObject: RecursivePartial<VusObjList> = {
-      [variantUuid]: {
-        name_comments: [
-          ...Array(index).fill({}),
-          {
-            resolved: isResolved,
-          },
-        ],
-      },
-    };
-
-    try {
-      await handleFirebaseUpdate(firebaseVusPath, updateObject);
     } catch (error) {
       notifyError(error);
     }
@@ -217,19 +175,7 @@ const VusTable = ({
               <CommentIcon
                 id={cell.original.uuid}
                 key={cell.original.uuid}
-                comments={cell.original.name_comments}
-                onCreateComment={async content => {
-                  await handleCreateComment(cell.original.uuid, content);
-                }}
-                onDeleteComments={async indices => {
-                  await handleDeleteComments(cell.original.uuid, indices);
-                }}
-                onResolveComment={async index => {
-                  await handleSetCommentResolved(cell.original.uuid, index, 'true');
-                }}
-                onUnresolveComment={async index => {
-                  await handleSetCommentResolved(cell.original.uuid, index, 'false');
-                }}
+                path={`${firebaseVusPath}/${cell.original.uuid}/name_comments`}
               />
               <ActionIcon
                 icon={faSync}
@@ -289,14 +235,14 @@ const VusTable = ({
         <AddButton title="VUS" showIcon onClickHandler={() => setShowAddVusModal(true)} />
       )}
       {showAddVusModal ? (
-        <AddVusModal mutationList={mutationList} vusList={vusData} onCancel={() => setShowAddVusModal(false)} onConfirm={handleAddVus} />
+        <AddVusModal hugoSymbol={hugoSymbol} vusList={vusData} onCancel={() => setShowAddVusModal(false)} onConfirm={handleAddVus} />
       ) : undefined}
     </>
   );
 };
 
-const mapStoreToProps = ({ firebaseVusStore, authStore }: IRootStore) => ({
-  vusData: firebaseVusStore.data,
+const mapStoreToProps = ({ firebaseStore, firebaseVusStore, authStore }: IRootStore) => ({
+  firebaseDb: firebaseStore.firebaseDb,
   pushVusArray: firebaseVusStore.pushMultiple,
   handleFirebaseUpdate: firebaseVusStore.update,
   handleFirebaseDelete: firebaseVusStore.delete,

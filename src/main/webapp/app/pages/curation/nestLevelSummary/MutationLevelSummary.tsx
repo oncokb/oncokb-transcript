@@ -3,25 +3,49 @@ import { IRootStore } from 'app/stores';
 import { MutationLevelSummary } from 'app/stores/firebase/firebase.gene.store';
 import _ from 'lodash';
 import { observer } from 'mobx-react';
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import NestLevelSummary from './NestLevelSummary';
+import { DataSnapshot, onValue, ref } from 'firebase/database';
+import { getMutationStats } from 'app/shared/util/firebase/firebase-utils';
+import { UPDATE_SUMMARY_STATS_DEBOUNCE_MILLISECONDS } from 'app/config/constants/constants';
 
 export interface MutationLevelSummaryProps extends StoreProps {
-  mutationUuid: string;
+  mutationPath: string;
   hideOncogenicity?: boolean;
 }
 
-const MutationLevelSummary = ({ mutationSummaryStats, mutationUuid, hideOncogenicity = false }: MutationLevelSummaryProps) => {
-  const mutationLevelSummary = mutationSummaryStats[mutationUuid];
-  return <NestLevelSummary summaryStats={mutationLevelSummary} hideOncogenicity={hideOncogenicity} />;
+const MutationLevelSummary = ({ mutationPath, firebaseDb, hideOncogenicity = false }: MutationLevelSummaryProps) => {
+  const [mutationStatsInitialized, setMutationStatsInitialized] = useState(false);
+  const [mutationStats, setMutationStats] = useState(undefined);
+
+  const updateMutationStats = useCallback((snapshot: DataSnapshot) => {
+    const calcMutationStats = getMutationStats(snapshot.val());
+    setMutationStats(calcMutationStats);
+  }, []);
+
+  const updateMutationStatsDebounced = _.debounce(updateMutationStats, UPDATE_SUMMARY_STATS_DEBOUNCE_MILLISECONDS);
+
+  useEffect(() => {
+    const callbacks = [];
+    callbacks.push(
+      onValue(ref(firebaseDb, mutationPath), snapshot => {
+        if (mutationStatsInitialized) {
+          updateMutationStatsDebounced(snapshot);
+        } else {
+          updateMutationStats(snapshot);
+          setMutationStatsInitialized(true);
+        }
+      })
+    );
+    return () => callbacks.forEach(callback => callback?.());
+  }, [mutationStatsInitialized]);
+  return <NestLevelSummary summaryStats={mutationStats} hideOncogenicity={hideOncogenicity} />;
 };
 
-const mapStoreToProps = ({ firebaseGeneStore }: IRootStore) => ({
-  mutationSummaryStats: firebaseGeneStore.mutationLevelMutationSummaryStats,
+const mapStoreToProps = ({ firebaseStore }: IRootStore) => ({
+  firebaseDb: firebaseStore.firebaseDb,
 });
 
-type StoreProps = {
-  mutationSummaryStats?: MutationLevelSummary;
-};
+type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
 
 export default componentInject(mapStoreToProps)(observer(MutationLevelSummary));

@@ -1,4 +1,4 @@
-import { ONCOGENICITY, UUID_REGEX } from 'app/config/constants/constants';
+import { UUID_REGEX } from 'app/config/constants/constants';
 import {
   Comment,
   Gene,
@@ -12,13 +12,15 @@ import {
   PX_LEVELS,
   VusObjList,
   FIREBASE_ONCOGENICITY,
+  Treatment,
+  MetaReview,
 } from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
 import { DX_LEVEL_DESCRIPTIONS, FB_COLLECTION_PATH, PX_LEVEL_DESCRIPTIONS } from 'app/config/constants/firebase';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
-import { extractPositionFromSingleNucleotideAlteration, parseAlterationName } from '../utils';
+import { extractPositionFromSingleNucleotideAlteration, getCancerTypeName, getCancerTypesName, parseAlterationName } from '../utils';
 import _ from 'lodash';
 import { MutationLevelSummary } from 'app/stores/firebase/firebase.gene.store';
 import { CategoricalAlterationType } from 'app/shared/model/enumerations/categorical-alteration-type.model';
@@ -69,13 +71,13 @@ export const getAlterationName = (alteration: Alteration) => {
   }
   return '';
 };
-export const getMutationName = (mutation: Mutation) => {
+export const getMutationName = (name: string, alterations: Alteration[]) => {
   const defaultNoName = '(No Name)';
-  if (mutation.alterations) {
-    return mutation.alterations.map(alteration => getAlterationName(alteration)).join(', ');
+  if (alterations) {
+    return alterations.map(alteration => getAlterationName(alteration)).join(', ');
   }
-  if (mutation.name) {
-    return mutation.name;
+  if (name) {
+    return name;
   } else {
     return defaultNoName;
   }
@@ -98,8 +100,11 @@ export const getTxName = (drugList: readonly IDrug[], txUuidName: string) => {
 };
 
 export const geneNeedsReview = (meta: Meta | undefined) => {
+  return geneMetaReviewHasUuids(meta?.review);
+};
+
+export const geneMetaReviewHasUuids = (metaReview: MetaReview) => {
   let needsReview = false;
-  const metaReview = meta?.review;
   if (metaReview) {
     needsReview = !!Object.keys(metaReview).find(key => UUID_REGEX.test(key));
   }
@@ -120,17 +125,7 @@ export function getMostRecentComment(comments: Comment[]) {
   return latestComment;
 }
 
-export const isSectionRemovableWithoutReview = (geneData: Gene, nestLevel: RemovableNestLevel, fullPath: string) => {
-  let reviewKey;
-  if (nestLevel === NestLevelType.MUTATION || nestLevel === NestLevelType.THERAPY) {
-    reviewKey = 'name_review';
-  } else {
-    reviewKey = 'cancerTypes_review';
-  }
-
-  const pathDetails = parseFirebaseGenePath(fullPath);
-
-  const review: Review = getValueByNestedKey(geneData, `${pathDetails.pathFromGene}/${reviewKey}`);
+export const isSectionRemovableWithoutReview = (review: Review) => {
   return !!review && !!review.added;
 };
 
@@ -165,15 +160,14 @@ export function isNestedObjectEmpty(obj: any, ignoredKeySubstrings: string[] = [
   return false;
 }
 
-export const isSectionEmpty = (geneData: Gene, fullPath: string) => {
+export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
   const path = parseFirebaseGenePath(fullPath).pathFromGene;
-  const value = getValueByNestedKey(geneData, path);
-  if (value === undefined) {
+  if (sectionValue === undefined) {
     return true;
   }
 
-  const ignoredKeySuffixes = ['_review', '_uuid', 'TIs', 'cancerTypes'];
-  const isEmpty = isNestedObjectEmpty(value, ignoredKeySuffixes);
+  const ignoredKeySuffixes = ['_review', '_uuid', 'TIs', 'cancerTypes', 'name', 'alterations'];
+  const isEmpty = isNestedObjectEmpty(sectionValue, ignoredKeySuffixes);
 
   if (!isEmpty) {
     return isEmpty;
@@ -183,7 +177,7 @@ export const isSectionEmpty = (geneData: Gene, fullPath: string) => {
   // We skipped the TIs key because TI.name and TI.type always has a value, which will
   // make our function always return isEmpty=False
   if (path.match(/tumors\/\d+$/g)) {
-    const implications = (value as Tumor).TIs;
+    const implications = (sectionValue as Tumor).TIs;
     for (const implication of implications) {
       if (implication.treatments && implication.treatments.length > 0) {
         return false;
@@ -354,9 +348,9 @@ export function compareMutationsByDeleted(mut1: Mutation, mut2: Mutation) {
   }
 }
 
-export function compareMutationsByTxLevel(mut1: Mutation, mut2: Mutation, mutationLevelSummary: MutationLevelSummary) {
-  const mut1Levels = Object.keys(mutationLevelSummary[mut1.name_uuid]?.txLevels || []).sort(sortByTxLevel);
-  const mut2Levels = Object.keys(mutationLevelSummary[mut2.name_uuid]?.txLevels || []).sort(sortByTxLevel);
+export function compareMutationsByTxLevel(mut1: Mutation, mut2: Mutation) {
+  const mut1Levels = Object.keys(getMutationStats(mut1).txLevels).sort(sortByTxLevel);
+  const mut2Levels = Object.keys(getMutationStats(mut2).txLevels).sort(sortByTxLevel);
 
   let index = 0;
   while (mut1Levels[index] || mut2Levels[index]) {
@@ -377,9 +371,12 @@ export function compareMutationsByTxLevel(mut1: Mutation, mut2: Mutation, mutati
   return 0;
 }
 
-export function compareMutationsByHasDxOrPx(mut1: Mutation, mut2: Mutation, mutationLevelSummary: MutationLevelSummary) {
-  const mut1HasDxOrPx = mutationLevelSummary[mut1.name_uuid].DxS > 0 || mutationLevelSummary[mut1.name_uuid].PxS > 0;
-  const mut2HasDxOrPx = mutationLevelSummary[mut2.name_uuid].DxS > 0 || mutationLevelSummary[mut2.name_uuid].PxS > 0;
+export function compareMutationsByHasDxOrPx(mut1: Mutation, mut2: Mutation) {
+  const mut1Stats = getMutationStats(mut1);
+  const mut1HasDxOrPx = mut1Stats.DxS > 0 || mut1Stats.PxS > 0;
+
+  const mut2Stats = getMutationStats(mut2);
+  const mut2HasDxOrPx = mut2Stats.DxS > 0 || mut2Stats.PxS > 0;
 
   if ((mut1HasDxOrPx && mut2HasDxOrPx) || (!mut1HasDxOrPx && !mut2HasDxOrPx)) {
     return 0;
@@ -453,18 +450,18 @@ export function compareMutationsByCategoricalAlteration(mut1: Mutation, mut2: Mu
   }
 }
 
-export function compareMutations(mut1: Mutation, mut2: Mutation, mutationLevelSummary: MutationLevelSummary) {
+export function compareMutations(mut1: Mutation, mut2: Mutation) {
   let order = compareMutationsByDeleted(mut1, mut2);
   if (order !== 0) {
     return order;
   }
 
-  order = compareMutationsByTxLevel(mut1, mut2, mutationLevelSummary);
+  order = compareMutationsByTxLevel(mut1, mut2);
   if (order !== 0) {
     return order;
   }
 
-  order = compareMutationsByHasDxOrPx(mut1, mut2, mutationLevelSummary);
+  order = compareMutationsByHasDxOrPx(mut1, mut2);
   if (order !== 0) {
     return order;
   }
@@ -491,3 +488,221 @@ export function compareMutations(mut1: Mutation, mut2: Mutation, mutationLevelSu
 
   return mut1.name.localeCompare(mut2.name);
 }
+
+export const getFilterModalStats = (mutations: Mutation[]) => {
+  const oncogencities: FIREBASE_ONCOGENICITY[] = [];
+  const mutationEffects: string[] = [];
+  const txLevels: TX_LEVELS[] = [];
+
+  const mutationStats = mutations?.map(mutation => getMutationStats(mutation)) || [];
+  for (const stat of mutationStats) {
+    if (stat.oncogenicity && !oncogencities.includes(stat.oncogenicity)) {
+      oncogencities.push(stat.oncogenicity);
+    }
+
+    if (stat.mutationEffect && !mutationEffects.includes(stat.mutationEffect)) {
+      mutationEffects.push(stat.mutationEffect);
+    }
+
+    for (const txLevel of Object.keys(stat.txLevels)) {
+      if (txLevel && !txLevels.includes(txLevel as TX_LEVELS)) {
+        // exclude empty
+        txLevels.push(txLevel as TX_LEVELS);
+      }
+    }
+  }
+
+  return {
+    oncogencities,
+    mutationEffects,
+    txLevels,
+  };
+};
+
+export type AllLevelSummary = {
+  [mutationUuid: string]: {
+    [cancerTypesUuid: string]: {
+      TT: number;
+      oncogenicity: FIREBASE_ONCOGENICITY | '';
+      TTS: number;
+      DxS: number;
+      PxS: number;
+      txLevels: TX_LEVELS[];
+      dxLevels: DX_LEVELS[];
+      pxLevels: PX_LEVELS[];
+      treatmentSummary: { [treatmentId: string]: TX_LEVELS[] };
+    };
+  };
+};
+
+export const getAllLevelSummaryStats = (mutations: Mutation[]) => {
+  const summary: AllLevelSummary = {};
+  mutations.forEach(mutation => {
+    summary[mutation.name_uuid] = {};
+    if (mutation.tumors) {
+      mutation.tumors.forEach(tumor => {
+        summary[mutation.name_uuid][tumor.cancerTypes_uuid] = {
+          TT: 0,
+          oncogenicity: '',
+          TTS: 0,
+          DxS: 0,
+          PxS: 0,
+          txLevels: [],
+          dxLevels: [],
+          pxLevels: [],
+          treatmentSummary: {},
+        };
+        summary[mutation.name_uuid][tumor.cancerTypes_uuid].TT++;
+        summary[mutation.name_uuid][tumor.cancerTypes_uuid].oncogenicity = mutation.mutation_effect.oncogenic;
+        if (tumor.summary) {
+          summary[mutation.name_uuid][tumor.cancerTypes_uuid].TTS++;
+        }
+        if (tumor.diagnosticSummary) {
+          summary[mutation.name_uuid][tumor.cancerTypes_uuid].DxS++;
+        }
+        if (tumor.prognosticSummary) {
+          summary[mutation.name_uuid][tumor.cancerTypes_uuid].PxS++;
+        }
+        tumor.TIs.forEach(ti => {
+          if (ti.treatments) {
+            ti.treatments.forEach(treatment => {
+              const cancerTypeSummary = summary[mutation.name_uuid][tumor.cancerTypes_uuid];
+              cancerTypeSummary.txLevels.push(treatment.level);
+
+              if (!cancerTypeSummary.treatmentSummary[treatment.name_uuid]) {
+                cancerTypeSummary.treatmentSummary[treatment.name_uuid] = [];
+              }
+              cancerTypeSummary.treatmentSummary[treatment.name_uuid].push(treatment.level);
+            });
+          }
+        });
+        if (tumor?.diagnostic?.level) {
+          summary[mutation.name_uuid][tumor.cancerTypes_uuid].dxLevels.push(tumor.diagnostic.level as DX_LEVELS);
+        }
+        if (tumor?.prognostic?.level) {
+          summary[mutation.name_uuid][tumor.cancerTypes_uuid].pxLevels.push(tumor.prognostic.level as PX_LEVELS);
+        }
+      });
+    }
+  });
+  return summary;
+};
+
+// Todo: The stats need to be refactored
+export const getMutationStats = (mutation?: Mutation) => {
+  const stats = {
+    TT: 0,
+    oncogenicity: mutation?.mutation_effect.oncogenic,
+    mutationEffect: mutation?.mutation_effect.effect,
+    TTS: 0,
+    DxS: 0,
+    PxS: 0,
+    txLevels: {} as { [txLevel in TX_LEVELS]: number },
+    dxLevels: {} as { [dxLevel in DX_LEVELS]: number },
+    pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
+  };
+  if (mutation?.tumors) {
+    mutation.tumors.forEach(tumor => {
+      stats.TT++;
+      if (tumor.summary) {
+        stats.TTS++;
+      }
+      if (tumor.diagnosticSummary) {
+        stats.DxS++;
+      }
+      if (tumor.prognosticSummary) {
+        stats.PxS++;
+      }
+      tumor.TIs.forEach(ti => {
+        if (ti.treatments) {
+          ti.treatments.forEach(treatment => {
+            if (!stats.txLevels[treatment.level]) {
+              stats.txLevels[treatment.level] = 1;
+            } else {
+              stats.txLevels[treatment.level]++;
+            }
+          });
+        }
+      });
+      if (tumor?.diagnostic?.level) {
+        if (!stats.dxLevels[tumor.diagnostic.level]) {
+          stats.dxLevels[tumor.diagnostic.level] = 1;
+        } else {
+          stats.dxLevels[tumor.diagnostic.level]++;
+        }
+      }
+      if (tumor?.prognostic?.level) {
+        if (!stats.dxLevels[tumor.prognostic.level]) {
+          stats.dxLevels[tumor.prognostic.level] = 1;
+        } else {
+          stats.dxLevels[tumor.prognostic.level]++;
+        }
+      }
+    });
+  }
+  return stats;
+};
+
+export const getCancerTypeStats = (tumor?: Tumor) => {
+  const stats = {
+    TT: 0,
+    TTS: 0,
+    DxS: 0,
+    PxS: 0,
+    txLevels: {} as { [txLevel in TX_LEVELS]: number },
+    dxLevels: {} as { [dxLevel in DX_LEVELS]: number },
+    pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
+  };
+
+  if (tumor.summary) {
+    stats.TTS++;
+  }
+  if (tumor.diagnosticSummary) {
+    stats.DxS++;
+  }
+  if (tumor.prognosticSummary) {
+    stats.PxS++;
+  }
+  tumor.TIs.forEach(ti => {
+    if (ti.treatments) {
+      ti.treatments.forEach(treatment => {
+        if (!stats.txLevels[treatment.level]) {
+          stats.txLevels[treatment.level] = 1;
+        } else {
+          stats.txLevels[treatment.level]++;
+        }
+      });
+    }
+  });
+  if (tumor?.diagnostic?.level) {
+    if (!stats.dxLevels[tumor.diagnostic.level]) {
+      stats.dxLevels[tumor.diagnostic.level] = 1;
+    } else {
+      stats.dxLevels[tumor.diagnostic.level]++;
+    }
+  }
+  if (tumor?.prognostic?.level) {
+    if (!stats.dxLevels[tumor.prognostic.level]) {
+      stats.dxLevels[tumor.prognostic.level] = 1;
+    } else {
+      stats.dxLevels[tumor.prognostic.level]++;
+    }
+  }
+  return stats;
+};
+
+export const getTreatmentStats = (treatment?: Treatment) => {
+  const stats = {
+    TT: 0,
+    TTS: 0,
+    DxS: 0,
+    PxS: 0,
+    txLevels: {} as { [txLevel in TX_LEVELS]: number },
+    dxLevels: {} as { [dxLevel in DX_LEVELS]: number },
+    pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
+  };
+  if (treatment.level) {
+    stats.txLevels[treatment.level] = 1;
+  }
+  return stats;
+};

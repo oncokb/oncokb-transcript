@@ -1,24 +1,22 @@
+import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import {
   DX_LEVELS,
-  Gene,
   FIREBASE_ONCOGENICITY,
-  PX_LEVELS,
-  TX_LEVELS,
-  Review,
-  Tumor,
-  Treatment,
+  Gene,
   Mutation,
+  PX_LEVELS,
+  Review,
+  TX_LEVELS,
+  Treatment,
+  Tumor,
 } from 'app/shared/model/firebase/firebase.model';
-import { IRootStore } from '../createStore';
-import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
-import { ExtractPathExpressions } from 'app/shared/util/firebase/firebase-crud-store';
-import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { action, computed, makeObservable } from 'mobx';
-import { ref, update } from 'firebase/database';
-import { getValueByNestedKey, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
-import { parseFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
-import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import { isTxLevelPresent } from 'app/shared/util/firebase/firebase-level-utils';
+import { parseFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
+import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
+import { getFirebasePath, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
+import { ref, update } from 'firebase/database';
+import { action, computed, makeObservable } from 'mobx';
+import { IRootStore } from '../createStore';
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {
@@ -186,15 +184,15 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
     return summary;
   }
 
-  override updateReviewableContent(path: string, key: ExtractPathExpressions<Gene>, value: any) {
-    try {
-      return super.updateReviewableContent(path, key, value);
-    } catch (error) {
-      notifyError(error, `Could not update ${key} at location ${path}`);
-    }
-  }
+  // override updateReviewableContent(path: string, key: ExtractPathExpressions<Gene>, value: any) {
+  //   try {
+  //     return super.updateReviewableContent(path, key, value);
+  //   } catch (error) {
+  //     notifyError(error, `Could not update ${key} at location ${path}`);
+  //   }
+  // }
 
-  async deleteSection(nestLevel: RemovableNestLevel, path: string) {
+  async deleteSection(nestLevel: RemovableNestLevel, path: string, review: Review, uuid: string) {
     const name = this.rootStore.authStore.fullName;
     const pathDetails = parseFirebaseGenePath(path);
     if (pathDetails === undefined) {
@@ -204,15 +202,11 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
     const pathFromGene = pathDetails.pathFromGene;
 
     // Check if section can be removed immediately
-    const removeWithoutReview = isSectionRemovableWithoutReview(this.data, nestLevel, path);
-    let key: string;
-    let review: Review;
+    const removeWithoutReview = isSectionRemovableWithoutReview(review);
 
     if (nestLevel === NestLevelType.MUTATION || nestLevel === NestLevelType.THERAPY) {
-      key = 'name';
       review = new Review(name, undefined, undefined, true);
     } else if (nestLevel === NestLevelType.CANCER_TYPE) {
-      key = 'cancerTypes';
       review = new Review(name, undefined, undefined, true);
     }
 
@@ -223,10 +217,8 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
       return this.deleteFromArray(arrayPath, [indexToRemove]);
     }
 
-    const uuid = getValueByNestedKey(this.data, `${pathFromGene}/${key}_uuid`);
-
     // Let the deletion be reviewed
-    return update(ref(this.db, path), { [`${key}_review`]: review }).then(() => {
+    return update(ref(this.db, `${getFirebasePath('GENE', hugoSymbol)}`), { [`${pathFromGene}_review`]: review }).then(() => {
       this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol);
       this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, true);
     });

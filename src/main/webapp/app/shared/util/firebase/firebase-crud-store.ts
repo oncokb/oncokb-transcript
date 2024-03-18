@@ -20,7 +20,7 @@ export type ExtractPathExpressions<T, Sep extends string = '/'> = Exclude<
   symbol
 >;
 
-export class FirebaseCrudStore<T> {
+export class FirebaseCrudStore<T = any> {
   public data: Readonly<T> = undefined;
   public db: Database = undefined;
 
@@ -39,7 +39,6 @@ export class FirebaseCrudStore<T> {
       delete: action.bound,
       deleteFromArray: action.bound,
       pushToArray: action.bound,
-      pushToArrayFront: action.bound,
     });
     autorun(() => {
       this.setDatabase(rootStore.firebaseStore.firebaseDb);
@@ -121,15 +120,6 @@ export class FirebaseCrudStore<T> {
       }
       currentData.push(...values);
       return currentData;
-    });
-  }
-
-  async pushToArrayFront(path: string, values: any[]) {
-    return await runTransaction(ref(this.db, path), (currentData: any[]) => {
-      if (!currentData) {
-        return values;
-      }
-      return [...values, ...currentData];
     });
   }
 }

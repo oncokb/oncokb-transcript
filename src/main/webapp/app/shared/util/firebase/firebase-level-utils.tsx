@@ -88,7 +88,7 @@ export type PropagatedDropdownLevels = {
 };
 
 export const getFdaPropagationInfo = (txLevel: TX_LEVELS): PropagatedDropdownLevels => {
-  let propagationOptions: LEVELS[] = [];
+  let propagationOptions: FDA_LEVEL_KEYS[] = [];
   let defaultPropagation = '';
   if (txLevel === TX_LEVELS.LEVEL_1 || txLevel === TX_LEVELS.LEVEL_2 || txLevel === TX_LEVELS.LEVEL_R1) {
     propagationOptions = [FDA_LEVEL_KEYS.LEVEL_FDA2, FDA_LEVEL_KEYS.LEVEL_FDA3, FDA_LEVEL_KEYS.LEVEL_FDA_NO];

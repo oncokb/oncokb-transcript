@@ -4,7 +4,6 @@ import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { Alert, Button, Col, Form, FormGroup, Input, Label, Row } from 'reactstrap';
-import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 import _ from 'lodash';
 import {
   BaseReviewLevel,
@@ -15,9 +14,11 @@ import {
   reviewLevelSortMethod,
 } from 'app/shared/util/firebase/firebase-review-utils';
 import { IDrug } from 'app/shared/model/drug.model';
+import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
+import { onValue, ref } from 'firebase/database';
+import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 
 interface IReviewPageProps extends StoreProps {
-  firebasePath: string;
   hugoSymbol: string;
   reviewFinished: boolean;
   handleReviewFinished: (isFinished: boolean) => void;
@@ -25,29 +26,55 @@ interface IReviewPageProps extends StoreProps {
 }
 
 const ReviewPage = (props: IReviewPageProps) => {
+  const firebaseGenePath = getFirebasePath('GENE', props.hugoSymbol);
+  const firebaseMetaReviewPath = `${getFirebasePath('META_GENE', props.hugoSymbol)}/review`;
+
+  const [geneData, setGeneData] = useState(null);
+  const [metaReview, setMetaReview] = useState(null);
+
   const [reviewUuids, setReviewUuids] = useState([]);
   const [rootReview, setRootReview] = useState(new BaseReviewLevel());
   const [editorReviewMap, setEditorReviewMap] = useState(new EditorReviewMap());
   const [splitView, setSplitView] = useState(false);
 
   useEffect(() => {
-    const uuids = [];
-    for (const key of Object.keys(props.metaData.review)) {
-      if (props.metaData.review[key] === true) {
-        uuids.push(key);
-      }
-    }
-    setReviewUuids(uuids);
-  }, [props.metaData]);
+    onValue(
+      ref(props.firebaseDb, firebaseGenePath),
+      snapshot => {
+        setGeneData(snapshot.val());
+      },
+      { onlyOnce: true }
+    );
+
+    const subscribe = onValue(ref(props.firebaseDb, firebaseMetaReviewPath), snapshot => {
+      setMetaReview(snapshot.val());
+    });
+
+    return () => subscribe?.();
+  }, []);
 
   useEffect(() => {
-    const reviewMap = new EditorReviewMap();
-    const reviews = findGeneLevelReviews(props.drugList, props.geneData, reviewUuids, reviewMap);
-    Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
-    setEditorReviewMap(reviewMap);
-    setRootReview(reviews);
-    props.handleReviewFinished(!reviews.hasChildren());
-  }, [props.geneData, reviewUuids]);
+    if (metaReview) {
+      const uuids = [];
+      for (const key of Object.keys(metaReview)) {
+        if (metaReview[key] === true) {
+          uuids.push(key);
+        }
+      }
+      setReviewUuids(uuids);
+    }
+  }, [metaReview]);
+
+  useEffect(() => {
+    if (geneData) {
+      const reviewMap = new EditorReviewMap();
+      const reviews = findGeneLevelReviews(props.drugList, geneData, reviewUuids, reviewMap);
+      Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
+      setEditorReviewMap(reviewMap);
+      setRootReview(reviews);
+      props.handleReviewFinished(!reviews.hasChildren());
+    }
+  }, [geneData, reviewUuids]);
 
   const acceptAllChangesFromEditors = (editors: string[]) => {
     let reviewLevels = [] as ReviewLevel[];
@@ -143,9 +170,8 @@ const ReviewPage = (props: IReviewPageProps) => {
   );
 };
 
-const mapStoreToProps = ({ firebaseGeneStore, firebaseMetaStore, authStore }: IRootStore) => ({
-  geneData: firebaseGeneStore.data,
-  metaData: firebaseMetaStore.data,
+const mapStoreToProps = ({ firebaseStore, firebaseGeneStore, authStore }: IRootStore) => ({
+  firebaseDb: firebaseStore.firebaseDb,
   fullName: authStore.fullName,
   rejectReviewChangeHandler: firebaseGeneStore.rejectChanges,
   acceptReviewChangeHandler: firebaseGeneStore.acceptChanges,

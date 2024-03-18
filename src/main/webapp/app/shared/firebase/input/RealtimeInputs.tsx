@@ -1,17 +1,5 @@
 import React from 'react';
-import { ExtractPathExpressions } from '../../util/firebase/firebase-crud-store';
-import { Gene } from '../../model/firebase/firebase.model';
-import RealtimeBasicInput, { IRealtimeBasicInput } from './RealtimeBasicInput';
-import { AutoParseRefField } from 'app/shared/form/AutoParseRefField';
-
-export enum RealtimeInputType {
-  TEXT = 'text',
-  INLINE_TEXT = 'inline_text',
-  TEXTAREA = 'textarea',
-  CHECKBOX = 'checkbox',
-  RADIO = 'radio',
-  DROPDOWN = 'dropdown',
-}
+import RealtimeBasicInput, { IRealtimeBasicInput, RealtimeInputType } from './RealtimeBasicInput';
 
 /**
  * Text inputs
@@ -23,17 +11,8 @@ export const RealtimeTextInput = ({ inline = false, ...otherProps }: IRealtimeTe
   return <RealtimeBasicInput {...otherProps} type={inline ? RealtimeInputType.INLINE_TEXT : RealtimeInputType.TEXT} />;
 };
 
-export const RealtimeTextAreaInput = (props: { referenceText?: string } & Omit<IRealtimeBasicInput, 'type'>) => {
-  return (
-    <>
-      <RealtimeBasicInput {...props} type={RealtimeInputType.TEXTAREA} />
-      {props.referenceText && (
-        <div className="mb-2">
-          <AutoParseRefField summary={props.referenceText} />
-        </div>
-      )}
-    </>
-  );
+export const RealtimeTextAreaInput = (props: Omit<IRealtimeBasicInput, 'type'>) => {
+  return <RealtimeBasicInput {...props} type={RealtimeInputType.TEXTAREA} />;
 };
 
 /**
@@ -51,7 +30,7 @@ export const RealtimeRadioInput = (props: Omit<IRealtimeBasicInput, 'type'>) => 
  * Checked Input Group
  */
 export type RealtimeCheckedInputOption = {
-  fieldKey: ExtractPathExpressions<Gene>;
+  firebasePath: string;
   label: string;
 };
 
@@ -69,9 +48,9 @@ export const RealtimeCheckedInputGroup = (props: IRealtimeCheckedInputGroup) => 
       <div className="d-flex flex-wrap">
         {props.options.map(option => {
           return props.isRadio ? (
-            <RealtimeRadioInput key={option.label} fieldKey={option.fieldKey} className="mr-2" label={option.label} />
+            <RealtimeRadioInput key={option.label} firebasePath={option.firebasePath} className="mr-2" label={option.label} />
           ) : (
-            <RealtimeCheckboxInput key={option.label} fieldKey={option.fieldKey} className="mr-2" label={option.label} />
+            <RealtimeCheckboxInput key={option.label} firebasePath={option.firebasePath} className="mr-2" label={option.label} />
           );
         })}
       </div>

@@ -9,6 +9,8 @@ import { IGene } from 'app/shared/model/gene.model';
 import _ from 'lodash';
 import { IFlag } from 'app/shared/model/flag.model';
 import { CURRENT_REVIEWER } from 'app/config/constants/constants';
+import { GeneType } from 'app/shared/model/firebase/firebase.model';
+import { onValue, ref } from 'firebase/database';
 
 export type ReleaseGeneTestData = {
   passed: boolean;
@@ -16,8 +18,52 @@ export type ReleaseGeneTestData = {
   type: 'optional' | 'required';
 };
 
-export function CurationToolsTab({ metaList, addMetaListListener, gene, geneEntities, searchGenes, updateGene, searchFlags }: StoreProps) {
-  const reviewList = metaList?.[gene.name].review;
+export interface ICurationToolsTabProps extends StoreProps {
+  genePath: string;
+}
+
+export function CurationToolsTab({
+  genePath,
+  firebaseDb,
+  metaList,
+  addMetaListListener,
+  geneEntities,
+  searchGenes,
+  updateGene,
+  searchFlags,
+}: ICurationToolsTabProps) {
+  const [geneName, setGeneName] = useState<string>(null);
+  const [geneSummary, setGeneSummary] = useState<string>(null);
+  const [geneBackground, setGeneBackground] = useState<string>(null);
+  const [geneType, setGeneType] = useState<GeneType>(null);
+
+  useEffect(() => {
+    const callbacks = [];
+    callbacks.push(
+      onValue(ref(firebaseDb, `${genePath}/name`), snapshot => {
+        setGeneName(snapshot.val());
+      })
+    );
+    callbacks.push(
+      onValue(ref(firebaseDb, `${genePath}/summary`), snapshot => {
+        setGeneSummary(snapshot.val());
+      })
+    );
+    callbacks.push(
+      onValue(ref(firebaseDb, `${genePath}/background`), snapshot => {
+        setGeneBackground(snapshot.val());
+      })
+    );
+    callbacks.push(
+      onValue(ref(firebaseDb, `${genePath}/type`), snapshot => {
+        setGeneType(snapshot.val());
+      })
+    );
+
+    return () => callbacks.forEach(callback => callback?.());
+  }, [genePath, firebaseDb]);
+
+  const reviewList = metaList?.[geneName]?.review;
 
   const tests: ReleaseGeneTestData[] = [
     {
@@ -26,17 +72,17 @@ export function CurationToolsTab({ metaList, addMetaListListener, gene, geneEnti
       type: 'required',
     },
     {
-      passed: !!gene.summary,
+      passed: !!geneSummary,
       text: 'Gene summary is not empty',
       type: 'required',
     },
     {
-      passed: !!gene.background,
+      passed: !!geneBackground,
       text: 'Gene background is not empty',
       type: 'required',
     },
     {
-      passed: !!gene.type.ocg || !!gene.type.tsg,
+      passed: !!geneType?.ocg || !!geneType?.tsg,
       text: 'Gene type is specified',
       type: 'optional',
     },
@@ -62,7 +108,7 @@ export function CurationToolsTab({ metaList, addMetaListListener, gene, geneEnti
   }
 
   useEffect(() => {
-    const geneData = geneEntities.find(entity => entity.hugoSymbol === gene.name);
+    const geneData = geneEntities.find(entity => entity.hugoSymbol === geneName);
     setIsReleased(geneData?.flags?.some(flag => isReleasedFlag(flag)) || false);
     geneToUpdate.current = geneData;
   }, [geneEntities]);
@@ -91,7 +137,7 @@ export function CurationToolsTab({ metaList, addMetaListListener, gene, geneEnti
         newGene.flags = [newFlag];
       }
       await updateGene(newGene);
-      await searchGenes({ query: gene.name, exact: true }); // repopulate gene store entities
+      await searchGenes({ query: geneName, exact: true }); // repopulate gene store entities
     } catch (error) {
       notifyError(error);
     }
@@ -119,7 +165,7 @@ export function CurationToolsTab({ metaList, addMetaListListener, gene, geneEnti
             {tests.map((test, index) => (
               <Row key={index} className="mb-1">
                 {getStatusIcon(test.passed)}
-                {test.text}
+                <span>{test.text}</span>
               </Row>
             ))}
           </div>
@@ -147,10 +193,10 @@ export function CurationToolsTab({ metaList, addMetaListListener, gene, geneEnti
   return getContent();
 }
 
-const mapStoreToProps = ({ firebaseMetaStore, firebaseGeneStore, geneStore, flagStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseStore, firebaseMetaStore, geneStore, flagStore }: IRootStore) => ({
+  firebaseDb: firebaseStore.firebaseDb,
   metaList: firebaseMetaStore.metaList,
   addMetaListListener: firebaseMetaStore.addMetaListListener,
-  gene: firebaseGeneStore.data,
   geneEntities: geneStore.entities,
   searchGenes: geneStore.searchEntities,
   updateGene: geneStore.updateEntity,

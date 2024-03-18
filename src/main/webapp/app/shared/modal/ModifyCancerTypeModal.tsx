@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import CancerTypeSelect, { CancerTypeSelectOption } from '../select/CancerTypeSelect';
-import { CancerType } from '../model/firebase/firebase.model';
-import { getCancerTypeName } from '../util/utils';
+import { CancerType, Tumor } from '../model/firebase/firebase.model';
+import { generateUuid, getCancerTypeName } from '../util/utils';
 import { IRootStore } from 'app/stores';
 import { componentInject } from '../util/typed-inject';
 import { ICancerType } from '../model/cancer-type.model';
@@ -9,33 +9,34 @@ import { FaExclamationCircle } from 'react-icons/fa';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 import { observer } from 'mobx-react-lite';
 import { ERROR_EXCLAMATION_ICON_SIZE } from 'app/config/constants/constants';
+import { onValue, ref } from 'firebase/database';
+import _ from 'lodash';
 
 export interface IModifyCancerTypeModalProps extends StoreProps {
   cancerTypesUuid: string;
-  includedCancerTypes: CancerType[];
-  excludedCancerTypes: CancerType[];
-  onConfirm: (includedCancerTypes: CancerType[], excludedCancerTypes: CancerType[]) => void;
+  cancerTypesPathToEdit?: string;
+  onConfirm: (newTumor: Tumor) => void;
   onCancel: () => void;
 }
 
 function ModifyCancerTypeModal({
   cancerTypesUuid,
-  includedCancerTypes,
-  excludedCancerTypes,
+  cancerTypesPathToEdit,
   onConfirm,
   onCancel,
   searchCancerTypes,
   modifyCancerTypeModalStore,
+  firebaseDb,
 }: IModifyCancerTypeModalProps) {
   return modifyCancerTypeModalStore.openCancerTypesUuid === cancerTypesUuid ? (
     <ModifyCancerTypeModalContent
       cancerTypesUuid={cancerTypesUuid}
-      includedCancerTypes={includedCancerTypes}
-      excludedCancerTypes={excludedCancerTypes}
+      cancerTypesPathToEdit={cancerTypesPathToEdit}
       onConfirm={onConfirm}
       onCancel={onCancel}
       searchCancerTypes={searchCancerTypes}
       modifyCancerTypeModalStore={modifyCancerTypeModalStore}
+      firebaseDb={firebaseDb}
     />
   ) : (
     <></>
@@ -45,13 +46,15 @@ function ModifyCancerTypeModal({
 const ModifyCancerTypeModalContent = observer(
   ({
     cancerTypesUuid,
-    includedCancerTypes,
-    excludedCancerTypes,
+    cancerTypesPathToEdit,
     onConfirm,
     onCancel,
     searchCancerTypes,
     modifyCancerTypeModalStore,
+    firebaseDb,
   }: IModifyCancerTypeModalProps) => {
+    const [cancerTypeToEdit, setCancerTypeToEdit] = useState<Tumor>(null);
+
     function getCancerTypeFromCancerTypeSelectOption(cancerTypeSelectOption: CancerTypeSelectOption) {
       const cancerType = new CancerType();
       cancerType.code = cancerTypeSelectOption.code;
@@ -90,7 +93,7 @@ const ModifyCancerTypeModalContent = observer(
       }, []);
     }
 
-    async function setIncludedCancerTypes() {
+    async function setIncludedCancerTypes(includedCancerTypes: CancerType[]) {
       const promises = [];
       for (const cancerType of includedCancerTypes) {
         promises.push(getICancerTypeFromCancerType(cancerType));
@@ -100,7 +103,7 @@ const ModifyCancerTypeModalContent = observer(
       );
     }
 
-    async function setExcludedCancerTypes() {
+    async function setExcludedCancerTypes(excludedCancerTypes: CancerType[]) {
       const promises = [];
       for (const cancerType of excludedCancerTypes) {
         promises.push(getICancerTypeFromCancerType(cancerType));
@@ -116,20 +119,34 @@ const ModifyCancerTypeModalContent = observer(
       setTimeout(async () => {
         // add some delay so the user gets feedback
         modifyCancerTypeModalStore.setIsErrorFetchingICancerTypes(false);
-        await Promise.all([setIncludedCancerTypes(), setExcludedCancerTypes()]);
+        await Promise.all([
+          setIncludedCancerTypes(cancerTypeToEdit?.cancerTypes),
+          setExcludedCancerTypes(cancerTypeToEdit?.excludedCancerTypes),
+        ]);
         modifyCancerTypeModalStore.setIsRetryButtonClicked(false);
       }, 500);
     }
 
+    useEffect(() => {
+      let unsubscribe;
+      if (cancerTypesPathToEdit) {
+        unsubscribe = onValue(ref(firebaseDb, cancerTypesPathToEdit), snapshot => {
+          setCancerTypeToEdit(snapshot.val());
+        });
+      }
+
+      return () => unsubscribe?.();
+    }, [cancerTypesPathToEdit]);
+
     // There is a bug when 2 people edit the same cancer type at the same time,
     // the updates will not be reflected on each other's screens, possibly leading to data being overwritten
     useEffect(() => {
-      setIncludedCancerTypes();
-    }, []);
+      setIncludedCancerTypes(cancerTypeToEdit?.cancerTypes);
+    }, [cancerTypeToEdit]);
 
     useEffect(() => {
-      setExcludedCancerTypes();
-    }, []);
+      setExcludedCancerTypes(cancerTypeToEdit?.excludedCancerTypes);
+    }, [cancerTypeToEdit]);
 
     const isConfirmButtonDisabled = useMemo(
       () =>
@@ -215,10 +232,21 @@ const ModifyCancerTypeModalContent = observer(
                 color="primary"
                 disabled={isConfirmButtonDisabled}
                 onClick={() => {
-                  onConfirm(
-                    modifyCancerTypeModalStore.includedCancerTypes.map(option => getCancerTypeFromCancerTypeSelectOption(option)),
-                    modifyCancerTypeModalStore.excludedCancerTypes.map(option => getCancerTypeFromCancerTypeSelectOption(option))
+                  const includedCancerTypes = modifyCancerTypeModalStore.includedCancerTypes.map(option =>
+                    getCancerTypeFromCancerTypeSelectOption(option)
                   );
+                  const excludedCancerTypes = modifyCancerTypeModalStore.excludedCancerTypes.map(option =>
+                    getCancerTypeFromCancerTypeSelectOption(option)
+                  );
+
+                  const newTumor = cancerTypeToEdit ? _.cloneDeep(cancerTypeToEdit) : new Tumor();
+                  newTumor.cancerTypes = includedCancerTypes;
+                  newTumor.excludedCancerTypes = excludedCancerTypes;
+                  if (!newTumor.excludedCancerTypes_uuid) {
+                    newTumor.excludedCancerTypes_uuid = generateUuid();
+                  }
+
+                  onConfirm(newTumor);
                 }}
               >
                 Confirm
@@ -231,9 +259,10 @@ const ModifyCancerTypeModalContent = observer(
   }
 );
 
-const mapStoreToProps = ({ cancerTypeStore, modifyCancerTypeModalStore }: IRootStore) => ({
+const mapStoreToProps = ({ cancerTypeStore, modifyCancerTypeModalStore, firebaseStore }: IRootStore) => ({
   searchCancerTypes: cancerTypeStore.searchEntities,
   modifyCancerTypeModalStore,
+  firebaseDb: firebaseStore.firebaseDb,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
