@@ -1,10 +1,10 @@
-import { CHECKBOX_LABEL_LEFT_MARGIN } from 'app/config/constants/constants';
+import { CHECKBOX_LABEL_LEFT_MARGIN, UPDATE_MUTATION_FILTERS_DEBOUNCE_MILLISECONDS } from 'app/config/constants/constants';
 import { ONCOGENICITY_OPTIONS, MUTATION_EFFECT_OPTIONS, TX_LEVEL_OPTIONS } from 'app/config/constants/firebase';
 import { Mutation } from 'app/shared/model/firebase/firebase.model';
 import { getFilterModalStats, getMutationName } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { onValue, ref } from 'firebase/database';
+import { DataSnapshot, onValue, ref } from 'firebase/database';
 import _ from 'lodash';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FaFilter } from 'react-icons/fa';
@@ -17,6 +17,7 @@ export interface IMutationsFilterSectionProps extends StoreProps {
 }
 
 function MutationsFilterSection({ mutationsPath, filteredIndices, setFilteredIndices, firebaseDb }: IMutationsFilterSectionProps) {
+  const [mutationsInitialized, setMutationsInitialized] = useState(false);
   const [mutations, setMutations] = useState<Mutation[]>([]);
 
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -32,13 +33,22 @@ function MutationsFilterSection({ mutationsPath, filteredIndices, setFilteredInd
   const [txLevelFilter, setTxLevelFilter] = useState(initFilterCheckboxState(TX_LEVEL_OPTIONS));
   const [tempTxLevelFilter, setTempTxLevelFilter] = useState(initFilterCheckboxState(TX_LEVEL_OPTIONS));
 
+  const setMutationsDebounced = _.debounce((snapshot: DataSnapshot) => {
+    setMutations(snapshot.val());
+  }, UPDATE_MUTATION_FILTERS_DEBOUNCE_MILLISECONDS);
+
   useEffect(() => {
     const unsubscribe = onValue(ref(firebaseDb, mutationsPath), snapshot => {
-      setMutations(snapshot.val());
+      if (mutationsInitialized) {
+        setMutationsDebounced(snapshot);
+      } else {
+        setMutations(snapshot.val());
+        setMutationsInitialized(true);
+      }
     });
 
     return () => unsubscribe?.();
-  }, []);
+  }, [mutationsInitialized]);
 
   useEffect(() => {
     const newFilteredIndices =

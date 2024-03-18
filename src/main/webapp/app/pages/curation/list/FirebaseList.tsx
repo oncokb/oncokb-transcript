@@ -21,7 +21,7 @@ function FirebaseList<T>({ path, itemBuilder, pushDirection, filter, defaultSort
     const listRef = ref(firebaseDb, path);
     const unsubscribe = onValue(listRef, snapshot => {
       if (!snapshot.val()) {
-        // this happens for emtpy array, such as tumors for a new mutation
+        // this happens for empty array, such as tumors for a new mutation
         return;
       }
 

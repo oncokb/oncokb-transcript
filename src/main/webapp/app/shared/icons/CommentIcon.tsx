@@ -68,7 +68,6 @@ const CommentIcon = observer((props: ICommentIconProps) => {
   }
 
   async function handleCreateComment(content: string) {
-    // replace with runTransaction?
     const newComment = new Comment();
     newComment.content = content;
     newComment.email = props.account.email;
