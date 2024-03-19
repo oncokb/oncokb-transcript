@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useEffect, useMemo, useState } from 'react';
 import styles from './styles.module.scss';
 import React from 'react';
 import classNames from 'classnames';
@@ -23,6 +23,7 @@ export interface CollapsibleProps {
   disableCollapsible?: boolean;
   disableOpen?: boolean; // this prop is only used for the mutation collapsible, since it doesn't actually open when clicked
   isPendingDelete?: boolean;
+  isReview?: boolean;
   onToggle?: (isOpen: boolean) => void;
   badge?: ReactElement<IBadgeGroupProps> | ReactElement<IDefaultBadgeProps>;
 }
@@ -39,6 +40,7 @@ export default function Collapsible({
   disableCollapsible = false,
   disableOpen = false,
   isPendingDelete = false,
+  isReview = false,
   backgroundColor,
   onToggle,
   badge,
@@ -63,6 +65,25 @@ export default function Collapsible({
       onToggle && onToggle(!isOpen);
     }
   };
+
+  const infoComponent = useMemo(() => {
+    if (isReview || !isPendingDelete) {
+      return info;
+    }
+  }, [info, isPendingDelete, isReview]);
+
+  const actionComponent = useMemo(() => {
+    if (action) {
+      if (isReview || !isPendingDelete) {
+        return (
+          <>
+            <div className={classNames(styles.divider)} />
+            <div className={'collapsible-action all-children-margin'}>{action}</div>
+          </>
+        );
+      }
+    }
+  }, [action]);
 
   return (
     <div className={classNames('card', className, styles.main)}>
@@ -119,13 +140,8 @@ export default function Collapsible({
           {badge}
           <div className="mr-auto" />
           <div className="d-flex align-items-center">
-            {info}
-            {action && (
-              <>
-                <div className={classNames(styles.divider)} />
-                <div className={'collapsible-action all-children-margin'}>{action}</div>
-              </>
-            )}
+            {infoComponent}
+            {actionComponent}
           </div>
         </div>
       </div>

@@ -101,9 +101,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
       },
       { onlyOnce: true }
     );
-    return () => {
-      callbacks.forEach(callback => callback?.());
-    };
+    return () => callbacks.forEach(callback => callback?.());
   }, []);
 
   const labelComponent = label && (
