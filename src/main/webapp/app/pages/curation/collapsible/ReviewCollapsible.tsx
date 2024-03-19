@@ -169,6 +169,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       action={getReviewActions()}
       disableCollapsible={reviewAction === ReviewAction.DELETE}
       isPendingDelete={reviewAction === ReviewAction.DELETE}
+      isReview
       badge={
         props.baseReviewLevel.reviewLevelType !== ReviewLevelType.META &&
         !props.baseReviewLevel.isUnderCreationOrDeletion && (

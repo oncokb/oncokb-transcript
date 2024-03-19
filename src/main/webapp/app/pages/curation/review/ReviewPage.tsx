@@ -38,19 +38,20 @@ const ReviewPage = (props: IReviewPageProps) => {
   const [splitView, setSplitView] = useState(false);
 
   useEffect(() => {
-    onValue(
-      ref(props.firebaseDb, firebaseGenePath),
-      snapshot => {
+    const callbacks = [];
+    callbacks.push(
+      onValue(ref(props.firebaseDb, firebaseGenePath), snapshot => {
         setGeneData(snapshot.val());
-      },
-      { onlyOnce: true }
+      })
     );
 
-    const subscribe = onValue(ref(props.firebaseDb, firebaseMetaReviewPath), snapshot => {
-      setMetaReview(snapshot.val());
-    });
+    callbacks.push(
+      onValue(ref(props.firebaseDb, firebaseMetaReviewPath), snapshot => {
+        setMetaReview(snapshot.val());
+      })
+    );
 
-    return () => subscribe?.();
+    return () => callbacks.forEach(callback => callback?.());
   }, []);
 
   useEffect(() => {
