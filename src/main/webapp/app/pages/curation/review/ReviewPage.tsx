@@ -3,7 +3,7 @@ import { getSectionClassName } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
-import { Alert, Button, Col, Form, FormGroup, Input, Label, Row } from 'reactstrap';
+import { Alert, Button, Col, FormGroup, Input, Label, Row } from 'reactstrap';
 import _ from 'lodash';
 import {
   BaseReviewLevel,
@@ -105,50 +105,52 @@ const ReviewPage = (props: IReviewPageProps) => {
           )}
         </Col>
       </Row>
-      <Row className="mb-4">
-        <Col>
-          <FormGroup check inline>
-            <Input
-              type="radio"
-              checked={!splitView}
-              onChange={() => {
-                setSplitView(false);
-              }}
-            />
-            <Label check>Unified View</Label>
-          </FormGroup>
-          <FormGroup check inline>
-            <Input type="radio" checked={splitView} onChange={() => setSplitView(true)} />
-            <Label check>Split View</Label>
-          </FormGroup>
-        </Col>
-      </Row>
       {!props.reviewFinished && (
-        <Row>
-          <Col>
-            <Button
-              className="mr-2 mb-2"
-              outline
-              color="primary"
-              size="sm"
-              onClick={() => acceptAllChangesFromEditors(editorReviewMap.getEditorList())}
-            >
-              Accept all changes
-            </Button>
-            {editorReviewMap.getEditorList().map(editor => (
+        <>
+          <Row className="mb-4">
+            <Col>
+              <FormGroup check inline>
+                <Input
+                  type="radio"
+                  checked={!splitView}
+                  onChange={() => {
+                    setSplitView(false);
+                  }}
+                />
+                <Label check>Unified View</Label>
+              </FormGroup>
+              <FormGroup check inline>
+                <Input type="radio" checked={splitView} onChange={() => setSplitView(true)} />
+                <Label check>Split View</Label>
+              </FormGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
               <Button
                 className="mr-2 mb-2"
-                key={editor}
                 outline
                 color="primary"
                 size="sm"
-                onClick={() => acceptAllChangesFromEditors([editor])}
+                onClick={() => acceptAllChangesFromEditors(editorReviewMap.getEditorList())}
               >
-                Accept all changes from {editor}
+                Accept all changes
               </Button>
-            ))}
-          </Col>
-        </Row>
+              {editorReviewMap.getEditorList().map(editor => (
+                <Button
+                  className="mr-2 mb-2"
+                  key={editor}
+                  outline
+                  color="primary"
+                  size="sm"
+                  onClick={() => acceptAllChangesFromEditors([editor])}
+                >
+                  Accept all changes from {editor}
+                </Button>
+              ))}
+            </Col>
+          </Row>
+        </>
       )}
 
       <Row>

@@ -64,60 +64,9 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
     });
   };
 
-  // updateReviewableContent(path: string, key: ExtractPathExpressions<T>, value: any) {
-  //   // Update Review
-  //   const reviewableKey = `${key as string}_review`;
-  //   let review: Review = getValueByNestedKey(this.data, reviewableKey);
-  //   if (!review) {
-  //     review = new Review(this.rootStore.authStore.fullName);
-  //   }
-  //   review.updateTime = new Date().getTime();
-  //   review.updatedBy = this.rootStore.authStore.fullName;
-  //   // Update Review when value is reverted to original
-  //   let isChangeReverted = false;
-  //   if (!('lastReviewed' in review)) {
-  //     review.lastReviewed = getValueByNestedKey(this.data, key as string);
-  //     if (review.lastReviewed === undefined) {
-  //       delete review.lastReviewed;
-  //     }
-  //   } else {
-  //     if (review.lastReviewed === value) {
-  //       delete review.lastReviewed;
-  //       isChangeReverted = true;
-  //     }
-  //   }
-
-  //   const updateObject = {
-  //     [key]: value,
-  //     [reviewableKey]: review,
-  //   };
-
-  //   // Make sure that there is a UUID attached
-  //   const uuidKey = `${key as string}_uuid`;
-  //   const uuid = getValueByNestedKey(this.data, `${key as string}_uuid`);
-  //   if (!uuid) {
-  //     updateObject[uuidKey] = generateUuid();
-  //   }
-
-  //   const hugoSymbol = path.split('/')[1];
-  //   if (!hugoSymbol) {
-  //     return Promise.reject(new Error('Cannot update when hugoSymbol is undefined'));
-  //   }
-
-  //   return update(ref(this.db, path), updateObject).then(() => {
-  //     if (isChangeReverted) {
-  //       remove(ref(this.db, `${path}/${reviewableKey}/lastReviewed`));
-  //     }
-  //     // Update Meta information
-  //     this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol);
-  //     this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, !isChangeReverted);
-  //   });
-  // }
-
   async acceptChanges(hugoSymbol: string, reviewLevels: ReviewLevel[]) {
     const geneFirebasePath = getFirebasePath('GENE', hugoSymbol);
     const reviewHistory = buildHistoryFromReviews(this.rootStore.authStore.fullName, reviewLevels);
-
     return this.rootStore.firebaseHistoryStore.addHistory(hugoSymbol, reviewHistory).then(() => {
       for (const reviewLevel of reviewLevels) {
         const uuid = reviewLevel.uuid;
