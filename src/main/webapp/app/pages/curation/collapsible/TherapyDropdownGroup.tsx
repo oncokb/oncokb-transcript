@@ -5,6 +5,7 @@ import {
   getFdaPropagationInfo,
   getPropagatedLevelDropdownOptions,
   getTxLevelDropdownOptions,
+  isResistanceLevel,
   isTxLevelPresent,
 } from 'app/shared/util/firebase/firebase-level-utils';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -74,30 +75,34 @@ const TherapyDropdownGroup = ({ firebaseDb, treatmentPath }: ITherapyDropdownGro
         options={getTxLevelDropdownOptions()}
         placeholder={PLACEHOLDER}
       />
-      <RealtimeLevelDropdownInput
-        levelOfEvidenceType={LevelOfEvidenceType.PROPAGATED_SOLID}
-        isSearchable={false}
-        isClearable={false}
-        isDisabled={isPropagationLevelsDisabled}
-        firebaseLevelPath={`${treatmentPath}/propagation`}
-        label="Level of Evidence in other solid tumor types"
-        name="propagationLevel"
-        options={propagationOptions}
-        highestLevel={highestLevel}
-        placeholder={PLACEHOLDER}
-      />
-      <RealtimeLevelDropdownInput
-        levelOfEvidenceType={LevelOfEvidenceType.PROPAGATED_LIQUID}
-        isSearchable={false}
-        isClearable={false}
-        isDisabled={isPropagationLevelsDisabled}
-        firebaseLevelPath={`${treatmentPath}/propagationLiquid`}
-        label="Level of Evidence in other liquid tumor types"
-        name="propagationLiquidLevel"
-        options={propagationOptions}
-        highestLevel={highestLevel}
-        placeholder={PLACEHOLDER}
-      />
+      {!isResistanceLevel(highestLevel) ? (
+        <>
+          <RealtimeLevelDropdownInput
+            levelOfEvidenceType={LevelOfEvidenceType.PROPAGATED_SOLID}
+            isSearchable={false}
+            isClearable={false}
+            isDisabled={isPropagationLevelsDisabled}
+            firebaseLevelPath={`${treatmentPath}/propagation`}
+            label="Level of Evidence in other solid tumor types"
+            name="propagationLevel"
+            options={propagationOptions}
+            highestLevel={highestLevel}
+            placeholder={PLACEHOLDER}
+          />
+          <RealtimeLevelDropdownInput
+            levelOfEvidenceType={LevelOfEvidenceType.PROPAGATED_LIQUID}
+            isSearchable={false}
+            isClearable={false}
+            isDisabled={isPropagationLevelsDisabled}
+            firebaseLevelPath={`${treatmentPath}/propagationLiquid`}
+            label="Level of Evidence in other liquid tumor types"
+            name="propagationLiquidLevel"
+            options={propagationOptions}
+            highestLevel={highestLevel}
+            placeholder={PLACEHOLDER}
+          />
+        </>
+      ) : undefined}
       <RealtimeLevelDropdownInput
         levelOfEvidenceType={LevelOfEvidenceType.PROPAGATED_FDA}
         isSearchable={false}

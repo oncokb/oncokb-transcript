@@ -34,6 +34,10 @@ export const isTxLevelPresent = (txLevel: TX_LEVELS) => {
   return txLevel !== TX_LEVELS.LEVEL_NO && txLevel !== TX_LEVELS.LEVEL_EMPTY;
 };
 
+export const isResistanceLevel = (txLevel: TX_LEVELS) => {
+  return [TX_LEVELS.LEVEL_R1, TX_LEVELS.LEVEL_R2].includes(txLevel);
+};
+
 export const getLevelOrderingByLevelType = (levelType: LevelType) => {
   switch (levelType) {
     case LevelType.ALL:
