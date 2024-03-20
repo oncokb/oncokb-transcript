@@ -1,5 +1,5 @@
 import { GERMLINE_INHERITANCE_MECHANISM, PATHOGENICITY, PENETRANCE } from 'app/config/constants/constants';
-import { GENE_TYPE } from 'app/config/constants/firebase';
+import { ALLELE_STATE, GENE_TYPE } from 'app/config/constants/firebase';
 import { AlterationTypeEnum, Gene as OncoKBGene } from 'app/shared/api/generated';
 import { generateUuid } from 'app/shared/util/utils';
 
@@ -115,12 +115,25 @@ export class Treatment {
   }
 }
 
-type AlleleState = 'monoallelic' | 'biallelic' | 'mosaic';
-
 export class GenomicIndicator {
-  indicator = '';
+  name = '';
+  name_uuid: string = generateUuid();
+  name_review?: Review;
+  monoallelic: ALLELE_STATE.MONOALLELIC | '' = '';
+  monoallelic_uuid = generateUuid();
+  monoallelic_review?: Review;
+  biallelic: ALLELE_STATE.BIALLELIC | '' = '';
+  biallelic_uuid = generateUuid();
+  biallelic_review?: Review;
+  mosaic: ALLELE_STATE.MOSAIC | '' = '';
+  mosaic_uuid = generateUuid();
+  mosaic_review?: Review;
   description = '';
-  alleleStates?: AlleleState[] = [];
+  description_uuid = generateUuid();
+  description_review?: Review;
+  associationVariants?: { name: string; uuid: string }[] = [];
+  associationVariants_uuid: string = generateUuid();
+  associationVariants_review?: Review;
 }
 
 export class Gene {
@@ -138,17 +151,21 @@ export class Gene {
   summary_review?: Review;
   summary_uuid: string = generateUuid();
   summary_comments?: Comment[] = [];
-  germline_summary = '';
-  germline_summary_review?: Review;
-  germline_summary_uuid: string = generateUuid();
-  germline_summary_comments?: Comment[] = [];
   penetrance?: PENETRANCE | '' = '';
-  penetrance_uuid? = generateUuid();
   penetrance_review?: Review;
+  penetrance_uuid? = generateUuid();
+  penetrance_comments?: Comment[] = [];
+  inheritanceMechanism: `${GERMLINE_INHERITANCE_MECHANISM}` | '' = '';
+  inheritanceMechanism_review?: Review;
+  inheritanceMechanism_uuid: string = generateUuid();
+  inheritanceMechanism_comments?: Comment[] = [];
   type: GeneType = new GeneType();
   type_uuid: string = generateUuid();
   dmp_refseq_id_grch38 = '';
   isoform_override_grch38 = '';
+
+  // Germline
+  genomic_indicators: GenomicIndicator[] = [];
 
   constructor(name: string) {
     this.name = name;
@@ -180,7 +197,6 @@ export class Alteration {
 }
 
 export class Mutation {
-  germline_genomic_indicators: GenomicIndicator[] = [];
   mutation_effect: MutationEffect = new MutationEffect();
   mutation_effect_uuid: string = generateUuid();
   mutation_effect_comments?: Comment[] = []; // used for somatic
@@ -193,6 +209,11 @@ export class Mutation {
   name_uuid: string = generateUuid();
   tumors: Tumor[] = [];
   tumors_uuid: string = generateUuid();
+
+  // Germline
+  penetrance = new MutationSpecificPenetrance();
+  inheritance_mechanism = new MutationSpecificInheritanceMechanism();
+  cancer_risk = new CancerRisk();
 
   constructor(name: string) {
     this.name = name;
@@ -213,6 +234,29 @@ export class MutationEffect {
   germline_uuid?: string = generateUuid();
   germline_comments?: Comment[] = [];
   short = '';
+
+  // Germline
+  pathogenic: `${PATHOGENICITY}` | '' = '';
+  pathogenic_review?: Review;
+  pathogenic_uuid: string = generateUuid();
+}
+
+export class MutationSpecificPenetrance {
+  penetrance: `${PENETRANCE}` | '' = '';
+  penetrance_review?: Review;
+  penetrance_uuid: string = generateUuid();
+  description = '';
+  description_review?: Review;
+  description_uuid: string = generateUuid();
+}
+
+export class MutationSpecificInheritanceMechanism {
+  inheritanceMechanism: `${GERMLINE_INHERITANCE_MECHANISM}` | '' = '';
+  inheritanceMechanism_review?: Review;
+  inheritanceMechanism_uuid: string = generateUuid();
+  description = '';
+  description_review?: Review;
+  description_uuid: string = generateUuid();
 }
 
 export class CancerRisk {

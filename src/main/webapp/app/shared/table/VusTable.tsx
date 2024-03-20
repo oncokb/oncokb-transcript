@@ -3,7 +3,7 @@ import { Vus } from 'app/shared/model/firebase/firebase.model';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { Button, Container, Row } from 'reactstrap';
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
-import { getFirebasePath, getMostRecentComment, getVusTimestampClass } from 'app/shared/util/firebase/firebase-utils';
+import { getFirebaseVusPath, getMostRecentComment, getVusTimestampClass } from 'app/shared/util/firebase/firebase-utils';
 import { TextFormat } from 'react-jhipster';
 import { APP_DATETIME_FORMAT, MAX_COMMENT_LENGTH } from 'app/config/constants/constants';
 import _ from 'lodash';
@@ -26,6 +26,7 @@ import AddVusModal from '../modal/AddVusModal';
 
 export interface IVusTableProps extends StoreProps {
   hugoSymbol: string;
+  isGermline: boolean;
 }
 
 type VusTableData = Vus & {
@@ -40,13 +41,14 @@ const LATEST_COMMENT = 'Latest Comment';
 const VusTable = ({
   firebaseDb,
   hugoSymbol,
+  isGermline,
   account,
   fullName,
   pushVusArray,
   handleFirebaseUpdate,
   handleFirebaseDelete,
 }: IVusTableProps) => {
-  const firebaseVusPath = getFirebasePath('VUS', hugoSymbol);
+  const firebaseVusPath = getFirebaseVusPath(isGermline, hugoSymbol);
   const currentActionVusUuid = useRef<string>(null);
 
   const [vusData, setVusData] = useState(null);

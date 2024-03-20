@@ -52,7 +52,7 @@ const GeneListPage = (props: StoreProps) => {
       accessor: 'hugoSymbol',
       Header: 'Hugo Symbol',
       Cell(cell: { value: string }): any {
-        return <Link to={`${PAGE_ROUTE.CURATION}/${cell.value}`}>{cell.value}</Link>;
+        return <Link to={`${PAGE_ROUTE.CURATION}/${cell.value}/somatic`}>{cell.value}</Link>;
       },
       onFilter: (data: GeneMetaInfo, keyword) => (data.hugoSymbol ? filterByKeyword(data.hugoSymbol, keyword) : false),
     },

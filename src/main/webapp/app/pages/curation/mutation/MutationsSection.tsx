@@ -19,10 +19,11 @@ import styles from '../styles.module.scss';
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
   hugoSymbol: string;
+  isGermline: boolean;
   parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
 }
 
-function MutationsSection({ mutationsPath, hugoSymbol, parsedHistoryList, updateMutations }: IMutationsSectionProps) {
+function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistoryList, updateMutations }: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
   const [filteredIndices, setFilteredIndices] = useState<number[]>([]);
   const [openMutationCollapsibleIndex, setOpenMutationCollapsibleIndex] = useState<number>(null);
@@ -39,6 +40,7 @@ function MutationsSection({ mutationsPath, hugoSymbol, parsedHistoryList, update
                 open
                 mutationPath={`${mutationsPath}/${openMutationCollapsibleIndex}`}
                 hugoSymbol={hugoSymbol}
+                isGermline={isGermline}
                 parsedHistoryList={parsedHistoryList}
                 onToggle={() => {
                   setOpenMutationCollapsibleIndex(null);
@@ -65,6 +67,7 @@ function MutationsSection({ mutationsPath, hugoSymbol, parsedHistoryList, update
                       disableOpen
                       mutationPath={`${mutationsPath}/${index}`}
                       hugoSymbol={hugoSymbol}
+                      isGermline={isGermline}
                       parsedHistoryList={parsedHistoryList}
                       onToggle={() => {
                         setOpenMutationCollapsibleIndex(index);

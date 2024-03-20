@@ -31,7 +31,7 @@ describe('FirebaseMetaStore', () => {
 
     it('should update lastModifiedBy and lastModifiedAt fields', async () => {
       const store = new FirebaseMetaStore(rootStore);
-      await store.updateGeneMetaContent('ABL1');
+      await store.updateGeneMetaContent('ABL1', false);
 
       expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, {
         lastModifiedBy: 'test user',
@@ -41,7 +41,7 @@ describe('FirebaseMetaStore', () => {
 
     it('should update to the correct location', async () => {
       const store = new FirebaseMetaStore(rootStore);
-      await store.updateGeneMetaContent('BRAF');
+      await store.updateGeneMetaContent('BRAF', false);
 
       expect(mockRef).toHaveBeenNthCalledWith(1, undefined, 'Meta/BRAF');
     });
@@ -53,7 +53,7 @@ describe('FirebaseMetaStore', () => {
     it('should add uuid to gene meta review', async () => {
       const store = new FirebaseMetaStore(rootStore);
       const testUuid = generateUuid();
-      await store.updateGeneReviewUuid('EGFR', testUuid, true);
+      await store.updateGeneReviewUuid('EGFR', testUuid, true, false);
 
       const reviewKey = `review/${testUuid}`;
       expect(mockUpdate).toHaveBeenNthCalledWith(1, undefined, { [reviewKey]: true });
@@ -65,7 +65,7 @@ describe('FirebaseMetaStore', () => {
     it('should remove uuid from gene meta review', async () => {
       const store = new FirebaseMetaStore(rootStore);
       const testUuid = generateUuid();
-      await store.updateGeneReviewUuid('FLT3', testUuid, false);
+      await store.updateGeneReviewUuid('FLT3', testUuid, false, false);
 
       // Should call the firebase remove() function
       expect(mockRemove).toHaveBeenCalledTimes(1);

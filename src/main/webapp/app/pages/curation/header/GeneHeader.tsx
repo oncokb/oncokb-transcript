@@ -9,22 +9,26 @@ import React, { useEffect, useState } from 'react';
 import WithSeparator from 'react-with-separator';
 import { InlineDivider } from 'app/shared/links/PubmedGeneArticlesLink';
 import { onValue, ref } from 'firebase/database';
-import { geneMetaReviewHasUuids, getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
+import { geneMetaReviewHasUuids, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { IGene } from 'app/shared/model/gene.model';
 import { MetaReview } from 'app/shared/model/firebase/firebase.model';
 import { Button } from 'reactstrap';
 import CommentIcon from 'app/shared/icons/CommentIcon';
+import SomaticGermlineToggleButton from '../button/SomaticGermlineToggleButton';
 
 export interface IGeneHeaderProps extends StoreProps {
+  hugoSymbol: string;
   firebaseGenePath: string;
   geneName: string;
   geneEntity: IGene;
   isReviewing: boolean;
   isReviewFinished: boolean;
+  isGermline: boolean;
   handleReviewFinished: (isFinished: boolean) => void;
 }
 
 const GeneHeader = ({
+  hugoSymbol,
   fullName,
   updateMeta,
   firebaseDb,
@@ -33,9 +37,10 @@ const GeneHeader = ({
   geneEntity,
   isReviewing,
   isReviewFinished,
+  isGermline,
   handleReviewFinished,
 }: IGeneHeaderProps) => {
-  const firebaseMetaPath = getFirebasePath('META_GENE', geneName);
+  const firebaseMetaPath = getFirebaseMetaGenePath(isGermline, geneName);
   const [metaReview, setMetaReview] = useState<MetaReview>(undefined);
 
   useEffect(() => {
@@ -83,64 +88,67 @@ const GeneHeader = ({
   };
 
   return (
-    <>
-      <div className="d-flex align-items-end all-children-margin">
-        <span style={{ fontSize: '3rem', lineHeight: 1 }} className={'mr-2'}>
-          {geneName}
-        </span>
-        {!isReviewing && (
-          <>
-            <CommentIcon id={`${geneName}_curation_page`} path={`${firebaseGenePath}/name_comments`} />
-            <div>
+    <div style={{ width: '100%' }}>
+      <div className="d-flex justify-content-between align-items-center">
+        <div className="d-flex align-items-center mb-1">
+          <span style={{ fontSize: '3rem', lineHeight: 1 }} className={'mr-3'}>
+            {geneName}
+          </span>
+          {!isReviewing && <CommentIcon id={`${geneName}_curation_page`} path={`${firebaseGenePath}/name_comments`} />}
+          <div className="ml-3">
+            <SomaticGermlineToggleButton hugoSymbol={hugoSymbol} />
+          </div>
+        </div>
+        {getReviewButton()}
+      </div>
+      {!isReviewing && (
+        <>
+          <span>
+            {geneEntity?.entrezGeneId && (
               <span>
-                {geneEntity?.entrezGeneId && (
-                  <span className="ml-2">
-                    <span className="font-weight-bold text-nowrap">Entrez Gene:</span>
-                    <span className="ml-1">
-                      <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
-                    </span>
-                  </span>
-                )}
-                {geneEntity?.hgncId && (
-                  <span className="ml-2">
-                    <span className="font-weight-bold">HGNC:</span>
-                    <span className="ml-1">
-                      <HgncLink id={geneEntity.hgncId} />
-                    </span>
-                  </span>
-                )}
-                {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
-                  <span className="ml-2">
-                    <span className="font-weight-bold">Gene aliases:</span>
-                    <span className="ml-1">
-                      <WithSeparator separator={', '}>
-                        {geneEntity.synonyms.map(synonym => (
-                          <span className={'text-nowrap'} key={synonym.name}>
-                            {synonym.name}
-                          </span>
-                        ))}
-                      </WithSeparator>
-                    </span>
-                  </span>
-                )}
-                <span className="ml-2">
-                  <span className="font-weight-bold mr-2">External Links:</span>
-                  <WithSeparator separator={InlineDivider}>
-                    <a href={`https://cbioportal.mskcc.org/ln?q=${geneName}`} target="_blank" rel="noopener noreferrer">
-                      {CBIOPORTAL} <ExternalLinkIcon />
-                    </a>
-                    <a href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${geneName}`} target="_blank" rel="noopener noreferrer">
-                      {COSMIC} <ExternalLinkIcon />
-                    </a>
+                <span className="font-weight-bold text-nowrap">Entrez Gene:</span>
+                <span className="ml-1">
+                  <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
+                </span>
+              </span>
+            )}
+            {geneEntity?.hgncId && (
+              <span className="ml-2">
+                <span className="font-weight-bold">HGNC:</span>
+                <span className="ml-1">
+                  <HgncLink id={geneEntity.hgncId} />
+                </span>
+              </span>
+            )}
+            {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
+              <span className="ml-2">
+                <span className="font-weight-bold">Gene aliases:</span>
+                <span className="ml-1">
+                  <WithSeparator separator={', '}>
+                    {geneEntity.synonyms.map(synonym => (
+                      <span className={'text-nowrap'} key={synonym.name}>
+                        {synonym.name}
+                      </span>
+                    ))}
                   </WithSeparator>
                 </span>
               </span>
-            </div>
-          </>
-        )}
-      </div>
-      {getReviewButton()}
-    </>
+            )}
+            <span className="ml-2">
+              <span className="font-weight-bold mr-2">External Links:</span>
+              <WithSeparator separator={InlineDivider}>
+                <a href={`https://cbioportal.mskcc.org/ln?q=${geneName}`} target="_blank" rel="noopener noreferrer">
+                  {CBIOPORTAL} <ExternalLinkIcon />
+                </a>
+                <a href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${geneName}`} target="_blank" rel="noopener noreferrer">
+                  {COSMIC} <ExternalLinkIcon />
+                </a>
+              </WithSeparator>
+            </span>
+          </span>
+        </>
+      )}
+    </div>
   );
 };
 

@@ -11,9 +11,10 @@ export interface ITabsProps {
   tabs: Tab[];
   isCollapsed?: boolean;
   className?: string;
+  contentClassName?: string;
 }
 
-const Tabs = ({ tabs, isCollapsed = false, className }: ITabsProps) => {
+const Tabs = ({ tabs, isCollapsed = false, className, contentClassName }: ITabsProps) => {
   const [openTabIndex, setOpenTabIndex] = useState(0);
 
   useEffect(() => {
@@ -41,7 +42,7 @@ const Tabs = ({ tabs, isCollapsed = false, className }: ITabsProps) => {
           </Row>
           {!isCollapsed && (
             <Row>
-              <Col>{tabs[openTabIndex]?.content}</Col>
+              <Col className={contentClassName}>{tabs[openTabIndex]?.content}</Col>
             </Row>
           )}
         </Col>

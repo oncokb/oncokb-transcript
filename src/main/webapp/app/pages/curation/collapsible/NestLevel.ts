@@ -1,8 +1,11 @@
-import { COLLAPSIBLE_LEVELS, GREY, LEVELS } from 'app/config/colors';
+import { COLLAPSIBLE_LEVELS, GREY } from 'app/config/colors';
 
 export enum NestLevelType {
   MUTATION,
   MUTATION_EFFECT,
+  PENETRANCE,
+  INHERITANCE_MECHANISM,
+  CANCER_RISK,
   CANCER_TYPE,
   DIAGNOSTIC,
   PROGNOSTIC,
@@ -13,6 +16,9 @@ export enum NestLevelType {
 export const NestLevelMapping: { [key in NestLevelType]: string } = {
   [NestLevelType.MUTATION]: '1',
   [NestLevelType.MUTATION_EFFECT]: '1',
+  [NestLevelType.PENETRANCE]: '1',
+  [NestLevelType.INHERITANCE_MECHANISM]: '1',
+  [NestLevelType.CANCER_RISK]: '1',
   [NestLevelType.CANCER_TYPE]: '2',
   [NestLevelType.DIAGNOSTIC]: '3',
   [NestLevelType.PROGNOSTIC]: '3',

@@ -1,13 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { RouteComponentProps } from 'react-router-dom';
-import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
+import { RouteComponentProps, useLocation } from 'react-router-dom';
+import {
+  getFirebaseGenePath,
+  getFirebaseHistoryPath,
+  getFirebaseMetaGenePath,
+  getFirebasePath,
+} from 'app/shared/util/firebase/firebase-utils';
 import { HistoryRecord } from 'app/shared/model/firebase/firebase.model';
 import { Col, Row } from 'reactstrap';
 import { getSectionClassName } from 'app/shared/util/utils';
-import { GENE_TYPE, GENE_TYPE_KEY } from 'app/config/constants/firebase';
-import { GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
+import { GENE_TYPE, GENE_TYPE_KEY, INHERITANCE_MECHANISM_OPTIONS, PENETRANCE_OPTIONS } from 'app/config/constants/firebase';
+import { GET_ALL_DRUGS_PAGE_SIZE, RADIO_OPTION_NONE } from 'app/config/constants/constants';
 import { IGene } from 'app/shared/model/gene.model';
 import { onValue, ref } from 'firebase/database';
 import CommentIcon from 'app/shared/icons/CommentIcon';
@@ -20,22 +25,27 @@ import CurationHistoryTab from 'app/components/tabs/CurationHistoryTab';
 import CurationToolsTab from 'app/components/tabs/CurationToolsTab';
 import Tabs from 'app/components/tabs/tabs';
 import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
-import GeneHeader from './gene/GeneHeader';
+import GeneHeader from './header/GeneHeader';
 import ReviewPage from './review/ReviewPage';
 import VusTable from 'app/shared/table/VusTable';
 import styles from './styles.module.scss';
 import CurationReferencesTab from 'app/components/tabs/CurationReferencesTab';
+import GenomicIndicatorsTable from 'app/shared/table/GenomicIndicatorsTable';
+import GeneRealtimeComponentHeader from './header/GeneRealtimeComponentHeader';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
 export type ParsedHistoryRecord = { record: HistoryRecord; timestamp: number; admin: string };
 
 export const CurationPage = (props: ICurationPageProps) => {
+  const { pathname } = useLocation();
+  const isGermline = pathname.includes('germline');
+
   const hugoSymbol = props.match.params.hugoSymbol.toUpperCase();
 
-  const firebaseGenePath = getFirebasePath('GENE', hugoSymbol);
-  const firebaseHistoryPath = getFirebasePath('HISTORY', hugoSymbol);
-  const firebaseMetaCurrentReviewerPath = `${getFirebasePath('META_GENE', hugoSymbol)}/review/currentReviewer`;
+  const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
+  const firebaseHistoryPath = getFirebaseHistoryPath(isGermline, hugoSymbol);
+  const firebaseMetaCurrentReviewerPath = `${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review/currentReviewer`;
 
   const [geneName, setGeneName] = useState(undefined);
 
@@ -64,7 +74,7 @@ export const CurationPage = (props: ICurationPageProps) => {
         cleanupCallbacks.forEach(callback => callback && callback());
       };
     }
-  }, [props.firebaseInitSuccess]);
+  }, [props.firebaseInitSuccess, props.firebaseDb, firebaseGenePath, firebaseHistoryPath, firebaseMetaCurrentReviewerPath]);
 
   useEffect(() => {
     props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
@@ -100,13 +110,15 @@ export const CurationPage = (props: ICurationPageProps) => {
   return props.firebaseInitSuccess && !props.loadingGenes && !!geneName && props.drugList.length > 0 ? (
     <div>
       <Row className={'mb-2'}>
-        <Col className={'d-flex justify-content-between flex-row flex-nowrap align-items-end'}>
+        <Col>
           <GeneHeader
+            hugoSymbol={hugoSymbol}
             firebaseGenePath={firebaseGenePath}
             geneName={geneName}
             geneEntity={geneEntity}
             isReviewing={isReviewing}
             isReviewFinished={isReviewFinished}
+            isGermline={isGermline}
             handleReviewFinished={isFinished => setIsReviewFinished(isFinished)}
           />
         </Col>
@@ -114,63 +126,114 @@ export const CurationPage = (props: ICurationPageProps) => {
       {isReviewing ? (
         <ReviewPage
           hugoSymbol={hugoSymbol}
+          isGermline={isGermline}
           reviewFinished={isReviewFinished}
           handleReviewFinished={isFinished => setIsReviewFinished(isFinished)}
           drugList={props.drugList}
         />
       ) : (
         <>
-          <Row className={`${getSectionClassName()} justify-content-between`}>
-            <Col>
-              <RealtimeCheckedInputGroup
-                groupHeader={
-                  <>
-                    <span className="mr-2">Gene Type</span>
-                    {<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Type'} />}
-                  </>
-                }
-                options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
-                  return {
-                    label,
-                    firebasePath: `${firebaseGenePath}/${GENE_TYPE_KEY[label]}`,
-                  };
-                })}
-              />
-              <RealtimeTextAreaInput
-                firebasePath={`${firebaseGenePath}/summary`}
-                inputClass={styles.textarea}
-                label="Gene Summary"
-                name="geneSummary"
-                labelIcon={
-                  <>
-                    <GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />
-                    <div className="mr-3" />
-                    <CommentIcon id={`${hugoSymbol}_gene_summary`} path={`${firebaseGenePath}/summary_comments`} />
-                  </>
-                }
-              />
-            </Col>
-          </Row>
-          <Row className={'mb-5'}>
-            <Col>
-              <RealtimeTextAreaInput
-                firebasePath={`${firebaseGenePath}/background`}
-                inputClass={styles.textarea}
-                label="Background"
-                name="geneBackground"
-                parseRefs
-                labelIcon={
-                  <>
-                    <GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Background'} />
-                    <div className="mr-3" />
-                    <CommentIcon id={`${hugoSymbol}_gene_background`} path={`${firebaseGenePath}/background_comments`} />
-                  </>
-                }
-              />
-            </Col>
-          </Row>
-          <MutationsSection mutationsPath={`${firebaseGenePath}/mutations`} hugoSymbol={hugoSymbol} parsedHistoryList={parsedHistoryList} />
-          <VusTable hugoSymbol={hugoSymbol} />
+          <div className="mb-5">
+            <Row className={`${getSectionClassName()} justify-content-between`}>
+              <Col className="pb-2">
+                <RealtimeCheckedInputGroup
+                  groupHeader={
+                    <>
+                      <span className="mr-2">Gene Type</span>
+                      {<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Type'} />}
+                    </>
+                  }
+                  options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
+                    return {
+                      label,
+                      firebasePath: `${firebaseGenePath}/${GENE_TYPE_KEY[label]}`,
+                    };
+                  })}
+                />
+                <RealtimeTextAreaInput
+                  firebasePath={`${firebaseGenePath}/summary`}
+                  inputClass={styles.textarea}
+                  label="Gene Summary"
+                  name="geneSummary"
+                  labelIcon={
+                    <GeneRealtimeComponentHeader
+                      tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />}
+                      commentIcon={<CommentIcon id={`${hugoSymbol}_gene_summary`} path={`${firebaseGenePath}/summary_comments`} />}
+                    />
+                  }
+                />
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col>
+                <RealtimeTextAreaInput
+                  firebasePath={`${firebaseGenePath}/background`}
+                  inputClass={styles.textarea}
+                  label="Background"
+                  name="geneBackground"
+                  parseRefs
+                  labelIcon={
+                    <GeneRealtimeComponentHeader
+                      tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Background'} />}
+                      commentIcon={<CommentIcon id={`${hugoSymbol}_gene_background`} path={`${firebaseGenePath}/background_comments`} />}
+                    />
+                  }
+                />
+              </Col>
+            </Row>
+            {isGermline && (
+              <>
+                <div className="mb-3">
+                  <RealtimeCheckedInputGroup
+                    groupHeader={
+                      <GeneRealtimeComponentHeader
+                        title="Penetrance"
+                        tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Penetrance'} />}
+                        commentIcon={<CommentIcon id={`${hugoSymbol}_penetrance`} path={`${firebaseGenePath}/penetrance_comments`} />}
+                      />
+                    }
+                    isRadio
+                    options={[...PENETRANCE_OPTIONS, RADIO_OPTION_NONE].map(label => ({
+                      label,
+                      firebasePath: `${firebaseGenePath}/penetrance`,
+                    }))}
+                  />
+                </div>
+                <div className="mb-3">
+                  <RealtimeCheckedInputGroup
+                    groupHeader={
+                      <GeneRealtimeComponentHeader
+                        title="Mechanism of Inheritance"
+                        tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Mechanism of Inheritance'} />}
+                        commentIcon={
+                          <CommentIcon
+                            id={`${hugoSymbol}_inheritanceMechanism`}
+                            path={`${firebaseGenePath}/inheritanceMechanism_comments`}
+                          />
+                        }
+                      />
+                    }
+                    isRadio
+                    options={[...INHERITANCE_MECHANISM_OPTIONS, RADIO_OPTION_NONE].map(label => ({
+                      label,
+                      firebasePath: `${firebaseGenePath}/inheritanceMechanism`,
+                    }))}
+                  />
+                </div>
+                <GenomicIndicatorsTable
+                  genomicIndicatorsPath={`${firebaseGenePath}/genomic_indicators`}
+                  mutationsPath={`${firebaseGenePath}/mutations`}
+                />
+              </>
+            )}
+          </div>
+          <MutationsSection
+            mutationsPath={`${firebaseGenePath}/mutations`}
+            hugoSymbol={hugoSymbol}
+            isGermline={isGermline}
+            parsedHistoryList={parsedHistoryList}
+          />
+          <VusTable hugoSymbol={hugoSymbol} isGermline={isGermline} />
           <RelevantCancerTypesModal
             onConfirm={async (newRelevantCancerTypes, noneDeleted) => {
               try {

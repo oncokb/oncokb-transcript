@@ -14,20 +14,21 @@ import {
   reviewLevelSortMethod,
 } from 'app/shared/util/firebase/firebase-review-utils';
 import { IDrug } from 'app/shared/model/drug.model';
-import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
+import { getFirebaseGenePath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { onValue, ref } from 'firebase/database';
 import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 
 interface IReviewPageProps extends StoreProps {
   hugoSymbol: string;
+  isGermline: boolean;
   reviewFinished: boolean;
   handleReviewFinished: (isFinished: boolean) => void;
   drugList: readonly IDrug[];
 }
 
 const ReviewPage = (props: IReviewPageProps) => {
-  const firebaseGenePath = getFirebasePath('GENE', props.hugoSymbol);
-  const firebaseMetaReviewPath = `${getFirebasePath('META_GENE', props.hugoSymbol)}/review`;
+  const firebaseGenePath = getFirebaseGenePath(props.isGermline, props.hugoSymbol);
+  const firebaseMetaReviewPath = `${getFirebaseMetaGenePath(props.isGermline, props.hugoSymbol)}/review`;
 
   const [geneData, setGeneData] = useState(null);
   const [metaReview, setMetaReview] = useState(null);
@@ -44,7 +45,6 @@ const ReviewPage = (props: IReviewPageProps) => {
         setGeneData(snapshot.val());
       })
     );
-
     callbacks.push(
       onValue(ref(props.firebaseDb, firebaseMetaReviewPath), snapshot => {
         setMetaReview(snapshot.val());
@@ -82,7 +82,7 @@ const ReviewPage = (props: IReviewPageProps) => {
     for (const editor of editors) {
       reviewLevels = reviewLevels.concat(editorReviewMap.getReviewsByEditor(editor));
     }
-    props.acceptReviewChangeHandler(props.hugoSymbol, reviewLevels);
+    props.acceptReviewChangeHandler(props.hugoSymbol, reviewLevels, props.isGermline);
   };
 
   return (
@@ -161,6 +161,7 @@ const ReviewPage = (props: IReviewPageProps) => {
               <ReviewCollapsible
                 splitView={splitView}
                 hugoSymbol={props.hugoSymbol}
+                isGermline={props.isGermline}
                 key={reviewLevel.currentValPath}
                 baseReviewLevel={reviewLevel}
                 handleAccept={props.acceptReviewChangeHandler}

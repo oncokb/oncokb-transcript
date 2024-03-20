@@ -45,6 +45,12 @@ const Routes: React.FunctionComponent<IRoutesProps> = (props: IRoutesProps) => {
             <PrivateRoute exact path={PAGE_ROUTE.SEARCH} component={SearchPage} />
             <PrivateRoute exact path={PAGE_ROUTE.CURATION} component={GeneListPage} hasAnyAuthorities={[AUTHORITIES.CURATOR]} />
             <PrivateRoute exact path={PAGE_ROUTE.CURATION_GENE} component={CurationPage} hasAnyAuthorities={[AUTHORITIES.CURATOR]} />
+            <PrivateRoute
+              exact
+              path={PAGE_ROUTE.CURATION_GENE_GERMLINE}
+              component={CurationPage}
+              hasAnyAuthorities={[AUTHORITIES.CURATOR]}
+            />
             <PrivateRoute exact path={PAGE_ROUTE.ACCOUNT} component={Account} hasAnyAuthorities={[AUTHORITIES.USER]} />
             <PrivateRoute path="/admin" component={Admin} hasAnyAuthorities={[AUTHORITIES.ADMIN]} />
             <PrivateRoute path="/" component={Entities} hasAnyAuthorities={[AUTHORITIES.USER]} />

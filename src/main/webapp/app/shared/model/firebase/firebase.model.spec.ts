@@ -30,15 +30,17 @@ describe('Firebase Models', () => {
         summary: '',
         summary_uuid: DEFAULT_UUID,
         summary_comments: [],
-        germline_summary: '',
-        germline_summary_uuid: DEFAULT_UUID,
-        germline_summary_comments: [],
         penetrance: '',
         penetrance_uuid: DEFAULT_UUID,
+        penetrance_comments: [],
+        inheritanceMechanism: '',
+        inheritanceMechanism_uuid: DEFAULT_UUID,
+        inheritanceMechanism_comments: [],
         type: new GeneType(),
         type_uuid: DEFAULT_UUID,
         dmp_refseq_id_grch38: '',
         isoform_override_grch38: '',
+        genomic_indicators: [],
       });
     });
   });

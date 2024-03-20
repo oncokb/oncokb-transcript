@@ -49,8 +49,9 @@ const ReviewCollapsibleBootstrapClass = {
 export interface IReviewCollapsibleProps {
   hugoSymbol: string;
   baseReviewLevel: BaseReviewLevel;
-  handleDelete?: (hugoSymbol: string, reviewLevel: ReviewLevel) => void;
-  handleAccept?: (hugoSymbol: string, reviewLevels: ReviewLevel[]) => void;
+  isGermline: boolean;
+  handleDelete?: (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean) => void;
+  handleAccept?: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) => void;
   splitView?: boolean;
 }
 
@@ -84,14 +85,14 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
           icon={faCheck}
           color={SUCCESS}
           onClick={() => {
-            props.handleAccept(props.hugoSymbol, [props.baseReviewLevel as ReviewLevel]);
+            props.handleAccept(props.hugoSymbol, [props.baseReviewLevel as ReviewLevel], props.isGermline);
           }}
         />
         <ActionIcon
           icon={faTimes}
           color={DANGER}
           onClick={() => {
-            props.handleDelete(props.hugoSymbol, props.baseReviewLevel as ReviewLevel);
+            props.handleDelete(props.hugoSymbol, props.baseReviewLevel as ReviewLevel, props.isGermline);
           }}
         />
       </>
@@ -131,7 +132,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
     }
     if (reviewAction === ReviewAction.UPDATE) {
       const reviewLevel = props.baseReviewLevel as ReviewLevel;
-      let oldValue = reviewLevel.review.lastReviewed;
+      let oldValue = reviewLevel.lastReviewedString || reviewLevel.review.lastReviewed;
       let newValue = reviewLevel.currentVal.toString();
       if (!reviewLevel.isUnderCreationOrDeletion && oldValue !== '' && newValue !== '') {
         oldValue = oldValue?.replace(/\.\s+/g, '.\n');
@@ -185,6 +186,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
                 <ReviewCollapsible
                   splitView={props.splitView}
                   key={childReview.title}
+                  isGermline={props.isGermline}
                   baseReviewLevel={childReview}
                   hugoSymbol={props.hugoSymbol}
                   handleAccept={props.handleAccept}

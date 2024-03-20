@@ -108,9 +108,31 @@ export function formatLocation(location: string, drugList: IDrug[], objectField:
       return location + ', Description of Evidence';
     } else if (objectField === 'oncogenic') {
       return location + ', Oncogenic';
+    } else if (objectField === 'pathogenic') {
+      return location + ', Pathogenicity';
     }
   } else if (lastSubstring.endsWith('Tumor Type Summary')) {
     return locationSubstrings.slice(0, -1).join(',') + ', Therapeutic Summary';
+  } else if (lastSubstring.endsWith('Cancer Risk')) {
+    if (objectField === 'monoallelic') {
+      return location + ', Monoallelic';
+    } else if (objectField === 'biallelic') {
+      return location + ', Biallelic';
+    } else if (objectField === 'mosaic') {
+      return location + ', Mosaic';
+    }
+  } else if (lastSubstring.endsWith('Penetrance')) {
+    if (objectField === 'penetrance') {
+      return location + ', Penetrance';
+    } else if (objectField === 'description') {
+      return location + ', Description of Penetrance';
+    }
+  } else if (lastSubstring.endsWith('Inheritance Mechanism')) {
+    if (objectField === 'inheritanceMechanism') {
+      return location + ', Mechanism of Inheritance';
+    } else if (objectField === 'description') {
+      return location + ', Description of Inheritance Mechanism';
+    }
   } else {
     let index = -1;
     for (let i = 0; i < locationSubstrings.length; i++) {

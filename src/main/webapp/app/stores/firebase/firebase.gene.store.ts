@@ -13,7 +13,7 @@ import {
 import { isTxLevelPresent } from 'app/shared/util/firebase/firebase-level-utils';
 import { parseFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
 import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
-import { getFirebasePath, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
+import { getFirebaseGenePath, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
 import { ref, update } from 'firebase/database';
 import { action, computed, makeObservable } from 'mobx';
 import { IRootStore } from '../createStore';
@@ -192,7 +192,9 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
   //   }
   // }
 
-  async deleteSection(nestLevel: RemovableNestLevel, path: string, review: Review, uuid: string) {
+  async deleteSection(path: string, review: Review, uuid: string) {
+    const isGermline = path.toLowerCase().includes('germline');
+
     const name = this.rootStore.authStore.fullName;
     const pathDetails = parseFirebaseGenePath(path);
     if (pathDetails === undefined) {
@@ -204,11 +206,7 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
     // Check if section can be removed immediately
     const removeWithoutReview = isSectionRemovableWithoutReview(review);
 
-    if (nestLevel === NestLevelType.MUTATION || nestLevel === NestLevelType.THERAPY) {
-      review = new Review(name, undefined, undefined, true);
-    } else if (nestLevel === NestLevelType.CANCER_TYPE) {
-      review = new Review(name, undefined, undefined, true);
-    }
+    review = new Review(name, undefined, undefined, true);
 
     if (removeWithoutReview) {
       const pathParts = path.split('/');
@@ -218,9 +216,11 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
     }
 
     // Let the deletion be reviewed
-    return update(ref(this.db, `${getFirebasePath('GENE', hugoSymbol)}`), { [`${pathFromGene}_review`]: review }).then(() => {
-      this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol);
-      this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, true);
+    return update(ref(this.db, `${getFirebaseGenePath(isGermline, hugoSymbol)}`), {
+      [`${pathFromGene}_review`]: review,
+    }).then(() => {
+      this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol, isGermline);
+      this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, true, isGermline);
     });
   }
 

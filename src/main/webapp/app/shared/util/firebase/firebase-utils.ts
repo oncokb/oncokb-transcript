@@ -116,6 +116,26 @@ export const getFirebasePath = (type: keyof typeof FB_COLLECTION_PATH, ...params
   return replaceUrlParams(FB_COLLECTION_PATH[type], ...params);
 };
 
+export const getFirebaseGenePath = (isGermline: boolean, hugoSymbol: string) => {
+  return getFirebasePath(isGermline ? 'GERMLINE_GENE' : 'GENE', hugoSymbol);
+};
+
+export const getFirebaseMetaGenePath = (isGermline: boolean, hugoSymbol: string) => {
+  return getFirebasePath(isGermline ? 'GERMLINE_META_GENE' : 'META_GENE', hugoSymbol);
+};
+
+export const getFirebaseHistoryPath = (isGermline: boolean, hugoSymbol: string) => {
+  return getFirebasePath(isGermline ? 'GERMLINE_HISTORY' : 'HISTORY', hugoSymbol);
+};
+
+export const getFirebaseVusPath = (isGermline: boolean, hugoSymbol: string) => {
+  return getFirebasePath(isGermline ? 'GERMLINE_VUS' : 'VUS', hugoSymbol);
+};
+
+export const getFirebaseMetaGeneReviewPath = (isGermline: boolean, hugoSymbol: string, uuid: string) => {
+  return getFirebasePath(isGermline ? 'GERMLINE_META_GENE_REVIEW' : 'META_GENE_REVIEW', hugoSymbol, uuid);
+};
+
 export function getMostRecentComment(comments: Comment[]) {
   let latestComment = comments[0];
   for (const comment of comments) {

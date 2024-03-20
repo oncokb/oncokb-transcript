@@ -39,6 +39,7 @@ export interface IRealtimeCheckedInputGroup {
   isRadio?: boolean;
   inlineHeader?: boolean;
   options: RealtimeCheckedInputOption[];
+  disabled?: boolean;
 }
 
 export const RealtimeCheckedInputGroup = (props: IRealtimeCheckedInputGroup) => {
@@ -48,9 +49,21 @@ export const RealtimeCheckedInputGroup = (props: IRealtimeCheckedInputGroup) => 
       <div className="d-flex flex-wrap">
         {props.options.map(option => {
           return props.isRadio ? (
-            <RealtimeRadioInput key={option.label} firebasePath={option.firebasePath} className="mr-2" label={option.label} />
+            <RealtimeRadioInput
+              disabled={props.disabled}
+              key={option.label}
+              firebasePath={option.firebasePath}
+              className="mr-2"
+              label={option.label}
+            />
           ) : (
-            <RealtimeCheckboxInput key={option.label} firebasePath={option.firebasePath} className="mr-2" label={option.label} />
+            <RealtimeCheckboxInput
+              disabled={props.disabled}
+              key={option.label}
+              firebasePath={option.firebasePath}
+              className="mr-2"
+              label={option.label}
+            />
           );
         })}
       </div>

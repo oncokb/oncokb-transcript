@@ -6,7 +6,7 @@ import { default as classNames, default as classnames } from 'classnames';
 import { onValue, ref } from 'firebase/database';
 import { inject } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
-import { Input, Label, LabelProps } from 'reactstrap';
+import { FormFeedback, Input, Label, LabelProps } from 'reactstrap';
 import { InputType } from 'reactstrap/es/Input';
 import styles from './styles.module.scss';
 
@@ -50,6 +50,8 @@ export interface IRealtimeBasicInput extends React.InputHTMLAttributes<HTMLInput
   firebasePath: string; // firebase path that component needs to listen to
   type: RealtimeBasicInputType;
   label: string;
+  invalid?: boolean;
+  invalidMessage?: string;
   labelClass?: string;
   labelIcon?: JSX.Element;
   inputClass?: string;
@@ -66,6 +68,8 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     labelClass,
     label,
     labelIcon,
+    invalid,
+    invalidMessage,
     id = firebasePath,
     inputClass,
     children,
@@ -94,15 +98,15 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
         setInputValueReview(snapshot.val());
       })
     );
-    onValue(
-      ref(db, `${firebasePath}_uuid`),
-      snapshot => {
+    callbacks.push(
+      onValue(ref(db, `${firebasePath}_uuid`), snapshot => {
         setInputValueUuid(snapshot.val());
-      },
-      { onlyOnce: true }
+      })
     );
-    return () => callbacks.forEach(callback => callback?.());
-  }, []);
+    return () => {
+      callbacks.forEach(callback => callback?.());
+    };
+  }, [firebasePath, db]);
 
   const labelComponent = label && (
     <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'font-weight-bold'} />
@@ -131,22 +135,26 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   }
 
   const inputComponent = (
-    <Input
-      className={classNames(inputClass, isCheckType && 'ml-1 position-relative', isTextType && styles.editableTextBox)}
-      id={id}
-      name={`${id}-${label.toLowerCase()}`}
-      autoComplete="off"
-      onChange={e => {
-        inputChangeHandler(e);
-      }}
-      type={props.type as InputType}
-      style={isCheckType ? { marginRight: '0.25rem' } : null}
-      value={inputValue}
-      checked={isCheckType && isChecked()}
-      {...otherProps}
-    >
-      {children}
-    </Input>
+    <>
+      <Input
+        className={classNames(inputClass, isCheckType && 'ml-1 position-relative', isTextType && styles.editableTextBox)}
+        id={id}
+        name={`${id}-${label.toLowerCase()}`}
+        autoComplete="off"
+        onChange={e => {
+          inputChangeHandler(e);
+        }}
+        type={props.type as InputType}
+        style={isCheckType ? { marginRight: '0.25rem' } : null}
+        value={inputValue}
+        invalid={invalid}
+        checked={isCheckType && isChecked()}
+        {...otherProps}
+      >
+        {children}
+      </Input>
+      {invalid && <FormFeedback>{invalidMessage || ''}</FormFeedback>}
+    </>
   );
 
   const checkTypeCss: React.CSSProperties = {
