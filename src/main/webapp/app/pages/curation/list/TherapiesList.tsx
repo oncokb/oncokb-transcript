@@ -36,7 +36,7 @@ const TherapiesList = ({
   drugList,
   getDrugs,
   createDrug,
-  firebasePushToArray,
+  addTreatment,
   modifyTherapyModalStore,
 }: ITherapiesList) => {
   const [txObjects, setTxObjects] = useState<TxObject[]>([]);
@@ -114,7 +114,7 @@ const TherapiesList = ({
           try {
             await Promise.all(newDrugs.map(drug => createDrug(drug)));
             await getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
-            await firebasePushToArray(`${tisPath}/${tisLength - 1}/treatments`, [newTreatment]);
+            await addTreatment(`${tisPath}/${tisLength - 1}/treatments`, newTreatment);
           } catch (error) {
             notifyError(error);
           }
@@ -127,12 +127,12 @@ const TherapiesList = ({
   );
 };
 
-const mapStoreToProps = ({ firebaseStore, drugStore, modifyTherapyModalStore, firebaseCrudStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseStore, drugStore, modifyTherapyModalStore, firebaseGeneStore }: IRootStore) => ({
   firebaseDb: firebaseStore.firebaseDb,
   drugList: drugStore.entities,
   getDrugs: drugStore.getEntities,
   createDrug: drugStore.createEntity,
-  firebasePushToArray: firebaseCrudStore.pushToArray,
+  addTreatment: firebaseGeneStore.addTreatment,
   modifyTherapyModalStore,
 });
 

@@ -1,6 +1,6 @@
 import { SPECIAL_CANCER_TYPES } from 'app/config/constants/constants';
-import { CancerType, Implication, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
-import DefaultTooltip, { DefaultTooltipProps } from 'app/shared/tooltip/DefaultTooltip';
+import { Implication, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
+import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
@@ -34,10 +34,12 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
 
   function handleClick() {
     relevantCancerTypesModalStore.openModal(
-      `${relevantCancerTypesInfoPath}/relevantCancerTypes`,
+      `${relevantCancerTypesInfoPath}/excludedRCTs`,
       cancerType,
+      relevantCancerTypesInfo.excludedRCTs_review,
+      relevantCancerTypesInfo.excludedRCTs_uuid,
       relevantCancerTypesInfo.level || null,
-      relevantCancerTypesInfo.relevantCancerTypes
+      relevantCancerTypesInfo.excludedRCTs
     );
   }
 

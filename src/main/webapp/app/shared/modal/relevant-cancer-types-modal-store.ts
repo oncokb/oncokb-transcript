@@ -1,5 +1,5 @@
 import { action, autorun, makeObservable, observable, runInAction } from 'mobx';
-import { CancerType, DX_LEVELS, PX_LEVELS, TX_LEVELS, Tumor } from '../model/firebase/firebase.model';
+import { CancerType, DX_LEVELS, PX_LEVELS, Review, TX_LEVELS, Tumor } from '../model/firebase/firebase.model';
 import _ from 'lodash';
 
 export class RelevantCancerType extends CancerType {
@@ -9,9 +9,11 @@ export class RelevantCancerType extends CancerType {
 export class RelevantCancerTypesModalStore {
   public isOpen = false;
   public tumor: Tumor = null;
+  public excludedRCTsReview: Review = null;
+  public excludedRCTsUuid: string = null;
   public relevantCancerTypes: RelevantCancerType[] = [];
   public level: TX_LEVELS | DX_LEVELS | PX_LEVELS = null;
-  public firebaseRelevantCancerTypes: CancerType[];
+  public firebaseExcludedRCTs: CancerType[];
 
   public pathToRelevantCancerTypes: string = null; // not observable
 
@@ -57,19 +59,23 @@ export class RelevantCancerTypesModalStore {
   openModal(
     pathToRelevantCancerTypes: string,
     tumor: Tumor,
+    excludedRCTsReview: Review,
+    excludedRCTsUuid: string,
     level?: TX_LEVELS | DX_LEVELS | PX_LEVELS,
-    firebaseRelevantCancerTypes?: CancerType[]
+    firebaseExcludedRCTs?: CancerType[]
   ) {
     this.pathToRelevantCancerTypes = pathToRelevantCancerTypes;
     this.isOpen = true;
     this.tumor = tumor;
     this.level = level;
-    this.firebaseRelevantCancerTypes = firebaseRelevantCancerTypes;
+    this.firebaseExcludedRCTs = firebaseExcludedRCTs;
+    this.excludedRCTsReview = excludedRCTsReview;
+    this.excludedRCTsUuid = excludedRCTsUuid;
   }
 
   closeModal() {
     this.relevantCancerTypes = [];
-    this.firebaseRelevantCancerTypes = [];
+    this.firebaseExcludedRCTs = [];
     this.pathToRelevantCancerTypes = null;
     this.isOpen = false;
     this.tumor = null;

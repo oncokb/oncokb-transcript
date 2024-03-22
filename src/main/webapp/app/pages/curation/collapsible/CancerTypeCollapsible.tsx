@@ -38,7 +38,7 @@ function CancerTypeCollapsible({
   parsedHistoryList,
   firebaseDb,
   modifyCancerTypeModalStore,
-  updateTumor,
+  updateTumorName,
   deleteSection,
 }: ICancerTypeCollapsibleProps) {
   const [cancerTypes, setCancerTypes] = useState<CancerType[]>(null);
@@ -217,7 +217,7 @@ function CancerTypeCollapsible({
         cancerTypesPathToEdit={cancerTypePath}
         onConfirm={async newTumor => {
           try {
-            await updateTumor(cancerTypePath, newTumor);
+            await updateTumorName(cancerTypePath, cancerTypes, excludedCancerTypes, newTumor);
           } catch (error) {
             notifyError(error);
           }
@@ -232,10 +232,10 @@ function CancerTypeCollapsible({
   );
 }
 
-const mapStoreToProps = ({ firebaseStore, firebaseGeneStore, modifyCancerTypeModalStore, relevantCancerTypesModalStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseStore, firebaseGeneStore, modifyCancerTypeModalStore }: IRootStore) => ({
   firebaseDb: firebaseStore.firebaseDb,
   modifyCancerTypeModalStore,
-  updateTumor: firebaseGeneStore.updateTumor,
+  updateTumorName: firebaseGeneStore.updateTumorName,
   deleteSection: firebaseGeneStore.deleteSection,
 });
 

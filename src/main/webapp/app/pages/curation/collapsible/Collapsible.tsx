@@ -26,6 +26,7 @@ export interface CollapsibleProps {
   isReview?: boolean;
   onToggle?: (isOpen: boolean) => void;
   badge?: ReactElement<IBadgeGroupProps> | ReactElement<IDefaultBadgeProps>;
+  titleClassName?: string;
 }
 
 export default function Collapsible({
@@ -44,6 +45,7 @@ export default function Collapsible({
   backgroundColor,
   onToggle,
   badge,
+  titleClassName,
 }: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(open);
 
@@ -130,14 +132,15 @@ export default function Collapsible({
             </button>
             <span
               className={classNames(
-                disableLeftBorder ? undefined : 'font-weight-bold',
+                titleClassName ? titleClassName : 'font-weight-bold',
                 isPendingDelete ? 'text-decoration-line-through' : undefined
               )}
             >
               {title}
+              {badge}
             </span>
           </div>
-          {badge}
+
           <div className="mr-auto" />
           <div className="d-flex align-items-center">
             {infoComponent}

@@ -8,6 +8,31 @@ import { buildHistoryFromReviews } from './firebase-history-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { ReviewAction, ReviewLevel, clearAllNestedReviews, getAllNestedReviewUuids } from './firebase-review-utils';
 import { getFirebaseGenePath } from './firebase-utils';
+import _ from 'lodash';
+
+export const getUpdatedReview = (oldReview: Review, currentValue: any, newValue: any, editorName: string) => {
+  // Update Review
+  if (!oldReview) {
+    oldReview = new Review(editorName);
+  }
+  oldReview.updateTime = new Date().getTime();
+  oldReview.updatedBy = editorName;
+
+  // Update Review when value is reverted to original
+  let isChangeReverted = false;
+  if (!('lastReviewed' in oldReview)) {
+    oldReview.lastReviewed = currentValue;
+    if (oldReview.lastReviewed === undefined) {
+      delete oldReview.lastReviewed;
+    }
+  } else {
+    if (_.isEqual(oldReview.lastReviewed, newValue)) {
+      delete oldReview.lastReviewed;
+      isChangeReverted = true;
+    }
+  }
+  return { updatedReview: oldReview, isChangeReverted };
+};
 
 /* eslint-disable @typescript-eslint/ban-types */
 export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudStore<T> {
@@ -23,32 +48,13 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
   updateReviewableContent = (firebasePath: string, currentValue: any, updateValue: any, review: Review, uuid: string) => {
     const isGermline = firebasePath.toLowerCase().includes('germline');
 
-    // Update Review
-    if (!review) {
-      review = new Review(this.rootStore.authStore.fullName);
-    }
-    review.updateTime = new Date().getTime();
-    review.updatedBy = this.rootStore.authStore.fullName;
-
-    // Update Review when value is reverted to original
-    let isChangeReverted = false;
-    if (!('lastReviewed' in review)) {
-      review.lastReviewed = currentValue;
-      if (review.lastReviewed === undefined) {
-        delete review.lastReviewed;
-      }
-    } else {
-      if (review.lastReviewed === updateValue) {
-        delete review.lastReviewed;
-        isChangeReverted = true;
-      }
-    }
+    const { updatedReview, isChangeReverted } = getUpdatedReview(review, currentValue, updateValue, this.rootStore.authStore.fullName);
 
     const { hugoSymbol, pathFromGene } = parseFirebaseGenePath(firebasePath);
 
     const updateObject = {
       [pathFromGene]: updateValue,
-      [`${pathFromGene}_review`]: review,
+      [`${pathFromGene}_review`]: updatedReview,
     };
 
     // Make sure that there is a UUID attached
@@ -81,6 +87,7 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
           if (reviewLevel.isUnderCreationOrDeletion) {
             continue;
           }
+          delete reviewObject.initialUpdate;
           delete reviewObject.lastReviewed;
           update(ref(this.db, geneFirebasePath), { [reviewPath]: reviewObject }).then(() => {
             this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, false, isGermline);

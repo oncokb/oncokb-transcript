@@ -17,8 +17,6 @@ import { IGene } from 'app/shared/model/gene.model';
 import { onValue, ref } from 'firebase/database';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
-import RelevantCancerTypesModal from 'app/shared/modal/RelevantCancerTypesModal';
-import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import MutationsSection from './mutation/MutationsSection';
 import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
 import CurationHistoryTab from 'app/components/tabs/CurationHistoryTab';
@@ -32,6 +30,8 @@ import styles from './styles.module.scss';
 import CurationReferencesTab from 'app/components/tabs/CurationReferencesTab';
 import GenomicIndicatorsTable from 'app/shared/table/GenomicIndicatorsTable';
 import GeneRealtimeComponentHeader from './header/GeneRealtimeComponentHeader';
+import RelevantCancerTypesModal from 'app/shared/modal/RelevantCancerTypesModal';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -235,13 +235,17 @@ export const CurationPage = (props: ICurationPageProps) => {
           />
           <VusTable hugoSymbol={hugoSymbol} isGermline={isGermline} />
           <RelevantCancerTypesModal
-            onConfirm={async (newRelevantCancerTypes, noneDeleted) => {
+            onConfirm={async (newExcludedRCTs, noneDeleted) => {
               try {
-                if (noneDeleted) {
-                  await props.setUntemplated(props.relevantCancerTypesModalStore.pathToRelevantCancerTypes, []);
-                } else {
-                  await props.setUntemplated(props.relevantCancerTypesModalStore.pathToRelevantCancerTypes, newRelevantCancerTypes);
-                }
+                const newRCTs = noneDeleted ? [] : newExcludedRCTs;
+                await props.updateRelevantCancerTypes(
+                  props.relevantCancerTypesModalStore.pathToRelevantCancerTypes,
+                  noneDeleted ? [] : props.relevantCancerTypesModalStore.firebaseExcludedRCTs,
+                  newRCTs,
+                  props.relevantCancerTypesModalStore.excludedRCTsReview,
+                  props.relevantCancerTypesModalStore.excludedRCTsUuid,
+                  props.relevantCancerTypesModalStore.firebaseExcludedRCTs === undefined
+                );
                 props.relevantCancerTypesModalStore.closeModal();
               } catch (error) {
                 notifyError(error);
@@ -283,6 +287,7 @@ const mapStoreToProps = ({
   firebaseCrudStore,
   relevantCancerTypesModalStore,
   authStore,
+  firebaseGeneStore,
 }: IRootStore) => ({
   firebaseDb: firebaseStore.firebaseDb,
   firebaseInitSuccess: firebaseStore.firebaseInitSuccess,
@@ -296,6 +301,7 @@ const mapStoreToProps = ({
   setUntemplated: firebaseCrudStore.createUntemplated,
   relevantCancerTypesModalStore,
   fullName: authStore.fullName,
+  updateRelevantCancerTypes: firebaseGeneStore.updateRelevantCancerTypes,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

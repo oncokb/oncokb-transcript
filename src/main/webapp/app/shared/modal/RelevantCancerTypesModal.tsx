@@ -71,7 +71,7 @@ const RelevantCancerTypesModalContent = observer(
           )
         ).data;
 
-        if (!relevantCancerTypesModalStore.firebaseRelevantCancerTypes) {
+        if (!relevantCancerTypesModalStore.firebaseExcludedRCTs) {
           relevantCancerTypesModalStore.setRelevantCancerTypes(
             fetchedRelevantCancerTypes.map(rct => convertFetchedCancerTypeToRelevantCancerType(rct, false))
           );
@@ -79,12 +79,12 @@ const RelevantCancerTypesModalContent = observer(
         }
 
         const rcts = fetchedRelevantCancerTypes.map(rct => {
-          for (const firebaseRct of relevantCancerTypesModalStore.firebaseRelevantCancerTypes) {
+          for (const firebaseRct of relevantCancerTypesModalStore.firebaseExcludedRCTs) {
             if ((rct.code && rct.code === firebaseRct.code) || (!rct.code && !firebaseRct.code && rct.mainType === firebaseRct.mainType)) {
-              return convertFetchedCancerTypeToRelevantCancerType(rct, false);
+              return convertFetchedCancerTypeToRelevantCancerType(rct, true);
             }
           }
-          return convertFetchedCancerTypeToRelevantCancerType(rct, true);
+          return convertFetchedCancerTypeToRelevantCancerType(rct, false);
         });
         relevantCancerTypesModalStore.setRelevantCancerTypes(rcts);
       }
@@ -249,8 +249,8 @@ const RelevantCancerTypesModalContent = observer(
                 color="primary"
                 disabled={allCancerTypesDeleted}
                 onClick={() => {
-                  const savedRelevantCancerTypes = relevantCancerTypesModalStore.relevantCancerTypes
-                    .filter(rct => !rct.isDeleted)
+                  const savedExcludedRCTs = relevantCancerTypesModalStore.relevantCancerTypes
+                    .filter(rct => rct.isDeleted)
                     .map(rct => {
                       const ct = new CancerType();
                       ct.mainType = rct.mainType;
@@ -259,10 +259,7 @@ const RelevantCancerTypesModalContent = observer(
                       return ct;
                     });
 
-                  onConfirm(
-                    savedRelevantCancerTypes,
-                    savedRelevantCancerTypes.length === relevantCancerTypesModalStore.relevantCancerTypes.length
-                  );
+                  onConfirm(savedExcludedRCTs, savedExcludedRCTs.length === relevantCancerTypesModalStore?.firebaseExcludedRCTs?.length);
                 }}
               >
                 Confirm

@@ -29,8 +29,8 @@ export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode
   return name;
 };
 
-export const getCancerTypesName = (cancerTypes: ICancerType[] | CancerType[], omitCode = false): string => {
-  return cancerTypes.map(cancerType => getCancerTypeName(cancerType, omitCode)).join(', ');
+export const getCancerTypesName = (cancerTypes: ICancerType[] | CancerType[], omitCode = false, seperator = ', '): string => {
+  return cancerTypes.map(cancerType => getCancerTypeName(cancerType, omitCode)).join(seperator);
 };
 
 export const getCancerTypesNameWithExclusion = (
