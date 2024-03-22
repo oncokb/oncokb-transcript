@@ -76,11 +76,13 @@ function TherapyCollapsible({
     return <></>;
   }
 
+  const treatmentNameString = getTxName(drugList, treatmentName);
+
   return (
     <>
       <Collapsible
         key={treatmentUuid}
-        title={`Therapy: ${getTxName(drugList, treatmentName)}`}
+        title={`Therapy: ${treatmentNameString}`}
         borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.THERAPY]]}
         info={<TreatmentLevelSummary treatmentPath={therapyPath} />}
         action={
@@ -93,7 +95,7 @@ function TherapyCollapsible({
               }}
             />
             <DeleteSectionButton
-              sectionName={cancerTypeName}
+              sectionName={treatmentNameString}
               deleteHandler={() => deleteSection(NestLevelType.MUTATION, `${therapyPath}/name`, treatmentReview, treatmentUuid)}
               isRemovableWithoutReview={isRemovableWithoutReview}
             />
