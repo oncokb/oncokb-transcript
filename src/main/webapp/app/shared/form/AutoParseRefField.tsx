@@ -1,10 +1,6 @@
-import { ParsedRef, parseReferences } from 'app/oncokb-commons/components/RefComponent';
 import React from 'react';
-import WithSeparator from 'react-with-separator';
-import { InlineDivider } from '../links/PubmedGeneArticlesLink';
 import _ from 'lodash';
 import { parseTextForReferences } from '../util/utils';
-import { REFERENCE_LINK_REGEX } from 'app/config/constants/constants';
 
 interface IAutoParseRefField {
   summary: string;

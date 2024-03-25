@@ -12,9 +12,15 @@ export default function TextWithRefs({ content }: ITextWithRefsProps) {
 
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
-    if (REFERENCE_LINK_REGEX.exec(part)) {
-      const refs = parseReferences(part, true);
-      result.push(formatReferences(refs));
+    if (part.match(REFERENCE_LINK_REGEX)) {
+      const parsedRefs = parseReferences(part, true);
+      for (const parsedRef of parsedRefs) {
+        if (parsedRef.link) {
+          result.push(formatReferences([parsedRef]));
+        } else {
+          result.push(<span>{parsedRef.content}</span>);
+        }
+      }
     } else {
       result.push(<span key={i}>{part}</span>);
     }
