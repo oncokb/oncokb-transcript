@@ -5,7 +5,7 @@ import { parseAlterationName } from '../util/utils';
 import _ from 'lodash';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
-import { getDuplicateMutations, getFirebasePath } from '../util/firebase/firebase-utils';
+import { DuplicateMutationInfo, getDuplicateMutations, getFirebasePath } from '../util/firebase/firebase-utils';
 import { componentInject } from '../util/typed-inject';
 import { observer } from 'mobx-react';
 import { IRootStore } from 'app/stores';
@@ -32,7 +32,7 @@ const createOption = (label: string) => ({
 const AddVusModalV2 = (props: IAddVusModalProps) => {
   const firebaseMutationPath = `${getFirebasePath('GENE', props.hugoSymbol)}/mutations`;
   const [mutationList, setMutationList] = useState<Mutation[]>(undefined);
-  const [duplicateAlterations, setDuplicateAlterations] = useState<string[]>([]);
+  const [duplicateAlterations, setDuplicateAlterations] = useState<DuplicateMutationInfo[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [variants, setVariants] = useState<readonly Option[]>([]);
 
@@ -59,7 +59,7 @@ const AddVusModalV2 = (props: IAddVusModalProps) => {
         props.vusList,
         { useFullAlterationName: false, exact: false }
       );
-      setDuplicateAlterations(Array.from(dupAlts));
+      setDuplicateAlterations(dupAlts);
     }
   }, [variants, mutationList, props.vusList]);
 
@@ -120,7 +120,31 @@ const AddVusModalV2 = (props: IAddVusModalProps) => {
     />
   );
 
-  const warningMessage = duplicateAlterations.length > 0 ? `The mutation(s) ${duplicateAlterations.join(', ')} already exist.` : undefined;
+  const warningMessages: string[] = [];
+  if (duplicateAlterations.length > 0) {
+    const alterationsInMutationList: string[] = [];
+    const alterationsInVusList: string[] = [];
+    const alterationsInBoth: string[] = [];
+    for (const alt of duplicateAlterations) {
+      if (alt.inMutationList && alt.inVusList) {
+        alterationsInBoth.push(alt.duplicate);
+      } else if (alt.inMutationList) {
+        alterationsInMutationList.push(alt.duplicate);
+      } else if (alt.inVusList) {
+        alterationsInVusList.push(alt.duplicate);
+      }
+    }
+
+    if (alterationsInMutationList.length > 0) {
+      warningMessages.push(`${alterationsInMutationList.join(', ')} in mutation list`);
+    }
+    if (alterationsInVusList.length > 0) {
+      warningMessages.push(`${alterationsInVusList.join(', ')} in VUS list`);
+    }
+    if (alterationsInBoth.length > 0) {
+      warningMessages.push(`${alterationsInBoth.join(', ')} in both mutation list and VUS list`);
+    }
+  }
 
   return (
     <DefaultAddMutationModal
@@ -137,7 +161,7 @@ const AddVusModalV2 = (props: IAddVusModalProps) => {
       onCancel={props.onCancel}
       onConfirm={() => props.onConfirm(variants.map(o => o.label))}
       confirmButtonDisabled={duplicateAlterations.length > 0 || variants.length < 1}
-      warningMessage={warningMessage}
+      warningMessages={warningMessages}
     />
   );
 };

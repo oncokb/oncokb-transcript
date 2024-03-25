@@ -307,6 +307,12 @@ export const getVusTimestampClass = (time: string | number) => {
   }
 };
 
+export type DuplicateMutationInfo = {
+  duplicate: string;
+  inMutationList: boolean;
+  inVusList: boolean;
+};
+
 export const getDuplicateMutations = (
   currentMutations: string[],
   mutationList: Mutation[],
@@ -335,17 +341,46 @@ export const getDuplicateMutations = (
     return parseAlterationName(vus.name).map(parsedVus => parsedVus.alteration.toLowerCase());
   });
 
-  const jointNames = [...mutationNames, ...vusNames];
-  const duplicates = new Set<string>();
+  const duplicates: DuplicateMutationInfo[] = [];
   if (options.exact) {
-    if (jointNames.some(mutation => _.isEqual(mutation, currentMutations))) {
-      duplicates.add(currentMutations.join(', '));
+    const currentMutationsName = currentMutations.join(', ');
+
+    if (mutationNames.some(mutation => _.isEqual(mutation, currentMutations))) {
+      addDuplicateMutationInfo(duplicates, currentMutationsName, 'mutation');
+    }
+
+    if (vusNames.some(vus => _.isEqual(vus, currentMutations))) {
+      addDuplicateMutationInfo(duplicates, currentMutationsName, 'vus');
     }
   } else {
-    const flattenedJointNames = _.uniq(_.flatten(jointNames));
-    currentMutations.filter(currAlt => flattenedJointNames.includes(currAlt.toLowerCase())).forEach(mutation => duplicates.add(mutation));
+    const flattenedMutationNames = _.uniq(_.flatten(mutationNames));
+    currentMutations
+      .filter(currAlt => flattenedMutationNames.includes(currAlt.toLowerCase()))
+      .forEach(mutation => {
+        addDuplicateMutationInfo(duplicates, mutation, 'mutation');
+      });
+
+    const flattenedVusNames = _.uniq(_.flatten(vusNames));
+    currentMutations
+      .filter(currAlt => flattenedVusNames.includes(currAlt.toLowerCase()))
+      .forEach(mutation => {
+        addDuplicateMutationInfo(duplicates, mutation, 'vus');
+      });
   }
   return duplicates;
+};
+
+const addDuplicateMutationInfo = (duplicates: DuplicateMutationInfo[], mutationName: string, listType: 'mutation' | 'vus') => {
+  const existingDuplicate = duplicates.find(duplicate => duplicate.duplicate === mutationName);
+  if (existingDuplicate) {
+    listType === 'mutation' ? (existingDuplicate.inMutationList = true) : (existingDuplicate.inVusList = true);
+  } else {
+    duplicates.push({
+      duplicate: mutationName,
+      inMutationList: listType === 'mutation',
+      inVusList: listType === 'vus',
+    });
+  }
 };
 
 export const isMutationEffectCuratable = (mutationName: string) => {

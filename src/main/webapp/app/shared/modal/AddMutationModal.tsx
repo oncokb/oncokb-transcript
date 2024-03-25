@@ -10,7 +10,7 @@ import ReactSelect, { MenuPlacement } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import { Alert, Button, Col, Input, Row } from 'reactstrap';
 import { AlterationTypeEnum, EntityStatusAlteration, Gene } from '../api/generated';
-import { Alteration, Mutation } from '../model/firebase/firebase.model';
+import { Alteration, Mutation, VusObjList } from '../model/firebase/firebase.model';
 import { IGene } from '../model/gene.model';
 import { getDuplicateMutations, getFirebasePath } from '../util/firebase/firebase-utils';
 import { componentInject } from '../util/typed-inject';
@@ -52,7 +52,6 @@ function AddMutationModal({
   getConsequences,
   onConfirm,
   onCancel,
-  vusList,
   firebaseDb,
 }: IAddMutationModalProps) {
   const typeOptions: DropdownOption[] = [
@@ -68,9 +67,11 @@ function AddMutationModal({
   const [tabStates, setTabStates] = useState<AlterationData[]>([]);
   const [excludingInputValue, setExcludingInputValue] = useState('');
   const [excludingCollapsed, setExcludingCollapsed] = useState(true);
-  const [mutationAlreadyExists, setMutationAlreadyExists] = useState(false);
+  const [mutationAlreadyExists, setMutationAlreadyExists] = useState({ exists: false, inMutationList: false, inVusList: false });
   const [mutationList, setMutationList] = useState<Mutation[]>([]);
   const [mutationToEdit, setMutationToEdit] = useState<Mutation>(null);
+
+  const [vusList, setVusList] = useState<VusObjList>(null);
 
   // need to focus input once this is fetched
   const [mutationListInitialized, setMutationListInitialized] = useState(false);
@@ -89,6 +90,11 @@ function AddMutationModal({
         if (!mutationListInitialized) {
           setMutationListInitialized(true);
         }
+      })
+    );
+    callbacks.push(
+      onValue(ref(firebaseDb, getFirebasePath('VUS', hugoSymbol)), snapshot => {
+        setVusList(snapshot.val());
       })
     );
 
@@ -111,8 +117,12 @@ function AddMutationModal({
       excludedUuid: mutationToEdit?.name_uuid,
       exact: true,
     });
-    setMutationAlreadyExists(dupMutations.size > 0);
-  }, [tabStates, mutationList]);
+    setMutationAlreadyExists({
+      exists: dupMutations.length > 0,
+      inMutationList: dupMutations.some(mutation => mutation.inMutationList),
+      inVusList: dupMutations.some(mutation => mutation.inVusList),
+    });
+  }, [tabStates, mutationList, vusList]);
 
   useEffect(() => {
     function convertAlterationToAlterationData(alteration: Alteration): AlterationData {
@@ -910,7 +920,17 @@ function AddMutationModal({
     </>
   );
 
-  const modalWarningMessage = mutationAlreadyExists ? 'Mutation already exists' : undefined;
+  let modalWarningMessage: string;
+  if (mutationAlreadyExists.exists) {
+    modalWarningMessage = 'Mutation already exists in';
+    if (mutationAlreadyExists.inMutationList && mutationAlreadyExists.inVusList) {
+      modalWarningMessage = 'Mutation already in mutation list and VUS list';
+    } else if (mutationAlreadyExists.inMutationList) {
+      modalWarningMessage = 'Mutation already in mutation list';
+    } else {
+      modalWarningMessage = 'Mutation already in VUS list';
+    }
+  }
 
   return (
     <DefaultAddMutationModal
@@ -942,9 +962,9 @@ function AddMutationModal({
 
         onConfirm(newMutation);
       }}
-      warningMessage={modalWarningMessage}
+      warningMessages={modalWarningMessage ? [modalWarningMessage] : null}
       confirmButtonDisabled={
-        tabStates.length === 0 || mutationAlreadyExists || tabStates.some(tab => tab.error || tab.excluding.some(ex => ex.error))
+        tabStates.length === 0 || mutationAlreadyExists.exists || tabStates.some(tab => tab.error || tab.excluding.some(ex => ex.error))
       }
     />
   );
