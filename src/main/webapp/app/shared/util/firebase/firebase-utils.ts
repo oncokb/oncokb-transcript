@@ -24,6 +24,7 @@ import { extractPositionFromSingleNucleotideAlteration, getCancerTypeName, getCa
 import _ from 'lodash';
 import { MutationLevelSummary } from 'app/stores/firebase/firebase.gene.store';
 import { CategoricalAlterationType } from 'app/shared/model/enumerations/categorical-alteration-type.model';
+import { isTxLevelPresent } from './firebase-level-utils';
 
 /* Convert a nested object into an object where the key is the path to the object.
   Example:
@@ -616,10 +617,12 @@ export const getMutationStats = (mutation?: Mutation) => {
       tumor.TIs.forEach(ti => {
         if (ti.treatments) {
           ti.treatments.forEach(treatment => {
-            if (!stats.txLevels[treatment.level]) {
-              stats.txLevels[treatment.level] = 1;
-            } else {
-              stats.txLevels[treatment.level]++;
+            if (isTxLevelPresent(treatment.level)) {
+              if (!stats.txLevels[treatment.level]) {
+                stats.txLevels[treatment.level] = 1;
+              } else {
+                stats.txLevels[treatment.level]++;
+              }
             }
           });
         }

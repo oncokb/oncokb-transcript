@@ -63,7 +63,7 @@ export enum ONCOKB_STYLES_ONCOGENICITY_CLASSNAMES {
   ONCOGENIC = 'oncogenic',
   LIKELY_ONCOGENIC = 'likely-oncogenic',
   RESISTANCE = 'resistance',
-  LIKELY_NEUTRAL = 'likely-netrual',
+  LIKELY_NEUTRAL = 'likely-neutral',
   INCONCLUSIVE = 'inconclusive',
   UNKNOWN = 'unknown',
 }
