@@ -1,6 +1,5 @@
 import {
   CancerType,
-  DrugCollection,
   Gene,
   GeneType,
   GenomicIndicator,
@@ -13,7 +12,7 @@ import {
   Tumor,
 } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
-import { findIndexOfFirstCapital, getCancerTypeName, getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
+import { findIndexOfFirstCapital, getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
 import { getTxName } from './firebase-utils';
 import { HISTORY_LOCATION_STRINGS, TI_TYPE_TO_HISTORY_STRING } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
@@ -87,7 +86,6 @@ export class ReviewLevel extends BaseReviewLevel {
   oldState?: HistoryRecordState;
   deleteIndex?: number;
   diffMethod?: DiffMethod = DiffMethod.CHARS;
-  lastReviewedString?: string;
 
   constructor(
     title: string,
@@ -99,8 +97,7 @@ export class ReviewLevel extends BaseReviewLevel {
     uuid: string,
     newState: HistoryRecordState,
     oldState: HistoryRecordState,
-    isUnderCreationOrDeletion = false,
-    lastReviewedString?: string
+    isUnderCreationOrDeletion = false
   ) {
     super(title, currentValPath, isUnderCreationOrDeletion);
     this.currentVal = currentVal;
@@ -428,6 +425,7 @@ const findGenomicIndicatorsReviews = (
         genomicIndicator.name_review.lastReviewed || '',
         `${indicatorPath}/name_review`,
         genomicIndicator.name_review,
+        (genomicIndicator.name_review.lastReviewed || '') as string,
         genomicIndicator.name_uuid,
         genomicIndicator.name_review.added ? genomicIndicator : undefined,
         genomicIndicator.name_review.removed ? genomicIndicator : undefined
@@ -466,11 +464,11 @@ const findGenomicIndicatorsReviews = (
           currentVal,
           `${indicatorPath}/${reviewKey}`,
           genomicIndicator[reviewKey],
+          genomicIndicator[reviewKey].lastReviewed as string,
           value,
           { [fieldKey]: genomicIndicator[fieldKey] },
           { [fieldKey]: genomicIndicator[reviewKey].lastReviewed },
-          isNestedUnderCreateOrDelete(defaultReview),
-          lastReviewedString
+          isNestedUnderCreateOrDelete(defaultReview)
         );
 
         let location: string;
@@ -628,6 +626,7 @@ const findObjectReviews = (
         object[fieldKey],
         reviewPath,
         object[reviewKey],
+        object[reviewKey].lastReviewed as string,
         value,
         { [fieldKey]: object[fieldKey] },
         { [fieldKey]: object[reviewKey].lastReviewed },
@@ -649,13 +648,14 @@ const findDiagnosticLevelReviews = (
   editorReviewMap: EditorReviewMap,
   parentReview: BaseReviewLevel
 ) => {
+  const diagnosticTitle = 'Diagnostic Implication';
   const diagnosticPath = `${parentReview.currentValPath}/diagnostic`;
   const skipDiagnosticKeys: (keyof Implication)[] = ['excludedRCTs_uuid'];
   for (const [dKey, dValue] of Object.entries(diagnostic)) {
     if (skipDiagnosticKeys.includes(dKey as keyof Implication)) continue;
     if (dKey.endsWith('_uuid') && uuids.includes(dValue)) {
       const { fieldKey, reviewKey, ...rest } = getRelevantKeysFromUuidKey(dKey);
-      const title = `Diagnostic Implication/${fieldKey}`;
+      const title = `${diagnosticTitle}/${fieldKey}`;
       const currentValPath = `${diagnosticPath}/${fieldKey}`;
       const reviewPath = `${diagnosticPath}/${reviewKey}`;
       const diagnosticReview: ReviewLevel = new ReviewLevel(
@@ -677,7 +677,14 @@ const findDiagnosticLevelReviews = (
   }
 
   if (diagnostic.excludedRCTs) {
-    getRelevantCancerTypesReview(`${diagnosticPath}/excludedRCTs`, diagnostic, uuids, editorReviewMap, parentReview);
+    getRelevantCancerTypesReview(
+      `${diagnosticPath}/excludedRCTs`,
+      diagnostic,
+      uuids,
+      editorReviewMap,
+      parentReview,
+      new MetaReviewLevel(diagnosticTitle, diagnosticPath)
+    );
   }
 };
 
@@ -687,13 +694,14 @@ const findPrognosticLevelReviews = (
   editorReviewMap: EditorReviewMap,
   parentReview: BaseReviewLevel
 ) => {
+  const prognosticTitle = 'Prognostic Implication';
   const prognosticPath = `${parentReview.currentValPath}/prognostic`;
   const skipPrognosticKeys: (keyof Implication)[] = ['excludedRCTs_uuid'];
   for (const [pKey, pValue] of Object.entries(prognostic)) {
     if (skipPrognosticKeys.includes(pKey as keyof Implication)) continue;
     if (pKey.endsWith('_uuid') && uuids.includes(pValue)) {
       const { fieldKey, reviewKey, ...rest } = getRelevantKeysFromUuidKey(pKey);
-      const title = `Prognostic Implication/${fieldKey}`;
+      const title = `${prognosticTitle}/${fieldKey}`;
       const currentValPath = `${prognosticPath}/${fieldKey}`;
       const reviewPath = `${prognosticPath}/${reviewKey}`;
       const prognosticReview: ReviewLevel = new ReviewLevel(
@@ -715,7 +723,14 @@ const findPrognosticLevelReviews = (
   }
 
   if (prognostic.excludedRCTs) {
-    getRelevantCancerTypesReview(`${prognosticPath}/excludedRCTs`, prognostic, uuids, editorReviewMap, parentReview);
+    getRelevantCancerTypesReview(
+      `${prognosticPath}/excludedRCTs`,
+      prognostic,
+      uuids,
+      editorReviewMap,
+      parentReview,
+      new MetaReviewLevel(prognosticTitle, prognosticPath)
+    );
   }
 };
 
@@ -891,7 +906,14 @@ const findTreatmentLevelReviews = (
       }
 
       if (treatment.excludedRCTs) {
-        getRelevantCancerTypesReview(`${treatmentPath}/excludedRCTs`, treatment, uuids, editorReviewMap, parentReview);
+        getRelevantCancerTypesReview(
+          `${treatmentPath}/excludedRCTs`,
+          treatment,
+          uuids,
+          editorReviewMap,
+          parentReview,
+          new MetaReviewLevel(treatmentTitle, treatmentPath)
+        );
       }
     }
   }
@@ -903,7 +925,8 @@ const getRelevantCancerTypesReview = (
   relevantCancerTypesInfo: Implication | Treatment,
   uuids: string[],
   editorReviewMap: EditorReviewMap,
-  parentReview: BaseReviewLevel
+  parentReview: BaseReviewLevel,
+  currentLevelMetaReview: MetaReviewLevel
 ) => {
   if (!uuids.includes(relevantCancerTypesInfo.excludedRCTs_uuid)) {
     return;
@@ -912,9 +935,10 @@ const getRelevantCancerTypesReview = (
   let defaultReview: ReviewLevel;
 
   const currentRCTString = getCancerTypesName(relevantCancerTypesInfo.excludedRCTs, true, '\t');
-  const oldRCTString = relevantCancerTypesInfo?.excludedRCTs_review?.initialUpdate
-    ? ''
-    : getCancerTypesName(relevantCancerTypesInfo.excludedRCTs_review.lastReviewed as CancerType[], true, '\t');
+  const oldRCTString =
+    relevantCancerTypesInfo?.excludedRCTs_review?.initialUpdate || !relevantCancerTypesInfo?.excludedRCTs_review?.lastReviewed
+      ? ''
+      : getCancerTypesName(relevantCancerTypesInfo.excludedRCTs_review.lastReviewed as CancerType[], true, '\t');
 
   if (relevantCancerTypesInfo?.excludedRCTs_review?.initialUpdate || relevantCancerTypesInfo?.excludedRCTs_review?.lastReviewed) {
     defaultReview = new ReviewLevel(
@@ -929,9 +953,10 @@ const getRelevantCancerTypesReview = (
       oldRCTString
     );
     editorReviewMap.add(getEditorFromReview(relevantCancerTypesInfo.excludedRCTs_review), defaultReview);
+    defaultReview.historyLocationString = getHistoryLocationString(parentReview, HISTORY_LOCATION_STRINGS.RELEVANT_CANCER_TYPE);
+    currentLevelMetaReview.addChild(defaultReview);
+    parentReview.addChild(currentLevelMetaReview);
   }
-  defaultReview.historyLocationString = getHistoryLocationString(parentReview, HISTORY_LOCATION_STRINGS.RELEVANT_CANCER_TYPE);
-  parentReview.addChild(defaultReview);
 };
 
 export const clearAllNestedReviews = (obj: any) => {

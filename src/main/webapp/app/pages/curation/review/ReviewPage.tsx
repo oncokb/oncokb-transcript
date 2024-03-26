@@ -73,6 +73,8 @@ const ReviewPage = (props: IReviewPageProps) => {
       Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
       setEditorReviewMap(reviewMap);
       setRootReview(reviews);
+      /* eslint-disable no-console */
+      console.log('Reviews', reviews);
       props.handleReviewFinished(!reviews.hasChildren());
     }
   }, [geneData, reviewUuids]);

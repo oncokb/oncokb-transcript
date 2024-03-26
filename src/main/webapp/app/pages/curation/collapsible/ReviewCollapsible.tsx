@@ -170,8 +170,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
         </>
       );
     }
-    if (reviewAction === ReviewAction.UPDATE) {
-      const reviewLevel = props.baseReviewLevel as ReviewLevel;
+    if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
       let oldValue = reviewLevel.lastReviewedString;
       let newValue = reviewLevel.currentVal.toString();
       if (!reviewLevel.isUnderCreationOrDeletion && oldValue !== '' && newValue !== '') {
