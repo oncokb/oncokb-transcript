@@ -28,6 +28,7 @@ function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistory
   const [filteredIndices, setFilteredIndices] = useState<number[]>([]);
   const [openMutationCollapsibleIndex, setOpenMutationCollapsibleIndex] = useState<number>(null);
 
+  const mutationSectionRef = useRef<HTMLDivElement>(null);
   const mutationScrollContainerRef = useRef<HTMLDivElement>(null);
 
   function getMutationCollapsibles() {
@@ -71,6 +72,9 @@ function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistory
                       parsedHistoryList={parsedHistoryList}
                       onToggle={() => {
                         setOpenMutationCollapsibleIndex(index);
+                        if (mutationSectionRef.current.getBoundingClientRect().top < 0) {
+                          mutationSectionRef.current.scrollIntoView();
+                        }
                       }}
                     />
                   </div>
@@ -89,7 +93,7 @@ function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistory
 
   return (
     <>
-      <div className="mb-5">
+      <div ref={mutationSectionRef} className="mb-5">
         <Row
           className="mb-4"
           style={{
