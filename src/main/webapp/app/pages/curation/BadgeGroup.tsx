@@ -8,7 +8,7 @@ import { onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useMemo, useState } from 'react';
 
-const DELETED_SECTION_TOOLTIP_OVERLAY = (
+export const DELETED_SECTION_TOOLTIP_OVERLAY = (
   <div>
     <div>This deletion is pending for review.</div>
     <div>To confirm or revert the deletion, please enter review mode.</div>

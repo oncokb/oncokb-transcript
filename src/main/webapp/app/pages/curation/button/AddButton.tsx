@@ -7,14 +7,22 @@ const AddButton: React.FunctionComponent<{
   onClickHandler: () => void;
   showIcon?: boolean;
   title?: string;
+  disabled?: boolean;
   className?: string;
-}> = ({ onClickHandler, showIcon = true, title, className }) => {
+}> = ({ onClickHandler, showIcon = true, title, disabled, className }) => {
   let text = 'Add';
   if (title) {
     text += ` ${title}`;
   }
   return (
-    <Button className={classNames('d-flex align-items-center mr-2', className)} color="primary" outline size="sm" onClick={onClickHandler}>
+    <Button
+      className={classNames('d-flex align-items-center mr-2', className)}
+      color="primary"
+      outline
+      disabled={disabled}
+      size="sm"
+      onClick={onClickHandler}
+    >
       {showIcon && <FaPlus className="mr-2" />}
       <span>{text}</span>
     </Button>

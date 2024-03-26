@@ -33,6 +33,18 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
 
   const [drugList, setDrugList] = useState<IDrug[]>([]);
 
+  function findObjectFieldsInRecord(record: HistoryRecord) {
+    const fields = ['description', 'oncogenic', 'effect', 'penetrance', 'inheritanceMechanism', 'monoallelic', 'biallelic', 'mosaic'];
+
+    const output: string[] = [];
+    for (const field of fields) {
+      if (record.new[field]) {
+        output.push(field);
+      }
+    }
+    return output;
+  }
+
   const parsedHistoryData: HistoryTabData[] = useMemo(() => {
     if (!historyData) {
       return [];
@@ -43,33 +55,15 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
       if (Symbol.iterator in history.records) {
         for (const record of history.records) {
           if (typeof record.new === 'object') {
-            if (record.new['description']) {
+            findObjectFieldsInRecord(record).forEach(objectField => {
               data.push({
                 record,
                 timeStamp: history.timeStamp,
                 admin: history.admin,
                 location: record.location,
-                objectField: 'description',
+                objectField,
               });
-            }
-            if (record.new['oncogenic']) {
-              data.push({
-                record,
-                timeStamp: history.timeStamp,
-                admin: history.admin,
-                location: record.location,
-                objectField: 'oncogenic',
-              });
-            }
-            if (record.new['effect']) {
-              data.push({
-                record,
-                timeStamp: history.timeStamp,
-                admin: history.admin,
-                location: record.location,
-                objectField: 'effect',
-              });
-            }
+            });
           } else {
             data.push({
               record,

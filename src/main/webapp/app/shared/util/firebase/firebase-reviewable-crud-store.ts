@@ -7,7 +7,7 @@ import { FirebaseCrudStore } from './firebase-crud-store';
 import { buildHistoryFromReviews } from './firebase-history-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { ReviewAction, ReviewLevel, clearAllNestedReviews, getAllNestedReviewUuids } from './firebase-review-utils';
-import { getFirebasePath } from './firebase-utils';
+import { getFirebaseGenePath } from './firebase-utils';
 
 /* eslint-disable @typescript-eslint/ban-types */
 export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudStore<T> {
@@ -21,6 +21,8 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
   }
 
   updateReviewableContent = (firebasePath: string, currentValue: any, updateValue: any, review: Review, uuid: string) => {
+    const isGermline = firebasePath.toLowerCase().includes('germline');
+
     // Update Review
     if (!review) {
       review = new Review(this.rootStore.authStore.fullName);
@@ -51,23 +53,25 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
 
     // Make sure that there is a UUID attached
     if (!uuid) {
-      updateObject[`${pathFromGene}_uuid`] = generateUuid();
+      uuid = generateUuid();
+      updateObject[`${pathFromGene}_uuid`] = uuid;
     }
 
-    return update(ref(this.db, getFirebasePath('GENE', hugoSymbol)), updateObject).then(() => {
+    return update(ref(this.db, getFirebaseGenePath(isGermline, hugoSymbol)), updateObject).then(() => {
       if (isChangeReverted) {
         remove(ref(this.db, `${firebasePath}_review/lastReviewed`));
       }
       // Update Meta information
-      this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol);
-      this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, !isChangeReverted);
+      this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol, isGermline);
+      this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, !isChangeReverted, isGermline);
     });
   };
 
-  async acceptChanges(hugoSymbol: string, reviewLevels: ReviewLevel[]) {
-    const geneFirebasePath = getFirebasePath('GENE', hugoSymbol);
+  async acceptChanges(hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) {
+    const geneFirebasePath = getFirebaseGenePath(isGermline, hugoSymbol);
     const reviewHistory = buildHistoryFromReviews(this.rootStore.authStore.fullName, reviewLevels);
-    return this.rootStore.firebaseHistoryStore.addHistory(hugoSymbol, reviewHistory).then(() => {
+
+    return this.rootStore.firebaseHistoryStore.addHistory(hugoSymbol, reviewHistory, isGermline).then(() => {
       for (const reviewLevel of reviewLevels) {
         const uuid = reviewLevel.uuid;
         const reviewPath = reviewLevel.reviewPath;
@@ -79,7 +83,7 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
           }
           delete reviewObject.lastReviewed;
           update(ref(this.db, geneFirebasePath), { [reviewPath]: reviewObject }).then(() => {
-            this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, false);
+            this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, false, isGermline);
           });
         }
 
@@ -89,7 +93,7 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
           const deleteIndex = parseInt(pathParts.pop(), 10); // Remove index
           const firebasePath = geneFirebasePath + '/' + pathParts.join('/');
           this.deleteFromArray(firebasePath, [deleteIndex]).then(() =>
-            this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, false)
+            this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, false, isGermline)
           );
         }
 
@@ -102,7 +106,7 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
             const uuids = [];
             getAllNestedReviewUuids(reviewLevel, uuids);
             uuids.forEach(id => {
-              this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, id, false);
+              this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, id, false, isGermline);
             });
           });
         }
@@ -110,20 +114,20 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
     });
   }
 
-  async rejectChanges(hugoSymbol: string, reviewLevel: ReviewLevel) {
+  async rejectChanges(hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean) {
     const uuid = reviewLevel.uuid;
     const fieldPath = reviewLevel.currentValPath;
     const reviewPath = reviewLevel.reviewPath;
     const reviewObject = reviewLevel.review;
 
     const updateMetaCallback = () => {
-      this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol);
-      this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, false);
+      this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol, isGermline);
+      this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, false, isGermline);
     };
 
     if (reviewLevel.reviewAction === ReviewAction.UPDATE || reviewLevel.reviewAction === ReviewAction.NAME_CHANGE) {
       const resetReview = new Review(this.rootStore.authStore.fullName);
-      return update(ref(this.db, getFirebasePath('GENE', hugoSymbol)), {
+      return update(ref(this.db, getFirebaseGenePath(isGermline, hugoSymbol)), {
         [reviewPath]: resetReview,
         [fieldPath]: reviewObject.lastReviewed,
       }).then(() => {
@@ -139,7 +143,7 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
     if (reviewLevel.reviewAction === ReviewAction.CREATE) {
       delete reviewObject.added;
     }
-    return update(ref(this.db, getFirebasePath('GENE', hugoSymbol)), { [reviewPath]: reviewObject }).then(() => {
+    return update(ref(this.db, getFirebaseGenePath(isGermline, hugoSymbol)), { [reviewPath]: reviewObject }).then(() => {
       updateMetaCallback();
     });
   }

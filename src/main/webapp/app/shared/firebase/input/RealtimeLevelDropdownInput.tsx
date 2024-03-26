@@ -75,7 +75,7 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
     return () => {
       callbacks.forEach(callback => callback?.());
     };
-  }, []);
+  }, [firebaseLevelPath, firebaseDb]);
 
   useEffect(() => {
     if (currentLOE) {

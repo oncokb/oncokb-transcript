@@ -1,8 +1,16 @@
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
+import CancerRiskTabs from 'app/components/tabs/CancerRiskTabs';
 import { RADIO_OPTION_NONE } from 'app/config/constants/constants';
-import { MUTATION_EFFECT_OPTIONS, ONCOGENICITY_OPTIONS } from 'app/config/constants/firebase';
+import {
+  INHERITANCE_MECHANISM_OPTIONS,
+  MUTATION_EFFECT_OPTIONS,
+  ONCOGENICITY_OPTIONS,
+  PATHOGENICITY_OPTIONS,
+  PENETRANCE_OPTIONS,
+} from 'app/config/constants/firebase';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import NotCuratableBadge from 'app/shared/badge/NotCuratableBadge';
+import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
+import CommentIcon from 'app/shared/icons/CommentIcon';
 import EditIcon from 'app/shared/icons/EditIcon';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
@@ -14,21 +22,20 @@ import { onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { Button } from 'reactstrap';
-import Collapsible from './Collapsible';
-import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
-import CommentIcon from 'app/shared/icons/CommentIcon';
+import BadgeGroup from '../BadgeGroup';
 import { ParsedHistoryRecord } from '../CurationPage';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
 import FirebaseList from '../list/FirebaseList';
 import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
-import CancerTypeCollapsible from './CancerTypeCollapsible';
-import { NestLevelColor, NestLevelMapping, NestLevelType, DISABLED_NEST_LEVEL_COLOR } from './NestLevel';
 import styles from '../styles.module.scss';
-import BadgeGroup from '../BadgeGroup';
+import CancerTypeCollapsible from './CancerTypeCollapsible';
+import Collapsible from './Collapsible';
+import { DISABLED_NEST_LEVEL_COLOR, NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
   hugoSymbol: string;
+  isGermline: boolean;
   open?: boolean;
   disableOpen?: boolean;
   onToggle?: (isOpen: boolean) => void;
@@ -38,6 +45,7 @@ export interface IMutationCollapsibleProps extends StoreProps {
 const MutationCollapsible = ({
   mutationPath,
   hugoSymbol,
+  isGermline,
   open,
   disableOpen = false,
   onToggle,
@@ -120,7 +128,7 @@ const MutationCollapsible = ({
             />
             <DeleteSectionButton
               sectionName={title}
-              deleteHandler={() => deleteSection(NestLevelType.MUTATION, `${mutationPath}/name`, mutationNameReview, mutationUuid)}
+              deleteHandler={() => deleteSection(`${mutationPath}/name`, mutationNameReview, mutationUuid)}
               isRemovableWithoutReview={isRemovableWithoutReview}
             />
           </>
@@ -141,44 +149,68 @@ const MutationCollapsible = ({
           }
           action={isMECuratable && <CommentIcon id={`${mutationUuid}_mutation_effect`} path={`${mutationPath}/mutation_effect_comments`} />}
         >
-          <RealtimeCheckedInputGroup
-            groupHeader={
-              <>
-                <span style={{ marginRight: '8px' }}>Oncogenic</span>
-                {
-                  <GeneHistoryTooltip
-                    historyData={parsedHistoryList}
-                    location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Effect`}
-                    contentFieldWhenObject="oncogenic"
-                  />
+          {isGermline ? (
+            <RealtimeCheckedInputGroup
+              groupHeader={
+                <>
+                  <span style={{ marginRight: '8px' }}>Pathogenicity</span>
+                  {
+                    <GeneHistoryTooltip
+                      historyData={parsedHistoryList}
+                      location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Effect`}
+                      contentFieldWhenObject="pathogenic"
+                    />
+                  }
+                </>
+              }
+              isRadio
+              options={[...PATHOGENICITY_OPTIONS, RADIO_OPTION_NONE].map(label => ({
+                label,
+                firebasePath: `${mutationPath}/mutation_effect/pathogenic`,
+              }))}
+            />
+          ) : (
+            <>
+              <RealtimeCheckedInputGroup
+                groupHeader={
+                  <>
+                    <span style={{ marginRight: '8px' }}>Oncogenic</span>
+                    {
+                      <GeneHistoryTooltip
+                        historyData={parsedHistoryList}
+                        location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Effect`}
+                        contentFieldWhenObject="oncogenic"
+                      />
+                    }
+                  </>
                 }
-              </>
-            }
-            isRadio
-            options={[...ONCOGENICITY_OPTIONS, RADIO_OPTION_NONE].map(label => ({
-              label,
-              firebasePath: `${mutationPath}/mutation_effect/oncogenic`,
-            }))}
-          />
-          <RealtimeCheckedInputGroup
-            groupHeader={
-              <>
-                <span style={{ marginRight: '8px' }}>Mutation Effect</span>
-                {
-                  <GeneHistoryTooltip
-                    historyData={parsedHistoryList}
-                    location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Effect`}
-                    contentFieldWhenObject="effect"
-                  />
+                isRadio
+                options={[...ONCOGENICITY_OPTIONS, RADIO_OPTION_NONE].map(label => ({
+                  label,
+                  firebasePath: `${mutationPath}/mutation_effect/oncogenic`,
+                }))}
+              />
+              <RealtimeCheckedInputGroup
+                groupHeader={
+                  <>
+                    <span style={{ marginRight: '8px' }}>Mutation Effect</span>
+                    {
+                      <GeneHistoryTooltip
+                        historyData={parsedHistoryList}
+                        location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Effect`}
+                        contentFieldWhenObject="effect"
+                      />
+                    }
+                  </>
                 }
-              </>
-            }
-            isRadio
-            options={[...MUTATION_EFFECT_OPTIONS, RADIO_OPTION_NONE].map(label => ({
-              label,
-              firebasePath: `${mutationPath}/mutation_effect/effect`,
-            }))}
-          />
+                isRadio
+                options={[...MUTATION_EFFECT_OPTIONS, RADIO_OPTION_NONE].map(label => ({
+                  label,
+                  firebasePath: `${mutationPath}/mutation_effect/effect`,
+                }))}
+              />
+            </>
+          )}
           <RealtimeTextAreaInput
             firebasePath={`${mutationPath}/mutation_effect/description`}
             inputClass={styles.textarea}
@@ -193,6 +225,100 @@ const MutationCollapsible = ({
             parseRefs
           />
         </Collapsible>
+        {isGermline && (
+          <>
+            <Collapsible
+              className="mt-2"
+              title={'Mutation Specific Penetrance'}
+              borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.PENETRANCE]]}
+              badge={<BadgeGroup firebasePath={`${mutationPath}/penetrance`} />}
+            >
+              <>
+                <RealtimeCheckedInputGroup
+                  groupHeader={
+                    <>
+                      <span style={{ marginRight: '8px' }}>Penetrance</span>
+                      {
+                        <GeneHistoryTooltip
+                          historyData={parsedHistoryList}
+                          location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Specific Penetrance`}
+                          contentFieldWhenObject="penetrance"
+                        />
+                      }
+                    </>
+                  }
+                  isRadio
+                  options={[...PENETRANCE_OPTIONS, RADIO_OPTION_NONE].map(label => ({
+                    label,
+                    firebasePath: `${mutationPath}/penetrance/penetrance`,
+                  }))}
+                />
+                <RealtimeTextAreaInput
+                  firebasePath={`${mutationPath}/penetrance/description`}
+                  inputClass={styles.textarea}
+                  label="Description of Penetrance"
+                  labelIcon={
+                    <GeneHistoryTooltip
+                      historyData={parsedHistoryList}
+                      location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Specific Penetrance`}
+                    />
+                  }
+                  name="description"
+                  parseRefs
+                />
+              </>
+            </Collapsible>
+            <Collapsible
+              className="mt-2"
+              title={'Mutation Specific Mechanism of Inheritance'}
+              borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.INHERITANCE_MECHANISM]]}
+              badge={<BadgeGroup firebasePath={`${mutationPath}/inheritance_mechanism`} />}
+            >
+              <>
+                <RealtimeCheckedInputGroup
+                  groupHeader={
+                    <>
+                      <span style={{ marginRight: '8px' }}>Mechanism of Inheritance</span>
+                      {
+                        <GeneHistoryTooltip
+                          historyData={parsedHistoryList}
+                          location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Specific Inheritance Mechanism`}
+                          contentFieldWhenObject="inheritanceMechanism"
+                        />
+                      }
+                    </>
+                  }
+                  isRadio
+                  options={[...INHERITANCE_MECHANISM_OPTIONS, RADIO_OPTION_NONE].map(label => ({
+                    label,
+                    firebasePath: `${mutationPath}/inheritance_mechanism/inheritanceMechanism`,
+                  }))}
+                />
+                <RealtimeTextAreaInput
+                  firebasePath={`${mutationPath}/inheritance_mechanism/description`}
+                  inputClass={styles.textarea}
+                  label="Description of Inheritance Mechanism"
+                  labelIcon={
+                    <GeneHistoryTooltip
+                      historyData={parsedHistoryList}
+                      location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Specific Inheritance Mechanism`}
+                    />
+                  }
+                  name="description"
+                  parseRefs
+                />
+              </>
+            </Collapsible>
+            <Collapsible
+              className="mt-2"
+              title={'Mutation Specific Cancer Risk'}
+              borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.CANCER_RISK]]}
+              badge={<BadgeGroup firebasePath={`${mutationPath}/cancer_risk`} />}
+            >
+              <CancerRiskTabs cancerRiskPath={`${mutationPath}/cancer_risk`} textAreaClass={styles.textarea} />
+            </Collapsible>
+          </>
+        )}
         <FirebaseList
           path={`${mutationPath}/tumors`}
           pushDirection="back"

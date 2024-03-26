@@ -95,8 +95,8 @@ function TherapyCollapsible({
               }}
             />
             <DeleteSectionButton
-              sectionName={treatmentNameString}
-              deleteHandler={() => deleteSection(NestLevelType.MUTATION, `${therapyPath}/name`, treatmentReview, treatmentUuid)}
+              sectionName={cancerTypeName}
+              deleteHandler={() => deleteSection(`${therapyPath}/name`, treatmentReview, treatmentUuid)}
               isRemovableWithoutReview={isRemovableWithoutReview}
             />
           </>

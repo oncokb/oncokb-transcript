@@ -9,7 +9,7 @@ import {
   FDA_LEVELS,
 } from 'app/shared/model/firebase/firebase.model';
 import { ExtractPathExpressions } from 'app/shared/util/firebase/firebase-crud-store';
-import { MUTATION_EFFECT, ONCOGENICITY } from './constants';
+import { GERMLINE_INHERITANCE_MECHANISM, MUTATION_EFFECT, ONCOGENICITY, PATHOGENICITY, PENETRANCE } from './constants';
 import { LEVELS } from '../colors';
 import { FdaLevelIcon } from 'app/shared/icons/FdaLevelIcon';
 
@@ -36,26 +36,35 @@ export const GENE_TYPE_KEY: { [key in GENE_TYPE]: string } = {
 export enum FB_COLLECTION {
   DRUGS = 'Drugs',
   GENES = 'Genes',
+  GERMLINE_GENES = 'Germline_Genes',
   HISTORY = 'History',
+  GERMLINE_HISTORY = 'Germline_History',
   MAP = 'Map',
   META = 'Meta',
+  GERMLINE_META = 'Germline_Meta',
   SETTING = 'Setting',
   USERS = 'Users',
   VUS = 'VUS',
+  GERMLINE_VUS = 'GERMLINE_VUS',
 }
 
 export const FB_COLLECTION_PATH = {
   GENE: `${FB_COLLECTION.GENES}/:hugoSymbol`,
+  GERMLINE_GENE: `${FB_COLLECTION.GERMLINE_GENES}/:hugoSymbol`,
   MUTATIONS: `${FB_COLLECTION.GENES}/:hugoSymbol/mutations/:index`,
   TUMORS: `${FB_COLLECTION.GENES}/:hugoSymbol/mutations/:index/tumors/:index`,
   TREATMENTS: `${FB_COLLECTION.GENES}/:hugoSymbol/mutations/:index/tumors/:index/TIs/:index/treatments/:index`,
   META_GENE: `${FB_COLLECTION.META}/:hugoSymbol`,
+  GERMLINE_META_GENE: `${FB_COLLECTION.GERMLINE_META}/:hugoSymbol`,
   META_GENE_REVIEW: `${FB_COLLECTION.META}/:hugoSymbol/review/:uuid`,
+  GERMLINE_META_GENE_REVIEW: `${FB_COLLECTION.GERMLINE_META}/:hugoSymbol/review/:uuid`,
   META_COLLABORATORS: `${FB_COLLECTION.META}/collaborators`,
   META_COLLABORATOR: `${FB_COLLECTION.META}/collaborators/:name`,
   META_COLLABORATOR_GENE: `${FB_COLLECTION.META}/collaborators/:name/:index`,
   VUS: `${FB_COLLECTION.VUS}/:hugoSymbol`,
+  GERMLINE_VUS: `${FB_COLLECTION.GERMLINE_VUS}/:hugoSymbol`,
   HISTORY: `${FB_COLLECTION.HISTORY}/:hugoSymbol/api`,
+  GERMLINE_HISTORY: `${FB_COLLECTION.GERMLINE_HISTORY}/:hugoSymbol/api`,
   USERS: `${FB_COLLECTION.USERS}`,
 };
 
@@ -105,6 +114,18 @@ export const MUTATION_EFFECT_OPTIONS = [
   MUTATION_EFFECT.NEUTRAL,
   MUTATION_EFFECT.LIKELY_NEUTRAL,
   MUTATION_EFFECT.INCONCLUSIVE,
+];
+
+export const PENETRANCE_OPTIONS = [PENETRANCE.HIGH, PENETRANCE.INTERMEDIATE, PENETRANCE.LOW, PENETRANCE.OTHER];
+
+export const INHERITANCE_MECHANISM_OPTIONS = [GERMLINE_INHERITANCE_MECHANISM.RECESSIVE, GERMLINE_INHERITANCE_MECHANISM.DOMINANT];
+
+export const PATHOGENICITY_OPTIONS = [
+  PATHOGENICITY.PATHOGENIC,
+  PATHOGENICITY.LIKELY_PATHOGENIC,
+  PATHOGENICITY.UNKNOWN,
+  PATHOGENICITY.LIKELY_BENIGN,
+  PATHOGENICITY.BENIGN,
 ];
 
 /**
@@ -235,6 +256,11 @@ export enum HISTORY_LOCATION_STRINGS {
   DIAGNOSTIC_SUMMARY = 'Diagnostic Summary',
   PROGNOSTIC = 'Prognostic',
   DIAGNOSTIC = 'Diagnostic',
+  PENETRANCE = 'Penetrance',
+  INHERITANCE_MECHANISM = 'Mechanism of Inheritance',
+  MUTATION_SPECIFIC_PENETRANCE = 'Mutation Specific Penetrance',
+  MUTATION_SPECIFIC_INHERITANCE_MECHANISM = 'Mutation Specific Inheritance Mechanism',
+  MUTATION_SPECIFIC_CANCER_RISK = 'Mutation Specific Cancer Risk',
 }
 
 export enum ReviewAction {
@@ -269,3 +295,5 @@ export enum ReviewLevelType {
   META, // This means that the review level is used for grouping purposes
   REVIEWABLE, // This means that the review level has reviewable content
 }
+
+export const PATHOGENIC_VARIANTS = 'Pathogenic Variants';

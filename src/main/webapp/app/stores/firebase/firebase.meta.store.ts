@@ -3,7 +3,7 @@ import { FirebaseCrudStore } from 'app/shared/util/firebase/firebase-crud-store'
 import { IRootStore } from '../createStore';
 import { action, makeObservable, observable } from 'mobx';
 import { onValue, ref } from 'firebase/database';
-import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
+import { getFirebaseMetaGenePath, getFirebaseMetaGeneReviewPath, getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 import { FB_COLLECTION } from 'app/config/constants/firebase';
 
 export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
@@ -57,9 +57,9 @@ export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
    * Update the timestamp and author of the most recent edit to the gene.
    * @param hugoSymbol The gene to update the meta information
    */
-  updateGeneMetaContent(hugoSymbol: string) {
+  updateGeneMetaContent(hugoSymbol: string, isGermline: boolean) {
     // Update timestamp and author
-    return this.update(getFirebasePath('META_GENE', hugoSymbol), {
+    return this.update(getFirebaseMetaGenePath(isGermline, hugoSymbol), {
       lastModifiedBy: this.rootStore.authStore.fullName,
       lastModifiedAt: new Date().getTime().toString(),
     });
@@ -72,11 +72,11 @@ export class FirebaseMetaStore extends FirebaseCrudStore<Meta> {
    * @param uuid The uuid of the field that was updated
    * @param add Whether the field should be reviewed or removed from review view
    */
-  updateGeneReviewUuid(hugoSymbol: string, uuid: string, add: boolean) {
+  updateGeneReviewUuid(hugoSymbol: string, uuid: string, add: boolean, isGermline: boolean) {
     if (add) {
-      return this.update(getFirebasePath('META_GENE', hugoSymbol), { review: { [uuid]: true } });
+      return this.update(getFirebaseMetaGenePath(isGermline, hugoSymbol), { review: { [uuid]: true } });
     }
-    return this.delete(getFirebasePath('META_GENE_REVIEW', hugoSymbol, uuid));
+    return this.delete(getFirebaseMetaGeneReviewPath(isGermline, hugoSymbol, uuid));
   }
 
   /**

@@ -2,6 +2,7 @@ import { FirebaseCrudStore } from 'app/shared/util/firebase/firebase-crud-store'
 import { IRootStore } from '../createStore';
 import { History, HistoryList } from 'app/shared/model/firebase/firebase.model';
 import { action, makeObservable } from 'mobx';
+import { getFirebaseHistoryPath } from 'app/shared/util/firebase/firebase-utils';
 
 export class FirebaseHistoryStore extends FirebaseCrudStore<HistoryList> {
   constructor(rootStore: IRootStore) {
@@ -11,7 +12,7 @@ export class FirebaseHistoryStore extends FirebaseCrudStore<HistoryList> {
     });
   }
 
-  addHistory(hugoSymbol: string, history: History) {
-    return this.push(`History/${hugoSymbol}/api`, history);
+  addHistory(hugoSymbol: string, history: History, isGermline: boolean) {
+    return this.push(getFirebaseHistoryPath(isGermline, hugoSymbol), history);
   }
 }

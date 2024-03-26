@@ -106,9 +106,7 @@ function CancerTypeCollapsible({
             />
             <DeleteSectionButton
               sectionName={cancerTypeName}
-              deleteHandler={() =>
-                deleteSection(NestLevelType.MUTATION, `${cancerTypePath}/cancerTypes`, cancerTypesReview, cancerTypesUuid)
-              }
+              deleteHandler={() => deleteSection(`${cancerTypePath}/cancerTypes`, cancerTypesReview, cancerTypesUuid)}
               isRemovableWithoutReview={isRemovableWithoutReview}
             />
           </>
