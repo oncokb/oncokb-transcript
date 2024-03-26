@@ -1,5 +1,5 @@
-import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import {
+  CancerType,
   DX_LEVELS,
   FIREBASE_ONCOGENICITY,
   Gene,
@@ -12,11 +12,12 @@ import {
 } from 'app/shared/model/firebase/firebase.model';
 import { isTxLevelPresent } from 'app/shared/util/firebase/firebase-level-utils';
 import { parseFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
-import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
 import { getFirebaseGenePath, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
-import { ref, update } from 'firebase/database';
+import { FirebaseReviewableCrudStore, getUpdatedReview } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
+import { ref, remove, set, update } from 'firebase/database';
 import { action, computed, makeObservable } from 'mobx';
 import { IRootStore } from '../createStore';
+import _ from 'lodash';
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {
@@ -56,9 +57,13 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
       allLevelMutationSummaryStats: computed,
       mutationLevelMutationSummaryStats: computed,
       deleteSection: action.bound,
-      updateTumor: action.bound,
-      updateTreatment: action.bound,
-      updateMutation: action.bound,
+      addTumor: action.bound,
+      updateTumorName: action.bound,
+      addTreatment: action.bound,
+      updateTreatmentName: action.bound,
+      updateMutationName: action.bound,
+      addMutation: action.bound,
+      updateRelevantCancerTypes: action.bound,
     });
   }
 
@@ -183,18 +188,8 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
     }
     return summary;
   }
-
-  // override updateReviewableContent(path: string, key: ExtractPathExpressions<Gene>, value: any) {
-  //   try {
-  //     return super.updateReviewableContent(path, key, value);
-  //   } catch (error) {
-  //     notifyError(error, `Could not update ${key} at location ${path}`);
-  //   }
-  // }
-
   async deleteSection(path: string, review: Review, uuid: string) {
     const isGermline = path.toLowerCase().includes('germline');
-
     const name = this.rootStore.authStore.fullName;
     const pathDetails = parseFirebaseGenePath(path);
     if (pathDetails === undefined) {
@@ -224,15 +219,112 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
     });
   }
 
-  async updateTumor(path: string, tumor: Tumor) {
-    return await update(ref(this.db, path), tumor);
+  async addTumor(tumorPath: string, newTumor: Tumor) {
+    const { hugoSymbol } = parseFirebaseGenePath(tumorPath);
+    const name = this.rootStore.authStore.fullName;
+    newTumor.cancerTypes_review = new Review(name, undefined, true, undefined);
+
+    return this.pushToArray(tumorPath, [newTumor]).then(() => {
+      this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol, false);
+      this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, newTumor.cancerTypes_uuid, true, false);
+    });
   }
 
-  async updateTreatment(path: string, treatment: Treatment) {
-    return await update(ref(this.db, path), treatment);
+  async updateTumorName(tumorPath: string, currentCancerTypes: CancerType[], currentExcludedCancerTypes: CancerType[], tumor: Tumor) {
+    const cancerTypesReview = getUpdatedReview(
+      tumor.cancerTypes_review,
+      currentCancerTypes,
+      tumor.cancerTypes,
+      this.rootStore.authStore.fullName
+    );
+    const excludedCancerTypesReview = getUpdatedReview(
+      tumor.excludedCancerTypes_review,
+      currentExcludedCancerTypes,
+      tumor.excludedCancerTypes,
+      this.rootStore.authStore.fullName
+    );
+
+    tumor.cancerTypes_review = cancerTypesReview.updatedReview;
+    tumor.excludedCancerTypes_review = excludedCancerTypesReview.updatedReview;
+
+    const { hugoSymbol } = parseFirebaseGenePath(tumorPath);
+
+    return update(ref(this.db, tumorPath), tumor).then(() => {
+      if (cancerTypesReview.isChangeReverted) {
+        remove(ref(this.db, `${tumorPath}/cancerTypes_review/lastReviewed`));
+      }
+      if (excludedCancerTypesReview.isChangeReverted) {
+        remove(ref(this.db, `${tumorPath}/excludedCancerTypes_review/lastReviewed`));
+      }
+      this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol, false);
+      this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, tumor.cancerTypes_uuid, !cancerTypesReview.isChangeReverted, false);
+      this.rootStore.firebaseMetaStore.updateGeneReviewUuid(
+        hugoSymbol,
+        tumor.excludedCancerTypes_uuid,
+        !excludedCancerTypesReview.isChangeReverted,
+        false
+      );
+    });
   }
 
-  async updateMutation(path: string, mutation: Mutation) {
-    return await update(ref(this.db, path), mutation);
+  async updateTreatmentName(treatmentPath: string, currentTreatmentName: string, treatment: Treatment) {
+    return update(ref(this.db, treatmentPath), treatment).then(() => {
+      this.updateReviewableContent(
+        `${treatmentPath}/name`,
+        currentTreatmentName,
+        treatment.name,
+        treatment.name_review,
+        treatment.name_uuid
+      );
+    });
+  }
+
+  async addTreatment(treatmentPath: string, newTreatment: Treatment) {
+    const { hugoSymbol } = parseFirebaseGenePath(treatmentPath);
+    const name = this.rootStore.authStore.fullName;
+    newTreatment.name_review = new Review(name, undefined, true, undefined);
+
+    return this.pushToArray(treatmentPath, [newTreatment]).then(() => {
+      this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol, false);
+      this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, newTreatment.name_uuid, true, false);
+    });
+  }
+
+  async updateMutationName(mutationPath: string, currentMutationName: string, mutation: Mutation) {
+    return update(ref(this.db, mutationPath), mutation).then(() => {
+      this.updateReviewableContent(`${mutationPath}/name`, currentMutationName, mutation.name, mutation.name_review, mutation.name_uuid);
+    });
+  }
+
+  async addMutation(mutationPath: string, newMutation: Mutation) {
+    const { hugoSymbol } = parseFirebaseGenePath(mutationPath);
+    const name = this.rootStore.authStore.fullName;
+    newMutation.name_review = new Review(name, undefined, true, undefined);
+
+    return this.pushToArray(mutationPath, [newMutation]).then(() => {
+      this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol, false);
+      this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, newMutation.name_uuid, true, false);
+    });
+  }
+
+  async updateRelevantCancerTypes(
+    rctPath: string,
+    currentRelevantCancerTypes: CancerType[],
+    newRelevantCancerTypes: CancerType[],
+    review: Review,
+    uuid: string,
+    initialUpdate?: boolean
+  ) {
+    const { hugoSymbol } = parseFirebaseGenePath(rctPath);
+    if (initialUpdate) {
+      return set(ref(this.db, rctPath), newRelevantCancerTypes).then(() => {
+        update(ref(this.db, `${rctPath}_review`), new Review(this.rootStore.authStore.fullName, undefined, undefined, undefined, true));
+        this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol, false);
+        this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, true, false);
+      });
+    }
+    return set(ref(this.db, rctPath), newRelevantCancerTypes).then(() => {
+      this.updateReviewableContent(rctPath, currentRelevantCancerTypes || [], newRelevantCancerTypes, review, uuid);
+    });
   }
 }

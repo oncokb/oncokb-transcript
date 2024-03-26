@@ -5,6 +5,9 @@ import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { Alert, Button, Col, FormGroup, Input, Label, Row } from 'reactstrap';
 import _ from 'lodash';
+import { IDrug } from 'app/shared/model/drug.model';
+import { onValue, ref } from 'firebase/database';
+import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 import {
   BaseReviewLevel,
   EditorReviewMap,
@@ -13,10 +16,7 @@ import {
   getCompactReviewInfo,
   reviewLevelSortMethod,
 } from 'app/shared/util/firebase/firebase-review-utils';
-import { IDrug } from 'app/shared/model/drug.model';
 import { getFirebaseGenePath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
-import { onValue, ref } from 'firebase/database';
-import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 
 interface IReviewPageProps extends StoreProps {
   hugoSymbol: string;
@@ -73,6 +73,8 @@ const ReviewPage = (props: IReviewPageProps) => {
       Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
       setEditorReviewMap(reviewMap);
       setRootReview(reviews);
+      /* eslint-disable no-console */
+      console.log('Reviews', reviews);
       props.handleReviewFinished(!reviews.hasChildren());
     }
   }, [geneData, reviewUuids]);

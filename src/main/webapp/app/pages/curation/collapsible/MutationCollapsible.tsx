@@ -52,8 +52,8 @@ const MutationCollapsible = ({
   firebaseDb,
   parsedHistoryList,
   deleteSection,
-  updateMutation,
-  firebasePushToArray,
+  updateMutationName,
+  addTumor,
   modifyCancerTypeModalStore,
 }: IMutationCollapsibleProps) => {
   const [mutationUuid, setMutationUuid] = useState<string>(null);
@@ -345,7 +345,7 @@ const MutationCollapsible = ({
         cancerTypesUuid={`new_cancer_type_for_${mutationUuid}`}
         onConfirm={async newTumor => {
           try {
-            await firebasePushToArray(`${mutationPath}/tumors`, [newTumor]);
+            await addTumor(`${mutationPath}/tumors`, newTumor);
           } catch (error) {
             notifyError(error);
           }
@@ -362,7 +362,7 @@ const MutationCollapsible = ({
           mutationToEditPath={isEditingMutation ? mutationPath : null}
           onConfirm={async newMutation => {
             try {
-              await updateMutation(mutationPath, newMutation);
+              await updateMutationName(mutationPath, mutationName, newMutation);
             } catch (error) {
               notifyError(error);
             }
@@ -388,9 +388,8 @@ const mapStoreToProps = ({
 }: IRootStore) => ({
   data: firebaseGeneStore.data,
   deleteSection: firebaseGeneStore.deleteSection,
-  updateTumor: firebaseGeneStore.updateTumor,
-  updateTreatment: firebaseGeneStore.updateTreatment,
-  updateMutation: firebaseGeneStore.updateMutation,
+  addTumor: firebaseGeneStore.addTumor,
+  updateMutationName: firebaseGeneStore.updateMutationName,
   firebasePushToArray: firebaseGeneStore.pushToArray,
   modifyCancerTypeModalStore,
   modifyTherapyModalStore,

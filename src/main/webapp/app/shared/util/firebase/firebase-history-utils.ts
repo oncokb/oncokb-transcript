@@ -1,6 +1,6 @@
-import { ReviewActionToHistoryOperationMapping } from 'app/config/constants/firebase';
-import { BaseReviewLevel, ReviewAction, ReviewLevel, ReviewLevelType } from './firebase-review-utils';
+import { ReviewAction, ReviewActionToHistoryOperationMapping, ReviewLevelType } from 'app/config/constants/firebase';
 import { HistoryOperationType, HistoryRecord, History } from 'app/shared/model/firebase/firebase.model';
+import { ReviewLevel, BaseReviewLevel } from './firebase-review-utils';
 
 export const buildHistoryFromReviews = (reviewerName: string, reviewLevels: ReviewLevel[]) => {
   const history = new History(reviewerName);

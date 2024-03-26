@@ -41,7 +41,7 @@ function TherapyCollapsible({
   drugList,
   createDrug,
   modifyTherapyModalStore,
-  updateTreatment,
+  updateTreatmentName,
   deleteSection,
 }: ITherapyCollapsibleProps) {
   const [treatmentUuid, setTreatmentUuid] = useState<string>(null);
@@ -140,7 +140,7 @@ function TherapyCollapsible({
         onConfirm={async (newTreatment, newDrugs) => {
           try {
             await Promise.all(newDrugs.map(drug => createDrug(drug)));
-            await updateTreatment(therapyPath, newTreatment);
+            await updateTreatmentName(therapyPath, treatmentName, newTreatment);
           } catch (error) {
             notifyError(error);
           }
@@ -157,7 +157,7 @@ const mapStoreToProps = ({ firebaseStore, drugStore, modifyTherapyModalStore, fi
   firebaseDb: firebaseStore.firebaseDb,
   drugList: drugStore.entities,
   createDrug: drugStore.createEntity,
-  updateTreatment: firebaseGeneStore.updateTreatment,
+  updateTreatmentName: firebaseGeneStore.updateTreatmentName,
   modifyTherapyModalStore,
   deleteSection: firebaseGeneStore.deleteSection,
 });

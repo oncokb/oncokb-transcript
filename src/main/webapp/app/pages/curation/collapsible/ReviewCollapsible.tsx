@@ -18,6 +18,7 @@ import { DANGER, SUCCESS, WARNING } from 'app/config/colors';
 import TextWithRefs from 'app/shared/links/TextWithRefs';
 import DefaultBadge from 'app/shared/badge/DefaultBadge';
 import { ReviewActionLabels } from 'app/config/constants/firebase';
+import _ from 'lodash';
 
 export enum ReviewType {
   CREATE,
@@ -29,7 +30,7 @@ const ReviewTypeTitle: { [key in ReviewAction]: string } = {
   [ReviewAction.CREATE]: 'Created',
   [ReviewAction.UPDATE]: 'Updated',
   [ReviewAction.DELETE]: 'Deleted',
-  [ReviewAction.NAME_CHANGE]: 'Updated',
+  [ReviewAction.NAME_CHANGE]: 'Name changed',
 };
 
 const ReviewCollapsibleColorClass: { [key in ReviewAction]: string } = {
@@ -130,9 +131,47 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
     if (reviewAction === ReviewAction.DELETE) {
       return undefined;
     }
-    if (reviewAction === ReviewAction.UPDATE) {
-      const reviewLevel = props.baseReviewLevel as ReviewLevel;
-      let oldValue = reviewLevel.lastReviewedString || reviewLevel.review.lastReviewed;
+    const reviewLevel = props.baseReviewLevel as ReviewLevel;
+    if (reviewLevel.currentValPath.includes('excludedRCTs')) {
+      const newExclusions = _.difference(reviewLevel.currentVal.split('\t'), reviewLevel?.lastReviewedString?.split('\t'));
+      const revertedExclusions = _.difference(reviewLevel?.lastReviewedString?.split('\t'), reviewLevel.currentVal.split('\t'));
+      return (
+        <>
+          {newExclusions.length > 0 && (
+            <>
+              <div>
+                Cancer Type(s) <span className="text-danger">removed</span> from RCT list:
+              </div>
+
+              <div>
+                <ol>
+                  {newExclusions.map(ct => (
+                    <li key={ct}>{ct}</li>
+                  ))}
+                </ol>
+              </div>
+            </>
+          )}
+
+          {revertedExclusions.length > 0 && (
+            <>
+              <div>
+                Cancer Type(s) <span className="text-success">added</span> back to RCT list:
+              </div>
+              <div>
+                <ol>
+                  {revertedExclusions.map(ct => (
+                    <li key={ct}>{ct}</li>
+                  ))}
+                </ol>
+              </div>
+            </>
+          )}
+        </>
+      );
+    }
+    if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
+      let oldValue = reviewLevel.lastReviewedString;
       let newValue = reviewLevel.currentVal.toString();
       if (!reviewLevel.isUnderCreationOrDeletion && oldValue !== '' && newValue !== '') {
         oldValue = oldValue?.replace(/\.\s+/g, '.\n');
@@ -162,7 +201,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
     <Collapsible
       open
       className={'mb-1'}
-      title={reformatReviewTitle(props.baseReviewLevel.title)}
+      title={reformatReviewTitle(props.baseReviewLevel)}
       disableLeftBorder={props.baseReviewLevel.isUnderCreationOrDeletion || props.baseReviewLevel.reviewLevelType === ReviewLevelType.META}
       borderLeftColor={borderLeftColor}
       backgroundColor={'#FFFFFF'}

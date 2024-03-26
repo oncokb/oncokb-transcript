@@ -23,7 +23,7 @@ export interface IMutationsSectionProps extends StoreProps {
   parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
 }
 
-function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistoryList, updateMutations }: IMutationsSectionProps) {
+function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistoryList, addMutation }: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
   const [filteredIndices, setFilteredIndices] = useState<number[]>([]);
   const [openMutationCollapsibleIndex, setOpenMutationCollapsibleIndex] = useState<number>(null);
@@ -143,7 +143,7 @@ function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistory
           hugoSymbol={hugoSymbol}
           onConfirm={newMutation => {
             try {
-              updateMutations(mutationsPath, [newMutation]);
+              addMutation(mutationsPath, newMutation);
               setShowAddMutationModal(show => !show);
             } catch (error) {
               notifyError(error);
@@ -158,8 +158,8 @@ function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistory
   );
 }
 
-const mapStoreToProps = ({ firebaseCrudStore }: IRootStore) => ({
-  updateMutations: firebaseCrudStore.pushToArray,
+const mapStoreToProps = ({ firebaseGeneStore }: IRootStore) => ({
+  addMutation: firebaseGeneStore.addMutation,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

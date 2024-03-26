@@ -261,6 +261,7 @@ export enum HISTORY_LOCATION_STRINGS {
   MUTATION_SPECIFIC_PENETRANCE = 'Mutation Specific Penetrance',
   MUTATION_SPECIFIC_INHERITANCE_MECHANISM = 'Mutation Specific Inheritance Mechanism',
   MUTATION_SPECIFIC_CANCER_RISK = 'Mutation Specific Cancer Risk',
+  RELEVANT_CANCER_TYPE = 'Relevant Cancer Types',
 }
 
 export enum ReviewAction {

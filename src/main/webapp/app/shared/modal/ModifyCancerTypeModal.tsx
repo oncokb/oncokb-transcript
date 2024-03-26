@@ -94,23 +94,27 @@ const ModifyCancerTypeModalContent = observer(
     }
 
     async function setIncludedCancerTypes(includedCancerTypes: CancerType[]) {
-      const promises = [];
-      for (const cancerType of includedCancerTypes) {
-        promises.push(getICancerTypeFromCancerType(cancerType));
+      if (includedCancerTypes) {
+        const promises = [];
+        for (const cancerType of includedCancerTypes) {
+          promises.push(getICancerTypeFromCancerType(cancerType));
+        }
+        modifyCancerTypeModalStore.setIncludedCancerTypes(
+          getCancerTypeSelectOptionsFromICancerTypes(await Promise.all<ICancerType>(promises))
+        );
       }
-      modifyCancerTypeModalStore.setIncludedCancerTypes(
-        getCancerTypeSelectOptionsFromICancerTypes(await Promise.all<ICancerType>(promises))
-      );
     }
 
     async function setExcludedCancerTypes(excludedCancerTypes: CancerType[]) {
-      const promises = [];
-      for (const cancerType of excludedCancerTypes) {
-        promises.push(getICancerTypeFromCancerType(cancerType));
+      if (excludedCancerTypes) {
+        const promises = [];
+        for (const cancerType of excludedCancerTypes) {
+          promises.push(getICancerTypeFromCancerType(cancerType));
+        }
+        modifyCancerTypeModalStore.setExcludedCancerTypes(
+          getCancerTypeSelectOptionsFromICancerTypes(await Promise.all<ICancerType>(promises))
+        );
       }
-      modifyCancerTypeModalStore.setExcludedCancerTypes(
-        getCancerTypeSelectOptionsFromICancerTypes(await Promise.all<ICancerType>(promises))
-      );
     }
 
     function handleRetryButtonClick() {

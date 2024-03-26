@@ -100,14 +100,14 @@ export class Treatment {
   name_comments?: Comment[] = [];
   name_review?: Review;
   name_uuid: string = generateUuid();
-  propagation: TX_LEVELS = TX_LEVELS.LEVEL_NO;
-  propagationLiquid: TX_LEVELS = TX_LEVELS.LEVEL_NO;
+  propagation: TX_LEVELS = TX_LEVELS.LEVEL_EMPTY;
+  propagationLiquid: TX_LEVELS = TX_LEVELS.LEVEL_EMPTY;
   propagationLiquid_uuid: string = generateUuid();
   propagation_review?: Review;
   propagation_uuid: string = generateUuid();
-  relevantCancerTypes?: CancerType[] = [];
-  relevantCancerTypes_review?: Review;
-  relevantCancerTypes_uuid?: string = generateUuid();
+  excludedRCTs?: CancerType[] = [];
+  excludedRCTs_review?: Review;
+  excludedRCTs_uuid?: string = generateUuid();
   short = '';
 
   constructor(name: string) {
@@ -303,6 +303,7 @@ export class Tumor {
   cancerTypes_uuid: string = generateUuid();
   cancerTypes_comments?: Comment[] = [];
   excludedCancerTypes?: CancerType[] = [];
+  excludedCancerTypes_review?: Review;
   excludedCancerTypes_uuid?: string = generateUuid();
   diagnostic: Implication = new Implication();
   diagnosticSummary = '';
@@ -341,9 +342,9 @@ export class Implication {
   level: DX_LEVELS | PX_LEVELS | '' = '';
   level_review?: Review;
   level_uuid: string = generateUuid();
-  relevantCancerTypes?: CancerType[] = [];
-  relevantCancerTypes_review?: Review;
-  relevantCancerTypes_uuid?: string = generateUuid();
+  excludedRCTs?: CancerType[] = [];
+  excludedRCTs_review?: Review;
+  excludedRCTs_uuid?: string = generateUuid();
   short = '';
 }
 
@@ -426,12 +427,13 @@ export class Comment {
 export class Review {
   updateTime: number;
   updatedBy = '';
-  lastReviewed?: string;
-  // These two properties should not coexist
+  lastReviewed?: string | CancerType[];
+  // These three properties should not coexist
   added?: boolean;
   removed?: boolean;
+  initialUpdate?: boolean;
 
-  constructor(updatedBy: string, lastReviewed?: string, added?: boolean, removed?: boolean) {
+  constructor(updatedBy: string, lastReviewed?: string | CancerType[], added?: boolean, removed?: boolean, initialUpdate?: boolean) {
     this.updatedBy = updatedBy;
     this.updateTime = new Date().getTime();
     if (lastReviewed) {
@@ -442,6 +444,9 @@ export class Review {
     }
     if (removed) {
       this.removed = removed;
+    }
+    if (initialUpdate) {
+      this.initialUpdate = initialUpdate;
     }
   }
 }
