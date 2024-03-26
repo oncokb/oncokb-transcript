@@ -91,7 +91,7 @@ export function getTimeSeriesDataContent(objectField: string, newContent: Histor
         );
         break;
       default:
-        body = <h6 className="gene-history-event-content gene-history-error-content">Record missing data</h6>;
+        return undefined;
     }
   } catch {
     body = <h6 className="gene-history-event-content gene-history-error-content">Record formatted incorrectly</h6>;
