@@ -258,7 +258,7 @@ const GenomicIndicatorsTable = ({
     <div className={'justify-content-between align-items-center mb-5'}>
       <GenomicIndicatorsHeader genomicIndicatorsPath={genomicIndicatorsPath} />
       {genomicIndicatorsLength ? (
-        <div>
+        <div className="genomic-indicators">
           <OncoKBTable
             minRows={1}
             data={Array(genomicIndicatorsLength).fill(0)}
