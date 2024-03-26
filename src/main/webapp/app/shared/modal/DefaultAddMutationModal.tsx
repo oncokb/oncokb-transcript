@@ -32,8 +32,12 @@ export const DefaultAddMutationModal = (props: IDefaultAddMutationModal) => {
             <Button className="mr-2" onClick={props.onCancel} outline color="danger">
               Cancel
             </Button>
-            <Button onClick={props.onConfirm} color="primary" disabled={props.confirmButtonDisabled}>
-              {props.isUpdate ? 'Update' : 'Add'}
+            <Button
+              onClick={props.onConfirm}
+              disabled={props.confirmButtonDisabled}
+              color={props.confirmButtonDisabled ? 'secondary' : 'primary'}
+            >
+              {props.isUpdate ? 'Update' : 'Confirm'}
             </Button>
           </div>
         </div>

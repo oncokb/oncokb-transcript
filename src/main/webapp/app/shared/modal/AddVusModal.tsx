@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import CreatableSelect from 'react-select/creatable';
 import { Mutation, VusObjList } from '../model/firebase/firebase.model';
 import { parseAlterationName } from '../util/utils';
@@ -10,6 +10,7 @@ import { componentInject } from '../util/typed-inject';
 import { observer } from 'mobx-react';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
+import { Button, Col, Row } from 'reactstrap';
 
 export interface IAddVusModalProps extends StoreProps {
   hugoSymbol: string;
@@ -35,9 +36,17 @@ const AddVusModalV2 = (props: IAddVusModalProps) => {
   const [inputValue, setInputValue] = useState('');
   const [variants, setVariants] = useState<readonly Option[]>([]);
 
+  // need to focus input once this is fetched
+  const [mutationListInitialized, setMutationListInitialized] = useState(false);
+
+  const inputRef = useRef(null);
+
   useEffect(() => {
     const subscribe = onValue(ref(props.firebaseDb, firebaseMutationPath), snapshot => {
       setMutationList(snapshot.val());
+      if (!mutationListInitialized) {
+        setMutationListInitialized(true);
+      }
     });
     return () => subscribe();
   }, []);
@@ -54,12 +63,22 @@ const AddVusModalV2 = (props: IAddVusModalProps) => {
     }
   }, [variants, mutationList, props.vusList]);
 
+  useEffect(() => {
+    if (mutationListInitialized) {
+      inputRef.current?.focus();
+    }
+  }, [mutationListInitialized]);
+
+  function handleVariantAdded() {
+    const filteredAlterations = filterAlterationsAndNotify(inputValue);
+    setVariants(state => [...state, ...filteredAlterations.map(alt => createOption(alt))]);
+    setInputValue('');
+  }
+
   const handleKeyDown = event => {
     if (!inputValue) return;
     if (event.key === 'Enter' || event.key === 'tab') {
-      const filteredAlterations = filterAlterationsAndNotify(inputValue);
-      setVariants(state => [...state, ...filteredAlterations.map(alt => createOption(alt))]);
-      setInputValue('');
+      handleVariantAdded();
       event.preventDefault();
     }
   };
@@ -81,7 +100,7 @@ const AddVusModalV2 = (props: IAddVusModalProps) => {
 
   const selectComponent = (
     <CreatableSelect
-      className="mb-3"
+      ref={inputRef}
       components={{
         DropdownIndicator: null,
       }}
@@ -89,9 +108,13 @@ const AddVusModalV2 = (props: IAddVusModalProps) => {
       isClearable
       menuIsOpen={false}
       onChange={newValue => setVariants(newValue)}
-      onInputChange={newValue => setInputValue(newValue)}
+      onInputChange={(newValue, { action }) => {
+        if (action !== 'menu-close' && action !== 'input-blur') {
+          setInputValue(newValue);
+        }
+      }}
       onKeyDown={handleKeyDown}
-      placeholder="Enter variant and press enter"
+      placeholder="Enter variant"
       value={variants}
       inputValue={inputValue}
     />
@@ -101,7 +124,16 @@ const AddVusModalV2 = (props: IAddVusModalProps) => {
 
   return (
     <DefaultAddMutationModal
-      modalBody={selectComponent}
+      modalBody={
+        <Row className="align-items-center mb-3">
+          <Col className="pr-0">{selectComponent}</Col>
+          <Col className="col-auto pl-2">
+            <Button color="primary" disabled={!inputValue} onClick={handleVariantAdded}>
+              Add
+            </Button>
+          </Col>
+        </Row>
+      }
       onCancel={props.onCancel}
       onConfirm={() => props.onConfirm(variants.map(o => o.label))}
       confirmButtonDisabled={duplicateAlterations.length > 0 || variants.length < 1}

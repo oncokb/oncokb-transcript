@@ -5,7 +5,7 @@ import { onValue, ref } from 'firebase/database';
 import _ from 'lodash';
 import { flow, flowResult } from 'mobx';
 import React, { KeyboardEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FaChevronDown, FaChevronUp, FaExclamationTriangle } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp, FaExclamationTriangle, FaPlus } from 'react-icons/fa';
 import ReactSelect, { MenuPlacement } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import { Alert, Button, Col, Input, Row } from 'reactstrap';
@@ -72,6 +72,9 @@ function AddMutationModal({
   const [mutationList, setMutationList] = useState<Mutation[]>([]);
   const [mutationToEdit, setMutationToEdit] = useState<Mutation>(null);
 
+  // need to focus input once this is fetched
+  const [mutationListInitialized, setMutationListInitialized] = useState(false);
+
   const inputRef = useRef(null);
 
   const geneEntity: IGene | undefined = useMemo(() => {
@@ -83,6 +86,9 @@ function AddMutationModal({
     callbacks.push(
       onValue(ref(firebaseDb, `${getFirebasePath('GENE', hugoSymbol)}/mutations`), snapshot => {
         setMutationList(snapshot.val() || []);
+        if (!mutationListInitialized) {
+          setMutationListInitialized(true);
+        }
       })
     );
 
@@ -183,6 +189,12 @@ function AddMutationModal({
   useEffect(() => {
     getConsequences({});
   }, []);
+
+  useEffect(() => {
+    if (mutationListInitialized) {
+      inputRef.current?.focus();
+    }
+  }, [mutationListInitialized]);
 
   function filterAlterationsAndNotify(
     alterations: ReturnType<typeof parseAlterationName>,
@@ -440,79 +452,87 @@ function AddMutationModal({
       : handleNormalFieldChange(newValue, field, alterationIndex);
   }
 
-  const handleKeyDown: KeyboardEventHandler = async event => {
+  async function handleAlterationAdded() {
+    const newParsedAlteration = filterAlterationsAndNotify(parseAlterationName(inputValue), tabStates);
+
+    if (newParsedAlteration.length === 0) {
+      return;
+    }
+
+    const newEntityStatusAlterationsPromise = fetchAlterations(newParsedAlteration.map(alt => alt.alteration));
+    const newEntityStatusExcludingAlterationsPromise = fetchAlterations(newParsedAlteration[0].excluding);
+    const [newEntityStatusAlterations, newEntityStatusExcludingAlterations] = await Promise.all([
+      newEntityStatusAlterationsPromise,
+      newEntityStatusExcludingAlterationsPromise,
+    ]);
+
+    const newExcludingAlterations = newEntityStatusExcludingAlterations.map((alt, index) =>
+      convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[0].excluding[index], [], '')
+    );
+    const newAlterations = newEntityStatusAlterations.map((alt, index) =>
+      convertEntityStatusAlterationToAlterationData(
+        alt,
+        newParsedAlteration[index].alteration,
+        _.cloneDeep(newExcludingAlterations),
+        newParsedAlteration[index].comment,
+        newParsedAlteration[index].name
+      )
+    );
+
+    setTabStates(states => [...states, ...newAlterations]);
+    setInputValue('');
+  }
+
+  const handleKeyDown: KeyboardEventHandler = event => {
     if (!inputValue) return;
     if (event.key === 'Enter' || event.key === 'tab') {
-      const newParsedAlteration = filterAlterationsAndNotify(parseAlterationName(inputValue), tabStates);
-      if (newParsedAlteration.length === 0) {
-        return;
-      }
-
-      const newEntityStatusAlterationsPromise = fetchAlterations(newParsedAlteration.map(alt => alt.alteration));
-      const newEntityStatusExcludingAlterationsPromise = fetchAlterations(newParsedAlteration[0].excluding);
-      const [newEntityStatusAlterations, newEntityStatusExcludingAlterations] = await Promise.all([
-        newEntityStatusAlterationsPromise,
-        newEntityStatusExcludingAlterationsPromise,
-      ]);
-
-      const newExcludingAlterations = newEntityStatusExcludingAlterations.map((alt, index) =>
-        convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[0].excluding[index], [], '')
-      );
-      const newAlterations = newEntityStatusAlterations.map((alt, index) =>
-        convertEntityStatusAlterationToAlterationData(
-          alt,
-          newParsedAlteration[index].alteration,
-          _.cloneDeep(newExcludingAlterations),
-          newParsedAlteration[index].comment,
-          newParsedAlteration[index].name
-        )
-      );
-
-      setTabStates(states => [...states, ...newAlterations]);
-
-      setInputValue('');
+      handleAlterationAdded();
       event.preventDefault();
     }
   };
 
-  const handleKeyDownExcluding = async (event: React.KeyboardEvent<Element>, alterationIndex: number) => {
+  async function handleAlterationAddedExcluding(alterationIndex: number) {
+    const newParsedAlteration = parseAlterationName(excludingInputValue);
+
+    const currentState = tabStates[alterationIndex];
+    const alteration = currentState.alteration.toLowerCase();
+    let excluding = currentState.excluding.map(ex => ex.alteration.toLowerCase());
+    excluding.push(...newParsedAlteration.map(alt => alt.alteration.toLowerCase()));
+    excluding = excluding.sort();
+
+    if (
+      tabStates.some(
+        state =>
+          state.alteration.toLowerCase() === alteration &&
+          _.isEqual(state.excluding.map(ex => ex.alteration.toLowerCase()).sort(), excluding)
+      )
+    ) {
+      notifyError(new Error('Duplicate alteration(s) removed'));
+      return;
+    }
+
+    const newComment = newParsedAlteration[0].comment;
+    const newVariantName = newParsedAlteration[0].name;
+
+    const newEntityStatusAlterations = await fetchAlterations(newParsedAlteration.map(alt => alt.alteration));
+
+    const newAlterations = newEntityStatusAlterations.map((alt, index) =>
+      convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[index].alteration, [], newComment, newVariantName)
+    );
+
+    setTabStates(states => {
+      const newStates = _.cloneDeep(states);
+      newStates[alterationIndex].excluding.push(...newAlterations);
+      return newStates;
+    });
+
+    setExcludingInputValue('');
+  }
+
+  const handleKeyDownExcluding = (event: React.KeyboardEvent<Element>, alterationIndex: number) => {
     if (!excludingInputValue) return;
     if (event.key === 'Enter' || event.key === 'tab') {
-      const newParsedAlteration = parseAlterationName(excludingInputValue);
-
-      const currentState = tabStates[alterationIndex];
-      const alteration = currentState.alteration.toLowerCase();
-      let excluding = currentState.excluding.map(ex => ex.alteration.toLowerCase());
-      excluding.push(...newParsedAlteration.map(alt => alt.alteration.toLowerCase()));
-      excluding = excluding.sort();
-
-      if (
-        tabStates.some(
-          state =>
-            state.alteration.toLowerCase() === alteration &&
-            _.isEqual(state.excluding.map(ex => ex.alteration.toLowerCase()).sort(), excluding)
-        )
-      ) {
-        notifyError(new Error('Duplicate alteration(s) removed'));
-        return;
-      }
-
-      const newComment = newParsedAlteration[0].comment;
-      const newVariantName = newParsedAlteration[0].name;
-
-      const newEntityStatusAlterations = await fetchAlterations(newParsedAlteration.map(alt => alt.alteration));
-
-      const newAlterations = newEntityStatusAlterations.map((alt, index) =>
-        convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[index].alteration, [], newComment, newVariantName)
-      );
-
-      setTabStates(states => {
-        const newStates = _.cloneDeep(states);
-        newStates[alterationIndex].excluding.push(...newAlterations);
-        return newStates;
-      });
-
-      setExcludingInputValue('');
+      handleAlterationAddedExcluding(alterationIndex);
       event.preventDefault();
     }
   };
@@ -736,9 +756,13 @@ function AddMutationModal({
               }}
               isMulti
               menuIsOpen={false}
-              placeholder="Enter alteration(s) and press enter"
+              placeholder="Enter alteration(s)"
               inputValue={excludingInputValue}
-              onInputChange={newInput => setExcludingInputValue(newInput)}
+              onInputChange={(newInput, { action }) => {
+                if (action !== 'menu-close' && action !== 'input-blur') {
+                  setExcludingInputValue(newInput);
+                }
+              }}
               value={tabStates[alterationIndex].excluding.map(state => {
                 const fullAlterationName = getFullAlterationName(state, false);
                 return { label: fullAlterationName, value: fullAlterationName, ...state };
@@ -754,6 +778,11 @@ function AddMutationModal({
               }
               onKeyDown={event => handleKeyDownExcluding(event, alterationIndex)}
             />
+          </Col>
+          <Col className="col-auto pl-2 pr-0">
+            <Button color="primary" disabled={!excludingInputValue} onClick={() => handleAlterationAddedExcluding(alterationIndex)}>
+              <FaPlus />
+            </Button>
           </Col>
         </Row>
         {!isSectionEmpty && (
@@ -832,28 +861,40 @@ function AddMutationModal({
 
   const modalBody = (
     <>
-      <CreatableSelect
-        className="mb-3"
-        ref={inputRef}
-        components={{
-          DropdownIndicator: null,
-        }}
-        isMulti
-        menuIsOpen={false}
-        placeholder="Enter alteration(s) and press enter"
-        inputValue={inputValue}
-        onInputChange={newInput => setInputValue(newInput)}
-        value={tabStates.map(state => {
-          const fullAlterationName = getFullAlterationName(state);
-          return { label: fullAlterationName, value: fullAlterationName, ...state };
-        })}
-        onChange={(newAlterations: AlterationData[]) =>
-          setTabStates(states =>
-            states.filter(state => newAlterations.some(alt => getFullAlterationName(alt) === getFullAlterationName(state)))
-          )
-        }
-        onKeyDown={handleKeyDown}
-      />
+      <Row className="align-items-center mb-3">
+        <Col className="pr-0">
+          <CreatableSelect
+            ref={inputRef}
+            components={{
+              DropdownIndicator: null,
+            }}
+            isMulti
+            menuIsOpen={false}
+            placeholder="Enter alteration(s)"
+            inputValue={inputValue}
+            onInputChange={(newInput, { action }) => {
+              if (action !== 'menu-close' && action !== 'input-blur') {
+                setInputValue(newInput);
+              }
+            }}
+            value={tabStates.map(state => {
+              const fullAlterationName = getFullAlterationName(state);
+              return { label: fullAlterationName, value: fullAlterationName, ...state };
+            })}
+            onChange={(newAlterations: AlterationData[]) =>
+              setTabStates(states =>
+                states.filter(state => newAlterations.some(alt => getFullAlterationName(alt) === getFullAlterationName(state)))
+              )
+            }
+            onKeyDown={handleKeyDown}
+          />
+        </Col>
+        <Col className="col-auto pl-2">
+          <Button color="primary" disabled={!inputValue} onClick={handleAlterationAdded}>
+            Add
+          </Button>
+        </Col>
+      </Row>
       {tabStates.length > 0 && (
         <div className="pr-3">
           <Tabs
