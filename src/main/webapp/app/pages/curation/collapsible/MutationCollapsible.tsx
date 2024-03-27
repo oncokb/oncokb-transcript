@@ -29,8 +29,9 @@ import FirebaseList from '../list/FirebaseList';
 import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
 import styles from '../styles.module.scss';
 import CancerTypeCollapsible from './CancerTypeCollapsible';
+import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import Collapsible from './Collapsible';
-import { DISABLED_NEST_LEVEL_COLOR, NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
+import { RemovableCollapsible } from './RemovableCollapsible';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
@@ -38,7 +39,7 @@ export interface IMutationCollapsibleProps extends StoreProps {
   isGermline: boolean;
   open?: boolean;
   disableOpen?: boolean;
-  onToggle?: (isOpen: boolean) => void;
+  onToggle?: () => void;
   parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
 }
 
@@ -102,17 +103,19 @@ const MutationCollapsible = ({
   const title = getMutationName(mutationName, mutationAlterations);
   const isStringMutation = title.includes(',');
   const isMECuratable = isMutationEffectCuratable(title);
+  const isMutationPendingDelete = mutationNameReview?.removed || false;
 
   return (
     <>
-      <Collapsible
-        open={open}
-        disableOpen={disableOpen}
-        className="mb-1"
+      <RemovableCollapsible
         title={title}
-        borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.MUTATION]]}
+        defaultOpen={open}
+        collapsibleClassName="mb-1"
+        colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.MUTATION]] }}
+        review={mutationNameReview}
         info={<MutationLevelSummary mutationPath={mutationPath} hideOncogenicity={isStringMutation} />}
-        onToggle={onToggle ? isOpen => onToggle(isOpen) : null}
+        disableOpen={disableOpen}
+        onToggle={onToggle}
         action={
           <>
             <GeneHistoryTooltip
@@ -134,13 +137,15 @@ const MutationCollapsible = ({
           </>
         }
         badge={<BadgeGroup firebasePath={mutationPath} showDeletedBadge={mutationNameReview?.removed || false} />}
-        isPendingDelete={mutationNameReview?.removed || false}
+        isPendingDelete={isMutationPendingDelete}
       >
         <Collapsible
-          open={isMECuratable}
           title="Mutation Effect"
-          borderLeftColor={isMECuratable ? NestLevelColor[NestLevelMapping[NestLevelType.MUTATION_EFFECT]] : DISABLED_NEST_LEVEL_COLOR}
-          disableCollapsible={!isMECuratable}
+          defaultOpen={isMECuratable}
+          colorOptions={{
+            borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.MUTATION_EFFECT]],
+          }}
+          displayOptions={{ disableCollapsible: !isMECuratable }}
           badge={
             <BadgeGroup
               firebasePath={`${mutationPath}/mutation_effect`}
@@ -228,9 +233,9 @@ const MutationCollapsible = ({
         {isGermline && (
           <>
             <Collapsible
-              className="mt-2"
+              collapsibleClassName="mt-2"
               title={'Mutation Specific Penetrance'}
-              borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.PENETRANCE]]}
+              colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.PENETRANCE]] }}
               badge={<BadgeGroup firebasePath={`${mutationPath}/penetrance`} />}
             >
               <>
@@ -269,9 +274,9 @@ const MutationCollapsible = ({
               </>
             </Collapsible>
             <Collapsible
-              className="mt-2"
+              collapsibleClassName="mt-2"
               title={'Mutation Specific Mechanism of Inheritance'}
-              borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.INHERITANCE_MECHANISM]]}
+              colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.INHERITANCE_MECHANISM]] }}
               badge={<BadgeGroup firebasePath={`${mutationPath}/inheritance_mechanism`} />}
             >
               <>
@@ -310,9 +315,9 @@ const MutationCollapsible = ({
               </>
             </Collapsible>
             <Collapsible
-              className="mt-2"
+              collapsibleClassName="mt-2"
               title={'Mutation Specific Cancer Risk'}
-              borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.CANCER_RISK]]}
+              colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.CANCER_RISK]] }}
               badge={<BadgeGroup firebasePath={`${mutationPath}/cancer_risk`} />}
             >
               <CancerRiskTabs cancerRiskPath={`${mutationPath}/cancer_risk`} textAreaClass={styles.textarea} />
@@ -340,7 +345,7 @@ const MutationCollapsible = ({
         >
           Add Cancer Type
         </Button>
-      </Collapsible>
+      </RemovableCollapsible>
       <ModifyCancerTypeModal
         cancerTypesUuid={`new_cancer_type_for_${mutationUuid}`}
         onConfirm={async newTumor => {

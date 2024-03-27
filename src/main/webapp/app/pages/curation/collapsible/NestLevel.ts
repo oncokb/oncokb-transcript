@@ -40,6 +40,4 @@ export const NestLevelColor: { [key in NestLevel]: string } = {
   [NestLevel.LEVEL_4]: COLLAPSIBLE_LEVELS['4'],
 };
 
-export const DISABLED_NEST_LEVEL_COLOR = GREY;
-
 export type RemovableNestLevel = NestLevelType.MUTATION | NestLevelType.CANCER_TYPE | NestLevelType.THERAPY;

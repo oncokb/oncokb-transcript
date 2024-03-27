@@ -25,6 +25,7 @@ import Collapsible from './Collapsible';
 import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import styles from '../styles.module.scss';
 import BadgeGroup from '../BadgeGroup';
+import { RemovableCollapsible } from './RemovableCollapsible';
 
 interface ICancerTypeCollapsibleProps extends StoreProps {
   cancerTypePath: string;
@@ -86,10 +87,11 @@ function CancerTypeCollapsible({
 
   return (
     <>
-      <Collapsible
-        className="mt-2"
+      <RemovableCollapsible
+        collapsibleClassName="mt-2"
         title={`Cancer Type: ${cancerTypeName}`}
-        borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.CANCER_TYPE]]}
+        colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.CANCER_TYPE]] }}
+        review={cancerTypesReview}
         info={<CancerTypeLevelSummary cancerTypePath={cancerTypePath} />}
         action={
           <>
@@ -142,9 +144,9 @@ function CancerTypeCollapsible({
           name="pxSummary"
         />
         <Collapsible
-          open
+          defaultOpen
           title="Therapeutic Implications"
-          borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.THERAPEUTIC]]}
+          colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.THERAPEUTIC]] }}
           badge={<BadgeGroup firebasePath={`${cancerTypePath}/TIs`} />}
         >
           <TherapiesList
@@ -156,10 +158,10 @@ function CancerTypeCollapsible({
           />
         </Collapsible>
         <Collapsible
-          className={'mt-2'}
+          collapsibleClassName={'mt-2'}
           key={`${cancerTypesUuid}_diagnostic`}
           title="Diagnostic Implication"
-          borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.DIAGNOSTIC]]}
+          colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.DIAGNOSTIC]] }}
           action={
             <>
               <CommentIcon id={`${cancerTypesUuid}_diagnostic_comments`} path={`${cancerTypePath}/diagnostic_comments`} />
@@ -184,10 +186,10 @@ function CancerTypeCollapsible({
           />
         </Collapsible>
         <Collapsible
-          className={'mt-2'}
+          collapsibleClassName={'mt-2'}
           key={`${cancerTypesUuid}_prognostic`}
           title="Prognostic Implication"
-          borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.PROGNOSTIC]]}
+          colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.PROGNOSTIC]] }}
           action={
             <>
               <CommentIcon id={`${cancerTypesUuid}_prognostic_comments`} path={`${cancerTypePath}/prognostic_comments`} />
@@ -211,7 +213,7 @@ function CancerTypeCollapsible({
             parseRefs
           />
         </Collapsible>
-      </Collapsible>
+      </RemovableCollapsible>
       <ModifyCancerTypeModal
         cancerTypesUuid={cancerTypesUuid}
         cancerTypesPathToEdit={cancerTypePath}

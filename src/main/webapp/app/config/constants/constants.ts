@@ -1,3 +1,5 @@
+import { GREY } from '../colors';
+
 export const AUTHORITIES = {
   ADMIN: 'ROLE_ADMIN',
   USER: 'ROLE_USER',
@@ -433,3 +435,5 @@ export const INTEGER_REGEX = new RegExp('^\\d+$');
 export const REFERENCE_LINK_REGEX = /(\(.*?[PMID|NCT|Abstract].*?\))/i;
 
 export const CURATE_NEW_GENE_TEXT = 'Curate New Gene';
+
+export const DISABLED_COLLAPSIBLE_COLOR = GREY;
