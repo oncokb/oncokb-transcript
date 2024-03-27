@@ -9,7 +9,7 @@ export interface IDefaultAddMutationModal {
   onConfirm: () => void;
   confirmButtonDisabled: boolean;
   isUpdate?: boolean;
-  warningMessage?: string;
+  warningMessages?: string[];
 }
 
 export const DefaultAddMutationModal = (props: IDefaultAddMutationModal) => {
@@ -20,10 +20,16 @@ export const DefaultAddMutationModal = (props: IDefaultAddMutationModal) => {
       </ModalBody>
       <ModalFooter style={{ display: 'inline-block' }}>
         <div className="d-flex justify-content-between">
-          {props.warningMessage ? (
-            <div className="error-message">
-              <FaExclamationCircle className="mr-2" size={ERROR_EXCLAMATION_ICON_SIZE} />
-              <div>{props.warningMessage}</div>
+          {props.warningMessages ? (
+            <div className="d-flex flex-column justify-content-center">
+              {props.warningMessages.map(message => {
+                return (
+                  <div key={message} className="error-message">
+                    <FaExclamationCircle className="mr-2" size={ERROR_EXCLAMATION_ICON_SIZE} />
+                    <div>{message}</div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div />
