@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+    <!--
+        Added the constraints for entity Article.
+    -->
+    <changeSet id="20220401213213-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="article_id"
+                                 baseTableName="rel_article__flag"
+                                 constraintName="fk_rel_article__flag__article_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="article"/>
+
+        <addForeignKeyConstraint baseColumnNames="flag_id"
+                                 baseTableName="rel_article__flag"
+                                 constraintName="fk_rel_article__flag__flag_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="flag"/>
+
+        <addForeignKeyConstraint baseColumnNames="article_id"
+                                 baseTableName="rel_article__synonym"
+                                 constraintName="fk_rel_article__synonym__article_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="article"/>
+
+        <addForeignKeyConstraint baseColumnNames="synonym_id"
+                                 baseTableName="rel_article__synonym"
+                                 constraintName="fk_rel_article__synonym__synonym_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="synonym"/>
+    </changeSet>
+</databaseChangeLog>

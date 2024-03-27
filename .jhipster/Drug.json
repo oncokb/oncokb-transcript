@@ -24,15 +24,9 @@
     },
     {
       "relationshipType": "one-to-many",
-      "otherEntityName": "drugBrand",
+      "otherEntityName": "fdaDrug",
       "otherEntityRelationshipName": "drug",
-      "relationshipName": "brands"
-    },
-    {
-      "relationshipType": "one-to-many",
-      "otherEntityName": "drugPriority",
-      "otherEntityRelationshipName": "drug",
-      "relationshipName": "drugPriority"
+      "relationshipName": "fdaDrug"
     },
     {
       "relationshipType": "many-to-many",
@@ -42,17 +36,10 @@
       "ownerSide": true
     },
     {
-      "relationshipType": "one-to-one",
-      "otherEntityName": "fdaDrug",
-      "otherEntityRelationshipName": "drug",
-      "relationshipName": "fdaDrug",
-      "ownerSide": false
-    },
-    {
       "relationshipType": "many-to-many",
-      "otherEntityName": "treatment",
+      "otherEntityName": "association",
       "otherEntityRelationshipName": "drug",
-      "relationshipName": "treatment",
+      "relationshipName": "association",
       "ownerSide": false
     }
   ],

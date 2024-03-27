@@ -35,7 +35,6 @@ export enum ENTITY_TYPE {
   ALTERATION = 'alteration',
   ARTICLE = 'article',
   ASSOCIATION = 'association',
-  ASSOCIATION_CANCER_TYPE = 'association-cancer-type',
   CANCER_TYPE = 'cancer-type',
   CATEGORICAL_ALTERATION = 'categorical-alteration',
   CLINICAL_TRIAL = 'clinical-trial',
@@ -43,8 +42,6 @@ export enum ENTITY_TYPE {
   COMPANION_DIAGNOSTIC_DEVICE = 'companion-diagnostic-device',
   CONSEQUENCE = 'consequence',
   DRUG = 'drug',
-  DRUG_BRAND = 'drug-brand',
-  DRUG_PRIORITY = 'drug-priority',
   ELIGIBILITY_CRITERIA = 'eligibility-criteria',
   ENSEMBL_GENE = 'ensembl-gene',
   EVIDENCE = 'evidence',
@@ -63,8 +60,6 @@ export enum ENTITY_TYPE {
   SPECIMEN_TYPE = 'specimen-type',
   SYNONYM = 'synonym',
   TRANSCRIPT = 'transcript',
-  TREATMENT = 'treatment',
-  TREATMENT_PRIORITY = 'treatment-priority',
   USER = 'user',
 }
 
@@ -78,8 +73,6 @@ export enum ENTITY_PAGE_ROUTE {
   COMPANION_DIAGNOSTIC_DEVICE = '/companion-diagnostic-device',
   CONSEQUENCE = '/consequence',
   DRUG = '/drug',
-  DRUG_BRAND = '/drug-brand',
-  DRUG_PRIORITY = '/drug-priority',
   ELIGIBILITY_CRITERIA = '/eligibility-criteria',
   ENSEMBL_GENE = '/ensembl-gene',
   EVIDENCE = '/evidence',
@@ -98,8 +91,6 @@ export enum ENTITY_PAGE_ROUTE {
   SPECIMEN_TYPE = '/specimen-type',
   SYNONYM = '/synonym',
   TRANSCRIPT = '/transcript',
-  TREATMENT = '/treatment',
-  TREATMENT_PRIORITY = '/treatment-priority',
   USER = '/admin/user-management',
 }
 
@@ -126,7 +117,6 @@ export enum ENTITY_RESOURCE_PATH {
   ALTERATION = '/alterations',
   ARTICLE = '/articles',
   ASSOCIATION = '/associations',
-  ASSOCIATION_CANCER_TYPE = '/association-cancer-types',
   CANCER_TYPE = '/cancer-types',
   CATEGORICAL_ALTERATION = '/categorical-alterations',
   CLINICAL_TRIAL = '/clinical-trials',
@@ -134,8 +124,6 @@ export enum ENTITY_RESOURCE_PATH {
   COMPANION_DIAGNOSTIC_DEVICE = '/companion-diagnostic-devices',
   CONSEQUENCE = '/consequences',
   DRUG = '/drugs',
-  DRUG_BRAND = '/drug-brands',
-  DRUG_PRIORITY = '/drug-priorities',
   ELIGIBILITY_CRITERIA = '/eligibility-criteria',
   ENSEMBL_GENE = '/ensembl-genes',
   EVIDENCE = '/evidences',
@@ -154,8 +142,6 @@ export enum ENTITY_RESOURCE_PATH {
   SPECIMEN_TYPE = '/specimen-types',
   SYNONYM = '/synonyms',
   TRANSCRIPT = '/transcripts',
-  TREATMENT = '/treatments',
-  TREATMENT_PRIORITY = '/treatment-priorities',
   USER = '/users',
 }
 
@@ -180,9 +166,6 @@ export const ENTITY_INFO: { [key in ENTITY_TYPE]: { pageRoute?: ENTITY_PAGE_ROUT
   },
   [ENTITY_TYPE.ASSOCIATION]: {
     resourcePath: ENTITY_RESOURCE_PATH.ASSOCIATION,
-  },
-  [ENTITY_TYPE.ASSOCIATION_CANCER_TYPE]: {
-    resourcePath: ENTITY_RESOURCE_PATH.ASSOCIATION_CANCER_TYPE,
   },
   [ENTITY_TYPE.CANCER_TYPE]: {
     pageRoute: ENTITY_PAGE_ROUTE.CANCER_TYPE,
@@ -211,14 +194,6 @@ export const ENTITY_INFO: { [key in ENTITY_TYPE]: { pageRoute?: ENTITY_PAGE_ROUT
   [ENTITY_TYPE.DRUG]: {
     pageRoute: ENTITY_PAGE_ROUTE.DRUG,
     resourcePath: ENTITY_RESOURCE_PATH.DRUG,
-  },
-  [ENTITY_TYPE.DRUG_BRAND]: {
-    pageRoute: ENTITY_PAGE_ROUTE.DRUG_BRAND,
-    resourcePath: ENTITY_RESOURCE_PATH.DRUG_BRAND,
-  },
-  [ENTITY_TYPE.DRUG_PRIORITY]: {
-    pageRoute: ENTITY_PAGE_ROUTE.DRUG_PRIORITY,
-    resourcePath: ENTITY_RESOURCE_PATH.DRUG_PRIORITY,
   },
   [ENTITY_TYPE.ELIGIBILITY_CRITERIA]: {
     pageRoute: ENTITY_PAGE_ROUTE.ELIGIBILITY_CRITERIA,
@@ -292,14 +267,6 @@ export const ENTITY_INFO: { [key in ENTITY_TYPE]: { pageRoute?: ENTITY_PAGE_ROUT
     pageRoute: ENTITY_PAGE_ROUTE.TRANSCRIPT,
     resourcePath: ENTITY_RESOURCE_PATH.TRANSCRIPT,
   },
-  [ENTITY_TYPE.TREATMENT]: {
-    pageRoute: ENTITY_PAGE_ROUTE.TREATMENT,
-    resourcePath: ENTITY_RESOURCE_PATH.TREATMENT,
-  },
-  [ENTITY_TYPE.TREATMENT_PRIORITY]: {
-    pageRoute: ENTITY_PAGE_ROUTE.TREATMENT_PRIORITY,
-    resourcePath: ENTITY_RESOURCE_PATH.TREATMENT_PRIORITY,
-  },
   [ENTITY_TYPE.USER]: {
     pageRoute: ENTITY_PAGE_ROUTE.USER,
     resourcePath: ENTITY_RESOURCE_PATH.USER,
@@ -358,7 +325,6 @@ export const DEFAULT_ENTITY_SORT_FIELD: { [key in ENTITY_TYPE]?: string } = {
   [ENTITY_TYPE.GENOMIC_INDICATOR]: 'name',
   [ENTITY_TYPE.NCI_THESAURUS]: 'code',
   [ENTITY_TYPE.SYNONYM]: 'name',
-  [ENTITY_TYPE.TREATMENT]: 'drugs',
   [ENTITY_TYPE.ARTICLE]: 'title',
 };
 

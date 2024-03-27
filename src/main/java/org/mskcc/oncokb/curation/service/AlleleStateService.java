@@ -85,8 +85,8 @@ public class AlleleStateService {
      * @return the entity
      */
     @Transactional(readOnly = true)
-    public Optional<AlleleState> findByName(String name) {
-        return alleleStateRepository.findByName(name);
+    public Optional<AlleleState> findByNameIgnoreCase(String name) {
+        return alleleStateRepository.findByNameIgnoreCase(name);
     }
 
     /**

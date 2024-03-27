@@ -49,13 +49,32 @@ public class AssociationService {
                 .forEach(fdaSubmission -> {
                     if (fdaSubmission.getId() != null) {
                         Optional<FdaSubmission> fdaSubmissionOptional = fdaSubmissionService.findOne(fdaSubmission.getId());
-                        if (fdaSubmissionOptional.isPresent()) {
-                            fdaSubmissionOptional.get().getAssociations().add(savedAssociation);
-                        }
+                        fdaSubmissionOptional.ifPresent(submission -> submission.getAssociations().add(savedAssociation));
                     }
                 });
         }
         return this.findOne(savedAssociation.getId()).get();
+    }
+
+    /**
+     * Partially update a association.
+     *
+     * @param association the entity to update partially.
+     * @return the persisted entity.
+     */
+    public Optional<Association> partialUpdate(Association association) {
+        log.debug("Request to partially update Association : {}", association);
+
+        return associationRepository
+            .findById(association.getId())
+            .map(existingAssociation -> {
+                if (association.getName() != null) {
+                    existingAssociation.setName(association.getName());
+                }
+
+                return existingAssociation;
+            })
+            .map(associationRepository::save);
     }
 
     /**
@@ -85,8 +104,9 @@ public class AssociationService {
     @Transactional(readOnly = true)
     public List<Association> findAllWhereEvidenceIsNull() {
         log.debug("Request to get all associations where Evidence is null");
-        return StreamSupport
-            .stream(associationRepository.findAll().spliterator(), false)
+        return associationRepository
+            .findAll()
+            .stream()
             .filter(association -> association.getEvidence() == null)
             .collect(Collectors.toList());
     }

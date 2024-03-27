@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * An Association.
@@ -23,10 +24,12 @@ public class Association implements Serializable {
     @Column(name = "name")
     private String name;
 
+    @ShallowReference
     @OneToMany(mappedBy = "association", cascade = CascadeType.ALL)
     @JsonIgnoreProperties(value = { "association" }, allowSetters = true)
-    private Set<AssociationCancerType> associationCancerTypes = new HashSet<>();
+    private Set<Rule> rules = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_association__alteration",
@@ -36,6 +39,7 @@ public class Association implements Serializable {
     @JsonIgnoreProperties(value = { "transcripts", "associations" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany
     @JoinTable(
         name = "rel_association__article",
@@ -45,35 +49,52 @@ public class Association implements Serializable {
     @JsonIgnoreProperties(value = { "associations" }, allowSetters = true)
     private Set<Article> articles = new HashSet<>();
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ShallowReference
+    @ManyToMany
     @JoinTable(
-        name = "rel_association__treatment",
+        name = "rel_association__cancer_type",
         joinColumns = @JoinColumn(name = "association_id"),
-        inverseJoinColumns = @JoinColumn(name = "treatment_id")
+        inverseJoinColumns = @JoinColumn(name = "cancer_type_id")
     )
-    @JsonIgnoreProperties(value = { "treatmentPriorities", "associations" }, allowSetters = true)
-    private Set<Treatment> treatments = new HashSet<>();
+    @JsonIgnoreProperties(value = { "children", "synonyms", "parent", "associations" }, allowSetters = true)
+    private Set<CancerType> cancerTypes = new HashSet<>();
 
-    @JsonIgnoreProperties(value = { "association", "levelOfEvidences" }, allowSetters = true)
+    @ShallowReference
+    @ManyToMany
+    @JoinTable(
+        name = "rel_association__drug",
+        joinColumns = @JoinColumn(name = "association_id"),
+        inverseJoinColumns = @JoinColumn(name = "drug_id")
+    )
+    @JsonIgnoreProperties(value = { "nciThesaurus", "fdaDrug", "flags", "associations" }, allowSetters = true)
+    private Set<Drug> drugs = new HashSet<>();
+
+    @ShallowReference
+    @JsonIgnoreProperties(value = { "association", "gene", "levelOfEvidences" }, allowSetters = true)
     @OneToOne(mappedBy = "association")
     private Evidence evidence;
 
+    @ShallowReference
     @ManyToMany(mappedBy = "associations")
     @JsonIgnoreProperties(value = { "clinicalTrialArms", "eligibilityCriteria", "associations" }, allowSetters = true)
     private Set<ClinicalTrial> clinicalTrials = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany(mappedBy = "associations")
     @JsonIgnoreProperties(value = { "associations", "clinicalTrial" }, allowSetters = true)
     private Set<ClinicalTrialArm> clinicalTrialArms = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany(mappedBy = "associations")
     @JsonIgnoreProperties(value = { "associations", "clinicalTrial" }, allowSetters = true)
     private Set<EligibilityCriteria> eligibilityCriteria = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany(mappedBy = "associations")
-    @JsonIgnoreProperties(value = { "associations", "companionDiagnosticDevice", "type" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "associations", "companionDiagnosticDevice" }, allowSetters = true)
     private Set<FdaSubmission> fdaSubmissions = new HashSet<>();
 
+    @ShallowReference
     @ManyToMany(mappedBy = "associations")
     @JsonIgnoreProperties(value = { "associations" }, allowSetters = true)
     private Set<GenomicIndicator> genomicIndicators = new HashSet<>();
@@ -106,34 +127,34 @@ public class Association implements Serializable {
         this.name = name;
     }
 
-    public Set<AssociationCancerType> getAssociationCancerTypes() {
-        return this.associationCancerTypes;
+    public Set<Rule> getRules() {
+        return this.rules;
     }
 
-    public void setAssociationCancerTypes(Set<AssociationCancerType> associationCancerTypes) {
-        if (this.associationCancerTypes != null) {
-            this.associationCancerTypes.forEach(i -> i.setAssociation(null));
+    public void setRules(Set<Rule> rules) {
+        if (this.rules != null) {
+            this.rules.forEach(i -> i.setAssociation(null));
         }
-        if (associationCancerTypes != null) {
-            associationCancerTypes.forEach(i -> i.setAssociation(this));
+        if (rules != null) {
+            rules.forEach(i -> i.setAssociation(this));
         }
-        this.associationCancerTypes = associationCancerTypes;
+        this.rules = rules;
     }
 
-    public Association associationCancerTypes(Set<AssociationCancerType> associationCancerTypes) {
-        this.setAssociationCancerTypes(associationCancerTypes);
+    public Association rules(Set<Rule> rules) {
+        this.setRules(rules);
         return this;
     }
 
-    public Association addAssociationCancerType(AssociationCancerType associationCancerType) {
-        this.associationCancerTypes.add(associationCancerType);
-        associationCancerType.setAssociation(this);
+    public Association addRule(Rule rule) {
+        this.rules.add(rule);
+        rule.setAssociation(this);
         return this;
     }
 
-    public Association removeAssociationCancerType(AssociationCancerType associationCancerType) {
-        this.associationCancerTypes.remove(associationCancerType);
-        associationCancerType.setAssociation(null);
+    public Association removeRule(Rule rule) {
+        this.rules.remove(rule);
+        rule.setAssociation(null);
         return this;
     }
 
@@ -152,11 +173,13 @@ public class Association implements Serializable {
 
     public Association addAlteration(Alteration alteration) {
         this.alterations.add(alteration);
+        alteration.getAssociations().add(this);
         return this;
     }
 
     public Association removeAlteration(Alteration alteration) {
         this.alterations.remove(alteration);
+        alteration.getAssociations().remove(this);
         return this;
     }
 
@@ -175,34 +198,63 @@ public class Association implements Serializable {
 
     public Association addArticle(Article article) {
         this.articles.add(article);
+        article.getAssociations().add(this);
         return this;
     }
 
     public Association removeArticle(Article article) {
         this.articles.remove(article);
+        article.getAssociations().remove(this);
         return this;
     }
 
-    public Set<Treatment> getTreatments() {
-        return this.treatments;
+    public Set<CancerType> getCancerTypes() {
+        return this.cancerTypes;
     }
 
-    public void setTreatments(Set<Treatment> treatments) {
-        this.treatments = treatments;
+    public void setCancerTypes(Set<CancerType> cancerTypes) {
+        this.cancerTypes = cancerTypes;
     }
 
-    public Association treatments(Set<Treatment> treatments) {
-        this.setTreatments(treatments);
+    public Association cancerTypes(Set<CancerType> cancerTypes) {
+        this.setCancerTypes(cancerTypes);
         return this;
     }
 
-    public Association addTreatment(Treatment treatment) {
-        this.treatments.add(treatment);
+    public Association addCancerType(CancerType cancerType) {
+        this.cancerTypes.add(cancerType);
+        cancerType.getAssociations().add(this);
         return this;
     }
 
-    public Association removeTreatment(Treatment treatment) {
-        this.treatments.remove(treatment);
+    public Association removeCancerType(CancerType cancerType) {
+        this.cancerTypes.remove(cancerType);
+        cancerType.getAssociations().remove(this);
+        return this;
+    }
+
+    public Set<Drug> getDrugs() {
+        return this.drugs;
+    }
+
+    public void setDrugs(Set<Drug> drugs) {
+        this.drugs = drugs;
+    }
+
+    public Association drugs(Set<Drug> drugs) {
+        this.setDrugs(drugs);
+        return this;
+    }
+
+    public Association addDrug(Drug drug) {
+        this.drugs.add(drug);
+        drug.getAssociations().add(this);
+        return this;
+    }
+
+    public Association removeDrug(Drug drug) {
+        this.drugs.remove(drug);
+        drug.getAssociations().remove(this);
         return this;
     }
 
@@ -246,11 +298,13 @@ public class Association implements Serializable {
 
     public Association addClinicalTrial(ClinicalTrial clinicalTrial) {
         this.clinicalTrials.add(clinicalTrial);
+        clinicalTrial.getAssociations().add(this);
         return this;
     }
 
     public Association removeClinicalTrial(ClinicalTrial clinicalTrial) {
         this.clinicalTrials.remove(clinicalTrial);
+        clinicalTrial.getAssociations().remove(this);
         return this;
     }
 
@@ -275,11 +329,13 @@ public class Association implements Serializable {
 
     public Association addClinicalTrialArm(ClinicalTrialArm clinicalTrialArm) {
         this.clinicalTrialArms.add(clinicalTrialArm);
+        clinicalTrialArm.getAssociations().add(this);
         return this;
     }
 
     public Association removeClinicalTrialArm(ClinicalTrialArm clinicalTrialArm) {
         this.clinicalTrialArms.remove(clinicalTrialArm);
+        clinicalTrialArm.getAssociations().remove(this);
         return this;
     }
 
@@ -304,11 +360,13 @@ public class Association implements Serializable {
 
     public Association addEligibilityCriteria(EligibilityCriteria eligibilityCriteria) {
         this.eligibilityCriteria.add(eligibilityCriteria);
+        eligibilityCriteria.getAssociations().add(this);
         return this;
     }
 
     public Association removeEligibilityCriteria(EligibilityCriteria eligibilityCriteria) {
         this.eligibilityCriteria.remove(eligibilityCriteria);
+        eligibilityCriteria.getAssociations().remove(this);
         return this;
     }
 
@@ -333,11 +391,13 @@ public class Association implements Serializable {
 
     public Association addFdaSubmission(FdaSubmission fdaSubmission) {
         this.fdaSubmissions.add(fdaSubmission);
+        fdaSubmission.getAssociations().add(this);
         return this;
     }
 
     public Association removeFdaSubmission(FdaSubmission fdaSubmission) {
         this.fdaSubmissions.remove(fdaSubmission);
+        fdaSubmission.getAssociations().remove(this);
         return this;
     }
 
@@ -362,11 +422,13 @@ public class Association implements Serializable {
 
     public Association addGenomicIndicator(GenomicIndicator genomicIndicator) {
         this.genomicIndicators.add(genomicIndicator);
+        genomicIndicator.getAssociations().add(this);
         return this;
     }
 
     public Association removeGenomicIndicator(GenomicIndicator genomicIndicator) {
         this.genomicIndicators.remove(genomicIndicator);
+        genomicIndicator.getAssociations().remove(this);
         return this;
     }
 

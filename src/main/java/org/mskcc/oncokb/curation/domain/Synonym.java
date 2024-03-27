@@ -33,7 +33,8 @@ public class Synonym implements Serializable {
     @Column(name = "code")
     private String code;
 
-    @Column(name = "name")
+    @NotNull
+    @Column(name = "name", nullable = false)
     private String name;
 
     @DiffIgnore
@@ -42,11 +43,15 @@ public class Synonym implements Serializable {
     private String note;
 
     @ManyToMany(mappedBy = "synonyms")
-    @JsonIgnoreProperties(value = { "associationCancerTypes", "children", "synonyms", "parent" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "flags", "synonyms", "associations", "fdaSubmissions" }, allowSetters = true)
+    private Set<Article> articles = new HashSet<>();
+
+    @ManyToMany(mappedBy = "synonyms")
+    @JsonIgnoreProperties(value = { "children", "synonyms", "parent", "associations" }, allowSetters = true)
     private Set<CancerType> cancerTypes = new HashSet<>();
 
     @ManyToMany(mappedBy = "synonyms")
-    @JsonIgnoreProperties(value = { "ensemblGenes", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "ensemblGenes", "evidences", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
     private Set<Gene> genes = new HashSet<>();
 
     @ManyToMany(mappedBy = "synonyms")
@@ -131,6 +136,37 @@ public class Synonym implements Serializable {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public Set<Article> getArticles() {
+        return this.articles;
+    }
+
+    public void setArticles(Set<Article> articles) {
+        if (this.articles != null) {
+            this.articles.forEach(i -> i.removeSynonym(this));
+        }
+        if (articles != null) {
+            articles.forEach(i -> i.addSynonym(this));
+        }
+        this.articles = articles;
+    }
+
+    public Synonym articles(Set<Article> articles) {
+        this.setArticles(articles);
+        return this;
+    }
+
+    public Synonym addArticle(Article article) {
+        this.articles.add(article);
+        article.getSynonyms().add(this);
+        return this;
+    }
+
+    public Synonym removeArticle(Article article) {
+        this.articles.remove(article);
+        article.getSynonyms().remove(this);
+        return this;
     }
 
     public Set<CancerType> getCancerTypes() {

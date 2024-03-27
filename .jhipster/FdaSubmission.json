@@ -52,6 +52,13 @@
   "relationships": [
     {
       "relationshipType": "many-to-many",
+      "otherEntityName": "article",
+      "otherEntityRelationshipName": "fdaSubmission",
+      "relationshipName": "article",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-many",
       "otherEntityName": "association",
       "otherEntityRelationshipName": "fdaSubmission",
       "relationshipName": "association",
@@ -62,6 +69,12 @@
       "otherEntityName": "companionDiagnosticDevice",
       "otherEntityRelationshipName": "fdaSubmission",
       "relationshipName": "companionDiagnosticDevice"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "fdaDrug",
+      "otherEntityRelationshipName": "fdaSubmission",
+      "relationshipName": "fdaDrug"
     },
     {
       "relationshipType": "many-to-one",

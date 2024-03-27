@@ -1,0 +1,36 @@
+{
+  "name": "Rule",
+  "fields": [
+    {
+      "fieldName": "entity",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "rule",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "association",
+      "otherEntityRelationshipName": "rule",
+      "relationshipName": "association"
+    }
+  ],
+  "entityTableName": "rule",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20240320171441"
+}

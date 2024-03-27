@@ -37,7 +37,7 @@ public class NciThesaurus implements Serializable {
     private String displayName;
 
     @DiffIgnore
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
         name = "rel_nci_thesaurus__synonym",
         joinColumns = @JoinColumn(name = "nci_thesaurus_id"),

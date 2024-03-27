@@ -74,14 +74,18 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
       id: 'cancerType',
       Header: 'Cancer Type',
       Cell(cell: { original: IAssociation }) {
-        return <div>{cell.original.associationCancerTypes.map(act => getCancerTypeName(act.cancerType)).join(', ')}</div>;
+        return <div>{cell.original.cancerTypes.map(ct => getCancerTypeName(ct)).join(', ')}</div>;
       },
     },
     {
       id: 'drugs',
       Header: 'Drug',
       Cell(cell: { original: IAssociation }) {
-        return <>{cell.original.treatments && getTreatmentName(cell.original.treatments)}</>;
+        return (
+          <>
+            {cell.original.drugs && getTreatmentName(cell.original.drugs, cell.original.rules?.filter(rule => (rule.entity = 'DRUG'))[0])}
+          </>
+        );
       },
     },
     {

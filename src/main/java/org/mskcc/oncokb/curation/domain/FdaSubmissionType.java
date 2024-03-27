@@ -35,14 +35,19 @@ public class FdaSubmissionType implements Serializable {
     @Column(name = "short_name")
     private String shortName;
 
-    @DiffIgnore
+    @Column(name = "submission_prefix")
+    private String submissionPrefix;
+
+    @Column(name = "submission_link")
+    private String submissionLink;
+
     @Lob
     @Column(name = "description")
     private String description;
 
     @DiffIgnore
     @OneToMany(mappedBy = "type")
-    @JsonIgnoreProperties(value = { "associations", "companionDiagnosticDevice", "type" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "articles", "associations", "companionDiagnosticDevice", "fdaDrug", "type" }, allowSetters = true)
     private Set<FdaSubmission> fdaSubmissions = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -97,6 +102,32 @@ public class FdaSubmissionType implements Serializable {
 
     public void setShortName(String shortName) {
         this.shortName = shortName;
+    }
+
+    public String getSubmissionPrefix() {
+        return this.submissionPrefix;
+    }
+
+    public FdaSubmissionType submissionPrefix(String submissionPrefix) {
+        this.setSubmissionPrefix(submissionPrefix);
+        return this;
+    }
+
+    public void setSubmissionPrefix(String submissionPrefix) {
+        this.submissionPrefix = submissionPrefix;
+    }
+
+    public String getSubmissionLink() {
+        return this.submissionLink;
+    }
+
+    public FdaSubmissionType submissionLink(String submissionLink) {
+        this.setSubmissionLink(submissionLink);
+        return this;
+    }
+
+    public void setSubmissionLink(String submissionLink) {
+        this.submissionLink = submissionLink;
     }
 
     public String getDescription() {
@@ -170,6 +201,8 @@ public class FdaSubmissionType implements Serializable {
             ", type='" + getType() + "'" +
             ", name='" + getName() + "'" +
             ", shortName='" + getShortName() + "'" +
+            ", submissionPrefix='" + getSubmissionPrefix() + "'" +
+            ", submissionLink='" + getSubmissionLink() + "'" +
             ", description='" + getDescription() + "'" +
             "}";
     }

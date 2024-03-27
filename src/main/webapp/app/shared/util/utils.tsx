@@ -10,9 +10,10 @@ import { SORT } from './pagination.constants';
 import { PaginationState } from '../table/OncoKBAsyncTable';
 import { IUser } from '../model/user.model';
 import { CancerType, Tumor } from '../model/firebase/firebase.model';
-import { ITreatment } from 'app/shared/model/treatment.model';
 import _ from 'lodash';
 import { ParsedRef, parseReferences } from 'app/oncokb-commons/components/RefComponent';
+import { IDrug } from 'app/shared/model/drug.model';
+import { IRule } from 'app/shared/model/rule.model';
 
 export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
   let name = '';
@@ -61,8 +62,24 @@ export const getGeneNamesStringFromAlterations = (alterations: IAlteration[]) =>
   return getGeneNamesFromAlterations(alterations).join(', ');
 };
 
-export const getTreatmentName = (treatments: ITreatment[]): string => {
-  return treatments.map(treatment => treatment.drugs?.map(drug => drug.name).join(' + ')).join(', ');
+export const getTreatmentName = (drugs: IDrug[], rule?: IRule): string => {
+  const drugMap = drugs.reduce((map, next) => {
+    map[next.id.toString()] = next;
+    return map;
+  }, {});
+  if (rule == null) {
+    return drugs.map(drug => drug.name).join(', ');
+  } else {
+    return rule.rule
+      .split(',')
+      .map(treatment => {
+        return treatment
+          .split('+')
+          .map(drugId => drugMap[drugId.trim()]?.name)
+          .join(' + ');
+      })
+      .join(', ');
+  }
 };
 
 export const getAlterationName = (alterations: IAlteration[]): string => {

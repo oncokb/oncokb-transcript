@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.FdaDrug;
+import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.mskcc.oncokb.curation.repository.FdaDrugRepository;
 import org.mskcc.oncokb.curation.service.criteria.FdaDrugCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,12 @@ class FdaDrugResourceIT {
 
     private static final String DEFAULT_APPLICATION_NUMBER = "AAAAAAAAAA";
     private static final String UPDATED_APPLICATION_NUMBER = "BBBBBBBBBB";
+
+    private static final String DEFAULT_SPONSOR_NAME = "AAAAAAAAAA";
+    private static final String UPDATED_SPONSOR_NAME = "BBBBBBBBBB";
+
+    private static final String DEFAULT_OVERALL_MARKETING_STATUS = "AAAAAAAAAA";
+    private static final String UPDATED_OVERALL_MARKETING_STATUS = "BBBBBBBBBB";
 
     private static final String ENTITY_API_URL = "/api/fda-drugs";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -63,7 +70,10 @@ class FdaDrugResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static FdaDrug createEntity(EntityManager em) {
-        FdaDrug fdaDrug = new FdaDrug().applicationNumber(DEFAULT_APPLICATION_NUMBER);
+        FdaDrug fdaDrug = new FdaDrug()
+            .applicationNumber(DEFAULT_APPLICATION_NUMBER)
+            .sponsorName(DEFAULT_SPONSOR_NAME)
+            .overallMarketingStatus(DEFAULT_OVERALL_MARKETING_STATUS);
         return fdaDrug;
     }
 
@@ -74,7 +84,10 @@ class FdaDrugResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static FdaDrug createUpdatedEntity(EntityManager em) {
-        FdaDrug fdaDrug = new FdaDrug().applicationNumber(UPDATED_APPLICATION_NUMBER);
+        FdaDrug fdaDrug = new FdaDrug()
+            .applicationNumber(UPDATED_APPLICATION_NUMBER)
+            .sponsorName(UPDATED_SPONSOR_NAME)
+            .overallMarketingStatus(UPDATED_OVERALL_MARKETING_STATUS);
         return fdaDrug;
     }
 
@@ -102,6 +115,8 @@ class FdaDrugResourceIT {
         assertThat(fdaDrugList).hasSize(databaseSizeBeforeCreate + 1);
         FdaDrug testFdaDrug = fdaDrugList.get(fdaDrugList.size() - 1);
         assertThat(testFdaDrug.getApplicationNumber()).isEqualTo(DEFAULT_APPLICATION_NUMBER);
+        assertThat(testFdaDrug.getSponsorName()).isEqualTo(DEFAULT_SPONSOR_NAME);
+        assertThat(testFdaDrug.getOverallMarketingStatus()).isEqualTo(DEFAULT_OVERALL_MARKETING_STATUS);
     }
 
     @Test
@@ -161,7 +176,9 @@ class FdaDrugResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(fdaDrug.getId().intValue())))
-            .andExpect(jsonPath("$.[*].applicationNumber").value(hasItem(DEFAULT_APPLICATION_NUMBER)));
+            .andExpect(jsonPath("$.[*].applicationNumber").value(hasItem(DEFAULT_APPLICATION_NUMBER)))
+            .andExpect(jsonPath("$.[*].sponsorName").value(hasItem(DEFAULT_SPONSOR_NAME)))
+            .andExpect(jsonPath("$.[*].overallMarketingStatus").value(hasItem(DEFAULT_OVERALL_MARKETING_STATUS)));
     }
 
     @Test
@@ -176,7 +193,9 @@ class FdaDrugResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(fdaDrug.getId().intValue()))
-            .andExpect(jsonPath("$.applicationNumber").value(DEFAULT_APPLICATION_NUMBER));
+            .andExpect(jsonPath("$.applicationNumber").value(DEFAULT_APPLICATION_NUMBER))
+            .andExpect(jsonPath("$.sponsorName").value(DEFAULT_SPONSOR_NAME))
+            .andExpect(jsonPath("$.overallMarketingStatus").value(DEFAULT_OVERALL_MARKETING_STATUS));
     }
 
     @Test
@@ -277,6 +296,190 @@ class FdaDrugResourceIT {
 
     @Test
     @Transactional
+    void getAllFdaDrugsBySponsorNameIsEqualToSomething() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where sponsorName equals to DEFAULT_SPONSOR_NAME
+        defaultFdaDrugShouldBeFound("sponsorName.equals=" + DEFAULT_SPONSOR_NAME);
+
+        // Get all the fdaDrugList where sponsorName equals to UPDATED_SPONSOR_NAME
+        defaultFdaDrugShouldNotBeFound("sponsorName.equals=" + UPDATED_SPONSOR_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsBySponsorNameIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where sponsorName not equals to DEFAULT_SPONSOR_NAME
+        defaultFdaDrugShouldNotBeFound("sponsorName.notEquals=" + DEFAULT_SPONSOR_NAME);
+
+        // Get all the fdaDrugList where sponsorName not equals to UPDATED_SPONSOR_NAME
+        defaultFdaDrugShouldBeFound("sponsorName.notEquals=" + UPDATED_SPONSOR_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsBySponsorNameIsInShouldWork() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where sponsorName in DEFAULT_SPONSOR_NAME or UPDATED_SPONSOR_NAME
+        defaultFdaDrugShouldBeFound("sponsorName.in=" + DEFAULT_SPONSOR_NAME + "," + UPDATED_SPONSOR_NAME);
+
+        // Get all the fdaDrugList where sponsorName equals to UPDATED_SPONSOR_NAME
+        defaultFdaDrugShouldNotBeFound("sponsorName.in=" + UPDATED_SPONSOR_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsBySponsorNameIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where sponsorName is not null
+        defaultFdaDrugShouldBeFound("sponsorName.specified=true");
+
+        // Get all the fdaDrugList where sponsorName is null
+        defaultFdaDrugShouldNotBeFound("sponsorName.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsBySponsorNameContainsSomething() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where sponsorName contains DEFAULT_SPONSOR_NAME
+        defaultFdaDrugShouldBeFound("sponsorName.contains=" + DEFAULT_SPONSOR_NAME);
+
+        // Get all the fdaDrugList where sponsorName contains UPDATED_SPONSOR_NAME
+        defaultFdaDrugShouldNotBeFound("sponsorName.contains=" + UPDATED_SPONSOR_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsBySponsorNameNotContainsSomething() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where sponsorName does not contain DEFAULT_SPONSOR_NAME
+        defaultFdaDrugShouldNotBeFound("sponsorName.doesNotContain=" + DEFAULT_SPONSOR_NAME);
+
+        // Get all the fdaDrugList where sponsorName does not contain UPDATED_SPONSOR_NAME
+        defaultFdaDrugShouldBeFound("sponsorName.doesNotContain=" + UPDATED_SPONSOR_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsByOverallMarketingStatusIsEqualToSomething() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where overallMarketingStatus equals to DEFAULT_OVERALL_MARKETING_STATUS
+        defaultFdaDrugShouldBeFound("overallMarketingStatus.equals=" + DEFAULT_OVERALL_MARKETING_STATUS);
+
+        // Get all the fdaDrugList where overallMarketingStatus equals to UPDATED_OVERALL_MARKETING_STATUS
+        defaultFdaDrugShouldNotBeFound("overallMarketingStatus.equals=" + UPDATED_OVERALL_MARKETING_STATUS);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsByOverallMarketingStatusIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where overallMarketingStatus not equals to DEFAULT_OVERALL_MARKETING_STATUS
+        defaultFdaDrugShouldNotBeFound("overallMarketingStatus.notEquals=" + DEFAULT_OVERALL_MARKETING_STATUS);
+
+        // Get all the fdaDrugList where overallMarketingStatus not equals to UPDATED_OVERALL_MARKETING_STATUS
+        defaultFdaDrugShouldBeFound("overallMarketingStatus.notEquals=" + UPDATED_OVERALL_MARKETING_STATUS);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsByOverallMarketingStatusIsInShouldWork() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where overallMarketingStatus in DEFAULT_OVERALL_MARKETING_STATUS or UPDATED_OVERALL_MARKETING_STATUS
+        defaultFdaDrugShouldBeFound(
+            "overallMarketingStatus.in=" + DEFAULT_OVERALL_MARKETING_STATUS + "," + UPDATED_OVERALL_MARKETING_STATUS
+        );
+
+        // Get all the fdaDrugList where overallMarketingStatus equals to UPDATED_OVERALL_MARKETING_STATUS
+        defaultFdaDrugShouldNotBeFound("overallMarketingStatus.in=" + UPDATED_OVERALL_MARKETING_STATUS);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsByOverallMarketingStatusIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where overallMarketingStatus is not null
+        defaultFdaDrugShouldBeFound("overallMarketingStatus.specified=true");
+
+        // Get all the fdaDrugList where overallMarketingStatus is null
+        defaultFdaDrugShouldNotBeFound("overallMarketingStatus.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsByOverallMarketingStatusContainsSomething() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where overallMarketingStatus contains DEFAULT_OVERALL_MARKETING_STATUS
+        defaultFdaDrugShouldBeFound("overallMarketingStatus.contains=" + DEFAULT_OVERALL_MARKETING_STATUS);
+
+        // Get all the fdaDrugList where overallMarketingStatus contains UPDATED_OVERALL_MARKETING_STATUS
+        defaultFdaDrugShouldNotBeFound("overallMarketingStatus.contains=" + UPDATED_OVERALL_MARKETING_STATUS);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsByOverallMarketingStatusNotContainsSomething() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+
+        // Get all the fdaDrugList where overallMarketingStatus does not contain DEFAULT_OVERALL_MARKETING_STATUS
+        defaultFdaDrugShouldNotBeFound("overallMarketingStatus.doesNotContain=" + DEFAULT_OVERALL_MARKETING_STATUS);
+
+        // Get all the fdaDrugList where overallMarketingStatus does not contain UPDATED_OVERALL_MARKETING_STATUS
+        defaultFdaDrugShouldBeFound("overallMarketingStatus.doesNotContain=" + UPDATED_OVERALL_MARKETING_STATUS);
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaDrugsByFdaSubmissionIsEqualToSomething() throws Exception {
+        // Initialize the database
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+        FdaSubmission fdaSubmission;
+        if (TestUtil.findAll(em, FdaSubmission.class).isEmpty()) {
+            fdaSubmission = FdaSubmissionResourceIT.createEntity(em);
+            em.persist(fdaSubmission);
+            em.flush();
+        } else {
+            fdaSubmission = TestUtil.findAll(em, FdaSubmission.class).get(0);
+        }
+        em.persist(fdaSubmission);
+        em.flush();
+        fdaDrug.addFdaSubmission(fdaSubmission);
+        fdaDrugRepository.saveAndFlush(fdaDrug);
+        Long fdaSubmissionId = fdaSubmission.getId();
+
+        // Get all the fdaDrugList where fdaSubmission equals to fdaSubmissionId
+        defaultFdaDrugShouldBeFound("fdaSubmissionId.equals=" + fdaSubmissionId);
+
+        // Get all the fdaDrugList where fdaSubmission equals to (fdaSubmissionId + 1)
+        defaultFdaDrugShouldNotBeFound("fdaSubmissionId.equals=" + (fdaSubmissionId + 1));
+    }
+
+    @Test
+    @Transactional
     void getAllFdaDrugsByDrugIsEqualToSomething() throws Exception {
         // Initialize the database
         fdaDrugRepository.saveAndFlush(fdaDrug);
@@ -310,7 +513,9 @@ class FdaDrugResourceIT {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(fdaDrug.getId().intValue())))
-            .andExpect(jsonPath("$.[*].applicationNumber").value(hasItem(DEFAULT_APPLICATION_NUMBER)));
+            .andExpect(jsonPath("$.[*].applicationNumber").value(hasItem(DEFAULT_APPLICATION_NUMBER)))
+            .andExpect(jsonPath("$.[*].sponsorName").value(hasItem(DEFAULT_SPONSOR_NAME)))
+            .andExpect(jsonPath("$.[*].overallMarketingStatus").value(hasItem(DEFAULT_OVERALL_MARKETING_STATUS)));
 
         // Check, that the count call also returns 1
         restFdaDrugMockMvc
@@ -358,7 +563,10 @@ class FdaDrugResourceIT {
         FdaDrug updatedFdaDrug = fdaDrugRepository.findById(fdaDrug.getId()).get();
         // Disconnect from session so that the updates on updatedFdaDrug are not directly saved in db
         em.detach(updatedFdaDrug);
-        updatedFdaDrug.applicationNumber(UPDATED_APPLICATION_NUMBER);
+        updatedFdaDrug
+            .applicationNumber(UPDATED_APPLICATION_NUMBER)
+            .sponsorName(UPDATED_SPONSOR_NAME)
+            .overallMarketingStatus(UPDATED_OVERALL_MARKETING_STATUS);
 
         restFdaDrugMockMvc
             .perform(
@@ -374,6 +582,8 @@ class FdaDrugResourceIT {
         assertThat(fdaDrugList).hasSize(databaseSizeBeforeUpdate);
         FdaDrug testFdaDrug = fdaDrugList.get(fdaDrugList.size() - 1);
         assertThat(testFdaDrug.getApplicationNumber()).isEqualTo(UPDATED_APPLICATION_NUMBER);
+        assertThat(testFdaDrug.getSponsorName()).isEqualTo(UPDATED_SPONSOR_NAME);
+        assertThat(testFdaDrug.getOverallMarketingStatus()).isEqualTo(UPDATED_OVERALL_MARKETING_STATUS);
     }
 
     @Test
@@ -448,7 +658,7 @@ class FdaDrugResourceIT {
         FdaDrug partialUpdatedFdaDrug = new FdaDrug();
         partialUpdatedFdaDrug.setId(fdaDrug.getId());
 
-        partialUpdatedFdaDrug.applicationNumber(UPDATED_APPLICATION_NUMBER);
+        partialUpdatedFdaDrug.applicationNumber(UPDATED_APPLICATION_NUMBER).overallMarketingStatus(UPDATED_OVERALL_MARKETING_STATUS);
 
         restFdaDrugMockMvc
             .perform(
@@ -464,6 +674,8 @@ class FdaDrugResourceIT {
         assertThat(fdaDrugList).hasSize(databaseSizeBeforeUpdate);
         FdaDrug testFdaDrug = fdaDrugList.get(fdaDrugList.size() - 1);
         assertThat(testFdaDrug.getApplicationNumber()).isEqualTo(UPDATED_APPLICATION_NUMBER);
+        assertThat(testFdaDrug.getSponsorName()).isEqualTo(DEFAULT_SPONSOR_NAME);
+        assertThat(testFdaDrug.getOverallMarketingStatus()).isEqualTo(UPDATED_OVERALL_MARKETING_STATUS);
     }
 
     @Test
@@ -478,7 +690,10 @@ class FdaDrugResourceIT {
         FdaDrug partialUpdatedFdaDrug = new FdaDrug();
         partialUpdatedFdaDrug.setId(fdaDrug.getId());
 
-        partialUpdatedFdaDrug.applicationNumber(UPDATED_APPLICATION_NUMBER);
+        partialUpdatedFdaDrug
+            .applicationNumber(UPDATED_APPLICATION_NUMBER)
+            .sponsorName(UPDATED_SPONSOR_NAME)
+            .overallMarketingStatus(UPDATED_OVERALL_MARKETING_STATUS);
 
         restFdaDrugMockMvc
             .perform(
@@ -494,6 +709,8 @@ class FdaDrugResourceIT {
         assertThat(fdaDrugList).hasSize(databaseSizeBeforeUpdate);
         FdaDrug testFdaDrug = fdaDrugList.get(fdaDrugList.size() - 1);
         assertThat(testFdaDrug.getApplicationNumber()).isEqualTo(UPDATED_APPLICATION_NUMBER);
+        assertThat(testFdaDrug.getSponsorName()).isEqualTo(UPDATED_SPONSOR_NAME);
+        assertThat(testFdaDrug.getOverallMarketingStatus()).isEqualTo(UPDATED_OVERALL_MARKETING_STATUS);
     }
 
     @Test

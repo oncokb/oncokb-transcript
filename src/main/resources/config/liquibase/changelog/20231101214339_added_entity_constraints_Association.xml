@@ -33,15 +33,27 @@
                                  referencedTableName="article"/>
 
         <addForeignKeyConstraint baseColumnNames="association_id"
-                                 baseTableName="rel_association__treatment"
-                                 constraintName="fk_rel_association__treatment__association_id"
+                                 baseTableName="rel_association__cancer_type"
+                                 constraintName="fk_rel_association__cancer_type__association_id"
                                  referencedColumnNames="id"
                                  referencedTableName="association"/>
 
-        <addForeignKeyConstraint baseColumnNames="treatment_id"
-                                 baseTableName="rel_association__treatment"
-                                 constraintName="fk_rel_association__treatment__treatment_id"
+        <addForeignKeyConstraint baseColumnNames="cancer_type_id"
+                                 baseTableName="rel_association__cancer_type"
+                                 constraintName="fk_rel_association__cancer_type__cancer_type_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="treatment"/>
+                                 referencedTableName="cancer_type"/>
+
+        <addForeignKeyConstraint baseColumnNames="association_id"
+                                 baseTableName="rel_association__drug"
+                                 constraintName="fk_rel_association__drug__association_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="association"/>
+
+        <addForeignKeyConstraint baseColumnNames="drug_id"
+                                 baseTableName="rel_association__drug"
+                                 constraintName="fk_rel_association__drug__drug_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="drug"/>
     </changeSet>
 </databaseChangeLog>

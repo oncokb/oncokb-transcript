@@ -18,7 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
-import org.mskcc.oncokb.curation.domain.AssociationCancerType;
+import org.mskcc.oncokb.curation.domain.Association;
 import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.domain.Synonym;
@@ -872,32 +872,6 @@ class CancerTypeResourceIT {
 
     @Test
     @Transactional
-    void getAllCancerTypesByAssociationCancerTypeIsEqualToSomething() throws Exception {
-        // Initialize the database
-        cancerTypeRepository.saveAndFlush(cancerType);
-        AssociationCancerType associationCancerType;
-        if (TestUtil.findAll(em, AssociationCancerType.class).isEmpty()) {
-            associationCancerType = AssociationCancerTypeResourceIT.createEntity(em);
-            em.persist(associationCancerType);
-            em.flush();
-        } else {
-            associationCancerType = TestUtil.findAll(em, AssociationCancerType.class).get(0);
-        }
-        em.persist(associationCancerType);
-        em.flush();
-        cancerType.addAssociationCancerType(associationCancerType);
-        cancerTypeRepository.saveAndFlush(cancerType);
-        Long associationCancerTypeId = associationCancerType.getId();
-
-        // Get all the cancerTypeList where associationCancerType equals to associationCancerTypeId
-        defaultCancerTypeShouldBeFound("associationCancerTypeId.equals=" + associationCancerTypeId);
-
-        // Get all the cancerTypeList where associationCancerType equals to (associationCancerTypeId + 1)
-        defaultCancerTypeShouldNotBeFound("associationCancerTypeId.equals=" + (associationCancerTypeId + 1));
-    }
-
-    @Test
-    @Transactional
     void getAllCancerTypesByChildrenIsEqualToSomething() throws Exception {
         // Initialize the database
         cancerTypeRepository.saveAndFlush(cancerType);
@@ -972,6 +946,32 @@ class CancerTypeResourceIT {
 
         // Get all the cancerTypeList where parent equals to (parentId + 1)
         defaultCancerTypeShouldNotBeFound("parentId.equals=" + (parentId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllCancerTypesByAssociationIsEqualToSomething() throws Exception {
+        // Initialize the database
+        cancerTypeRepository.saveAndFlush(cancerType);
+        Association association;
+        if (TestUtil.findAll(em, Association.class).isEmpty()) {
+            association = AssociationResourceIT.createEntity(em);
+            em.persist(association);
+            em.flush();
+        } else {
+            association = TestUtil.findAll(em, Association.class).get(0);
+        }
+        em.persist(association);
+        em.flush();
+        cancerType.addAssociation(association);
+        cancerTypeRepository.saveAndFlush(cancerType);
+        Long associationId = association.getId();
+
+        // Get all the cancerTypeList where association equals to associationId
+        defaultCancerTypeShouldBeFound("associationId.equals=" + associationId);
+
+        // Get all the cancerTypeList where association equals to (associationId + 1)
+        defaultCancerTypeShouldNotBeFound("associationId.equals=" + (associationId + 1));
     }
 
     /**

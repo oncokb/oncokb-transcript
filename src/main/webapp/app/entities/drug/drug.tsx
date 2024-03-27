@@ -7,10 +7,10 @@ import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import { filterByKeyword, getAlterationName, getEntityTableActionsColumn, getGeneNameFromAlteration } from 'app/shared/util/utils';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
-import { ITreatment } from 'app/shared/model/treatment.model';
 import { IAlteration } from 'app/shared/model/alteration.model';
 import _ from 'lodash';
 import styles from './styles.module.scss';
+import { IAssociation } from 'app/shared/model/association.model';
 
 export interface IDrugProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
@@ -38,19 +38,17 @@ export const Drug = (props: IDrugProps) => {
 
   const drugList = props.drugList;
 
-  const getUniqueGenes = (treatments: ITreatment[]) => {
+  const getUniqueGenes = (associations: IAssociation[]) => {
     const biomarkers: DrugAssocBiomarkers = {};
-    treatments.forEach(treatment => {
-      treatment.associations?.forEach(val => {
-        for (const alteration of val.alterations) {
-          const geneName = getGeneNameFromAlteration(alteration);
-          if (geneName in biomarkers) {
-            biomarkers[geneName].push(alteration);
-          } else {
-            biomarkers[geneName] = [alteration];
-          }
+    associations?.forEach(val => {
+      for (const alteration of val.alterations) {
+        const geneName = getGeneNameFromAlteration(alteration);
+        if (geneName in biomarkers) {
+          biomarkers[geneName].push(alteration);
+        } else {
+          biomarkers[geneName] = [alteration];
         }
-      });
+      }
     });
     return biomarkers;
   };
@@ -75,11 +73,11 @@ export const Drug = (props: IDrugProps) => {
       onFilter: (data: IDrug, keyword) => filterByKeyword(data.nciThesaurus?.code || '', keyword),
     },
     {
-      accessor: 'treatments',
+      accessor: 'associations',
       Header: 'Associated Biomarker(s)',
       minWidth: 250,
       Cell(cell: { original: IDrug }) {
-        const uniqueGenes = getUniqueGenes(cell.original.treatments || []);
+        const uniqueGenes = getUniqueGenes(cell.original.associations || []);
         return (
           <>
             {Object.keys(uniqueGenes)
@@ -96,8 +94,9 @@ export const Drug = (props: IDrugProps) => {
           </>
         );
       },
-      onFilter: (data: IDrug, keyword) => filterByKeyword(getAllGeneAlterationTexts(getUniqueGenes(data.treatments || [])), keyword, true),
-      sortMethod: (a: ITreatment[], b: ITreatment[]) =>
+      onFilter: (data: IDrug, keyword) =>
+        filterByKeyword(getAllGeneAlterationTexts(getUniqueGenes(data.associations || [])), keyword, true),
+      sortMethod: (a: IAssociation[], b: IAssociation[]) =>
         getAllGeneAlterationTexts(getUniqueGenes(a || [])).localeCompare(getAllGeneAlterationTexts(getUniqueGenes(b || []))),
     },
     getEntityTableActionsColumn(ENTITY_TYPE.DRUG),

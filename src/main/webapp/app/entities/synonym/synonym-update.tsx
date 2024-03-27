@@ -6,6 +6,7 @@ import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 
+import { IArticle } from 'app/shared/model/article.model';
 import { ICancerType } from 'app/shared/model/cancer-type.model';
 import { IGene } from 'app/shared/model/gene.model';
 import { INciThesaurus } from 'app/shared/model/nci-thesaurus.model';
@@ -19,6 +20,7 @@ export interface ISynonymUpdateProps extends StoreProps, RouteComponentProps<{ i
 export const SynonymUpdate = (props: ISynonymUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
+  const articles = props.articles;
   const cancerTypes = props.cancerTypes;
   const genes = props.genes;
   const nciThesauruses = props.nciThesauruses;
@@ -38,6 +40,7 @@ export const SynonymUpdate = (props: ISynonymUpdateProps) => {
       props.getEntity(props.match.params.id);
     }
 
+    props.getArticles({});
     props.getCancerTypes({});
     props.getGenes({});
     props.getNciThesauruses({});
@@ -106,7 +109,16 @@ export const SynonymUpdate = (props: ISynonymUpdateProps) => {
                 }}
               />
               <ValidatedField label="Code" id="synonym-code" name="code" data-cy="code" type="text" />
-              <ValidatedField label="Name" id="synonym-name" name="name" data-cy="name" type="text" />
+              <ValidatedField
+                label="Name"
+                id="synonym-name"
+                name="name"
+                data-cy="name"
+                type="text"
+                validate={{
+                  required: { value: true, message: 'This field is required.' },
+                }}
+              />
               <ValidatedField label="Note" id="synonym-note" name="note" data-cy="note" type="textarea" />
               <SaveButton disabled={updating} />
             </ValidatedForm>
@@ -118,6 +130,7 @@ export const SynonymUpdate = (props: ISynonymUpdateProps) => {
 };
 
 const mapStoreToProps = (storeState: IRootStore) => ({
+  articles: storeState.articleStore.entities,
   cancerTypes: storeState.cancerTypeStore.entities,
   genes: storeState.geneStore.entities,
   nciThesauruses: storeState.nciThesaurusStore.entities,
@@ -125,6 +138,7 @@ const mapStoreToProps = (storeState: IRootStore) => ({
   loading: storeState.synonymStore.loading,
   updating: storeState.synonymStore.updating,
   updateSuccess: storeState.synonymStore.updateSuccess,
+  getArticles: storeState.articleStore.getEntities,
   getCancerTypes: storeState.cancerTypeStore.getEntities,
   getGenes: storeState.geneStore.getEntities,
   getNciThesauruses: storeState.nciThesaurusStore.getEntities,

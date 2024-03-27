@@ -1,7 +1,8 @@
-import { IAssociationCancerType } from 'app/shared/model/association-cancer-type.model';
+import { IRule } from 'app/shared/model/rule.model';
 import { IAlteration } from 'app/shared/model/alteration.model';
 import { IArticle } from 'app/shared/model/article.model';
-import { ITreatment } from 'app/shared/model/treatment.model';
+import { ICancerType } from 'app/shared/model/cancer-type.model';
+import { IDrug } from 'app/shared/model/drug.model';
 import { IEvidence } from 'app/shared/model/evidence.model';
 import { IClinicalTrial } from 'app/shared/model/clinical-trial.model';
 import { IClinicalTrialArm } from 'app/shared/model/clinical-trial-arm.model';
@@ -12,10 +13,11 @@ import { IGenomicIndicator } from 'app/shared/model/genomic-indicator.model';
 export interface IAssociation {
   id?: number;
   name?: string | null;
-  associationCancerTypes?: IAssociationCancerType[] | null;
+  rules?: IRule[] | null;
   alterations?: IAlteration[] | null;
   articles?: IArticle[] | null;
-  treatments?: ITreatment[] | null;
+  cancerTypes?: ICancerType[] | null;
+  drugs?: IDrug[] | null;
   evidence?: IEvidence | null;
   clinicalTrials?: IClinicalTrial[] | null;
   clinicalTrialArms?: IClinicalTrialArm[] | null;

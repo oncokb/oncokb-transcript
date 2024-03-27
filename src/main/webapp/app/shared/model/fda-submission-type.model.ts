@@ -6,6 +6,8 @@ export interface IFdaSubmissionType {
   type?: FdaSubmissionTypeKey;
   name?: string;
   shortName?: string | null;
+  submissionPrefix?: string | null;
+  submissionLink?: string | null;
   description?: string | null;
   fdaSubmissions?: IFdaSubmission[] | null;
 }

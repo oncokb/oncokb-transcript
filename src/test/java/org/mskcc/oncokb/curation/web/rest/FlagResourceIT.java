@@ -16,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
+import org.mskcc.oncokb.curation.domain.Alteration;
+import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.domain.Gene;
@@ -479,6 +481,58 @@ class FlagResourceIT {
 
         // Get all the flagList where name does not contain UPDATED_NAME
         defaultFlagShouldBeFound("name.doesNotContain=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllFlagsByAlterationIsEqualToSomething() throws Exception {
+        // Initialize the database
+        flagRepository.saveAndFlush(flag);
+        Alteration alteration;
+        if (TestUtil.findAll(em, Alteration.class).isEmpty()) {
+            alteration = AlterationResourceIT.createEntity(em);
+            em.persist(alteration);
+            em.flush();
+        } else {
+            alteration = TestUtil.findAll(em, Alteration.class).get(0);
+        }
+        em.persist(alteration);
+        em.flush();
+        flag.addAlteration(alteration);
+        flagRepository.saveAndFlush(flag);
+        Long alterationId = alteration.getId();
+
+        // Get all the flagList where alteration equals to alterationId
+        defaultFlagShouldBeFound("alterationId.equals=" + alterationId);
+
+        // Get all the flagList where alteration equals to (alterationId + 1)
+        defaultFlagShouldNotBeFound("alterationId.equals=" + (alterationId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllFlagsByArticleIsEqualToSomething() throws Exception {
+        // Initialize the database
+        flagRepository.saveAndFlush(flag);
+        Article article;
+        if (TestUtil.findAll(em, Article.class).isEmpty()) {
+            article = ArticleResourceIT.createEntity(em);
+            em.persist(article);
+            em.flush();
+        } else {
+            article = TestUtil.findAll(em, Article.class).get(0);
+        }
+        em.persist(article);
+        em.flush();
+        flag.addArticle(article);
+        flagRepository.saveAndFlush(flag);
+        Long articleId = article.getId();
+
+        // Get all the flagList where article equals to articleId
+        defaultFlagShouldBeFound("articleId.equals=" + articleId);
+
+        // Get all the flagList where article equals to (articleId + 1)
+        defaultFlagShouldNotBeFound("articleId.equals=" + (articleId + 1));
     }
 
     @Test

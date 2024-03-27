@@ -2,10 +2,14 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -18,11 +22,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.domain.Association;
+import org.mskcc.oncokb.curation.domain.FdaSubmission;
+import org.mskcc.oncokb.curation.domain.Flag;
+import org.mskcc.oncokb.curation.domain.Synonym;
 import org.mskcc.oncokb.curation.domain.enumeration.ArticleType;
 import org.mskcc.oncokb.curation.repository.ArticleRepository;
+import org.mskcc.oncokb.curation.service.ArticleService;
 import org.mskcc.oncokb.curation.service.criteria.ArticleCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -38,8 +48,14 @@ import org.springframework.util.Base64Utils;
 @WithMockUser
 class ArticleResourceIT {
 
-    private static final ArticleType DEFAULT_TYPE = ArticleType.PMID;
+    private static final ArticleType DEFAULT_TYPE = ArticleType.PUBMED;
     private static final ArticleType UPDATED_TYPE = ArticleType.ABSTRACT;
+
+    private static final String DEFAULT_UID = "AAAAAAAAAA";
+    private static final String UPDATED_UID = "BBBBBBBBBB";
+
+    private static final String DEFAULT_TITLE = "AAAAAAAAAA";
+    private static final String UPDATED_TITLE = "BBBBBBBBBB";
 
     private static final String DEFAULT_CONTENT = "AAAAAAAAAA";
     private static final String UPDATED_CONTENT = "BBBBBBBBBB";
@@ -47,32 +63,11 @@ class ArticleResourceIT {
     private static final String DEFAULT_LINK = "AAAAAAAAAA";
     private static final String UPDATED_LINK = "BBBBBBBBBB";
 
-    private static final String DEFAULT_PMID = "AAAAAAAAAA";
-    private static final String UPDATED_PMID = "BBBBBBBBBB";
-
-    private static final String DEFAULT_ELOCATION_ID = "AAAAAAAAAA";
-    private static final String UPDATED_ELOCATION_ID = "BBBBBBBBBB";
-
-    private static final String DEFAULT_TITLE = "AAAAAAAAAA";
-    private static final String UPDATED_TITLE = "BBBBBBBBBB";
-
     private static final String DEFAULT_AUTHORS = "AAAAAAAAAA";
     private static final String UPDATED_AUTHORS = "BBBBBBBBBB";
 
-    private static final String DEFAULT_JOURNAL = "AAAAAAAAAA";
-    private static final String UPDATED_JOURNAL = "BBBBBBBBBB";
-
-    private static final String DEFAULT_VOLUME = "AAAAAAAAAA";
-    private static final String UPDATED_VOLUME = "BBBBBBBBBB";
-
-    private static final String DEFAULT_ISSUE = "AAAAAAAAAA";
-    private static final String UPDATED_ISSUE = "BBBBBBBBBB";
-
-    private static final String DEFAULT_PAGES = "AAAAAAAAAA";
-    private static final String UPDATED_PAGES = "BBBBBBBBBB";
-
-    private static final String DEFAULT_PUB_DATE = "AAAAAAAAAA";
-    private static final String UPDATED_PUB_DATE = "BBBBBBBBBB";
+    private static final Instant DEFAULT_DATE = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_DATE = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
     private static final String ENTITY_API_URL = "/api/articles";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -82,6 +77,12 @@ class ArticleResourceIT {
 
     @Autowired
     private ArticleRepository articleRepository;
+
+    @Mock
+    private ArticleRepository articleRepositoryMock;
+
+    @Mock
+    private ArticleService articleServiceMock;
 
     @Autowired
     private EntityManager em;
@@ -100,17 +101,12 @@ class ArticleResourceIT {
     public static Article createEntity(EntityManager em) {
         Article article = new Article()
             .type(DEFAULT_TYPE)
+            .uid(DEFAULT_UID)
+            .title(DEFAULT_TITLE)
             .content(DEFAULT_CONTENT)
             .link(DEFAULT_LINK)
-            .pmid(DEFAULT_PMID)
-            .elocationId(DEFAULT_ELOCATION_ID)
-            .title(DEFAULT_TITLE)
             .authors(DEFAULT_AUTHORS)
-            .journal(DEFAULT_JOURNAL)
-            .volume(DEFAULT_VOLUME)
-            .issue(DEFAULT_ISSUE)
-            .pages(DEFAULT_PAGES)
-            .pubDate(DEFAULT_PUB_DATE);
+            .date(DEFAULT_DATE);
         return article;
     }
 
@@ -123,17 +119,12 @@ class ArticleResourceIT {
     public static Article createUpdatedEntity(EntityManager em) {
         Article article = new Article()
             .type(UPDATED_TYPE)
+            .uid(UPDATED_UID)
+            .title(UPDATED_TITLE)
             .content(UPDATED_CONTENT)
             .link(UPDATED_LINK)
-            .pmid(UPDATED_PMID)
-            .elocationId(UPDATED_ELOCATION_ID)
-            .title(UPDATED_TITLE)
             .authors(UPDATED_AUTHORS)
-            .journal(UPDATED_JOURNAL)
-            .volume(UPDATED_VOLUME)
-            .issue(UPDATED_ISSUE)
-            .pages(UPDATED_PAGES)
-            .pubDate(UPDATED_PUB_DATE);
+            .date(UPDATED_DATE);
         return article;
     }
 
@@ -161,17 +152,12 @@ class ArticleResourceIT {
         assertThat(articleList).hasSize(databaseSizeBeforeCreate + 1);
         Article testArticle = articleList.get(articleList.size() - 1);
         assertThat(testArticle.getType()).isEqualTo(DEFAULT_TYPE);
+        assertThat(testArticle.getUid()).isEqualTo(DEFAULT_UID);
+        assertThat(testArticle.getTitle()).isEqualTo(DEFAULT_TITLE);
         assertThat(testArticle.getContent()).isEqualTo(DEFAULT_CONTENT);
         assertThat(testArticle.getLink()).isEqualTo(DEFAULT_LINK);
-        assertThat(testArticle.getPmid()).isEqualTo(DEFAULT_PMID);
-        assertThat(testArticle.getElocationId()).isEqualTo(DEFAULT_ELOCATION_ID);
-        assertThat(testArticle.getTitle()).isEqualTo(DEFAULT_TITLE);
         assertThat(testArticle.getAuthors()).isEqualTo(DEFAULT_AUTHORS);
-        assertThat(testArticle.getJournal()).isEqualTo(DEFAULT_JOURNAL);
-        assertThat(testArticle.getVolume()).isEqualTo(DEFAULT_VOLUME);
-        assertThat(testArticle.getIssue()).isEqualTo(DEFAULT_ISSUE);
-        assertThat(testArticle.getPages()).isEqualTo(DEFAULT_PAGES);
-        assertThat(testArticle.getPubDate()).isEqualTo(DEFAULT_PUB_DATE);
+        assertThat(testArticle.getDate()).isEqualTo(DEFAULT_DATE);
     }
 
     @Test
@@ -232,17 +218,30 @@ class ArticleResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(article.getId().intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
+            .andExpect(jsonPath("$.[*].uid").value(hasItem(DEFAULT_UID)))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
             .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT.toString())))
             .andExpect(jsonPath("$.[*].link").value(hasItem(DEFAULT_LINK)))
-            .andExpect(jsonPath("$.[*].pmid").value(hasItem(DEFAULT_PMID)))
-            .andExpect(jsonPath("$.[*].elocationId").value(hasItem(DEFAULT_ELOCATION_ID)))
-            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
             .andExpect(jsonPath("$.[*].authors").value(hasItem(DEFAULT_AUTHORS)))
-            .andExpect(jsonPath("$.[*].journal").value(hasItem(DEFAULT_JOURNAL)))
-            .andExpect(jsonPath("$.[*].volume").value(hasItem(DEFAULT_VOLUME)))
-            .andExpect(jsonPath("$.[*].issue").value(hasItem(DEFAULT_ISSUE)))
-            .andExpect(jsonPath("$.[*].pages").value(hasItem(DEFAULT_PAGES)))
-            .andExpect(jsonPath("$.[*].pubDate").value(hasItem(DEFAULT_PUB_DATE)));
+            .andExpect(jsonPath("$.[*].date").value(hasItem(DEFAULT_DATE.toString())));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllArticlesWithEagerRelationshipsIsEnabled() throws Exception {
+        when(articleServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restArticleMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(articleServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllArticlesWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(articleServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restArticleMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(articleServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test
@@ -258,17 +257,12 @@ class ArticleResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(article.getId().intValue()))
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
+            .andExpect(jsonPath("$.uid").value(DEFAULT_UID))
+            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
             .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT.toString()))
             .andExpect(jsonPath("$.link").value(DEFAULT_LINK))
-            .andExpect(jsonPath("$.pmid").value(DEFAULT_PMID))
-            .andExpect(jsonPath("$.elocationId").value(DEFAULT_ELOCATION_ID))
-            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
             .andExpect(jsonPath("$.authors").value(DEFAULT_AUTHORS))
-            .andExpect(jsonPath("$.journal").value(DEFAULT_JOURNAL))
-            .andExpect(jsonPath("$.volume").value(DEFAULT_VOLUME))
-            .andExpect(jsonPath("$.issue").value(DEFAULT_ISSUE))
-            .andExpect(jsonPath("$.pages").value(DEFAULT_PAGES))
-            .andExpect(jsonPath("$.pubDate").value(DEFAULT_PUB_DATE));
+            .andExpect(jsonPath("$.date").value(DEFAULT_DATE.toString()));
     }
 
     @Test
@@ -339,6 +333,84 @@ class ArticleResourceIT {
 
         // Get all the articleList where type is null
         defaultArticleShouldNotBeFound("type.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllArticlesByUidIsEqualToSomething() throws Exception {
+        // Initialize the database
+        articleRepository.saveAndFlush(article);
+
+        // Get all the articleList where uid equals to DEFAULT_UID
+        defaultArticleShouldBeFound("uid.equals=" + DEFAULT_UID);
+
+        // Get all the articleList where uid equals to UPDATED_UID
+        defaultArticleShouldNotBeFound("uid.equals=" + UPDATED_UID);
+    }
+
+    @Test
+    @Transactional
+    void getAllArticlesByUidIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        articleRepository.saveAndFlush(article);
+
+        // Get all the articleList where uid not equals to DEFAULT_UID
+        defaultArticleShouldNotBeFound("uid.notEquals=" + DEFAULT_UID);
+
+        // Get all the articleList where uid not equals to UPDATED_UID
+        defaultArticleShouldBeFound("uid.notEquals=" + UPDATED_UID);
+    }
+
+    @Test
+    @Transactional
+    void getAllArticlesByUidIsInShouldWork() throws Exception {
+        // Initialize the database
+        articleRepository.saveAndFlush(article);
+
+        // Get all the articleList where uid in DEFAULT_UID or UPDATED_UID
+        defaultArticleShouldBeFound("uid.in=" + DEFAULT_UID + "," + UPDATED_UID);
+
+        // Get all the articleList where uid equals to UPDATED_UID
+        defaultArticleShouldNotBeFound("uid.in=" + UPDATED_UID);
+    }
+
+    @Test
+    @Transactional
+    void getAllArticlesByUidIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        articleRepository.saveAndFlush(article);
+
+        // Get all the articleList where uid is not null
+        defaultArticleShouldBeFound("uid.specified=true");
+
+        // Get all the articleList where uid is null
+        defaultArticleShouldNotBeFound("uid.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllArticlesByUidContainsSomething() throws Exception {
+        // Initialize the database
+        articleRepository.saveAndFlush(article);
+
+        // Get all the articleList where uid contains DEFAULT_UID
+        defaultArticleShouldBeFound("uid.contains=" + DEFAULT_UID);
+
+        // Get all the articleList where uid contains UPDATED_UID
+        defaultArticleShouldNotBeFound("uid.contains=" + UPDATED_UID);
+    }
+
+    @Test
+    @Transactional
+    void getAllArticlesByUidNotContainsSomething() throws Exception {
+        // Initialize the database
+        articleRepository.saveAndFlush(article);
+
+        // Get all the articleList where uid does not contain DEFAULT_UID
+        defaultArticleShouldNotBeFound("uid.doesNotContain=" + DEFAULT_UID);
+
+        // Get all the articleList where uid does not contain UPDATED_UID
+        defaultArticleShouldBeFound("uid.doesNotContain=" + UPDATED_UID);
     }
 
     @Test
@@ -421,162 +493,6 @@ class ArticleResourceIT {
 
     @Test
     @Transactional
-    void getAllArticlesByPmidIsEqualToSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pmid equals to DEFAULT_PMID
-        defaultArticleShouldBeFound("pmid.equals=" + DEFAULT_PMID);
-
-        // Get all the articleList where pmid equals to UPDATED_PMID
-        defaultArticleShouldNotBeFound("pmid.equals=" + UPDATED_PMID);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPmidIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pmid not equals to DEFAULT_PMID
-        defaultArticleShouldNotBeFound("pmid.notEquals=" + DEFAULT_PMID);
-
-        // Get all the articleList where pmid not equals to UPDATED_PMID
-        defaultArticleShouldBeFound("pmid.notEquals=" + UPDATED_PMID);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPmidIsInShouldWork() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pmid in DEFAULT_PMID or UPDATED_PMID
-        defaultArticleShouldBeFound("pmid.in=" + DEFAULT_PMID + "," + UPDATED_PMID);
-
-        // Get all the articleList where pmid equals to UPDATED_PMID
-        defaultArticleShouldNotBeFound("pmid.in=" + UPDATED_PMID);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPmidIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pmid is not null
-        defaultArticleShouldBeFound("pmid.specified=true");
-
-        // Get all the articleList where pmid is null
-        defaultArticleShouldNotBeFound("pmid.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPmidContainsSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pmid contains DEFAULT_PMID
-        defaultArticleShouldBeFound("pmid.contains=" + DEFAULT_PMID);
-
-        // Get all the articleList where pmid contains UPDATED_PMID
-        defaultArticleShouldNotBeFound("pmid.contains=" + UPDATED_PMID);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPmidNotContainsSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pmid does not contain DEFAULT_PMID
-        defaultArticleShouldNotBeFound("pmid.doesNotContain=" + DEFAULT_PMID);
-
-        // Get all the articleList where pmid does not contain UPDATED_PMID
-        defaultArticleShouldBeFound("pmid.doesNotContain=" + UPDATED_PMID);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByElocationIdIsEqualToSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where elocationId equals to DEFAULT_ELOCATION_ID
-        defaultArticleShouldBeFound("elocationId.equals=" + DEFAULT_ELOCATION_ID);
-
-        // Get all the articleList where elocationId equals to UPDATED_ELOCATION_ID
-        defaultArticleShouldNotBeFound("elocationId.equals=" + UPDATED_ELOCATION_ID);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByElocationIdIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where elocationId not equals to DEFAULT_ELOCATION_ID
-        defaultArticleShouldNotBeFound("elocationId.notEquals=" + DEFAULT_ELOCATION_ID);
-
-        // Get all the articleList where elocationId not equals to UPDATED_ELOCATION_ID
-        defaultArticleShouldBeFound("elocationId.notEquals=" + UPDATED_ELOCATION_ID);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByElocationIdIsInShouldWork() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where elocationId in DEFAULT_ELOCATION_ID or UPDATED_ELOCATION_ID
-        defaultArticleShouldBeFound("elocationId.in=" + DEFAULT_ELOCATION_ID + "," + UPDATED_ELOCATION_ID);
-
-        // Get all the articleList where elocationId equals to UPDATED_ELOCATION_ID
-        defaultArticleShouldNotBeFound("elocationId.in=" + UPDATED_ELOCATION_ID);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByElocationIdIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where elocationId is not null
-        defaultArticleShouldBeFound("elocationId.specified=true");
-
-        // Get all the articleList where elocationId is null
-        defaultArticleShouldNotBeFound("elocationId.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByElocationIdContainsSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where elocationId contains DEFAULT_ELOCATION_ID
-        defaultArticleShouldBeFound("elocationId.contains=" + DEFAULT_ELOCATION_ID);
-
-        // Get all the articleList where elocationId contains UPDATED_ELOCATION_ID
-        defaultArticleShouldNotBeFound("elocationId.contains=" + UPDATED_ELOCATION_ID);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByElocationIdNotContainsSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where elocationId does not contain DEFAULT_ELOCATION_ID
-        defaultArticleShouldNotBeFound("elocationId.doesNotContain=" + DEFAULT_ELOCATION_ID);
-
-        // Get all the articleList where elocationId does not contain UPDATED_ELOCATION_ID
-        defaultArticleShouldBeFound("elocationId.doesNotContain=" + UPDATED_ELOCATION_ID);
-    }
-
-    @Test
-    @Transactional
     void getAllArticlesByAuthorsIsEqualToSomething() throws Exception {
         // Initialize the database
         articleRepository.saveAndFlush(article);
@@ -655,392 +571,106 @@ class ArticleResourceIT {
 
     @Test
     @Transactional
-    void getAllArticlesByJournalIsEqualToSomething() throws Exception {
+    void getAllArticlesByDateIsEqualToSomething() throws Exception {
         // Initialize the database
         articleRepository.saveAndFlush(article);
 
-        // Get all the articleList where journal equals to DEFAULT_JOURNAL
-        defaultArticleShouldBeFound("journal.equals=" + DEFAULT_JOURNAL);
+        // Get all the articleList where date equals to DEFAULT_DATE
+        defaultArticleShouldBeFound("date.equals=" + DEFAULT_DATE);
 
-        // Get all the articleList where journal equals to UPDATED_JOURNAL
-        defaultArticleShouldNotBeFound("journal.equals=" + UPDATED_JOURNAL);
+        // Get all the articleList where date equals to UPDATED_DATE
+        defaultArticleShouldNotBeFound("date.equals=" + UPDATED_DATE);
     }
 
     @Test
     @Transactional
-    void getAllArticlesByJournalIsNotEqualToSomething() throws Exception {
+    void getAllArticlesByDateIsNotEqualToSomething() throws Exception {
         // Initialize the database
         articleRepository.saveAndFlush(article);
 
-        // Get all the articleList where journal not equals to DEFAULT_JOURNAL
-        defaultArticleShouldNotBeFound("journal.notEquals=" + DEFAULT_JOURNAL);
+        // Get all the articleList where date not equals to DEFAULT_DATE
+        defaultArticleShouldNotBeFound("date.notEquals=" + DEFAULT_DATE);
 
-        // Get all the articleList where journal not equals to UPDATED_JOURNAL
-        defaultArticleShouldBeFound("journal.notEquals=" + UPDATED_JOURNAL);
+        // Get all the articleList where date not equals to UPDATED_DATE
+        defaultArticleShouldBeFound("date.notEquals=" + UPDATED_DATE);
     }
 
     @Test
     @Transactional
-    void getAllArticlesByJournalIsInShouldWork() throws Exception {
+    void getAllArticlesByDateIsInShouldWork() throws Exception {
         // Initialize the database
         articleRepository.saveAndFlush(article);
 
-        // Get all the articleList where journal in DEFAULT_JOURNAL or UPDATED_JOURNAL
-        defaultArticleShouldBeFound("journal.in=" + DEFAULT_JOURNAL + "," + UPDATED_JOURNAL);
+        // Get all the articleList where date in DEFAULT_DATE or UPDATED_DATE
+        defaultArticleShouldBeFound("date.in=" + DEFAULT_DATE + "," + UPDATED_DATE);
 
-        // Get all the articleList where journal equals to UPDATED_JOURNAL
-        defaultArticleShouldNotBeFound("journal.in=" + UPDATED_JOURNAL);
+        // Get all the articleList where date equals to UPDATED_DATE
+        defaultArticleShouldNotBeFound("date.in=" + UPDATED_DATE);
     }
 
     @Test
     @Transactional
-    void getAllArticlesByJournalIsNullOrNotNull() throws Exception {
+    void getAllArticlesByDateIsNullOrNotNull() throws Exception {
         // Initialize the database
         articleRepository.saveAndFlush(article);
 
-        // Get all the articleList where journal is not null
-        defaultArticleShouldBeFound("journal.specified=true");
+        // Get all the articleList where date is not null
+        defaultArticleShouldBeFound("date.specified=true");
 
-        // Get all the articleList where journal is null
-        defaultArticleShouldNotBeFound("journal.specified=false");
+        // Get all the articleList where date is null
+        defaultArticleShouldNotBeFound("date.specified=false");
     }
 
     @Test
     @Transactional
-    void getAllArticlesByJournalContainsSomething() throws Exception {
+    void getAllArticlesByFlagIsEqualToSomething() throws Exception {
         // Initialize the database
         articleRepository.saveAndFlush(article);
+        Flag flag;
+        if (TestUtil.findAll(em, Flag.class).isEmpty()) {
+            flag = FlagResourceIT.createEntity(em);
+            em.persist(flag);
+            em.flush();
+        } else {
+            flag = TestUtil.findAll(em, Flag.class).get(0);
+        }
+        em.persist(flag);
+        em.flush();
+        article.addFlag(flag);
+        articleRepository.saveAndFlush(article);
+        Long flagId = flag.getId();
 
-        // Get all the articleList where journal contains DEFAULT_JOURNAL
-        defaultArticleShouldBeFound("journal.contains=" + DEFAULT_JOURNAL);
+        // Get all the articleList where flag equals to flagId
+        defaultArticleShouldBeFound("flagId.equals=" + flagId);
 
-        // Get all the articleList where journal contains UPDATED_JOURNAL
-        defaultArticleShouldNotBeFound("journal.contains=" + UPDATED_JOURNAL);
+        // Get all the articleList where flag equals to (flagId + 1)
+        defaultArticleShouldNotBeFound("flagId.equals=" + (flagId + 1));
     }
 
     @Test
     @Transactional
-    void getAllArticlesByJournalNotContainsSomething() throws Exception {
+    void getAllArticlesBySynonymIsEqualToSomething() throws Exception {
         // Initialize the database
         articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where journal does not contain DEFAULT_JOURNAL
-        defaultArticleShouldNotBeFound("journal.doesNotContain=" + DEFAULT_JOURNAL);
-
-        // Get all the articleList where journal does not contain UPDATED_JOURNAL
-        defaultArticleShouldBeFound("journal.doesNotContain=" + UPDATED_JOURNAL);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByVolumeIsEqualToSomething() throws Exception {
-        // Initialize the database
+        Synonym synonym;
+        if (TestUtil.findAll(em, Synonym.class).isEmpty()) {
+            synonym = SynonymResourceIT.createEntity(em);
+            em.persist(synonym);
+            em.flush();
+        } else {
+            synonym = TestUtil.findAll(em, Synonym.class).get(0);
+        }
+        em.persist(synonym);
+        em.flush();
+        article.addSynonym(synonym);
         articleRepository.saveAndFlush(article);
+        Long synonymId = synonym.getId();
 
-        // Get all the articleList where volume equals to DEFAULT_VOLUME
-        defaultArticleShouldBeFound("volume.equals=" + DEFAULT_VOLUME);
+        // Get all the articleList where synonym equals to synonymId
+        defaultArticleShouldBeFound("synonymId.equals=" + synonymId);
 
-        // Get all the articleList where volume equals to UPDATED_VOLUME
-        defaultArticleShouldNotBeFound("volume.equals=" + UPDATED_VOLUME);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByVolumeIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where volume not equals to DEFAULT_VOLUME
-        defaultArticleShouldNotBeFound("volume.notEquals=" + DEFAULT_VOLUME);
-
-        // Get all the articleList where volume not equals to UPDATED_VOLUME
-        defaultArticleShouldBeFound("volume.notEquals=" + UPDATED_VOLUME);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByVolumeIsInShouldWork() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where volume in DEFAULT_VOLUME or UPDATED_VOLUME
-        defaultArticleShouldBeFound("volume.in=" + DEFAULT_VOLUME + "," + UPDATED_VOLUME);
-
-        // Get all the articleList where volume equals to UPDATED_VOLUME
-        defaultArticleShouldNotBeFound("volume.in=" + UPDATED_VOLUME);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByVolumeIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where volume is not null
-        defaultArticleShouldBeFound("volume.specified=true");
-
-        // Get all the articleList where volume is null
-        defaultArticleShouldNotBeFound("volume.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByVolumeContainsSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where volume contains DEFAULT_VOLUME
-        defaultArticleShouldBeFound("volume.contains=" + DEFAULT_VOLUME);
-
-        // Get all the articleList where volume contains UPDATED_VOLUME
-        defaultArticleShouldNotBeFound("volume.contains=" + UPDATED_VOLUME);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByVolumeNotContainsSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where volume does not contain DEFAULT_VOLUME
-        defaultArticleShouldNotBeFound("volume.doesNotContain=" + DEFAULT_VOLUME);
-
-        // Get all the articleList where volume does not contain UPDATED_VOLUME
-        defaultArticleShouldBeFound("volume.doesNotContain=" + UPDATED_VOLUME);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByIssueIsEqualToSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where issue equals to DEFAULT_ISSUE
-        defaultArticleShouldBeFound("issue.equals=" + DEFAULT_ISSUE);
-
-        // Get all the articleList where issue equals to UPDATED_ISSUE
-        defaultArticleShouldNotBeFound("issue.equals=" + UPDATED_ISSUE);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByIssueIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where issue not equals to DEFAULT_ISSUE
-        defaultArticleShouldNotBeFound("issue.notEquals=" + DEFAULT_ISSUE);
-
-        // Get all the articleList where issue not equals to UPDATED_ISSUE
-        defaultArticleShouldBeFound("issue.notEquals=" + UPDATED_ISSUE);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByIssueIsInShouldWork() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where issue in DEFAULT_ISSUE or UPDATED_ISSUE
-        defaultArticleShouldBeFound("issue.in=" + DEFAULT_ISSUE + "," + UPDATED_ISSUE);
-
-        // Get all the articleList where issue equals to UPDATED_ISSUE
-        defaultArticleShouldNotBeFound("issue.in=" + UPDATED_ISSUE);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByIssueIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where issue is not null
-        defaultArticleShouldBeFound("issue.specified=true");
-
-        // Get all the articleList where issue is null
-        defaultArticleShouldNotBeFound("issue.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByIssueContainsSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where issue contains DEFAULT_ISSUE
-        defaultArticleShouldBeFound("issue.contains=" + DEFAULT_ISSUE);
-
-        // Get all the articleList where issue contains UPDATED_ISSUE
-        defaultArticleShouldNotBeFound("issue.contains=" + UPDATED_ISSUE);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByIssueNotContainsSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where issue does not contain DEFAULT_ISSUE
-        defaultArticleShouldNotBeFound("issue.doesNotContain=" + DEFAULT_ISSUE);
-
-        // Get all the articleList where issue does not contain UPDATED_ISSUE
-        defaultArticleShouldBeFound("issue.doesNotContain=" + UPDATED_ISSUE);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPagesIsEqualToSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pages equals to DEFAULT_PAGES
-        defaultArticleShouldBeFound("pages.equals=" + DEFAULT_PAGES);
-
-        // Get all the articleList where pages equals to UPDATED_PAGES
-        defaultArticleShouldNotBeFound("pages.equals=" + UPDATED_PAGES);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPagesIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pages not equals to DEFAULT_PAGES
-        defaultArticleShouldNotBeFound("pages.notEquals=" + DEFAULT_PAGES);
-
-        // Get all the articleList where pages not equals to UPDATED_PAGES
-        defaultArticleShouldBeFound("pages.notEquals=" + UPDATED_PAGES);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPagesIsInShouldWork() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pages in DEFAULT_PAGES or UPDATED_PAGES
-        defaultArticleShouldBeFound("pages.in=" + DEFAULT_PAGES + "," + UPDATED_PAGES);
-
-        // Get all the articleList where pages equals to UPDATED_PAGES
-        defaultArticleShouldNotBeFound("pages.in=" + UPDATED_PAGES);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPagesIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pages is not null
-        defaultArticleShouldBeFound("pages.specified=true");
-
-        // Get all the articleList where pages is null
-        defaultArticleShouldNotBeFound("pages.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPagesContainsSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pages contains DEFAULT_PAGES
-        defaultArticleShouldBeFound("pages.contains=" + DEFAULT_PAGES);
-
-        // Get all the articleList where pages contains UPDATED_PAGES
-        defaultArticleShouldNotBeFound("pages.contains=" + UPDATED_PAGES);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPagesNotContainsSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pages does not contain DEFAULT_PAGES
-        defaultArticleShouldNotBeFound("pages.doesNotContain=" + DEFAULT_PAGES);
-
-        // Get all the articleList where pages does not contain UPDATED_PAGES
-        defaultArticleShouldBeFound("pages.doesNotContain=" + UPDATED_PAGES);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPubDateIsEqualToSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pubDate equals to DEFAULT_PUB_DATE
-        defaultArticleShouldBeFound("pubDate.equals=" + DEFAULT_PUB_DATE);
-
-        // Get all the articleList where pubDate equals to UPDATED_PUB_DATE
-        defaultArticleShouldNotBeFound("pubDate.equals=" + UPDATED_PUB_DATE);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPubDateIsNotEqualToSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pubDate not equals to DEFAULT_PUB_DATE
-        defaultArticleShouldNotBeFound("pubDate.notEquals=" + DEFAULT_PUB_DATE);
-
-        // Get all the articleList where pubDate not equals to UPDATED_PUB_DATE
-        defaultArticleShouldBeFound("pubDate.notEquals=" + UPDATED_PUB_DATE);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPubDateIsInShouldWork() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pubDate in DEFAULT_PUB_DATE or UPDATED_PUB_DATE
-        defaultArticleShouldBeFound("pubDate.in=" + DEFAULT_PUB_DATE + "," + UPDATED_PUB_DATE);
-
-        // Get all the articleList where pubDate equals to UPDATED_PUB_DATE
-        defaultArticleShouldNotBeFound("pubDate.in=" + UPDATED_PUB_DATE);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPubDateIsNullOrNotNull() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pubDate is not null
-        defaultArticleShouldBeFound("pubDate.specified=true");
-
-        // Get all the articleList where pubDate is null
-        defaultArticleShouldNotBeFound("pubDate.specified=false");
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPubDateContainsSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pubDate contains DEFAULT_PUB_DATE
-        defaultArticleShouldBeFound("pubDate.contains=" + DEFAULT_PUB_DATE);
-
-        // Get all the articleList where pubDate contains UPDATED_PUB_DATE
-        defaultArticleShouldNotBeFound("pubDate.contains=" + UPDATED_PUB_DATE);
-    }
-
-    @Test
-    @Transactional
-    void getAllArticlesByPubDateNotContainsSomething() throws Exception {
-        // Initialize the database
-        articleRepository.saveAndFlush(article);
-
-        // Get all the articleList where pubDate does not contain DEFAULT_PUB_DATE
-        defaultArticleShouldNotBeFound("pubDate.doesNotContain=" + DEFAULT_PUB_DATE);
-
-        // Get all the articleList where pubDate does not contain UPDATED_PUB_DATE
-        defaultArticleShouldBeFound("pubDate.doesNotContain=" + UPDATED_PUB_DATE);
+        // Get all the articleList where synonym equals to (synonymId + 1)
+        defaultArticleShouldNotBeFound("synonymId.equals=" + (synonymId + 1));
     }
 
     @Test
@@ -1069,6 +699,32 @@ class ArticleResourceIT {
         defaultArticleShouldNotBeFound("associationId.equals=" + (associationId + 1));
     }
 
+    @Test
+    @Transactional
+    void getAllArticlesByFdaSubmissionIsEqualToSomething() throws Exception {
+        // Initialize the database
+        articleRepository.saveAndFlush(article);
+        FdaSubmission fdaSubmission;
+        if (TestUtil.findAll(em, FdaSubmission.class).isEmpty()) {
+            fdaSubmission = FdaSubmissionResourceIT.createEntity(em);
+            em.persist(fdaSubmission);
+            em.flush();
+        } else {
+            fdaSubmission = TestUtil.findAll(em, FdaSubmission.class).get(0);
+        }
+        em.persist(fdaSubmission);
+        em.flush();
+        article.addFdaSubmission(fdaSubmission);
+        articleRepository.saveAndFlush(article);
+        Long fdaSubmissionId = fdaSubmission.getId();
+
+        // Get all the articleList where fdaSubmission equals to fdaSubmissionId
+        defaultArticleShouldBeFound("fdaSubmissionId.equals=" + fdaSubmissionId);
+
+        // Get all the articleList where fdaSubmission equals to (fdaSubmissionId + 1)
+        defaultArticleShouldNotBeFound("fdaSubmissionId.equals=" + (fdaSubmissionId + 1));
+    }
+
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -1079,17 +735,12 @@ class ArticleResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(article.getId().intValue())))
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
+            .andExpect(jsonPath("$.[*].uid").value(hasItem(DEFAULT_UID)))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
             .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT.toString())))
             .andExpect(jsonPath("$.[*].link").value(hasItem(DEFAULT_LINK)))
-            .andExpect(jsonPath("$.[*].pmid").value(hasItem(DEFAULT_PMID)))
-            .andExpect(jsonPath("$.[*].elocationId").value(hasItem(DEFAULT_ELOCATION_ID)))
-            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
             .andExpect(jsonPath("$.[*].authors").value(hasItem(DEFAULT_AUTHORS)))
-            .andExpect(jsonPath("$.[*].journal").value(hasItem(DEFAULT_JOURNAL)))
-            .andExpect(jsonPath("$.[*].volume").value(hasItem(DEFAULT_VOLUME)))
-            .andExpect(jsonPath("$.[*].issue").value(hasItem(DEFAULT_ISSUE)))
-            .andExpect(jsonPath("$.[*].pages").value(hasItem(DEFAULT_PAGES)))
-            .andExpect(jsonPath("$.[*].pubDate").value(hasItem(DEFAULT_PUB_DATE)));
+            .andExpect(jsonPath("$.[*].date").value(hasItem(DEFAULT_DATE.toString())));
 
         // Check, that the count call also returns 1
         restArticleMockMvc
@@ -1139,17 +790,12 @@ class ArticleResourceIT {
         em.detach(updatedArticle);
         updatedArticle
             .type(UPDATED_TYPE)
+            .uid(UPDATED_UID)
+            .title(UPDATED_TITLE)
             .content(UPDATED_CONTENT)
             .link(UPDATED_LINK)
-            .pmid(UPDATED_PMID)
-            .elocationId(UPDATED_ELOCATION_ID)
-            .title(UPDATED_TITLE)
             .authors(UPDATED_AUTHORS)
-            .journal(UPDATED_JOURNAL)
-            .volume(UPDATED_VOLUME)
-            .issue(UPDATED_ISSUE)
-            .pages(UPDATED_PAGES)
-            .pubDate(UPDATED_PUB_DATE);
+            .date(UPDATED_DATE);
 
         restArticleMockMvc
             .perform(
@@ -1165,17 +811,12 @@ class ArticleResourceIT {
         assertThat(articleList).hasSize(databaseSizeBeforeUpdate);
         Article testArticle = articleList.get(articleList.size() - 1);
         assertThat(testArticle.getType()).isEqualTo(UPDATED_TYPE);
+        assertThat(testArticle.getUid()).isEqualTo(UPDATED_UID);
+        assertThat(testArticle.getTitle()).isEqualTo(UPDATED_TITLE);
         assertThat(testArticle.getContent()).isEqualTo(UPDATED_CONTENT);
         assertThat(testArticle.getLink()).isEqualTo(UPDATED_LINK);
-        assertThat(testArticle.getPmid()).isEqualTo(UPDATED_PMID);
-        assertThat(testArticle.getElocationId()).isEqualTo(UPDATED_ELOCATION_ID);
-        assertThat(testArticle.getTitle()).isEqualTo(UPDATED_TITLE);
         assertThat(testArticle.getAuthors()).isEqualTo(UPDATED_AUTHORS);
-        assertThat(testArticle.getJournal()).isEqualTo(UPDATED_JOURNAL);
-        assertThat(testArticle.getVolume()).isEqualTo(UPDATED_VOLUME);
-        assertThat(testArticle.getIssue()).isEqualTo(UPDATED_ISSUE);
-        assertThat(testArticle.getPages()).isEqualTo(UPDATED_PAGES);
-        assertThat(testArticle.getPubDate()).isEqualTo(UPDATED_PUB_DATE);
+        assertThat(testArticle.getDate()).isEqualTo(UPDATED_DATE);
     }
 
     @Test
@@ -1250,13 +891,7 @@ class ArticleResourceIT {
         Article partialUpdatedArticle = new Article();
         partialUpdatedArticle.setId(article.getId());
 
-        partialUpdatedArticle
-            .type(UPDATED_TYPE)
-            .content(UPDATED_CONTENT)
-            .link(UPDATED_LINK)
-            .title(UPDATED_TITLE)
-            .volume(UPDATED_VOLUME)
-            .issue(UPDATED_ISSUE);
+        partialUpdatedArticle.type(UPDATED_TYPE).uid(UPDATED_UID).title(UPDATED_TITLE).authors(UPDATED_AUTHORS);
 
         restArticleMockMvc
             .perform(
@@ -1272,17 +907,12 @@ class ArticleResourceIT {
         assertThat(articleList).hasSize(databaseSizeBeforeUpdate);
         Article testArticle = articleList.get(articleList.size() - 1);
         assertThat(testArticle.getType()).isEqualTo(UPDATED_TYPE);
-        assertThat(testArticle.getContent()).isEqualTo(UPDATED_CONTENT);
-        assertThat(testArticle.getLink()).isEqualTo(UPDATED_LINK);
-        assertThat(testArticle.getPmid()).isEqualTo(DEFAULT_PMID);
-        assertThat(testArticle.getElocationId()).isEqualTo(DEFAULT_ELOCATION_ID);
+        assertThat(testArticle.getUid()).isEqualTo(UPDATED_UID);
         assertThat(testArticle.getTitle()).isEqualTo(UPDATED_TITLE);
-        assertThat(testArticle.getAuthors()).isEqualTo(DEFAULT_AUTHORS);
-        assertThat(testArticle.getJournal()).isEqualTo(DEFAULT_JOURNAL);
-        assertThat(testArticle.getVolume()).isEqualTo(UPDATED_VOLUME);
-        assertThat(testArticle.getIssue()).isEqualTo(UPDATED_ISSUE);
-        assertThat(testArticle.getPages()).isEqualTo(DEFAULT_PAGES);
-        assertThat(testArticle.getPubDate()).isEqualTo(DEFAULT_PUB_DATE);
+        assertThat(testArticle.getContent()).isEqualTo(DEFAULT_CONTENT);
+        assertThat(testArticle.getLink()).isEqualTo(DEFAULT_LINK);
+        assertThat(testArticle.getAuthors()).isEqualTo(UPDATED_AUTHORS);
+        assertThat(testArticle.getDate()).isEqualTo(DEFAULT_DATE);
     }
 
     @Test
@@ -1299,17 +929,12 @@ class ArticleResourceIT {
 
         partialUpdatedArticle
             .type(UPDATED_TYPE)
+            .uid(UPDATED_UID)
+            .title(UPDATED_TITLE)
             .content(UPDATED_CONTENT)
             .link(UPDATED_LINK)
-            .pmid(UPDATED_PMID)
-            .elocationId(UPDATED_ELOCATION_ID)
-            .title(UPDATED_TITLE)
             .authors(UPDATED_AUTHORS)
-            .journal(UPDATED_JOURNAL)
-            .volume(UPDATED_VOLUME)
-            .issue(UPDATED_ISSUE)
-            .pages(UPDATED_PAGES)
-            .pubDate(UPDATED_PUB_DATE);
+            .date(UPDATED_DATE);
 
         restArticleMockMvc
             .perform(
@@ -1325,17 +950,12 @@ class ArticleResourceIT {
         assertThat(articleList).hasSize(databaseSizeBeforeUpdate);
         Article testArticle = articleList.get(articleList.size() - 1);
         assertThat(testArticle.getType()).isEqualTo(UPDATED_TYPE);
+        assertThat(testArticle.getUid()).isEqualTo(UPDATED_UID);
+        assertThat(testArticle.getTitle()).isEqualTo(UPDATED_TITLE);
         assertThat(testArticle.getContent()).isEqualTo(UPDATED_CONTENT);
         assertThat(testArticle.getLink()).isEqualTo(UPDATED_LINK);
-        assertThat(testArticle.getPmid()).isEqualTo(UPDATED_PMID);
-        assertThat(testArticle.getElocationId()).isEqualTo(UPDATED_ELOCATION_ID);
-        assertThat(testArticle.getTitle()).isEqualTo(UPDATED_TITLE);
         assertThat(testArticle.getAuthors()).isEqualTo(UPDATED_AUTHORS);
-        assertThat(testArticle.getJournal()).isEqualTo(UPDATED_JOURNAL);
-        assertThat(testArticle.getVolume()).isEqualTo(UPDATED_VOLUME);
-        assertThat(testArticle.getIssue()).isEqualTo(UPDATED_ISSUE);
-        assertThat(testArticle.getPages()).isEqualTo(UPDATED_PAGES);
-        assertThat(testArticle.getPubDate()).isEqualTo(UPDATED_PUB_DATE);
+        assertThat(testArticle.getDate()).isEqualTo(UPDATED_DATE);
     }
 
     @Test

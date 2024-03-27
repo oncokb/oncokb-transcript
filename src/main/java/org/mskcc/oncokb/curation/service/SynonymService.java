@@ -97,8 +97,8 @@ public class SynonymService {
         return synonymRepository.findById(id);
     }
 
-    public Optional<Synonym> findByTypeAndName(SynonymType synonymType, String name) {
-        return synonymRepository.findByTypeAndName(synonymType.name(), trimName(name));
+    public Optional<Synonym> findByTypeAndSourceAndName(SynonymType synonymType, String source, String name) {
+        return synonymRepository.findByTypeAndSourceAndName(synonymType.name(), source, trimName(name));
     }
 
     /**

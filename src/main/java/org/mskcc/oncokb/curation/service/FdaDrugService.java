@@ -54,6 +54,12 @@ public class FdaDrugService {
                 if (fdaDrug.getApplicationNumber() != null) {
                     existingFdaDrug.setApplicationNumber(fdaDrug.getApplicationNumber());
                 }
+                if (fdaDrug.getSponsorName() != null) {
+                    existingFdaDrug.setSponsorName(fdaDrug.getSponsorName());
+                }
+                if (fdaDrug.getOverallMarketingStatus() != null) {
+                    existingFdaDrug.setOverallMarketingStatus(fdaDrug.getOverallMarketingStatus());
+                }
 
                 return existingFdaDrug;
             })

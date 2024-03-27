@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.curation.importer;
 
+import static org.mskcc.oncokb.curation.config.Constants.DEFAULT_GENE_SYNONMN_SOURCE;
 import static org.mskcc.oncokb.curation.config.DataVersions.NCIT_VERSION;
 import static org.mskcc.oncokb.curation.util.FileUtils.parseDelimitedFile;
 
@@ -162,8 +163,9 @@ public class MetaImporter {
 
         log.info("Importing genomic indicator...");
         this.importGenomicIndicator();
-        log.info("Importing cancer type...");
-        oncoTreeImporter.generalImport();
+
+        log.info("Importing NCIT...");
+        this.importNcit();
 
         log.info("Importing core dataset...");
         coreImporter.generalImport();
@@ -223,11 +225,15 @@ public class MetaImporter {
                 .filter(synonym -> StringUtils.isNotEmpty(synonym.trim()))
                 .forEach(synonym -> {
                     String trimmedSynonym = synonym.trim();
-                    Optional<Synonym> synonymOptional = synonymService.findByTypeAndName(SynonymType.GENE, trimmedSynonym);
+                    Optional<Synonym> synonymOptional = synonymService.findByTypeAndSourceAndName(
+                        SynonymType.GENE,
+                        DEFAULT_GENE_SYNONMN_SOURCE,
+                        trimmedSynonym
+                    );
                     if (synonymOptional.isEmpty()) {
                         Synonym geneSynonym = new Synonym();
                         geneSynonym.setName(synonym.trim());
-                        geneSynonym.setSource("cBioPortal");
+                        geneSynonym.setSource(DEFAULT_GENE_SYNONMN_SOURCE);
                         geneSynonym.setType(SynonymType.GENE.name());
                         savedSynonyms.add(synonymService.save(geneSynonym));
                     } else {
@@ -351,7 +357,7 @@ public class MetaImporter {
                 if (StringUtils.isNotEmpty(line.get(4))) {
                     Set<AlleleState> alleleStateList = Arrays
                         .stream(line.get(4).split(","))
-                        .map(alleleState -> alleleStateService.findByName(alleleState.trim()).get())
+                        .map(alleleState -> alleleStateService.findByNameIgnoreCase(alleleState.trim()).get())
                         .collect(Collectors.toSet());
                     genomicIndicator.setAlleleStates(alleleStateList);
                     genomicIndicatorService.partialUpdate(genomicIndicator);
@@ -366,7 +372,7 @@ public class MetaImporter {
             }
             Alteration alteration;
             List<Alteration> alterationList = alterationService.findByNameOrAlterationAndGenesId(line.get(1), geneOptional.get().getId());
-            if (alterationList.size() == 0) {
+            if (alterationList.isEmpty()) {
                 log.warn("Cannot find alteration {} in {}, will create a new one.", line.get(1), line.get(0));
                 Alteration newAlt = new Alteration();
                 newAlt.setGenes(Collections.singleton(geneOptional.get()));
@@ -518,7 +524,11 @@ public class MetaImporter {
                     return synonym;
                 })
                 .map(synonym -> {
-                    Optional<Synonym> synonymOptional = synonymService.findByTypeAndName(SynonymType.NCIT, synonym.getName());
+                    Optional<Synonym> synonymOptional = synonymService.findByTypeAndSourceAndName(
+                        SynonymType.NCIT,
+                        "NCIT",
+                        synonym.getName()
+                    );
                     if (synonymOptional.isEmpty()) {
                         return synonymService.save(synonym);
                     } else {

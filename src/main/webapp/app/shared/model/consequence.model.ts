@@ -1,4 +1,5 @@
 import { IAlteration } from 'app/shared/model/alteration.model';
+import { ICategoricalAlteration } from 'app/shared/model/categorical-alteration.model';
 
 export interface IConsequence {
   id?: number;
@@ -7,6 +8,7 @@ export interface IConsequence {
   isGenerallyTruncating?: boolean;
   description?: string | null;
   alterations?: IAlteration[] | null;
+  categoricalAlterations?: ICategoricalAlteration[] | null;
 }
 
 export const defaultValue: Readonly<IConsequence> = {

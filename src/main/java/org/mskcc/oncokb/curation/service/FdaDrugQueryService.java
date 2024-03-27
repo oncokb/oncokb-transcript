@@ -88,6 +88,22 @@ public class FdaDrugQueryService extends QueryService<FdaDrug> {
             if (criteria.getApplicationNumber() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getApplicationNumber(), FdaDrug_.applicationNumber));
             }
+            if (criteria.getSponsorName() != null) {
+                specification = specification.or(buildStringSpecification(criteria.getSponsorName(), FdaDrug_.sponsorName));
+            }
+            if (criteria.getOverallMarketingStatus() != null) {
+                specification =
+                    specification.or(buildStringSpecification(criteria.getOverallMarketingStatus(), FdaDrug_.overallMarketingStatus));
+            }
+            if (criteria.getFdaSubmissionId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(
+                            criteria.getFdaSubmissionId(),
+                            root -> root.join(FdaDrug_.fdaSubmissions, JoinType.LEFT).get(FdaSubmission_.id)
+                        )
+                    );
+            }
             if (criteria.getDrugId() != null) {
                 specification =
                     specification.or(

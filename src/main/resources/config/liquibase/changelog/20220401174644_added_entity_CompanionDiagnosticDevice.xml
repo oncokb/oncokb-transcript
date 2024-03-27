@@ -33,6 +33,7 @@
         </createTable>
         <addUniqueConstraint tableName="companion_diagnostic_device" columnNames="name, manufacturer"/>
 
+        <dropDefaultValue tableName="companion_diagnostic_device" columnName="last_updated" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <changeSet id="20220401174644-1-relations" author="jhipster">

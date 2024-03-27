@@ -21,6 +21,8 @@ export const FdaSubmissionType = (props: IFdaSubmissionTypeProps) => {
     { accessor: 'type', Header: 'Type' },
     { accessor: 'name', Header: 'Name' },
     { accessor: 'shortName', Header: 'Short Name' },
+    { accessor: 'submissionPrefix', Header: 'Submission Prefix' },
+    { accessor: 'submissionLink', Header: 'Submission Link' },
     getEntityTableActionsColumn(ENTITY_TYPE.FDA_SUBMISSION_TYPE),
   ];
 

@@ -60,7 +60,7 @@ public class Transcript implements Serializable {
         joinColumns = @JoinColumn(name = "transcript_id"),
         inverseJoinColumns = @JoinColumn(name = "flag_id")
     )
-    @JsonIgnoreProperties(value = { "drugs", "genes", "transcripts" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "alterations", "articles", "drugs", "genes", "transcripts" }, allowSetters = true)
     private Set<Flag> flags = new HashSet<>();
 
     @NotNull
@@ -72,12 +72,12 @@ public class Transcript implements Serializable {
     @NotNull
     @ShallowReference
     @ManyToOne
-    @JsonIgnoreProperties(value = { "ensemblGenes", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "ensemblGenes", "evidences", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
     private Gene gene;
 
     @ShallowReference
     @ManyToMany(mappedBy = "transcripts")
-    @JsonIgnoreProperties(value = { "genes", "transcripts", "consequence", "associations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "flags", "genes", "transcripts", "consequence", "associations" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here

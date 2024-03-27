@@ -28,6 +28,14 @@ export const FdaDrugDetail = (props: IFdaDrugDetailProps) => {
             <span id="applicationNumber">Application Number</span>
           </dt>
           <dd>{fdaDrugEntity.applicationNumber}</dd>
+          <dt>
+            <span id="sponsorName">Sponsor Name</span>
+          </dt>
+          <dd>{fdaDrugEntity.sponsorName}</dd>
+          <dt>
+            <span id="overallMarketingStatus">Overall Marketing Status</span>
+          </dt>
+          <dd>{fdaDrugEntity.overallMarketingStatus}</dd>
           <dt>Drug</dt>
           <dd>{fdaDrugEntity.drug ? fdaDrugEntity.drug.name : ''}</dd>
         </dl>

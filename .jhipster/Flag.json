@@ -26,6 +26,20 @@
   "relationships": [
     {
       "relationshipType": "many-to-many",
+      "otherEntityName": "alteration",
+      "otherEntityRelationshipName": "flag",
+      "relationshipName": "alteration",
+      "ownerSide": false
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "article",
+      "otherEntityRelationshipName": "flag",
+      "relationshipName": "article",
+      "ownerSide": false
+    },
+    {
+      "relationshipType": "many-to-many",
       "otherEntityName": "drug",
       "otherEntityRelationshipName": "flag",
       "relationshipName": "drug",

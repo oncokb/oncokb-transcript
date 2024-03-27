@@ -39,7 +39,7 @@ public class ArticleQueryService extends QueryService<Article> {
         ArticleCriteria criteria = new ArticleCriteria();
         StringFilter stringFilter = new StringFilter();
         stringFilter.setContains(query);
-        criteria.setPmid(stringFilter);
+        criteria.setUid(stringFilter);
         return findByCriteria(criteria, page);
     }
 
@@ -95,26 +95,32 @@ public class ArticleQueryService extends QueryService<Article> {
             if (criteria.getId() != null) {
                 specification = specification.or(buildRangeSpecification(criteria.getId(), Article_.id));
             }
-            if (criteria.getPmid() != null) {
-                specification = specification.or(buildStringSpecification(criteria.getPmid(), Article_.pmid));
+            if (criteria.getType() != null) {
+                specification = specification.or(buildSpecification(criteria.getType(), Article_.type));
             }
-            if (criteria.getJournal() != null) {
-                specification = specification.or(buildStringSpecification(criteria.getJournal(), Article_.journal));
+            if (criteria.getUid() != null) {
+                specification = specification.or(buildStringSpecification(criteria.getUid(), Article_.uid));
             }
-            if (criteria.getPubDate() != null) {
-                specification = specification.or(buildStringSpecification(criteria.getPubDate(), Article_.pubDate));
-            }
-            if (criteria.getVolume() != null) {
-                specification = specification.or(buildStringSpecification(criteria.getVolume(), Article_.volume));
-            }
-            if (criteria.getIssue() != null) {
-                specification = specification.or(buildStringSpecification(criteria.getIssue(), Article_.issue));
-            }
-            if (criteria.getPages() != null) {
-                specification = specification.or(buildStringSpecification(criteria.getPages(), Article_.pages));
+            if (criteria.getLink() != null) {
+                specification = specification.or(buildStringSpecification(criteria.getLink(), Article_.link));
             }
             if (criteria.getAuthors() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getAuthors(), Article_.authors));
+            }
+            if (criteria.getDate() != null) {
+                specification = specification.or(buildRangeSpecification(criteria.getDate(), Article_.date));
+            }
+            if (criteria.getFlagId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(criteria.getFlagId(), root -> root.join(Article_.flags, JoinType.LEFT).get(Flag_.id))
+                    );
+            }
+            if (criteria.getSynonymId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(criteria.getSynonymId(), root -> root.join(Article_.synonyms, JoinType.LEFT).get(Synonym_.id))
+                    );
             }
             if (criteria.getAssociationId() != null) {
                 specification =

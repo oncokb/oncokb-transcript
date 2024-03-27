@@ -121,6 +121,15 @@ public class FdaSubmissionQueryService extends QueryService<FdaSubmission> {
             if (criteria.getGenetic() != null) {
                 specification = specification.or(buildSpecification(criteria.getGenetic(), FdaSubmission_.genetic));
             }
+            if (criteria.getArticleId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(
+                            criteria.getArticleId(),
+                            root -> root.join(FdaSubmission_.articles, JoinType.LEFT).get(Article_.id)
+                        )
+                    );
+            }
             if (criteria.getAssociationId() != null) {
                 specification =
                     specification.or(
@@ -136,6 +145,15 @@ public class FdaSubmissionQueryService extends QueryService<FdaSubmission> {
                         buildSpecification(
                             criteria.getCompanionDiagnosticDeviceId(),
                             root -> root.join(FdaSubmission_.companionDiagnosticDevice, JoinType.LEFT).get(CompanionDiagnosticDevice_.id)
+                        )
+                    );
+            }
+            if (criteria.getFdaDrugId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(
+                            criteria.getFdaDrugId(),
+                            root -> root.join(FdaSubmission_.fdaDrug, JoinType.LEFT).get(FdaDrug_.id)
                         )
                     );
             }

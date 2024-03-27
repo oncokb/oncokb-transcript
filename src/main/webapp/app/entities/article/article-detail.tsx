@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col } from 'reactstrap';
+import { Button, Row, Col, Badge } from 'reactstrap';
 import { byteSize } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootStore } from 'app/stores';
 import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
+import SynonymBadge from 'app/shared/badge/SynonymBadge';
+import WithSeparator from 'react-with-separator';
 export interface IArticleDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const ArticleDetail = (props: IArticleDetailProps) => {
@@ -38,14 +40,6 @@ export const ArticleDetail = (props: IArticleDetailProps) => {
           </dt>
           <dd>{articleEntity.link}</dd>
           <dt>
-            <span id="pmid">Pmid</span>
-          </dt>
-          <dd>{articleEntity.pmid}</dd>
-          <dt>
-            <span id="elocationId">Elocation Id</span>
-          </dt>
-          <dd>{articleEntity.elocationId}</dd>
-          <dt>
             <span id="title">Title</span>
           </dt>
           <dd>{articleEntity.title}</dd>
@@ -54,25 +48,13 @@ export const ArticleDetail = (props: IArticleDetailProps) => {
           </dt>
           <dd>{articleEntity.authors}</dd>
           <dt>
-            <span id="journal">Journal</span>
+            <span id="authors">Synonyms</span>
           </dt>
-          <dd>{articleEntity.journal}</dd>
-          <dt>
-            <span id="volume">Volume</span>
-          </dt>
-          <dd>{articleEntity.volume}</dd>
-          <dt>
-            <span id="issue">Issue</span>
-          </dt>
-          <dd>{articleEntity.issue}</dd>
-          <dt>
-            <span id="pages">Pages</span>
-          </dt>
-          <dd>{articleEntity.pages}</dd>
-          <dt>
-            <span id="pubDate">Pub Date</span>
-          </dt>
-          <dd>{articleEntity.pubDate}</dd>
+          <dd>
+            {articleEntity.synonyms?.map((synonym, index) => (
+              <SynonymBadge synonym={synonym} key={index} />
+            ))}
+          </dd>
         </dl>
         <EntityActionButton
           color="primary"

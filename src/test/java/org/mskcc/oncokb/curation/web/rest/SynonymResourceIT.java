@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
+import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.domain.NciThesaurus;
@@ -174,6 +175,28 @@ class SynonymResourceIT {
         int databaseSizeBeforeTest = synonymRepository.findAll().size();
         // set the field null
         synonym.setSource(null);
+
+        // Create the Synonym, which fails.
+
+        restSynonymMockMvc
+            .perform(
+                post(ENTITY_API_URL)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(synonym))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<Synonym> synonymList = synonymRepository.findAll();
+        assertThat(synonymList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkNameIsRequired() throws Exception {
+        int databaseSizeBeforeTest = synonymRepository.findAll().size();
+        // set the field null
+        synonym.setName(null);
 
         // Create the Synonym, which fails.
 
@@ -556,6 +579,32 @@ class SynonymResourceIT {
 
         // Get all the synonymList where name does not contain UPDATED_NAME
         defaultSynonymShouldBeFound("name.doesNotContain=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllSynonymsByArticleIsEqualToSomething() throws Exception {
+        // Initialize the database
+        synonymRepository.saveAndFlush(synonym);
+        Article article;
+        if (TestUtil.findAll(em, Article.class).isEmpty()) {
+            article = ArticleResourceIT.createEntity(em);
+            em.persist(article);
+            em.flush();
+        } else {
+            article = TestUtil.findAll(em, Article.class).get(0);
+        }
+        em.persist(article);
+        em.flush();
+        synonym.addArticle(article);
+        synonymRepository.saveAndFlush(synonym);
+        Long articleId = article.getId();
+
+        // Get all the synonymList where article equals to articleId
+        defaultSynonymShouldBeFound("articleId.equals=" + articleId);
+
+        // Get all the synonymList where article equals to (articleId + 1)
+        defaultSynonymShouldNotBeFound("articleId.equals=" + (articleId + 1));
     }
 
     @Test
