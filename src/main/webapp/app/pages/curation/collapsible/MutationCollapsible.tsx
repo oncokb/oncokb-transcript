@@ -359,6 +359,7 @@ const MutationCollapsible = ({
       {isEditingMutation ? (
         <AddMutationModal
           hugoSymbol={hugoSymbol}
+          isGermline={isGermline}
           mutationToEditPath={isEditingMutation ? mutationPath : null}
           onConfirm={async newMutation => {
             try {
