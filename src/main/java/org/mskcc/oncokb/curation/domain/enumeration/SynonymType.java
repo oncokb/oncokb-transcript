@@ -7,4 +7,5 @@ public enum SynonymType {
     GENE,
     NCIT,
     CANCER_TYPE,
+    ARTICLE,
 }

@@ -33,7 +33,6 @@ public class Evidence implements Serializable {
     @Column(name = "known_effect")
     private String knownEffect;
 
-    @DiffIgnore
     @Lob
     @Column(name = "description")
     private String description;
@@ -45,10 +44,11 @@ public class Evidence implements Serializable {
 
     @JsonIgnoreProperties(
         value = {
-            "associationCancerTypes",
+            "rules",
             "alterations",
             "articles",
-            "treatments",
+            "cancerTypes",
+            "drugs",
             "evidence",
             "clinicalTrials",
             "clinicalTrialArms",
@@ -59,7 +59,7 @@ public class Evidence implements Serializable {
         allowSetters = true
     )
     @ShallowReference
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(unique = true)
     private Association association;
 

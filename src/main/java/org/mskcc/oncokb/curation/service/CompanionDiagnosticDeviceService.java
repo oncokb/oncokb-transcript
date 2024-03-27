@@ -63,9 +63,9 @@ public class CompanionDiagnosticDeviceService {
                 }
                 if (companionDiagnosticDevice.getLastUpdated() != null) {
                     existingCompanionDiagnosticDevice.setLastUpdated(companionDiagnosticDevice.getLastUpdated());
+                } else {
+                    existingCompanionDiagnosticDevice.setLastUpdated(Instant.now());
                 }
-
-                existingCompanionDiagnosticDevice.setLastUpdated(Instant.now());
 
                 return existingCompanionDiagnosticDevice;
             })

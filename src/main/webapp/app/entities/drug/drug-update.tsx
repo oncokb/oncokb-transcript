@@ -9,12 +9,16 @@ import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import NcitCodeSelect, { parseNcitUniqId } from 'app/shared/select/NcitCodeSelect';
 import { generateUuid } from 'app/shared/util/utils';
+import { mapIdList } from 'app/shared/util/entity-utils';
 
 export interface IDrugUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const DrugUpdate = (props: IDrugUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
+  const nciThesauruses = props.nciThesauruses;
+  const flags = props.flags;
+  const associations = props.associations;
   const drugEntity = props.drugEntity;
   const [selectedNcit, setSelectedNcit] = useState({
     id: props.drugEntity?.nciThesaurus?.id,
@@ -34,6 +38,10 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
     } else {
       props.getEntity(props.match.params.id);
     }
+
+    props.getNciThesauruses({});
+    props.getFlags({});
+    props.getAssociations({});
   }, []);
 
   useEffect(() => {
@@ -53,6 +61,7 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
     const entity = {
       ...drugEntity,
       ...values,
+      flags: mapIdList(values.flags),
     };
     if (selectedNcit === undefined) {
       delete entity.nciThesaurus;
@@ -69,11 +78,11 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
 
   const defaultValues = () =>
     isNew
-      ? {
-          uuid: generateUuid(),
-        }
+      ? {}
       : {
           ...drugEntity,
+          nciThesaurusId: drugEntity?.nciThesaurus?.id,
+          flags: drugEntity?.flags?.map(e => e.id.toString()),
         };
 
   return (
@@ -92,8 +101,36 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
           ) : (
             <ValidatedForm defaultValues={defaultValues()} onSubmit={saveEntity}>
               {!isNew ? <ValidatedField name="id" required readOnly id="drug-id" label="ID" validate={{ required: true }} /> : null}
-              <ValidatedField name="uuid" required readOnly id="drug-uuid" label="UUID" validate={{ required: true }} />
-              <ValidatedField label="Name" id="drug-name" name="name" data-cy="name" type="textarea" />
+              <ValidatedField
+                label="Uuid"
+                id="drug-uuid"
+                name="uuid"
+                data-cy="uuid"
+                type="text"
+                validate={{
+                  required: { value: true, message: 'This field is required.' },
+                }}
+              />
+              <ValidatedField
+                label="Name"
+                id="drug-name"
+                name="name"
+                data-cy="name"
+                type="textarea"
+                validate={{
+                  required: { value: true, message: 'This field is required.' },
+                }}
+              />
+              <ValidatedField label="Flag" id="drug-flag" data-cy="flag" type="select" multiple name="flags">
+                <option value="" key="0" />
+                {flags
+                  ? flags.map(otherEntity => (
+                      <option value={otherEntity.id} key={otherEntity.id}>
+                        {otherEntity.id}
+                      </option>
+                    ))
+                  : null}
+              </ValidatedField>
               <FormGroup>
                 <Label>Code</Label>
                 <NcitCodeSelect
@@ -113,10 +150,16 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
 };
 
 const mapStoreToProps = (storeState: IRootStore) => ({
+  nciThesauruses: storeState.nciThesaurusStore.entities,
+  flags: storeState.flagStore.entities,
+  associations: storeState.associationStore.entities,
   drugEntity: storeState.drugStore.entity,
   loading: storeState.drugStore.loading,
   updating: storeState.drugStore.updating,
   updateSuccess: storeState.drugStore.updateSuccess,
+  getNciThesauruses: storeState.nciThesaurusStore.getEntities,
+  getFlags: storeState.flagStore.getEntities,
+  getAssociations: storeState.associationStore.getEntities,
   getEntity: storeState.drugStore.getEntity,
   updateEntity: storeState.drugStore.updateEntity,
   createEntity: storeState.drugStore.createEntity,

@@ -10,7 +10,7 @@
         Added the entity Alteration.
     -->
     <changeSet id="20220401174648-1" author="jhipster">
-        <createTable tableName="alteration" remarks="Entity">
+        <createTable tableName="alteration">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -46,6 +46,17 @@
     </changeSet>
 
     <changeSet id="20220401174648-1-relations" author="jhipster">
+
+        <createTable tableName="rel_alteration__flag">
+            <column name="flag_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="alteration_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="alteration_id, flag_id" tableName="rel_alteration__flag"/>
 
         <createTable tableName="rel_alteration__gene">
             <column name="gene_id" type="bigint">

@@ -60,6 +60,8 @@ public class AlterationCriteria implements Serializable, Criteria {
 
     private StringFilter variantResidues;
 
+    private LongFilter flagId;
+
     private LongFilter geneId;
 
     private LongFilter transcriptId;
@@ -82,6 +84,7 @@ public class AlterationCriteria implements Serializable, Criteria {
         this.end = other.end == null ? null : other.end.copy();
         this.refResidues = other.refResidues == null ? null : other.refResidues.copy();
         this.variantResidues = other.variantResidues == null ? null : other.variantResidues.copy();
+        this.flagId = other.flagId == null ? null : other.flagId.copy();
         this.geneId = other.geneId == null ? null : other.geneId.copy();
         this.transcriptId = other.transcriptId == null ? null : other.transcriptId.copy();
         this.consequenceId = other.consequenceId == null ? null : other.consequenceId.copy();
@@ -229,6 +232,21 @@ public class AlterationCriteria implements Serializable, Criteria {
         this.variantResidues = variantResidues;
     }
 
+    public LongFilter getFlagId() {
+        return flagId;
+    }
+
+    public LongFilter flagId() {
+        if (flagId == null) {
+            flagId = new LongFilter();
+        }
+        return flagId;
+    }
+
+    public void setFlagId(LongFilter flagId) {
+        this.flagId = flagId;
+    }
+
     public LongFilter getGeneId() {
         return geneId;
     }
@@ -316,6 +334,7 @@ public class AlterationCriteria implements Serializable, Criteria {
             Objects.equals(end, that.end) &&
             Objects.equals(refResidues, that.refResidues) &&
             Objects.equals(variantResidues, that.variantResidues) &&
+            Objects.equals(flagId, that.flagId) &&
             Objects.equals(geneId, that.geneId) &&
             Objects.equals(transcriptId, that.transcriptId) &&
             Objects.equals(consequenceId, that.consequenceId) &&
@@ -336,6 +355,7 @@ public class AlterationCriteria implements Serializable, Criteria {
             end,
             refResidues,
             variantResidues,
+            flagId,
             geneId,
             transcriptId,
             consequenceId,
@@ -357,6 +377,7 @@ public class AlterationCriteria implements Serializable, Criteria {
             (end != null ? "end=" + end + ", " : "") +
             (refResidues != null ? "refResidues=" + refResidues + ", " : "") +
             (variantResidues != null ? "variantResidues=" + variantResidues + ", " : "") +
+            (flagId != null ? "flagId=" + flagId + ", " : "") +
             (geneId != null ? "geneId=" + geneId + ", " : "") +
             (transcriptId != null ? "transcriptId=" + transcriptId + ", " : "") +
             (consequenceId != null ? "consequenceId=" + consequenceId + ", " : "") +

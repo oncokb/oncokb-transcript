@@ -64,6 +64,16 @@ public class FdaSubmission implements Serializable {
     private String note;
 
     @ShallowReference
+    @ManyToMany
+    @JoinTable(
+        name = "rel_fda_submission__article",
+        joinColumns = @JoinColumn(name = "fda_submission_id"),
+        inverseJoinColumns = @JoinColumn(name = "article_id")
+    )
+    @JsonIgnoreProperties(value = { "flags", "synonyms", "associations", "fdaSubmissions" }, allowSetters = true)
+    private Set<Article> articles = new HashSet<>();
+
+    @ShallowReference
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
         name = "rel_fda_submission__association",
@@ -76,12 +86,14 @@ public class FdaSubmission implements Serializable {
     )
     private Set<Association> associations = new HashSet<>();
 
-    @ShallowReference
     @ManyToOne
     @JsonIgnoreProperties(value = { "fdaSubmissions", "specimenTypes" }, allowSetters = true)
     private CompanionDiagnosticDevice companionDiagnosticDevice;
 
-    @ShallowReference
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "fdaSubmissions", "drug" }, allowSetters = true)
+    private FdaDrug fdaDrug;
+
     @ManyToOne
     @JsonIgnoreProperties(value = { "fdaSubmissions" }, allowSetters = true)
     private FdaSubmissionType type;
@@ -231,6 +243,31 @@ public class FdaSubmission implements Serializable {
         this.note = note;
     }
 
+    public Set<Article> getArticles() {
+        return this.articles;
+    }
+
+    public void setArticles(Set<Article> articles) {
+        this.articles = articles;
+    }
+
+    public FdaSubmission articles(Set<Article> articles) {
+        this.setArticles(articles);
+        return this;
+    }
+
+    public FdaSubmission addArticle(Article article) {
+        this.articles.add(article);
+        article.getFdaSubmissions().add(this);
+        return this;
+    }
+
+    public FdaSubmission removeArticle(Article article) {
+        this.articles.remove(article);
+        article.getFdaSubmissions().remove(this);
+        return this;
+    }
+
     public Set<Association> getAssociations() {
         return this.associations;
     }
@@ -266,6 +303,19 @@ public class FdaSubmission implements Serializable {
 
     public FdaSubmission companionDiagnosticDevice(CompanionDiagnosticDevice companionDiagnosticDevice) {
         this.setCompanionDiagnosticDevice(companionDiagnosticDevice);
+        return this;
+    }
+
+    public FdaDrug getFdaDrug() {
+        return this.fdaDrug;
+    }
+
+    public void setFdaDrug(FdaDrug fdaDrug) {
+        this.fdaDrug = fdaDrug;
+    }
+
+    public FdaSubmission fdaDrug(FdaDrug fdaDrug) {
+        this.setFdaDrug(fdaDrug);
         return this;
     }
 

@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Alteration;
@@ -151,14 +152,22 @@ public class AlterationResource {
      * {@code GET  /alterations} : get all the alterations.
      *
      * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of alterations in body.
      */
     @GetMapping("/alterations")
-    public ResponseEntity<List<Alteration>> getAllAlterations(Pageable pageable) {
-        log.debug("REST request to get Alterations");
-        Page<Alteration> page = alterationService.findAllWithEagerRelationships(pageable);
+    public ResponseEntity<List<Alteration>> getAllAlterations(AlterationCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get Alterations by criteria: {}", criteria);
+        Page<Alteration> page = alterationQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        return ResponseEntity
+            .ok()
+            .headers(headers)
+            .body(
+                alterationService.findAllWithEagerRelationshipsByIds(
+                    page.getContent().stream().map(Alteration::getId).collect(Collectors.toList())
+                )
+            );
     }
 
     /**

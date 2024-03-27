@@ -24,7 +24,7 @@ const OncokbBreadcrumb: React.FunctionComponent<StoreProps> = props => {
       case PAGE_ROUTE.ALTERATION:
         return props.alteration.name;
       case PAGE_ROUTE.ARTICLE:
-        return props.article.pmid;
+        return props.article.uid;
       case PAGE_ROUTE.DRUG:
         return props.drug.name;
       default:

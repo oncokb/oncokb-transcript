@@ -21,10 +21,9 @@ public interface CompanionDiagnosticDeviceRepository
         " left join fetch companionDiagnosticDevice.fdaSubmissions fa" +
         " left join fetch companionDiagnosticDevice.specimenTypes st" +
         " left join fetch fa.associations ba" +
-        " left join fetch ba.associationCancerTypes bact" +
-        " left join fetch bact.cancerType" +
-        " left join fetch ba.treatments bat" +
-        " left join fetch bat.drugs" +
+        " left join fetch ba.rules" +
+        " left join fetch ba.cancerTypes" +
+        " left join fetch ba.drugs" +
         " left join fetch ba.alterations baa" +
         " left join fetch baa.genes" +
         " left join fetch ba.fdaSubmissions"
@@ -37,10 +36,9 @@ public interface CompanionDiagnosticDeviceRepository
         " left join fetch companionDiagnosticDevice.fdaSubmissions fa" +
         " left join fetch companionDiagnosticDevice.specimenTypes st" +
         " left join fetch fa.associations ba" +
-        " left join fetch ba.associationCancerTypes bact" +
-        " left join fetch bact.cancerType" +
-        " left join fetch ba.treatments bat" +
-        " left join fetch bat.drugs" +
+        " left join fetch ba.rules" +
+        " left join fetch ba.cancerTypes" +
+        " left join fetch ba.drugs" +
         " left join fetch ba.alterations baa" +
         " left join fetch baa.genes" +
         " left join fetch ba.fdaSubmissions" +
@@ -56,10 +54,9 @@ public interface CompanionDiagnosticDeviceRepository
         " left join fetch companionDiagnosticDevice.fdaSubmissions fa" +
         " left join fetch companionDiagnosticDevice.specimenTypes st" +
         " left join fetch fa.associations ba" +
-        " left join fetch ba.associationCancerTypes bact" +
-        " left join fetch bact.cancerType" +
-        " left join fetch ba.treatments bat" +
-        " left join fetch bat.drugs" +
+        " left join fetch ba.rules" +
+        " left join fetch ba.cancerTypes" +
+        " left join fetch ba.drugs" +
         " left join fetch ba.alterations baa" +
         " left join fetch baa.genes" +
         " left join fetch ba.fdaSubmissions" +

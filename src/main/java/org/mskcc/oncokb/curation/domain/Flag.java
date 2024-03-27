@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.javers.core.metamodel.annotation.DiffIgnore;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A Flag.
@@ -34,19 +35,28 @@ public class Flag implements Serializable {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @DiffIgnore
     @Lob
     @Column(name = "description", nullable = false)
     private String description;
 
     @DiffIgnore
     @ManyToMany(mappedBy = "flags")
-    @JsonIgnoreProperties(value = { "nciThesaurus", "brands", "drugPriorities", "flags", "fdaDrug", "treatments" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "flags", "genes", "transcripts", "consequence", "associations" }, allowSetters = true)
+    private Set<Alteration> alterations = new HashSet<>();
+
+    @DiffIgnore
+    @ManyToMany(mappedBy = "flags")
+    @JsonIgnoreProperties(value = { "flags", "associations" }, allowSetters = true)
+    private Set<Article> articles = new HashSet<>();
+
+    @DiffIgnore
+    @ManyToMany(mappedBy = "flags")
+    @JsonIgnoreProperties(value = { "nciThesaurus", "fdaDrug", "flags", "associations" }, allowSetters = true)
     private Set<Drug> drugs = new HashSet<>();
 
     @DiffIgnore
     @ManyToMany(mappedBy = "flags")
-    @JsonIgnoreProperties(value = { "ensemblGenes", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "ensemblGenes", "evidences", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
     private Set<Gene> genes = new HashSet<>();
 
     @DiffIgnore
@@ -119,6 +129,68 @@ public class Flag implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Set<Alteration> getAlterations() {
+        return this.alterations;
+    }
+
+    public void setAlterations(Set<Alteration> alterations) {
+        if (this.alterations != null) {
+            this.alterations.forEach(i -> i.removeFlag(this));
+        }
+        if (alterations != null) {
+            alterations.forEach(i -> i.addFlag(this));
+        }
+        this.alterations = alterations;
+    }
+
+    public Flag alterations(Set<Alteration> alterations) {
+        this.setAlterations(alterations);
+        return this;
+    }
+
+    public Flag addAlteration(Alteration alteration) {
+        this.alterations.add(alteration);
+        alteration.getFlags().add(this);
+        return this;
+    }
+
+    public Flag removeAlteration(Alteration alteration) {
+        this.alterations.remove(alteration);
+        alteration.getFlags().remove(this);
+        return this;
+    }
+
+    public Set<Article> getArticles() {
+        return this.articles;
+    }
+
+    public void setArticles(Set<Article> articles) {
+        if (this.articles != null) {
+            this.articles.forEach(i -> i.removeFlag(this));
+        }
+        if (articles != null) {
+            articles.forEach(i -> i.addFlag(this));
+        }
+        this.articles = articles;
+    }
+
+    public Flag articles(Set<Article> articles) {
+        this.setArticles(articles);
+        return this;
+    }
+
+    public Flag addArticle(Article article) {
+        this.articles.add(article);
+        article.getFlags().add(this);
+        return this;
+    }
+
+    public Flag removeArticle(Article article) {
+        this.articles.remove(article);
+        article.getFlags().remove(this);
+        return this;
     }
 
     public Set<Drug> getDrugs() {

@@ -516,6 +516,32 @@ class GenomicIndicatorResourceIT {
 
     @Test
     @Transactional
+    void getAllGenomicIndicatorsByAlleleStateIsEqualToSomething() throws Exception {
+        // Initialize the database
+        genomicIndicatorRepository.saveAndFlush(genomicIndicator);
+        AlleleState alleleState;
+        if (TestUtil.findAll(em, AlleleState.class).isEmpty()) {
+            alleleState = AlleleStateResourceIT.createEntity(em);
+            em.persist(alleleState);
+            em.flush();
+        } else {
+            alleleState = TestUtil.findAll(em, AlleleState.class).get(0);
+        }
+        em.persist(alleleState);
+        em.flush();
+        genomicIndicator.addAlleleState(alleleState);
+        genomicIndicatorRepository.saveAndFlush(genomicIndicator);
+        Long alleleStateId = alleleState.getId();
+
+        // Get all the genomicIndicatorList where alleleState equals to alleleStateId
+        defaultGenomicIndicatorShouldBeFound("alleleStateId.equals=" + alleleStateId);
+
+        // Get all the genomicIndicatorList where alleleState equals to (alleleStateId + 1)
+        defaultGenomicIndicatorShouldNotBeFound("alleleStateId.equals=" + (alleleStateId + 1));
+    }
+
+    @Test
+    @Transactional
     void getAllGenomicIndicatorsByAssociationIsEqualToSomething() throws Exception {
         // Initialize the database
         genomicIndicatorRepository.saveAndFlush(genomicIndicator);

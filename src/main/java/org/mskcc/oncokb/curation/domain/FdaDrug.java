@@ -2,8 +2,11 @@ package org.mskcc.oncokb.curation.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**
  * A FdaDrug.
@@ -23,9 +26,20 @@ public class FdaDrug implements Serializable {
     @Column(name = "application_number", nullable = false, unique = true)
     private String applicationNumber;
 
-    @JsonIgnoreProperties(value = { "nciThesaurus", "brands", "drugPriorities", "flags", "fdaDrug", "treatments" }, allowSetters = true)
-    @OneToOne
-    @JoinColumn(unique = true)
+    @Column(name = "sponsor_name")
+    private String sponsorName;
+
+    @Column(name = "overall_marketing_status")
+    private String overallMarketingStatus;
+
+    @ShallowReference
+    @OneToMany(mappedBy = "fdaDrug")
+    @JsonIgnoreProperties(value = { "articles", "associations", "companionDiagnosticDevice", "fdaDrug", "type" }, allowSetters = true)
+    private Set<FdaSubmission> fdaSubmissions = new HashSet<>();
+
+    @ShallowReference
+    @ManyToOne
+    @JsonIgnoreProperties(value = { "nciThesaurus", "fdaDrugs", "flags", "associations" }, allowSetters = true)
     private Drug drug;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -54,6 +68,63 @@ public class FdaDrug implements Serializable {
 
     public void setApplicationNumber(String applicationNumber) {
         this.applicationNumber = applicationNumber;
+    }
+
+    public String getSponsorName() {
+        return this.sponsorName;
+    }
+
+    public FdaDrug sponsorName(String sponsorName) {
+        this.setSponsorName(sponsorName);
+        return this;
+    }
+
+    public void setSponsorName(String sponsorName) {
+        this.sponsorName = sponsorName;
+    }
+
+    public String getOverallMarketingStatus() {
+        return this.overallMarketingStatus;
+    }
+
+    public FdaDrug overallMarketingStatus(String overallMarketingStatus) {
+        this.setOverallMarketingStatus(overallMarketingStatus);
+        return this;
+    }
+
+    public void setOverallMarketingStatus(String overallMarketingStatus) {
+        this.overallMarketingStatus = overallMarketingStatus;
+    }
+
+    public Set<FdaSubmission> getFdaSubmissions() {
+        return this.fdaSubmissions;
+    }
+
+    public void setFdaSubmissions(Set<FdaSubmission> fdaSubmissions) {
+        if (this.fdaSubmissions != null) {
+            this.fdaSubmissions.forEach(i -> i.setFdaDrug(null));
+        }
+        if (fdaSubmissions != null) {
+            fdaSubmissions.forEach(i -> i.setFdaDrug(this));
+        }
+        this.fdaSubmissions = fdaSubmissions;
+    }
+
+    public FdaDrug fdaSubmissions(Set<FdaSubmission> fdaSubmissions) {
+        this.setFdaSubmissions(fdaSubmissions);
+        return this;
+    }
+
+    public FdaDrug addFdaSubmission(FdaSubmission fdaSubmission) {
+        this.fdaSubmissions.add(fdaSubmission);
+        fdaSubmission.setFdaDrug(this);
+        return this;
+    }
+
+    public FdaDrug removeFdaSubmission(FdaSubmission fdaSubmission) {
+        this.fdaSubmissions.remove(fdaSubmission);
+        fdaSubmission.setFdaDrug(null);
+        return this;
     }
 
     public Drug getDrug() {
@@ -94,6 +165,8 @@ public class FdaDrug implements Serializable {
         return "FdaDrug{" +
             "id=" + getId() +
             ", applicationNumber='" + getApplicationNumber() + "'" +
+            ", sponsorName='" + getSponsorName() + "'" +
+            ", overallMarketingStatus='" + getOverallMarketingStatus() + "'" +
             "}";
     }
 }

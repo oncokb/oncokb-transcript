@@ -17,8 +17,14 @@
             <column name="application_number" type="varchar(255)">
                 <constraints nullable="false" unique="true" uniqueConstraintName="ux_fda_drug__application_number" />
             </column>
+            <column name="sponsor_name" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="overall_marketing_status" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
             <column name="drug_id" type="bigint">
-                <constraints nullable="true" unique="true" uniqueConstraintName="ux_fda_drug__drug_id" />
+                <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>

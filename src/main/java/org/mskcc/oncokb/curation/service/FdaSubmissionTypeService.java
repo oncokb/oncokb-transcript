@@ -57,6 +57,12 @@ public class FdaSubmissionTypeService {
                 if (fdaSubmissionType.getShortName() != null) {
                     existingFdaSubmissionType.setShortName(fdaSubmissionType.getShortName());
                 }
+                if (fdaSubmissionType.getSubmissionPrefix() != null) {
+                    existingFdaSubmissionType.setSubmissionPrefix(fdaSubmissionType.getSubmissionPrefix());
+                }
+                if (fdaSubmissionType.getSubmissionLink() != null) {
+                    existingFdaSubmissionType.setSubmissionLink(fdaSubmissionType.getSubmissionLink());
+                }
                 if (fdaSubmissionType.getDescription() != null) {
                     existingFdaSubmissionType.setDescription(fdaSubmissionType.getDescription());
                 }

@@ -47,6 +47,9 @@
             <column name="companion_diagnostic_device_id" type="bigint">
                 <constraints nullable="true" />
             </column>
+            <column name="fda_drug_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
             <column name="type_id" type="bigint">
                 <constraints nullable="true" />
             </column>
@@ -62,6 +65,17 @@
     </changeSet>
 
     <changeSet id="20220401174646-1-relations" author="jhipster">
+
+        <createTable tableName="rel_fda_submission__article">
+            <column name="article_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fda_submission_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="fda_submission_id, article_id" tableName="rel_fda_submission__article"/>
 
         <createTable tableName="rel_fda_submission__association">
             <column name="association_id" type="bigint">

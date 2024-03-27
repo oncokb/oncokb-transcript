@@ -20,6 +20,8 @@ public class ApplicationProperties extends org.mskcc.oncokb.meta.model.applicati
 
     private String oncokbDataRepoDir;
 
+    private String nihEutilsToken;
+
     public OncoKbConfig getOncokb() {
         return oncokb;
     }
@@ -50,5 +52,13 @@ public class ApplicationProperties extends org.mskcc.oncokb.meta.model.applicati
 
     public void setOncokbDataRepoDir(String oncokbDataRepoDir) {
         this.oncokbDataRepoDir = oncokbDataRepoDir;
+    }
+
+    public String getNihEutilsToken() {
+        return nihEutilsToken;
+    }
+
+    public void setNihEutilsToken(String nihEutilsToken) {
+        this.nihEutilsToken = nihEutilsToken;
     }
 }

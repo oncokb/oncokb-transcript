@@ -5,9 +5,9 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.domain.NciThesaurus;
 import org.mskcc.oncokb.curation.repository.NciThesaurusRepository;
 import org.mskcc.oncokb.curation.service.NciThesaurusQueryService;
@@ -152,14 +152,22 @@ public class NciThesaurusResource {
      * {@code GET  /nci-thesauruses} : get all the nciThesauruses.
      *
      * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of nciThesauruses in body.
      */
     @GetMapping("/nci-thesauruses")
-    public ResponseEntity<List<NciThesaurus>> getAllNciThesauruses(Pageable pageable) {
-        log.debug("REST request to get NciThesauruses");
-        Page<NciThesaurus> page = nciThesaurusService.findAllWithEagerRelationships(pageable);
+    public ResponseEntity<List<NciThesaurus>> getAllNciThesauruses(NciThesaurusCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get NciThesauruses by criteria: {}", criteria);
+        Page<NciThesaurus> page = nciThesaurusQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        return ResponseEntity
+            .ok()
+            .headers(headers)
+            .body(
+                nciThesaurusService.findAllWithEagerRelationships(
+                    page.getContent().stream().map(NciThesaurus::getId).collect(Collectors.toList())
+                )
+            );
     }
 
     /**

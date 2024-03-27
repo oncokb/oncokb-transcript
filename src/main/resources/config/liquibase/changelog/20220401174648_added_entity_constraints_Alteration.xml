@@ -9,6 +9,18 @@
     <changeSet id="20220401174648-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="alteration_id"
+                                 baseTableName="rel_alteration__flag"
+                                 constraintName="fk_rel_alteration__flag__alteration_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="alteration"/>
+
+        <addForeignKeyConstraint baseColumnNames="flag_id"
+                                 baseTableName="rel_alteration__flag"
+                                 constraintName="fk_rel_alteration__flag__flag_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="flag"/>
+
+        <addForeignKeyConstraint baseColumnNames="alteration_id"
                                  baseTableName="rel_alteration__gene"
                                  constraintName="fk_rel_alteration__gene__alteration_id"
                                  referencedColumnNames="id"

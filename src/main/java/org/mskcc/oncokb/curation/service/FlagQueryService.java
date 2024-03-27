@@ -5,7 +5,6 @@ import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.repository.FlagRepository;
-import org.mskcc.oncokb.curation.service.criteria.ArticleCriteria;
 import org.mskcc.oncokb.curation.service.criteria.FlagCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,6 +105,21 @@ public class FlagQueryService extends QueryService<Flag> {
             }
             if (criteria.getName() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getName(), Flag_.name));
+            }
+            if (criteria.getAlterationId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(
+                            criteria.getAlterationId(),
+                            root -> root.join(Flag_.alterations, JoinType.LEFT).get(Alteration_.id)
+                        )
+                    );
+            }
+            if (criteria.getArticleId() != null) {
+                specification =
+                    specification.or(
+                        buildSpecification(criteria.getArticleId(), root -> root.join(Flag_.articles, JoinType.LEFT).get(Article_.id))
+                    );
             }
             if (criteria.getDrugId() != null) {
                 specification =

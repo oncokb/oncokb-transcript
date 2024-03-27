@@ -43,6 +43,13 @@
   "relationships": [
     {
       "relationshipType": "many-to-many",
+      "otherEntityName": "flag",
+      "otherEntityRelationshipName": "alteration",
+      "relationshipName": "flag",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-many",
       "otherEntityName": "gene",
       "otherEntityRelationshipName": "alteration",
       "relationshipName": "gene",

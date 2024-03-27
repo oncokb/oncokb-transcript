@@ -1,9 +1,13 @@
 export enum FdaSubmissionTypeKey {
-  PMA = 'PMA',
+  DEVICE_PMA = 'DEVICE_PMA',
 
-  DE_NOVO = 'DE_NOVO',
+  DEVICE_DENOVO = 'DEVICE_DENOVO',
 
-  HDE = 'HDE',
+  DEVICE_HDE = 'DEVICE_HDE',
 
-  PMN = 'PMN',
+  DEVICE_PMN = 'DEVICE_PMN',
+
+  DRUG_NDA = 'DRUG_NDA',
+
+  DRUG_BLA = 'DRUG_BLA',
 }

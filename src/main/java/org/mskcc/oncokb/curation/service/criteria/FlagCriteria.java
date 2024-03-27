@@ -32,6 +32,10 @@ public class FlagCriteria implements Serializable, Criteria {
 
     private StringFilter name;
 
+    private LongFilter alterationId;
+
+    private LongFilter articleId;
+
     private LongFilter drugId;
 
     private LongFilter geneId;
@@ -47,6 +51,8 @@ public class FlagCriteria implements Serializable, Criteria {
         this.type = other.type == null ? null : other.type.copy();
         this.flag = other.flag == null ? null : other.flag.copy();
         this.name = other.name == null ? null : other.name.copy();
+        this.alterationId = other.alterationId == null ? null : other.alterationId.copy();
+        this.articleId = other.articleId == null ? null : other.articleId.copy();
         this.drugId = other.drugId == null ? null : other.drugId.copy();
         this.geneId = other.geneId == null ? null : other.geneId.copy();
         this.transcriptId = other.transcriptId == null ? null : other.transcriptId.copy();
@@ -118,6 +124,36 @@ public class FlagCriteria implements Serializable, Criteria {
         this.name = name;
     }
 
+    public LongFilter getAlterationId() {
+        return alterationId;
+    }
+
+    public LongFilter alterationId() {
+        if (alterationId == null) {
+            alterationId = new LongFilter();
+        }
+        return alterationId;
+    }
+
+    public void setAlterationId(LongFilter alterationId) {
+        this.alterationId = alterationId;
+    }
+
+    public LongFilter getArticleId() {
+        return articleId;
+    }
+
+    public LongFilter articleId() {
+        if (articleId == null) {
+            articleId = new LongFilter();
+        }
+        return articleId;
+    }
+
+    public void setArticleId(LongFilter articleId) {
+        this.articleId = articleId;
+    }
+
     public LongFilter getDrugId() {
         return drugId;
     }
@@ -185,6 +221,8 @@ public class FlagCriteria implements Serializable, Criteria {
             Objects.equals(type, that.type) &&
             Objects.equals(flag, that.flag) &&
             Objects.equals(name, that.name) &&
+            Objects.equals(alterationId, that.alterationId) &&
+            Objects.equals(articleId, that.articleId) &&
             Objects.equals(drugId, that.drugId) &&
             Objects.equals(geneId, that.geneId) &&
             Objects.equals(transcriptId, that.transcriptId) &&
@@ -194,7 +232,7 @@ public class FlagCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, type, flag, name, drugId, geneId, transcriptId, distinct);
+        return Objects.hash(id, type, flag, name, alterationId, articleId, drugId, geneId, transcriptId, distinct);
     }
 
     // prettier-ignore
@@ -205,6 +243,8 @@ public class FlagCriteria implements Serializable, Criteria {
             (type != null ? "type=" + type + ", " : "") +
             (flag != null ? "flag=" + flag + ", " : "") +
             (name != null ? "name=" + name + ", " : "") +
+            (alterationId != null ? "alterationId=" + alterationId + ", " : "") +
+            (articleId != null ? "articleId=" + articleId + ", " : "") +
             (drugId != null ? "drugId=" + drugId + ", " : "") +
             (geneId != null ? "geneId=" + geneId + ", " : "") +
             (transcriptId != null ? "transcriptId=" + transcriptId + ", " : "") +

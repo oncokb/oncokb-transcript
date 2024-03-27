@@ -220,24 +220,6 @@ class NciThesaurusResourceIT {
             .andExpect(jsonPath("$.[*].displayName").value(hasItem(DEFAULT_DISPLAY_NAME)));
     }
 
-    @SuppressWarnings({ "unchecked" })
-    void getAllNciThesaurusesWithEagerRelationshipsIsEnabled() throws Exception {
-        when(nciThesaurusServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restNciThesaurusMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(nciThesaurusServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
-    @SuppressWarnings({ "unchecked" })
-    void getAllNciThesaurusesWithEagerRelationshipsIsNotEnabled() throws Exception {
-        when(nciThesaurusServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-
-        restNciThesaurusMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
-
-        verify(nciThesaurusServiceMock, times(1)).findAllWithEagerRelationships(any());
-    }
-
     @Test
     @Transactional
     void getNciThesaurus() throws Exception {

@@ -63,7 +63,7 @@ describe('Entity utils', () => {
       expect(getEntityTitle(ENTITY_TYPE.ALTERATION)).toEqual('Alterations');
     });
     it('should generate a title when the route does not have a predefined title, and not part of page route', () => {
-      expect(getEntityTitle(ENTITY_TYPE.ASSOCIATION_CANCER_TYPE)).toEqual('Association Cancer Types');
+      expect(getEntityTitle(ENTITY_TYPE.ASSOCIATION)).toEqual('Associations');
     });
   });
 });
