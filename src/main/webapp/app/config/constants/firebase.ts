@@ -45,7 +45,7 @@ export enum FB_COLLECTION {
   SETTING = 'Setting',
   USERS = 'Users',
   VUS = 'VUS',
-  GERMLINE_VUS = 'GERMLINE_VUS',
+  GERMLINE_VUS = 'Germline_VUS',
 }
 
 export const FB_COLLECTION_PATH = {

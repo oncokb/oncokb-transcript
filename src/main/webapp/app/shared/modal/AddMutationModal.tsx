@@ -12,7 +12,7 @@ import { Alert, Button, Col, Input, Row } from 'reactstrap';
 import { AlterationTypeEnum, EntityStatusAlteration, Gene } from '../api/generated';
 import { Alteration, Mutation, VusObjList } from '../model/firebase/firebase.model';
 import { IGene } from '../model/gene.model';
-import { getDuplicateMutations, getFirebasePath } from '../util/firebase/firebase-utils';
+import { getDuplicateMutations, getFirebaseGenePath, getFirebaseVusPath } from '../util/firebase/firebase-utils';
 import { componentInject } from '../util/typed-inject';
 import { notNullOrUndefined, parseAlterationName } from '../util/utils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
@@ -38,6 +38,7 @@ type AlterationData = {
 
 interface IAddMutationModalProps extends StoreProps {
   hugoSymbol: string;
+  isGermline: boolean;
   onConfirm: (mutation: Mutation) => void;
   onCancel: () => void;
   mutationToEditPath?: string;
@@ -45,6 +46,7 @@ interface IAddMutationModalProps extends StoreProps {
 
 function AddMutationModal({
   hugoSymbol,
+  isGermline,
   mutationToEditPath,
   annotateAlteration,
   geneEntities,
@@ -85,7 +87,7 @@ function AddMutationModal({
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
-      onValue(ref(firebaseDb, `${getFirebasePath('GENE', hugoSymbol)}/mutations`), snapshot => {
+      onValue(ref(firebaseDb, `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`), snapshot => {
         setMutationList(snapshot.val() || []);
         if (!mutationListInitialized) {
           setMutationListInitialized(true);
@@ -93,7 +95,7 @@ function AddMutationModal({
       })
     );
     callbacks.push(
-      onValue(ref(firebaseDb, getFirebasePath('VUS', hugoSymbol)), snapshot => {
+      onValue(ref(firebaseDb, getFirebaseVusPath(isGermline, hugoSymbol)), snapshot => {
         setVusList(snapshot.val());
       })
     );

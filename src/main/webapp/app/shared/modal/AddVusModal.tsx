@@ -5,7 +5,7 @@ import { parseAlterationName } from '../util/utils';
 import _ from 'lodash';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
-import { DuplicateMutationInfo, getDuplicateMutations, getFirebasePath } from '../util/firebase/firebase-utils';
+import { DuplicateMutationInfo, getDuplicateMutations, getFirebaseGenePath } from '../util/firebase/firebase-utils';
 import { componentInject } from '../util/typed-inject';
 import { observer } from 'mobx-react';
 import { IRootStore } from 'app/stores';
@@ -14,6 +14,7 @@ import { Button, Col, Row } from 'reactstrap';
 
 export interface IAddVusModalProps extends StoreProps {
   hugoSymbol: string;
+  isGermline: boolean;
   vusList: VusObjList;
   onCancel: () => void;
   onConfirm: (variants: string[]) => void;
@@ -30,7 +31,7 @@ const createOption = (label: string) => ({
 });
 
 const AddVusModalV2 = (props: IAddVusModalProps) => {
-  const firebaseMutationPath = `${getFirebasePath('GENE', props.hugoSymbol)}/mutations`;
+  const firebaseMutationPath = `${getFirebaseGenePath(props.isGermline, props.hugoSymbol)}/mutations`;
   const [mutationList, setMutationList] = useState<Mutation[]>(undefined);
   const [duplicateAlterations, setDuplicateAlterations] = useState<DuplicateMutationInfo[]>([]);
   const [inputValue, setInputValue] = useState('');

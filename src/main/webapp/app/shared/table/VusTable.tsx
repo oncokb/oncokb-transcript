@@ -237,7 +237,13 @@ const VusTable = ({
         <AddButton title="VUS" showIcon onClickHandler={() => setShowAddVusModal(true)} />
       )}
       {showAddVusModal ? (
-        <AddVusModal hugoSymbol={hugoSymbol} vusList={vusData} onCancel={() => setShowAddVusModal(false)} onConfirm={handleAddVus} />
+        <AddVusModal
+          hugoSymbol={hugoSymbol}
+          isGermline={isGermline}
+          vusList={vusData}
+          onCancel={() => setShowAddVusModal(false)}
+          onConfirm={handleAddVus}
+        />
       ) : undefined}
     </>
   );

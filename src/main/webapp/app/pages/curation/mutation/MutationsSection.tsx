@@ -141,6 +141,7 @@ function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistory
       {showAddMutationModal && (
         <AddMutationModal
           hugoSymbol={hugoSymbol}
+          isGermline={isGermline}
           onConfirm={newMutation => {
             try {
               addMutation(mutationsPath, newMutation);
