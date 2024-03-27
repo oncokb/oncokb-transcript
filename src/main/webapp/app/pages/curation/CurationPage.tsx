@@ -43,23 +43,15 @@ export const CurationPage = (props: ICurationPageProps) => {
   const firebaseHistoryPath = getFirebaseHistoryPath(isGermline, hugoSymbol);
   const firebaseMetaCurrentReviewerPath = `${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review/currentReviewer`;
 
-  const [geneName, setGeneName] = useState(undefined);
-
-  const [isReviewing, setIsReviewing] = useState(false);
+  const [isReviewing, setIsReviewing] = useState(null);
   const [isReviewFinished, setIsReviewFinished] = useState(false);
 
   useEffect(() => {
     if (props.firebaseInitSuccess) {
       props.searchGeneEntities({ query: hugoSymbol, exact: true });
+
       const cleanupCallbacks = [];
-      props.addHistoryListener(firebaseHistoryPath);
-      onValue(
-        ref(props.firebaseDb, `${firebaseGenePath}/name`),
-        snapshot => {
-          setGeneName(snapshot.val());
-        },
-        { onlyOnce: true }
-      );
+      cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
       cleanupCallbacks.push(
         onValue(ref(props.firebaseDb, firebaseMetaCurrentReviewerPath), snapshot => {
           const currentReviewer = snapshot.val();
@@ -103,14 +95,13 @@ export const CurationPage = (props: ICurationPageProps) => {
     return newList;
   }, [props.historyData]);
 
-  return props.firebaseInitSuccess && !props.loadingGenes && !!geneName && props.drugList.length > 0 ? (
+  return props.firebaseInitSuccess && !props.loadingGenes && props.drugList.length > 0 && isReviewing !== null ? (
     <div>
       <Row className={'mb-2'}>
         <Col>
           <GeneHeader
             hugoSymbol={hugoSymbol}
             firebaseGenePath={firebaseGenePath}
-            geneName={geneName}
             geneEntity={geneEntity}
             isReviewing={isReviewing}
             isReviewFinished={isReviewFinished}
