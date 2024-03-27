@@ -1,0 +1,29 @@
+{
+  "name": "FdaDrug",
+  "fields": [
+    {
+      "fieldName": "applicationNumber",
+      "fieldType": "String",
+      "fieldValidateRules": ["unique", "required"]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-one",
+      "otherEntityName": "drug",
+      "otherEntityRelationshipName": "fdaDrug",
+      "relationshipName": "drug",
+      "ownerSide": true
+    }
+  ],
+  "entityTableName": "fda_drug",
+  "dto": "no",
+  "pagination": "pagination",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": true,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20230525144705"
+}

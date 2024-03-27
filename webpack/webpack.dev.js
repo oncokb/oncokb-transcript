@@ -27,15 +27,34 @@ module.exports = async options =>
     module: {
       rules: [
         {
+          test: /\.module\.scss$/,
+          use: [
+            'style-loader',
+            {
+              loader: 'css-loader',
+              options: {
+                modules: {
+                  localIdentName: '[name]__[local]__[hash:base64:5]',
+                },
+                importLoaders: 2,
+              },
+            },
+            'sass-loader',
+            utils.sassResourcesLoader,
+          ],
+        },
+        {
           test: /\.(sa|sc|c)ss$/,
+          exclude: /\.module\.scss$/,
           use: [
             'style-loader',
             'css-loader',
             'postcss-loader',
             {
               loader: 'sass-loader',
-              options: { implementation: sass },
+              options: { sourceMap: true },
             },
+            utils.sassResourcesLoader,
           ],
         },
       ],
@@ -48,7 +67,7 @@ module.exports = async options =>
       port: 9060,
       proxy: [
         {
-          context: ['/api', '/services', '/management', '/swagger-resources', '/v2/api-docs', '/v3/api-docs', '/h2-console', '/auth'],
+          context: ['/api', '/services', '/management', '/v3/api-docs', '/h2-console', '/oauth2', '/login', '/auth'],
           target: `http${options.tls ? 's' : ''}://localhost:9090`,
           secure: false,
           changeOrigin: options.tls,
@@ -94,8 +113,8 @@ module.exports = async options =>
       ),
       new webpack.HotModuleReplacementPlugin(),
       new WebpackNotifierPlugin({
-        title: 'Oncokb Transcript',
-        contentImage: path.join(__dirname, 'logo-jhipster.png'),
+        title: 'Oncokb Curation',
+        contentImage: path.join(__dirname, 'logo-oncokb.png'),
       }),
     ].filter(Boolean),
   });

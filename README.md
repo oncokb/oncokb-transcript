@@ -1,6 +1,12 @@
-# oncokb-transcript
+# oncokb-curation
 
-This application was generated using JHipster 7.3.1, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v7.3.1](https://www.jhipster.tech/documentation-archive/v7.3.1).
+This application was generated using JHipster 7.2.0, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v7.2.0](https://www.jhipster.tech/documentation-archive/v7.2.0).
+
+## Build production docker image
+
+```
+./mvnw -ntp package -Pprod verify jib:build -DskipTests -Djib.to.image=oncokb/oncokb-curation:0.6.0
+```
 
 ## Development
 
@@ -13,10 +19,10 @@ After installing Node, you should be able to run the following command to instal
 You will only need to run this command when dependencies change in [package.json](package.json).
 
 ```
-npm install
+yarn install
 ```
 
-We use npm scripts and [Webpack][] as our build system.
+We use yarn scripts and [Webpack][] as our build system.
 
 If you are using redis as a cache, you will have to launch a cache server.
 To start your cache server, run:
@@ -43,14 +49,14 @@ auto-refreshes when files change on your hard drive.
 
 ```
 ./mvnw
-npm start
+yarn start
 ```
 
-Npm is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
-specifying a newer version in [package.json](package.json). You can also run `npm update` and `npm install` to manage dependencies.
-Add the `help` flag on any command to see how you can use it. For example, `npm help update`.
+yarn is also used to manage CSS and JavaScript dependencies used in this application. You can upgrade dependencies by
+specifying a newer version in [package.json](package.json). You can also run `yarn update` and `yarn install` to manage dependencies.
+Add the `help` flag on any command to see how you can use it. For example, `yarn help update`.
 
-The `npm run` command will list all of the scripts available to run for this project.
+The `yarn run` command will list all of the scripts available to run for this project.
 
 ### PWA Support
 
@@ -75,13 +81,13 @@ Note: [Workbox](https://developers.google.com/web/tools/workbox/) powers JHipste
 For example, to add [Leaflet][] library as a runtime dependency of your application, you would run following command:
 
 ```
-npm install --save --save-exact leaflet
+yarn install --save --save-exact leaflet
 ```
 
 To benefit from TypeScript type definitions from [DefinitelyTyped][] repository in development, you would run following command:
 
 ```
-npm install --save-dev --save-exact @types/leaflet
+yarn install --save-dev --save-exact @types/leaflet
 ```
 
 Then you would import the JS and CSS files specified in library's installation instructions so that [Webpack][] knows about them:
@@ -89,41 +95,106 @@ Note: There are still a few other things remaining to do for Leaflet that we won
 
 For further instructions on how to develop with JHipster, have a look at [Using JHipster in development][].
 
-### JHipster Control Center
+## Running application
 
-JHipster Control Center can help you manage and control your application(s). You can start a local control center server (accessible on http://localhost:7419) with:
+### 1. Configure Keycloak and Google SSO
+
+To log in to your app, you'll need to have [Keycloak](https://keycloak.org) up and running.
 
 ```
-docker-compose -f src/main/docker/jhipster-control-center.yml up
+docker-compose -f src/main/docker/keycloak.yml up
+```
+
+If your keycloak server is not setup with docker (ie. with a keycloak helm chart), then add a new realm with the following [realm settings](src/main/docker/realm-config/oncokb-curation-realm.json) via import.
+
+- Once keycloak server is running, go to `http://localhost:8080/auth` and click `Administration Console`
+- Login with the credential `username: admin, password:admin`.
+- In Keycloak go to **Realm Settings** > **Themes** > **Login Theme** and change value to `keycloak-oncokb`.
+- Follow [instructions](https://support.google.com/cloud/answer/6158849) to obtain Google Oauth2 client id and secret.
+- In Keycloak, go to **Identity Providers** > **Edit button on google provider** > **Replace client id and secret**
+- Copy the redirect URL for the google identity provider. It should look like `http://localhost:8080/auth/realms/oncokb-curation/broker/google/endpoint`
+- Go back to Google APIs & Services `Credentials` tab and click on your application. Add the redirect URL from the last step into the list with the label `Authorized redirect URIs`.
+
+The security settings are in `src/main/resources/config/application.yml`.
+
+- Include realm name in `spring.security.oauth2.client.provider.oidc.issue-uri` property.
+- To find the client secret, go to keycloak admin console and look for `web_app` client. Find the `Credentials` tab and copy the client secret. Credentials tab will only show when the client's `Access Type = confidential`.
+
+```yaml
+spring:
+  ...
+  security:
+    oauth2:
+      client:
+        provider:
+          oidc:
+            issuer-uri: http://localhost:8080/auth/realms/<realm-name>
+        registration:
+          oidc:
+            client-id: web_app
+            client-secret: CLIENT_SECRET
+            scope: openid,profile,email
+```
+
+### 2. Configure Firebase
+
+1. Go to [Firebase Console](https://console.firebase.google.com/) and create a new project
+2. Select gear icon next to **Project Overview**
+3. Choose **Service Account** on header
+4. Under **Firebase Admin SDK** section, click on **Generate new private key**
+5. Move the service account credentials under `src/main/resources/<CREDENTIALS_FILENAME>.json`
+6. Update `application.frontend.firebase.service-account-credentials-path` to the filename
+7. Under **Project Overview** page in the **General** tab, find the Firebase config. Update the application properties accordingly.
+8. Create a Firebase Realtime Database and configure the rules as such:
+
+```
+{
+  "rules": {
+    ".read": "auth !== null && auth.token.firebaseAuthorizedUser === true",
+    ".write": "auth !== null && auth.token.firebaseAuthorizedUser === true"
+  }
+}
+```
+
+### 3. Run
+
+```
+
+./mvnw
+
 ```
 
 ## Building for production
 
 ### Packaging as jar
 
-To build the final jar and optimize the oncokb-transcript application for production, run:
+To build the final jar and optimize the oncokb-curation application for production, run:
 
 ```
+
 ./mvnw -Pprod clean verify
+
 ```
 
 This will concatenate and minify the client CSS and JavaScript files. It will also modify `index.html` so it references these new files.
 To ensure everything worked, run:
 
 ```
-java -jar target/*.jar
+
+java -jar target/\*.jar
+
 ```
 
 Then navigate to [http://localhost:9090](http://localhost:9090) in your browser.
-
-Refer to [Using JHipster in production][] for more details.
 
 ### Packaging as war
 
 To package your application as a war in order to deploy it to an application server, run:
 
 ```
+
 ./mvnw -Pprod,war clean verify
+
 ```
 
 ## Testing
@@ -131,7 +202,9 @@ To package your application as a war in order to deploy it to an application ser
 To launch your application's tests, run:
 
 ```
+
 ./mvnw verify
+
 ```
 
 ### Client tests
@@ -139,7 +212,9 @@ To launch your application's tests, run:
 Unit tests are run by [Jest][]. They're located in [src/test/javascript/](src/test/javascript/) and can be run with:
 
 ```
-npm test
+
+yarn test
+
 ```
 
 For more information, refer to the [Running tests page][].
@@ -149,7 +224,9 @@ For more information, refer to the [Running tests page][].
 Sonar is used to analyse code quality. You can start a local Sonar server (accessible on http://localhost:9001) with:
 
 ```
+
 docker-compose -f src/main/docker/sonar.yml up -d
+
 ```
 
 Note: we have turned off authentication in [src/main/docker/sonar.yml](src/main/docker/sonar.yml) for out of the box experience while trying out SonarQube, for real use cases turn it back on.
@@ -159,13 +236,17 @@ You can run a Sonar analysis with using the [sonar-scanner](https://docs.sonarqu
 Then, run a Sonar analysis:
 
 ```
+
 ./mvnw -Pprod clean verify sonar:sonar
+
 ```
 
 If you need to re-run the Sonar phase, please be sure to specify at least the `initialize` phase since Sonar properties are loaded from the sonar-project.properties file.
 
 ```
+
 ./mvnw initialize sonar:sonar
+
 ```
 
 For more information, refer to the [Code quality page][].
@@ -177,26 +258,34 @@ You can use Docker to improve your JHipster development experience. A number of 
 For example, to start a mysql database in a docker container, run:
 
 ```
+
 docker-compose -f src/main/docker/mysql.yml up -d
+
 ```
 
 To stop it and remove the container, run:
 
 ```
+
 docker-compose -f src/main/docker/mysql.yml down
+
 ```
 
 You can also fully dockerize your application and all the services that it depends on.
 To achieve this, first build a docker image of your app by running:
 
 ```
+
 ./mvnw -Pprod verify jib:dockerBuild
+
 ```
 
 Then run:
 
 ```
+
 docker-compose -f src/main/docker/app.yml up -d
+
 ```
 
 For more information refer to [Using Docker and Docker-Compose][], this page also contains information on the docker-compose sub-generator (`jhipster docker-compose`), which is able to generate docker configurations for one or several JHipster applications.
@@ -206,17 +295,21 @@ For more information refer to [Using Docker and Docker-Compose][], this page als
 To configure CI for your project, run the ci-cd sub-generator (`jhipster ci-cd`), this will let you generate configuration files for a number of Continuous Integration systems. Consult the [Setting up Continuous Integration][] page for more information.
 
 [jhipster homepage and latest documentation]: https://www.jhipster.tech
-[jhipster 7.3.1 archive]: https://www.jhipster.tech/documentation-archive/v7.3.1
-[using jhipster in development]: https://www.jhipster.tech/documentation-archive/v7.3.1/development/
-[using docker and docker-compose]: https://www.jhipster.tech/documentation-archive/v7.3.1/docker-compose
-[using jhipster in production]: https://www.jhipster.tech/documentation-archive/v7.3.1/production/
-[running tests page]: https://www.jhipster.tech/documentation-archive/v7.3.1/running-tests/
-[code quality page]: https://www.jhipster.tech/documentation-archive/v7.3.1/code-quality/
-[setting up continuous integration]: https://www.jhipster.tech/documentation-archive/v7.3.1/setting-up-ci/
+[jhipster 7.2.0 archive]: https://www.jhipster.tech/documentation-archive/v7.2.0
+[using jhipster in development]: https://www.jhipster.tech/documentation-archive/v7.2.0/development/
+[using docker and docker-compose]: https://www.jhipster.tech/documentation-archive/v7.2.0/docker-compose
+[using jhipster in production]: https://www.jhipster.tech/documentation-archive/v7.2.0/production/
+[running tests page]: https://www.jhipster.tech/documentation-archive/v7.2.0/running-tests/
+[code quality page]: https://www.jhipster.tech/documentation-archive/v7.2.0/code-quality/
+[setting up continuous integration]: https://www.jhipster.tech/documentation-archive/v7.2.0/setting-up-ci/
 [node.js]: https://nodejs.org/
-[npm]: https://www.npmjs.com/
+[yarn]: https://yarnpkg.org/
 [webpack]: https://webpack.github.io/
 [browsersync]: https://www.browsersync.io/
 [jest]: https://facebook.github.io/jest/
 [leaflet]: https://leafletjs.com/
 [definitelytyped]: https://definitelytyped.org/
+
+```
+
+```

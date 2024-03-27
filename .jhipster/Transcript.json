@@ -2,6 +2,11 @@
   "name": "Transcript",
   "fields": [
     {
+      "fieldName": "referenceGenome",
+      "fieldType": "ReferenceGenome",
+      "fieldValues": "GRCh37,GRCh38"
+    },
+    {
       "fieldName": "ensemblTranscriptId",
       "fieldType": "String"
     },
@@ -26,32 +31,51 @@
   "relationships": [
     {
       "relationshipType": "one-to-many",
+      "otherEntityName": "sequence",
+      "otherEntityRelationshipName": "transcript",
+      "relationshipName": "sequence"
+    },
+    {
+      "relationshipType": "one-to-many",
       "otherEntityName": "genomeFragment",
       "otherEntityRelationshipName": "transcript",
       "relationshipName": "fragments"
     },
     {
-      "relationshipType": "one-to-many",
-      "otherEntityName": "sequence",
+      "relationshipType": "many-to-many",
+      "otherEntityName": "flag",
       "otherEntityRelationshipName": "transcript",
-      "relationshipName": "sequence"
+      "relationshipName": "flag",
+      "ownerSide": true
     },
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "ensemblGene",
       "otherEntityRelationshipName": "transcript",
       "relationshipName": "ensemblGene"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "gene",
+      "otherEntityRelationshipName": "transcript",
+      "relationshipName": "gene"
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "alteration",
+      "otherEntityRelationshipName": "transcript",
+      "relationshipName": "alteration",
+      "ownerSide": false
     }
   ],
   "entityTableName": "transcript",
   "dto": "mapstruct",
-  "pagination": "no",
+  "pagination": "pagination",
   "service": "serviceClass",
-  "jpaMetamodelFiltering": false,
+  "jpaMetamodelFiltering": true,
   "fluentMethods": true,
   "readOnly": false,
   "embedded": false,
   "applications": "*",
-  "changelogDate": "20210201194018",
-  "skipClient": true
+  "changelogDate": "20220401174635"
 }

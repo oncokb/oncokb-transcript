@@ -26,20 +26,34 @@ module.exports = async () =>
     module: {
       rules: [
         {
-          test: /\.(sa|sc|c)ss$/,
+          test: /\.module\.scss$/,
           use: [
+            'style-loader',
             {
-              loader: MiniCssExtractPlugin.loader,
+              loader: 'css-loader',
               options: {
-                publicPath: '../',
+                modules: {
+                  localIdentName: '[name]__[local]__[hash:base64:5]',
+                },
+                importLoaders: 2,
               },
             },
+            'sass-loader',
+            utils.sassResourcesLoader,
+          ],
+        },
+        {
+          test: /\.(sa|sc|c)ss$/,
+          exclude: /\.module\.scss$/,
+          use: [
+            'style-loader',
             'css-loader',
             'postcss-loader',
             {
               loader: 'sass-loader',
-              options: { implementation: sass },
+              options: { sourceMap: true },
             },
+            utils.sassResourcesLoader,
           ],
         },
       ],

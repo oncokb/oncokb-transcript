@@ -1,0 +1,990 @@
+id;code;color;level;main_type;subtype;tissue;tumor_form;parent_id
+1;ALL_TUMORS;MIXED;-1;All Tumors;NULL;MIXED;MIXED;NULL
+2;ALL_LIQUID_TUMORS;MIXED;-1;All Liquid Tumors;NULL;MIXED;LIQUID;NULL
+3;ALL_SOLID_TUMORS;MIXED;-1;All Solid Tumors;NULL;MIXED;SOLID;NULL
+4;GERMLINE_DISPOSITION;MIXED;-1;Germline Disposition;NULL;MIXED;MIXED;NULL
+5;OTHER_TUMOR_TYPES;MIXED;-1;Other Tumor Types;NULL;MIXED;MIXED;NULL
+6;OTHER_SOLID_TUMOR_TYPES;MIXED;-1;Other Solid Tumor Types;NULL;MIXED;SOLID;NULL
+7;OTHER_LIQUID_TUMOR_TYPES;MIXED;-1;Other Liquid Tumor Types;NULL;MIXED;LIQUID;NULL
+8;TISSUE;NULL;0;Tissue;Tissue;NULL;MIXED;NULL
+9;ADRENAL_GLAND;Purple;1;Adrenal Gland Cancer, NOS;Adrenal Gland;Adrenal Gland;SOLID;8
+10;CERVIX;Teal;1;Cervical Cancer, NOS;Cervix;Cervix;SOLID;8
+11;AMPULLA_OF_VATER;Purple;1;Ampullary Carcinoma, NOS;Ampulla of Vater;Ampulla of Vater;SOLID;8
+12;BLADDER;Yellow;1;Bladder/Urinary Tract Cancer, NOS;Bladder/Urinary Tract;Bladder/Urinary Tract;SOLID;8
+13;PERITONEUM;Green;1;Peritoneal Cancer, NOS;Peritoneum;Peritoneum;SOLID;8
+14;PNS;Gray;1;Peripheral Nervous System Cancer, NOS;Peripheral Nervous System;Peripheral Nervous System;SOLID;8
+15;LYMPH;LimeGreen;1;Lymphatic Cancer, NOS;Lymphoid;Lymphoid;LIQUID;8
+16;EYE;Green;1;Eye Cancer, NOS;Eye;Eye;SOLID;8
+17;BOWEL;SaddleBrown;1;Bowel Cancer, NOS;Bowel;Bowel;SOLID;8
+18;HEAD_NECK;DarkRed;1;Head and Neck Cancer, NOS;Head and Neck;Head and Neck;SOLID;8
+19;PROSTATE;Cyan;1;Prostate Cancer, NOS;Prostate;Prostate;SOLID;8
+20;MYELOID;LightSalmon;1;Blood Cancer, NOS;Myeloid;Myeloid;LIQUID;8
+21;BONE;White;1;Bone Cancer, NOS;Bone;Bone;SOLID;8
+22;BILIARY_TRACT;Green;1;Biliary Tract Cancer, NOS;Biliary Tract;Biliary Tract;SOLID;8
+23;KIDNEY;Orange;1;Kidney Cancer, NOS;Kidney;Kidney;SOLID;8
+24;LUNG;Gainsboro;1;Lung Cancer, NOS;Lung;Lung;SOLID;8
+25;PANCREAS;Purple;1;Pancreatic Cancer, NOS;Pancreas;Pancreas;SOLID;8
+26;STOMACH;LightSkyBlue;1;Esophageal/Stomach Cancer, NOS;Esophagus/Stomach;Esophagus/Stomach;SOLID;8
+27;SKIN;Black;1;Skin Cancer, NOS;Skin;Skin;SOLID;8
+28;OVARY;LightBlue;1;Ovarian/Fallopian Tube Cancer, NOS;Ovary/Fallopian Tube;Ovary/Fallopian Tube;SOLID;8
+29;LIVER;MediumSeaGreen;1;Liver Cancer, NOS;Liver;Liver;SOLID;8
+30;TESTIS;Red;1;Testicular Cancer, NOS;Testis;Testis;SOLID;8
+31;UTERUS;PeachPuff;1;Uterine Cancer, NOS;Uterus;Uterus;SOLID;8
+32;BRAIN;Gray;1;CNS/Brain Cancer, NOS;CNS/Brain;CNS/Brain;SOLID;8
+33;THYROID;Teal;1;Thyroid Cancer, NOS;Thyroid;Thyroid;SOLID;8
+34;SOFT_TISSUE;LightYellow;1;Soft Tissue Cancer, NOS;Soft Tissue;Soft Tissue;SOLID;8
+35;THYMUS;Purple;1;Thymic Cancer, NOS;Thymus;Thymus;SOLID;8
+36;PLEURA;Blue;1;Pleural Cancer, NOS;Pleura;Pleura;SOLID;8
+37;OTHER;Black;1;Other Cancer, NOS;Other;Other;SOLID;8
+38;PENIS;Blue;1;Penile Cancer, NOS;Penis;Penis;SOLID;8
+39;BREAST;HotPink;1;Breast Cancer, NOS;Breast;Breast;SOLID;8
+40;VULVA;Purple;1;Vulvar/Vaginal Cancer, NOS;Vulva/Vagina;Vulva/Vagina;SOLID;8
+41;OHNCA;DarkRed;2;Head and Neck Cancer;Head and Neck Carcinoma, Other;Head and Neck;SOLID;18
+42;SCST;LightBlue;2;Sex Cord Stromal Tumor;Sex Cord Stromal Tumor;Ovary/Fallopian Tube;SOLID;28
+43;MBC;HotPink;2;Breast Cancer;Metaplastic Breast Cancer;Breast;SOLID;39
+44;LAM;Gainsboro;2;Non-Small Cell Lung Cancer;Pulmonary Lymphangiomyomatosis;Lung;SOLID;24
+45;SBL;DarkRed;2;Sialoblastoma;Sialoblastoma;Head and Neck;SOLID;18
+46;CABC;Teal;2;Cervical Cancer;Cervical Adenoid Basal Carcinoma;Cervix;SOLID;10
+47;LGT;Green;2;Lacrimal Gland Tumor;Lacrimal Gland Tumor;Eye;SOLID;16
+48;MFS;LightYellow;2;Soft Tissue Sarcoma;Myxofibrosarcoma;Soft Tissue;SOLID;34
+49;AN;Black;2;Skin Cancer, Non-Melanoma;Atypical Nevus;Skin;SOLID;27
+50;SELT;Gray;2;Sellar Tumor;Sellar Tumor;CNS/Brain;SOLID;32
+51;LNM;LimeGreen;2;Lymphatic Cancer, NOS;Lymphoid Neoplasm;Lymphoid;LIQUID;15
+52;PEMESO;Green;2;Mesothelioma;Peritoneal Mesothelioma;Peritoneum;SOLID;13
+53;HNSC;DarkRed;2;Head and Neck Cancer;Head and Neck Squamous Cell Carcinoma;Head and Neck;SOLID;18
+54;EMPSGC;Black;2;Skin Cancer, Non-Melanoma;Endocrine Mucin Producing Sweat Gland Carcinoma;Skin;SOLID;27
+55;CERMS;Teal;2;Cervical Cancer;Cervical Rhabdomyosarcoma;Cervix;SOLID;10
+56;ENCG;Gray;2;Glioma;Encapsulated Glioma;CNS/Brain;SOLID;32
+57;THHC;Teal;2;Thyroid Cancer;Hurthle Cell Thyroid Cancer;Thyroid;SOLID;33
+58;SRCBC;Yellow;2;Bladder Cancer;Plasmacytoid/Signet Ring Cell Bladder Carcinoma;Bladder/Urinary Tract;SOLID;12
+59;CCS;LightYellow;2;Soft Tissue Sarcoma;Clear Cell Sarcoma;Soft Tissue;SOLID;34
+60;UPA;Yellow;2;Bladder Cancer;Urothelial Papilloma;Bladder/Urinary Tract;SOLID;12
+61;MFH;LightYellow;2;Soft Tissue Sarcoma;Undifferentiated Pleomorphic Sarcoma/Malignant Fibrous Histiocytoma/High-Grade Spindle Cell Sarcoma;Soft Tissue;SOLID;34
+62;FIBS;LightYellow;2;Soft Tissue Sarcoma;Fibrosarcoma;Soft Tissue;SOLID;34
+63;SIC;SaddleBrown;2;Small Bowel Cancer;Small Intestinal Carcinoma;Bowel;SOLID;17
+64;NSCLC;Gainsboro;2;Non-Small Cell Lung Cancer;Non-Small Cell Lung Cancer;Lung;SOLID;24
+65;OGCT;LightBlue;2;Germ Cell Tumor;Ovarian Germ Cell Tumor;Ovary/Fallopian Tube;SOLID;28
+66;MAC;Black;2;Skin Cancer, Non-Melanoma;Microcystic Adnexal Carcinoma;Skin;SOLID;27
+67;OM;Green;2;Melanoma;Ocular Melanoma;Eye;SOLID;16
+68;PCNSMT;Gray;2;Primary CNS Melanocytic Tumors;Primary CNS Melanocytic Tumors;CNS/Brain;SOLID;32
+69;ASPS;LightYellow;2;Soft Tissue Sarcoma;Alveolar Soft Part Sarcoma;Soft Tissue;SOLID;34
+70;USARC;PeachPuff;2;Uterine Sarcoma;Uterine Sarcoma/Mesenchymal;Uterus;SOLID;31
+71;DSRCT;LightYellow;2;Soft Tissue Sarcoma;Desmoplastic Small-Round-Cell Tumor;Soft Tissue;SOLID;34
+72;THPD;Teal;2;Thyroid Cancer;Poorly Differentiated Thyroid Cancer;Thyroid;SOLID;33
+73;MBGN;LightSalmon;2;Blood Cancer, NOS;Myeloid Benign;Myeloid;LIQUID;20
+74;WDTC;Teal;2;Thyroid Cancer;Well-Differentiated Thyroid Cancer;Thyroid;SOLID;33
+75;CSCC;Black;2;Skin Cancer, Non-Melanoma;Cutaneous Squamous Cell Carcinoma;Skin;SOLID;27
+76;ADPA;Black;2;Skin Cancer, Non-Melanoma;Aggressive Digital Papillary Adenocarcinoma;Skin;SOLID;27
+77;SEBA;Black;2;Skin Cancer, Non-Melanoma;Sebaceous Carcinoma;Skin;SOLID;27
+78;NPC;DarkRed;2;Head and Neck Cancer;Nasopharyngeal Carcinoma;Head and Neck;SOLID;18
+79;PPCT;Black;2;Skin Cancer, Non-Melanoma;Proliferating Pilar Cystic Tumor;Skin;SOLID;27
+80;TAC;SaddleBrown;2;Tubular Adenoma of the Colon;Tubular Adenoma of the Colon;Bowel;SOLID;17
+81;CEAD;Teal;2;Cervical Cancer;Cervical Adenocarcinoma;Cervix;SOLID;10
+82;HEMA;LightYellow;2;Soft Tissue Sarcoma;Hemangioma;Soft Tissue;SOLID;34
+83;OVT;LightBlue;2;Ovarian Cancer;Ovarian Epithelial Tumor;Ovary/Fallopian Tube;SOLID;28
+84;NSGCT;Red;2;Germ Cell Tumor;Non-Seminomatous Germ Cell Tumor;Testis;SOLID;30
+85;SPN;Purple;2;Pancreatic Cancer;Solid Pseudopapillary Neoplasm of the Pancreas;Pancreas;SOLID;25
+86;MNM;LightSalmon;2;Blood Cancer, NOS;Myeloid Neoplasm;Myeloid;LIQUID;20
+87;AGA;SaddleBrown;2;Anal Cancer;Anal Gland Adenocarcinoma;Bowel;SOLID;17
+88;PAAD;Purple;2;Pancreatic Cancer;Pancreatic Adenocarcinoma;Pancreas;SOLID;25
+89;LMS;LightYellow;2;Soft Tissue Sarcoma;Leiomyosarcoma;Soft Tissue;SOLID;34
+90;SGAD;Black;2;Skin Cancer, Non-Melanoma;Sweat Gland Adenocarcinoma;Skin;SOLID;27
+91;SCBC;Yellow;2;Bladder Cancer;Small Cell Bladder Cancer;Bladder/Urinary Tract;SOLID;12
+92;MRT;Orange;2;Rhabdoid Cancer;Rhabdoid Cancer;Kidney;SOLID;23
+93;IMTB;Yellow;2;Bladder Cancer;Inflammatory Myofibroblastic Bladder Tumor;Bladder/Urinary Tract;SOLID;12
+94;LIMNET;MediumSeaGreen;2;Hepatobiliary Cancer;Malignant Nonepithelial Tumor of the Liver;Liver;SOLID;29
+95;IFS;LightYellow;2;Infantile Fibrosarcoma;Infantile Fibrosarcoma;Soft Tissue;SOLID;34
+96;RMS;LightYellow;2;Soft Tissue Sarcoma;Rhabdomyosarcoma;Soft Tissue;SOLID;34
+97;LAIS;Gainsboro;2;Non-Small Cell Lung Cancer;Lung Adenocarcinoma In Situ;Lung;SOLID;24
+98;VMA;Purple;2;Vulvar Carcinoma;Mucinous Adenocarcinoma of the Vulva/Vagina;Vulva/Vagina;SOLID;40
+99;VA;Purple;2;Vaginal Cancer;Vaginal Adenocarcinoma;Vulva/Vagina;SOLID;40
+100;GNBL;Gray;2;Peripheral Nervous System;Ganglioneuroblastoma;Peripheral Nervous System;SOLID;14
+101;TNET;Purple;2;Thymic Tumor;Thymic Neuroendocrine Tumor;Thymus;SOLID;35
+102;BGCT;Gray;2;Germ Cell Tumor;Germ Cell Tumor, Brain;CNS/Brain;SOLID;32
+103;RBL;Green;2;Retinoblastoma;Retinoblastoma;Eye;SOLID;16
+104;NST;Gray;2;Nerve Sheath Tumor;Nerve Sheath Tumor;Peripheral Nervous System;SOLID;14
+105;EGCT;Black;2;Germ Cell Tumor;Extra Gonadal Germ Cell Tumor;Other;SOLID;37
+106;LATL;LimeGreen;2;Lymphatic Cancer, NOS;Lymphoid Atypical;Lymphoid;LIQUID;15
+107;AFH;LightYellow;2;Angiomatoid Fibrous Histiocytoma;Angiomatoid Fibrous Histiocytoma;Soft Tissue;SOLID;34
+108;BRAME;HotPink;2;Breast Cancer;Adenomyoepithelioma of the Breast;Breast;SOLID;39
+109;PAAC;Purple;2;Pancreatic Cancer;Acinar Cell Carcinoma of the Pancreas;Pancreas;SOLID;25
+110;PINT;Gray;2;Pineal Tumor;Pineal Tumor;CNS/Brain;SOLID;32
+111;VGCE;Teal;2;Cervical Cancer;Villoglandular Adenocarcinoma of the Cervix;Cervix;SOLID;10
+112;PRSC;Cyan;2;Prostate Cancer;Prostate Squamous Cell Carcinoma;Prostate;SOLID;19
+113;CESC;Teal;2;Cervical Cancer;Cervical Squamous Cell Carcinoma;Cervix;SOLID;10
+114;SYNS;LightYellow;2;Soft Tissue Sarcoma;Synovial Sarcoma;Soft Tissue;SOLID;34
+115;CHOL;Green;2;Hepatobiliary Cancer;Cholangiocarcinoma;Biliary Tract;SOLID;22
+116;ESST;LightYellow;2;Soft Tissue Sarcoma;Ewing Sarcoma of Soft Tissue;Soft Tissue;SOLID;34
+117;PTH;DarkRed;2;Parathyroid Cancer;Parathyroid Cancer;Head and Neck;SOLID;18
+118;WT;Orange;2;Wilms Tumor;Wilms' Tumor;Kidney;SOLID;23
+119;TET;Purple;2;Thymic Tumor;Thymic Epithelial Tumor;Thymus;SOLID;35
+120;IUP;Yellow;2;Bladder Cancer;Inverted Urothelial Papilloma;Bladder/Urinary Tract;SOLID;12
+121;PORO;Black;2;Skin Cancer, Non-Melanoma;Poroma/Acrospiroma;Skin;SOLID;27
+122;HTAT;Teal;2;Thyroid Cancer;Hyalinizing Trabecular Adenoma of the Thyroid;Thyroid;SOLID;33
+123;PHC;Purple;2;Pheochromocytoma;Pheochromocytoma;Adrenal Gland;SOLID;9
+124;ESMM;LightSkyBlue;2;Melanoma;Mucosal Melanoma of the Esophagus;Esophagus/Stomach;SOLID;26
+125;LIPO;LightYellow;2;Soft Tissue Sarcoma;Liposarcoma;Soft Tissue;SOLID;34
+126;DCIS;HotPink;2;Breast Cancer;Breast Ductal Carcinoma In Situ;Breast;SOLID;39
+127;MCC;Black;2;Skin Cancer, Non-Melanoma;Merkel Cell Carcinoma;Skin;SOLID;27
+128;URCA;Yellow;2;Bladder Cancer;Urachal Carcinoma;Bladder/Urinary Tract;SOLID;12
+129;AECA;Black;2;Skin Cancer, Non-Melanoma;Sweat Gland Carcinoma/Apocrine Eccrine Carcinoma;Skin;SOLID;27
+130;GINETES;LightSkyBlue;2;Esophagogastric Cancer;Gastrointestinal Neuroendocrine Tumors of the Esophagus/Stomach;Esophagus/Stomach;SOLID;26
+131;DES;LightYellow;2;Soft Tissue Sarcoma;Desmoid/Aggressive Fibromatosis;Soft Tissue;SOLID;34
+132;PAASC;Purple;2;Pancreatic Cancer;Adenosquamous Carcinoma of the Pancreas;Pancreas;SOLID;25
+133;BRCA;HotPink;2;Breast Cancer;Invasive Breast Carcinoma;Breast;SOLID;39
+134;EHAE;LightYellow;2;Soft Tissue Sarcoma;Epithelioid Hemangioendothelioma;Soft Tissue;SOLID;34
+135;EMBT;Gray;2;Embryonal Tumor;Embryonal Tumor;CNS/Brain;SOLID;32
+136;URMM;Yellow;2;Melanoma;Mucosal Melanoma of the Urethra;Bladder/Urinary Tract;SOLID;12
+137;EGC;LightSkyBlue;2;Esophagogastric Cancer;Esophagogastric Adenocarcinoma;Esophagus/Stomach;SOLID;26
+138;MYXO;LightYellow;2;Soft Tissue Sarcoma;Myxoma;Soft Tissue;SOLID;34
+139;DF;Black;2;Skin Cancer, Non-Melanoma;Dermatofibroma;Skin;SOLID;27
+140;NBL;Gray;2;Peripheral Nervous System;Neuroblastoma;Peripheral Nervous System;SOLID;14
+141;INTS;LightYellow;2;Soft Tissue Sarcoma;Intimal Sarcoma;Soft Tissue;SOLID;34
+142;HCC;MediumSeaGreen;2;Hepatobiliary Cancer;Hepatocellular Carcinoma;Liver;SOLID;29
+143;PLMESO;Blue;2;Mesothelioma;Pleural Mesothelioma;Pleura;SOLID;36
+144;LBGN;LimeGreen;2;Lymphatic Cancer, NOS;Lymphoid Benign;Lymphoid;LIQUID;15
+145;COADREAD;SaddleBrown;2;Colorectal Cancer;Colorectal Adenocarcinoma;Bowel;SOLID;17
+146;VGCT;Purple;2;Germ Cell Tumor;Germ Cell Tumor of the Vulva;Vulva/Vagina;SOLID;40
+147;PGNG;Gray;2;Miscellaneous Neuroepithelial Tumor;Paraganglioma;Soft Tissue;SOLID;34
+148;EMPD;Black;2;Skin Cancer, Non-Melanoma;Extramammary Paget Disease;Skin;SOLID;27
+149;PANET;Purple;2;Pancreatic Cancer;Pancreatic Neuroendocrine Tumor;Pancreas;SOLID;25
+150;GINET;SaddleBrown;2;Gastrointestinal Neuroendocrine Tumor;Gastrointestinal Neuroendocrine Tumors;Bowel;SOLID;17
+151;SFT;LightYellow;2;Soft Tissue Sarcoma;Solitary Fibrous Tumor/Hemangiopericytoma;Soft Tissue;SOLID;34
+152;TLYM;Red;2;Non-Hodgkin Lymphoma;Testicular Lymphoma;Testis;SOLID;30
+153;TMESO;Red;2;Mesothelioma;Testicular Mesothelioma;Testis;SOLID;30
+154;DFSP;Black;2;Skin Cancer, Non-Melanoma;Dermatofibrosarcoma Protuberans;Skin;SOLID;27
+155;THAP;Teal;2;Thyroid Cancer;Anaplastic Thyroid Cancer;Thyroid;SOLID;33
+156;TGCT;LightYellow;2;Soft Tissue Sarcoma;Tenosynovial Giant Cell Tumor Diffuse Type;Soft Tissue;SOLID;34
+157;BNNOS;HotPink;2;Breast Cancer;Breast Neoplasm, NOS;Breast;SOLID;39
+158;IBC;HotPink;2;Breast Cancer;Inflammatory Breast Cancer;Breast;SOLID;39
+159;GTD;PeachPuff;2;Gestational Trophoblastic Disease;Gestational Trophoblastic Disease;Uterus;SOLID;31
+160;PCT;Black;2;Skin Cancer, Non-Melanoma;Porphyria Cutania Tarda;Skin;SOLID;27
+161;MNET;Gray;2;Miscellaneous Neuroepithelial Tumor;Miscellaneous Neuroepithelial Tumor;CNS/Brain;SOLID;32
+162;PRAD;Cyan;2;Prostate Cancer;Prostate Adenocarcinoma;Prostate;SOLID;19
+163;MRTL;MediumSeaGreen;2;Malignant Rhabdoid Tumor of the Liver;Malignant Rhabdoid Tumor of the Liver;Liver;SOLID;29
+164;AIS;Black;2;Adenocarcinoma In Situ;Adenocarcinoma In Situ;Other;SOLID;37
+165;IMS;LightYellow;2;Myofibromatosis;Myofibromatosis;Soft Tissue;SOLID;34
+166;SMN;LightSkyBlue;2;Esophagogastric Cancer;Smooth Muscle Neoplasm, NOS;Esophagus/Stomach;SOLID;26
+167;PRSCC;Cyan;2;Prostate Cancer;Prostate Small Cell Carcinoma;Prostate;SOLID;19
+168;SCCE;Teal;2;Cervical Cancer;Small Cell Carcinoma of the Cervix;Cervix;SOLID;10
+169;VMM;Purple;2;Melanoma;Mucosal Melanoma of the Vulva/Vagina;Vulva/Vagina;SOLID;40
+170;MGST;LightYellow;2;Malignant Glomus Tumor;Malignant Glomus Tumor;Soft Tissue;SOLID;34
+171;CHDM;White;2;Bone Cancer;Chordoma;Bone;SOLID;21
+172;MEL;Black;2;Melanoma;Melanoma;Skin;SOLID;27
+173;PACT;Purple;2;Pancreatic Cancer;Cystic Tumor of the Pancreas;Pancreas;SOLID;25
+174;FLC;MediumSeaGreen;2;Hepatobiliary Cancer;Fibrolamellar Carcinoma;Liver;SOLID;29
+175;CMC;SaddleBrown;2;Colorectal Cancer;Medullary Carcinoma of the Colon;Bowel;SOLID;17
+176;ALT;LightYellow;2;Soft Tissue Sarcoma;Atypical Lipomatous Tumor;Soft Tissue;SOLID;34
+177;VPDC;Purple;2;Vaginal Cancer;Poorly Differentiated Vaginal Carcinoma;Vulva/Vagina;SOLID;40
+178;AFX;Black;2;Skin Cancer, Non-Melanoma;Atypical Fibroxanthoma;Skin;SOLID;27
+179;PSCC;Blue;2;Penile Cancer;Penile Squamous Cell Carcinoma;Penis;SOLID;38
+180;CEAIS;Teal;2;Cervical Cancer;Cervical Adenocarcinoma In Situ;Cervix;SOLID;10
+181;ARMM;SaddleBrown;2;Melanoma;Anorectal Mucosal Melanoma;Bowel;SOLID;17
+182;THME;Teal;2;Thyroid Cancer;Medullary Thyroid Cancer;Thyroid;SOLID;33
+183;BLCA;Yellow;2;Bladder Cancer;Bladder Urothelial Carcinoma;Bladder/Urinary Tract;SOLID;12
+184;CELI;Teal;2;Cervical Cancer;Cervical Leiomyosarcoma;Cervix;SOLID;10
+185;IMTL;Gainsboro;2;Non-Small Cell Lung Cancer;Inflammatory Myofibroblastic Lung Tumor;Lung;SOLID;24
+186;PBS;HotPink;2;Breast Sarcoma;Breast Sarcoma;Breast;SOLID;39
+187;MPC;LightYellow;2;Soft Tissue Sarcoma;Myopericytoma;Soft Tissue;SOLID;34
+188;SACA;DarkRed;2;Salivary Gland Cancer;Salivary Carcinoma;Head and Neck;SOLID;18
+189;HNMUCM;DarkRed;2;Melanoma;Head and Neck Mucosal Melanoma;Head and Neck;SOLID;18
+190;LNET;Gainsboro;2;Non-Small Cell Lung Cancer;Lung Neuroendocrine Tumor;Lung;SOLID;24
+191;PMHE;LightYellow;2;Soft Tissue Sarcoma;Pseudomyogenic Hemangioendothelioma;Soft Tissue;SOLID;34
+192;BLSC;Yellow;2;Bladder Cancer;Bladder Squamous Cell Carcinoma;Bladder/Urinary Tract;SOLID;12
+193;CHBL;White;2;Bone Cancer;Chondroblastoma;Bone;SOLID;21
+194;ES;White;2;Bone Cancer;Ewing Sarcoma;Bone;SOLID;21
+195;UCP;Purple;2;Pancreatic Cancer;Undifferentiated Carcinoma of the Pancreas;Pancreas;SOLID;25
+196;GBC;Green;2;Hepatobiliary Cancer;Gallbladder Cancer;Biliary Tract;SOLID;22
+197;TSCST;Red;2;Sex Cord Stromal Tumor;Sex Cord Stromal Tumor;Testis;SOLID;30
+198;APAD;SaddleBrown;2;Appendiceal Cancer;Appendiceal Adenocarcinoma;Bowel;SOLID;17
+199;MCCE;Teal;2;Cervical Cancer;Mixed Cervical Carcinoma;Cervix;SOLID;10
+200;RCSNOS;LightYellow;2;Soft Tissue Sarcoma;Round Cell Sarcoma, NOS;Soft Tissue;SOLID;34
+201;MBT;Gray;2;Miscellaneous Brain Tumor;Miscellaneous Brain Tumor;CNS/Brain;SOLID;32
+202;UTUC;Yellow;2;Bladder Cancer;Upper Tract Urothelial Carcinoma;Bladder/Urinary Tract;SOLID;12
+203;SCB;Yellow;2;Bladder Cancer;Sarcomatoid Carcinoma of the Urinary Bladder;Bladder/Urinary Tract;SOLID;12
+204;EPIS;LightYellow;2;Soft Tissue Sarcoma;Epithelioid Sarcoma;Soft Tissue;SOLID;34
+205;ACA;Purple;2;Adrenocortical Adenoma;Adrenocortical Adenoma;Adrenal Gland;SOLID;9
+206;LGFMS;LightYellow;2;Soft Tissue Sarcoma;Low-Grade Fibromyxoid Sarcoma;Soft Tissue;SOLID;34
+207;PB;Purple;2;Pancreatic Cancer;Pancreatoblastoma;Pancreas;SOLID;25
+208;SEM;Red;2;Germ Cell Tumor;Seminoma;Testis;SOLID;30
+209;DIFG;Gray;2;Glioma;Diffuse Glioma;CNS/Brain;SOLID;32
+210;DTE;Black;2;Skin Cancer, Non-Melanoma;Desmoplastic Trichoepithelioma;Skin;SOLID;27
+211;POCA;Black;2;Skin Cancer, Non-Melanoma;Porocarcinoma/Spiroadenocarcinoma;Skin;SOLID;27
+212;UESL;MediumSeaGreen;2;Undifferentiated Embryonal Sarcoma of the Liver;Undifferentiated Embryonal Sarcoma of the Liver;Liver;SOLID;29
+213;LCIS;HotPink;2;Breast Cancer;Breast Lobular Carcinoma In Situ;Breast;SOLID;39
+214;ANSC;SaddleBrown;2;Anal Cancer;Anal Squamous Cell Carcinoma;Bowel;SOLID;17
+215;OS;White;2;Bone Cancer;Osteosarcoma;Bone;SOLID;21
+216;SARCL;Gainsboro;2;Non-Small Cell Lung Cancer;Sarcomatoid Carcinoma of the Lung;Lung;SOLID;24
+217;GCTB;White;2;Bone Cancer;Giant Cell Tumor of Bone;Bone;SOLID;21
+218;GS;LightYellow;2;Soft Tissue Sarcoma;Glomangiosarcoma;Soft Tissue;SOLID;34
+219;GIST;LightYellow;2;Gastrointestinal Stromal Tumor;Gastrointestinal Stromal Tumor;Soft Tissue;SOLID;34
+220;SPIR;Black;2;Skin Cancer, Non-Melanoma;Spiroma/Spiradenoma;Skin;SOLID;27
+221;UCA;Yellow;2;Bladder Cancer;Urethral Cancer;Bladder/Urinary Tract;SOLID;12
+222;PPB;Gainsboro;2;Non-Small Cell Lung Cancer;Pleuropulmonary Blastoma;Lung;SOLID;24
+223;BFN;HotPink;2;Breast Sarcoma;Breast Fibroepithelial Neoplasms;Breast;SOLID;39
+224;AA;LightYellow;2;Soft Tissue Sarcoma;Aggressive Angiomyxoma;Soft Tissue;SOLID;34
+225;PRNE;Cyan;2;Prostate Cancer;Prostate Neuroendocrine Carcinoma;Prostate;SOLID;19
+226;LM;LightYellow;2;Soft Tissue Cancer;Leiomyoma;Soft Tissue;SOLID;34
+227;SARCNOS;LightYellow;2;Soft Tissue Sarcoma;Sarcoma, NOS;Soft Tissue;SOLID;34
+228;BLAD;Yellow;2;Bladder Cancer;Bladder Adenocarcinoma;Bladder/Urinary Tract;SOLID;12
+229;STMYEC;LightYellow;2;Soft Tissue Sarcoma;Soft Tissue Myoepithelial Carcinoma;Soft Tissue;SOLID;34
+230;CEAS;Teal;2;Cervical Cancer;Cervical Adenosquamous Carcinoma;Cervix;SOLID;10
+231;UCEC;PeachPuff;2;Endometrial Cancer;Endometrial Carcinoma;Uterus;SOLID;31
+232;CSCLC;Gainsboro;2;Small Cell Lung Cancer;Combined Small Cell Lung Carcinoma;Lung;SOLID;24
+233;ACC;Purple;2;Adrenocortical Carcinoma;Adrenocortical Carcinoma;Adrenal Gland;SOLID;9
+234;CACC;Teal;2;Cervical Cancer;Cervical Adenoid Cystic Carcinoma;Cervix;SOLID;10
+235;CUP;Black;2;Cancer of Unknown Primary;Cancer of Unknown Primary;Other;SOLID;37
+236;ANGS;LightYellow;2;Soft Tissue Sarcoma;Angiosarcoma;Soft Tissue;SOLID;34
+237;LAMN;SaddleBrown;2;Appendiceal Cancer;Low-grade Appendiceal Mucinous Neoplasm;Bowel;SOLID;17
+238;AMPCA;Purple;2;Ampullary Cancer;Ampullary Carcinoma;Ampulla of Vater;SOLID;11
+239;RNET;Orange;2;Renal Neuroendocrine Tumor;Renal Neuroendocrine Tumor;Kidney;SOLID;23
+240;CHS;White;2;Bone Cancer;Chondrosarcoma;Bone;SOLID;21
+241;CPT;Gray;2;Choroid Plexus Tumor;Choroid Plexus Tumor;CNS/Brain;SOLID;32
+242;OAT;Teal;2;Thyroid Cancer;Oncocytic Adenoma of the Thyroid;Thyroid;SOLID;33
+243;LIHB;MediumSeaGreen;2;Hepatobiliary Cancer;Hepatoblastoma;Liver;SOLID;29
+244;MNGT;Gray;2;CNS Cancer;Meningothelial Tumor;CNS/Brain;SOLID;32
+245;CENE;Teal;2;Cervical Cancer;Cervical Neuroendocrine Tumor;Cervix;SOLID;10
+246;EPDCA;LightSkyBlue;2;Esophagogastric Cancer;Esophageal Poorly Differentiated Carcinoma;Esophagus/Stomach;SOLID;26
+247;ADMA;White;2;Bone Cancer;Adamantinoma;Bone;SOLID;21
+248;PECOMA;LightYellow;2;Soft Tissue Sarcoma;Perivascular Epithelioid Cell Tumor;Soft Tissue;SOLID;34
+249;GN;Gray;2;Peripheral Nervous System;Ganglioneuroma;Peripheral Nervous System;SOLID;14
+250;ESCC;LightSkyBlue;2;Esophagogastric Cancer;Esophageal Squamous Cell Carcinoma;Esophagus/Stomach;SOLID;26
+251;RAS;LightYellow;2;Soft Tissue Sarcoma;Radiation-Associated Sarcoma;Soft Tissue;SOLID;34
+252;MF;LightYellow;2;Soft Tissue Sarcoma;Myofibroma;Soft Tissue;SOLID;34
+253;LIAS;MediumSeaGreen;2;Hepatobiliary Cancer;Liver Angiosarcoma;Liver;SOLID;29
+254;OUTT;PeachPuff;2;Endometrial Cancer;Other Uterine Tumor;Uterus;SOLID;31
+255;HCCIHCH;MediumSeaGreen;2;Hepatobiliary Cancer;Hepatocellular Carcinoma plus Intrahepatic Cholangiocarcinoma;Liver;SOLID;29
+256;LIAD;MediumSeaGreen;2;Hepatobiliary Cancer;Hepatocellular Adenoma;Liver;SOLID;29
+257;IMT;LightYellow;2;Soft Tissue Sarcoma;Inflammatory Myofibroblastic Tumor;Soft Tissue;SOLID;34
+258;SBC;SaddleBrown;2;Small Bowel Cancer;Small Bowel Cancer;Bowel;SOLID;17
+259;JSCB;HotPink;2;Breast Cancer;Juvenile Secretory Carcinoma of the Breast;Breast;SOLID;39
+260;MATPL;LightSalmon;2;Blood Cancer, NOS;Myeloid Atypical;Myeloid;LIQUID;20
+261;CCSK;Orange;2;Clear Cell Sarcoma of Kidney;Clear Cell Sarcoma of Kidney;Kidney;SOLID;23
+262;CEGCC;Teal;2;Cervical Cancer;Glassy Cell Carcinoma of the Cervix;Cervix;SOLID;10
+263;EPMT;Gray;2;CNS Cancer;Ependymomal Tumor;CNS/Brain;SOLID;32
+264;SKAC;Black;2;Skin Cancer, Non-Melanoma;Skin Adnexal Carcinoma;Skin;SOLID;27
+265;DCS;LightYellow;2;Soft Tissue Sarcoma;Dendritic Cell Sarcoma;Soft Tissue;SOLID;34
+266;BCC;Black;2;Skin Cancer, Non-Melanoma;Basal Cell Carcinoma;Skin;SOLID;27
+267;RCC;Orange;2;Renal Cell Carcinoma;Renal Cell Carcinoma;Kidney;SOLID;23
+268;VSC;Purple;2;Vaginal Cancer;Squamous Cell Carcinoma of the Vulva/Vagina;Vulva/Vagina;SOLID;40
+269;OOVC;LightBlue;2;Ovarian Cancer;Ovarian Cancer, Other;Ovary/Fallopian Tube;SOLID;28
+270;PSEC;Green;2;Peritoneal Cancer, NOS;Peritoneal Serous Carcinoma;Peritoneum;SOLID;13
+271;MMB;Gray;3;Embryonal Tumor;Medullomyoblastoma;CNS/Brain;SOLID;135
+272;PAOS;White;3;Bone Cancer;Parosteal Osteosarcoma;Bone;SOLID;215
+273;ARMS;LightYellow;3;Soft Tissue Sarcoma;Alveolar Rhabdomyosarcoma;Soft Tissue;SOLID;96
+274;AWDNET;SaddleBrown;3;Gastrointestinal Neuroendocrine Tumor;Well-Differentiated Neuroendocrine Tumor of the Appendix;Bowel;SOLID;150
+275;PCGP;Gray;3;Sellar Tumor;Craniopharyngioma, Papillary Type;CNS/Brain;SOLID;50
+276;SCCO;LightBlue;3;Ovarian Cancer;Small Cell Carcinoma of the Ovary;Ovary/Fallopian Tube;SOLID;83
+277;UASC;PeachPuff;3;Endometrial Cancer;Uterine Adenosquamous Carcinoma;Uterus;SOLID;231
+278;PXA;Gray;3;Glioma;Pleomorphic Xanthoastrocytoma;CNS/Brain;SOLID;56
+279;SRAP;SaddleBrown;3;Appendiceal Cancer;Signet Ring Cell Type of the Appendix;Bowel;SOLID;198
+280;MIXED;Black;3;Cancer of Unknown Primary;Mixed Cancer Types;Other;SOLID;235
+281;LXSC;DarkRed;3;Head and Neck Cancer;Larynx Squamous Cell Carcinoma;Head and Neck;SOLID;53
+282;RHM;Gray;3;CNS Cancer;Rhabdoid Meningioma;CNS/Brain;SOLID;244
+283;WDLS;LightYellow;3;Soft Tissue Sarcoma;Well-Differentiated Liposarcoma;Soft Tissue;SOLID;125
+284;DESM;Black;3;Melanoma;Desmoplastic Melanoma;Skin;SOLID;172
+285;OEC;LightBlue;3;Germ Cell Tumor;Embryonal Carcinoma;Ovary/Fallopian Tube;SOLID;65
+286;SCLC;Gainsboro;3;Small Cell Lung Cancer;Small Cell Lung Cancer;Lung;SOLID;190
+287;ACBC;HotPink;3;Breast Cancer;Adenoid Cystic Breast Cancer;Breast;SOLID;133
+288;OPHSC;DarkRed;3;Head and Neck Cancer;Oropharynx Squamous Cell Carcinoma;Head and Neck;SOLID;53
+289;PTLD;LimeGreen;3;Posttransplant Lymphoproliferative Disorders;Posttransplant Lymphoproliferative Disorders;Lymphoid;LIQUID;51
+290;SUBE;Gray;3;CNS Cancer;Subependymoma;CNS/Brain;SOLID;263
+291;SCGBC;Green;3;Hepatobiliary Cancer;Small Cell Gallbladder Carcinoma;Biliary Tract;SOLID;196
+292;FIOS;White;3;Bone Cancer;Fibroblastic Osteosarcoma;Bone;SOLID;215
+293;LUNE;Gainsboro;3;Non-Small Cell Lung Cancer;Large Cell Neuroendocrine Carcinoma;Lung;SOLID;190
+294;UPDC;PeachPuff;3;Endometrial Cancer;Poorly Differentiated Carcinoma of the Uterus;Uterus;SOLID;231
+295;OGBL;LightBlue;3;Sex Cord Stromal Tumor;Gonadoblastoma;Ovary/Fallopian Tube;SOLID;42
+296;PSC;Purple;3;Pancreatic Cancer;Serous Cystadenoma of the Pancreas;Pancreas;SOLID;173
+297;BCCA;Gray;3;Germ Cell Tumor;Choriocarcinoma;CNS/Brain;SOLID;102
+298;BMGCT;Gray;3;Germ Cell Tumor;Mixed Germ Cell Tumor;CNS/Brain;SOLID;102
+299;SCHW;Gray;3;Nerve Sheath Tumor;Schwannoma;Peripheral Nervous System;SOLID;104
+300;CEVG;Teal;3;Cervical Cancer;Villoglandular Carcinoma;Cervix;SOLID;81
+301;VDYS;Purple;3;Germ Cell Tumor;Dysgerminoma;Vulva/Vagina;SOLID;146
+302;PHCH;Green;3;Hepatobiliary Cancer;Perihilar Cholangiocarcinoma;Biliary Tract;SOLID;115
+303;GMN;Gray;3;Germ Cell Tumor;Germinoma;CNS/Brain;SOLID;102
+304;GCTSTM;Red;3;Germ Cell Tumor;Germ Cell Tumor with Somatic-Type Malignancy;Testis;SOLID;84
+305;BCAC;DarkRed;3;Salivary Gland Cancer;Basal Cell Adenocarcinoma;Head and Neck;SOLID;188
+306;BPSCC;Blue;3;Penile Cancer;Basaloid Penile Squamous Cell Carcinoma;Penis;SOLID;179
+307;BLL;LimeGreen;3;B-Lymphoblastic Leukemia/Lymphoma;B-Lymphoblastic Leukemia/Lymphoma;Lymphoid;LIQUID;51
+308;OSMBT;LightBlue;3;Ovarian Cancer;Ovarian Seromucinous Borderline Tumor;Ovary/Fallopian Tube;SOLID;83
+309;NETNOS;Black;3;Cancer of Unknown Primary;Neuroendocrine Tumor, NOS;Other;SOLID;235
+310;TCCA;Red;3;Germ Cell Tumor;Choriocarcinoma;Testis;SOLID;84
+311;MMBL;Gray;3;Embryonal Tumor;Melanotic Medulloblastoma;CNS/Brain;SOLID;135
+312;SWDNET;LightSkyBlue;3;Gastrointestinal Neuroendocrine Tumor;Well-Differentiated Neuroendocrine Tumors of the Stomach;Esophagus/Stomach;SOLID;130
+313;MUCC;DarkRed;3;Salivary Gland Cancer;Mucoepidermoid Carcinoma;Head and Neck;SOLID;188
+314;OCS;LightBlue;3;Ovarian Cancer;Ovarian Carcinosarcoma/Malignant Mixed Mesodermal Tumor;Ovary/Fallopian Tube;SOLID;83
+315;CMPT;Gainsboro;3;Non-Small Cell Lung Cancer;Ciliated Muconodular Papillary Tumor of the Lung;Lung;SOLID;64
+316;ALUCA;Gainsboro;3;Non-Small Cell Lung Cancer;Atypical Lung Carcinoid;Lung;SOLID;190
+317;SPC;HotPink;3;Breast Cancer;Solid Papillary Carcinoma of the Breast;Breast;SOLID;133
+318;EBOV;LightBlue;3;Ovarian Cancer;Endometrioid Borderlin Ovarian Tumor;Ovary/Fallopian Tube;SOLID;83
+319;SGO;DarkRed;3;Salivary Gland Cancer;Salivary Gland Oncocytoma;Head and Neck;SOLID;188
+320;EVN;Gray;3;Miscellaneous Neuroepithelial Tumor;Extraventricular Neurocytoma;CNS/Brain;SOLID;161
+321;USC;PeachPuff;3;Endometrial Cancer;Uterine Serous Carcinoma/Uterine Papillary Serous Carcinoma;Uterus;SOLID;231
+322;NECNOS;Black;3;Cancer of Unknown Primary;Neuroendocrine Carcinoma, NOS;Other;SOLID;235
+323;BYST;Gray;3;Germ Cell Tumor;Yolk Sac Tumor;CNS/Brain;SOLID;102
+324;OSGCT;Purple;3;Pancreatic Cancer;Osteoclastic Giant Cell Tumor;Pancreas;SOLID;195
+325;SBOV;LightBlue;3;Ovarian Cancer;Serous Borderline Ovarian Tumor;Ovary/Fallopian Tube;SOLID;83
+326;EMBCA;Red;3;Germ Cell Tumor;Embryonal Carcinoma;Testis;SOLID;84
+327;HNNE;DarkRed;3;Head and Neck Cancer;Head and Neck Neuroendocrine Carcinoma;Head and Neck;SOLID;41
+328;MCHS;White;3;Bone Cancer;Mesenchymal Chondrosarcoma;Bone;SOLID;240
+329;PLSMESO;Blue;3;Mesothelioma;Pleural Mesothelioma, Sarcomatoid Type;Pleura;SOLID;143
+330;OMGCT;LightBlue;3;Germ Cell Tumor;Mixed Germ Cell Tumor;Ovary/Fallopian Tube;SOLID;65
+331;OPE;LightBlue;3;Germ Cell Tumor;Polyembryoma;Ovary/Fallopian Tube;SOLID;65
+332;UA;Yellow;3;Bladder Cancer;Urachal Adenocarcinoma;Bladder/Urinary Tract;SOLID;128
+333;PLLS;LightYellow;3;Soft Tissue Sarcoma;Pleomorphic Liposarcoma;Soft Tissue;SOLID;125
+334;DDLS;LightYellow;3;Soft Tissue Sarcoma;Dedifferentiated Liposarcoma;Soft Tissue;SOLID;125
+335;MDLC;HotPink;3;Breast Cancer;Breast Mixed Ductal and Lobular Carcinoma;Breast;SOLID;133
+336;OYST;LightBlue;3;Germ Cell Tumor;Yolk Sac Tumor;Ovary/Fallopian Tube;SOLID;65
+337;UMNC;PeachPuff;3;Endometrial Cancer;Uterine Mesonephric Carcinoma;Uterus;SOLID;231
+338;SDCA;DarkRed;3;Salivary Gland Cancer;Salivary Duct Carcinoma;Head and Neck;SOLID;188
+339;BRSRCC;HotPink;3;Breast Cancer;Breast Carcinoma with Signet Ring;Breast;SOLID;133
+340;TYST;Red;3;Germ Cell Tumor;Yolk Sac Tumor;Testis;SOLID;84
+341;MGCT;Red;3;Germ Cell Tumor;Mixed Germ Cell Tumor;Testis;SOLID;84
+342;CECC;Teal;3;Cervical Cancer;Cervical Clear Cell Carcinoma;Cervix;SOLID;81
+343;MPN;LightSalmon;3;Myeloproliferative Neoplasms;Myeloproliferative Neoplasms;Myeloid;LIQUID;86
+344;DIG;Gray;3;Miscellaneous Neuroepithelial Tumor;Desmoplastic Infantile Ganglioglioma;CNS/Brain;SOLID;161
+345;DMBL;Gray;3;Embryonal Tumor;Desmoplastic/Nodular Medulloblastoma;CNS/Brain;SOLID;135
+346;MELC;Gray;3;Melanocytoma;Melanocytoma;CNS/Brain;SOLID;68
+347;APXA;Gray;3;Glioma;Anaplastic Pleomorphic Xanthoastrocytoma;CNS/Brain;SOLID;56
+348;PINC;Gray;3;Pineal Tumor;Pineocytoma;CNS/Brain;SOLID;110
+349;MT;Gray;3;Miscellaneous Brain Tumor;Malignant Tumor;CNS/Brain;SOLID;201
+350;BMGT;Gray;3;Germ Cell Tumor;Malignant Teratoma;CNS/Brain;SOLID;102
+351;CCM;Gray;3;CNS Cancer;Clear cell Meningioma;CNS/Brain;SOLID;244
+352;CUPNOS;Black;3;Cancer of Unknown Primary;Cancer of Unknown Primary, NOS;Other;SOLID;235
+353;OCNOS;LightBlue;3;Ovarian Cancer;Ovarian Choriocarcinoma, NOS;Ovary/Fallopian Tube;SOLID;269
+354;THPA;Teal;3;Thyroid Cancer;Papillary Thyroid Cancer;Thyroid;SOLID;74
+355;ANM;Gray;3;CNS Cancer;Anaplastic Meningioma;CNS/Brain;SOLID;244
+356;UEC;PeachPuff;3;Endometrial Cancer;Uterine Endometrioid Carcinoma;Uterus;SOLID;231
+357;SFTCNS;Gray;3;CNS Cancer;Solitary Fibrous Tumor of the Central Nervous System;CNS/Brain;SOLID;244
+358;ASTR;Gray;3;Glioma;Astrocytoma;CNS/Brain;SOLID;209
+359;MOV;LightBlue;3;Ovarian Cancer;Mucinous Ovarian Cancer;Ovary/Fallopian Tube;SOLID;83
+360;GNC;Gray;3;Glioma;Gangliocytoma;CNS/Brain;SOLID;56
+361;APE;Gray;3;CNS Cancer;Anaplastic Ependymoma;CNS/Brain;SOLID;263
+362;CCHDM;White;3;Bone Cancer;Conventional Type Chordoma;Bone;SOLID;171
+363;CTAAP;SaddleBrown;3;Appendiceal Cancer;Colonic Type Adenocarcinoma of the Appendix;Bowel;SOLID;198
+364;SPCC;Gainsboro;3;Non-Small Cell Lung Cancer;Spindle Cell Carcinoma of the Lung;Lung;SOLID;64
+365;ANGL;Gray;3;Miscellaneous Neuroepithelial Tumor;Angiocentric Glioma;CNS/Brain;SOLID;161
+366;CCRCC;Orange;3;Renal Cell Carcinoma;Renal Clear Cell Carcinoma;Kidney;SOLID;267
+367;UUC;PeachPuff;3;Endometrial Cancer;Uterine Undifferentiated Carcinoma;Uterus;SOLID;231
+368;BMT;Gray;3;Germ Cell Tumor;Mature Teratoma;CNS/Brain;SOLID;102
+369;UCCA;PeachPuff;3;Gestational Trophoblastic Disease;Choriocarcinoma;Uterus;SOLID;159
+370;SCUP;Black;3;Cancer of Unknown Primary;Small Cell Carcinoma of Unknown Primary;Other;SOLID;235
+371;IAMPCA;Purple;3;Ampullary Cancer;Intestinal Ampullary Carcinoma;Ampulla of Vater;SOLID;238
+372;USTAD;LightSkyBlue;3;Esophagogastric Cancer;Undifferentiated Stomach Adenocarcinoma;Esophagus/Stomach;SOLID;137
+373;CESE;Teal;3;Cervical Cancer;Cervical Serous Carcinoma;Cervix;SOLID;81
+374;LGGNOS;Gray;3;Glioma;Low-Grade Glioma, NOS;CNS/Brain;SOLID;56
+375;MLYM;Gray;3;Miscellaneous Brain Tumor;Malignant Lymphoma;CNS/Brain;SOLID;201
+376;SRCCR;SaddleBrown;3;Colorectal Cancer;Signet Ring Cell Adenocarcinoma of the Colon and Rectum;Bowel;SOLID;145
+377;OIMT;LightBlue;3;Germ Cell Tumor;Immature Teratoma;Ovary/Fallopian Tube;SOLID;65
+378;ERMS;LightYellow;3;Soft Tissue Sarcoma;Embryonal Rhabdomyosarcoma;Soft Tissue;SOLID;96
+379;UM;Green;3;Melanoma;Uveal Melanoma;Eye;SOLID;67
+380;MDS/MPN;LightSalmon;3;Myelodysplastic/Myeloproliferative Neoplasms;Myelodysplastic/Myeloproliferative Neoplasms;Myeloid;LIQUID;86
+381;SGTTL;Gainsboro;3;Non-Small Cell Lung Cancer;Salivary Gland-Type Tumor of the Lung;Lung;SOLID;64
+382;TLL;LimeGreen;3;T-Lymphoblastic Leukemia/Lymphoma;T-Lymphoblastic Leukemia/Lymphoma;Lymphoid;LIQUID;51
+383;HGNEC;SaddleBrown;3;Gastrointestinal Neuroendocrine Tumor;High-Grade Neuroendocrine Carcinoma of the Colon and Rectum;Bowel;SOLID;150
+384;AODG;Gray;3;Glioma;Anaplastic Oligodendroglioma;CNS/Brain;SOLID;209
+385;LDD;Gray;3;Miscellaneous Neuroepithelial Tumor;Dysplastic Gangliocytoma of the Cerebellum/Lhermitte-Duclos Disease;CNS/Brain;SOLID;161
+386;HGSFT;LightBlue;3;Ovarian Cancer;High-Grade Serous Fallopian Tube Cancer;Ovary/Fallopian Tube;SOLID;269
+387;NMCHN;DarkRed;3;Head and Neck Cancer;NUT Midline Carcinoma of the Head and Neck;Head and Neck;SOLID;41
+388;UDMN;Black;3;Cancer of Unknown Primary;Undifferentiated Malignant Neoplasm;Other;SOLID;235
+389;ACRM;Black;3;Melanoma;Acral Melanoma;Skin;SOLID;172
+390;PTAD;Gray;3;Sellar Tumor;Pituitary Adenoma;CNS/Brain;SOLID;50
+391;MNG;Gray;3;CNS Cancer;Meningioma;CNS/Brain;SOLID;244
+392;TT;Red;3;Germ Cell Tumor;Teratoma;Testis;SOLID;84
+393;ESCA;LightSkyBlue;3;Esophagogastric Cancer;Esophageal Adenocarcinoma;Esophagus/Stomach;SOLID;137
+394;MCD;LightSalmon;3;Mastocytosis;Mastocytosis;Myeloid;LIQUID;86
+395;OMT;LightBlue;3;Germ Cell Tumor;Mature Teratoma;Ovary/Fallopian Tube;SOLID;65
+396;NUTCL;Gainsboro;3;Non-Small Cell Lung Cancer;NUT Carcinoma of the Lung;Lung;SOLID;64
+397;SEF;LightYellow;3;Soft Tissue Sarcoma;Sclerosing Epithelioid Fibrosarcoma;Soft Tissue;SOLID;62
+398;OAST;Gray;3;Glioma;Oligoastrocytoma;CNS/Brain;SOLID;209
+399;SNSC;DarkRed;3;Head and Neck Cancer;Sinonasal Squamous Cell Carcinoma;Head and Neck;SOLID;53
+400;IHCH;Green;3;Hepatobiliary Cancer;Intrahepatic Cholangiocarcinoma;Biliary Tract;SOLID;115
+401;ODGC;DarkRed;3;Head and Neck Cancer;Odontogenic Carcinoma;Head and Neck;SOLID;41
+402;LCLC;Gainsboro;3;Non-Small Cell Lung Cancer;Large Cell Lung Carcinoma;Lung;SOLID;64
+403;STAS;LightSkyBlue;3;Esophagogastric Cancer;Adenosquamous Carcinoma of the Stomach;Esophagus/Stomach;SOLID;137
+404;COAD;SaddleBrown;3;Colorectal Cancer;Colon Adenocarcinoma;Bowel;SOLID;145
+405;SCT;LightBlue;3;Sex Cord Stromal Tumor;Steroid Cell Tumor, NOS;Ovary/Fallopian Tube;SOLID;42
+406;READ;SaddleBrown;3;Colorectal Cancer;Rectal Adenocarcinoma;Bowel;SOLID;145
+407;CNC;Gray;3;Miscellaneous Neuroepithelial Tumor;Central Neurocytoma;CNS/Brain;SOLID;161
+408;UCS;PeachPuff;3;Endometrial Cancer;Uterine Carcinosarcoma/Uterine Malignant Mixed Mullerian Tumor;Uterus;SOLID;231
+409;HDCN;LightSalmon;3;Histiocytosis;Histiocytic and Dendritic Cell Neoplasms;Myeloid;LIQUID;86
+410;MP;PeachPuff;3;Gestational Trophoblastic Disease;Molar Pregnancy;Uterus;SOLID;159
+411;MDS;LightSalmon;3;Myelodysplastic Syndromes;Myelodysplastic Syndromes;Myeloid;LIQUID;86
+412;VPE;Purple;3;Germ Cell Tumor;Polyembryoma;Vulva/Vagina;SOLID;146
+413;SNUC;DarkRed;3;Head and Neck Cancer;Sinonasal Undifferentiated Carcinoma;Head and Neck;SOLID;41
+414;DDCHDM;White;3;Bone Cancer;Dedifferentiated Chordoma;Bone;SOLID;171
+415;LUAD;Gainsboro;3;Non-Small Cell Lung Cancer;Lung Adenocarcinoma;Lung;SOLID;64
+416;SLCT;LightBlue;3;Sex Cord Stromal Tumor;Sertoli-Leydig Cell Tumor;Ovary/Fallopian Tube;SOLID;42
+417;UAD;Yellow;3;Bladder Cancer;Urethral Adenocarcinoma;Bladder/Urinary Tract;SOLID;221
+418;ACN;Black;3;Cancer of Unknown Primary;Acinar Cell Carcinoma, NOS;Other;SOLID;235
+419;NCCRCC;Orange;3;Renal Cell Carcinoma;Renal Non-Clear Cell Carcinoma;Kidney;SOLID;267
+420;MPE;Gray;3;CNS Cancer;Myxopapillary Ependymoma;CNS/Brain;SOLID;263
+421;CLNC;Gray;3;Miscellaneous Neuroepithelial Tumor;Cerebellar Liponeurocytoma;CNS/Brain;SOLID;161
+422;IPMN;Purple;3;Pancreatic Cancer;Intraductal Papillary Mucinous Neoplasm;Pancreas;SOLID;173
+423;CHOS;White;3;Bone Cancer;Chondroblastic Osteosarcoma;Bone;SOLID;215
+424;OSACA;DarkRed;3;Salivary Gland Cancer;Salivary Carcinoma, Other;Head and Neck;SOLID;188
+425;EPM;Gray;3;Glioma;Ependymoma;CNS/Brain;SOLID;263
+426;HMBL;Gray;3;Miscellaneous Brain Tumor;Hemangioblastoma;CNS/Brain;SOLID;201
+427;HGSOS;White;3;Bone Cancer;High-Grade Surface Osteosarcoma;Bone;SOLID;215
+428;PNET;Gray;3;Embryonal Tumor;Primitive Neuroectodermal Tumor;CNS/Brain;SOLID;135
+429;PAST;Gray;3;Glioma;Pilocytic Astrocytoma;CNS/Brain;SOLID;56
+430;SKLMM;Black;3;Melanoma;Lentigo Maligna Melanoma;Skin;SOLID;172
+431;PTCY;Gray;3;Sellar Tumor;Pituicytoma;CNS/Brain;SOLID;50
+432;ASCT;DarkRed;3;Head and Neck Cancer;Adenosquamous Carcinoma of the Tongue;Head and Neck;SOLID;41
+433;MACR;SaddleBrown;3;Colorectal Cancer;Mucinous Adenocarcinoma of the Colon and Rectum;Bowel;SOLID;145
+434;OSOS;White;3;Bone Cancer;Osteoblastic Osteosarcoma;Bone;SOLID;215
+435;AASTR;Gray;3;Glioma;Anaplastic Astrocytoma;CNS/Brain;SOLID;209
+436;VIMT;Purple;3;Germ Cell Tumor;Immature Teratoma;Vulva/Vagina;SOLID;146
+437;MDEP;Gray;3;Embryonal Tumor;Medulloepithelioma;CNS/Brain;SOLID;135
+438;HNSCUP;DarkRed;3;Head and Neck Cancer;Head and Neck Squamous Cell Carcinoma of Unknown Primary;Head and Neck;SOLID;53
+439;SECOS;White;3;Bone Cancer;Secondary Osteosarcoma;Bone;SOLID;215
+440;PT;HotPink;3;Breast Sarcoma;Phyllodes Tumor of the Breast;Breast;SOLID;223
+441;ACPG;Gray;3;Sellar Tumor;Craniopharyngioma, Adamantinomatous Type;CNS/Brain;SOLID;50
+442;ACPP;Gray;3;Choroid Plexus Tumor;Atypical Choroid Plexus Papilloma;CNS/Brain;SOLID;241
+443;CM;Green;3;Melanoma;Conjunctival Melanoma;Eye;SOLID;67
+444;HGNEE;LightSkyBlue;3;Gastrointestinal Neuroendocrine Tumors of the Esophagus/Stomach;High-Grade Neuroendocrine Carcinoma of the Esophagus;Esophagus/Stomach;SOLID;130
+445;MAMPCA;Purple;3;Ampullary Cancer;Mixed Ampullary Carcinoma;Ampulla of Vater;SOLID;238
+446;LUPC;Gainsboro;3;Non-Small Cell Lung Cancer;Pleomorphic Carcinoma of the Lung;Lung;SOLID;64
+447;VMGCT;Purple;3;Germ Cell Tumor;Mixed Germ Cell Tumor;Vulva/Vagina;SOLID;146
+448;OFMT;LightYellow;3;Soft Tissue Sarcoma;Ossifying Fibromyxoid Tumor;Soft Tissue;SOLID;138
+449;BPDCN;LightSalmon;3;Blastic Plasmacytoid Dendritic Cell Neoplasm;Blastic Plasmacytoid Dendritic Cell Neoplasm;Myeloid;LIQUID;86
+450;EHCH;Green;3;Hepatobiliary Cancer;Extrahepatic Cholangiocarcinoma;Biliary Tract;SOLID;115
+451;LUSC;Gainsboro;3;Non-Small Cell Lung Cancer;Lung Squamous Cell Carcinoma;Lung;SOLID;64
+452;APTAD;Gray;3;Sellar Tumor;Atypical Pituitary Adenoma;CNS/Brain;SOLID;50
+453;ATM;Gray;3;CNS Cancer;Atypical Meningioma;CNS/Brain;SOLID;244
+454;CHOM;Gray;3;CNS Cancer;Chordoid Meningioma;CNS/Brain;SOLID;244
+455;MBOV;LightBlue;3;Ovarian Cancer;Mucinous Borderline Ovarian Tumor;Ovary/Fallopian Tube;SOLID;83
+456;PMA;Gray;3;Glioma;Pilomyxoid Astrocytoma;CNS/Brain;SOLID;56
+457;ODYS;LightBlue;3;Germ Cell Tumor;Dysgerminoma;Ovary/Fallopian Tube;SOLID;65
+458;PD;HotPink;3;Breast Cancer;Paget Disease of the Nipple;Breast;SOLID;126
+459;PCNSM;LightSkyBlue;3;Melanoma;Primary CNS Melanoma;CNS/Brain;SOLID;68
+460;IDC;HotPink;3;Breast Cancer;Breast Invasive Ductal Carcinoma;Breast;SOLID;133
+461;NSCLCPD;Gainsboro;3;Non-Small Cell Lung Cancer;Poorly Differentiated Non-Small Cell Lung Cancer;Lung;SOLID;64
+462;UNEC;PeachPuff;3;Endometrial Cancer;Uterine Neuroendocrine Carcinoma;Uterus;SOLID;231
+463;OSMAD;LightBlue;3;Ovarian Cancer;Ovarian Seromucinous Adenoma;Ovary/Fallopian Tube;SOLID;83
+464;CSNOS;HotPink;3;Breast Cancer;Breast Invasive Carcinosarcoma, NOS;Breast;SOLID;133
+465;USCC;Yellow;3;Bladder Cancer;Urethral Squamous Cell Carcinoma;Bladder/Urinary Tract;SOLID;221
+466;EMCHS;White;3;Bone Cancer;Extraskeletal Myxoid Chondrosarcoma;Bone;SOLID;240
+467;ONBL;Gray;3;Embryonal Tumor;Olfactory Neuroblastoma;CNS/Brain;SOLID;135
+468;HGONEC;LightBlue;3;Ovarian Cancer;High-Grade Neuroendocrine Carcinoma of the Ovary;Ovary/Fallopian Tube;SOLID;269
+469;SPZM;Black;3;Melanoma;Spitzoid Melanoma;Skin;SOLID;172
+470;UMC;PeachPuff;3;Endometrial Cancer;Uterine Mucinous Carcinoma;Uterus;SOLID;231
+471;VMT;Purple;3;Germ Cell Tumor;Mature Teratoma;Vulva/Vagina;SOLID;146
+472;ASTB;Gray;3;Miscellaneous Neuroepithelial Tumor;Astroblastoma;CNS/Brain;SOLID;161
+473;DDCHS;White;3;Bone Cancer;Dedifferentiated Chondrosarcoma;Bone;SOLID;240
+474;PADA;DarkRed;3;Salivary Gland Cancer;Pleomorphic Adenoma;Head and Neck;SOLID;188
+475;PLRMS;LightYellow;3;Soft Tissue Sarcoma;Pleomorphic Rhabdomyosarcoma;Soft Tissue;SOLID;96
+476;AML;LightSalmon;3;Leukemia;Acute Myeloid Leukemia;Myeloid;LIQUID;86
+477;RWDNET;SaddleBrown;3;Gastrointestinal Neuroendocrine Tumor;Well-Differentiated Neuroendocrine Tumor of the Rectum;Bowel;SOLID;150
+478;MAAP;SaddleBrown;3;Appendiceal Cancer;Mucinous Adenocarcinoma of the Appendix;Bowel;SOLID;198
+479;PRNET;Gray;3;Miscellaneous Brain Tumor;Primary Neuroepithelial Tumor;CNS/Brain;SOLID;201
+480;BA;HotPink;3;Breast Sarcoma;Breast Angiosarcoma;Breast;SOLID;186
+481;HGNET;Gray;3;Miscellaneous Brain Tumor;High-Grade Neuroepithelial Tumor;CNS/Brain;SOLID;201
+482;ECAD;Teal;3;Cervical Cancer;Endocervical Adenocarcinoma;Cervix;SOLID;81
+483;SOC;LightBlue;3;Ovarian Cancer;Serous Ovarian Cancer;Ovary/Fallopian Tube;SOLID;83
+484;MBL;Gray;3;Embryonal Tumor;Medulloblastoma;CNS/Brain;SOLID;135
+485;DIA;Gray;3;Miscellaneous Neuroepithelial Tumor;Desmoplastic Infantile Astrocytoma;CNS/Brain;SOLID;161
+486;PBL;Gray;3;Pineal Tumor;Pineoblastoma;CNS/Brain;SOLID;110
+487;PTCA;Gray;3;Sellar Tumor;Pituitary Carcinoma;CNS/Brain;SOLID;50
+488;SNA;DarkRed;3;Head and Neck Cancer;Sinonasal Adenocarcinoma;Head and Neck;SOLID;41
+489;UDDC;PeachPuff;3;Endometrial Cancer;Uterine Dedifferentiated Carcinoma;Uterus;SOLID;231
+490;HDCS;LightYellow;3;Soft Tissue Sarcoma;Histiocytic Dendritic Cell Sarcoma;Soft Tissue;SOLID;265
+491;AOAST;Gray;3;Glioma;Anaplastic Oligoastrocytoma;CNS/Brain;SOLID;209
+492;EMYOCA;DarkRed;3;Head and Neck Cancer;Epithelial-Myoepithelial Carcinoma;Head and Neck;SOLID;41
+493;LUAS;Gainsboro;3;Non-Small Cell Lung Cancer;Lung Adenosquamous Carcinoma;Lung;SOLID;64
+494;CEMN;Teal;3;Cervical Cancer;Mesonephric Carcinoma;Cervix;SOLID;81
+495;HNMASC;DarkRed;3;Salivary Gland Cancer;Mammary Analogue Secretory Carcinoma of Salivary Gland Origin;Head and Neck;SOLID;188
+496;BIMT;Gray;3;Germ Cell Tumor;Immature Teratoma;CNS/Brain;SOLID;102
+497;NHL;LimeGreen;3;Non-Hodgkin Lymphoma;Non-Hodgkin Lymphoma;Lymphoid;LIQUID;51
+498;MNGLP;LightSalmon;3;Myeloid Neoplasms with Germ Line Predisposition;Myeloid Neoplasms with Germ Line Predisposition;Myeloid;LIQUID;86
+499;LGCOS;White;3;Bone Cancer;Low-Grade Central Osteosarcoma;Bone;SOLID;215
+500;GBAD;Green;3;Hepatobiliary Cancer;Gallbladder Adenocarcinoma, NOS;Biliary Tract;SOLID;196
+501;STSC;LightSkyBlue;3;Esophagogastric Cancer;Small Cell Carcinoma of the Stomach;Esophagus/Stomach;SOLID;137
+502;UMEC;PeachPuff;3;Endometrial Cancer;Uterine Mixed Endometrial Carcinoma;Uterus;SOLID;231
+503;SCOAH;Gray;3;Sellar Tumor;Spindle Cell Oncocytoma of the Adenohypophysis;CNS/Brain;SOLID;50
+504;MCHSCNS;Gray;3;Miscellaneous Brain Tumor;Mesenchymal Chondrosarcoma of the CNS;CNS/Brain;SOLID;201
+505;BTOV;LightBlue;3;Ovarian Cancer;Brenner Tumor;Ovary/Fallopian Tube;SOLID;83
+506;ETANTR;Gray;3;Embryonal Tumor;Embryonal Tumor with Abundant Neuropil and True Rosettes;CNS/Brain;SOLID;135
+507;SAAD;DarkRed;3;Salivary Gland Cancer;Salivary Adenocarcinoma;Head and Neck;SOLID;188
+508;RGNT;Gray;3;Miscellaneous Neuroepithelial Tumor;Rosette-forming Glioneuronal Tumor of the Fourth Ventricle;CNS/Brain;SOLID;161
+509;WPSCC;Blue;3;Penile Cancer;Warty Penile Squamous Cell Carcinoma;Penis;SOLID;179
+510;PAC;DarkRed;3;Salivary Gland Cancer;Polymorphous Adenocarcinoma;Head and Neck;SOLID;188
+511;UAS;PeachPuff;3;Uterine Sarcoma;Uterine Adenosarcoma;Uterus;SOLID;70
+512;STAD;LightSkyBlue;3;Esophagogastric Cancer;Stomach Adenocarcinoma;Esophagus/Stomach;SOLID;137
+513;CAEXPA;DarkRed;3;Salivary Gland Cancer;Carcinoma ex Pleomorphic Adenoma;Head and Neck;SOLID;188
+514;SCLG;Green;3;Lacrimal Gland Tumor;Squamous Cell Carcinoma of the Lacrimal Gland;Eye;SOLID;47
+515;ODG;Gray;3;Glioma;Oligodendroglioma;CNS/Brain;SOLID;209
+516;ESS;PeachPuff;3;Uterine Sarcoma;Endometrial Stromal Sarcoma;Uterus;SOLID;70
+517;NFIB;Gray;3;Nerve Sheath Tumor;Neurofibroma;Peripheral Nervous System;SOLID;104
+518;MRLS;LightYellow;3;Soft Tissue Sarcoma;Myxoid/Round-Cell Liposarcoma;Soft Tissue;SOLID;125
+519;PSTT;PeachPuff;3;Gestational Trophoblastic Disease;Placental Site Trophoblastic Tumor;Uterus;SOLID;159
+520;BRCNOS;HotPink;3;Breast Cancer;Breast Invasive Carcinoma, NOS;Breast;SOLID;133
+521;OSMCA;LightBlue;3;Ovarian Cancer;Ovarian Seromucinous Carcinoma;Ovary/Fallopian Tube;SOLID;83
+522;SCOS;White;3;Bone Cancer;Small Cell Osteosarcoma;Bone;SOLID;215
+523;GBASC;Green;3;Hepatobiliary Cancer;Adenosquamous Carcinoma of the Gallbladder;Biliary Tract;SOLID;196
+524;ATRT;Gray;3;Embryonal Tumor;Atypical Teratoid/Rhabdoid Tumor;CNS/Brain;SOLID;135
+525;GB;Gray;3;Glioma;Glioblastoma;CNS/Brain;SOLID;209
+526;FT;LightBlue;3;Sex Cord Stromal Tumor;Fibrothecoma;Ovary/Fallopian Tube;SOLID;42
+527;GNG;Gray;3;Glioma;Ganglioglioma;CNS/Brain;SOLID;56
+528;FA;HotPink;3;Breast Sarcoma;Fibroadenoma;Breast;SOLID;223
+529;EOV;LightBlue;3;Ovarian Cancer;Endometrioid Ovarian Cancer;Ovary/Fallopian Tube;SOLID;83
+530;AGNG;Gray;3;Glioma;Anaplastic Ganglioglioma;CNS/Brain;SOLID;56
+531;PTHC;DarkRed;3;Parathyroid Cancer;Parathyroid Carcinoma;Head and Neck;SOLID;117
+532;PAMPCA;Purple;3;Ampullary Cancer;Pancreatobiliary Ampullary Carcinoma;Ampulla of Vater;SOLID;238
+533;MLNER;LightSalmon;3;Leukemia;Myeloid/Lymphoid Neoplasms with Eosinophilia and Rearrangement of  PDGFRA/PDGFRB or FGFR1 or with PCM1-JAK2;Myeloid;LIQUID;86
+534;CPC;Gray;3;Choroid Plexus Tumor;Choroid Plexus Carcinoma;CNS/Brain;SOLID;241
+535;SKCM;Black;3;Melanoma;Cutaneous Melanoma;Skin;SOLID;172
+536;ADNOS;Black;3;Cancer of Unknown Primary;Adenocarcinoma, NOS;Other;SOLID;235
+537;SCCNOS;Black;3;Cancer of Unknown Primary;Squamous Cell Carcinoma, NOS;Other;SOLID;235
+538;SCSRMS;LightYellow;3;Soft Tissue Sarcoma;Spindle Cell/Sclerosing Rhabdomyosarcoma;Soft Tissue;SOLID;96
+539;VOEC;Purple;3;Germ Cell Tumor;Embryonal Carcinoma;Vulva/Vagina;SOLID;146
+540;PPTID;Gray;3;Pineal Tumor;Pineal Parenchymal Tumor of Intermediate Differentiation;CNS/Brain;SOLID;110
+541;CCOV;LightBlue;3;Ovarian Cancer;Clear Cell Ovarian Cancer;Ovary/Fallopian Tube;SOLID;83
+542;GNOS;Gray;3;Glioma;Glioma, NOS;CNS/Brain;SOLID;209
+543;OCSC;DarkRed;3;Head and Neck Cancer;Oral Cavity Squamous Cell Carcinoma;Head and Neck;SOLID;53
+544;GEJ;LightSkyBlue;3;Esophagogastric Cancer;Adenocarcinoma of the Gastroesophageal Junction;Esophagus/Stomach;SOLID;137
+545;CPP;Gray;3;Choroid Plexus Tumor;Choroid Plexus Papilloma;CNS/Brain;SOLID;241
+546;THYC;Purple;3;Thymic Tumor;Thymic Carcinoma;Thymus;SOLID;119
+547;ILC;HotPink;3;Breast Cancer;Breast Invasive Lobular Carcinoma;Breast;SOLID;133
+548;HL;LimeGreen;3;Hodgkin Lymphoma;Hodgkin Lymphoma;Lymphoid;LIQUID;51
+549;PBT;Gray;3;Miscellaneous Brain Tumor;Primary Brain Tumor;CNS/Brain;SOLID;201
+550;ALAL;LightSalmon;3;Leukemia;Acute Leukemias of Ambiguous Lineage;Myeloid;LIQUID;86
+551;DNT;Gray;3;Glioma;Dysembryoplastic Neuroepithelial Tumor;CNS/Brain;SOLID;56
+552;GRCT;LightBlue;3;Sex Cord Stromal Tumor;Granulosa Cell Tumor;Ovary/Fallopian Tube;SOLID;42
+553;ACYC;DarkRed;3;Salivary Gland Cancer;Adenoid Cystic Carcinoma;Head and Neck;SOLID;188
+554;VPSCC;Blue;3;Penile Cancer;Verrucous Penile Squamous Cell Carcinoma;Penis;SOLID;179
+555;CEEN;Teal;3;Cervical Cancer;Cervical Endometrioid Carcinoma;Cervix;SOLID;81
+556;BEC;Gray;3;Germ Cell Tumor;Embryonal Carcinoma;CNS/Brain;SOLID;102
+557;HGGNOS;Gray;3;Glioma;High-Grade Glioma, NOS;CNS/Brain;SOLID;209
+558;HPHSC;DarkRed;3;Head and Neck Cancer;Hypopharynx Squamous Cell Carcinoma;Head and Neck;SOLID;53
+559;CCBOV;LightBlue;3;Ovarian Cancer;Clear Cell Borderline Ovarian Tumor;Ovary/Fallopian Tube;SOLID;83
+560;DIPG;Gray;3;Glioma;Diffuse Intrinsic Pontine Glioma;CNS/Brain;SOLID;209
+561;USMT;PeachPuff;3;Uterine Sarcoma;Uterine Smooth Muscle Tumor;Uterus;SOLID;70
+562;GRC;LightSkyBlue;3;Esophagogastric Cancer;Gastric Remnant Adenocarcinoma;Esophagus/Stomach;SOLID;137
+563;OUSARC;PeachPuff;3;Uterine Sarcoma;Uterine Sarcoma, Other;Uterus;SOLID;70
+564;LUCA;Gainsboro;3;Non-Small Cell Lung Cancer;Lung Carcinoid;Lung;SOLID;190
+565;TEOS;White;3;Bone Cancer;Telangiectatic Osteosarcoma;Bone;SOLID;215
+566;MBEN;Gray;3;Embryonal Tumor;Medulloblastoma with Extensive Nodularity;CNS/Brain;SOLID;135
+567;THYM;Purple;3;Thymic Tumor;Thymoma;Thymus;SOLID;119
+568;ACLG;Green;3;Lacrimal Gland Tumor;Adenoid Cystic Carcinoma of the Lacrimal Gland;Eye;SOLID;47
+569;THFO;Teal;3;Thyroid Cancer;Follicular Thyroid Cancer;Thyroid;SOLID;74
+570;UUS;PeachPuff;3;Uterine Sarcoma;Undifferentiated Uterine Sarcoma;Uterus;SOLID;70
+571;ACCC;DarkRed;3;Salivary Gland Cancer;Acinic Cell Carcinoma;Head and Neck;SOLID;188
+572;SKCN;Black;3;Melanoma;Congenital Nevus;Skin;SOLID;172
+573;MMBC;HotPink;3;Breast Cancer;Mixed Type Metaplastic Breast Cancer;Breast;SOLID;43
+574;PGNT;Gray;3;Miscellaneous Neuroepithelial Tumor;Papillary Glioneuronal Tumor;CNS/Brain;SOLID;161
+575;SBMOV;LightBlue;3;Ovarian Cancer;Serous Borderline Ovarian Tumor, Micropapillary;Ovary/Fallopian Tube;SOLID;83
+576;IMMC;HotPink;3;Breast Cancer;Breast Invasive Mixed Mucinous Carcinoma;Breast;SOLID;133
+577;SBWDNET;SaddleBrown;3;Gastrointestinal Neuroendocrine Tumor;Small Bowel Well-Differentiated Neuroendocrine Tumor;Bowel;SOLID;150
+578;UCCC;PeachPuff;3;Endometrial Cancer;Uterine Clear Cell Carcinoma;Uterus;SOLID;231
+579;VYST;Purple;3;Germ Cell Tumor;Yolk Sac Tumor;Vulva/Vagina;SOLID;146
+580;HPCCNS;Gray;3;CNS Cancer;Hemangiopericytoma of the Central Nervous System;CNS/Brain;SOLID;244
+581;LGNET;Gray;3;Miscellaneous Brain Tumor;Low-Grade Neuroepithelial Tumor;CNS/Brain;SOLID;201
+582;PLEMESO;Blue;3;Mesothelioma;Pleural Mesothelioma, Epithelioid Type;Pleura;SOLID;143
+583;ETT;PeachPuff;3;Gestational Trophoblastic Disease;Epithelioid Trophoblastic Tumor;Uterus;SOLID;159
+584;PDC;Black;3;Cancer of Unknown Primary;Poorly Differentiated Carcinoma, NOS;Other;SOLID;235
+585;CAIS;SaddleBrown;3;Colorectal Cancer;Colon Adenocarcinoma In Situ;Bowel;SOLID;145
+586;MXOV;LightBlue;3;Ovarian Cancer;Mixed Ovarian Carcinoma;Ovary/Fallopian Tube;SOLID;83
+587;MUP;Black;3;Melanoma;Melanoma of Unknown Primary;Skin;SOLID;172
+588;UCU;Yellow;3;Bladder Cancer;Urethral Urothelial Carcinoma;Bladder/Urinary Tract;SOLID;221
+589;HGNES;LightSkyBlue;3;Gastrointestinal Neuroendocrine Tumors of the Esophagus/Stomach;High-Grade Neuroendocrine Carcinoma of the Stomach;Esophagus/Stomach;SOLID;130
+590;MPNST;Gray;3;Nerve Sheath Tumor;Malignant Peripheral Nerve Sheath Tumor;Peripheral Nervous System;SOLID;104
+591;PTPR;Gray;3;Pineal Tumor;Papillary Tumor of the Pineal Region;CNS/Brain;SOLID;110
+592;DA;SaddleBrown;3;Small Bowel Cancer;Duodenal Adenocarcinoma;Bowel;SOLID;258
+593;MYCHS;White;3;Bone Cancer;Myxoid Chondrosarcoma;Bone;SOLID;240
+594;PLBMESO;Blue;3;Mesothelioma;Pleural Mesothelioma, Biphasic Type;Pleura;SOLID;143
+595;MYEC;DarkRed;3;Salivary Gland Cancer;Myoepithelial Carcinoma;Head and Neck;SOLID;188
+596;CEMU;Teal;3;Cervical Cancer;Mucinous Carcinoma;Cervix;SOLID;81
+597;GCT;Gray;3;Sellar Tumor;Granular Cell Tumor;CNS/Brain;SOLID;50
+598;PEOS;White;3;Bone Cancer;Periosteal Osteosarcoma;Bone;SOLID;215
+599;CCE;Gray;3;CNS Cancer;Clear Cell Ependymoma;CNS/Brain;SOLID;263
+600;EMBC;HotPink;3;Breast Cancer;Epithelial Type Metaplastic Breast Cancer;Breast;SOLID;43
+601;UPECOMA;PeachPuff;3;Uterine Sarcoma;Uterine Perivascular Epithelioid Cell Tumor;Uterus;SOLID;70
+602;SCRMS;LightYellow;3;Soft Tissue Sarcoma;Spindle Cell Rhabdomyosarcoma;Soft Tissue;SOLID;96
+603;MCN;Purple;3;Pancreatic Cancer;Mucinous Cystic Neoplasm;Pancreas;SOLID;173
+604;GCCAP;SaddleBrown;3;Appendiceal Cancer;Goblet Cell Carcinoid of the Appendix;Bowel;SOLID;198
+605;AMBL;Gray;3;Embryonal Tumor;Large Cell/Anaplastic Medulloblastoma;CNS/Brain;SOLID;135
+606;CHGL;Gray;3;Miscellaneous Neuroepithelial Tumor;Chordoid Glioma of the Third Ventricle;CNS/Brain;SOLID;161
+607;BRCANOS;HotPink;3;Breast Cancer;Breast Invasive Cancer, NOS;Breast;SOLID;133
+608;DASTR;Gray;3;Glioma;Diffuse Astrocytoma;CNS/Brain;SOLID;209
+609;PTES;LightYellow;3;Soft Tissue Sarcoma;Proximal-Type Epithelioid Sarcoma;Soft Tissue;SOLID;204
+610;PPM;Gray;3;CNS Cancer;Papillary Meningioma;CNS/Brain;SOLID;244
+611;ROCY;Orange;4;Renal Cell Carcinoma;Renal Oncocytoma;Kidney;SOLID;419
+612;AMLMRC;LightSalmon;4;Leukemia;AML with Myelodysplasia-Related Changes;Myeloid;LIQUID;476
+613;GBM;Gray;4;Glioma;Glioblastoma Multiforme;CNS/Brain;SOLID;525
+614;CNL;LightSalmon;4;Myeloproliferative Neoplasms;Chronic Neutrophilic Leukemia;Myeloid;LIQUID;343
+615;BLLRGA;LimeGreen;4;B-Lymphoblastic Leukemia/Lymphoma;B-Lymphoblastic Leukemia/Lymphoma with Recurrent Genetic Abnormalities;Lymphoid;LIQUID;307
+616;GCEMU;Teal;4;Cervical Cancer;Gastric Type Mucinous Carcinoma;Cervix;SOLID;596
+617;HGSOC;LightBlue;4;Ovarian Cancer;High-Grade Serous Ovarian Cancer;Ovary/Fallopian Tube;SOLID;483
+618;CCPRC;Orange;4;Renal Cell Carcinoma;Clear Cell Papillary Renal Cell Carcinoma;Kidney;SOLID;419
+619;RSCC;Orange;4;Renal Cell Carcinoma;Renal Small Cell Carcinoma;Kidney;SOLID;419
+620;COM;HotPink;4;Breast Cancer;Carcinoma with Osseous Metaplasia;Breast;SOLID;573
+621;BTBEOV;LightBlue;4;Ovarian Cancer;Brenner Tumor, Benign;Ovary/Fallopian Tube;SOLID;505
+622;MLNFGFR1;LightSalmon;4;Leukemia;Myeloid/Lymphoid Neoplasms with FGFR1 Rearrangement;Myeloid;LIQUID;533
+623;MDSID5Q;LightSalmon;4;Myelodysplastic Syndromes;MDS with Isolated Del(5q);Myeloid;LIQUID;411
+624;PHPTLD;LimeGreen;4;Posttransplant Lymphoproliferative Disorders;Plasmacytic Hyperplasia PTLD;Lymphoid;LIQUID;289
+625;MPALBCRABL1;LightSalmon;4;Leukemia;"Mixed Phenotype Acute Leukemia with t(9;22)(q34.1;q11.2); BCR-ABL1";Myeloid;LIQUID;550
+626;USTUMP;PeachPuff;4;Uterine Sarcoma;Uterine Smooth Muscle Tumor of Uncertain Malignant Potential;Uterus;SOLID;561
+627;MRC;Orange;4;Renal Cell Carcinoma;Renal Medullary Carcinoma;Kidney;SOLID;419
+628;CSCHW;Gray;4;Nerve Sheath Tumor;Cellular Schwannoma;Peripheral Nervous System;SOLID;299
+629;LGSOC;LightBlue;4;Ovarian Cancer;Low-Grade Serous Ovarian Cancer;Ovary/Fallopian Tube;SOLID;483
+630;HGESS;PeachPuff;4;Uterine Sarcoma;High-Grade Endometrial Stromal Sarcoma;Uterus;SOLID;516
+631;LGESS;PeachPuff;4;Uterine Sarcoma;Low-Grade Endometrial Stromal Sarcoma;Uterus;SOLID;516
+632;CMCD;LightSalmon;4;Mastocytosis;Cutaneous Mastocytosis;Myeloid;LIQUID;394
+633;LUMEC;Gainsboro;4;Non-Small Cell Lung Cancer;Mucoepidermoid Carcinoma of the Lung;Lung;SOLID;381
+634;MDSMPNU;LightSalmon;4;Myelodysplastic/Myeloproliferative Neoplasms;MDS/MPN, Unclassifiable;Myeloid;LIQUID;380
+635;CCHM;HotPink;4;Breast Cancer;Carcinoma with Chondroid Metaplasia;Breast;SOLID;573
+636;AMLRGA;LightSalmon;4;Leukemia;AML with Recurrent Genetic Abnormalities;Myeloid;LIQUID;476
+637;MCSL;LightSalmon;4;Mastocytosis;Mast Cell Sarcoma;Myeloid;LIQUID;394
+638;SM;LightSalmon;4;Mastocytosis;Systemic Mastocytosis;Myeloid;LIQUID;394
+639;LECLC;Gainsboro;4;Non-Small Cell Lung Cancer;Lymphoepithelioma-like Carcinoma of the Lung;Lung;SOLID;402
+640;CHRCC;Orange;4;Renal Cell Carcinoma;Chromophobe Renal Cell Carcinoma;Kidney;SOLID;419
+641;CMML;LightSalmon;4;Myelodysplastic/Myeloproliferative Neoplasms;Chronic Myelomonocytic Leukemia;Myeloid;LIQUID;380
+642;MDSMD;LightSalmon;4;Myelodysplastic Syndromes;MDS with Multilineage Dysplasia;Myeloid;LIQUID;411
+643;BTBOV;LightBlue;4;Ovarian Cancer;Brenner Tumor, Borderline;Ovary/Fallopian Tube;SOLID;505
+644;GSARC;Gray;4;Glioma;Gliosarcoma;CNS/Brain;SOLID;525
+645;MTNN;LimeGreen;4;Mature T and NK Neoplasms;Mature T and NK Neoplasms;Lymphoid;LIQUID;497
+646;SRCC;Orange;4;Renal Cell Carcinoma;Sarcomatoid Renal Cell Carcinoma;Kidney;SOLID;419
+647;MDSRS;LightSalmon;4;Myelodysplastic Syndromes;MDS with Ring Sideroblasts;Myeloid;LIQUID;411
+648;HS;LightSalmon;4;Histiocytosis;Histiocytic Sarcoma;Myeloid;LIQUID;409
+649;CHLPTLD;LimeGreen;4;Posttransplant Lymphoproliferative Disorders;Classical Hodgkin Lymphoma PTLD;Lymphoid;LIQUID;289
+650;MPALKMT2A;LightSalmon;4;Leukemia;"Mixed Phenotype Acute Leukemia with t(v;11q23.3); KMT2A Rearranged";Myeloid;LIQUID;550
+651;UELMS;PeachPuff;4;Uterine Sarcoma;Uterine Epithelioid Leiomyosarcoma;Uterus;SOLID;561
+652;UMLMS;PeachPuff;4;Uterine Sarcoma;Uterine Myxoid Leiomyosarcoma;Uterus;SOLID;561
+653;MLNPDGFRA;LightSalmon;4;Leukemia;Myeloid/Lymphoid Neoplasms with PDGFRA Rearrangement;Myeloid;LIQUID;533
+654;URCC;Orange;4;Renal Cell Carcinoma;Unclassified Renal Cell Carcinoma;Kidney;SOLID;419
+655;SPDAC;LightSkyBlue;4;Esophagogastric Cancer;Poorly Differentiated Carcinoma of the Stomach;Esophagus/Stomach;SOLID;372
+656;MTSCC;Orange;4;Renal Cell Carcinoma;Renal Mucinous Tubular Spindle Cell Carcinoma;Kidney;SOLID;419
+657;FHPTLD;LimeGreen;4;Posttransplant Lymphoproliferative Disorders;Florid Follicular Hyperplasia PTLD;Lymphoid;LIQUID;289
+658;MDSEB;LightSalmon;4;Myelodysplastic Syndromes;MDS with Excess Blasts;Myeloid;LIQUID;411
+659;CCLC;Gainsboro;4;Non-Small Cell Lung Cancer;Clear Cell Carcinoma of the Lung;Lung;SOLID;402
+660;RDD;LightSalmon;4;Histiocytosis;Rosai-Dorfman Disease;Myeloid;LIQUID;409
+661;IDCT;LightSalmon;4;Histiocytosis;Indeterminate Dendritic Cell Tumor;Myeloid;LIQUID;409
+662;RLCLC;Gainsboro;4;Non-Small Cell Lung Cancer;Large Cell Lung Carcinoma With Rhabdoid Phenotype;Lung;SOLID;402
+663;TMN;LightSalmon;4;Leukemia;Therapy-Related Myeloid Neoplasms;Myeloid;LIQUID;476
+664;NKCLL;LimeGreen;4;T-Lymphoblastic Leukemia/Lymphoma;Natural Killer (NK) Cell Lymphoblastic Leukemia/Lymphoma;Lymphoid;LIQUID;382
+665;DSTAD;LightSkyBlue;4;Esophagogastric Cancer;Diffuse Type Stomach Adenocarcinoma;Esophagus/Stomach;SOLID;512
+666;MSCHW;Gray;4;Nerve Sheath Tumor;Melanotic Schwannoma;Peripheral Nervous System;SOLID;299
+667;BTMOV;LightBlue;4;Ovarian Cancer;Brenner Tumor, Malignant;Ovary/Fallopian Tube;SOLID;505
+668;PSTAD;LightSkyBlue;4;Esophagogastric Cancer;Papillary Stomach Adenocarcinoma;Esophagus/Stomach;SOLID;512
+669;PRCC;Orange;4;Renal Cell Carcinoma;Papillary Renal Cell Carcinoma;Kidney;SOLID;419
+670;BLPT;HotPink;4;Breast Sarcoma;Borderline Phyllodes Tumor of the Breast;Breast;SOLID;440
+671;GCLC;Gainsboro;4;Non-Small Cell Lung Cancer;Giant Cell Carcinoma of the Lung;Lung;SOLID;402
+672;MASCC;HotPink;4;Breast Cancer;Metaplastic Adenocarcinoma with Spindle Cell Differentiation;Breast;SOLID;600
+673;FHRCC;Orange;4;Renal Cell Carcinoma;FH-Deficient Renal Cell Carcinoma;Kidney;SOLID;419
+674;FRCT;LightSalmon;4;Histiocytosis;Fibroblastic Reticular Cell Tumor;Myeloid;LIQUID;409
+675;AUL;LightSalmon;4;Leukemia;Acute Undifferentiated Leukemia;Myeloid;LIQUID;550
+676;TSTAD;LightSkyBlue;4;Esophagogastric Cancer;Tubular Stomach Adenocarcinoma;Esophagus/Stomach;SOLID;512
+677;CHL;LimeGreen;4;Hodgkin Lymphoma;Classical Hodgkin Lymphoma;Lymphoid;LIQUID;548
+678;PPTLD;LimeGreen;4;Posttransplant Lymphoproliferative Disorders;Polymorphic PTLD;Lymphoid;LIQUID;289
+679;ICEMU;Teal;4;Cervical Cancer;Intestinal Type Mucinous Carcinoma;Cervix;SOLID;596
+680;CCOC;DarkRed;4;Head and Neck Cancer;Clear Cell Odontogenic Carcinoma;Head and Neck;SOLID;401
+681;MBN;LimeGreen;4;Mature B-Cell Neoplasms;Mature B-Cell Neoplasms;Lymphoid;LIQUID;497
+682;LUACC;Gainsboro;4;Non-Small Cell Lung Cancer;Adenoid Cystic Carcinoma of the Lung;Lung;SOLID;381
+683;CELNOS;LightSalmon;4;Myeloproliferative Neoplasms;Chronic Eosinophilic Leukemia, NOS;Myeloid;LIQUID;343
+684;JXG;LightSalmon;4;Histiocytosis;Disseminated Juvenile Xanthogranuloma;Myeloid;LIQUID;409
+685;CML;LightSalmon;4;Myeloproliferative Neoplasms;Chronic Myelogenous Leukemia;Myeloid;LIQUID;343
+686;MASC;HotPink;4;Breast Cancer;Metaplastic Adenosquamous Carcinoma;Breast;SOLID;600
+687;BLCLC;Gainsboro;4;Non-Small Cell Lung Cancer;Basaloid Large Cell Carcinoma of the Lung;Lung;SOLID;402
+688;MPTLD;LimeGreen;4;Posttransplant Lymphoproliferative Disorders;Monomorphic PTLD (B- and T-/NK-cell types);Lymphoid;LIQUID;289
+689;CDRCC;Orange;4;Renal Cell Carcinoma;Collecting Duct Renal Cell Carcinoma;Kidney;SOLID;419
+690;CHM;PeachPuff;4;Gestational Trophoblastic Disease;Complete Hydatidiform Mole;Uterus;SOLID;410
+691;ISTAD;LightSkyBlue;4;Esophagogastric Cancer;Intestinal Type Stomach Adenocarcinoma;Esophagus/Stomach;SOLID;512
+692;SCEMU;Teal;4;Cervical Cancer;Signet Ring Mucinous Carcinoma;Cervix;SOLID;596
+693;SCCRCC;Orange;4;Renal Cell Carcinoma;Renal Clear Cell Carcinoma with Sarcomatoid Features;Kidney;SOLID;366
+694;AMLNOS;LightSalmon;4;Leukemia;AML, NOS;Myeloid;LIQUID;476
+695;BPT;HotPink;4;Breast Sarcoma;Benign Phyllodes Tumor of the Breast;Breast;SOLID;440
+696;MDSSLD;LightSalmon;4;Myelodysplastic Syndromes;MDS with Single Lineage Dysplasia;Myeloid;LIQUID;411
+697;FDCS;LightYellow;4;Soft Tissue Sarcoma;Follicular Dendritic Cell Sarcoma;Myeloid;LIQUID;409
+698;ECD;LightSalmon;4;Histiocytosis;Erdheim-Chester Disease;Myeloid;LIQUID;409
+699;PMF;LightSalmon;4;Myeloproliferative Neoplasms;Primary Myelofibrosis;Myeloid;LIQUID;343
+700;MPALTNOS;LightSalmon;4;Leukemia;Mixed Phenotype Acute Leukemia, T/Myeloid, NOS;Myeloid;LIQUID;550
+701;MPT;HotPink;4;Breast Sarcoma;Malignant Phyllodes Tumor of the Breast;Breast;SOLID;440
+702;MLNPDGFRB;LightSalmon;4;Leukemia;Myeloid/Lymphoid Neoplasms with PDGFRB Rearrangement;Myeloid;LIQUID;533
+703;LCS;LightSalmon;4;Histiocytosis;Langerhans Cell Sarcoma;Myeloid;LIQUID;409
+704;MPALBNOS;LightSalmon;4;Leukemia;Mixed Phenotype Acute Leukemia, B/Myeloid, NOS;Myeloid;LIQUID;550
+705;RCYC;LightSalmon;4;Myelodysplastic Syndromes;Refractory Cytopenia of Childhood;Myeloid;LIQUID;411
+706;MSCC;HotPink;4;Breast Cancer;Metaplastic Squamous Cell Carcinoma;Breast;SOLID;600
+707;MLNPCM1JAK2;LightSalmon;4;Leukemia;Myeloid/Lymphoid Neoplasms with PCM1-JAK2;Myeloid;LIQUID;533
+708;JMML;LightSalmon;4;Myelodysplastic/Myeloproliferative Neoplasms;Juvenile Myelomonocytic Leukemia;Myeloid;LIQUID;380
+709;ET;LightSalmon;4;Myeloproliferative Neoplasms;Essential Thrombocythemia;Myeloid;LIQUID;343
+710;PHM;PeachPuff;4;Gestational Trophoblastic Disease;Partial Hydatidiform Mole;Uterus;SOLID;410
+711;TRCC;Orange;4;Renal Cell Carcinoma;Translocation-Associated Renal Cell Carcinoma;Kidney;SOLID;419
+712;IHM;PeachPuff;4;Gestational Trophoblastic Disease;Invasive Hydatidiform Mole;Uterus;SOLID;410
+713;MDSU;LightSalmon;4;Myelodysplastic Syndromes;MDS, Unclassifiable;Myeloid;LIQUID;411
+714;RAML;Orange;4;Renal Cell Carcinoma;Renal Angiomyolipoma;Kidney;SOLID;419
+715;NLPHL;LimeGreen;4;Hodgkin Lymphoma;Nodular Lymphocyte-Predominant Hodgkin Lymphoma;Lymphoid;LIQUID;548
+716;ULM;PeachPuff;4;Uterine Sarcoma;Uterine Leiomyoma;Uterus;SOLID;561
+717;IMPTLD;LimeGreen;4;Posttransplant Lymphoproliferative Disorders;Infectious Mononucleosis PTLD;Lymphoid;LIQUID;289
+718;ULMS;PeachPuff;4;Uterine Sarcoma;Uterine Leiomyosarcoma;Uterus;SOLID;561
+719;BLLNOS;LimeGreen;4;B-Lymphoblastic Leukemia/Lymphoma;B-Lymphoblastic Leukemia/Lymphoma, NOS;Lymphoid;LIQUID;307
+720;SCGBM;Gray;4;Glioma;Small Cell Glioblastoma;CNS/Brain;SOLID;525
+721;MS;LightSalmon;4;Leukemia;Myeloid Sarcoma;Myeloid;LIQUID;476
+722;IDCS;LightYellow;4;Soft Tissue Sarcoma;Interdigitating Dendritic Cell Sarcoma;Myeloid;LIQUID;409
+723;MDSMPNRST;LightSalmon;4;Myelodysplastic/Myeloproliferative Neoplasms;MDS/MPN with Ring Sideroblasts and Thrombocytosis;Myeloid;LIQUID;380
+724;PV;LightSalmon;4;Myeloproliferative Neoplasms;Polycythemia Vera;Myeloid;LIQUID;343
+725;MCS;HotPink;4;Breast Cancer;Metaplastic Carcinosarcoma;Breast;SOLID;573
+726;MPNU;LightSalmon;4;Myeloproliferative Neoplasms;Myeloproliferative Neoplasms, Unclassifiable;Myeloid;LIQUID;343
+727;ACML;LightSalmon;4;Myelodysplastic/Myeloproliferative Neoplasms;Atypical Chronic Myeloid Leukemia, BCR-ABL1-;Myeloid;LIQUID;380
+728;MPRDS;LightSalmon;4;Leukemia;Myeloid Proliferations Related to Down Syndrome;Myeloid;LIQUID;476
+729;SSRCC;LightSkyBlue;4;Esophagogastric Cancer;Signet Ring Cell Carcinoma of the Stomach;Esophagus/Stomach;SOLID;372
+730;MSTAD;LightSkyBlue;4;Esophagogastric Cancer;Mucinous Stomach Adenocarcinoma;Esophagus/Stomach;SOLID;512
+731;ETPLL;LimeGreen;4;T-Lymphoblastic Leukemia/Lymphoma;Early T-Cell Precursor Lymphoblastic Leukemia;Lymphoid;LIQUID;382
+732;LCH;LightSalmon;4;Histiocytosis;Langerhans Cell Histiocytosis;Myeloid;LIQUID;409
+733;SBLU;LimeGreen;5;Mature B-Cell Neoplasms;Splenic B-Cell Lymphoma/Leukemia, Unclassifiable;Lymphoid;LIQUID;681
+734;TMDS;LightSalmon;5;Leukemia;Therapy-Related Myelodysplastic Syndrome;Myeloid;LIQUID;663
+735;ITLPDGI;LimeGreen;5;Mature T and NK Neoplasms;Indolent T-Cell Lymphoproliferative Disorder of the GI Tract;Lymphoid;LIQUID;645
+736;AMLCBFBMYH11;LightSalmon;5;Leukemia;"AML with inv(16)(p13.1q22) or t(16;16)(p13.1;q22);CBFB-MYH11";Myeloid;LIQUID;636
+737;AWM;LightSalmon;5;Leukemia;AML without Maturation;Myeloid;LIQUID;694
+738;BL;LimeGreen;5;Mature B-Cell Neoplasms;Burkitt Lymphoma;Lymphoid;LIQUID;681
+739;AMOL;LightSalmon;5;Leukemia;Acute Monoblastic/Monocytic Leukemia;Myeloid;LIQUID;694
+740;PERL;LightSalmon;5;Leukemia;Pure Erythroid Leukemia;Myeloid;LIQUID;694
+741;AMLCEBPA;LightSalmon;5;Leukemia;AML with Biallelic Mutations of CEBPA;Myeloid;LIQUID;636
+742;PMBL;LimeGreen;5;Mature B-Cell Neoplasms;Primary Mediastinal (Thymic) Large B-Cell Lymphoma;Lymphoid;LIQUID;681
+743;PEL;LimeGreen;5;Mature B-Cell Neoplasms;Primary Effusion Lymphoma;Lymphoid;LIQUID;681
+744;PVMF;LightSalmon;5;Myeloproliferative Neoplasms;Polycythaemia Vera Myelofibrosis;Myeloid;LIQUID;724
+745;NSCHL;LimeGreen;5;Hodgkin Lymphoma;Nodular Sclerosis Classical Hodgkin Lymphoma;Lymphoid;LIQUID;677
+746;BPLL;LimeGreen;5;Mature B-Cell Neoplasms;B-Cell Prolymphocytic Leukemia;Lymphoid;LIQUID;681
+747;MCBCL;LimeGreen;5;Mature B-Cell Neoplasms;Monoclonal B-Cell Lymphocytosis;Lymphoid;LIQUID;681
+748;ALKLBCL;LimeGreen;5;Mature B-Cell Neoplasms;ALK Positive Large B-Cell Lymphoma;Lymphoid;LIQUID;681
+749;EATL;LimeGreen;5;Mature T and NK Neoplasms;Enteropathy-Associated T-Cell Lymphoma;Lymphoid;LIQUID;645
+750;SPTCL;LimeGreen;5;Mature T and NK Neoplasms;Subcutaneous Panniculitis-Like T-Cell Lymphoma;Lymphoid;LIQUID;645
+751;AHCD;LimeGreen;5;Mature B-Cell Neoplasms;Alpha Heavy-Chain Disease;Lymphoid;LIQUID;681
+752;BLLHYPER;LimeGreen;5;B-Lymphoblastic Leukemia/Lymphoma;B-Lymphoblastic Leukemia/Lymphoma with Hyperdiploidy;Lymphoid;LIQUID;615
+753;EBVDLBCLNOS;LimeGreen;5;Mature B-Cell Neoplasms;EBV Positive DLBCL, NOS;Lymphoid;LIQUID;681
+754;BLLIAMP21;LimeGreen;5;B-Lymphoblastic Leukemia/Lymphoma;B-Lymphoblastic Leukemia/Lymphoma with iAMP21;Lymphoid;LIQUID;615
+755;APMF;LightSalmon;5;Leukemia;Acute Panmyelosis with Myelofibrosis;Myeloid;LIQUID;694
+756;TPLL;LimeGreen;5;Mature T and NK Neoplasms;T-Cell Prolymphocytic Leukemia;Lymphoid;LIQUID;645
+757;PTFL;LimeGreen;5;Mature B-Cell Neoplasms;Pediatric-Type Follicular Lymphoma;Lymphoid;LIQUID;681
+758;AMLBCRABL1;LightSalmon;5;Leukemia;AML with BCR-ABL1;Myeloid;LIQUID;636
+759;BLLETV6RUNX1;LimeGreen;5;B-Lymphoblastic Leukemia/Lymphoma;"B-Lymphoblastic Leukemia/Lymphoma with t(12;21)(p13.2;q22.1); ETV6-RUNX1";Lymphoid;LIQUID;615
+760;LDCHL;LimeGreen;5;Hodgkin Lymphoma;Lymphocyte-Depleted Classical Hodgkin Lymphoma;Lymphoid;LIQUID;677
+761;SPB;LimeGreen;5;Mature B-Cell Neoplasms;Solitary Plasmacytoma of Bone;Lymphoid;LIQUID;681
+762;BCLU;LimeGreen;5;Mature B-Cell Neoplasms;B-Cell Lymphoma, Unclassifiable, with Features Intermediate between DLBCL and Classical Hodgkin lymphoma;Lymphoid;LIQUID;681
+763;BLLHYPO;LimeGreen;5;B-Lymphoblastic Leukemia/Lymphoma;B-Lymphoblastic Leukemia/Lymphoma with Hypodiploidy;Lymphoid;LIQUID;615
+764;PLBL;LimeGreen;5;Mature B-Cell Neoplasms;Plasmablastic Lymphoma;Lymphoid;LIQUID;681
+765;ENKL;LimeGreen;5;Mature T and NK Neoplasms;Extranodal NK-/T-Cell Lymphoma, Nasal Type;Lymphoid;LIQUID;645
+766;PTCL;LimeGreen;5;Mature T and NK Neoplasms;Peripheral T-Cell lymphoma, NOS;Lymphoid;LIQUID;645
+767;AMLMLLT3KMT2A;LightSalmon;5;Leukemia;"AML with t(9;11)(p21.3;q23.3);MLLT3-KMT2A";Myeloid;LIQUID;636
+768;TAM;LightSalmon;5;Leukemia;Transient Abnormal Myelopoiesis;Myeloid;LIQUID;728
+769;MLADS;LightSalmon;5;Leukemia;Myeloid Leukemia Associated with Down Syndrome;Myeloid;LIQUID;728
+770;APLPMLRARA;LightSalmon;5;Leukemia;APL with PML-RARA;Myeloid;LIQUID;636
+771;AITL;LimeGreen;5;Mature T and NK Neoplasms;Angioimmunoblastic T-Cell Lymphoma;Lymphoid;LIQUID;645
+772;HCL;LimeGreen;5;Mature B-Cell Neoplasms;Hairy Cell Leukemia;Lymphoid;LIQUID;681
+773;ASM;LightSalmon;5;Mastocytosis;Aggressive Systemic Mastocytosis;Myeloid;LIQUID;638
+774;FL;LimeGreen;5;Mature B-Cell Neoplasms;Follicular Lymphoma;Lymphoid;LIQUID;681
+775;SS;LimeGreen;5;Mature T and NK Neoplasms;Sezary Syndrome;Lymphoid;LIQUID;645
+776;ATLL;LimeGreen;5;Mature T and NK Neoplasms;Adult T-Cell Leukemia/Lymphoma;Lymphoid;LIQUID;645
+777;THRLBCL;LimeGreen;5;Mature B-Cell Neoplasms;T-Cell/Histiocyte-Rich Large B-Cell Lymphoma;Lymphoid;LIQUID;681
+778;LBLIRF4;LimeGreen;5;Mature B-Cell Neoplasms;Large B-Cell Lymphoma with IRF4 Rearrangement;Lymphoid;LIQUID;681
+779;PCSMTPLD;LimeGreen;5;Mature T and NK Neoplasms;Primary Cutaneous CD4 Positive Small/Medium T-Cell Lymphoproliferative Disorder;Lymphoid;LIQUID;645
+780;AMML;LightSalmon;5;Leukemia;Acute Myelomonocytic Leukemia;Myeloid;LIQUID;694
+781;LYG;LimeGreen;5;Mature B-Cell Neoplasms;Lymphomatoid Granulomatosis;Lymphoid;LIQUID;681
+782;ETMF;LightSalmon;5;Myeloproliferative Neoplasms;Essential Thrombocythemia Myelofibrosis;Myeloid;LIQUID;709
+783;MDSRSSLD;LightSalmon;5;Myelodysplastic Syndromes;MDS with Ring Sideroblasts and Single Lineage Dysplasia;Myeloid;LIQUID;647
+784;EBVMCU;LimeGreen;5;Mature B-Cell Neoplasms;EBV Positive Mucocutaneous Ulcer;Lymphoid;LIQUID;681
+785;BLLBCRABL1;LimeGreen;5;B-Lymphoblastic Leukemia/Lymphoma;"B-Lymphoblastic Leukemia/Lymphoma with t(9;22)(q34.1;q11.2);BCR-ABL1";Lymphoid;LIQUID;615
+786;BLL11Q;LimeGreen;5;Mature B-Cell Neoplasms;Burkitt-Like Lymphoma with 11q Aberration;Lymphoid;LIQUID;681
+787;FTCL;LimeGreen;5;Mature T and NK Neoplasms;Follicular T-Cell Lymphoma;Lymphoid;LIQUID;645
+788;MDSEB2;LightSalmon;5;Myelodysplastic Syndromes;MDS with excess blasts-2;Myeloid;LIQUID;658
+789;AMLRBM15MKL1;LightSalmon;5;Leukemia;"AML (megakaryoblastic) with t(1;22)(p13.3;q13.3);RBM15-MKL1";Myeloid;LIQUID;636
+790;MGUS;LimeGreen;5;Mature B-Cell Neoplasms;Monoclonal Gammopathy of Undetermined Significance;Lymphoid;LIQUID;681
+791;MEITL;LimeGreen;5;Mature T and NK Neoplasms;Monomorphic Epitheliotropic Intestinal T-Cell Lymphoma;Lymphoid;LIQUID;645
+792;AMLDEKNUP214;LightSalmon;5;Leukemia;"AML with t(6;9)(p23;q34.1);DEK-NUP214";Myeloid;LIQUID;636
+793;SSM;LightSalmon;5;Mastocytosis;Smoldering Systemic Mastocytosis;Myeloid;LIQUID;638
+794;CMML2;LightSalmon;5;Myelodysplastic/Myeloproliferative Neoplasms;Chronic Myelomonocytic Leukemia-2;Myeloid;LIQUID;641
+795;NPTLTFH;LimeGreen;5;Mature T and NK Neoplasms;Nodal Peripheral T-Cell Lymphoma with TFH Phenotype;Lymphoid;LIQUID;645
+796;TAML;LightSalmon;5;Leukemia;Therapy-Related Acute Myeloid Leukemia;Myeloid;LIQUID;663
+797;MYCF;LimeGreen;5;Mature T and NK Neoplasms;Mycosis Fungoides;Lymphoid;LIQUID;645
+798;TLGL;LimeGreen;5;Mature T and NK Neoplasms;T-Cell Large Granular Lymphocytic Leukemia;Lymphoid;LIQUID;645
+799;DLBCLNOS;LimeGreen;5;Mature B-Cell Neoplasms;Diffuse Large B-Cell Lymphoma, NOS;Lymphoid;LIQUID;681
+800;PCLPD;LimeGreen;5;Mature T and NK Neoplasms;Primary Cutaneous CD30 Positive T-Cell Lymphoproliferative Disorders;Lymphoid;LIQUID;645
+801;PMFOFS;LightSalmon;5;Myeloproliferative Neoplasms;Primary Myelofibrosis,Overt Fibrotic Stage;Myeloid;LIQUID;699
+802;HHV8DLBCL;LimeGreen;5;Mature B-Cell Neoplasms;HHV8 Positive DLBCL, NOS;Lymphoid;LIQUID;681
+803;BLLIL3IGH;LimeGreen;5;B-Lymphoblastic Leukemia/Lymphoma;"B-Lymphoblastic Leukemia/Lymphoma with t(5;14)(q31.1;q32.3) IL3-IGH";Lymphoid;LIQUID;615
+804;SMMCL;LightSalmon;5;Mastocytosis;Mast Cell Leukemia;Myeloid;LIQUID;638
+805;HGBCLMYCBCL2;LimeGreen;5;Mature B-Cell Neoplasms;High-Grade B-Cell Lymphoma, with MYC and BCL2 and/or BCL6 Rearrangements;Lymphoid;LIQUID;681
+806;CLLSLL;LimeGreen;5;Mature B-Cell Neoplasms;Chronic Lymphocytic Leukemia/Small Lymphocytic Lymphoma;Lymphoid;LIQUID;681
+807;LPL;LimeGreen;5;Mature B-Cell Neoplasms;Lymphoplasmacytic Lymphoma;Lymphoid;LIQUID;681
+808;AMKL;LightSalmon;5;Leukemia;Acute Megakaryoblastic Leukemia;Myeloid;LIQUID;694
+809;GHCD;LimeGreen;5;Mature B-Cell Neoplasms;Gamma Heavy-Chain Disease;Lymphoid;LIQUID;681
+810;MCL;LimeGreen;5;Mature B-Cell Neoplasms;Mantle Cell Lymphoma;Lymphoid;LIQUID;681
+811;PCLBCLLT;LimeGreen;5;Mature B-Cell Neoplasms;Primary Cutaneous DLBCL, Leg Type;Lymphoid;LIQUID;681
+812;CMML0;LightSalmon;5;Myelodysplastic/Myeloproliferative Neoplasms;Chronic Myelomonocytic Leukemia-0;Myeloid;LIQUID;641
+813;AMLGATA2MECOM;LightSalmon;5;Leukemia;"AML with inv(3)(q21.3q26.2) or t(3;3)(q21.3;q26.2); GATA2, MECOM";Myeloid;LIQUID;636
+814;CMLBCRABL1;LightSalmon;5;Myeloproliferative Neoplasms;Chronic Myeloid Leukemia, BCR-ABL1+;Myeloid;LIQUID;685
+815;SEBVTLC;LimeGreen;5;Mature T and NK Neoplasms;Systemic EBV Positive T-Cell Lymphoma of Childhood;Lymphoid;LIQUID;645
+816;HSTCL;LimeGreen;5;Mature T and NK Neoplasms;Hepatosplenic T-cell Lymphoma;Lymphoid;LIQUID;645
+817;EP;LimeGreen;5;Mature B-Cell Neoplasms;Extraosseous Plasmacytoma;Lymphoid;LIQUID;681
+818;MZL;LimeGreen;5;Mature B-Cell Neoplasms;Marginal Zone Lymphoma;Lymphoid;LIQUID;681
+819;PCM;LimeGreen;5;Mature B-Cell Neoplasms;Plasma Cell Myeloma;Lymphoid;LIQUID;681
+820;SMAHN;LightSalmon;5;Mastocytosis;Systemic Mastocytosis with an Associated Hematological Neoplasm;Myeloid;LIQUID;638
+821;ANKL;LimeGreen;5;Mature T and NK Neoplasms;Aggressive NK-Cell Leukemia;Lymphoid;LIQUID;645
+822;LRCHL;LimeGreen;5;Hodgkin Lymphoma;Lymphocyte-Rich Classical Hodgkin Lymphoma;Lymphoid;LIQUID;677
+823;CLPDNK;LimeGreen;5;Mature T and NK Neoplasms;Chronic Lymphoproliferative Disorder of NK Cells;Lymphoid;LIQUID;645
+824;AMLMD;LightSalmon;5;Leukemia;AML with Minimal Differentiation;Myeloid;LIQUID;694
+825;MHCD;LimeGreen;5;Mature B-Cell Neoplasms;Mu Heavy-Chain Disease;Lymphoid;LIQUID;681
+826;BLLBCRABL1L;LimeGreen;5;B-Lymphoblastic Leukemia/Lymphoma;B-Lymphoblastic Leukemia/Lymphoma, BCR-ABL1 Like;Lymphoid;LIQUID;615
+827;PCGDTCL;LimeGreen;5;Mature T and NK Neoplasms;Primary Cutaneous Gamma Delta T-Cell Lymphoma;Lymphoid;LIQUID;645
+828;HGBCL;LimeGreen;5;Mature B-Cell Neoplasms;High-Grade B-Cell Lymphoma, NOS;Lymphoid;LIQUID;681
+829;HVLL;LimeGreen;5;Mature T and NK Neoplasms;Hydroa Vacciniforme Like Lymphoproliferative Disorder;Lymphoid;LIQUID;645
+830;IVBCL;LimeGreen;5;Mature B-Cell Neoplasms;Intravascular Large B-Cell Lymphoma;Lymphoid;LIQUID;681
+831;PCNSL;LimeGreen;5;Mature B-Cell Neoplasms;Primary DLBCL of the central nervous system;Lymphoid;LIQUID;681
+832;ALCL;LimeGreen;5;Mature T and NK Neoplasms;Anaplastic Large Cell Lymphoma;Lymphoid;LIQUID;645
+833;MCCHL;LimeGreen;5;Hodgkin Lymphoma;Mixed Cellularity Classical Hodgkin Lymphoma;Lymphoid;LIQUID;677
+834;BLLTCF3PBX1;LimeGreen;5;B-Lymphoblastic Leukemia/Lymphoma;"B-Lymphoblastic Leukemia/Lymphoma with t(1;19)(q23;p13.3);TCF3-PBX1";Lymphoid;LIQUID;615
+835;PMFPES;LightSalmon;5;Myeloproliferative Neoplasms;Primary Myelofibrosis, Prefibrotic/Early Stage;Myeloid;LIQUID;699
+836;DLBCLCI;LimeGreen;5;Mature B-Cell Neoplasms;DLBCL Associated with Chronic Inflammation;Lymphoid;LIQUID;681
+837;MDSEB1;LightSalmon;5;Myelodysplastic Syndromes;MDS with excess blasts-1;Myeloid;LIQUID;658
+838;BLLKMT2A;LimeGreen;5;B-Lymphoblastic Leukemia/Lymphoma;"B-Lymphoblastic Leukemia/Lymphoma with t(v;11q23.3);KMT2A Rearranged";Lymphoid;LIQUID;615
+839;PCAECTCL;LimeGreen;5;Mature T and NK Neoplasms;Primary Cutaneous CD8 Positive Aggressive Epidermotropic Cytotoxic T-Cell Lymphoma;Lymphoid;LIQUID;645
+840;AMLNPM1;LightSalmon;5;Leukemia;AML with Mutated NPM1;Myeloid;LIQUID;636
+841;AMLRUNX1RUNX1T1;LightSalmon;5;Leukemia;"AML with t(8;21)(q22;q22.1);RUNX1-RUNX1T1";Myeloid;LIQUID;636
+842;AMLRUNX1;LightSalmon;5;Leukemia;AML with Mutated RUNX1;Myeloid;LIQUID;636
+843;ISM;LightSalmon;5;Mastocytosis;Indolent Systemic Mastocytosis;Myeloid;LIQUID;638
+844;PCATCL;LimeGreen;5;Mature T and NK Neoplasms;Primary Cutaneous Acral CD8 Positive T-Cell Lymphoma;Lymphoid;LIQUID;645
+845;PCFCL;LimeGreen;5;Mature B-Cell Neoplasms;Primary Cutaneous Follicle Center Lymphoma;Lymphoid;LIQUID;681
+846;CMML1;LightSalmon;5;Myelodysplastic/Myeloproliferative Neoplasms;Chronic Myelomonocytic Leukemia-1;Myeloid;LIQUID;641
+847;ABL;LightSalmon;5;Leukemia;Acute Basophilic Leukemia;Myeloid;LIQUID;694
+848;MIDD;LimeGreen;5;Mature B-Cell Neoplasms;Monoclonal Immunoglobulin Deposition Diseases;Lymphoid;LIQUID;681
+849;MDSRSMD;LightSalmon;5;Myelodysplastic Syndromes;MDS with Ring Sideroblasts and Multilineage Dysplasia;Myeloid;LIQUID;647
+850;AM;LightSalmon;5;Leukemia;AML with Maturation;Myeloid;LIQUID;694
+851;GCB;LimeGreen;6;Mature B-Cell Neoplasms;Germinal Center B-Cell Type;Lymphoid;LIQUID;799
+852;BIALCL;LimeGreen;6;Mature T and NK Neoplasms;Breast Implant-Associated Anaplastic Large-Cell Lymphoma;Lymphoid;LIQUID;832
+853;WM;LimeGreen;6;Mature B-Cell Neoplasms;Waldenstrom Macroglobulinemia;Lymphoid;LIQUID;807
+854;MGUSIGG;LimeGreen;6;Mature B-Cell Neoplasms;IgG;Lymphoid;LIQUID;790
+855;MIDDA;LimeGreen;6;Mature B-Cell Neoplasms;Amyloidosis;Lymphoid;LIQUID;848
+856;HCL-V;LimeGreen;6;Mature B-Cell Neoplasms;Hairy Cell Leukemia-Variant;Lymphoid;LIQUID;733
+857;ALCLALKN;LimeGreen;6;Mature T and NK Neoplasms;Anaplastic Large-Cell Lymphoma ALK Negative;Lymphoid;LIQUID;832
+858;ISMCL;LimeGreen;6;Mature B-Cell Neoplasms;In Situ Mantle Cell Neoplasia;Lymphoid;LIQUID;810
+859;MIDDO;LimeGreen;6;Mature B-Cell Neoplasms;Monoclonal Immunoglobulin Deposition Diseases, Other;Lymphoid;LIQUID;848
+860;ALCLALKP;LimeGreen;6;Mature T and NK Neoplasms;Anaplastic Large-Cell Lymphoma ALK Positive;Lymphoid;LIQUID;832
+861;EMALT;LimeGreen;6;Mature B-Cell Neoplasms;Extranodal Marginal Zone Lymphoma of Mucosa-Associated Lymphoid Tissue (MALT lymphoma);Lymphoid;LIQUID;818
+862;MGUSIGA;LimeGreen;6;Mature B-Cell Neoplasms;IgA;Lymphoid;LIQUID;790
+863;NMZL;LimeGreen;6;Mature B-Cell Neoplasms;Nodal Marginal Zone Lymphoma;Lymphoid;LIQUID;818
+864;ABC;LimeGreen;6;Mature B-Cell Neoplasms;Activated B-cell Type;Lymphoid;LIQUID;799
+865;SMZL;LimeGreen;6;Mature B-Cell Neoplasms;Splenic Marginal Zone Lymphoma;Lymphoid;LIQUID;818
+866;PCALCL;LimeGreen;6;Mature T and NK Neoplasms;Primary Cutaneous Anaplastic Large Cell Lymphoma;Lymphoid;LIQUID;800
+867;DFL;LimeGreen;6;Mature B-Cell Neoplasms;Duodenal-Type Follicular Lymphoma;Lymphoid;LIQUID;774
+868;LYP;LimeGreen;6;Mature T and NK Neoplasms;Lymphomatoid Papulosis;Lymphoid;LIQUID;800
+869;SDRPL;LimeGreen;6;Mature B-Cell Neoplasms;Splenic Diffuse Red Pulp Small B-Cell Lymphoma;Lymphoid;LIQUID;733
+870;ISFN;LimeGreen;6;Mature B-Cell Neoplasms;In Situ Follicular Neoplasia;Lymphoid;LIQUID;774
+871;MGUSIGM;LimeGreen;6;Mature B-Cell Neoplasms;IgM;Lymphoid;LIQUID;790
+872;NULL;PeachPuff;0;Endometrial Cancer;NULL;Uterus;SOLID;NULL
+873;NULL;Gray;0;Melanocytoma;NULL;CNS/Brain;SOLID;NULL
+874;NULL;SaddleBrown;0;Colorectal Cancer;NULL;Bowel;SOLID;NULL
+875;NULL;Green;0;Biliary Tract Cancer, NOS;NULL;Biliary Tract;SOLID;NULL
+876;NULL;Gray;0;Peripheral Nervous System;NULL;Peripheral Nervous System;SOLID;NULL
+877;NULL;PeachPuff;0;Uterine Sarcoma;NULL;Uterus;SOLID;NULL
+878;NULL;Gainsboro;0;Non-Small Cell Lung Cancer;NULL;Lung;SOLID;NULL
+879;NULL;Purple;0;Thymic Tumor;NULL;Thymus;SOLID;NULL
+880;NULL;Black;0;Skin Cancer, Non-Melanoma;NULL;Skin;SOLID;NULL
+881;NULL;White;0;Bone Cancer, NOS;NULL;Bone;SOLID;NULL
+882;NULL;LightYellow;0;Malignant Glomus Tumor;NULL;Soft Tissue;SOLID;NULL
+883;NULL;DarkRed;0;Parathyroid Cancer;NULL;Head and Neck;SOLID;NULL
+884;NULL;PeachPuff;0;Gestational Trophoblastic Disease;NULL;Uterus;SOLID;NULL
+885;NULL;LightSkyBlue;0;Gastrointestinal Neuroendocrine Tumors of the Esophagus/Stomach;NULL;Esophagus/Stomach;SOLID;NULL
+886;NULL;HotPink;0;Breast Sarcoma;NULL;Breast;SOLID;NULL
+887;NULL;LightSalmon;0;Myelodysplastic/Myeloproliferative Neoplasms;NULL;Myeloid;LIQUID;NULL
+888;NULL;Orange;0;Rhabdoid Cancer;NULL;Kidney;SOLID;NULL
+889;NULL;Purple;0;Ampullary Carcinoma, NOS;NULL;Ampulla of Vater;SOLID;NULL
+890;NULL;DarkRed;0;Head and Neck Cancer;NULL;Head and Neck;SOLID;NULL
+891;NULL;Purple;0;Adrenocortical Carcinoma;NULL;Adrenal Gland;SOLID;NULL
+892;NULL;LightYellow;0;Soft Tissue Sarcoma;NULL;MIXED;MIXED;NULL
+893;NULL;MIXED;0;Non-Hodgkin Lymphoma;NULL;MIXED;MIXED;NULL
+894;NULL;Purple;0;Pancreatic Cancer;NULL;Pancreas;SOLID;NULL
+895;NULL;Purple;0;Adrenal Gland Cancer, NOS;NULL;Adrenal Gland;SOLID;NULL
+896;NULL;Red;0;Testicular Cancer, NOS;NULL;Testis;SOLID;NULL
+897;NULL;Gray;0;Nerve Sheath Tumor;NULL;Peripheral Nervous System;SOLID;NULL
+898;NULL;Green;0;Peritoneal Cancer, NOS;NULL;Peritoneum;SOLID;NULL
+899;NULL;LightSalmon;0;Mastocytosis;NULL;Myeloid;LIQUID;NULL
+900;NULL;MediumSeaGreen;0;Malignant Rhabdoid Tumor of the Liver;NULL;Liver;SOLID;NULL
+901;NULL;Blue;0;Penile Cancer, NOS;NULL;Penis;SOLID;NULL
+902;NULL;DarkRed;0;Salivary Gland Cancer;NULL;Head and Neck;SOLID;NULL
+903;NULL;SaddleBrown;0;Bowel Cancer, NOS;NULL;Bowel;SOLID;NULL
+904;NULL;MIXED;0;Sex Cord Stromal Tumor;NULL;MIXED;SOLID;NULL
+905;NULL;LightSalmon;0;Leukemia;NULL;Myeloid;LIQUID;NULL
+906;NULL;LimeGreen;0;Posttransplant Lymphoproliferative Disorders;NULL;Lymphoid;LIQUID;NULL
+907;NULL;MediumSeaGreen;0;Undifferentiated Embryonal Sarcoma of the Liver;NULL;Liver;SOLID;NULL
+908;NULL;Gray;0;Primary CNS Melanocytic Tumors;NULL;CNS/Brain;SOLID;NULL
+909;NULL;SaddleBrown;0;Small Bowel Cancer;NULL;Bowel;SOLID;NULL
+910;NULL;LightBlue;0;Ovarian Cancer;NULL;Ovary/Fallopian Tube;SOLID;NULL
+911;NULL;;0;Tissue;NULL;;MIXED;NULL
+912;NULL;LightYellow;0;Soft Tissue Cancer;NULL;Soft Tissue;SOLID;NULL
+913;NULL;Black;0;Other Cancer, NOS;NULL;Other;SOLID;NULL
+914;NULL;SaddleBrown;0;Appendiceal Cancer;NULL;Bowel;SOLID;NULL
+915;NULL;Blue;0;Penile Cancer;NULL;Penis;SOLID;NULL
+916;NULL;LimeGreen;0;Mature B-Cell Neoplasms;NULL;Lymphoid;LIQUID;NULL
+917;NULL;LightSalmon;0;Myelodysplastic Syndromes;NULL;Myeloid;LIQUID;NULL
+918;NULL;Gray;0;Sellar Tumor;NULL;CNS/Brain;SOLID;NULL
+919;NULL;Black;0;Skin Cancer, NOS;NULL;Skin;SOLID;NULL
+920;NULL;Orange;0;Kidney Cancer, NOS;NULL;Kidney;SOLID;NULL
+921;NULL;Purple;0;Vulvar Carcinoma;NULL;Vulva/Vagina;SOLID;NULL
+922;NULL;LightYellow;0;Gastrointestinal Stromal Tumor;NULL;Soft Tissue;SOLID;NULL
+923;NULL;LightSalmon;0;Histiocytosis;NULL;Myeloid;LIQUID;NULL
+924;NULL;Green;0;Eye Cancer, NOS;NULL;Eye;SOLID;NULL
+925;NULL;PeachPuff;0;Uterine Cancer, NOS;NULL;Uterus;SOLID;NULL
+926;NULL;Black;0;Adenocarcinoma In Situ;NULL;Other;SOLID;NULL
+927;NULL;Gray;0;CNS/Brain Cancer, NOS;NULL;CNS/Brain;SOLID;NULL
+928;NULL;SaddleBrown;0;Tubular Adenoma of the Colon;NULL;Bowel;SOLID;NULL
+929;NULL;Teal;0;Thyroid Cancer;NULL;Thyroid;SOLID;NULL
+930;NULL;LimeGreen;0;T-Lymphoblastic Leukemia/Lymphoma;NULL;Lymphoid;LIQUID;NULL
+931;NULL;Yellow;0;Bladder/Urinary Tract Cancer, NOS;NULL;Bladder/Urinary Tract;SOLID;NULL
+932;NULL;LightYellow;0;Myofibromatosis;NULL;Soft Tissue;SOLID;NULL
+933;NULL;Purple;0;Pheochromocytoma;NULL;Adrenal Gland;SOLID;NULL
+934;NULL;Teal;0;Cervical Cancer, NOS;NULL;Cervix;SOLID;NULL
+935;NULL;Cyan;0;Prostate Cancer, NOS;NULL;Prostate;SOLID;NULL
+936;NULL;Gainsboro;0;Small Cell Lung Cancer;NULL;Lung;SOLID;NULL
+937;NULL;Purple;0;Ampullary Cancer;NULL;Ampulla of Vater;SOLID;NULL
+938;NULL;MIXED;0;Mesothelioma;NULL;MIXED;SOLID;NULL
+939;NULL;Gray;0;Embryonal Tumor;NULL;CNS/Brain;SOLID;NULL
+940;NULL;MIXED;0;Hepatobiliary Cancer;NULL;MIXED;SOLID;NULL
+941;NULL;Purple;0;Vulvar/Vaginal Cancer, NOS;NULL;Vulva/Vagina;SOLID;NULL
+942;NULL;Black;0;Cancer of Unknown Primary;NULL;Other;SOLID;NULL
+943;NULL;LimeGreen;0;Hodgkin Lymphoma;NULL;Lymphoid;LIQUID;NULL
+944;NULL;MediumSeaGreen;0;Liver Cancer, NOS;NULL;Liver;SOLID;NULL
+945;NULL;LightYellow;0;Soft Tissue Cancer, NOS;NULL;Soft Tissue;SOLID;NULL
+946;NULL;Gray;0;Miscellaneous Neuroepithelial Tumor;NULL;MIXED;SOLID;NULL
+947;NULL;Teal;0;Thyroid Cancer, NOS;NULL;Thyroid;SOLID;NULL
+948;NULL;DarkRed;0;Head and Neck Cancer, NOS;NULL;Head and Neck;SOLID;NULL
+949;NULL;LightYellow;0;Angiomatoid Fibrous Histiocytoma;NULL;Soft Tissue;SOLID;NULL
+950;NULL;LightYellow;0;Infantile Fibrosarcoma;NULL;Soft Tissue;SOLID;NULL
+951;NULL;Orange;0;Renal Cell Carcinoma;NULL;Kidney;SOLID;NULL
+952;NULL;Gray;0;Peripheral Nervous System Cancer, NOS;NULL;Peripheral Nervous System;SOLID;NULL
+953;NULL;LimeGreen;0;Mature T and NK Neoplasms;NULL;Lymphoid;LIQUID;NULL
+954;NULL;Purple;0;Vaginal Cancer;NULL;Vulva/Vagina;SOLID;NULL
+955;NULL;Teal;0;Cervical Cancer;NULL;Cervix;SOLID;NULL
+956;NULL;MIXED;0;Melanoma;NULL;MIXED;SOLID;NULL
+957;NULL;LightSalmon;0;Myeloid Neoplasms with Germ Line Predisposition;NULL;Myeloid;LIQUID;NULL
+958;NULL;LimeGreen;0;B-Lymphoblastic Leukemia/Lymphoma;NULL;Lymphoid;LIQUID;NULL
+959;NULL;Orange;0;Clear Cell Sarcoma of Kidney;NULL;Kidney;SOLID;NULL
+960;NULL;DarkRed;0;Sialoblastoma;NULL;Head and Neck;SOLID;NULL
+961;NULL;LimeGreen;0;Lymphatic Cancer, NOS;NULL;Lymphoid;LIQUID;NULL
+962;NULL;LightBlue;0;Ovarian/Fallopian Tube Cancer, NOS;NULL;Ovary/Fallopian Tube;SOLID;NULL
+963;NULL;SaddleBrown;0;Anal Cancer;NULL;Bowel;SOLID;NULL
+964;NULL;Green;0;Lacrimal Gland Tumor;NULL;Eye;SOLID;NULL
+965;NULL;Green;0;Retinoblastoma;NULL;Eye;SOLID;NULL
+966;NULL;HotPink;0;Breast Cancer, NOS;NULL;Breast;SOLID;NULL
+967;NULL;LightSkyBlue;0;Esophagogastric Cancer;NULL;Esophagus/Stomach;SOLID;NULL
+968;NULL;Gray;0;CNS Cancer;NULL;CNS/Brain;SOLID;NULL
+969;NULL;LightSalmon;0;Blastic Plasmacytoid Dendritic Cell Neoplasm;NULL;Myeloid;LIQUID;NULL
+970;NULL;MIXED;0;Germ Cell Tumor;NULL;MIXED;SOLID;NULL
+971;NULL;LightSalmon;0;Blood Cancer, NOS;NULL;Myeloid;LIQUID;NULL
+972;NULL;Gray;0;Choroid Plexus Tumor;NULL;CNS/Brain;SOLID;NULL
+973;NULL;LightSkyBlue;0;Esophageal/Stomach Cancer, NOS;NULL;Esophagus/Stomach;SOLID;NULL
+974;NULL;Purple;0;Thymic Cancer, NOS;NULL;Thymus;SOLID;NULL
+975;NULL;MIXED;0;Gastrointestinal Neuroendocrine Tumor;NULL;MIXED;SOLID;NULL
+976;NULL;Purple;0;Adrenocortical Adenoma;NULL;Adrenal Gland;SOLID;NULL
+977;NULL;Yellow;0;Bladder Cancer;NULL;Bladder/Urinary Tract;SOLID;NULL
+978;NULL;HotPink;0;Breast Cancer;NULL;Breast;SOLID;NULL
+979;NULL;Gray;0;Miscellaneous Brain Tumor;NULL;CNS/Brain;SOLID;NULL
+980;NULL;Gray;0;Pineal Tumor;NULL;CNS/Brain;SOLID;NULL
+981;NULL;White;0;Bone Cancer;NULL;Bone;SOLID;NULL
+982;NULL;Purple;0;Pancreatic Cancer, NOS;NULL;Pancreas;SOLID;NULL
+983;NULL;LightSalmon;0;Myeloproliferative Neoplasms;NULL;Myeloid;LIQUID;NULL
+984;NULL;Gainsboro;0;Lung Cancer, NOS;NULL;Lung;SOLID;NULL
+985;NULL;Gray;0;Glioma;NULL;CNS/Brain;SOLID;NULL
+986;NULL;Blue;0;Pleural Cancer, NOS;NULL;Pleura;SOLID;NULL
+987;NULL;Cyan;0;Prostate Cancer;NULL;Prostate;SOLID;NULL
+988;NULL;Orange;0;Wilms Tumor;NULL;Kidney;SOLID;NULL
+989;NULL;Orange;0;Renal Neuroendocrine Tumor;NULL;Kidney;SOLID;NULL

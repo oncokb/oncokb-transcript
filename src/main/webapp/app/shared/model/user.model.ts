@@ -11,7 +11,7 @@ export interface IUser {
   createdDate?: Date | null;
   lastModifiedBy?: string;
   lastModifiedDate?: Date | null;
-  password?: string;
+  imageUrl?: string;
 }
 
 export const defaultValue: Readonly<IUser> = {
@@ -27,5 +27,5 @@ export const defaultValue: Readonly<IUser> = {
   createdDate: null,
   lastModifiedBy: '',
   lastModifiedDate: null,
-  password: '',
+  imageUrl: '',
 };

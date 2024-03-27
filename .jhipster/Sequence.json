@@ -4,12 +4,14 @@
     {
       "fieldName": "sequenceType",
       "fieldType": "SequenceType",
-      "fieldValues": "PROTEIN,CDNA"
+      "fieldValues": "PROTEIN,CDNA,GENOMIC",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "sequence",
       "fieldType": "byte[]",
-      "fieldTypeBlobContent": "text"
+      "fieldTypeBlobContent": "text",
+      "fieldValidateRules": ["required"]
     }
   ],
   "relationships": [
@@ -22,13 +24,12 @@
   ],
   "entityTableName": "sequence",
   "dto": "no",
-  "pagination": "no",
+  "pagination": "pagination",
   "service": "serviceClass",
-  "jpaMetamodelFiltering": false,
+  "jpaMetamodelFiltering": true,
   "fluentMethods": true,
   "readOnly": false,
   "embedded": false,
   "applications": "*",
-  "changelogDate": "20210129192153",
-  "skipClient": true
+  "changelogDate": "20220401174634"
 }

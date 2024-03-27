@@ -3,36 +3,68 @@
   "fields": [
     {
       "fieldName": "entrezGeneId",
-      "fieldType": "Integer"
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "unique"]
     },
     {
       "fieldName": "hugoSymbol",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "hgncId",
       "fieldType": "String"
     }
   ],
   "relationships": [
     {
       "relationshipType": "one-to-many",
-      "otherEntityName": "geneAlias",
-      "otherEntityRelationshipName": "gene",
-      "relationshipName": "geneAlias"
-    },
-    {
-      "relationshipType": "one-to-many",
       "otherEntityName": "ensemblGene",
       "otherEntityRelationshipName": "gene",
       "relationshipName": "ensemblGene"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "evidence",
+      "otherEntityRelationshipName": "gene",
+      "relationshipName": "evidence"
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "transcript",
+      "otherEntityRelationshipName": "gene",
+      "relationshipName": "transcript"
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "flag",
+      "otherEntityRelationshipName": "gene",
+      "relationshipName": "flag",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "synonym",
+      "otherEntityRelationshipName": "gene",
+      "relationshipName": "synonym",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "alteration",
+      "otherEntityRelationshipName": "gene",
+      "relationshipName": "alteration",
+      "ownerSide": false
     }
   ],
   "entityTableName": "gene",
   "dto": "no",
-  "pagination": "no",
+  "pagination": "pagination",
   "service": "serviceClass",
-  "jpaMetamodelFiltering": false,
+  "jpaMetamodelFiltering": true,
   "fluentMethods": true,
   "readOnly": false,
   "embedded": false,
   "applications": "*",
-  "changelogDate": "20210503173531",
-  "skipClient": true
+  "changelogDate": "20220401174637"
 }

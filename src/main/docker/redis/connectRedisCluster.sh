@@ -12,9 +12,9 @@ redis-cli \
     --cluster-replicas 1 \
     --cluster-yes \
     --cluster create \
-        $(host oncokb-transcript-redis|awk '{print $4}'):6379 \
-        $(host oncokb-transcript-redis-1|awk '{print $4}'):6379 \
-        $(host oncokb-transcript-redis-2|awk '{print $4}'):6379 \
-        $(host oncokb-transcript-redis-3|awk '{print $4}'):6379 \
-        $(host oncokb-transcript-redis-4|awk '{print $4}'):6379 \
-        $(host oncokb-transcript-redis-5|awk '{print $4}'):6379
+        $(host oncokb-curation-redis|awk '{print $4}'):6379 \
+        $(host oncokb-curation-redis-1|awk '{print $4}'):6379 \
+        $(host oncokb-curation-redis-2|awk '{print $4}'):6379 \
+        $(host oncokb-curation-redis-3|awk '{print $4}'):6379 \
+        $(host oncokb-curation-redis-4|awk '{print $4}'):6379 \
+        $(host oncokb-curation-redis-5|awk '{print $4}'):6379

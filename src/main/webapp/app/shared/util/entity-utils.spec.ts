@@ -1,4 +1,5 @@
-import { cleanEntity, mapIdList } from './entity-utils';
+import { cleanEntity, getEntityTitle, mapIdList } from './entity-utils';
+import { ENTITY_TYPE } from 'app/config/constants/constants';
 
 describe('Entity utils', () => {
   describe('cleanEntity', () => {
@@ -51,6 +52,18 @@ describe('Entity utils', () => {
       const ids = [];
 
       expect(mapIdList(ids)).toEqual([]);
+    });
+  });
+
+  describe('getEntityTitle', () => {
+    it('should generate a title when the route have a predefined title', () => {
+      expect(getEntityTitle(ENTITY_TYPE.FDA_SUBMISSION)).toEqual('FDA Submissions');
+    });
+    it('should generate a title when the route does not have a predefined title, but part of page route', () => {
+      expect(getEntityTitle(ENTITY_TYPE.ALTERATION)).toEqual('Alterations');
+    });
+    it('should generate a title when the route does not have a predefined title, and not part of page route', () => {
+      expect(getEntityTitle(ENTITY_TYPE.ASSOCIATION_CANCER_TYPE)).toEqual('Association Cancer Types');
     });
   });
 });

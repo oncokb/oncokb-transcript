@@ -1,0 +1,39 @@
+id;term;name;is_generally_truncating;description
+1;UTR_3_PRIME_VARIANT;3 Prime UTR Variant;false;A UTR variant of the 3' UTR
+2;UTR_5_PRIME_VARIANT;5 Prime UTR Variant;false;A UTR variant of the 5' UTR
+3;ANY;Any;false;Any variant
+4;CODING_SEQUENCE_VARIANT;Coding Sequence Variant;false;A sequence variant that changes the coding sequence
+5;DOWNSTREAM_GENE_VARIANT;Downstream Gene Variant;false;A sequence variant located 3' of a gene
+6;FEATURE_ELONGATION;Feature Elongation;false;A sequence variant that causes the extension of a genomic feature, with regard to the reference sequence
+7;FEATURE_TRUNCATION;Feature Truncation;true;A sequence variant that causes the reduction of a genomic feature, with regard to the reference sequence
+8;FRAMESHIFT_VARIANT;Frameshift Variant;true;A sequence variant which causes a disruption of the translational reading frame, because the number of nucleotides inserted or deleted is not a multiple of three
+10;INCOMPLETE_TERMINAL_CODON_VARIANT;Incomplete Terminal Codon Variant;true;A sequence variant where at least one base of the final codon of an incompletely annotated transcript is changed
+11;INFRAME_DELETION;Inframe Deletion;false;An inframe non synonymous variant that deletes bases from the coding sequence
+12;INFRAME_INSERTION;Inframe Insertion;false;An inframe non synonymous variant that inserts bases into in the coding sequence
+13;INTERGENIC_VARIANT;Intergenic Variant;false;A sequence variant located in the intergenic region, between genes
+14;INTRON_VARIANT;Intron Variant;false;A transcript variant occurring within an intron
+15;MATURE_MIRNA_VARIANT;Mature miRNA Variant;false;A transcript variant located with the sequence of the mature miRNA
+16;MISSENSE_VARIANT;Missense Variant;false;A sequence variant, that changes one or more bases, resulting in a different amino acid sequence but where the length is preserved
+17;NA;NA;false;NA
+18;NMD_TRANSCRIPT_VARIANT;NMD Transcript Variant;false;A variant in a transcript that is the target of NMD
+19;NON_CODING_TRANSCRIPT_EXON_VARIANT;Non Coding Transcript Exon Variant;false;A sequence variant that changes non-coding exon sequence in a non-coding transcript
+20;NON_CODING_TRANSCRIPT_VARIANT;Non Coding Transcript Variant;false;A transcript variant of a non coding RNA gene
+21;NON_TRUNCATING_VARIANT;Non Truncating Variant;false;A change in the DNA that does not truncate or shorten the protein
+22;REGULATORY_REGION_ABLATION;Regulatory Region Ablation;false;A feature ablation whereby the deleted region includes a regulatory region
+23;REGULATORY_REGION_AMPLIFICATION;Regulatory Region Amplification;false;A feature amplification of a region containing a regulatory region
+24;REGULATORY_REGION_VARIANT;Regulatory Region Variant;false;A sequence variant located within a regulatory region
+25;SPLICE_ACCEPTOR_VARIANT;Splice Acceptor Variant;true;A splice variant that changes the 2 base region at the 3' end of an intron
+26;SPLICE_DONOR_VARIANT;Splice Donor Variant;true;A splice variant that changes the 2 base region at the 5' end of an intron
+27;SPLICE_REGION_VARIANT;Splice Region Variant;true;A sequence variant in which a change has occurred within the region of the splice site, either within 1-3 bases of the exon or 3-8 bases of the intron
+28;START_LOST;Start Lost;true;A codon variant that changes at least one base of the canonical start codo
+29;STOP_GAINED;Stop Gained;true;A sequence variant whereby at least one base of a codon is changed, resulting in a premature stop codon, leading to a shortened transcript
+30;STOP_LOST;Stop Lost;true;A sequence variant where at least one base of the terminator codon (stop) is changed, resulting in an elongated transcript
+31;STOP_RETAINED_VARIANT;Stop Retained Variant;false;A sequence variant where at least one base in the terminator codon is changed, but the terminator remains
+32;SYNONYMOUS_VARIANT;Synonymous Variant;false;A sequence variant where there is no resulting change to the encoded amino acid
+33;TFBS_ABLATION;TFBS Ablation;true;A feature ablation whereby the deleted region includes a transcription factor binding site
+34;TFBS_AMPLIFICATION;TFBS Amplification;false;A feature amplification of a region containing a transcription factor binding site
+35;TF_BINDING_SITE_VARIANT;TF Binding Site Variant;false;A sequence variant located within a transcription factor binding site
+36;TRANSCRIPT_ABLATION;Transcript Ablation;true;A feature ablation whereby the deleted region includes a transcript feature
+37;TRANSCRIPT_AMPLIFICATION;Transcript Amplification;false;A feature amplification of a region containing a transcript
+38;UPSTREAM_GENE_VARIANT;Upstream Gene Variant;false;A sequence variant located 5' of a gene
+39;UNKNOWN;Unknown;false;Unknown status

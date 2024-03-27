@@ -1,0 +1,76 @@
+{
+  "name": "Article",
+  "fields": [
+    {
+      "fieldName": "type",
+      "fieldType": "ArticleType",
+      "fieldValues": "PMID,ABSTRACT",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "content",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    },
+    {
+      "fieldName": "link",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "pmid",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "elocationId",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "title",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    },
+    {
+      "fieldName": "authors",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "journal",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "volume",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "issue",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "pages",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "pubDate",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "association",
+      "otherEntityRelationshipName": "article",
+      "relationshipName": "association",
+      "ownerSide": false
+    }
+  ],
+  "entityTableName": "article",
+  "dto": "no",
+  "pagination": "pagination",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": true,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220401213213"
+}

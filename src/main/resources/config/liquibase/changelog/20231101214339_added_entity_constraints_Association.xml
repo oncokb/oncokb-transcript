@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+    <!--
+        Added the constraints for entity Association.
+    -->
+    <changeSet id="20231101214339-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="association_id"
+                                 baseTableName="rel_association__alteration"
+                                 constraintName="fk_rel_association__alteration__association_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="association"/>
+
+        <addForeignKeyConstraint baseColumnNames="alteration_id"
+                                 baseTableName="rel_association__alteration"
+                                 constraintName="fk_rel_association__alteration__alteration_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="alteration"/>
+
+        <addForeignKeyConstraint baseColumnNames="association_id"
+                                 baseTableName="rel_association__article"
+                                 constraintName="fk_rel_association__article__association_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="association"/>
+
+        <addForeignKeyConstraint baseColumnNames="article_id"
+                                 baseTableName="rel_association__article"
+                                 constraintName="fk_rel_association__article__article_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="article"/>
+
+        <addForeignKeyConstraint baseColumnNames="association_id"
+                                 baseTableName="rel_association__treatment"
+                                 constraintName="fk_rel_association__treatment__association_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="association"/>
+
+        <addForeignKeyConstraint baseColumnNames="treatment_id"
+                                 baseTableName="rel_association__treatment"
+                                 constraintName="fk_rel_association__treatment__treatment_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="treatment"/>
+    </changeSet>
+</databaseChangeLog>

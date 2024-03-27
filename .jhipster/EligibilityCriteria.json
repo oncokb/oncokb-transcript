@@ -1,0 +1,45 @@
+{
+  "name": "EligibilityCriteria",
+  "fields": [
+    {
+      "fieldName": "type",
+      "fieldType": "EligibilityCriteriaType",
+      "fieldValues": "INCLUSION,EXCLUSION",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "priority",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "criteria",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "association",
+      "otherEntityRelationshipName": "eligibilityCriteria",
+      "relationshipName": "association",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "clinicalTrial",
+      "otherEntityRelationshipName": "eligibilityCriteria",
+      "relationshipName": "clinicalTrial"
+    }
+  ],
+  "entityTableName": "eligibility_criteria",
+  "dto": "no",
+  "pagination": "pagination",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": true,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20231101214344"
+}

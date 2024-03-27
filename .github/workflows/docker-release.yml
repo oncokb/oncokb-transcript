@@ -4,7 +4,7 @@ on:
     types: [ published ]
 jobs:
   main:
-    if: github.repository == 'oncokb/oncokb-transcript'
+    if: github.repository == 'oncokb/oncokb-curation'
     name: Build and Push
     runs-on: ubuntu-latest
     steps:

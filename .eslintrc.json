@@ -43,6 +43,7 @@
     "@typescript-eslint/restrict-template-expressions": "off",
     "@typescript-eslint/restrict-plus-operands": "off",
     "@typescript-eslint/no-floating-promises": "off",
+    "@typescript-eslint/prefer-regexp-exec": "off",
     "@typescript-eslint/ban-types": [
       "error",
       {

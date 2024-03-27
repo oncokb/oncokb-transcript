@@ -1,0 +1,28 @@
+{
+  "name": "TreatmentPriority",
+  "fields": [
+    {
+      "fieldName": "priority",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "treatment",
+      "otherEntityRelationshipName": "treatmentPriority",
+      "relationshipName": "treatment"
+    }
+  ],
+  "entityTableName": "treatment_priority",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20231101214352"
+}

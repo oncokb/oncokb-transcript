@@ -3,13 +3,17 @@
   "fields": [
     {
       "fieldName": "type",
-      "fieldType": "InfoType",
-      "fieldValues": "NCIT_VERSION,GENE_LAST_UPDATED",
+      "fieldType": "String",
       "fieldValidateRules": ["unique", "required"]
     },
     {
       "fieldName": "value",
       "fieldType": "String"
+    },
+    {
+      "fieldName": "created",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "lastUpdated",
@@ -26,6 +30,5 @@
   "readOnly": false,
   "embedded": false,
   "applications": "*",
-  "changelogDate": "20210421184926",
-  "skipClient": true
+  "changelogDate": "20220401174636"
 }

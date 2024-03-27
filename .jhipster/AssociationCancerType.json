@@ -1,0 +1,35 @@
+{
+  "name": "AssociationCancerType",
+  "fields": [
+    {
+      "fieldName": "relation",
+      "fieldType": "AssociationCancerTypeRelation",
+      "fieldValues": "INCLUSION,EXCLUSION,RELEVANT",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "association",
+      "otherEntityRelationshipName": "associationCancerType",
+      "relationshipName": "association"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "cancerType",
+      "otherEntityRelationshipName": "associationCancerType",
+      "relationshipName": "cancerType"
+    }
+  ],
+  "entityTableName": "association_cancer_type",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20231101214340"
+}
