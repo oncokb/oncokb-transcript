@@ -189,15 +189,18 @@ export function getUserFullName(user: IUser) {
   return name;
 }
 
-export function formatDate(date: Date) {
-  return new Intl.DateTimeFormat('en-US', {
+export function formatDate(date: Date, dayOnly?: boolean) {
+  const timeFormat = {
     year: '2-digit',
     month: '2-digit',
     day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  }).format(date);
+  } as any;
+  if (!dayOnly) {
+    timeFormat.hour = '2-digit';
+    timeFormat.minute = '2-digit';
+    timeFormat.hour12 = true;
+  }
+  return new Intl.DateTimeFormat('en-US', timeFormat).format(date);
 }
 
 export async function isPromiseOk(promise: Promise<any>) {

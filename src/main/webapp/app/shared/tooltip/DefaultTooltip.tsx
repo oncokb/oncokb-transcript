@@ -10,6 +10,7 @@ export interface DefaultTooltipProps extends TooltipProps {
   disabled?: boolean;
   getTooltipContainer?: () => HTMLElement;
   children: any;
+  size?: 'sm' | 'lg';
 }
 
 const defaultProps = {
@@ -33,6 +34,10 @@ export const DefaultTooltip: React.FunctionComponent<DefaultTooltipProps> = ({
   if (typeof visible !== 'undefined') {
     tooltipProps.visible = visible;
   }
+  tooltipProps.overlayInnerStyle = {
+    maxWidth: props.size === 'lg' ? 600 : 300,
+    ...restProps.overlayInnerStyle,
+  };
   return <Tooltip {...tooltipProps}>{props.children}</Tooltip>;
 };
 
