@@ -121,6 +121,14 @@ public class CacheConfiguration extends CachingConfigurerSupport {
                 jcacheConfiguration,
                 cacheNameResolver
             );
+            createCache(
+                cm,
+                CacheCategory.TRANSCRIPT,
+                CacheKeys.TRANSCRIPTS_BY_ENSEMBL_GENE_CANONICAL,
+                jcacheConfiguration,
+                cacheNameResolver
+            );
+            createCache(cm, CacheCategory.SEQUENCE, CacheKeys.SEQUENCE_BY_TRASCRIPT_AND_TYPE, jcacheConfiguration, cacheNameResolver);
         };
     }
 
@@ -149,6 +157,15 @@ public class CacheConfiguration extends CachingConfigurerSupport {
         CacheNameResolver cacheNameResolver
     ) {
         return new TranscriptCacheResolver(cm, applicationProperties, cacheNameResolver);
+    }
+
+    @Bean
+    public CacheResolver sequenceCacheResolver(
+        CacheManager cm,
+        ApplicationProperties applicationProperties,
+        CacheNameResolver cacheNameResolver
+    ) {
+        return new SequenceCacheResolver(cm, applicationProperties, cacheNameResolver);
     }
 
     @Autowired(required = false)

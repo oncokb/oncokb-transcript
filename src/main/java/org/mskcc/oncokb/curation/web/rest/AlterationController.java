@@ -1,8 +1,14 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.mskcc.oncokb.curation.domain.Alteration;
+import org.mskcc.oncokb.curation.domain.AlterationAnnotationStatus;
 import org.mskcc.oncokb.curation.domain.EntityStatus;
 import org.mskcc.oncokb.curation.service.MainService;
+import org.mskcc.oncokb.curation.web.rest.model.AnnotateAlterationBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -21,12 +27,22 @@ public class AlterationController {
         this.mainService = mainService;
     }
 
-    @PostMapping("/annotate-alteration")
-    public ResponseEntity<EntityStatus<Alteration>> annotateAlteration(@RequestBody Alteration alteration) {
-        log.debug("REST request to annotate alteration : {}", alteration);
+    @PostMapping("/annotate-alterations")
+    public ResponseEntity<List<AlterationAnnotationStatus>> annotateAlterations(
+        @RequestBody List<AnnotateAlterationBody> alterationBodyList
+    ) {
+        log.debug("REST request to annotate alterations");
 
-        EntityStatus<Alteration> alterationWithStatus = mainService.annotateAlteration(alteration);
+        List<AlterationAnnotationStatus> status = new ArrayList<>();
+        alterationBodyList.forEach(alterationBody -> {
+            AlterationAnnotationStatus annotationStatus = mainService.annotateAlteration(
+                alterationBody.getReferenceGenome(),
+                alterationBody.getAlteration()
+            );
+            annotationStatus.setQueryId(alterationBody.getQueryId());
+            status.add(annotationStatus);
+        });
 
-        return new ResponseEntity<>(alterationWithStatus, HttpStatus.OK);
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 }

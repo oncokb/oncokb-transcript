@@ -8,13 +8,13 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.interceptor.CacheOperationInvocationContext;
 import org.springframework.cache.interceptor.CacheResolver;
 
-public class TranscriptCacheResolver implements CacheResolver {
+public class SequenceCacheResolver implements CacheResolver {
 
     private final ApplicationProperties applicationProperties;
     private final CacheManager cacheManager;
     private final CacheNameResolver cacheNameResolver;
 
-    public TranscriptCacheResolver(
+    public SequenceCacheResolver(
         CacheManager cacheManager,
         ApplicationProperties applicationProperties,
         CacheNameResolver cacheNameResolver
@@ -28,17 +28,9 @@ public class TranscriptCacheResolver implements CacheResolver {
     public Collection<? extends Cache> resolveCaches(CacheOperationInvocationContext<?> context) {
         Collection<Cache> caches = new ArrayList<>();
 
-        if (context.getMethod().getName() == "findByReferenceGenomeAndEnsemblTranscriptIdIsIn") {
+        if (context.getMethod().getName() == "findOneByTranscriptAndSequenceType") {
             caches.add(
-                cacheManager.getCache(
-                    this.cacheNameResolver.getCacheName(CacheCategory.TRANSCRIPT, CacheKeys.TRANSCRIPTS_BY_ENSEMBL_TRANSCRIPT_IDS)
-                )
-            );
-        } else if (context.getMethod().getName() == "findByEnsemblGeneAndCanonicalIsTrue") {
-            caches.add(
-                cacheManager.getCache(
-                    this.cacheNameResolver.getCacheName(CacheCategory.TRANSCRIPT, CacheKeys.TRANSCRIPTS_BY_ENSEMBL_GENE_CANONICAL)
-                )
+                cacheManager.getCache(this.cacheNameResolver.getCacheName(CacheCategory.SEQUENCE, CacheKeys.SEQUENCE_BY_TRASCRIPT_AND_TYPE))
             );
         }
 

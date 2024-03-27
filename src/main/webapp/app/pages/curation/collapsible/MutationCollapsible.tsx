@@ -20,7 +20,7 @@ import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from 'reactstrap';
 import BadgeGroup from '../BadgeGroup';
 import { ParsedHistoryRecord } from '../CurationPage';
@@ -31,6 +31,11 @@ import styles from '../styles.module.scss';
 import CancerTypeCollapsible from './CancerTypeCollapsible';
 import Collapsible from './Collapsible';
 import { DISABLED_NEST_LEVEL_COLOR, NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
+import { AlterationAnnotationStatus, HotspotDTO, ProteinExonDTO } from 'app/shared/api/generated';
+import _ from 'lodash';
+import { getExonRanges } from 'app/shared/util/utils';
+import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
+import HotspotIcon from 'app/shared/icons/HotspotIcon';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
@@ -55,12 +60,41 @@ const MutationCollapsible = ({
   updateMutationName,
   addTumor,
   modifyCancerTypeModalStore,
+  annotatedAltsCache,
 }: IMutationCollapsibleProps) => {
   const [mutationUuid, setMutationUuid] = useState<string>(null);
   const [mutationName, setMutationName] = useState<string>(null);
   const [mutationNameReview, setMutationNameReview] = useState<Review>(null);
   const [mutationAlterations, setMutationAlterations] = useState<Alteration[]>(null);
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
+  const [relatedAnnotationResult, setRelatedAnnotationResult] = useState<AlterationAnnotationStatus[]>([]);
+
+  useEffect(() => {
+    setRelatedAnnotationResult(annotatedAltsCache.get(hugoSymbol, [{ name: mutationName, alterations: mutationAlterations }]));
+  }, [annotatedAltsCache.loading, mutationName, mutationAlterations]);
+
+  const exons = useMemo(() => {
+    return _.uniqBy(
+      relatedAnnotationResult.reduce((acc, next) => {
+        acc.push(...next.annotation.exons);
+        return acc;
+      }, [] as ProteinExonDTO[]),
+      'exon'
+    ).sort((a, b) => a.range.start - b.range.start);
+  }, [relatedAnnotationResult]);
+
+  const exonRanges = useMemo(() => {
+    return getExonRanges(exons);
+  }, [exons]);
+
+  const hotspots = useMemo(() => {
+    return _.uniq(
+      relatedAnnotationResult.reduce((acc, next) => {
+        acc.push(...next.annotation.hotspot?.associatedHotspots);
+        return acc;
+      }, [] as HotspotDTO[])
+    );
+  }, [relatedAnnotationResult]);
 
   const [isEditingMutation, setIsEditingMutation] = useState(false);
 
@@ -111,7 +145,29 @@ const MutationCollapsible = ({
         className="mb-1"
         title={title}
         borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.MUTATION]]}
-        info={<MutationLevelSummary mutationPath={mutationPath} hideOncogenicity={isStringMutation} />}
+        info={
+          <>
+            <MutationLevelSummary mutationPath={mutationPath} hideOncogenicity={isStringMutation} />
+            {hotspots.length > 0 && <HotspotIcon associatedHotspots={hotspots} />}
+            {exonRanges.length > 0 && (
+              <DefaultTooltip
+                overlay={() => {
+                  return (
+                    <div className={'d-flex flex-column'}>
+                      {exons.map(exon => (
+                        <div key={exon.exon}>
+                          <b>Exon {exon.exon}</b>: {exon.range.start}~{exon.range.end}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }}
+              >
+                <div className={'mx-1 text-nowrap'}>Exon: {exonRanges.join(', ')}</div>
+              </DefaultTooltip>
+            )}
+          </>
+        }
         onToggle={onToggle ? isOpen => onToggle(isOpen) : null}
         action={
           <>
@@ -385,6 +441,7 @@ const mapStoreToProps = ({
   relevantCancerTypesModalStore,
   authStore,
   drugStore,
+  curationPageStore,
 }: IRootStore) => ({
   data: firebaseGeneStore.data,
   deleteSection: firebaseGeneStore.deleteSection,
@@ -400,6 +457,7 @@ const mapStoreToProps = ({
   createDrug: drugStore.createEntity,
   getDrugs: drugStore.getEntities,
   firebaseDb: firebaseStore.firebaseDb,
+  annotatedAltsCache: curationPageStore.annotatedAltsCache,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

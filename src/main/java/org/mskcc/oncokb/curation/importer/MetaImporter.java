@@ -11,9 +11,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.*;
+import org.mskcc.oncokb.curation.model.IntegerRange;
 import org.mskcc.oncokb.curation.service.*;
 import org.mskcc.oncokb.curation.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.curation.service.mapper.TranscriptMapper;
+import org.mskcc.oncokb.curation.util.HotspotUtils;
 import org.oncokb.ApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,6 +174,67 @@ public class MetaImporter {
 
         log.info("Verifying the OncoKB gene hugo is the same with cBioPortal gene list");
         coreImporter.verifyGene();
+
+        log.info("Importing hotspots...");
+        importHotspot();
+    }
+
+    private List<Alteration> fetchAndSaveHotspotAlteration(Gene gene, String altName) {
+        List<Alteration> existingAlts = alterationService.findByNameOrAlterationAndGenesId(altName, gene.getId());
+        if (existingAlts.isEmpty()) {
+            Alteration alteration = new Alteration();
+            alteration.setName(altName);
+            alteration.setAlteration(altName);
+            alteration.setProteinChange(altName);
+            alteration.setGenes(Collections.singleton(gene));
+            mainService.annotateAlteration(ReferenceGenome.GRCh37, alteration);
+            return Collections.singletonList(alterationService.save(alteration));
+        } else {
+            return existingAlts;
+        }
+    }
+
+    private void importHotspot() throws IOException {
+        Flag hotspotFlag = flagService.findByTypeAndFlag(FlagType.HOTSPOT, HotspotFlagEnum.HOTSPOT_V1.name()).get();
+        Flag threeDFlag = flagService.findByTypeAndFlag(FlagType.HOTSPOT, HotspotFlagEnum.THREE_D.name()).get();
+
+        List<List<String>> hotspotLines = parseTsvMetaFile("cancer_hotspots_gn.tsv");
+        hotspotLines.forEach(line -> {
+            String hugoSymbol = line.get(0);
+            log.info("Search for gene {}", hugoSymbol);
+            List<Gene> geneList = geneService.findGeneByHugoSymbolOrGeneAliasesIn(hugoSymbol);
+            if (geneList.isEmpty()) {
+                log.error("Gene cannot be found {}", line.get(0));
+                return;
+            }
+            Gene gene = geneList.iterator().next();
+
+            String type = line.get(3);
+            String residue = line.get(1);
+
+            List<Alteration> alterations = new ArrayList<>();
+            if ("splice residue".equals(type) || "splice site".equals(type)) {
+                String proteinChange = residue + "_splice";
+                alterations.addAll(fetchAndSaveHotspotAlteration(gene, proteinChange));
+            } else if ("in-frame indel".equals(type)) {
+                IntegerRange integerRange = HotspotUtils.extractProteinPos(residue);
+                String proteinName = integerRange.getStart() + "_" + integerRange.getEnd();
+                alterations.addAll(fetchAndSaveHotspotAlteration(gene, proteinName + "ins"));
+                alterations.addAll(fetchAndSaveHotspotAlteration(gene, proteinName + "del"));
+            } else if ("single residue".equals(type) || "3d".equals(type)) {
+                alterations.addAll(fetchAndSaveHotspotAlteration(gene, residue));
+            } else {
+                log.error("Unhandled type of hotspot {}", type);
+            }
+            for (Alteration alteration : alterations) {
+                if ("3d".equals(type)) {
+                    alteration.addFlag(threeDFlag);
+                } else {
+                    alteration.addFlag(hotspotFlag);
+                }
+                alterationService.save(alteration);
+            }
+        });
     }
 
     private void importFlag() throws IOException {
@@ -449,6 +512,9 @@ public class MetaImporter {
                 }
                 Optional<Flag> flagOptional = flagService.findByTypeAndFlag(FlagType.TRANSCRIPT, flag);
                 transcriptOptional.get().getFlags().add(flagOptional.get());
+                if (TranscriptFlagEnum.ONCOKB.name().equals(flag)) {
+                    transcriptOptional.get().setCanonical(true);
+                }
                 transcriptService.partialUpdate(transcriptOptional.get());
             }
             if ((i + 1) % 1000 == 0) {

@@ -9,7 +9,13 @@ import { FaChevronDown, FaChevronUp, FaExclamationTriangle, FaPlus } from 'react
 import ReactSelect, { MenuPlacement } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import { Alert, Button, Col, Input, Row } from 'reactstrap';
-import { AlterationTypeEnum, EntityStatusAlteration, Gene } from '../api/generated';
+import {
+  AlterationAnnotationStatus,
+  AlterationTypeEnum,
+  AnnotateAlterationBody,
+  Gene,
+  Alteration as ApiAlteration,
+} from '../api/generated';
 import { Alteration, Mutation } from '../model/firebase/firebase.model';
 import { IGene } from '../model/gene.model';
 import { getDuplicateMutations, getFirebasePath } from '../util/firebase/firebase-utils';
@@ -17,6 +23,7 @@ import { componentInject } from '../util/typed-inject';
 import { notNullOrUndefined, parseAlterationName } from '../util/utils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
 import './add-mutation-modal.scss';
+import { REFERENCE_GENOME } from 'app/config/constants/constants';
 
 type AlterationData = {
   type: AlterationTypeEnum;
@@ -46,7 +53,7 @@ interface IAddMutationModalProps extends StoreProps {
 function AddMutationModal({
   hugoSymbol,
   mutationToEditPath,
-  annotateAlteration,
+  annotateAlterations,
   geneEntities,
   consequences,
   getConsequences,
@@ -143,7 +150,7 @@ function AddMutationModal({
       const parsedAlterations = mutationToEdit.name.split(',').map(name => parseAlterationName(name.trim())[0]); // at this point can be sure each alteration name does not have / character
 
       const entityStatusAlterationsPromise = fetchAlterations(parsedAlterations.map(alt => alt.alteration));
-      const excludingEntityStatusAlterationsPromises: Promise<EntityStatusAlteration[]>[] = [];
+      const excludingEntityStatusAlterationsPromises: Promise<AlterationAnnotationStatus[]>[] = [];
       for (const alt of parsedAlterations) {
         excludingEntityStatusAlterationsPromises.push(fetchAlterations(alt.excluding));
       }
@@ -225,7 +232,14 @@ function AddMutationModal({
 
   async function fetchAlteration(alterationName: string) {
     try {
-      return await flowResult(annotateAlteration({ alteration: alterationName, geneIds: [geneEntity.id] }, false));
+      const request: AnnotateAlterationBody[] = [
+        {
+          referenceGenome: REFERENCE_GENOME.GRCH37,
+          alteration: { alteration: alterationName, genes: [{ id: geneEntity.id } as Gene] } as ApiAlteration,
+        },
+      ];
+      const alts = await flowResult(annotateAlterations(request));
+      return alts[0];
     } catch (error) {
       notifyError(error);
     }
@@ -241,7 +255,7 @@ function AddMutationModal({
   }
 
   function convertEntityStatusAlterationToAlterationData(
-    entityStatusAlteration: EntityStatusAlteration,
+    entityStatusAlteration: AlterationAnnotationStatus,
     alterationName: string,
     excluding: AlterationData[],
     comment: string,
@@ -294,7 +308,7 @@ function AddMutationModal({
       );
     }
 
-    const alterationPromises: Promise<EntityStatusAlteration>[] = [];
+    const alterationPromises: Promise<AlterationAnnotationStatus>[] = [];
     let newAlterations: AlterationData[] = [];
     if (newParsedAlteration[0].alteration !== alterationData[alterationIndex]?.alteration) {
       alterationPromises.push(fetchAlteration(newParsedAlteration[0].alteration));
@@ -381,7 +395,7 @@ function AddMutationModal({
       return;
     }
 
-    const alterationPromises: Promise<EntityStatusAlteration>[] = [];
+    const alterationPromises: Promise<AlterationAnnotationStatus>[] = [];
     let newAlterations: AlterationData[] = [];
     if (newParsedAlteration[0].alteration !== alterationData[alterationIndex]?.excluding[excludingIndex].alteration) {
       alterationPromises.push(fetchAlteration(newParsedAlteration[0].alteration));
@@ -1002,7 +1016,7 @@ function AddMutationModalDropdown({ label, value, options, menuPlacement, onChan
 }
 
 const mapStoreToProps = ({ alterationStore, consequenceStore, geneStore, firebaseStore, firebaseVusStore }: IRootStore) => ({
-  annotateAlteration: flow(alterationStore.annotateAlteration),
+  annotateAlterations: flow(alterationStore.annotateAlterations),
   geneEntities: geneStore.entities,
   consequences: consequenceStore.entities,
   getConsequences: consequenceStore.getEntities,

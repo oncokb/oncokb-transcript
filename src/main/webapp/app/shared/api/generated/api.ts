@@ -325,6 +325,70 @@ export type AlterationTypeEnum = typeof AlterationTypeEnum[keyof typeof Alterati
 /**
  *
  * @export
+ * @interface AlterationAnnotationStatus
+ */
+export interface AlterationAnnotationStatus {
+  /**
+   *
+   * @type {Alteration}
+   * @memberof AlterationAnnotationStatus
+   */
+  entity?: Alteration;
+  /**
+   *
+   * @type {string}
+   * @memberof AlterationAnnotationStatus
+   */
+  message?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof AlterationAnnotationStatus
+   */
+  type?: AlterationAnnotationStatusTypeEnum;
+  /**
+   *
+   * @type {string}
+   * @memberof AlterationAnnotationStatus
+   */
+  queryId?: string;
+  /**
+   *
+   * @type {AnnotationDTO}
+   * @memberof AlterationAnnotationStatus
+   */
+  annotation?: AnnotationDTO;
+  /**
+   *
+   * @type {boolean}
+   * @memberof AlterationAnnotationStatus
+   */
+  warning?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof AlterationAnnotationStatus
+   */
+  ok?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof AlterationAnnotationStatus
+   */
+  error?: boolean;
+}
+
+export const AlterationAnnotationStatusTypeEnum = {
+  Ok: 'OK',
+  Warning: 'WARNING',
+  Error: 'ERROR',
+} as const;
+
+export type AlterationAnnotationStatusTypeEnum = typeof AlterationAnnotationStatusTypeEnum[keyof typeof AlterationAnnotationStatusTypeEnum];
+
+/**
+ *
+ * @export
  * @interface AlterationCriteria
  */
 export interface AlterationCriteria {
@@ -513,6 +577,59 @@ export type AlterationTypeFilterNotInEnum = typeof AlterationTypeFilterNotInEnum
 /**
  *
  * @export
+ * @interface AnnotateAlterationBody
+ */
+export interface AnnotateAlterationBody {
+  /**
+   *
+   * @type {string}
+   * @memberof AnnotateAlterationBody
+   */
+  queryId?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof AnnotateAlterationBody
+   */
+  referenceGenome?: AnnotateAlterationBodyReferenceGenomeEnum;
+  /**
+   *
+   * @type {Alteration}
+   * @memberof AnnotateAlterationBody
+   */
+  alteration?: Alteration;
+}
+
+export const AnnotateAlterationBodyReferenceGenomeEnum = {
+  Grch37: 'GRCh37',
+  Grch38: 'GRCh38',
+} as const;
+
+export type AnnotateAlterationBodyReferenceGenomeEnum =
+  typeof AnnotateAlterationBodyReferenceGenomeEnum[keyof typeof AnnotateAlterationBodyReferenceGenomeEnum];
+
+/**
+ *
+ * @export
+ * @interface AnnotationDTO
+ */
+export interface AnnotationDTO {
+  /**
+   *
+   * @type {HotspotInfoDTO}
+   * @memberof AnnotationDTO
+   */
+  hotspot?: HotspotInfoDTO;
+  /**
+   *
+   * @type {Array<ProteinExonDTO>}
+   * @memberof AnnotationDTO
+   */
+  exons?: Array<ProteinExonDTO>;
+}
+/**
+ *
+ * @export
  * @interface Article
  */
 export interface Article {
@@ -588,6 +705,12 @@ export interface Article {
    * @memberof Article
    */
   associations?: Array<Association>;
+  /**
+   *
+   * @type {Array<FdaSubmission>}
+   * @memberof Article
+   */
+  fdaSubmissions?: Array<FdaSubmission>;
 }
 
 export const ArticleTypeEnum = {
@@ -1575,16 +1698,16 @@ export interface Drug {
   nciThesaurus?: NciThesaurus;
   /**
    *
+   * @type {Array<FdaDrug>}
+   * @memberof Drug
+   */
+  fdaDrugs?: Array<FdaDrug>;
+  /**
+   *
    * @type {Array<Flag>}
    * @memberof Drug
    */
   flags?: Array<Flag>;
-  /**
-   *
-   * @type {FdaDrug}
-   * @memberof Drug
-   */
-  fdaDrug?: FdaDrug;
   /**
    *
    * @type {Array<Association>}
@@ -1628,12 +1751,6 @@ export interface DrugCriteria {
    * @memberof DrugCriteria
    */
   flagId?: LongFilter;
-  /**
-   *
-   * @type {LongFilter}
-   * @memberof DrugCriteria
-   */
-  fdaDrugId?: LongFilter;
   /**
    *
    * @type {LongFilter}
@@ -2081,58 +2198,6 @@ export interface EntityAuditEvent {
 /**
  *
  * @export
- * @interface EntityStatusAlteration
- */
-export interface EntityStatusAlteration {
-  /**
-   *
-   * @type {Alteration}
-   * @memberof EntityStatusAlteration
-   */
-  entity?: Alteration;
-  /**
-   *
-   * @type {string}
-   * @memberof EntityStatusAlteration
-   */
-  message?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof EntityStatusAlteration
-   */
-  type?: EntityStatusAlterationTypeEnum;
-  /**
-   *
-   * @type {boolean}
-   * @memberof EntityStatusAlteration
-   */
-  ok?: boolean;
-  /**
-   *
-   * @type {boolean}
-   * @memberof EntityStatusAlteration
-   */
-  warning?: boolean;
-  /**
-   *
-   * @type {boolean}
-   * @memberof EntityStatusAlteration
-   */
-  error?: boolean;
-}
-
-export const EntityStatusAlterationTypeEnum = {
-  Ok: 'OK',
-  Warning: 'WARNING',
-  Error: 'ERROR',
-} as const;
-
-export type EntityStatusAlterationTypeEnum = typeof EntityStatusAlterationTypeEnum[keyof typeof EntityStatusAlterationTypeEnum];
-
-/**
- *
- * @export
  * @interface Evidence
  */
 export interface Evidence {
@@ -2295,6 +2360,24 @@ export interface FdaDrug {
    * @memberof FdaDrug
    */
   sponsorName?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof FdaDrug
+   */
+  overallMarketingStatus?: string;
+  /**
+   *
+   * @type {Array<FdaSubmission>}
+   * @memberof FdaDrug
+   */
+  fdaSubmissions?: Array<FdaSubmission>;
+  /**
+   *
+   * @type {Drug}
+   * @memberof FdaDrug
+   */
+  drug?: Drug;
 }
 /**
  *
@@ -2320,6 +2403,12 @@ export interface FdaDrugCriteria {
    * @memberof FdaDrugCriteria
    */
   sponsorName?: StringFilter;
+  /**
+   *
+   * @type {StringFilter}
+   * @memberof FdaDrugCriteria
+   */
+  overallMarketingStatus?: StringFilter;
   /**
    *
    * @type {LongFilter}
@@ -2413,6 +2502,12 @@ export interface FdaSubmission {
   note?: string;
   /**
    *
+   * @type {Array<Article>}
+   * @memberof FdaSubmission
+   */
+  articles?: Array<Article>;
+  /**
+   *
    * @type {Array<Association>}
    * @memberof FdaSubmission
    */
@@ -2496,6 +2591,12 @@ export interface FdaSubmissionCriteria {
    * @memberof FdaSubmissionCriteria
    */
   genetic?: BooleanFilter;
+  /**
+   *
+   * @type {LongFilter}
+   * @memberof FdaSubmissionCriteria
+   */
+  articleId?: LongFilter;
   /**
    *
    * @type {LongFilter}
@@ -3149,6 +3250,44 @@ export interface GenomicIndicatorCriteria {
 /**
  *
  * @export
+ * @interface HotspotDTO
+ */
+export interface HotspotDTO {
+  /**
+   *
+   * @type {string}
+   * @memberof HotspotDTO
+   */
+  type?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof HotspotDTO
+   */
+  alteration?: string;
+}
+/**
+ *
+ * @export
+ * @interface HotspotInfoDTO
+ */
+export interface HotspotInfoDTO {
+  /**
+   *
+   * @type {Array<HotspotDTO>}
+   * @memberof HotspotInfoDTO
+   */
+  associatedHotspots?: Array<HotspotDTO>;
+  /**
+   *
+   * @type {boolean}
+   * @memberof HotspotInfoDTO
+   */
+  hotspot?: boolean;
+}
+/**
+ *
+ * @export
  * @interface Info
  */
 export interface Info {
@@ -3304,6 +3443,25 @@ export interface IntegerFilter {
    * @memberof IntegerFilter
    */
   lessThanOrEqual?: number;
+}
+/**
+ *
+ * @export
+ * @interface IntegerRange
+ */
+export interface IntegerRange {
+  /**
+   *
+   * @type {number}
+   * @memberof IntegerRange
+   */
+  start?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof IntegerRange
+   */
+  end?: number;
 }
 /**
  *
@@ -3648,6 +3806,25 @@ export interface PfamDomainRange {
    * @memberof PfamDomainRange
    */
   pfamDomainEnd?: number;
+}
+/**
+ *
+ * @export
+ * @interface ProteinExonDTO
+ */
+export interface ProteinExonDTO {
+  /**
+   *
+   * @type {IntegerRange}
+   * @memberof ProteinExonDTO
+   */
+  range?: IntegerRange;
+  /**
+   *
+   * @type {number}
+   * @memberof ProteinExonDTO
+   */
+  exon?: number;
 }
 /**
  *
@@ -4200,7 +4377,7 @@ export interface Synonym {
    * @type {string}
    * @memberof Synonym
    */
-  name?: string;
+  name: string;
   /**
    *
    * @type {string}
@@ -5626,14 +5803,17 @@ export const AlterationControllerApiAxiosParamCreator = function (configuration?
   return {
     /**
      *
-     * @param {Alteration} alteration
+     * @param {Array<AnnotateAlterationBody>} annotateAlterationBody
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    annotateAlteration: async (alteration: Alteration, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'alteration' is not null or undefined
-      assertParamExists('annotateAlteration', 'alteration', alteration);
-      const localVarPath = `/api/annotate-alteration`;
+    annotateAlterations: async (
+      annotateAlterationBody: Array<AnnotateAlterationBody>,
+      options: AxiosRequestConfig = {}
+    ): Promise<RequestArgs> => {
+      // verify required parameter 'annotateAlterationBody' is not null or undefined
+      assertParamExists('annotateAlterations', 'annotateAlterationBody', annotateAlterationBody);
+      const localVarPath = `/api/annotate-alterations`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -5650,7 +5830,7 @@ export const AlterationControllerApiAxiosParamCreator = function (configuration?
       setSearchParams(localVarUrlObj, localVarQueryParameter);
       let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
       localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(alteration, localVarRequestOptions, configuration);
+      localVarRequestOptions.data = serializeDataIfNeeded(annotateAlterationBody, localVarRequestOptions, configuration);
 
       return {
         url: toPathString(localVarUrlObj),
@@ -5669,15 +5849,15 @@ export const AlterationControllerApiFp = function (configuration?: Configuration
   return {
     /**
      *
-     * @param {Alteration} alteration
+     * @param {Array<AnnotateAlterationBody>} annotateAlterationBody
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async annotateAlteration(
-      alteration: Alteration,
+    async annotateAlterations(
+      annotateAlterationBody: Array<AnnotateAlterationBody>,
       options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EntityStatusAlteration>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.annotateAlteration(alteration, options);
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<AlterationAnnotationStatus>>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.annotateAlterations(annotateAlterationBody, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
   };
@@ -5692,12 +5872,15 @@ export const AlterationControllerApiFactory = function (configuration?: Configur
   return {
     /**
      *
-     * @param {Alteration} alteration
+     * @param {Array<AnnotateAlterationBody>} annotateAlterationBody
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    annotateAlteration(alteration: Alteration, options?: any): AxiosPromise<EntityStatusAlteration> {
-      return localVarFp.annotateAlteration(alteration, options).then(request => request(axios, basePath));
+    annotateAlterations(
+      annotateAlterationBody: Array<AnnotateAlterationBody>,
+      options?: any
+    ): AxiosPromise<Array<AlterationAnnotationStatus>> {
+      return localVarFp.annotateAlterations(annotateAlterationBody, options).then(request => request(axios, basePath));
     },
   };
 };
@@ -5711,14 +5894,14 @@ export const AlterationControllerApiFactory = function (configuration?: Configur
 export class AlterationControllerApi extends BaseAPI {
   /**
    *
-   * @param {Alteration} alteration
+   * @param {Array<AnnotateAlterationBody>} annotateAlterationBody
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof AlterationControllerApi
    */
-  public annotateAlteration(alteration: Alteration, options?: AxiosRequestConfig) {
+  public annotateAlterations(annotateAlterationBody: Array<AnnotateAlterationBody>, options?: AxiosRequestConfig) {
     return AlterationControllerApiFp(this.configuration)
-      .annotateAlteration(alteration, options)
+      .annotateAlterations(annotateAlterationBody, options)
       .then(request => request(this.axios, this.basePath));
   }
 }

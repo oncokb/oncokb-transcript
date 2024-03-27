@@ -4,6 +4,7 @@ import static org.mskcc.oncokb.curation.config.DataVersions.ONCOKB_CORE_VERSION;
 import static org.mskcc.oncokb.curation.util.FileUtils.parseDelimitedFile;
 
 import java.io.IOException;
+import java.sql.Ref;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.ArticleType;
+import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.curation.service.*;
 import org.mskcc.oncokb.curation.service.dto.pubmed.PubMedDTO;
 import org.mskcc.oncokb.curation.service.mapper.PubMedMapper;
@@ -116,7 +118,7 @@ public class CoreImporter {
             alteration.setName(line.get(2));
             alteration.setAlteration(line.get(3));
             alteration.setGenes(Collections.singleton(geneOptional.get()));
-            mainService.annotateAlteration(alteration);
+            mainService.annotateAlteration(ReferenceGenome.GRCh37, alteration);
             alterationService.save(alteration);
         });
     }

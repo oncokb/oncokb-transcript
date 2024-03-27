@@ -10,4 +10,6 @@ public final class CacheKeys {
     public static final String USERS_BY_EMAIL_CACHE = "usersByEmail";
 
     public static final String TRANSCRIPTS_BY_ENSEMBL_TRANSCRIPT_IDS = "findByReferenceGenomeAndEnsemblTranscriptIdIsIn";
+    public static final String TRANSCRIPTS_BY_ENSEMBL_GENE_CANONICAL = "findByEnsemblGeneAndCanonicalIsTrue";
+    public static final String SEQUENCE_BY_TRASCRIPT_AND_TYPE = "findOneByTranscriptAndSequenceType";
 }

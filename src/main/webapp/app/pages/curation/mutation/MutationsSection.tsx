@@ -12,9 +12,14 @@ import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
 import { Mutation } from 'app/shared/model/firebase/firebase.model';
-import { compareMutations } from 'app/shared/util/firebase/firebase-utils';
+import { compareMutations, getFirebaseGenePath } from 'app/shared/util/firebase/firebase-utils';
 import MutationCollapsible from '../collapsible/MutationCollapsible';
 import styles from '../styles.module.scss';
+import { onValue, ref } from 'firebase/database';
+import { Alteration, AnnotateAlterationBody } from 'app/shared/api/generated';
+import { REFERENCE_GENOME } from 'app/config/constants/constants';
+import { flow, flowResult } from 'mobx';
+import { AnnotatedAltsCache } from 'app/stores/curation-page.store';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
@@ -22,14 +27,31 @@ export interface IMutationsSectionProps extends StoreProps {
   isGermline: boolean;
   parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
 }
-
-function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistoryList, addMutation }: IMutationsSectionProps) {
+function MutationsSection({
+  mutationsPath,
+  hugoSymbol,
+  isGermline,
+  parsedHistoryList,
+  addMutation,
+  firebaseDb,
+  annotatedAltsCache,
+}: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
   const [filteredIndices, setFilteredIndices] = useState<number[]>([]);
   const [openMutationCollapsibleIndex, setOpenMutationCollapsibleIndex] = useState<number>(null);
 
   const mutationSectionRef = useRef<HTMLDivElement>(null);
   const mutationScrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    onValue(
+      ref(firebaseDb, `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`),
+      snapshot => {
+        annotatedAltsCache.fetch(hugoSymbol, snapshot.val());
+      },
+      { onlyOnce: true }
+    );
+  }, []);
 
   function getMutationCollapsibles() {
     return (
@@ -129,6 +151,7 @@ function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistory
                 />
               </div>
               <MutationsFilterSection
+                hugoSymbol={hugoSymbol}
                 mutationsPath={mutationsPath}
                 filteredIndices={filteredIndices}
                 setFilteredIndices={setFilteredIndices}
@@ -158,8 +181,10 @@ function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistory
   );
 }
 
-const mapStoreToProps = ({ firebaseGeneStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseGeneStore, firebaseStore, curationPageStore }: IRootStore) => ({
   addMutation: firebaseGeneStore.addMutation,
+  firebaseDb: firebaseStore.firebaseDb,
+  annotatedAltsCache: curationPageStore.annotatedAltsCache,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

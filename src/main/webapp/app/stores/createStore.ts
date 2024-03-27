@@ -105,6 +105,7 @@ import { RelevantCancerTypesModalStore } from 'app/shared/modal/relevant-cancer-
 import { FirebaseCrudStore } from 'app/shared/util/firebase/firebase-crud-store';
 import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
 import { Gene } from 'app/shared/model/firebase/firebase.model';
+import { CurationPageStore } from 'app/stores/curation-page.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
@@ -114,6 +115,8 @@ export interface IRootStore {
   readonly userStore: UserStore;
   readonly routerStore: RouterStore;
   readonly layoutStore: LayoutStore;
+  readonly curationPageStore: CurationPageStore;
+
   readonly sequenceStore: SequenceStore;
   readonly transcriptStore: TranscriptStore;
   readonly infoStore: InfoStore;
@@ -169,6 +172,9 @@ export function createStores(history: History): IRootStore {
   rootStore.userStore = new UserStore(rootStore);
   rootStore.routerStore = new RouterStore(history);
   rootStore.layoutStore = new LayoutStore(rootStore);
+  rootStore.curationPageStore = new CurationPageStore(rootStore);
+
+  /* Entity stores */
   rootStore.sequenceStore = new SequenceStore(rootStore);
   rootStore.transcriptStore = new TranscriptStore(rootStore);
   rootStore.infoStore = new InfoStore(rootStore);

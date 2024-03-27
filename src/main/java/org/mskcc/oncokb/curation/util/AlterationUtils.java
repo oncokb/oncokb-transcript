@@ -193,12 +193,16 @@ public class AlterationUtils {
                     }
                 }
             } else {
-                p = Pattern.compile("[A-Z]?([0-9]+)(_[A-Z]?([0-9]+))?(_)?splice");
+                p = Pattern.compile("([A-Z]?)([0-9]+)(_[A-Z]?([0-9]+))?(_)?splice");
                 m = p.matcher(proteinChange);
                 if (m.matches()) {
-                    start = Integer.valueOf(m.group(1));
-                    if (m.group(3) != null) {
-                        end = Integer.valueOf(m.group(3));
+                    if (m.group(1) != null && m.group(3) == null) {
+                        // we only want to specify reference when it's one position splice
+                        ref = m.group(1);
+                    }
+                    start = Integer.valueOf(m.group(2));
+                    if (m.group(4) != null) {
+                        end = Integer.valueOf(m.group(4));
                     } else {
                         end = start;
                     }
