@@ -2,12 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { RouteComponentProps, useLocation } from 'react-router-dom';
-import {
-  getFirebaseGenePath,
-  getFirebaseHistoryPath,
-  getFirebaseMetaGenePath,
-  getFirebasePath,
-} from 'app/shared/util/firebase/firebase-utils';
+import { getFirebaseGenePath, getFirebaseHistoryPath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { HistoryRecord } from 'app/shared/model/firebase/firebase.model';
 import { Col, Row } from 'reactstrap';
 import { getSectionClassName } from 'app/shared/util/utils';
@@ -32,6 +27,7 @@ import GenomicIndicatorsTable from 'app/shared/table/GenomicIndicatorsTable';
 import GeneRealtimeComponentHeader from './header/GeneRealtimeComponentHeader';
 import RelevantCancerTypesModal from 'app/shared/modal/RelevantCancerTypesModal';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -275,7 +271,7 @@ export const CurationPage = (props: ICurationPageProps) => {
       )}
     </div>
   ) : (
-    <></>
+    <LoadingIndicator size={LoaderSize.LARGE} center isLoading />
   );
 };
 
