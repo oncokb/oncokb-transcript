@@ -38,7 +38,7 @@ function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistory
           <div style={{ transition: 'height 0.5s, opacity 0.5s' }} className={'mb-2'}>
             <div>
               <MutationCollapsible
-                open={notNullOrUndefined(openMutationCollapsibleIndex)}
+                open
                 mutationPath={`${mutationsPath}/${openMutationCollapsibleIndex}`}
                 hugoSymbol={hugoSymbol}
                 isGermline={isGermline}
