@@ -561,12 +561,30 @@ const findMutationLevelReviews = (
     // Handle mutation effect fields
     findMutationEffectReviews(mutation.mutation_effect, uuids, editorReviewMap, parentMutationReview);
 
-    if (mutation.penetrance) {
+    if (mutation.mutation_penetrance) {
       findObjectReviews(
-        mutation.penetrance,
-        'Mutation Specific Penetrance',
-        'penetrance',
-        HISTORY_LOCATION_STRINGS.MUTATION_SPECIFIC_PENETRANCE,
+        mutation.mutation_penetrance.monoallelic,
+        'Mutation Specific Penetrance / Monoallelic',
+        'monoallelic',
+        HISTORY_LOCATION_STRINGS.MONOALLELIC_MUTATION_SPECIFIC_PENETRANCE,
+        uuids,
+        editorReviewMap,
+        parentMutationReview
+      );
+      findObjectReviews(
+        mutation.mutation_penetrance.biallelic,
+        'Mutation Specific Penetrance / Biallelic',
+        'biallelic',
+        HISTORY_LOCATION_STRINGS.BIALLELIC_MUTATION_SPECIFIC_PENETRANCE,
+        uuids,
+        editorReviewMap,
+        parentMutationReview
+      );
+      findObjectReviews(
+        mutation.mutation_penetrance.mosaic,
+        'Mutation Specific Penetrance / Mosaic',
+        'mosaic',
+        HISTORY_LOCATION_STRINGS.MOSAIC_MUTATION_SPECIFIC_PENETRANCE,
         uuids,
         editorReviewMap,
         parentMutationReview

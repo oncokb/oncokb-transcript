@@ -31,6 +31,7 @@ import styles from '../styles.module.scss';
 import CancerTypeCollapsible from './CancerTypeCollapsible';
 import Collapsible from './Collapsible';
 import { DISABLED_NEST_LEVEL_COLOR, NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
+import MutationPenetranceTabs from 'app/components/tabs/PenetranceTabs';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
@@ -231,42 +232,15 @@ const MutationCollapsible = ({
               className="mt-2"
               title={'Mutation Specific Penetrance'}
               borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.PENETRANCE]]}
-              badge={<BadgeGroup firebasePath={`${mutationPath}/penetrance`} />}
+              badge={<BadgeGroup firebasePath={`${mutationPath}/mutation_penetrance`} />}
             >
-              <>
-                <RealtimeCheckedInputGroup
-                  groupHeader={
-                    <>
-                      <span style={{ marginRight: '8px' }}>Penetrance</span>
-                      {
-                        <GeneHistoryTooltip
-                          historyData={parsedHistoryList}
-                          location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Specific Penetrance`}
-                          contentFieldWhenObject="penetrance"
-                        />
-                      }
-                    </>
-                  }
-                  isRadio
-                  options={[...PENETRANCE_OPTIONS, RADIO_OPTION_NONE].map(label => ({
-                    label,
-                    firebasePath: `${mutationPath}/penetrance/penetrance`,
-                  }))}
-                />
-                <RealtimeTextAreaInput
-                  firebasePath={`${mutationPath}/penetrance/description`}
-                  inputClass={styles.textarea}
-                  label="Description of Penetrance"
-                  labelIcon={
-                    <GeneHistoryTooltip
-                      historyData={parsedHistoryList}
-                      location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Specific Penetrance`}
-                    />
-                  }
-                  name="description"
-                  parseRefs
-                />
-              </>
+              <MutationPenetranceTabs
+                mutationPenetrancePath={`${mutationPath}/mutation_penetrance`}
+                mutationName={mutationName}
+                mutationAlterations={mutationAlterations}
+                parsedHistoryList={parsedHistoryList}
+                textAreaClass={styles.textarea}
+              />
             </Collapsible>
             <Collapsible
               className="mt-2"

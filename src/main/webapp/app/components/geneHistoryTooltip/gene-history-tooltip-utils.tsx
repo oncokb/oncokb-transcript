@@ -121,7 +121,7 @@ export function formatLocation(location: string, drugList: IDrug[], objectField:
     } else if (objectField === 'mosaic') {
       return location + ', Mosaic';
     }
-  } else if (lastSubstring.endsWith('Penetrance')) {
+  } else if (lastSubstring.endsWith('Monoallelic') || lastSubstring.endsWith('Biallelic') || lastSubstring.endsWith('Mosaic')) {
     if (objectField === 'penetrance') {
       return location + ', Penetrance';
     } else if (objectField === 'description') {
