@@ -18,6 +18,7 @@ import { RelevantCancerType } from './relevant-cancer-types-modal-store';
 import { CancerType as FetchedCancerType, RelevantCancerTypeQuery } from '../api/generated';
 import { FaExclamationCircle } from 'react-icons/fa';
 import InfoIcon from '../icons/InfoIcon';
+import pluralize from 'pluralize';
 
 export interface IRelevantCancerTypesModalProps extends StoreProps {
   onConfirm: (newRelevantCancerTypes: CancerType[], noneDeleted: boolean) => void;
@@ -223,7 +224,10 @@ const RelevantCancerTypesModalContent = observer(
             {numberDeletedRcts > 0 && !allCancerTypesDeleted && (
               <div className="d-flex align-items-center">
                 <span>
-                  {numberDeletedRcts === 1 ? `There is 1 excluded cancer type` : `There are ${numberDeletedRcts} excluded cancer types`}
+                  {`There ${pluralize('is', numberDeletedRcts)} ${numberDeletedRcts} excluded cancer ${pluralize(
+                    'type',
+                    numberDeletedRcts
+                  )}`}
                 </span>
               </div>
             )}
