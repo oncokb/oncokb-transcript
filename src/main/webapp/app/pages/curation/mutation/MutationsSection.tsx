@@ -142,10 +142,11 @@ function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistory
         <AddMutationModal
           hugoSymbol={hugoSymbol}
           isGermline={isGermline}
-          onConfirm={newMutation => {
+          onConfirm={async (newMutation, newMutationIndex) => {
             try {
-              addMutation(mutationsPath, newMutation);
+              await addMutation(mutationsPath, newMutation);
               setShowAddMutationModal(show => !show);
+              setOpenMutationCollapsibleIndex(newMutationIndex);
             } catch (error) {
               notifyError(error);
             }

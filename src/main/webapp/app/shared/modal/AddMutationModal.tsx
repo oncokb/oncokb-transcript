@@ -39,7 +39,7 @@ type AlterationData = {
 interface IAddMutationModalProps extends StoreProps {
   hugoSymbol: string;
   isGermline: boolean;
-  onConfirm: (mutation: Mutation) => void;
+  onConfirm: (mutation: Mutation, mutationFirebaseIndex: number) => Promise<void>;
   onCancel: () => void;
   mutationToEditPath?: string;
 }
@@ -72,6 +72,7 @@ function AddMutationModal({
   const [mutationAlreadyExists, setMutationAlreadyExists] = useState({ exists: false, inMutationList: false, inVusList: false });
   const [mutationList, setMutationList] = useState<Mutation[]>([]);
   const [mutationToEdit, setMutationToEdit] = useState<Mutation>(null);
+  const [warningMessagesEnabled, setWarningMessagesEnabled] = useState(true);
 
   const [vusList, setVusList] = useState<VusObjList>(null);
 
@@ -939,7 +940,7 @@ function AddMutationModal({
       isUpdate={!!mutationToEdit}
       modalBody={modalBody}
       onCancel={onCancel}
-      onConfirm={() => {
+      onConfirm={async () => {
         function convertAlterationDataToAlteration(alterationData: AlterationData) {
           const alteration = new Alteration();
           alteration.type = alterationData.type;
@@ -962,9 +963,11 @@ function AddMutationModal({
         newMutation.name = newAlterations.map(alteration => alteration.name).join(', ');
         newMutation.alterations = newAlterations;
 
-        onConfirm(newMutation);
+        setWarningMessagesEnabled(false);
+        await onConfirm(newMutation, mutationList.length);
+        setWarningMessagesEnabled(true);
       }}
-      warningMessages={modalWarningMessage ? [modalWarningMessage] : null}
+      warningMessages={modalWarningMessage && warningMessagesEnabled ? [modalWarningMessage] : null}
       confirmButtonDisabled={
         tabStates.length === 0 || mutationAlreadyExists.exists || tabStates.some(tab => tab.error || tab.excluding.some(ex => ex.error))
       }
