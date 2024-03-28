@@ -192,6 +192,8 @@ const RelevantCancerTypesModalContent = observer(
       },
     ];
 
+    const numberDeletedRcts = relevantCancerTypesModalStore.relevantCancerTypes.filter(rct => rct.isDeleted).length;
+
     return (
       <Modal isOpen style={{ maxWidth: '650px' }}>
         <ModalHeader>Modify Relevant Cancer Types</ModalHeader>
@@ -212,14 +214,20 @@ const RelevantCancerTypesModalContent = observer(
         </ModalBody>
         <ModalFooter style={{ display: 'inline-block' }}>
           <div className="d-flex justify-content-between">
-            {allCancerTypesDeleted ? (
+            {allCancerTypesDeleted && (
               <div className="error-message">
                 <FaExclamationCircle className="mr-2" size={'25px'} />
                 <span>You must include at least one cancer type</span>
               </div>
-            ) : (
-              <div />
             )}
+            {numberDeletedRcts > 0 && !allCancerTypesDeleted && (
+              <div className="d-flex align-items-center">
+                <span>
+                  {numberDeletedRcts === 1 ? `There is 1 excluded cancer type` : `There are ${numberDeletedRcts} excluded cancer types`}
+                </span>
+              </div>
+            )}
+            {!allCancerTypesDeleted && numberDeletedRcts <= 0 && <div />}
             <div>
               {relevantCancerTypesModalStore.relevantCancerTypes.some(rct => rct.isDeleted) && (
                 <>
