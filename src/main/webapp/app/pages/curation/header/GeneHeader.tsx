@@ -19,7 +19,6 @@ import SomaticGermlineToggleButton from '../button/SomaticGermlineToggleButton';
 export interface IGeneHeaderProps extends StoreProps {
   hugoSymbol: string;
   firebaseGenePath: string;
-  geneName: string;
   geneEntity: IGene;
   isReviewing: boolean;
   isReviewFinished: boolean;
@@ -33,14 +32,13 @@ const GeneHeader = ({
   updateMeta,
   firebaseDb,
   firebaseGenePath,
-  geneName,
   geneEntity,
   isReviewing,
   isReviewFinished,
   isGermline,
   handleReviewFinished,
 }: IGeneHeaderProps) => {
-  const firebaseMetaPath = getFirebaseMetaGenePath(isGermline, geneName);
+  const firebaseMetaPath = getFirebaseMetaGenePath(isGermline, hugoSymbol);
   const [metaReview, setMetaReview] = useState<MetaReview>(undefined);
 
   useEffect(() => {
@@ -92,9 +90,9 @@ const GeneHeader = ({
       <div className="d-flex justify-content-between align-items-center">
         <div className="d-flex align-items-center mb-1">
           <span style={{ fontSize: '3rem', lineHeight: 1 }} className={'mr-3'}>
-            {geneName}
+            {hugoSymbol}
           </span>
-          {!isReviewing && <CommentIcon id={`${geneName}_curation_page`} path={`${firebaseGenePath}/name_comments`} />}
+          {!isReviewing && <CommentIcon id={`${hugoSymbol}_curation_page`} path={`${firebaseGenePath}/name_comments`} />}
           <div className="ml-3">
             <SomaticGermlineToggleButton hugoSymbol={hugoSymbol} />
           </div>
@@ -137,10 +135,10 @@ const GeneHeader = ({
             <span className="ml-2">
               <span className="font-weight-bold mr-2">External Links:</span>
               <WithSeparator separator={InlineDivider}>
-                <a href={`https://cbioportal.mskcc.org/ln?q=${geneName}`} target="_blank" rel="noopener noreferrer">
+                <a href={`https://cbioportal.mskcc.org/ln?q=${hugoSymbol}`} target="_blank" rel="noopener noreferrer">
                   {CBIOPORTAL} <ExternalLinkIcon />
                 </a>
-                <a href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${geneName}`} target="_blank" rel="noopener noreferrer">
+                <a href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${hugoSymbol}`} target="_blank" rel="noopener noreferrer">
                   {COSMIC} <ExternalLinkIcon />
                 </a>
               </WithSeparator>

@@ -32,6 +32,7 @@ import GenomicIndicatorsTable from 'app/shared/table/GenomicIndicatorsTable';
 import GeneRealtimeComponentHeader from './header/GeneRealtimeComponentHeader';
 import RelevantCancerTypesModal from 'app/shared/modal/RelevantCancerTypesModal';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -47,10 +48,10 @@ export const CurationPage = (props: ICurationPageProps) => {
   const firebaseHistoryPath = getFirebaseHistoryPath(isGermline, hugoSymbol);
   const firebaseMetaCurrentReviewerPath = `${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review/currentReviewer`;
 
-  const [geneName, setGeneName] = useState(undefined);
-
   const [isReviewing, setIsReviewing] = useState(false);
   const [isReviewFinished, setIsReviewFinished] = useState(false);
+
+  const [mutationListRendered, setMutationListRendered] = useState(false);
 
   const mutationsSectionRef = useRef<HTMLDivElement>(null);
 
@@ -59,13 +60,6 @@ export const CurationPage = (props: ICurationPageProps) => {
       props.searchGeneEntities({ query: hugoSymbol, exact: true });
       const cleanupCallbacks = [];
       props.addHistoryListener(firebaseHistoryPath);
-      onValue(
-        ref(props.firebaseDb, `${firebaseGenePath}/name`),
-        snapshot => {
-          setGeneName(snapshot.val());
-        },
-        { onlyOnce: true }
-      );
       cleanupCallbacks.push(
         onValue(ref(props.firebaseDb, firebaseMetaCurrentReviewerPath), snapshot => {
           const currentReviewer = snapshot.val();
@@ -115,177 +109,180 @@ export const CurationPage = (props: ICurationPageProps) => {
     return newList;
   }, [props.historyData]);
 
-  return props.firebaseInitSuccess && !props.loadingGenes && !!geneName && props.drugList.length > 0 ? (
-    <div>
-      <Row className={'mb-2'}>
-        <Col>
-          <GeneHeader
-            hugoSymbol={hugoSymbol}
-            firebaseGenePath={firebaseGenePath}
-            geneName={geneName}
-            geneEntity={geneEntity}
-            isReviewing={isReviewing}
-            isReviewFinished={isReviewFinished}
-            isGermline={isGermline}
-            handleReviewFinished={isFinished => setIsReviewFinished(isFinished)}
-          />
-        </Col>
-      </Row>
-      {isReviewing ? (
-        <ReviewPage
-          hugoSymbol={hugoSymbol}
-          isGermline={isGermline}
-          reviewFinished={isReviewFinished}
-          handleReviewFinished={isFinished => setIsReviewFinished(isFinished)}
-          drugList={props.drugList}
-        />
-      ) : (
-        <>
-          <div className="mb-4">
-            <Row className={`${getSectionClassName()} justify-content-between`}>
-              <Col className="pb-2">
-                <RealtimeCheckedInputGroup
-                  groupHeader={
-                    <>
-                      <span className="mr-2">Gene Type</span>
-                      {<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Type'} />}
-                    </>
-                  }
-                  options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
-                    return {
-                      label,
-                      firebasePath: `${firebaseGenePath}/${GENE_TYPE_KEY[label]}`,
-                    };
-                  })}
-                />
-                <RealtimeTextAreaInput
-                  firebasePath={`${firebaseGenePath}/summary`}
-                  inputClass={styles.textarea}
-                  label="Gene Summary"
-                  name="geneSummary"
-                  labelIcon={
-                    <GeneRealtimeComponentHeader
-                      tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />}
-                      commentIcon={<CommentIcon id={`${hugoSymbol}_gene_summary`} path={`${firebaseGenePath}/summary_comments`} />}
-                    />
-                  }
-                />
-              </Col>
-            </Row>
-            <Row className="mb-3">
-              <Col>
-                <RealtimeTextAreaInput
-                  firebasePath={`${firebaseGenePath}/background`}
-                  inputClass={styles.textarea}
-                  label="Background"
-                  name="geneBackground"
-                  parseRefs
-                  labelIcon={
-                    <GeneRealtimeComponentHeader
-                      tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Background'} />}
-                      commentIcon={<CommentIcon id={`${hugoSymbol}_gene_background`} path={`${firebaseGenePath}/background_comments`} />}
-                    />
-                  }
-                />
-              </Col>
-            </Row>
-            {isGermline && (
-              <>
-                <div className="mb-3">
-                  <RealtimeCheckedInputGroup
-                    groupHeader={
-                      <GeneRealtimeComponentHeader
-                        title="Penetrance"
-                        tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Penetrance'} />}
-                        commentIcon={<CommentIcon id={`${hugoSymbol}_penetrance`} path={`${firebaseGenePath}/penetrance_comments`} />}
-                      />
-                    }
-                    isRadio
-                    options={[...PENETRANCE_OPTIONS, RADIO_OPTION_NONE].map(label => ({
-                      label,
-                      firebasePath: `${firebaseGenePath}/penetrance`,
-                    }))}
-                  />
-                </div>
-                <div className="mb-3">
-                  <RealtimeCheckedInputGroup
-                    groupHeader={
-                      <GeneRealtimeComponentHeader
-                        title="Mechanism of Inheritance"
-                        tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Mechanism of Inheritance'} />}
-                        commentIcon={
-                          <CommentIcon
-                            id={`${hugoSymbol}_inheritanceMechanism`}
-                            path={`${firebaseGenePath}/inheritanceMechanism_comments`}
-                          />
-                        }
-                      />
-                    }
-                    isRadio
-                    options={[...INHERITANCE_MECHANISM_OPTIONS, RADIO_OPTION_NONE].map(label => ({
-                      label,
-                      firebasePath: `${firebaseGenePath}/inheritanceMechanism`,
-                    }))}
-                  />
-                </div>
-                <GenomicIndicatorsTable
-                  genomicIndicatorsPath={`${firebaseGenePath}/genomic_indicators`}
-                  mutationsPath={`${firebaseGenePath}/mutations`}
-                />
-              </>
-            )}
-          </div>
-          <div ref={mutationsSectionRef}>
-            <MutationsSection
-              mutationsPath={`${firebaseGenePath}/mutations`}
+  return props.firebaseInitSuccess && !props.loadingGenes && props.drugList.length > 0 ? (
+    <>
+      <div style={{ visibility: mutationListRendered ? 'visible' : 'hidden' }}>
+        <Row className={'mb-2'}>
+          <Col>
+            <GeneHeader
               hugoSymbol={hugoSymbol}
+              firebaseGenePath={firebaseGenePath}
+              geneEntity={geneEntity}
+              isReviewing={isReviewing}
+              isReviewFinished={isReviewFinished}
               isGermline={isGermline}
-              parsedHistoryList={parsedHistoryList}
+              handleReviewFinished={isFinished => setIsReviewFinished(isFinished)}
             />
-          </div>
-          <VusTable hugoSymbol={hugoSymbol} isGermline={isGermline} mutationsSectionRef={mutationsSectionRef} />
-          <RelevantCancerTypesModal
-            onConfirm={async (newExcludedRCTs, noneDeleted) => {
-              try {
-                const newRCTs = noneDeleted ? [] : newExcludedRCTs;
-                await props.updateRelevantCancerTypes(
-                  props.relevantCancerTypesModalStore.pathToRelevantCancerTypes,
-                  noneDeleted ? [] : props.relevantCancerTypesModalStore.firebaseExcludedRCTs,
-                  newRCTs,
-                  props.relevantCancerTypesModalStore.excludedRCTsReview,
-                  props.relevantCancerTypesModalStore.excludedRCTsUuid,
-                  props.relevantCancerTypesModalStore.firebaseExcludedRCTs === undefined
-                );
-                props.relevantCancerTypesModalStore.closeModal();
-              } catch (error) {
-                notifyError(error);
-              }
-            }}
-            onCancel={() => props.relevantCancerTypesModalStore.closeModal()}
+          </Col>
+        </Row>
+        {isReviewing ? (
+          <ReviewPage
+            hugoSymbol={hugoSymbol}
+            isGermline={isGermline}
+            reviewFinished={isReviewFinished}
+            handleReviewFinished={isFinished => setIsReviewFinished(isFinished)}
+            drugList={props.drugList}
           />
-          <OncoKBSidebar>
-            <Tabs
-              tabs={[
-                {
-                  title: 'Tools',
-                  content: <CurationToolsTab genePath={firebaseGenePath} />,
-                },
-                {
-                  title: 'History',
-                  content: <CurationHistoryTab historyData={props.historyData} />,
-                },
-                {
-                  title: 'References',
-                  content: <CurationReferencesTab genePath={firebaseGenePath} />,
-                },
-              ]}
+        ) : (
+          <>
+            <div className="mb-4">
+              <Row className={`${getSectionClassName()} justify-content-between`}>
+                <Col className="pb-2">
+                  <RealtimeCheckedInputGroup
+                    groupHeader={
+                      <>
+                        <span className="mr-2">Gene Type</span>
+                        {<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Type'} />}
+                      </>
+                    }
+                    options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
+                      return {
+                        label,
+                        firebasePath: `${firebaseGenePath}/${GENE_TYPE_KEY[label]}`,
+                      };
+                    })}
+                  />
+                  <RealtimeTextAreaInput
+                    firebasePath={`${firebaseGenePath}/summary`}
+                    inputClass={styles.textarea}
+                    label="Gene Summary"
+                    name="geneSummary"
+                    labelIcon={
+                      <GeneRealtimeComponentHeader
+                        tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />}
+                        commentIcon={<CommentIcon id={`${hugoSymbol}_gene_summary`} path={`${firebaseGenePath}/summary_comments`} />}
+                      />
+                    }
+                  />
+                </Col>
+              </Row>
+              <Row className="mb-3">
+                <Col>
+                  <RealtimeTextAreaInput
+                    firebasePath={`${firebaseGenePath}/background`}
+                    inputClass={styles.textarea}
+                    label="Background"
+                    name="geneBackground"
+                    parseRefs
+                    labelIcon={
+                      <GeneRealtimeComponentHeader
+                        tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Background'} />}
+                        commentIcon={<CommentIcon id={`${hugoSymbol}_gene_background`} path={`${firebaseGenePath}/background_comments`} />}
+                      />
+                    }
+                  />
+                </Col>
+              </Row>
+              {isGermline && (
+                <>
+                  <div className="mb-3">
+                    <RealtimeCheckedInputGroup
+                      groupHeader={
+                        <GeneRealtimeComponentHeader
+                          title="Penetrance"
+                          tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Penetrance'} />}
+                          commentIcon={<CommentIcon id={`${hugoSymbol}_penetrance`} path={`${firebaseGenePath}/penetrance_comments`} />}
+                        />
+                      }
+                      isRadio
+                      options={[...PENETRANCE_OPTIONS, RADIO_OPTION_NONE].map(label => ({
+                        label,
+                        firebasePath: `${firebaseGenePath}/penetrance`,
+                      }))}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <RealtimeCheckedInputGroup
+                      groupHeader={
+                        <GeneRealtimeComponentHeader
+                          title="Mechanism of Inheritance"
+                          tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Mechanism of Inheritance'} />}
+                          commentIcon={
+                            <CommentIcon
+                              id={`${hugoSymbol}_inheritanceMechanism`}
+                              path={`${firebaseGenePath}/inheritanceMechanism_comments`}
+                            />
+                          }
+                        />
+                      }
+                      isRadio
+                      options={[...INHERITANCE_MECHANISM_OPTIONS, RADIO_OPTION_NONE].map(label => ({
+                        label,
+                        firebasePath: `${firebaseGenePath}/inheritanceMechanism`,
+                      }))}
+                    />
+                  </div>
+                  <GenomicIndicatorsTable
+                    genomicIndicatorsPath={`${firebaseGenePath}/genomic_indicators`}
+                    mutationsPath={`${firebaseGenePath}/mutations`}
+                  />
+                </>
+              )}
+            </div>
+            <div ref={mutationsSectionRef}>
+            <MutationsSection
+                mutationsPath={`${firebaseGenePath}/mutations`}
+                hugoSymbol={hugoSymbol}
+                isGermline={isGermline}
+                parsedHistoryList={parsedHistoryList}
+              onMutationListRender={() => setMutationListRendered(true)}
+              />
+            </div>
+          <VusTable hugoSymbol={hugoSymbol} isGermline={isGermline} mutationsSectionRef={mutationsSectionRef} />
+            <RelevantCancerTypesModal
+              onConfirm={async (newExcludedRCTs, noneDeleted) => {
+                try {
+                  const newRCTs = noneDeleted ? [] : newExcludedRCTs;
+                  await props.updateRelevantCancerTypes(
+                    props.relevantCancerTypesModalStore.pathToRelevantCancerTypes,
+                    noneDeleted ? [] : props.relevantCancerTypesModalStore.firebaseExcludedRCTs,
+                    newRCTs,
+                    props.relevantCancerTypesModalStore.excludedRCTsReview,
+                    props.relevantCancerTypesModalStore.excludedRCTsUuid,
+                    props.relevantCancerTypesModalStore.firebaseExcludedRCTs === undefined
+                  );
+                  props.relevantCancerTypesModalStore.closeModal();
+                } catch (error) {
+                  notifyError(error);
+                }
+              }}
+              onCancel={() => props.relevantCancerTypesModalStore.closeModal()}
             />
-          </OncoKBSidebar>
-        </>
-      )}
-    </div>
+            <OncoKBSidebar>
+              <Tabs
+                tabs={[
+                  {
+                    title: 'Tools',
+                    content: <CurationToolsTab genePath={firebaseGenePath} />,
+                  },
+                  {
+                    title: 'History',
+                    content: <CurationHistoryTab historyData={props.historyData} />,
+                  },
+                  {
+                    title: 'References',
+                    content: <CurationReferencesTab genePath={firebaseGenePath} />,
+                  },
+                ]}
+              />
+            </OncoKBSidebar>
+          </>
+        )}
+      </div>
+      {!mutationListRendered && <LoadingIndicator key={'curation-page-loading'} size={LoaderSize.LARGE} center isLoading />}
+    </>
   ) : (
-    <></>
+    <LoadingIndicator key={'curation-page-loading'} size={LoaderSize.LARGE} center isLoading />
   );
 };
 

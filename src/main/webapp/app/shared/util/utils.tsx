@@ -286,10 +286,6 @@ export function isNumeric(value: string) {
   return /^-?\d+$/.test(value);
 }
 
-export function notNullOrUndefined(val) {
-  return val !== null && val !== undefined;
-}
-
 /**
  * @param hexColor A string representing a hex color
  * @param alpha A decimal in the range [0.0, 1.0]
