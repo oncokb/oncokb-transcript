@@ -1,4 +1,4 @@
-import { UUID_REGEX } from 'app/config/constants/constants';
+import { APP_EXPANDED_DATETIME_FORMAT, UUID_REGEX } from 'app/config/constants/constants';
 import {
   Comment,
   Gene,
@@ -25,6 +25,8 @@ import _ from 'lodash';
 import { MutationLevelSummary } from 'app/stores/firebase/firebase.gene.store';
 import { CategoricalAlterationType } from 'app/shared/model/enumerations/categorical-alteration-type.model';
 import { isTxLevelPresent } from './firebase-level-utils';
+import React from 'react';
+import { TextFormat } from 'react-jhipster';
 
 /* Convert a nested object into an object where the key is the path to the object.
   Example:
@@ -763,4 +765,15 @@ export const getTreatmentStats = (treatment?: Treatment) => {
     stats.txLevels[treatment.level] = 1;
   }
   return stats;
+};
+
+export const getReviewInfo = (editor: string, updateTime: string, action: string) => {
+  return (
+    <span style={{ fontSize: '90%' }}>
+      {action} by {editor} on{' '}
+      <>
+        <TextFormat value={updateTime} type="date" format={APP_EXPANDED_DATETIME_FORMAT} />
+      </>
+    </span>
+  );
 };

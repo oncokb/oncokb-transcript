@@ -19,6 +19,8 @@ import TextWithRefs from 'app/shared/links/TextWithRefs';
 import DefaultBadge from 'app/shared/badge/DefaultBadge';
 import { ReviewActionLabels } from 'app/config/constants/firebase';
 import _ from 'lodash';
+import { CollapsibleColorProps, CollapsibleDisplayProps } from './BaseCollapsible';
+import { getReviewInfo } from 'app/shared/util/firebase/firebase-utils';
 
 export enum ReviewType {
   CREATE,
@@ -26,7 +28,7 @@ export enum ReviewType {
   DELETE,
 }
 
-const ReviewTypeTitle: { [key in ReviewAction]: string } = {
+export const ReviewTypeTitle: { [key in ReviewAction]: string } = {
   [ReviewAction.CREATE]: 'Created',
   [ReviewAction.UPDATE]: 'Updated',
   [ReviewAction.DELETE]: 'Deleted',
@@ -106,14 +108,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       const action = ReviewTypeTitle[reviewAction];
       const editor = reviewLevel.review.updatedBy;
       const updatedTime = new Date(reviewLevel.review.updateTime).toString();
-      return (
-        <span style={{ fontSize: '90%' }}>
-          {action} by {editor} on{' '}
-          <>
-            <TextFormat value={updatedTime} type="date" format={APP_EXPANDED_DATETIME_FORMAT} />
-          </>
-        </span>
-      );
+      return getReviewInfo(editor, updatedTime, action);
     }
   };
 
@@ -197,19 +192,33 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
     }
   };
 
+  const getColorOptions = () => {
+    let colorOptions: CollapsibleColorProps;
+    const disableBorder = props.baseReviewLevel.isUnderCreationOrDeletion || props.baseReviewLevel.reviewLevelType === ReviewLevelType.META;
+    if (disableBorder) {
+      colorOptions = { hideLeftBorder: true };
+    } else {
+      colorOptions = { hideLeftBorder: false, borderLeftColor, backgroundColor: '#FFFFFF' };
+    }
+    return colorOptions;
+  };
+
+  const defaultReviewCollapsibleDisplayOptions: CollapsibleDisplayProps = {
+    disableCollapsible: reviewAction === ReviewAction.DELETE,
+    hideAction: false,
+    hideInfo: false,
+  };
+
   return (
     <Collapsible
-      open
-      className={'mb-1'}
+      defaultOpen
+      collapsibleClassName={'mb-1'}
       title={reformatReviewTitle(props.baseReviewLevel)}
-      disableLeftBorder={props.baseReviewLevel.isUnderCreationOrDeletion || props.baseReviewLevel.reviewLevelType === ReviewLevelType.META}
-      borderLeftColor={borderLeftColor}
-      backgroundColor={'#FFFFFF'}
+      colorOptions={getColorOptions()}
       info={getEditorInfo()}
       action={getReviewActions()}
-      disableCollapsible={reviewAction === ReviewAction.DELETE}
+      displayOptions={{ ...defaultReviewCollapsibleDisplayOptions }}
       isPendingDelete={reviewAction === ReviewAction.DELETE}
-      isReview
       badge={
         props.baseReviewLevel.reviewLevelType !== ReviewLevelType.META &&
         !props.baseReviewLevel.isUnderCreationOrDeletion && (

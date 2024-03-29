@@ -22,6 +22,7 @@ import Collapsible from './Collapsible';
 import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import styles from '../styles.module.scss';
 import BadgeGroup from '../BadgeGroup';
+import { RemovableCollapsible } from './RemovableCollapsible';
 
 export interface ITherapyCollapsibleProps extends StoreProps {
   therapyPath: string;
@@ -80,10 +81,11 @@ function TherapyCollapsible({
 
   return (
     <>
-      <Collapsible
+      <RemovableCollapsible
         key={treatmentUuid}
         title={`Therapy: ${treatmentNameString}`}
-        borderLeftColor={NestLevelColor[NestLevelMapping[NestLevelType.THERAPY]]}
+        colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.THERAPY]] }}
+        review={treatmentReview}
         info={<TreatmentLevelSummary treatmentPath={therapyPath} />}
         action={
           <>
@@ -131,7 +133,7 @@ function TherapyCollapsible({
           name="additionalEvidenceDescription"
           parseRefs
         />
-      </Collapsible>
+      </RemovableCollapsible>
       <ModifyTherapyModal
         treatmentUuid={treatmentUuid}
         treatmentToEditPath={therapyPath}
