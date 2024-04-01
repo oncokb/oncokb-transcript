@@ -15,6 +15,13 @@ export const DELETED_SECTION_TOOLTIP_OVERLAY = (
   </div>
 );
 
+export const DEMOTED_MUTATION_TOOLTIP_OVERLAY = (
+  <div>
+    <div>This mutation is pending demotion to VUS.</div>
+    <div>To confirm or revert the demotion, please enter review mode.</div>
+  </div>
+);
+
 export interface IBadgeGroupProps extends StoreProps {
   firebasePath: string;
   showNotCuratableBadge?: {
@@ -22,6 +29,7 @@ export interface IBadgeGroupProps extends StoreProps {
     mutationName: string;
   };
   showDeletedBadge?: boolean;
+  showDemotedBadge?: boolean;
 }
 
 const BadgeGroup = (props: IBadgeGroupProps) => {
@@ -45,6 +53,10 @@ const BadgeGroup = (props: IBadgeGroupProps) => {
     }
     return false;
   }, [sectionData, props.firebasePath]);
+
+  if (props.showDemotedBadge) {
+    return <DefaultBadge color="danger" text="Demoted" tooltipOverlay={DEMOTED_MUTATION_TOOLTIP_OVERLAY} />;
+  }
 
   if (props.showDeletedBadge) {
     return <DefaultBadge color="danger" text="Deleted" tooltipOverlay={DELETED_SECTION_TOOLTIP_OVERLAY} />;

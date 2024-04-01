@@ -17,6 +17,7 @@ import { componentInject } from '../util/typed-inject';
 import { notNullOrUndefined, parseAlterationName } from '../util/utils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
 import './add-mutation-modal.scss';
+import classNames from 'classnames';
 
 type AlterationData = {
   type: AlterationTypeEnum;
@@ -42,6 +43,10 @@ interface IAddMutationModalProps extends StoreProps {
   onConfirm: (mutation: Mutation, mutationFirebaseIndex: number) => Promise<void>;
   onCancel: () => void;
   mutationToEditPath?: string;
+  convertOptions?: {
+    alteration: string;
+    isConverting: boolean;
+  };
 }
 
 function AddMutationModal({
@@ -55,6 +60,7 @@ function AddMutationModal({
   onConfirm,
   onCancel,
   firebaseDb,
+  convertOptions,
 }: IAddMutationModalProps) {
   const typeOptions: DropdownOption[] = [
     AlterationTypeEnum.ProteinChange,
@@ -113,11 +119,18 @@ function AddMutationModal({
   }, []);
 
   useEffect(() => {
+    if (convertOptions?.isConverting) {
+      handleAlterationAdded();
+    }
+  }, [convertOptions]);
+
+  useEffect(() => {
     const currentMutationName = tabStates.map(state => getFullAlterationName({ ...state, comment: '' }).toLowerCase()).sort();
 
     const dupMutations = getDuplicateMutations(currentMutationName, mutationList, vusList, {
       useFullAlterationName: true,
-      excludedUuid: mutationToEdit?.name_uuid,
+      excludedMutationUuid: mutationToEdit?.name_uuid,
+      excludedVusName: convertOptions?.isConverting ? convertOptions.alteration : '',
       exact: true,
     });
     setMutationAlreadyExists({
@@ -466,7 +479,11 @@ function AddMutationModal({
   }
 
   async function handleAlterationAdded() {
-    const newParsedAlteration = filterAlterationsAndNotify(parseAlterationName(inputValue), tabStates);
+    let alterationString = inputValue;
+    if (convertOptions?.isConverting) {
+      alterationString = convertOptions.alteration;
+    }
+    const newParsedAlteration = filterAlterationsAndNotify(parseAlterationName(alterationString), tabStates);
 
     if (newParsedAlteration.length === 0) {
       return;
@@ -875,13 +892,14 @@ function AddMutationModal({
   const modalBody = (
     <>
       <Row className="align-items-center mb-3">
-        <Col className="pr-0">
+        <Col className={classNames(!convertOptions?.isConverting && 'pr-0')}>
           <CreatableSelect
             ref={inputRef}
             components={{
               DropdownIndicator: null,
             }}
             isMulti
+            isDisabled={convertOptions?.isConverting}
             menuIsOpen={false}
             placeholder="Enter alteration(s)"
             inputValue={inputValue}
@@ -902,11 +920,13 @@ function AddMutationModal({
             onKeyDown={handleKeyDown}
           />
         </Col>
-        <Col className="col-auto pl-2">
-          <Button color="primary" disabled={!inputValue} onClick={handleAlterationAdded}>
-            Add
-          </Button>
-        </Col>
+        {!convertOptions?.isConverting ? (
+          <Col className="col-auto pl-2">
+            <Button color="primary" disabled={!inputValue} onClick={handleAlterationAdded}>
+              Add
+            </Button>
+          </Col>
+        ) : undefined}
       </Row>
       {tabStates.length > 0 && (
         <div className="pr-3">
@@ -935,9 +955,12 @@ function AddMutationModal({
     }
   }
 
+  const getModalBody = () => {};
+
   return (
     <DefaultAddMutationModal
       isUpdate={!!mutationToEdit}
+      modalHeader={convertOptions?.isConverting ? <div>Promote Variant(s) to Mutation</div> : undefined}
       modalBody={modalBody}
       onCancel={onCancel}
       onConfirm={async () => {

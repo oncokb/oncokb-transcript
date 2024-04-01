@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaExclamationCircle } from 'react-icons/fa';
-import { Button, Modal, ModalBody, ModalFooter } from 'reactstrap';
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import { ERROR_EXCLAMATION_ICON_SIZE } from 'app/config/constants/constants';
 
 export interface IDefaultAddMutationModal {
@@ -10,11 +10,13 @@ export interface IDefaultAddMutationModal {
   confirmButtonDisabled: boolean;
   isUpdate?: boolean;
   warningMessages?: string[];
+  modalHeader?: JSX.Element;
 }
 
 export const DefaultAddMutationModal = (props: IDefaultAddMutationModal) => {
   return (
     <Modal isOpen>
+      {props.modalHeader ? <ModalHeader>{props.modalHeader}</ModalHeader> : undefined}
       <ModalBody>
         <div>{props.modalBody}</div>
       </ModalBody>

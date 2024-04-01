@@ -319,11 +319,11 @@ export const getDuplicateMutations = (
   currentMutations: string[],
   mutationList: Mutation[],
   vusList: VusObjList,
-  options: { useFullAlterationName?: boolean; excludedUuid?: string; exact?: boolean }
+  options: { useFullAlterationName?: boolean; excludedMutationUuid?: string; excludedVusName?: string; exact?: boolean }
 ) => {
   const mutationNames =
     mutationList
-      ?.filter(mutation => options.excludedUuid !== mutation.name_uuid)
+      ?.filter(mutation => options.excludedMutationUuid !== mutation.name_uuid)
       .map(mutation =>
         mutation.name
           .split(',')
@@ -339,9 +339,11 @@ export const getDuplicateMutations = (
           .sort()
       ) || [];
 
-  const vusNames = Object.values(vusList || []).map(vus => {
-    return parseAlterationName(vus.name).map(parsedVus => parsedVus.alteration.toLowerCase());
-  });
+  const vusNames = Object.values(vusList || [])
+    .filter(vus => vus.name.toLowerCase() !== options.excludedVusName?.toLowerCase())
+    .map(vus => {
+      return parseAlterationName(vus.name).map(parsedVus => parsedVus.alteration.toLowerCase());
+    });
 
   const duplicates: DuplicateMutationInfo[] = [];
   if (options.exact) {
@@ -776,4 +778,8 @@ export const getReviewInfo = (editor: string, updateTime: string, action: string
       </>
     </span>
   );
+};
+
+export const getAllCommentsString = (comments: Comment[]) => {
+  return comments.map(comment => comment.content).join('\n');
 };

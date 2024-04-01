@@ -428,10 +428,12 @@ export class Review {
   updateTime: number;
   updatedBy = '';
   lastReviewed?: string | CancerType[];
+  demotedToVus?: boolean;
+  promotedToMutation?: boolean;
   // These three properties should not coexist
   added?: boolean;
   removed?: boolean;
-  initialUpdate?: boolean;
+  initialUpdate?: boolean; // Used for excludedRCTs review
 
   constructor(updatedBy: string, lastReviewed?: string | CancerType[], added?: boolean, removed?: boolean, initialUpdate?: boolean) {
     this.updatedBy = updatedBy;
@@ -480,6 +482,8 @@ export enum HistoryOperationType {
   DELETE = 'delete',
   UPDATE = 'update',
   NAME_CHANGE = 'name change',
+  DEMOTE_MUTATION = 'demote',
+  PROMOTE_VUS = 'promote',
 }
 
 export class HistoryRecord {
