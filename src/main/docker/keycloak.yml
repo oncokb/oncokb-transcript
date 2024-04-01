@@ -1,30 +1,40 @@
 # This configuration is intended for development purpose, it's **your** responsibility to harden it for production
 version: '3.8'
 services:
-  keycloak:
-    image: jboss/keycloak:14.0.0
-    command:
-      [
-        '-b',
-        '0.0.0.0',
-        '-Dkeycloak.migration.action=import',
-        '-Dkeycloak.migration.provider=dir',
-        '-Dkeycloak.migration.dir=/opt/jboss/keycloak/realm-config',
-        '-Dkeycloak.migration.strategy=OVERWRITE_EXISTING',
-        '-Djboss.socket.binding.port-offset=1000',
-        '-Dkeycloak.profile.feature.upload_scripts=enabled',
-      ]
-    volumes:
-      - ./realm-config:/opt/jboss/keycloak/realm-config
-      # Keycloak allows you to create custom themes: https://www.keycloak.org/docs/latest/server_development/#_themes
-      # - ./realm-config/themes/custom-theme:/opt/jboss/keycloak/themes/custom-theme
+  keycloak-db:
+    image: postgres
+    restart: unless-stopped
     environment:
-      - KEYCLOAK_USER=admin
-      - KEYCLOAK_PASSWORD=admin
-      - DB_VENDOR=h2
-    # If you want to expose these ports outside your dev PC,
-    # remove the "127.0.0.1:" prefix
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    volumes:
+      - kc-db:/var/lib/mysql
+    networks:
+      - kc-network
+  keycloak:
+    image: bitnami/keycloak:14.0.0
+    #volumes:
+    #- ./realm-config:/opt/bitnami/keycloak/data/import
+    environment:
+      KEYCLOAK_ADMIN_USER: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_DATABASE_VENDOR: postgres
+      KEYCLOAK_DATABASE_HOST: keycloak-db
+      KEYCLOAK_DATABASE_PORT: 5432
+      KEYCLOAK_DATABASE_NAME: keycloak
+      KEYCLOAK_DATABASE_USER: root
+      KEYCLOAK_DATABASE_PASSWORD: root
+      #KEYCLOAK_EXTRA_ARGS_PREPENDED: --import-realm
+      #KEYCLOAK_BIND_ADDRESS: keycloak-db
+    depends_on:
+      - keycloak-db
+    networks:
+      - kc-network
+
     ports:
-      - 127.0.0.1:8080:8080
-      - 127.0.0.1:9443:9443
-      - 127.0.0.1:10990:10990
+      - 8080:8080
+volumes:
+  kc-db:
+networks:
+  kc-network:

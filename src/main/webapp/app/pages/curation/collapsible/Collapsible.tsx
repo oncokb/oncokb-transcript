@@ -4,6 +4,16 @@ import { DANGER } from 'app/config/colors';
 import { DISABLED_COLLAPSIBLE_COLOR } from 'app/config/constants/constants';
 
 export interface CollapsibleProps extends BaseCollapsibleProps {
+  title: React.ReactNode;
+  disableLeftBorder?: boolean;
+  backgroundColor?: string;
+  info?: React.ReactNode;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+  open?: boolean;
+  disableCollapsible?: boolean;
+  disableOpen?: boolean; // this prop is only used for the mutation collapsible, since it doesn't actually open when clicked
   isPendingDelete?: boolean;
 }
 
@@ -35,7 +45,8 @@ export default function Collapsible({
   }, [isPendingDelete]);
 
   const colorOptionsOverride = useMemo(() => {
-    if (displayOptionsOverride.disableCollapsible) {
+    const forceLeftColor = colorOptions.hideLeftBorder !== true && colorOptions.forceLeftColor;
+    if (displayOptionsOverride.disableCollapsible && !forceLeftColor) {
       if (defaultColorOptions.hideLeftBorder === false) {
         defaultColorOptions.borderLeftColor = DISABLED_COLLAPSIBLE_COLOR;
       }
@@ -46,7 +57,7 @@ export default function Collapsible({
       }
     }
     return defaultColorOptions;
-  }, [isPendingDelete, displayOptionsOverride]);
+  }, [isPendingDelete, displayOptionsOverride, colorOptions]);
 
   const disableOpenOverride = useMemo(() => {
     if (isPendingDelete) {

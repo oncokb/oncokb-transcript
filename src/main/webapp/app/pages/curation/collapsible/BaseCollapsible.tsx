@@ -10,7 +10,7 @@ import { IDefaultBadgeProps } from 'app/shared/badge/DefaultBadge';
 
 export type CollapsibleColorProps =
   | { hideLeftBorder: true; backgroundColor?: string }
-  | { hideLeftBorder?: false; borderLeftColor: string; backgroundColor?: string };
+  | { hideLeftBorder?: false; borderLeftColor: string; backgroundColor?: string; forceLeftColor?: boolean };
 
 export type CollapsibleDisplayProps = {
   disableCollapsible?: boolean;
@@ -31,6 +31,7 @@ export interface BaseCollapsibleProps {
   onToggle?: () => void;
   colorOptions?: CollapsibleColorProps;
   displayOptions?: CollapsibleDisplayProps;
+  showLoadingSpinner?: boolean;
 }
 
 export default function BaseCollapsible({
@@ -46,6 +47,7 @@ export default function BaseCollapsible({
   onToggle,
   colorOptions,
   displayOptions,
+  showLoadingSpinner = false,
 }: BaseCollapsibleProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen || false);
 
@@ -124,6 +126,19 @@ export default function BaseCollapsible({
           <div className="d-flex align-items-center">
             {infoComponent}
             {actionComponent}
+            {showLoadingSpinner && (
+              <div
+                className="spinner-border ml-5"
+                style={{
+                  color: colorOptions.hideLeftBorder === true ? colorOptions.backgroundColor : colorOptions.borderLeftColor,
+                  width: '1rem',
+                  height: '1rem',
+                }}
+                role="status"
+              >
+                <span className="sr-only">Loading...</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

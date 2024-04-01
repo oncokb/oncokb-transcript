@@ -12,6 +12,7 @@ import { TextFormat } from 'react-jhipster';
 import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
 import Tabs from 'app/components/tabs/tabs';
 import GeneListPageToolsTab from 'app/components/tabs/GeneListPageToolsTab';
+import CurationDataValidationTab from 'app/components/tabs/CurationDataValidationTab';
 
 type GeneMetaInfo = {
   hugoSymbol: string;
@@ -105,6 +106,10 @@ const GeneListPage = (props: StoreProps) => {
                 {
                   title: 'Tools',
                   content: <GeneListPageToolsTab />,
+                },
+                {
+                  title: 'Data Validation',
+                  content: <CurationDataValidationTab />,
                 },
               ]}
             />
