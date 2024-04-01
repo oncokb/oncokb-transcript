@@ -99,6 +99,13 @@ Generic styles
   margin-right: 0.5rem;
 }
 
+.warning-message {
+  display: flex;
+  align-items: center;
+  color: $warning;
+  margin-right: 0.5rem;
+}
+
 .break {
   white-space: normal;
   word-break: break-all;

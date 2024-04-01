@@ -12,7 +12,7 @@ import { generateUuid } from '../util/utils';
 import { parseNcitUniqId } from '../select/NcitCodeSelect';
 import _ from 'lodash';
 import { Treatment, Tumor } from '../model/firebase/firebase.model';
-import { ERROR_EXCLAMATION_ICON_SIZE } from 'app/config/constants/constants';
+import { DEFAULT_ICON_SIZE } from 'app/config/constants/constants';
 import { onValue, ref } from 'firebase/database';
 
 export interface IModifyTherapyModalProps extends StoreProps {
@@ -163,19 +163,19 @@ const ModifyTherapyModalContent = observer(
           <div>
             {isDuplicate && (
               <div className="error-message">
-                <FaExclamationCircle className="mr-2" size={ERROR_EXCLAMATION_ICON_SIZE} />
+                <FaExclamationCircle className="mr-2" size={DEFAULT_ICON_SIZE} />
                 <span>Each therapy must be unique</span>
               </div>
             )}
             {isEmptyTherapy && (
               <div className="error-message">
-                <FaExclamationCircle className="mr-2" size={ERROR_EXCLAMATION_ICON_SIZE} />
+                <FaExclamationCircle className="mr-2" size={DEFAULT_ICON_SIZE} />
                 <span>You must include at least one drug for each therapy</span>
               </div>
             )}
             {alreadyExists && (
               <div className="error-message">
-                <FaExclamationCircle className="mr-2" size={ERROR_EXCLAMATION_ICON_SIZE} />
+                <FaExclamationCircle className="mr-2" size={DEFAULT_ICON_SIZE} />
                 <span>Therapy already exists</span>
               </div>
             )}

@@ -426,7 +426,7 @@ export const UPDATE_MUTATION_FILTERS_DEBOUNCE_MILLISECONDS = 1000;
 /* Checkbox has margin of -18.75px, so can set to 0px and add margin to label can use this to adjust */
 export const CHECKBOX_LABEL_LEFT_MARGIN = 18.75;
 
-export const ERROR_EXCLAMATION_ICON_SIZE = 18;
+export const DEFAULT_ICON_SIZE = 18;
 
 /* Regex constants */
 export const FDA_SUBMISSION_REGEX = new RegExp('^([A-Z]+[0-9]+)(\\/((S[0-9]+)(-(S[0-9]+))?))?');

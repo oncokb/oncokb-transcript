@@ -1,4 +1,4 @@
-import { CURATE_NEW_GENE_TEXT, ERROR_EXCLAMATION_ICON_SIZE, PAGE_ROUTE } from 'app/config/constants/constants';
+import { CURATE_NEW_GENE_TEXT, DEFAULT_ICON_SIZE, PAGE_ROUTE } from 'app/config/constants/constants';
 import { Gene, Meta } from 'app/shared/model/firebase/firebase.model';
 import GeneSelect from 'app/shared/select/GeneSelect';
 import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
@@ -79,7 +79,7 @@ function GeneListPageToolsTab({ addMetaListener, metaData, createMetaGene, delet
       <Row className={`align-items-center ${showGeneExistsWarning ? 'justify-content-between' : 'justify-content-end'}`}>
         {showGeneExistsWarning && (
           <div className="error-message mr-2">
-            <FaExclamationCircle className="mr-2" size={ERROR_EXCLAMATION_ICON_SIZE} color="danger" />
+            <FaExclamationCircle className="mr-2" size={DEFAULT_ICON_SIZE} color="danger" />
             <span>Gene already exists</span>
           </div>
         )}
