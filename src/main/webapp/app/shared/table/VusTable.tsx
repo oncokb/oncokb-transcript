@@ -205,7 +205,7 @@ const VusTable = ({
   return (
     <>
       {vusData ? (
-        <div className={'justify-content-between align-items-center mt-4'}>
+        <div className={'justify-content-between align-items-center mt-5'}>
           <div className={'d-flex align-items-center mb-2'}>
             <span style={{ fontSize: '1.25rem' }}>Variants of Unknown Significance (Investigated and data not found)</span>
             <AddButton className="ml-2" onClickHandler={() => setShowAddVusModal(true)} />
@@ -234,7 +234,7 @@ const VusTable = ({
           />
         </div>
       ) : (
-        <AddButton title="VUS" showIcon onClickHandler={() => setShowAddVusModal(true)} />
+        <AddButton className="mt-4" title="VUS" showIcon onClickHandler={() => setShowAddVusModal(true)} />
       )}
       {showAddVusModal ? (
         <AddVusModal

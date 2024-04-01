@@ -133,7 +133,7 @@ export const CurationPage = (props: ICurationPageProps) => {
         />
       ) : (
         <>
-          <div className="mb-5">
+          <div className="mb-4">
             <Row className={`${getSectionClassName()} justify-content-between`}>
               <Col className="pb-2">
                 <RealtimeCheckedInputGroup

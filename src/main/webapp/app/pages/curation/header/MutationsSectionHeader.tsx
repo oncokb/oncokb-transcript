@@ -9,14 +9,24 @@ import _ from 'lodash';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FaFilter } from 'react-icons/fa';
 import { Button, Col, Container, Input, InputGroup, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
+import AddMutationButton from '../button/AddMutationButton';
 
-export interface IMutationsFilterSectionProps extends StoreProps {
+export interface IMutationsSectionHeaderProps extends StoreProps {
   mutationsPath: string;
   filteredIndices: number[];
   setFilteredIndices: React.Dispatch<React.SetStateAction<number[]>>;
+  showAddMutationModal: boolean;
+  setShowAddMutationModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function MutationsFilterSection({ mutationsPath, filteredIndices, setFilteredIndices, firebaseDb }: IMutationsFilterSectionProps) {
+function MutationsSectionHeader({
+  mutationsPath,
+  filteredIndices,
+  setFilteredIndices,
+  showAddMutationModal,
+  setShowAddMutationModal,
+  firebaseDb,
+}: IMutationsSectionHeaderProps) {
   const [mutationsInitialized, setMutationsInitialized] = useState(false);
   const [mutations, setMutations] = useState<Mutation[]>([]);
 
@@ -155,8 +165,22 @@ function MutationsFilterSection({ mutationsPath, filteredIndices, setFilteredInd
     );
   }
 
+  if (!mutations || mutations.length === 0) {
+    return (
+      <AddMutationButton
+        showAddMutationModal={showAddMutationModal}
+        onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
+        showFullTitle
+      />
+    );
+  }
+
   return (
-    <>
+    <div className={'d-flex align-items-center mb-2 mt-4'}>
+      <div className={'d-flex align-items-center mb-2'}>
+        <h5 className="mb-0 mr-2">Mutations:</h5>
+        <AddMutationButton showAddMutationModal={showAddMutationModal} onClickHandler={(show: boolean) => setShowAddMutationModal(!show)} />
+      </div>
       <div style={{ width: '100%' }} className="d-flex align-items-center justify-content-between mb-2">
         {mutationsAreFiltered ? <span>{`Showing ${filteredIndices.length} of ${mutations.length} matching the search`}</span> : <span />}
         {mutations?.length > 0 && (
@@ -308,7 +332,7 @@ function MutationsFilterSection({ mutationsPath, filteredIndices, setFilteredInd
           </Container>
         </ModalBody>
       </Modal>
-    </>
+    </div>
   );
 }
 
@@ -318,4 +342,4 @@ const mapStoreToProps = ({ firebaseStore }: IRootStore) => ({
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
 
-export default componentInject(mapStoreToProps)(MutationsFilterSection);
+export default componentInject(mapStoreToProps)(MutationsSectionHeader);

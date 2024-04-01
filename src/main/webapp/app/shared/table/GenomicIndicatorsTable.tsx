@@ -65,7 +65,10 @@ const GenomicIndicatorsTable = ({
     callbacks.push(
       onValue(ref(firebaseDb, genomicIndicatorsPath), snapshot => {
         const data = snapshot.val();
-        const newGenomicIndicatorsLength = typeof data === 'object' ? Object.keys(data).length : (data as []).length;
+        let newGenomicIndicatorsLength = 0;
+        if (data) {
+          newGenomicIndicatorsLength = typeof data === 'object' ? Object.keys(data).length : (data as []).length;
+        }
 
         if (newGenomicIndicatorsLength !== genomicIndicatorsLength) {
           setGenomicIndicatorsLength(newGenomicIndicatorsLength);
@@ -255,9 +258,9 @@ const GenomicIndicatorsTable = ({
   ];
 
   return (
-    <div className={'justify-content-between align-items-center mb-5'}>
+    <div className={'justify-content-between align-items-center mb-4'}>
       <GenomicIndicatorsHeader genomicIndicatorsPath={genomicIndicatorsPath} />
-      {genomicIndicatorsLength ? (
+      {genomicIndicatorsLength > 0 ? (
         <div className="genomic-indicators">
           <OncoKBTable
             minRows={1}
