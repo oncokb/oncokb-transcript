@@ -155,6 +155,7 @@ const MutationCollapsible = ({
               convertTo="vus"
               firebaseMutationsPath={firebaseMutationsPath}
               mutationName={mutationName}
+              mutationNameReview={mutationNameReview}
               mutationUuid={mutationUuid}
               tooltipProps={{ overlay: <div>Convert alteration(s) to VUS</div> }}
               onClick={() => setIsConvertingToVus(true)}

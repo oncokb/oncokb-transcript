@@ -2,7 +2,7 @@ import { faExchangeAlt } from '@fortawesome/free-solid-svg-icons';
 import React, { useEffect, useState } from 'react';
 import ActionIcon, { IActionIcon } from './ActionIcon';
 import { PRIMARY } from 'app/config/colors';
-import { Mutation } from '../model/firebase/firebase.model';
+import { Mutation, Review } from '../model/firebase/firebase.model';
 import { onValue, ref } from 'firebase/database';
 import { IRootStore } from 'app/stores';
 import { componentInject } from '../util/typed-inject';
@@ -12,6 +12,7 @@ import { parseAlterationName } from '../util/utils';
 export interface IMutationConvertIconProps extends Omit<IActionIcon, 'icon'>, StoreProps {
   convertTo: 'vus' | 'mutation';
   mutationName: string;
+  mutationNameReview?: Review;
   mutationUuid?: string;
   firebaseMutationsPath?: string;
 }
@@ -22,13 +23,14 @@ const MutationConvertIcon = ({
   firebaseMutationsPath,
   mutationName,
   mutationUuid,
+  mutationNameReview,
   color,
   onClick,
   tooltipProps,
   ...actionIconProps
 }: IMutationConvertIconProps) => {
   const [mutationList, setMutationList] = useState<Mutation[]>(null);
-  const [isDisabled, setIsDisabled] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     let unsubscribe;
@@ -51,12 +53,17 @@ const MutationConvertIcon = ({
               .alteration.split(', ')
               .filter(alterationName => newMutationName.some(part => part === alterationName)).length > 0
         );
-      setIsDisabled(exists);
+      if (exists) {
+        setErrorMessage('Cannot demote to VUS because alteration(s) exists in another mutation');
+      }
+      if (mutationNameReview?.added || mutationNameReview?.promotedToMutation) {
+        setErrorMessage('Mutation is newly created. Please accept/reject in review mode.');
+      }
     }
   }, [mutationList]);
 
-  if (isDisabled) {
-    tooltipProps.overlay = <div>Cannot demote to VUS because alteration(s) exists in another mutation</div>;
+  if (errorMessage) {
+    tooltipProps.overlay = <div>{errorMessage}</div>;
   }
 
   return (
@@ -65,12 +72,12 @@ const MutationConvertIcon = ({
       icon={faExchangeAlt}
       color={color || PRIMARY}
       onClick={e => {
-        if (!isDisabled) {
+        if (!errorMessage) {
           onClick(e);
         }
       }}
       tooltipProps={tooltipProps}
-      disabled={isDisabled}
+      disabled={!!errorMessage}
     />
   );
 };

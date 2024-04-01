@@ -275,7 +275,9 @@ const VusTable = ({
             try {
               const aggregateComments = getAllCommentsString(vusToPromote.name_comments || []);
               handleDelete();
-              return addMutation(firebaseMutationsPath, newMutation, true, aggregateComments);
+              return addMutation(firebaseMutationsPath, newMutation, true, aggregateComments).then(() => {
+                notifySuccess(`Promoted ${vusToPromote.name}`, { position: 'top-right' });
+              });
             } catch (error) {
               notifyError(error);
             } finally {
