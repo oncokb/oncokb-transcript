@@ -331,3 +331,7 @@ export function getReferenceFullName(reference: ParsedRef) {
   }
   return `${reference.prefix}${reference.content}`;
 }
+
+export function isEqualIngoreCase(a: string, b: string) {
+  return a.toLowerCase() === b.toLowerCase();
+}
