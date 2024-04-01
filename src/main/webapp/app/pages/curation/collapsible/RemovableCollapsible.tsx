@@ -11,8 +11,13 @@ export interface IRemovableCollapsibleProps extends CollapsibleProps {
 
 export const RemovableCollapsible = ({ review, ...collapsibleProps }: IRemovableCollapsibleProps) => {
   let infoComponent = collapsibleProps.info;
-  if (review?.updatedBy && review?.removed) {
-    infoComponent = getReviewInfo(review.updatedBy, new Date(review.updateTime).toString(), ReviewTypeTitle[ReviewAction.DELETE]);
+  if (review?.updatedBy) {
+    let reviewAction: ReviewAction;
+    if (review?.removed) reviewAction = ReviewAction.DELETE;
+    if (review?.demotedToVus) reviewAction = ReviewAction.DEMOTE_MUTATION;
+    if (reviewAction) {
+      infoComponent = getReviewInfo(review.updatedBy, new Date(review.updateTime).toString(), ReviewTypeTitle[reviewAction]);
+    }
   }
 
   return <Collapsible {...collapsibleProps} info={infoComponent} displayOptions={{ hideAction: review?.removed }} />;
