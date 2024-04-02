@@ -428,7 +428,11 @@ const MutationCollapsible = ({
           vusList={vusData}
           onCancel={() => setIsConvertingToVus(false)}
           onConfirm={handleDemoteToVus}
-          convertOptions={{ initialAlterations: mutationName.split(', '), isConverting: true, mutationUuid }}
+          convertOptions={{
+            initialAlterations: mutationName.split(',').map(alteration => alteration.trim()),
+            isConverting: true,
+            mutationUuid,
+          }}
         />
       ) : undefined}
     </>

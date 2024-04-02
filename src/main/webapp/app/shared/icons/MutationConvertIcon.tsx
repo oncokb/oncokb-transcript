@@ -44,7 +44,9 @@ const MutationConvertIcon = ({
 
   useEffect(() => {
     if (mutationList) {
-      const newMutationName = parseAlterationName(mutationName)[0].alteration.split(', ');
+      const newMutationName = parseAlterationName(mutationName)[0]
+        .alteration.split(',')
+        .map(alteration => alteration.trim());
       const exists = mutationList
         ?.filter(mutation => mutation.name !== mutationName)
         .some(
