@@ -142,7 +142,7 @@ const MutationCollapsible = ({
         review={mutationNameReview}
         info={<MutationLevelSummary mutationPath={mutationPath} hideOncogenicity={isStringMutation} />}
         disableOpen={disableOpen}
-        onToggle={onToggle}
+        onToggle={() => !isMutationPendingDelete && onToggle()}
         action={
           <>
             <GeneHistoryTooltip
