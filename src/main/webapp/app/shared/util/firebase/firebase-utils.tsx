@@ -14,6 +14,7 @@ import {
   FIREBASE_ONCOGENICITY,
   Treatment,
   MetaReview,
+  TI,
 } from 'app/shared/model/firebase/firebase.model';
 import { replaceUrlParams } from '../url-utils';
 import { DX_LEVEL_DESCRIPTIONS, FB_COLLECTION_PATH, PX_LEVEL_DESCRIPTIONS } from 'app/config/constants/firebase';
@@ -199,12 +200,18 @@ export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
   // If the section is not empty, we still need to check if there are treatments in the TIs array.
   // We skipped the TIs key because TI.name and TI.type always has a value, which will
   // make our function always return isEmpty=False
-  if (path.match(/tumors\/\d+$/g)) {
-    const implications = (sectionValue as Tumor).TIs;
-    for (const implication of implications) {
-      if (implication.treatments && implication.treatments.length > 0) {
-        return false;
-      }
+  const implications: TI[] = [];
+  if (path.match(/mutations\/\d+$/g)) {
+    for (const tumor of (sectionValue as Mutation).tumors || []) {
+      implications.push(...tumor.TIs);
+    }
+  } else if (path.match(/tumors\/\d+$/g)) {
+    implications.push(...(sectionValue as Tumor).TIs);
+  }
+
+  for (const implication of implications) {
+    if (implication.treatments && implication.treatments.length > 0) {
+      return false;
     }
   }
   return isEmpty;
