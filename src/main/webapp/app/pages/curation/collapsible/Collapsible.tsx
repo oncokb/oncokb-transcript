@@ -12,7 +12,6 @@ export interface CollapsibleProps extends BaseCollapsibleProps {
   children: React.ReactNode;
   className?: string;
   open?: boolean;
-  disableCollapsible?: boolean;
   disableOpen?: boolean; // this prop is only used for the mutation collapsible, since it doesn't actually open when clicked
   isPendingDelete?: boolean;
 }
@@ -42,7 +41,7 @@ export default function Collapsible({
       defaultDisplayOptions.hideInfo = displayOptions?.hideInfo || false;
     }
     return defaultDisplayOptions;
-  }, [isPendingDelete]);
+  }, [isPendingDelete, displayOptions]);
 
   const colorOptionsOverride = useMemo(() => {
     const forceLeftColor = colorOptions.hideLeftBorder !== true && colorOptions.forceLeftColor;
@@ -67,7 +66,7 @@ export default function Collapsible({
       return true;
     }
     return disableOpen;
-  }, [isPendingDelete]);
+  }, [isPendingDelete, displayOptionsOverride]);
 
   return (
     <BaseCollapsible

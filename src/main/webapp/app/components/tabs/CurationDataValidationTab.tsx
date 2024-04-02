@@ -5,7 +5,7 @@ import Collapsible from 'app/pages/curation/collapsible/Collapsible';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import React, { DependencyList, useCallback, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { Col, Form, FormGroup, Input, Row, Label, Container, Button } from 'reactstrap';
+import { Col, Form, FormGroup, Input, Row, Label, Button } from 'reactstrap';
 import Tabs from './tabs';
 
 type ValidationResultFilter = {
@@ -133,7 +133,7 @@ type ValidationResult = {
 const validationColumns: SearchColumn<ValidationData>[] = [
   {
     accessor: 'target',
-    Header: 'Variant',
+    Header: 'Biomarker',
     onFilter(data: ValidationData, keyword: string) {
       return data.target.toLowerCase().includes(keyword);
     },
@@ -149,11 +149,11 @@ const validationColumns: SearchColumn<ValidationData>[] = [
 
 type ValidationResultsProps = {
   filter: ValidationResultFilter;
-  valdiationType: ValidationType;
+  validationType: ValidationType;
   messages: ValidationResult[];
 };
 
-function ValidationResults({ filter, valdiationType, messages }: ValidationResultsProps) {
+function ValidationResults({ filter, validationType, messages }: ValidationResultsProps) {
   const grouped: Record<string, ValidationResult> = {};
   for (let i = 0; i < messages.length; i++) {
     const message = messages[i];
@@ -162,7 +162,7 @@ function ValidationResults({ filter, valdiationType, messages }: ValidationResul
     }
   }
   const validationResults = Object.values(grouped).filter(x => {
-    if (x.type !== valdiationType) return false;
+    if (x.type !== validationType) return false;
     const noFilterFlags = !filter.success && !filter.error;
     const successCheck = noFilterFlags || (filter.success && x.status === 'IS_COMPLETE');
     const errorCheck = noFilterFlags || (filter.error && x.status === 'IS_ERROR');
@@ -182,7 +182,7 @@ function ValidationResults({ filter, valdiationType, messages }: ValidationResul
   return (
     <div className="d-flex flex-column" style={{ gap: '0.25rem' }}>
       {validationResults.map(validationResult => {
-        const disableCollapsiable = validationResult.data.length === 0;
+        const disableCollapsible = validationResult.data.length === 0;
         const { status } = validationResult;
         const color = status === 'IS_COMPLETE' ? SUCCESS : status === 'IS_ERROR' ? DANGER : GREY;
         const showLoadingSpinner = status === 'IS_PENDING';
@@ -194,8 +194,10 @@ function ValidationResults({ filter, valdiationType, messages }: ValidationResul
               borderLeftColor: color,
               forceLeftColor: true,
             }}
-            disableCollapsible={disableCollapsiable}
             showLoadingSpinner={showLoadingSpinner}
+            displayOptions={{
+              disableCollapsible,
+            }}
             key={validationResult.key}
           >
             <div className="py-3">
@@ -232,7 +234,10 @@ function CurationDataValidationTab() {
     setIsValidating(validationCounter > 0);
   }, [validationCounter]);
 
-  const onClose = useCallback(() => setIsValidating(false), []);
+  const onClose = useCallback(() => {
+    setIsValidating(false);
+    toast.success('Validation completed!');
+  }, []);
   const onOpen = useCallback(() => {
     return;
   }, []);
@@ -243,7 +248,7 @@ function CurationDataValidationTab() {
   const messages = useWebSocket<ValidationResult>({ onOpen, onClose, onError, allowConnection: isValidating, url }, [validationCounter]);
 
   return (
-    <Container>
+    <>
       <Row>
         <Col className="d-flex flex-wrap align-content-center justify-content-start" style={{ gap: '1rem' }}>
           {validationCounter > 0 && (
@@ -268,15 +273,17 @@ function CurationDataValidationTab() {
               type="submit"
               onClick={() => setValidationCounter(x => x + 1)}
             >
-              <span style={{ padding: '0rem 0.75rem 0rem 0rem' }}>
-                {isValidating ? (
-                  <div className="spinner-border" role="status" style={{ width: '1rem', height: '1rem' }}>
-                    <span className="sr-only">Loading...</span>
-                  </div>
-                ) : (
-                  <FontAwesomeIcon icon={faRedo} />
-                )}
-              </span>
+              {validationCounter > 0 && (
+                <span style={{ padding: '0rem 0.75rem 0rem 0rem' }}>
+                  {isValidating ? (
+                    <div className="spinner-border" role="status" style={{ width: '1rem', height: '1rem' }}>
+                      <span className="sr-only">Loading...</span>
+                    </div>
+                  ) : (
+                    <FontAwesomeIcon icon={faRedo} />
+                  )}
+                </span>
+              )}
               <span>{isValidating ? 'Validating' : 'Validate'}</span>
             </Button>
           </div>
@@ -294,7 +301,7 @@ function CurationDataValidationTab() {
                       <ValidationResults
                         key={validationCounter}
                         filter={validationResultFilter}
-                        valdiationType="TEST"
+                        validationType="TEST"
                         messages={messages}
                       />
                     ),
@@ -305,7 +312,7 @@ function CurationDataValidationTab() {
                       <ValidationResults
                         key={validationCounter}
                         filter={validationResultFilter}
-                        valdiationType="INFO"
+                        validationType="INFO"
                         messages={messages}
                       />
                     ),
@@ -316,7 +323,7 @@ function CurationDataValidationTab() {
           </Row>
         </>
       )}
-    </Container>
+    </>
   );
 }
 
