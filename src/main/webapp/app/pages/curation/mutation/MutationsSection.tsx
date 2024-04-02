@@ -1,11 +1,9 @@
 import { notNullOrUndefined } from 'app/shared/util/utils';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Col, Row } from 'reactstrap';
 import { ParsedHistoryRecord } from '../CurationPage';
 import FirebaseList from '../list/FirebaseList';
 import MutationName from './MutationName';
-import MutationsFilterSection from './MutationsFilterSection';
-import AddMutationButton from '../button/AddMutationButton';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import { componentInject } from 'app/shared/util/typed-inject';
@@ -15,6 +13,8 @@ import { Mutation } from 'app/shared/model/firebase/firebase.model';
 import { compareMutations } from 'app/shared/util/firebase/firebase-utils';
 import MutationCollapsible from '../collapsible/MutationCollapsible';
 import styles from '../styles.module.scss';
+import MutationsSectionHeader from '../header/MutationsSectionHeader';
+import classNames from 'classnames';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
@@ -94,16 +94,16 @@ function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistory
 
   return (
     <>
-      <div ref={mutationSectionRef} className="mb-5">
+      <div ref={mutationSectionRef}>
         <Row
-          className="mb-4"
+          className={classNames(notNullOrUndefined(openMutationCollapsibleIndex) ? 'mb-4' : null)}
           style={{
             visibility: notNullOrUndefined(openMutationCollapsibleIndex) ? 'visible' : 'hidden',
             maxHeight: notNullOrUndefined(openMutationCollapsibleIndex) ? null : '0px',
           }}
         >
           <Col>
-            <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div className="mt-4" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               <span className={styles.link} onClick={() => setOpenMutationCollapsibleIndex(null)}>
                 Mutations
               </span>
@@ -121,20 +121,13 @@ function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistory
           }}
         >
           <Col>
-            <div className={'d-flex align-items-center mb-2'}>
-              <div className="mb-2 d-flex align-items-center">
-                <h5 className="mb-0 mr-2">Mutations:</h5>{' '}
-                <AddMutationButton
-                  showAddMutationModal={showAddMutationModal}
-                  onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
-                />
-              </div>
-              <MutationsFilterSection
-                mutationsPath={mutationsPath}
-                filteredIndices={filteredIndices}
-                setFilteredIndices={setFilteredIndices}
-              />
-            </div>
+            <MutationsSectionHeader
+              mutationsPath={mutationsPath}
+              filteredIndices={filteredIndices}
+              setFilteredIndices={setFilteredIndices}
+              showAddMutationModal={showAddMutationModal}
+              setShowAddMutationModal={setShowAddMutationModal}
+            />
           </Col>
         </Row>
         {getMutationCollapsibles()}

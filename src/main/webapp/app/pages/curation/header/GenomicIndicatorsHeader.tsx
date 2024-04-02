@@ -7,6 +7,7 @@ import { PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
 import { GenomicIndicator, Review } from 'app/shared/model/firebase/firebase.model';
 import { onValue, ref } from 'firebase/database';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
+import classNames from 'classnames';
 
 export interface IGenomicIndicatorsHeaderProps extends StoreProps {
   genomicIndicatorsPath: string;
@@ -27,10 +28,13 @@ function GenomicIndicatorsHeader({ genomicIndicatorsPath, firebaseDb, authStore,
     return genomicIndicators?.some(indicator => !indicator.name) || false;
   }, [genomicIndicators]);
 
+  const isGenomicIndicator = genomicIndicators?.length > 0;
+
   function getAddButton() {
     const addButton = (
       <AddButton
-        className="ml-2"
+        className={classNames(isGenomicIndicator ? 'ml-2' : null)}
+        title={!isGenomicIndicator ? 'Genomic Indicators' : null}
         disabled={isEmptyIndicatorName}
         onClickHandler={() => {
           const newGenomicIndicator = new GenomicIndicator();
@@ -59,7 +63,7 @@ function GenomicIndicatorsHeader({ genomicIndicatorsPath, firebaseDb, authStore,
 
   return (
     <div className={'d-flex align-items-center'}>
-      <b>Genomic Indicators</b>
+      {isGenomicIndicator && <b>Genomic Indicators</b>}
       {getAddButton()}
     </div>
   );
