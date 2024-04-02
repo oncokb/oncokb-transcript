@@ -16,6 +16,11 @@ export default function constructTimeSeriesData(
   let content: React.ReactNode;
 
   switch (record.operation) {
+    case 'promote':
+      operation = 'promotion to mutation';
+      bubbleColor = 'green';
+      content = getTimeSeriesDataContent(objectField, record.new, record.old);
+      break;
     case 'add':
       operation = 'addition';
       bubbleColor = 'green';
@@ -25,6 +30,11 @@ export default function constructTimeSeriesData(
       bubbleColor = 'orange';
       operation = 'update';
       content = getTimeSeriesDataContent(objectField, record.new, record.old);
+      break;
+    case 'demote':
+      bubbleColor = 'red';
+      operation = 'demotion to VUS';
+      content = <></>;
       break;
     case 'delete':
       bubbleColor = 'red';

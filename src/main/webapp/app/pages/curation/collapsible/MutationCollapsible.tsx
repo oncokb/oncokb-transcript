@@ -15,12 +15,18 @@ import EditIcon from 'app/shared/icons/EditIcon';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
 import { Alteration, Review } from 'app/shared/model/firebase/firebase.model';
-import { getMutationName, isMutationEffectCuratable, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
+import {
+  getFirebaseGenePath,
+  getFirebaseVusPath,
+  getMutationName,
+  isMutationEffectCuratable,
+  isSectionRemovableWithoutReview,
+} from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from 'reactstrap';
 import BadgeGroup from '../BadgeGroup';
 import { ParsedHistoryRecord } from '../CurationPage';
@@ -29,9 +35,11 @@ import FirebaseList from '../list/FirebaseList';
 import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
 import styles from '../styles.module.scss';
 import CancerTypeCollapsible from './CancerTypeCollapsible';
-import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import Collapsible from './Collapsible';
 import { RemovableCollapsible } from './RemovableCollapsible';
+import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
+import AddVusModal from 'app/shared/modal/AddVusModal';
+import MutationConvertIcon from 'app/shared/icons/MutationConvertIcon';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
@@ -44,6 +52,9 @@ export interface IMutationCollapsibleProps extends StoreProps {
 }
 
 const MutationCollapsible = ({
+  account,
+  fullName,
+  pushVusArray,
   mutationPath,
   hugoSymbol,
   isGermline,
@@ -57,16 +68,27 @@ const MutationCollapsible = ({
   addTumor,
   modifyCancerTypeModalStore,
 }: IMutationCollapsibleProps) => {
+  const firebaseVusPath = getFirebaseVusPath(isGermline, hugoSymbol);
+  const firebaseMutationsPath = `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`;
+
   const [mutationUuid, setMutationUuid] = useState<string>(null);
   const [mutationName, setMutationName] = useState<string>(null);
   const [mutationNameReview, setMutationNameReview] = useState<Review>(null);
   const [mutationAlterations, setMutationAlterations] = useState<Alteration[]>(null);
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
 
+  const [vusData, setVusData] = useState(null);
+
   const [isEditingMutation, setIsEditingMutation] = useState(false);
+  const [isConvertingToVus, setIsConvertingToVus] = useState(false);
 
   useEffect(() => {
     const callbacks = [];
+    callbacks.push(
+      onValue(ref(firebaseDb, getFirebaseVusPath(isGermline, hugoSymbol)), snapshot => {
+        setVusData(snapshot.val());
+      })
+    );
     callbacks.push(
       onValue(ref(firebaseDb, `${mutationPath}/name`), snapshot => {
         setMutationName(snapshot.val());
@@ -96,6 +118,11 @@ const MutationCollapsible = ({
     return () => callbacks.forEach(callback => callback?.());
   }, [mutationPath, firebaseDb]);
 
+  async function handleDemoteToVus() {
+    await deleteSection(`${mutationPath}/name`, mutationNameReview, mutationUuid, true);
+    setIsConvertingToVus(false);
+  }
+
   if (!mutationUuid || !mutationName) {
     return <></>;
   }
@@ -115,7 +142,7 @@ const MutationCollapsible = ({
         review={mutationNameReview}
         info={<MutationLevelSummary mutationPath={mutationPath} hideOncogenicity={isStringMutation} />}
         disableOpen={disableOpen}
-        onToggle={onToggle}
+        onToggle={() => !isMutationPendingDelete && onToggle()}
         action={
           <>
             <GeneHistoryTooltip
@@ -124,6 +151,15 @@ const MutationCollapsible = ({
               location={getMutationName(mutationName, mutationAlterations)}
             />
             <CommentIcon id={mutationUuid} path={`${mutationPath}/name_comments`} />
+            <MutationConvertIcon
+              convertTo="vus"
+              firebaseMutationsPath={firebaseMutationsPath}
+              mutationName={mutationName}
+              mutationNameReview={mutationNameReview}
+              mutationUuid={mutationUuid}
+              tooltipProps={{ overlay: <div>Convert alteration(s) to VUS</div> }}
+              onClick={() => setIsConvertingToVus(true)}
+            />
             <EditIcon
               onClick={() => {
                 setIsEditingMutation(true);
@@ -136,7 +172,13 @@ const MutationCollapsible = ({
             />
           </>
         }
-        badge={<BadgeGroup firebasePath={mutationPath} showDeletedBadge={mutationNameReview?.removed || false} />}
+        badge={
+          <BadgeGroup
+            firebasePath={mutationPath}
+            showDemotedBadge={mutationNameReview?.demotedToVus || false}
+            showDeletedBadge={isMutationPendingDelete}
+          />
+        }
         isPendingDelete={isMutationPendingDelete}
       >
         <Collapsible
@@ -379,6 +421,20 @@ const MutationCollapsible = ({
           }}
         />
       ) : undefined}
+      {isConvertingToVus ? (
+        <AddVusModal
+          hugoSymbol={hugoSymbol}
+          isGermline={isGermline}
+          vusList={vusData}
+          onCancel={() => setIsConvertingToVus(false)}
+          onConfirm={handleDemoteToVus}
+          convertOptions={{
+            initialAlterations: mutationName.split(',').map(alteration => alteration.trim()),
+            isConverting: true,
+            mutationUuid,
+          }}
+        />
+      ) : undefined}
     </>
   );
 };
@@ -389,6 +445,7 @@ const mapStoreToProps = ({
   modifyCancerTypeModalStore,
   modifyTherapyModalStore,
   relevantCancerTypesModalStore,
+  firebaseVusStore,
   authStore,
   drugStore,
 }: IRootStore) => ({
@@ -403,9 +460,11 @@ const mapStoreToProps = ({
   handleFirebaseDeleteFromArray: firebaseGeneStore.deleteFromArray,
   handleFirebaseUpdateUntemplated: firebaseGeneStore.updateUntemplated,
   account: authStore.account,
+  fullName: authStore.fullName,
   createDrug: drugStore.createEntity,
   getDrugs: drugStore.getEntities,
   firebaseDb: firebaseStore.firebaseDb,
+  pushVusArray: firebaseVusStore.pushMultiple,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

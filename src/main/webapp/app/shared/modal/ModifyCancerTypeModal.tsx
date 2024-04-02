@@ -8,7 +8,7 @@ import { ICancerType } from '../model/cancer-type.model';
 import { FaExclamationCircle } from 'react-icons/fa';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 import { observer } from 'mobx-react-lite';
-import { ERROR_EXCLAMATION_ICON_SIZE } from 'app/config/constants/constants';
+import { DEFAULT_ICON_SIZE } from 'app/config/constants/constants';
 import { onValue, ref } from 'firebase/database';
 import _ from 'lodash';
 
@@ -171,7 +171,7 @@ const ModifyCancerTypeModalContent = observer(
           <div>
             {modifyCancerTypeModalStore.isErrorFetchingICancerTypes && (
               <div className={`mb-4 error-message`}>
-                <FaExclamationCircle className="mr-2" size={ERROR_EXCLAMATION_ICON_SIZE} />
+                <FaExclamationCircle className="mr-2" size={DEFAULT_ICON_SIZE} />
                 <span className="mr-3">Error fetching cancer types</span>
                 <Button
                   disabled={modifyCancerTypeModalStore.isRetryButtonClicked}
@@ -201,7 +201,7 @@ const ModifyCancerTypeModalContent = observer(
               !modifyCancerTypeModalStore.isErrorFetchingICancerTypes &&
               !modifyCancerTypeModalStore.isErrorIncludedAndExcluded ? (
                 <div className={`mt-2 mb-4 error-message`}>
-                  <FaExclamationCircle className="mr-2" size={ERROR_EXCLAMATION_ICON_SIZE} />
+                  <FaExclamationCircle className="mr-2" size={DEFAULT_ICON_SIZE} />
                   <span>You must include at least one cancer type</span>
                 </div>
               ) : (
@@ -222,7 +222,7 @@ const ModifyCancerTypeModalContent = observer(
           <div className="d-flex justify-content-between align-items-center">
             {modifyCancerTypeModalStore.isErrorIncludedAndExcluded ? (
               <div className="error-message">
-                <FaExclamationCircle className="mr-2" size={ERROR_EXCLAMATION_ICON_SIZE} />
+                <FaExclamationCircle className="mr-2" size={DEFAULT_ICON_SIZE} />
                 <span className="mr-3">Cancer types may not be both included and excluded</span>
               </div>
             ) : (

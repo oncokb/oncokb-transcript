@@ -188,7 +188,7 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
     }
     return summary;
   }
-  async deleteSection(path: string, review: Review, uuid: string) {
+  async deleteSection(path: string, review: Review, uuid: string, isDemotedToVus = false) {
     const isGermline = path.toLowerCase().includes('germline');
     const name = this.rootStore.authStore.fullName;
     const pathDetails = parseFirebaseGenePath(path);
@@ -202,6 +202,9 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
     const removeWithoutReview = isSectionRemovableWithoutReview(review);
 
     review = new Review(name, undefined, undefined, true);
+    if (isDemotedToVus) {
+      review.demotedToVus = true;
+    }
 
     if (removeWithoutReview) {
       const pathParts = path.split('/');
@@ -296,14 +299,24 @@ export class FirebaseGeneStore extends FirebaseReviewableCrudStore<Gene> {
     });
   }
 
-  async addMutation(mutationPath: string, newMutation: Mutation) {
+  async addMutation(mutationPath: string, newMutation: Mutation, isPromotedToMutation = false, mutationEffectDescription?: string) {
     const { hugoSymbol } = parseFirebaseGenePath(mutationPath);
     const name = this.rootStore.authStore.fullName;
     newMutation.name_review = new Review(name, undefined, true, undefined);
+    if (isPromotedToMutation) {
+      newMutation.name_review.promotedToMutation = true;
+    }
+    if (mutationEffectDescription) {
+      newMutation.mutation_effect.description = mutationEffectDescription;
+      newMutation.mutation_effect.description_review = new Review(name, '');
+    }
 
     return this.pushToArray(mutationPath, [newMutation]).then(() => {
       this.rootStore.firebaseMetaStore.updateGeneMetaContent(hugoSymbol, false);
       this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, newMutation.name_uuid, true, false);
+      if (mutationEffectDescription) {
+        this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, newMutation.mutation_effect.description_uuid, true, false);
+      }
     });
   }
 

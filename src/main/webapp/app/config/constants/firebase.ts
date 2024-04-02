@@ -269,13 +269,17 @@ export enum ReviewAction {
   DELETE,
   UPDATE,
   NAME_CHANGE,
+  PROMOTE_VUS,
+  DEMOTE_MUTATION,
 }
 
-export const ReviewActionToHistoryOperationMapping: { [key in ReviewAction]?: HistoryOperationType } = {
+export const ReviewActionToHistoryOperationMapping: { [key in ReviewAction]: HistoryOperationType } = {
   [ReviewAction.CREATE]: HistoryOperationType.ADD,
   [ReviewAction.DELETE]: HistoryOperationType.DELETE,
   [ReviewAction.UPDATE]: HistoryOperationType.UPDATE,
   [ReviewAction.NAME_CHANGE]: HistoryOperationType.NAME_CHANGE,
+  [ReviewAction.PROMOTE_VUS]: HistoryOperationType.PROMOTE_VUS,
+  [ReviewAction.DEMOTE_MUTATION]: HistoryOperationType.DEMOTE_MUTATION,
 };
 
 export const ReviewActionLabels: { [key in ReviewAction]: string } = {
@@ -283,6 +287,8 @@ export const ReviewActionLabels: { [key in ReviewAction]: string } = {
   [ReviewAction.DELETE]: 'Deleted',
   [ReviewAction.UPDATE]: 'Updated',
   [ReviewAction.NAME_CHANGE]: 'Updated',
+  [ReviewAction.PROMOTE_VUS]: 'Promoted',
+  [ReviewAction.DEMOTE_MUTATION]: 'Demoted',
 };
 
 export const TI_TYPE_TO_HISTORY_STRING: { [key in TI_TYPE]: string } = {

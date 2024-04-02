@@ -18,6 +18,11 @@ export interface IAddVusModalProps extends StoreProps {
   vusList: VusObjList;
   onCancel: () => void;
   onConfirm: (variants: string[]) => void;
+  convertOptions?: {
+    initialAlterations: string[];
+    mutationUuid: string;
+    isConverting: boolean;
+  };
 }
 
 interface Option {
@@ -30,7 +35,7 @@ const createOption = (label: string) => ({
   value: label,
 });
 
-const AddVusModalV2 = (props: IAddVusModalProps) => {
+const AddVusModal = (props: IAddVusModalProps) => {
   const firebaseMutationPath = `${getFirebaseGenePath(props.isGermline, props.hugoSymbol)}/mutations`;
   const [mutationList, setMutationList] = useState<Mutation[]>(undefined);
   const [duplicateAlterations, setDuplicateAlterations] = useState<DuplicateMutationInfo[]>([]);
@@ -58,7 +63,7 @@ const AddVusModalV2 = (props: IAddVusModalProps) => {
         variants.map(o => o.label),
         mutationList,
         props.vusList,
-        { useFullAlterationName: false, exact: false }
+        { useFullAlterationName: false, exact: false, excludedMutationUuid: props.convertOptions?.mutationUuid }
       );
       setDuplicateAlterations(dupAlts);
     }
@@ -69,6 +74,17 @@ const AddVusModalV2 = (props: IAddVusModalProps) => {
       inputRef.current?.focus();
     }
   }, [mutationListInitialized]);
+
+  useEffect(() => {
+    handleInitialVariantsAdd();
+  }, []);
+
+  function handleInitialVariantsAdd() {
+    props.convertOptions?.initialAlterations.forEach(initAlt => {
+      const filteredAlts = filterAlterationsAndNotify(initAlt);
+      setVariants(state => [...state, ...filteredAlts.map(alt => createOption(alt))]);
+    });
+  }
 
   function handleVariantAdded() {
     const filteredAlterations = filterAlterationsAndNotify(inputValue);
@@ -106,7 +122,8 @@ const AddVusModalV2 = (props: IAddVusModalProps) => {
         DropdownIndicator: null,
       }}
       isMulti
-      isClearable
+      isClearable={!props.convertOptions?.isConverting}
+      isDisabled={props.convertOptions?.isConverting}
       menuIsOpen={false}
       onChange={newValue => setVariants(newValue)}
       onInputChange={(newValue, { action }) => {
@@ -147,22 +164,34 @@ const AddVusModalV2 = (props: IAddVusModalProps) => {
     }
   }
 
+  const getModalBody = () => {
+    if (props.convertOptions?.isConverting) {
+      return (
+        <Row className="align-items-center mb-3">
+          <Col>{selectComponent}</Col>
+        </Row>
+      );
+    }
+    return (
+      <Row className="align-items-center mb-3">
+        <Col className="pr-0">{selectComponent}</Col>
+        <Col className="col-auto pl-2">
+          <Button color="primary" disabled={!inputValue} onClick={handleVariantAdded}>
+            Add
+          </Button>
+        </Col>
+      </Row>
+    );
+  };
+
   return (
     <DefaultAddMutationModal
-      modalBody={
-        <Row className="align-items-center mb-3">
-          <Col className="pr-0">{selectComponent}</Col>
-          <Col className="col-auto pl-2">
-            <Button color="primary" disabled={!inputValue} onClick={handleVariantAdded}>
-              Add
-            </Button>
-          </Col>
-        </Row>
-      }
+      modalBody={getModalBody()}
       onCancel={props.onCancel}
       onConfirm={() => props.onConfirm(variants.map(o => o.label))}
       confirmButtonDisabled={duplicateAlterations.length > 0 || variants.length < 1}
       warningMessages={warningMessages}
+      modalHeader={props.convertOptions?.isConverting ? <div>Demoting Variant(s) to VUS</div> : undefined}
     />
   );
 };
@@ -173,4 +202,4 @@ const mapStoreToProps = ({ firebaseStore }: IRootStore) => ({
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
 
-export default componentInject(mapStoreToProps)(observer(AddVusModalV2));
+export default componentInject(mapStoreToProps)(observer(AddVusModal));

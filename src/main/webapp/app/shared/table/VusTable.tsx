@@ -1,9 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Vus } from 'app/shared/model/firebase/firebase.model';
+import { Mutation, Review, Vus } from 'app/shared/model/firebase/firebase.model';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { Button, Container, Row } from 'reactstrap';
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
-import { getFirebaseVusPath, getMostRecentComment, getVusTimestampClass } from 'app/shared/util/firebase/firebase-utils';
+import {
+  getAllCommentsString,
+  getFirebaseGenePath,
+  getFirebaseVusPath,
+  getMostRecentComment,
+  getVusTimestampClass,
+} from 'app/shared/util/firebase/firebase-utils';
 import { TextFormat } from 'react-jhipster';
 import { APP_DATETIME_FORMAT, MAX_COMMENT_LENGTH } from 'app/config/constants/constants';
 import _ from 'lodash';
@@ -12,7 +18,7 @@ import CommentIcon from 'app/shared/icons/CommentIcon';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
-import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 import classNames from 'classnames';
 import AddButton from 'app/pages/curation/button/AddButton';
 import { onValue, ref } from 'firebase/database';
@@ -23,6 +29,8 @@ import ActionIcon from 'app/shared/icons/ActionIcon';
 import { faSync, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { DANGER, PRIMARY } from 'app/config/colors';
 import AddVusModal from '../modal/AddVusModal';
+import MutationConvertIcon from '../icons/MutationConvertIcon';
+import AddMutationModal from '../modal/AddMutationModal';
 
 export interface IVusTableProps extends StoreProps {
   hugoSymbol: string;
@@ -40,6 +48,7 @@ const LATEST_COMMENT = 'Latest Comment';
 
 const VusTable = ({
   firebaseDb,
+  addMutation,
   hugoSymbol,
   isGermline,
   account,
@@ -49,11 +58,15 @@ const VusTable = ({
   handleFirebaseDelete,
 }: IVusTableProps) => {
   const firebaseVusPath = getFirebaseVusPath(isGermline, hugoSymbol);
+  const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
+  const firebaseMutationsPath = `${firebaseGenePath}/mutations`;
   const currentActionVusUuid = useRef<string>(null);
 
   const [vusData, setVusData] = useState(null);
   const [showAddVusModal, setShowAddVusModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  const [vusToPromote, setVusToPromote] = useState<VusTableData>(null);
 
   useEffect(() => {
     const callbacks = [];
@@ -179,6 +192,15 @@ const VusTable = ({
                 key={cell.original.uuid}
                 path={`${firebaseVusPath}/${cell.original.uuid}/name_comments`}
               />
+              <MutationConvertIcon
+                convertTo={'mutation'}
+                mutationName={cell.original.name}
+                tooltipProps={{ overlay: <div>Convert alteration(s) to VUS</div> }}
+                onClick={() => {
+                  setVusToPromote(cell.original);
+                  currentActionVusUuid.current = cell.original.uuid;
+                }}
+              />
               <ActionIcon
                 icon={faSync}
                 color={PRIMARY}
@@ -245,11 +267,36 @@ const VusTable = ({
           onConfirm={handleAddVus}
         />
       ) : undefined}
+      {vusToPromote ? (
+        <AddMutationModal
+          hugoSymbol={hugoSymbol}
+          isGermline={isGermline}
+          onConfirm={newMutation => {
+            try {
+              const aggregateComments = getAllCommentsString(vusToPromote.name_comments || []);
+              handleDelete();
+              return addMutation(firebaseMutationsPath, newMutation, true, aggregateComments).then(() => {
+                notifySuccess(`Promoted ${vusToPromote.name}`, { position: 'top-right' });
+              });
+            } catch (error) {
+              notifyError(error);
+            } finally {
+              setVusToPromote(null);
+              currentActionVusUuid.current = null;
+            }
+          }}
+          onCancel={() => {
+            setVusToPromote(null);
+            currentActionVusUuid.current = null;
+          }}
+          convertOptions={{ isConverting: !!vusToPromote, alteration: vusToPromote.name }}
+        />
+      ) : undefined}
     </>
   );
 };
 
-const mapStoreToProps = ({ firebaseStore, firebaseVusStore, authStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseStore, firebaseVusStore, authStore, firebaseGeneStore }: IRootStore) => ({
   firebaseDb: firebaseStore.firebaseDb,
   pushVusArray: firebaseVusStore.pushMultiple,
   handleFirebaseUpdate: firebaseVusStore.update,
@@ -257,6 +304,7 @@ const mapStoreToProps = ({ firebaseStore, firebaseVusStore, authStore }: IRootSt
   handleFirebaseDeleteFromArray: firebaseVusStore.deleteFromArray,
   account: authStore.account,
   fullName: authStore.fullName,
+  addMutation: firebaseGeneStore.addMutation,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

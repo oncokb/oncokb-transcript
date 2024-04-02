@@ -14,7 +14,7 @@ import {
 import _ from 'lodash';
 import { findIndexOfFirstCapital, getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
 import { getTxName } from './firebase-utils';
-import { HISTORY_LOCATION_STRINGS, TI_TYPE_TO_HISTORY_STRING } from 'app/config/constants/firebase';
+import { HISTORY_LOCATION_STRINGS, ReviewAction, TI_TYPE_TO_HISTORY_STRING } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import { DiffMethod } from 'react-diff-viewer-continued';
 import React from 'react';
@@ -25,13 +25,6 @@ const FIREBASE_PATH_SEP = '/';
 export enum ReviewLevelType {
   META, // This means that the review level is used for grouping purposes
   REVIEWABLE, // This means that the review level has reviewable content
-}
-
-export enum ReviewAction {
-  CREATE,
-  DELETE,
-  UPDATE,
-  NAME_CHANGE,
 }
 
 export interface ReviewChildren {
@@ -118,6 +111,12 @@ export class ReviewLevel extends BaseReviewLevel {
 }
 
 export const getReviewAction = (review: Review, reviewPath: string): ReviewAction => {
+  if (review.demotedToVus) {
+    return ReviewAction.DEMOTE_MUTATION;
+  }
+  if (review.promotedToMutation) {
+    return ReviewAction.PROMOTE_VUS;
+  }
   if (review.added) {
     return ReviewAction.CREATE;
   }
@@ -157,7 +156,7 @@ const isNestedUnderCreateOrDelete = (parentReview: BaseReviewLevel) => {
     return parentReview.isUnderCreationOrDeletion;
   }
   const parent = parentReview as ReviewLevel;
-  if ([ReviewAction.CREATE, ReviewAction.DELETE].includes(parent.reviewAction)) {
+  if ([ReviewAction.CREATE, ReviewAction.DELETE, ReviewAction.DEMOTE_MUTATION, ReviewAction.PROMOTE_VUS].includes(parent.reviewAction)) {
     return true;
   } else {
     return parent.isUnderCreationOrDeletion;
@@ -502,7 +501,7 @@ const findMutationLevelReviews = (
       defaultReview = new ReviewLevel(
         mutationTitle,
         `${mutationPath}/name`,
-        mutation.name_review,
+        mutation.name,
         `${mutationPath}/name_review`,
         mutation.name_review,
         mutation.name_review?.lastReviewed as string,
@@ -981,6 +980,9 @@ export const clearReview = (review: Review) => {
   delete review.lastReviewed;
   delete review.added;
   delete review.removed;
+  delete review.demotedToVus;
+  delete review.promotedToMutation;
+  delete review.initialUpdate;
   return review;
 };
 

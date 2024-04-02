@@ -1,14 +1,15 @@
 import { IRootStore } from 'app/stores';
 import { ref, remove, update } from 'firebase/database';
 import { action, makeObservable } from 'mobx';
-import { Review } from '../../model/firebase/firebase.model';
-import { generateUuid } from '../utils';
+import { Review, Vus } from '../../model/firebase/firebase.model';
+import { generateUuid, parseAlterationName } from '../utils';
 import { FirebaseCrudStore } from './firebase-crud-store';
-import { buildHistoryFromReviews } from './firebase-history-utils';
+import { buildHistoryFromReviews, getUuidsFromReview } from './firebase-history-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
-import { ReviewAction, ReviewLevel, clearAllNestedReviews, getAllNestedReviewUuids } from './firebase-review-utils';
-import { getFirebaseGenePath } from './firebase-utils';
+import { ReviewLevel, clearAllNestedReviews, getAllNestedReviewUuids } from './firebase-review-utils';
+import { getFirebaseGenePath, getFirebaseVusPath } from './firebase-utils';
 import _ from 'lodash';
+import { ReviewAction } from 'app/config/constants/firebase';
 
 export const getUpdatedReview = (oldReview: Review, currentValue: any, newValue: any, editorName: string) => {
   // Update Review
@@ -75,6 +76,7 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
 
   async acceptChanges(hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) {
     const geneFirebasePath = getFirebaseGenePath(isGermline, hugoSymbol);
+    const vusFirebasePath = getFirebaseVusPath(isGermline, hugoSymbol);
     const reviewHistory = buildHistoryFromReviews(this.rootStore.authStore.fullName, reviewLevels);
 
     return this.rootStore.firebaseHistoryStore.addHistory(hugoSymbol, reviewHistory, isGermline).then(() => {
@@ -94,27 +96,31 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
           });
         }
 
-        if (reviewLevel.reviewAction === ReviewAction.DELETE) {
+        if (reviewLevel.reviewAction === ReviewAction.DELETE || reviewLevel.reviewAction === ReviewAction.DEMOTE_MUTATION) {
           const pathParts = reviewLevel.currentValPath.split('/');
           pathParts.pop(); // Remove key
           const deleteIndex = parseInt(pathParts.pop(), 10); // Remove index
           const firebasePath = geneFirebasePath + '/' + pathParts.join('/');
-          this.deleteFromArray(firebasePath, [deleteIndex]).then(() =>
-            this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, false, isGermline)
-          );
+          this.deleteFromArray(firebasePath, [deleteIndex]).then(() => {
+            this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, uuid, false, isGermline);
+            // Add the demoted mutation to VUS list
+            if (reviewObject.demotedToVus) {
+              const variants = parseAlterationName(reviewLevel.currentVal)[0].alteration.split(', ');
+              const newVusList = variants.map(variant => {
+                return new Vus(variant, this.rootStore.authStore.account.email, this.rootStore.authStore.fullName);
+              });
+              this.pushMultiple(vusFirebasePath, newVusList);
+            }
+          });
         }
 
-        if (reviewLevel.reviewAction === ReviewAction.CREATE) {
+        if (reviewLevel.reviewAction === ReviewAction.CREATE || reviewLevel.reviewAction === ReviewAction.PROMOTE_VUS) {
           const pathParts = reviewLevel.currentValPath.split('/');
           pathParts.pop(); // Remove name or cancerTypes
           clearAllNestedReviews(reviewLevel.newState);
           update(ref(this.db, geneFirebasePath), { [pathParts.join('/')]: reviewLevel.newState }).then(() => {
             // Delete all uuids from meta collection
-            const uuids = [];
-            getAllNestedReviewUuids(reviewLevel, uuids);
-            uuids.forEach(id => {
-              this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, id, false, isGermline);
-            });
+            this.deleteAllNestedUuids(hugoSymbol, reviewLevel, isGermline);
           });
         }
       }
@@ -122,6 +128,8 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
   }
 
   async rejectChanges(hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean) {
+    const geneFirebasePath = getFirebaseGenePath(isGermline, hugoSymbol);
+    const vusFirebasePath = getFirebaseVusPath(isGermline, hugoSymbol);
     const uuid = reviewLevel.uuid;
     const fieldPath = reviewLevel.currentValPath;
     const reviewPath = reviewLevel.reviewPath;
@@ -144,14 +152,37 @@ export class FirebaseReviewableCrudStore<T extends object> extends FirebaseCrudS
 
     reviewObject.updateTime = new Date().getTime();
     reviewObject.updatedBy = this.rootStore.authStore.fullName;
-    if (reviewLevel.reviewAction === ReviewAction.DELETE) {
+    if (reviewLevel.reviewAction === ReviewAction.DELETE || reviewLevel.reviewAction === ReviewAction.DEMOTE_MUTATION) {
       delete reviewObject.removed;
+      delete reviewObject.demotedToVus;
     }
-    if (reviewLevel.reviewAction === ReviewAction.CREATE) {
-      delete reviewObject.added;
+    if (reviewLevel.reviewAction === ReviewAction.CREATE || reviewLevel.reviewAction === ReviewAction.PROMOTE_VUS) {
+      const pathParts = reviewLevel.currentValPath.split('/');
+      pathParts.pop(); // Remove key
+      const deleteIndex = parseInt(pathParts.pop(), 10); // Remove index
+      const firebasePath = geneFirebasePath + '/' + pathParts.join('/');
+      return this.deleteFromArray(firebasePath, [deleteIndex]).then(() => {
+        this.deleteAllNestedUuids(hugoSymbol, reviewLevel, isGermline);
+        if (reviewObject.promotedToMutation) {
+          const variants = parseAlterationName(reviewLevel.currentVal)[0].alteration.split(', ');
+          const newVusList = variants.map(variant => {
+            return new Vus(variant, this.rootStore.authStore.account.email, this.rootStore.authStore.fullName);
+          });
+          this.pushMultiple(vusFirebasePath, newVusList);
+        }
+      });
     }
     return update(ref(this.db, getFirebaseGenePath(isGermline, hugoSymbol)), { [reviewPath]: reviewObject }).then(() => {
       updateMetaCallback();
+    });
+  }
+
+  deleteAllNestedUuids(hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean) {
+    // Delete all uuids from meta collection
+    const uuids = [];
+    getAllNestedReviewUuids(reviewLevel, uuids);
+    uuids.forEach(id => {
+      this.rootStore.firebaseMetaStore.updateGeneReviewUuid(hugoSymbol, id, false, isGermline);
     });
   }
 }

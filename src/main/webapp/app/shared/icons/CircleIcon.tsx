@@ -42,7 +42,7 @@ export const CircleIcon: React.FunctionComponent<ICircleIconProps> = ({
       ) : (
         <FontAwesomeIcon icon={farCircle} color={circleIconColor} style={{ ...iconStyle }} />
       )}
-      <FontAwesomeIcon icon={innerIcon} color={innerIconColor} transform="shrink-9" />
+      <FontAwesomeIcon icon={innerIcon} color={innerIconColor} transform="shrink-8" />
     </span>
   );
 };

@@ -5,7 +5,6 @@ import { APP_EXPANDED_DATETIME_FORMAT } from 'app/config/constants/constants';
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
 import {
   BaseReviewLevel,
-  ReviewAction,
   ReviewLevel,
   ReviewLevelType,
   getCompactReviewInfo,
@@ -17,7 +16,7 @@ import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { DANGER, SUCCESS, WARNING } from 'app/config/colors';
 import TextWithRefs from 'app/shared/links/TextWithRefs';
 import DefaultBadge from 'app/shared/badge/DefaultBadge';
-import { ReviewActionLabels } from 'app/config/constants/firebase';
+import { ReviewAction, ReviewActionLabels } from 'app/config/constants/firebase';
 import _ from 'lodash';
 import { CollapsibleColorProps, CollapsibleDisplayProps } from './BaseCollapsible';
 import { getReviewInfo } from 'app/shared/util/firebase/firebase-utils';
@@ -33,6 +32,8 @@ export const ReviewTypeTitle: { [key in ReviewAction]: string } = {
   [ReviewAction.UPDATE]: 'Updated',
   [ReviewAction.DELETE]: 'Deleted',
   [ReviewAction.NAME_CHANGE]: 'Name changed',
+  [ReviewAction.PROMOTE_VUS]: 'Promoted from VUS',
+  [ReviewAction.DEMOTE_MUTATION]: 'Demoted to VUS',
 };
 
 const ReviewCollapsibleColorClass: { [key in ReviewAction]: string } = {
@@ -40,6 +41,8 @@ const ReviewCollapsibleColorClass: { [key in ReviewAction]: string } = {
   [ReviewAction.UPDATE]: WARNING,
   [ReviewAction.DELETE]: DANGER,
   [ReviewAction.NAME_CHANGE]: WARNING,
+  [ReviewAction.PROMOTE_VUS]: SUCCESS,
+  [ReviewAction.DEMOTE_MUTATION]: DANGER,
 };
 
 const ReviewCollapsibleBootstrapClass = {
@@ -47,6 +50,8 @@ const ReviewCollapsibleBootstrapClass = {
   [ReviewAction.UPDATE]: 'warning',
   [ReviewAction.DELETE]: 'danger',
   [ReviewAction.NAME_CHANGE]: 'warning',
+  [ReviewAction.PROMOTE_VUS]: 'success',
+  [ReviewAction.DEMOTE_MUTATION]: 'danger',
 };
 
 export interface IReviewCollapsibleProps {
@@ -123,7 +128,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
   };
 
   const getCollapsibleContent = () => {
-    if (reviewAction === ReviewAction.DELETE) {
+    if (isDeletion) {
       return undefined;
     }
     const reviewLevel = props.baseReviewLevel as ReviewLevel;
@@ -208,6 +213,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
     hideAction: false,
     hideInfo: false,
   };
+  const isDeletion = reviewAction === ReviewAction.DELETE || reviewAction === ReviewAction.DEMOTE_MUTATION;
 
   return (
     <Collapsible
@@ -218,7 +224,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       info={getEditorInfo()}
       action={getReviewActions()}
       displayOptions={{ ...defaultReviewCollapsibleDisplayOptions }}
-      isPendingDelete={reviewAction === ReviewAction.DELETE}
+      isPendingDelete={isDeletion}
       badge={
         props.baseReviewLevel.reviewLevelType !== ReviewLevelType.META &&
         !props.baseReviewLevel.isUnderCreationOrDeletion && (

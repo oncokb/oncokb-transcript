@@ -1,4 +1,4 @@
-import { toast } from 'react-toastify';
+import { ToastOptions, toast } from 'react-toastify';
 import _ from 'lodash';
 import { OncoKBError } from '../alert/ErrorAlertUtils';
 
@@ -23,16 +23,16 @@ const getErrorMessage = (error: OncoKBError, additionalInfo?: string) => {
   return content.map(item => getFormattedMessage(item)).join('\n');
 };
 
-export const notifyInfo = (message: string) => {
-  return toast.info(getFormattedMessage(message));
+export const notifyInfo = (message: string, options?: ToastOptions) => {
+  return toast.info(getFormattedMessage(message), options);
 };
 
-export const notifySuccess = (message: string) => {
-  return toast.success(getFormattedMessage(message));
+export const notifySuccess = (message: string, options?: ToastOptions) => {
+  return toast.success(getFormattedMessage(message), options);
 };
-export const notifyWarning = (error: OncoKBError, additionalInfo?: string) => {
-  return toast.warn(getErrorMessage(error, additionalInfo));
+export const notifyWarning = (error: OncoKBError, additionalInfo?: string, options?: ToastOptions) => {
+  return toast.warn(getErrorMessage(error, additionalInfo), options);
 };
-export const notifyError = (error: Error | OncoKBError, additionalInfo?: string) => {
-  return toast.error(getErrorMessage(error, additionalInfo));
+export const notifyError = (error: Error | OncoKBError, additionalInfo?: string, options?: ToastOptions) => {
+  return toast.error(getErrorMessage(error, additionalInfo), options);
 };

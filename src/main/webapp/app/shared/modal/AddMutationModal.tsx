@@ -14,9 +14,10 @@ import { Alteration, Mutation, VusObjList } from '../model/firebase/firebase.mod
 import { IGene } from '../model/gene.model';
 import { getDuplicateMutations, getFirebaseGenePath, getFirebaseVusPath } from '../util/firebase/firebase-utils';
 import { componentInject } from '../util/typed-inject';
-import { notNullOrUndefined, parseAlterationName } from '../util/utils';
+import { isEqualIngoreCase, notNullOrUndefined, parseAlterationName } from '../util/utils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
 import './add-mutation-modal.scss';
+import classNames from 'classnames';
 
 type AlterationData = {
   type: AlterationTypeEnum;
@@ -42,6 +43,10 @@ interface IAddMutationModalProps extends StoreProps {
   onConfirm: (mutation: Mutation, mutationFirebaseIndex: number) => Promise<void>;
   onCancel: () => void;
   mutationToEditPath?: string;
+  convertOptions?: {
+    alteration: string;
+    isConverting: boolean;
+  };
 }
 
 function AddMutationModal({
@@ -55,6 +60,7 @@ function AddMutationModal({
   onConfirm,
   onCancel,
   firebaseDb,
+  convertOptions,
 }: IAddMutationModalProps) {
   const typeOptions: DropdownOption[] = [
     AlterationTypeEnum.ProteinChange,
@@ -72,7 +78,7 @@ function AddMutationModal({
   const [mutationAlreadyExists, setMutationAlreadyExists] = useState({ exists: false, inMutationList: false, inVusList: false });
   const [mutationList, setMutationList] = useState<Mutation[]>([]);
   const [mutationToEdit, setMutationToEdit] = useState<Mutation>(null);
-  const [warningMessagesEnabled, setWarningMessagesEnabled] = useState(true);
+  const [errorMessagesEnabled, setErrorMessagesEnabled] = useState(true);
 
   const [vusList, setVusList] = useState<VusObjList>(null);
 
@@ -113,11 +119,16 @@ function AddMutationModal({
   }, []);
 
   useEffect(() => {
-    const currentMutationName = tabStates.map(state => getFullAlterationName({ ...state, comment: '' }).toLowerCase()).sort();
+    if (convertOptions?.isConverting) {
+      handleAlterationAdded();
+    }
+  }, [convertOptions]);
 
-    const dupMutations = getDuplicateMutations(currentMutationName, mutationList, vusList, {
+  useEffect(() => {
+    const dupMutations = getDuplicateMutations(currentMutationNames, mutationList, vusList, {
       useFullAlterationName: true,
-      excludedUuid: mutationToEdit?.name_uuid,
+      excludedMutationUuid: mutationToEdit?.name_uuid,
+      excludedVusName: convertOptions?.isConverting ? convertOptions.alteration : '',
       exact: true,
     });
     setMutationAlreadyExists({
@@ -208,6 +219,10 @@ function AddMutationModal({
       inputRef.current?.focus();
     }
   }, [mutationListInitialized]);
+
+  const currentMutationNames = useMemo(() => {
+    return tabStates.map(state => getFullAlterationName({ ...state, comment: '' }).toLowerCase()).sort();
+  }, [tabStates]);
 
   function filterAlterationsAndNotify(
     alterations: ReturnType<typeof parseAlterationName>,
@@ -466,7 +481,11 @@ function AddMutationModal({
   }
 
   async function handleAlterationAdded() {
-    const newParsedAlteration = filterAlterationsAndNotify(parseAlterationName(inputValue), tabStates);
+    let alterationString = inputValue;
+    if (convertOptions?.isConverting) {
+      alterationString = convertOptions.alteration;
+    }
+    const newParsedAlteration = filterAlterationsAndNotify(parseAlterationName(alterationString), tabStates);
 
     if (newParsedAlteration.length === 0) {
       return;
@@ -875,13 +894,14 @@ function AddMutationModal({
   const modalBody = (
     <>
       <Row className="align-items-center mb-3">
-        <Col className="pr-0">
+        <Col className={classNames(!convertOptions?.isConverting && 'pr-0')}>
           <CreatableSelect
             ref={inputRef}
             components={{
               DropdownIndicator: null,
             }}
             isMulti
+            isDisabled={convertOptions?.isConverting}
             menuIsOpen={false}
             placeholder="Enter alteration(s)"
             inputValue={inputValue}
@@ -902,11 +922,13 @@ function AddMutationModal({
             onKeyDown={handleKeyDown}
           />
         </Col>
-        <Col className="col-auto pl-2">
-          <Button color="primary" disabled={!inputValue} onClick={handleAlterationAdded}>
-            Add
-          </Button>
-        </Col>
+        {!convertOptions?.isConverting ? (
+          <Col className="col-auto pl-2">
+            <Button color="primary" disabled={!inputValue} onClick={handleAlterationAdded}>
+              Add
+            </Button>
+          </Col>
+        ) : undefined}
       </Row>
       {tabStates.length > 0 && (
         <div className="pr-3">
@@ -923,21 +945,27 @@ function AddMutationModal({
     </>
   );
 
-  let modalWarningMessage: string;
+  let modalErrorMessage: string;
   if (mutationAlreadyExists.exists) {
-    modalWarningMessage = 'Mutation already exists in';
+    modalErrorMessage = 'Mutation already exists in';
     if (mutationAlreadyExists.inMutationList && mutationAlreadyExists.inVusList) {
-      modalWarningMessage = 'Mutation already in mutation list and VUS list';
+      modalErrorMessage = 'Mutation already in mutation list and VUS list';
     } else if (mutationAlreadyExists.inMutationList) {
-      modalWarningMessage = 'Mutation already in mutation list';
+      modalErrorMessage = 'Mutation already in mutation list';
     } else {
-      modalWarningMessage = 'Mutation already in VUS list';
+      modalErrorMessage = 'Mutation already in VUS list';
     }
+  }
+
+  let modalWarningMessage: string;
+  if (convertOptions?.isConverting && !isEqualIngoreCase(convertOptions.alteration, currentMutationNames.join(', '))) {
+    modalWarningMessage = 'Name differs from original VUS name';
   }
 
   return (
     <DefaultAddMutationModal
       isUpdate={!!mutationToEdit}
+      modalHeader={convertOptions?.isConverting ? <div>Promoting Variant(s) to Mutation</div> : undefined}
       modalBody={modalBody}
       onCancel={onCancel}
       onConfirm={async () => {
@@ -963,11 +991,12 @@ function AddMutationModal({
         newMutation.name = newAlterations.map(alteration => alteration.name).join(', ');
         newMutation.alterations = newAlterations;
 
-        setWarningMessagesEnabled(false);
+        setErrorMessagesEnabled(false);
         await onConfirm(newMutation, mutationList.length);
-        setWarningMessagesEnabled(true);
+        setErrorMessagesEnabled(true);
       }}
-      warningMessages={modalWarningMessage && warningMessagesEnabled ? [modalWarningMessage] : null}
+      errorMessages={modalErrorMessage && errorMessagesEnabled ? [modalErrorMessage] : null}
+      warningMessages={modalWarningMessage ? [modalWarningMessage] : null}
       confirmButtonDisabled={
         tabStates.length === 0 || mutationAlreadyExists.exists || tabStates.some(tab => tab.error || tab.excluding.some(ex => ex.error))
       }
