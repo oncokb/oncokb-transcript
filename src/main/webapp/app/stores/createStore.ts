@@ -113,6 +113,7 @@ import { RelevantCancerTypesModalStore } from 'app/shared/modal/relevant-cancer-
 import { FirebaseCrudStore } from 'app/shared/util/firebase/firebase-crud-store';
 import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
 import { Gene } from 'app/shared/model/firebase/firebase.model';
+import { OpenMutationCollapsibleStore } from './open-mutation-collapsible.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
@@ -157,6 +158,7 @@ export interface IRootStore {
   readonly modifyCancerTypeModalStore: ModifyCancerTypeModalStore;
   readonly modifyTherapyModalStore: ModifyTherapyModalStore;
   readonly relevantCancerTypesModalStore: RelevantCancerTypesModalStore;
+  readonly openMutationCollapsibleStore: OpenMutationCollapsibleStore;
   /* Firebase stores */
   readonly firebaseCrudStore: FirebaseCrudStore;
   readonly firebaseGeneReviewStore: FirebaseReviewableCrudStore<Gene>;
@@ -217,6 +219,7 @@ export function createStores(history: History): IRootStore {
   rootStore.modifyCancerTypeModalStore = new ModifyCancerTypeModalStore();
   rootStore.modifyTherapyModalStore = new ModifyTherapyModalStore();
   rootStore.relevantCancerTypesModalStore = new RelevantCancerTypesModalStore();
+  rootStore.openMutationCollapsibleStore = new OpenMutationCollapsibleStore();
   /* Firebase stores */
   rootStore.firebaseStore = new FirebaseStore(rootStore); // this store needs to be initialized first
   rootStore.firebaseCrudStore = new FirebaseCrudStore(rootStore);

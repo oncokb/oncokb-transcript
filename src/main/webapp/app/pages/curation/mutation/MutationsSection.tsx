@@ -23,10 +23,17 @@ export interface IMutationsSectionProps extends StoreProps {
   parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
 }
 
-function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistoryList, addMutation }: IMutationsSectionProps) {
+function MutationsSection({
+  mutationsPath,
+  hugoSymbol,
+  isGermline,
+  parsedHistoryList,
+  addMutation,
+  openMutationCollapsibleIndex,
+  setOpenMutationCollapsibleIndex,
+}: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
   const [filteredIndices, setFilteredIndices] = useState<number[]>([]);
-  const [openMutationCollapsibleIndex, setOpenMutationCollapsibleIndex] = useState<number>(null);
 
   const mutationSectionRef = useRef<HTMLDivElement>(null);
   const mutationScrollContainerRef = useRef<HTMLDivElement>(null);
@@ -154,8 +161,10 @@ function MutationsSection({ mutationsPath, hugoSymbol, isGermline, parsedHistory
   );
 }
 
-const mapStoreToProps = ({ firebaseGeneStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseGeneStore, openMutationCollapsibleStore }: IRootStore) => ({
   addMutation: firebaseGeneStore.addMutation,
+  openMutationCollapsibleIndex: openMutationCollapsibleStore.index,
+  setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

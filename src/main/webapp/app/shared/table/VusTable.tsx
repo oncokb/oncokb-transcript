@@ -35,6 +35,7 @@ import AddMutationModal from '../modal/AddMutationModal';
 export interface IVusTableProps extends StoreProps {
   hugoSymbol: string;
   isGermline: boolean;
+  mutationsSectionRef: React.MutableRefObject<HTMLDivElement>;
 }
 
 type VusTableData = Vus & {
@@ -50,12 +51,14 @@ const VusTable = ({
   firebaseDb,
   addMutation,
   hugoSymbol,
+  mutationsSectionRef,
   isGermline,
   account,
   fullName,
   pushVusArray,
   handleFirebaseUpdate,
   handleFirebaseDelete,
+  setOpenMutationCollapsibleIndex,
 }: IVusTableProps) => {
   const firebaseVusPath = getFirebaseVusPath(isGermline, hugoSymbol);
   const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
@@ -271,11 +274,11 @@ const VusTable = ({
         <AddMutationModal
           hugoSymbol={hugoSymbol}
           isGermline={isGermline}
-          onConfirm={newMutation => {
+          onConfirm={async (newMutation, newMutationFirebaseIndex) => {
             try {
               const aggregateComments = getAllCommentsString(vusToPromote.name_comments || []);
               handleDelete();
-              return addMutation(firebaseMutationsPath, newMutation, true, aggregateComments).then(() => {
+              return await addMutation(firebaseMutationsPath, newMutation, true, aggregateComments).then(() => {
                 notifySuccess(`Promoted ${vusToPromote.name}`, { position: 'top-right' });
               });
             } catch (error) {
@@ -283,6 +286,8 @@ const VusTable = ({
             } finally {
               setVusToPromote(null);
               currentActionVusUuid.current = null;
+              setOpenMutationCollapsibleIndex(newMutationFirebaseIndex);
+              mutationsSectionRef.current?.scrollIntoView();
             }
           }}
           onCancel={() => {
@@ -296,7 +301,7 @@ const VusTable = ({
   );
 };
 
-const mapStoreToProps = ({ firebaseStore, firebaseVusStore, authStore, firebaseGeneStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseStore, firebaseVusStore, authStore, firebaseGeneStore, openMutationCollapsibleStore }: IRootStore) => ({
   firebaseDb: firebaseStore.firebaseDb,
   pushVusArray: firebaseVusStore.pushMultiple,
   handleFirebaseUpdate: firebaseVusStore.update,
@@ -305,6 +310,7 @@ const mapStoreToProps = ({ firebaseStore, firebaseVusStore, authStore, firebaseG
   account: authStore.account,
   fullName: authStore.fullName,
   addMutation: firebaseGeneStore.addMutation,
+  setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
