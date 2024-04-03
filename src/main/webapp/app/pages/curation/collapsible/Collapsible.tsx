@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import BaseCollapsible, { BaseCollapsibleProps, CollapsibleColorProps, CollapsibleDisplayProps } from './BaseCollapsible';
 import { DANGER } from 'app/config/colors';
 import { DISABLED_COLLAPSIBLE_COLOR } from 'app/config/constants/constants';
@@ -34,12 +34,35 @@ export default function Collapsible({
     hideInfo: displayOptions?.hideInfo || false,
   };
 
+  const displayOptionRef = useRef<CollapsibleDisplayProps>();
+  const isPendingDeleteRef = useRef<boolean>();
+  const rerenderRef = useRef(0);
+  rerenderRef.current++;
+  const memoRerenderRef = useRef(0);
+
   const displayOptionsOverride = useMemo(() => {
+    memoRerenderRef.current++;
     if (isPendingDelete) {
       defaultDisplayOptions.disableCollapsible = true;
       defaultDisplayOptions.hideAction = displayOptions?.hideAction || false;
       defaultDisplayOptions.hideInfo = displayOptions?.hideInfo || false;
     }
+    const displayOptionsJson = JSON.stringify(displayOptions);
+    const oldDisplayOptionsJson = JSON.stringify(displayOptionRef.current);
+    if (isPendingDeleteRef.current === isPendingDelete && displayOptionsJson === oldDisplayOptionsJson) {
+      // eslint-disable-next-line no-console
+      console.log('********************************');
+      // eslint-disable-next-line no-console
+      console.log('rerender count component: ', rerenderRef.current, ' useMemo: ', memoRerenderRef.current);
+      // eslint-disable-next-line no-console
+      console.log('oldDisplayOptionsJson', oldDisplayOptionsJson);
+      // eslint-disable-next-line no-console
+      console.log('displayOptionsJson', displayOptionsJson);
+      // eslint-disable-next-line no-console
+      console.log('********************************');
+    }
+    displayOptionRef.current = displayOptions;
+    isPendingDeleteRef.current = isPendingDelete;
     return defaultDisplayOptions;
   }, [isPendingDelete, displayOptions]);
 
