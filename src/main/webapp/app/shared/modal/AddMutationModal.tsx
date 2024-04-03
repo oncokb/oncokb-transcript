@@ -1030,13 +1030,11 @@ interface IAddMutationModalFieldProps {
 function AddMutationModalField({ label, value: value, placeholder, onChange, isLoading }: IAddMutationModalFieldProps) {
   return (
     <Row className="align-items-center mb-3">
-      <Col className="px-0 col-3 mr-3">
-        <span className="mr-2">{label}</span>
-        {isLoading && (
-          <span>
-            <Spinner size="sm" />
-          </span>
-        )}
+      <Col className="px-0 col-3 mr-3 align-items-center">
+        <div className="d-flex align-items-center">
+          <span className="mr-2">{label}</span>
+          {isLoading && <Spinner color="primary" size="sm" />}
+        </div>
       </Col>
       <Col className="px-0">
         <Input
