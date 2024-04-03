@@ -122,7 +122,7 @@ function AddMutationModal({
     if (convertOptions?.isConverting) {
       handleAlterationAdded();
     }
-  }, [convertOptions.isConverting]);
+  }, [convertOptions?.isConverting]);
 
   useEffect(() => {
     const dupMutations = getDuplicateMutations(currentMutationNames, mutationList, vusList, {
