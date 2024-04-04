@@ -1,10 +1,10 @@
 import { faRedo } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DANGER, GREY, SUCCESS } from 'app/config/colors';
+import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 import Collapsible from 'app/pages/curation/collapsible/Collapsible';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import React, { DependencyList, useCallback, useEffect } from 'react';
-import { toast } from 'react-toastify';
 import { Col, Form, FormGroup, Input, Row, Label, Button } from 'reactstrap';
 import Tabs from './tabs';
 
@@ -31,7 +31,7 @@ function ValidationSearchForm({ onChange, className, disabled }: ValidationSearc
   return (
     <Form className={className}>
       <Row>
-        <Col>
+        <Col className="px-0">
           <FormGroup inline check>
             <Input
               type="checkbox"
@@ -236,13 +236,13 @@ function CurationDataValidationTab() {
 
   const onClose = useCallback(() => {
     setIsValidating(false);
-    toast.success('Validation completed!');
+    notifySuccess('Validation completed!');
   }, []);
   const onOpen = useCallback(() => {
     return;
   }, []);
   const onError = useCallback(() => {
-    toast.error('Error while attempting to validate. Please try again.');
+    notifyError(new Error('Error while attempting to validate. Please try again.'));
   }, []);
   const url = relativeWebsocketUrlToAbsolute('/api/websocket/curation/validation');
   const messages = useWebSocket<ValidationResult>({ onOpen, onClose, onError, allowConnection: isValidating, url }, [validationCounter]);
