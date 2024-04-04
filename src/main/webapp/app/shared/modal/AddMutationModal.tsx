@@ -2,13 +2,13 @@ import Tabs from 'app/components/tabs/tabs';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
-import _ from 'lodash';
+import _, { isNil } from 'lodash';
 import { flow, flowResult } from 'mobx';
 import React, { KeyboardEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FaChevronDown, FaChevronUp, FaExclamationTriangle, FaPlus } from 'react-icons/fa';
 import ReactSelect, { MenuPlacement } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
-import { Alert, Button, Col, Input, Row } from 'reactstrap';
+import { Alert, Button, Col, Input, Row, Spinner } from 'reactstrap';
 import { AlterationTypeEnum, EntityStatusAlteration, Gene } from '../api/generated';
 import { Alteration, Mutation, VusObjList } from '../model/firebase/firebase.model';
 import { IGene } from '../model/gene.model';
@@ -79,6 +79,8 @@ function AddMutationModal({
   const [mutationList, setMutationList] = useState<Mutation[]>([]);
   const [mutationToEdit, setMutationToEdit] = useState<Mutation>(null);
   const [errorMessagesEnabled, setErrorMessagesEnabled] = useState(true);
+  const [isFetchingAlteration, setIsFetchingAlteration] = useState(false);
+  const [isFetchingExcludingAlteration, setIsFetchingExcludingAlteration] = useState(false);
 
   const [vusList, setVusList] = useState<VusObjList>(null);
 
@@ -359,8 +361,9 @@ function AddMutationModal({
   }
 
   const fetchNormalAlterationDebounced = useCallback(
-    _.debounce((newAlteration: string, alterationIndex: number, alterationData: AlterationData[]) => {
-      fetchNormalAlteration(newAlteration, alterationIndex, alterationData);
+    _.debounce(async (newAlteration: string, alterationIndex: number, alterationData: AlterationData[]) => {
+      await fetchNormalAlteration(newAlteration, alterationIndex, alterationData);
+      setIsFetchingAlteration(false);
     }, 1000),
     [tabStates.length]
   );
@@ -435,25 +438,32 @@ function AddMutationModal({
   }
 
   const fetchExcludedAlterationDebounced = useCallback(
-    _.debounce((newAlteration: string, alterationIndex: number, excludingIndex: number, alterationData: AlterationData[]) => {
-      fetchExcludedAlteration(newAlteration, alterationIndex, excludingIndex, alterationData);
+    _.debounce(async (newAlteration: string, alterationIndex: number, excludingIndex: number, alterationData: AlterationData[]) => {
+      await fetchExcludedAlteration(newAlteration, alterationIndex, excludingIndex, alterationData);
+      setIsFetchingExcludingAlteration(false);
     }, 1000),
     []
   );
 
-  function handleAlterationChange(newValue: string, alterationIndex: number, excludingIndex?: number, isDebounced = true) {
+  async function handleAlterationChange(newValue: string, alterationIndex: number, excludingIndex?: number, isDebounced = true) {
     if (notNullOrUndefined(excludingIndex)) {
+      setIsFetchingExcludingAlteration(true);
+
       if (isDebounced) {
         handleExcludingFieldChange(newValue, 'alteration', alterationIndex, excludingIndex);
         fetchExcludedAlterationDebounced(newValue, alterationIndex, excludingIndex, tabStates);
       } else {
-        fetchExcludedAlteration(newValue, alterationIndex, excludingIndex, tabStates);
+        await fetchExcludedAlteration(newValue, alterationIndex, excludingIndex, tabStates);
+        setIsFetchingExcludingAlteration(false);
       }
     } else {
+      setIsFetchingAlteration(true);
+
       if (isDebounced) {
         handleNormalAlterationChange(newValue, alterationIndex);
       } else {
-        fetchNormalAlteration(newValue, alterationIndex, tabStates);
+        await fetchNormalAlteration(newValue, alterationIndex, tabStates);
+        setIsFetchingAlteration(false);
       }
     }
   }
@@ -653,6 +663,7 @@ function AddMutationModal({
               ? alterationData.alterationFieldValueWhileFetching
               : getFullAlterationName(alterationData, notNullOrUndefined(excludingIndex) ? false : true)
           }
+          isLoading={_.isNil(excludingIndex) ? isFetchingAlteration : isFetchingExcludingAlteration}
           placeholder="Input alteration"
           onChange={newValue => handleAlterationChange(newValue, alterationIndex, excludingIndex)}
         />
@@ -998,7 +1009,11 @@ function AddMutationModal({
       errorMessages={modalErrorMessage && errorMessagesEnabled ? [modalErrorMessage] : null}
       warningMessages={modalWarningMessage ? [modalWarningMessage] : null}
       confirmButtonDisabled={
-        tabStates.length === 0 || mutationAlreadyExists.exists || tabStates.some(tab => tab.error || tab.excluding.some(ex => ex.error))
+        tabStates.length === 0 ||
+        mutationAlreadyExists.exists ||
+        isFetchingAlteration ||
+        isFetchingExcludingAlteration ||
+        tabStates.some(tab => tab.error || tab.excluding.some(ex => ex.error))
       }
     />
   );
@@ -1009,13 +1024,17 @@ interface IAddMutationModalFieldProps {
   value: string;
   placeholder: string;
   onChange: (newValue: string) => void;
+  isLoading?: boolean;
 }
 
-function AddMutationModalField({ label, value: value, placeholder, onChange }: IAddMutationModalFieldProps) {
+function AddMutationModalField({ label, value: value, placeholder, onChange, isLoading }: IAddMutationModalFieldProps) {
   return (
     <Row className="align-items-center mb-3">
-      <Col className="px-0 col-3 mr-3">
-        <span>{label}</span>
+      <Col className="px-0 col-3 mr-3 align-items-center">
+        <div className="d-flex align-items-center">
+          <span className="mr-2">{label}</span>
+          {isLoading && <Spinner color="primary" size="sm" />}
+        </div>
       </Col>
       <Col className="px-0">
         <Input
