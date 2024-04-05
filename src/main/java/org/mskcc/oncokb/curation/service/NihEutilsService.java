@@ -34,13 +34,14 @@ public class NihEutilsService {
     private static final String DEFAULT_BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/";
     private static final Logger logger = LoggerFactory.getLogger(NihEutilsService.class);
     private static final String EFETCH = "efetch.fcgi";
+    private static final String DEFAULT_UNLABELLED_ABSTRACT_TEXT = "UNLABELLED";
     private final String baseUrl;
-    private final String nhiEutilsToken;
+    private final String nihEutilsToken;
     private final SynonymService synonymService;
 
     public NihEutilsService(ApplicationProperties applicationProperties, SynonymService synonymService) {
         this.baseUrl = DEFAULT_BASE_URL;
-        this.nhiEutilsToken = applicationProperties.getNihEutilsToken();
+        this.nihEutilsToken = applicationProperties.getNihEutilsToken();
         this.synonymService = synonymService;
     }
 
@@ -181,7 +182,7 @@ public class NihEutilsService {
                             for (int i = 0; i < abstractTexts.size(); i++) {
                                 AbstractTextDTO text = abstractTextMapper(abstractTexts.get(i));
                                 abstractTextDTOs.add(text);
-                                if (StringUtils.isNotEmpty(text.getLabel()) && !"UNLABELLED".equals(text.getLabel())) {
+                                if (StringUtils.isNotEmpty(text.getLabel()) && !DEFAULT_UNLABELLED_ABSTRACT_TEXT.equals(text.getLabel())) {
                                     sb.append(StringUtils.capitalize(text.getLabel().toLowerCase()));
                                     sb.append(": ");
                                 }
@@ -289,7 +290,7 @@ public class NihEutilsService {
                             for (int i = 0; i < abstractTexts.size(); i++) {
                                 AbstractTextDTO text = abstractTextMapper(abstractTexts.get(i));
                                 abstractTextDTOs.add(text);
-                                if (StringUtils.isNotEmpty(text.getLabel()) && !"UNLABELLED".equals(text.getLabel())) {
+                                if (StringUtils.isNotEmpty(text.getLabel()) && !DEFAULT_UNLABELLED_ABSTRACT_TEXT.equals(text.getLabel())) {
                                     sb.append(StringUtils.capitalize(text.getLabel().toLowerCase()));
                                     sb.append(": ");
                                 }
@@ -326,8 +327,8 @@ public class NihEutilsService {
         fetchParams.put("retmode", "xml");
 
         // We can NIH EUtils API call without the token, but it comes with limitation on the IP.
-        if (StringUtils.isNotEmpty(nhiEutilsToken)) {
-            fetchParams.put("api_key", nhiEutilsToken);
+        if (StringUtils.isNotEmpty(nihEutilsToken)) {
+            fetchParams.put("api_key", nihEutilsToken);
         }
 
         PubmedArticleSet pubmedArticleSet = fetch(fetchParams);

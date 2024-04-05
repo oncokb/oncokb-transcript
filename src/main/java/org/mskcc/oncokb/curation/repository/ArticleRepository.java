@@ -32,5 +32,5 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, JpaSpec
 
     Optional<Article> findByLink(@Param("link") String link);
 
-    Optional<Article> findByUid(@Param("uid") String uid);
+    Optional<Article> findByTypeAndUid(@Param("type") String type, @Param("uid") String uid);
 }
