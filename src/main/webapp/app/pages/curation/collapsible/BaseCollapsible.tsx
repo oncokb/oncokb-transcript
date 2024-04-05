@@ -7,10 +7,12 @@ import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons
 import { getHexColorWithAlpha } from 'app/shared/util/utils';
 import { IBadgeGroupProps } from '../BadgeGroup';
 import { IDefaultBadgeProps } from 'app/shared/badge/DefaultBadge';
+import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
+import { Spinner } from 'reactstrap';
 
 export type CollapsibleColorProps =
   | { hideLeftBorder: true; backgroundColor?: string }
-  | { hideLeftBorder?: false; borderLeftColor: string; backgroundColor?: string };
+  | { hideLeftBorder?: false; borderLeftColor: string; backgroundColor?: string; forceLeftColor?: boolean };
 
 export type CollapsibleDisplayProps = {
   disableCollapsible?: boolean;
@@ -31,6 +33,7 @@ export interface BaseCollapsibleProps {
   onToggle?: () => void;
   colorOptions?: CollapsibleColorProps;
   displayOptions?: CollapsibleDisplayProps;
+  showLoadingSpinner?: boolean;
 }
 
 export default function BaseCollapsible({
@@ -46,6 +49,7 @@ export default function BaseCollapsible({
   onToggle,
   colorOptions,
   displayOptions,
+  showLoadingSpinner = false,
 }: BaseCollapsibleProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen || false);
 
@@ -124,6 +128,14 @@ export default function BaseCollapsible({
           <div className="d-flex align-items-center">
             {infoComponent}
             {actionComponent}
+            {showLoadingSpinner && (
+              <span className="pl-2">
+                <Spinner
+                  style={{ color: colorOptions.hideLeftBorder === true ? colorOptions.backgroundColor : colorOptions.borderLeftColor }}
+                  size="sm"
+                />
+              </span>
+            )}
           </div>
         </div>
       </div>

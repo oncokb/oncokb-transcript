@@ -7,11 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mskcc.oncokb.curation.config.RedirectConfiguration;
 import org.mskcc.oncokb.curation.web.rest.ClientForwardController;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,7 +28,8 @@ class ClientForwardControllerTest {
     @BeforeEach
     public void setup() {
         ClientForwardController clientForwardController = new ClientForwardController();
-        this.restMockMvc = MockMvcBuilders.standaloneSetup(clientForwardController, new TestController()).build();
+        this.restMockMvc =
+            MockMvcBuilders.standaloneSetup(clientForwardController, new TestClientController(), new TestController()).build();
     }
 
     @Test
@@ -54,6 +58,15 @@ class ClientForwardControllerTest {
         @RequestMapping(value = "/test")
         public String test() {
             return "test";
+        }
+    }
+
+    @Controller
+    public static class TestClientController {
+
+        @GetMapping(value = "/**/{path:[^\\.]*}")
+        public String forward() {
+            return "forward:/";
         }
     }
 }

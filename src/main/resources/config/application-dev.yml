@@ -115,8 +115,11 @@ jhipster:
 # ===================================================================
 
 application:
+  oncokb-core:
+    url: http://localhost:8000/oncokb
   oncokb:
     api-key:
+    url:
   redis:
     enabled: false
     type: single

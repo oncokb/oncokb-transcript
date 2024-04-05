@@ -71,6 +71,7 @@ module.exports = async options =>
           target: `http${options.tls ? 's' : ''}://localhost:9090`,
           secure: false,
           changeOrigin: options.tls,
+          ws: true,
         },
       ],
       https: options.tls,
@@ -93,6 +94,7 @@ module.exports = async options =>
             proxyOptions: {
               changeOrigin: false, //pass the Host header to the backend unchanged  https://github.com/Browsersync/browser-sync/issues/430
             },
+            ws: true,
           },
           socket: {
             clients: {

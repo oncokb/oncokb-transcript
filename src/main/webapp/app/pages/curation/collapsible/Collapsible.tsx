@@ -4,6 +4,15 @@ import { DANGER } from 'app/config/colors';
 import { DISABLED_COLLAPSIBLE_COLOR } from 'app/config/constants/constants';
 
 export interface CollapsibleProps extends BaseCollapsibleProps {
+  title: React.ReactNode;
+  disableLeftBorder?: boolean;
+  backgroundColor?: string;
+  info?: React.ReactNode;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+  open?: boolean;
+  disableOpen?: boolean; // this prop is only used for the mutation collapsible, since it doesn't actually open when clicked
   isPendingDelete?: boolean;
 }
 
@@ -25,38 +34,9 @@ export default function Collapsible({
     hideInfo: displayOptions?.hideInfo || false,
   };
 
-  const displayOptionsOverride = useMemo(() => {
-    if (isPendingDelete) {
-      defaultDisplayOptions.disableCollapsible = true;
-      defaultDisplayOptions.hideAction = displayOptions?.hideAction || false;
-      defaultDisplayOptions.hideInfo = displayOptions?.hideInfo || false;
-    }
-    return defaultDisplayOptions;
-  }, [isPendingDelete]);
-
-  const colorOptionsOverride = useMemo(() => {
-    if (displayOptionsOverride.disableCollapsible) {
-      if (defaultColorOptions.hideLeftBorder === false) {
-        defaultColorOptions.borderLeftColor = DISABLED_COLLAPSIBLE_COLOR;
-      }
-    }
-    if (isPendingDelete) {
-      if (defaultColorOptions.hideLeftBorder === false) {
-        defaultColorOptions.borderLeftColor = DANGER;
-      }
-    }
-    return defaultColorOptions;
-  }, [isPendingDelete, displayOptionsOverride]);
-
-  const disableOpenOverride = useMemo(() => {
-    if (isPendingDelete) {
-      return true;
-    }
-    if (displayOptionsOverride.disableCollapsible) {
-      return true;
-    }
-    return disableOpen;
-  }, [isPendingDelete]);
+  const displayOptionsOverride = createDisplayOptions(isPendingDelete, defaultDisplayOptions, displayOptions);
+  const colorOptionsOverride = createColorOptions(colorOptions, displayOptionsOverride, defaultColorOptions, isPendingDelete);
+  const disableOpenOverride = shouldDisableOverride(isPendingDelete, displayOptionsOverride, disableOpen);
 
   return (
     <BaseCollapsible
@@ -66,4 +46,47 @@ export default function Collapsible({
       disableOpen={disableOpenOverride}
     />
   );
+}
+
+function shouldDisableOverride(isPendingDelete: boolean, displayOptionsOverride: CollapsibleDisplayProps, disableOpen: boolean) {
+  if (isPendingDelete) {
+    return true;
+  }
+  if (displayOptionsOverride.disableCollapsible) {
+    return true;
+  }
+  return disableOpen;
+}
+
+function createColorOptions(
+  colorOptions: CollapsibleColorProps,
+  displayOptionsOverride: CollapsibleDisplayProps,
+  defaultColorOptions: CollapsibleColorProps,
+  isPendingDelete: boolean
+) {
+  const forceLeftColor = colorOptions.hideLeftBorder !== true && colorOptions.forceLeftColor;
+  if (displayOptionsOverride.disableCollapsible && !forceLeftColor) {
+    if (defaultColorOptions.hideLeftBorder === false) {
+      defaultColorOptions.borderLeftColor = DISABLED_COLLAPSIBLE_COLOR;
+    }
+  }
+  if (isPendingDelete) {
+    if (defaultColorOptions.hideLeftBorder === false) {
+      defaultColorOptions.borderLeftColor = DANGER;
+    }
+  }
+  return defaultColorOptions;
+}
+
+function createDisplayOptions(
+  isPendingDelete: boolean,
+  defaultDisplayOptions: CollapsibleDisplayProps,
+  displayOptions: CollapsibleDisplayProps
+) {
+  if (isPendingDelete) {
+    defaultDisplayOptions.disableCollapsible = true;
+    defaultDisplayOptions.hideAction = displayOptions?.hideAction || false;
+    defaultDisplayOptions.hideInfo = displayOptions?.hideInfo || false;
+  }
+  return defaultDisplayOptions;
 }
