@@ -16,7 +16,7 @@ public class ProxyCurationValidationApiHandler implements WebSocketHandler {
     private String validationEndpoint;
 
     public ProxyCurationValidationApiHandler(ApplicationProperties applicationProperties) {
-        String url = applicationProperties.getOncokb().getUrl();
+        String url = applicationProperties.getOncokbCore().getUrl();
         url = url.replace("https://", "wss://");
         url = url.replace("http://", "ws://");
         this.validationEndpoint = url + "/api/websocket/curation/validation";

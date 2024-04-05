@@ -1,6 +1,7 @@
 package org.mskcc.oncokb.curation.config.application;
 
 import org.mskcc.oncokb.curation.config.model.OncoKbConfig;
+import org.mskcc.oncokb.curation.config.model.OncoKbCoreConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -19,6 +20,16 @@ public class ApplicationProperties extends org.mskcc.oncokb.meta.model.applicati
     private FirebaseProperties firebase;
 
     private String oncokbDataRepoDir;
+
+    private OncoKbCoreConfig oncokbCore;
+
+    public OncoKbCoreConfig getOncokbCore() {
+        return oncokbCore;
+    }
+
+    public void setOncokbCore(OncoKbCoreConfig oncokbCore) {
+        this.oncokbCore = oncokbCore;
+    }
 
     public OncoKbConfig getOncokb() {
         return oncokb;

@@ -7,6 +7,8 @@ import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons
 import { getHexColorWithAlpha } from 'app/shared/util/utils';
 import { IBadgeGroupProps } from '../BadgeGroup';
 import { IDefaultBadgeProps } from 'app/shared/badge/DefaultBadge';
+import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
+import { Spinner } from 'reactstrap';
 
 export type CollapsibleColorProps =
   | { hideLeftBorder: true; backgroundColor?: string }
@@ -127,17 +129,12 @@ export default function BaseCollapsible({
             {infoComponent}
             {actionComponent}
             {showLoadingSpinner && (
-              <div
-                className="spinner-border ml-5"
-                style={{
-                  color: colorOptions.hideLeftBorder === true ? colorOptions.backgroundColor : colorOptions.borderLeftColor,
-                  width: '1rem',
-                  height: '1rem',
-                }}
-                role="status"
-              >
-                <span className="sr-only">Loading...</span>
-              </div>
+              <span className="pl-2">
+                <Spinner
+                  style={{ color: colorOptions.hideLeftBorder === true ? colorOptions.backgroundColor : colorOptions.borderLeftColor }}
+                  size="sm"
+                />
+              </span>
             )}
           </div>
         </div>

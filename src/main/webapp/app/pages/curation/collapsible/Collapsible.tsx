@@ -34,39 +34,9 @@ export default function Collapsible({
     hideInfo: displayOptions?.hideInfo || false,
   };
 
-  const displayOptionsOverride = useMemo(() => {
-    if (isPendingDelete) {
-      defaultDisplayOptions.disableCollapsible = true;
-      defaultDisplayOptions.hideAction = displayOptions?.hideAction || false;
-      defaultDisplayOptions.hideInfo = displayOptions?.hideInfo || false;
-    }
-    return defaultDisplayOptions;
-  }, [isPendingDelete, displayOptions]);
-
-  const colorOptionsOverride = useMemo(() => {
-    const forceLeftColor = colorOptions.hideLeftBorder !== true && colorOptions.forceLeftColor;
-    if (displayOptionsOverride.disableCollapsible && !forceLeftColor) {
-      if (defaultColorOptions.hideLeftBorder === false) {
-        defaultColorOptions.borderLeftColor = DISABLED_COLLAPSIBLE_COLOR;
-      }
-    }
-    if (isPendingDelete) {
-      if (defaultColorOptions.hideLeftBorder === false) {
-        defaultColorOptions.borderLeftColor = DANGER;
-      }
-    }
-    return defaultColorOptions;
-  }, [isPendingDelete, displayOptionsOverride, colorOptions]);
-
-  const disableOpenOverride = useMemo(() => {
-    if (isPendingDelete) {
-      return true;
-    }
-    if (displayOptionsOverride.disableCollapsible) {
-      return true;
-    }
-    return disableOpen;
-  }, [isPendingDelete, displayOptionsOverride]);
+  const displayOptionsOverride = createDisplayOptions(isPendingDelete, defaultDisplayOptions, displayOptions);
+  const colorOptionsOverride = createColorOptions(colorOptions, displayOptionsOverride, defaultColorOptions, isPendingDelete);
+  const disableOpenOverride = shouldDisableOverride(isPendingDelete, displayOptionsOverride, disableOpen);
 
   return (
     <BaseCollapsible
@@ -76,4 +46,47 @@ export default function Collapsible({
       disableOpen={disableOpenOverride}
     />
   );
+}
+
+function shouldDisableOverride(isPendingDelete: boolean, displayOptionsOverride: CollapsibleDisplayProps, disableOpen: boolean) {
+  if (isPendingDelete) {
+    return true;
+  }
+  if (displayOptionsOverride.disableCollapsible) {
+    return true;
+  }
+  return disableOpen;
+}
+
+function createColorOptions(
+  colorOptions: CollapsibleColorProps,
+  displayOptionsOverride: CollapsibleDisplayProps,
+  defaultColorOptions: CollapsibleColorProps,
+  isPendingDelete: boolean
+) {
+  const forceLeftColor = colorOptions.hideLeftBorder !== true && colorOptions.forceLeftColor;
+  if (displayOptionsOverride.disableCollapsible && !forceLeftColor) {
+    if (defaultColorOptions.hideLeftBorder === false) {
+      defaultColorOptions.borderLeftColor = DISABLED_COLLAPSIBLE_COLOR;
+    }
+  }
+  if (isPendingDelete) {
+    if (defaultColorOptions.hideLeftBorder === false) {
+      defaultColorOptions.borderLeftColor = DANGER;
+    }
+  }
+  return defaultColorOptions;
+}
+
+function createDisplayOptions(
+  isPendingDelete: boolean,
+  defaultDisplayOptions: CollapsibleDisplayProps,
+  displayOptions: CollapsibleDisplayProps
+) {
+  if (isPendingDelete) {
+    defaultDisplayOptions.disableCollapsible = true;
+    defaultDisplayOptions.hideAction = displayOptions?.hideAction || false;
+    defaultDisplayOptions.hideInfo = displayOptions?.hideInfo || false;
+  }
+  return defaultDisplayOptions;
 }

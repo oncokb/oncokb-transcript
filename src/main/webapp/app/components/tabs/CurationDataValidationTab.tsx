@@ -5,7 +5,7 @@ import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/N
 import Collapsible from 'app/pages/curation/collapsible/Collapsible';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import React, { DependencyList, useCallback, useEffect } from 'react';
-import { Col, Form, FormGroup, Input, Row, Label, Button } from 'reactstrap';
+import { Col, Form, FormGroup, Input, Row, Label, Button, Spinner } from 'reactstrap';
 import Tabs from './tabs';
 
 type ValidationResultFilter = {
@@ -162,7 +162,9 @@ function ValidationResults({ filter, validationType, messages }: ValidationResul
     }
   }
   const validationResults = Object.values(grouped).filter(x => {
-    if (x.type !== validationType) return false;
+    if (x.type !== validationType) {
+      return false;
+    }
     const noFilterFlags = !filter.success && !filter.error;
     const successCheck = noFilterFlags || (filter.success && x.status === 'IS_COMPLETE');
     const errorCheck = noFilterFlags || (filter.error && x.status === 'IS_ERROR');
@@ -274,15 +276,7 @@ function CurationDataValidationTab() {
               onClick={() => setValidationCounter(x => x + 1)}
             >
               {validationCounter > 0 && (
-                <span style={{ padding: '0rem 0.75rem 0rem 0rem' }}>
-                  {isValidating ? (
-                    <div className="spinner-border" role="status" style={{ width: '1rem', height: '1rem' }}>
-                      <span className="sr-only">Loading...</span>
-                    </div>
-                  ) : (
-                    <FontAwesomeIcon icon={faRedo} />
-                  )}
-                </span>
+                <span className="pr-2">{isValidating ? <Spinner size="sm" /> : <FontAwesomeIcon icon={faRedo} />}</span>
               )}
               <span>{isValidating ? 'Validating' : 'Validate'}</span>
             </Button>
