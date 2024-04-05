@@ -16,7 +16,7 @@ export const AutoParseRefField: React.FunctionComponent<IAutoParseRefField> = pr
       {content.map(c => {
         let ref = (
           <span className="ml-2" key={c.content}>
-            <a target="_blank" rel="noopener noreferrer" href={c.link} style={{ whiteSpace: 'nowrap' }}>
+            <a target="_blank" rel="noopener noreferrer" href={c.link} style={{ whiteSpace: 'nowrap', textDecoration: 'underline' }}>
               {`${c.prefix}${c.content}`}
             </a>
           </span>

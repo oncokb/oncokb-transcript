@@ -16,7 +16,6 @@ const getPubMedArticle = () => {
       const result = await articleClient.getPubMedArticle(pmid);
       setPubMedArticle(result.data);
     } catch (responseError) {
-      setLoading(false);
       setError(responseError);
     } finally {
       setLoading(false);
