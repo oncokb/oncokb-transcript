@@ -14,33 +14,34 @@
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
+            <column name="uuid" type="varchar(255)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_genomic_indicator__uuid" />
+            </column>
             <column name="type" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
             <column name="name" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
-        </createTable>
-        <addUniqueConstraint
-            tableName="genomic_indicator"
-            columnNames="type, name"
-            constraintName="ux_type__name"
-        />
-    </changeSet>
-
-    <changeSet id="20240130000000-1" author="Hongxin Zhang">
-        <addColumn tableName="genomic_indicator">
-            <column name="uuid" type="varchar(255)">
-                <constraints nullable="false" unique="true" uniqueConstraintName="ux_genomic_indicator__uuid" />
-            </column>
             <column name="description" type="${clobType}">
                 <constraints nullable="true" />
             </column>
-        </addColumn>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
     </changeSet>
 
     <changeSet id="20231101214346-1-relations" author="jhipster">
+
+        <createTable tableName="rel_genomic_indicator__allele_state">
+            <column name="allele_state_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="genomic_indicator_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="genomic_indicator_id, allele_state_id" tableName="rel_genomic_indicator__allele_state"/>
 
         <createTable tableName="rel_genomic_indicator__association">
             <column name="association_id" type="bigint">
@@ -52,19 +53,6 @@
         </createTable>
 
         <addPrimaryKey columnNames="genomic_indicator_id, association_id" tableName="rel_genomic_indicator__association"/>
-    </changeSet>
-
-    <changeSet id="20240130000000-1-relations" author="Hongxin Zhang">
-        <createTable tableName="rel_genomic_indicator__allele_state">
-            <column name="allele_state_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="genomic_indicator_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-
-        <addPrimaryKey columnNames="genomic_indicator_id, allele_state_id" tableName="rel_genomic_indicator__allele_state"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

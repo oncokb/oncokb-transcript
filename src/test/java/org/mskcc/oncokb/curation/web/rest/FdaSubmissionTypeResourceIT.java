@@ -36,14 +36,20 @@ import org.springframework.util.Base64Utils;
 @WithMockUser
 class FdaSubmissionTypeResourceIT {
 
-    private static final FdaSubmissionTypeKey DEFAULT_TYPE = FdaSubmissionTypeKey.PMA;
-    private static final FdaSubmissionTypeKey UPDATED_TYPE = FdaSubmissionTypeKey.DE_NOVO;
+    private static final FdaSubmissionTypeKey DEFAULT_TYPE = FdaSubmissionTypeKey.DEVICE_PMA;
+    private static final FdaSubmissionTypeKey UPDATED_TYPE = FdaSubmissionTypeKey.DEVICE_DENOVO;
 
     private static final String DEFAULT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_NAME = "BBBBBBBBBB";
 
     private static final String DEFAULT_SHORT_NAME = "AAAAAAAAAA";
     private static final String UPDATED_SHORT_NAME = "BBBBBBBBBB";
+
+    private static final String DEFAULT_SUBMISSION_PREFIX = "AAAAAAAAAA";
+    private static final String UPDATED_SUBMISSION_PREFIX = "BBBBBBBBBB";
+
+    private static final String DEFAULT_SUBMISSION_LINK = "AAAAAAAAAA";
+    private static final String UPDATED_SUBMISSION_LINK = "BBBBBBBBBB";
 
     private static final String DEFAULT_DESCRIPTION = "AAAAAAAAAA";
     private static final String UPDATED_DESCRIPTION = "BBBBBBBBBB";
@@ -76,6 +82,8 @@ class FdaSubmissionTypeResourceIT {
             .type(DEFAULT_TYPE)
             .name(DEFAULT_NAME)
             .shortName(DEFAULT_SHORT_NAME)
+            .submissionPrefix(DEFAULT_SUBMISSION_PREFIX)
+            .submissionLink(DEFAULT_SUBMISSION_LINK)
             .description(DEFAULT_DESCRIPTION);
         return fdaSubmissionType;
     }
@@ -91,6 +99,8 @@ class FdaSubmissionTypeResourceIT {
             .type(UPDATED_TYPE)
             .name(UPDATED_NAME)
             .shortName(UPDATED_SHORT_NAME)
+            .submissionPrefix(UPDATED_SUBMISSION_PREFIX)
+            .submissionLink(UPDATED_SUBMISSION_LINK)
             .description(UPDATED_DESCRIPTION);
         return fdaSubmissionType;
     }
@@ -121,6 +131,8 @@ class FdaSubmissionTypeResourceIT {
         assertThat(testFdaSubmissionType.getType()).isEqualTo(DEFAULT_TYPE);
         assertThat(testFdaSubmissionType.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testFdaSubmissionType.getShortName()).isEqualTo(DEFAULT_SHORT_NAME);
+        assertThat(testFdaSubmissionType.getSubmissionPrefix()).isEqualTo(DEFAULT_SUBMISSION_PREFIX);
+        assertThat(testFdaSubmissionType.getSubmissionLink()).isEqualTo(DEFAULT_SUBMISSION_LINK);
         assertThat(testFdaSubmissionType.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
     }
 
@@ -206,6 +218,8 @@ class FdaSubmissionTypeResourceIT {
             .andExpect(jsonPath("$.[*].type").value(hasItem(DEFAULT_TYPE.toString())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].shortName").value(hasItem(DEFAULT_SHORT_NAME)))
+            .andExpect(jsonPath("$.[*].submissionPrefix").value(hasItem(DEFAULT_SUBMISSION_PREFIX)))
+            .andExpect(jsonPath("$.[*].submissionLink").value(hasItem(DEFAULT_SUBMISSION_LINK)))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())));
     }
 
@@ -224,6 +238,8 @@ class FdaSubmissionTypeResourceIT {
             .andExpect(jsonPath("$.type").value(DEFAULT_TYPE.toString()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.shortName").value(DEFAULT_SHORT_NAME))
+            .andExpect(jsonPath("$.submissionPrefix").value(DEFAULT_SUBMISSION_PREFIX))
+            .andExpect(jsonPath("$.submissionLink").value(DEFAULT_SUBMISSION_LINK))
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()));
     }
 
@@ -246,7 +262,13 @@ class FdaSubmissionTypeResourceIT {
         FdaSubmissionType updatedFdaSubmissionType = fdaSubmissionTypeRepository.findById(fdaSubmissionType.getId()).get();
         // Disconnect from session so that the updates on updatedFdaSubmissionType are not directly saved in db
         em.detach(updatedFdaSubmissionType);
-        updatedFdaSubmissionType.type(UPDATED_TYPE).name(UPDATED_NAME).shortName(UPDATED_SHORT_NAME).description(UPDATED_DESCRIPTION);
+        updatedFdaSubmissionType
+            .type(UPDATED_TYPE)
+            .name(UPDATED_NAME)
+            .shortName(UPDATED_SHORT_NAME)
+            .submissionPrefix(UPDATED_SUBMISSION_PREFIX)
+            .submissionLink(UPDATED_SUBMISSION_LINK)
+            .description(UPDATED_DESCRIPTION);
 
         restFdaSubmissionTypeMockMvc
             .perform(
@@ -264,6 +286,8 @@ class FdaSubmissionTypeResourceIT {
         assertThat(testFdaSubmissionType.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testFdaSubmissionType.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testFdaSubmissionType.getShortName()).isEqualTo(UPDATED_SHORT_NAME);
+        assertThat(testFdaSubmissionType.getSubmissionPrefix()).isEqualTo(UPDATED_SUBMISSION_PREFIX);
+        assertThat(testFdaSubmissionType.getSubmissionLink()).isEqualTo(UPDATED_SUBMISSION_LINK);
         assertThat(testFdaSubmissionType.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
     }
 
@@ -342,7 +366,11 @@ class FdaSubmissionTypeResourceIT {
         FdaSubmissionType partialUpdatedFdaSubmissionType = new FdaSubmissionType();
         partialUpdatedFdaSubmissionType.setId(fdaSubmissionType.getId());
 
-        partialUpdatedFdaSubmissionType.type(UPDATED_TYPE).name(UPDATED_NAME);
+        partialUpdatedFdaSubmissionType
+            .type(UPDATED_TYPE)
+            .name(UPDATED_NAME)
+            .submissionLink(UPDATED_SUBMISSION_LINK)
+            .description(UPDATED_DESCRIPTION);
 
         restFdaSubmissionTypeMockMvc
             .perform(
@@ -360,7 +388,9 @@ class FdaSubmissionTypeResourceIT {
         assertThat(testFdaSubmissionType.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testFdaSubmissionType.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testFdaSubmissionType.getShortName()).isEqualTo(DEFAULT_SHORT_NAME);
-        assertThat(testFdaSubmissionType.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testFdaSubmissionType.getSubmissionPrefix()).isEqualTo(DEFAULT_SUBMISSION_PREFIX);
+        assertThat(testFdaSubmissionType.getSubmissionLink()).isEqualTo(UPDATED_SUBMISSION_LINK);
+        assertThat(testFdaSubmissionType.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
     }
 
     @Test
@@ -379,6 +409,8 @@ class FdaSubmissionTypeResourceIT {
             .type(UPDATED_TYPE)
             .name(UPDATED_NAME)
             .shortName(UPDATED_SHORT_NAME)
+            .submissionPrefix(UPDATED_SUBMISSION_PREFIX)
+            .submissionLink(UPDATED_SUBMISSION_LINK)
             .description(UPDATED_DESCRIPTION);
 
         restFdaSubmissionTypeMockMvc
@@ -397,6 +429,8 @@ class FdaSubmissionTypeResourceIT {
         assertThat(testFdaSubmissionType.getType()).isEqualTo(UPDATED_TYPE);
         assertThat(testFdaSubmissionType.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testFdaSubmissionType.getShortName()).isEqualTo(UPDATED_SHORT_NAME);
+        assertThat(testFdaSubmissionType.getSubmissionPrefix()).isEqualTo(UPDATED_SUBMISSION_PREFIX);
+        assertThat(testFdaSubmissionType.getSubmissionLink()).isEqualTo(UPDATED_SUBMISSION_LINK);
         assertThat(testFdaSubmissionType.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
     }
 

@@ -20,5 +20,7 @@ public final class Constants {
     public static final String NY_ZONE_ID = "US/Eastern";
     public static final String UTC_ZONE_ID = "UTC";
 
+    public static final String DEFAULT_GENE_SYNONMN_SOURCE = "cBioPortal";
+
     private Constants() {}
 }

@@ -20,8 +20,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
+import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.domain.Association;
 import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
+import org.mskcc.oncokb.curation.domain.FdaDrug;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.mskcc.oncokb.curation.domain.FdaSubmissionType;
 import org.mskcc.oncokb.curation.repository.FdaSubmissionRepository;
@@ -915,6 +917,32 @@ class FdaSubmissionResourceIT {
 
     @Test
     @Transactional
+    void getAllFdaSubmissionsByArticleIsEqualToSomething() throws Exception {
+        // Initialize the database
+        fdaSubmissionRepository.saveAndFlush(fdaSubmission);
+        Article article;
+        if (TestUtil.findAll(em, Article.class).isEmpty()) {
+            article = ArticleResourceIT.createEntity(em);
+            em.persist(article);
+            em.flush();
+        } else {
+            article = TestUtil.findAll(em, Article.class).get(0);
+        }
+        em.persist(article);
+        em.flush();
+        fdaSubmission.addArticle(article);
+        fdaSubmissionRepository.saveAndFlush(fdaSubmission);
+        Long articleId = article.getId();
+
+        // Get all the fdaSubmissionList where article equals to articleId
+        defaultFdaSubmissionShouldBeFound("articleId.equals=" + articleId);
+
+        // Get all the fdaSubmissionList where article equals to (articleId + 1)
+        defaultFdaSubmissionShouldNotBeFound("articleId.equals=" + (articleId + 1));
+    }
+
+    @Test
+    @Transactional
     void getAllFdaSubmissionsByAssociationIsEqualToSomething() throws Exception {
         // Initialize the database
         fdaSubmissionRepository.saveAndFlush(fdaSubmission);
@@ -963,6 +991,32 @@ class FdaSubmissionResourceIT {
 
         // Get all the fdaSubmissionList where companionDiagnosticDevice equals to (companionDiagnosticDeviceId + 1)
         defaultFdaSubmissionShouldNotBeFound("companionDiagnosticDeviceId.equals=" + (companionDiagnosticDeviceId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllFdaSubmissionsByFdaDrugIsEqualToSomething() throws Exception {
+        // Initialize the database
+        fdaSubmissionRepository.saveAndFlush(fdaSubmission);
+        FdaDrug fdaDrug;
+        if (TestUtil.findAll(em, FdaDrug.class).isEmpty()) {
+            fdaDrug = FdaDrugResourceIT.createEntity(em);
+            em.persist(fdaDrug);
+            em.flush();
+        } else {
+            fdaDrug = TestUtil.findAll(em, FdaDrug.class).get(0);
+        }
+        em.persist(fdaDrug);
+        em.flush();
+        fdaSubmission.setFdaDrug(fdaDrug);
+        fdaSubmissionRepository.saveAndFlush(fdaSubmission);
+        Long fdaDrugId = fdaDrug.getId();
+
+        // Get all the fdaSubmissionList where fdaDrug equals to fdaDrugId
+        defaultFdaSubmissionShouldBeFound("fdaDrugId.equals=" + fdaDrugId);
+
+        // Get all the fdaSubmissionList where fdaDrug equals to (fdaDrugId + 1)
+        defaultFdaSubmissionShouldNotBeFound("fdaDrugId.equals=" + (fdaDrugId + 1));
     }
 
     @Test

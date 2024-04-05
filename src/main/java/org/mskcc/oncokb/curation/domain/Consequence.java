@@ -39,7 +39,7 @@ public class Consequence implements Serializable {
 
     @DiffIgnore
     @OneToMany(mappedBy = "consequence")
-    @JsonIgnoreProperties(value = { "genes", "transcripts", "consequence", "associations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "flags", "genes", "transcripts", "consequence", "associations" }, allowSetters = true)
     private Set<Alteration> alterations = new HashSet<>();
 
     @OneToMany(mappedBy = "consequence")

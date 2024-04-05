@@ -52,22 +52,16 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
           id: alteration.value,
         };
       }),
-      associationCancerTypes: [
-        {
-          relation: 'INCLUSION',
-          cancerType: { id: cancerTypeValue.value as number } as CancerType,
-        },
-      ],
-      treatments: [
-        {
-          drugs: drugValue.map(drug => {
-            return {
-              id: drug.value,
-            };
-          }),
-        },
-      ],
+      drugs: drugValue.map(drug => {
+        return {
+          id: drug.value,
+        };
+      }),
     };
+
+    if (cancerTypeValue) {
+      association.cancerTypes = [{ id: cancerTypeValue.value as number } as CancerType];
+    }
     associationClient
       .createAssociation(association)
       .then(() => {

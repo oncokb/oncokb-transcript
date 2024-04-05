@@ -4,7 +4,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.Association;
 import org.mskcc.oncokb.curation.repository.AssociationRepository;

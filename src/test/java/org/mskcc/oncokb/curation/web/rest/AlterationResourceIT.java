@@ -21,6 +21,7 @@ import org.mskcc.oncokb.curation.IntegrationTest;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.domain.Association;
 import org.mskcc.oncokb.curation.domain.Consequence;
+import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.domain.Transcript;
 import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
@@ -1004,6 +1005,32 @@ class AlterationResourceIT {
 
         // Get all the alterationList where variantResidues does not contain UPDATED_VARIANT_RESIDUES
         defaultAlterationShouldBeFound("variantResidues.doesNotContain=" + UPDATED_VARIANT_RESIDUES);
+    }
+
+    @Test
+    @Transactional
+    void getAllAlterationsByFlagIsEqualToSomething() throws Exception {
+        // Initialize the database
+        alterationRepository.saveAndFlush(alteration);
+        Flag flag;
+        if (TestUtil.findAll(em, Flag.class).isEmpty()) {
+            flag = FlagResourceIT.createEntity(em);
+            em.persist(flag);
+            em.flush();
+        } else {
+            flag = TestUtil.findAll(em, Flag.class).get(0);
+        }
+        em.persist(flag);
+        em.flush();
+        alteration.addFlag(flag);
+        alterationRepository.saveAndFlush(alteration);
+        Long flagId = flag.getId();
+
+        // Get all the alterationList where flag equals to flagId
+        defaultAlterationShouldBeFound("flagId.equals=" + flagId);
+
+        // Get all the alterationList where flag equals to (flagId + 1)
+        defaultAlterationShouldNotBeFound("flagId.equals=" + (flagId + 1));
     }
 
     @Test

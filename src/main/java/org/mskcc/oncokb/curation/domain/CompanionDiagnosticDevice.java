@@ -42,7 +42,7 @@ public class CompanionDiagnosticDevice implements Serializable {
 
     @ShallowReference
     @OneToMany(mappedBy = "companionDiagnosticDevice")
-    @JsonIgnoreProperties(value = { "companionDiagnosticDevice" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "companionDiagnosticDevice", "fdaDrug", "type" }, allowSetters = true)
     private Set<FdaSubmission> fdaSubmissions = new HashSet<>();
 
     @ShallowReference

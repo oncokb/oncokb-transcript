@@ -118,6 +118,18 @@ public class AlterationService {
         return alterationRepository.findOneWithEagerRelationships(id);
     }
 
+    /**
+     * Get alterations by their id.
+     *
+     * @param ids the list of id.
+     * @return list of entity.
+     */
+    @Transactional(readOnly = true)
+    public List<Alteration> findAllWithEagerRelationshipsByIds(List<Long> ids) {
+        log.debug("Request to get Alteration : {}", ids);
+        return alterationRepository.findAllWithEagerRelationships(ids);
+    }
+
     @Transactional(readOnly = true)
     public List<Alteration> findByGeneId(Long geneId) {
         return alterationRepository.findByGenesId(geneId);

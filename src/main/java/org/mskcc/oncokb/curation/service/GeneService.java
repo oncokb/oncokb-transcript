@@ -1,5 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import static org.mskcc.oncokb.curation.config.Constants.DEFAULT_GENE_SYNONMN_SOURCE;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -175,7 +177,7 @@ public class GeneService {
 
     @Transactional(readOnly = true)
     public Optional<Gene> findGeneBySynonym(String synonym) {
-        Optional<Synonym> synonymOptional = synonymRepository.findByTypeAndName("GENE", synonym);
+        Optional<Synonym> synonymOptional = synonymRepository.findByTypeAndSourceAndName("GENE", DEFAULT_GENE_SYNONMN_SOURCE, synonym);
         if (synonymOptional.isPresent()) {
             return Optional.of(synonymOptional.get().getGenes().iterator().next());
         } else {

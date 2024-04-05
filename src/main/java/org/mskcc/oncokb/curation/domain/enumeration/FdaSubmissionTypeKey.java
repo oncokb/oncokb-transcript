@@ -4,10 +4,12 @@ package org.mskcc.oncokb.curation.domain.enumeration;
  * The FdaSubmissionTypeKey enumeration.
  */
 public enum FdaSubmissionTypeKey {
-    PMA("P"),
-    DE_NOVO("DEN"),
-    HDE("H"),
-    PMN("K");
+    DEVICE_PMA("P"),
+    DEVICE_DENOVO("DEN"),
+    DEVICE_HDE("H"),
+    DEVICE_PMN("K"),
+    DRUG_NDA("NDA"),
+    DRUG_BLA("BLA");
 
     String prefix;
 

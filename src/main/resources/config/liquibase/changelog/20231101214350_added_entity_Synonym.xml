@@ -29,7 +29,7 @@
                 <constraints nullable="true" />
             </column>
             <column name="name" type="varchar(255)">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             <column name="note" type="${clobType}">
                 <constraints nullable="true" />
@@ -37,8 +37,8 @@
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
         <addUniqueConstraint
-            columnNames="type, name"
-            constraintName="ux_type__name_synonym"
+            columnNames="type, source, name"
+            constraintName="ux_type__source__name_synonym"
             tableName="synonym"
         />
     </changeSet>

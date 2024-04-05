@@ -17,21 +17,23 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AlterationRepository extends JpaRepository<Alteration, Long>, JpaSpecificationExecutor<Alteration> {
     @Query(
-        value = "select distinct alteration from Alteration alteration" + " left join fetch alteration.genes",
+        value = "select distinct alteration from Alteration alteration left join fetch alteration.flags left join fetch alteration.genes",
         countQuery = "select count(distinct alteration) from Alteration alteration"
     )
     Page<Alteration> findAllWithEagerRelationships(Pageable pageable);
 
-    @Query("select distinct alteration from Alteration alteration" + " left join fetch alteration.genes")
+    @Query("select distinct alteration from Alteration alteration left join fetch alteration.flags left join fetch alteration.genes")
     List<Alteration> findAllWithEagerRelationships();
 
-    @Query("select alteration from Alteration alteration" + " left join fetch alteration.genes" + " where alteration.id =:id")
+    @Query(
+        "select alteration from Alteration alteration left join fetch alteration.flags left join fetch alteration.genes where alteration.id =:id"
+    )
     Optional<Alteration> findOneWithEagerRelationships(@Param("id") Long id);
 
     @Query(
         "select distinct alteration from Alteration alteration" +
+        " left join fetch alteration.flags" +
         " left join fetch alteration.genes" +
-        " left join fetch alteration.consequence" +
         " where alteration.id in (:ids)"
     )
     List<Alteration> findAllWithEagerRelationships(@Param("ids") List<Long> ids);
@@ -41,7 +43,6 @@ public interface AlterationRepository extends JpaRepository<Alteration, Long>, J
     @Query(
         "select distinct alteration from Alteration alteration" +
         " left join fetch alteration.genes g" +
-        " left join fetch alteration.consequence" +
         " where g.id in (:id) and" +
         " (alteration.name =:query or alteration.alteration=:query )"
     )

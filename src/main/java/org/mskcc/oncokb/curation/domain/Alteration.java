@@ -56,11 +56,21 @@ public class Alteration implements Serializable {
     @ShallowReference
     @ManyToMany
     @JoinTable(
+        name = "rel_alteration__flag",
+        joinColumns = @JoinColumn(name = "alteration_id"),
+        inverseJoinColumns = @JoinColumn(name = "flag_id")
+    )
+    @JsonIgnoreProperties(value = { "alterations", "articles", "drugs", "genes", "transcripts" }, allowSetters = true)
+    private Set<Flag> flags = new HashSet<>();
+
+    @ShallowReference
+    @ManyToMany
+    @JoinTable(
         name = "rel_alteration__gene",
         joinColumns = @JoinColumn(name = "alteration_id"),
         inverseJoinColumns = @JoinColumn(name = "gene_id")
     )
-    @JsonIgnoreProperties(value = { "ensemblGenes", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "ensemblGenes", "evidences", "transcripts", "flags", "synonyms", "alterations" }, allowSetters = true)
     private Set<Gene> genes = new HashSet<>();
 
     @DiffIgnore
@@ -75,7 +85,7 @@ public class Alteration implements Serializable {
 
     @ShallowReference
     @ManyToOne
-    @JsonIgnoreProperties(value = { "alterations" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "alterations", "categoricalAlterations" }, allowSetters = true)
     @JoinColumn(name = "consequence", referencedColumnName = "term")
     private Consequence consequence;
 
@@ -83,10 +93,11 @@ public class Alteration implements Serializable {
     @ManyToMany(mappedBy = "alterations")
     @JsonIgnoreProperties(
         value = {
-            "associationCancerTypes",
+            "rules",
             "alterations",
             "articles",
-            "treatments",
+            "cancerTypes",
+            "drugs",
             "evidence",
             "clinicalTrials",
             "clinicalTrialArms",
@@ -215,6 +226,31 @@ public class Alteration implements Serializable {
 
     public void setVariantResidues(String variantResidues) {
         this.variantResidues = variantResidues;
+    }
+
+    public Set<Flag> getFlags() {
+        return this.flags;
+    }
+
+    public void setFlags(Set<Flag> flags) {
+        this.flags = flags;
+    }
+
+    public Alteration flags(Set<Flag> flags) {
+        this.setFlags(flags);
+        return this;
+    }
+
+    public Alteration addFlag(Flag flag) {
+        this.flags.add(flag);
+        flag.getAlterations().add(this);
+        return this;
+    }
+
+    public Alteration removeFlag(Flag flag) {
+        this.flags.remove(flag);
+        flag.getAlterations().remove(this);
+        return this;
     }
 
     public Set<Gene> getGenes() {

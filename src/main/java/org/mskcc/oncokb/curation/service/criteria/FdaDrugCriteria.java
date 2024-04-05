@@ -28,6 +28,12 @@ public class FdaDrugCriteria implements Serializable, Criteria {
 
     private StringFilter applicationNumber;
 
+    private StringFilter sponsorName;
+
+    private StringFilter overallMarketingStatus;
+
+    private LongFilter fdaSubmissionId;
+
     private LongFilter drugId;
 
     private Boolean distinct;
@@ -37,6 +43,9 @@ public class FdaDrugCriteria implements Serializable, Criteria {
     public FdaDrugCriteria(FdaDrugCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
         this.applicationNumber = other.applicationNumber == null ? null : other.applicationNumber.copy();
+        this.sponsorName = other.sponsorName == null ? null : other.sponsorName.copy();
+        this.overallMarketingStatus = other.overallMarketingStatus == null ? null : other.overallMarketingStatus.copy();
+        this.fdaSubmissionId = other.fdaSubmissionId == null ? null : other.fdaSubmissionId.copy();
         this.drugId = other.drugId == null ? null : other.drugId.copy();
         this.distinct = other.distinct;
     }
@@ -76,6 +85,51 @@ public class FdaDrugCriteria implements Serializable, Criteria {
         this.applicationNumber = applicationNumber;
     }
 
+    public StringFilter getSponsorName() {
+        return sponsorName;
+    }
+
+    public StringFilter sponsorName() {
+        if (sponsorName == null) {
+            sponsorName = new StringFilter();
+        }
+        return sponsorName;
+    }
+
+    public void setSponsorName(StringFilter sponsorName) {
+        this.sponsorName = sponsorName;
+    }
+
+    public StringFilter getOverallMarketingStatus() {
+        return overallMarketingStatus;
+    }
+
+    public StringFilter overallMarketingStatus() {
+        if (overallMarketingStatus == null) {
+            overallMarketingStatus = new StringFilter();
+        }
+        return overallMarketingStatus;
+    }
+
+    public void setOverallMarketingStatus(StringFilter overallMarketingStatus) {
+        this.overallMarketingStatus = overallMarketingStatus;
+    }
+
+    public LongFilter getFdaSubmissionId() {
+        return fdaSubmissionId;
+    }
+
+    public LongFilter fdaSubmissionId() {
+        if (fdaSubmissionId == null) {
+            fdaSubmissionId = new LongFilter();
+        }
+        return fdaSubmissionId;
+    }
+
+    public void setFdaSubmissionId(LongFilter fdaSubmissionId) {
+        this.fdaSubmissionId = fdaSubmissionId;
+    }
+
     public LongFilter getDrugId() {
         return drugId;
     }
@@ -111,6 +165,9 @@ public class FdaDrugCriteria implements Serializable, Criteria {
         return (
             Objects.equals(id, that.id) &&
             Objects.equals(applicationNumber, that.applicationNumber) &&
+            Objects.equals(sponsorName, that.sponsorName) &&
+            Objects.equals(overallMarketingStatus, that.overallMarketingStatus) &&
+            Objects.equals(fdaSubmissionId, that.fdaSubmissionId) &&
             Objects.equals(drugId, that.drugId) &&
             Objects.equals(distinct, that.distinct)
         );
@@ -118,7 +175,7 @@ public class FdaDrugCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, applicationNumber, drugId, distinct);
+        return Objects.hash(id, applicationNumber, sponsorName, overallMarketingStatus, fdaSubmissionId, drugId, distinct);
     }
 
     // prettier-ignore
@@ -127,6 +184,9 @@ public class FdaDrugCriteria implements Serializable, Criteria {
         return "FdaDrugCriteria{" +
             (id != null ? "id=" + id + ", " : "") +
             (applicationNumber != null ? "applicationNumber=" + applicationNumber + ", " : "") +
+            (sponsorName != null ? "sponsorName=" + sponsorName + ", " : "") +
+            (overallMarketingStatus != null ? "overallMarketingStatus=" + overallMarketingStatus + ", " : "") +
+            (fdaSubmissionId != null ? "fdaSubmissionId=" + fdaSubmissionId + ", " : "") +
             (drugId != null ? "drugId=" + drugId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";

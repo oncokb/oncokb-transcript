@@ -56,7 +56,7 @@ export const FdaSubmissionTypeUpdate = (props: IFdaSubmissionTypeUpdateProps) =>
     isNew
       ? {}
       : {
-          type: 'PMA',
+          type: 'DEVICE_PMA',
           ...fdaSubmissionTypeEntity,
         };
 
@@ -79,10 +79,12 @@ export const FdaSubmissionTypeUpdate = (props: IFdaSubmissionTypeUpdateProps) =>
                 <ValidatedField name="id" required readOnly id="fda-submission-type-id" label="ID" validate={{ required: true }} />
               ) : null}
               <ValidatedField label="Type" id="fda-submission-type-type" name="type" data-cy="type" type="select">
-                <option value="PMA">PMA</option>
-                <option value="DE_NOVO">DE_NOVO</option>
-                <option value="HDE">HDE</option>
-                <option value="PMN">PMN</option>
+                <option value="DEVICE_PMA">DEVICE_PMA</option>
+                <option value="DEVICE_DENOVO">DEVICE_DENOVO</option>
+                <option value="DEVICE_HDE">DEVICE_HDE</option>
+                <option value="DEVICE_PMN">DEVICE_PMN</option>
+                <option value="DRUG_NDA">DRUG_NDA</option>
+                <option value="DRUG_BLA">DRUG_BLA</option>
               </ValidatedField>
               <ValidatedField
                 label="Name"
@@ -95,6 +97,20 @@ export const FdaSubmissionTypeUpdate = (props: IFdaSubmissionTypeUpdateProps) =>
                 }}
               />
               <ValidatedField label="Short Name" id="fda-submission-type-shortName" name="shortName" data-cy="shortName" type="text" />
+              <ValidatedField
+                label="Submission Prefix"
+                id="fda-submission-type-submissionPrefix"
+                name="submissionPrefix"
+                data-cy="submissionPrefix"
+                type="text"
+              />
+              <ValidatedField
+                label="Submission Link"
+                id="fda-submission-type-submissionLink"
+                name="submissionLink"
+                data-cy="submissionLink"
+                type="text"
+              />
               <ValidatedField
                 label="Description"
                 id="fda-submission-type-description"
