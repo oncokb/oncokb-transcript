@@ -133,8 +133,10 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
     }
     const reviewLevel = props.baseReviewLevel as ReviewLevel;
     if (reviewLevel.currentValPath.includes('excludedRCTs')) {
-      const newExclusions = _.difference(reviewLevel.currentVal.split('\t'), reviewLevel?.lastReviewedString?.split('\t'));
-      const revertedExclusions = _.difference(reviewLevel?.lastReviewedString?.split('\t'), reviewLevel.currentVal.split('\t'));
+      const lastReviewedCancerTypes = reviewLevel?.lastReviewedString === '' ? [] : reviewLevel?.lastReviewedString?.split('\t');
+      const currentCancerTypes = reviewLevel.currentVal === '' ? [] : reviewLevel.currentVal.split('\t');
+      const newExclusions = _.difference(currentCancerTypes, lastReviewedCancerTypes);
+      const revertedExclusions = _.difference(lastReviewedCancerTypes, currentCancerTypes);
       return (
         <>
           {newExclusions.length > 0 && (

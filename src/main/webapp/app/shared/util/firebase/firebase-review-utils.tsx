@@ -675,16 +675,14 @@ const findDiagnosticLevelReviews = (
     }
   }
 
-  if (diagnostic.excludedRCTs) {
-    getRelevantCancerTypesReview(
-      `${diagnosticPath}/excludedRCTs`,
-      diagnostic,
-      uuids,
-      editorReviewMap,
-      parentReview,
-      new MetaReviewLevel(diagnosticTitle, diagnosticPath)
-    );
-  }
+  getRelevantCancerTypesReview(
+    `${diagnosticPath}/excludedRCTs`,
+    diagnostic,
+    uuids,
+    editorReviewMap,
+    parentReview,
+    new MetaReviewLevel(diagnosticTitle, diagnosticPath)
+  );
 };
 
 const findPrognosticLevelReviews = (
@@ -721,16 +719,14 @@ const findPrognosticLevelReviews = (
     }
   }
 
-  if (prognostic.excludedRCTs) {
-    getRelevantCancerTypesReview(
-      `${prognosticPath}/excludedRCTs`,
-      prognostic,
-      uuids,
-      editorReviewMap,
-      parentReview,
-      new MetaReviewLevel(prognosticTitle, prognosticPath)
-    );
-  }
+  getRelevantCancerTypesReview(
+    `${prognosticPath}/excludedRCTs`,
+    prognostic,
+    uuids,
+    editorReviewMap,
+    parentReview,
+    new MetaReviewLevel(prognosticTitle, prognosticPath)
+  );
 };
 
 const findTumorLevelReviews = (
@@ -904,16 +900,14 @@ const findTreatmentLevelReviews = (
         }
       }
 
-      if (treatment.excludedRCTs) {
-        getRelevantCancerTypesReview(
-          `${treatmentPath}/excludedRCTs`,
-          treatment,
-          uuids,
-          editorReviewMap,
-          parentReview,
-          new MetaReviewLevel(treatmentTitle, treatmentPath)
-        );
-      }
+      getRelevantCancerTypesReview(
+        `${treatmentPath}/excludedRCTs`,
+        treatment,
+        uuids,
+        editorReviewMap,
+        parentReview,
+        new MetaReviewLevel(treatmentTitle, treatmentPath)
+      );
     }
   }
   removeLeafNodes(parentReview);
@@ -927,13 +921,12 @@ const getRelevantCancerTypesReview = (
   parentReview: BaseReviewLevel,
   currentLevelMetaReview: MetaReviewLevel
 ) => {
-  if (!uuids.includes(relevantCancerTypesInfo.excludedRCTs_uuid)) {
-    return;
-  }
+  if (!relevantCancerTypesInfo.excludedRCTs && !relevantCancerTypesInfo.excludedRCTs_review) return;
+  if (!uuids.includes(relevantCancerTypesInfo.excludedRCTs_uuid)) return;
 
   let defaultReview: ReviewLevel;
 
-  const currentRCTString = getCancerTypesName(relevantCancerTypesInfo.excludedRCTs, true, '\t');
+  const currentRCTString = relevantCancerTypesInfo.excludedRCTs ? getCancerTypesName(relevantCancerTypesInfo.excludedRCTs, true, '\t') : '';
   const oldRCTString =
     relevantCancerTypesInfo?.excludedRCTs_review?.initialUpdate || !relevantCancerTypesInfo?.excludedRCTs_review?.lastReviewed
       ? ''
