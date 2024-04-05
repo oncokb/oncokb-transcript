@@ -58,6 +58,10 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
         };
       }),
     };
+
+    if (cancerTypeValue) {
+      association.cancerTypes = [{ id: cancerTypeValue.value as number } as CancerType];
+    }
     associationClient
       .createAssociation(association)
       .then(() => {

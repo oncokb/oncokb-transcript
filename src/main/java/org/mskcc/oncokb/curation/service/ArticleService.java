@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.service;
 
 import java.util.Optional;
 import org.mskcc.oncokb.curation.domain.Article;
+import org.mskcc.oncokb.curation.domain.enumeration.ArticleType;
 import org.mskcc.oncokb.curation.repository.ArticleRepository;
 import org.mskcc.oncokb.curation.service.dto.pubmed.PubMedDTO;
 import org.mskcc.oncokb.curation.service.mapper.PubMedMapper;
@@ -108,13 +109,13 @@ public class ArticleService {
     @Transactional(readOnly = true)
     public Optional<Article> findByPmid(String pmid) {
         log.debug("Request to get Article by PMID : {}", pmid);
-        return articleRepository.findByUid(pmid);
+        return findByTypeAndUid(ArticleType.PUBMED, pmid);
     }
 
     @Transactional(readOnly = true)
-    public Optional<Article> findByUid(String uid) {
-        log.debug("Request to get Article : {}", uid);
-        return articleRepository.findByUid(uid);
+    public Optional<Article> findByTypeAndUid(ArticleType articleType, String uid) {
+        log.debug("Request to get Article : {} {}", articleType, uid);
+        return articleRepository.findByTypeAndUid(articleType.name(), uid);
     }
 
     /**

@@ -63,13 +63,13 @@ export const getGeneNamesStringFromAlterations = (alterations: IAlteration[]) =>
 };
 
 export const getTreatmentName = (drugs: IDrug[], rule?: IRule): string => {
-  const drugMap = drugs.reduce((map, next) => {
-    map[next.id.toString()] = next;
-    return map;
-  }, {});
   if (rule == null) {
     return drugs.map(drug => drug.name).join(', ');
   } else {
+    const drugMap = drugs.reduce((map, next) => {
+      map[next.id.toString()] = next;
+      return map;
+    }, {});
     return rule.rule
       .split(',')
       .map(treatment => {
