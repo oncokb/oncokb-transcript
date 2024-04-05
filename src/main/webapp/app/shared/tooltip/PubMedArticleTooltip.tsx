@@ -55,15 +55,15 @@ const PubMedArticleTooltipContent: React.FunctionComponent<IPubMedArticleTooltip
               </p>
             )}
             <p>
-              <h6>Abstract</h6>
+              <b>Abstract</b>
             </p>
-            <p>{pubMedDto ? getPubMedContent(pubMedDto) : <i>No abstract available.</i>}</p>
+            <div>{pubMedDto ? getPubMedContent(pubMedDto) : <i>No abstract available.</i>}</div>
             {pubMedDto.additionalInfo?.dataBanks?.length > 0 && (
               <>
                 <p>
-                  <h6>Associated Data</h6>
+                  <b>Associated Data</b>
                 </p>
-                <p>
+                <div>
                   <ul>
                     {pubMedDto.additionalInfo.dataBanks.map(dataBank => (
                       <li key={dataBank.name}>
@@ -71,7 +71,7 @@ const PubMedArticleTooltipContent: React.FunctionComponent<IPubMedArticleTooltip
                       </li>
                     ))}
                   </ul>
-                </p>
+                </div>
               </>
             )}
           </div>
