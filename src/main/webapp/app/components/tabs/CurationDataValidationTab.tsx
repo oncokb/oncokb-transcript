@@ -28,6 +28,9 @@ function ValidationSearchForm({ onChange, className, disabled }: ValidationSearc
     onChange(validationResultFilter);
   }, [validationResultFilter]);
 
+  const successId = 'data-validation-cb-success';
+  const errorId = 'data-validation-cb-error';
+
   return (
     <Form className={className}>
       <Row>
@@ -36,7 +39,7 @@ function ValidationSearchForm({ onChange, className, disabled }: ValidationSearc
             <Input
               type="checkbox"
               name="validationResult"
-              id="success"
+              id={successId}
               value="Success"
               checked={validationResultFilter.success}
               disabled={disabled}
@@ -44,7 +47,7 @@ function ValidationSearchForm({ onChange, className, disabled }: ValidationSearc
                 setValidationResultFilter(x => ({ ...x, success: event.target.checked }));
               }}
             />
-            <Label check for="success">
+            <Label check for={successId}>
               Success
             </Label>
           </FormGroup>
@@ -52,7 +55,7 @@ function ValidationSearchForm({ onChange, className, disabled }: ValidationSearc
             <Input
               type="checkbox"
               name="validationResult"
-              id="error"
+              id={errorId}
               value="Error"
               checked={validationResultFilter.error}
               disabled={disabled}
@@ -60,7 +63,7 @@ function ValidationSearchForm({ onChange, className, disabled }: ValidationSearc
                 setValidationResultFilter(x => ({ ...x, error: event.target.checked }));
               }}
             />
-            <Label check for="error">
+            <Label check for={errorId}>
               Error
             </Label>
           </FormGroup>
