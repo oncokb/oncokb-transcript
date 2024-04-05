@@ -10,24 +10,25 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 // https://docs.spring.io/spring-framework/docs/4.3.x/spring-framework-reference/html/websocket.html
 // https://www.javainuse.com/spring/boot-websocket
 
-public class ProxyCurationValidationApiHandler implements WebSocketHandler {
+public class ProxyWebSocketHandler implements WebSocketHandler {
 
     private OncoCoreWebSocketHandler oncoHandler;
-    private String validationEndpoint;
+    private String baseUrl;
 
-    public ProxyCurationValidationApiHandler(ApplicationProperties applicationProperties) {
+    public ProxyWebSocketHandler(ApplicationProperties applicationProperties) {
         String url = applicationProperties.getOncokbCore().getUrl();
         url = url.replace("https://", "wss://");
         url = url.replace("http://", "ws://");
-        this.validationEndpoint = url + "/api/websocket/curation/validation";
+        this.baseUrl = url;
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         try {
+            String incomingUri = session.getUri().toString();
             StandardWebSocketClient client = new StandardWebSocketClient();
             OncoCoreWebSocketHandler handler = new OncoCoreWebSocketHandler(session);
-            client.doHandshake(handler, this.validationEndpoint);
+            client.doHandshake(handler, this.baseUrl + incomingUri);
             this.oncoHandler = handler;
         } catch (Exception e) {
             e.printStackTrace();

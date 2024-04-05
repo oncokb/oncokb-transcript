@@ -13,7 +13,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 public class OncoCoreWebSocketHandler extends TextWebSocketHandler {
 
-    private final Logger log = LoggerFactory.getLogger(ProxyCurationValidationApiHandler.class);
+    private final Logger log = LoggerFactory.getLogger(ProxyWebSocketHandler.class);
     private final WebSocketSession uiSession;
     private WebSocketSession coreSession;
 

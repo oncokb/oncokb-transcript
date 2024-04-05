@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.config;
 
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
-import org.mskcc.oncokb.curation.web.websocket.ProxyCurationValidationApiHandler;
+import org.mskcc.oncokb.curation.web.websocket.ProxyWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -27,11 +27,11 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
         this.applicationProperties = applicationProperties;
     }
 
-    //@Override
+    // @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         CorsConfiguration config = jHipsterProperties.getCors();
         registry
-            .addHandler(new ProxyCurationValidationApiHandler(this.applicationProperties), "/api/websocket/curation/validation")
+            .addHandler(new ProxyWebSocketHandler(this.applicationProperties), "/api/websocket/**")
             .setAllowedOrigins(config.getAllowedOrigins().toArray(new String[0]));
     }
 }
