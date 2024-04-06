@@ -57,7 +57,7 @@ public interface AlterationRepository extends JpaRepository<Alteration, Long>, J
         " left join fetch alteration.genes g" +
         " left join fetch alteration.flags" +
         " where g.id in :genes and " +
-        " alteration.consequence = :consequence and ((alteration.start <= :end and alteration.end >= :start) or (alteration.end >= :start and alteration.start <= :end)) "
+        " alteration.consequence = :consequence and (alteration.start <= :end and alteration.end >= :start)"
     )
     List<Alteration> findByGeneAndConsequenceThatOverlap(
         @Param("genes") List<Long> genes,

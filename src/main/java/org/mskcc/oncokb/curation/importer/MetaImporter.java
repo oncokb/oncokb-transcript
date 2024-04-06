@@ -172,9 +172,6 @@ public class MetaImporter {
         log.info("Importing core dataset...");
         coreImporter.generalImport();
 
-        log.info("Verifying the OncoKB gene hugo is the same with cBioPortal gene list");
-        coreImporter.verifyGene();
-
         log.info("Importing hotspots...");
         importHotspot();
     }
@@ -352,7 +349,7 @@ public class MetaImporter {
             Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(Integer.parseInt(line.get(0)));
             if (geneOptional.isEmpty()) {
                 log.error("Can't find gene {}", line.get(0));
-                return;
+                continue;
             }
             ensemblGene.setGene(geneOptional.get());
             ensemblGene.setReferenceGenome(ReferenceGenome.valueOf(line.get(2)));
@@ -381,7 +378,7 @@ public class MetaImporter {
             );
             if (ensemblGeneOptional.isEmpty()) {
                 log.error("Cannot find ensembl gene {} {}", line.get(3), ReferenceGenome.valueOf(line.get(2)));
-                return;
+                continue;
             }
             Optional<TranscriptDTO> transcriptOptional = transcriptService.findByEnsemblGeneAndEnsemblTranscriptId(
                 ensemblGeneOptional.get(),
@@ -389,7 +386,7 @@ public class MetaImporter {
             );
             if (transcriptOptional.isEmpty()) {
                 log.error("Can't find transcript {}", line.get(4));
-                return;
+                continue;
             }
             genomeFragment.setTranscript(transcriptMapper.toEntity(transcriptOptional.get()));
             genomeFragment.setType(GenomeFragmentType.valueOf(line.get(5)));
@@ -467,7 +464,7 @@ public class MetaImporter {
             Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(Integer.parseInt(line.get(0)));
             if (geneOptional.isEmpty()) {
                 log.error("Can't find gene {}", line.get(0));
-                return;
+                continue;
             }
             transcript.setGene(geneOptional.get());
             Optional<EnsemblGene> ensemblGeneOptional = ensemblGeneService.findByEnsemblGeneIdAndReferenceGenome(
@@ -476,7 +473,7 @@ public class MetaImporter {
             );
             if (ensemblGeneOptional.isEmpty()) {
                 log.error("Error find ensembl gene {} {}", line.get(2), line.get(3));
-                return;
+                continue;
             }
             transcript.setReferenceGenome(ReferenceGenome.valueOf(line.get(2)));
             transcript.setEnsemblGene(ensemblGeneOptional.get());
@@ -508,7 +505,7 @@ public class MetaImporter {
                 );
                 if (transcriptOptional.isEmpty()) {
                     log.error("Error find transcript {} {}", referenceGenome, transcriptId);
-                    return;
+                    continue;
                 }
                 Optional<Flag> flagOptional = flagService.findByTypeAndFlag(FlagType.TRANSCRIPT, flag);
                 transcriptOptional.get().getFlags().add(flagOptional.get());
@@ -534,7 +531,7 @@ public class MetaImporter {
             );
             if (ensemblGeneOptional.isEmpty()) {
                 log.error("Error find ensembl gene {} {}", line.get(2), line.get(3));
-                return;
+                continue;
             }
             Optional<TranscriptDTO> transcriptOptional = transcriptService.findByEnsemblGeneAndEnsemblTranscriptId(
                 ensemblGeneOptional.get(),
@@ -542,7 +539,7 @@ public class MetaImporter {
             );
             if (transcriptOptional.isEmpty()) {
                 log.error("Error find transcript {}", line.get(4));
-                return;
+                continue;
             }
             sequence.setTranscript(transcriptMapper.toEntity(transcriptOptional.get()));
             sequence.setSequenceType(SequenceType.valueOf(line.get(5)));

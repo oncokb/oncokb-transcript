@@ -47,7 +47,15 @@ function MutationsSection({
     onValue(
       ref(firebaseDb, `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`),
       snapshot => {
-        annotatedAltsCache.fetch(hugoSymbol, snapshot.val());
+        annotatedAltsCache.fetch(
+          hugoSymbol,
+          snapshot.val().map((mut: Mutation) => {
+            return {
+              name: mut.name,
+              alterations: mut.alterations,
+            };
+          })
+        );
       },
       { onlyOnce: true }
     );

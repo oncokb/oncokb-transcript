@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.javers.spring.annotation.JaversSpringDataAuditable;
 import org.mskcc.oncokb.curation.domain.Article;
+import org.mskcc.oncokb.curation.domain.enumeration.ArticleType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -32,5 +33,5 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, JpaSpec
 
     Optional<Article> findByLink(@Param("link") String link);
 
-    Optional<Article> findByTypeAndUid(@Param("type") String type, @Param("uid") String uid);
+    Optional<Article> findByTypeAndUid(@Param("type") ArticleType type, @Param("uid") String uid);
 }

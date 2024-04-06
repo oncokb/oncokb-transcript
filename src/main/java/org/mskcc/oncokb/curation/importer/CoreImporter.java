@@ -66,16 +66,15 @@ public class CoreImporter {
     }
 
     public void generalImport() throws IOException {
-        importArticle();
-        //        importAlteration();
-        //        verifyGene();
+        importAlteration();
+        verifyGene();
     }
 
     private String getVersionInFileName() {
         return ONCOKB_CORE_VERSION.replace(".", "_");
     }
 
-    private void importArticle() throws IOException {
+    public void importArticle() throws IOException {
         List<List<String>> articleLines = parseDelimitedFile(
             DATA_DIRECTORY_PATH + "article_" + getVersionInFileName() + ".tsv",
             "\t",

@@ -115,7 +115,7 @@ public class ArticleService {
     @Transactional(readOnly = true)
     public Optional<Article> findByTypeAndUid(ArticleType articleType, String uid) {
         log.debug("Request to get Article : {} {}", articleType, uid);
-        return articleRepository.findByTypeAndUid(articleType.name(), uid);
+        return articleRepository.findByTypeAndUid(articleType, uid);
     }
 
     /**

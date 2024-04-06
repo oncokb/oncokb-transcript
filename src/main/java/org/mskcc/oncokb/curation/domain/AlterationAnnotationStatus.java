@@ -6,6 +6,8 @@ public class AlterationAnnotationStatus extends EntityStatus<Alteration> {
 
     String queryId;
 
+    AnnotationDTO annotation = new AnnotationDTO();
+
     public String getQueryId() {
         return queryId;
     }
@@ -13,8 +15,6 @@ public class AlterationAnnotationStatus extends EntityStatus<Alteration> {
     public void setQueryId(String queryId) {
         this.queryId = queryId;
     }
-
-    AnnotationDTO annotation = new AnnotationDTO();
 
     public AnnotationDTO getAnnotation() {
         return annotation;
