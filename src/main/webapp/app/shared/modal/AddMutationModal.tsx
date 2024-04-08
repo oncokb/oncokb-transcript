@@ -14,7 +14,7 @@ import { Alteration, Mutation, VusObjList } from '../model/firebase/firebase.mod
 import { IGene } from '../model/gene.model';
 import { getDuplicateMutations, getFirebaseGenePath, getFirebaseVusPath } from '../util/firebase/firebase-utils';
 import { componentInject } from '../util/typed-inject';
-import { isEqualIngoreCase, notNullOrUndefined, parseAlterationName } from '../util/utils';
+import { isEqualIngoreCase, parseAlterationName } from '../util/utils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
 import './add-mutation-modal.scss';
 import classNames from 'classnames';
@@ -446,7 +446,7 @@ function AddMutationModal({
   );
 
   async function handleAlterationChange(newValue: string, alterationIndex: number, excludingIndex?: number, isDebounced = true) {
-    if (notNullOrUndefined(excludingIndex)) {
+    if (!_.isNil(excludingIndex)) {
       setIsFetchingExcludingAlteration(true);
 
       if (isDebounced) {
@@ -485,7 +485,7 @@ function AddMutationModal({
   }
 
   function handleFieldChange(newValue: string, field: keyof AlterationData, alterationIndex: number, excludingIndex?: number) {
-    notNullOrUndefined(excludingIndex)
+    !_.isNil(excludingIndex)
       ? handleExcludingFieldChange(newValue, field, alterationIndex, excludingIndex)
       : handleNormalFieldChange(newValue, field, alterationIndex);
   }
@@ -617,7 +617,7 @@ function AddMutationModal({
   }
 
   function getTabContent(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
-    const excludingSection = notNullOrUndefined(excludingIndex) ? <></> : getExcludingSection(alterationData, alterationIndex);
+    const excludingSection = !_.isNil(excludingIndex) ? <></> : getExcludingSection(alterationData, alterationIndex);
 
     let content: JSX.Element;
     switch (alterationData.type) {
@@ -659,9 +659,9 @@ function AddMutationModal({
         <AddMutationModalField
           label="Alteration"
           value={
-            notNullOrUndefined(alterationData.alterationFieldValueWhileFetching)
+            !_.isNil(alterationData.alterationFieldValueWhileFetching)
               ? alterationData.alterationFieldValueWhileFetching
-              : getFullAlterationName(alterationData, notNullOrUndefined(excludingIndex) ? false : true)
+              : getFullAlterationName(alterationData, !_.isNil(excludingIndex) ? false : true)
           }
           isLoading={_.isNil(excludingIndex) ? isFetchingAlteration : isFetchingExcludingAlteration}
           placeholder="Input alteration"
@@ -870,7 +870,7 @@ function AddMutationModal({
                 onClick={() => {
                   setTabStates(states => {
                     const newStates = _.cloneDeep(states);
-                    if (notNullOrUndefined(excludingIndex)) {
+                    if (!_.isNil(excludingIndex)) {
                       newStates[alterationIndex].excluding.splice(excludingIndex, 1);
                     } else {
                       newStates.splice(alterationIndex, 1);

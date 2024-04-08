@@ -1,4 +1,3 @@
-import { notNullOrUndefined } from 'app/shared/util/utils';
 import React, { useRef, useState } from 'react';
 import { Col, Row } from 'reactstrap';
 import { ParsedHistoryRecord } from '../CurationPage';
@@ -15,12 +14,14 @@ import MutationCollapsible from '../collapsible/MutationCollapsible';
 import styles from '../styles.module.scss';
 import MutationsSectionHeader from '../header/MutationsSectionHeader';
 import classNames from 'classnames';
+import _ from 'lodash';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
   hugoSymbol: string;
   isGermline: boolean;
   parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
+  onMutationListRender: () => void;
 }
 
 function MutationsSection({
@@ -31,17 +32,17 @@ function MutationsSection({
   addMutation,
   openMutationCollapsibleIndex,
   setOpenMutationCollapsibleIndex,
+  onMutationListRender,
 }: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
   const [filteredIndices, setFilteredIndices] = useState<number[]>([]);
 
   const mutationSectionRef = useRef<HTMLDivElement>(null);
-  const mutationScrollContainerRef = useRef<HTMLDivElement>(null);
 
   function getMutationCollapsibles() {
     return (
       <>
-        {notNullOrUndefined(openMutationCollapsibleIndex) && (
+        {!_.isNil(openMutationCollapsibleIndex) && (
           <div style={{ transition: 'height 0.5s, opacity 0.5s' }} className={'mb-2'}>
             <div>
               <MutationCollapsible
@@ -59,41 +60,39 @@ function MutationsSection({
         )}
         <div
           style={{
-            visibility: notNullOrUndefined(openMutationCollapsibleIndex) ? 'hidden' : 'visible',
-            maxHeight: notNullOrUndefined(openMutationCollapsibleIndex) ? '0px' : null,
+            visibility: !_.isNil(openMutationCollapsibleIndex) ? 'hidden' : 'inherit',
+            maxHeight: !_.isNil(openMutationCollapsibleIndex) ? '0px' : null,
           }}
         >
-          <div style={{ maxHeight: '1000px', overflowY: 'auto', overflowX: 'hidden' }} ref={mutationScrollContainerRef}>
-            <FirebaseList<Mutation>
-              path={mutationsPath}
-              pushDirection="front"
-              defaultSort={compareMutations}
-              itemBuilder={index => {
-                return (
-                  <div className="mb-2">
-                    <MutationCollapsible
-                      disableOpen
-                      open={false}
-                      mutationPath={`${mutationsPath}/${index}`}
-                      hugoSymbol={hugoSymbol}
-                      isGermline={isGermline}
-                      parsedHistoryList={parsedHistoryList}
-                      onToggle={() => {
-                        setOpenMutationCollapsibleIndex(index);
-                        if (mutationSectionRef.current.getBoundingClientRect().top < 0) {
-                          mutationSectionRef.current.scrollIntoView();
-                        }
-                      }}
-                    />
-                  </div>
-                );
-              }}
-              filter={index => {
-                return filteredIndices.includes(index);
-              }}
-              viewportRef={mutationScrollContainerRef}
-            />
-          </div>
+          <FirebaseList<Mutation>
+            path={mutationsPath}
+            pushDirection="front"
+            defaultSort={compareMutations}
+            itemBuilder={index => {
+              return (
+                <div className="mb-2">
+                  <MutationCollapsible
+                    disableOpen
+                    mutationPath={`${mutationsPath}/${index}`}
+                    hugoSymbol={hugoSymbol}
+                    isGermline={isGermline}
+                    parsedHistoryList={parsedHistoryList}
+                    onToggle={() => {
+                      setOpenMutationCollapsibleIndex(index);
+                      if (mutationSectionRef.current.getBoundingClientRect().top < 0) {
+                        mutationSectionRef.current.scrollIntoView();
+                      }
+                    }}
+                  />
+                </div>
+              );
+            }}
+            filter={index => {
+              return filteredIndices.includes(index);
+            }}
+            onInitialRender={onMutationListRender}
+            scrollOptions={{ viewportHeight: 1000, renderCount: 200 }}
+          />
         </div>
       </>
     );
@@ -103,10 +102,10 @@ function MutationsSection({
     <>
       <div ref={mutationSectionRef}>
         <Row
-          className={classNames(notNullOrUndefined(openMutationCollapsibleIndex) ? 'mb-4' : null)}
+          className={classNames(!_.isNil(openMutationCollapsibleIndex) ? 'mb-4' : null)}
           style={{
-            visibility: notNullOrUndefined(openMutationCollapsibleIndex) ? 'visible' : 'hidden',
-            maxHeight: notNullOrUndefined(openMutationCollapsibleIndex) ? null : '0px',
+            visibility: !_.isNil(openMutationCollapsibleIndex) ? 'visible' : 'hidden',
+            maxHeight: !_.isNil(openMutationCollapsibleIndex) ? null : '0px',
           }}
         >
           <Col>
@@ -123,8 +122,8 @@ function MutationsSection({
         </Row>
         <Row
           style={{
-            visibility: notNullOrUndefined(openMutationCollapsibleIndex) ? 'hidden' : 'visible',
-            maxHeight: notNullOrUndefined(openMutationCollapsibleIndex) ? '0px' : null,
+            visibility: !_.isNil(openMutationCollapsibleIndex) ? 'hidden' : 'inherit',
+            maxHeight: !_.isNil(openMutationCollapsibleIndex) ? '0px' : null,
           }}
         >
           <Col>

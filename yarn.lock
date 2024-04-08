@@ -10647,11 +10647,6 @@
     "loose-envify" "^1.4.0"
     "prop-types" "^15.6.2"
 
-"react-viewport-list@^7.1.2":
-  "integrity" "sha512-CfmkYyoFufSdJ95nTgENAHtWOn1XwxcUZPBSueOPzOvz59A31qHgYpADYuiSUfZ5ypR3MfyWMUgRAOMsNDDl8Q=="
-  "resolved" "https://registry.npmjs.org/react-viewport-list/-/react-viewport-list-7.1.2.tgz"
-  "version" "7.1.2"
-
 "react-with-separator@^1.2.0":
   "integrity" "sha512-tAkZa0QpaK3HA0SjICxcIovwzmWqhW4BsJ4yIA3D7urGrNnHrqQHXBpZ3zxUdJ6bkRhWnLVAydWuoCvIY4MaUg=="
   "resolved" "https://registry.npmjs.org/react-with-separator/-/react-with-separator-1.2.0.tgz"

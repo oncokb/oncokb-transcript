@@ -1,27 +1,64 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
 import { onValue, ref } from 'firebase/database';
-import { ViewportList, ViewportListPropsBase } from 'react-viewport-list';
+import InfiniteScroll from '@larryyangsen/react-infinite-scroller';
+import _ from 'lodash';
 
-export interface IFirebaseListProps<T> extends StoreProps, ViewportListPropsBase {
+export interface IFirebaseListProps<T> extends StoreProps {
   path: string;
   itemBuilder: (firebaseIndex: number) => React.ReactNode;
   pushDirection: 'front' | 'back';
+  scrollOptions?: {
+    viewportHeight: number;
+    renderCount: number;
+  };
   filter?: (firebaseIndex: number) => boolean;
   defaultSort?: (a: T, b: T) => number;
+  onInitialRender?: () => void;
 }
 
-function FirebaseList<T>({ path, itemBuilder, pushDirection, filter, defaultSort, firebaseDb, ...rest }: IFirebaseListProps<T>) {
+function FirebaseList<T>({
+  path,
+  itemBuilder,
+  pushDirection,
+  scrollOptions,
+  filter,
+  defaultSort,
+  onInitialRender,
+  firebaseDb,
+}: IFirebaseListProps<T>) {
   const [indices, setIndices] = useState<number[]>(null);
   const [numItemsAdded, setNumItemsAdded] = useState(0);
+  const [initialRenderComplete, setInitialRenderComplete] = useState(false);
+
+  // Only used when scrollOptions is set
+  const [maxItemsRendered, setMaxItemsRendered] = useState(scrollOptions?.renderCount);
+  const [initialLoad, setInitialLoad] = useState(false);
+
+  useEffect(() => {
+    // https://webperf.tips/tip/measuring-paint-time/
+    if (!onInitialRender || initialRenderComplete || !indices) {
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      const messageChannel = new MessageChannel();
+      messageChannel.port1.onmessage = () => {
+        onInitialRender();
+        setInitialRenderComplete(true);
+      };
+      messageChannel.port2.postMessage(undefined);
+    });
+  }, [indices, initialRenderComplete]);
 
   useEffect(() => {
     const listRef = ref(firebaseDb, path);
     const unsubscribe = onValue(listRef, snapshot => {
-      if (!snapshot.val()) {
+      if (!snapshot.val() && indices?.length !== 0) {
         // this happens for empty array, such as tumors for a new mutation
+        setIndices([]);
         return;
       }
 
@@ -74,16 +111,43 @@ function FirebaseList<T>({ path, itemBuilder, pushDirection, filter, defaultSort
 
   function getList() {
     if (!filter) {
-      return listItems;
+      return listItems.map(item => item.item);
     }
-    return listItems.filter(item => filter(item.index));
+    return listItems.reduce<JSX.Element[]>((accumulator, item) => {
+      if (filter(item.index)) {
+        return [...accumulator, item.item];
+      }
+      return accumulator;
+    }, []);
   }
 
-  return (
-    <ViewportList {...rest} items={getList()}>
-      {item => item.item}
-    </ViewportList>
-  );
+  const list = getList();
+
+  if (scrollOptions) {
+    return (
+      <div
+        ref={viewportRef => {
+          const viewportHeight = viewportRef?.clientHeight;
+          if (!_.isNil(viewportHeight) && initialRenderComplete && viewportHeight < scrollOptions.viewportHeight) {
+            setInitialLoad(true);
+          }
+        }}
+        style={{ maxHeight: scrollOptions.viewportHeight, overflowY: 'auto', overflowX: 'hidden' }}
+      >
+        <InfiniteScroll
+          initialLoad={initialLoad}
+          loadMore={() => {
+            setMaxItemsRendered(num => num + scrollOptions.renderCount);
+          }}
+          hasMore={maxItemsRendered < list.length}
+          useWindow={false}
+        >
+          {list.slice(0, maxItemsRendered)}
+        </InfiniteScroll>
+      </div>
+    );
+  }
+  return <>{list}</>;
 }
 
 const mapStoreToProps = ({ firebaseStore }: IRootStore) => ({
