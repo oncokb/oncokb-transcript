@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { RouteComponentProps, useLocation } from 'react-router-dom';
@@ -52,6 +52,8 @@ export const CurationPage = (props: ICurationPageProps) => {
   const [isReviewing, setIsReviewing] = useState(false);
   const [isReviewFinished, setIsReviewFinished] = useState(false);
 
+  const mutationsSectionRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (props.firebaseInitSuccess) {
       props.searchGeneEntities({ query: hugoSymbol, exact: true });
@@ -78,6 +80,12 @@ export const CurationPage = (props: ICurationPageProps) => {
 
   useEffect(() => {
     props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      props.setOpenMutationCollapsibleIndex(null);
+    };
   }, []);
 
   const geneEntity: IGene | undefined = useMemo(() => {
@@ -227,13 +235,15 @@ export const CurationPage = (props: ICurationPageProps) => {
               </>
             )}
           </div>
-          <MutationsSection
-            mutationsPath={`${firebaseGenePath}/mutations`}
-            hugoSymbol={hugoSymbol}
-            isGermline={isGermline}
-            parsedHistoryList={parsedHistoryList}
-          />
-          <VusTable hugoSymbol={hugoSymbol} isGermline={isGermline} />
+          <div ref={mutationsSectionRef}>
+            <MutationsSection
+              mutationsPath={`${firebaseGenePath}/mutations`}
+              hugoSymbol={hugoSymbol}
+              isGermline={isGermline}
+              parsedHistoryList={parsedHistoryList}
+            />
+          </div>
+          <VusTable hugoSymbol={hugoSymbol} isGermline={isGermline} mutationsSectionRef={mutationsSectionRef} />
           <RelevantCancerTypesModal
             onConfirm={async (newExcludedRCTs, noneDeleted) => {
               try {
@@ -288,6 +298,7 @@ const mapStoreToProps = ({
   relevantCancerTypesModalStore,
   authStore,
   firebaseGeneStore,
+  openMutationCollapsibleStore,
 }: IRootStore) => ({
   firebaseDb: firebaseStore.firebaseDb,
   firebaseInitSuccess: firebaseStore.firebaseInitSuccess,
@@ -302,6 +313,7 @@ const mapStoreToProps = ({
   relevantCancerTypesModalStore,
   fullName: authStore.fullName,
   updateRelevantCancerTypes: firebaseGeneStore.updateRelevantCancerTypes,
+  setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
