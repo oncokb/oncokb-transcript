@@ -6,7 +6,7 @@ import { generateUuid, parseAlterationName } from '../utils';
 import { FirebaseCrudStore } from './firebase-crud-store';
 import { buildHistoryFromReviews, getUuidsFromReview } from './firebase-history-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
-import { ReviewLevel, clearAllNestedReviews, getAllNestedReviewUuids } from './firebase-review-utils';
+import { ReviewLevel, clearAllNestedReviews, clearReview, getAllNestedReviewUuids } from './firebase-review-utils';
 import { getFirebaseGenePath, getFirebaseVusPath } from './firebase-utils';
 import _ from 'lodash';
 import { ReviewAction } from 'app/config/constants/firebase';
@@ -24,14 +24,21 @@ export const getUpdatedReview = (oldReview: Review, currentValue: any, newValue:
   if (!('lastReviewed' in oldReview)) {
     oldReview.lastReviewed = currentValue;
     if (oldReview.lastReviewed === undefined) {
-      delete oldReview.lastReviewed;
+      oldReview = clearReview(oldReview);
     }
-  } else {
-    if (_.isEqual(oldReview.lastReviewed, newValue)) {
-      delete oldReview.lastReviewed;
-      isChangeReverted = true;
+    if (oldReview?.initialUpdate) {
+      if (Array.isArray(newValue) && newValue.length === 0) {
+        isChangeReverted = true;
+      }
     }
+  } else if (_.isEqual(oldReview.lastReviewed, newValue)) {
+    isChangeReverted = true;
   }
+
+  if (isChangeReverted) {
+    oldReview = clearReview(oldReview);
+  }
+
   return { updatedReview: oldReview, isChangeReverted };
 };
 

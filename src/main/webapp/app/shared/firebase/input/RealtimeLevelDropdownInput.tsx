@@ -88,6 +88,9 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
   }, [currentLOE]);
 
   useEffect(() => {
+    if (!LOEUuid) {
+      return;
+    }
     // When highest level changes, the propagated levels should reset to no level
     if (
       highestLevel &&
@@ -95,13 +98,16 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
     ) {
       updateReviewableContent(firebaseLevelPath, currentLOE, TX_LEVELS.LEVEL_NO, LOEReview, LOEUuid);
     }
-  }, [highestLevel]);
+  }, [highestLevel, LOEUuid]);
 
   useEffect(() => {
+    if (!LOEUuid) {
+      return;
+    }
     if (propagatedFdaLevel && propagatedFdaLevel !== currentLOE) {
       updateReviewableContent(firebaseLevelPath, currentLOE, FDA_LEVEL_KEYS_MAPPING[propagatedFdaLevel], LOEReview, LOEUuid);
     }
-  }, [propagatedFdaLevel]);
+  }, [propagatedFdaLevel, LOEUuid]);
 
   const onChangeHandler = (newValue, actionMeta) => {
     let newLevel = newValue?.value;
