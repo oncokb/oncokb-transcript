@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import jodd.util.StringUtil;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.AssociationCancerTypeRelation;
+import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.curation.domain.enumeration.RuleEntity;
 import org.mskcc.oncokb.curation.service.*;
 import org.mskcc.oncokb.curation.service.dto.TreatmentDTO;
@@ -295,7 +296,7 @@ public class CdxImporter {
                     Alteration alteration = new Alteration();
                     alteration.setAlteration(alterationString);
                     alteration.setGenes(Collections.singleton(gene));
-                    mainService.annotateAlteration(alteration);
+                    mainService.annotateAlteration(ReferenceGenome.GRCh37, alteration);
                     alterationList.add(alterationService.save(alteration));
                 }
                 geneAlterationMap.putIfAbsent(gene, alterations);

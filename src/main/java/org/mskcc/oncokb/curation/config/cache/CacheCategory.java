@@ -4,4 +4,5 @@ public enum CacheCategory {
     GENE,
     TRANSCRIPT,
     USER,
+    SEQUENCE,
 }

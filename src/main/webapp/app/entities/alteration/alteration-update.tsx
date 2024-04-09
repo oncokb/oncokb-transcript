@@ -10,6 +10,8 @@ import { flow, flowResult } from 'mobx';
 import _ from 'lodash';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import GeneSelect from 'app/shared/select/GeneSelect';
+import { REFERENCE_GENOME } from 'app/config/constants/constants';
+import { Alteration, Gene } from 'app/shared/api/generated';
 
 export interface IAlterationUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -110,14 +112,20 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
   useEffect(() => {
     if (isNew) {
       const setData = async () => {
-        setProteinChangeAlteration(
-          await flowResult(
-            props.annotateAlteration({
-              geneIds: selectedGenes.map(selectedGene => selectedGene.value),
-              alteration: proteinChange,
-            })
-          )
+        const annotationResult = await flowResult(
+          props.annotateAlterations([
+            {
+              referenceGenome: REFERENCE_GENOME.GRCH37,
+              alteration: {
+                genes: selectedGenes.map(selectedGene => {
+                  return { id: selectedGene.value };
+                }) as Gene[],
+                alteration: proteinChange,
+              } as Alteration,
+            },
+          ])
         );
+        setProteinChangeAlteration(annotationResult[0].entity);
       };
       setData();
     }
@@ -221,7 +229,7 @@ const mapStoreToProps = (storeState: IRootStore) => ({
   getTranscripts: storeState.transcriptStore.getEntities,
   getConsequences: storeState.consequenceStore.getEntities,
   getEntity: storeState.alterationStore.getEntity,
-  annotateAlteration: flow(storeState.alterationStore.annotateAlteration),
+  annotateAlterations: flow(storeState.alterationStore.annotateAlterations),
   updateEntity: storeState.alterationStore.updateEntity,
   createEntity: storeState.alterationStore.createEntity,
   reset: storeState.alterationStore.reset,

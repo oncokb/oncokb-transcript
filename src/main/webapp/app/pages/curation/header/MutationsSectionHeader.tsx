@@ -12,6 +12,7 @@ import { Button, Col, Container, Input, InputGroup, Label, Modal, ModalBody, Mod
 import AddMutationButton from '../button/AddMutationButton';
 
 export interface IMutationsSectionHeaderProps extends StoreProps {
+  hugoSymbol: string;
   mutationsPath: string;
   filteredIndices: number[];
   setFilteredIndices: React.Dispatch<React.SetStateAction<number[]>>;
@@ -19,13 +20,24 @@ export interface IMutationsSectionHeaderProps extends StoreProps {
   setShowAddMutationModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+enum FilterType {
+  ONCOGENICITY,
+  MUTATION_EFFECT,
+  TX_LEVEL,
+  HOTSPOT,
+}
+
+const HOTSPOT_OPTIONS = ['Yes', 'No'];
+
 function MutationsSectionHeader({
+  hugoSymbol,
   mutationsPath,
   filteredIndices,
   setFilteredIndices,
   showAddMutationModal,
   setShowAddMutationModal,
   firebaseDb,
+  annotatedAltsCache,
 }: IMutationsSectionHeaderProps) {
   const [mutationsInitialized, setMutationsInitialized] = useState(false);
   const [mutations, setMutations] = useState<Mutation[]>([]);
@@ -34,14 +46,23 @@ function MutationsSectionHeader({
   const [mutationFilter, setMutationFilter] = useState('');
   const [enabledCheckboxes, setEnabledCheckboxes] = useState<string[]>([]);
 
-  const [oncogenicityFilter, setOncogenicityFilter] = useState(initFilterCheckboxState(ONCOGENICITY_OPTIONS));
-  const [tempOncogenicityFilter, setTempOncogenicityFilter] = useState(initFilterCheckboxState(ONCOGENICITY_OPTIONS));
+  const [oncogenicityFilter, setOncogenicityFilter] = useState(initFilterCheckboxState(FilterType.ONCOGENICITY, ONCOGENICITY_OPTIONS));
+  const [tempOncogenicityFilter, setTempOncogenicityFilter] = useState(
+    initFilterCheckboxState(FilterType.ONCOGENICITY, ONCOGENICITY_OPTIONS)
+  );
 
-  const [mutationEffectFilter, setMutationEffectFilter] = useState(initFilterCheckboxState(MUTATION_EFFECT_OPTIONS));
-  const [tempMutationEffectFilter, setTempMutationEffectFilter] = useState(initFilterCheckboxState(MUTATION_EFFECT_OPTIONS));
+  const [mutationEffectFilter, setMutationEffectFilter] = useState(
+    initFilterCheckboxState(FilterType.MUTATION_EFFECT, MUTATION_EFFECT_OPTIONS)
+  );
+  const [tempMutationEffectFilter, setTempMutationEffectFilter] = useState(
+    initFilterCheckboxState(FilterType.MUTATION_EFFECT, MUTATION_EFFECT_OPTIONS)
+  );
 
-  const [txLevelFilter, setTxLevelFilter] = useState(initFilterCheckboxState(TX_LEVEL_OPTIONS));
-  const [tempTxLevelFilter, setTempTxLevelFilter] = useState(initFilterCheckboxState(TX_LEVEL_OPTIONS));
+  const [txLevelFilter, setTxLevelFilter] = useState(initFilterCheckboxState(FilterType.TX_LEVEL, TX_LEVEL_OPTIONS));
+  const [tempTxLevelFilter, setTempTxLevelFilter] = useState(initFilterCheckboxState(FilterType.TX_LEVEL, TX_LEVEL_OPTIONS));
+
+  const [hotspotFilter, setHotspotFilter] = useState(initFilterCheckboxState(FilterType.HOTSPOT, HOTSPOT_OPTIONS));
+  const [tempHotspotFilter, setTempHotspotFilter] = useState(initFilterCheckboxState(FilterType.HOTSPOT, HOTSPOT_OPTIONS));
 
   const setMutationsDebounced = _.debounce((snapshot: DataSnapshot) => {
     setMutations(snapshot.val());
@@ -76,6 +97,26 @@ function MutationsSectionHeader({
           selectedMutationEffects.length === 0 ||
           selectedMutationEffects.some(mutationEffect => mutationEffect.label === mutation.mutation_effect.effect);
 
+        const selectedHotspot = hotspotFilter.filter(filter => filter.selected).map(option => option.label);
+
+        // when the hotspot filter is selected, we only show hotspot mutations
+        let isHotspotMatch = true;
+        if (selectedHotspot.length > 0) {
+          const uniqueHotspotStatus = annotatedAltsCache
+            .get(hugoSymbol, [
+              {
+                alterations: mutation.alterations,
+                name: mutation.name,
+              },
+            ])
+            .map(result => result.annotation?.hotspot?.hotspot);
+          isHotspotMatch =
+            uniqueHotspotStatus.filter(status => {
+              const mappedOption = status ? 'Yes' : 'No';
+              return selectedHotspot.includes(mappedOption);
+            }).length > 0;
+        }
+
         function matchesTxLevel() {
           const selectedTxLevels = txLevelFilter.filter(txLevel => txLevel.selected);
           if (selectedTxLevels.length === 0) {
@@ -102,7 +143,7 @@ function MutationsSectionHeader({
           return false;
         }
 
-        if (matchesName && matchesOncogenicity && matchesMutationEffect && matchesTxLevel()) {
+        if (matchesName && matchesOncogenicity && matchesMutationEffect && matchesTxLevel() && isHotspotMatch) {
           return [...accumulator, index];
         }
 
@@ -112,36 +153,51 @@ function MutationsSectionHeader({
     if (!_.isEqual(filteredIndices, newFilteredIndices)) {
       setFilteredIndices(newFilteredIndices);
     }
-  }, [mutations, filteredIndices, mutationFilter, oncogenicityFilter, mutationEffectFilter, txLevelFilter]);
+  }, [mutations, filteredIndices, mutationFilter, oncogenicityFilter, mutationEffectFilter, txLevelFilter, hotspotFilter]);
 
   const showFilterModalCancelButton = useMemo(() => {
     return (
       tempOncogenicityFilter.some(filter => filter.selected) ||
       tempMutationEffectFilter.some(filter => filter.selected) ||
-      tempTxLevelFilter.some(filter => filter.selected)
+      tempTxLevelFilter.some(filter => filter.selected) ||
+      tempHotspotFilter.some(filter => filter.selected)
     );
-  }, [tempOncogenicityFilter, tempMutationEffectFilter, tempTxLevelFilter]);
+  }, [tempOncogenicityFilter, tempMutationEffectFilter, tempTxLevelFilter, tempHotspotFilter]);
 
   const mutationsAreFiltered = useMemo(() => {
     return (
       oncogenicityFilter.some(filter => filter.selected) ||
       mutationEffectFilter.some(filter => filter.selected) ||
       txLevelFilter.some(filter => filter.selected) ||
-      mutationFilter
+      mutationFilter ||
+      hotspotFilter.some(filter => filter.selected)
     );
-  }, [oncogenicityFilter, mutationEffectFilter, txLevelFilter, mutationFilter]);
+  }, [oncogenicityFilter, mutationEffectFilter, txLevelFilter, mutationFilter, hotspotFilter]);
 
   useEffect(() => {
     const availableFilters = getFilterModalStats(mutations);
-    setEnabledCheckboxes([...availableFilters.oncogencities, ...availableFilters.mutationEffects, ...availableFilters.txLevels]);
+    setEnabledCheckboxes([
+      ...availableFilters.oncogencities.map(option => getCheckboxUniqKey(FilterType.ONCOGENICITY, option)),
+      ...availableFilters.mutationEffects.map(option => getCheckboxUniqKey(FilterType.MUTATION_EFFECT, option)),
+      ...availableFilters.txLevels.map(option => getCheckboxUniqKey(FilterType.TX_LEVEL, option)),
+      ...HOTSPOT_OPTIONS.map(option => getCheckboxUniqKey(FilterType.HOTSPOT, option)),
+    ]);
   }, [mutations]);
+
+  const getCheckboxUniqKey = (type: FilterType, label: string) => {
+    return `${type}-${label}`;
+  };
+
+  const checkboxEnabled = (type: FilterType, label: string) => {
+    return enabledCheckboxes.includes(getCheckboxUniqKey(type, label));
+  };
 
   function handleToggleFilterModal() {
     setShowFilterModal(showModal => !showModal);
   }
 
-  function initFilterCheckboxState(options: string[]) {
-    return options.map(option => ({ label: option, selected: false, disabled: false }));
+  function initFilterCheckboxState(type: FilterType, options: string[]) {
+    return options.map(option => ({ type, label: option, selected: false, disabled: false }));
   }
 
   function handleFilterCheckboxChange(
@@ -209,7 +265,7 @@ function MutationsSectionHeader({
             <h6 className="mb-2">Oncogenicity</h6>
             <Row>
               {tempOncogenicityFilter.map((filter, index) => {
-                const isDisabled = !enabledCheckboxes.includes(filter.label);
+                const isDisabled = !checkboxEnabled(FilterType.ONCOGENICITY, filter.label);
                 return (
                   <Col className="col-6" key={filter.label}>
                     <InputGroup>
@@ -235,7 +291,7 @@ function MutationsSectionHeader({
             <h6 className="mb-2 mt-2">Mutation effect</h6>
             <Row>
               {tempMutationEffectFilter.map((filter, index) => {
-                const isDisabled = !enabledCheckboxes.includes(filter.label);
+                const isDisabled = !checkboxEnabled(FilterType.MUTATION_EFFECT, filter.label);
 
                 return (
                   <Col className="col-6" key={filter.label}>
@@ -262,7 +318,7 @@ function MutationsSectionHeader({
             <h6 className="mb-2 mt-2">Therapeutic levels</h6>
             <Row className="align-items-start justify-content-start">
               {tempTxLevelFilter.map((filter, index) => {
-                const isDisabled = !enabledCheckboxes.includes(filter.label);
+                const isDisabled = !checkboxEnabled(FilterType.TX_LEVEL, filter.label);
 
                 return (
                   <Col style={{ flexGrow: 0 }} key={filter.label}>
@@ -286,6 +342,40 @@ function MutationsSectionHeader({
                 );
               })}
             </Row>
+            {!annotatedAltsCache.loading && (
+              <>
+                <h6 className="mb-2 mt-2">Hotspot</h6>
+                <Row className="align-items-start justify-content-start">
+                  {tempHotspotFilter.map((filter, index) => {
+                    const isDisabled = !checkboxEnabled(FilterType.HOTSPOT, filter.label);
+
+                    return (
+                      <Col style={{ flexGrow: 0 }} key={filter.label}>
+                        <InputGroup>
+                          <Input
+                            id={`hotspot-filter-${filter.label}`}
+                            onChange={() => handleFilterCheckboxChange(index, setTempHotspotFilter)}
+                            checked={filter.selected}
+                            disabled={isDisabled}
+                            style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
+                            type="checkbox"
+                          />
+                          <Label
+                            for={`hotspot-filter-${filter.label}`}
+                            style={{
+                              cursor: `${isDisabled ? null : 'pointer'}`,
+                              marginLeft: CHECKBOX_LABEL_LEFT_MARGIN,
+                            }}
+                          >
+                            {filter.label}
+                          </Label>
+                        </InputGroup>
+                      </Col>
+                    );
+                  })}
+                </Row>
+              </>
+            )}
             <Row className="justify-content-end">
               {showFilterModalCancelButton && (
                 <Col className="px-0 mr-2" style={{ flexGrow: 0 }}>
@@ -293,9 +383,10 @@ function MutationsSectionHeader({
                     outline
                     color="danger"
                     onClick={() => {
-                      setTempOncogenicityFilter(initFilterCheckboxState(ONCOGENICITY_OPTIONS));
-                      setTempMutationEffectFilter(initFilterCheckboxState(MUTATION_EFFECT_OPTIONS));
-                      setTempTxLevelFilter(initFilterCheckboxState(TX_LEVEL_OPTIONS));
+                      setTempOncogenicityFilter(initFilterCheckboxState(FilterType.ONCOGENICITY, ONCOGENICITY_OPTIONS));
+                      setTempMutationEffectFilter(initFilterCheckboxState(FilterType.MUTATION_EFFECT, MUTATION_EFFECT_OPTIONS));
+                      setTempTxLevelFilter(initFilterCheckboxState(FilterType.TX_LEVEL, TX_LEVEL_OPTIONS));
+                      setTempHotspotFilter(initFilterCheckboxState(FilterType.HOTSPOT, HOTSPOT_OPTIONS));
                     }}
                   >
                     Reset
@@ -309,6 +400,7 @@ function MutationsSectionHeader({
                     setOncogenicityFilter(tempOncogenicityFilter);
                     setMutationEffectFilter(tempMutationEffectFilter);
                     setTxLevelFilter(tempTxLevelFilter);
+                    setHotspotFilter(tempHotspotFilter);
                     setShowFilterModal(false);
                   }}
                 >
@@ -322,6 +414,7 @@ function MutationsSectionHeader({
                     setTempOncogenicityFilter(oncogenicityFilter);
                     setTempMutationEffectFilter(mutationEffectFilter);
                     setTempTxLevelFilter(txLevelFilter);
+                    setTempHotspotFilter(hotspotFilter);
                     setShowFilterModal(false);
                   }}
                 >
@@ -336,8 +429,9 @@ function MutationsSectionHeader({
   );
 }
 
-const mapStoreToProps = ({ firebaseAppStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, curationPageStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
+  annotatedAltsCache: curationPageStore.annotatedAltsCache,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

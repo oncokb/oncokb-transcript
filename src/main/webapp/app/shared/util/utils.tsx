@@ -14,6 +14,7 @@ import _ from 'lodash';
 import { ParsedRef, parseReferences } from 'app/oncokb-commons/components/RefComponent';
 import { IDrug } from 'app/shared/model/drug.model';
 import { IRule } from 'app/shared/model/rule.model';
+import { ProteinExonDTO } from 'app/shared/api/generated';
 
 export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
   let name = '';
@@ -350,4 +351,28 @@ export function getReferenceFullName(reference: ParsedRef) {
 
 export function isEqualIngoreCase(a: string, b: string) {
   return a.toLowerCase() === b.toLowerCase();
+}
+
+export function getExonRanges(exons: ProteinExonDTO[]) {
+  const exonRanges: string[] = [];
+  let startExon = 0;
+  let endExon = 0;
+  for (let i = 0; i < exons.length; i++) {
+    const exon = exons[i];
+    if (startExon === 0) {
+      startExon = endExon = exon.exon;
+    }
+
+    if (i + 1 === exons.length || exons[i + 1].exon - 1 !== endExon) {
+      if (startExon === endExon) {
+        exonRanges.push(startExon.toString());
+      } else {
+        exonRanges.push(`${startExon}~${endExon}`);
+      }
+      startExon = endExon = 0;
+    } else {
+      endExon++;
+    }
+  }
+  return exonRanges;
 }

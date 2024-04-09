@@ -243,13 +243,11 @@ public class Alteration implements Serializable {
 
     public Alteration addFlag(Flag flag) {
         this.flags.add(flag);
-        flag.getAlterations().add(this);
         return this;
     }
 
     public Alteration removeFlag(Flag flag) {
         this.flags.remove(flag);
-        flag.getAlterations().remove(this);
         return this;
     }
 

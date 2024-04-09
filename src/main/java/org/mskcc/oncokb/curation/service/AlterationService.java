@@ -1,9 +1,13 @@
 package org.mskcc.oncokb.curation.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.mskcc.oncokb.curation.domain.Alteration;
+import org.mskcc.oncokb.curation.domain.Consequence;
+import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.repository.AlterationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,6 +153,18 @@ public class AlterationService {
 
     public List<Alteration> findByNameOrAlterationAndGenesId(String query, Long geneId) {
         return alterationRepository.findByNameOrAlterationAndGenesId(query, geneId);
+    }
+
+    public List<Alteration> findByGeneAndConsequenceThatOverlap(List<Gene> genes, Consequence consequence, Integer end, Integer start) {
+        if (start == null || end == null) {
+            return new ArrayList<>();
+        }
+        return alterationRepository.findByGeneAndConsequenceThatOverlap(
+            genes.stream().map(Gene::getId).collect(Collectors.toList()),
+            consequence,
+            end,
+            start
+        );
     }
 
     /**
