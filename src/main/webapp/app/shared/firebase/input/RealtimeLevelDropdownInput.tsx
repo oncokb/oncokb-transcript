@@ -136,9 +136,9 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
   );
 };
 
-const mapStoreToProps = ({ firebaseGeneReviewStore, firebaseStore }: IRootStore) => ({
-  updateReviewableContent: firebaseGeneReviewStore.updateReviewableContent,
-  firebaseDb: firebaseStore.firebaseDb,
+const mapStoreToProps = ({ firebaseGeneReviewService, firebaseAppStore }: IRootStore) => ({
+  updateReviewableContent: firebaseGeneReviewService.updateReviewableContent,
+  firebaseDb: firebaseAppStore.firebaseDb,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

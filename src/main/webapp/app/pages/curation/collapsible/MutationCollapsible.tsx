@@ -52,9 +52,6 @@ export interface IMutationCollapsibleProps extends StoreProps {
 }
 
 const MutationCollapsible = ({
-  account,
-  fullName,
-  pushVusArray,
   mutationPath,
   hugoSymbol,
   isGermline,
@@ -440,31 +437,22 @@ const MutationCollapsible = ({
 };
 
 const mapStoreToProps = ({
-  firebaseStore,
-  firebaseGeneStore,
+  firebaseAppStore,
+  firebaseGeneService,
   modifyCancerTypeModalStore,
   modifyTherapyModalStore,
   relevantCancerTypesModalStore,
-  firebaseVusStore,
-  authStore,
   drugStore,
 }: IRootStore) => ({
-  data: firebaseGeneStore.data,
-  deleteSection: firebaseGeneStore.deleteSection,
-  addTumor: firebaseGeneStore.addTumor,
-  updateMutationName: firebaseGeneStore.updateMutationName,
-  firebasePushToArray: firebaseGeneStore.pushToArray,
+  deleteSection: firebaseGeneService.deleteSection,
+  addTumor: firebaseGeneService.addTumor,
+  updateMutationName: firebaseGeneService.updateMutationName,
   modifyCancerTypeModalStore,
   modifyTherapyModalStore,
   relevantCancerTypesModalStore,
-  handleFirebaseDeleteFromArray: firebaseGeneStore.deleteFromArray,
-  handleFirebaseUpdateUntemplated: firebaseGeneStore.updateUntemplated,
-  account: authStore.account,
-  fullName: authStore.fullName,
   createDrug: drugStore.createEntity,
   getDrugs: drugStore.getEntities,
-  firebaseDb: firebaseStore.firebaseDb,
-  pushVusArray: firebaseVusStore.pushMultiple,
+  firebaseDb: firebaseAppStore.firebaseDb,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

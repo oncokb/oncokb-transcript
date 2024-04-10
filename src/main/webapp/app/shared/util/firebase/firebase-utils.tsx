@@ -1,33 +1,32 @@
 import { APP_EXPANDED_DATETIME_FORMAT, UUID_REGEX } from 'app/config/constants/constants';
-import {
-  Comment,
-  Gene,
-  Meta,
-  Mutation,
-  Review,
-  TX_LEVELS,
-  Tumor,
-  Alteration,
-  DX_LEVELS,
-  PX_LEVELS,
-  VusObjList,
-  FIREBASE_ONCOGENICITY,
-  Treatment,
-  MetaReview,
-  TI,
-} from 'app/shared/model/firebase/firebase.model';
-import { replaceUrlParams } from '../url-utils';
-import { DX_LEVEL_DESCRIPTIONS, FB_COLLECTION_PATH, PX_LEVEL_DESCRIPTIONS } from 'app/config/constants/firebase';
-import { parseFirebaseGenePath } from './firebase-path-utils';
+import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
-import { extractPositionFromSingleNucleotideAlteration, getCancerTypeName, getCancerTypesName, parseAlterationName } from '../utils';
-import _ from 'lodash';
-import { MutationLevelSummary } from 'app/stores/firebase/firebase.gene.store';
 import { CategoricalAlterationType } from 'app/shared/model/enumerations/categorical-alteration-type.model';
-import { isTxLevelPresent } from './firebase-level-utils';
+import {
+  Alteration,
+  Comment,
+  DX_LEVELS,
+  FIREBASE_ONCOGENICITY,
+  Gene,
+  Meta,
+  MetaReview,
+  Mutation,
+  PX_LEVELS,
+  Review,
+  TI,
+  TX_LEVELS,
+  Treatment,
+  Tumor,
+  VusObjList,
+} from 'app/shared/model/firebase/firebase.model';
+import _ from 'lodash';
 import React from 'react';
 import { TextFormat } from 'react-jhipster';
+import { replaceUrlParams } from '../url-utils';
+import { extractPositionFromSingleNucleotideAlteration, parseAlterationName } from '../utils';
+import { isTxLevelPresent } from './firebase-level-utils';
+import { parseFirebaseGenePath } from './firebase-path-utils';
 
 /* Convert a nested object into an object where the key is the path to the object.
   Example:

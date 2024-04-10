@@ -160,8 +160,8 @@ function MutationsSection({
   );
 }
 
-const mapStoreToProps = ({ firebaseGeneStore, openMutationCollapsibleStore }: IRootStore) => ({
-  addMutation: firebaseGeneStore.addMutation,
+const mapStoreToProps = ({ firebaseGeneService, openMutationCollapsibleStore }: IRootStore) => ({
+  addMutation: firebaseGeneService.addMutation,
   openMutationCollapsibleIndex: openMutationCollapsibleStore.index,
   setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
 });

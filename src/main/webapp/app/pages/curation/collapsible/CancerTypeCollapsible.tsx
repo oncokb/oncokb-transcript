@@ -234,11 +234,11 @@ function CancerTypeCollapsible({
   );
 }
 
-const mapStoreToProps = ({ firebaseStore, firebaseGeneStore, modifyCancerTypeModalStore }: IRootStore) => ({
-  firebaseDb: firebaseStore.firebaseDb,
+const mapStoreToProps = ({ firebaseAppStore, firebaseGeneService, modifyCancerTypeModalStore }: IRootStore) => ({
+  firebaseDb: firebaseAppStore.firebaseDb,
   modifyCancerTypeModalStore,
-  updateTumorName: firebaseGeneStore.updateTumorName,
-  deleteSection: firebaseGeneStore.deleteSection,
+  updateTumorName: firebaseGeneService.updateTumorName,
+  deleteSection: firebaseGeneService.deleteSection,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

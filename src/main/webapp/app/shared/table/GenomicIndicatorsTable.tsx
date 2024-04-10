@@ -28,8 +28,8 @@ const GenomicIndicatorsTable = ({
   genomicIndicatorsPath,
   mutationsPath,
   firebaseDb,
-  firebaseDeleteFromArray,
   authStore,
+  deleteGenomicIndicators,
   updateReviewableContent,
   updateGeneMetaContent,
   updateGeneReviewUuid,
@@ -48,7 +48,7 @@ const GenomicIndicatorsTable = ({
     const review = new Review(name, undefined, undefined, true);
 
     if (removeWithoutReview) {
-      return firebaseDeleteFromArray(genomicIndicatorsPath, [index]);
+      return deleteGenomicIndicators(genomicIndicatorsPath, [index]);
     }
 
     // Let the deletion be reviewed
@@ -277,13 +277,19 @@ const GenomicIndicatorsTable = ({
   );
 };
 
-const mapStoreToProps = ({ firebaseStore, firebaseCrudStore, authStore, firebaseGeneReviewStore, firebaseMetaStore }: IRootStore) => ({
-  firebaseDb: firebaseStore.firebaseDb,
-  firebaseDeleteFromArray: firebaseCrudStore.deleteFromArray,
+const mapStoreToProps = ({
+  firebaseAppStore,
   authStore,
-  updateReviewableContent: firebaseGeneReviewStore.updateReviewableContent,
-  updateGeneMetaContent: firebaseMetaStore.updateGeneMetaContent,
-  updateGeneReviewUuid: firebaseMetaStore.updateGeneReviewUuid,
+  firebaseGeneService,
+  firebaseGeneReviewService,
+  firebaseMetaService,
+}: IRootStore) => ({
+  firebaseDb: firebaseAppStore.firebaseDb,
+  authStore,
+  deleteGenomicIndicators: firebaseGeneService.deleteObjectsFromArray,
+  updateReviewableContent: firebaseGeneReviewService.updateReviewableContent,
+  updateGeneMetaContent: firebaseMetaService.updateGeneMetaContent,
+  updateGeneReviewUuid: firebaseMetaService.updateGeneReviewUuid,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

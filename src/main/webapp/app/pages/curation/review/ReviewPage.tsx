@@ -174,11 +174,11 @@ const ReviewPage = (props: IReviewPageProps) => {
   );
 };
 
-const mapStoreToProps = ({ firebaseStore, firebaseGeneStore, authStore }: IRootStore) => ({
-  firebaseDb: firebaseStore.firebaseDb,
+const mapStoreToProps = ({ firebaseAppStore, firebaseGeneReviewService, authStore }: IRootStore) => ({
+  firebaseDb: firebaseAppStore.firebaseDb,
   fullName: authStore.fullName,
-  rejectReviewChangeHandler: firebaseGeneStore.rejectChanges,
-  acceptReviewChangeHandler: firebaseGeneStore.acceptChanges,
+  rejectReviewChangeHandler: firebaseGeneReviewService.rejectChanges,
+  acceptReviewChangeHandler: firebaseGeneReviewService.acceptChanges,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

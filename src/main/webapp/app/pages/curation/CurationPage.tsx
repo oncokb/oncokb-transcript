@@ -2,12 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { RouteComponentProps, useLocation } from 'react-router-dom';
-import {
-  getFirebaseGenePath,
-  getFirebaseHistoryPath,
-  getFirebaseMetaGenePath,
-  getFirebasePath,
-} from 'app/shared/util/firebase/firebase-utils';
+import { getFirebaseGenePath, getFirebaseHistoryPath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { HistoryRecord } from 'app/shared/model/firebase/firebase.model';
 import { Col, Row } from 'reactstrap';
 import { getSectionClassName } from 'app/shared/util/utils';
@@ -230,15 +225,15 @@ export const CurationPage = (props: ICurationPageProps) => {
               )}
             </div>
             <div ref={mutationsSectionRef}>
-            <MutationsSection
+              <MutationsSection
                 mutationsPath={`${firebaseGenePath}/mutations`}
                 hugoSymbol={hugoSymbol}
                 isGermline={isGermline}
                 parsedHistoryList={parsedHistoryList}
-              onMutationListRender={() => setMutationListRendered(true)}
+                onMutationListRender={() => setMutationListRendered(true)}
               />
             </div>
-          <VusTable hugoSymbol={hugoSymbol} isGermline={isGermline} mutationsSectionRef={mutationsSectionRef} />
+            <VusTable hugoSymbol={hugoSymbol} isGermline={isGermline} mutationsSectionRef={mutationsSectionRef} />
             <RelevantCancerTypesModal
               onConfirm={async (newExcludedRCTs, noneDeleted) => {
                 try {
@@ -288,17 +283,16 @@ export const CurationPage = (props: ICurationPageProps) => {
 
 const mapStoreToProps = ({
   geneStore,
-  firebaseStore,
+  firebaseAppStore,
   firebaseHistoryStore,
   drugStore,
-  firebaseCrudStore,
   relevantCancerTypesModalStore,
   authStore,
-  firebaseGeneStore,
+  firebaseGeneService,
   openMutationCollapsibleStore,
 }: IRootStore) => ({
-  firebaseDb: firebaseStore.firebaseDb,
-  firebaseInitSuccess: firebaseStore.firebaseInitSuccess,
+  firebaseDb: firebaseAppStore.firebaseDb,
+  firebaseInitSuccess: firebaseAppStore.firebaseInitSuccess,
   searchGeneEntities: geneStore.searchEntities,
   geneEntities: geneStore.entities,
   loadingGenes: geneStore.loading,
@@ -306,10 +300,9 @@ const mapStoreToProps = ({
   addHistoryListener: firebaseHistoryStore.addListener,
   drugList: drugStore.entities,
   getDrugs: drugStore.getEntities,
-  setUntemplated: firebaseCrudStore.createUntemplated,
   relevantCancerTypesModalStore,
   fullName: authStore.fullName,
-  updateRelevantCancerTypes: firebaseGeneStore.updateRelevantCancerTypes,
+  updateRelevantCancerTypes: firebaseGeneService.updateRelevantCancerTypes,
   setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
 });
 

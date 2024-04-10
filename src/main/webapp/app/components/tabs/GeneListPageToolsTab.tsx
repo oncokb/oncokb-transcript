@@ -1,25 +1,21 @@
 import { CURATE_NEW_GENE_TEXT, DEFAULT_ICON_SIZE, PAGE_ROUTE } from 'app/config/constants/constants';
-import { Gene, Meta } from 'app/shared/model/firebase/firebase.model';
+import { FB_COLLECTION } from 'app/config/constants/firebase';
 import GeneSelect from 'app/shared/select/GeneSelect';
-import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
+import { observer } from 'mobx-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { FaExclamationCircle } from 'react-icons/fa';
 import { Button, Col, Row } from 'reactstrap';
 import './curation-tools-tab.scss';
-import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { isPromiseOk } from 'app/shared/util/utils';
-import { getErrorMessage } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
-import { observer } from 'mobx-react';
 
-function GeneListPageToolsTab({ addMetaListener, metaData, createMetaGene, deleteMetaGene, createGene, deleteGene }: StoreProps) {
+function GeneListPageToolsTab({ addMetaListener, metaData, createGene }: StoreProps) {
   const selectedGene = useRef<string>(null);
   const [createButtonDisabled, setCreateButtonDisabled] = useState(true);
   const [showGeneExistsWarning, setShowGeneExistsWarning] = useState(false);
 
   useEffect(() => {
-    const callback = addMetaListener();
+    const callback = addMetaListener(FB_COLLECTION.META);
 
     return () => callback && callback();
   }, []);
@@ -41,27 +37,7 @@ function GeneListPageToolsTab({ addMetaListener, metaData, createMetaGene, delet
   }
 
   async function handleCreateGene() {
-    const gene = new Gene(selectedGene.current);
-
-    const genePath = getFirebasePath('GENE', gene.name);
-    const metaGenePath = getFirebasePath('META_GENE', gene.name);
-    const results = await Promise.all([isPromiseOk(createGene(genePath, gene)), isPromiseOk(createMetaGene(metaGenePath, new Meta()))]);
-
-    if (results[0].ok && results[1].ok) {
-      // both succeeded
-      window.location.href = `${PAGE_ROUTE.CURATION}/${gene.name}`;
-    } else if (results[0].ok && !results[1].ok) {
-      // createMetaGene failed
-      notifyError(results[1].error);
-      deleteGene(genePath);
-    } else if (results[1].ok && !results[0].ok) {
-      // createGene failed
-      notifyError(results[0].error);
-      deleteMetaGene(metaGenePath);
-    } else {
-      // both failed
-      notifyError(new Error(`Errors: ${getErrorMessage(results[0].error)}, ${getErrorMessage(results[1].error)}`));
-    }
+    createGene(selectedGene.current, false, `${PAGE_ROUTE.CURATION}/${selectedGene.current}/somatic`);
   }
 
   return (
@@ -91,13 +67,10 @@ function GeneListPageToolsTab({ addMetaListener, metaData, createMetaGene, delet
   );
 }
 
-const mapStoreToProps = ({ firebaseMetaStore, firebaseGeneStore }: IRootStore) => ({
-  addMetaListener: firebaseMetaStore.addMetaListListener,
-  metaData: firebaseMetaStore.metaList,
-  createMetaGene: firebaseMetaStore.create,
-  deleteMetaGene: firebaseMetaStore.delete,
-  createGene: firebaseGeneStore.create,
-  deleteGene: firebaseGeneStore.delete,
+const mapStoreToProps = ({ firebaseMetaStore, firebaseGeneService }: IRootStore) => ({
+  addMetaListener: firebaseMetaStore.addListener,
+  metaData: firebaseMetaStore.data,
+  createGene: firebaseGeneService.createGene,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

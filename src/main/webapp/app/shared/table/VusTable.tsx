@@ -54,10 +54,9 @@ const VusTable = ({
   mutationsSectionRef,
   isGermline,
   account,
-  fullName,
-  pushVusArray,
-  handleFirebaseUpdate,
-  handleFirebaseDelete,
+  addVus,
+  refreshVus,
+  deleteVus,
   setOpenMutationCollapsibleIndex,
 }: IVusTableProps) => {
   const firebaseVusPath = getFirebaseVusPath(isGermline, hugoSymbol);
@@ -106,14 +105,8 @@ const VusTable = ({
   }
 
   async function handleRefresh(uuid: string) {
-    const newVusObjList = _.cloneDeep(vusData);
-    const vusToUpdate = newVusObjList[uuid];
-    vusToUpdate.time.by.name = getUserFullName(account);
-    vusToUpdate.time.by.email = account.email;
-    vusToUpdate.time.value = Date.now();
-
     try {
-      await handleFirebaseUpdate(`${firebaseVusPath}`, newVusObjList);
+      await refreshVus(`${firebaseVusPath}/${uuid}`, vusData[uuid]);
     } catch (error) {
       notifyError(error);
     }
@@ -121,17 +114,14 @@ const VusTable = ({
 
   async function handleDelete() {
     try {
-      await handleFirebaseDelete(`${firebaseVusPath}/${currentActionVusUuid.current}`);
+      await deleteVus(`${firebaseVusPath}/${currentActionVusUuid.current}`);
     } catch (error) {
       notifyError(error);
     }
   }
 
   async function handleAddVus(variants: string[]) {
-    const newVusList = variants.map(variant => {
-      return new Vus(variant, account.email, fullName);
-    });
-    await pushVusArray(firebaseVusPath, newVusList);
+    await addVus(firebaseVusPath, variants);
     setShowAddVusModal(false);
   }
 
@@ -301,15 +291,21 @@ const VusTable = ({
   );
 };
 
-const mapStoreToProps = ({ firebaseStore, firebaseVusStore, authStore, firebaseGeneStore, openMutationCollapsibleStore }: IRootStore) => ({
-  firebaseDb: firebaseStore.firebaseDb,
-  pushVusArray: firebaseVusStore.pushMultiple,
-  handleFirebaseUpdate: firebaseVusStore.update,
-  handleFirebaseDelete: firebaseVusStore.delete,
-  handleFirebaseDeleteFromArray: firebaseVusStore.deleteFromArray,
+const mapStoreToProps = ({
+  firebaseAppStore,
+  firebaseVusStore,
+  authStore,
+  firebaseGeneService,
+  firebaseVusService,
+  openMutationCollapsibleStore,
+}: IRootStore) => ({
+  firebaseDb: firebaseAppStore.firebaseDb,
+  addVus: firebaseVusService.addVus,
+  refreshVus: firebaseVusService.refreshVus,
+  deleteVus: firebaseVusService.deleteVus,
   account: authStore.account,
   fullName: authStore.fullName,
-  addMutation: firebaseGeneStore.addMutation,
+  addMutation: firebaseGeneService.addMutation,
   setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
 });
 

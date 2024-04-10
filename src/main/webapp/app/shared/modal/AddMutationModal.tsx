@@ -1074,12 +1074,12 @@ function AddMutationModalDropdown({ label, value, options, menuPlacement, onChan
   );
 }
 
-const mapStoreToProps = ({ alterationStore, consequenceStore, geneStore, firebaseStore, firebaseVusStore }: IRootStore) => ({
+const mapStoreToProps = ({ alterationStore, consequenceStore, geneStore, firebaseAppStore, firebaseVusStore }: IRootStore) => ({
   annotateAlteration: flow(alterationStore.annotateAlteration),
   geneEntities: geneStore.entities,
   consequences: consequenceStore.entities,
   getConsequences: consequenceStore.getEntities,
-  firebaseDb: firebaseStore.firebaseDb,
+  firebaseDb: firebaseAppStore.firebaseDb,
   vusList: firebaseVusStore.data,
 });
 

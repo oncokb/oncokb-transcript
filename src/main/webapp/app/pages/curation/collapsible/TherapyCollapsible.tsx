@@ -155,13 +155,13 @@ function TherapyCollapsible({
   );
 }
 
-const mapStoreToProps = ({ firebaseStore, drugStore, modifyTherapyModalStore, firebaseGeneStore }: IRootStore) => ({
-  firebaseDb: firebaseStore.firebaseDb,
+const mapStoreToProps = ({ firebaseAppStore, drugStore, modifyTherapyModalStore, firebaseGeneService }: IRootStore) => ({
+  firebaseDb: firebaseAppStore.firebaseDb,
   drugList: drugStore.entities,
   createDrug: drugStore.createEntity,
-  updateTreatmentName: firebaseGeneStore.updateTreatmentName,
+  updateTreatmentName: firebaseGeneService.updateTreatmentName,
   modifyTherapyModalStore,
-  deleteSection: firebaseGeneStore.deleteSection,
+  deleteSection: firebaseGeneService.deleteSection,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

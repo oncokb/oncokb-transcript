@@ -13,6 +13,7 @@ import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
 import Tabs from 'app/components/tabs/tabs';
 import GeneListPageToolsTab from 'app/components/tabs/GeneListPageToolsTab';
 import CurationDataValidationTab from 'app/components/tabs/CurationDataValidationTab';
+import { FB_COLLECTION } from 'app/config/constants/firebase';
 
 type GeneMetaInfo = {
   hugoSymbol: string;
@@ -24,7 +25,7 @@ type GeneMetaInfo = {
 const GeneListPage = (props: StoreProps) => {
   useEffect(() => {
     if (props.firebaseReady) {
-      const unsubscribe = props.addMetaListener();
+      const unsubscribe = props.addMetaListener(FB_COLLECTION.META);
       return () => unsubscribe && unsubscribe();
     }
   }, [props.firebaseReady]);
@@ -122,12 +123,12 @@ const GeneListPage = (props: StoreProps) => {
   );
 };
 
-const mapStoreToProps = ({ firebaseMetaStore, firebaseStore }: IRootStore) => ({
-  firebaseReady: firebaseStore.firebaseReady,
-  firebaseInitError: firebaseStore.firebaseInitError,
-  firebaseLoginError: firebaseStore.firebaseLoginError,
-  addMetaListener: firebaseMetaStore.addMetaListListener,
-  metaData: firebaseMetaStore.metaList,
+const mapStoreToProps = ({ firebaseMetaStore, firebaseAppStore }: IRootStore) => ({
+  firebaseReady: firebaseAppStore.firebaseReady,
+  firebaseInitError: firebaseAppStore.firebaseInitError,
+  firebaseLoginError: firebaseAppStore.firebaseLoginError,
+  addMetaListener: firebaseMetaStore.addListener,
+  metaData: firebaseMetaStore.data,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

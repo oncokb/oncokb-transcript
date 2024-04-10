@@ -1,17 +1,13 @@
 import {
-  Gene,
-  FIREBASE_ONCOGENICITY,
-  TX_LEVELS,
-  TI_TYPE,
-  HistoryOperationType,
-  PX_LEVELS,
   DX_LEVELS,
   FDA_LEVELS,
+  FIREBASE_ONCOGENICITY,
+  HistoryOperationType,
+  PX_LEVELS,
+  TI_TYPE,
+  TX_LEVELS,
 } from 'app/shared/model/firebase/firebase.model';
-import { ExtractPathExpressions } from 'app/shared/util/firebase/firebase-crud-store';
 import { GERMLINE_INHERITANCE_MECHANISM, MUTATION_EFFECT, ONCOGENICITY, PATHOGENICITY, PENETRANCE } from './constants';
-import { LEVELS } from '../colors';
-import { FdaLevelIcon } from 'app/shared/icons/FdaLevelIcon';
 
 /* eslint-disable @typescript-eslint/no-shadow */
 export enum GENE_TYPE {

@@ -304,8 +304,8 @@ const ModifyTherapyModalContent = observer(
   }
 );
 
-const mapStoreToProps = ({ modifyTherapyModalStore, firebaseStore }: IRootStore) => ({
-  firebaseDb: firebaseStore.firebaseDb,
+const mapStoreToProps = ({ modifyTherapyModalStore, firebaseAppStore }: IRootStore) => ({
+  firebaseDb: firebaseAppStore.firebaseDb,
   modifyTherapyModalStore,
 });
 

@@ -1,118 +1,115 @@
-import { LoadingBarStore } from 'app/stores/loading-bar.store';
-import { AuthStore } from 'app/stores/authentication.store';
-import { SettingsStore } from 'app/pages/account/settings.store';
 import { UserStore } from 'app/modules/administration/user-management/user.store';
+import { SettingsStore } from 'app/pages/account/settings.store';
+import { AuthStore } from 'app/stores/authentication.store';
+import { LoadingBarStore } from 'app/stores/loading-bar.store';
 import { History } from 'history';
-import { RouterStore } from './router.store';
 import LayoutStore from './layout.store';
+import { RouterStore } from './router.store';
 // prettier-ignore
-import sequence, {
+import {
   SequenceStore
 } from 'app/entities/sequence/sequence.store';
 // prettier-ignore
-import transcript, {
+import {
   TranscriptStore
 } from 'app/entities/transcript/transcript.store';
 // prettier-ignore
-import info, {
+import {
   InfoStore
 } from 'app/entities/info/info.store';
 // prettier-ignore
-import gene, {
+import {
   GeneStore
 } from 'app/entities/gene/gene.store';
 // prettier-ignore
-import genomeFragment, {
+import {
   GenomeFragmentStore
 } from 'app/entities/genome-fragment/genome-fragment.store';
 // prettier-ignore
-import ensemblGene, {
+import {
   EnsemblGeneStore
 } from 'app/entities/ensembl-gene/ensembl-gene.store';
 // prettier-ignore
-import drug, {
+import {
   DrugStore
 } from 'app/entities/drug/drug.store';
 // prettier-ignore
-import specimenType, {
+import {
   SpecimenTypeStore
 } from 'app/entities/specimen-type/specimen-type.store';
 // prettier-ignore
-import companionDiagnosticDevice, {
+import {
   CompanionDiagnosticDeviceStore
 } from 'app/entities/companion-diagnostic-device/companion-diagnostic-device.store';
 // prettier-ignore
-import fdaSubmissionType, {
+import {
   FdaSubmissionTypeStore
 } from 'app/entities/fda-submission-type/fda-submission-type.store';
 // prettier-ignore
-import fdaSubmission, {
+import {
   FdaSubmissionStore
 } from 'app/entities/fda-submission/fda-submission.store';
 // prettier-ignore
-import alteration, {
+import {
   AlterationStore
 } from 'app/entities/alteration/alteration.store';
 // prettier-ignore
-import cancerType, {
+import {
   CancerTypeStore
 } from 'app/entities/cancer-type/cancer-type.store';
-import FirebaseStore from './firebase/firebase.store';
-import { FirebaseGeneStore } from './firebase/firebase.gene.store';
-import { FirebaseMetaStore } from './firebase/firebase.meta.store';
-import { FirebaseDrugsStore } from 'app/stores/firebase/firebase.drugs.store';
-import { FirebaseVusStore } from './firebase/firebase.vus.store';
+import { FirebaseGeneService } from '../service/firebase/firebase-gene-service';
+import { FirebaseMetaService } from '../service/firebase/firebase-meta-service';
+import FirebaseAppStore from './firebase/firebase-app.store';
 // prettier-ignore
-import article, {
+import {
   ArticleStore
 } from 'app/entities/article/article.store';
 // prettier-ignore
-import drugBrand, {
+import {
   DrugBrandStore
 } from 'app/entities/drug-brand/drug-brand.store';
 // prettier-ignore
-import categoricalAlteration, {
+import {
   CategoricalAlterationStore
 } from 'app/entities/categorical-alteration/categorical-alteration.store';
 // prettier-ignore
-import consequence, {
+import {
   ConsequenceStore
 } from 'app/entities/consequence/consequence.store';
 // prettier-ignore
-import fdaDrug, {
+import {
   FdaDrugStore
 } from 'app/entities/fda-drug/fda-drug.store';
 // prettier-ignore
-import seqRegion, {
+import {
   SeqRegionStore
 } from 'app/entities/seq-region/seq-region.store';
 // prettier-ignore
-import flag, {
-  FlagStore
-} from 'app/entities/flag/flag.store';
-import { FirebaseHistoryStore } from './firebase/firebase.history.store';
-import { CommentStore } from './firebase/firebase.comment.store';
-import { FirebaseUsersStore } from './firebase/firebase.users.store';
-import { HistoryTabStore } from '../components/tabs/history-tab.store';
-import AssociationStore from 'app/entities/association/association.store';
 import AssociationCancerTypeStore from 'app/entities/association-cancer-type/association-cancer-type.store';
-import ClinicalTrialStore from 'app/entities/clinical-trial/clinical-trial.store';
+import AssociationStore from 'app/entities/association/association.store';
 import ClinicalTrialArmStore from 'app/entities/clinical-trial-arm/clinical-trial-arm.store';
+import ClinicalTrialStore from 'app/entities/clinical-trial/clinical-trial.store';
 import DrugPriorityStore from 'app/entities/drug-priority/drug-priority.store';
 import EligibilityCriteriaStore from 'app/entities/eligibility-criteria/eligibility-criteria.store';
 import EvidenceStore from 'app/entities/evidence/evidence.store';
+import { FlagStore } from 'app/entities/flag/flag.store';
 import GenomicIndicatorStore from 'app/entities/genomic-indicator/genomic-indicator.store';
 import LevelOfEvidenceStore from 'app/entities/level-of-evidence/level-of-evidence.store';
 import NciThesaurusStore from 'app/entities/nci-thesaurus/nci-thesaurus.store';
 import SynonymStore from 'app/entities/synonym/synonym.store';
-import TreatmentStore from 'app/entities/treatment/treatment.store';
 import TreatmentPriorityStore from 'app/entities/treatment-priority/treatment-priority.store';
+import TreatmentStore from 'app/entities/treatment/treatment.store';
+import { FirebaseGeneReviewService } from 'app/service/firebase/firebase-gene-review-service';
+import { FirebaseVusService } from 'app/service/firebase/firebase-vus-service';
 import { ModifyCancerTypeModalStore } from 'app/shared/modal/modify-cancer-type-modal.store';
 import { ModifyTherapyModalStore } from 'app/shared/modal/modify-therapy-modal.store';
 import { RelevantCancerTypesModalStore } from 'app/shared/modal/relevant-cancer-types-modal-store';
-import { FirebaseCrudStore } from 'app/shared/util/firebase/firebase-crud-store';
-import { FirebaseReviewableCrudStore } from 'app/shared/util/firebase/firebase-reviewable-crud-store';
-import { Gene } from 'app/shared/model/firebase/firebase.model';
+import { HistoryList, MetaCollection, UsersCollection, VusObjList } from 'app/shared/model/firebase/firebase.model';
+import { HistoryTabStore } from '../components/tabs/history-tab.store';
+import { FirebaseHistoryService } from '../service/firebase/firebase-history-service';
+import { CommentStore } from './comment.store';
+import { FirebaseDataStore } from './firebase/firebase-data.store';
+import { FirebaseRepository } from './firebase/firebase-repository';
 import { OpenMutationCollapsibleStore } from './open-mutation-collapsible.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
@@ -155,23 +152,25 @@ export interface IRootStore {
   readonly synonymStore: SynonymStore;
   readonly treatmentStore: TreatmentStore;
   readonly treatmentPriorityStore: TreatmentPriorityStore;
+  readonly seqRegionStore: SeqRegionStore;
   readonly modifyCancerTypeModalStore: ModifyCancerTypeModalStore;
   readonly modifyTherapyModalStore: ModifyTherapyModalStore;
   readonly relevantCancerTypesModalStore: RelevantCancerTypesModalStore;
   readonly openMutationCollapsibleStore: OpenMutationCollapsibleStore;
-  /* Firebase stores */
-  readonly firebaseCrudStore: FirebaseCrudStore;
-  readonly firebaseGeneReviewStore: FirebaseReviewableCrudStore<Gene>;
-  readonly firebaseStore: FirebaseStore;
-  readonly firebaseGeneStore: FirebaseGeneStore;
-  readonly firebaseMetaStore: FirebaseMetaStore;
-  readonly firebaseDrugsStore: FirebaseDrugsStore;
-  readonly firebaseHistoryStore: FirebaseHistoryStore;
-  readonly firebaseVusStore: FirebaseVusStore;
-  readonly firebaseUsersStore: FirebaseUsersStore;
-  readonly seqRegionStore: SeqRegionStore;
   readonly flagStore: FlagStore;
   readonly commentStore: CommentStore;
+  /* Firebase stores */
+  readonly firebaseAppStore: FirebaseAppStore;
+  readonly firebaseHistoryStore: FirebaseDataStore<HistoryList>;
+  readonly firebaseVusStore: FirebaseDataStore<VusObjList>;
+  readonly firebaseUsersStore: FirebaseDataStore<UsersCollection>;
+  readonly firebaseMetaStore: FirebaseDataStore<MetaCollection>;
+  /* Firebase services */
+  readonly firebaseGeneReviewService: FirebaseGeneReviewService;
+  readonly firebaseGeneService: FirebaseGeneService;
+  readonly firebaseMetaService: FirebaseMetaService;
+  readonly firebaseHistoryService: FirebaseHistoryService;
+  readonly firebaseVusService: FirebaseVusService;
   /* jhipster-needle-add-store-field - JHipster will add store here */
 }
 
@@ -216,23 +215,53 @@ export function createStores(history: History): IRootStore {
   rootStore.synonymStore = new SynonymStore(rootStore);
   rootStore.treatmentStore = new TreatmentStore(rootStore);
   rootStore.treatmentPriorityStore = new TreatmentPriorityStore(rootStore);
+  rootStore.seqRegionStore = new SeqRegionStore(rootStore);
+  rootStore.flagStore = new FlagStore(rootStore);
   rootStore.modifyCancerTypeModalStore = new ModifyCancerTypeModalStore();
   rootStore.modifyTherapyModalStore = new ModifyTherapyModalStore();
   rootStore.relevantCancerTypesModalStore = new RelevantCancerTypesModalStore();
   rootStore.openMutationCollapsibleStore = new OpenMutationCollapsibleStore();
-  /* Firebase stores */
-  rootStore.firebaseStore = new FirebaseStore(rootStore); // this store needs to be initialized first
-  rootStore.firebaseCrudStore = new FirebaseCrudStore(rootStore);
-  rootStore.firebaseGeneReviewStore = new FirebaseReviewableCrudStore(rootStore);
-  rootStore.firebaseGeneStore = new FirebaseGeneStore(rootStore);
-  rootStore.firebaseMetaStore = new FirebaseMetaStore(rootStore);
-  rootStore.firebaseDrugsStore = new FirebaseDrugsStore(rootStore);
-  rootStore.firebaseHistoryStore = new FirebaseHistoryStore(rootStore);
-  rootStore.firebaseVusStore = new FirebaseVusStore(rootStore);
-  rootStore.firebaseUsersStore = new FirebaseUsersStore(rootStore);
-  rootStore.seqRegionStore = new SeqRegionStore(rootStore);
-  rootStore.flagStore = new FlagStore(rootStore);
   rootStore.commentStore = new CommentStore();
+
+  /* Firebase Stores */
+  const firebaseAppStore = new FirebaseAppStore(rootStore);
+  const firebaseHistoryStore = new FirebaseDataStore<HistoryList>(firebaseAppStore);
+  const firebaseVusStore = new FirebaseDataStore<VusObjList>(firebaseAppStore);
+  const firebaseUsersStore = new FirebaseDataStore<UsersCollection>(firebaseAppStore);
+  const firebaseMetaStore = new FirebaseDataStore<MetaCollection>(firebaseAppStore);
+
+  rootStore.firebaseAppStore = firebaseAppStore;
+  rootStore.firebaseHistoryStore = firebaseHistoryStore;
+  rootStore.firebaseVusStore = firebaseVusStore;
+  rootStore.firebaseUsersStore = firebaseUsersStore;
+  rootStore.firebaseMetaStore = firebaseMetaStore;
+
+  /* Firebase Repository */
+  const firebaseRepository = new FirebaseRepository(firebaseAppStore);
+
+  /* Firebase Services */
+  const firebaseMetaService = new FirebaseMetaService(firebaseRepository, rootStore.authStore);
+  const firebaseHistoryService = new FirebaseHistoryService(firebaseRepository);
+  const firebaseGeneReviewService = new FirebaseGeneReviewService(
+    firebaseRepository,
+    rootStore.authStore,
+    firebaseMetaService,
+    firebaseHistoryService
+  );
+  const firebaseGeneService = new FirebaseGeneService(
+    firebaseRepository,
+    rootStore.authStore,
+    firebaseMetaService,
+    firebaseGeneReviewService
+  );
+  const firebaseVusService = new FirebaseVusService(firebaseRepository, rootStore.authStore);
+
+  rootStore.firebaseMetaService = firebaseMetaService;
+  rootStore.firebaseHistoryService = firebaseHistoryService;
+  rootStore.firebaseGeneReviewService = firebaseGeneReviewService;
+  rootStore.firebaseGeneService = firebaseGeneService;
+  rootStore.firebaseVusService = firebaseVusService;
+
   /* jhipster-needle-add-store-init - JHipster will add store here */
   return rootStore;
 }
