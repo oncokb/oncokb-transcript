@@ -52,18 +52,6 @@ export class FirebaseAppStore extends BaseStore {
   }
 
   initializeFirebase() {
-    AppConfig.serverConfig.frontend = {} as any;
-    AppConfig.serverConfig.frontend.firebase = {
-      enabled: true,
-      apiKey: 'AIzaSyAGOb8JC9fQ3u-Af02zvrKJuPoj2h-nq2I',
-      authDomain: 'oncokb-curation-dev-9fa01.firebaseapp.com',
-      databaseUrl: 'https://oncokb-curation-dev-9fa01-default-rtdb.firebaseio.com',
-      projectId: 'oncokb-curation-dev-9fa01',
-      storageBucket: 'oncokb-curation-dev-9fa01.appspot.com',
-      messagingSenderId: '629129634449',
-      appId: '1:629129634449:web:125eb9ee0143caaa5a5530',
-      measurementId: 'G-R454S96NDX',
-    } as any;
     const { enabled, ...firebaseOptions } = AppConfig.serverConfig.frontend.firebase;
     this.firebaseEnabled = enabled;
     if (this.firebaseEnabled) {
