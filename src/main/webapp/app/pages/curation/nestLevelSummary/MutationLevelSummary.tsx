@@ -1,6 +1,6 @@
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { MutationLevelSummary } from 'app/stores/firebase/firebase.gene.store';
+import { MutationLevelSummary } from 'app/service/firebase/firebase-gene-service';
 import _ from 'lodash';
 import { observer } from 'mobx-react';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -42,8 +42,8 @@ const MutationLevelSummary = ({ mutationPath, firebaseDb, hideOncogenicity = fal
   return <NestLevelSummary summaryStats={mutationStats} hideOncogenicity={hideOncogenicity} />;
 };
 
-const mapStoreToProps = ({ firebaseStore }: IRootStore) => ({
-  firebaseDb: firebaseStore.firebaseDb,
+const mapStoreToProps = ({ firebaseAppStore }: IRootStore) => ({
+  firebaseDb: firebaseAppStore.firebaseDb,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

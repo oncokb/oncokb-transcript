@@ -49,7 +49,7 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
   );
 };
 
-const mapStoreToProps = ({ authStore, layoutStore, firebaseStore }: IRootStore) => ({
+const mapStoreToProps = ({ authStore, layoutStore, firebaseAppStore }: IRootStore) => ({
   isAuthorized: authStore.isAuthorized,
   authorities: authStore.account.authorities,
   isCurator: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.CURATOR]),
@@ -57,7 +57,7 @@ const mapStoreToProps = ({ authStore, layoutStore, firebaseStore }: IRootStore) 
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,
   toggleNavSidebar: layoutStore.toggleNavigationSidebar,
   centerContentMargin: layoutStore.centerContentMargin,
-  initializeFirebase: firebaseStore.initializeFirebase,
+  initializeFirebase: firebaseAppStore.initializeFirebase,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

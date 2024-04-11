@@ -45,8 +45,8 @@ const CancerTypeLevelSummary = ({ cancerTypePath, firebaseDb }: CancerTypeLevelS
   return <NestLevelSummary summaryStats={cancerTypeStats} />;
 };
 
-const mapStoreToProps = ({ firebaseStore }: IRootStore) => ({
-  firebaseDb: firebaseStore.firebaseDb,
+const mapStoreToProps = ({ firebaseAppStore }: IRootStore) => ({
+  firebaseDb: firebaseAppStore.firebaseDb,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

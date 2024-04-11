@@ -28,8 +28,7 @@ export interface IGeneHeaderProps extends StoreProps {
 
 const GeneHeader = ({
   hugoSymbol,
-  fullName,
-  updateMeta,
+  updateCurrentReviewer,
   firebaseDb,
   firebaseGenePath,
   geneEntity,
@@ -52,7 +51,7 @@ const GeneHeader = ({
     if (isReviewing) {
       handleReviewFinished(false);
     }
-    updateMeta(`${firebaseMetaPath}`, { review: { currentReviewer: isReviewing ? '' : fullName } });
+    updateCurrentReviewer(hugoSymbol, isGermline, isReviewing);
   };
 
   const getReviewButton = () => {
@@ -150,10 +149,9 @@ const GeneHeader = ({
   );
 };
 
-const mapStoreToProps = ({ firebaseStore, firebaseMetaStore, authStore }: IRootStore) => ({
-  firebaseDb: firebaseStore.firebaseDb,
-  updateMeta: firebaseMetaStore.update,
-  fullName: authStore.fullName,
+const mapStoreToProps = ({ firebaseAppStore, firebaseMetaService }: IRootStore) => ({
+  firebaseDb: firebaseAppStore.firebaseDb,
+  updateCurrentReviewer: firebaseMetaService.updateGeneCurrentReviewer,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

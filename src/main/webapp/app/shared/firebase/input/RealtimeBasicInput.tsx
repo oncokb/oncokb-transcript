@@ -185,9 +185,9 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   );
 };
 
-const mapStoreToProps = ({ firebaseStore, firebaseGeneReviewStore }: IRootStore) => ({
-  db: firebaseStore.firebaseDb,
-  updateReviewableContent: firebaseGeneReviewStore.updateReviewableContent,
+const mapStoreToProps = ({ firebaseAppStore, firebaseGeneReviewService }: IRootStore) => ({
+  db: firebaseAppStore.firebaseDb,
+  updateReviewableContent: firebaseGeneReviewService.updateReviewableContent,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

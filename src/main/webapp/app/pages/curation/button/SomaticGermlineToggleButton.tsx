@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
-import { FaCheckCircle } from 'react-icons/fa';
-import { useLocation } from 'react-router-dom';
-import { ButtonGroup, Button } from 'reactstrap';
-import styles from './styles.module.scss';
-import { get, ref } from 'firebase/database';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
+import { get, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
-import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
-import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { Gene } from 'app/shared/model/firebase/firebase.model';
+import React from 'react';
+import { FaCheckCircle } from 'react-icons/fa';
+import { useLocation } from 'react-router-dom';
+import { Button, ButtonGroup } from 'reactstrap';
+import styles from './styles.module.scss';
 
 const BUTTON_WIDTH = 130;
 
@@ -17,7 +16,7 @@ export interface ISomaticGermlineToggleButtonProps extends StoreProps {
   hugoSymbol: string;
 }
 
-function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, firebaseCreateUntemplated }: ISomaticGermlineToggleButtonProps) {
+function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISomaticGermlineToggleButtonProps) {
   const { pathname } = useLocation();
   const isSomatic = !pathname.includes('germline');
 
@@ -31,7 +30,7 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, firebaseCreateUnt
     try {
       const snapshot = await get(ref(firebaseDb, germlineGenePath));
       if (!snapshot.exists()) {
-        await firebaseCreateUntemplated(germlineGenePath, new Gene(hugoSymbol));
+        await createGene(hugoSymbol, true);
       }
       window.location.href = pathname.replace('somatic', 'germline');
     } catch (error) {
@@ -65,9 +64,9 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, firebaseCreateUnt
   );
 }
 
-const mapStoreToProps = ({ firebaseStore, firebaseCrudStore }: IRootStore) => ({
-  firebaseDb: firebaseStore.firebaseDb,
-  firebaseCreateUntemplated: firebaseCrudStore.createUntemplated,
+const mapStoreToProps = ({ firebaseAppStore, firebaseGeneService }: IRootStore) => ({
+  firebaseDb: firebaseAppStore.firebaseDb,
+  createGene: firebaseGeneService.createGene,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

@@ -127,12 +127,12 @@ const TherapiesList = ({
   );
 };
 
-const mapStoreToProps = ({ firebaseStore, drugStore, modifyTherapyModalStore, firebaseGeneStore }: IRootStore) => ({
-  firebaseDb: firebaseStore.firebaseDb,
+const mapStoreToProps = ({ firebaseAppStore, drugStore, modifyTherapyModalStore, firebaseGeneService }: IRootStore) => ({
+  firebaseDb: firebaseAppStore.firebaseDb,
   drugList: drugStore.entities,
   getDrugs: drugStore.getEntities,
   createDrug: drugStore.createEntity,
-  addTreatment: firebaseGeneStore.addTreatment,
+  addTreatment: firebaseGeneService.addTreatment,
   modifyTherapyModalStore,
 });
 

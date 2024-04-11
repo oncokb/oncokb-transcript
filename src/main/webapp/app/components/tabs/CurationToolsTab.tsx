@@ -11,6 +11,7 @@ import { IFlag } from 'app/shared/model/flag.model';
 import { CURRENT_REVIEWER } from 'app/config/constants/constants';
 import { GeneType } from 'app/shared/model/firebase/firebase.model';
 import { onValue, ref } from 'firebase/database';
+import { FB_COLLECTION } from 'app/config/constants/firebase';
 
 export type ReleaseGeneTestData = {
   passed: boolean;
@@ -96,7 +97,7 @@ export function CurationToolsTab({
   const geneToUpdate = useRef<IGene>(null);
 
   useEffect(() => {
-    const callback = addMetaListListener();
+    const callback = addMetaListListener(FB_COLLECTION.META);
 
     return () => {
       callback && callback();
@@ -193,10 +194,10 @@ export function CurationToolsTab({
   return getContent();
 }
 
-const mapStoreToProps = ({ firebaseStore, firebaseMetaStore, geneStore, flagStore }: IRootStore) => ({
-  firebaseDb: firebaseStore.firebaseDb,
-  metaList: firebaseMetaStore.metaList,
-  addMetaListListener: firebaseMetaStore.addMetaListListener,
+const mapStoreToProps = ({ firebaseAppStore, firebaseMetaStore, geneStore, flagStore }: IRootStore) => ({
+  firebaseDb: firebaseAppStore.firebaseDb,
+  metaList: firebaseMetaStore.data,
+  addMetaListListener: firebaseMetaStore.addListener,
   geneEntities: geneStore.entities,
   searchGenes: geneStore.searchEntities,
   updateGene: geneStore.updateEntity,

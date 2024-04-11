@@ -263,10 +263,10 @@ const ModifyCancerTypeModalContent = observer(
   }
 );
 
-const mapStoreToProps = ({ cancerTypeStore, modifyCancerTypeModalStore, firebaseStore }: IRootStore) => ({
+const mapStoreToProps = ({ cancerTypeStore, modifyCancerTypeModalStore, firebaseAppStore }: IRootStore) => ({
   searchCancerTypes: cancerTypeStore.searchEntities,
   modifyCancerTypeModalStore,
-  firebaseDb: firebaseStore.firebaseDb,
+  firebaseDb: firebaseAppStore.firebaseDb,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

@@ -58,8 +58,8 @@ function CancerRiskTabs({ cancerRiskPath, firebaseDb, textAreaClass }: ICancerRi
   );
 }
 
-const mapStoreToProps = ({ firebaseStore }: IRootStore) => ({
-  firebaseDb: firebaseStore.firebaseDb,
+const mapStoreToProps = ({ firebaseAppStore }: IRootStore) => ({
+  firebaseDb: firebaseAppStore.firebaseDb,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

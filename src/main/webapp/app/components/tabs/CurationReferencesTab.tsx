@@ -200,9 +200,9 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
   );
 }
 
-const mapStoreToProps = ({ firebaseStore, drugStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, drugStore }: IRootStore) => ({
   drugList: drugStore.entities,
-  firebaseDb: firebaseStore.firebaseDb,
+  firebaseDb: firebaseAppStore.firebaseDb,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

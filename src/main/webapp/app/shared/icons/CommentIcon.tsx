@@ -10,7 +10,7 @@ import { runInAction } from 'mobx';
 import { TextFormat } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
-import { CommentStore } from 'app/stores/firebase/firebase.comment.store';
+import { CommentStore } from 'app/stores/comment.store';
 import { faComment as farComment } from '@fortawesome/free-regular-svg-icons';
 import { faComment as fasComment } from '@fortawesome/free-solid-svg-icons';
 import { GREY } from 'app/config/colors';
@@ -75,7 +75,7 @@ const CommentIcon = observer((props: ICommentIconProps) => {
     newComment.userName = getUserFullName(props.account);
 
     try {
-      await props.handleFirebaseUpdateUntemplated(props.path, [...Array(comments.length).fill({}), newComment]);
+      await props.handleFirebasePushToArray(props.path, [newComment]);
     } catch (error) {
       notifyError(error);
     }
@@ -83,7 +83,7 @@ const CommentIcon = observer((props: ICommentIconProps) => {
 
   async function handleDeleteComments(indices: number[]) {
     try {
-      await props.handleFirebaseDeleteFromArray(props.path, indices);
+      await props.deleteComments(props.path, indices);
     } catch (error) {
       notifyError(error);
     }
@@ -91,7 +91,7 @@ const CommentIcon = observer((props: ICommentIconProps) => {
 
   async function handleResolveComment(index: number) {
     try {
-      await props.handleFirebaseUpdateUntemplated(`${props.path}/${index}`, { resolved: true });
+      await props.handleFirebaseUpdate(`${props.path}/${index}`, { resolved: true });
     } catch (error) {
       notifyError(error);
     }
@@ -99,7 +99,7 @@ const CommentIcon = observer((props: ICommentIconProps) => {
 
   async function handleUnresolveComment(index: number) {
     try {
-      await props.handleFirebaseUpdateUntemplated(`${props.path}/${index}`, { resolved: false });
+      await props.handleFirebaseUpdate(`${props.path}/${index}`, { resolved: false });
     } catch (error) {
       notifyError(error);
     }
@@ -318,13 +318,13 @@ const CommentItem = observer((props: ICommentItemProps) => {
   );
 });
 
-const mapStoreToProps = ({ commentStore, firebaseStore, authStore, firebaseCrudStore }: IRootStore) => ({
+const mapStoreToProps = ({ commentStore, firebaseAppStore, authStore, firebaseGeneService }: IRootStore) => ({
   commentStore,
-  firebaseDb: firebaseStore.firebaseDb,
-  firebaseCrudStoreDb: firebaseCrudStore.db,
+  firebaseDb: firebaseAppStore.firebaseDb,
   account: authStore.account,
-  handleFirebaseUpdateUntemplated: firebaseCrudStore.updateUntemplated,
-  handleFirebaseDeleteFromArray: firebaseCrudStore.deleteFromArray,
+  handleFirebaseUpdate: firebaseGeneService.updateObject,
+  handleFirebasePushToArray: firebaseGeneService.pushObjectsToArray,
+  deleteComments: firebaseGeneService.deleteObjectsFromArray,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

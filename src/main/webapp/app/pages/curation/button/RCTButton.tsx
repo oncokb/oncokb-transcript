@@ -83,8 +83,8 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
   );
 }
 
-const mapStoreToProps = ({ firebaseStore, relevantCancerTypesModalStore }: IRootStore) => ({
-  firebaseDb: firebaseStore.firebaseDb,
+const mapStoreToProps = ({ firebaseAppStore, relevantCancerTypesModalStore }: IRootStore) => ({
+  firebaseDb: firebaseAppStore.firebaseDb,
   relevantCancerTypesModalStore,
 });
 

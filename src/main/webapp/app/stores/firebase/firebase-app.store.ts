@@ -8,7 +8,7 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import { getAuth, onAuthStateChanged, signInWithCustomToken, signOut } from 'firebase/auth';
 import { AppConfig } from 'app/appConfig';
 
-export class FirebaseStore extends BaseStore {
+export class FirebaseAppStore extends BaseStore {
   public firebaseEnabled = false;
   public firebaseOptions: FirebaseOptions | undefined = undefined;
   public firebaseApp: FirebaseApp | undefined = undefined;
@@ -111,4 +111,4 @@ export class FirebaseStore extends BaseStore {
   }
 }
 
-export default FirebaseStore;
+export default FirebaseAppStore;
