@@ -33,7 +33,7 @@ export class FirebaseMetaService {
    */
   updateGeneReviewUuid = (hugoSymbol: string, uuid: string, add: boolean, isGermline: boolean) => {
     if (add) {
-      return this.firebaseRepository.update(getFirebaseMetaGenePath(isGermline, hugoSymbol), { review: { [uuid]: true } });
+      return this.firebaseRepository.update(`${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review`, { [uuid]: true });
     }
     return this.firebaseRepository.delete(getFirebaseMetaGeneReviewPath(isGermline, hugoSymbol, uuid));
   };
