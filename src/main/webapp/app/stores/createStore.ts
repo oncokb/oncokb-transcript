@@ -80,9 +80,7 @@ import {
 import AssociationStore from 'app/entities/association/association.store';
 import ClinicalTrialArmStore from 'app/entities/clinical-trial-arm/clinical-trial-arm.store';
 import ClinicalTrialStore from 'app/entities/clinical-trial/clinical-trial.store';
-import {
-  FlagStore
-} from 'app/entities/flag/flag.store';
+import { FlagStore } from 'app/entities/flag/flag.store';
 import EligibilityCriteriaStore from 'app/entities/eligibility-criteria/eligibility-criteria.store';
 import EvidenceStore from 'app/entities/evidence/evidence.store';
 import GenomicIndicatorStore from 'app/entities/genomic-indicator/genomic-indicator.store';
@@ -102,6 +100,7 @@ import { FirebaseDataStore } from './firebase/firebase-data.store';
 import { FirebaseRepository } from './firebase/firebase-repository';
 import { OpenMutationCollapsibleStore } from './open-mutation-collapsible.store';
 import { CurationPageStore } from 'app/stores/curation-page.store';
+import CategoricalAlterationStore from 'app/entities/categorical-alteration/categorical-alteration.store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
@@ -113,6 +112,7 @@ export interface IRootStore {
   readonly layoutStore: LayoutStore;
   readonly curationPageStore: CurationPageStore;
 
+  readonly categoricalAlterationStore: CategoricalAlterationStore;
   readonly sequenceStore: SequenceStore;
   readonly transcriptStore: TranscriptStore;
   readonly infoStore: InfoStore;
@@ -139,6 +139,7 @@ export interface IRootStore {
   readonly levelOfEvidenceStore: LevelOfEvidenceStore;
   readonly nciThesaurusStore: NciThesaurusStore;
   readonly synonymStore: SynonymStore;
+  readonly seqRegionStore: SeqRegionStore;
   readonly modifyCancerTypeModalStore: ModifyCancerTypeModalStore;
   readonly modifyTherapyModalStore: ModifyTherapyModalStore;
   readonly relevantCancerTypesModalStore: RelevantCancerTypesModalStore;
@@ -172,6 +173,7 @@ export function createStores(history: History): IRootStore {
   rootStore.curationPageStore = new CurationPageStore(rootStore);
 
   /* Entity stores */
+  rootStore.categoricalAlterationStore = new CategoricalAlterationStore(rootStore);
   rootStore.sequenceStore = new SequenceStore(rootStore);
   rootStore.transcriptStore = new TranscriptStore(rootStore);
   rootStore.infoStore = new InfoStore(rootStore);

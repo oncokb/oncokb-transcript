@@ -58,7 +58,7 @@ function MutationsSection({
       },
       { onlyOnce: true }
     );
-  }, []);
+  }, [hugoSymbol, isGermline]);
 
   function getMutationCollapsibles() {
     return (
