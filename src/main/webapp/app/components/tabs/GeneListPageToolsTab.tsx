@@ -37,7 +37,7 @@ function GeneListPageToolsTab({ addMetaListener, metaData, createGene }: StorePr
   }
 
   async function handleCreateGene() {
-    createGene(selectedGene.current, false, `${PAGE_ROUTE.CURATION}/${selectedGene.current}/somatic`);
+    await createGene(selectedGene.current, false, `${PAGE_ROUTE.CURATION}/${selectedGene.current}/somatic`);
   }
 
   return (
