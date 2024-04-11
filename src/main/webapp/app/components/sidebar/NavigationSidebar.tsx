@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { CSSProperties, useEffect, useState } from 'react';
 import './navigation-sidebar.scss';
 import oncokbLogo from 'oncokb-styles/dist/images/logo/oncokb.svg';
 import oncokbSmallLogo from 'oncokb-styles/dist/images/oncogenic.svg';
@@ -15,12 +15,13 @@ import { Button, NavbarBrand } from 'reactstrap';
 import { FiFileText } from 'react-icons/fi';
 import { GoDatabase } from 'react-icons/go';
 import { BiSearchAlt } from 'react-icons/bi';
-import { FaSignOutAlt, FaUserCircle } from 'react-icons/fa';
+import { FaSignOutAlt, FaUserCircle, FaExclamationTriangle } from 'react-icons/fa';
 import { HiMiniBars3 } from 'react-icons/hi2';
 import { IUser } from 'app/shared/model/user.model';
 import { MskccLogo } from 'app/shared/logo/MskccLogo';
 import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_EXPANDED_WIDTH } from 'app/stores/layout.store';
 import _ from 'lodash';
+import classNames from 'classnames';
 
 const PRIORITY_ENTITY_MENU_ITEM_KEY = 'oncokbCurationEntityMenuPriorityKey';
 
@@ -81,6 +82,37 @@ const getDefaultEntityMenuFrequencies = () => {
     .reverse()
     .map((key, i) => ({ type: key, frequency: i }));
 };
+
+type NoSidebarAccessProps = {
+  isCollapsed: boolean;
+};
+
+function NoSidebarAccess({ isCollapsed }: NoSidebarAccessProps) {
+  const iconStyle: CSSProperties = {
+    height: isCollapsed ? '2rem' : '5rem',
+    width: isCollapsed ? '2rem' : '5rem',
+  };
+  const iconClasses = ['mb-5', 'text-warning'];
+  if (!isCollapsed) {
+    iconClasses.push('w-100');
+  }
+
+  const listItemClasses = ['d-flex', 'flex-column', 'align-items-center', 'm-3', 'h-100'];
+  if (isCollapsed) {
+    listItemClasses.push('justify-content-center');
+  } else {
+    listItemClasses.push('py-5');
+  }
+  const warningMessage = 'You do not have permission to access any menu items!';
+  return (
+    <li className={classNames(listItemClasses)}>
+      <DefaultTooltip overlay={<p>{warningMessage}</p>}>
+        <FaExclamationTriangle className={classNames(iconClasses)} style={iconStyle} />
+      </DefaultTooltip>
+      {!isCollapsed && <p className="p-2 text-center">{warningMessage}</p>}
+    </li>
+  );
+}
 
 type MenuItemCollapsibleProps = {
   isCollapsed: boolean;
@@ -217,6 +249,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
                 </SubMenu>
               </>
             )}
+            {!props.isCurator && !props.isUser && <NoSidebarAccess isCollapsed={props.isNavSidebarCollapsed} />}
           </Menu>
         </div>
         <MenuDivider />
