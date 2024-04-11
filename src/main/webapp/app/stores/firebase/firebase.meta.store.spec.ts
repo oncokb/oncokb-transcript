@@ -1,3 +1,9 @@
+describe('FirebaseMetaStore', () => {
+  it('placeholder', () => {
+    // TODO: reimplement tests
+  });
+});
+
 // const mockUpdate = jest.fn().mockImplementation((db, value) => {});
 // const mockRemove = jest.fn().mockImplementation((db, value) => {});
 // const mockRef = jest.fn().mockImplementation(db => {});
