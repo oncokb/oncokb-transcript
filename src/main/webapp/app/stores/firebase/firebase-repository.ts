@@ -14,7 +14,7 @@ export class FirebaseRepository {
   };
 
   update = async (path: string, value: any) => {
-    return await update(ref(this.firebaseAppStore.firebaseDb, path), convertNestedObject(value));
+    return await update(ref(this.firebaseAppStore.firebaseDb, path), value);
   };
 
   delete = async (path: string) => {

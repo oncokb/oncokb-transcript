@@ -64,8 +64,8 @@ export class FirebaseMetaService {
   };
 
   updateGeneCurrentReviewer = async (hugoSymbol: string, isGermline: boolean, isReviewing: boolean) => {
-    await this.firebaseRepository.update(getFirebaseMetaGenePath(isGermline, hugoSymbol), {
-      review: { currentReviewer: isReviewing ? '' : this.authStore.fullName },
+    await this.firebaseRepository.update(`${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review`, {
+      currentReviewer: isReviewing ? '' : this.authStore.fullName,
     });
   };
 

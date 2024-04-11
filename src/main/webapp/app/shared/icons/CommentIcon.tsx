@@ -75,7 +75,7 @@ const CommentIcon = observer((props: ICommentIconProps) => {
     newComment.userName = getUserFullName(props.account);
 
     try {
-      await props.handleFirebaseUpdate(props.path, [...Array(comments.length).fill({}), newComment]);
+      await props.handleFirebasePushToArray(props.path, [newComment]);
     } catch (error) {
       notifyError(error);
     }
@@ -323,6 +323,7 @@ const mapStoreToProps = ({ commentStore, firebaseAppStore, authStore, firebaseGe
   firebaseDb: firebaseAppStore.firebaseDb,
   account: authStore.account,
   handleFirebaseUpdate: firebaseGeneService.updateObject,
+  handleFirebasePushToArray: firebaseGeneService.pushObjectsToArray,
   deleteComments: firebaseGeneService.deleteObjectsFromArray,
 });
 

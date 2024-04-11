@@ -392,6 +392,10 @@ export class FirebaseGeneService {
     await this.firebaseRepository.delete(path);
   };
 
+  pushObjectsToArray = async (path: string, objects: any[]) => {
+    await this.firebaseRepository.pushToArray(path, objects);
+  };
+
   deleteObjectsFromArray = async (path: string, indices: number[]) => {
     await this.firebaseRepository.deleteFromArray(path, indices);
   };
