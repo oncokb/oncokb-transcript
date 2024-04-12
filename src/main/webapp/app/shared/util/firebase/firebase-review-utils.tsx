@@ -523,6 +523,7 @@ const findMutationLevelReviews = (
         mutation.name,
         mutation.name_review.lastReviewed as string
       );
+      mutationNameReview.historyLocationString = mutationTitle;
       defaultReview.addChild(mutationNameReview);
       editorReviewMap.add(getEditorFromReview(mutation.name_review), defaultReview as ReviewLevel);
     } else {
