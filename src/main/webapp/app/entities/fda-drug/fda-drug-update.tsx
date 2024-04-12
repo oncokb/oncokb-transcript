@@ -90,6 +90,14 @@ export const FdaDrugUpdate = (props: IFdaDrugUpdateProps) => {
                   required: { value: true, message: 'This field is required.' },
                 }}
               />
+              <ValidatedField label="Sponsor Name" id="fda-drug-sponsorName" name="sponsorName" data-cy="sponsorName" type="text" />
+              <ValidatedField
+                label="Overall Marketing Status"
+                id="fda-drug-overallMarketingStatus"
+                name="overallMarketingStatus"
+                data-cy="overallMarketingStatus"
+                type="text"
+              />
               <ValidatedField id="fda-drug-drug" name="drugId" data-cy="drug" label="Drug" type="select">
                 <option value="" key="0" />
                 {drugs

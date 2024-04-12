@@ -34,6 +34,12 @@ public class TranscriptCacheResolver implements CacheResolver {
                     this.cacheNameResolver.getCacheName(CacheCategory.TRANSCRIPT, CacheKeys.TRANSCRIPTS_BY_ENSEMBL_TRANSCRIPT_IDS)
                 )
             );
+        } else if (context.getMethod().getName() == "findByEnsemblGeneAndCanonicalIsTrue") {
+            caches.add(
+                cacheManager.getCache(
+                    this.cacheNameResolver.getCacheName(CacheCategory.TRANSCRIPT, CacheKeys.TRANSCRIPTS_BY_ENSEMBL_GENE_CANONICAL)
+                )
+            );
         }
 
         return caches;

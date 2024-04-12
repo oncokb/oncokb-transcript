@@ -7,12 +7,14 @@ import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
+import org.genome_nexus.client.Exon;
 import org.mskcc.oncokb.curation.domain.*;
-import org.mskcc.oncokb.curation.domain.enumeration.EntityStatusType;
-import org.mskcc.oncokb.curation.domain.enumeration.GenomeFragmentType;
-import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
-import org.mskcc.oncokb.curation.domain.enumeration.SequenceType;
-import org.mskcc.oncokb.curation.domain.enumeration.TranscriptFlagEnum;
+import org.mskcc.oncokb.curation.domain.dto.AnnotationDTO;
+import org.mskcc.oncokb.curation.domain.dto.HotspotDTO;
+import org.mskcc.oncokb.curation.domain.dto.HotspotInfoDTO;
+import org.mskcc.oncokb.curation.domain.dto.ProteinExonDTO;
+import org.mskcc.oncokb.curation.domain.enumeration.*;
+import org.mskcc.oncokb.curation.model.IntegerRange;
 import org.mskcc.oncokb.curation.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.curation.service.mapper.TranscriptMapper;
 import org.mskcc.oncokb.curation.util.AlterationUtils;
@@ -39,6 +41,7 @@ public class MainService {
     private final AlterationUtils alterationUtils;
     private final ConsequenceService consequenceService;
     private final SeqRegionService seqRegionService;
+    private final AnnotationService annotationService;
 
     private final CategoricalAlterationService categoricalAlterationService;
 
@@ -54,6 +57,7 @@ public class MainService {
         AlterationUtils alterationUtils,
         ConsequenceService consequenceService,
         SeqRegionService seqRegionService,
+        AnnotationService annotationService,
         CategoricalAlterationService categoricalAlterationService
     ) {
         this.transcriptService = transcriptService;
@@ -67,6 +71,7 @@ public class MainService {
         this.alterationUtils = alterationUtils;
         this.consequenceService = consequenceService;
         this.seqRegionService = seqRegionService;
+        this.annotationService = annotationService;
         this.categoricalAlterationService = categoricalAlterationService;
     }
 
@@ -89,26 +94,8 @@ public class MainService {
         return Optional.empty();
     }
 
-    public String getAminoAcid(Gene gene, int positionStart, int length) {
-        Transcript canonical = null;
-        for (Transcript transcript : gene.getTranscripts()) {
-            if (transcript.getCanonical()) {
-                canonical = transcript;
-                break;
-            }
-        }
-
-        if (canonical != null) {
-            Optional<Sequence> sequence = sequenceService.findOneByTranscriptAndSequenceType(canonical, SequenceType.PROTEIN);
-            if (sequence.isPresent() && sequence.get().getSequence().length() >= (positionStart + length - 1)) {
-                return sequence.get().getSequence().substring(positionStart - 1, positionStart + length - 1);
-            }
-        }
-        return "";
-    }
-
-    public EntityStatus<Alteration> annotateAlteration(Alteration alteration) {
-        EntityStatus<Alteration> alterationWithStatus = new EntityStatus<>();
+    public AlterationAnnotationStatus annotateAlteration(ReferenceGenome referenceGenome, Alteration alteration) {
+        AlterationAnnotationStatus alterationWithStatus = new AlterationAnnotationStatus();
         alterationWithStatus.setEntity(alteration);
 
         Optional<CategoricalAlteration> categoricalAlterationOptional = categoricalAlterationService.findOneByAlteration(alteration);
@@ -169,10 +156,7 @@ public class MainService {
             alteration.setProteinChange(pcAlteration.getProteinChange());
         }
 
-        if (
-            alteration.getGenes().size() > 0 &&
-            alteration.getGenes().stream().filter(gene -> gene.getEntrezGeneId() < 0).findAny().isPresent()
-        ) {
+        if (!alteration.getGenes().isEmpty() && alteration.getGenes().stream().anyMatch(gene -> gene.getEntrezGeneId() < 0)) {
             alteration.setType(NA);
         }
 
@@ -208,46 +192,143 @@ public class MainService {
         if (alteration.getGenes().size() > 0 && PROTEIN_CHANGE.equals(alteration.getType())) {
             Gene gene = alteration.getGenes().iterator().next();
             if (alteration.getStart() != null) {
-                Optional<Sequence> grch37Sequence = findSequenceByGene(
-                    ReferenceGenome.GRCh37,
-                    gene.getEntrezGeneId(),
-                    SequenceType.PROTEIN
-                );
-                Optional<Sequence> grch38Sequence = findSequenceByGene(
-                    ReferenceGenome.GRCh38,
-                    gene.getEntrezGeneId(),
-                    SequenceType.PROTEIN
-                );
+                Optional<Sequence> canonicalSequence = findSequenceByGene(referenceGenome, gene.getEntrezGeneId(), SequenceType.PROTEIN);
 
-                if (grch37Sequence.isPresent() && alteration.getStart() < grch37Sequence.get().getSequence().length()) {
-                    String refRe = String.valueOf(grch37Sequence.get().getSequence().charAt(alteration.getStart() - 1));
-                    if (StringUtils.isEmpty(alteration.getRefResidues())) {
-                        alteration.setRefResidues(refRe);
+                if (canonicalSequence.isPresent() && alteration.getStart() < canonicalSequence.get().getSequence().length()) {
+                    String refRe = String.valueOf(canonicalSequence.get().getSequence().charAt(alteration.getStart() - 1));
+                    if (!StringUtils.isEmpty(refRe)) {
+                        if (StringUtils.isEmpty(alteration.getRefResidues())) {
+                            alteration.setRefResidues(refRe);
+                        } else {
+                            // If The AA in alteration is differed from the canonical transcript, and it's not X, we give warning
+                            // X indicates "any AA"
+                            if (!refRe.equals(alteration.getRefResidues()) && !"X".equals(alteration.getRefResidues())) {
+                                alterationWithStatus.setMessage(
+                                    "The reference allele does not match with the transcript. It's supposed to be " + refRe
+                                );
+                                alterationWithStatus.setType(EntityStatusType.WARNING);
+                                return alterationWithStatus;
+                            }
+                        }
                     }
-                }
-                if (grch38Sequence.isPresent() && alteration.getStart() < grch38Sequence.get().getSequence().length()) {
-                    String refRe = String.valueOf(grch38Sequence.get().getSequence().charAt(alteration.getStart() - 1));
-                    if (StringUtils.isEmpty(alteration.getRefResidues())) {
-                        alteration.setRefResidues(refRe);
-                    }
-                }
-            }
-        }
-
-        if (pcAlterationWithStatus.getType().equals(EntityStatusType.OK)) { //check for additional warnings
-            if (alteration.getRefResidues() != null) {
-                Gene gene = alteration.getGenes().iterator().next();
-                String referenceAA = getAminoAcid(gene, alteration.getStart(), alteration.getRefResidues().length());
-                if (!StringUtils.isEmpty(referenceAA) && !referenceAA.equals(alteration.getRefResidues())) {
-                    alterationWithStatus.setMessage("The reference allele does not match with the transcript");
-                    alterationWithStatus.setType(EntityStatusType.WARNING);
-                    return alterationWithStatus;
                 }
             }
         }
 
         alterationWithStatus.setMessage(pcAlterationWithStatus.getMessage());
         alterationWithStatus.setType(pcAlterationWithStatus.getType());
+
+        // Provide annotation for the alteration
+        // 1. check whether alteration is hotspot
+        AnnotationDTO annotationDTO = new AnnotationDTO();
+        Set<Alteration> relevantAlts = annotationService.findRelevantAlterations(alteration);
+        List<String> hotspotFlags = Arrays.asList(HotspotFlagEnum.HOTSPOT_V1.name(), HotspotFlagEnum.THREE_D.name());
+        List<Alteration> hotspots = relevantAlts
+            .stream()
+            .filter(alt -> !Collections.disjoint(hotspotFlags, alt.getFlags().stream().map(Flag::getFlag).collect(Collectors.toList())))
+            .collect(Collectors.toList());
+        HotspotInfoDTO hotspotInfoDTO = new HotspotInfoDTO();
+        if (!hotspots.isEmpty()) {
+            hotspotInfoDTO.setHotspot(true);
+            List<HotspotDTO> associatedHotspots = new ArrayList<>();
+            hotspots.forEach(hotspot -> {
+                hotspot
+                    .getFlags()
+                    .forEach(flag -> {
+                        if (hotspotFlags.contains(flag.getFlag())) {
+                            HotspotDTO hotspotDTO = new HotspotDTO();
+                            hotspotDTO.setType(flag.getFlag());
+                            hotspotDTO.setAlteration(hotspot.getName());
+                            associatedHotspots.add(hotspotDTO);
+                        }
+                    });
+            });
+            hotspotInfoDTO.setAssociatedHotspots(associatedHotspots);
+        }
+        annotationDTO.setHotspot(hotspotInfoDTO);
+
+        if (
+            annotatedGenes.size() == 1 &&
+            PROTEIN_CHANGE.equals(alteration.getType()) &&
+            alteration.getStart() != null &&
+            alteration.getEnd() != null
+        ) {
+            Optional<TranscriptDTO> transcriptOptional = transcriptService.findByGeneAndReferenceGenomeAndCanonicalIsTrue(
+                annotatedGenes.stream().iterator().next(),
+                referenceGenome
+            );
+            if (transcriptOptional.isPresent()) {
+                List<GenomeFragment> utrs = transcriptOptional.get().getUtrs();
+                List<GenomeFragment> exons = transcriptOptional.get().getExons();
+                exons.sort((o1, o2) -> {
+                    int diff = o1.getStart() - o2.getStart();
+                    if (diff == 0) {
+                        diff = o1.getEnd() - o2.getEnd();
+                    }
+                    if (diff == 0) {
+                        diff = (int) (o1.getId() - o2.getId());
+                    }
+                    return diff;
+                });
+
+                List<GenomeFragment> codingExons = new ArrayList<>();
+                exons.forEach(exon -> {
+                    Integer start = exon.getStart();
+                    Integer end = exon.getEnd();
+                    for (GenomeFragment utr : utrs) {
+                        if (utr.getStart().equals(exon.getStart())) {
+                            start = utr.getEnd() + 1;
+                        }
+                        if (utr.getEnd().equals(exon.getEnd())) {
+                            end = utr.getStart() - 1;
+                        }
+                    }
+                    if (start < end) {
+                        GenomeFragment genomeFragment = new GenomeFragment();
+                        genomeFragment.setType(GenomeFragmentType.EXON);
+                        genomeFragment.setStart(start);
+                        genomeFragment.setEnd(end);
+                        codingExons.add(genomeFragment);
+                    } else {
+                        GenomeFragment genomeFragment = new GenomeFragment();
+                        genomeFragment.setType(GenomeFragmentType.EXON);
+                        genomeFragment.setStart(0);
+                        genomeFragment.setEnd(0);
+                        codingExons.add(genomeFragment);
+                    }
+                });
+
+                if (transcriptOptional.get().getStrand() == -1) {
+                    Collections.reverse(codingExons);
+                }
+
+                List<ProteinExonDTO> proteinExons = new ArrayList<>();
+                int startAA = 1;
+                int previousExonCodonResidues = 0;
+                for (int i = 0; i < codingExons.size(); i++) {
+                    GenomeFragment genomeFragment = codingExons.get(i);
+                    if (genomeFragment.getStart() == 0) {
+                        continue;
+                    }
+                    int proteinLength = (previousExonCodonResidues + (genomeFragment.getEnd() - genomeFragment.getStart() + 1)) / 3;
+                    previousExonCodonResidues = (previousExonCodonResidues + (genomeFragment.getEnd() - genomeFragment.getStart() + 1)) % 3;
+                    ProteinExonDTO proteinExonDTO = new ProteinExonDTO();
+                    proteinExonDTO.setExon(i + 1);
+                    IntegerRange integerRange = new IntegerRange();
+                    integerRange.setStart(startAA);
+                    integerRange.setEnd(startAA + proteinLength - 1 + (previousExonCodonResidues > 0 ? 1 : 0));
+                    proteinExonDTO.setRange(integerRange);
+                    proteinExons.add(proteinExonDTO);
+                    startAA += proteinLength;
+                }
+                List<ProteinExonDTO> overlap = proteinExons
+                    .stream()
+                    .filter(exon -> alteration.getStart() <= exon.getRange().getEnd() && alteration.getEnd() >= exon.getRange().getStart())
+                    .collect(Collectors.toList());
+                annotationDTO.setExons(overlap);
+            }
+        }
+        alterationWithStatus.setAnnotation(annotationDTO);
         return alterationWithStatus;
     }
 
@@ -261,7 +342,7 @@ public class MainService {
             try {
                 ensemblGeneFromGN =
                     genomeNexusService.findCanonicalEnsemblGeneTranscript(referenceGenome, Collections.singletonList(entrezGeneId));
-                if (ensemblGeneFromGN.size() > 0) {
+                if (!ensemblGeneFromGN.isEmpty()) {
                     org.genome_nexus.client.EnsemblGene ensemblGene = ensemblGeneFromGN.get(0);
                     if (StringUtils.isNotEmpty(ensemblGene.getGeneId())) {
                         Optional<EnsemblGene> ensemblGeneOptional = createEnsemblGene(

@@ -4,6 +4,7 @@ import static org.mskcc.oncokb.curation.config.DataVersions.ONCOKB_CORE_VERSION;
 import static org.mskcc.oncokb.curation.util.FileUtils.parseDelimitedFile;
 
 import java.io.IOException;
+import java.sql.Ref;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +14,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.ArticleType;
+import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.curation.service.*;
+import org.mskcc.oncokb.curation.service.dto.pubmed.PubMedDTO;
+import org.mskcc.oncokb.curation.service.mapper.PubMedMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -29,6 +33,8 @@ public class CoreImporter {
     final DrugService drugService;
     final NciThesaurusService nciThesaurusService;
     final MainService mainService;
+    final NihEutilsService nihEutilsService;
+    final PubMedMapper pubMedMapper;
     final ApplicationProperties applicationProperties;
     final String DATA_DIRECTORY_PATH;
     final String MIXED = "MIXED";
@@ -41,6 +47,8 @@ public class CoreImporter {
         DrugService drugService,
         NciThesaurusService nciThesaurusService,
         MainService mainService,
+        NihEutilsService nihEutilsService,
+        PubMedMapper pubMedMapper,
         ApplicationProperties applicationProperties
     ) {
         this.cancerTypeService = cancerTypeService;
@@ -50,13 +58,14 @@ public class CoreImporter {
         this.drugService = drugService;
         this.nciThesaurusService = nciThesaurusService;
         this.mainService = mainService;
+        this.nihEutilsService = nihEutilsService;
+        this.pubMedMapper = pubMedMapper;
         this.applicationProperties = applicationProperties;
 
         DATA_DIRECTORY_PATH = applicationProperties.getOncokbDataRepoDir() + "/curation/oncokb/";
     }
 
     public void generalImport() throws IOException {
-        importArticle();
         importAlteration();
         verifyGene();
     }
@@ -65,49 +74,30 @@ public class CoreImporter {
         return ONCOKB_CORE_VERSION.replace(".", "_");
     }
 
-    private void importArticle() throws IOException {
+    public void importArticle() throws IOException {
         List<List<String>> articleLines = parseDelimitedFile(
             DATA_DIRECTORY_PATH + "article_" + getVersionInFileName() + ".tsv",
             "\t",
             true
         );
         articleLines.forEach(line -> {
-            Article article = new Article();
-            ArticleType articleType = ArticleType.PMID;
-            if (StringUtil.isNotEmpty(line.get(1))) {
-                articleType = ArticleType.ABSTRACT;
-            }
-            article.setType(articleType);
-            article.setContent(line.get(1));
-            article.setAuthors(line.get(2));
-            article.setElocationId(line.get(3));
-            article.setIssue(line.get(4));
-            article.setJournal(line.get(5));
-            article.setLink(line.get(6));
-            article.setPages(line.get(7));
-            article.setPmid(line.get(8));
-            article.setPubDate(line.get(9));
-            article.setTitle(line.get(10));
-            article.volume(line.get(12));
-            if (StringUtil.isNotEmpty(article.getPmid())) {
-                Optional<Article> articleOptional = articleService.findByPmid(article.getPmid());
-                if (articleOptional.isPresent()) {
-                    return;
+            String pmid = line.get(8);
+            if (StringUtils.isNotEmpty(pmid)) {
+                Optional<Article> articleOptional = articleService.findByPmid(pmid);
+                if (articleOptional.isEmpty()) {
+                    articleService.fetchAndSavePubMed(pmid);
+                }
+            } else {
+                String content = line.get(1);
+                String link = line.get(6);
+                if (StringUtil.isNotEmpty(content) && StringUtils.isNotEmpty(link)) {
+                    Article article = new Article();
+                    article.setType(ArticleType.ABSTRACT);
+                    article.setTitle(content);
+                    article.setLink(link);
+                    articleService.save(article);
                 }
             }
-            if (StringUtil.isNotEmpty(article.getContent())) {
-                Optional<Article> articleOptional = articleService.findByContent(article.getContent());
-                if (articleOptional.isPresent()) {
-                    return;
-                }
-            }
-            if (StringUtil.isNotEmpty(article.getLink())) {
-                Optional<Article> articleOptional = articleService.findByLink(article.getLink());
-                if (articleOptional.isPresent()) {
-                    return;
-                }
-            }
-            articleService.save(article);
         });
     }
 
@@ -127,7 +117,7 @@ public class CoreImporter {
             alteration.setName(line.get(2));
             alteration.setAlteration(line.get(3));
             alteration.setGenes(Collections.singleton(geneOptional.get()));
-            mainService.annotateAlteration(alteration);
+            mainService.annotateAlteration(ReferenceGenome.GRCh37, alteration);
             alterationService.save(alteration);
         });
     }

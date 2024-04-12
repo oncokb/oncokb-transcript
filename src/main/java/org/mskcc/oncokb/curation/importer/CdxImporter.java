@@ -13,7 +13,10 @@ import java.util.stream.Collectors;
 import jodd.util.StringUtil;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.AssociationCancerTypeRelation;
+import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
+import org.mskcc.oncokb.curation.domain.enumeration.RuleEntity;
 import org.mskcc.oncokb.curation.service.*;
+import org.mskcc.oncokb.curation.service.dto.TreatmentDTO;
 import org.mskcc.oncokb.curation.util.CdxUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +53,9 @@ public class CdxImporter {
     @Autowired
     private DrugService drugService;
 
+    @Autowired
+    private MainService mainService;
+
     private final Logger log = LoggerFactory.getLogger(Importer.class);
 
     public void importCdxMain() throws IOException {
@@ -67,7 +73,7 @@ public class CdxImporter {
             try {
                 CompanionDiagnosticDevice cdx = null;
                 List<FdaSubmission> fdaSubmissions = new ArrayList<>();
-                List<Treatment> treatments = new ArrayList<>();
+                List<TreatmentDTO> treatments = new ArrayList<>();
                 List<Gene> genes = new ArrayList<>();
                 Map<Gene, List<Alteration>> geneAlterationMap = new HashMap<>();
                 List<CancerType> cancerTypes = new ArrayList<>();
@@ -127,7 +133,7 @@ public class CdxImporter {
         CompanionDiagnosticDevice cdx,
         List<FdaSubmission> fdaSubmissions,
         List<CancerType> cancerTypes,
-        List<Treatment> treatments,
+        List<TreatmentDTO> treatments,
         Map<Gene, List<Alteration>> geneAlterationMap
     ) {
         CompanionDiagnosticDevice savedCdx = companionDiagnosticDeviceService.save(cdx);
@@ -141,18 +147,34 @@ public class CdxImporter {
                 .collect(Collectors.toList());
 
         Association biomarkerAssociation = new Association();
-        biomarkerAssociation.setTreatments(new HashSet<>(treatments));
+        if (!treatments.isEmpty()) {
+            Set<Drug> drugSet = new HashSet<>();
+            treatments.forEach(treatmentDTO -> drugSet.addAll(treatmentDTO.getDrugs()));
+            biomarkerAssociation.setDrugs(drugSet);
+            Rule rule = new Rule();
+            rule.setEntity(RuleEntity.DRUG.name());
+            rule.setRule(
+                treatments
+                    .stream()
+                    .map(treatmentDTO ->
+                        treatmentDTO.getDrugs().stream().map(drug -> drug.getId().toString()).collect(Collectors.joining("+"))
+                    )
+                    .collect(Collectors.joining(","))
+            );
+            biomarkerAssociation.addRule(rule);
+        }
         Set<Alteration> allAlts = new HashSet<>();
         for (Map.Entry<Gene, List<Alteration>> entry : geneAlterationMap.entrySet()) {
             allAlts.addAll(entry.getValue());
         }
-        for (CancerType cancerType : cancerTypes) {
-            AssociationCancerType associationCancerType = new AssociationCancerType();
-            associationCancerType.setRelation(AssociationCancerTypeRelation.INCLUSION);
-            associationCancerType.setCancerType(cancerType);
-            biomarkerAssociation.addAssociationCancerType(associationCancerType);
+        if (!cancerTypes.isEmpty()) {
+            biomarkerAssociation.setCancerTypes(new HashSet<>(cancerTypes));
+            Rule rule = new Rule();
+            rule.setEntity(RuleEntity.CANCER_TYPE.name());
+            rule.setRule(cancerTypes.stream().map(cancerType -> cancerType.getId().toString()).collect(Collectors.joining(",")));
+            biomarkerAssociation.addRule(rule);
         }
-        fdaSubmissions.stream().forEach(fdaSub -> biomarkerAssociation.addFdaSubmission(fdaSub));
+        fdaSubmissions.forEach(biomarkerAssociation::addFdaSubmission);
         biomarkerAssociation.setAlterations(allAlts);
         associationService.save(biomarkerAssociation);
     }
@@ -223,10 +245,10 @@ public class CdxImporter {
         return cancerTypes;
     }
 
-    private List<Treatment> parseTreatmentColumn(String columnValue) {
-        List<Treatment> treatments = new ArrayList<>();
+    private List<TreatmentDTO> parseTreatmentColumn(String columnValue) {
+        List<TreatmentDTO> treatments = new ArrayList<>();
         for (String drugsString : columnValue.split(",\\s+")) {
-            Treatment treatment = new Treatment();
+            TreatmentDTO treatment = new TreatmentDTO();
             for (String drugString : drugsString.split("\\+")) {
                 drugString = drugString.trim();
                 Optional<Drug> optionalDrug = drugService.findByName(drugString).stream().findFirst();
@@ -234,7 +256,6 @@ public class CdxImporter {
                     treatment.addDrug(optionalDrug.get());
                 } else {
                     log.error("Could not find drug {}", drugString);
-                    continue;
                 }
             }
             treatments.add(treatment);
@@ -248,7 +269,7 @@ public class CdxImporter {
         for (String geneString : geneStrings) {
             geneString = geneString.replaceAll("\\(\\S+\\)", "").trim();
             Optional<Gene> optionalGene = geneService.findGeneByHugoSymbol(geneString);
-            if (!optionalGene.isPresent()) {
+            if (optionalGene.isEmpty()) {
                 log.error("Could not find gene " + geneString);
             } else {
                 genes.add(optionalGene.get());
@@ -269,15 +290,17 @@ public class CdxImporter {
             List<Alteration> alterations = new ArrayList<>();
             for (String alterationString : alterationStrings) {
                 alterationString = alterationString.trim();
-                List<Alteration> optionalAlteration = alterationService.findByNameOrAlterationAndGenesId(alterationString, geneId);
-                if (optionalAlteration.size() > 0) {
-                    if (geneAlterationMap.get(gene) == null) {
-                        geneAlterationMap.put(gene, alterations);
-                    }
-                    geneAlterationMap.get(gene).addAll(optionalAlteration);
-                } else {
-                    log.error("Cannot find alteration " + alterationString + " for gene " + gene.getHugoSymbol());
+                List<Alteration> alterationList = alterationService.findByNameOrAlterationAndGenesId(alterationString, geneId);
+                if (alterationList.isEmpty()) {
+                    log.error("Cannot find alteration {} for gene {}, adding...", alterationString, gene.getHugoSymbol());
+                    Alteration alteration = new Alteration();
+                    alteration.setAlteration(alterationString);
+                    alteration.setGenes(Collections.singleton(gene));
+                    mainService.annotateAlteration(ReferenceGenome.GRCh37, alteration);
+                    alterationList.add(alterationService.save(alteration));
                 }
+                geneAlterationMap.putIfAbsent(gene, alterations);
+                geneAlterationMap.get(gene).addAll(alterationList);
             }
         }
         return geneAlterationMap;

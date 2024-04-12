@@ -10,9 +10,11 @@ import { SORT } from './pagination.constants';
 import { PaginationState } from '../table/OncoKBAsyncTable';
 import { IUser } from '../model/user.model';
 import { CancerType, Tumor } from '../model/firebase/firebase.model';
-import { ITreatment } from 'app/shared/model/treatment.model';
 import _ from 'lodash';
 import { ParsedRef, parseReferences } from 'app/oncokb-commons/components/RefComponent';
+import { IDrug } from 'app/shared/model/drug.model';
+import { IRule } from 'app/shared/model/rule.model';
+import { ProteinExonDTO } from 'app/shared/api/generated';
 
 export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
   let name = '';
@@ -61,8 +63,24 @@ export const getGeneNamesStringFromAlterations = (alterations: IAlteration[]) =>
   return getGeneNamesFromAlterations(alterations).join(', ');
 };
 
-export const getTreatmentName = (treatments: ITreatment[]): string => {
-  return treatments.map(treatment => treatment.drugs?.map(drug => drug.name).join(' + ')).join(', ');
+export const getTreatmentName = (drugs: IDrug[], rule?: IRule): string => {
+  if (rule == null) {
+    return drugs.map(drug => drug.name).join(', ');
+  } else {
+    const drugMap = drugs.reduce((map, next) => {
+      map[next.id.toString()] = next;
+      return map;
+    }, {});
+    return rule.rule
+      .split(',')
+      .map(treatment => {
+        return treatment
+          .split('+')
+          .map(drugId => drugMap[drugId.trim()]?.name)
+          .join(' + ');
+      })
+      .join(', ');
+  }
 };
 
 export const getAlterationName = (alterations: IAlteration[]): string => {
@@ -172,15 +190,18 @@ export function getUserFullName(user: IUser) {
   return name;
 }
 
-export function formatDate(date: Date) {
-  return new Intl.DateTimeFormat('en-US', {
+export function formatDate(date: Date, dayOnly?: boolean) {
+  const timeFormat = {
     year: '2-digit',
     month: '2-digit',
     day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  }).format(date);
+  } as any;
+  if (!dayOnly) {
+    timeFormat.hour = '2-digit';
+    timeFormat.minute = '2-digit';
+    timeFormat.hour12 = true;
+  }
+  return new Intl.DateTimeFormat('en-US', timeFormat).format(date);
 }
 
 export async function isPromiseOk(promise: Promise<any>) {
@@ -330,4 +351,28 @@ export function getReferenceFullName(reference: ParsedRef) {
 
 export function isEqualIngoreCase(a: string, b: string) {
   return a.toLowerCase() === b.toLowerCase();
+}
+
+export function getExonRanges(exons: ProteinExonDTO[]) {
+  const exonRanges: string[] = [];
+  let startExon = 0;
+  let endExon = 0;
+  for (let i = 0; i < exons.length; i++) {
+    const exon = exons[i];
+    if (startExon === 0) {
+      startExon = endExon = exon.exon;
+    }
+
+    if (i + 1 === exons.length || exons[i + 1].exon - 1 !== endExon) {
+      if (startExon === endExon) {
+        exonRanges.push(startExon.toString());
+      } else {
+        exonRanges.push(`${startExon}~${endExon}`);
+      }
+      startExon = endExon = 0;
+    } else {
+      endExon++;
+    }
+  }
+  return exonRanges;
 }

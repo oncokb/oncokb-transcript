@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
 import org.slf4j.Logger;
@@ -83,9 +82,10 @@ public class DrugService {
     @Transactional(readOnly = true)
     public List<Drug> findAllWhereFdaDrugIsNull() {
         log.debug("Request to get all drugs where FdaDrug is null");
-        return StreamSupport
-            .stream(drugRepository.findAll().spliterator(), false)
-            .filter(drug -> drug.getFdaDrug() == null)
+        return drugRepository
+            .findAll()
+            .stream()
+            .filter(drug -> drug.getFdaDrugs() == null || drug.getFdaDrugs().isEmpty())
             .collect(Collectors.toList());
     }
 
@@ -99,6 +99,18 @@ public class DrugService {
     public Optional<Drug> findOne(Long id) {
         log.debug("Request to get Drug : {}", id);
         return drugRepository.findOneWithEagerRelationships(id);
+    }
+
+    /**
+     * Get list of drugs by ids
+     *
+     * @param ids the id of the entities.
+     * @return list of entity.
+     */
+    @Transactional(readOnly = true)
+    public List<Drug> findAllByIds(List<Long> ids) {
+        log.debug("Request to get all : {}", ids);
+        return drugRepository.findAllWithEagerRelationships(ids);
     }
 
     public Optional<Drug> findByCode(String code) {
@@ -128,7 +140,7 @@ public class DrugService {
 
 class DrugComp implements Comparator<Drug> {
 
-    private String keyword;
+    private final String keyword;
 
     public DrugComp(String keyword) {
         this.keyword = keyword.toLowerCase();
@@ -136,12 +148,6 @@ class DrugComp implements Comparator<Drug> {
 
     @Override
     public int compare(Drug e1, Drug e2) {
-        if (e1.getName().equalsIgnoreCase(keyword)) {
-            return -1;
-        }
-        if (e2.getName().equalsIgnoreCase(keyword)) {
-            return 1;
-        }
         if (e1.getName().equalsIgnoreCase(keyword)) {
             return -1;
         }

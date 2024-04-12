@@ -34,9 +34,7 @@ public class DrugCriteria implements Serializable, Criteria {
 
     private LongFilter flagId;
 
-    private LongFilter fdaDrugId;
-
-    private LongFilter treatmentId;
+    private LongFilter associationId;
 
     private Boolean distinct;
 
@@ -48,8 +46,7 @@ public class DrugCriteria implements Serializable, Criteria {
         this.name = other.name == null ? null : other.name.copy();
         this.ncitCode = other.ncitCode == null ? null : other.ncitCode.copy();
         this.flagId = other.flagId == null ? null : other.flagId.copy();
-        this.fdaDrugId = other.fdaDrugId == null ? null : other.fdaDrugId.copy();
-        this.treatmentId = other.treatmentId == null ? null : other.treatmentId.copy();
+        this.associationId = other.associationId == null ? null : other.associationId.copy();
         this.distinct = other.distinct;
     }
 
@@ -74,6 +71,13 @@ public class DrugCriteria implements Serializable, Criteria {
     }
 
     public StringFilter getUuid() {
+        return uuid;
+    }
+
+    public StringFilter uuid() {
+        if (uuid == null) {
+            uuid = new StringFilter();
+        }
         return uuid;
     }
 
@@ -126,34 +130,19 @@ public class DrugCriteria implements Serializable, Criteria {
         this.flagId = flagId;
     }
 
-    public LongFilter getFdaDrugId() {
-        return fdaDrugId;
+    public LongFilter getAssociationId() {
+        return associationId;
     }
 
-    public LongFilter fdaDrugId() {
-        if (fdaDrugId == null) {
-            fdaDrugId = new LongFilter();
+    public LongFilter associationId() {
+        if (associationId == null) {
+            associationId = new LongFilter();
         }
-        return fdaDrugId;
+        return associationId;
     }
 
-    public void setFdaDrugId(LongFilter fdaDrugId) {
-        this.fdaDrugId = fdaDrugId;
-    }
-
-    public LongFilter getTreatmentId() {
-        return treatmentId;
-    }
-
-    public LongFilter treatmentId() {
-        if (treatmentId == null) {
-            treatmentId = new LongFilter();
-        }
-        return treatmentId;
-    }
-
-    public void setTreatmentId(LongFilter treatmentId) {
-        this.treatmentId = treatmentId;
+    public void setAssociationId(LongFilter associationId) {
+        this.associationId = associationId;
     }
 
     public Boolean getDistinct() {
@@ -179,15 +168,14 @@ public class DrugCriteria implements Serializable, Criteria {
             Objects.equals(name, that.name) &&
             Objects.equals(ncitCode, that.ncitCode) &&
             Objects.equals(flagId, that.flagId) &&
-            Objects.equals(fdaDrugId, that.fdaDrugId) &&
-            Objects.equals(treatmentId, that.treatmentId) &&
+            Objects.equals(associationId, that.associationId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, ncitCode, flagId, fdaDrugId, treatmentId, distinct);
+        return Objects.hash(id, name, uuid, ncitCode, flagId, associationId, distinct);
     }
 
     // prettier-ignore
@@ -199,8 +187,7 @@ public class DrugCriteria implements Serializable, Criteria {
             (name != null ? "name=" + name + ", " : "") +
             (ncitCode != null ? "ncitCode=" + ncitCode + ", " : "") +
             (flagId != null ? "flagId=" + flagId + ", " : "") +
-            (fdaDrugId != null ? "fdaDrugId=" + fdaDrugId + ", " : "") +
-            (treatmentId != null ? "treatmentId=" + treatmentId + ", " : "") +
+            (associationId != null ? "associationId=" + associationId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }

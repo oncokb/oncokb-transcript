@@ -232,11 +232,16 @@ public class TranscriptService {
             ensemblGene.getEnsemblGeneId()
         );
         Optional<Transcript> transcriptOptional = transcriptRepository.findByEnsemblGeneAndCanonicalIsTrue(ensemblGene);
-        if (transcriptOptional.isPresent()) {
-            return Optional.of(transcriptMapper.toDto(transcriptOptional.get()));
-        } else {
-            return Optional.empty();
-        }
+        return transcriptOptional.map(transcriptMapper::toDto);
+    }
+
+    public Optional<TranscriptDTO> findByGeneAndReferenceGenomeAndCanonicalIsTrue(Gene gene, ReferenceGenome referenceGenome) {
+        log.debug("Request to find canonical transcript for given gene : {} {}", gene.getHugoSymbol(), referenceGenome);
+        Optional<Transcript> transcriptOptional = transcriptRepository.findByGeneAndReferenceGenomeAndCanonicalIsTrue(
+            gene,
+            referenceGenome
+        );
+        return transcriptOptional.map(transcriptMapper::toDto);
     }
 
     /**

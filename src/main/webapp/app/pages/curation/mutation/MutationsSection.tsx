@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'reactstrap';
 import { ParsedHistoryRecord } from '../CurationPage';
 import FirebaseList from '../list/FirebaseList';
@@ -9,12 +9,13 @@ import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
 import { Mutation } from 'app/shared/model/firebase/firebase.model';
-import { compareMutations } from 'app/shared/util/firebase/firebase-utils';
+import { compareMutations, getFirebaseGenePath } from 'app/shared/util/firebase/firebase-utils';
 import MutationCollapsible from '../collapsible/MutationCollapsible';
 import styles from '../styles.module.scss';
 import MutationsSectionHeader from '../header/MutationsSectionHeader';
 import classNames from 'classnames';
 import _ from 'lodash';
+import { onValue, ref } from 'firebase/database';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
@@ -33,11 +34,31 @@ function MutationsSection({
   openMutationCollapsibleIndex,
   setOpenMutationCollapsibleIndex,
   onMutationListRender,
+  firebaseDb,
+  annotatedAltsCache,
 }: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
   const [filteredIndices, setFilteredIndices] = useState<number[]>([]);
 
   const mutationSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    onValue(
+      ref(firebaseDb, `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`),
+      snapshot => {
+        annotatedAltsCache.fetch(
+          hugoSymbol,
+          snapshot.val().map((mut: Mutation) => {
+            return {
+              name: mut.name,
+              alterations: mut.alterations,
+            };
+          })
+        );
+      },
+      { onlyOnce: true }
+    );
+  }, [hugoSymbol, isGermline]);
 
   function getMutationCollapsibles() {
     return (
@@ -128,6 +149,7 @@ function MutationsSection({
         >
           <Col>
             <MutationsSectionHeader
+              hugoSymbol={hugoSymbol}
               mutationsPath={mutationsPath}
               filteredIndices={filteredIndices}
               setFilteredIndices={setFilteredIndices}
@@ -160,10 +182,12 @@ function MutationsSection({
   );
 }
 
-const mapStoreToProps = ({ firebaseGeneService, openMutationCollapsibleStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseGeneService, openMutationCollapsibleStore, firebaseAppStore, curationPageStore }: IRootStore) => ({
   addMutation: firebaseGeneService.addMutation,
   openMutationCollapsibleIndex: openMutationCollapsibleStore.index,
   setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
+  firebaseDb: firebaseAppStore.firebaseDb,
+  annotatedAltsCache: curationPageStore.annotatedAltsCache,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

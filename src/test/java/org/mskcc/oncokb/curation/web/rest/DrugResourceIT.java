@@ -18,13 +18,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mskcc.oncokb.curation.IntegrationTest;
+import org.mskcc.oncokb.curation.domain.Association;
 import org.mskcc.oncokb.curation.domain.Drug;
-import org.mskcc.oncokb.curation.domain.DrugBrand;
-import org.mskcc.oncokb.curation.domain.DrugPriority;
 import org.mskcc.oncokb.curation.domain.FdaDrug;
 import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.domain.NciThesaurus;
-import org.mskcc.oncokb.curation.domain.Treatment;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
 import org.mskcc.oncokb.curation.service.DrugService;
 import org.mskcc.oncokb.curation.service.criteria.DrugCriteria;
@@ -317,54 +315,28 @@ class DrugResourceIT {
 
     @Test
     @Transactional
-    void getAllDrugsByBrandsIsEqualToSomething() throws Exception {
+    void getAllDrugsByFdaDrugIsEqualToSomething() throws Exception {
         // Initialize the database
         drugRepository.saveAndFlush(drug);
-        DrugBrand brands;
-        if (TestUtil.findAll(em, DrugBrand.class).isEmpty()) {
-            brands = DrugBrandResourceIT.createEntity(em);
-            em.persist(brands);
+        FdaDrug fdaDrug;
+        if (TestUtil.findAll(em, FdaDrug.class).isEmpty()) {
+            fdaDrug = FdaDrugResourceIT.createEntity(em);
+            em.persist(fdaDrug);
             em.flush();
         } else {
-            brands = TestUtil.findAll(em, DrugBrand.class).get(0);
+            fdaDrug = TestUtil.findAll(em, FdaDrug.class).get(0);
         }
-        em.persist(brands);
+        em.persist(fdaDrug);
         em.flush();
-        drug.addBrands(brands);
+        drug.addFdaDrug(fdaDrug);
         drugRepository.saveAndFlush(drug);
-        Long brandsId = brands.getId();
+        Long fdaDrugId = fdaDrug.getId();
 
-        // Get all the drugList where brands equals to brandsId
-        defaultDrugShouldBeFound("brandsId.equals=" + brandsId);
+        // Get all the drugList where fdaDrug equals to fdaDrugId
+        defaultDrugShouldBeFound("fdaDrugId.equals=" + fdaDrugId);
 
-        // Get all the drugList where brands equals to (brandsId + 1)
-        defaultDrugShouldNotBeFound("brandsId.equals=" + (brandsId + 1));
-    }
-
-    @Test
-    @Transactional
-    void getAllDrugsByDrugPriorityIsEqualToSomething() throws Exception {
-        // Initialize the database
-        drugRepository.saveAndFlush(drug);
-        DrugPriority drugPriority;
-        if (TestUtil.findAll(em, DrugPriority.class).isEmpty()) {
-            drugPriority = DrugPriorityResourceIT.createEntity(em);
-            em.persist(drugPriority);
-            em.flush();
-        } else {
-            drugPriority = TestUtil.findAll(em, DrugPriority.class).get(0);
-        }
-        em.persist(drugPriority);
-        em.flush();
-        drug.addDrugPriority(drugPriority);
-        drugRepository.saveAndFlush(drug);
-        Long drugPriorityId = drugPriority.getId();
-
-        // Get all the drugList where drugPriority equals to drugPriorityId
-        defaultDrugShouldBeFound("drugPriorityId.equals=" + drugPriorityId);
-
-        // Get all the drugList where drugPriority equals to (drugPriorityId + 1)
-        defaultDrugShouldNotBeFound("drugPriorityId.equals=" + (drugPriorityId + 1));
+        // Get all the drugList where fdaDrug equals to (fdaDrugId + 1)
+        defaultDrugShouldNotBeFound("fdaDrugId.equals=" + (fdaDrugId + 1));
     }
 
     @Test
@@ -395,55 +367,28 @@ class DrugResourceIT {
 
     @Test
     @Transactional
-    void getAllDrugsByFdaDrugIsEqualToSomething() throws Exception {
+    void getAllDrugsByAssociationIsEqualToSomething() throws Exception {
         // Initialize the database
         drugRepository.saveAndFlush(drug);
-        FdaDrug fdaDrug;
-        if (TestUtil.findAll(em, FdaDrug.class).isEmpty()) {
-            fdaDrug = FdaDrugResourceIT.createEntity(em);
-            em.persist(fdaDrug);
+        Association association;
+        if (TestUtil.findAll(em, Association.class).isEmpty()) {
+            association = AssociationResourceIT.createEntity(em);
+            em.persist(association);
             em.flush();
         } else {
-            fdaDrug = TestUtil.findAll(em, FdaDrug.class).get(0);
+            association = TestUtil.findAll(em, Association.class).get(0);
         }
-        em.persist(fdaDrug);
+        em.persist(association);
         em.flush();
-        drug.setFdaDrug(fdaDrug);
-        fdaDrug.setDrug(drug);
+        drug.addAssociation(association);
         drugRepository.saveAndFlush(drug);
-        Long fdaDrugId = fdaDrug.getId();
+        Long associationId = association.getId();
 
-        // Get all the drugList where fdaDrug equals to fdaDrugId
-        defaultDrugShouldBeFound("fdaDrugId.equals=" + fdaDrugId);
+        // Get all the drugList where association equals to associationId
+        defaultDrugShouldBeFound("associationId.equals=" + associationId);
 
-        // Get all the drugList where fdaDrug equals to (fdaDrugId + 1)
-        defaultDrugShouldNotBeFound("fdaDrugId.equals=" + (fdaDrugId + 1));
-    }
-
-    @Test
-    @Transactional
-    void getAllDrugsByTreatmentIsEqualToSomething() throws Exception {
-        // Initialize the database
-        drugRepository.saveAndFlush(drug);
-        Treatment treatment;
-        if (TestUtil.findAll(em, Treatment.class).isEmpty()) {
-            treatment = TreatmentResourceIT.createEntity(em);
-            em.persist(treatment);
-            em.flush();
-        } else {
-            treatment = TestUtil.findAll(em, Treatment.class).get(0);
-        }
-        em.persist(treatment);
-        em.flush();
-        drug.addTreatment(treatment);
-        drugRepository.saveAndFlush(drug);
-        Long treatmentId = treatment.getId();
-
-        // Get all the drugList where treatment equals to treatmentId
-        defaultDrugShouldBeFound("treatmentId.equals=" + treatmentId);
-
-        // Get all the drugList where treatment equals to (treatmentId + 1)
-        defaultDrugShouldNotBeFound("treatmentId.equals=" + (treatmentId + 1));
+        // Get all the drugList where association equals to (associationId + 1)
+        defaultDrugShouldNotBeFound("associationId.equals=" + (associationId + 1));
     }
 
     /**

@@ -27,7 +27,6 @@ public class Drug implements Serializable {
     @Column(name = "uuid", nullable = false, unique = true)
     private String uuid;
 
-    @DiffIgnore
     @Lob
     @Column(name = "name", nullable = false)
     private String name;
@@ -38,28 +37,21 @@ public class Drug implements Serializable {
 
     @ShallowReference
     @OneToMany(mappedBy = "drug")
-    @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
-    private Set<DrugBrand> brands = new HashSet<>();
+    @JsonIgnoreProperties(value = { "fdaSubmissions", "drug" }, allowSetters = true)
+    private Set<FdaDrug> fdaDrugs = new HashSet<>();
 
-    @DiffIgnore
-    @OneToMany(mappedBy = "drug")
-    @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
-    private Set<DrugPriority> drugPriorities = new HashSet<>();
-
-    @ShallowReference
     @ManyToMany
     @JoinTable(name = "rel_drug__flag", joinColumns = @JoinColumn(name = "drug_id"), inverseJoinColumns = @JoinColumn(name = "flag_id"))
-    @JsonIgnoreProperties(value = { "drugs", "genes", "transcripts" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "alterations", "articles", "drugs", "genes", "transcripts" }, allowSetters = true)
     private Set<Flag> flags = new HashSet<>();
-
-    @JsonIgnoreProperties(value = { "drug" }, allowSetters = true)
-    @OneToOne(mappedBy = "drug")
-    private FdaDrug fdaDrug;
 
     @DiffIgnore
     @ManyToMany(mappedBy = "drugs")
-    @JsonIgnoreProperties(value = { "treatmentPriorities", "drugs" }, allowSetters = true)
-    private Set<Treatment> treatments = new HashSet<>();
+    @JsonIgnoreProperties(
+        value = { "evidence", "clinicalTrials", "clinicalTrialArms", "eligibilityCriteria", "fdaSubmissions", "genomicIndicators" },
+        allowSetters = true
+    )
+    private Set<Association> associations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -115,65 +107,34 @@ public class Drug implements Serializable {
         return this;
     }
 
-    public Set<DrugBrand> getBrands() {
-        return this.brands;
+    public Set<FdaDrug> getFdaDrugs() {
+        return this.fdaDrugs;
     }
 
-    public void setBrands(Set<DrugBrand> drugBrands) {
-        if (this.brands != null) {
-            this.brands.forEach(i -> i.setDrug(null));
+    public void setFdaDrugs(Set<FdaDrug> fdaDrugs) {
+        if (this.fdaDrugs != null) {
+            this.fdaDrugs.forEach(i -> i.setDrug(null));
         }
-        if (drugBrands != null) {
-            drugBrands.forEach(i -> i.setDrug(this));
+        if (fdaDrugs != null) {
+            fdaDrugs.forEach(i -> i.setDrug(this));
         }
-        this.brands = drugBrands;
+        this.fdaDrugs = fdaDrugs;
     }
 
-    public Drug brands(Set<DrugBrand> drugBrands) {
-        this.setBrands(drugBrands);
+    public Drug fdaDrugs(Set<FdaDrug> fdaDrugs) {
+        this.setFdaDrugs(fdaDrugs);
         return this;
     }
 
-    public Drug addBrands(DrugBrand drugBrand) {
-        this.brands.add(drugBrand);
-        drugBrand.setDrug(this);
+    public Drug addFdaDrug(FdaDrug fdaDrug) {
+        this.fdaDrugs.add(fdaDrug);
+        fdaDrug.setDrug(this);
         return this;
     }
 
-    public Drug removeBrands(DrugBrand drugBrand) {
-        this.brands.remove(drugBrand);
-        drugBrand.setDrug(null);
-        return this;
-    }
-
-    public Set<DrugPriority> getDrugPriorities() {
-        return this.drugPriorities;
-    }
-
-    public void setDrugPriorities(Set<DrugPriority> drugPriorities) {
-        if (this.drugPriorities != null) {
-            this.drugPriorities.forEach(i -> i.setDrug(null));
-        }
-        if (drugPriorities != null) {
-            drugPriorities.forEach(i -> i.setDrug(this));
-        }
-        this.drugPriorities = drugPriorities;
-    }
-
-    public Drug drugPriorities(Set<DrugPriority> drugPriorities) {
-        this.setDrugPriorities(drugPriorities);
-        return this;
-    }
-
-    public Drug addDrugPriority(DrugPriority drugPriority) {
-        this.drugPriorities.add(drugPriority);
-        drugPriority.setDrug(this);
-        return this;
-    }
-
-    public Drug removeDrugPriority(DrugPriority drugPriority) {
-        this.drugPriorities.remove(drugPriority);
-        drugPriority.setDrug(null);
+    public Drug removeFdaDrug(FdaDrug fdaDrug) {
+        this.fdaDrugs.remove(fdaDrug);
+        fdaDrug.setDrug(null);
         return this;
     }
 
@@ -202,53 +163,34 @@ public class Drug implements Serializable {
         return this;
     }
 
-    public FdaDrug getFdaDrug() {
-        return this.fdaDrug;
+    public Set<Association> getAssociations() {
+        return this.associations;
     }
 
-    public void setFdaDrug(FdaDrug fdaDrug) {
-        if (this.fdaDrug != null) {
-            this.fdaDrug.setDrug(null);
+    public void setAssociations(Set<Association> associations) {
+        if (this.associations != null) {
+            this.associations.forEach(i -> i.removeDrug(this));
         }
-        if (fdaDrug != null) {
-            fdaDrug.setDrug(this);
+        if (associations != null) {
+            associations.forEach(i -> i.addDrug(this));
         }
-        this.fdaDrug = fdaDrug;
+        this.associations = associations;
     }
 
-    public Drug fdaDrug(FdaDrug fdaDrug) {
-        this.setFdaDrug(fdaDrug);
+    public Drug associations(Set<Association> associations) {
+        this.setAssociations(associations);
         return this;
     }
 
-    public Set<Treatment> getTreatments() {
-        return this.treatments;
-    }
-
-    public void setTreatments(Set<Treatment> treatments) {
-        if (this.treatments != null) {
-            this.treatments.forEach(i -> i.removeDrug(this));
-        }
-        if (treatments != null) {
-            treatments.forEach(i -> i.addDrug(this));
-        }
-        this.treatments = treatments;
-    }
-
-    public Drug treatments(Set<Treatment> treatments) {
-        this.setTreatments(treatments);
+    public Drug addAssociation(Association association) {
+        this.associations.add(association);
+        association.getDrugs().add(this);
         return this;
     }
 
-    public Drug addTreatment(Treatment treatment) {
-        this.treatments.add(treatment);
-        treatment.getDrugs().add(this);
-        return this;
-    }
-
-    public Drug removeTreatment(Treatment treatment) {
-        this.treatments.remove(treatment);
-        treatment.getDrugs().remove(this);
+    public Drug removeAssociation(Association association) {
+        this.associations.remove(association);
+        association.getDrugs().remove(this);
         return this;
     }
 

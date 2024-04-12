@@ -50,13 +50,8 @@ public class CancerType implements Serializable {
     private TumorForm tumorForm;
 
     @ShallowReference
-    @OneToMany(mappedBy = "cancerType")
-    @JsonIgnoreProperties(value = { "association", "cancerType" }, allowSetters = true)
-    private Set<AssociationCancerType> associationCancerTypes = new HashSet<>();
-
-    @ShallowReference
     @OneToMany(mappedBy = "parent")
-    @JsonIgnoreProperties(value = { "associationCancerTypes", "children", "synonyms", "parent" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "children", "synonyms", "parent", "associations" }, allowSetters = true)
     private Set<CancerType> children = new HashSet<>();
 
     @DiffIgnore
@@ -71,8 +66,28 @@ public class CancerType implements Serializable {
 
     @ShallowReference
     @ManyToOne
-    @JsonIgnoreProperties(value = { "associationCancerTypes", "children", "synonyms", "parent" }, allowSetters = true)
+    @JsonIgnoreProperties(value = { "children", "synonyms", "parent", "associations" }, allowSetters = true)
     private CancerType parent;
+
+    @DiffIgnore
+    @ManyToMany(mappedBy = "cancerTypes")
+    @JsonIgnoreProperties(
+        value = {
+            "rules",
+            "alterations",
+            "articles",
+            "cancerTypes",
+            "drugs",
+            "evidence",
+            "clinicalTrials",
+            "clinicalTrialArms",
+            "eligibilityCriteria",
+            "fdaSubmissions",
+            "genomicIndicators",
+        },
+        allowSetters = true
+    )
+    private Set<Association> associations = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -180,37 +195,6 @@ public class CancerType implements Serializable {
         this.tumorForm = tumorForm;
     }
 
-    public Set<AssociationCancerType> getAssociationCancerTypes() {
-        return this.associationCancerTypes;
-    }
-
-    public void setAssociationCancerTypes(Set<AssociationCancerType> associationCancerTypes) {
-        if (this.associationCancerTypes != null) {
-            this.associationCancerTypes.forEach(i -> i.setCancerType(null));
-        }
-        if (associationCancerTypes != null) {
-            associationCancerTypes.forEach(i -> i.setCancerType(this));
-        }
-        this.associationCancerTypes = associationCancerTypes;
-    }
-
-    public CancerType associationCancerTypes(Set<AssociationCancerType> associationCancerTypes) {
-        this.setAssociationCancerTypes(associationCancerTypes);
-        return this;
-    }
-
-    public CancerType addAssociationCancerType(AssociationCancerType associationCancerType) {
-        this.associationCancerTypes.add(associationCancerType);
-        associationCancerType.setCancerType(this);
-        return this;
-    }
-
-    public CancerType removeAssociationCancerType(AssociationCancerType associationCancerType) {
-        this.associationCancerTypes.remove(associationCancerType);
-        associationCancerType.setCancerType(null);
-        return this;
-    }
-
     public Set<CancerType> getChildren() {
         return this.children;
     }
@@ -277,6 +261,37 @@ public class CancerType implements Serializable {
 
     public CancerType parent(CancerType cancerType) {
         this.setParent(cancerType);
+        return this;
+    }
+
+    public Set<Association> getAssociations() {
+        return this.associations;
+    }
+
+    public void setAssociations(Set<Association> associations) {
+        if (this.associations != null) {
+            this.associations.forEach(i -> i.removeCancerType(this));
+        }
+        if (associations != null) {
+            associations.forEach(i -> i.addCancerType(this));
+        }
+        this.associations = associations;
+    }
+
+    public CancerType associations(Set<Association> associations) {
+        this.setAssociations(associations);
+        return this;
+    }
+
+    public CancerType addAssociation(Association association) {
+        this.associations.add(association);
+        association.getCancerTypes().add(this);
+        return this;
+    }
+
+    public CancerType removeAssociation(Association association) {
+        this.associations.remove(association);
+        association.getCancerTypes().remove(this);
         return this;
     }
 

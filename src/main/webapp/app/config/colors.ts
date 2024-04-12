@@ -25,3 +25,5 @@ export const COLLAPSIBLE_LEVELS = {
   3: '#FF8834',
   4: '#984EA3',
 };
+
+export const HOTSPOT = '#ff9900';

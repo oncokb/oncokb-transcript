@@ -8,4 +8,5 @@ public enum FlagType {
     GENE_PANEL,
     TRANSCRIPT,
     DRUG,
+    HOTSPOT,
 }

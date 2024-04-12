@@ -2,11 +2,13 @@ package org.mskcc.oncokb.curation.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.javers.core.metamodel.annotation.DiffIgnore;
+import org.javers.core.metamodel.annotation.ShallowReference;
 import org.mskcc.oncokb.curation.domain.enumeration.ArticleType;
 
 /**
@@ -28,6 +30,13 @@ public class Article implements Serializable {
     @Column(name = "type", nullable = false)
     private ArticleType type;
 
+    @Column(name = "uid")
+    private String uid;
+
+    @Lob
+    @Column(name = "title")
+    private String title;
+
     @DiffIgnore
     @Lob
     @Column(name = "content")
@@ -36,43 +45,46 @@ public class Article implements Serializable {
     @Column(name = "link")
     private String link;
 
-    @Column(name = "pmid")
-    private String pmid;
-
-    @Column(name = "elocation_id")
-    private String elocationId;
-
-    @DiffIgnore
-    @Lob
-    @Column(name = "title")
-    private String title;
-
     @Column(name = "authors")
     private String authors;
 
-    @Column(name = "journal")
-    private String journal;
+    @Column(name = "date")
+    private Instant date;
 
-    @Column(name = "volume")
-    private String volume;
+    @DiffIgnore
+    @Lob
+    @Column(name = "additional_info")
+    private String additionalInfo;
 
-    @Column(name = "issue")
-    private String issue;
+    @ShallowReference
+    @ManyToMany
+    @JoinTable(
+        name = "rel_article__flag",
+        joinColumns = @JoinColumn(name = "article_id"),
+        inverseJoinColumns = @JoinColumn(name = "flag_id")
+    )
+    @JsonIgnoreProperties(value = { "alterations", "articles", "drugs", "genes", "transcripts" }, allowSetters = true)
+    private Set<Flag> flags = new HashSet<>();
 
-    @Column(name = "pages")
-    private String pages;
-
-    @Column(name = "pub_date")
-    private String pubDate;
+    @DiffIgnore
+    @ManyToMany
+    @JoinTable(
+        name = "rel_article__synonym",
+        joinColumns = @JoinColumn(name = "article_id"),
+        inverseJoinColumns = @JoinColumn(name = "synonym_id")
+    )
+    @JsonIgnoreProperties(value = { "articles", "cancerTypes", "genes", "nciThesauruses" }, allowSetters = true)
+    private Set<Synonym> synonyms = new HashSet<>();
 
     @DiffIgnore
     @ManyToMany(mappedBy = "articles")
     @JsonIgnoreProperties(
         value = {
-            "associationCancerTypes",
+            "rules",
             "alterations",
             "articles",
-            "treatments",
+            "cancerTypes",
+            "drugs",
             "evidence",
             "clinicalTrials",
             "clinicalTrialArms",
@@ -83,6 +95,11 @@ public class Article implements Serializable {
         allowSetters = true
     )
     private Set<Association> associations = new HashSet<>();
+
+    @DiffIgnore
+    @ManyToMany(mappedBy = "articles")
+    @JsonIgnoreProperties(value = { "articles", "associations", "companionDiagnosticDevice", "fdaDrug", "type" }, allowSetters = true)
+    private Set<FdaSubmission> fdaSubmissions = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -112,6 +129,32 @@ public class Article implements Serializable {
         this.type = type;
     }
 
+    public String getUid() {
+        return this.uid;
+    }
+
+    public Article uid(String uid) {
+        this.setUid(uid);
+        return this;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public Article title(String title) {
+        this.setTitle(title);
+        return this;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getContent() {
         return this.content;
     }
@@ -138,45 +181,6 @@ public class Article implements Serializable {
         this.link = link;
     }
 
-    public String getPmid() {
-        return this.pmid;
-    }
-
-    public Article pmid(String pmid) {
-        this.setPmid(pmid);
-        return this;
-    }
-
-    public void setPmid(String pmid) {
-        this.pmid = pmid;
-    }
-
-    public String getElocationId() {
-        return this.elocationId;
-    }
-
-    public Article elocationId(String elocationId) {
-        this.setElocationId(elocationId);
-        return this;
-    }
-
-    public void setElocationId(String elocationId) {
-        this.elocationId = elocationId;
-    }
-
-    public String getTitle() {
-        return this.title;
-    }
-
-    public Article title(String title) {
-        this.setTitle(title);
-        return this;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getAuthors() {
         return this.authors;
     }
@@ -190,69 +194,67 @@ public class Article implements Serializable {
         this.authors = authors;
     }
 
-    public String getJournal() {
-        return this.journal;
+    public Instant getDate() {
+        return this.date;
     }
 
-    public Article journal(String journal) {
-        this.setJournal(journal);
+    public Article date(Instant date) {
+        this.setDate(date);
         return this;
     }
 
-    public void setJournal(String journal) {
-        this.journal = journal;
+    public void setDate(Instant date) {
+        this.date = date;
     }
 
-    public String getVolume() {
-        return this.volume;
+    public Set<Flag> getFlags() {
+        return this.flags;
     }
 
-    public Article volume(String volume) {
-        this.setVolume(volume);
+    public void setFlags(Set<Flag> flags) {
+        this.flags = flags;
+    }
+
+    public Article flags(Set<Flag> flags) {
+        this.setFlags(flags);
         return this;
     }
 
-    public void setVolume(String volume) {
-        this.volume = volume;
-    }
-
-    public String getIssue() {
-        return this.issue;
-    }
-
-    public Article issue(String issue) {
-        this.setIssue(issue);
+    public Article addFlag(Flag flag) {
+        this.flags.add(flag);
+        flag.getArticles().add(this);
         return this;
     }
 
-    public void setIssue(String issue) {
-        this.issue = issue;
-    }
-
-    public String getPages() {
-        return this.pages;
-    }
-
-    public Article pages(String pages) {
-        this.setPages(pages);
+    public Article removeFlag(Flag flag) {
+        this.flags.remove(flag);
+        flag.getArticles().remove(this);
         return this;
     }
 
-    public void setPages(String pages) {
-        this.pages = pages;
+    public Set<Synonym> getSynonyms() {
+        return this.synonyms;
     }
 
-    public String getPubDate() {
-        return this.pubDate;
+    public void setSynonyms(Set<Synonym> synonyms) {
+        this.synonyms = synonyms;
     }
 
-    public Article pubDate(String pubDate) {
-        this.setPubDate(pubDate);
+    public Article synonyms(Set<Synonym> synonyms) {
+        this.setSynonyms(synonyms);
         return this;
     }
 
-    public void setPubDate(String pubDate) {
-        this.pubDate = pubDate;
+    public Article addSynonym(Synonym synonym) {
+        this.synonyms.add(synonym);
+        synonym.getArticles().add(this);
+        return this;
+    }
+
+    public Article removeSynonym(Synonym synonym) {
+        this.synonyms.remove(synonym);
+        synonym.getArticles().remove(this);
+        return this;
     }
 
     public Set<Association> getAssociations() {
@@ -286,6 +288,45 @@ public class Article implements Serializable {
         return this;
     }
 
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
+    }
+
+    public Set<FdaSubmission> getFdaSubmissions() {
+        return this.fdaSubmissions;
+    }
+
+    public void setFdaSubmissions(Set<FdaSubmission> fdaSubmissions) {
+        if (this.fdaSubmissions != null) {
+            this.fdaSubmissions.forEach(i -> i.removeArticle(this));
+        }
+        if (fdaSubmissions != null) {
+            fdaSubmissions.forEach(i -> i.addArticle(this));
+        }
+        this.fdaSubmissions = fdaSubmissions;
+    }
+
+    public Article fdaSubmissions(Set<FdaSubmission> fdaSubmissions) {
+        this.setFdaSubmissions(fdaSubmissions);
+        return this;
+    }
+
+    public Article addFdaSubmission(FdaSubmission fdaSubmission) {
+        this.fdaSubmissions.add(fdaSubmission);
+        fdaSubmission.getArticles().add(this);
+        return this;
+    }
+
+    public Article removeFdaSubmission(FdaSubmission fdaSubmission) {
+        this.fdaSubmissions.remove(fdaSubmission);
+        fdaSubmission.getArticles().remove(this);
+        return this;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
@@ -311,17 +352,12 @@ public class Article implements Serializable {
         return "Article{" +
             "id=" + getId() +
             ", type='" + getType() + "'" +
+            ", uid='" + getUid() + "'" +
+            ", title='" + getTitle() + "'" +
             ", content='" + getContent() + "'" +
             ", link='" + getLink() + "'" +
-            ", pmid='" + getPmid() + "'" +
-            ", elocationId='" + getElocationId() + "'" +
-            ", title='" + getTitle() + "'" +
             ", authors='" + getAuthors() + "'" +
-            ", journal='" + getJournal() + "'" +
-            ", volume='" + getVolume() + "'" +
-            ", issue='" + getIssue() + "'" +
-            ", pages='" + getPages() + "'" +
-            ", pubDate='" + getPubDate() + "'" +
+            ", date='" + getDate() + "'" +
             "}";
     }
 }

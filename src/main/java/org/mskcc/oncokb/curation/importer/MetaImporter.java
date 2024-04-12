@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.curation.importer;
 
+import static org.mskcc.oncokb.curation.config.Constants.DEFAULT_GENE_SYNONMN_SOURCE;
 import static org.mskcc.oncokb.curation.config.DataVersions.NCIT_VERSION;
 import static org.mskcc.oncokb.curation.util.FileUtils.parseDelimitedFile;
 
@@ -10,9 +11,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.*;
+import org.mskcc.oncokb.curation.model.IntegerRange;
 import org.mskcc.oncokb.curation.service.*;
 import org.mskcc.oncokb.curation.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.curation.service.mapper.TranscriptMapper;
+import org.mskcc.oncokb.curation.util.HotspotUtils;
 import org.oncokb.ApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,14 +165,73 @@ public class MetaImporter {
 
         log.info("Importing genomic indicator...");
         this.importGenomicIndicator();
-        log.info("Importing cancer type...");
-        oncoTreeImporter.generalImport();
+
+        log.info("Importing NCIT...");
+        this.importNcit();
 
         log.info("Importing core dataset...");
         coreImporter.generalImport();
 
-        log.info("Verifying the OncoKB gene hugo is the same with cBioPortal gene list");
-        coreImporter.verifyGene();
+        log.info("Importing hotspots...");
+        importHotspot();
+    }
+
+    private List<Alteration> fetchAndSaveHotspotAlteration(Gene gene, String altName) {
+        List<Alteration> existingAlts = alterationService.findByNameOrAlterationAndGenesId(altName, gene.getId());
+        if (existingAlts.isEmpty()) {
+            Alteration alteration = new Alteration();
+            alteration.setName(altName);
+            alteration.setAlteration(altName);
+            alteration.setProteinChange(altName);
+            alteration.setGenes(Collections.singleton(gene));
+            mainService.annotateAlteration(ReferenceGenome.GRCh37, alteration);
+            return Collections.singletonList(alterationService.save(alteration));
+        } else {
+            return existingAlts;
+        }
+    }
+
+    private void importHotspot() throws IOException {
+        Flag hotspotFlag = flagService.findByTypeAndFlag(FlagType.HOTSPOT, HotspotFlagEnum.HOTSPOT_V1.name()).get();
+        Flag threeDFlag = flagService.findByTypeAndFlag(FlagType.HOTSPOT, HotspotFlagEnum.THREE_D.name()).get();
+
+        List<List<String>> hotspotLines = parseTsvMetaFile("cancer_hotspots_gn.tsv");
+        hotspotLines.forEach(line -> {
+            String hugoSymbol = line.get(0);
+            log.info("Search for gene {}", hugoSymbol);
+            List<Gene> geneList = geneService.findGeneByHugoSymbolOrGeneAliasesIn(hugoSymbol);
+            if (geneList.isEmpty()) {
+                log.error("Gene cannot be found {}", line.get(0));
+                return;
+            }
+            Gene gene = geneList.iterator().next();
+
+            String type = line.get(3);
+            String residue = line.get(1);
+
+            List<Alteration> alterations = new ArrayList<>();
+            if ("splice residue".equals(type) || "splice site".equals(type)) {
+                String proteinChange = residue + "_splice";
+                alterations.addAll(fetchAndSaveHotspotAlteration(gene, proteinChange));
+            } else if ("in-frame indel".equals(type)) {
+                IntegerRange integerRange = HotspotUtils.extractProteinPos(residue);
+                String proteinName = integerRange.getStart() + "_" + integerRange.getEnd();
+                alterations.addAll(fetchAndSaveHotspotAlteration(gene, proteinName + "ins"));
+                alterations.addAll(fetchAndSaveHotspotAlteration(gene, proteinName + "del"));
+            } else if ("single residue".equals(type) || "3d".equals(type)) {
+                alterations.addAll(fetchAndSaveHotspotAlteration(gene, residue));
+            } else {
+                log.error("Unhandled type of hotspot {}", type);
+            }
+            for (Alteration alteration : alterations) {
+                if ("3d".equals(type)) {
+                    alteration.addFlag(threeDFlag);
+                } else {
+                    alteration.addFlag(hotspotFlag);
+                }
+                alterationService.save(alteration);
+            }
+        });
     }
 
     private void importFlag() throws IOException {
@@ -223,11 +285,15 @@ public class MetaImporter {
                 .filter(synonym -> StringUtils.isNotEmpty(synonym.trim()))
                 .forEach(synonym -> {
                     String trimmedSynonym = synonym.trim();
-                    Optional<Synonym> synonymOptional = synonymService.findByTypeAndName(SynonymType.GENE, trimmedSynonym);
+                    Optional<Synonym> synonymOptional = synonymService.findByTypeAndSourceAndName(
+                        SynonymType.GENE,
+                        DEFAULT_GENE_SYNONMN_SOURCE,
+                        trimmedSynonym
+                    );
                     if (synonymOptional.isEmpty()) {
                         Synonym geneSynonym = new Synonym();
                         geneSynonym.setName(synonym.trim());
-                        geneSynonym.setSource("cBioPortal");
+                        geneSynonym.setSource(DEFAULT_GENE_SYNONMN_SOURCE);
                         geneSynonym.setType(SynonymType.GENE.name());
                         savedSynonyms.add(synonymService.save(geneSynonym));
                     } else {
@@ -283,7 +349,7 @@ public class MetaImporter {
             Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(Integer.parseInt(line.get(0)));
             if (geneOptional.isEmpty()) {
                 log.error("Can't find gene {}", line.get(0));
-                return;
+                continue;
             }
             ensemblGene.setGene(geneOptional.get());
             ensemblGene.setReferenceGenome(ReferenceGenome.valueOf(line.get(2)));
@@ -312,7 +378,7 @@ public class MetaImporter {
             );
             if (ensemblGeneOptional.isEmpty()) {
                 log.error("Cannot find ensembl gene {} {}", line.get(3), ReferenceGenome.valueOf(line.get(2)));
-                return;
+                continue;
             }
             Optional<TranscriptDTO> transcriptOptional = transcriptService.findByEnsemblGeneAndEnsemblTranscriptId(
                 ensemblGeneOptional.get(),
@@ -320,7 +386,7 @@ public class MetaImporter {
             );
             if (transcriptOptional.isEmpty()) {
                 log.error("Can't find transcript {}", line.get(4));
-                return;
+                continue;
             }
             genomeFragment.setTranscript(transcriptMapper.toEntity(transcriptOptional.get()));
             genomeFragment.setType(GenomeFragmentType.valueOf(line.get(5)));
@@ -351,7 +417,7 @@ public class MetaImporter {
                 if (StringUtils.isNotEmpty(line.get(4))) {
                     Set<AlleleState> alleleStateList = Arrays
                         .stream(line.get(4).split(","))
-                        .map(alleleState -> alleleStateService.findByName(alleleState.trim()).get())
+                        .map(alleleState -> alleleStateService.findByNameIgnoreCase(alleleState.trim()).get())
                         .collect(Collectors.toSet());
                     genomicIndicator.setAlleleStates(alleleStateList);
                     genomicIndicatorService.partialUpdate(genomicIndicator);
@@ -366,7 +432,7 @@ public class MetaImporter {
             }
             Alteration alteration;
             List<Alteration> alterationList = alterationService.findByNameOrAlterationAndGenesId(line.get(1), geneOptional.get().getId());
-            if (alterationList.size() == 0) {
+            if (alterationList.isEmpty()) {
                 log.warn("Cannot find alteration {} in {}, will create a new one.", line.get(1), line.get(0));
                 Alteration newAlt = new Alteration();
                 newAlt.setGenes(Collections.singleton(geneOptional.get()));
@@ -398,7 +464,7 @@ public class MetaImporter {
             Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(Integer.parseInt(line.get(0)));
             if (geneOptional.isEmpty()) {
                 log.error("Can't find gene {}", line.get(0));
-                return;
+                continue;
             }
             transcript.setGene(geneOptional.get());
             Optional<EnsemblGene> ensemblGeneOptional = ensemblGeneService.findByEnsemblGeneIdAndReferenceGenome(
@@ -407,7 +473,7 @@ public class MetaImporter {
             );
             if (ensemblGeneOptional.isEmpty()) {
                 log.error("Error find ensembl gene {} {}", line.get(2), line.get(3));
-                return;
+                continue;
             }
             transcript.setReferenceGenome(ReferenceGenome.valueOf(line.get(2)));
             transcript.setEnsemblGene(ensemblGeneOptional.get());
@@ -439,10 +505,13 @@ public class MetaImporter {
                 );
                 if (transcriptOptional.isEmpty()) {
                     log.error("Error find transcript {} {}", referenceGenome, transcriptId);
-                    return;
+                    continue;
                 }
                 Optional<Flag> flagOptional = flagService.findByTypeAndFlag(FlagType.TRANSCRIPT, flag);
                 transcriptOptional.get().getFlags().add(flagOptional.get());
+                if (TranscriptFlagEnum.ONCOKB.name().equals(flag)) {
+                    transcriptOptional.get().setCanonical(true);
+                }
                 transcriptService.partialUpdate(transcriptOptional.get());
             }
             if ((i + 1) % 1000 == 0) {
@@ -462,7 +531,7 @@ public class MetaImporter {
             );
             if (ensemblGeneOptional.isEmpty()) {
                 log.error("Error find ensembl gene {} {}", line.get(2), line.get(3));
-                return;
+                continue;
             }
             Optional<TranscriptDTO> transcriptOptional = transcriptService.findByEnsemblGeneAndEnsemblTranscriptId(
                 ensemblGeneOptional.get(),
@@ -470,7 +539,7 @@ public class MetaImporter {
             );
             if (transcriptOptional.isEmpty()) {
                 log.error("Error find transcript {}", line.get(4));
-                return;
+                continue;
             }
             sequence.setTranscript(transcriptMapper.toEntity(transcriptOptional.get()));
             sequence.setSequenceType(SequenceType.valueOf(line.get(5)));
@@ -518,7 +587,11 @@ public class MetaImporter {
                     return synonym;
                 })
                 .map(synonym -> {
-                    Optional<Synonym> synonymOptional = synonymService.findByTypeAndName(SynonymType.NCIT, synonym.getName());
+                    Optional<Synonym> synonymOptional = synonymService.findByTypeAndSourceAndName(
+                        SynonymType.NCIT,
+                        "NCIT",
+                        synonym.getName()
+                    );
                     if (synonymOptional.isEmpty()) {
                         return synonymService.save(synonym);
                     } else {

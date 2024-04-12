@@ -13,26 +13,22 @@ import org.springframework.stereotype.Repository;
 /**
  * Spring Data SQL repository for the Association entity.
  */
+@JaversSpringDataAuditable
 @Repository
 public interface AssociationRepository extends JpaRepository<Association, Long> {
     @Query(
-        value = "select distinct association from Association association left join fetch association.alterations left join fetch association.articles left join fetch association.treatments",
+        value = "select distinct association from Association association left join fetch association.alterations left join fetch association.articles left join fetch association.cancerTypes left join fetch association.drugs",
         countQuery = "select count(distinct association) from Association association"
     )
     Page<Association> findAllWithEagerRelationships(Pageable pageable);
 
     @Query(
-        "select distinct association from Association association left join fetch association.alterations left join fetch association.articles left join fetch association.treatments"
+        "select distinct association from Association association left join fetch association.alterations left join fetch association.articles left join fetch association.cancerTypes left join fetch association.drugs"
     )
     List<Association> findAllWithEagerRelationships();
 
     @Query(
-        "select association from Association association" +
-        " left join fetch association.alterations" +
-        " left join fetch association.articles" +
-        " left join fetch association.treatments ts" +
-        " left join fetch ts.drugs" +
-        " where association.id =:id"
+        "select association from Association association left join fetch association.alterations left join fetch association.articles left join fetch association.cancerTypes left join fetch association.drugs where association.id =:id"
     )
     Optional<Association> findOneWithEagerRelationships(@Param("id") Long id);
 }

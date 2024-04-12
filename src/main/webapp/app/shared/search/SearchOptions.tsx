@@ -39,7 +39,7 @@ export const SearchOption: React.FunctionComponent<SearchOptionProps> = props =>
       case SearchOptionType.ARTICLE: {
         const data: IArticle = props.data;
         path = PAGE_ROUTE.ARTICLE + path;
-        title = { label: 'PMID: ', text: data.pmid, searchWords: [searchKeyword] };
+        title = { label: 'UID: ', text: data.uid, searchWords: [searchKeyword] };
         break;
       }
       case SearchOptionType.DRUG: {
@@ -47,13 +47,6 @@ export const SearchOption: React.FunctionComponent<SearchOptionProps> = props =>
         path = PAGE_ROUTE.DRUG + path;
         title = { text: data.name, searchWords: [searchKeyword] };
         subTitles = [];
-        if (data.brands) {
-          subTitles.push({
-            label: 'Brands: ',
-            text: data.brands?.map(brand => brand.name).join(', '),
-            searchWords: [searchKeyword],
-          });
-        }
         if (data.nciThesaurus?.synonyms) {
           subTitles.push({
             label: 'Also known as ',

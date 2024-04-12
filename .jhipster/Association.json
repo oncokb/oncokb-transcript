@@ -9,9 +9,9 @@
   "relationships": [
     {
       "relationshipType": "one-to-many",
-      "otherEntityName": "associationCancerType",
+      "otherEntityName": "rule",
       "otherEntityRelationshipName": "association",
-      "relationshipName": "associationCancerType"
+      "relationshipName": "rule"
     },
     {
       "relationshipType": "many-to-many",
@@ -29,9 +29,16 @@
     },
     {
       "relationshipType": "many-to-many",
-      "otherEntityName": "treatment",
+      "otherEntityName": "cancerType",
       "otherEntityRelationshipName": "association",
-      "relationshipName": "treatment",
+      "relationshipName": "cancerType",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "drug",
+      "otherEntityRelationshipName": "association",
+      "relationshipName": "drug",
       "ownerSide": true
     },
     {

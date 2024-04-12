@@ -45,8 +45,8 @@
 
         <addPrimaryKey columnNames="association_id, article_id" tableName="rel_association__article"/>
 
-        <createTable tableName="rel_association__treatment">
-            <column name="treatment_id" type="bigint">
+        <createTable tableName="rel_association__cancer_type">
+            <column name="cancer_type_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
             <column name="association_id" type="bigint">
@@ -54,7 +54,18 @@
             </column>
         </createTable>
 
-        <addPrimaryKey columnNames="association_id, treatment_id" tableName="rel_association__treatment"/>
+        <addPrimaryKey columnNames="association_id, cancer_type_id" tableName="rel_association__cancer_type"/>
+
+        <createTable tableName="rel_association__drug">
+            <column name="drug_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="association_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="association_id, drug_id" tableName="rel_association__drug"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

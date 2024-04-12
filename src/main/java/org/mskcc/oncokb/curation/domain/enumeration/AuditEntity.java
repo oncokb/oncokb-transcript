@@ -4,7 +4,6 @@ public enum AuditEntity {
     ALTERATION("Alteration"),
     ARTICLE("Article"),
     ASSOCIATION("Association"),
-    ASSOCIATION_CANCER_TYPE("AssociationCancerType"),
     AUTHORITY("Authority"),
     CANCER_TYPE("CancerType"),
     CATEGORICAL_ALTERATION("CategoricalAlteration"),
@@ -13,8 +12,6 @@ public enum AuditEntity {
     COMPANION_DIAGNOSTIC_DEVICE("CompanionDiagnosticDevice"),
     CONSEQUENCE("Consequence"),
     DRUG("Drug"),
-    DRUG_BRAND("DrugBrand"),
-    DRUG_PRIORITY("DrugPriority"),
     ELIGIBILITY_CRITERIA("EligibilityCriteria"),
     ENSEMBL_GENE("EnsemblGene"),
     EVIDENCE("Evidence"),
@@ -33,8 +30,6 @@ public enum AuditEntity {
     SPECIMEN_TYPE("SpecimenType"),
     SYNONYM("Synonym"),
     TRANSCRIPT("Transcript"),
-    TREATMENT("Treatment"),
-    TREATMENT_PRIORITY("TreatmentPriority"),
     USER("User");
 
     private String className;

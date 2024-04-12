@@ -8,10 +8,14 @@ import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Article;
+import org.mskcc.oncokb.curation.domain.nih.efetch.ArticleId;
 import org.mskcc.oncokb.curation.repository.ArticleRepository;
 import org.mskcc.oncokb.curation.service.ArticleQueryService;
 import org.mskcc.oncokb.curation.service.ArticleService;
+import org.mskcc.oncokb.curation.service.NihEutilsService;
 import org.mskcc.oncokb.curation.service.criteria.ArticleCriteria;
+import org.mskcc.oncokb.curation.service.dto.pubmed.PubMedDTO;
+import org.mskcc.oncokb.curation.service.mapper.PubMedMapper;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.service.filter.StringFilter;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -42,13 +47,23 @@ public class ArticleResource {
     private String applicationName;
 
     private final ArticleService articleService;
+    private final NihEutilsService nihEutilsService;
+    private final PubMedMapper pubMedMapper;
 
     private final ArticleRepository articleRepository;
 
     private final ArticleQueryService articleQueryService;
 
-    public ArticleResource(ArticleService articleService, ArticleRepository articleRepository, ArticleQueryService articleQueryService) {
+    public ArticleResource(
+        ArticleService articleService,
+        NihEutilsService nihEutilsService,
+        PubMedMapper pubMedMapper,
+        ArticleRepository articleRepository,
+        ArticleQueryService articleQueryService
+    ) {
         this.articleService = articleService;
+        this.nihEutilsService = nihEutilsService;
+        this.pubMedMapper = pubMedMapper;
         this.articleRepository = articleRepository;
         this.articleQueryService = articleQueryService;
     }
@@ -213,5 +228,28 @@ public class ArticleResource {
         Page<Article> page = articleQueryService.findBySearchQuery(query, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /articles/pubmed/{pmid}} : get the PubMed article by PMID.
+     *
+     * @param pmid PubMed ID to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the PubMed article, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("/articles/pubmed/{pmid}")
+    public ResponseEntity<PubMedDTO> getPubMedArticle(@PathVariable Long pmid) {
+        log.debug("REST request to get PubMed Article : {}", pmid);
+        ArticleCriteria articleCriteria = new ArticleCriteria();
+        PubMedDTO pubMedDTO;
+        StringFilter stringFilter = new StringFilter();
+        stringFilter.setEquals(String.valueOf(pmid));
+        articleCriteria.setUid(stringFilter);
+        List<Article> matchedArticles = articleQueryService.findByCriteria(articleCriteria);
+        if (matchedArticles.isEmpty()) {
+            pubMedDTO = pubMedMapper.articleToPubMedDTO(articleService.fetchAndSavePubMed(String.valueOf(pmid)));
+        } else {
+            pubMedDTO = pubMedMapper.articleToPubMedDTO(articleService.findOne(matchedArticles.iterator().next().getId()).get());
+        }
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(pubMedDTO));
     }
 }

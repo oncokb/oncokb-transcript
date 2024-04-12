@@ -17,7 +17,8 @@
     },
     {
       "fieldName": "name",
-      "fieldType": "String"
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "note",
@@ -26,6 +27,13 @@
     }
   ],
   "relationships": [
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "article",
+      "otherEntityRelationshipName": "synonym",
+      "relationshipName": "article",
+      "ownerSide": false
+    },
     {
       "relationshipType": "many-to-many",
       "otherEntityName": "cancerType",

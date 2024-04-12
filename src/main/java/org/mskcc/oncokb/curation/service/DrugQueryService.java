@@ -115,16 +115,13 @@ public class DrugQueryService extends QueryService<Drug> {
                 specification =
                     specification.or(buildSpecification(criteria.getFlagId(), root -> root.join(Drug_.flags, JoinType.LEFT).get(Flag_.id)));
             }
-            if (criteria.getFdaDrugId() != null) {
+            if (criteria.getAssociationId() != null) {
                 specification =
                     specification.or(
-                        buildSpecification(criteria.getFdaDrugId(), root -> root.join(Drug_.fdaDrug, JoinType.LEFT).get(FdaDrug_.id))
-                    );
-            }
-            if (criteria.getTreatmentId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getTreatmentId(), root -> root.join(Drug_.treatments, JoinType.LEFT).get(Treatment_.id))
+                        buildSpecification(
+                            criteria.getAssociationId(),
+                            root -> root.join(Drug_.associations, JoinType.LEFT).get(Association_.id)
+                        )
                     );
             }
         }

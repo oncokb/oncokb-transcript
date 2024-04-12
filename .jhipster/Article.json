@@ -4,8 +4,17 @@
     {
       "fieldName": "type",
       "fieldType": "ArticleType",
-      "fieldValues": "PMID,ABSTRACT",
+      "fieldValues": "PUBMED,ABSTRACT,REFERENCE,FDADRUG_LETTER,FDADRUG_LABEL,FDADRUG_SUMMARY,FDADRUG_SUMMARY_REVIEW",
       "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "uid",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "title",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
     },
     {
       "fieldName": "content",
@@ -17,49 +26,41 @@
       "fieldType": "String"
     },
     {
-      "fieldName": "pmid",
-      "fieldType": "String"
-    },
-    {
-      "fieldName": "elocationId",
-      "fieldType": "String"
-    },
-    {
-      "fieldName": "title",
-      "fieldType": "byte[]",
-      "fieldTypeBlobContent": "text"
-    },
-    {
       "fieldName": "authors",
       "fieldType": "String"
     },
     {
-      "fieldName": "journal",
-      "fieldType": "String"
-    },
-    {
-      "fieldName": "volume",
-      "fieldType": "String"
-    },
-    {
-      "fieldName": "issue",
-      "fieldType": "String"
-    },
-    {
-      "fieldName": "pages",
-      "fieldType": "String"
-    },
-    {
-      "fieldName": "pubDate",
-      "fieldType": "String"
+      "fieldName": "date",
+      "fieldType": "Instant"
     }
   ],
   "relationships": [
     {
       "relationshipType": "many-to-many",
+      "otherEntityName": "flag",
+      "otherEntityRelationshipName": "article",
+      "relationshipName": "flag",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "synonym",
+      "otherEntityRelationshipName": "article",
+      "relationshipName": "synonym",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-many",
       "otherEntityName": "association",
       "otherEntityRelationshipName": "article",
       "relationshipName": "association",
+      "ownerSide": false
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "fdaSubmission",
+      "otherEntityRelationshipName": "article",
+      "relationshipName": "fdaSubmission",
       "ownerSide": false
     }
   ],

@@ -12,5 +12,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface SynonymRepository extends JpaRepository<Synonym, Long>, JpaSpecificationExecutor<Synonym> {
-    Optional<Synonym> findByTypeAndName(String type, String name);
+    Optional<Synonym> findByTypeAndSourceAndName(String type, String source, String name);
 }

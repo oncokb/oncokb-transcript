@@ -39,6 +39,9 @@ public class Importer {
     private MetaImporter metaImporter;
 
     @Autowired
+    private CoreImporter coreImporter;
+
+    @Autowired
     private CdxImporter cdxImporter;
 
     @Autowired
@@ -101,6 +104,7 @@ public class Importer {
         this.metaImporter.generalImport();
         firebaseService.importDrugs();
         cdxImporter.importCdxMain();
+        this.coreImporter.importArticle();
         //        firebaseService.readGene();
     }
 

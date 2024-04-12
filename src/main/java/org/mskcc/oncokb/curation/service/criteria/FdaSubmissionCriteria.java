@@ -39,15 +39,17 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
 
     private InstantFilter decisionDate;
 
-    private StringFilter platform;
-
     private BooleanFilter curated;
 
     private BooleanFilter genetic;
 
+    private LongFilter articleId;
+
     private LongFilter associationId;
 
     private LongFilter companionDiagnosticDeviceId;
+
+    private LongFilter fdaDrugId;
 
     private LongFilter typeId;
 
@@ -63,11 +65,12 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
         this.genericName = other.genericName == null ? null : other.genericName.copy();
         this.dateReceived = other.dateReceived == null ? null : other.dateReceived.copy();
         this.decisionDate = other.decisionDate == null ? null : other.decisionDate.copy();
-        this.platform = other.platform == null ? null : other.platform.copy();
         this.curated = other.curated == null ? null : other.curated.copy();
         this.genetic = other.genetic == null ? null : other.genetic.copy();
+        this.articleId = other.articleId == null ? null : other.articleId.copy();
         this.associationId = other.associationId == null ? null : other.associationId.copy();
         this.companionDiagnosticDeviceId = other.companionDiagnosticDeviceId == null ? null : other.companionDiagnosticDeviceId.copy();
+        this.fdaDrugId = other.fdaDrugId == null ? null : other.fdaDrugId.copy();
         this.typeId = other.typeId == null ? null : other.typeId.copy();
         this.distinct = other.distinct;
     }
@@ -212,6 +215,21 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
         this.genetic = genetic;
     }
 
+    public LongFilter getArticleId() {
+        return articleId;
+    }
+
+    public LongFilter articleId() {
+        if (articleId == null) {
+            articleId = new LongFilter();
+        }
+        return articleId;
+    }
+
+    public void setArticleId(LongFilter articleId) {
+        this.articleId = articleId;
+    }
+
     public LongFilter getAssociationId() {
         return associationId;
     }
@@ -240,6 +258,21 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
 
     public void setCompanionDiagnosticDeviceId(LongFilter companionDiagnosticDeviceId) {
         this.companionDiagnosticDeviceId = companionDiagnosticDeviceId;
+    }
+
+    public LongFilter getFdaDrugId() {
+        return fdaDrugId;
+    }
+
+    public LongFilter fdaDrugId() {
+        if (fdaDrugId == null) {
+            fdaDrugId = new LongFilter();
+        }
+        return fdaDrugId;
+    }
+
+    public void setFdaDrugId(LongFilter fdaDrugId) {
+        this.fdaDrugId = fdaDrugId;
     }
 
     public LongFilter getTypeId() {
@@ -282,11 +315,12 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
             Objects.equals(genericName, that.genericName) &&
             Objects.equals(dateReceived, that.dateReceived) &&
             Objects.equals(decisionDate, that.decisionDate) &&
-            Objects.equals(platform, that.platform) &&
             Objects.equals(curated, that.curated) &&
             Objects.equals(genetic, that.genetic) &&
+            Objects.equals(articleId, that.articleId) &&
             Objects.equals(associationId, that.associationId) &&
             Objects.equals(companionDiagnosticDeviceId, that.companionDiagnosticDeviceId) &&
+            Objects.equals(fdaDrugId, that.fdaDrugId) &&
             Objects.equals(typeId, that.typeId) &&
             Objects.equals(distinct, that.distinct)
         );
@@ -302,11 +336,12 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
             genericName,
             dateReceived,
             decisionDate,
-            platform,
             curated,
             genetic,
+            articleId,
             associationId,
             companionDiagnosticDeviceId,
+            fdaDrugId,
             typeId,
             distinct
         );
@@ -323,11 +358,12 @@ public class FdaSubmissionCriteria implements Serializable, Criteria {
             (genericName != null ? "genericName=" + genericName + ", " : "") +
             (dateReceived != null ? "dateReceived=" + dateReceived + ", " : "") +
             (decisionDate != null ? "decisionDate=" + decisionDate + ", " : "") +
-            (platform != null ? "platform=" + platform + ", " : "") +
             (curated != null ? "curated=" + curated + ", " : "") +
             (genetic != null ? "genetic=" + genetic + ", " : "") +
+            (articleId != null ? "articleId=" + articleId + ", " : "") +
             (associationId != null ? "associationId=" + associationId + ", " : "") +
             (companionDiagnosticDeviceId != null ? "companionDiagnosticDeviceId=" + companionDiagnosticDeviceId + ", " : "") +
+            (fdaDrugId != null ? "fdaDrugId=" + fdaDrugId + ", " : "") +
             (typeId != null ? "typeId=" + typeId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
