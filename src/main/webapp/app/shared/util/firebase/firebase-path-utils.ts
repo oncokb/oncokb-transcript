@@ -1,4 +1,3 @@
-import { Gene } from 'app/shared/model/firebase/firebase.model';
 import { FB_COLLECTION } from 'app/config/constants/firebase';
 
 type FirebaseGenePathDetails = {

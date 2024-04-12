@@ -1,4 +1,4 @@
-import { APP_DATE_FORMAT, INTEGER_REGEX } from 'app/config/constants/constants';
+import { APP_DATE_FORMAT } from 'app/config/constants/constants';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField';
 import ValidatedForm from 'app/shared/form/ValidatedForm';
@@ -16,6 +16,7 @@ import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/load
 import { convertDateTimeFromServer, convertDateTimeToServer } from 'app/shared/util/date-utils';
 import GenericSidebar from 'app/components/sidebar/OncoKBSidebar';
 import CompanionDiagnosticDevicePanel from 'app/components/panels/CompanionDiagnosticDevicePanel';
+import { WHOLE_NUMBER_REGEX } from 'app/config/constants/regex';
 
 export interface ICompanionDiagnosticDeviceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -43,7 +44,7 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
     const specimenTypeValues = mapSelectOptionList(values.specimenTypes);
     const updatedSpecimenTypes = [];
     for (const stv of specimenTypeValues) {
-      if (!INTEGER_REGEX.test(stv.id)) {
+      if (!WHOLE_NUMBER_REGEX.test(stv.id)) {
         try {
           const result = (await props.createSpecimenType({ type: stv.id, name: stv.id })) as any;
           updatedSpecimenTypes.push(result.data);

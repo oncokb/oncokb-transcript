@@ -3,7 +3,7 @@ import './navigation-sidebar.scss';
 import oncokbLogo from 'oncokb-styles/dist/images/logo/oncokb.svg';
 import oncokbSmallLogo from 'oncokb-styles/dist/images/oncogenic.svg';
 import { observer } from 'mobx-react';
-import { AUTHORITIES, DEFAULT_NAV_ICON_SIZE, ENTITY_INFO, ENTITY_TYPE, INTEGER_REGEX, PAGE_ROUTE } from 'app/config/constants/constants';
+import { AUTHORITIES, DEFAULT_NAV_ICON_SIZE, ENTITY_INFO, ENTITY_TYPE, PAGE_ROUTE } from 'app/config/constants/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { NavLink } from 'react-router-dom';
@@ -22,6 +22,7 @@ import { MskccLogo } from 'app/shared/logo/MskccLogo';
 import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_EXPANDED_WIDTH } from 'app/stores/layout.store';
 import _ from 'lodash';
 import classNames from 'classnames';
+import { WHOLE_NUMBER_REGEX } from 'app/config/constants/regex';
 
 const PRIORITY_ENTITY_MENU_ITEM_KEY = 'oncokbCurationEntityMenuPriorityKey';
 
@@ -187,7 +188,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
         .map((key: ENTITY_TYPE) => {
           let frequency = 0;
           const target = _.find(frequencies, { type: ENTITY_TYPE[key] });
-          frequency = target && INTEGER_REGEX.test(target.frequency) ? parseInt(target.frequency, 10) : 0;
+          frequency = target && WHOLE_NUMBER_REGEX.test(target.frequency) ? parseInt(target.frequency, 10) : 0;
           return { type: ENTITY_TYPE[key], frequency };
         });
       setEntityMenuFrequencies(parsedFrequencies);

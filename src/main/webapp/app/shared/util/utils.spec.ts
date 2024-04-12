@@ -1,7 +1,21 @@
 import 'jest-expect-message';
-import { expandAlterationName, generateUuid, isUuid, parseAlterationName } from './utils';
+import { getCancerTypeName, expandAlterationName, generateUuid, isUuid, parseAlterationName } from './utils';
 
 describe('Utils', () => {
+  describe('getCancerTypeName', () => {
+    it('should return correct cancer type name when code, main type and subtype are available', () => {
+      const cancerType = { code: 'MEL', mainType: 'Melanoma', subtype: 'Ocular Melanoma' };
+      expect(getCancerTypeName(cancerType)).toEqual('Ocular Melanoma (MEL)');
+      expect(getCancerTypeName(cancerType, true)).toEqual('Ocular Melanoma');
+    });
+
+    it('should return correct cancer type name when no subtype', () => {
+      const cancerType = { code: 'MEL', mainType: 'Melanoma' };
+      expect(getCancerTypeName(cancerType)).toEqual('Melanoma');
+      expect(getCancerTypeName(cancerType, true)).toEqual('Melanoma');
+    });
+  });
+
   describe('expandAlterationName', () => {
     it('should expand alterations when correctly formatted', () => {
       const correctlyFormattedNames = ['V600E', 'V600E/G', 'V600E/G/F', 'V 600 E', 'V 600 E/G', 'V600 E/G/ F', 'V 600 E / G / F'];

@@ -1,4 +1,4 @@
-import { REFERENCE_LINK_REGEX } from 'app/config/constants/constants';
+import { REFERENCE_LINK_REGEX } from 'app/config/constants/regex';
 import { ParsedRef, parseReferences } from 'app/oncokb-commons/components/RefComponent';
 import React from 'react';
 

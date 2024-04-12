@@ -2,7 +2,9 @@ import 'jest-expect-message';
 import {
   compareFirebaseOncogenicities,
   compareMutationsByCategoricalAlteration,
+  compareMutationsByOncogenicity,
   compareMutationsByProteinChangePosition,
+  compareMutationsBySingleAlteration,
   convertNestedObject,
   geneNeedsReview,
   getFirebasePath,
@@ -11,7 +13,6 @@ import {
   getValueByNestedKey,
   isNestedObjectEmpty,
   isSectionEmpty,
-  isSectionRemovableWithoutReview,
   sortByDxLevel,
   sortByPxLevel,
   sortByTxLevel,
@@ -24,15 +25,10 @@ import {
   MetaReview,
   Mutation,
   PX_LEVELS,
-  Review,
   TX_LEVELS,
-  Treatment,
-  Tumor,
 } from 'app/shared/model/firebase/firebase.model';
 import { generateUuid } from '../utils';
-import { NestLevelType } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
-import { LEVELS } from 'app/config/colors';
 
 describe('FirebaseUtils', () => {
   describe('convertNestedObject', () => {
@@ -513,6 +509,16 @@ describe('FirebaseUtils', () => {
     });
   });
 
+  describe('compareMutationsBySingleAlteration', () => {
+    it('should give priority to single alteration', () => {
+      expect(compareMutationsBySingleAlteration(new Mutation('V600A'), new Mutation('V600A,V600B,V600C'))).toBeLessThan(0);
+
+      expect(compareMutationsBySingleAlteration(new Mutation('V600A,V600B'), new Mutation('V600A,V600B,V600C'))).toEqual(0);
+      expect(compareMutationsBySingleAlteration(new Mutation('V600A'), new Mutation('V600B'))).toEqual(0);
+      expect(compareMutationsBySingleAlteration(new Mutation('Oncogenic Mutations {excluding V600E}'), new Mutation('V600B'))).toEqual(0);
+    });
+  });
+
   describe('compareMutationsByProteinChangePosition', () => {
     it('should compare mutations correctly', () => {
       expect(compareMutationsByProteinChangePosition(new Mutation('V600E'), new Mutation('V700E'))).toBeLessThan(0);
@@ -524,9 +530,12 @@ describe('FirebaseUtils', () => {
 
       // Use start position as position
       expect(compareMutationsByProteinChangePosition(new Mutation('B800'), new Mutation('T599_V600insV'))).toBeGreaterThan(0);
+      expect(compareMutationsByProteinChangePosition(new Mutation('B599'), new Mutation('T599_V600insV'))).toEqual(0);
+      expect(compareMutationsByProteinChangePosition(new Mutation('B400'), new Mutation('T599_V600insV'))).toBeLessThan(0);
 
       // Anything ending in "Fusion" should go after, even if there is a number
       expect(compareMutationsByProteinChangePosition(new Mutation('AKAP9-BRAF Fusion'), new Mutation('B1G'))).toBeGreaterThan(0);
+      expect(compareMutationsByProteinChangePosition(new Mutation('AKAP1-BRAF Fusion'), new Mutation('B9G'))).toBeGreaterThan(0);
     });
   });
 
