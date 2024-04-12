@@ -523,6 +523,7 @@ const findMutationLevelReviews = (
         mutation.name,
         mutation.name_review.lastReviewed as string
       );
+      mutationNameReview.historyLocationString = mutationTitle;
       defaultReview.addChild(mutationNameReview);
       editorReviewMap.add(getEditorFromReview(mutation.name_review), defaultReview as ReviewLevel);
     } else {
@@ -598,6 +599,9 @@ const findMutationLevelReviews = (
     if (mutation.tumors) {
       findTumorLevelReviews(drugList, mutation.tumors, uuids, editorReviewMap, parentMutationReview);
     }
+
+    /* eslint-disable no-console */
+    console.log(defaultReview);
   }
 
   // Remove all mutation reviews that don't have any reviewables
