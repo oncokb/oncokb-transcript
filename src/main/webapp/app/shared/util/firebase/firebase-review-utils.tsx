@@ -599,9 +599,6 @@ const findMutationLevelReviews = (
     if (mutation.tumors) {
       findTumorLevelReviews(drugList, mutation.tumors, uuids, editorReviewMap, parentMutationReview);
     }
-
-    /* eslint-disable no-console */
-    console.log(defaultReview);
   }
 
   // Remove all mutation reviews that don't have any reviewables
