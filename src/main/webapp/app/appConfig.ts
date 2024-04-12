@@ -1,5 +1,6 @@
 type FrontendProperties = {
   firebase: FirebaseProperties;
+  sentryDsn: string;
 };
 
 export type FirebaseProperties = {
