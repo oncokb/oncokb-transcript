@@ -1,5 +1,6 @@
 package org.mskcc.oncokb.curation.config;
 
+import java.util.List;
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.web.websocket.ProxyWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +30,12 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
 
     // @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        CorsConfiguration config = jHipsterProperties.getCors();
-        registry
-            .addHandler(new ProxyWebSocketHandler(this.applicationProperties), "/api/websocket/**")
-            .setAllowedOrigins(config.getAllowedOrigins().toArray(new String[0]));
+        var handler = registry.addHandler(new ProxyWebSocketHandler(this.applicationProperties), "/api/websocket/**");
+
+        List<String> allowOrigins = jHipsterProperties.getCors().getAllowedOrigins();
+
+        if (allowOrigins != null) {
+            handler.setAllowedOrigins(allowOrigins.toArray(new String[0]));
+        }
     }
 }
