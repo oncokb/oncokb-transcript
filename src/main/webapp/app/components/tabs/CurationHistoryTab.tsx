@@ -15,9 +15,11 @@ import { ExtraTimeSeriesEventData, RequiredTimeSeriesEventData } from '../timeSe
 import './curation-history-tab.scss';
 import { IDrug } from 'app/shared/model/drug.model';
 import { GREY } from 'app/config/colors';
+import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
+import _ from 'lodash';
 
 export interface ICurationHistoryTabProps extends StoreProps {
-  historyData: HistoryList;
+  historyData: FlattenedHistory[];
 }
 
 type HistoryTabData = {
@@ -45,37 +47,12 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
     return output;
   }
 
-  const parsedHistoryData: HistoryTabData[] = useMemo(() => {
+  const parsedHistoryData = useMemo(() => {
     if (!historyData) {
       return [];
     }
 
-    const data: HistoryTabData[] = [];
-    for (const history of Object.values(historyData)) {
-      if (Symbol.iterator in history.records) {
-        for (const record of history.records) {
-          if (typeof record.new === 'object') {
-            findObjectFieldsInRecord(record).forEach(objectField => {
-              data.push({
-                record,
-                timeStamp: history.timeStamp,
-                admin: history.admin,
-                location: record.location,
-                objectField,
-              });
-            });
-          } else {
-            data.push({
-              record,
-              timeStamp: history.timeStamp,
-              admin: history.admin,
-              location: record.location,
-            });
-          }
-        }
-      }
-    }
-
+    const data = _.cloneDeep(historyData);
     data.sort((data1, data2) => new Date(data2.timeStamp).getTime() - new Date(data1.timeStamp).getTime());
     return data;
   }, [historyData]);
@@ -110,7 +87,7 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
     fetchAllDrugs();
   }, []);
 
-  function getHistoryContent(historyTabData: HistoryTabData[], maxLength: number = null) {
+  function getHistoryContent(historyTabData: FlattenedHistory[], maxLength: number = null) {
     const filteredData = historyTabData.filter(data => {
       const author = historyTabStore.appliedAuthor;
       const startDate = historyTabStore.appliedStartDate && new Date(historyTabStore.appliedStartDate);
@@ -119,7 +96,7 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
       let matchesAuthor = false;
       let matchesDates = false;
       const timeStamp = new Date(data.timeStamp);
-      if (!author || author.label === data.admin || author.label === data.record.lastEditBy) {
+      if (!author || author.label === data.admin || author.label === data.lastEditBy) {
         matchesAuthor = true;
       }
       if (startDate && endDate) {
@@ -137,7 +114,7 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
     // CONSTRUCT TIME SERIES DATA
     const eventData: (RequiredTimeSeriesEventData | ExtraTimeSeriesEventData)[] = [];
     for (const data of filteredData) {
-      const timeSeriesData = constructTimeSeriesData(data.record, data.admin, data.timeStamp, data.objectField);
+      const timeSeriesData = constructTimeSeriesData(data);
       if (timeSeriesData) {
         eventData.push(timeSeriesData);
       }

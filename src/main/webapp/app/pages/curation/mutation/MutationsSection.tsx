@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'reactstrap';
-import { ParsedHistoryRecord } from '../CurationPage';
 import FirebaseList from '../list/FirebaseList';
 import MutationName from './MutationName';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
@@ -15,13 +14,14 @@ import styles from '../styles.module.scss';
 import MutationsSectionHeader from '../header/MutationsSectionHeader';
 import classNames from 'classnames';
 import _ from 'lodash';
+import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import { onValue, ref } from 'firebase/database';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
   hugoSymbol: string;
   isGermline: boolean;
-  parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
+  parsedHistoryList: Map<string, FlattenedHistory[]>;
   onMutationListRender: () => void;
 }
 

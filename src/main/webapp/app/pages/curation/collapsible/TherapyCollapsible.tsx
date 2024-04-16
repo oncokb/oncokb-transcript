@@ -1,31 +1,30 @@
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
-import { CANCER_TYPE_THERAPY_INDENTIFIER } from 'app/config/constants/constants';
+import { READABLE_FIELD } from 'app/config/constants/firebase';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
+import CommentIcon from 'app/shared/icons/CommentIcon';
 import EditIcon from 'app/shared/icons/EditIcon';
 import ModifyTherapyModal from 'app/shared/modal/ModifyTherapyModal';
 import { Review } from 'app/shared/model/firebase/firebase.model';
+import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import { getTxName, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
-import TherapyDropdownGroup from './TherapyDropdownGroup';
-import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
-import CommentIcon from 'app/shared/icons/CommentIcon';
-import { ParsedHistoryRecord } from '../CurationPage';
+import BadgeGroup from '../BadgeGroup';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
 import RCTButton from '../button/RCTButton';
 import TreatmentLevelSummary from '../nestLevelSummary/TreatmentLevelSummary';
-import Collapsible from './Collapsible';
-import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import styles from '../styles.module.scss';
-import BadgeGroup from '../BadgeGroup';
+import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import { RemovableCollapsible } from './RemovableCollapsible';
+import TherapyDropdownGroup from './TherapyDropdownGroup';
 
 export interface ITherapyCollapsibleProps extends StoreProps {
   therapyPath: string;
-  parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
+  parsedHistoryList: Map<string, FlattenedHistory[]>;
   mutationName: string;
   cancerTypeName: string;
   cancerTypePath: string;
@@ -113,7 +112,7 @@ function TherapyCollapsible({
           labelIcon={
             <GeneHistoryTooltip
               historyData={parsedHistoryList}
-              location={`${CANCER_TYPE_THERAPY_INDENTIFIER}${mutationName}, ${cancerTypeName}, ${treatmentName}`}
+              location={`${mutationName}, ${cancerTypeName}, ${treatmentNameString}, ${READABLE_FIELD.DESCRIPTION}`}
             />
           }
           name="evidenceDescription"
@@ -126,7 +125,7 @@ function TherapyCollapsible({
           labelIcon={
             <GeneHistoryTooltip
               historyData={parsedHistoryList}
-              location={`${CANCER_TYPE_THERAPY_INDENTIFIER}${mutationName}, ${cancerTypeName}, ${treatmentName}`}
+              location={`${mutationName}, ${cancerTypeName}, ${treatmentNameString}, ${READABLE_FIELD.ADDITIONAL_INFORMATION}`}
             />
           }
           name="additionalEvidenceDescription"

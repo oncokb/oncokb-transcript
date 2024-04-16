@@ -299,4 +299,23 @@ export enum ReviewLevelType {
   REVIEWABLE, // This means that the review level has reviewable content
 }
 
+export enum READABLE_FIELD {
+  GENE_TYPE = 'Gene Type',
+  SUMMARY = 'Summary',
+  NAME = 'Name',
+  BACKGROUND = 'Background',
+  PENETRANCE = 'Penetrance',
+  DESCRIPTION = 'Description',
+  INHERITANCE_MECHANISM = 'Mechanism of Inheritance',
+  DIAGNOSTIC_SUMMARY = 'Diagnostic Summary',
+  PROGNOSTIC_SUMMARY = 'Prognostic Summary',
+  MUTATION_EFFECT = 'Mutation Effect',
+  PATHOGENIC = 'Pathogenic',
+  ONCOGENIC = 'Oncogenic',
+  EFFECT = 'Effect',
+  MUTATION_SPECIFIC_PENETRANCE = 'Mutation Specific Penetrance',
+  MUTATION_SPECIFIC_INHERITANCE = 'Mutation Specific Inheritance Mechanism',
+  ADDITIONAL_INFORMATION = 'Additional Information',
+}
+
 export const PATHOGENIC_VARIANTS = 'Pathogenic Variants';
