@@ -316,6 +316,9 @@ export enum READABLE_FIELD {
   MUTATION_SPECIFIC_PENETRANCE = 'Mutation Specific Penetrance',
   MUTATION_SPECIFIC_INHERITANCE = 'Mutation Specific Inheritance Mechanism',
   ADDITIONAL_INFORMATION = 'Additional Information',
+  FDA_LEVEL = 'FDA Level',
+  INDICATION = 'Indication',
+  PROPAGATION = 'Propagation',
 }
 
 export const PATHOGENIC_VARIANTS = 'Pathogenic Variants';

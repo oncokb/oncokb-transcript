@@ -1,5 +1,5 @@
 import 'jest-expect-message';
-import { expandAlterationName, parseAlterationName } from './utils';
+import { expandAlterationName, generateUuid, isUuid, parseAlterationName } from './utils';
 
 describe('Utils', () => {
   describe('expandAlterationName', () => {
@@ -107,6 +107,16 @@ describe('Utils', () => {
     it('should correctly parse alterations', () => {
       const results = alterationNames.map(alt => parseAlterationName(alt));
       expect(JSON.stringify(results)).toEqual(JSON.stringify(expectedOutputs));
+    });
+  });
+
+  describe('isUuid', () => {
+    it('should indentify uuids', () => {
+      const uuid = generateUuid();
+      expect(isUuid(uuid)).toBeTruthy();
+
+      const notUuid = '12345ase';
+      expect(isUuid(notUuid)).toBeFalsy();
     });
   });
 });

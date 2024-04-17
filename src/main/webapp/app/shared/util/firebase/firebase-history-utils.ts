@@ -279,12 +279,12 @@ export const findEntriesInObjectByUuids = (object: any, uuids: string[], drugLis
   return fieldValues;
 };
 
-function makeLocationReadable(locationParts: string[], drugList: readonly IDrug[]) {
+export function makeLocationReadable(locationParts: string[], drugList: readonly IDrug[]) {
   // Hard code more in. Remove default case?, change name so that function is also used for old locations
   return makeFirebaseKeysReadable(makeHistoryLocationReadable(locationParts, drugList));
 }
 
-function makeFirebaseKeysReadable(keys: string[]) {
+export function makeFirebaseKeysReadable(keys: string[]) {
   // Hard code more in. Remove default case?
   const readableKeys: string[] = [];
   for (const key of keys) {
@@ -335,7 +335,7 @@ function makeFirebaseKeysReadable(keys: string[]) {
   return readableKeys;
 }
 
-function makeHistoryLocationReadable(locationParts: string[], drugList: readonly IDrug[]) {
+export function makeHistoryLocationReadable(locationParts: string[], drugList: readonly IDrug[]) {
   const readableKeys: string[] = [];
   for (const part of locationParts) {
     if (Object.values(TI_TYPE_TO_HISTORY_STRING).includes(part)) {

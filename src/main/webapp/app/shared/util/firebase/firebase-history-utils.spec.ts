@@ -1,5 +1,7 @@
 import { HistoryOperationType } from 'app/shared/model/firebase/firebase.model';
-import { findEntriesInObjectByUuids, parseAddRecord, parseUpdateRecord } from './firebase-history-utils';
+import { findEntriesInObjectByUuids, makeHistoryLocationReadable, parseAddRecord, parseUpdateRecord } from './firebase-history-utils';
+import { IDrug } from 'app/shared/model/drug.model';
+import { generateUuid } from '../utils';
 
 describe('FirebaseHistoryUtils', () => {
   describe('findEntriesInObjectByUuids', () => {
@@ -229,6 +231,33 @@ describe('FirebaseHistoryUtils', () => {
       expect(parsedRecords[0].new).toBe('New');
       expect(parsedRecords[0].old).toBe('Old');
       expect(parsedRecords[0].location).toBe('Mutation, Cancer Type, 12a3');
+    });
+  });
+
+  describe('makeHistoryLocationReadable', () => {
+    it('should convert history strings that are recognized and leave others alone', () => {
+      const uuid1 = generateUuid();
+      const uuid2 = generateUuid();
+      const uuid3 = 'Not a real uuid';
+      const drugList: readonly IDrug[] = [
+        {
+          name: 'Drug1',
+          uuid: uuid1,
+        },
+        {
+          name: 'Drug2',
+          uuid: uuid2,
+        },
+        {
+          name: 'Drug3',
+          uuid: uuid3,
+        },
+      ];
+
+      const location = ['Gene Summary', 'Tumor Type Summary', 'Gene Background', `${uuid1} + ${uuid2}`, uuid3, 'Not a recognized string'];
+
+      const readableLocation = makeHistoryLocationReadable(location, drugList);
+      expect(readableLocation).toStrictEqual(['Summary', 'Summary', 'Background', 'Drug1 + Drug2', uuid3, 'Not a recognized string']);
     });
   });
 });
