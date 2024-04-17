@@ -1,3 +1,4 @@
+import { AlterationTypeEnum } from 'app/shared/api/generated';
 import { GREY } from '../colors';
 
 export const AUTHORITIES = {
@@ -156,6 +157,18 @@ export enum SPECIAL_CANCER_TYPES {
   OTHER_SOLID_TUMOR_TYPES = 'Other Solid Tumor Types',
   OTHER_LIQUID_TUMOR_TYPES = 'Other Liquid Tumor Types',
 }
+
+export const READABLE_ALTERATION: { [key in AlterationTypeEnum]: string } = {
+  GENOMIC_CHANGE: 'Genomic Change (g.)',
+  CDNA_CHANGE: 'cDNA Change (c.)',
+  PROTEIN_CHANGE: 'Protein Change',
+  MUTATION: 'Mutation',
+  COPY_NUMBER_ALTERATION: 'Copy Number Alteration',
+  STRUCTURAL_VARIANT: 'Structural Variant',
+  ANY: 'Any',
+  UNKNOWN: 'Unknown',
+  NA: 'NA',
+};
 
 export const ENTITY_INFO: { [key in ENTITY_TYPE]: { pageRoute?: ENTITY_PAGE_ROUTE; resourcePath: ENTITY_RESOURCE_PATH } } = {
   [ENTITY_TYPE.ALTERATION]: {
