@@ -3,6 +3,7 @@ package org.mskcc.oncokb.curation;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import io.sentry.Sentry;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
@@ -16,6 +17,10 @@ import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.config.application.FrontendProperties;
 import org.mskcc.oncokb.curation.importer.CdxImporter;
 import org.mskcc.oncokb.curation.importer.Importer;
+import org.mskcc.oncokb.curation.service.InvalidPasswordException;
+import org.mskcc.oncokb.curation.service.UsernameAlreadyUsedException;
+import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
+import org.mskcc.oncokb.curation.web.rest.errors.EmailAlreadyUsedException;
 import org.oncokb.ApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +30,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.env.Environment;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.server.ResponseStatusException;
 import tech.jhipster.config.DefaultProfileUtil;
 import tech.jhipster.config.JHipsterConstants;
 
@@ -148,6 +160,35 @@ public class OncokbCurationApp {
         DefaultProfileUtil.addDefaultProfile(app);
         Environment env = app.run(args).getEnvironment();
         logApplicationStartup(env);
+        initSentry(env);
+    }
+
+    private static void initSentry(Environment env) {
+        Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
+        if (activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_PRODUCTION)) {
+            Sentry.init(options -> {
+                options.setEnableExternalConfiguration(true);
+                options.setEnableUncaughtExceptionHandler(true);
+
+                // Completed disable the traces sampling
+                options.setTracesSampler(null);
+                options.setTracesSampleRate(null);
+
+                // Ignore the following exceptions
+                options.addIgnoredExceptionForType(BadCredentialsException.class);
+                options.addIgnoredExceptionForType(IOException.class);
+                options.addIgnoredExceptionForType(HttpClientErrorException.class);
+                options.addIgnoredExceptionForType(HttpServerErrorException.class);
+                options.addIgnoredExceptionForType(ResponseStatusException.class);
+                options.addIgnoredExceptionForType(EmailAlreadyUsedException.class);
+                options.addIgnoredExceptionForType(InvalidPasswordException.class);
+                options.addIgnoredExceptionForType(UsernameAlreadyUsedException.class);
+                options.addIgnoredExceptionForType(HttpRequestMethodNotSupportedException.class);
+                options.addIgnoredExceptionForType(InternalAuthenticationServiceException.class);
+                options.addIgnoredExceptionForType(BadRequestAlertException.class);
+                options.addIgnoredExceptionForType(ResourceAccessException.class);
+            });
+        }
     }
 
     private static void logApplicationStartup(Environment env) {

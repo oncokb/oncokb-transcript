@@ -11,4 +11,14 @@ public class FrontendProperties {
     public void setFirebase(FirebaseProperties firebase) {
         this.firebase = firebase;
     }
+
+    private String sentryDsn;
+
+    public String getSentryDsn() {
+        return sentryDsn;
+    }
+
+    public void setSentryDsn(String sentryDsn) {
+        this.sentryDsn = sentryDsn;
+    }
 }

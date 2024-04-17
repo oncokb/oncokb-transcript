@@ -105,6 +105,18 @@ jhipster:
         # Token is valid 24 hours
         token-validity-in-seconds: 86400
         token-validity-in-seconds-for-remember-me: 2592000
+
+# ===================================================================
+# Sentry specific properties
+# How to configure Sentry Spring Boot: https://docs.sentry.io/clients/java/config/
+# Full reference is available at: https://github.com/getsentry/sentry-java/blob/main/sentry-spring-boot-starter/src/main/java/io/sentry/spring/boot/SentryProperties.java
+# ===================================================================
+sentry:
+  dsn:
+  stacktrace:
+    app:
+      packages: org.mskcc.oncokb.curation;
+
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
@@ -138,3 +150,5 @@ application:
     measurement-id:
     service-account-credentials-path:
   oncokb-data-repo-dir:
+  frontend:
+    sentry-dsn:
