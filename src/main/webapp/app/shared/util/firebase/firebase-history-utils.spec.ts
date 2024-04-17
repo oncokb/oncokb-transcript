@@ -2,7 +2,7 @@ import { HistoryOperationType } from 'app/shared/model/firebase/firebase.model';
 import { findEntriesInObjectByUuids, parseAddRecord, parseUpdateRecord } from './firebase-history-utils';
 
 describe('FirebaseHistoryUtils', () => {
-  describe('findFieldValueInObject', () => {
+  describe('findEntriesInObjectByUuids', () => {
     it('should extract fields in uuids', () => {
       const object = {
         mutation_effect: {

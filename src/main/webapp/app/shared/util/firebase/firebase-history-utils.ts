@@ -207,7 +207,7 @@ export const parseNameChangeRecord = (record: HistoryRecord, drugList: readonly 
  * Returns the object's entries corresponding to the given uuids in the same order as the uuids
  * @param object - The object to search
  * @param uuids - The list of uuids corresponding to entries to search for
- * @returns The entries corresponding to the uuids in the same order as the uuids as an array. If any entries cannot be retrieved, `undefined` will be in that field's slot
+ * @returns The entries (in the format [path, value]) corresponding to the uuids in the same order as the uuids as an array. If any entries cannot be retrieved, `undefined` will be in that field's slot
  */
 export const findEntriesInObjectByUuids = (object: any, uuids: string[], drugList: readonly IDrug[]) => {
   const fieldValues: [string, unknown][] = Array(uuids.length);
