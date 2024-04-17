@@ -11,7 +11,7 @@ import { loadIcons } from './config/icon-loader';
 import { AppConfig } from './appConfig';
 import * as Sentry from '@sentry/react';
 
-if (AppConfig.serverConfig?.frontend.sentryDsn) {
+if (AppConfig.serverConfig?.frontend?.sentryDsn) {
   Sentry.init({
     // Adjust tracesSampleRate for production.
     // For more information, please see https://docs.sentry.io/platforms/javascript/guides/react/configuration/options/#tracing-options

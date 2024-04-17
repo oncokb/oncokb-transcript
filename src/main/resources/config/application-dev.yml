@@ -150,3 +150,5 @@ application:
     measurement-id:
     service-account-credentials-path:
   oncokb-data-repo-dir:
+  frontend:
+    sentry-dsn:

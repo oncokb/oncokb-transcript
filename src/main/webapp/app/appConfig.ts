@@ -1,6 +1,6 @@
 type FrontendProperties = {
-  firebase: FirebaseProperties;
-  sentryDsn: string;
+  firebase?: FirebaseProperties;
+  sentryDsn?: string;
 };
 
 export type FirebaseProperties = {
@@ -16,7 +16,7 @@ export type FirebaseProperties = {
 };
 
 type ServerConfig = {
-  frontend: FrontendProperties;
+  frontend?: FrontendProperties;
 };
 
 interface IAppConfig {
