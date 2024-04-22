@@ -312,7 +312,7 @@ export enum READABLE_FIELD {
   MUTATION_EFFECT = 'Mutation Effect',
   PATHOGENIC = 'Pathogenic',
   ONCOGENIC = 'Oncogenic',
-  EFFECT = '',
+  EFFECT = 'Effect',
   MUTATION_SPECIFIC_PENETRANCE = 'Mutation Specific Penetrance',
   MUTATION_SPECIFIC_INHERITANCE = 'Mutation Specific Inheritance Mechanism',
   ADDITIONAL_INFORMATION = 'Additional Information',

@@ -291,7 +291,7 @@ export function makeFirebaseKeysReadable(keys: string[]) {
     const readableKey = FIREBASE_KEY_TO_READABLE_FIELD[key];
     if (readableKey) {
       readableKeys.push(readableKey);
-    } else if (readableKey !== '') {
+    } else {
       readableKeys.push(key);
     }
   }

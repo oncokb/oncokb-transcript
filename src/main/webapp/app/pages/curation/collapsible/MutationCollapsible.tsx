@@ -300,7 +300,9 @@ const MutationCollapsible = ({
                     {
                       <GeneHistoryTooltip
                         historyData={parsedHistoryList}
-                        location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_EFFECT}`}
+                        location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_EFFECT}, ${
+                          READABLE_FIELD.EFFECT
+                        }`}
                       />
                     }
                   </>
