@@ -22,6 +22,7 @@ import { PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
 import { isPromiseOk } from 'app/shared/util/utils';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { getErrorMessage } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
+import { FirebaseDataStore } from 'app/stores/firebase/firebase-data.store';
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {
@@ -56,17 +57,20 @@ export type MutationLevelSummary = {
 export class FirebaseGeneService {
   firebaseRepository: FirebaseRepository;
   authStore: AuthStore;
+  firebaseMutationConvertIconStore: FirebaseDataStore<Mutation[]>;
   firebaseMetaService: FirebaseMetaService;
   firebaseGeneReviewService: FirebaseGeneReviewService;
 
   constructor(
     firebaseRepository: FirebaseRepository,
     authStore: AuthStore,
+    firebaseMutationConvertIconStore: FirebaseDataStore<Mutation[]>,
     firebaseMetaService: FirebaseMetaService,
     firebaseGeneReviewService: FirebaseGeneReviewService
   ) {
     this.firebaseRepository = firebaseRepository;
     this.authStore = authStore;
+    this.firebaseMutationConvertIconStore = firebaseMutationConvertIconStore;
     this.firebaseMetaService = firebaseMetaService;
     this.firebaseGeneReviewService = firebaseGeneReviewService;
   }
@@ -315,8 +319,8 @@ export class FirebaseGeneService {
     });
   };
 
-  updateMutationName = async (mutationPath: string, currentMutationName: string, mutation: Mutation) => {
-    return this.firebaseRepository.update(mutationPath, mutation).then(() => {
+  updateMutationName = async (mutationPath: string, allMutationsPath: string, currentMutationName: string, mutation: Mutation) => {
+    await this.firebaseRepository.update(mutationPath, mutation).then(() => {
       this.firebaseGeneReviewService.updateReviewableContent(
         `${mutationPath}/name`,
         currentMutationName,
@@ -325,10 +329,12 @@ export class FirebaseGeneService {
         mutation.name_uuid
       );
     });
+
+    await this.firebaseMutationConvertIconStore.fetchData(allMutationsPath);
   };
 
-  addMutation = async (mutationPath: string, newMutation: Mutation, isPromotedToMutation = false, mutationEffectDescription?: string) => {
-    const { hugoSymbol } = parseFirebaseGenePath(mutationPath);
+  addMutation = async (mutationsPath: string, newMutation: Mutation, isPromotedToMutation = false, mutationEffectDescription?: string) => {
+    const { hugoSymbol } = parseFirebaseGenePath(mutationsPath);
     const name = this.authStore.fullName;
     newMutation.name_review = new Review(name, undefined, true, undefined);
     if (isPromotedToMutation) {
@@ -339,13 +345,15 @@ export class FirebaseGeneService {
       newMutation.mutation_effect.description_review = new Review(name, '');
     }
 
-    return this.firebaseRepository.pushToArray(mutationPath, [newMutation]).then(() => {
+    await this.firebaseRepository.pushToArray(mutationsPath, [newMutation]).then(() => {
       this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, false);
       this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, newMutation.name_uuid, true, false);
       if (mutationEffectDescription) {
         this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, newMutation.mutation_effect.description_uuid, true, false);
       }
     });
+
+    await this.firebaseMutationConvertIconStore.fetchData(mutationsPath);
   };
 
   updateRelevantCancerTypes = async (

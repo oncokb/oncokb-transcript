@@ -60,6 +60,7 @@ function AddMutationModal({
   hugoSymbol,
   isGermline,
   mutationToEditPath,
+  mutationList,
   annotateAlterations,
   geneEntities,
   consequences,
@@ -83,16 +84,12 @@ function AddMutationModal({
   const [excludingInputValue, setExcludingInputValue] = useState('');
   const [excludingCollapsed, setExcludingCollapsed] = useState(true);
   const [mutationAlreadyExists, setMutationAlreadyExists] = useState({ exists: false, inMutationList: false, inVusList: false });
-  const [mutationList, setMutationList] = useState<Mutation[]>([]);
   const [mutationToEdit, setMutationToEdit] = useState<Mutation>(null);
   const [errorMessagesEnabled, setErrorMessagesEnabled] = useState(true);
   const [isFetchingAlteration, setIsFetchingAlteration] = useState(false);
   const [isFetchingExcludingAlteration, setIsFetchingExcludingAlteration] = useState(false);
 
   const [vusList, setVusList] = useState<VusObjList>(null);
-
-  // need to focus input once this is fetched
-  const [mutationListInitialized, setMutationListInitialized] = useState(false);
 
   const inputRef = useRef(null);
 
@@ -102,14 +99,6 @@ function AddMutationModal({
 
   useEffect(() => {
     const callbacks = [];
-    callbacks.push(
-      onValue(ref(firebaseDb, `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`), snapshot => {
-        setMutationList(snapshot.val() || []);
-        if (!mutationListInitialized) {
-          setMutationListInitialized(true);
-        }
-      })
-    );
     callbacks.push(
       onValue(ref(firebaseDb, getFirebaseVusPath(isGermline, hugoSymbol)), snapshot => {
         setVusList(snapshot.val());
@@ -224,10 +213,8 @@ function AddMutationModal({
   }, []);
 
   useEffect(() => {
-    if (mutationListInitialized) {
-      inputRef.current?.focus();
-    }
-  }, [mutationListInitialized]);
+    inputRef.current?.focus();
+  }, []);
 
   const currentMutationNames = useMemo(() => {
     return tabStates.map(state => getFullAlterationName({ ...state, comment: '' }).toLowerCase()).sort();
@@ -1088,13 +1075,21 @@ function AddMutationModalDropdown({ label, value, options, menuPlacement, onChan
   );
 }
 
-const mapStoreToProps = ({ alterationStore, consequenceStore, geneStore, firebaseAppStore, firebaseVusStore }: IRootStore) => ({
+const mapStoreToProps = ({
+  alterationStore,
+  consequenceStore,
+  geneStore,
+  firebaseAppStore,
+  firebaseVusStore,
+  firebaseMutationListStore,
+}: IRootStore) => ({
   annotateAlterations: flow(alterationStore.annotateAlterations),
   geneEntities: geneStore.entities,
   consequences: consequenceStore.entities,
   getConsequences: consequenceStore.getEntities,
   firebaseDb: firebaseAppStore.firebaseDb,
   vusList: firebaseVusStore.data,
+  mutationList: firebaseMutationListStore.data,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
