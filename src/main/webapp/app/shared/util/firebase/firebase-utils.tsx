@@ -24,7 +24,7 @@ import _ from 'lodash';
 import React from 'react';
 import { TextFormat } from 'react-jhipster';
 import { replaceUrlParams } from '../url-utils';
-import { extractPositionFromSingleNucleotideAlteration, parseAlterationName } from '../utils';
+import { extractPositionFromSingleNucleotideAlteration, isUuid, parseAlterationName } from '../utils';
 import { isTxLevelPresent } from './firebase-level-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 
@@ -109,7 +109,7 @@ export const geneNeedsReview = (meta: Meta | undefined) => {
 export const geneMetaReviewHasUuids = (metaReview: MetaReview) => {
   let needsReview = false;
   if (metaReview) {
-    needsReview = !!Object.keys(metaReview).find(key => UUID_REGEX.test(key));
+    needsReview = !!Object.keys(metaReview).find(key => isUuid(key));
   }
   return needsReview;
 };

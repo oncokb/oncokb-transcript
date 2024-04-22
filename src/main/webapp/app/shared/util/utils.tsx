@@ -4,7 +4,7 @@ import { IAlteration } from '../model/alteration.model';
 import { v4 as uuidv4 } from 'uuid';
 import { IGene } from 'app/shared/model/gene.model';
 import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
-import { ENTITY_ACTION, ENTITY_TYPE, REFERENCE_LINK_REGEX, SPECIAL_CANCER_TYPES } from 'app/config/constants/constants';
+import { ENTITY_ACTION, ENTITY_TYPE, REFERENCE_LINK_REGEX, SPECIAL_CANCER_TYPES, UUID_REGEX } from 'app/config/constants/constants';
 import EntityActionButton from '../button/EntityActionButton';
 import { SORT } from './pagination.constants';
 import { PaginationState } from '../table/OncoKBAsyncTable';
@@ -378,5 +378,5 @@ export function getExonRanges(exons: ProteinExonDTO[]) {
 }
 
 export function isUuid(str: string) {
-  return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(str);
+  return UUID_REGEX.test(str);
 }

@@ -64,7 +64,7 @@ describe('FirebaseHistoryUtils', () => {
         name_review: {
           added: true,
           updateTime: 1550458712327,
-          updatedBy: 'Lindsay LaFave',
+          updatedBy: 'User',
         },
         name_uuid: '3fa31d79-c683-40ca-8285-41b10262ccb5',
         tumors_uuid: '8c942426-59b2-483f-9683-7c9092ec75ee',

@@ -312,7 +312,7 @@ export enum READABLE_FIELD {
   MUTATION_EFFECT = 'Mutation Effect',
   PATHOGENIC = 'Pathogenic',
   ONCOGENIC = 'Oncogenic',
-  EFFECT = 'Effect',
+  EFFECT = '',
   MUTATION_SPECIFIC_PENETRANCE = 'Mutation Specific Penetrance',
   MUTATION_SPECIFIC_INHERITANCE = 'Mutation Specific Inheritance Mechanism',
   ADDITIONAL_INFORMATION = 'Additional Information',
@@ -320,5 +320,22 @@ export enum READABLE_FIELD {
   INDICATION = 'Indication',
   PROPAGATION = 'Propagation',
 }
+
+export const FIREBASE_KEY_TO_READABLE_FIELD: { [key: string]: READABLE_FIELD } = {
+  effect: READABLE_FIELD.EFFECT,
+  mutation_effect: READABLE_FIELD.MUTATION_EFFECT,
+  name: READABLE_FIELD.NAME,
+  cancerTypes: READABLE_FIELD.NAME,
+  inheritanceMechanism: READABLE_FIELD.INHERITANCE_MECHANISM,
+  description: READABLE_FIELD.DESCRIPTION,
+  summary: READABLE_FIELD.SUMMARY,
+  pathogenic: READABLE_FIELD.PATHOGENIC,
+  penetrance: READABLE_FIELD.PENETRANCE,
+  oncogenic: READABLE_FIELD.ONCOGENIC,
+  short: READABLE_FIELD.ADDITIONAL_INFORMATION,
+  fdaLevel: READABLE_FIELD.FDA_LEVEL,
+  indication: READABLE_FIELD.INDICATION,
+  propagation: READABLE_FIELD.PROPAGATION,
+};
 
 export const PATHOGENIC_VARIANTS = 'Pathogenic Variants';

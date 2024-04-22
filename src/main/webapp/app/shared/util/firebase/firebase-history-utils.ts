@@ -1,4 +1,5 @@
 import {
+  FIREBASE_KEY_TO_READABLE_FIELD,
   READABLE_FIELD,
   ReviewAction,
   ReviewActionToHistoryOperationMapping,
@@ -285,51 +286,13 @@ export function makeLocationReadable(locationParts: string[], drugList: readonly
 }
 
 export function makeFirebaseKeysReadable(keys: string[]) {
-  // Hard code more in. Remove default case?
   const readableKeys: string[] = [];
   for (const key of keys) {
-    switch (key) {
-      case 'effect':
-        break;
-      case 'mutation_effect':
-        readableKeys.push(READABLE_FIELD.MUTATION_EFFECT);
-        break;
-      case 'name':
-      case 'cancerTypes':
-        readableKeys.push(READABLE_FIELD.NAME);
-        break;
-      case 'inheritanceMechanism':
-        readableKeys.push(READABLE_FIELD.INHERITANCE_MECHANISM);
-        break;
-      case 'description':
-        readableKeys.push(READABLE_FIELD.DESCRIPTION);
-        break;
-      case 'summary':
-        readableKeys.push(READABLE_FIELD.SUMMARY);
-        break;
-      case 'pathogenic':
-        readableKeys.push(READABLE_FIELD.PATHOGENIC);
-        break;
-      case 'penetrance':
-        readableKeys.push(READABLE_FIELD.PENETRANCE);
-        break;
-      case 'oncogenic':
-        readableKeys.push(READABLE_FIELD.ONCOGENIC);
-        break;
-      case 'short':
-        readableKeys.push(READABLE_FIELD.ADDITIONAL_INFORMATION);
-        break;
-      case 'fdaLevel':
-        readableKeys.push(READABLE_FIELD.FDA_LEVEL);
-        break;
-      case 'indication':
-        readableKeys.push(READABLE_FIELD.INDICATION);
-        break;
-      case 'propagation':
-        readableKeys.push(READABLE_FIELD.PROPAGATION);
-        break;
-      default:
-        readableKeys.push(key);
+    const readableKey = FIREBASE_KEY_TO_READABLE_FIELD[key];
+    if (readableKey) {
+      readableKeys.push(readableKey);
+    } else {
+      readableKeys.push(key);
     }
   }
   return readableKeys;
