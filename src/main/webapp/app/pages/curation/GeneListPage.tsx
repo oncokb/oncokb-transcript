@@ -14,6 +14,7 @@ import Tabs from 'app/components/tabs/tabs';
 import GeneListPageToolsTab from 'app/components/tabs/GeneListPageToolsTab';
 import CurationDataValidationTab from 'app/components/tabs/CurationDataValidationTab';
 import { FB_COLLECTION } from 'app/config/constants/firebase';
+import ReviewHistoryTab from 'app/components/tabs/ReviewHistoryTab';
 
 type GeneMetaInfo = {
   hugoSymbol: string;
@@ -111,6 +112,10 @@ const GeneListPage = (props: StoreProps) => {
                 {
                   title: 'Data Validation',
                   content: <CurationDataValidationTab />,
+                },
+                {
+                  title: 'Test',
+                  content: <ReviewHistoryTab />,
                 },
               ]}
             />
