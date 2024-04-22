@@ -6,7 +6,7 @@ import { getFirebaseGenePath, getFirebaseHistoryPath, getFirebaseMetaGenePath } 
 import { HistoryRecord } from 'app/shared/model/firebase/firebase.model';
 import { Col, Row } from 'reactstrap';
 import { getSectionClassName } from 'app/shared/util/utils';
-import { GENE_TYPE, GENE_TYPE_KEY, INHERITANCE_MECHANISM_OPTIONS, PENETRANCE_OPTIONS } from 'app/config/constants/firebase';
+import { GENE_TYPE, GENE_TYPE_KEY, INHERITANCE_MECHANISM_OPTIONS, READABLE_FIELD, PENETRANCE_OPTIONS } from 'app/config/constants/firebase';
 import { GET_ALL_DRUGS_PAGE_SIZE, RADIO_OPTION_NONE } from 'app/config/constants/constants';
 import { IGene } from 'app/shared/model/gene.model';
 import { onValue, ref } from 'firebase/database';
@@ -28,10 +28,9 @@ import GeneRealtimeComponentHeader from './header/GeneRealtimeComponentHeader';
 import RelevantCancerTypesModal from 'app/shared/modal/RelevantCancerTypesModal';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
+import { FlattenedHistory, parseHistory } from 'app/shared/util/firebase/firebase-history-utils';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
-
-export type ParsedHistoryRecord = { record: HistoryRecord; timestamp: number; admin: string };
 
 export const CurationPage = (props: ICurationPageProps) => {
   const { pathname } = useLocation();
@@ -81,28 +80,30 @@ export const CurationPage = (props: ICurationPageProps) => {
     return props.geneEntities.find(gene => gene.hugoSymbol === hugoSymbol);
   }, [props.geneEntities]);
 
-  const parsedHistoryList = useMemo(() => {
+  const tabHistoryList = useMemo(() => {
     if (!props.historyData) {
       return;
     }
 
-    const newList = new Map<string, ParsedHistoryRecord[]>();
+    return parseHistory(props.historyData, props.drugList);
+  }, [props.historyData]);
 
-    for (const historyData of Object.values(props.historyData)) {
-      try {
-        for (const record of historyData.records) {
-          if (!newList.has(record.location)) {
-            newList.set(record.location, []);
-          }
-          newList.get(record.location).push({ record, timestamp: historyData.timeStamp, admin: historyData.admin });
-        }
-      } catch {
-        continue;
+  const tooltipHistoryList = useMemo(() => {
+    if (!tabHistoryList) {
+      return;
+    }
+
+    const newList = new Map<string, FlattenedHistory[]>();
+    for (const historyData of tabHistoryList) {
+      if (!newList.has(historyData.location)) {
+        newList.set(historyData.location, [historyData]);
+      } else {
+        newList.get(historyData.location).push(historyData);
       }
     }
 
     return newList;
-  }, [props.historyData]);
+  }, [tabHistoryList]);
 
   const geneHeader = (
     <Row className={'mb-2'}>
@@ -143,7 +144,7 @@ export const CurationPage = (props: ICurationPageProps) => {
                   groupHeader={
                     <>
                       <span className="mr-2">Gene Type</span>
-                      {<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Type'} />}
+                      {<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.GENE_TYPE} />}
                     </>
                   }
                   options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
@@ -160,7 +161,7 @@ export const CurationPage = (props: ICurationPageProps) => {
                   name="geneSummary"
                   labelIcon={
                     <GeneRealtimeComponentHeader
-                      tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Summary'} />}
+                      tooltip={<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.SUMMARY} />}
                       commentIcon={<CommentIcon id={`${hugoSymbol}_gene_summary`} path={`${firebaseGenePath}/summary_comments`} />}
                     />
                   }
@@ -177,7 +178,7 @@ export const CurationPage = (props: ICurationPageProps) => {
                   parseRefs
                   labelIcon={
                     <GeneRealtimeComponentHeader
-                      tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Gene Background'} />}
+                      tooltip={<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.BACKGROUND} />}
                       commentIcon={<CommentIcon id={`${hugoSymbol}_gene_background`} path={`${firebaseGenePath}/background_comments`} />}
                     />
                   }
@@ -191,7 +192,7 @@ export const CurationPage = (props: ICurationPageProps) => {
                     groupHeader={
                       <GeneRealtimeComponentHeader
                         title="Penetrance"
-                        tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Penetrance'} />}
+                        tooltip={<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.PENETRANCE} />}
                         commentIcon={<CommentIcon id={`${hugoSymbol}_penetrance`} path={`${firebaseGenePath}/penetrance_comments`} />}
                       />
                     }
@@ -207,7 +208,7 @@ export const CurationPage = (props: ICurationPageProps) => {
                     groupHeader={
                       <GeneRealtimeComponentHeader
                         title="Mechanism of Inheritance"
-                        tooltip={<GeneHistoryTooltip historyData={parsedHistoryList} location={'Mechanism of Inheritance'} />}
+                        tooltip={<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.INHERITANCE_MECHANISM} />}
                         commentIcon={
                           <CommentIcon
                             id={`${hugoSymbol}_inheritanceMechanism`}
@@ -235,7 +236,7 @@ export const CurationPage = (props: ICurationPageProps) => {
               mutationsPath={`${firebaseGenePath}/mutations`}
               hugoSymbol={hugoSymbol}
               isGermline={isGermline}
-              parsedHistoryList={parsedHistoryList}
+              parsedHistoryList={tooltipHistoryList}
               onMutationListRender={() => setMutationListRendered(true)}
             />
           </div>
@@ -268,7 +269,7 @@ export const CurationPage = (props: ICurationPageProps) => {
                 },
                 {
                   title: 'History',
-                  content: <CurationHistoryTab historyData={props.historyData} />,
+                  content: <CurationHistoryTab historyData={tabHistoryList} />,
                 },
                 {
                   title: 'References',

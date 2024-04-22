@@ -7,14 +7,21 @@ import {
   ONCOGENICITY_OPTIONS,
   PATHOGENICITY_OPTIONS,
   PENETRANCE_OPTIONS,
+  READABLE_FIELD,
 } from 'app/config/constants/firebase';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { AlterationAnnotationStatus, HotspotDTO, ProteinExonDTO } from 'app/shared/api/generated';
 import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import EditIcon from 'app/shared/icons/EditIcon';
+import HotspotIcon from 'app/shared/icons/HotspotIcon';
+import MutationConvertIcon from 'app/shared/icons/MutationConvertIcon';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
+import AddVusModal from 'app/shared/modal/AddVusModal';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
 import { Alteration, Review } from 'app/shared/model/firebase/firebase.model';
+import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
+import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import {
   getFirebaseGenePath,
   getFirebaseVusPath,
@@ -23,29 +30,22 @@ import {
   isSectionRemovableWithoutReview,
 } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
+import { getExonRanges } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
+import _ from 'lodash';
 import { observer } from 'mobx-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from 'reactstrap';
 import BadgeGroup from '../BadgeGroup';
-import { ParsedHistoryRecord } from '../CurationPage';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
 import FirebaseList from '../list/FirebaseList';
 import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
 import styles from '../styles.module.scss';
 import CancerTypeCollapsible from './CancerTypeCollapsible';
 import Collapsible from './Collapsible';
+import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import { RemovableCollapsible } from './RemovableCollapsible';
-import AddVusModal from 'app/shared/modal/AddVusModal';
-import MutationConvertIcon from 'app/shared/icons/MutationConvertIcon';
-import {  NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
-import { AlterationAnnotationStatus, HotspotDTO, ProteinExonDTO } from 'app/shared/api/generated';
-import _ from 'lodash';
-import { getExonRanges } from 'app/shared/util/utils';
-import HotspotIcon from 'app/shared/icons/HotspotIcon';
-import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
-import { FirebaseVusService } from 'app/service/firebase/firebase-vus-service';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
@@ -54,7 +54,7 @@ export interface IMutationCollapsibleProps extends StoreProps {
   open?: boolean;
   disableOpen?: boolean;
   onToggle?: () => void;
-  parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
+  parsedHistoryList: Map<string, FlattenedHistory[]>;
 }
 
 const MutationCollapsible = ({
@@ -258,8 +258,9 @@ const MutationCollapsible = ({
                   {
                     <GeneHistoryTooltip
                       historyData={parsedHistoryList}
-                      location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Effect`}
-                      contentFieldWhenObject="pathogenic"
+                      location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_EFFECT}, ${
+                        READABLE_FIELD.PATHOGENIC
+                      }`}
                     />
                   }
                 </>
@@ -279,8 +280,9 @@ const MutationCollapsible = ({
                     {
                       <GeneHistoryTooltip
                         historyData={parsedHistoryList}
-                        location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Effect`}
-                        contentFieldWhenObject="oncogenic"
+                        location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_EFFECT}, ${
+                          READABLE_FIELD.ONCOGENIC
+                        }`}
                       />
                     }
                   </>
@@ -298,8 +300,9 @@ const MutationCollapsible = ({
                     {
                       <GeneHistoryTooltip
                         historyData={parsedHistoryList}
-                        location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Effect`}
-                        contentFieldWhenObject="effect"
+                        location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_EFFECT}, ${
+                          READABLE_FIELD.EFFECT
+                        }`}
                       />
                     }
                   </>
@@ -319,7 +322,9 @@ const MutationCollapsible = ({
             labelIcon={
               <GeneHistoryTooltip
                 historyData={parsedHistoryList}
-                location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Effect`}
+                location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_EFFECT}, ${
+                  READABLE_FIELD.DESCRIPTION
+                }`}
               />
             }
             name="description"
@@ -342,8 +347,9 @@ const MutationCollapsible = ({
                       {
                         <GeneHistoryTooltip
                           historyData={parsedHistoryList}
-                          location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Specific Penetrance`}
-                          contentFieldWhenObject="penetrance"
+                          location={`${getMutationName(mutationName, mutationAlterations)}, ${
+                            READABLE_FIELD.MUTATION_SPECIFIC_PENETRANCE
+                          }, ${READABLE_FIELD.PENETRANCE}`}
                         />
                       }
                     </>
@@ -361,7 +367,9 @@ const MutationCollapsible = ({
                   labelIcon={
                     <GeneHistoryTooltip
                       historyData={parsedHistoryList}
-                      location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Specific Penetrance`}
+                      location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_SPECIFIC_PENETRANCE}, ${
+                        READABLE_FIELD.DESCRIPTION
+                      }`}
                     />
                   }
                   name="description"
@@ -383,8 +391,9 @@ const MutationCollapsible = ({
                       {
                         <GeneHistoryTooltip
                           historyData={parsedHistoryList}
-                          location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Specific Inheritance Mechanism`}
-                          contentFieldWhenObject="inheritanceMechanism"
+                          location={`${getMutationName(mutationName, mutationAlterations)}, ${
+                            READABLE_FIELD.MUTATION_SPECIFIC_INHERITANCE
+                          }, ${READABLE_FIELD.INHERITANCE_MECHANISM}`}
                         />
                       }
                     </>
@@ -402,7 +411,9 @@ const MutationCollapsible = ({
                   labelIcon={
                     <GeneHistoryTooltip
                       historyData={parsedHistoryList}
-                      location={`${getMutationName(mutationName, mutationAlterations)}, Mutation Specific Inheritance Mechanism`}
+                      location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_SPECIFIC_INHERITANCE}, ${
+                        READABLE_FIELD.DESCRIPTION
+                      }`}
                     />
                   }
                   name="description"

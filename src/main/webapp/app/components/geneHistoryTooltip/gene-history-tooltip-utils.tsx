@@ -4,13 +4,9 @@ import ReactDiffViewer from 'react-diff-viewer-continued';
 import React from 'react';
 import { getTxName } from 'app/shared/util/firebase/firebase-utils';
 import { IDrug } from 'app/shared/model/drug.model';
+import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 
-export default function constructTimeSeriesData(
-  record: HistoryRecord,
-  admin: string,
-  timestamp: number,
-  objectField: string
-): RequiredTimeSeriesEventData | ExtraTimeSeriesEventData {
+export default function constructTimeSeriesData(record: FlattenedHistory): RequiredTimeSeriesEventData | ExtraTimeSeriesEventData {
   let operation: string;
   let bubbleColor: string;
   let content: React.ReactNode;
@@ -19,17 +15,17 @@ export default function constructTimeSeriesData(
     case 'promote':
       operation = 'promotion to mutation';
       bubbleColor = 'green';
-      content = getTimeSeriesDataContent(objectField, record.new, record.old);
+      content = getTimeSeriesDataContent(record.new, record.old);
       break;
     case 'add':
       operation = 'addition';
       bubbleColor = 'green';
-      content = getTimeSeriesDataContent(objectField, record.new, record.old);
+      content = getTimeSeriesDataContent(record.new, record.old);
       break;
     case 'update':
       bubbleColor = 'orange';
       operation = 'update';
-      content = getTimeSeriesDataContent(objectField, record.new, record.old);
+      content = getTimeSeriesDataContent(record.new, record.old);
       break;
     case 'demote':
       bubbleColor = 'red';
@@ -44,7 +40,7 @@ export default function constructTimeSeriesData(
     case 'name change':
       bubbleColor = 'orange';
       operation = 'name change';
-      content = getTimeSeriesDataContent(objectField, record.new, record.old);
+      content = getTimeSeriesDataContent(record.new, record.old);
       break;
     default:
       operation = '';
@@ -56,58 +52,22 @@ export default function constructTimeSeriesData(
   }
 
   return {
-    createdAt: new Date(timestamp),
-    admin,
+    createdAt: new Date(record.timeStamp),
+    admin: record.admin,
     editBy: record.lastEditBy,
     operation,
     bubbleColor,
     content,
     location: record.location,
-    objectField,
   };
 }
 
-export function getTimeSeriesDataContent(objectField: string, newContent: HistoryRecordState, oldContent?: HistoryRecordState) {
-  let body: React.ReactNode;
-
-  try {
-    switch (typeof newContent) {
-      case 'string':
-        body = (
-          <div>
-            <div className="gene-history-event-content">
-              <ReactDiffViewer showDiffOnly={false} oldValue={oldContent} newValue={newContent} splitView={false} hideLineNumbers />
-            </div>
-          </div>
-        );
-        break;
-      case 'object': // only if data is poorly formatted
-        if (!newContent[objectField]) {
-          return undefined;
-        }
-
-        body = (
-          <div>
-            <div className="gene-history-event-content">
-              <ReactDiffViewer
-                showDiffOnly={false}
-                oldValue={oldContent?.[objectField]}
-                newValue={newContent[objectField]}
-                splitView={false}
-                hideLineNumbers
-              />
-            </div>
-          </div>
-        );
-        break;
-      default:
-        return undefined;
-    }
-  } catch {
-    body = <h6 className="gene-history-event-content gene-history-error-content">Record formatted incorrectly</h6>;
-  }
-
-  return <div>{body}</div>;
+export function getTimeSeriesDataContent(newContent: HistoryRecordState, oldContent?: HistoryRecordState) {
+  return (
+    <div className="gene-history-event-content">
+      <ReactDiffViewer showDiffOnly={false} oldValue={oldContent} newValue={newContent} splitView={false} hideLineNumbers />
+    </div>
+  );
 }
 
 export function formatLocation(location: string, drugList: IDrug[], objectField: string) {

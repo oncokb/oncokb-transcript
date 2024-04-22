@@ -12,11 +12,10 @@ import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import _ from 'lodash';
 import { getLevelDropdownOptions } from 'app/shared/util/firebase/firebase-level-utils';
-import { DIAGNOSTIC_LEVELS_ORDERING, PROGNOSTIC_LEVELS_ORDERING } from 'app/config/constants/firebase';
+import { DIAGNOSTIC_LEVELS_ORDERING, READABLE_FIELD, PROGNOSTIC_LEVELS_ORDERING } from 'app/config/constants/firebase';
 import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
 import RealtimeLevelDropdownInput, { LevelOfEvidenceType } from 'app/shared/firebase/input/RealtimeLevelDropdownInput';
 import CommentIcon from 'app/shared/icons/CommentIcon';
-import { ParsedHistoryRecord } from '../CurationPage';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
 import RCTButton from '../button/RCTButton';
 import TherapiesList from '../list/TherapiesList';
@@ -26,11 +25,12 @@ import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import styles from '../styles.module.scss';
 import BadgeGroup from '../BadgeGroup';
 import { RemovableCollapsible } from './RemovableCollapsible';
+import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 
 interface ICancerTypeCollapsibleProps extends StoreProps {
   cancerTypePath: string;
   mutationName: string;
-  parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
+  parsedHistoryList: Map<string, FlattenedHistory[]>;
 }
 
 function CancerTypeCollapsible({
@@ -121,7 +121,10 @@ function CancerTypeCollapsible({
           inputClass={styles.summaryTextarea}
           label="Therapeutic Summary (Optional)"
           labelIcon={
-            <GeneHistoryTooltip historyData={parsedHistoryList} location={`${mutationName}, ${cancerTypeName}, Tumor Type Summary`} />
+            <GeneHistoryTooltip
+              historyData={parsedHistoryList}
+              location={`${mutationName}, ${cancerTypeName}, ${READABLE_FIELD.SUMMARY}`}
+            />
           }
           name="txSummary"
         />
@@ -130,7 +133,10 @@ function CancerTypeCollapsible({
           inputClass={styles.summaryTextarea}
           label="Diagnostic Summary (Optional)"
           labelIcon={
-            <GeneHistoryTooltip historyData={parsedHistoryList} location={`${mutationName}, ${cancerTypeName}, Diagnostic Summary`} />
+            <GeneHistoryTooltip
+              historyData={parsedHistoryList}
+              location={`${mutationName}, ${cancerTypeName}, ${READABLE_FIELD.DIAGNOSTIC_SUMMARY}`}
+            />
           }
           name="dxSummary"
         />
@@ -139,7 +145,10 @@ function CancerTypeCollapsible({
           inputClass={styles.summaryTextarea}
           label="Prognostic Summary (Optional)"
           labelIcon={
-            <GeneHistoryTooltip historyData={parsedHistoryList} location={`${mutationName}, ${cancerTypeName}, Prognostic Summary`} />
+            <GeneHistoryTooltip
+              historyData={parsedHistoryList}
+              location={`${mutationName}, ${cancerTypeName}, ${READABLE_FIELD.PROGNOSTIC_SUMMARY}`}
+            />
           }
           name="pxSummary"
         />

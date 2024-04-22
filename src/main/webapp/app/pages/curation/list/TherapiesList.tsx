@@ -5,16 +5,16 @@ import { observer } from 'mobx-react';
 import { onValue, ref } from 'firebase/database';
 import { TI, Treatment } from 'app/shared/model/firebase/firebase.model';
 import { getTxName, sortByTxLevel } from 'app/shared/util/firebase/firebase-utils';
-import { ParsedHistoryRecord } from '../CurationPage';
 import { Button } from 'reactstrap';
 import ModifyTherapyModal from 'app/shared/modal/ModifyTherapyModal';
 import { GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import TherapyCollapsible from '../collapsible/TherapyCollapsible';
+import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 
 export interface ITherapiesList extends StoreProps {
   tisPath: string;
-  parsedHistoryList: Map<string, ParsedHistoryRecord[]>;
+  parsedHistoryList: Map<string, FlattenedHistory[]>;
   mutationName: string;
   cancerTypeName: string;
   cancerTypePath: string;
