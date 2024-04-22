@@ -74,7 +74,7 @@ describe('FirebaseHistoryUtils', () => {
 
       const [oncogenic, effect, mutation, cancerType, treatment] = findEntriesInObjectByUuids(object, uuids, []);
       expect(oncogenic).toStrictEqual(['Mutation Effect, Oncogenic', 'No']);
-      expect(effect).toStrictEqual(['Mutation Effect', 'Likely Gain-of-function']);
+      expect(effect).toStrictEqual(['Mutation Effect, Effect', 'Likely Gain-of-function']);
       expect(mutation).toStrictEqual(['Mutation, Name', 'Mutation']);
       expect(cancerType[0]).toStrictEqual('Mutation, Melanoma, Name');
       expect(treatment).toStrictEqual(['Mutation, Melanoma, Treatment, Name', 'Treatment']);
@@ -141,7 +141,7 @@ describe('FirebaseHistoryUtils', () => {
       expect(parsedRecords[1].operation).toBe(HistoryOperationType.UPDATE);
 
       expect(parsedRecords[2].new).toBe('Likely Gain-of-function');
-      expect(parsedRecords[2].location).toBe('V600E, Mutation Effect');
+      expect(parsedRecords[2].location).toBe('V600E, Mutation Effect, Effect');
       expect(parsedRecords[1].operation).toBe(HistoryOperationType.UPDATE);
     });
   });
