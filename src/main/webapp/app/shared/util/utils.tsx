@@ -25,14 +25,16 @@ export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode
         name += ` (${cancerType.code})`;
       }
     } else {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       name = cancerType.mainType;
     }
   }
   return name;
 };
 
-export const getCancerTypesName = (cancerTypes: ICancerType[] | CancerType[], omitCode = false, seperator = ', '): string => {
-  return cancerTypes.map(cancerType => getCancerTypeName(cancerType, omitCode)).join(seperator);
+export const getCancerTypesName = (cancerTypes: ICancerType[] | CancerType[], omitCode = false, separator = ', '): string => {
+  return cancerTypes.map(cancerType => getCancerTypeName(cancerType, omitCode)).join(separator);
 };
 
 export const getCancerTypesNameWithExclusion = (
@@ -52,6 +54,8 @@ export const getGeneName = (gene: IGene): string => {
 };
 
 export const getGeneNameFromAlteration = (alteration: IAlteration) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return alteration.genes.map(gene => gene.hugoSymbol).join('::');
 };
 
@@ -68,9 +72,13 @@ export const getTreatmentName = (drugs: IDrug[], rule?: IRule): string => {
     return drugs.map(drug => drug.name).join(', ');
   } else {
     const drugMap = drugs.reduce((map, next) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       map[next.id.toString()] = next;
       return map;
     }, {});
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return rule.rule
       .split(',')
       .map(treatment => {
@@ -108,9 +116,15 @@ export function filterByKeyword(value: string | undefined | null, keyword: strin
 
 export const getGenomicLocation = (ensemblGene: IEnsemblGene) => {
   let chromosome = '';
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   if (ensemblGene.seqRegion.chromosome !== ensemblGene.seqRegion.name) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     chromosome = `(${ensemblGene.seqRegion.chromosome})`;
   }
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return `Chromosome ${ensemblGene.seqRegion.name}${chromosome}: ${ensemblGene.start}-${ensemblGene.end} ${
     ensemblGene.strand === 1 ? 'forward' : 'reverse'
   } strand`;
@@ -124,6 +138,8 @@ export const getPaginationFromSearchParams = (search: string) => {
   if (sort) {
     const sortSplit = sort.split(',');
     sort = sortSplit[0];
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     order = sortSplit[1];
   }
   if (page && sort && order) {
@@ -239,21 +255,37 @@ export function parseAlterationName(alterationName: string): { alteration: strin
   let regex = new RegExp('\\[(.*)\\]', 'i');
   const nameSection = regex.exec(alterationName);
   let name = '';
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   if (nameSection?.length > 1) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     name = nameSection[1];
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const alterationNameWithoutVariantName = alterationName.replace(nameSection?.[0], '');
 
   regex = new RegExp('({ *excluding[^}]+})', 'i');
   const excludingSection = regex.exec(alterationName);
   let alterationNameWithoutVariantNameAndExcluding = alterationNameWithoutVariantName;
   const excluding: string[] = [];
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   if (excludingSection?.length > 1) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     alterationNameWithoutVariantNameAndExcluding = alterationNameWithoutVariantName.replace(excludingSection[1], '');
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     excludingSection[1] = excludingSection[1].slice(1, -1); // remove curly braces
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     excludingSection[1] = excludingSection[1].replace(/excluding/i, '');
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const excludedNames = excludingSection[1].split(';');
     for (const ex of excludedNames) {
       excluding.push(...expandAlterationName(ex.trim()));
@@ -267,6 +299,8 @@ export function parseAlterationName(alterationName: string): { alteration: strin
       if (parentheses.length > 0) {
         comment += c;
       }
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       parentheses.push(c);
     } else if (c === ')') {
       parentheses.pop();
@@ -360,9 +394,13 @@ export function getExonRanges(exons: ProteinExonDTO[]) {
   for (let i = 0; i < exons.length; i++) {
     const exon = exons[i];
     if (startExon === 0) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       startExon = endExon = exon.exon;
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     if (i + 1 === exons.length || exons[i + 1].exon - 1 !== endExon) {
       if (startExon === endExon) {
         exonRanges.push(startExon.toString());

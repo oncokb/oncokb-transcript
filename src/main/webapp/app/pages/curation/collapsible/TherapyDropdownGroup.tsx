@@ -36,11 +36,15 @@ const TherapyDropdownGroup = ({ firebaseDb, treatmentPath }: ITherapyDropdownGro
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, `${treatmentPath}/level`), snapshot => {
         setHighestLevel(snapshot.val());
       })
     );
     return () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       callbacks.forEach(callback => callback?.());
     };
   }, [treatmentPath]);

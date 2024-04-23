@@ -36,6 +36,8 @@ export class SettingsStore extends BaseStore {
     this.reset();
     const result: AxiosResponse = yield axios.post(apiUrl, account);
     yield this.rootStore.authStore.getSession();
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.successMessage = 'Settings saved!';
 
     return result;

@@ -15,6 +15,8 @@ export const RemovableCollapsible = ({ review, ...collapsibleProps }: IRemovable
     let reviewAction: ReviewAction;
     if (review?.removed) reviewAction = ReviewAction.DELETE;
     if (review?.demotedToVus) reviewAction = ReviewAction.DEMOTE_MUTATION;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     if (reviewAction) {
       infoComponent = getReviewInfo(review.updatedBy, new Date(review.updateTime).toString(), ReviewTypeTitle[reviewAction]);
     }

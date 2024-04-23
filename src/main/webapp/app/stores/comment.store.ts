@@ -3,8 +3,12 @@ import _ from 'lodash';
 import { action, makeObservable, observable } from 'mobx';
 
 export class CommentStore {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   public openCommentsId: string = null;
   public comments: Comment[] = [];
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   public openCommentsScrollPosition: number = null;
   public commentIndiciesToDelete: number[] = [];
   public commentInputValue = '';

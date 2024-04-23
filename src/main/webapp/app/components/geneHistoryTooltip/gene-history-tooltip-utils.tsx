@@ -15,16 +15,22 @@ export default function constructTimeSeriesData(record: FlattenedHistory): Requi
     case 'promote':
       operation = 'promotion to mutation';
       bubbleColor = 'green';
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       content = getTimeSeriesDataContent(record.new, record.old);
       break;
     case 'add':
       operation = 'addition';
       bubbleColor = 'green';
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       content = getTimeSeriesDataContent(record.new, record.old);
       break;
     case 'update':
       bubbleColor = 'orange';
       operation = 'update';
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       content = getTimeSeriesDataContent(record.new, record.old);
       break;
     case 'demote':
@@ -40,6 +46,8 @@ export default function constructTimeSeriesData(record: FlattenedHistory): Requi
     case 'name change':
       bubbleColor = 'orange';
       operation = 'name change';
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       content = getTimeSeriesDataContent(record.new, record.old);
       break;
     default:
@@ -48,6 +56,8 @@ export default function constructTimeSeriesData(record: FlattenedHistory): Requi
   }
 
   if (!content) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return;
   }
 

@@ -43,19 +43,29 @@ function TherapyCollapsible({
   updateTreatmentName,
   deleteSection,
 }: ITherapyCollapsibleProps) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [treatmentUuid, setTreatmentUuid] = useState<string>(null);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [treatmentName, setTreatmentName] = useState<string>(null);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [treatmentReview, setTreatmentReview] = useState<Review>(null);
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
 
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, `${therapyPath}/name`), snapshot => {
         setTreatmentName(snapshot.val());
       })
     );
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, `${therapyPath}/name_review`), snapshot => {
         setTreatmentReview(snapshot.val());
         setIsRemovableWithoutReview(isSectionRemovableWithoutReview(snapshot.val()));
@@ -63,6 +73,8 @@ function TherapyCollapsible({
     );
 
     onValue(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       ref(firebaseDb, `${therapyPath}/name_uuid`),
       snapshot => {
         setTreatmentUuid(snapshot.val());
@@ -75,6 +87,8 @@ function TherapyCollapsible({
     return <></>;
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const treatmentNameString = getTxName(drugList, treatmentName);
 
   return (
@@ -91,11 +105,15 @@ function TherapyCollapsible({
             <RCTButton cancerTypePath={cancerTypePath} relevantCancerTypesInfoPath={`${therapyPath}`} />
             <EditIcon
               onClick={() => {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 modifyTherapyModalStore.openModal(treatmentUuid);
               }}
             />
             <DeleteSectionButton
               sectionName={cancerTypeName}
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               deleteHandler={() => deleteSection(`${therapyPath}/name`, treatmentReview, treatmentUuid)}
               isRemovableWithoutReview={isRemovableWithoutReview}
             />
@@ -135,18 +153,28 @@ function TherapyCollapsible({
       <ModifyTherapyModal
         treatmentUuid={treatmentUuid}
         treatmentToEditPath={therapyPath}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         drugList={drugList}
         cancerTypePath={cancerTypePath}
         onConfirm={async (newTreatment, newDrugs) => {
           try {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             await Promise.all(newDrugs.map(drug => createDrug(drug)));
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             await updateTreatmentName(therapyPath, treatmentName, newTreatment);
           } catch (error) {
             notifyError(error);
           }
 
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           modifyTherapyModalStore.closeModal();
         }}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         onCancel={modifyTherapyModalStore.closeModal}
       />
     </>

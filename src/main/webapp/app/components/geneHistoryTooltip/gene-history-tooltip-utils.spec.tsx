@@ -71,7 +71,11 @@ describe('GeneHistoryTooltipUtils', () => {
       const record: FlattenedHistory = {
         lastEditBy: USER_NAME,
         location: '',
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         new: null,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         old: null,
         operation: HistoryOperationType.DELETE,
         uuids: '',
@@ -98,7 +102,11 @@ describe('GeneHistoryTooltipUtils', () => {
       const record: FlattenedHistory = {
         lastEditBy: USER_NAME,
         location: '',
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         new: null,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         old: null,
         operation: 'invalid' as HistoryOperationType,
         uuids: '',

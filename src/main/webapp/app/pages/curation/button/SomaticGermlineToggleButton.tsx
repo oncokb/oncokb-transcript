@@ -28,8 +28,12 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
     const germlineGenePath = getFirebasePath('GERMLINE_GENE', hugoSymbol);
 
     try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const snapshot = await get(ref(firebaseDb, germlineGenePath));
       if (!snapshot.exists()) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         await createGene(hugoSymbol, true);
       }
       window.location.href = pathname.replace('somatic', 'germline');

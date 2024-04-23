@@ -37,6 +37,8 @@ const createOption = (label: string) => ({
 
 const AddVusModal = (props: IAddVusModalProps) => {
   const firebaseMutationPath = `${getFirebaseGenePath(props.isGermline, props.hugoSymbol)}/mutations`;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [mutationList, setMutationList] = useState<Mutation[]>(undefined);
   const [duplicateAlterations, setDuplicateAlterations] = useState<DuplicateMutationInfo[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -48,6 +50,8 @@ const AddVusModal = (props: IAddVusModalProps) => {
   const inputRef = useRef(null);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const subscribe = onValue(ref(props.firebaseDb, firebaseMutationPath), snapshot => {
       setMutationList(snapshot.val());
       if (!mutationListInitialized) {
@@ -71,6 +75,8 @@ const AddVusModal = (props: IAddVusModalProps) => {
 
   useEffect(() => {
     if (mutationListInitialized) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       inputRef.current?.focus();
     }
   }, [mutationListInitialized]);

@@ -63,7 +63,11 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
         }
       : {
           ...infoEntity,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           created: convertDateTimeFromServer(infoEntity.created),
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           lastUpdated: convertDateTimeFromServer(infoEntity.lastUpdated),
         };
 

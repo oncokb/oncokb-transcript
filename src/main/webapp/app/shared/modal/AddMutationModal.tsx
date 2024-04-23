@@ -77,6 +77,8 @@ function AddMutationModal({
     AlterationTypeEnum.CdnaChange,
     AlterationTypeEnum.Any,
   ].map(type => ({ label: type, value: type }));
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const consequenceOptions: DropdownOption[] = consequences.map(consequence => ({ label: consequence.name, value: consequence.id }));
 
   const [inputValue, setInputValue] = useState('');
@@ -84,22 +86,30 @@ function AddMutationModal({
   const [excludingInputValue, setExcludingInputValue] = useState('');
   const [excludingCollapsed, setExcludingCollapsed] = useState(true);
   const [mutationAlreadyExists, setMutationAlreadyExists] = useState({ exists: false, inMutationList: false, inVusList: false });
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [mutationToEdit, setMutationToEdit] = useState<Mutation>(null);
   const [errorMessagesEnabled, setErrorMessagesEnabled] = useState(true);
   const [isFetchingAlteration, setIsFetchingAlteration] = useState(false);
   const [isFetchingExcludingAlteration, setIsFetchingExcludingAlteration] = useState(false);
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [vusList, setVusList] = useState<VusObjList>(null);
 
   const inputRef = useRef(null);
 
   const geneEntity: IGene | undefined = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return geneEntities.find(gene => gene.hugoSymbol === hugoSymbol);
   }, [geneEntities]);
 
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, getFirebaseVusPath(isGermline, hugoSymbol)), snapshot => {
         setVusList(snapshot.val());
       })
@@ -107,12 +117,16 @@ function AddMutationModal({
 
     if (mutationToEditPath) {
       callbacks.push(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         onValue(ref(firebaseDb, mutationToEditPath), snapshot => {
           setMutationToEdit(snapshot.val());
         })
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return () => callbacks.forEach(callback => callback?.());
   }, []);
 
@@ -123,6 +137,8 @@ function AddMutationModal({
   }, [convertOptions?.isConverting]);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const dupMutations = getDuplicateMutations(currentMutationNames, mutationList, vusList, {
       useFullAlterationName: true,
       excludedMutationUuid: mutationToEdit?.name_uuid,
@@ -149,7 +165,11 @@ function AddMutationModal({
         excluding: alteration.excluding?.map(ex => convertAlterationToAlterationData(ex)) || [],
         genes: alteration?.genes || [],
         proteinChange: alteration?.proteinChange,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         proteinStart: alteration?.proteinStart === -1 ? null : alteration?.proteinStart,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         proteinEnd: alteration?.proteinEnd === -1 ? null : alteration?.proteinEnd,
         refResidues: alteration?.refResidues,
         varResidues: alteration?.varResidues,
@@ -157,7 +177,11 @@ function AddMutationModal({
     }
 
     async function setExistingAlterations() {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       if (mutationToEdit.alterations?.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         setTabStates(mutationToEdit.alterations.map(alt => convertAlterationToAlterationData(alt)));
         return;
       }
@@ -167,6 +191,8 @@ function AddMutationModal({
       const entityStatusAlterationsPromise = fetchAlterations(parsedAlterations.map(alt => alt.alteration));
       const excludingEntityStatusAlterationsPromises: Promise<AlterationAnnotationStatus[]>[] = [];
       for (const alt of parsedAlterations) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         excludingEntityStatusAlterationsPromises.push(fetchAlterations(alt.excluding));
       }
       const [entityStatusAlterations, entityStatusExcludingAlterations] = await Promise.all([
@@ -190,6 +216,8 @@ function AddMutationModal({
         excludingAlterations.push(excluding);
       }
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const alterations = entityStatusAlterations.map((alt, index) =>
         convertEntityStatusAlterationToAlterationData(
           alt,
@@ -209,10 +237,14 @@ function AddMutationModal({
   }, [mutationToEdit]);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     getConsequences({});
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     inputRef.current?.focus();
   }, []);
 
@@ -252,9 +284,13 @@ function AddMutationModal({
       const request: AnnotateAlterationBody[] = [
         {
           referenceGenome: REFERENCE_GENOME.GRCH37,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           alteration: { alteration: alterationName, genes: [{ id: geneEntity.id } as Gene] } as ApiAlteration,
         },
       ];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const alts = await flowResult(annotateAlterations(request));
       return alts[0];
     } catch (error) {
@@ -280,9 +316,15 @@ function AddMutationModal({
   ): AlterationData {
     const alteration = entityStatusAlteration.entity;
     return {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       type: alteration?.type,
       alteration: alterationName,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       name: variantName || alteration?.name,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       consequence: alteration?.consequence?.name,
       comment,
       excluding,
@@ -292,7 +334,11 @@ function AddMutationModal({
       proteinEnd: alteration?.end,
       refResidues: alteration?.refResidues,
       varResidues: alteration?.variantResidues,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       warning: entityStatusAlteration.warning ? entityStatusAlteration.message : null,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       error: entityStatusAlteration.error ? entityStatusAlteration.message : null,
     };
   }
@@ -302,6 +348,8 @@ function AddMutationModal({
     if (newParsedAlteration.length === 0) {
       setTabStates(states => {
         const newStates = _.cloneDeep(states);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         newStates[alterationIndex].alterationFieldValueWhileFetching = null;
         return newStates;
       });
@@ -320,6 +368,8 @@ function AddMutationModal({
       newExcluding = alterationData[alterationIndex].excluding;
     } else {
       const excludingEntityStatusAlterations = await fetchAlterations(newParsedAlteration[0].excluding);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       newExcluding = excludingEntityStatusAlterations.map((ex, index) =>
         convertEntityStatusAlterationToAlterationData(ex, newParsedAlteration[0].excluding[index], [], '')
       );
@@ -352,6 +402,8 @@ function AddMutationModal({
         )
       ),
     ];
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     newAlterations[0].alterationFieldValueWhileFetching = null;
 
     setTabStates(states => {
@@ -509,9 +561,13 @@ function AddMutationModal({
       newEntityStatusExcludingAlterationsPromise,
     ]);
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const newExcludingAlterations = newEntityStatusExcludingAlterations.map((alt, index) =>
       convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[0].excluding[index], [], '')
     );
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const newAlterations = newEntityStatusAlterations.map((alt, index) =>
       convertEntityStatusAlterationToAlterationData(
         alt,
@@ -559,6 +615,8 @@ function AddMutationModal({
 
     const newEntityStatusAlterations = await fetchAlterations(newParsedAlteration.map(alt => alt.alteration));
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const newAlterations = newEntityStatusAlterations.map((alt, index) =>
       convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[index].alteration, [], newComment, newVariantName)
     );
@@ -654,6 +712,8 @@ function AddMutationModal({
         <AddMutationModalDropdown
           label="Type"
           options={typeOptions}
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           value={typeOptions.find(option => option.label === alterationData.type)}
           onChange={newValue => handleFieldChange(newValue?.label, 'type', alterationIndex, excludingIndex)}
         />
@@ -691,6 +751,8 @@ function AddMutationModal({
         />
         <AddMutationModalField
           label="Protein Change"
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           value={alterationData.proteinChange}
           placeholder="Input protein change"
           onChange={newValue => handleFieldChange(newValue, 'proteinChange', alterationIndex, excludingIndex)}
@@ -721,6 +783,8 @@ function AddMutationModal({
         />
         <AddMutationModalDropdown
           label="Consequence"
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           value={consequenceOptions.find(option => option.label === alterationData.consequence)}
           options={consequenceOptions}
           menuPlacement="top"
@@ -754,6 +818,8 @@ function AddMutationModal({
         />
         <AddMutationModalField
           label="Genes"
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           value={alterationData.genes?.map(gene => gene.hugoSymbol).join(', ')}
           placeholder="Input genes"
           onChange={newValue => handleFieldChange(newValue, 'genes', alterationIndex, excludingIndex)}
@@ -786,6 +852,8 @@ function AddMutationModal({
             {!isSectionEmpty && (
               <>
                 {excludingCollapsed ? (
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   <FaChevronDown style={{ cursor: 'pointer' }} onClick={isSectionEmpty ? null : () => setExcludingCollapsed(false)} />
                 ) : (
                   <FaChevronUp style={{ cursor: 'pointer' }} onClick={() => setExcludingCollapsed(true)} />
@@ -849,6 +917,8 @@ function AddMutationModal({
   }
 
   function getErrorSection(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const suggestion = new RegExp('The alteration name is invalid, do you mean (.+)\\?').exec(alterationData.error)?.[1];
 
     return (
@@ -879,6 +949,8 @@ function AddMutationModal({
                     return newStates;
                   });
 
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   inputRef.current.focus();
                 }}
               >
@@ -1004,10 +1076,16 @@ function AddMutationModal({
         newMutation.alterations = newAlterations;
 
         setErrorMessagesEnabled(false);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         await onConfirm(newMutation, mutationList.length);
         setErrorMessagesEnabled(true);
       }}
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       errorMessages={modalErrorMessage && errorMessagesEnabled ? [modalErrorMessage] : null}
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       warningMessages={modalWarningMessage ? [modalWarningMessage] : null}
       confirmButtonDisabled={
         tabStates.length === 0 ||

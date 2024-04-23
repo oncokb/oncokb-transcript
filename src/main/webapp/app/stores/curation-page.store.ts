@@ -69,6 +69,8 @@ export class CurationPageStore {
   public annotatedAltsCache: AnnotatedAltsCache = {
     loading: false,
     cache: {},
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     error: null,
     get: (hugoSymbol: string, mutations: MutationQuery[]) => this.getAnnotatedAltsCache(hugoSymbol, mutations),
     fetch: (hugoSymbol: string, mutations: MutationQuery[]) => this.fetchAnnotatedAltsCache(hugoSymbol, mutations),
@@ -83,6 +85,8 @@ export class CurationPageStore {
       this.annotatedAltsCache.loading = true;
       const result = await alterationControllerClient.annotateAlterations(queries);
       result.data.forEach(queryStatus => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         this.annotatedAltsCache.cache[queryStatus.queryId].result = queryStatus;
       });
     } catch (responseError) {
@@ -98,9 +102,13 @@ export class CurationPageStore {
       return acc;
     }, [] as AnnotateAlterationBody[]);
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const unannotatedQueries = queries.filter(query => !this.annotatedAltsCache.cache[query.queryId]);
     if (unannotatedQueries.length > 0) {
       unannotatedQueries.forEach(query => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         this.annotatedAltsCache.cache[query.queryId] = {
           query,
           result: null,
@@ -108,9 +116,15 @@ export class CurationPageStore {
       });
       await this.annotateAlterations(unannotatedQueries);
     }
-    return queries
-      .filter(query => this.annotatedAltsCache.cache[query.queryId] && this.annotatedAltsCache.cache[query.queryId].result)
-      .map(query => this.annotatedAltsCache.cache[query.queryId].result);
+    return (
+      queries
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        .filter(query => this.annotatedAltsCache.cache[query.queryId] && this.annotatedAltsCache.cache[query.queryId].result)
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        .map(query => this.annotatedAltsCache.cache[query.queryId].result)
+    );
   }
 
   getAnnotatedAltsCache(hugoSymbol: string, mutations: MutationQuery[]) {
@@ -118,9 +132,15 @@ export class CurationPageStore {
       acc.push(...createMutationQuery(hugoSymbol, mutation));
       return acc;
     }, [] as AnnotateAlterationBody[]);
-    return queries
-      .filter(query => this.annotatedAltsCache.cache[query.queryId] && this.annotatedAltsCache.cache[query.queryId].result)
-      .map(query => this.annotatedAltsCache.cache[query.queryId].result);
+    return (
+      queries
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        .filter(query => this.annotatedAltsCache.cache[query.queryId] && this.annotatedAltsCache.cache[query.queryId].result)
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        .map(query => this.annotatedAltsCache.cache[query.queryId].result)
+    );
   }
 }
 

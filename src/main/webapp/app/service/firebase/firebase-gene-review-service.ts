@@ -66,6 +66,8 @@ export class FirebaseGeneReviewService {
 
     const { updatedReview, isChangeReverted } = getUpdatedReview(review, currentValue, updateValue, this.authStore.fullName);
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const { hugoSymbol, pathFromGene } = parseFirebaseGenePath(firebasePath);
 
     const updateObject = {
@@ -76,6 +78,8 @@ export class FirebaseGeneReviewService {
     // Make sure that there is a UUID attached
     if (!uuid) {
       uuid = generateUuid();
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       updateObject[`${pathFromGene}_uuid`] = uuid;
     }
 
@@ -114,6 +118,8 @@ export class FirebaseGeneReviewService {
         if (reviewLevel.reviewAction === ReviewAction.DELETE || reviewLevel.reviewAction === ReviewAction.DEMOTE_MUTATION) {
           const pathParts = reviewLevel.currentValPath.split('/');
           pathParts.pop(); // Remove key
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           const deleteIndex = parseInt(pathParts.pop(), 10); // Remove index
           const firebasePath = geneFirebasePath + '/' + pathParts.join('/');
           this.firebaseRepository.deleteFromArray(firebasePath, [deleteIndex]).then(() => {
@@ -122,6 +128,8 @@ export class FirebaseGeneReviewService {
             if (reviewObject.demotedToVus) {
               const variants = parseAlterationName(reviewLevel.currentVal)[0].alteration.split(', ');
               const newVusList = variants.map(variant => {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 return new Vus(variant, this.authStore.account.email, this.authStore.fullName);
               });
               this.firebaseRepository.pushMultiple(vusFirebasePath, newVusList);
@@ -176,6 +184,8 @@ export class FirebaseGeneReviewService {
     if (reviewLevel.reviewAction === ReviewAction.CREATE || reviewLevel.reviewAction === ReviewAction.PROMOTE_VUS) {
       const pathParts = reviewLevel.currentValPath.split('/');
       pathParts.pop(); // Remove key
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const deleteIndex = parseInt(pathParts.pop(), 10); // Remove index
       const firebasePath = geneFirebasePath + '/' + pathParts.join('/');
       return this.firebaseRepository.deleteFromArray(firebasePath, [deleteIndex]).then(() => {
@@ -183,6 +193,8 @@ export class FirebaseGeneReviewService {
         if (reviewObject.promotedToMutation) {
           const variants = parseAlterationName(reviewLevel.currentVal)[0].alteration.split(', ');
           const newVusList = variants.map(variant => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             return new Vus(variant, this.authStore.account.email, this.authStore.fullName);
           });
           this.firebaseRepository.pushMultiple(vusFirebasePath, newVusList);

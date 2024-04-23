@@ -24,6 +24,8 @@ export type CancerTypeSelectOption = {
 };
 
 const getAllMainTypes = (cancerTypeList: ICancerType[]) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return _.uniq(cancerTypeList.filter(cancerType => cancerType.level <= 0)).sort();
 };
 
@@ -35,8 +37,12 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
   return [
     {
       label: 'Cancer Type',
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       options: _.uniq(getAllMainTypes(cancerTypeList).filter(cancerType => !cancerType.mainType.endsWith('NOS')))
         .sort()
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         .map<CancerTypeSelectOption>(cancerType => {
           return {
             value: cancerType.id,
@@ -49,6 +55,8 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
     },
     {
       label: 'Cancer Type Detailed',
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       options: _.sortBy(_.uniq(getAllSubtypes(cancerTypeList)), 'name').map<CancerTypeSelectOption>(cancerType => {
         return {
           value: cancerType.id,
@@ -72,24 +80,40 @@ const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props 
     let result = undefined;
     let options = [];
     if (searchWord) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       result = await props.searchCancerTypes({ query: searchWord, page: page - 1, size: ITEMS_PER_PAGE, sort: DEFAULT_SORT_PARAMETER });
     } else {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       result = await props.getCancerTypes({ page: page - 1, size: ITEMS_PER_PAGE, sort: 'id,ASC' });
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     options = getAllCancerTypesOptions(result.data);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     options[0].options = _.uniqBy(options[0].options, 'label');
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     options[1].options = _.uniqBy(options[1].options, 'label');
 
     if (searchWord) {
       // Since options are cached by react-select-async-paginate, we only include options that are
       // not present in prevOptions to avoid duplicates.
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       options[0].options = _.differenceBy(options[0].options, prevOptions[0]?.options || [], 'label');
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       options[1].options = _.differenceBy(options[1].options, prevOptions[1]?.options || [], 'label');
     }
 
     return {
       options,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       hasMore: result.data.length > 0,
       additional: {
         page: page + 1,

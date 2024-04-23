@@ -42,16 +42,22 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
   const createBiomarkerAssociation = (e: any) => {
     e.preventDefault();
     const association: Association = {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       fdaSubmissions: fdaSubmissionValue.map(fdaSubmission => {
         return {
           id: fdaSubmission.value,
         };
       }),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       alterations: alterationValue.map(alteration => {
         return {
           id: alteration.value,
         };
       }),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       drugs: drugValue.map(drug => {
         return {
           id: drug.value,
@@ -60,6 +66,8 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
     };
 
     if (cancerTypeValue) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       association.cancerTypes = [{ id: cancerTypeValue.value as number } as CancerType];
     }
     associationClient
@@ -71,10 +79,14 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
   };
 
   const redirectToCreateAlteration = () => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     history.push(getEntityActionRoute(ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE, ENTITY_ACTION.ADD));
   };
 
   const redirectToCreateFdaSubmission = () => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     history.push(getEntityActionRoute(ENTITY_TYPE.FDA_SUBMISSION, ENTITY_ACTION.ADD));
   };
 

@@ -2,6 +2,8 @@ import { action, makeObservable, observable } from 'mobx';
 import { CancerTypeSelectOption } from '../select/CancerTypeSelect';
 
 export class ModifyCancerTypeModalStore {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   public openCancerTypesUuid: string = null;
   public includedCancerTypes: CancerTypeSelectOption[] = [];
   public excludedCancerTypes: CancerTypeSelectOption[] = [];
@@ -61,6 +63,8 @@ export class ModifyCancerTypeModalStore {
   }
 
   closeModal() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.openCancerTypesUuid = null;
     this.includedCancerTypes = [];
     this.excludedCancerTypes = [];

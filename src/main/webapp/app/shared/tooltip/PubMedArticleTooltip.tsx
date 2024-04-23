@@ -8,7 +8,11 @@ import _ from 'lodash';
 import { formatDate } from 'app/shared/util/utils';
 
 const getPubMedContent = (pubMedDto: PubMedDTO) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   if (pubMedDto.additionalInfo?.abstractTexts?.length > 1) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return pubMedDto.additionalInfo.abstractTexts.map(text => (
       <p key={text.label}>
         <b>{_.capitalize(text.label)}</b>: {text.value}
@@ -35,45 +39,76 @@ const PubMedArticleTooltipContent: React.FunctionComponent<IPubMedArticleTooltip
       return <LoadingIndicator isLoading />;
     } else {
       if (getPubMedArticle.error) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         return <div>Failed to fetch PubMed Article with error {getPubMedArticle.error.content}</div>;
       } else if (getPubMedArticle.pubMedArticle != null) {
         const pubMedDto: PubMedDTO = getPubMedArticle.pubMedArticle;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         const date = new Date(pubMedDto.date);
         return (
           <div>
             <h5>{pubMedDto.title}</h5>
             <p>
-              {pubMedDto.authors}, {pubMedDto.additionalInfo.journal.isoAbbreviation}, on {formatDate(date, true)}
+              {pubMedDto.authors},{' '}
+              {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                pubMedDto.additionalInfo.journal.isoAbbreviation
+              }
+              , on {formatDate(date, true)}
             </p>
-            {pubMedDto.synonyms?.length > 0 && (
-              <p>
-                {pubMedDto.synonyms.map(synonym => (
-                  <span className={'mr-2'} key={`${synonym.type}-${synonym.source}-${synonym.name}`}>
-                    <b>{synonym.source === 'pubmed' ? 'PMID' : synonym.source?.toUpperCase()}</b>: {synonym.name}
-                  </span>
-                ))}
-              </p>
-            )}
+            {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              pubMedDto.synonyms?.length > 0 && (
+                <p>
+                  {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    pubMedDto.synonyms.map(synonym => (
+                      <span className={'mr-2'} key={`${synonym.type}-${synonym.source}-${synonym.name}`}>
+                        <b>{synonym.source === 'pubmed' ? 'PMID' : synonym.source?.toUpperCase()}</b>: {synonym.name}
+                      </span>
+                    ))
+                  }
+                </p>
+              )
+            }
             <p>
               <b>Abstract</b>
             </p>
             <div>{pubMedDto ? getPubMedContent(pubMedDto) : <i>No abstract available.</i>}</div>
-            {pubMedDto.additionalInfo?.dataBanks?.length > 0 && (
-              <>
-                <p>
-                  <b>Associated Data</b>
-                </p>
-                <div>
-                  <ul>
-                    {pubMedDto.additionalInfo.dataBanks.map(dataBank => (
-                      <li key={dataBank.name}>
-                        {dataBank.name}: {dataBank.accessionNumbers.join(', ')}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </>
-            )}
+            {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              pubMedDto.additionalInfo?.dataBanks?.length > 0 && (
+                <>
+                  <p>
+                    <b>Associated Data</b>
+                  </p>
+                  <div>
+                    <ul>
+                      {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        pubMedDto.additionalInfo.dataBanks.map(dataBank => (
+                          <li key={dataBank.name}>
+                            {dataBank.name}:{' '}
+                            {
+                              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                              // @ts-ignore
+                              dataBank.accessionNumbers.join(', ')
+                            }
+                          </li>
+                        ))
+                      }
+                    </ul>
+                  </div>
+                </>
+              )
+            }
           </div>
         );
       } else {

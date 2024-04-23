@@ -26,6 +26,8 @@ export const TranscriptTable = (props: IGeneTranscriptsProps) => {
     axios
       .get<ITranscript[]>(`${apiUrl}?ensemblGeneId.equals=${props.ensemblGeneId}`)
       .then(response => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         setTranscriptList(response.data);
       })
       .finally(() => {
@@ -88,11 +90,17 @@ export const TranscriptTable = (props: IGeneTranscriptsProps) => {
           <div>
             <input
               type={'checkbox'}
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               checked={props.selectedTranscriptIds.includes(cell.original.id)}
               disabled={props.disableTranscriptAlignment}
               onChange={() => props.onToggleTranscript(cell.original)}
             />{' '}
-            {getComparisonOrder(cell.original.id)}
+            {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              getComparisonOrder(cell.original.id)
+            }
           </div>
         );
       },

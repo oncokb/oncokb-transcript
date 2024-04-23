@@ -211,6 +211,8 @@ export class FirebaseGeneService {
 
     if (removeWithoutReview) {
       const pathParts = path.split('/');
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const indexToRemove = parseInt(pathParts.pop(), 10);
       const arrayPath = pathParts.join('/');
       return this.firebaseRepository.deleteFromArray(arrayPath, [indexToRemove]);
@@ -254,6 +256,8 @@ export class FirebaseGeneService {
   };
 
   addTumor = async (tumorPath: string, newTumor: Tumor) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const { hugoSymbol } = parseFirebaseGenePath(tumorPath);
     const name = this.authStore.fullName;
     newTumor.cancerTypes_review = new Review(name, undefined, true, undefined);
@@ -265,8 +269,12 @@ export class FirebaseGeneService {
   };
 
   updateTumorName = async (tumorPath: string, currentCancerTypes: CancerType[], currentExcludedCancerTypes: CancerType[], tumor: Tumor) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const cancerTypesReview = getUpdatedReview(tumor.cancerTypes_review, currentCancerTypes, tumor.cancerTypes, this.authStore.fullName);
     const excludedCancerTypesReview = getUpdatedReview(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       tumor.excludedCancerTypes_review,
       currentExcludedCancerTypes,
       tumor.excludedCancerTypes,
@@ -276,6 +284,8 @@ export class FirebaseGeneService {
     tumor.cancerTypes_review = cancerTypesReview.updatedReview;
     tumor.excludedCancerTypes_review = excludedCancerTypesReview.updatedReview;
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const { hugoSymbol } = parseFirebaseGenePath(tumorPath);
 
     return this.firebaseRepository.update(tumorPath, tumor).then(() => {
@@ -289,6 +299,8 @@ export class FirebaseGeneService {
       this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, tumor.cancerTypes_uuid, !cancerTypesReview.isChangeReverted, false);
       this.firebaseMetaService.updateGeneReviewUuid(
         hugoSymbol,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         tumor.excludedCancerTypes_uuid,
         !excludedCancerTypesReview.isChangeReverted,
         false
@@ -302,6 +314,8 @@ export class FirebaseGeneService {
         `${treatmentPath}/name`,
         currentTreatmentName,
         treatment.name,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         treatment.name_review,
         treatment.name_uuid
       );
@@ -309,6 +323,8 @@ export class FirebaseGeneService {
   };
 
   addTreatment = async (treatmentPath: string, newTreatment: Treatment) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const { hugoSymbol } = parseFirebaseGenePath(treatmentPath);
     const name = this.authStore.fullName;
     newTreatment.name_review = new Review(name, undefined, true, undefined);
@@ -325,6 +341,8 @@ export class FirebaseGeneService {
         `${mutationPath}/name`,
         currentMutationName,
         mutation.name,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         mutation.name_review,
         mutation.name_uuid
       );
@@ -334,6 +352,8 @@ export class FirebaseGeneService {
   };
 
   addMutation = async (mutationsPath: string, newMutation: Mutation, isPromotedToMutation = false, mutationEffectDescription?: string) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const { hugoSymbol } = parseFirebaseGenePath(mutationsPath);
     const name = this.authStore.fullName;
     newMutation.name_review = new Review(name, undefined, true, undefined);
@@ -364,6 +384,8 @@ export class FirebaseGeneService {
     uuid: string,
     initialUpdate?: boolean
   ) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const { hugoSymbol } = parseFirebaseGenePath(rctPath);
     if (initialUpdate) {
       return this.firebaseRepository.create(rctPath, newRelevantCancerTypes).then(() => {

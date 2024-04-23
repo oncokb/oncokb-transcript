@@ -5,7 +5,11 @@ import ErrorBoundary from 'app/shared/error/error-boundary';
 export const ErrorBoundaryRoute = ({ component: Component, ...rest }: RouteProps) => {
   const encloseInErrorBoundary = props => (
     <ErrorBoundary>
-      <Component {...props} />
+      {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        <Component {...props} />
+      }
     </ErrorBoundary>
   );
 

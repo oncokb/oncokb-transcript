@@ -55,15 +55,23 @@ export const CurationPage = (props: ICurationPageProps) => {
       props.searchGeneEntities({ query: hugoSymbol, exact: true });
 
       const cleanupCallbacks = [];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       cleanupCallbacks.push(props.addMutationListListener(mutationsPath));
       cleanupCallbacks.push(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         onValue(ref(props.firebaseDb, firebaseMetaCurrentReviewerPath), snapshot => {
           const currentReviewer = snapshot.val();
           setIsReviewing(currentReviewer?.toLowerCase() === props.fullName.toLowerCase());
         })
       );
       return () => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         cleanupCallbacks.forEach(callback => callback && callback());
       };
     }
@@ -75,6 +83,8 @@ export const CurationPage = (props: ICurationPageProps) => {
 
   useEffect(() => {
     return () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       props.setOpenMutationCollapsibleIndex(null);
     };
   }, []);
@@ -101,6 +111,8 @@ export const CurationPage = (props: ICurationPageProps) => {
       if (!newList.has(historyData.location)) {
         newList.set(historyData.location, [historyData]);
       } else {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         newList.get(historyData.location).push(historyData);
       }
     }
@@ -114,6 +126,8 @@ export const CurationPage = (props: ICurationPageProps) => {
         <GeneHeader
           hugoSymbol={hugoSymbol}
           firebaseGenePath={firebaseGenePath}
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           geneEntity={geneEntity}
           isReviewing={isReviewing}
           isReviewFinished={isReviewFinished}
@@ -147,7 +161,11 @@ export const CurationPage = (props: ICurationPageProps) => {
                   groupHeader={
                     <>
                       <span className="mr-2">Gene Type</span>
-                      {<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.GENE_TYPE} />}
+                      {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        <GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.GENE_TYPE} />
+                      }
                     </>
                   }
                   options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
@@ -164,7 +182,11 @@ export const CurationPage = (props: ICurationPageProps) => {
                   name="geneSummary"
                   labelIcon={
                     <GeneRealtimeComponentHeader
-                      tooltip={<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.SUMMARY} />}
+                      tooltip={
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        <GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.SUMMARY} />
+                      }
                       commentIcon={<CommentIcon id={`${hugoSymbol}_gene_summary`} path={`${firebaseGenePath}/summary_comments`} />}
                     />
                   }
@@ -181,7 +203,11 @@ export const CurationPage = (props: ICurationPageProps) => {
                   parseRefs
                   labelIcon={
                     <GeneRealtimeComponentHeader
-                      tooltip={<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.BACKGROUND} />}
+                      tooltip={
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        <GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.BACKGROUND} />
+                      }
                       commentIcon={<CommentIcon id={`${hugoSymbol}_gene_background`} path={`${firebaseGenePath}/background_comments`} />}
                     />
                   }
@@ -195,7 +221,11 @@ export const CurationPage = (props: ICurationPageProps) => {
                     groupHeader={
                       <GeneRealtimeComponentHeader
                         title="Penetrance"
-                        tooltip={<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.PENETRANCE} />}
+                        tooltip={
+                          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                          // @ts-ignore
+                          <GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.PENETRANCE} />
+                        }
                         commentIcon={<CommentIcon id={`${hugoSymbol}_penetrance`} path={`${firebaseGenePath}/penetrance_comments`} />}
                       />
                     }
@@ -211,7 +241,11 @@ export const CurationPage = (props: ICurationPageProps) => {
                     groupHeader={
                       <GeneRealtimeComponentHeader
                         title="Mechanism of Inheritance"
-                        tooltip={<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.INHERITANCE_MECHANISM} />}
+                        tooltip={
+                          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                          // @ts-ignore
+                          <GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.INHERITANCE_MECHANISM} />
+                        }
                         commentIcon={
                           <CommentIcon
                             id={`${hugoSymbol}_inheritanceMechanism`}
@@ -236,11 +270,19 @@ export const CurationPage = (props: ICurationPageProps) => {
               mutationsPath={mutationsPath}
               hugoSymbol={hugoSymbol}
               isGermline={isGermline}
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               parsedHistoryList={tooltipHistoryList}
               onMutationListRender={() => setMutationListRendered(true)}
             />
           </div>
-          <VusTable hugoSymbol={hugoSymbol} isGermline={isGermline} mutationsSectionRef={mutationsSectionRef} />
+          <VusTable
+            hugoSymbol={hugoSymbol}
+            isGermline={isGermline}
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            mutationsSectionRef={mutationsSectionRef}
+          />
           <RelevantCancerTypesModal
             onConfirm={async (newExcludedRCTs, noneDeleted) => {
               try {
@@ -269,6 +311,8 @@ export const CurationPage = (props: ICurationPageProps) => {
                 },
                 {
                   title: 'History',
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   content: <CurationHistoryTab historyData={tabHistoryList} />,
                 },
                 {

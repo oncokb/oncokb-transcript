@@ -79,6 +79,8 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
   }, [rootReview]);
 
   const borderLeftColor = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     let color = ReviewCollapsibleColorClass[reviewAction];
     if (rootReview.isUnderCreationOrDeletion || rootReview.reviewLevelType === ReviewLevelType.META) {
       color = undefined;
@@ -93,6 +95,8 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
           icon={faCheck}
           color={SUCCESS}
           onClick={() => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             props.handleAccept(props.hugoSymbol, [props.baseReviewLevel as ReviewLevel], props.isGermline);
           }}
         />
@@ -100,6 +104,8 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
           icon={faTimes}
           color={DANGER}
           onClick={() => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             props.handleDelete(props.hugoSymbol, props.baseReviewLevel as ReviewLevel, props.isGermline);
           }}
         />
@@ -110,6 +116,8 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
   const getEditorInfo = () => {
     if (!rootReview.isUnderCreationOrDeletion && rootReview.reviewLevelType !== ReviewLevelType.META) {
       const reviewLevel = rootReview as ReviewLevel;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const action = ReviewTypeTitle[reviewAction];
       const editor = reviewLevel.review.updatedBy;
       const updatedTime = new Date(reviewLevel.review.updateTime).toString();
@@ -227,9 +235,13 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       action={getReviewActions()}
       displayOptions={{ ...defaultReviewCollapsibleDisplayOptions }}
       isPendingDelete={isDeletion}
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       badge={
         props.baseReviewLevel.reviewLevelType !== ReviewLevelType.META &&
         !props.baseReviewLevel.isUnderCreationOrDeletion && (
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           <DefaultBadge color={ReviewCollapsibleBootstrapClass[reviewAction]} text={ReviewActionLabels[reviewAction]} />
         )
       }

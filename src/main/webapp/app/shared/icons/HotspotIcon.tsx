@@ -47,9 +47,15 @@ const getHotspotDescription = (hotspotType: string) => {
 
 const getHotspotTooltipContent = (associatedHotspots: HotspotDTO[]) => {
   const groupedHotspot = associatedHotspots.reduce((acc, next) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     if (!acc[next.type]) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       acc[next.type] = [];
     }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     acc[next.type].push(next.alteration);
     return acc;
   }, {});

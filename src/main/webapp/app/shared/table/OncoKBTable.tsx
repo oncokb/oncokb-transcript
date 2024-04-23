@@ -26,6 +26,8 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
     return props.data.filter((item: T) => {
       const filterableColumns = props.columns.filter(column => !!column.onFilter);
       if (filterableColumns.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         return filterableColumns.map(column => column.onFilter(item, searchKeyword)).includes(true);
       } else {
         return true;

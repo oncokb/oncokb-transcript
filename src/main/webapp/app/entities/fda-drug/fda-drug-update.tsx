@@ -46,6 +46,8 @@ export const FdaDrugUpdate = (props: IFdaDrugUpdateProps) => {
     const entity = {
       ...fdaDrugEntity,
       ...values,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       drug: drugs.find(it => it.id.toString() === values.drugId.toString()),
     };
 

@@ -75,24 +75,40 @@ const MutationCollapsible = ({
 }: IMutationCollapsibleProps) => {
   const firebaseMutationsPath = `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`;
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [mutationUuid, setMutationUuid] = useState<string>(null);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [mutationName, setMutationName] = useState<string>(null);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [mutationNameReview, setMutationNameReview] = useState<Review>(null);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [mutationAlterations, setMutationAlterations] = useState<Alteration[]>(null);
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
   const [relatedAnnotationResult, setRelatedAnnotationResult] = useState<AlterationAnnotationStatus[]>([]);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     setRelatedAnnotationResult(annotatedAltsCache.get(hugoSymbol, [{ name: mutationName, alterations: mutationAlterations }]));
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
   }, [annotatedAltsCache.loading, mutationName, mutationAlterations]);
 
   const exons = useMemo(() => {
     return _.uniqBy(
       relatedAnnotationResult.reduce((acc, next) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         acc.push(...next.annotation.exons);
         return acc;
       }, [] as ProteinExonDTO[]),
       'exon'
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
     ).sort((a, b) => a.range.start - b.range.start);
   }, [relatedAnnotationResult]);
 
@@ -103,6 +119,8 @@ const MutationCollapsible = ({
   const hotspots = useMemo(() => {
     return _.uniq(
       relatedAnnotationResult.reduce((acc, next) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         acc.push(...next.annotation.hotspot?.associatedHotspots);
         return acc;
       }, [] as HotspotDTO[])
@@ -117,21 +135,29 @@ const MutationCollapsible = ({
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, getFirebaseVusPath(isGermline, hugoSymbol)), snapshot => {
         setVusData(snapshot.val());
       })
     );
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, `${mutationPath}/name`), snapshot => {
         setMutationName(snapshot.val());
       })
     );
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, `${mutationPath}/alterations`), snapshot => {
         setMutationAlterations(snapshot.val());
       })
     );
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, `${mutationPath}/name_review`), snapshot => {
         const review = snapshot.val() as Review;
         setMutationNameReview(review);
@@ -140,6 +166,8 @@ const MutationCollapsible = ({
     );
 
     onValue(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       ref(firebaseDb, `${mutationPath}/name_uuid`),
       snapshot => {
         setMutationUuid(snapshot.val());
@@ -147,10 +175,14 @@ const MutationCollapsible = ({
       { onlyOnce: true }
     );
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return () => callbacks.forEach(callback => callback?.());
   }, [mutationPath, firebaseDb]);
 
   async function handleDemoteToVus() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     await deleteSection(`${mutationPath}/name`, mutationNameReview, mutationUuid, true);
     setIsConvertingToVus(false);
   }
@@ -173,6 +205,8 @@ const MutationCollapsible = ({
         colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.MUTATION]] }}
         review={mutationNameReview}
         disableOpen={disableOpen}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         onToggle={() => !isMutationPendingDelete && onToggle()}
         info={
           <>
@@ -185,7 +219,18 @@ const MutationCollapsible = ({
                     <div className={'d-flex flex-column'}>
                       {exons.map(exon => (
                         <div key={exon.exon}>
-                          <b>Exon {exon.exon}</b>: {exon.range.start}~{exon.range.end}
+                          <b>Exon {exon.exon}</b>:{' '}
+                          {
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                            // @ts-ignore
+                            exon.range.start
+                          }
+                          ~
+                          {
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                            // @ts-ignore
+                            exon.range.end
+                          }
                         </div>
                       ))}
                     </div>
@@ -218,6 +263,8 @@ const MutationCollapsible = ({
             />
             <DeleteSectionButton
               sectionName={title}
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               deleteHandler={() => deleteSection(`${mutationPath}/name`, mutationNameReview, mutationUuid)}
               isRemovableWithoutReview={isRemovableWithoutReview}
             />
@@ -445,6 +492,8 @@ const MutationCollapsible = ({
           className={'mt-2 mb-1'}
           outline
           color="primary"
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           onClick={() => modifyCancerTypeModalStore.openModal(`new_cancer_type_for_${mutationUuid}`)}
         >
           Add Cancer Type
@@ -454,14 +503,20 @@ const MutationCollapsible = ({
         cancerTypesUuid={`new_cancer_type_for_${mutationUuid}`}
         onConfirm={async newTumor => {
           try {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             await addTumor(`${mutationPath}/tumors`, newTumor);
           } catch (error) {
             notifyError(error);
           }
 
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           modifyCancerTypeModalStore.closeModal();
         }}
         onCancel={() => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           modifyCancerTypeModalStore.closeModal();
         }}
       />
@@ -469,9 +524,13 @@ const MutationCollapsible = ({
         <AddMutationModal
           hugoSymbol={hugoSymbol}
           isGermline={isGermline}
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           mutationToEditPath={isEditingMutation ? mutationPath : null}
           onConfirm={async newMutation => {
             try {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               await updateMutationName(mutationPath, firebaseMutationsPath, mutationName, newMutation);
             } catch (error) {
               notifyError(error);
@@ -487,6 +546,8 @@ const MutationCollapsible = ({
         <AddVusModal
           hugoSymbol={hugoSymbol}
           isGermline={isGermline}
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           vusList={vusData}
           onCancel={() => setIsConvertingToVus(false)}
           onConfirm={handleDemoteToVus}

@@ -24,9 +24,13 @@ export const getFdaSubmissionLinks = (fdaSubmissions: IFdaSubmission[]) => {
       <WithSeparator separator=", ">
         {fdaSubmissions
           .sort((a, b) =>
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             getFdaSubmissionNumber(a.number, a.supplementNumber).localeCompare(getFdaSubmissionNumber(b.number, b.supplementNumber))
           )
           .map(submission => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             const submissionNumber = getFdaSubmissionNumber(submission.number, submission.supplementNumber);
             return (
               <Link to={`${PAGE_ROUTE.FDA_SUBMISSION}/${submission.id}`} key={submissionNumber}>
@@ -51,6 +55,8 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
     const drugs = [];
     fdaSubmissions.forEach(fdaSubmission => {
       fdaSubmission.associations?.reduce((acc, val) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         acc.push(...(val.drugs || []).map(drug => drug.name));
         return acc;
       }, drugs);
@@ -75,6 +81,8 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
       id: 'drugs',
       Header: 'Associated Drugs',
       Cell(cell: { original: ICompanionDiagnosticDevice }) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         return <>{getUniqDrugs(cell.original.fdaSubmissions).sort().join(', ')}</>;
       },
     },
@@ -84,9 +92,13 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
       sortable: false,
       onFilter: (data: ICompanionDiagnosticDevice, keyword) =>
         data.fdaSubmissions
-          ? filterByKeyword(data.fdaSubmissions.map(s => getFdaSubmissionNumber(s.number, s.supplementNumber)).join(', '), keyword)
+          ? // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            filterByKeyword(data.fdaSubmissions.map(s => getFdaSubmissionNumber(s.number, s.supplementNumber)).join(', '), keyword)
           : false,
       Cell(cell: { original: ICompanionDiagnosticDevice }) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         return <>{getFdaSubmissionLinks(cell.original.fdaSubmissions)}</>;
       },
       minWidth: 250,

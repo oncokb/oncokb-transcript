@@ -20,7 +20,11 @@ export const EntitySelectOption: React.FunctionComponent<IEntitySelectOption> = 
   const optionBody = (
     <>
       <div>
-        <Highlighter searchWords={props.title.searchWords} textToHighlight={props.title.text} />
+        {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          <Highlighter searchWords={props.title.searchWords} textToHighlight={props.title.text} />
+        }
       </div>
       {props.subTitles &&
         props.subTitles.map((subTitle, index) => {
@@ -32,7 +36,11 @@ export const EntitySelectOption: React.FunctionComponent<IEntitySelectOption> = 
             subTitle.text && (
               <div style={{ color: 'grey', fontSize: '0.9em', ...additionalStyles }} key={index}>
                 <span>{subTitle.label}</span>
-                <Highlighter searchWords={subTitle.searchWords} textToHighlight={subTitle.text} />
+                {
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
+                  <Highlighter searchWords={subTitle.searchWords} textToHighlight={subTitle.text} />
+                }
               </div>
             )
           );

@@ -179,6 +179,8 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const frequencies = JSON.parse(localStorage.getItem(PRIORITY_ENTITY_MENU_ITEM_KEY));
     let parsedFrequencies = entityMenuFrequencies;
     if (frequencies) {
@@ -224,6 +226,8 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
           <Menu>
             {props.isCurator && (
               <MenuItemCollapsible
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 isCollapsed={props.isNavSidebarCollapsed}
                 text="Curation"
                 icon={<FiFileText size={DEFAULT_NAV_ICON_SIZE} />}
@@ -233,6 +237,8 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
             {props.isUser && (
               <>
                 <MenuItemCollapsible
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   isCollapsed={props.isNavSidebarCollapsed}
                   text={'Search'}
                   icon={<BiSearchAlt size={DEFAULT_NAV_ICON_SIZE} />}
@@ -247,21 +253,33 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
                 </SubMenu>
               </>
             )}
-            {!props.isCurator && !props.isUser && <NoSidebarAccess isCollapsed={props.isNavSidebarCollapsed} />}
+            {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              !props.isCurator && !props.isUser && <NoSidebarAccess isCollapsed={props.isNavSidebarCollapsed} />
+            }
           </Menu>
         </div>
         <MenuDivider />
         <Menu>
-          <SubMenu label={props.account.firstName} icon={<FaUserCircle size={DEFAULT_NAV_ICON_SIZE} />}>
-            <MenuItem component={<NavLink to={PAGE_ROUTE.ACCOUNT} />}>Account Settings</MenuItem>
-            {props.isAdmin && <MenuItem component={<NavLink to={PAGE_ROUTE.USER} />}>User Management</MenuItem>}
-          </SubMenu>
-          <MenuItemCollapsible
-            isCollapsed={props.isNavSidebarCollapsed}
-            text={'Sign out'}
-            icon={<FaSignOutAlt size={DEFAULT_NAV_ICON_SIZE} />}
-            nav={<NavLink to={PAGE_ROUTE.LOGOUT} />}
-          />
+          {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            <SubMenu label={props.account.firstName} icon={<FaUserCircle size={DEFAULT_NAV_ICON_SIZE} />}>
+              <MenuItem component={<NavLink to={PAGE_ROUTE.ACCOUNT} />}>Account Settings</MenuItem>
+              {props.isAdmin && <MenuItem component={<NavLink to={PAGE_ROUTE.USER} />}>User Management</MenuItem>}
+            </SubMenu>
+          }
+          {
+            <MenuItemCollapsible
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              isCollapsed={props.isNavSidebarCollapsed}
+              text={'Sign out'}
+              icon={<FaSignOutAlt size={DEFAULT_NAV_ICON_SIZE} />}
+              nav={<NavLink to={PAGE_ROUTE.LOGOUT} />}
+            />
+          }
         </Menu>
         <MenuDivider />
         <div style={{ lineHeight: '5rem', display: 'flex', justifyContent: 'center' }}>
@@ -281,8 +299,14 @@ const mapStoreToProps = ({ layoutStore, authStore }: IRootStore) => ({
   isNavSidebarCollapsed: layoutStore.isNavigationSidebarCollapsed,
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,
   isAuthenticated: authStore.isAuthenticated,
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   isAdmin: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.ADMIN]),
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   isCurator: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.CURATOR]),
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   isUser: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.USER]),
   account: authStore.account,
 });

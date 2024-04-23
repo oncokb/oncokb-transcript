@@ -19,12 +19,18 @@ export const PrivateRouteComponent = ({
   hasAnyAuthorities = [],
   ...rest
 }: IPrivateRouteProps) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const isAuthorized = hasAnyAuthority(account.authorities, hasAnyAuthorities);
 
   const checkAuthorities = props =>
     isAuthorized ? (
       <ErrorBoundary>
-        <Component {...props} />
+        {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          <Component {...props} />
+        }
       </ErrorBoundary>
     ) : (
       <div className="insufficient-authority">

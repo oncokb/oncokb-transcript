@@ -55,6 +55,8 @@ export const getUuidsFromReview = (reviewLevel: ReviewLevel) => {
     case ReviewAction.DELETE:
       return undefined;
     default:
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       updatedFieldUuids.push(reviewLevel.uuid);
   }
   return updatedFieldUuids;
@@ -134,6 +136,8 @@ export const parseAddRecord = (record: HistoryRecord, drugList: readonly IDrug[]
 
       for (const entry of updatedEntries) {
         parsedRecords.push({
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           new: entry[1],
           operation: HistoryOperationType.UPDATE,
           lastEditBy: record.lastEditBy,
@@ -239,9 +243,17 @@ export const findEntriesInObjectByUuids = (object: any, uuids: string[], drugLis
         if (typeof nestedObject.object[key] === 'object') {
           switch (key) {
             case 'mutations':
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               for (const mutation of nestedObject.object[key]) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 newNestedObjects.push({
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   object: mutation,
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   locationFields: [...nestedObject.locationFields, getMutationName(mutation.name, mutation.alterations)],
                 });
               }
@@ -249,9 +261,15 @@ export const findEntriesInObjectByUuids = (object: any, uuids: string[], drugLis
             case 'tumors':
               for (const cancerType of nestedObject.object[key]) {
                 newNestedObjects.push({
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   object: cancerType,
                   locationFields: [
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     ...nestedObject.locationFields,
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     getCancerTypesNameWithExclusion(cancerType.cancerTypes, cancerType.excludedCancerTypes || [], true),
                   ],
                 });
@@ -259,15 +277,21 @@ export const findEntriesInObjectByUuids = (object: any, uuids: string[], drugLis
               break;
             case 'TIs':
               for (const ti of nestedObject.object[key]) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 newNestedObjects.push({ object: ti, locationFields: nestedObject.locationFields });
               }
               break;
             case 'treatments':
               for (const treatment of nestedObject.object[key]) {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 newNestedObjects.push({ object: treatment, locationFields: [...nestedObject.locationFields, treatment.name] });
               }
               break;
             default:
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               newNestedObjects.push({ object: nestedObject.object[key], locationFields: [...nestedObject.locationFields, key] });
           }
         }

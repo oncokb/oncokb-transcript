@@ -69,6 +69,8 @@ function MutationsSectionHeader({
   }, UPDATE_MUTATION_FILTERS_DEBOUNCE_MILLISECONDS);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const unsubscribe = onValue(ref(firebaseDb, mutationsPath), snapshot => {
       if (mutationsInitialized) {
         setMutationsDebounced(snapshot);
@@ -85,6 +87,8 @@ function MutationsSectionHeader({
     const newFilteredIndices =
       mutations?.reduce((accumulator: number[], mutation, index) => {
         const matchesName =
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           !mutationFilter || getMutationName(mutation.name, mutation.alterations).toLowerCase().includes(mutationFilter.toLowerCase());
 
         const selectedOncogenicities = oncogenicityFilter.filter(filter => filter.selected);
@@ -102,9 +106,13 @@ function MutationsSectionHeader({
         // when the hotspot filter is selected, we only show hotspot mutations
         let isHotspotMatch = true;
         if (selectedHotspot.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           const uniqueHotspotStatus = annotatedAltsCache
             .get(hugoSymbol, [
               {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 alterations: mutation.alterations,
                 name: mutation.name,
               },
@@ -242,6 +250,8 @@ function MutationsSectionHeader({
         {mutations?.length > 0 && (
           <div className="d-flex align-items-center">
             <FaFilter
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               color={mutationsAreFiltered ? 'gold' : null}
               style={{ cursor: 'pointer' }}
               onClick={handleToggleFilterModal}
@@ -342,40 +352,44 @@ function MutationsSectionHeader({
                 );
               })}
             </Row>
-            {!annotatedAltsCache.loading && (
-              <>
-                <h6 className="mb-2 mt-2">Hotspot</h6>
-                <Row className="align-items-start justify-content-start">
-                  {tempHotspotFilter.map((filter, index) => {
-                    const isDisabled = !checkboxEnabled(FilterType.HOTSPOT, filter.label);
+            {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              !annotatedAltsCache.loading && (
+                <>
+                  <h6 className="mb-2 mt-2">Hotspot</h6>
+                  <Row className="align-items-start justify-content-start">
+                    {tempHotspotFilter.map((filter, index) => {
+                      const isDisabled = !checkboxEnabled(FilterType.HOTSPOT, filter.label);
 
-                    return (
-                      <Col style={{ flexGrow: 0 }} key={filter.label}>
-                        <InputGroup>
-                          <Input
-                            id={`hotspot-filter-${filter.label}`}
-                            onChange={() => handleFilterCheckboxChange(index, setTempHotspotFilter)}
-                            checked={filter.selected}
-                            disabled={isDisabled}
-                            style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
-                            type="checkbox"
-                          />
-                          <Label
-                            for={`hotspot-filter-${filter.label}`}
-                            style={{
-                              cursor: `${isDisabled ? null : 'pointer'}`,
-                              marginLeft: CHECKBOX_LABEL_LEFT_MARGIN,
-                            }}
-                          >
-                            {filter.label}
-                          </Label>
-                        </InputGroup>
-                      </Col>
-                    );
-                  })}
-                </Row>
-              </>
-            )}
+                      return (
+                        <Col style={{ flexGrow: 0 }} key={filter.label}>
+                          <InputGroup>
+                            <Input
+                              id={`hotspot-filter-${filter.label}`}
+                              onChange={() => handleFilterCheckboxChange(index, setTempHotspotFilter)}
+                              checked={filter.selected}
+                              disabled={isDisabled}
+                              style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
+                              type="checkbox"
+                            />
+                            <Label
+                              for={`hotspot-filter-${filter.label}`}
+                              style={{
+                                cursor: `${isDisabled ? null : 'pointer'}`,
+                                marginLeft: CHECKBOX_LABEL_LEFT_MARGIN,
+                              }}
+                            >
+                              {filter.label}
+                            </Label>
+                          </InputGroup>
+                        </Col>
+                      );
+                    })}
+                  </Row>
+                </>
+              )
+            }
             <Row className="justify-content-end">
               {showFilterModalCancelButton && (
                 <Col className="px-0 mr-2" style={{ flexGrow: 0 }}>

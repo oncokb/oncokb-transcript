@@ -51,6 +51,8 @@ export const GenomicIndicator = (props: IGenomicIndicatorProps) => {
       Header: 'Associated Allele States',
       accessor: 'alleleStates',
       sortMethod(a, b) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         return getAssociatedAlleleStates(a).localeCompare(getAssociatedAlleleStates(b));
       },
       Cell(cell: { original }): JSX.Element {

@@ -49,11 +49,19 @@ export const GeneDetail = (props: IGeneDetailProps) => {
   }, [props.geneEntity.id]);
 
   const onToggleTranscript = (transcript: ITranscript) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     if (transcript.id in selectedTranscripts) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       delete selectedTranscripts[transcript.id];
       setSelectedTranscriptIds(selectedTranscriptIds.filter(id => id !== transcript.id));
     } else {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       selectedTranscripts[transcript.id] = transcript;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       setSelectedTranscriptIds([...selectedTranscriptIds, transcript.id]);
     }
     setSelectedTranscripts(selectedTranscripts);
@@ -100,7 +108,11 @@ export const GeneDetail = (props: IGeneDetailProps) => {
             </span>
           </div>
           <div>
-            <GeneFlags flags={geneEntity.flags} />
+            {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              <GeneFlags flags={geneEntity.flags} />
+            }
           </div>
         </Col>
       </Row>
@@ -118,6 +130,8 @@ export const GeneDetail = (props: IGeneDetailProps) => {
                     <span className={'ml-1'}>{getGenomicLocation(eg)}</span>
                   </div>
                   <TranscriptTable
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     ensemblGeneId={eg.id}
                     onToggleTranscript={onToggleTranscript}
                     disableTranscriptAlignment={aligningTranscripts}

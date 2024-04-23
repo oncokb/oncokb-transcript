@@ -23,6 +23,8 @@ const FdaSubmissionSelect: React.FunctionComponent<IFdaSubmissionSelectProps> = 
         const fdaSubmissions = await flowResult(getFdaSubmissionsByCdx({ cdxId: id }));
         options = fdaSubmissions?.map((fdaSubmission: IFdaSubmission) => ({
           value: fdaSubmission.id,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           label: getFdaSubmissionNumber(fdaSubmission.number, fdaSubmission.supplementNumber),
         }));
         setFdaSubmissionList(options);
@@ -36,6 +38,8 @@ const FdaSubmissionSelect: React.FunctionComponent<IFdaSubmissionSelectProps> = 
 
   const onFdaSubmissionChange = (option, actionMeta) => {
     setFdaSubmissionValue(option);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     props.onChange(option, actionMeta);
   };
 

@@ -40,6 +40,8 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
 
     const output: string[] = [];
     for (const field of fields) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       if (record.new[field]) {
         output.push(field);
       }
@@ -61,6 +63,8 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
     const options = [];
     if (usersData) {
       for (const [email, data] of Object.entries(usersData)) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         options.push({ value: email, label: data.name || `[${email}]` });
       }
     }
@@ -69,28 +73,44 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
 
   useEffect(() => {
     const cleanupCallbacks = [];
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     cleanupCallbacks.push(addUsersListener(firebaseUsersPath));
 
     return () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       cleanupCallbacks.forEach(callback => callback && callback());
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       historyTabStore.reset();
     };
   }, []);
 
   useEffect(() => {
     async function fetchAllDrugs() {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const drugs = await getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       setDrugList(drugs['data']);
     }
 
     fetchAllDrugs();
   }, []);
 
-  function getHistoryContent(historyTabData: FlattenedHistory[], maxLength: number = null) {
+  function getHistoryContent(historyTabData: FlattenedHistory[], maxLength: number | null = null) {
     const filteredData = historyTabData.filter(data => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const author = historyTabStore.appliedAuthor;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const startDate = historyTabStore.appliedStartDate && new Date(historyTabStore.appliedStartDate);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const endDate = historyTabStore.appliedEndDate && new Date(historyTabStore.appliedEndDate);
 
       let matchesAuthor = false;
@@ -127,6 +147,8 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
     // CONSTRUCT HISTORY TAB CONTENT
     const content: JSX.Element[] = [];
     for (const data of eventData) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const isContentAvailable = data.content['props']?.children ? true : false;
 
       content.push(
@@ -150,7 +172,12 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
           </Row>
           <Row className="border-bottom pb-3 mb-3">
             <span>
-              <b>Location: </b> {`${formatLocation(data.location, drugList, data.objectField)}`}
+              <b>Location: </b>{' '}
+              {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                `${formatLocation(data.location, drugList, data.objectField)}`
+              }
             </span>
           </Row>
         </div>
@@ -159,6 +186,8 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
     return content;
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const historyContent = getHistoryContent(parsedHistoryData, historyTabStore.isFiltered ? null : 10);
 
   return (
@@ -167,8 +196,14 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
         <Label for="start-date">Start Date</Label>
         <Input
           id="start-date"
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           value={historyTabStore.selectedStartDate}
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           defaultValue={historyTabStore.appliedStartDate}
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           onChange={event => historyTabStore.setSelectedStartDate(event.target.value)}
           type="date"
           name="date"
@@ -178,8 +213,14 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
         <Label for="end-date">End Date</Label>
         <Input
           id="end-date"
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           value={historyTabStore.selectedEndDate}
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           defaultValue={historyTabStore.appliedEndDate}
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           onChange={event => historyTabStore.setSelectedEndDate(event.target.value)}
           type="date"
           name="date"
@@ -188,9 +229,15 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
       <Row className="mb-3">
         <Label for="author">Author</Label>
         <ReactSelect
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           value={historyTabStore.selectedAuthor}
           id="author"
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           defaultValue={historyTabStore.appliedAuthor}
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           onChange={selection => historyTabStore.setSelectedAuthor(selection)}
           styles={{
             container: containerStyles => ({
@@ -201,13 +248,39 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
           options={authorDropdownOptions}
         />
       </Row>
-      <Row className={`justify-content-${historyTabStore.isFiltered ? 'between' : 'end'}`}>
-        {historyTabStore.isFiltered && (
-          <Button outline color="danger" size="sm" onClick={() => historyTabStore.reset()}>
-            Clear Filters
-          </Button>
-        )}
-        <Button onClick={() => historyTabStore.applyFilters()} color="primary">
+      <Row
+        className={
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          `justify-content-${historyTabStore.isFiltered ? 'between' : 'end'}`
+        }
+      >
+        {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          historyTabStore.isFiltered && (
+            <Button
+              outline
+              color="danger"
+              size="sm"
+              onClick={
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                () => historyTabStore.reset()
+              }
+            >
+              Clear Filters
+            </Button>
+          )
+        }
+        <Button
+          onClick={
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            () => historyTabStore.applyFilters()
+          }
+          color="primary"
+        >
           Apply
         </Button>
       </Row>
@@ -215,9 +288,13 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
         <h6 className="pt-3">Change History</h6>
       </Row>
       <Row className="mb-3 change-history-length">
-        <span>{`Showing ${!historyTabStore.isFiltered ? 'latest' : ''} ${historyContent.length} ${
-          historyContent.length !== 1 ? 'changes' : 'change'
-        }`}</span>
+        <span>{
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          `Showing ${!historyTabStore.isFiltered ? 'latest' : ''} ${historyContent.length} ${
+            historyContent.length !== 1 ? 'changes' : 'change'
+          }`
+        }</span>
       </Row>
       {historyContent}
     </div>

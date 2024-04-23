@@ -52,9 +52,13 @@ export const DrugDetail = (props: IDrugDetailProps) => {
             <span id="brandNames">Also known as</span>
           </dt>
           <dd>
-            {drugEntity.nciThesaurus?.synonyms.map((synonym, index) => (
-              <SynonymBadge synonym={synonym} key={index} />
-            ))}
+            {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              drugEntity.nciThesaurus?.synonyms.map((synonym, index) => (
+                <SynonymBadge synonym={synonym} key={index} />
+              ))
+            }
           </dd>
         </dl>
         <EntityActionButton color="primary" entityId={drugEntity.id} entityType={ENTITY_TYPE.DRUG} entityAction={ENTITY_ACTION.EDIT} />

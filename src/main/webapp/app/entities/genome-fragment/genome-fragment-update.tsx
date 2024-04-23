@@ -50,7 +50,11 @@ export const GenomeFragmentUpdate = (props: IGenomeFragmentUpdateProps) => {
     const entity = {
       ...genomeFragmentEntity,
       ...values,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       seqRegion: seqRegions.find(it => it.id.toString() === values.seqRegionId.toString()),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       transcript: transcripts.find(it => it.id.toString() === values.transcriptId.toString()),
     };
 

@@ -56,6 +56,8 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
       gene: {
         id: selectedGeneId,
       },
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       seqRegion: seqRegions.find(it => it.id.toString() === values.seqRegionId.toString()),
     };
 

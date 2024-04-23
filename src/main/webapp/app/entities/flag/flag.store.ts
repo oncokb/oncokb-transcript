@@ -21,6 +21,8 @@ export class FlagStore extends PaginationCrudStore<IFlag> {
     const result: AxiosResponse<IFlag[]> = yield axios.get<IFlag[]>(`${getEntityResourcePath(ENTITY_TYPE.FLAG)}?flag.equals=ONCOKB`);
     const geneEntities = result.data.filter(flag => flag.type === 'GENE');
     if (geneEntities.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       this.oncokbGeneEntity = geneEntities[0];
     }
     return result;

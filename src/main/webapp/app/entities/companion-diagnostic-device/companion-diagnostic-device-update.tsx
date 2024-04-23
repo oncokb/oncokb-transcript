@@ -46,11 +46,15 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
       if (!INTEGER_REGEX.test(stv.id)) {
         try {
           const result = (await props.createSpecimenType({ type: stv.id, name: stv.id })) as any;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           updatedSpecimenTypes.push(result.data);
         } catch (error) {
           notifyError(error, 'Could not create new specimen type');
         }
       } else {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         updatedSpecimenTypes.push(props.specimenTypes.find(st => st.id === parseInt(stv.id, 10)));
       }
     }
@@ -72,7 +76,11 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
       ? {}
       : {
           ...companionDiagnosticDeviceEntity,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           specimenTypes: companionDiagnosticDeviceEntity?.specimenTypes?.map(e => ({ label: e.type, value: e.id.toString() })),
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           lastUpdated: convertDateTimeFromServer(companionDiagnosticDeviceEntity?.lastUpdated),
         };
 
@@ -82,6 +90,8 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
 
   const biomarkerAssociations = _.uniq(
     (companionDiagnosticDeviceEntity.fdaSubmissions || []).reduce((acc, fdaSubmission) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       acc.push(...(fdaSubmission?.associations || []));
       return acc;
     }, [])

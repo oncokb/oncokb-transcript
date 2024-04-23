@@ -50,6 +50,8 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
       ...cancerTypeEntity,
       ...values,
       synonyms: mapIdList(values.synonyms),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       parent: cancerTypes.find(it => it.id.toString() === values.parentId.toString()),
     };
 
@@ -66,6 +68,8 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
       : {
           tumorForm: 'SOLID',
           ...cancerTypeEntity,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           synonyms: cancerTypeEntity?.synonyms?.map(e => e.id.toString()),
           parentId: cancerTypeEntity?.parent?.id,
         };

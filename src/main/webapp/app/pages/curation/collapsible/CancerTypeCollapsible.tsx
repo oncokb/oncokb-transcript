@@ -42,25 +42,39 @@ function CancerTypeCollapsible({
   updateTumorName,
   deleteSection,
 }: ICancerTypeCollapsibleProps) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [cancerTypes, setCancerTypes] = useState<CancerType[]>(null);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [cancerTypesUuid, setCancerTypesUuid] = useState<string>(null);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [cancerTypesReview, setCancerTypesReview] = useState<Review>(null);
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [excludedCancerTypes, setExcludedCancerTypes] = useState<CancerType[]>(null);
 
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, `${cancerTypePath}/cancerTypes`), snapshot => {
         setCancerTypes(snapshot.val());
       })
     );
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, `${cancerTypePath}/excludedCancerTypes`), snapshot => {
         setExcludedCancerTypes(snapshot.val());
       })
     );
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, `${cancerTypePath}/cancerTypes_review`), snapshot => {
         const review = snapshot.val() as Review;
         setCancerTypesReview(review);
@@ -69,6 +83,8 @@ function CancerTypeCollapsible({
     );
 
     onValue(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       ref(firebaseDb, `${cancerTypePath}/cancerTypes_uuid`),
       snapshot => {
         setCancerTypesUuid(snapshot.val());
@@ -76,6 +92,8 @@ function CancerTypeCollapsible({
       { onlyOnce: true }
     );
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return () => callbacks.forEach(callback => callback?.());
   }, [cancerTypePath, firebaseDb]);
 
@@ -103,11 +121,15 @@ function CancerTypeCollapsible({
             <CommentIcon id={cancerTypesUuid} path={`${cancerTypePath}/cancerTypes_comments`} />
             <EditIcon
               onClick={() => {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 modifyCancerTypeModalStore.openModal(cancerTypesUuid);
               }}
             />
             <DeleteSectionButton
               sectionName={cancerTypeName}
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               deleteHandler={() => deleteSection(`${cancerTypePath}/cancerTypes`, cancerTypesReview, cancerTypesUuid)}
               isRemovableWithoutReview={isRemovableWithoutReview}
             />
@@ -228,14 +250,20 @@ function CancerTypeCollapsible({
         cancerTypesPathToEdit={cancerTypePath}
         onConfirm={async newTumor => {
           try {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             await updateTumorName(cancerTypePath, cancerTypes, excludedCancerTypes, newTumor);
           } catch (error) {
             notifyError(error);
           }
 
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           modifyCancerTypeModalStore.closeModal();
         }}
         onCancel={() => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           modifyCancerTypeModalStore.closeModal();
         }}
       />

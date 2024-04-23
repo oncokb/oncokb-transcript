@@ -50,6 +50,8 @@ export const EnsemblGene = (props: IEnsemblGeneProps) => {
       accessor: 'seqRegion',
       Header: 'Seg Region',
       Cell(cell: { original: IEnsemblGene }) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         return cell.original.seqRegion.name;
       },
     },
@@ -64,6 +66,8 @@ export const EnsemblGene = (props: IEnsemblGeneProps) => {
       id: 'gene',
       Header: 'Gene',
       Cell(cell: { original: IEnsemblGene }) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         return <div>{getGeneName(cell.original.gene)}</div>;
       },
     },

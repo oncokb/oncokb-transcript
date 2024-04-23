@@ -21,6 +21,8 @@ export const FlagDetail = (props: IFlagDetailProps) => {
   }, [props.flagEntity.type]);
 
   const flagEntity = props.flagEntity;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const oncokbIds = props.oncokbGeneFlagEntity?.genes.map(oncokbGene => oncokbGene.id) || [];
   return (
     <Row>

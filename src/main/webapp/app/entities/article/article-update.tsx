@@ -71,8 +71,14 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
       : {
           type: 'PUBMED',
           ...articleEntity,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           date: convertDateTimeFromServer(articleEntity.date),
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           flags: articleEntity?.flags?.map(e => e.id.toString()),
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           synonyms: articleEntity?.synonyms?.map(e => e.id.toString()),
         };
 

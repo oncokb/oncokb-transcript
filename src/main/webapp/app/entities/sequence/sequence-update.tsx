@@ -47,6 +47,8 @@ export const SequenceUpdate = (props: ISequenceUpdateProps) => {
     const entity = {
       ...sequenceEntity,
       ...values,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       transcript: transcripts.find(it => it.id.toString() === values.transcriptId.toString()),
     };
 

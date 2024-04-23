@@ -38,9 +38,13 @@ const GeneHeader = ({
   handleReviewFinished,
 }: IGeneHeaderProps) => {
   const firebaseMetaPath = getFirebaseMetaGenePath(isGermline, hugoSymbol);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [metaReview, setMetaReview] = useState<MetaReview>(undefined);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const subscribe = onValue(ref(firebaseDb, `${firebaseMetaPath}/review`), snapshot => {
       setMetaReview(snapshot.val());
     });
@@ -51,6 +55,8 @@ const GeneHeader = ({
     if (isReviewing) {
       handleReviewFinished(false);
     }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     updateCurrentReviewer(hugoSymbol, isGermline, isReviewing);
   };
 

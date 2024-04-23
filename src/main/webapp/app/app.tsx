@@ -15,6 +15,8 @@ import NavigationSidebar from 'app/components/sidebar/NavigationSidebar';
 import Layout from './layout';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
 export type IAppProps = StoreProps;
@@ -23,8 +25,12 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
   useEffect(() => {
     let authSubscriber = undefined;
     if (props.isCurator) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       authSubscriber = props.initializeFirebase();
     }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return () => authSubscriber && authSubscriber();
   }, [props.isCurator]);
 
@@ -52,6 +58,8 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
 const mapStoreToProps = ({ authStore, layoutStore, firebaseAppStore }: IRootStore) => ({
   isAuthorized: authStore.isAuthorized,
   authorities: authStore.account.authorities,
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   isCurator: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.CURATOR]),
   loadingAuth: authStore.loading,
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,

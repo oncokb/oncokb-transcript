@@ -39,6 +39,8 @@ export const ValidatedField: React.FunctionComponent<IValidatedFieldProps> = ({
       )}
       <Input
         id={id}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         name={name}
         autoComplete="off"
         innerRef={ref}
@@ -48,6 +50,8 @@ export const ValidatedField: React.FunctionComponent<IValidatedFieldProps> = ({
           onChange && onChange(e);
         }}
         type={type}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         style={type === 'checkbox' ? { marginLeft: '0.25rem' } : null}
         {...attributes}
         {...rest}

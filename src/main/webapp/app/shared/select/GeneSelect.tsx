@@ -13,7 +13,9 @@ import { ISynonym } from 'app/shared/model/synonym.model';
 
 export interface IGeneSelectProps extends SelectProps, StoreProps {}
 
-const sortParamter = getEntityPaginationSortParameter(DEFAULT_ENTITY_SORT_FIELD[ENTITY_TYPE.GENE], DEFAULT_SORT_DIRECTION);
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const sortParameter = getEntityPaginationSortParameter(DEFAULT_ENTITY_SORT_FIELD[ENTITY_TYPE.GENE], DEFAULT_SORT_DIRECTION);
 
 interface GeneSelectOption {
   value: number;
@@ -30,11 +32,17 @@ const GeneSelect = (props: IGeneSelectProps) => {
     let result = undefined;
     let options: GeneSelectOption[] = [];
     if (searchWord) {
-      result = await searchGenes({ query: searchWord, page: page - 1, size: ITEMS_PER_PAGE, sort: sortParamter });
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      result = await searchGenes({ query: searchWord, page: page - 1, size: ITEMS_PER_PAGE, sort: sortParameter });
     } else {
-      result = await getGenes({ page: page - 1, size: ITEMS_PER_PAGE, sort: sortParamter });
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      result = await getGenes({ page: page - 1, size: ITEMS_PER_PAGE, sort: sortParameter });
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     options = result?.data?.map((entity: IGene) => ({
       value: entity.id,
       synonyms: entity.synonyms,
@@ -43,6 +51,8 @@ const GeneSelect = (props: IGeneSelectProps) => {
 
     return {
       options,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       hasMore: result.data.length > 0,
       additional: {
         page: page + 1,
@@ -56,22 +66,32 @@ const GeneSelect = (props: IGeneSelectProps) => {
     const subTitles = [];
     if (optionProps.data.synonyms?.length > 0) {
       subTitles.push({
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         label: 'Also known as ',
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         text: optionProps.data.synonyms.map(alias => alias.name).join(', '),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         searchWords: [searchKeyword],
       });
     }
     return (
       <>
-        <components.Option {...optionProps}>
-          <EntitySelectOption
-            title={{
-              text: optionProps.data.label,
-              searchWords: [searchKeyword],
-            }}
-            subTitles={subTitles}
-          />
-        </components.Option>
+        {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          <components.Option {...optionProps}>
+            <EntitySelectOption
+              title={{
+                text: optionProps.data.label,
+                searchWords: [searchKeyword],
+              }}
+              subTitles={subTitles}
+            />
+          </components.Option>
+        }
       </>
     );
   };

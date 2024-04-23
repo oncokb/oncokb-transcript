@@ -23,6 +23,8 @@ export default function Collapsible({
   disableOpen,
   ...baseCollapsibleProps
 }: CollapsibleProps) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const defaultColorOptions: CollapsibleColorProps = {
     hideLeftBorder: colorOptions?.hideLeftBorder ? colorOptions.hideLeftBorder : false,
     ...colorOptions,
@@ -34,8 +36,14 @@ export default function Collapsible({
     hideInfo: displayOptions?.hideInfo || false,
   };
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const displayOptionsOverride = createDisplayOptions(isPendingDelete, defaultDisplayOptions, displayOptions);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const colorOptionsOverride = createColorOptions(colorOptions, displayOptionsOverride, defaultColorOptions, isPendingDelete);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const disableOpenOverride = shouldDisableOverride(isPendingDelete, displayOptionsOverride, disableOpen);
 
   return (

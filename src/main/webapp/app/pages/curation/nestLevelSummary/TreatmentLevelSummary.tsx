@@ -19,6 +19,8 @@ const TreatmentLevelSummary = ({ firebaseDb, treatmentPath }: TreatmentLevelSumm
 
   const updateTreatmentStats = (snapshot: DataSnapshot) => {
     const calcTreatmentStats = getTreatmentStats(snapshot.val());
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     setTreatmentStats(calcTreatmentStats);
   };
 
@@ -27,6 +29,8 @@ const TreatmentLevelSummary = ({ firebaseDb, treatmentPath }: TreatmentLevelSumm
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, treatmentPath), snapshot => {
         if (treatmentStatsInitialized) {
           updateTreatmentStatsDebounced(snapshot);
@@ -36,9 +40,13 @@ const TreatmentLevelSummary = ({ firebaseDb, treatmentPath }: TreatmentLevelSumm
         }
       })
     );
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return () => callbacks.forEach(callback => callback?.());
   }, [treatmentStatsInitialized]);
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return <NestLevelSummary isTreatmentStats summaryStats={treatmentStats} />;
 };
 

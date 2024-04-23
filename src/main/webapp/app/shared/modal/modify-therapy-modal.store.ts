@@ -2,6 +2,8 @@ import { action, makeObservable, observable } from 'mobx';
 import { DrugSelectOption } from '../select/DrugSelect';
 
 export class ModifyTherapyModalStore {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   public openTreatmentUuid: string = null;
   public selectedTreatments: DrugSelectOption[][] = [];
 
@@ -23,6 +25,8 @@ export class ModifyTherapyModalStore {
   }
 
   closeModal() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.openTreatmentUuid = null;
     this.selectedTreatments = [];
   }

@@ -36,7 +36,7 @@ import { LEVELS } from 'app/config/colors';
 
 describe('FirebaseUtils', () => {
   describe('convertNestedObject', () => {
-    it('converts a nested objects key into one that is seperated by a slash', () => {
+    it('converts a nested objects key into one that is separated by a slash', () => {
       const obj = {
         name: 'ABL1',
         type: {
@@ -87,6 +87,8 @@ describe('FirebaseUtils', () => {
           ],
         } as Mutation;
         expect(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           getMutationName(mutation.name, mutation.alterations),
           'Mutation name should include both protein change and cdna when available'
         ).toEqual('cdna (comment) (p.protein change)');
@@ -99,6 +101,8 @@ describe('FirebaseUtils', () => {
             },
           ],
         } as Mutation;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         expect(getMutationName(mutation.name, mutation.alterations), 'Mutation name should include protein change').toEqual(
           'protein change'
         );
@@ -111,6 +115,8 @@ describe('FirebaseUtils', () => {
             },
           ],
         } as Mutation;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         expect(getMutationName(mutation.name, mutation.alterations), 'Mutation name should include cdna').toEqual('cdna');
       });
       it('Mutation name is NOT specified', () => {
@@ -124,6 +130,8 @@ describe('FirebaseUtils', () => {
           ],
         } as Mutation;
         expect(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           getMutationName(mutation.name, mutation.alterations),
           'Mutation name should include both protein change and cdna when available'
         ).toEqual('cdna (comment) (p.protein change)');
@@ -135,6 +143,8 @@ describe('FirebaseUtils', () => {
             },
           ],
         } as Mutation;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         expect(getMutationName(mutation.name, mutation.alterations), 'Mutation name should include protein change').toEqual(
           'protein change'
         );
@@ -146,6 +156,8 @@ describe('FirebaseUtils', () => {
             },
           ],
         } as Mutation;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         expect(getMutationName(mutation.name, mutation.alterations), 'Mutation name should include cdna').toEqual('cdna');
       });
     });
@@ -155,16 +167,24 @@ describe('FirebaseUtils', () => {
         const mutation = {
           name: 'name',
         } as Mutation;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         expect(getMutationName(mutation.name, mutation.alterations), 'Mutation name should be used').toEqual('name');
       });
       it('Mutation name is NOT specified', () => {
         let mutation = {
           name: '',
         } as Mutation;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         expect(getMutationName(mutation.name, mutation.alterations), 'Default mutation name should be used').toEqual('(No Name)');
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         mutation = {
           name: undefined,
         } as Mutation;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         expect(getMutationName(mutation.name, mutation.alterations), 'Default mutation name should be used').toEqual('(No Name)');
       });
     });
@@ -254,9 +274,13 @@ describe('FirebaseUtils', () => {
       let testObject = {};
       expect(isNestedObjectEmpty(testObject)).toBeTruthy();
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       testObject = undefined;
       expect(isNestedObjectEmpty(testObject)).toBeTruthy();
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       testObject = null;
       expect(isNestedObjectEmpty(testObject)).toBeTruthy();
 
@@ -379,6 +403,8 @@ describe('FirebaseUtils', () => {
       mutation.name_uuid = '';
       expect(isSectionEmpty(gene, firebasePath), 'uuid field should be ignored').toBeTruthy();
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       mutation.name_uuid = undefined;
       expect(isSectionEmpty(gene, firebasePath), 'uuid field should be ignored').toBeTruthy();
     });
@@ -404,7 +430,7 @@ describe('FirebaseUtils', () => {
     //   tumor.TIs[0].treatments = [];
     //   expect(isSectionEmpty(gene, firebasePath)).toBeFalsy();
 
-    //   // Tumor is empty and no therapies avaiable
+    //   // Tumor is empty and no therapies available
     //   tumor.diagnosticSummary = '';
     //   expect(isSectionEmpty(gene, firebasePath)).toBeTruthy();
     // });

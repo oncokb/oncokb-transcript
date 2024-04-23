@@ -20,7 +20,11 @@ const AlterationSelect: React.FunctionComponent<IAlterationSelectProps> = props 
       let options = [];
       if (id) {
         const alterations: IAlteration[] = await flowResult(getAlterationsByGeneId({ geneId: parseInt(id, 10) }));
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         alterations?.sort((a: IAlteration, b: IAlteration) => (a.name > b.name ? 1 : b.name > a.name ? -1 : 0));
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         options = alterations?.map((alteration: IAlteration) => ({
           value: alteration.id,
           label: alteration.name,
@@ -36,6 +40,8 @@ const AlterationSelect: React.FunctionComponent<IAlterationSelectProps> = props 
 
   const onAlterationChange = (option, actionMeta) => {
     setAlterationValue(option);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     props.onChange(option, actionMeta);
   };
 

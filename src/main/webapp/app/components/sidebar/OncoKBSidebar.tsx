@@ -16,6 +16,8 @@ export interface IOncoKBSidebarProps extends StoreProps {
 const OncoKBSidebar = ({ showOncoKBSidebar, defaultOpen = false, ...props }: IOncoKBSidebarProps) => {
   useEffect(() => {
     if (defaultOpen) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       props.toggleOncoKBSidebar(true);
     }
   }, []);
@@ -29,6 +31,8 @@ const OncoKBSidebar = ({ showOncoKBSidebar, defaultOpen = false, ...props }: IOn
           size="lg"
           icon={faChevronLeft}
           onClick={() => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             props.toggleOncoKBSidebar(true);
           }}
         />
@@ -80,17 +84,29 @@ const OncoKBSidebarExpanded = observer(
       const startX = mouseDownEvent.pageX;
 
       function onMouseMove(mouseMoveEvent: MouseEvent) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         const newWidth = oncoKBSidebarWidth + startX - mouseMoveEvent.pageX;
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         if (newWidth > oncoKBSidebarWidth && newWidth > closeNavWidth) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           closeNavigationSidebar();
         }
 
         if (newWidth <= ONCOKB_SIDEBAR_MIN_WIDTH) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           setOncoKBSidebarWidth(ONCOKB_SIDEBAR_MIN_WIDTH);
         } else if (newWidth >= maxWidth) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           setOncoKBSidebarWidth(maxWidth);
         } else {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           setOncoKBSidebarWidth(oncoKBSidebarWidth + startX - mouseMoveEvent.pageX);
         }
       }
@@ -106,24 +122,36 @@ const OncoKBSidebarExpanded = observer(
 
     function handleMouseOver() {
       setSidebarBorderHovered(true);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       sidebarHighlightTimer.current = setTimeout(() => {
         setSidebarBorderLongHovered(true);
       }, 250);
     }
 
     function handleMouseOut() {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       clearTimeout(sidebarHighlightTimer.current);
       setSidebarBorderHovered(false);
       setSidebarBorderLongHovered(false);
     }
 
     function highlightSidebarBorder() {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       sidebarRef.current.style.borderLeftColor = ONCOKB_BLUE;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       draggableRef.current.style.opacity = '1';
     }
 
     function unhighlightSidebarBorder() {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       sidebarRef.current.style.borderLeftColor = '';
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       draggableRef.current.style.opacity = '';
     }
 
@@ -143,7 +171,11 @@ const OncoKBSidebarExpanded = observer(
               icon={faChevronLeft}
               className="mb-1"
               onClick={() => {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 setOncoKBSidebarWidth(maxWidth);
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 closeNavigationSidebar();
               }}
             />
@@ -152,7 +184,11 @@ const OncoKBSidebarExpanded = observer(
             size="lg"
             icon={faChevronRight}
             onClick={() => {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               toggleOncoKBSidebar(false);
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               setOncoKBSidebarWidth(ONCOKB_SIDEBAR_MIN_WIDTH);
             }}
           />

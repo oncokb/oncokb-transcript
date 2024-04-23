@@ -33,34 +33,52 @@ export function CurationToolsTab({
   updateGene,
   searchFlags,
 }: ICurationToolsTabProps) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [geneName, setGeneName] = useState<string>(null);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [geneSummary, setGeneSummary] = useState<string>(null);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [geneBackground, setGeneBackground] = useState<string>(null);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [geneType, setGeneType] = useState<GeneType>(null);
 
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, `${genePath}/name`), snapshot => {
         setGeneName(snapshot.val());
       })
     );
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, `${genePath}/summary`), snapshot => {
         setGeneSummary(snapshot.val());
       })
     );
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, `${genePath}/background`), snapshot => {
         setGeneBackground(snapshot.val());
       })
     );
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, `${genePath}/type`), snapshot => {
         setGeneType(snapshot.val());
       })
     );
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return () => callbacks.forEach(callback => callback?.());
   }, [genePath, firebaseDb]);
 
@@ -91,12 +109,16 @@ export function CurationToolsTab({
 
   const confirmButtonDisabled = tests.some(test => !test.passed && test.type === 'required');
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [isReleased, setIsReleased] = useState<boolean>(null);
   const [releaseGeneClicked, setReleaseGeneClicked] = useState(false);
 
   const geneToUpdate = useRef<IGene>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const callback = addMetaListListener(FB_COLLECTION.META);
 
     return () => {
@@ -109,8 +131,12 @@ export function CurationToolsTab({
   }
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const geneData = geneEntities.find(entity => entity.hugoSymbol === geneName);
     setIsReleased(geneData?.flags?.some(flag => isReleasedFlag(flag)) || false);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     geneToUpdate.current = geneData;
   }, [geneEntities]);
 
@@ -127,17 +153,29 @@ export function CurationToolsTab({
     const newGene = _.cloneDeep(geneToUpdate.current);
 
     try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const newFlag = (await searchFlags({ query: 'OncoKB' }))['data'].find(flag => isReleasedFlag(flag));
       if (!newFlag) {
         throw new Error('Error retrieving flag');
       }
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       if (newGene.flags) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         newGene.flags.push(newFlag);
       } else {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         newGene.flags = [newFlag];
       }
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       await updateGene(newGene);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       await searchGenes({ query: geneName, exact: true }); // repopulate gene store entities
     } catch (error) {
       notifyError(error);

@@ -39,11 +39,15 @@ const BadgeGroup = (props: IBadgeGroupProps) => {
     const callbacks = [];
     if (!props.showDeletedBadge && !props.showNotCuratableBadge?.show) {
       callbacks.push(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         onValue(ref(props.firebaseDb, props.firebasePath), snapshot => {
           setSectionData(snapshot.val());
         })
       );
     }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return () => callbacks.forEach(callback => callback?.());
   }, [props.showDeletedBadge, props.showNotCuratableBadge]);
 

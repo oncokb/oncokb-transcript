@@ -12,6 +12,8 @@ function MutationName({ mutationPath, firebaseDb }: IMutationNameProps) {
   const [mutationName, setMutationName] = useState<string>('');
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const unsubscribe = onValue(ref(firebaseDb, `${mutationPath}/name`), snapshot => {
       setMutationName(snapshot.val());
     });

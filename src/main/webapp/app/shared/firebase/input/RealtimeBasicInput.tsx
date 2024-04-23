@@ -79,6 +79,8 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   } = props;
 
   const [inputValue, setInputValue] = useState(undefined);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [inputValueReview, setInputValueReview] = useState<Review>(null);
   const [inputValueUuid, setInputValueUuid] = useState(null);
 
@@ -89,21 +91,29 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(db, firebasePath), snapshot => {
         setInputValue(snapshot.val());
       })
     );
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(db, `${firebasePath}_review`), snapshot => {
         setInputValueReview(snapshot.val());
       })
     );
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(db, `${firebasePath}_uuid`), snapshot => {
         setInputValueUuid(snapshot.val());
       })
     );
     return () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       callbacks.forEach(callback => callback?.());
     };
   }, [firebasePath, db]);
@@ -120,6 +130,8 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
       updateValue = e.target.value;
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     updateReviewableContent(firebasePath, inputValue, updateValue, inputValueReview, inputValueUuid);
 
     if (onChange) {
@@ -145,6 +157,8 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
           inputChangeHandler(e);
         }}
         type={props.type as InputType}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         style={isCheckType ? { marginRight: '0.25rem' } : null}
         value={inputValue}
         invalid={invalid}

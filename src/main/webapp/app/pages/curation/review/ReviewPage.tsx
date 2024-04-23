@@ -41,16 +41,22 @@ const ReviewPage = (props: IReviewPageProps) => {
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(props.firebaseDb, firebaseGenePath), snapshot => {
         setGeneData(snapshot.val());
       })
     );
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(props.firebaseDb, firebaseMetaReviewPath), snapshot => {
         setMetaReview(snapshot.val());
       })
     );
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return () => callbacks.forEach(callback => callback?.());
   }, []);
 
@@ -59,6 +65,8 @@ const ReviewPage = (props: IReviewPageProps) => {
       const uuids = [];
       for (const key of Object.keys(metaReview)) {
         if (metaReview[key] === true) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           uuids.push(key);
         }
       }
@@ -82,6 +90,8 @@ const ReviewPage = (props: IReviewPageProps) => {
     for (const editor of editors) {
       reviewLevels = reviewLevels.concat(editorReviewMap.getReviewsByEditor(editor));
     }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     props.acceptReviewChangeHandler(props.hugoSymbol, reviewLevels, props.isGermline);
   };
 

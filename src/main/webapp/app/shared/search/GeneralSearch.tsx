@@ -22,6 +22,8 @@ export const SearchResultKeys: { [key in keyof SearchResultDTO]: SearchOptionTyp
 
 const getSearchResults = async (search: string) => {
   if (search) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const searchApiClient = new SearchControllerApi(null, '', axiosInstance);
     const searchResults: SearchResultDTO = (await searchApiClient.search(search)).data;
     const searchOptions = [
@@ -36,6 +38,8 @@ const getSearchResults = async (search: string) => {
       searchResults[key].slice(0, 5).forEach(result => {
         const index = searchOptions.findIndex(o => o.label === SearchResultKeys[key]);
         const type = Object.values(SearchOptionType).find(v => v === SearchResultKeys[key]);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         searchOptions[index].options.push({ value: result, type });
       });
     }

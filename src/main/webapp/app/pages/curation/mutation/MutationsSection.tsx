@@ -44,13 +44,19 @@ function MutationsSection({
   const mutationSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     fetchMutationListForConvertIcon(mutationsPath);
   }, []);
 
   useEffect(() => {
     onValue(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       ref(firebaseDb, `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`),
       snapshot => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         annotatedAltsCache.fetch(
           hugoSymbol,
           snapshot.val().map((mut: Mutation) => {
@@ -78,6 +84,8 @@ function MutationsSection({
                 isGermline={isGermline}
                 parsedHistoryList={parsedHistoryList}
                 onToggle={() => {
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   setOpenMutationCollapsibleIndex(null);
                 }}
               />
@@ -87,6 +95,8 @@ function MutationsSection({
         <div
           style={{
             visibility: !_.isNil(openMutationCollapsibleIndex) ? 'hidden' : 'inherit',
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             maxHeight: !_.isNil(openMutationCollapsibleIndex) ? '0px' : null,
           }}
         >
@@ -104,8 +114,14 @@ function MutationsSection({
                     isGermline={isGermline}
                     parsedHistoryList={parsedHistoryList}
                     onToggle={() => {
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      // @ts-ignore
                       setOpenMutationCollapsibleIndex(index);
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      // @ts-ignore
                       if (mutationSectionRef.current.getBoundingClientRect().top < 0) {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
                         mutationSectionRef.current.scrollIntoView();
                       }
                     }}
@@ -131,12 +147,21 @@ function MutationsSection({
           className={classNames(!_.isNil(openMutationCollapsibleIndex) ? 'mb-4' : null)}
           style={{
             visibility: !_.isNil(openMutationCollapsibleIndex) ? 'visible' : 'hidden',
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             maxHeight: !_.isNil(openMutationCollapsibleIndex) ? null : '0px',
           }}
         >
           <Col>
             <div className="mt-4" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              <span className={styles.link} onClick={() => setOpenMutationCollapsibleIndex(null)}>
+              <span
+                className={styles.link}
+                onClick={
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
+                  () => setOpenMutationCollapsibleIndex(null)
+                }
+              >
                 Mutations
               </span>
               <span className="px-2" style={{ color: '#6c757d' }}>
@@ -149,6 +174,8 @@ function MutationsSection({
         <Row
           style={{
             visibility: !_.isNil(openMutationCollapsibleIndex) ? 'hidden' : 'inherit',
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             maxHeight: !_.isNil(openMutationCollapsibleIndex) ? '0px' : null,
           }}
         >
@@ -171,8 +198,12 @@ function MutationsSection({
           isGermline={isGermline}
           onConfirm={async (newMutation, newMutationIndex) => {
             try {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               await addMutation(mutationsPath, newMutation);
               setShowAddMutationModal(show => !show);
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               setOpenMutationCollapsibleIndex(newMutationIndex);
             } catch (error) {
               notifyError(error);

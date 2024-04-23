@@ -20,6 +20,8 @@ const MutationLevelSummary = ({ mutationPath, firebaseDb, hideOncogenicity = fal
 
   const updateMutationStats = useCallback((snapshot: DataSnapshot) => {
     const calcMutationStats = getMutationStats(snapshot.val());
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     setMutationStats(calcMutationStats);
   }, []);
 
@@ -28,6 +30,8 @@ const MutationLevelSummary = ({ mutationPath, firebaseDb, hideOncogenicity = fal
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, mutationPath), snapshot => {
         if (mutationStatsInitialized) {
           updateMutationStatsDebounced(snapshot);
@@ -37,8 +41,12 @@ const MutationLevelSummary = ({ mutationPath, firebaseDb, hideOncogenicity = fal
         }
       })
     );
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return () => callbacks.forEach(callback => callback?.());
   }, [mutationStatsInitialized]);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return <NestLevelSummary summaryStats={mutationStats} hideOncogenicity={hideOncogenicity} />;
 };
 

@@ -103,6 +103,8 @@ export const getTxName = (drugList: readonly IDrug[], txUuidName: string) => {
 };
 
 export const geneNeedsReview = (meta: Meta | undefined) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return geneMetaReviewHasUuids(meta?.review);
 };
 
@@ -184,6 +186,8 @@ export function isNestedObjectEmpty(obj: any, ignoredKeySubstrings: string[] = [
 }
 
 export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const path = parseFirebaseGenePath(fullPath).pathFromGene;
   if (sectionValue === undefined) {
     return true;
@@ -217,6 +221,8 @@ export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
 };
 
 export const isPendingDelete = (geneData: Gene, nestLevel: RemovableNestLevel, path: string) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const key = parseFirebaseGenePath(path).pathFromGene;
   let reviewKey = key;
   if (nestLevel === NestLevelType.CANCER_TYPE) {
@@ -547,6 +553,8 @@ export function compareMutations(mut1: Mutation, mut2: Mutation) {
     return order;
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   order = compareMutationsByCategoricalAlteration(mut1, mut2);
   if (order !== 0) {
     return order;
@@ -722,15 +730,23 @@ export const getCancerTypeStats = (tumor?: Tumor) => {
     pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
   };
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   if (tumor.summary) {
     stats.TTS++;
   }
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   if (tumor.diagnosticSummary) {
     stats.DxS++;
   }
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   if (tumor.prognosticSummary) {
     stats.PxS++;
   }
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   tumor.TIs.forEach(ti => {
     if (ti.treatments) {
       ti.treatments.forEach(treatment => {
@@ -769,7 +785,11 @@ export const getTreatmentStats = (treatment?: Treatment) => {
     dxLevels: {} as { [dxLevel in DX_LEVELS]: number },
     pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
   };
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   if (treatment.level) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     stats.txLevels[treatment.level] = 1;
   }
   return stats;

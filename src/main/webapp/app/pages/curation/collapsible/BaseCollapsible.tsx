@@ -82,7 +82,11 @@ export default function BaseCollapsible({
   const collapsibleRef = node => {
     if (!node) return;
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     if (colorOptions.hideLeftBorder === false && colorOptions.borderLeftColor) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const borderLeftColor = colorOptions.borderLeftColor;
       // By default use the borderLeft color as the backgroundColor if backgroundColor is not passed in
       const backgroundColor = colorOptions?.backgroundColor ? colorOptions.backgroundColor : borderLeftColor;
@@ -101,6 +105,8 @@ export default function BaseCollapsible({
         className={classNames(
           'd-flex align-items-center p-1 bg-transparent pr-2',
           styles.header,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           colorOptions.hideLeftBorder ? styles.hiddenHeaderLeftBorder : undefined
         )}
         ref={collapsibleRef}
@@ -131,6 +137,8 @@ export default function BaseCollapsible({
             {showLoadingSpinner && (
               <span className="pl-2">
                 <Spinner
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   style={{ color: colorOptions.hideLeftBorder === true ? colorOptions.backgroundColor : colorOptions.borderLeftColor }}
                   size="sm"
                 />

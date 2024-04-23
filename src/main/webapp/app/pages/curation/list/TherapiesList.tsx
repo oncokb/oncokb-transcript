@@ -44,11 +44,13 @@ const TherapiesList = ({
   const [tisLength, setTisLength] = useState(0);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const tisRef = ref(firebaseDb, tisPath);
     const unsubscribe = onValue(tisRef, snapshot => {
       const tis = snapshot.val() as TI[];
       setTisLength(tis.length);
-      const fetchedTxOjbects = tis.reduce((accumulator: TxObject[], ti, tiIndex) => {
+      const fetchedTxObjects = tis.reduce((accumulator: TxObject[], ti, tiIndex) => {
         if (!ti.treatments) {
           return accumulator;
         }
@@ -64,11 +66,13 @@ const TherapiesList = ({
         );
       }, []);
 
-      if (fetchedTxOjbects.length !== txObjects.length) {
+      if (fetchedTxObjects.length !== txObjects.length) {
         if (!isSorted) {
-          fetchedTxOjbects.sort((txA, txB) => {
+          fetchedTxObjects.sort((txA, txB) => {
             const compResult = sortByTxLevel(txA.treatment.level, txB.treatment.level);
             if (compResult === 0) {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               return getTxName(drugList, txA.treatment.name).localeCompare(getTxName(drugList, txB.treatment.name));
             } else {
               return compResult;
@@ -76,7 +80,7 @@ const TherapiesList = ({
           });
           setIsSorted(true);
         }
-        setTxObjects(fetchedTxOjbects);
+        setTxObjects(fetchedTxObjects);
       }
     });
 
@@ -87,6 +91,8 @@ const TherapiesList = ({
     <>
       {txObjects.map((therapy, index) => {
         return (
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           <div key={therapy.treatment.name_uuid} className={index > 0 ? 'mt-2' : null}>
             <TherapyCollapsible
               therapyPath={`${tisPath}/${therapy.tiIndex}/treatments/${therapy.treatmentIndex}`}
@@ -99,28 +105,44 @@ const TherapiesList = ({
         );
       })}
       <Button
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         className={txObjects.length > 0 ? `mt-2` : null}
         outline
         color="primary"
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         onClick={() => modifyTherapyModalStore.openModal(`new_treatment_for_${cancerTypePath}`)}
       >
         Add Therapy
       </Button>
       <ModifyTherapyModal
         treatmentUuid={`new_treatment_for_${cancerTypePath}`}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         drugList={drugList}
         cancerTypePath={cancerTypePath}
         onConfirm={async (newTreatment, newDrugs) => {
           try {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             await Promise.all(newDrugs.map(drug => createDrug(drug)));
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             await getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             await addTreatment(`${tisPath}/${tisLength - 1}/treatments`, newTreatment);
           } catch (error) {
             notifyError(error);
           }
 
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           modifyTherapyModalStore.closeModal();
         }}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         onCancel={modifyTherapyModalStore.closeModal}
       />
     </>

@@ -36,6 +36,8 @@ type ReferenceData = {
 };
 
 function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbstractsTabProps) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [gene, setGene] = useState<Gene>(null);
   const [geneInitialized, setGeneInitialized] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -48,6 +50,8 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
   const updateGeneDebounced = _.debounce(updateGene, 150);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const unsubscribe = onValue(ref(firebaseDb, genePath), snapshot => {
       if (geneInitialized) {
         updateGeneDebounced(snapshot);
@@ -98,6 +102,8 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
     let parsedPath = path.replace(/mutations, (\d+)/g, (match, index: string) => {
       mutationIndex = Number(index);
       mutation = gene.mutations[mutationIndex];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       return getMutationName(mutation.name, mutation.alterations);
     });
 
@@ -113,6 +119,8 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
     if (tumorIndex > -1) {
       parsedPath = parsedPath.replace(/TIs, (\d+), treatments, (\d+)/g, (match, tiIndex, treatmentIndex) => {
         const treatmentName = gene.mutations[mutationIndex].tumors[tumorIndex].TIs[tiIndex].treatments[treatmentIndex].name;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         return getTxName(drugList, treatmentName);
       });
     }
@@ -122,6 +130,8 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
     parsedPath = parsedPath.replace('description', 'Description');
     parsedPath = parsedPath.replace('short', 'Additional Information');
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return { path: parsedPath, details: { mutation } };
   }
 
@@ -156,6 +166,8 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
           return order;
         }
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         order = compareMutationsByCategoricalAlteration(aMutation, bMutation);
         if (order !== 0) {
           return order;

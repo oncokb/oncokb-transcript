@@ -38,7 +38,11 @@ export function getOptionFromNcit(ncit: INciThesaurus) {
 const NcitCodeSelect: React.FunctionComponent<INcitCodeSelectProps> = props => {
   const { searchEntities, ...selectProps } = props;
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const onNcitChange = (option, actionMeta) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     props.onChange(option, actionMeta);
   };
 

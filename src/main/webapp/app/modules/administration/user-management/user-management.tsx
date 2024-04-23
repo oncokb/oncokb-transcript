@@ -53,7 +53,11 @@ export const UserManagement = (props: IUserManagementProps) => {
       Cell(cell: { original: IUser }) {
         return (
           <Button color={cell.original.activated ? 'success' : 'danger'} onClick={toggleActive(cell.original)}>
-            {getStatus(cell.original.activated)}
+            {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              getStatus(cell.original.activated)
+            }
           </Button>
         );
       },

@@ -15,6 +15,8 @@ export class FirebaseVusService {
 
   addVus = async (path: string, variants: string[]) => {
     const newVusList = variants.map(variant => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       return new Vus(variant, this.authStore.account.email, this.authStore.fullName);
     });
     await this.firebaseRepository.pushMultiple(path, newVusList);
@@ -23,6 +25,8 @@ export class FirebaseVusService {
   refreshVus = async (path: string, currentVus: Vus) => {
     const vusToUpdate = _.cloneDeep(currentVus);
     vusToUpdate.time.by.name = getUserFullName(this.authStore.account);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     vusToUpdate.time.by.email = this.authStore.account.email;
     vusToUpdate.time.value = Date.now();
 

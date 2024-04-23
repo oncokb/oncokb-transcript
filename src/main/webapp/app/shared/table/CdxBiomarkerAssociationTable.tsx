@@ -40,15 +40,23 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
   const biomarkerAssociations: IAssociation[] = useMemo(() => {
     const associations: { [key: number]: IAssociation } = {};
     (props.fdaSubmissions || []).forEach(fdaSubmission => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       fdaSubmission.associations.forEach(association => {
         const assCopy = _.cloneDeep(association);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         const assExists = assCopy.id in associations;
         if (!assExists) {
           if (assCopy.fdaSubmissions === undefined) {
             assCopy.fdaSubmissions = [];
           }
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           associations[assCopy.id] = assCopy;
         }
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         associations[assCopy.id].fdaSubmissions.push(fdaSubmission);
       });
     });
@@ -74,6 +82,8 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
       id: 'cancerType',
       Header: 'Cancer Type',
       Cell(cell: { original: IAssociation }) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         return <div>{cell.original.cancerTypes.map(ct => getCancerTypeName(ct)).join(', ')}</div>;
       },
     },
@@ -110,6 +120,8 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
               size="sm"
               onClick={() => {
                 setShowModal(true);
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 setCurrentBiomarkerAssociationId(cell.original.id);
               }}
             >

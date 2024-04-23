@@ -68,23 +68,33 @@ const VusTable = ({
   const [showAddVusModal, setShowAddVusModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [vusToPromote, setVusToPromote] = useState<VusTableData>(null);
 
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, firebaseVusPath), snapshot => {
         setVusData(snapshot.val());
       })
     );
     return () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       callbacks.forEach(callback => callback?.());
     };
   }, []);
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const vusList: VusTableData[] = useMemo(() => {
     return vusData
       ? Object.keys(vusData).map(uuid => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           return { uuid, ...vusData[uuid] };
         })
       : null;
@@ -97,6 +107,8 @@ const VusTable = ({
       const latestComment = vus.name_comments ? getMostRecentComment(vus.name_comments).content : '';
       const lastEditedAt = formatDate(new Date(vus.time.value));
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       dataRows.push(`${vus.name}\t${lastEditedAt}\t${vus.time.by.name}\t${latestComment}`);
     }
     const tsvContent = [headerRow, ...dataRows].join('\n');
@@ -106,6 +118,8 @@ const VusTable = ({
 
   async function handleRefresh(uuid: string) {
     try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       await refreshVus(`${firebaseVusPath}/${uuid}`, vusData[uuid]);
     } catch (error) {
       notifyError(error);
@@ -114,6 +128,8 @@ const VusTable = ({
 
   async function handleDelete() {
     try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       await deleteVus(`${firebaseVusPath}/${currentActionVusUuid.current}`);
     } catch (error) {
       notifyError(error);
@@ -121,6 +137,8 @@ const VusTable = ({
   }
 
   async function handleAddVus(variants: string[]) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     await addVus(firebaseVusPath, variants);
     setShowAddVusModal(false);
   }
@@ -190,6 +208,8 @@ const VusTable = ({
                 tooltipProps={{ overlay: <div>Convert alteration(s) to VUS</div> }}
                 onClick={() => {
                   setVusToPromote(cell.original);
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   currentActionVusUuid.current = cell.original.uuid;
                 }}
               />
@@ -205,6 +225,8 @@ const VusTable = ({
                 icon={faTrashAlt}
                 color={DANGER}
                 onClick={() => {
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   currentActionVusUuid.current = cell.original.uuid;
                   setShowConfirmModal(true);
                 }}
@@ -239,10 +261,14 @@ const VusTable = ({
             onConfirm={async () => {
               await handleDelete();
               setShowConfirmModal(false);
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               currentActionVusUuid.current = null;
             }}
             onCancel={() => {
               setShowConfirmModal(false);
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               currentActionVusUuid.current = null;
             }}
           />
@@ -254,6 +280,8 @@ const VusTable = ({
         <AddVusModal
           hugoSymbol={hugoSymbol}
           isGermline={isGermline}
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           vusList={vusData}
           onCancel={() => setShowAddVusModal(false)}
           onConfirm={handleAddVus}
@@ -267,20 +295,32 @@ const VusTable = ({
             try {
               const aggregateComments = getAllCommentsString(vusToPromote.name_comments || []);
               handleDelete();
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               return await addMutation(firebaseMutationsPath, newMutation, true, aggregateComments).then(() => {
                 notifySuccess(`Promoted ${vusToPromote.name}`, { position: 'top-right' });
               });
             } catch (error) {
               notifyError(error);
             } finally {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               setVusToPromote(null);
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               currentActionVusUuid.current = null;
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               setOpenMutationCollapsibleIndex(newMutationFirebaseIndex);
               mutationsSectionRef.current?.scrollIntoView();
             }
           }}
           onCancel={() => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             setVusToPromote(null);
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             currentActionVusUuid.current = null;
           }}
           convertOptions={{ isConverting: !!vusToPromote, alteration: vusToPromote.name }}

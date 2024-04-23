@@ -29,6 +29,8 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
   const updateSuccess = props.updateSuccess;
 
   const handleClose = () => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     props.history.push(getEntityActionRoute(ENTITY_TYPE.DRUG, ENTITY_ACTION.EDIT, props.location.search));
   };
 
@@ -82,6 +84,8 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
       : {
           ...drugEntity,
           nciThesaurusId: drugEntity?.nciThesaurus?.id,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           flags: drugEntity?.flags?.map(e => e.id.toString()),
         };
 
@@ -136,6 +140,8 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
                 <NcitCodeSelect
                   ncit={drugEntity.nciThesaurus}
                   onChange={selectedOption => {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     setSelectedNcit(selectedOption ? parseNcitUniqId(selectedOption.value) : undefined);
                   }}
                 />

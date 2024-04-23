@@ -6,8 +6,12 @@ import { IRootStore } from 'app/stores';
 
 export abstract class BaseReadStore<T> extends BaseStore {
   public entities: ReadonlyArray<T> = [];
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   public entity: Readonly<T> = null;
   public totalItems = 0;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   public lastUrl: string = null;
 
   getEntities: ICrudGetAllAction<T> = this.readHandler(this.getAll);

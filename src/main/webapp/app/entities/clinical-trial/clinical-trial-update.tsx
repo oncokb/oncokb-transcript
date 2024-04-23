@@ -61,6 +61,8 @@ export const ClinicalTrialUpdate = (props: IClinicalTrialUpdateProps) => {
       ? {}
       : {
           ...clinicalTrialEntity,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           associations: clinicalTrialEntity?.associations?.map(e => e.id.toString()),
         };
 

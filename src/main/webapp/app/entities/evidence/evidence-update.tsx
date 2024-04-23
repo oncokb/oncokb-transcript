@@ -50,6 +50,8 @@ export const EvidenceUpdate = (props: IEvidenceUpdateProps) => {
       ...evidenceEntity,
       ...values,
       levelOfEvidences: mapIdList(values.levelOfEvidences),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       association: associations.find(it => it.id.toString() === values.associationId.toString()),
     };
 
@@ -66,6 +68,8 @@ export const EvidenceUpdate = (props: IEvidenceUpdateProps) => {
       : {
           ...evidenceEntity,
           associationId: evidenceEntity?.association?.id,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           levelOfEvidences: evidenceEntity?.levelOfEvidences?.map(e => e.id.toString()),
         };
 

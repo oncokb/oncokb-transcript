@@ -52,6 +52,8 @@ export class FirebaseAppStore extends BaseStore {
   }
 
   initializeFirebase() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const { enabled, ...firebaseOptions } = AppConfig.serverConfig.frontend.firebase;
     this.firebaseEnabled = enabled;
     if (this.firebaseEnabled) {

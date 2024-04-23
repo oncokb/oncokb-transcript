@@ -40,20 +40,28 @@ const MutationConvertIcon = ({
               .filter(alterationName => newMutationName.some(part => part === alterationName)).length > 0
         );
       if (exists) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         setErrorMessage('Cannot demote to VUS because alteration(s) exists in another mutation');
       } else {
         setErrorMessage(null);
       }
       if (mutationNameReview?.added || mutationNameReview?.promotedToMutation) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         setErrorMessage('Mutation is newly created. Please accept/reject in review mode.');
       }
       if (mutationNameReview?.lastReviewed) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         setErrorMessage('Mutation name changed. Please accept/reject in review mode.');
       }
     }
   }, [mutationList, mutationName, mutationNameReview]);
 
   if (errorMessage) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     tooltipProps.overlay = <div>{errorMessage}</div>;
   }
 
@@ -64,6 +72,8 @@ const MutationConvertIcon = ({
       color={color || PRIMARY}
       onClick={e => {
         if (!errorMessage) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           onClick(e);
         }
       }}

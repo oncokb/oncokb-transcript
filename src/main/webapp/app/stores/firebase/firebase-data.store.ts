@@ -3,6 +3,8 @@ import { action, makeObservable, observable } from 'mobx';
 import FirebaseAppStore from './firebase-app.store';
 
 export class FirebaseDataStore<T> {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   public data: Readonly<T> = undefined;
   public firebaseAppStore: FirebaseAppStore;
 
@@ -17,11 +19,15 @@ export class FirebaseDataStore<T> {
 
   addListener = (path: string) => {
     const callback = (snapshot: DataSnapshot) => (this.data = snapshot.val());
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const unsubscribe = onValue(ref(this.firebaseAppStore.firebaseDb, path), action(callback));
     return unsubscribe;
   };
 
   fetchData = async (path: string) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.data = (await get(ref(this.firebaseAppStore.firebaseDb, path))).val();
   };
 }

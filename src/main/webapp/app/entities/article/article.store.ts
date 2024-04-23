@@ -14,6 +14,8 @@ const getPubMedArticle = () => {
     try {
       setLoading(true);
       const result = await articleClient.getPubMedArticle(pmid);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       setPubMedArticle(result.data);
     } catch (responseError) {
       setError(responseError);

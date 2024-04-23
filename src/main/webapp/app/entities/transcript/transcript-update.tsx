@@ -59,7 +59,11 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
       ...transcriptEntity,
       ...values,
       flags: mapIdList(values.flags),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       ensemblGene: ensemblGenes.find(it => it.id.toString() === values.ensemblGeneId.toString()),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       gene: genes.find(it => it.id.toString() === selectedGeneId),
     };
 
@@ -76,6 +80,8 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
       : {
           referenceGenome: 'GRCh37',
           ...transcriptEntity,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           flags: transcriptEntity?.flags?.map(e => e.id.toString()),
           ensemblGeneId: transcriptEntity?.ensemblGene?.id,
           geneId: transcriptEntity?.gene?.id,

@@ -29,6 +29,8 @@ function FirebaseList<T>({
   onInitialRender,
   firebaseDb,
 }: IFirebaseListProps<T>) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [indices, setIndices] = useState<number[]>(null);
   const [numItemsAdded, setNumItemsAdded] = useState(0);
   const [initialRenderComplete, setInitialRenderComplete] = useState(false);
@@ -54,6 +56,8 @@ function FirebaseList<T>({
   }, [indices, initialRenderComplete]);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const listRef = ref(firebaseDb, path);
     const unsubscribe = onValue(listRef, snapshot => {
       if (!snapshot.val() && indices?.length !== 0) {
@@ -103,8 +107,10 @@ function FirebaseList<T>({
       allItemIndices = [...indices, ...addedItemIndices];
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     for (const index of allItemIndices) {
-      items.push({ item: <div key={index}>{itemBuilder(index)}</div>, index }); // is using index as key ok? I think it might since firebase order not chagning
+      items.push({ item: <div key={index}>{itemBuilder(index)}</div>, index }); // is using index as key ok? I think it might since firebase order not changing
     }
     return items;
   }, [indices, numItemsAdded, path]);
@@ -137,8 +143,12 @@ function FirebaseList<T>({
         <InfiniteScroll
           initialLoad={initialLoad}
           loadMore={() => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             setMaxItemsRendered(num => num + scrollOptions.renderCount);
           }}
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           hasMore={maxItemsRendered < list.length}
           useWindow={false}
         >

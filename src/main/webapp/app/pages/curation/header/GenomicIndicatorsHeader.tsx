@@ -17,6 +17,8 @@ function GenomicIndicatorsHeader({ genomicIndicatorsPath, firebaseDb, authStore,
   const [genomicIndicators, setGenomicIndicators] = useState<GenomicIndicator[]>([]);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const unsubscribe = onValue(ref(firebaseDb, genomicIndicatorsPath), snapshot => {
       setGenomicIndicators(snapshot.val());
     });
@@ -34,9 +36,13 @@ function GenomicIndicatorsHeader({ genomicIndicatorsPath, firebaseDb, authStore,
     const addButton = (
       <AddButton
         className={classNames(isGenomicIndicator ? 'ml-2' : null)}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         title={!isGenomicIndicator ? 'Genomic Indicators' : null}
         disabled={isEmptyIndicatorName}
         onClickHandler={() => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           addGenomicIndicator(genomicIndicatorsPath);
         }}
       />

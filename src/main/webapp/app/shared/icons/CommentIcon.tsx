@@ -32,6 +32,8 @@ const CommentIcon = observer((props: ICommentIconProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const unsubscribe = onValue(ref(props.firebaseDb, props.path), snapshot => {
       setComments(snapshot.val() || []);
     });
@@ -51,30 +53,48 @@ const CommentIcon = observer((props: ICommentIconProps) => {
   const timeoutId = useRef(null);
 
   function handleMouseEnter() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     if (props.commentStore.openCommentsId !== props.id) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       runInAction(() => props.commentStore.setOpenCommentsId(props.id));
     }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     clearTimeout(timeoutId.current);
   }
 
   function handleMouseLeave() {
     const id = setTimeout(() => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       if (props.id === props.commentStore.openCommentsId) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         runInAction(() => props.commentStore.setOpenCommentsId(null));
       }
     }, CLOSE_TOOLTIP_DURATION_MILLISECONDS);
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     timeoutId.current = id;
   }
 
   async function handleCreateComment(content: string) {
     const newComment = new Comment();
     newComment.content = content;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     newComment.email = props.account.email;
     newComment.resolved = 'false';
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     newComment.userName = getUserFullName(props.account);
 
     try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       await props.handleFirebasePushToArray(props.path, [newComment]);
     } catch (error) {
       notifyError(error);
@@ -83,6 +103,8 @@ const CommentIcon = observer((props: ICommentIconProps) => {
 
   async function handleDeleteComments(indices: number[]) {
     try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       await props.deleteComments(props.path, indices);
     } catch (error) {
       notifyError(error);
@@ -91,6 +113,8 @@ const CommentIcon = observer((props: ICommentIconProps) => {
 
   async function handleResolveComment(index: number) {
     try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       await props.handleFirebaseUpdate(`${props.path}/${index}`, { resolved: true });
     } catch (error) {
       notifyError(error);
@@ -99,6 +123,8 @@ const CommentIcon = observer((props: ICommentIconProps) => {
 
   async function handleUnresolveComment(index: number) {
     try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       await props.handleFirebaseUpdate(`${props.path}/${index}`, { resolved: false });
     } catch (error) {
       notifyError(error);
@@ -115,9 +141,15 @@ const CommentIcon = observer((props: ICommentIconProps) => {
         overlayInnerStyle={{ minWidth: '400px', padding: 0 }}
         placement="left"
         destroyTooltipOnHide
-        visible={props.id === props.commentStore.openCommentsId}
+        visible={
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          props.id === props.commentStore.openCommentsId
+        }
         overlay={
           <CommentBox
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             commentStore={props.commentStore}
             openCommentsId={props.id}
             comments={comments}
@@ -180,10 +212,14 @@ const CommentBox = observer((props: ICommentBoxProps) => {
           comment={comment}
           index={index}
           onResolveComment={() => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             runInAction(() => props.commentStore.setOpenCommentsScrollPosition(scrollContainerRef.current.scrollTop));
             props.onResolveComment(index);
           }}
           onUnresolveComment={() => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             runInAction(() => props.commentStore.setOpenCommentsScrollPosition(scrollContainerRef.current.scrollTop));
             props.onUnresolveComment(index);
           }}

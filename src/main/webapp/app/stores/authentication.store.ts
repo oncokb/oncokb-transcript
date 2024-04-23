@@ -21,7 +21,11 @@ export const hasAnyAuthority = (authorities: string[], hasAnyAuthorities: string
 export class AuthStore extends BaseStore {
   public isAuthenticated = false;
   public account: IUser = {};
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   public redirectMessage: string = null;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   public logoutUrl: string = null;
   public loginSuccess = false;
   public loginError: OncoKBError | undefined = undefined; // Errors returned from server side
@@ -59,7 +63,11 @@ export class AuthStore extends BaseStore {
   resetBase() {
     this.isAuthenticated = false;
     this.account = {};
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.redirectMessage = null;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.logoutUrl = null;
     this.loginSuccess = false;
     this.loginError = undefined; // Errors returned from server side

@@ -15,9 +15,13 @@ export interface ICancerRiskTabsProps extends StoreProps {
 }
 
 function CancerRiskTabs({ cancerRiskPath, firebaseDb, textAreaClass }: ICancerRiskTabsProps) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [cancerRisk, setCancerRisk] = useState<CancerRisk>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const unsubscribe = onValue(ref(firebaseDb, cancerRiskPath), snapshot => {
       setCancerRisk(snapshot.val());
     });
@@ -45,6 +49,8 @@ function CancerRiskTabs({ cancerRiskPath, firebaseDb, textAreaClass }: ICancerRi
               <RealtimeTextAreaInput
                 key={lowercaseAlleleState}
                 firebasePath={`${cancerRiskPath}/${lowercaseAlleleState}`}
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 inputClass={textAreaClass || null}
                 label=""
                 name={lowercaseAlleleState}

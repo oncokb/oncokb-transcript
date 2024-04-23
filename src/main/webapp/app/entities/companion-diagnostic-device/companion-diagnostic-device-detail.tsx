@@ -61,7 +61,11 @@ export const CompanionDiagnosticDeviceDetail = (props: ICompanionDiagnosticDevic
               <span id="platformType">Last Updated</span>
             </dt>
             <dd>
-              <TextFormat value={companionDiagnosticDeviceEntity.lastUpdated} type="date" format={APP_DATE_FORMAT} />
+              {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                <TextFormat value={companionDiagnosticDeviceEntity.lastUpdated} type="date" format={APP_DATE_FORMAT} />
+              }
             </dd>
             <dt>Specimen Type</dt>
             <dd>

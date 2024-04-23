@@ -15,17 +15,25 @@ export interface IRCTButtonProps extends StoreProps {
 }
 
 function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, relevantCancerTypesModalStore }: IRCTButtonProps) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [cancerType, setCancerType] = useState<Tumor>(null);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [relevantCancerTypesInfo, setRelevantCancerTypesInfo] = useState<Implication | Treatment>(null);
 
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, cancerTypePath), snapshot => {
         setCancerType(snapshot.val());
       })
     );
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, relevantCancerTypesInfoPath), snapshot => {
         setRelevantCancerTypesInfo(snapshot.val());
       })
@@ -33,9 +41,13 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
   }, []);
 
   function handleClick() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     relevantCancerTypesModalStore.openModal(
       `${relevantCancerTypesInfoPath}/excludedRCTs`,
       cancerType,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       relevantCancerTypesInfo.excludedRCTs_review,
       relevantCancerTypesInfo.excludedRCTs_uuid,
       relevantCancerTypesInfo.level || null,
@@ -77,6 +89,8 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
     return buttonComponent;
   }
   return (
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     <DefaultTooltip overlay={overlayText} placement="top">
       {buttonComponent}
     </DefaultTooltip>

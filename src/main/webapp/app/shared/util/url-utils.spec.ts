@@ -21,9 +21,15 @@ describe('UrlUtils', () => {
       expect(replaceUrlParams('/sample/path', 'BRAF'), 'should return original string if there are no params').toBe('/sample/path');
 
       expect(replaceUrlParams('', 'BRAF')).toBe('');
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       expect(replaceUrlParams(undefined, 'BRAF')).toBe('');
       expect(replaceUrlParams('/:hugoSymbol', '')).toBe('');
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       expect(replaceUrlParams('/:hugoSymbol/mutations/:index', '', undefined)).toBe('');
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       expect(replaceUrlParams('/:hugoSymbol', undefined)).toBe('');
 
       expect(replaceUrlParams('/:index', 0)).toBe('/0');

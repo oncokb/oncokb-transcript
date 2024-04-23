@@ -6,8 +6,14 @@ describe('FirebasePathUtils', () => {
     it('Should parse path', () => {
       const path = `${FB_COLLECTION.GENES}/BRAF/mutations/0`;
       const pathDetails = parseFirebaseGenePath(path);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       expect(pathDetails.fullPath).toEqual(path);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       expect(pathDetails.hugoSymbol).toEqual('BRAF');
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       expect(pathDetails.pathFromGene).toEqual('mutations/0');
     });
     it('Should not parse path with less than 3 parts', () => {

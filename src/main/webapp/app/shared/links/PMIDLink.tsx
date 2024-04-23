@@ -9,6 +9,8 @@ export interface IPMIDLinkProps {
 
 export const PMIDLink: React.FunctionComponent<IPMIDLinkProps> = props => {
   if (props.seperateLinks) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     <WithSeparator separator={props.seperator}>
       {props.pmids.split(',').map(pmid => (
         <span key={pmid}>

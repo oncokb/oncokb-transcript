@@ -36,25 +36,41 @@ const GenomicIndicatorsTable = ({
   const [genomicIndicatorsLength, setGenomicIndicatorsLength] = useState<number>(0);
 
   async function deleteGenomicIndicator(genomicIndicator: GenomicIndicator, index: number) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const name = authStore.fullName;
 
     const pathDetails = parseFirebaseGenePath(`${genomicIndicatorsPath}/${index}/name`);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const hugoSymbol = pathDetails.hugoSymbol;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const pathFromGene = pathDetails.pathFromGene;
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const removeWithoutReview = isSectionRemovableWithoutReview(genomicIndicator.name_review);
 
     const review = new Review(name, undefined, undefined, true);
 
     if (removeWithoutReview) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       return deleteGenomicIndicators(genomicIndicatorsPath, [index]);
     }
 
     // Let the deletion be reviewed
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return update(ref(firebaseDb, `${getFirebasePath('GERMLINE_GENE', hugoSymbol)}`), {
       [`${pathFromGene}_review`]: review,
     }).then(() => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       updateGeneMetaContent(hugoSymbol, true);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       updateGeneReviewUuid(hugoSymbol, genomicIndicator.name_uuid, true, true);
     });
   }
@@ -62,6 +78,8 @@ const GenomicIndicatorsTable = ({
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, genomicIndicatorsPath), snapshot => {
         const data = snapshot.val();
         let newGenomicIndicatorsLength = 0;
@@ -75,6 +93,8 @@ const GenomicIndicatorsTable = ({
       })
     );
     return () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       callbacks.forEach(callback => callback?.());
     };
   }, [genomicIndicatorsLength, genomicIndicatorsPath, firebaseDb]);
@@ -89,6 +109,8 @@ const GenomicIndicatorsTable = ({
           <GenomicIndicatorNameCell
             genomicIndicatorsPath={genomicIndicatorsPath}
             firebaseIndex={index}
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             firebaseDb={firebaseDb}
             buildCell={genomicIndicators => {
               const thisCellIndicator = genomicIndicators[index];
@@ -104,6 +126,8 @@ const GenomicIndicatorsTable = ({
               return (
                 <>
                   <RealtimeTextAreaInput
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     style={{ height: '60px', marginBottom: isDuplicateName ? 0 : null }}
                     firebasePath={`${genomicIndicatorsPath}/${index}/name`}
                     label=""
@@ -128,6 +152,8 @@ const GenomicIndicatorsTable = ({
         return (
           <GenomicIndicatorCell
             genomicIndicatorPath={genomicIndicatorPath}
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             firebaseDb={firebaseDb}
             buildCell={genomicIndicator => {
               return (
@@ -158,6 +184,8 @@ const GenomicIndicatorsTable = ({
         return (
           <GenomicIndicatorCell
             genomicIndicatorPath={genomicIndicatorPath}
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             firebaseDb={firebaseDb}
             buildCell={genomicIndicator => {
               return (
@@ -182,6 +210,8 @@ const GenomicIndicatorsTable = ({
         return (
           <GenomicIndicatorCell
             genomicIndicatorPath={genomicIndicatorPath}
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             firebaseDb={firebaseDb}
             buildCell={genomicIndicator => {
               return (
@@ -202,11 +232,15 @@ const GenomicIndicatorsTable = ({
                       value: PATHOGENIC_VARIANTS,
                     },
                     ...(mutations?.map(mutation => ({
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      // @ts-ignore
                       label: getMutationName(mutation.name, mutation.alterations),
                       value: mutation.name_uuid,
                     })) || []),
                   ]}
                   onChange={(newValue: { label: string; value: string }[]) => {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
                     updateReviewableContent(
                       `${genomicIndicatorPath}/associationVariants`,
                       genomicIndicator.associationVariants,
@@ -214,6 +248,8 @@ const GenomicIndicatorsTable = ({
                         name: value.label,
                         uuid: value.value,
                       })),
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      // @ts-ignore
                       genomicIndicator.associationVariants_review,
                       genomicIndicator.associationVariants_uuid
                     );
@@ -235,6 +271,8 @@ const GenomicIndicatorsTable = ({
         return (
           <GenomicIndicatorCell
             genomicIndicatorPath={genomicIndicatorPath}
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             firebaseDb={firebaseDb}
             buildCell={genomicIndicator => {
               return genomicIndicator.name_review?.removed ? (
@@ -304,16 +342,22 @@ interface IGenomicIndicatorCellProps {
 }
 
 function GenomicIndicatorCell({ genomicIndicatorPath, firebaseDb, buildCell }: IGenomicIndicatorCellProps) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [genomicIndicator, setGenomicIndicator] = useState<GenomicIndicator>(null);
 
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, genomicIndicatorPath), snapshot => {
         setGenomicIndicator(snapshot.val());
       })
     );
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return () => callbacks.forEach(callback => callback?.());
   }, [genomicIndicatorPath, firebaseDb]);
 
@@ -330,6 +374,8 @@ function GenomicIndicatorCell({ genomicIndicatorPath, firebaseDb, buildCell }: I
       style={{
         padding: '7px 5px',
         height: '100%',
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         backgroundColor: genomicIndicator?.name_review?.removed ? getHexColorWithAlpha(DANGER, 0.05) : null,
       }}
     >
@@ -347,6 +393,8 @@ interface IGenomicIndicatorNameCellProps {
 }
 
 function GenomicIndicatorNameCell({ genomicIndicatorsPath, firebaseIndex, firebaseDb, buildCell }: IGenomicIndicatorNameCellProps) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [genomicIndicators, setGenomicIndicators] = useState<GenomicIndicator[]>(null);
 
   useEffect(() => {
@@ -370,6 +418,8 @@ function GenomicIndicatorNameCell({ genomicIndicatorsPath, firebaseIndex, fireba
       style={{
         padding: '7px 5px',
         height: '100%',
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         backgroundColor: genomicIndicators?.[firebaseIndex]?.name_review?.removed ? getHexColorWithAlpha(DANGER, 0.05) : null,
       }}
     >

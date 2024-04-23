@@ -46,8 +46,12 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
       ...fdaSubmissionEntity,
       ...values,
       companionDiagnosticDevice: companionDiagnosticDevices.find(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         it => it.id.toString() === values.companionDiagnosticDeviceId.value.toString()
       ),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       type: fdaSubmissionTypes.find(it => it.id.toString() === values.typeId.value.toString()),
       id: isNew ? null : props.match.params.id,
     };
@@ -70,7 +74,11 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
       ? isFetch
         ? {
             ...fdaSubmissionEntity,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             dateReceived: convertDateTimeFromServer(fdaSubmissionEntity.dateReceived),
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             decisionDate: convertDateTimeFromServer(fdaSubmissionEntity.decisionDate),
             companionDiagnosticDeviceId: defaultCompanionDiagnosticDevice,
             typeId: defaultType,
@@ -81,7 +89,11 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
           }
       : {
           ...fdaSubmissionEntity,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           dateReceived: convertDateTimeFromServer(fdaSubmissionEntity.dateReceived),
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           decisionDate: convertDateTimeFromServer(fdaSubmissionEntity.decisionDate),
           companionDiagnosticDeviceId: defaultCompanionDiagnosticDevice,
           typeId: defaultType,

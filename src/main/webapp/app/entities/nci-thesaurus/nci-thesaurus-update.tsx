@@ -62,6 +62,8 @@ export const NciThesaurusUpdate = (props: INciThesaurusUpdateProps) => {
       ? {}
       : {
           ...nciThesaurusEntity,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           synonyms: nciThesaurusEntity?.synonyms?.map(e => e.id.toString()),
         };
 

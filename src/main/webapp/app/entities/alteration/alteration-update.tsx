@@ -63,6 +63,8 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
             value: gene.id,
           }))
         : [];
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     setSelectedGenes(_genes);
   }, [props.alterationEntity]);
 
@@ -91,6 +93,8 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
     const entity = {
       ...alterationEntity,
       ...values,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       genes: selectedGenes.map(gene => ({ id: gene.value, hugoSymbol: gene.label })),
       referenceGenomes: values.referenceGenomes?.map(rg => {
         if (rg.value === rg.label) {
@@ -118,6 +122,8 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
               referenceGenome: REFERENCE_GENOME.GRCH37,
               alteration: {
                 genes: selectedGenes.map(selectedGene => {
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   return { id: selectedGene.value };
                 }) as Gene[],
                 alteration: proteinChange,

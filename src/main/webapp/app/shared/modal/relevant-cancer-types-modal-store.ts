@@ -8,13 +8,23 @@ export class RelevantCancerType extends CancerType {
 }
 export class RelevantCancerTypesModalStore {
   public isOpen = false;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   public tumor: Tumor = null;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   public excludedRCTsReview: Review = null;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   public excludedRCTsUuid: string = null;
   public relevantCancerTypes: RelevantCancerType[] = [];
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   public level: TX_LEVELS | DX_LEVELS | PX_LEVELS = null;
   public firebaseExcludedRCTs: CancerType[];
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   public pathToRelevantCancerTypes: string = null; // not observable
 
   constructor() {
@@ -67,7 +77,11 @@ export class RelevantCancerTypesModalStore {
     this.pathToRelevantCancerTypes = pathToRelevantCancerTypes;
     this.isOpen = true;
     this.tumor = tumor;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.level = level;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.firebaseExcludedRCTs = firebaseExcludedRCTs;
     this.excludedRCTsReview = excludedRCTsReview;
     this.excludedRCTsUuid = excludedRCTsUuid;
@@ -76,9 +90,15 @@ export class RelevantCancerTypesModalStore {
   closeModal() {
     this.relevantCancerTypes = [];
     this.firebaseExcludedRCTs = [];
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.pathToRelevantCancerTypes = null;
     this.isOpen = false;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.tumor = null;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.level = null;
   }
 

@@ -41,6 +41,8 @@ export const Drug = (props: IDrugProps) => {
   const getUniqueGenes = (associations: IAssociation[]) => {
     const biomarkers: DrugAssocBiomarkers = {};
     associations?.forEach(val => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       for (const alteration of val.alterations) {
         const geneName = getGeneNameFromAlteration(alteration);
         if (geneName in biomarkers) {

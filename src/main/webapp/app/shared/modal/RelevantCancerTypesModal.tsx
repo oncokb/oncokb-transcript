@@ -26,6 +26,8 @@ export interface IRelevantCancerTypesModalProps extends StoreProps {
 }
 
 const RelevantCancerTypesModal = observer((props: IRelevantCancerTypesModalProps) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return props.relevantCancerTypesModalStore.isOpen ? <RelevantCancerTypesModalContent {...props} /> : <></>;
 });
 
@@ -34,7 +36,11 @@ const RelevantCancerTypesModalContent = observer(
     const [showWarning, setShowWarning] = useState(true);
 
     const allCancerTypesDeleted =
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       relevantCancerTypesModalStore.relevantCancerTypes.length > 0 &&
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       relevantCancerTypesModalStore.relevantCancerTypes.every(rct => rct.isDeleted);
 
     useEffect(() => {
@@ -59,27 +65,41 @@ const RelevantCancerTypesModalContent = observer(
 
       async function setRelevantCancerTypes() {
         const relevantCancerTypeQueries: RelevantCancerTypeQuery[] = convertCancerTypesToRelevantCancerTypeQueries(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           relevantCancerTypesModalStore.tumor.cancerTypes
         );
         const excludedRelevantCancerTypeQueries: RelevantCancerTypeQuery[] = convertCancerTypesToRelevantCancerTypeQueries(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           relevantCancerTypesModalStore.tumor.excludedCancerTypes
         );
 
         const fetchedRelevantCancerTypes = (
           await cancerTypeClient.getRelevantCancerTypes(
             { relevantCancerTypeQueries, excludedRelevantCancerTypeQueries },
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             relevantCancerTypesModalStore.level ? `LEVEL_${relevantCancerTypesModalStore.level}` : null
           )
         ).data;
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         if (!relevantCancerTypesModalStore.firebaseExcludedRCTs) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           relevantCancerTypesModalStore.setRelevantCancerTypes(
             fetchedRelevantCancerTypes.map(rct => convertFetchedCancerTypeToRelevantCancerType(rct, false))
           );
           return;
         }
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         const rcts = fetchedRelevantCancerTypes.map(rct => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           for (const firebaseRct of relevantCancerTypesModalStore.firebaseExcludedRCTs) {
             if ((rct.code && rct.code === firebaseRct.code) || (!rct.code && !firebaseRct.code && rct.mainType === firebaseRct.mainType)) {
               return convertFetchedCancerTypeToRelevantCancerType(rct, true);
@@ -87,6 +107,8 @@ const RelevantCancerTypesModalContent = observer(
           }
           return convertFetchedCancerTypeToRelevantCancerType(rct, false);
         });
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         relevantCancerTypesModalStore.setRelevantCancerTypes(rcts);
       }
 
@@ -95,6 +117,8 @@ const RelevantCancerTypesModalContent = observer(
 
     useEffect(() => {
       return () => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         relevantCancerTypesModalStore.closeModal();
       };
     }, []);
@@ -174,6 +198,8 @@ const RelevantCancerTypesModalContent = observer(
                     icon={faUndo}
                     color={ONCOKB_BLUE}
                     onClick={() => {
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      // @ts-ignore
                       relevantCancerTypesModalStore.setDeleted(index, false);
                     }}
                   />
@@ -182,6 +208,8 @@ const RelevantCancerTypesModalContent = observer(
                     icon={faTrashAlt}
                     color={DANGER}
                     onClick={() => {
+                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                      // @ts-ignore
                       relevantCancerTypesModalStore.setDeleted(index, true);
                     }}
                   />
@@ -192,24 +220,36 @@ const RelevantCancerTypesModalContent = observer(
         },
       },
     ];
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const numberDeletedRcts = relevantCancerTypesModalStore.relevantCancerTypes.filter(rct => rct.isDeleted).length;
 
     return (
       <Modal isOpen style={{ maxWidth: '650px' }}>
         <ModalHeader>Modify Relevant Cancer Types</ModalHeader>
         <ModalBody>
-          {relevantCancerTypesModalStore.relevantCancerTypes.length > 50 && (
-            <Alert color="warning" fade={false} isOpen={showWarning} toggle={() => setShowWarning(false)}>
-              There are more than 50 cancer types. You may want to consider modifying the cancer type above this section and adding excluded
-              cancer types instead.
-            </Alert>
-          )}
+          {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            relevantCancerTypesModalStore.relevantCancerTypes.length > 50 && (
+              <Alert color="warning" fade={false} isOpen={showWarning} toggle={() => setShowWarning(false)}>
+                There are more than 50 cancer types. You may want to consider modifying the cancer type above this section and adding
+                excluded cancer types instead.
+              </Alert>
+            )
+          }
           <OncoKBTable
             style={{ minHeight: '400px' }}
             showPageSizeOptions={false}
             defaultPageSize={5}
-            data={relevantCancerTypesModalStore.relevantCancerTypes}
+            data={
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              relevantCancerTypesModalStore.relevantCancerTypes
+            }
             columns={columns}
           />
         </ModalBody>
@@ -233,27 +273,35 @@ const RelevantCancerTypesModalContent = observer(
             )}
             {!allCancerTypesDeleted && numberDeletedRcts <= 0 && <div />}
             <div>
-              {relevantCancerTypesModalStore.relevantCancerTypes.some(rct => rct.isDeleted) && (
-                <>
-                  <InfoIcon
-                    className="text-danger"
-                    placement="top"
-                    overlay={'Click "Reset" to restore all deleted relevant cancer types'}
-                  />
-                  <Button
-                    outline
-                    color="danger"
-                    className="ml-1 mr-2"
-                    onClick={() => {
-                      relevantCancerTypesModalStore.setRelevantCancerTypes(
-                        relevantCancerTypesModalStore.relevantCancerTypes.map(rct => ({ ...rct, isDeleted: false }))
-                      );
-                    }}
-                  >
-                    Reset
-                  </Button>
-                </>
-              )}
+              {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                relevantCancerTypesModalStore.relevantCancerTypes.some(rct => rct.isDeleted) && (
+                  <>
+                    <InfoIcon
+                      className="text-danger"
+                      placement="top"
+                      overlay={'Click "Reset" to restore all deleted relevant cancer types'}
+                    />
+                    <Button
+                      outline
+                      color="danger"
+                      className="ml-1 mr-2"
+                      onClick={() => {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        relevantCancerTypesModalStore.setRelevantCancerTypes(
+                          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                          // @ts-ignore
+                          relevantCancerTypesModalStore.relevantCancerTypes.map(rct => ({ ...rct, isDeleted: false }))
+                        );
+                      }}
+                    >
+                      Reset
+                    </Button>
+                  </>
+                )
+              }
               <Button className="mr-2" onClick={onCancel}>
                 Cancel
               </Button>
@@ -261,6 +309,8 @@ const RelevantCancerTypesModalContent = observer(
                 color="primary"
                 disabled={allCancerTypesDeleted}
                 onClick={() => {
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   const savedExcludedRCTs = relevantCancerTypesModalStore.relevantCancerTypes
                     .filter(rct => rct.isDeleted)
                     .map(rct => {

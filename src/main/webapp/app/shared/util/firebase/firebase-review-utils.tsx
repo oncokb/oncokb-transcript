@@ -197,11 +197,11 @@ export const reformatReviewTitle = (baseReviewLevel: BaseReviewLevel) => {
   const titleParts = reviewTitle.split('/');
   for (const [index, titlePart] of titleParts.entries()) {
     let subParts = [titlePart];
-    // Seperate kebab cased
+    // Separate kebab cased
     if (titlePart.includes('_')) {
       subParts = titlePart.split('_');
     }
-    // Seperate camel case
+    // Separate camel case
     const firstCapitalIndex = findIndexOfFirstCapital(titlePart);
     if (firstCapitalIndex > -1) {
       subParts = [titlePart.substring(0, firstCapitalIndex), titlePart.substring(firstCapitalIndex)];
@@ -426,6 +426,8 @@ const findGenomicIndicatorsReviews = (
         genomicIndicator.name_review,
         (genomicIndicator.name_review.lastReviewed || '') as string,
         genomicIndicator.name_uuid,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         genomicIndicator.name_review.added ? genomicIndicator : undefined,
         genomicIndicator.name_review.removed ? genomicIndicator : undefined
       );
@@ -506,6 +508,8 @@ const findMutationLevelReviews = (
         mutation.name_review,
         mutation.name_review?.lastReviewed as string,
         mutation.name_uuid,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         mutation.name_review.added ? mutation : undefined,
         mutation.name_review.removed ? mutation : undefined
       );
@@ -756,6 +760,8 @@ const findTumorLevelReviews = (
         tumor.cancerTypes_review,
         lastReviewTumorString,
         tumor.cancerTypes_uuid,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         tumor.cancerTypes_review.added ? tumor : undefined,
         tumor.cancerTypes_review.removed ? tumor : undefined
       );
@@ -768,13 +774,19 @@ const findTumorLevelReviews = (
         `${tumorPath}/${fieldKey}`,
         tumorTitle,
         `${tumorPath}/${fieldKey}_review`,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         tumor.cancerTypes_review,
         lastReviewTumorString,
         tumor.cancerTypes_uuid,
         tumor,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         tumor.cancerTypes_review.lastReviewed as string
       );
       defaultReview.addChild(tumorNameReview);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       editorReviewMap.add(getEditorFromReview(tumor.cancerTypes_review), defaultReview as ReviewLevel);
     } else {
       defaultReview = new MetaReviewLevel(tumorTitle, tumorPath);
@@ -803,11 +815,15 @@ const findTumorLevelReviews = (
         );
         let currentHistoryLocation = '';
         if ((tumorKey as keyof Tumor) === 'diagnosticSummary_uuid') {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           tumorReview.oldState = tumor.diagnosticSummary_review.lastReviewed as string;
           tumorReview.newState = tumor.diagnosticSummary;
           currentHistoryLocation = HISTORY_LOCATION_STRINGS.DIAGNOSTIC_SUMMARY;
         }
         if ((tumorKey as keyof Tumor) === 'prognosticSummary_uuid') {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           tumorReview.oldState = tumor.prognosticSummary_review.lastReviewed as string;
           tumorReview.newState = tumor.prognosticSummary;
           currentHistoryLocation = HISTORY_LOCATION_STRINGS.PROGNOSTIC_SUMMARY;
@@ -848,6 +864,8 @@ const findTreatmentLevelReviews = (
           getTxName(drugList, treatment.name),
           `${treatmentPath}/name_review`,
           treatment.name_review,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           treatment.name_review?.lastReviewed ? getTxName(drugList, treatment.name_review?.lastReviewed as string) : undefined,
           treatment.name_uuid,
           treatment.name_review.added ? treatment : undefined,
@@ -862,6 +880,8 @@ const findTreatmentLevelReviews = (
           getTxName(drugList, treatment.name),
           `${treatmentPath}/name_review`,
           treatment.name_review,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           treatment.name_review?.lastReviewed ? getTxName(drugList, treatment.name_review?.lastReviewed as string) : undefined,
           treatment.name_uuid,
           treatment.name,
@@ -872,6 +892,8 @@ const findTreatmentLevelReviews = (
       } else {
         defaultReview = new MetaReviewLevel(treatmentTitle, treatmentPath);
       }
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const treatmentHistoryString = `${TI_TYPE_TO_HISTORY_STRING[ti.type]}, ${treatment.name}`;
       defaultReview.historyLocationString = getHistoryLocationString(parentReview, treatmentHistoryString);
       parentReview.addChild(defaultReview);
@@ -923,6 +945,8 @@ const getRelevantCancerTypesReview = (
   currentLevelMetaReview: MetaReviewLevel
 ) => {
   if (!relevantCancerTypesInfo.excludedRCTs && !relevantCancerTypesInfo.excludedRCTs_review) return;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   if (!uuids.includes(relevantCancerTypesInfo.excludedRCTs_uuid)) return;
 
   let defaultReview: ReviewLevel;
@@ -941,6 +965,8 @@ const getRelevantCancerTypesReview = (
       `${rctPath}_review`,
       relevantCancerTypesInfo.excludedRCTs_review,
       oldRCTString,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       relevantCancerTypesInfo.excludedRCTs_uuid,
       currentRCTString,
       oldRCTString

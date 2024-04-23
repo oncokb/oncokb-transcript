@@ -48,6 +48,8 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
       ? {}
       : {
           ...geneEntity,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           flags: geneEntity?.flags?.map(e => e.id.toString()),
         };
 

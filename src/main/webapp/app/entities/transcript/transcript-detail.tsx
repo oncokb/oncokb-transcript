@@ -60,7 +60,13 @@ export const TranscriptDetail = (props: ITranscriptDetailProps) => {
               <dt>Ensembl Gene</dt>
               <dd>{transcriptEntity.ensemblGene.ensemblGeneId}</dd>
               <dt>Gene</dt>
-              <dd>{transcriptEntity.ensemblGene.gene.hugoSymbol}</dd>
+              <dd>
+                {
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
+                  transcriptEntity.ensemblGene.gene.hugoSymbol
+                }
+              </dd>
             </>
           )}
         </dl>

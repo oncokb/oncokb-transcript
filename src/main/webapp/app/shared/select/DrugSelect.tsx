@@ -27,6 +27,8 @@ export type DrugSelectOption = {
   ncit?: INciThesaurus;
 };
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 const sortParameter = getEntityPaginationSortParameter(DEFAULT_ENTITY_SORT_FIELD[ENTITY_TYPE.DRUG], DEFAULT_SORT_DIRECTION);
 
 const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
@@ -37,6 +39,8 @@ const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
 
   useEffect(() => {
     function getDrugSelectOptionsFromDrugs(drugs: IDrug[]): DrugSelectOption[] {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       return drugs?.map(entity => {
         return {
           value: entity.id,
@@ -49,6 +53,8 @@ const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
     }
 
     async function fetchAllDrugs() {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       const drugs: IDrug[] = (await getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: sortParameter }))?.['data'];
       setDrugOptions(getDrugSelectOptionsFromDrugs(drugs));
     }
@@ -63,8 +69,10 @@ const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
   function Option(optionProps: OptionProps<DrugSelectOption>) {
     const title = optionProps.data.label;
     const synonyms = optionProps.data.synonyms;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     synonyms?.sort((synonym1, synonym2) => synonym1.name?.length - synonym2.name?.length);
-    const matchingSynonyms = synonyms?.filter(synonynm => synonynm.name?.toLowerCase().includes(input.trim().toLowerCase()));
+    const matchingSynonyms = synonyms?.filter(synonym => synonym.name?.toLowerCase().includes(input.trim().toLowerCase()));
     const matchingSynonymNames: string[] = [];
     if (matchingSynonyms) {
       for (const synonym of matchingSynonyms) {
@@ -78,26 +86,30 @@ const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
 
     return (
       <div>
-        <components.Option {...optionProps}>
-          <EntitySelectOption
-            title={{
-              text: title,
-              searchWords: [input],
-            }}
-            subTitles={
-              subtitle
-                ? [
-                    {
-                      label: 'Also known as ',
-                      text: subtitle,
-                      isOneLine: true,
-                      searchWords: [input],
-                    },
-                  ]
-                : []
-            }
-          />
-        </components.Option>
+        {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          <components.Option {...optionProps}>
+            <EntitySelectOption
+              title={{
+                text: title,
+                searchWords: [input],
+              }}
+              subTitles={
+                subtitle
+                  ? [
+                      {
+                        label: 'Also known as ',
+                        text: subtitle,
+                        isOneLine: true,
+                        searchWords: [input],
+                      },
+                    ]
+                  : []
+              }
+            />
+          </components.Option>
+        }
       </div>
     );
   }
@@ -138,6 +150,8 @@ const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
     <AsyncSelect
       {...selectProps}
       components={{
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         Option,
       }}
       defaultOptions={drugOptions}

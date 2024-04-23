@@ -39,7 +39,11 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
   } = props;
 
   const [currentLOE, setCurrentLOE] = useState(undefined);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [LOEReview, setLOEReview] = useState<Review>(undefined);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const [LOEUuid, setLOEUuid] = useState<string>(undefined);
 
   const [defaultValue, setDefaultValue] = useState(undefined);
@@ -47,6 +51,8 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, firebaseLevelPath), snapshot => {
         let level = snapshot.val();
         if (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_FDA) {
@@ -60,11 +66,15 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
       })
     );
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, `${firebaseLevelPath}_review`), snapshot => {
         setLOEReview(snapshot.val());
       })
     );
     onValue(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       ref(firebaseDb, `${firebaseLevelPath}_uuid`),
       snapshot => {
         setLOEUuid(snapshot.val());
@@ -73,6 +83,8 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
     );
 
     return () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       callbacks.forEach(callback => callback?.());
     };
   }, [firebaseLevelPath, firebaseDb]);
@@ -81,8 +93,12 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
     if (currentLOE) {
       let defaultVal = getLevelDropdownOption(currentLOE);
       if (currentLOE === TX_LEVELS.LEVEL_EMPTY || isDisabled) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         defaultVal = undefined;
       }
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       setDefaultValue(defaultVal);
     }
   }, [currentLOE]);
@@ -96,6 +112,8 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
       highestLevel &&
       (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_SOLID || levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_LIQUID)
     ) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       updateReviewableContent(firebaseLevelPath, currentLOE, TX_LEVELS.LEVEL_NO, LOEReview, LOEUuid);
     }
   }, [highestLevel, LOEUuid]);
@@ -105,6 +123,8 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
       return;
     }
     if (propagatedFdaLevel && propagatedFdaLevel !== currentLOE) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       updateReviewableContent(firebaseLevelPath, currentLOE, FDA_LEVEL_KEYS_MAPPING[propagatedFdaLevel], LOEReview, LOEUuid);
     }
   }, [propagatedFdaLevel, LOEUuid]);
@@ -117,6 +137,8 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
     if (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_FDA) {
       newLevel = FDA_LEVEL_KEYS_MAPPING[newLevel];
     }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     updateReviewableContent(firebaseLevelPath, currentLOE, newLevel, LOEReview, LOEUuid);
     if (props.onChange) {
       props.onChange(newLevel, actionMeta);

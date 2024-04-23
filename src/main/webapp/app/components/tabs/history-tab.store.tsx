@@ -4,10 +4,14 @@ import _ from 'lodash';
 export class HistoryTabStore {
   selectedStartDate = '';
   selectedEndDate = '';
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   selectedAuthor: { label: string; value: string } = null;
 
   appliedStartDate = '';
   appliedEndDate = '';
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   appliedAuthor: { label: string; value: string } = null;
 
   constructor() {
@@ -45,10 +49,14 @@ export class HistoryTabStore {
   }
 
   reset() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.selectedAuthor = null;
     this.selectedStartDate = '';
     this.selectedEndDate = '';
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.appliedAuthor = null;
     this.appliedStartDate = '';
     this.appliedEndDate = '';

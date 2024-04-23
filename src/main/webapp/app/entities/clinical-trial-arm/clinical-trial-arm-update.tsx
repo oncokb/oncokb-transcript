@@ -50,6 +50,8 @@ export const ClinicalTrialArmUpdate = (props: IClinicalTrialArmUpdateProps) => {
       ...clinicalTrialArmEntity,
       ...values,
       associations: mapIdList(values.associations),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       clinicalTrial: clinicalTrials.find(it => it.id.toString() === values.clinicalTrialId.toString()),
     };
 
@@ -65,6 +67,8 @@ export const ClinicalTrialArmUpdate = (props: IClinicalTrialArmUpdateProps) => {
       ? {}
       : {
           ...clinicalTrialArmEntity,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           associations: clinicalTrialArmEntity?.associations?.map(e => e.id.toString()),
           clinicalTrialId: clinicalTrialArmEntity?.clinicalTrial?.id,
         };

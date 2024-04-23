@@ -38,6 +38,8 @@ export const Gene = (props: IGeneProps) => {
       accessor: 'flags',
       Header: 'Flags',
       Cell(cell: { original: IGene }) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         return <GeneFlags flags={cell.original.flags} />;
       },
       minWidth: 200,

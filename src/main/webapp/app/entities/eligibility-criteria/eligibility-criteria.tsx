@@ -38,6 +38,8 @@ export const EligibilityCriteria = (props: IEligibilityCriteriaProps) => {
             data={props.eligibilityCriteriaList.concat()}
             columns={columns}
             loading={props.loading}
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             initialPaginationState={getPaginationFromSearchParams(props.location.search)}
             searchEntities={props.searchEntities}
             getEntities={props.getEntities}

@@ -41,6 +41,8 @@ const RouterPrompt = ({ when, message }: RouterPromptProps) => {
   // Show the default browser prompt when user tries to reload page, leave site, or close browser
   // by listening for the beforeunload event.
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     eventListenerRef.current = event => {
       if (when) {
         event.preventDefault();
@@ -51,6 +53,8 @@ const RouterPrompt = ({ when, message }: RouterPromptProps) => {
   }, [when]);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const eventListener = event => eventListenerRef.current(event);
     window.addEventListener('beforeunload', eventListener);
     return () => {

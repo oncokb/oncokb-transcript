@@ -50,6 +50,8 @@ export const EligibilityCriteriaUpdate = (props: IEligibilityCriteriaUpdateProps
       ...eligibilityCriteriaEntity,
       ...values,
       associations: mapIdList(values.associations),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       clinicalTrial: clinicalTrials.find(it => it.id.toString() === values.clinicalTrialId.toString()),
     };
 
@@ -66,6 +68,8 @@ export const EligibilityCriteriaUpdate = (props: IEligibilityCriteriaUpdateProps
       : {
           type: 'INCLUSION',
           ...eligibilityCriteriaEntity,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           associations: eligibilityCriteriaEntity?.associations?.map(e => e.id.toString()),
           clinicalTrialId: eligibilityCriteriaEntity?.clinicalTrial?.id,
         };

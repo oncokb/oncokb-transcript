@@ -18,6 +18,8 @@ const CancerTypeLevelSummary = ({ cancerTypePath, firebaseDb }: CancerTypeLevelS
 
   const updateCancerTypeStats = useCallback((snapshot: DataSnapshot) => {
     const calcCancerTypeStats = getCancerTypeStats(snapshot.val());
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     setCancerTypeStats(calcCancerTypeStats);
   }, []);
 
@@ -26,6 +28,8 @@ const CancerTypeLevelSummary = ({ cancerTypePath, firebaseDb }: CancerTypeLevelS
   useEffect(() => {
     const callbacks = [];
     callbacks.push(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       onValue(ref(firebaseDb, cancerTypePath), snapshot => {
         if (cancerTypeStatsInitialized) {
           updateCancerTypeStatsDebounced(snapshot);
@@ -35,6 +39,8 @@ const CancerTypeLevelSummary = ({ cancerTypePath, firebaseDb }: CancerTypeLevelS
         }
       })
     );
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return () => callbacks.forEach(callback => callback?.());
   }, [cancerTypeStatsInitialized]);
 

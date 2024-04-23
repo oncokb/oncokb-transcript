@@ -15,6 +15,8 @@ function GeneListPageToolsTab({ addMetaListener, metaData, createGene }: StorePr
   const [showGeneExistsWarning, setShowGeneExistsWarning] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const callback = addMetaListener(FB_COLLECTION.META);
 
     return () => callback && callback();
@@ -22,11 +24,15 @@ function GeneListPageToolsTab({ addMetaListener, metaData, createGene }: StorePr
 
   function handleChangeSelectedGene(option) {
     const gene = option?.label;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     selectedGene.current = gene;
 
     if (!gene) {
       setCreateButtonDisabled(true);
       setShowGeneExistsWarning(false);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
     } else if (Object.keys(metaData).includes(gene)) {
       setCreateButtonDisabled(true);
       setShowGeneExistsWarning(true);
@@ -37,6 +43,8 @@ function GeneListPageToolsTab({ addMetaListener, metaData, createGene }: StorePr
   }
 
   async function handleCreateGene() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     await createGene(selectedGene.current, false, `${PAGE_ROUTE.CURATION}/${selectedGene.current}/somatic`);
   }
 

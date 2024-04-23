@@ -96,6 +96,8 @@ const TimeSeriesInfo = ({ date, children }: ITimeSeriesInfoProps) => {
 
   useEffect(() => {
     function updateLineHeight() {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       setLineHeight(timelineRef.current.clientHeight - lastChildRef.current.clientHeight - 10); // 10 is height of margin from react-event-timeline
     }
 
@@ -160,13 +162,21 @@ const TimeSeriesEvent = ({
         groupByDay ? (
           <div>
             <span className="time-series-event-timestamp">
-              <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />
+              {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />
+              }
             </span>{' '}
             <span>{`${admin} approved ${operation} by ${editBy}`}</span>
           </div>
         ) : (
           <h5>
-            <TextFormat value={createdAt} type="date" format={APP_HISTORY_FORMAT} />
+            {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              <TextFormat value={createdAt} type="date" format={APP_HISTORY_FORMAT} />
+            }
           </h5>
         )
       }
@@ -179,7 +189,11 @@ const TimeSeriesEvent = ({
         ) : (
           <div>
             <span className="time-series-event-timestamp">
-              <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />
+              {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />
+              }
             </span>{' '}
             <span>{`${admin} approved ${operation} by ${editBy}`}</span>
           </div>

@@ -20,6 +20,8 @@ function GeneHistoryTooltip({ location, historyData }: IGeneHistoryTooltipProps)
     }
 
     const parsedData: (RequiredTimeSeriesEventData | ExtraTimeSeriesEventData)[] = [];
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     for (const record of historyData.get(location) || []) {
       parsedData.push(constructTimeSeriesData(record));
     }

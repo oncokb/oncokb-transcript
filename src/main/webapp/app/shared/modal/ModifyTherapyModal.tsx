@@ -34,6 +34,8 @@ function ModifyTherapyModal({
   modifyTherapyModalStore,
   firebaseDb,
 }: IModifyTherapyModalProps) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   return modifyTherapyModalStore.openTreatmentUuid === treatmentUuid ? (
     <ModifyTherapyModalContent
       treatmentUuid={treatmentUuid}
@@ -62,18 +64,32 @@ const ModifyTherapyModalContent = observer(
     firebaseDb,
   }: IModifyTherapyModalProps) => {
     const [currentTreatments, setCurrentTreatments] = useState<Treatment[]>([]);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const [treatmentToEdit, setTreatmentToEdit] = useState<Treatment>(null);
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const disableDeleteTherapy = modifyTherapyModalStore.selectedTreatments.length < 2;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const isEmptyTherapy = modifyTherapyModalStore.selectedTreatments.some(therapy => therapy.length === 0);
     const isDuplicate = isDuplicateTreatment();
     const alreadyExists = therapyAlreadyExists();
 
     function isDuplicateTreatment() {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       for (let i = 0; i < modifyTherapyModalStore.selectedTreatments.length; i++) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         for (let j = i + 1; j < modifyTherapyModalStore.selectedTreatments.length; j++) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           const firstTreatment = modifyTherapyModalStore.selectedTreatments[i].map(drug => drug.value);
           firstTreatment.sort();
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           const secondTreatment = modifyTherapyModalStore.selectedTreatments[j].map(drug => drug.value);
           secondTreatment.sort();
 
@@ -87,6 +103,8 @@ const ModifyTherapyModalContent = observer(
 
     function therapyAlreadyExists() {
       const therapyToAdd: string[][] = [];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       for (const treatment of modifyTherapyModalStore.selectedTreatments) {
         if (treatment.length === 0) {
           continue;
@@ -98,6 +116,8 @@ const ModifyTherapyModalContent = observer(
             // drug only does not have uuid for drugs not in drug collection, so it can't already exist
             return false;
           }
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           drugUuids.push(drug.uuid);
         }
         drugUuids.sort();
@@ -106,6 +126,8 @@ const ModifyTherapyModalContent = observer(
       therapyToAdd.sort();
 
       return currentTreatments.some(treatment => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         if (modifyTherapyModalStore.openTreatmentUuid === treatment.name_uuid) {
           return false;
         }
@@ -114,6 +136,8 @@ const ModifyTherapyModalContent = observer(
         for (const individualTreatment of treatment.name.split(',')) {
           const drugUuids = [];
           for (const drugUuid of individualTreatment.split('+')) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             drugUuids.push(drugUuid.trim());
           }
           drugUuids.sort();
@@ -132,6 +156,8 @@ const ModifyTherapyModalContent = observer(
     function setSelectedTreatments() {
       if (!treatmentToEdit) {
         // only when creating new therapy
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         modifyTherapyModalStore.setSelectedTreatments([[]]);
         return;
       }
@@ -145,15 +171,25 @@ const ModifyTherapyModalContent = observer(
           for (const uuid of list) {
             const drug = getDrugFromTreatmentUuid(uuid);
             selectedOptions.push({
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               label: `${drug.name}${drug.nciThesaurus ? ` (${drug.nciThesaurus.code})` : ''}`,
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               value: drug.id,
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               uuid: drug.uuid,
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               drugName: drug.name,
             });
           }
           selectedTreatments.push(selectedOptions);
         }
       }
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       modifyTherapyModalStore.setSelectedTreatments(selectedTreatments);
     }
 
@@ -185,9 +221,13 @@ const ModifyTherapyModalContent = observer(
         return (
           <span>
             The result will be added as{' '}
-            {modifyTherapyModalStore.selectedTreatments
-              .map(therapy => therapy.map(drug => (drug.ncit ? drug.ncit.preferredName : drug.drugName || drug.label)).join(' + '))
-              .join(', ')}
+            {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              modifyTherapyModalStore.selectedTreatments
+                .map(therapy => therapy.map(drug => (drug.ncit ? drug.ncit.preferredName : drug.drugName || drug.label)).join(' + '))
+                .join(', ')
+            }
           </span>
         );
       }
@@ -196,6 +236,8 @@ const ModifyTherapyModalContent = observer(
     useEffect(() => {
       const callbacks = [];
       callbacks.push(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         onValue(ref(firebaseDb, cancerTypePath), snapshot => {
           const cancerType = snapshot.val() as Tumor;
           const currentTreatmentsForCancerType = cancerType.TIs.reduce((accumulator: Treatment[], ti) => {
@@ -211,12 +253,16 @@ const ModifyTherapyModalContent = observer(
 
       if (treatmentToEditPath) {
         callbacks.push(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           onValue(ref(firebaseDb, treatmentToEditPath), snapshot => {
             setTreatmentToEdit(snapshot.val());
           })
         );
       }
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       return () => callbacks.forEach(callback => callback?.());
     }, [cancerTypePath, treatmentToEditPath]);
 
@@ -229,21 +275,31 @@ const ModifyTherapyModalContent = observer(
         title={treatmentUuid.startsWith('new_treatment_for') ? 'Add Therapy(s)' : 'Modify Therapy(s)'}
         show={true}
         onConfirm={() => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           const newDrugs: IDrug[] = modifyTherapyModalStore.selectedTreatments.reduce((accumulator: IDrug[], currentTreatment) => {
             const drugs = currentTreatment
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
               .filter(therapy => therapy.ncit && !accumulator.some(treatment => treatment.nciThesaurus.id === therapy.ncit.id))
               .map<IDrug>(therapy => ({
                 uuid: generateUuid(),
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 name: therapy.ncit.preferredName,
                 nciThesaurus: parseNcitUniqId(therapy.value),
               }));
             return accumulator.concat(drugs);
           }, []);
 
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
           const newTreatmentName = modifyTherapyModalStore.selectedTreatments
             .map(therapy =>
               therapy
                 .map(drug =>
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   drug.uuid ? drug.uuid : newDrugs.find(newDrug => _.isEqual(newDrug.nciThesaurus, parseNcitUniqId(drug.value))).uuid
                 )
                 .join(' + ')
@@ -259,42 +315,58 @@ const ModifyTherapyModalContent = observer(
         body={
           <div>
             <div className="mb-2">
-              {modifyTherapyModalStore.selectedTreatments.map((therapy, index) => {
-                return (
-                  <div className={`${index === 0 ? 'mt-2' : 'mt-3'}`} key={generateUuid()}>
-                    <h6 className="mb-2">Therapy</h6>
-                    <div className="d-flex align-items-center">
-                      <div className="mr-3" style={{ display: 'inline-block', width: '93%' }}>
-                        <DrugSelect
-                          drugList={drugList}
-                          onChange={options => modifyTherapyModalStore.setTherapy(index, options)}
-                          value={therapy}
-                          isMulti
-                          isOptionDisabled={(option: DrugSelectOption) =>
-                            modifyTherapyModalStore.selectedTreatments[index].some(selected => selected.value === option.value)
+              {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                modifyTherapyModalStore.selectedTreatments.map((therapy, index) => {
+                  return (
+                    <div className={`${index === 0 ? 'mt-2' : 'mt-3'}`} key={generateUuid()}>
+                      <h6 className="mb-2">Therapy</h6>
+                      <div className="d-flex align-items-center">
+                        <div className="mr-3" style={{ display: 'inline-block', width: '93%' }}>
+                          <DrugSelect
+                            drugList={drugList}
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                            // @ts-ignore
+                            onChange={options => modifyTherapyModalStore.setTherapy(index, options)}
+                            value={therapy}
+                            isMulti
+                            isOptionDisabled={(option: DrugSelectOption) =>
+                              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                              // @ts-ignore
+                              modifyTherapyModalStore.selectedTreatments[index].some(selected => selected.value === option.value)
+                            }
+                          />
+                        </div>
+                        <FaRegTrashAlt
+                          className={`${disableDeleteTherapy ? 'delete-disabled' : 'delete-enabled'}`}
+                          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                          // @ts-ignore
+                          onClick={
+                            disableDeleteTherapy
+                              ? null
+                              : () => {
+                                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                  // @ts-ignore
+                                  modifyTherapyModalStore.removeTherapy(index);
+                                }
                           }
+                          size={16}
                         />
                       </div>
-                      <FaRegTrashAlt
-                        className={`${disableDeleteTherapy ? 'delete-disabled' : 'delete-enabled'}`}
-                        onClick={
-                          disableDeleteTherapy
-                            ? null
-                            : () => {
-                                modifyTherapyModalStore.removeTherapy(index);
-                              }
-                        }
-                        size={16}
-                      />
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              }
             </div>
             <div>
-              <Button outline size="sm" className="mt-2" color="primary" onClick={modifyTherapyModalStore.addTherapy}>
-                Add Therapy
-              </Button>
+              {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                <Button outline size="sm" className="mt-2" color="primary" onClick={modifyTherapyModalStore.addTherapy}>
+                  Add Therapy
+                </Button>
+              }
             </div>
             <div className="mt-3">{getBottomMessage()}</div>
           </div>
