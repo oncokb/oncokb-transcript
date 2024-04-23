@@ -186,7 +186,6 @@ const VusTable = ({
                 path={`${firebaseVusPath}/${cell.original.uuid}/name_comments`}
               />
               <MutationConvertIcon
-                convertTo={'mutation'}
                 mutationName={cell.original.name}
                 tooltipProps={{ overlay: <div>Convert alteration(s) to VUS</div> }}
                 onClick={() => {

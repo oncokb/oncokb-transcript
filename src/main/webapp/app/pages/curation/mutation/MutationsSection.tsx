@@ -36,11 +36,16 @@ function MutationsSection({
   onMutationListRender,
   firebaseDb,
   annotatedAltsCache,
+  fetchMutationListForConvertIcon,
 }: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
   const [filteredIndices, setFilteredIndices] = useState<number[]>([]);
 
   const mutationSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetchMutationListForConvertIcon(mutationsPath);
+  }, []);
 
   useEffect(() => {
     onValue(
@@ -182,12 +187,19 @@ function MutationsSection({
   );
 }
 
-const mapStoreToProps = ({ firebaseGeneService, openMutationCollapsibleStore, firebaseAppStore, curationPageStore }: IRootStore) => ({
+const mapStoreToProps = ({
+  firebaseGeneService,
+  openMutationCollapsibleStore,
+  firebaseAppStore,
+  curationPageStore,
+  firebaseMutationConvertIconStore,
+}: IRootStore) => ({
   addMutation: firebaseGeneService.addMutation,
   openMutationCollapsibleIndex: openMutationCollapsibleStore.index,
   setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
   firebaseDb: firebaseAppStore.firebaseDb,
   annotatedAltsCache: curationPageStore.annotatedAltsCache,
+  fetchMutationListForConvertIcon: firebaseMutationConvertIconStore.fetchData,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

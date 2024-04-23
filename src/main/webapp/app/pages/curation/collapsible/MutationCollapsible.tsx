@@ -10,17 +10,12 @@ import {
   READABLE_FIELD,
 } from 'app/config/constants/firebase';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { AlterationAnnotationStatus, HotspotDTO, ProteinExonDTO } from 'app/shared/api/generated';
 import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import EditIcon from 'app/shared/icons/EditIcon';
-import HotspotIcon from 'app/shared/icons/HotspotIcon';
-import MutationConvertIcon from 'app/shared/icons/MutationConvertIcon';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
-import AddVusModal from 'app/shared/modal/AddVusModal';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
 import { Alteration, Review } from 'app/shared/model/firebase/firebase.model';
-import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import {
   getFirebaseGenePath,
@@ -44,8 +39,14 @@ import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
 import styles from '../styles.module.scss';
 import CancerTypeCollapsible from './CancerTypeCollapsible';
 import Collapsible from './Collapsible';
-import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import { RemovableCollapsible } from './RemovableCollapsible';
+import AddVusModal from 'app/shared/modal/AddVusModal';
+import MutationConvertIcon from 'app/shared/icons/MutationConvertIcon';
+import { AlterationAnnotationStatus, HotspotDTO, ProteinExonDTO } from 'app/shared/api/generated';
+import HotspotIcon from 'app/shared/icons/HotspotIcon';
+import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
+import { FirebaseVusService } from 'app/service/firebase/firebase-vus-service';
+import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
@@ -72,7 +73,6 @@ const MutationCollapsible = ({
   modifyCancerTypeModalStore,
   annotatedAltsCache,
 }: IMutationCollapsibleProps) => {
-  const firebaseVusPath = getFirebaseVusPath(isGermline, hugoSymbol);
   const firebaseMutationsPath = `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`;
 
   const [mutationUuid, setMutationUuid] = useState<string>(null);
@@ -206,11 +206,8 @@ const MutationCollapsible = ({
             />
             <CommentIcon id={mutationUuid} path={`${mutationPath}/name_comments`} />
             <MutationConvertIcon
-              convertTo="vus"
-              firebaseMutationsPath={firebaseMutationsPath}
               mutationName={mutationName}
               mutationNameReview={mutationNameReview}
-              mutationUuid={mutationUuid}
               tooltipProps={{ overlay: <div>Convert alteration(s) to VUS</div> }}
               onClick={() => setIsConvertingToVus(true)}
             />
@@ -475,7 +472,7 @@ const MutationCollapsible = ({
           mutationToEditPath={isEditingMutation ? mutationPath : null}
           onConfirm={async newMutation => {
             try {
-              await updateMutationName(mutationPath, mutationName, newMutation);
+              await updateMutationName(mutationPath, firebaseMutationsPath, mutationName, newMutation);
             } catch (error) {
               notifyError(error);
             }

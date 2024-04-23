@@ -323,7 +323,7 @@ export type DuplicateMutationInfo = {
 
 export const getDuplicateMutations = (
   currentMutations: string[],
-  mutationList: Mutation[],
+  mutationList: readonly Mutation[],
   vusList: VusObjList,
   options: { useFullAlterationName?: boolean; excludedMutationUuid?: string; excludedVusName?: string; exact?: boolean }
 ) => {
@@ -555,7 +555,7 @@ export function compareMutations(mut1: Mutation, mut2: Mutation) {
   return mut1.name.localeCompare(mut2.name);
 }
 
-export const getFilterModalStats = (mutations: Mutation[]) => {
+export const getFilterModalStats = (mutations: readonly Mutation[]) => {
   const oncogencities: FIREBASE_ONCOGENICITY[] = [];
   const mutationEffects: string[] = [];
   const txLevels: TX_LEVELS[] = [];

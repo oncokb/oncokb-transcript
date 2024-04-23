@@ -21,14 +21,13 @@ import GenomicIndicatorsHeader from 'app/pages/curation/header/GenomicIndicators
 
 export interface IGenomicIndicatorsTableProps extends StoreProps {
   genomicIndicatorsPath: string;
-  mutationsPath: string;
 }
 
 const GenomicIndicatorsTable = ({
   genomicIndicatorsPath,
-  mutationsPath,
   firebaseDb,
   authStore,
+  mutations,
   deleteGenomicIndicators,
   updateReviewableContent,
   updateGeneMetaContent,
@@ -183,9 +182,8 @@ const GenomicIndicatorsTable = ({
         return (
           <GenomicIndicatorCell
             genomicIndicatorPath={genomicIndicatorPath}
-            mutationsPath={mutationsPath}
             firebaseDb={firebaseDb}
-            buildCell={(genomicIndicator, mutations) => {
+            buildCell={genomicIndicator => {
               return (
                 <RealtimeDropdownInput
                   styles={{
@@ -283,6 +281,7 @@ const mapStoreToProps = ({
   firebaseGeneService,
   firebaseGeneReviewService,
   firebaseMetaService,
+  firebaseMutationListStore,
 }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   authStore,
@@ -290,6 +289,7 @@ const mapStoreToProps = ({
   updateReviewableContent: firebaseGeneReviewService.updateReviewableContent,
   updateGeneMetaContent: firebaseMetaService.updateGeneMetaContent,
   updateGeneReviewUuid: firebaseMetaService.updateGeneReviewUuid,
+  mutations: firebaseMutationListStore.data,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
@@ -298,14 +298,13 @@ export default componentInject(mapStoreToProps)(observer(GenomicIndicatorsTable)
 
 interface IGenomicIndicatorCellProps {
   genomicIndicatorPath: string;
-  mutationsPath?: string;
+  mutations?: Mutation[];
   firebaseDb: Database;
-  buildCell: (genomicIndicator: GenomicIndicator, mutations?: Mutation[]) => React.ReactNode;
+  buildCell: (genomicIndicator: GenomicIndicator) => React.ReactNode;
 }
 
-function GenomicIndicatorCell({ genomicIndicatorPath, mutationsPath, firebaseDb, buildCell }: IGenomicIndicatorCellProps) {
+function GenomicIndicatorCell({ genomicIndicatorPath, firebaseDb, buildCell }: IGenomicIndicatorCellProps) {
   const [genomicIndicator, setGenomicIndicator] = useState<GenomicIndicator>(null);
-  const [mutations, setMutations] = useState<Mutation[]>(null);
 
   useEffect(() => {
     const callbacks = [];
@@ -315,23 +314,15 @@ function GenomicIndicatorCell({ genomicIndicatorPath, mutationsPath, firebaseDb,
       })
     );
 
-    if (mutationsPath) {
-      callbacks.push(
-        onValue(ref(firebaseDb, mutationsPath), snapshot => {
-          setMutations(snapshot.val());
-        })
-      );
-    }
-
     return () => callbacks.forEach(callback => callback?.());
-  }, [genomicIndicatorPath, firebaseDb, mutationsPath]);
+  }, [genomicIndicatorPath, firebaseDb]);
 
   function getCell() {
     if (!genomicIndicator) {
       return <></>;
     }
 
-    return buildCell(genomicIndicator, mutations);
+    return buildCell(genomicIndicator);
   }
 
   return (

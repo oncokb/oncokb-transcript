@@ -40,6 +40,7 @@ export const CurationPage = (props: ICurationPageProps) => {
 
   const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
   const firebaseHistoryPath = getFirebaseHistoryPath(isGermline, hugoSymbol);
+  const mutationsPath = `${firebaseGenePath}/mutations`;
   const firebaseMetaCurrentReviewerPath = `${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review/currentReviewer`;
 
   const [isReviewing, setIsReviewing] = useState(false);
@@ -52,8 +53,10 @@ export const CurationPage = (props: ICurationPageProps) => {
   useEffect(() => {
     if (props.firebaseInitSuccess) {
       props.searchGeneEntities({ query: hugoSymbol, exact: true });
+
       const cleanupCallbacks = [];
-      props.addHistoryListener(firebaseHistoryPath);
+      cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
+      cleanupCallbacks.push(props.addMutationListListener(mutationsPath));
       cleanupCallbacks.push(
         onValue(ref(props.firebaseDb, firebaseMetaCurrentReviewerPath), snapshot => {
           const currentReviewer = snapshot.val();
@@ -224,16 +227,13 @@ export const CurationPage = (props: ICurationPageProps) => {
                     }))}
                   />
                 </div>
-                <GenomicIndicatorsTable
-                  genomicIndicatorsPath={`${firebaseGenePath}/genomic_indicators`}
-                  mutationsPath={`${firebaseGenePath}/mutations`}
-                />
+                <GenomicIndicatorsTable genomicIndicatorsPath={`${firebaseGenePath}/genomic_indicators`} />
               </>
             )}
           </div>
           <div ref={mutationsSectionRef}>
             <MutationsSection
-              mutationsPath={`${firebaseGenePath}/mutations`}
+              mutationsPath={mutationsPath}
               hugoSymbol={hugoSymbol}
               isGermline={isGermline}
               parsedHistoryList={tooltipHistoryList}
@@ -291,6 +291,7 @@ const mapStoreToProps = ({
   geneStore,
   firebaseAppStore,
   firebaseHistoryStore,
+  firebaseMutationListStore,
   drugStore,
   relevantCancerTypesModalStore,
   authStore,
@@ -304,6 +305,7 @@ const mapStoreToProps = ({
   loadingGenes: geneStore.loading,
   historyData: firebaseHistoryStore.data,
   addHistoryListener: firebaseHistoryStore.addListener,
+  addMutationListListener: firebaseMutationListStore.addListener,
   drugList: drugStore.entities,
   getDrugs: drugStore.getEntities,
   relevantCancerTypesModalStore,
