@@ -9,9 +9,6 @@ import { IRootStore } from 'app/stores';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import { filterByKeyword, getAlterationName, getEntityTableActionsColumn } from 'app/shared/util/utils';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
-import { Column } from 'react-table';
-import { Association } from 'app/shared/api/generated';
-import { ISeqRegion } from 'app/shared/model/seq-region.model';
 import { IAssociation } from 'app/shared/model/association.model';
 import { IAlleleState } from 'app/shared/model/allele-state.model';
 

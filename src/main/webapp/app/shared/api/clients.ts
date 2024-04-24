@@ -10,7 +10,7 @@ import {
   AssociationResourceApi,
   CancerTypeResourceApi,
   ArticleResourceApi,
-} from './generated/api';
+} from './generated/curation/api';
 
 export const fdaSubmissionClient = new FdaSubmissionResourceApi(null, '', axiosInstance);
 export const geneClient = new GeneResourceApi(null, '', axiosInstance);

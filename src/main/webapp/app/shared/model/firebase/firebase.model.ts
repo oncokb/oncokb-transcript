@@ -1,6 +1,6 @@
 import { GERMLINE_INHERITANCE_MECHANISM, PATHOGENICITY, PENETRANCE } from 'app/config/constants/constants';
 import { ALLELE_STATE, GENE_TYPE } from 'app/config/constants/firebase';
-import { AlterationTypeEnum, Gene as OncoKBGene } from 'app/shared/api/generated';
+import { AlterationTypeEnum, Gene as OncoKBGene } from 'app/shared/api/generated/curation';
 import { generateUuid } from 'app/shared/util/utils';
 import _ from 'lodash';
 

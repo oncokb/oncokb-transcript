@@ -7,7 +7,7 @@ import { components } from 'react-select';
 import AsyncSelect from 'react-select/async';
 import { Col, Row } from 'reactstrap';
 import axiosInstance from '../api/axiosInstance';
-import { SearchControllerApi, SearchResultDTO } from '../api/generated/api';
+import { SearchControllerApi, SearchResultDTO } from '../api/generated/curation';
 import DefaultTooltip from '../tooltip/DefaultTooltip';
 import { SearchOption } from './SearchOptions';
 

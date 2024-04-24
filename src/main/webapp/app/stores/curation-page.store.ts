@@ -1,5 +1,5 @@
 import { IRootStore } from 'app/stores/createStore';
-import { Alteration as ApiAlteration, AlterationAnnotationStatus, AnnotateAlterationBody } from 'app/shared/api/generated';
+import { Alteration as ApiAlteration, AlterationAnnotationStatus, AnnotateAlterationBody } from 'app/shared/api/generated/curation';
 import { makeAutoObservable } from 'mobx';
 import { REFERENCE_GENOME } from 'app/config/constants/constants';
 import { Alteration as FirebaseAlt } from 'app/shared/model/firebase/firebase.model';

@@ -4,7 +4,7 @@ import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { getNCBIlink } from 'app/oncokb-commons/components/lib/urls';
 import { Linkout } from 'app/shared/links/Linkout';
 import { BsFire } from 'react-icons/bs';
-import { HotspotDTO } from 'app/shared/api/generated';
+import { HotspotDTO } from 'app/shared/api/generated/curation';
 import _ from 'lodash';
 import InfoIcon from 'app/shared/icons/InfoIcon';
 

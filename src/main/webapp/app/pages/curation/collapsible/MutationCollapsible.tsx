@@ -42,7 +42,7 @@ import Collapsible from './Collapsible';
 import { RemovableCollapsible } from './RemovableCollapsible';
 import AddVusModal from 'app/shared/modal/AddVusModal';
 import MutationConvertIcon from 'app/shared/icons/MutationConvertIcon';
-import { AlterationAnnotationStatus, HotspotDTO, ProteinExonDTO } from 'app/shared/api/generated';
+import { AlterationAnnotationStatus, HotspotDTO, ProteinExonDTO } from 'app/shared/api/generated/curation';
 import HotspotIcon from 'app/shared/icons/HotspotIcon';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { FirebaseVusService } from 'app/service/firebase/firebase-vus-service';

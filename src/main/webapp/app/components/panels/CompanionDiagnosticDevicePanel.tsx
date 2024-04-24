@@ -15,7 +15,7 @@ import FdaSubmissionSelect from 'app/shared/select/FdaSubmissionSelect';
 import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
-import { Association, CancerType } from 'app/shared/api/generated';
+import { Association, CancerType } from 'app/shared/api/generated/curation';
 import { associationClient } from 'app/shared/api/clients';
 import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 
