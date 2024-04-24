@@ -20,7 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping({ "/api", "/legacy-api" })
 public class ApiProxy {
 
     private final ApiProxyService apiProxyService;
