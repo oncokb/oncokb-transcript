@@ -7,8 +7,10 @@ import {
   compareMutationsBySingleAlteration,
   convertNestedObject,
   geneNeedsReview,
+  getCancerTypeStats,
   getFirebasePath,
   getMutationName,
+  getMutationStats,
   getTxName,
   getValueByNestedKey,
   isNestedObjectEmpty,
@@ -26,6 +28,8 @@ import {
   Mutation,
   PX_LEVELS,
   TX_LEVELS,
+  Treatment,
+  Tumor,
 } from 'app/shared/model/firebase/firebase.model';
 import { generateUuid } from '../utils';
 import { IDrug } from 'app/shared/model/drug.model';
@@ -544,6 +548,79 @@ describe('FirebaseUtils', () => {
       expect(compareMutationsByCategoricalAlteration(new Mutation('Oncogenic Mutations'), new Mutation('V700E'))).toBeLessThan(0);
       expect(compareMutationsByCategoricalAlteration(new Mutation('Literally anything'), new Mutation('Amplification'))).toBeGreaterThan(0);
       expect(compareMutationsByCategoricalAlteration(new Mutation('Truncating Mutations'), new Mutation('VUS'))).toEqual(0);
+    });
+  });
+
+  const treatment1 = new Treatment('');
+  treatment1.level = TX_LEVELS.LEVEL_2;
+  const treatment2 = new Treatment('');
+  treatment2.level = TX_LEVELS.LEVEL_EMPTY;
+  const treatment3 = new Treatment('');
+  treatment3.level = TX_LEVELS.LEVEL_2;
+
+  const tumor1 = new Tumor();
+  tumor1.diagnostic.level = DX_LEVELS.LEVEL_DX1;
+  tumor1.TIs[0].treatments = [treatment1];
+  tumor1.summary = 'summary';
+  tumor1.diagnosticSummary = 'diagnostic';
+  tumor1.prognosticSummary = 'prognostic';
+  const tumor2 = new Tumor();
+  tumor2.diagnostic.level = DX_LEVELS.LEVEL_DX2;
+  tumor2.prognostic.level = PX_LEVELS.LEVEL_PX1;
+  tumor2.TIs[1].treatments = [treatment2];
+  tumor2.TIs[3].treatments = [treatment3];
+  tumor2.prognosticSummary = 'prognostic';
+
+  describe('getMutationStats', () => {
+    it('should get the mutation stats', () => {
+      const mutation = new Mutation('');
+      mutation.mutation_effect.oncogenic = FIREBASE_ONCOGENICITY.LIKELY;
+      mutation.mutation_effect.effect = 'effect';
+
+      mutation.tumors = [tumor1, tumor2];
+
+      const expected = {
+        TT: 2,
+        oncogenicity: FIREBASE_ONCOGENICITY.LIKELY,
+        mutationEffect: 'effect',
+        TTS: 1,
+        DxS: 1,
+        PxS: 2,
+        txLevels: {
+          [TX_LEVELS.LEVEL_2]: 2,
+        },
+        dxLevels: {
+          [DX_LEVELS.LEVEL_DX1]: 1,
+          [DX_LEVELS.LEVEL_DX2]: 1,
+        },
+        pxLevels: {
+          [PX_LEVELS.LEVEL_PX1]: 1,
+        },
+      };
+
+      expect(JSON.stringify(getMutationStats(mutation), null, 4)).toBe(JSON.stringify(expected, null, 4));
+    });
+  });
+
+  describe('getCancerTypeStats', () => {
+    it('should get the cancer type stats', () => {
+      const expected = {
+        TT: 0,
+        TTS: 0,
+        DxS: 0,
+        PxS: 1,
+        txLevels: {
+          [TX_LEVELS.LEVEL_2]: 1,
+        },
+        dxLevels: {
+          [DX_LEVELS.LEVEL_DX2]: 1,
+        },
+        pxLevels: {
+          [PX_LEVELS.LEVEL_PX1]: 1,
+        },
+      };
+
+      expect(JSON.stringify(getCancerTypeStats(tumor2), null, 4)).toEqual(JSON.stringify(expected, null, 4));
     });
   });
 });

@@ -701,9 +701,9 @@ export const getMutationStats = (mutation?: Mutation) => {
       }
       if (tumor?.prognostic?.level) {
         if (!stats.dxLevels[tumor.prognostic.level]) {
-          stats.dxLevels[tumor.prognostic.level] = 1;
+          stats.pxLevels[tumor.prognostic.level] = 1;
         } else {
-          stats.dxLevels[tumor.prognostic.level]++;
+          stats.pxLevels[tumor.prognostic.level]++;
         }
       }
     });
@@ -734,10 +734,12 @@ export const getCancerTypeStats = (tumor?: Tumor) => {
   tumor.TIs.forEach(ti => {
     if (ti.treatments) {
       ti.treatments.forEach(treatment => {
-        if (!stats.txLevels[treatment.level]) {
-          stats.txLevels[treatment.level] = 1;
-        } else {
-          stats.txLevels[treatment.level]++;
+        if (isTxLevelPresent(treatment.level)) {
+          if (!stats.txLevels[treatment.level]) {
+            stats.txLevels[treatment.level] = 1;
+          } else {
+            stats.txLevels[treatment.level]++;
+          }
         }
       });
     }
@@ -751,9 +753,9 @@ export const getCancerTypeStats = (tumor?: Tumor) => {
   }
   if (tumor?.prognostic?.level) {
     if (!stats.dxLevels[tumor.prognostic.level]) {
-      stats.dxLevels[tumor.prognostic.level] = 1;
+      stats.pxLevels[tumor.prognostic.level] = 1;
     } else {
-      stats.dxLevels[tumor.prognostic.level]++;
+      stats.pxLevels[tumor.prognostic.level]++;
     }
   }
   return stats;
@@ -769,7 +771,7 @@ export const getTreatmentStats = (treatment?: Treatment) => {
     dxLevels: {} as { [dxLevel in DX_LEVELS]: number },
     pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
   };
-  if (treatment.level) {
+  if (isTxLevelPresent(treatment.level)) {
     stats.txLevels[treatment.level] = 1;
   }
   return stats;
