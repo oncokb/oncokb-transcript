@@ -1,14 +1,15 @@
+import { GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
 import { FB_COLLECTION } from 'app/config/constants/firebase';
-import { HistoryCollection, HistoryList } from 'app/shared/model/firebase/firebase.model';
+import { HistoryCollection } from 'app/shared/model/firebase/firebase.model';
+import { downloadFile } from 'app/shared/util/file-utils';
+import { getAllGeneHistoryForDateRange, getHistoryEntryStrings } from 'app/shared/util/firebase/firebase-history-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
 import React, { useEffect, useState } from 'react';
-import { Row, Label, Input, Button } from 'reactstrap';
+import { Button, Input, Label, Row, Spinner } from 'reactstrap';
 
-// export interface IReviewHistoryTabProps  StoreProps {};
-
-function ReviewHistoryTab({ firebaseDb }: StoreProps) {
+function ReviewHistoryTab({ firebaseDb, drugList, getDrugs }: StoreProps) {
   const [historyCollection, setHistoryCollection] = useState<HistoryCollection>(null);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
@@ -21,26 +22,40 @@ function ReviewHistoryTab({ firebaseDb }: StoreProps) {
     return () => unsubscribe?.();
   }, []);
 
-  function getAllGeneHistoryForDateRange(historyCollection: HistoryCollection, start: Date, end: Date) {
-    if (end < start) {
-      return [];
-    }
-  }
+  useEffect(() => {
+    getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
+  }, []);
 
-  function getGeneHistoryForDateRange(historyList: HistoryList, start: Date, end: Date) {
-    if (end < start) {
-      return [];
+  function handleDownload() {
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+
+    const history = getAllGeneHistoryForDateRange(historyCollection, drugList, start, end);
+
+    const content: string[] = [];
+    if (history.gene.length > 0) {
+      const segments: string[] = [];
+      segments.push('### Gene\n```');
+      segments.push(...getHistoryEntryStrings(history.gene));
+      segments.push('```\n');
+      content.push(segments.join('\n'));
+    }
+    if (history.alteration.length > 0) {
+      const segments: string[] = [];
+      segments.push('### Alteration\n```');
+      segments.push(...getHistoryEntryStrings(history.alteration));
+      segments.push('```\n');
+      content.push(segments.join('\n'));
+    }
+    if (history.evidence.length > 0) {
+      const segments: string[] = [];
+      segments.push('### Evidence\n```');
+      segments.push(...getHistoryEntryStrings(history.evidence));
+      segments.push('```\n');
+      content.push(segments.join('\n'));
     }
 
-    const historyLogs: string[] = [];
-    for (const historyEntry of Object.values(historyList)) {
-      if (Symbol.iterator in historyEntry.records) {
-        for (const record of historyEntry.records) {
-          // historyLogs.push(record.location + )
-        }
-      }
-    }
-    return historyLogs;
+    downloadFile('README.md', content.join('\n'));
   }
 
   return (
@@ -53,17 +68,20 @@ function ReviewHistoryTab({ firebaseDb }: StoreProps) {
         <Label for="end-date">End Date</Label>
         <Input id="end-date" value={endDate} onChange={event => setEndDate(event.target.value)} type="date" name="date" />
       </Row>
-      <Row>
-        <Button onClick={() => {}} color="primary">
-          Apply
+      <Row className="align-items-center justify-content-end">
+        {!historyCollection && <Spinner className="mr-2" color="primary" size="sm" />}
+        <Button disabled={!historyCollection} onClick={handleDownload} color="primary">
+          Download
         </Button>
       </Row>
     </div>
   );
 }
 
-const mapStoreToProps = ({ firebaseAppStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, drugStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
+  drugList: drugStore.entities,
+  getDrugs: drugStore.getEntities,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

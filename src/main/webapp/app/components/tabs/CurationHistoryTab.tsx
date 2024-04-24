@@ -15,7 +15,7 @@ import { ExtraTimeSeriesEventData, RequiredTimeSeriesEventData } from '../timeSe
 import './curation-history-tab.scss';
 import { IDrug } from 'app/shared/model/drug.model';
 import { GREY } from 'app/config/colors';
-import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
+import { FlattenedHistory, isBetweenDates } from 'app/shared/util/firebase/firebase-history-utils';
 import _ from 'lodash';
 
 export interface ICurationHistoryTabProps extends StoreProps {
@@ -99,15 +99,7 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
       if (!author || author.label === data.admin || author.label === data.lastEditBy) {
         matchesAuthor = true;
       }
-      if (startDate && endDate) {
-        matchesDates = timeStamp >= startDate && timeStamp <= endDate;
-      } else if (startDate) {
-        matchesDates = timeStamp >= startDate;
-      } else if (endDate) {
-        matchesDates = timeStamp <= endDate;
-      } else {
-        matchesDates = true;
-      }
+      matchesDates = isBetweenDates(timeStamp, startDate, endDate);
       return matchesAuthor && matchesDates;
     });
 
