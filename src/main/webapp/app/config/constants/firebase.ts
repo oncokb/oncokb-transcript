@@ -301,6 +301,11 @@ export const TI_TYPE_TO_LEGACY_HISTORY_STRING: { [key in TI_TYPE]: string } = {
   [TI_TYPE.IR]: 'Investigational implications for resistance to therapy',
 };
 
+export const ALL_TI_TYPE_HISTORY_STRINGS = [
+  ...Object.values(TI_TYPE_TO_HISTORY_STRING),
+  ...Object.values(TI_TYPE_TO_LEGACY_HISTORY_STRING),
+];
+
 export enum ReviewLevelType {
   META, // This means that the review level is used for grouping purposes
   REVIEWABLE, // This means that the review level has reviewable content

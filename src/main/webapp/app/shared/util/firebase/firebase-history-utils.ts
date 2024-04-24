@@ -1,4 +1,5 @@
 import {
+  ALL_TI_TYPE_HISTORY_STRINGS,
   FIREBASE_KEY_TO_READABLE_FIELD,
   HISTORY_OPERATION_TO_PAST_TENSE,
   READABLE_FIELD,
@@ -305,7 +306,7 @@ export function makeFirebaseKeysReadable(keys: string[]) {
 export function makeHistoryLocationReadable(locationParts: string[], drugList: readonly IDrug[]) {
   const readableKeys: string[] = [];
   for (const part of locationParts) {
-    if ([...Object.values(TI_TYPE_TO_HISTORY_STRING), ...Object.values(TI_TYPE_TO_LEGACY_HISTORY_STRING)].includes(part)) {
+    if (ALL_TI_TYPE_HISTORY_STRINGS.includes(part)) {
       continue;
     } else {
       let therapy = part;

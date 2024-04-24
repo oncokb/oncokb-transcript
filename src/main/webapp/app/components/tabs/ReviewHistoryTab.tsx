@@ -1,5 +1,6 @@
 import { GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
 import { FB_COLLECTION } from 'app/config/constants/firebase';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { HistoryCollection } from 'app/shared/model/firebase/firebase.model';
 import { downloadFile } from 'app/shared/util/file-utils';
 import { getAllGeneHistoryForDateRange, getHistoryEntryStrings } from 'app/shared/util/firebase/firebase-history-utils';
@@ -55,7 +56,11 @@ function ReviewHistoryTab({ firebaseDb, drugList, getDrugs }: StoreProps) {
       content.push(segments.join('\n'));
     }
 
-    downloadFile('README.md', content.join('\n'));
+    try {
+      downloadFile('README.md', content.join('\n'));
+    } catch (error) {
+      notifyError(error);
+    }
   }
 
   return (

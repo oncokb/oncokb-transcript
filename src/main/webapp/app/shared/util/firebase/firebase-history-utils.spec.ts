@@ -454,9 +454,7 @@ describe('FirebaseHistoryUtils', () => {
         ],
       };
 
-      expect(JSON.stringify(getGeneHistoryForDateRange('BRAF', historyList, [], new Date(0), new Date(6)), null, 4)).toBe(
-        JSON.stringify(expected, null, 4)
-      );
+      expect(getGeneHistoryForDateRange('BRAF', historyList, [], new Date(0), new Date(6))).toStrictEqual(expected);
     });
 
     it('should put history as correct type (gene, alteration, or evidence)', () => {
@@ -571,7 +569,7 @@ describe('FirebaseHistoryUtils', () => {
         ],
       };
       const results = getGeneHistoryForDateRange('BRAF', historyList, [], new Date(0), new Date(6));
-      expect(JSON.stringify(results, null, 4)).toBe(JSON.stringify(expected, null, 4));
+      expect(results).toStrictEqual(expected);
     });
 
     it('should include level when adding or delting therapy (i.e. level field is present)', () => {
@@ -638,7 +636,7 @@ describe('FirebaseHistoryUtils', () => {
       ];
 
       const results = getGeneHistoryForDateRange('BRAF', historyList, [], new Date(0), new Date(6));
-      expect(JSON.stringify(results.evidence, null, 4)).toBe(JSON.stringify(expectedEvidence, null, 4));
+      expect(results.evidence).toStrictEqual(expectedEvidence);
     });
   });
 });
