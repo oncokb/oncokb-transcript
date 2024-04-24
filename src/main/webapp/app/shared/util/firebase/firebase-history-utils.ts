@@ -343,14 +343,14 @@ export function makeHistoryLocationReadable(locationParts: string[], drugList: r
 export type DownloadableHistoryEntry = {
   location: string;
   operation: HistoryOperationType | '';
-  timestamp: number;
+  timeStamp: number;
   hugoSymbol: string;
   old?: string;
   new?: string;
   level?: string; // only for treatment add or delete
 };
 
-type DownloadableHistoryResult = {
+export type DownloadableHistoryResult = {
   gene: DownloadableHistoryEntry[];
   alteration: DownloadableHistoryEntry[];
   evidence: DownloadableHistoryEntry[];
@@ -409,7 +409,13 @@ export function isBetweenDates(date: Date, start?: Date, end?: Date) {
   }
 }
 
-function getGeneHistoryForDateRange(hugoSymbol: string, historyList: HistoryList, drugList: readonly IDrug[], start?: Date, end?: Date) {
+export function getGeneHistoryForDateRange(
+  hugoSymbol: string,
+  historyList: HistoryList,
+  drugList: readonly IDrug[],
+  start?: Date,
+  end?: Date
+) {
   const result: DownloadableHistoryResult = {
     gene: [],
     alteration: [],
@@ -451,7 +457,7 @@ function getGeneHistoryForDateRange(hugoSymbol: string, historyList: HistoryList
       location: record.location,
       operation: record.operation,
       hugoSymbol,
-      timestamp: record.timeStamp,
+      timeStamp: record.timeStamp,
     };
     if (record.operation === HistoryOperationType.NAME_CHANGE || showDiffFields.some(field => record.location.endsWith(field))) {
       entry.new = record.new as string;
