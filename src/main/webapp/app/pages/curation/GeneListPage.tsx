@@ -114,7 +114,7 @@ const GeneListPage = (props: StoreProps) => {
                   content: <CurationDataValidationTab />,
                 },
                 {
-                  title: 'Test',
+                  title: 'History',
                   content: <ReviewHistoryTab />,
                 },
               ]}
