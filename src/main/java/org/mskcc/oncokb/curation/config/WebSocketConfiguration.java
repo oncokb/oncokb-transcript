@@ -5,7 +5,6 @@ import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.web.websocket.ProxyWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
@@ -30,7 +29,7 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
 
     // @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        var handler = registry.addHandler(new ProxyWebSocketHandler(this.applicationProperties), "/api/websocket/**");
+        var handler = registry.addHandler(new ProxyWebSocketHandler(this.applicationProperties), "/websocket/**");
 
         List<String> allowOrigins = jHipsterProperties.getCors().getAllowedOrigins();
 
