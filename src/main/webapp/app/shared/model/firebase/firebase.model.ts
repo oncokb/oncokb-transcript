@@ -21,6 +21,12 @@ export type VusObjList = {
   [uuid: string]: Vus;
 };
 
+export type HistoryCollection = {
+  [hugoSymbol: string]: {
+    api: HistoryList;
+  };
+};
+
 export type HistoryList = {
   [uuid: string]: History;
 };

@@ -1,5 +1,15 @@
-import { HistoryOperationType } from 'app/shared/model/firebase/firebase.model';
-import { findEntriesInObjectByUuids, makeHistoryLocationReadable, parseAddRecord, parseUpdateRecord } from './firebase-history-utils';
+import { HistoryList, HistoryOperationType, MutationEffect, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import {
+  DownloadableHistoryEntry,
+  DownloadableHistoryResult,
+  findEntriesInObjectByUuids,
+  getGeneHistoryForDateRange,
+  getHistoryEntryStrings,
+  isBetweenDates,
+  makeHistoryLocationReadable,
+  parseAddRecord,
+  parseUpdateRecord,
+} from './firebase-history-utils';
 import { IDrug } from 'app/shared/model/drug.model';
 import { generateUuid } from '../utils';
 
@@ -258,6 +268,375 @@ describe('FirebaseHistoryUtils', () => {
 
       const readableLocation = makeHistoryLocationReadable(location, drugList);
       expect(readableLocation).toStrictEqual(['Summary', 'Summary', 'Background', 'Drug1 + Drug2', uuid3, 'Not a recognized string']);
+    });
+  });
+
+  describe('getHistoryEntryStrings', () => {
+    const entries: DownloadableHistoryEntry[] = [
+      {
+        location: 'Mutation, Cancer Type',
+        operation: HistoryOperationType.UPDATE,
+        hugoSymbol: 'BRAF',
+        timeStamp: 2,
+        new: 'new',
+        old: 'old',
+      },
+      {
+        location: 'Mutation, Cancer Type',
+        operation: HistoryOperationType.ADD,
+        hugoSymbol: 'BRAF',
+        timeStamp: 1,
+        level: '3A',
+      },
+      {
+        location: 'Mutation, Cancer Type',
+        operation: HistoryOperationType.DELETE,
+        hugoSymbol: 'BRAF',
+        timeStamp: 3,
+        new: 'new',
+        old: 'new',
+      },
+    ];
+
+    it('should sort and parse entries into strings', () => {
+      expect(getHistoryEntryStrings(entries)).toStrictEqual([
+        'BRAF Mutation, Cancer Type 3A Added',
+        'BRAF Mutation, Cancer Type Updated\n\t New: new\n\t Old: old',
+      ]);
+    });
+  });
+
+  describe('isBetweenDates', () => {
+    // Date(1) = 1970-01-01T00:00:00.001Z
+    // Date(2) = 1970-01-01T00:00:00.002Z
+    // Date(3) = 1970-01-01T00:00:00.003Z
+
+    test.each([
+      {
+        date: new Date(2),
+        start: new Date(1),
+        end: new Date(3),
+        expected: true,
+      },
+      {
+        date: new Date(1),
+        start: new Date(2),
+        end: new Date(3),
+        expected: false,
+      },
+      {
+        date: new Date(2),
+        start: new Date(3),
+        end: new Date(1),
+        expected: false,
+      },
+    ])('returns $expected when for isBetweenDates with date = $date, start = $start, and end = $end', ({ date, start, end, expected }) => {
+      expect(isBetweenDates(date, start, end)).toBe(expected);
+    });
+  });
+
+  describe('getGeneHistoryForDateRange', () => {
+    const admin = '';
+    const lastEditBy = '';
+    const timeStamp = 0;
+
+    it('should only attach new and old for name change, effect, and level', () => {
+      const historyList: HistoryList = {
+        1: {
+          admin,
+          records: [
+            {
+              lastEditBy,
+              location: 'Mutation, Cancer Type',
+              operation: HistoryOperationType.NAME_CHANGE,
+              new: 'New name',
+              old: 'Old name',
+            },
+          ],
+          timeStamp,
+        },
+        2: {
+          admin,
+          records: [
+            {
+              lastEditBy,
+              location: 'Mutation, Cancer Type, Level',
+              operation: HistoryOperationType.UPDATE,
+              new: '1',
+              old: '2',
+            },
+          ],
+          timeStamp,
+        },
+        3: {
+          admin,
+          records: [
+            {
+              lastEditBy,
+              location: 'Mutation, Cancer Type, Oncogenic',
+              operation: HistoryOperationType.UPDATE,
+              new: 'New oncogenic',
+              old: 'Old oncogenic',
+            },
+          ],
+          timeStamp,
+        },
+        4: {
+          admin,
+          records: [
+            {
+              lastEditBy,
+              location: 'Mutation, Cancer Type, Effect',
+              operation: HistoryOperationType.UPDATE,
+              new: 'New effect',
+              old: 'Old effect',
+            },
+          ],
+          timeStamp,
+        },
+        5: {
+          admin,
+          records: [
+            {
+              lastEditBy,
+              location: 'Mutation, Cancer Type, Description',
+              operation: HistoryOperationType.UPDATE,
+              new: 'New description',
+              old: 'Old description',
+            },
+          ],
+          timeStamp,
+        },
+      };
+
+      const expected: DownloadableHistoryResult = {
+        gene: [],
+        alteration: [],
+        evidence: [
+          {
+            location: 'Mutation, Cancer Type',
+            operation: HistoryOperationType.NAME_CHANGE,
+            hugoSymbol: 'BRAF',
+            timeStamp,
+            new: 'New name',
+            old: 'Old name',
+          },
+          {
+            location: 'Mutation, Cancer Type, Level',
+            operation: HistoryOperationType.UPDATE,
+            hugoSymbol: 'BRAF',
+            timeStamp,
+            new: '1',
+            old: '2',
+          },
+          {
+            location: 'Mutation, Cancer Type, Oncogenic',
+            operation: HistoryOperationType.UPDATE,
+            hugoSymbol: 'BRAF',
+            timeStamp,
+            new: 'New oncogenic',
+            old: 'Old oncogenic',
+          },
+          {
+            location: 'Mutation, Cancer Type, Effect',
+            operation: HistoryOperationType.UPDATE,
+            hugoSymbol: 'BRAF',
+            timeStamp,
+            new: 'New effect',
+            old: 'Old effect',
+          },
+          {
+            location: 'Mutation, Cancer Type, Description',
+            operation: HistoryOperationType.UPDATE,
+            hugoSymbol: 'BRAF',
+            timeStamp,
+          },
+        ],
+      };
+
+      expect(getGeneHistoryForDateRange('BRAF', historyList, [], new Date(0), new Date(6))).toStrictEqual(expected);
+    });
+
+    it('should put history as correct type (gene, alteration, or evidence)', () => {
+      const historyList: HistoryList = {
+        1: {
+          admin,
+          records: [
+            {
+              lastEditBy,
+              location: 'Mutation, Cancer Type',
+              operation: HistoryOperationType.NAME_CHANGE,
+              new: 'New name',
+              old: 'Old name',
+            },
+          ],
+          timeStamp,
+        },
+        2: {
+          admin,
+          records: [
+            {
+              lastEditBy,
+              location: 'Summary',
+              operation: HistoryOperationType.UPDATE,
+              new: 'New summary',
+              old: 'Old summary',
+            },
+          ],
+          timeStamp,
+        },
+        3: {
+          admin,
+          records: [
+            {
+              lastEditBy,
+              location: 'Mutation, Cancer Type, Mutation Effect, Oncogenic',
+              operation: HistoryOperationType.UPDATE,
+              new: 'New oncogenic',
+              old: 'Old oncogenic',
+            },
+          ],
+          timeStamp,
+        },
+        4: {
+          admin,
+          records: [
+            {
+              lastEditBy,
+              location: 'Mutation',
+              operation: HistoryOperationType.ADD,
+              new: { mutation_effect: new MutationEffect() },
+              old: {},
+            },
+          ],
+          timeStamp,
+        },
+        5: {
+          admin,
+          records: [
+            {
+              lastEditBy,
+              location: 'Mutation, Cancer Type',
+              operation: HistoryOperationType.ADD,
+              new: {},
+              old: {},
+            },
+          ],
+          timeStamp,
+        },
+      };
+
+      const expected: DownloadableHistoryResult = {
+        gene: [
+          {
+            location: 'Summary',
+            operation: HistoryOperationType.UPDATE,
+            hugoSymbol: 'BRAF',
+            timeStamp,
+          },
+        ],
+        alteration: [
+          {
+            location: 'Mutation, Cancer Type, Mutation Effect, Oncogenic',
+            operation: HistoryOperationType.UPDATE,
+            hugoSymbol: 'BRAF',
+            timeStamp,
+            new: 'New oncogenic',
+            old: 'Old oncogenic',
+          },
+          {
+            location: 'Mutation',
+            operation: HistoryOperationType.ADD,
+            hugoSymbol: 'BRAF',
+            timeStamp,
+          },
+        ],
+        evidence: [
+          {
+            location: 'Mutation, Cancer Type',
+            operation: HistoryOperationType.NAME_CHANGE,
+            hugoSymbol: 'BRAF',
+            timeStamp,
+            new: 'New name',
+            old: 'Old name',
+          },
+          {
+            location: 'Mutation, Cancer Type',
+            operation: HistoryOperationType.ADD,
+            hugoSymbol: 'BRAF',
+            timeStamp,
+          },
+        ],
+      };
+      const results = getGeneHistoryForDateRange('BRAF', historyList, [], new Date(0), new Date(6));
+      expect(results).toStrictEqual(expected);
+    });
+
+    it('should include level when adding or delting therapy (i.e. level field is present)', () => {
+      const historyList: HistoryList = {
+        1: {
+          admin,
+          records: [
+            {
+              lastEditBy,
+              location: 'Mutation, Cancer Type, Therapy',
+              operation: HistoryOperationType.ADD,
+              new: { level: TX_LEVELS.LEVEL_3A },
+            },
+          ],
+          timeStamp,
+        },
+        2: {
+          admin,
+          records: [
+            {
+              lastEditBy,
+              location: 'Mutation, Cancer Type, Therapy',
+              operation: HistoryOperationType.DELETE,
+              old: { level: TX_LEVELS.LEVEL_1 },
+            },
+          ],
+          timeStamp,
+        },
+        3: {
+          admin,
+          records: [
+            {
+              lastEditBy,
+              location: 'Mutation, Cancer Type, Therapy',
+              operation: HistoryOperationType.ADD,
+              new: {},
+            },
+          ],
+          timeStamp,
+        },
+      };
+
+      const expectedEvidence: DownloadableHistoryEntry[] = [
+        {
+          location: 'Mutation, Cancer Type, Therapy',
+          operation: HistoryOperationType.ADD,
+          hugoSymbol: 'BRAF',
+          timeStamp,
+          level: TX_LEVELS.LEVEL_3A,
+        },
+        {
+          location: 'Mutation, Cancer Type, Therapy',
+          operation: HistoryOperationType.DELETE,
+          hugoSymbol: 'BRAF',
+          timeStamp,
+          level: TX_LEVELS.LEVEL_1,
+        },
+        {
+          location: 'Mutation, Cancer Type, Therapy',
+          operation: HistoryOperationType.ADD,
+          hugoSymbol: 'BRAF',
+          timeStamp,
+        },
+      ];
+
+      const results = getGeneHistoryForDateRange('BRAF', historyList, [], new Date(0), new Date(6));
+      expect(results.evidence).toStrictEqual(expectedEvidence);
     });
   });
 });

@@ -1,16 +1,20 @@
 import {
+  ALL_TI_TYPE_HISTORY_STRINGS,
   FIREBASE_KEY_TO_READABLE_FIELD,
+  HISTORY_OPERATION_TO_PAST_TENSE,
   READABLE_FIELD,
   ReviewAction,
   ReviewActionToHistoryOperationMapping,
   ReviewLevelType,
   TI_TYPE_TO_HISTORY_STRING,
+  TI_TYPE_TO_LEGACY_HISTORY_STRING,
 } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
-import { History, HistoryList, HistoryOperationType, HistoryRecord } from 'app/shared/model/firebase/firebase.model';
+import { History, HistoryCollection, HistoryList, HistoryOperationType, HistoryRecord } from 'app/shared/model/firebase/firebase.model';
 import { getCancerTypesNameWithExclusion, isUuid } from '../utils';
 import { BaseReviewLevel, ReviewLevel } from './firebase-review-utils';
 import { getMutationName, getTxName } from './firebase-utils';
+import _ from 'lodash';
 
 export const buildHistoryFromReviews = (reviewerName: string, reviewLevels: ReviewLevel[]) => {
   const history = new History(reviewerName);
@@ -151,7 +155,8 @@ export const parseDeleteRecord = (record: HistoryRecord, drugList: readonly IDru
     record.location.split(',').map(key => key.trim()),
     drugList
   ).join(', ');
-  return [{ ...record, location: readableLocation }];
+
+  return [{ ...record, location: readableLocation, old: JSON.stringify(record.old) }];
 };
 
 export const parseUpdateRecord = (record: HistoryRecord, drugList: readonly IDrug[]) => {
@@ -301,7 +306,7 @@ export function makeFirebaseKeysReadable(keys: string[]) {
 export function makeHistoryLocationReadable(locationParts: string[], drugList: readonly IDrug[]) {
   const readableKeys: string[] = [];
   for (const part of locationParts) {
-    if (Object.values(TI_TYPE_TO_HISTORY_STRING).includes(part)) {
+    if (ALL_TI_TYPE_HISTORY_STRINGS.includes(part)) {
       continue;
     } else {
       let therapy = part;
@@ -334,4 +339,170 @@ export function makeHistoryLocationReadable(locationParts: string[], drugList: r
     }
   }
   return readableKeys;
+}
+
+export type DownloadableHistoryEntry = {
+  location: string;
+  operation: HistoryOperationType | '';
+  timeStamp: number;
+  hugoSymbol: string;
+  old?: string;
+  new?: string;
+  level?: string; // only for treatment add or delete
+};
+
+export type DownloadableHistoryResult = {
+  gene: DownloadableHistoryEntry[];
+  alteration: DownloadableHistoryEntry[];
+  evidence: DownloadableHistoryEntry[];
+};
+
+export function getHistoryEntryStrings(entries: DownloadableHistoryEntry[]) {
+  const sortedEntries = _.sortBy(entries, 'hugoSymbol', 'timeStamp');
+
+  const strings: string[] = [];
+  for (const entry of sortedEntries) {
+    if (!entry.new && !entry.old) {
+      strings.push(
+        `${entry.hugoSymbol} ${entry.location}${entry.level ? ' ' + entry.level : ''} ${HISTORY_OPERATION_TO_PAST_TENSE[entry.operation]}`
+      );
+    } else if ((entry.new || entry.old) && entry.new !== entry.old) {
+      const operationLine = `${entry.hugoSymbol} ${entry.location} ${HISTORY_OPERATION_TO_PAST_TENSE[entry.operation]}\n`;
+      const newLine = `\t New: ${entry.new || ''}\n`;
+      const oldLine = `\t Old: ${entry.old || ''}`;
+
+      strings.push(operationLine + newLine + oldLine);
+    }
+  }
+  return _.uniq(strings);
+}
+
+export function getAllGeneHistoryForDateRange(historyCollection: HistoryCollection, drugList: readonly IDrug[], start?: Date, end?: Date) {
+  const result: DownloadableHistoryResult = {
+    gene: [],
+    alteration: [],
+    evidence: [],
+  };
+
+  if (end && end < start) {
+    return result;
+  }
+
+  for (const [hugoSymbol, history] of Object.entries(historyCollection)) {
+    const geneHistory = getGeneHistoryForDateRange(hugoSymbol, history.api, drugList, start, end);
+    result.gene.push(...geneHistory.gene);
+    result.alteration.push(...geneHistory.alteration);
+    result.evidence.push(...geneHistory.evidence);
+  }
+
+  return result;
+}
+
+export function isBetweenDates(date: Date, start?: Date, end?: Date) {
+  if (start && end) {
+    return date >= start && date <= end;
+  } else if (start) {
+    return date >= start;
+  } else if (end) {
+    return date <= end;
+  } else {
+    return true;
+  }
+}
+
+export function getGeneHistoryForDateRange(
+  hugoSymbol: string,
+  historyList: HistoryList,
+  drugList: readonly IDrug[],
+  start?: Date,
+  end?: Date
+) {
+  const result: DownloadableHistoryResult = {
+    gene: [],
+    alteration: [],
+    evidence: [],
+  };
+
+  if (end && end < start) {
+    return result;
+  }
+
+  const geneFields = [
+    READABLE_FIELD.GENE_TYPE,
+    READABLE_FIELD.SUMMARY,
+    READABLE_FIELD.BACKGROUND,
+    READABLE_FIELD.PENETRANCE,
+    READABLE_FIELD.INHERITANCE_MECHANISM,
+  ];
+  const alterationFields = [
+    READABLE_FIELD.MUTATION_EFFECT,
+    READABLE_FIELD.MUTATION_SPECIFIC_INHERITANCE,
+    READABLE_FIELD.MUTATION_SPECIFIC_PENETRANCE,
+  ];
+  const showDiffFields = [READABLE_FIELD.ONCOGENIC, READABLE_FIELD.EFFECT, READABLE_FIELD.LEVEL];
+
+  const filteredHistory = _.cloneDeep(historyList);
+  for (const [uuid, historyEntry] of Object.entries(filteredHistory)) {
+    if (!isBetweenDates(new Date(historyEntry.timeStamp), start, end)) {
+      delete filteredHistory[uuid];
+    }
+  }
+
+  const parsedHistory = parseHistory(filteredHistory, drugList);
+  for (const record of parsedHistory) {
+    if (!record.location) {
+      continue;
+    }
+
+    const entry: DownloadableHistoryEntry = {
+      location: record.location,
+      operation: record.operation,
+      hugoSymbol,
+      timeStamp: record.timeStamp,
+    };
+    if (record.operation === HistoryOperationType.NAME_CHANGE || showDiffFields.some(field => record.location.endsWith(field))) {
+      entry.new = record.new as string;
+      entry.old = record.old as string;
+    }
+
+    let isAlteration = false;
+    if (record.operation === HistoryOperationType.ADD) {
+      // add
+      const addedObject = JSON.parse(record.new as string);
+      if (addedObject['mutation_effect']) {
+        isAlteration = true;
+      }
+
+      if (addedObject['level']) {
+        entry.level = addedObject.level;
+      }
+    } else if (record.operation === HistoryOperationType.DELETE && record.old) {
+      const deletedObject = JSON.parse(record.old as string);
+      if (deletedObject['mutation_effect']) {
+        isAlteration = true;
+      }
+
+      if (deletedObject['level']) {
+        entry.level = deletedObject.level;
+      }
+    } else if (record.operation === HistoryOperationType.NAME_CHANGE && record.location === record.new) {
+      isAlteration = true;
+    } else if (record.operation === HistoryOperationType.PROMOTE_VUS || record.operation === HistoryOperationType.DEMOTE_MUTATION) {
+      isAlteration = true;
+    } else if (alterationFields.some(field => record.location.includes(field))) {
+      isAlteration = true;
+    }
+
+    if (geneFields.some(field => record.location === field)) {
+      // gene
+      result.gene.push(entry);
+    } else if (isAlteration) {
+      // alteration
+      result.alteration.push(entry);
+    } else {
+      // evidence
+      result.evidence.push(entry);
+    }
+  }
+  return result;
 }

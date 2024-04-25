@@ -294,6 +294,18 @@ export const TI_TYPE_TO_HISTORY_STRING: { [key in TI_TYPE]: string } = {
   [TI_TYPE.IR]: 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_RESISTANCE',
 };
 
+export const TI_TYPE_TO_LEGACY_HISTORY_STRING: { [key in TI_TYPE]: string } = {
+  [TI_TYPE.SS]: 'Standard implications for sensitivity to therapy',
+  [TI_TYPE.SR]: 'Standard implications for resistance to therapy',
+  [TI_TYPE.IS]: 'Investigational implications for sensitivity to therapy',
+  [TI_TYPE.IR]: 'Investigational implications for resistance to therapy',
+};
+
+export const ALL_TI_TYPE_HISTORY_STRINGS = [
+  ...Object.values(TI_TYPE_TO_HISTORY_STRING),
+  ...Object.values(TI_TYPE_TO_LEGACY_HISTORY_STRING),
+];
+
 export enum ReviewLevelType {
   META, // This means that the review level is used for grouping purposes
   REVIEWABLE, // This means that the review level has reviewable content
@@ -319,6 +331,7 @@ export enum READABLE_FIELD {
   FDA_LEVEL = 'FDA Level',
   INDICATION = 'Indication',
   PROPAGATION = 'Propagation',
+  LEVEL = 'Level',
 }
 
 export const FIREBASE_KEY_TO_READABLE_FIELD: { [key: string]: READABLE_FIELD } = {
@@ -336,6 +349,16 @@ export const FIREBASE_KEY_TO_READABLE_FIELD: { [key: string]: READABLE_FIELD } =
   fdaLevel: READABLE_FIELD.FDA_LEVEL,
   indication: READABLE_FIELD.INDICATION,
   propagation: READABLE_FIELD.PROPAGATION,
+  level: READABLE_FIELD.LEVEL,
+};
+
+export const HISTORY_OPERATION_TO_PAST_TENSE: { [operation in HistoryOperationType]: string } = {
+  [HistoryOperationType.ADD]: 'Added',
+  [HistoryOperationType.DELETE]: 'Deleted',
+  [HistoryOperationType.NAME_CHANGE]: 'Name Changed',
+  [HistoryOperationType.UPDATE]: 'Updated',
+  [HistoryOperationType.DEMOTE_MUTATION]: 'Demoted',
+  [HistoryOperationType.PROMOTE_VUS]: 'Promoted',
 };
 
 export const PATHOGENIC_VARIANTS = 'Pathogenic Variants';
