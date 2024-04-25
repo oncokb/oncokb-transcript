@@ -2445,7 +2445,6 @@ export const ResponseEntityStatusCodeEnum = {
   _300: '300',
   _301: '301',
   _302: '302',
-  _302: '302',
   _303: '303',
   _304: '304',
   _305: '305',
@@ -2465,8 +2464,6 @@ export const ResponseEntityStatusCodeEnum = {
   _411: '411',
   _412: '412',
   _413: '413',
-  _413: '413',
-  _414: '414',
   _414: '414',
   _415: '415',
   _416: '416',
@@ -7294,7 +7291,7 @@ export const TrialsApiFp = function (configuration?: Configuration) {
     async trialsGetByCancerTypesUsingPOST(
       body: CancerTypesQuery,
       options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<{ [key: string]: List }>> {
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<{ [key: string]: any }>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.trialsGetByCancerTypesUsingPOST(body, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
@@ -7331,7 +7328,7 @@ export const TrialsApiFactory = function (configuration?: Configuration, basePat
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    trialsGetByCancerTypesUsingPOST(body: CancerTypesQuery, options?: any): AxiosPromise<{ [key: string]: any[] }> {
+    trialsGetByCancerTypesUsingPOST(body: CancerTypesQuery, options?: any): AxiosPromise<{ [key: string]: any }> {
       return localVarFp.trialsGetByCancerTypesUsingPOST(body, options).then(request => request(axios, basePath));
     },
     /**
