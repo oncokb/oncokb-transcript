@@ -2,6 +2,7 @@ import { GERMLINE_INHERITANCE_MECHANISM, PATHOGENICITY, PENETRANCE } from 'app/c
 import { ALLELE_STATE, GENE_TYPE } from 'app/config/constants/firebase';
 import { AlterationTypeEnum, Gene as OncoKBGene } from 'app/shared/api/generated';
 import { generateUuid } from 'app/shared/util/utils';
+import _ from 'lodash';
 
 export type MetaCollection = {
   [hugoSymbol: string]: Meta;
@@ -444,7 +445,7 @@ export class Review {
   constructor(updatedBy: string, lastReviewed?: string | CancerType[], added?: boolean, removed?: boolean, initialUpdate?: boolean) {
     this.updatedBy = updatedBy;
     this.updateTime = new Date().getTime();
-    if (lastReviewed) {
+    if (!_.isNil(lastReviewed)) {
       this.lastReviewed = lastReviewed;
     }
     if (added) {

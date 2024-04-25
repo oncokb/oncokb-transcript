@@ -313,12 +313,16 @@ export enum ReviewLevelType {
 
 export enum READABLE_FIELD {
   GENE_TYPE = 'Gene Type',
+  TSG = 'Tumor Suppressor',
+  OCG = 'Oncogene',
   SUMMARY = 'Summary',
   NAME = 'Name',
   BACKGROUND = 'Background',
   PENETRANCE = 'Penetrance',
   DESCRIPTION = 'Description',
   INHERITANCE_MECHANISM = 'Mechanism of Inheritance',
+  DIAGNOSTIC = 'Diagnostic',
+  Prognostic = 'Prognostic',
   DIAGNOSTIC_SUMMARY = 'Diagnostic Summary',
   PROGNOSTIC_SUMMARY = 'Prognostic Summary',
   MUTATION_EFFECT = 'Mutation Effect',
@@ -331,10 +335,15 @@ export enum READABLE_FIELD {
   FDA_LEVEL = 'FDA Level',
   INDICATION = 'Indication',
   PROPAGATION = 'Propagation',
+  PROPAGATION_LIQUID = 'Propagation Liquid',
   LEVEL = 'Level',
+  RCT = 'Relevant Cancer Types',
 }
 
 export const FIREBASE_KEY_TO_READABLE_FIELD: { [key: string]: READABLE_FIELD } = {
+  type: READABLE_FIELD.GENE_TYPE,
+  ocg: READABLE_FIELD.OCG,
+  tsg: READABLE_FIELD.TSG,
   effect: READABLE_FIELD.EFFECT,
   mutation_effect: READABLE_FIELD.MUTATION_EFFECT,
   name: READABLE_FIELD.NAME,
@@ -342,6 +351,7 @@ export const FIREBASE_KEY_TO_READABLE_FIELD: { [key: string]: READABLE_FIELD } =
   inheritanceMechanism: READABLE_FIELD.INHERITANCE_MECHANISM,
   description: READABLE_FIELD.DESCRIPTION,
   summary: READABLE_FIELD.SUMMARY,
+  background: READABLE_FIELD.BACKGROUND,
   pathogenic: READABLE_FIELD.PATHOGENIC,
   penetrance: READABLE_FIELD.PENETRANCE,
   oncogenic: READABLE_FIELD.ONCOGENIC,
@@ -349,7 +359,11 @@ export const FIREBASE_KEY_TO_READABLE_FIELD: { [key: string]: READABLE_FIELD } =
   fdaLevel: READABLE_FIELD.FDA_LEVEL,
   indication: READABLE_FIELD.INDICATION,
   propagation: READABLE_FIELD.PROPAGATION,
+  propagationLiquid: READABLE_FIELD.PROPAGATION_LIQUID,
   level: READABLE_FIELD.LEVEL,
+  excludedRCTs: READABLE_FIELD.RCT,
+  diagnostic: READABLE_FIELD.DIAGNOSTIC,
+  prognostic: READABLE_FIELD.Prognostic,
 };
 
 export const HISTORY_OPERATION_TO_PAST_TENSE: { [operation in HistoryOperationType]: string } = {
