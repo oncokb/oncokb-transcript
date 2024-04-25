@@ -353,12 +353,12 @@ export const FIREBASE_KEY_TO_READABLE_FIELD: { [key: string]: READABLE_FIELD } =
 };
 
 export const HISTORY_OPERATION_TO_PAST_TENSE: { [operation in HistoryOperationType]: string } = {
-  add: 'Added',
-  delete: 'Deleted',
-  'name change': 'Name Changed',
-  update: 'Updated',
-  demote: 'Demoted',
-  promote: 'Promoted',
+  [HistoryOperationType.ADD]: 'Added',
+  [HistoryOperationType.DELETE]: 'Deleted',
+  [HistoryOperationType.NAME_CHANGE]: 'Name Changed',
+  [HistoryOperationType.UPDATE]: 'Updated',
+  [HistoryOperationType.DEMOTE_MUTATION]: 'Demoted',
+  [HistoryOperationType.PROMOTE_VUS]: 'Promoted',
 };
 
 export const PATHOGENIC_VARIANTS = 'Pathogenic Variants';
