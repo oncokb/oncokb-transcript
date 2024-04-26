@@ -2,35 +2,51 @@ import { REFERENCE_LINK_REGEX, FDA_SUBMISSION_REGEX } from './regex';
 
 describe('Regex constants test', () => {
   describe('Reference link regex', () => {
-    it('Regex should capture PMID', () => {
-      expect(REFERENCE_LINK_REGEX.test('test')).toBeFalsy();
-      expect(REFERENCE_LINK_REGEX.test('test (PMID123)')).toBeTruthy();
-      expect(REFERENCE_LINK_REGEX.test('test (PMID:123)')).toBeTruthy();
-      expect(REFERENCE_LINK_REGEX.test('test (PMID:123,123)')).toBeTruthy();
-      expect(REFERENCE_LINK_REGEX.test('test ( PMID:123)')).toBeTruthy();
-      expect(REFERENCE_LINK_REGEX.test('test ( PMID:123 )')).toBeTruthy();
-      expect(REFERENCE_LINK_REGEX.test('test (PMID:123 )')).toBeTruthy();
-      expect(REFERENCE_LINK_REGEX.test('test (PMID:123 ')).toBeFalsy();
-      expect(REFERENCE_LINK_REGEX.test('test ( test PMID:123 )')).toBeFalsy();
+    test.each([
+      ['test', false],
+      ['test (PMID123)', true],
+      ['test (PMID:123)', true],
+      ['test (PMID:123,123)', true],
+      ['test ( PMID:123)', true],
+      ['test ( PMID:123 )', true],
+      ['test (PMID:123 )', true],
+      ['test (PMID:123 ', false],
+      ['test ( test PMID:123 )', false],
+    ])('Regex should capture PMID', (reference, expected) => {
+      expect(REFERENCE_LINK_REGEX.test(reference)).toEqual(expected);
     });
-    it('Regex should capture NCT', () => {
+
+    describe('NCT reference test', () => {
       const nctContent = 'NCT03088176';
-      expect(REFERENCE_LINK_REGEX.test('test')).toBeFalsy();
-      expect(REFERENCE_LINK_REGEX.test(`test (${nctContent})`)).toBeTruthy();
-      expect(REFERENCE_LINK_REGEX.test(`test (${nctContent} )`)).toBeTruthy();
-      expect(REFERENCE_LINK_REGEX.test(`test ( ${nctContent})`)).toBeTruthy();
-      expect(REFERENCE_LINK_REGEX.test(`test ( ${nctContent} )`)).toBeTruthy();
-      expect(REFERENCE_LINK_REGEX.test(`test ( ${nctContent}`)).toBeFalsy();
+
+      test.each([
+        ['test', false],
+        [`test (${nctContent})`, true],
+        [`test (${nctContent} )`, true],
+        [`test ( ${nctContent})`, true],
+        [`test ( ${nctContent} )`, true],
+        [`test ( ${nctContent}`, false],
+      ])('Regex should capture NCT', (reference, expected) => {
+        expect(REFERENCE_LINK_REGEX.test(reference)).toEqual(expected);
+      });
     });
-    it('Regex should capture Abstract', () => {
+
+    describe('Abstract reference test', () => {
       const abstractContent = 'Abstract: Zeng et al. Abstract #0177, IDDF 2020. https://gut.bmj.com/content/69/Suppl_2/A22.1';
-      expect(REFERENCE_LINK_REGEX.test('test')).toBeFalsy();
-      expect(REFERENCE_LINK_REGEX.test(`test (${abstractContent})`)).toBeTruthy();
-      expect(REFERENCE_LINK_REGEX.test(`test (${abstractContent} )`)).toBeTruthy();
-      expect(REFERENCE_LINK_REGEX.test(`test ( ${abstractContent})`)).toBeTruthy();
-      expect(REFERENCE_LINK_REGEX.test(`test ( ${abstractContent} )`)).toBeTruthy();
-      expect(REFERENCE_LINK_REGEX.test(`test ( ${abstractContent}`)).toBeFalsy();
+
+      test.each([
+        ['test', false],
+        ['test (Abstract:', false],
+        [`test (${abstractContent})`, true],
+        [`test (${abstractContent} )`, true],
+        [`test ( ${abstractContent})`, true],
+        [`test ( ${abstractContent} )`, true],
+        [`test ( ${abstractContent}`, false],
+      ])('Regex should capture Abstract', (reference, expected) => {
+        expect(REFERENCE_LINK_REGEX.test(reference)).toEqual(expected);
+      });
     });
+
     it('Regex should capture expected matches', () => {
       const mixText =
         'A statistically (significant) hotspot (PMID: 23525077). To wildtype (Abstract: Zeng et al. Abstract #0177, IDDF 2020.). Preclinical st(udie)s suggest.';
@@ -39,14 +55,16 @@ describe('Regex constants test', () => {
   });
 
   describe('FDA Submission regex', () => {
-    it('should match all types of FDA submissions (including supplements)', () => {
-      expect(FDA_SUBMISSION_REGEX.test('P190033')).toBeTruthy();
-      expect(FDA_SUBMISSION_REGEX.test('P190033/S001')).toBeTruthy();
-      expect(FDA_SUBMISSION_REGEX.test('P190033/S001-S004')).toBeTruthy();
-      expect(FDA_SUBMISSION_REGEX.test('H140006')).toBeTruthy();
-
-      expect(FDA_SUBMISSION_REGEX.test('PMA')).toBeFalsy();
-      expect(FDA_SUBMISSION_REGEX.test('123')).toBeFalsy();
+    test.each([
+      ['P190033', true],
+      ['P190033/S001', true],
+      ['P190033/S001-S004', true],
+      ['H140006', true],
+      ['PMA', false],
+      ['123', false],
+      ['', false],
+    ])('should match all types of FDA submissions including supplements', (submission, expected) => {
+      expect(FDA_SUBMISSION_REGEX.test(submission)).toEqual(expected);
     });
   });
 });

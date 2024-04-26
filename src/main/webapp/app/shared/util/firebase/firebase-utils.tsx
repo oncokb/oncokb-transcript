@@ -27,31 +27,6 @@ import { replaceUrlParams } from '../url-utils';
 import { extractPositionFromSingleNucleotideAlteration, isUuid, parseAlterationName } from '../utils';
 import { isTxLevelPresent } from './firebase-level-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
-import { UUID_REGEX } from 'app/config/constants/regex';
-
-/* Convert a nested object into an object where the key is the path to the object.
-  Example:
-    {type: {ocg: 'Oncogene}, name: 'ABL1' }
-    is converted to
-    {'type/ocg': 'Oncogene', 'name': 'ABL1'}
-*/
-export const convertNestedObject = (obj: any, key = '', result = {}) => {
-  if (obj === null) {
-    return;
-  }
-  if (typeof obj !== 'object') {
-    result[key] = obj;
-    return result;
-  }
-  const keys = Object.keys(obj);
-
-  for (let i = 0; i < keys.length; i++) {
-    const newKey = key ? key + '/' + keys[i] : keys[i];
-    convertNestedObject(obj[keys[i]], newKey, result);
-  }
-
-  return result;
-};
 
 export const getValueByNestedKey = (obj: any, nestedKey = '') => {
   return nestedKey.split('/').reduce((currObj, currKey) => {
@@ -496,7 +471,15 @@ export function compareMutationsByProteinChangePosition(mut1: Mutation, mut2: Mu
     return -1;
   }
 
-  return Number(mut1Position) - Number(mut2Position);
+  const mut1PosInt = Number(mut1Position);
+  const mut2PosInt = Number(mut2Position);
+
+  if (mut1PosInt < mut2PosInt) {
+    return -1;
+  } else if (mut1PosInt > mut2PosInt) {
+    return 1;
+  }
+  return 0;
 }
 
 export function compareMutationsByCategoricalAlteration(mut1: Mutation, mut2: Mutation) {

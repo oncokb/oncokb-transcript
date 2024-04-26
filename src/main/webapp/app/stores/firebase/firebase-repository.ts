@@ -1,6 +1,5 @@
 import { push, ref, remove, runTransaction, set, update } from 'firebase/database';
 import FirebaseAppStore from './firebase-app.store';
-import { convertNestedObject } from 'app/shared/util/firebase/firebase-utils';
 
 export class FirebaseRepository {
   private firebaseAppStore: FirebaseAppStore;
