@@ -3,15 +3,16 @@ import {
   compareFirebaseOncogenicities,
   compareMutationsByCategoricalAlteration,
   compareMutationsByProteinChangePosition,
-  convertNestedObject,
+  compareMutationsBySingleAlteration,
   geneNeedsReview,
+  getCancerTypeStats,
   getFirebasePath,
   getMutationName,
+  getMutationStats,
   getTxName,
   getValueByNestedKey,
   isNestedObjectEmpty,
   isSectionEmpty,
-  isSectionRemovableWithoutReview,
   sortByDxLevel,
   sortByPxLevel,
   sortByTxLevel,
@@ -24,52 +25,34 @@ import {
   MetaReview,
   Mutation,
   PX_LEVELS,
-  Review,
   TX_LEVELS,
   Treatment,
   Tumor,
 } from 'app/shared/model/firebase/firebase.model';
 import { generateUuid } from '../utils';
-import { NestLevelType } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
-import { LEVELS } from 'app/config/colors';
 
 describe('FirebaseUtils', () => {
-  describe('convertNestedObject', () => {
-    it('converts a nested objects key into one that is seperated by a slash', () => {
-      const obj = {
-        name: 'ABL1',
-        type: {
-          ocg: 'Oncogene',
-        },
-      };
-
-      const convertedObj = convertNestedObject(obj, '', {});
-      expect(convertedObj, 'non-nested property should be present').toHaveProperty('name', 'ABL1');
-      expect(convertedObj, 'nested properties should be joined by a slash').toHaveProperty('type/ocg', 'Oncogene');
-
-      const emptyObj = {};
-      const convertedEmptyObj = convertNestedObject(emptyObj, '', {});
-      expect(convertedEmptyObj, 'empty object should return empty object').toEqual({});
-    });
-  });
-
   describe('getValueByNestedKey', () => {
-    it('gets value from object using nested key', () => {
-      const key = 'summary_review/lastUpdate';
-      const obj = {
-        summary_review: {
-          lastUpdate: 1,
-        },
-      };
+    const obj = {
+      summary_review: {
+        lastUpdate: 1,
+      },
+    };
 
+    it('should return nested property when given key', () => {
+      const key = 'summary_review/lastUpdate';
       const value = getValueByNestedKey(obj, key);
       expect(value, 'key should return nested property').toEqual(1);
+    });
 
-      // Edge cases
-      expect(getValueByNestedKey(obj, ''), 'empty key should return undefined').toBeUndefined();
-      expect(getValueByNestedKey(obj, undefined), 'undefined key should return undefined').toBeUndefined();
-      expect(getValueByNestedKey(undefined, key), 'undefined object should return undefined').toBeUndefined();
+    test.each([[''], [undefined]])('should return undefined when key is empty or undefined', key => {
+      expect(getValueByNestedKey(obj, key)).toBeUndefined();
+    });
+
+    it('should return undefined when object is undefined', () => {
+      const key = 'summary_review/lastUpdate';
+      expect(getValueByNestedKey(undefined, key)).toBeUndefined();
     });
   });
 
@@ -182,26 +165,27 @@ describe('FirebaseUtils', () => {
           name: 'drug-2',
         } as IDrug,
       ];
-      it('String with one drug', () => {
+
+      test.each([['uuid-1'], ['uuid-1 '], [' uuid-1']])('should return Tx name for one drug', input => {
         const expectedTxName = 'drug-1';
-        expect(getTxName(drugList, 'uuid-1'), 'Tx name is appropriate').toEqual(expectedTxName);
-        expect(getTxName(drugList, 'uuid-1 '), 'Tx name is appropriate').toEqual(expectedTxName);
-        expect(getTxName(drugList, ' uuid-1'), 'Tx name is appropriate').toEqual(expectedTxName);
+        expect(getTxName(drugList, input)).toEqual(expectedTxName);
       });
-      it('String with one tx but multiple drugs', () => {
-        const expectedTxName = 'drug-1 + drug-2';
-        expect(getTxName(drugList, 'uuid-1+uuid-2'), 'Tx name is appropriate').toEqual(expectedTxName);
-        expect(getTxName(drugList, 'uuid-1 +uuid-2'), 'Tx name is appropriate').toEqual(expectedTxName);
-        expect(getTxName(drugList, 'uuid-1+ uuid-2'), 'Tx name is appropriate').toEqual(expectedTxName);
-        expect(getTxName(drugList, 'uuid-1 + uuid-2'), 'Tx name is appropriate').toEqual(expectedTxName);
-      });
-      it('String with multiple tx and multiple drugs', () => {
-        const expectedTxName = 'drug-1 + drug-2, drug-1';
-        expect(getTxName(drugList, 'uuid-1+uuid-2, uuid-1'), 'Tx name is appropriate').toEqual(expectedTxName);
-        expect(getTxName(drugList, 'uuid-1+uuid-2,uuid-1'), 'Tx name is appropriate').toEqual(expectedTxName);
-        expect(getTxName(drugList, 'uuid-1+uuid-2 , uuid-1'), 'Tx name is appropriate').toEqual(expectedTxName);
-        expect(getTxName(drugList, 'uuid-1+uuid-2 ,uuid-1'), 'Tx name is appropriate').toEqual(expectedTxName);
-      });
+
+      test.each([['uuid-1+uuid-2'], ['uuid-1 +uuid-2'], ['uuid-1+ uuid-2'], ['uuid-1 + uuid-2']])(
+        'should return Tx name for one tx with multiple drugs',
+        input => {
+          const expectedTxName = 'drug-1 + drug-2';
+          expect(getTxName(drugList, input)).toEqual(expectedTxName);
+        }
+      );
+
+      test.each([['uuid-1+uuid-2, uuid-1'], ['uuid-1+uuid-2,uuid-1'], ['uuid-1+uuid-2 , uuid-1'], ['uuid-1+uuid-2 ,uuid-1']])(
+        'should return tx name for multiple tx and multiple drugs',
+        input => {
+          const expectedTxName = 'drug-1 + drug-2, drug-1';
+          expect(getTxName(drugList, input)).toEqual(expectedTxName);
+        }
+      );
     });
     describe('Check name format when the input is inappropriate', () => {
       const drugList = [
@@ -221,139 +205,149 @@ describe('FirebaseUtils', () => {
   });
 
   describe('geneNeedsReview', () => {
-    it('checks if a gene needs to be review based on meta object', () => {
-      const uuid = generateUuid();
+    let meta: Meta;
+    beforeEach(() => {
       const metaReview: MetaReview = {
         currentReviewer: '',
-        [uuid]: true,
       };
-      const meta = new Meta();
+      meta = new Meta();
       meta.review = metaReview;
+    });
 
-      // Valid uuid
-      expect(geneNeedsReview(meta), 'should return true because uuid is present').toBe(true);
+    it('should return true when meta collection has uuid', () => {
+      const uuid = generateUuid();
+      meta.review[uuid] = true;
+      expect(geneNeedsReview(meta)).toBeTruthy();
+    });
 
-      // Invalid UUID
-      let nonUuid = 'not a uuid';
-      meta.review = {
-        currentReviewer: '',
-        [nonUuid]: true,
-      };
-      expect(geneNeedsReview(meta), 'should return false because not a valid uuid').toBe(false);
+    test.each([['not a uuid'], ['111-111-111-00000']])('should return false when uuid is invalid', uuid => {
+      meta.review[uuid] = true;
+      expect(geneNeedsReview(meta)).toBeFalsy();
+    });
 
-      nonUuid = '111-111-111-00000';
-      expect(geneNeedsReview(meta), 'should return false because not a valid uuid').toBe(false);
-
-      // Edge cases
-      expect(geneNeedsReview(undefined), 'undefined input should return false').toBe(false);
+    test.each([[undefined], [null]])('should return false for nil inputs', input => {
+      expect(geneNeedsReview(input)).toBeFalsy();
     });
   });
 
   describe('isNestedObjectEmpty', () => {
-    it('should return true', () => {
-      let testObject = {};
-      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
-
-      testObject = undefined;
-      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
-
-      testObject = null;
-      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
-
-      testObject = [];
-      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
-
-      testObject = '';
-      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
-
-      testObject = '    ';
-      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
-
-      testObject = {
-        key: '',
-      };
-      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
-
-      testObject = {
-        key: undefined,
-        key2: [],
-      };
-      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
-
-      testObject = {
-        key: null,
-        key2: '',
-        obj: {
-          nestedKey: [],
+    test.each([
+      [{}],
+      [undefined],
+      [null],
+      [[]],
+      [''],
+      ['       '],
+      [
+        {
+          key: '',
         },
-      };
-      expect(isNestedObjectEmpty(testObject)).toBeTruthy();
-
-      // With ignoredKeySubstrings parameter
-      testObject = {};
-      expect(isNestedObjectEmpty(testObject, ['key_review'])).toBeTruthy();
-
-      testObject = {
-        key: null,
-        key_review: 'review value',
-      };
-      expect(isNestedObjectEmpty(testObject, ['key_review'])).toBeTruthy();
-
-      testObject = {
-        obj: { nestedKey: '', key_review: 'review value' },
-      };
-      expect(isNestedObjectEmpty(testObject, ['key_review'])).toBeTruthy();
+      ],
+      [
+        {
+          key: undefined,
+          key2: [],
+        },
+      ],
+      [
+        {
+          key: null,
+          key2: '',
+          obj: {
+            nestedKey: [],
+          },
+        },
+      ],
+    ])('should return true', obj => {
+      expect(isNestedObjectEmpty(obj)).toBeTruthy();
     });
 
-    it('should return false', () => {
-      let testObject: any = {
-        key: 'value',
-      };
-      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
-
-      testObject = {
-        key: ['value', 'value2'],
-      };
-      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
-
-      testObject = {
-        key: 0,
-      };
-      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
-
-      testObject = {
-        key: new Date().toString(),
-      };
-      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
-
-      testObject = {
-        key: 'value',
-        key2: '',
-      };
-      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
-
-      testObject = {
-        key: 'value',
-        obj: {
-          nestedKey: undefined,
-          nestedArray: [],
+    test.each([
+      [{}, ['key_review']],
+      [
+        {
+          key: null,
+          key_review: 'review value',
         },
-      };
-      expect(isNestedObjectEmpty(testObject)).toBeFalsy();
+        ['key_review'],
+      ],
+      [
+        {
+          obj: { nestedKey: '', key_review: 'review value' },
+        },
+        ['key_review'],
+      ],
+    ])('should return true when given ignoredKeySubstrings', (obj, ignoreKeySubstrings) => {
+      expect(isNestedObjectEmpty(obj, ignoreKeySubstrings)).toBeTruthy();
+    });
 
-      // With ignoredKeySubstrings parameter
-      testObject = {
-        key: 'value',
-        key_review: undefined,
-      };
-      expect(isNestedObjectEmpty(testObject, ['_review'])).toBeFalsy();
+    test.each([
+      [
+        {
+          key: 'value',
+        },
+      ],
+      [
+        {
+          key: ['value', 'value2'],
+        },
+      ],
+      [
+        {
+          key: 0,
+        },
+      ],
+      [
+        {
+          key: new Date().toString(),
+        },
+      ],
+      [
+        {
+          key: 'value',
+          key2: '',
+        },
+      ],
+      [
+        {
+          key: 'value',
+          obj: {
+            nestedKey: undefined,
+            nestedArray: [],
+          },
+        },
+      ],
+    ])('should return false', obj => {
+      expect(isNestedObjectEmpty(obj)).toBeFalsy();
+    });
 
-      testObject = {
-        key: 'value',
-        key_review: undefined,
-        obj: { nestedKey: 'value', key_review: '' },
-      };
-      expect(isNestedObjectEmpty(testObject, ['_review'])).toBeFalsy();
+    test.each([
+      [
+        {
+          key: 'value',
+          key_review: undefined,
+        },
+        ['_review'],
+      ],
+      [
+        {
+          key: 'value',
+          key_review: undefined,
+          obj: { nestedKey: 'value', key_review: '' },
+        },
+        ['_review'],
+      ],
+      [
+        {
+          key: 'value',
+          key_uuid: '',
+          key_review: undefined,
+          obj: { nestedKey: 'value', key_review: '' },
+        },
+        ['_review', '_uuid'],
+      ],
+    ])('should return false when given ignoredKeySubstrings', (obj, ignoredKeySubstrings) => {
+      expect(isNestedObjectEmpty(obj, ignoredKeySubstrings)).toBeFalsy();
     });
   });
 
@@ -367,60 +361,51 @@ describe('FirebaseUtils', () => {
       expect(isSectionEmpty(gene, firebasePath), 'mutation has a name').toBeTruthy();
     });
 
-    it('should ignore review and uuid fields', () => {
-      const firebasePath = getFirebasePath('MUTATIONS', 'BRAF', '0');
-      const gene = new Gene('BRAF');
-      const mutation = new Mutation('V600E');
-      mutation.name = '';
-      gene.mutations.push(mutation);
+    describe('should ignore certain fields when checking if empty', () => {
+      let mutationPath;
+      let mutation;
 
-      expect(isSectionEmpty(gene, firebasePath), 'review field should be ignored').toBeTruthy();
+      beforeEach(() => {
+        mutationPath = getFirebasePath('MUTATIONS', 'BRAF', '0');
+        mutation = new Mutation('V600E');
+      });
 
-      mutation.name_uuid = '';
-      expect(isSectionEmpty(gene, firebasePath), 'uuid field should be ignored').toBeTruthy();
+      it('should ignore review field', () => {
+        expect(isSectionEmpty(mutation, mutationPath)).toBeTruthy();
+      });
 
-      mutation.name_uuid = undefined;
-      expect(isSectionEmpty(gene, firebasePath), 'uuid field should be ignored').toBeTruthy();
+      it('should ignore uuid field when it is equal to empty string', () => {
+        mutation.name_uuid = '';
+        expect(isSectionEmpty(mutation, mutationPath)).toBeTruthy();
+      });
     });
 
-    // it('should check treatments when determining whether tumor section is empty', () => {
-    //   const firebasePath = getFirebasePath('TUMORS', 'BRAF', '0', '0');
-    //   const gene = new Gene('BRAF');
-    //   const mutation = new Mutation('V600');
-    //   gene.mutations.push(mutation);
+    describe('when checking if tumor section is empty', () => {
+      let tumorPath;
+      let tumor;
 
-    //   const tumor = new Tumor();
-    //   mutation.tumors.push(tumor);
+      beforeEach(() => {
+        tumorPath = getFirebasePath('TUMORS', 'BRAF', '0', '0');
+        tumor = new Tumor();
+      });
 
-    //   // Tumor is empty, but TIs has a therapy available
-    //   tumor.TIs[0].treatments = [new Treatment('Vemurafenib')];
-    // //   expect(isSectionEmpty(gene, firebasePath)).toBeFalsy();
+      it('should return false when therapy is available', () => {
+        tumor.TIs[0].treatments = [new Treatment('Vemurafenib')];
+        expect(isSectionEmpty(tumor, tumorPath)).toBeFalsy();
+      });
 
-    //   // Tumor is not empty
-    //   tumor.diagnosticSummary = 'Diagnostic Summary';
-    //   expect(isSectionEmpty(gene, firebasePath)).toBeFalsy();
+      it('should return false when tumor is not empty', () => {
+        tumor.diagnosticSummary = 'Diagnostic Summary';
+        expect(isSectionEmpty(tumor, tumorPath)).toBeFalsy();
+      });
 
-    //   // Tumor is not empty and no therapies available
-    //   tumor.TIs[0].treatments = [];
-    //   expect(isSectionEmpty(gene, firebasePath)).toBeFalsy();
-
-    //   // Tumor is empty and no therapies avaiable
-    //   tumor.diagnosticSummary = '';
-    //   expect(isSectionEmpty(gene, firebasePath)).toBeTruthy();
-    // });
+      it('should return true when no therapies or data available', () => {
+        expect(isSectionEmpty(tumor, tumorPath)).toBeTruthy();
+      });
+    });
   });
 
   describe('sortByTxLevel', () => {
-    it('should compare therapeutic indexes using ascending', () => {
-      expect(sortByTxLevel(TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_R1)).toEqual(-1);
-      expect(sortByTxLevel(TX_LEVELS.LEVEL_R1, TX_LEVELS.LEVEL_2)).toEqual(-1);
-      expect(sortByTxLevel(TX_LEVELS.LEVEL_2, TX_LEVELS.LEVEL_3A)).toEqual(-1);
-      expect(sortByTxLevel(TX_LEVELS.LEVEL_3A, TX_LEVELS.LEVEL_3B)).toEqual(-1);
-      expect(sortByTxLevel(TX_LEVELS.LEVEL_3B, TX_LEVELS.LEVEL_4)).toEqual(-1);
-      expect(sortByTxLevel(TX_LEVELS.LEVEL_4, TX_LEVELS.LEVEL_R2)).toEqual(-1);
-      expect(sortByTxLevel(TX_LEVELS.LEVEL_R2, TX_LEVELS.LEVEL_NO)).toEqual(-1);
-    });
-
     const levels = [
       TX_LEVELS.LEVEL_3A,
       TX_LEVELS.LEVEL_R1,
@@ -430,6 +415,18 @@ describe('FirebaseUtils', () => {
       TX_LEVELS.LEVEL_4,
       TX_LEVELS.LEVEL_R2,
     ];
+
+    test.each([
+      [TX_LEVELS.LEVEL_1, TX_LEVELS.LEVEL_R1, -1],
+      [TX_LEVELS.LEVEL_R1, TX_LEVELS.LEVEL_2, -1],
+      [TX_LEVELS.LEVEL_2, TX_LEVELS.LEVEL_3A, -1],
+      [TX_LEVELS.LEVEL_3A, TX_LEVELS.LEVEL_3B, -1],
+      [TX_LEVELS.LEVEL_3B, TX_LEVELS.LEVEL_4, -1],
+      [TX_LEVELS.LEVEL_4, TX_LEVELS.LEVEL_R2, -1],
+      [TX_LEVELS.LEVEL_R2, TX_LEVELS.LEVEL_NO, -1],
+    ])('should return higher priority tx level', (a, b, expected) => {
+      expect(sortByTxLevel(a, b)).toEqual(expected);
+    });
 
     it('should sort therapeutic levels ascending', () => {
       expect(levels.sort(sortByTxLevel)).toEqual([
@@ -506,35 +503,123 @@ describe('FirebaseUtils', () => {
       ]);
     });
 
-    it('should have the same priority', () => {
-      expect(compareFirebaseOncogenicities(FIREBASE_ONCOGENICITY.YES, FIREBASE_ONCOGENICITY.LIKELY)).toEqual(0);
-      expect(compareFirebaseOncogenicities(FIREBASE_ONCOGENICITY.LIKELY, FIREBASE_ONCOGENICITY.RESISTANCE)).toEqual(0);
-      expect(compareFirebaseOncogenicities(FIREBASE_ONCOGENICITY.RESISTANCE, FIREBASE_ONCOGENICITY.YES)).toEqual(0);
+    test.each([
+      [FIREBASE_ONCOGENICITY.YES, FIREBASE_ONCOGENICITY.LIKELY],
+      [FIREBASE_ONCOGENICITY.LIKELY, FIREBASE_ONCOGENICITY.RESISTANCE],
+      [FIREBASE_ONCOGENICITY.RESISTANCE, FIREBASE_ONCOGENICITY.YES],
+    ])('should have same priority', (o1, o2) => {
+      expect(compareFirebaseOncogenicities(o1, o2)).toEqual(0);
+    });
+  });
+
+  describe('compareMutationsBySingleAlteration', () => {
+    test.each([
+      [new Mutation('V600A'), new Mutation('V600A,V600B,V600C'), -1],
+      [new Mutation('V600A,V600B'), new Mutation('V600A,V600B,V600C'), 0],
+      [new Mutation('V600A'), new Mutation('V600B'), 0],
+      [new Mutation('Oncogenic Mutations {excluding V600E}'), new Mutation('V600B'), 0],
+    ])('should give priority to single alteration', (mut1, mut2, expected) => {
+      expect(compareMutationsBySingleAlteration(mut1, mut2)).toEqual(expected);
     });
   });
 
   describe('compareMutationsByProteinChangePosition', () => {
-    it('should compare mutations correctly', () => {
-      expect(compareMutationsByProteinChangePosition(new Mutation('V600E'), new Mutation('V700E'))).toBeLessThan(0);
-
-      // No number to match, so go after
-      expect(compareMutationsByProteinChangePosition(new Mutation('V600E'), new Mutation('Amplification'))).toBeLessThan(0);
-
-      expect(compareMutationsByProteinChangePosition(new Mutation('V600E'), new Mutation('A10'))).toBeGreaterThan(0);
-
-      // Use start position as position
-      expect(compareMutationsByProteinChangePosition(new Mutation('B800'), new Mutation('T599_V600insV'))).toBeGreaterThan(0);
-
-      // Anything ending in "Fusion" should go after, even if there is a number
-      expect(compareMutationsByProteinChangePosition(new Mutation('AKAP9-BRAF Fusion'), new Mutation('B1G'))).toBeGreaterThan(0);
+    test.each([
+      [new Mutation('V600E'), new Mutation('V700E'), -1],
+      [new Mutation('V600E'), new Mutation('Amplification'), -1],
+      [new Mutation('V600E'), new Mutation('A10'), 1],
+      [new Mutation('B800'), new Mutation('T599_V600insV'), 1],
+      [new Mutation('B599'), new Mutation('T599_V600insV'), 0],
+      [new Mutation('B400'), new Mutation('T599_V600insV'), -1],
+      [new Mutation('AKAP9-BRAF Fusion'), new Mutation('B1G'), 1],
+      [new Mutation('AKAP1-BRAF Fusion'), new Mutation('B9G'), 1],
+    ])('should compare mutations by protein change position', (mut1, mut2, expected) => {
+      expect(compareMutationsByProteinChangePosition(mut1, mut2)).toEqual(expected);
     });
   });
 
   describe('compareMutationsByCategoricalAlteration', () => {
-    it('should compare mutations correctly', () => {
-      expect(compareMutationsByCategoricalAlteration(new Mutation('Oncogenic Mutations'), new Mutation('V700E'))).toBeLessThan(0);
-      expect(compareMutationsByCategoricalAlteration(new Mutation('Literally anything'), new Mutation('Amplification'))).toBeGreaterThan(0);
-      expect(compareMutationsByCategoricalAlteration(new Mutation('Truncating Mutations'), new Mutation('VUS'))).toEqual(0);
+    test.each([
+      [new Mutation('Oncogenic Mutations'), new Mutation('V700E'), -1],
+      [new Mutation('Literally anything'), new Mutation('Amplification'), 1],
+      [new Mutation('Truncating Mutations'), new Mutation('VUS'), 0],
+    ])('should compare mutations correctly', (mut1, mut2, expected) => {
+      expect(compareMutationsByCategoricalAlteration(mut1, mut2)).toEqual(expected);
+    });
+  });
+
+  describe('Get summary statistics', () => {
+    const treatment1 = new Treatment('');
+    treatment1.level = TX_LEVELS.LEVEL_2;
+    const treatment2 = new Treatment('');
+    treatment2.level = TX_LEVELS.LEVEL_EMPTY;
+    const treatment3 = new Treatment('');
+    treatment3.level = TX_LEVELS.LEVEL_2;
+
+    const tumor1 = new Tumor();
+    tumor1.diagnostic.level = DX_LEVELS.LEVEL_DX1;
+    tumor1.TIs[0].treatments = [treatment1];
+    tumor1.summary = 'summary';
+    tumor1.diagnosticSummary = 'diagnostic';
+    tumor1.prognosticSummary = 'prognostic';
+    const tumor2 = new Tumor();
+    tumor2.diagnostic.level = DX_LEVELS.LEVEL_DX2;
+    tumor2.prognostic.level = PX_LEVELS.LEVEL_PX1;
+    tumor2.TIs[1].treatments = [treatment2];
+    tumor2.TIs[3].treatments = [treatment3];
+    tumor2.prognosticSummary = 'prognostic';
+
+    describe('getMutationStats', () => {
+      it('should get the mutation stats', () => {
+        const mutation = new Mutation('');
+        mutation.mutation_effect.oncogenic = FIREBASE_ONCOGENICITY.LIKELY;
+        mutation.mutation_effect.effect = 'effect';
+
+        mutation.tumors = [tumor1, tumor2];
+
+        const expected = {
+          TT: 2,
+          oncogenicity: FIREBASE_ONCOGENICITY.LIKELY,
+          mutationEffect: 'effect',
+          TTS: 1,
+          DxS: 1,
+          PxS: 2,
+          txLevels: {
+            [TX_LEVELS.LEVEL_2]: 2,
+          },
+          dxLevels: {
+            [DX_LEVELS.LEVEL_DX1]: 1,
+            [DX_LEVELS.LEVEL_DX2]: 1,
+          },
+          pxLevels: {
+            [PX_LEVELS.LEVEL_PX1]: 1,
+          },
+        };
+
+        expect(JSON.stringify(getMutationStats(mutation), null, 4)).toBe(JSON.stringify(expected, null, 4));
+      });
+    });
+
+    describe('getCancerTypeStats', () => {
+      it('should get the cancer type stats', () => {
+        const expected = {
+          TT: 0,
+          TTS: 0,
+          DxS: 0,
+          PxS: 1,
+          txLevels: {
+            [TX_LEVELS.LEVEL_2]: 1,
+          },
+          dxLevels: {
+            [DX_LEVELS.LEVEL_DX2]: 1,
+          },
+          pxLevels: {
+            [PX_LEVELS.LEVEL_PX1]: 1,
+          },
+        };
+
+        expect(JSON.stringify(getCancerTypeStats(tumor2), null, 4)).toEqual(JSON.stringify(expected, null, 4));
+      });
     });
   });
 });

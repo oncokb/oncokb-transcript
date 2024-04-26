@@ -1,4 +1,4 @@
-import { APP_EXPANDED_DATETIME_FORMAT, UUID_REGEX } from 'app/config/constants/constants';
+import { APP_EXPANDED_DATETIME_FORMAT } from 'app/config/constants/constants';
 import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
@@ -27,30 +27,6 @@ import { replaceUrlParams } from '../url-utils';
 import { extractPositionFromSingleNucleotideAlteration, isUuid, parseAlterationName } from '../utils';
 import { isTxLevelPresent } from './firebase-level-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
-
-/* Convert a nested object into an object where the key is the path to the object.
-  Example:
-    {type: {ocg: 'Oncogene}, name: 'ABL1' }
-    is converted to
-    {'type/ocg': 'Oncogene', 'name': 'ABL1'}
-*/
-export const convertNestedObject = (obj: any, key = '', result = {}) => {
-  if (obj === null) {
-    return;
-  }
-  if (typeof obj !== 'object') {
-    result[key] = obj;
-    return result;
-  }
-  const keys = Object.keys(obj);
-
-  for (let i = 0; i < keys.length; i++) {
-    const newKey = key ? key + '/' + keys[i] : keys[i];
-    convertNestedObject(obj[keys[i]], newKey, result);
-  }
-
-  return result;
-};
 
 export const getValueByNestedKey = (obj: any, nestedKey = '') => {
   return nestedKey.split('/').reduce((currObj, currKey) => {
@@ -465,19 +441,18 @@ export function compareMutationsByOncogenicity(mut1: Mutation, mut2: Mutation) {
     return -1;
   }
 
-  return compareFirebaseOncogenicities(
-    mut1.mutation_effect.oncogenic as FIREBASE_ONCOGENICITY,
-    mut2.mutation_effect.oncogenic as FIREBASE_ONCOGENICITY
-  );
+  return compareFirebaseOncogenicities(mut1Oncogenicity, mut2Oncogenicity);
 }
 
 export function compareMutationsBySingleAlteration(mut1: Mutation, mut2: Mutation) {
-  const mut1Alterations = mut1.name.split(',');
-  const mut2Alterations = mut2.name.split(',');
+  const mut1AlterationLength = mut1.name.split(',').length;
+  const mut2AlterationLength = mut2.name.split(',').length;
 
-  if (mut1Alterations.length === 1 && mut2Alterations.length === 1) {
+  if (mut1AlterationLength === 1 && mut2AlterationLength === 1) {
     return 0;
-  } else if (mut1Alterations.length > 1) {
+  } else if (mut1AlterationLength > 1 && mut2AlterationLength > 1) {
+    return 0;
+  } else if (mut1AlterationLength > 1) {
     return 1;
   } else {
     return -1;
@@ -496,7 +471,15 @@ export function compareMutationsByProteinChangePosition(mut1: Mutation, mut2: Mu
     return -1;
   }
 
-  return Number(mut1Position) - Number(mut2Position);
+  const mut1PosInt = Number(mut1Position);
+  const mut2PosInt = Number(mut2Position);
+
+  if (mut1PosInt < mut2PosInt) {
+    return -1;
+  } else if (mut1PosInt > mut2PosInt) {
+    return 1;
+  }
+  return 0;
 }
 
 export function compareMutationsByCategoricalAlteration(mut1: Mutation, mut2: Mutation) {
@@ -701,9 +684,9 @@ export const getMutationStats = (mutation?: Mutation) => {
       }
       if (tumor?.prognostic?.level) {
         if (!stats.dxLevels[tumor.prognostic.level]) {
-          stats.dxLevels[tumor.prognostic.level] = 1;
+          stats.pxLevels[tumor.prognostic.level] = 1;
         } else {
-          stats.dxLevels[tumor.prognostic.level]++;
+          stats.pxLevels[tumor.prognostic.level]++;
         }
       }
     });
@@ -734,10 +717,12 @@ export const getCancerTypeStats = (tumor?: Tumor) => {
   tumor.TIs.forEach(ti => {
     if (ti.treatments) {
       ti.treatments.forEach(treatment => {
-        if (!stats.txLevels[treatment.level]) {
-          stats.txLevels[treatment.level] = 1;
-        } else {
-          stats.txLevels[treatment.level]++;
+        if (isTxLevelPresent(treatment.level)) {
+          if (!stats.txLevels[treatment.level]) {
+            stats.txLevels[treatment.level] = 1;
+          } else {
+            stats.txLevels[treatment.level]++;
+          }
         }
       });
     }
@@ -751,9 +736,9 @@ export const getCancerTypeStats = (tumor?: Tumor) => {
   }
   if (tumor?.prognostic?.level) {
     if (!stats.dxLevels[tumor.prognostic.level]) {
-      stats.dxLevels[tumor.prognostic.level] = 1;
+      stats.pxLevels[tumor.prognostic.level] = 1;
     } else {
-      stats.dxLevels[tumor.prognostic.level]++;
+      stats.pxLevels[tumor.prognostic.level]++;
     }
   }
   return stats;
@@ -769,7 +754,7 @@ export const getTreatmentStats = (treatment?: Treatment) => {
     dxLevels: {} as { [dxLevel in DX_LEVELS]: number },
     pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
   };
-  if (treatment.level) {
+  if (isTxLevelPresent(treatment.level)) {
     stats.txLevels[treatment.level] = 1;
   }
   return stats;
