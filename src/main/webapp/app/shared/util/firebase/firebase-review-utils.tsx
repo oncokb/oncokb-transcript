@@ -399,7 +399,7 @@ export const buildNameReview = (
 
   const valuePathParts = [currValuePath, nameKey];
   const valuePath = valuePathParts.join('/');
-  let title = readableName;
+  const title = readableName;
 
   const metaReview = new MetaReviewLevel({
     title,
