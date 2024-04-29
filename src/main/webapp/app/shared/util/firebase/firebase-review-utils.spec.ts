@@ -50,7 +50,7 @@ describe('Firebase Review Utils', () => {
       [{ updatedBy: 'User', updateTime: 1, demotedToVus: true }, 'mutations/0/name_review', ReviewAction.DEMOTE_MUTATION],
       [{ updatedBy: 'User', updateTime: 1, removed: true }, 'mutations/0/name_review', ReviewAction.DELETE],
       [{ updatedBy: 'User', updateTime: 1, lastReviewed: 'old' }, 'mutations/0/description_review', ReviewAction.UPDATE],
-    ])('should return correct review action', (review, path, expected) => {
+    ])('should return %i when review = %o, path = %s', (review, path, expected) => {
       const result = getReviewAction(review, path);
       expect(result).toStrictEqual(expected);
     });

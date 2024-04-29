@@ -218,9 +218,9 @@ export class Mutation {
   tumors_uuid: string = generateUuid();
 
   // Germline
-  penetrance = new MutationSpecificPenetrance();
-  inheritance_mechanism = new MutationSpecificInheritanceMechanism();
-  cancer_risk = new CancerRisk();
+  mutation_specific_penetrance = new MutationSpecificPenetrance();
+  mutation_specific_inheritance_mechanism = new MutationSpecificInheritanceMechanism();
+  mutation_specific_cancer_risk = new CancerRisk();
 
   constructor(name: string) {
     this.name = name;

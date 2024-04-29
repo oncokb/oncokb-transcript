@@ -334,7 +334,7 @@ const MutationCollapsible = ({
               collapsibleClassName="mt-2"
               title={'Mutation Specific Penetrance'}
               colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.PENETRANCE]] }}
-              badge={<BadgeGroup firebasePath={`${mutationPath}/penetrance`} />}
+              badge={<BadgeGroup firebasePath={`${mutationPath}/mutation_specific_penetrance`} />}
             >
               <>
                 <RealtimeCheckedInputGroup
@@ -354,11 +354,11 @@ const MutationCollapsible = ({
                   isRadio
                   options={[...PENETRANCE_OPTIONS, RADIO_OPTION_NONE].map(label => ({
                     label,
-                    firebasePath: `${mutationPath}/penetrance/penetrance`,
+                    firebasePath: `${mutationPath}/mutation_specific_penetrance/penetrance`,
                   }))}
                 />
                 <RealtimeTextAreaInput
-                  firebasePath={`${mutationPath}/penetrance/description`}
+                  firebasePath={`${mutationPath}/mutation_specific_penetrance/description`}
                   inputClass={styles.textarea}
                   label="Description of Penetrance"
                   labelIcon={
@@ -378,7 +378,7 @@ const MutationCollapsible = ({
               collapsibleClassName="mt-2"
               title={'Mutation Specific Mechanism of Inheritance'}
               colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.INHERITANCE_MECHANISM]] }}
-              badge={<BadgeGroup firebasePath={`${mutationPath}/inheritance_mechanism`} />}
+              badge={<BadgeGroup firebasePath={`${mutationPath}/mutation_specific_inheritance_mechanism`} />}
             >
               <>
                 <RealtimeCheckedInputGroup
@@ -398,11 +398,11 @@ const MutationCollapsible = ({
                   isRadio
                   options={[...INHERITANCE_MECHANISM_OPTIONS, RADIO_OPTION_NONE].map(label => ({
                     label,
-                    firebasePath: `${mutationPath}/inheritance_mechanism/inheritanceMechanism`,
+                    firebasePath: `${mutationPath}/mutation_specific_inheritance_mechanism/inheritanceMechanism`,
                   }))}
                 />
                 <RealtimeTextAreaInput
-                  firebasePath={`${mutationPath}/inheritance_mechanism/description`}
+                  firebasePath={`${mutationPath}/mutation_specific_inheritance_mechanism/description`}
                   inputClass={styles.textarea}
                   label="Description of Inheritance Mechanism"
                   labelIcon={
@@ -422,9 +422,9 @@ const MutationCollapsible = ({
               collapsibleClassName="mt-2"
               title={'Mutation Specific Cancer Risk'}
               colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.CANCER_RISK]] }}
-              badge={<BadgeGroup firebasePath={`${mutationPath}/cancer_risk`} />}
+              badge={<BadgeGroup firebasePath={`${mutationPath}/mutation_specific_cancer_risk`} />}
             >
-              <CancerRiskTabs cancerRiskPath={`${mutationPath}/cancer_risk`} textAreaClass={styles.textarea} />
+              <CancerRiskTabs cancerRiskPath={`${mutationPath}/mutation_specific_cancer_risk`} textAreaClass={styles.textarea} />
             </Collapsible>
           </>
         )}

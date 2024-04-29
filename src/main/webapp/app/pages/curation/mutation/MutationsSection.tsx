@@ -53,7 +53,7 @@ function MutationsSection({
       snapshot => {
         annotatedAltsCache.fetch(
           hugoSymbol,
-          snapshot.val().map((mut: Mutation) => {
+          (snapshot.val() || []).map((mut: Mutation) => {
             return {
               name: mut.name,
               alterations: mut.alterations,

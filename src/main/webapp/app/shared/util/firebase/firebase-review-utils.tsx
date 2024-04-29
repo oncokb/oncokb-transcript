@@ -1,6 +1,7 @@
 import {
   CancerType,
   Gene,
+  GenomicIndicator,
   HistoryRecordState,
   Implication,
   Mutation,
@@ -12,11 +13,12 @@ import {
 import _, { bind } from 'lodash';
 import { getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
 import { getTxName } from './firebase-utils';
-import { ReviewAction } from 'app/config/constants/firebase';
+import { READABLE_FIELD, ReviewAction } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import { DiffMethod } from 'react-diff-viewer-continued';
 import React from 'react';
 import { makeFirebaseKeysReadable } from './firebase-history-utils';
+import drug from 'app/entities/drug/drug';
 
 export enum ReviewLevelType {
   META, // This means that the review level is used for grouping purposes
@@ -101,10 +103,8 @@ export class ReviewLevel extends BaseReviewLevel {
   constructor({ currentVal, reviewInfo, historyData, ...baseReviewLevelParams }: ReviewLevelParams) {
     super({ ...baseReviewLevelParams, reviewLevelType: ReviewLevelType.REVIEWABLE });
     this.currentVal = currentVal;
-    if (!reviewInfo.reviewAction) {
-      reviewInfo.reviewAction = getReviewAction(reviewInfo.review, reviewInfo.reviewPath);
-    }
     this.reviewInfo = reviewInfo;
+    this.reviewInfo.reviewAction = getReviewAction(reviewInfo.review, reviewInfo.reviewPath);
     this.historyData = historyData;
   }
 }
@@ -201,8 +201,8 @@ export const reformatReviewTitle = (baseReviewLevel: BaseReviewLevel) => {
 };
 
 export const reviewLevelSortMethod = (a: BaseReviewLevel, b: BaseReviewLevel) => {
-  const aReviewAction = (a as ReviewLevel).reviewInfo?.reviewAction;
-  const bReviewAction = (b as ReviewLevel).reviewInfo?.reviewAction;
+  const aReviewAction = a.reviewLevelType === ReviewLevelType.META ? undefined : (a as ReviewLevel).reviewInfo.reviewAction;
+  const bReviewAction = b.reviewLevelType === ReviewLevelType.META ? undefined : (b as ReviewLevel).reviewInfo.reviewAction;
 
   const reviewActionPriority = [ReviewAction.NAME_CHANGE, ReviewAction.UPDATE, undefined, ReviewAction.CREATE, ReviewAction.DELETE];
   const aIndex = reviewActionPriority.indexOf(aReviewAction);
@@ -307,6 +307,18 @@ export const findReviewRecursive = (
     for (const [key, value] of Object.entries(currObj)) {
       if (isIgnoredKey(key)) continue;
 
+      if (key === 'genomic_indicators') {
+        const genomicIndicators = value as GenomicIndicator[];
+        genomicIndicators.forEach((gi, index) => {
+          const giPath = joinPathParts(currValuePath, 'genomic_indicators', index.toString());
+          const nameReview = buildNameReview(gi, giPath, parentReview, uuids, editorReviewMap);
+          parentReview.addChild(nameReview);
+          findReviewRecursive(gi, giPath, uuids, nameReview, editorReviewMap, drugList);
+        });
+        removeLeafNodes(parentReview);
+        continue;
+      }
+
       if (key === 'mutations') {
         const mutations = value as Mutation[];
         mutations.forEach((mutation, index) => {
@@ -371,7 +383,7 @@ export const findReviewRecursive = (
 };
 
 export const buildNameReview = (
-  creatableObject: Mutation | Treatment,
+  creatableObject: Mutation | Treatment | GenomicIndicator,
   currValuePath: string,
   parentReview: BaseReviewLevel,
   uuids: string[],
@@ -387,7 +399,7 @@ export const buildNameReview = (
 
   const valuePathParts = [currValuePath, nameKey];
   const valuePath = valuePathParts.join('/');
-  const title = readableName;
+  let title = readableName;
 
   const metaReview = new MetaReviewLevel({
     title,

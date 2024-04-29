@@ -1004,7 +1004,7 @@ function AddMutationModal({
         newMutation.alterations = newAlterations;
 
         setErrorMessagesEnabled(false);
-        await onConfirm(newMutation, mutationList.length);
+        await onConfirm(newMutation, mutationList?.length || 0);
         setErrorMessagesEnabled(true);
       }}
       errorMessages={modalErrorMessage && errorMessagesEnabled ? [modalErrorMessage] : null}
