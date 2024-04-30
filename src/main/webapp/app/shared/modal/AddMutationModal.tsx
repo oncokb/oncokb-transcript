@@ -75,6 +75,7 @@ function AddMutationModal({
     AlterationTypeEnum.CopyNumberAlteration,
     AlterationTypeEnum.StructuralVariant,
     AlterationTypeEnum.CdnaChange,
+    AlterationTypeEnum.GenomicChange,
     AlterationTypeEnum.Any,
   ].map(type => ({ label: READABLE_ALTERATION[type], value: type }));
   const consequenceOptions: DropdownOption[] = consequences.map(consequence => ({ label: consequence.name, value: consequence.id }));
@@ -626,6 +627,8 @@ function AddMutationModal({
         content = getProteinChangeContent(alterationData, alterationIndex, excludingIndex);
         break;
       case AlterationTypeEnum.CopyNumberAlteration:
+      case AlterationTypeEnum.CdnaChange:
+      case AlterationTypeEnum.GenomicChange:
         content = getCopyNumberAlterationContent(alterationData, alterationIndex, excludingIndex);
         break;
       case AlterationTypeEnum.StructuralVariant:
