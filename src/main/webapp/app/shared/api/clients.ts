@@ -11,6 +11,7 @@ import {
   CancerTypeResourceApi,
   ArticleResourceApi,
 } from './generated/curation/api';
+import { EvidenceApi } from './manual/evidence-api';
 
 export const fdaSubmissionClient = new FdaSubmissionResourceApi(null, '', axiosInstance);
 export const geneClient = new GeneResourceApi(null, '', axiosInstance);
@@ -22,3 +23,5 @@ export const flagClient = new FlagResourceApi(null, '', axiosInstance);
 export const associationClient = new AssociationResourceApi(null, '', axiosInstance);
 export const cancerTypeClient = new CancerTypeResourceApi(null, '', axiosInstance);
 export const articleClient = new ArticleResourceApi(null, '', axiosInstance);
+
+export const evidenceClient = new EvidenceApi(null, '', axiosInstance);

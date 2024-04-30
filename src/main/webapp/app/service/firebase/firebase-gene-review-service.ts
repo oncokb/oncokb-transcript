@@ -4,7 +4,7 @@ import { FirebaseMetaService } from 'app/service/firebase/firebase-meta-service'
 import { AuthStore } from 'app/stores';
 import { FirebaseRepository } from 'app/stores/firebase/firebase-repository';
 import _ from 'lodash';
-import { Review } from '../../shared/model/firebase/firebase.model';
+import { DrugCollection, Gene, Review } from '../../shared/model/firebase/firebase.model';
 import { buildHistoryFromReviews } from '../../shared/util/firebase/firebase-history-utils';
 import { extractArrayPath, parseFirebaseGenePath } from '../../shared/util/firebase/firebase-path-utils';
 import {
@@ -23,6 +23,8 @@ import { FirebaseVusService } from './firebase-vus-service';
 import { SentryError } from 'app/config/sentry-error';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
 import { GERMLINE_PATH } from 'app/config/constants/constants';
+import { getEvidence, pathToGetEvidenceArgs } from 'app/shared/util/core-submission/core-submission';
+import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
 
 export class FirebaseGeneReviewService {
   firebaseRepository: FirebaseRepository;
@@ -30,6 +32,7 @@ export class FirebaseGeneReviewService {
   firebaseMetaService: FirebaseMetaService;
   firebaseHistoryService: FirebaseHistoryService;
   firebaseVusService: FirebaseVusService;
+  evidenceClient: EvidenceApi;
 
   constructor(
     firebaseRepository: FirebaseRepository,
@@ -37,12 +40,14 @@ export class FirebaseGeneReviewService {
     firebaseMetaService: FirebaseMetaService,
     firebaseHistoryService: FirebaseHistoryService,
     firebaseVusService: FirebaseVusService,
+    evidenceClient: EvidenceApi,
   ) {
     this.firebaseRepository = firebaseRepository;
     this.authStore = authStore;
     this.firebaseMetaService = firebaseMetaService;
     this.firebaseHistoryService = firebaseHistoryService;
     this.firebaseVusService = firebaseVusService;
+    this.evidenceClient = evidenceClient;
   }
 
   updateReviewableContent = async (
@@ -84,9 +89,61 @@ export class FirebaseGeneReviewService {
     }
   };
 
-  acceptChanges = async (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean, isAcceptAll = false) => {
+  acceptChanges = async ({
+    gene,
+    hugoSymbol,
+    reviewLevels,
+    isGermline,
+    isAcceptAll = false,
+    drugListRef,
+    entrezGeneId,
+  }: {
+    gene: Gene;
+    hugoSymbol: string;
+    reviewLevels: ReviewLevel[];
+    isGermline: boolean;
+    isAcceptAll?: boolean;
+    drugListRef: DrugCollection;
+    entrezGeneId: number;
+  }) => {
     const geneFirebasePath = getFirebaseGenePath(isGermline, hugoSymbol);
     const vusFirebasePath = getFirebaseVusPath(isGermline, hugoSymbol);
+
+    let evidences: ReturnType<typeof getEvidence> = {};
+    let hasEvidences = false;
+    try {
+      for (const reviewLevel of reviewLevels) {
+        if (!(isCreateReview(reviewLevel) && isAcceptAll)) {
+          const args = pathToGetEvidenceArgs({
+            gene,
+            valuePath: reviewLevel.valuePath,
+            updateTime: new Date().getTime(),
+            drugListRef,
+            entrezGeneId,
+          });
+          if (args) {
+            evidences = {
+              ...getEvidence(args),
+            };
+            hasEvidences = true;
+          }
+        }
+      }
+    } catch (error) {
+      throw new SentryError('Failed to create evidences when accepting changes in review mode', { hugoSymbol, reviewLevels, isGermline });
+    }
+
+    try {
+      if (hasEvidences) {
+        await this.evidenceClient.submitEvidences(evidences);
+      }
+    } catch (error) {
+      throw new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
+        hugoSymbol,
+        reviewLevels,
+        isGermline,
+      });
+    }
 
     const reviewHistory = buildHistoryFromReviews(this.authStore.fullName, reviewLevels);
     try {

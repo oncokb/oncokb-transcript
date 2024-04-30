@@ -11,6 +11,8 @@ import { ReviewLevel } from 'app/shared/util/firebase/firebase-review-utils';
 import { ReviewAction } from 'app/config/constants/firebase';
 import _ from 'lodash';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
+import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
+import { createMockGene, createMockMutation } from 'app/shared/util/core-submission/core-submission.mocks';
 
 describe('Firebase Gene Review Service', () => {
   const DEFAULT_USERNAME = 'Test User';
@@ -20,6 +22,7 @@ describe('Firebase Gene Review Service', () => {
   const mockMetaService = mock<FirebaseMetaService>();
   const mockHistoryService = mock<FirebaseHistoryService>();
   const mockVusService = mock<FirebaseVusService>();
+  const mockEvidenceClient = mock<EvidenceApi>();
   let firebaseGeneReviewService: FirebaseGeneReviewService;
 
   beforeEach(() => {
@@ -34,6 +37,7 @@ describe('Firebase Gene Review Service', () => {
       mockMetaService,
       mockHistoryService,
       mockVusService,
+      mockEvidenceClient,
     );
     jest.useFakeTimers().setSystemTime(DEFAULT_DATE);
   });
@@ -117,7 +121,14 @@ describe('Firebase Gene Review Service', () => {
         },
       });
 
-      await firebaseGeneReviewService.acceptChanges(hugoSymbol, [reviewLevel], false);
+      await firebaseGeneReviewService.acceptChanges({
+        hugoSymbol,
+        reviewLevels: [reviewLevel],
+        isGermline: false,
+        gene,
+        drugListRef: {},
+        entrezGeneId: 0,
+      });
 
       expect(mockHistoryService.addHistory).toHaveBeenCalled();
       // We expect the lastReviewed to be cleared when accepting changes
@@ -154,7 +165,17 @@ describe('Firebase Gene Review Service', () => {
         },
       });
 
-      await firebaseGeneReviewService.acceptChanges(hugoSymbol, [reviewLevel], false);
+      await firebaseGeneReviewService.acceptChanges({
+        hugoSymbol,
+        reviewLevels: [reviewLevel],
+        isGermline: false,
+        gene: createMockGene({
+          name: hugoSymbol,
+          mutations: [createMockMutation()],
+        }),
+        drugListRef: {},
+        entrezGeneId: 0,
+      });
 
       expect(mockHistoryService.addHistory).toHaveBeenCalled();
       expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [0]);
@@ -186,7 +207,17 @@ describe('Firebase Gene Review Service', () => {
         },
       });
 
-      await firebaseGeneReviewService.acceptChanges(hugoSymbol, [reviewLevel], false);
+      await firebaseGeneReviewService.acceptChanges({
+        hugoSymbol,
+        reviewLevels: [reviewLevel],
+        isGermline: false,
+        gene: createMockGene({
+          name: hugoSymbol,
+          mutations: [createMockMutation()],
+        }),
+        drugListRef: {},
+        entrezGeneId: 0,
+      });
 
       expect(mockHistoryService.addHistory).toHaveBeenCalled();
       expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [0]);
@@ -218,8 +249,18 @@ describe('Firebase Gene Review Service', () => {
         },
       });
 
-      // An entity is created once all its changes have been accepted or rejected.
       await firebaseGeneReviewService.handleCreateAction(hugoSymbol, reviewLevel, false, ActionType.ACCEPT);
+      await firebaseGeneReviewService.acceptChanges({
+        hugoSymbol,
+        reviewLevels: [reviewLevel],
+        isGermline: false,
+        gene: createMockGene({
+          name: hugoSymbol,
+          mutations: [createMockMutation()],
+        }),
+        drugListRef: {},
+        entrezGeneId: 0,
+      });
 
       const expectedMutation = _.cloneDeep(mutation);
       delete expectedMutation.name_review.added;

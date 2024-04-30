@@ -12,7 +12,7 @@ import { getSectionClassName } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
 import { get, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Col, FormGroup, Input, Label, Row } from 'reactstrap';
 import { RouteComponentProps } from 'react-router-dom';
 import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
@@ -23,8 +23,12 @@ import _ from 'lodash';
 import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
+import { DrugCollection, Gene, MetaReview } from 'app/shared/model/firebase/firebase.model';
+import { IGene } from 'app/shared/model/gene.model';
 
-interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
+interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {
+  geneEntity: IGene;
+}
 
 const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPageProps) => {
   const pathname = props.location.pathname;
@@ -36,8 +40,8 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
   const firebaseMetaReviewPath = `${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review`;
 
-  const [geneData, setGeneData] = useState(null);
-  const [metaReview, setMetaReview] = useState(null);
+  const [geneData, setGeneData] = useState<Gene | null>(null);
+  const [metaReview, setMetaReview] = useState<MetaReview | null>(null);
 
   const [isReviewFinished, setIsReviewFinished] = useState(false);
 
@@ -46,6 +50,11 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   const [editorReviewMap, setEditorReviewMap] = useState(new EditorReviewMap());
   const [editorsToAcceptChangesFrom, setEditorsToAcceptChangesFrom] = useState<string[]>([]);
   const [isAcceptingAll, setIsAcceptingAll] = useState(false);
+
+  const drugListRef: DrugCollection = useMemo(() => {
+    const group = _.mapValues(_.groupBy(props.drugList, 'uuid'), x => x[0]);
+    return group as DrugCollection;
+  }, [props.drugList]);
 
   const fetchFirebaseData = () => {
     // Fetch the data when the user enters review mode. We don't use a listener
@@ -99,7 +108,15 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     }
     try {
       setIsAcceptingAll(true);
-      await props.acceptReviewChangeHandler(hugoSymbol, reviewLevels, isGermline, true);
+      await props.acceptReviewChangeHandler({
+        hugoSymbol,
+        reviewLevels,
+        isGermline,
+        isAcceptAll: true,
+        gene: geneData,
+        entrezGeneId: props.geneEntity.entrezGeneId,
+        drugListRef,
+      });
       fetchFirebaseData();
     } catch (error) {
       notifyError(error);
@@ -180,6 +197,9 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
         <Row>
           <Col>
             <ReviewCollapsible
+              gene={geneData}
+              entrezGeneId={geneEntity.entrezGeneId}
+              drugListRef={drugListRef}
               hugoSymbol={hugoSymbol}
               isGermline={isGermline}
               baseReviewLevel={rootReview}

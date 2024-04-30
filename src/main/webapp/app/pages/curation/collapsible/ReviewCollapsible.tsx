@@ -22,6 +22,8 @@ import { CollapsibleColorProps, CollapsibleDisplayProps } from './BaseCollapsibl
 import { getReviewInfo } from 'app/shared/util/firebase/firebase-utils';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import DiffViewer, { FirebaseContent } from 'app/components/diff-viewer/DiffViewer';
+import { FirebaseGeneReviewService } from 'app/service/firebase/firebase-gene-review-service';
+import { DrugCollection, Gene } from 'app/shared/model/firebase/firebase.model';
 
 export enum ReviewType {
   CREATE,
@@ -62,13 +64,16 @@ const ReviewCollapsibleBootstrapClass = {
 };
 
 export interface IReviewCollapsibleProps {
+  drugListRef: DrugCollection;
+  entrezGeneId: number;
+  gene: Gene;
   hugoSymbol: string;
   baseReviewLevel: BaseReviewLevel;
   isGermline: boolean;
   firebase: FirebaseContent;
   parentDelete?: (reviewlLevelId: string, action: ActionType, isPending?: boolean) => void;
   rootDelete?: (isPending?: boolean) => void;
-  handleAccept: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean, isAcceptAll?: boolean) => Promise<void>;
+  handleAccept: FirebaseGeneReviewService['acceptChanges'];
   handleReject: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) => Promise<void>;
   handleCreateAction: (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean, action: ActionType) => Promise<void>;
   disableActions?: boolean;
@@ -87,6 +92,9 @@ export const ReviewCollapsible = ({
   firebase,
   disableActions = false,
   isRoot = false,
+  drugListRef,
+  entrezGeneId,
+  gene,
 }: IReviewCollapsibleProps) => {
   const [rootReview, setRootReview] = useState<BaseReviewLevel>(baseReviewLevel);
   const [reviewChildren, setReviewChildren] = useState<BaseReviewLevel[]>([]);
@@ -193,7 +201,7 @@ export const ReviewCollapsible = ({
     // After marking collapsible as pending, it will be removed from the view. Now we need to save to firebase
     try {
       if (action === ActionType.ACCEPT) {
-        await handleAccept(hugoSymbol, getReviewLevelsForActions(), isGermline);
+        await handleAccept({ hugoSymbol, reviewLevels: getReviewLevelsForActions(), isGermline, drugListRef, entrezGeneId, gene });
       } else if (action === ActionType.REJECT) {
         await handleReject(hugoSymbol, getReviewLevelsForActions(), isGermline);
       }
@@ -363,6 +371,9 @@ export const ReviewCollapsible = ({
             handleCreateAction={handleCreateAction}
             parentDelete={deleteHandlerForChild}
             disableActions={disableActions}
+            gene={gene}
+            entrezGeneId={entrezGeneId}
+            drugListRef={drugListRef}
             firebase={{
               path: getGenePathFromValuePath(hugoSymbol, childReview.valuePath, isGermline),
               db: firebase?.db,
