@@ -96,12 +96,15 @@ export class FirebaseGeneReviewService {
 
     return this.firebaseHistoryService.addHistory(hugoSymbol, reviewHistory, isGermline).then(() => {
       for (const reviewLevel of reviewLevels) {
-        const uuid = reviewLevel.uuid;
-        const reviewPath = reviewLevel.reviewPath;
-        const reviewObject = reviewLevel.review;
+        const uuid = reviewLevel.reviewInfo.uuid;
+        const reviewPath = reviewLevel.reviewInfo.reviewPath;
+        const reviewObject = reviewLevel.reviewInfo.review;
 
-        if (reviewLevel.reviewAction === ReviewAction.UPDATE || reviewLevel.reviewAction === ReviewAction.NAME_CHANGE) {
-          if (reviewLevel.isUnderCreationOrDeletion) {
+        if (
+          reviewLevel.reviewInfo.reviewAction === ReviewAction.UPDATE ||
+          reviewLevel.reviewInfo.reviewAction === ReviewAction.NAME_CHANGE
+        ) {
+          if (reviewLevel.nestedUnderCreateOrDelete) {
             continue;
           }
           delete reviewObject.initialUpdate;
@@ -111,8 +114,11 @@ export class FirebaseGeneReviewService {
           });
         }
 
-        if (reviewLevel.reviewAction === ReviewAction.DELETE || reviewLevel.reviewAction === ReviewAction.DEMOTE_MUTATION) {
-          const pathParts = reviewLevel.currentValPath.split('/');
+        if (
+          reviewLevel.reviewInfo.reviewAction === ReviewAction.DELETE ||
+          reviewLevel.reviewInfo.reviewAction === ReviewAction.DEMOTE_MUTATION
+        ) {
+          const pathParts = reviewLevel.valuePath.split('/');
           pathParts.pop(); // Remove key
           const deleteIndex = parseInt(pathParts.pop(), 10); // Remove index
           const firebasePath = geneFirebasePath + '/' + pathParts.join('/');
@@ -129,11 +135,14 @@ export class FirebaseGeneReviewService {
           });
         }
 
-        if (reviewLevel.reviewAction === ReviewAction.CREATE || reviewLevel.reviewAction === ReviewAction.PROMOTE_VUS) {
-          const pathParts = reviewLevel.currentValPath.split('/');
+        if (
+          reviewLevel.reviewInfo.reviewAction === ReviewAction.CREATE ||
+          reviewLevel.reviewInfo.reviewAction === ReviewAction.PROMOTE_VUS
+        ) {
+          const pathParts = reviewLevel.valuePath.split('/');
           pathParts.pop(); // Remove name or cancerTypes
-          clearAllNestedReviews(reviewLevel.newState);
-          this.firebaseRepository.update(geneFirebasePath, { [pathParts.join('/')]: reviewLevel.newState }).then(() => {
+          clearAllNestedReviews(reviewLevel.historyData.newState);
+          this.firebaseRepository.update(geneFirebasePath, { [pathParts.join('/')]: reviewLevel.historyData.newState }).then(() => {
             // Delete all uuids from meta collection
             this.deleteAllNestedUuids(hugoSymbol, reviewLevel, isGermline);
           });
@@ -145,17 +154,15 @@ export class FirebaseGeneReviewService {
   rejectChanges = async (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean) => {
     const geneFirebasePath = getFirebaseGenePath(isGermline, hugoSymbol);
     const vusFirebasePath = getFirebaseVusPath(isGermline, hugoSymbol);
-    const uuid = reviewLevel.uuid;
-    const fieldPath = reviewLevel.currentValPath;
-    const reviewPath = reviewLevel.reviewPath;
-    const reviewObject = reviewLevel.review;
-
+    const fieldPath = reviewLevel.valuePath;
+    const reviewPath = reviewLevel.reviewInfo.reviewPath;
+    const reviewObject = reviewLevel.reviewInfo.review;
+    const uuid = reviewLevel.reviewInfo.uuid;
     const updateMetaCallback = () => {
       this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, isGermline);
       this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, false, isGermline);
     };
-
-    if (reviewLevel.reviewAction === ReviewAction.UPDATE || reviewLevel.reviewAction === ReviewAction.NAME_CHANGE) {
+    if (reviewLevel.reviewInfo.reviewAction === ReviewAction.UPDATE || reviewLevel.reviewInfo.reviewAction === ReviewAction.NAME_CHANGE) {
       const resetReview = new Review(this.authStore.fullName);
       return this.firebaseRepository
         .update(getFirebaseGenePath(isGermline, hugoSymbol), {
@@ -166,15 +173,17 @@ export class FirebaseGeneReviewService {
           updateMetaCallback();
         });
     }
-
     reviewObject.updateTime = new Date().getTime();
     reviewObject.updatedBy = this.authStore.fullName;
-    if (reviewLevel.reviewAction === ReviewAction.DELETE || reviewLevel.reviewAction === ReviewAction.DEMOTE_MUTATION) {
+    if (
+      reviewLevel.reviewInfo.reviewAction === ReviewAction.DELETE ||
+      reviewLevel.reviewInfo.reviewAction === ReviewAction.DEMOTE_MUTATION
+    ) {
       delete reviewObject.removed;
       delete reviewObject.demotedToVus;
     }
-    if (reviewLevel.reviewAction === ReviewAction.CREATE || reviewLevel.reviewAction === ReviewAction.PROMOTE_VUS) {
-      const pathParts = reviewLevel.currentValPath.split('/');
+    if (reviewLevel.reviewInfo.reviewAction === ReviewAction.CREATE || reviewLevel.reviewInfo.reviewAction === ReviewAction.PROMOTE_VUS) {
+      const pathParts = reviewLevel.valuePath.split('/');
       pathParts.pop(); // Remove key
       const deleteIndex = parseInt(pathParts.pop(), 10); // Remove index
       const firebasePath = geneFirebasePath + '/' + pathParts.join('/');

@@ -12,7 +12,7 @@ import {
   BaseReviewLevel,
   EditorReviewMap,
   ReviewLevel,
-  findGeneLevelReviews,
+  findReviews,
   getCompactReviewInfo,
   reviewLevelSortMethod,
 } from 'app/shared/util/firebase/firebase-review-utils';
@@ -34,7 +34,7 @@ const ReviewPage = (props: IReviewPageProps) => {
   const [metaReview, setMetaReview] = useState(null);
 
   const [reviewUuids, setReviewUuids] = useState([]);
-  const [rootReview, setRootReview] = useState(new BaseReviewLevel());
+  const [rootReview, setRootReview] = useState<BaseReviewLevel>(undefined);
   const [editorReviewMap, setEditorReviewMap] = useState(new EditorReviewMap());
   const [splitView, setSplitView] = useState(false);
 
@@ -69,7 +69,7 @@ const ReviewPage = (props: IReviewPageProps) => {
   useEffect(() => {
     if (geneData) {
       const reviewMap = new EditorReviewMap();
-      const reviews = findGeneLevelReviews(props.drugList, geneData, reviewUuids, reviewMap);
+      const reviews = findReviews(props.drugList, geneData, reviewUuids, reviewMap);
       Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
       setEditorReviewMap(reviewMap);
       setRootReview(reviews);
@@ -153,23 +153,25 @@ const ReviewPage = (props: IReviewPageProps) => {
         </>
       )}
 
-      <Row>
-        <Col>
-          {Object.values(rootReview.children)
-            .sort(reviewLevelSortMethod)
-            .map(reviewLevel => (
-              <ReviewCollapsible
-                splitView={splitView}
-                hugoSymbol={props.hugoSymbol}
-                isGermline={props.isGermline}
-                key={reviewLevel.currentValPath}
-                baseReviewLevel={reviewLevel}
-                handleAccept={props.acceptReviewChangeHandler}
-                handleDelete={props.rejectReviewChangeHandler}
-              />
-            ))}
-        </Col>
-      </Row>
+      {rootReview ? (
+        <Row>
+          <Col>
+            {Object.values(rootReview.children)
+              .sort(reviewLevelSortMethod)
+              .map(reviewLevel => (
+                <ReviewCollapsible
+                  splitView={splitView}
+                  hugoSymbol={props.hugoSymbol}
+                  isGermline={props.isGermline}
+                  key={reviewLevel.valuePath}
+                  baseReviewLevel={reviewLevel}
+                  handleAccept={props.acceptReviewChangeHandler}
+                  handleDelete={props.rejectReviewChangeHandler}
+                />
+              ))}
+          </Col>
+        </Row>
+      ) : undefined}
     </>
   );
 };

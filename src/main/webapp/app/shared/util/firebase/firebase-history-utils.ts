@@ -6,8 +6,6 @@ import {
   ReviewAction,
   ReviewActionToHistoryOperationMapping,
   ReviewLevelType,
-  TI_TYPE_TO_HISTORY_STRING,
-  TI_TYPE_TO_LEGACY_HISTORY_STRING,
 } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import { History, HistoryCollection, HistoryList, HistoryOperationType, HistoryRecord } from 'app/shared/model/firebase/firebase.model';
@@ -19,22 +17,22 @@ import _ from 'lodash';
 export const buildHistoryFromReviews = (reviewerName: string, reviewLevels: ReviewLevel[]) => {
   const history = new History(reviewerName);
   for (const reviewLevel of reviewLevels) {
-    if (reviewLevel.isUnderCreationOrDeletion) {
+    if (reviewLevel.nestedUnderCreateOrDelete) {
       continue;
     }
-    const historyOperation = ReviewActionToHistoryOperationMapping[reviewLevel.reviewAction];
+    const historyOperation = ReviewActionToHistoryOperationMapping[reviewLevel.reviewInfo.reviewAction];
 
     const historyRecord: HistoryRecord = {
-      lastEditBy: reviewLevel.review.updatedBy,
-      location: reviewLevel.historyLocationString,
+      lastEditBy: reviewLevel.reviewInfo.review.updatedBy,
+      location: reviewLevel.historyLocation,
       operation: historyOperation,
       uuids: getUuidsFromReview(reviewLevel)?.join(','),
     };
-    if (reviewLevel.newState !== undefined) {
-      historyRecord.new = reviewLevel.newState;
+    if (reviewLevel.historyData.newState !== undefined) {
+      historyRecord.new = reviewLevel.historyData.newState;
     }
-    if (reviewLevel.oldState !== undefined) {
-      historyRecord.old = reviewLevel.oldState;
+    if (reviewLevel.historyData.oldState !== undefined) {
+      historyRecord.old = reviewLevel.historyData.oldState;
     }
 
     if (historyOperation === HistoryOperationType.DELETE) {
@@ -52,14 +50,14 @@ export const buildHistoryFromReviews = (reviewerName: string, reviewLevels: Revi
 
 export const getUuidsFromReview = (reviewLevel: ReviewLevel) => {
   const updatedFieldUuids = []; // Only the fields where data change has occurred should have its uuids added
-  switch (reviewLevel.reviewAction) {
+  switch (reviewLevel.reviewInfo.reviewAction) {
     case ReviewAction.CREATE:
       findAllUuidsFromReview(reviewLevel, updatedFieldUuids);
       break;
     case ReviewAction.DELETE:
       return undefined;
     default:
-      updatedFieldUuids.push(reviewLevel.uuid);
+      updatedFieldUuids.push(reviewLevel.reviewInfo.uuid);
   }
   return updatedFieldUuids;
 };
@@ -69,7 +67,7 @@ const findAllUuidsFromReview = (baseReviewLevel: BaseReviewLevel, uuids: string[
     return;
   }
   const reviewLevel = baseReviewLevel as ReviewLevel;
-  uuids.push(reviewLevel.uuid);
+  uuids.push(reviewLevel.reviewInfo.uuid);
   if (!reviewLevel.hasChildren()) {
     return;
   }

@@ -1,26 +1,24 @@
 import {
   CancerType,
   Gene,
-  GeneType,
   GenomicIndicator,
   HistoryRecordState,
   Implication,
   Mutation,
-  MutationEffect,
   Review,
+  TI,
   Treatment,
   Tumor,
 } from 'app/shared/model/firebase/firebase.model';
-import _ from 'lodash';
-import { findIndexOfFirstCapital, getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
+import _, { bind } from 'lodash';
+import { getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
 import { getTxName } from './firebase-utils';
-import { HISTORY_LOCATION_STRINGS, ReviewAction, TI_TYPE_TO_HISTORY_STRING } from 'app/config/constants/firebase';
+import { READABLE_FIELD, ReviewAction } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import { DiffMethod } from 'react-diff-viewer-continued';
 import React from 'react';
-
-const REVIEW_TITLE_PATH_SEP = ' / ';
-const FIREBASE_PATH_SEP = '/';
+import { makeFirebaseKeysReadable } from './firebase-history-utils';
+import drug from 'app/entities/drug/drug';
 
 export enum ReviewLevelType {
   META, // This means that the review level is used for grouping purposes
@@ -31,21 +29,29 @@ export interface ReviewChildren {
   [key: string]: BaseReviewLevel;
 }
 
-export class BaseReviewLevel {
-  isRoot = false;
+export type BaseReviewLevelParams = {
   reviewLevelType: ReviewLevelType;
-  title: string; // The title of the Collapsible
-  currentValPath: string; // ie) mutations/0/mutation_effect/effect
-  children: ReviewChildren;
-  isUnderCreationOrDeletion: boolean;
-  historyLocationString = '';
+  title: string;
+  children?: ReviewChildren;
+  valuePath: string;
+  historyLocation: string;
+  nestedUnderCreateorDelete?: boolean;
+};
+export class BaseReviewLevel {
+  reviewLevelType: ReviewLevelType;
+  title: string;
+  children?: ReviewChildren;
+  valuePath: string;
+  historyLocation: string;
+  nestedUnderCreateOrDelete?: boolean;
 
-  constructor(title = '', currentValPath = '', isUnderCreationOrDeletion = false, historyLocationString = '') {
+  constructor({ reviewLevelType, title, valuePath, historyLocation, nestedUnderCreateorDelete = false }: BaseReviewLevelParams) {
+    this.reviewLevelType = reviewLevelType;
     this.title = title;
-    this.currentValPath = currentValPath;
-    this.isUnderCreationOrDeletion = isUnderCreationOrDeletion;
+    this.valuePath = valuePath;
+    this.historyLocation = historyLocation;
+    this.nestedUnderCreateOrDelete = nestedUnderCreateorDelete;
     this.children = {};
-    this.historyLocationString = historyLocationString;
   }
 
   hasChildren() {
@@ -61,52 +67,45 @@ export class BaseReviewLevel {
   }
 }
 
+export type MetaReviewLevelParams = Omit<BaseReviewLevelParams, 'reviewLevelType'>;
+
 export class MetaReviewLevel extends BaseReviewLevel {
-  constructor(title: string, currentValPath: string) {
-    super(title, currentValPath);
-    this.reviewLevelType = ReviewLevelType.META;
+  constructor(params: MetaReviewLevelParams) {
+    super({ reviewLevelType: ReviewLevelType.META, ...params });
   }
 }
 
-export class ReviewLevel extends BaseReviewLevel {
-  currentVal: any;
+export type ReviewInfo = {
   reviewPath: string;
   review: Review;
   lastReviewedString: string;
-  reviewAction: ReviewAction;
   uuid: string;
-  newState?: HistoryRecordState;
-  oldState?: HistoryRecordState;
-  deleteIndex?: number;
-  diffMethod?: DiffMethod = DiffMethod.CHARS;
+  reviewAction?: ReviewAction;
+  diffMethod?: DiffMethod;
+};
 
-  constructor(
-    title: string,
-    currentValPath: string,
-    currentVal: any,
-    reviewPath: string,
-    review: Review,
-    lastReviewedString: string,
-    uuid: string,
-    newState: HistoryRecordState,
-    oldState: HistoryRecordState,
-    isUnderCreationOrDeletion = false
-  ) {
-    super(title, currentValPath, isUnderCreationOrDeletion);
+export type HistoryData = {
+  oldState?: HistoryRecordState;
+  newState?: HistoryRecordState;
+};
+
+export type ReviewLevelParams = Omit<BaseReviewLevelParams, 'reviewLevelType'> & {
+  currentVal: any;
+  reviewInfo: ReviewInfo;
+  historyData: HistoryData;
+};
+
+export class ReviewLevel extends BaseReviewLevel {
+  currentVal: any;
+  reviewInfo: ReviewInfo;
+  historyData: HistoryData;
+
+  constructor({ currentVal, reviewInfo, historyData, ...baseReviewLevelParams }: ReviewLevelParams) {
+    super({ ...baseReviewLevelParams, reviewLevelType: ReviewLevelType.REVIEWABLE });
     this.currentVal = currentVal;
-    this.reviewPath = reviewPath;
-    this.review = review;
-    this.lastReviewedString = lastReviewedString;
-    this.uuid = uuid;
-    this.reviewLevelType = ReviewLevelType.REVIEWABLE;
-    this.reviewAction = getReviewAction(review, reviewPath);
-    if (newState !== undefined) {
-      this.newState = newState;
-    }
-    if (oldState !== undefined) {
-      this.oldState = oldState;
-    }
-    this.lastReviewedString = lastReviewedString;
+    this.reviewInfo = reviewInfo;
+    this.reviewInfo.reviewAction = getReviewAction(reviewInfo.review, reviewInfo.reviewPath);
+    this.historyData = historyData;
   }
 }
 
@@ -147,29 +146,21 @@ export const getRelevantKeysFromUuidKey = (uuidKey: string) => {
   return relevantKeys;
 };
 
-const getConcatPath = (parentPath: string, currentPath: string) => {
-  return parentPath + FIREBASE_PATH_SEP + currentPath;
-};
-
-const isNestedUnderCreateOrDelete = (parentReview: BaseReviewLevel) => {
-  if (parentReview.reviewLevelType === ReviewLevelType.META) {
-    return parentReview.isUnderCreationOrDeletion;
+export const joinPathParts = (parentPath: string, ...pathParts: string[]) => {
+  let parts = [];
+  if (parentPath !== '') {
+    parts.push(parentPath);
   }
-  const parent = parentReview as ReviewLevel;
-  if ([ReviewAction.CREATE, ReviewAction.DELETE, ReviewAction.DEMOTE_MUTATION, ReviewAction.PROMOTE_VUS].includes(parent.reviewAction)) {
-    return true;
-  } else {
-    return parent.isUnderCreationOrDeletion;
-  }
+  parts = parts.concat(pathParts);
+  return parts.join('/');
 };
 
 const removeLeafNodes = (parentReview: BaseReviewLevel) => {
   for (const key of Object.keys(parentReview.children)) {
     const childReview = parentReview.children[key];
-    if (!childReview.hasChildren()) {
-      if (childReview.reviewLevelType === ReviewLevelType.META && !(childReview as ReviewLevel).review) {
-        delete parentReview.children[key];
-      }
+    if (childReview.hasChildren()) continue;
+    if (childReview.reviewLevelType === ReviewLevelType.META) {
+      delete parentReview.children[key];
     }
   }
 };
@@ -183,40 +174,19 @@ export const getCompactReviewInfo = (review: BaseReviewLevel) => {
     return review;
   }
   let childReview = Object.values(review.children)[0];
-  if (childReview.isUnderCreationOrDeletion) {
+  if (childReview.nestedUnderCreateOrDelete) {
     return review;
   }
   childReview = getCompactReviewInfo(childReview);
-  childReview.title = review.title + '/' + childReview.title;
-  childReview.isUnderCreationOrDeletion = review.isUnderCreationOrDeletion;
+  childReview.title = [review.title, childReview.title].filter(part => part !== '').join('/');
+  childReview.nestedUnderCreateOrDelete = review.nestedUnderCreateOrDelete;
   return childReview;
 };
 
 export const reformatReviewTitle = (baseReviewLevel: BaseReviewLevel) => {
   const reviewTitle = baseReviewLevel.title;
   const titleParts = reviewTitle.split('/');
-  for (const [index, titlePart] of titleParts.entries()) {
-    let subParts = [titlePart];
-    // Seperate kebab cased
-    if (titlePart.includes('_')) {
-      subParts = titlePart.split('_');
-    }
-    // Seperate camel case
-    const firstCapitalIndex = findIndexOfFirstCapital(titlePart);
-    if (firstCapitalIndex > -1) {
-      subParts = [titlePart.substring(0, firstCapitalIndex), titlePart.substring(firstCapitalIndex)];
-    }
-    titleParts[index] = subParts
-      .map(subPart => {
-        if (findIndexOfFirstCapital(subPart) === 0) {
-          return subPart;
-        } else {
-          return _.capitalize(subPart);
-        }
-      })
-      .join(' ');
-  }
-  const isNonActionableLevel = baseReviewLevel.reviewLevelType === ReviewLevelType.META || baseReviewLevel.isUnderCreationOrDeletion;
+  const isNonActionableLevel = baseReviewLevel.reviewLevelType === ReviewLevelType.META || baseReviewLevel.nestedUnderCreateOrDelete;
   if (isNonActionableLevel) {
     return <span className="font-weight-normal">{titleParts.join(' / ')}</span>;
   }
@@ -230,33 +200,47 @@ export const reformatReviewTitle = (baseReviewLevel: BaseReviewLevel) => {
   );
 };
 
-export const reviewLevelSortMethod = (a: ReviewLevel, b: ReviewLevel) => {
-  const reviewActionPriority = [ReviewAction.NAME_CHANGE, ReviewAction.UPDATE, ReviewAction.CREATE, ReviewAction.DELETE];
-  const aIndex = reviewActionPriority.indexOf(a.reviewAction);
-  const bIndex = reviewActionPriority.indexOf(b.reviewAction);
-  if (aIndex === -1) {
-    return 1;
-  }
-  if (bIndex === 1) {
-    return -1;
+export const reviewLevelSortMethod = (a: BaseReviewLevel, b: BaseReviewLevel) => {
+  const aReviewAction = a.reviewLevelType === ReviewLevelType.META ? undefined : (a as ReviewLevel).reviewInfo.reviewAction;
+  const bReviewAction = b.reviewLevelType === ReviewLevelType.META ? undefined : (b as ReviewLevel).reviewInfo.reviewAction;
+
+  const reviewActionPriority = [ReviewAction.NAME_CHANGE, ReviewAction.UPDATE, undefined, ReviewAction.CREATE, ReviewAction.DELETE];
+  const aIndex = reviewActionPriority.indexOf(aReviewAction);
+  const bIndex = reviewActionPriority.indexOf(bReviewAction);
+  if (aIndex === bIndex) {
+    const aPathDepth = a.valuePath.split('/').length;
+    const bPathDepth = b.valuePath.split('/').length;
+    return aPathDepth - bPathDepth;
   }
   return aIndex - bIndex;
 };
 
-const getHistoryLocationString = (parentReview: BaseReviewLevel, currLocation = '') => {
-  if (parentReview.historyLocationString !== '') {
-    if (currLocation === '') {
-      return parentReview.historyLocationString;
-    }
-    return [parentReview.historyLocationString, currLocation].join(', ');
-  }
-  return currLocation;
+const buildHistoryLocation = (parentReview: BaseReviewLevel, readablePath: string) => {
+  const parentHistory = parentReview.historyLocation;
+  return [parentHistory, ...readablePath.split('/')].filter(part => part !== '').join(', ');
 };
 
-/*
- * Utility methods to construct the review collapsible structure
- */
+const isNestedUnderCreateOrDelete = (parentReview: BaseReviewLevel) => {
+  if (parentReview.reviewLevelType === ReviewLevelType.META) {
+    return parentReview.nestedUnderCreateOrDelete;
+  }
+  const parent = parentReview as ReviewLevel;
+  if (
+    [ReviewAction.CREATE, ReviewAction.DELETE, ReviewAction.DEMOTE_MUTATION, ReviewAction.PROMOTE_VUS].includes(
+      parent.reviewInfo.reviewAction
+    )
+  ) {
+    return true;
+  } else {
+    return parent.nestedUnderCreateOrDelete;
+  }
+};
 
+/**
+ * EditorReviewMap keeps track all changes made by a specific editor.
+ * This is used for accepting changes in bulk when reviewing.
+ * @constructor
+ */
 export class EditorReviewMap {
   map: { [editor: string]: ReviewLevel[] };
 
@@ -264,7 +248,8 @@ export class EditorReviewMap {
     this.map = {};
   }
 
-  add(editor: string, reviewLevel: ReviewLevel) {
+  add(reviewLevel: ReviewLevel) {
+    const editor = reviewLevel.reviewInfo.review.updatedBy;
     if (Object.keys(this.map).includes(editor)) {
       this.map[editor].push(reviewLevel);
     } else {
@@ -281,674 +266,392 @@ export class EditorReviewMap {
   }
 }
 
-const getEditorFromReview = (review: Review): string => {
-  return review.updatedBy;
-};
+export const findReviews = (drugList: readonly IDrug[], gene: Gene, uuids: string[], editorReviewMap: EditorReviewMap) => {
+  const rootReview: BaseReviewLevel = new BaseReviewLevel({
+    reviewLevelType: ReviewLevelType.META,
+    title: '',
+    valuePath: '',
+    historyLocation: '',
+  });
 
-const findGeneTypeReviews = (geneType: GeneType, uuids: string[], editorReviewMap: EditorReviewMap, parentReview: BaseReviewLevel) => {
-  const titleParts = ['Gene Type'];
-  const firebaseKeyPath = 'type';
-  for (const [geneTypeKey, geneTypeValue] of Object.entries(geneType)) {
-    if (geneTypeKey.endsWith('_uuid') && uuids.includes(geneTypeValue)) {
-      const { fieldKey, reviewKey, ...rest } = getRelevantKeysFromUuidKey(geneTypeKey);
-      if (geneTypeKey.startsWith('ocg')) {
-        titleParts.push('Oncogene');
-      }
-      if (geneTypeKey.startsWith('tsg')) {
-        titleParts.push('Tumor Suppressor');
-      }
-      const title = titleParts.join(REVIEW_TITLE_PATH_SEP);
-
-      const geneTypeReview = new ReviewLevel(
-        title,
-        getConcatPath(firebaseKeyPath, fieldKey),
-        geneType[fieldKey],
-        getConcatPath(firebaseKeyPath, reviewKey),
-        geneType[reviewKey],
-        geneType[reviewKey].lastReviewed as string,
-        geneTypeValue,
-        geneType[fieldKey],
-        geneType[reviewKey].lastReviewed
-      );
-      geneTypeReview.diffMethod = DiffMethod.WORDS;
-      geneTypeReview.historyLocationString = getHistoryLocationString(parentReview, HISTORY_LOCATION_STRINGS.GENE_TYPE);
-      editorReviewMap.add(getEditorFromReview(geneType[reviewKey] as Review), geneTypeReview);
-      parentReview.addChild(geneTypeReview);
-    }
-  }
-};
-
-export const findGeneLevelReviews = (drugList: readonly IDrug[], gene: Gene, uuids: string[], editorReviewMap: EditorReviewMap) => {
-  const rootReview: BaseReviewLevel = new BaseReviewLevel();
-  rootReview.isRoot = true;
-
-  const skipGeneKeys: (keyof Gene)[] = ['mutations', 'type_uuid'];
-  // Find reviews for gene fields
-  for (const [geneKey, geneValue] of Object.entries(gene)) {
-    if (skipGeneKeys.includes(geneKey as keyof Gene)) continue;
-    if (geneKey.endsWith('_uuid') && uuids.includes(geneValue as string)) {
-      uuids = uuids.filter(uuid => uuid !== geneKey);
-      const { fieldKey, reviewKey, ...rest } = getRelevantKeysFromUuidKey(geneKey);
-      const geneFieldReview = new ReviewLevel(
-        fieldKey,
-        fieldKey,
-        gene[fieldKey],
-        reviewKey,
-        gene[reviewKey],
-        gene[reviewKey].lastReviewed as string,
-        geneValue,
-        gene[fieldKey],
-        gene[reviewKey].lastReviewed
-      );
-      if ((geneKey as keyof Gene) === 'summary_uuid') {
-        geneFieldReview.historyLocationString = getHistoryLocationString(rootReview, HISTORY_LOCATION_STRINGS.GENE_SUMMARY);
-      }
-      if ((geneKey as keyof Gene) === 'background_uuid') {
-        geneFieldReview.historyLocationString = getHistoryLocationString(rootReview, HISTORY_LOCATION_STRINGS.GENE_BACKGROUND);
-      }
-      if ((geneKey as keyof Gene) === 'penetrance_uuid') {
-        geneFieldReview.historyLocationString = getHistoryLocationString(rootReview, HISTORY_LOCATION_STRINGS.PENETRANCE);
-      }
-      if ((geneKey as keyof Gene) === 'inheritanceMechanism_uuid') {
-        geneFieldReview.historyLocationString = getHistoryLocationString(rootReview, HISTORY_LOCATION_STRINGS.INHERITANCE_MECHANISM);
-      }
-      rootReview.addChild(geneFieldReview);
-      editorReviewMap.add(getEditorFromReview(gene[reviewKey]), geneFieldReview);
-    }
-  }
-
-  // Custom logic for gene type fields
-  findGeneTypeReviews(gene.type, uuids, editorReviewMap, rootReview);
-
-  if (gene.genomic_indicators) {
-    findGenomicIndicatorsReviews(gene.genomic_indicators, uuids, editorReviewMap, rootReview);
-  }
-
-  // Find reviews for mutations field
-  if (gene.mutations) {
-    findMutationLevelReviews(drugList, gene.mutations, uuids, editorReviewMap, rootReview);
-  }
+  findReviewRecursive(gene, '', uuids, rootReview, editorReviewMap, drugList);
   return rootReview;
 };
 
-const findMutationEffectReviews = (
-  mutationEffect: MutationEffect,
-  uuids: string[],
-  editorReviewMap: EditorReviewMap,
-  parentReview: BaseReviewLevel
-) => {
-  const firebaseKeyPath = 'mutation_effect';
-  for (const [meKey, meValue] of Object.entries(mutationEffect)) {
-    if (meKey.endsWith('_uuid') && uuids.includes(meValue)) {
-      const { fieldKey, reviewKey, ...rest } = getRelevantKeysFromUuidKey(meKey);
-      const title = `Mutation Effect/${fieldKey}`;
-      const currentValPath = `${parentReview.currentValPath}/${firebaseKeyPath}/${fieldKey}`;
-      const reviewPath = `${parentReview.currentValPath}/${firebaseKeyPath}/${reviewKey}`;
-      const meReview: ReviewLevel = new ReviewLevel(
-        title,
-        currentValPath,
-        mutationEffect[fieldKey],
-        reviewPath,
-        mutationEffect[reviewKey],
-        mutationEffect[reviewKey].lastReviewed as string,
-        meValue,
-        { [fieldKey]: mutationEffect[fieldKey] },
-        { [fieldKey]: mutationEffect[reviewKey].lastReviewed },
-        isNestedUnderCreateOrDelete(parentReview)
-      );
-      if (fieldKey === 'oncogenic' || fieldKey === 'effect') {
-        meReview.diffMethod = DiffMethod.WORDS;
-      }
-      meReview.historyLocationString = getHistoryLocationString(parentReview, HISTORY_LOCATION_STRINGS.MUTATION_EFFECT);
-      parentReview.addChild(meReview);
-      editorReviewMap.add(getEditorFromReview(mutationEffect[reviewKey]), meReview);
-    }
+export const isIgnoredKey = (key: string) => {
+  if (key.endsWith('_comments') || key.endsWith('_review')) {
+    return true;
   }
+  if (
+    key.startsWith('name') ||
+    key.startsWith('cancerTypes') ||
+    key.startsWith('excludedCancerTypes') ||
+    key.startsWith('excludedRCTs') ||
+    key.startsWith('treatments')
+  ) {
+    return true;
+  }
+  return false;
 };
 
-const findGenomicIndicatorsReviews = (
-  genomicIndicators: GenomicIndicator[],
+export const findReviewRecursive = (
+  currObj: any,
+  currValuePath: string,
   uuids: string[],
+  parentReview: BaseReviewLevel,
   editorReviewMap: EditorReviewMap,
-  parentReview: BaseReviewLevel
+  drugList: readonly IDrug[]
 ) => {
-  for (const [index, genomicIndicator] of genomicIndicators.entries()) {
-    const indicatorTitle = genomicIndicator.name;
-    const indicatorPath = `genomic_indicators/${index}`;
+  if (uuids.length === 0) return;
+  if (typeof currObj === 'object') {
+    for (const [key, value] of Object.entries(currObj)) {
+      if (isIgnoredKey(key)) continue;
 
-    let defaultReview: ReviewLevel | MetaReviewLevel;
-    if (genomicIndicator.name_review?.added || genomicIndicator.name_review?.removed) {
-      defaultReview = new ReviewLevel(
-        indicatorTitle,
-        `${indicatorPath}/name`,
-        genomicIndicator.name_review.lastReviewed || '',
-        `${indicatorPath}/name_review`,
-        genomicIndicator.name_review,
-        (genomicIndicator.name_review.lastReviewed || '') as string,
-        genomicIndicator.name_uuid,
-        genomicIndicator.name_review.added ? genomicIndicator : undefined,
-        genomicIndicator.name_review.removed ? genomicIndicator : undefined
-      );
-      editorReviewMap.add(getEditorFromReview(genomicIndicator.name_review), defaultReview as ReviewLevel);
-      parentReview.addChild(defaultReview);
-    } else {
-      defaultReview = new MetaReviewLevel(indicatorTitle, indicatorPath);
-    }
-    defaultReview.historyLocationString = getHistoryLocationString(parentReview, `Genomic Indicators, ${genomicIndicator.name}`);
-    parentReview.addChild(defaultReview);
+      if (key === 'genomic_indicators') {
+        const genomicIndicators = value as GenomicIndicator[];
+        genomicIndicators.forEach((gi, index) => {
+          const giPath = joinPathParts(currValuePath, 'genomic_indicators', index.toString());
+          const nameReview = buildNameReview(gi, giPath, parentReview, uuids, editorReviewMap);
+          parentReview.addChild(nameReview);
+          findReviewRecursive(gi, giPath, uuids, nameReview, editorReviewMap, drugList);
+        });
+        removeLeafNodes(parentReview);
+        continue;
+      }
 
-    const skipKeys: (keyof GenomicIndicator)[] = ['name_uuid'];
-    for (const [key, value] of Object.entries(genomicIndicator)) {
-      if (skipKeys.includes(key as keyof GenomicIndicator)) continue;
+      if (key === 'mutations') {
+        const mutations = value as Mutation[];
+        mutations.forEach((mutation, index) => {
+          const mutationPath = joinPathParts(currValuePath, 'mutations', index.toString());
+          const nameReview = buildNameReview(mutation, mutationPath, parentReview, uuids, editorReviewMap);
+          parentReview.addChild(nameReview);
+          findReviewRecursive(mutation, mutationPath, uuids, nameReview, editorReviewMap, drugList);
+        });
+        removeLeafNodes(parentReview);
+        continue;
+      }
+
+      if (key === 'tumors') {
+        const tumors = value as Tumor[];
+        tumors.forEach((tumor, index) => {
+          const tumorPath = joinPathParts(currValuePath, 'tumors', index.toString());
+          const cancerTypeNameReview = buildCancerTypeNameReview(tumor, tumorPath, parentReview, uuids, editorReviewMap);
+          parentReview.addChild(cancerTypeNameReview);
+          findReviewRecursive(tumor, tumorPath, uuids, cancerTypeNameReview, editorReviewMap, drugList);
+        });
+        removeLeafNodes(parentReview);
+        continue;
+      }
+
+      if (key === 'TIs') {
+        const TIs = value as TI[];
+        for (const [tiIndex, ti] of TIs.entries()) {
+          if (!ti.treatments) continue;
+          for (const [treatmentIndex, treatment] of ti.treatments.entries()) {
+            const treatmentPath = joinPathParts(currValuePath, 'TIs', tiIndex.toString(), 'treatments', treatmentIndex.toString());
+            const treatmentNameReview = buildNameReview(treatment, treatmentPath, parentReview, uuids, editorReviewMap, drugList);
+            parentReview.addChild(treatmentNameReview);
+            const rctReview = buildRCTReview(treatment, treatmentNameReview, uuids, editorReviewMap);
+            if (rctReview) {
+              treatmentNameReview.addChild(rctReview);
+            }
+            findReviewRecursive(treatment, treatmentPath, uuids, treatmentNameReview, editorReviewMap, drugList);
+          }
+          removeLeafNodes(parentReview);
+        }
+        continue;
+      }
+
+      if (typeof value === 'object' && !key.includes('_uuid')) {
+        const newPath = joinPathParts(currValuePath, key);
+        const metaReview = buildObjectReview(value, key, parentReview, uuids, editorReviewMap);
+        parentReview.addChild(metaReview);
+        findReviewRecursive(value, newPath, uuids, metaReview, editorReviewMap, drugList);
+        removeLeafNodes(parentReview);
+        continue;
+      }
+
       if (key.endsWith('_uuid') && uuids.includes(value as string)) {
-        const { fieldKey, reviewKey, ...rest } = getRelevantKeysFromUuidKey(key);
-
-        let lastReviewedString: string;
-        if (fieldKey === 'associationVariants') {
-          lastReviewedString = genomicIndicator[reviewKey].lastReviewed?.map(variant => variant.name).join(', ');
-        } else {
-          lastReviewedString = genomicIndicator[reviewKey].lastReviewed;
+        const relevantKeys = getRelevantKeysFromUuidKey(key);
+        if (typeof currObj[relevantKeys.fieldKey] === 'string') {
+          const stringReviewLevel = buildStringReview(currObj, currValuePath, relevantKeys, parentReview, uuids, editorReviewMap);
+          parentReview.addChild(stringReviewLevel);
         }
-
-        let currentVal;
-        if (fieldKey === 'associationVariants') {
-          currentVal = genomicIndicator[fieldKey]?.map(variant => variant.name).join(', ');
-        } else {
-          currentVal = genomicIndicator[fieldKey];
-        }
-
-        const indicatorReview = new ReviewLevel(
-          fieldKey,
-          `${indicatorPath}/${fieldKey}`,
-          currentVal,
-          `${indicatorPath}/${reviewKey}`,
-          genomicIndicator[reviewKey],
-          genomicIndicator[reviewKey].lastReviewed as string,
-          value,
-          { [fieldKey]: genomicIndicator[fieldKey] },
-          { [fieldKey]: genomicIndicator[reviewKey].lastReviewed },
-          isNestedUnderCreateOrDelete(defaultReview)
-        );
-
-        let location: string;
-        if (fieldKey === 'associationVariants') {
-          location = 'Association Variants';
-        } else {
-          location = fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1);
-        }
-
-        indicatorReview.historyLocationString = getHistoryLocationString(defaultReview, location);
-        defaultReview.addChild(indicatorReview);
-        editorReviewMap.add(getEditorFromReview(genomicIndicator[reviewKey]), indicatorReview);
       }
     }
   }
 };
 
-const findMutationLevelReviews = (
-  drugList: readonly IDrug[],
-  mutations: Mutation[],
+export const buildNameReview = (
+  creatableObject: Mutation | Treatment | GenomicIndicator,
+  currValuePath: string,
+  parentReview: BaseReviewLevel,
   uuids: string[],
   editorReviewMap: EditorReviewMap,
-  parentReview: BaseReviewLevel
+  drugList?: readonly IDrug[]
 ) => {
-  for (const [mutationIndex, mutation] of mutations.entries()) {
-    const mutationTitle = mutation.name;
-    const mutationPath = `mutations/${mutationIndex}`;
+  const nameKey = 'name';
 
-    let defaultReview: ReviewLevel | MetaReviewLevel;
-    if (mutation.name_review?.added || mutation.name_review?.removed) {
-      defaultReview = new ReviewLevel(
-        mutationTitle,
-        `${mutationPath}/name`,
-        mutation.name,
-        `${mutationPath}/name_review`,
-        mutation.name_review,
-        mutation.name_review?.lastReviewed as string,
-        mutation.name_uuid,
-        mutation.name_review.added ? mutation : undefined,
-        mutation.name_review.removed ? mutation : undefined
-      );
-      editorReviewMap.add(getEditorFromReview(mutation.name_review), defaultReview as ReviewLevel);
-    } else if (mutation.name_review?.lastReviewed) {
-      defaultReview = new MetaReviewLevel(mutationTitle, mutationPath);
-      const mutationNameReview = new ReviewLevel(
-        'Name',
-        `${mutationPath}/name`,
-        mutation.name,
-        `${mutationPath}/name_review`,
-        mutation.name_review,
-        mutation.name_review?.lastReviewed as string,
-        mutation.name_uuid,
-        mutation.name,
-        mutation.name_review.lastReviewed as string
-      );
-      mutationNameReview.historyLocationString = mutationTitle;
-      defaultReview.addChild(mutationNameReview);
-      editorReviewMap.add(getEditorFromReview(mutation.name_review), defaultReview as ReviewLevel);
-    } else {
-      defaultReview = new MetaReviewLevel(mutationTitle, mutationPath);
-    }
-    defaultReview.historyLocationString = getHistoryLocationString(parentReview, mutationTitle);
-    parentReview.addChild(defaultReview);
-
-    const parentMutationReview = parentReview.children[mutationTitle];
-
-    // Handle mutation fields
-    const skipMutationKeys: (keyof Mutation)[] = ['tumors', 'name_uuid', 'mutation_effect_uuid'];
-    for (const [mutationKey, mutationValue] of Object.entries(mutation)) {
-      if (skipMutationKeys.includes(mutationKey as keyof Mutation)) continue;
-      if (mutationKey.endsWith('_uuid') && uuids.includes(mutationValue as string)) {
-        const { fieldKey, reviewKey, ...rest } = getRelevantKeysFromUuidKey(mutationKey);
-        const mutationReview = new ReviewLevel(
-          fieldKey,
-          `${mutationPath}/${fieldKey}`,
-          mutation[fieldKey],
-          `${mutationPath}/${reviewKey}`,
-          mutation[reviewKey],
-          mutation[reviewKey].lastReviewed as string,
-          mutationValue,
-          { [fieldKey]: mutation[fieldKey] },
-          { [fieldKey]: mutation[reviewKey].lastReviewed },
-          isNestedUnderCreateOrDelete(parentMutationReview)
-        );
-        mutationReview.historyLocationString = getHistoryLocationString(parentMutationReview, '');
-        parentMutationReview.addChild(mutationReview);
-        editorReviewMap.add(getEditorFromReview(mutation[reviewKey]), mutationReview);
-      }
-    }
-
-    // Handle mutation effect fields
-    findMutationEffectReviews(mutation.mutation_effect, uuids, editorReviewMap, parentMutationReview);
-
-    if (mutation.penetrance) {
-      findObjectReviews(
-        mutation.penetrance,
-        'Mutation Specific Penetrance',
-        'penetrance',
-        HISTORY_LOCATION_STRINGS.MUTATION_SPECIFIC_PENETRANCE,
-        uuids,
-        editorReviewMap,
-        parentMutationReview
-      );
-    }
-    if (mutation.inheritance_mechanism) {
-      findObjectReviews(
-        mutation.inheritance_mechanism,
-        'Mutation Specific Inheritance Mechanism',
-        'inheritance_mechanism',
-        HISTORY_LOCATION_STRINGS.MUTATION_SPECIFIC_INHERITANCE_MECHANISM,
-        uuids,
-        editorReviewMap,
-        parentMutationReview
-      );
-    }
-    if (mutation.cancer_risk) {
-      findObjectReviews(
-        mutation.cancer_risk,
-        'Mutation Specific Cancer Risk',
-        'cancer_risk',
-        HISTORY_LOCATION_STRINGS.MUTATION_SPECIFIC_CANCER_RISK,
-        uuids,
-        editorReviewMap,
-        parentMutationReview
-      );
-    }
-
-    // Handle tumors
-    if (mutation.tumors) {
-      findTumorLevelReviews(drugList, mutation.tumors, uuids, editorReviewMap, parentMutationReview);
-    }
+  let readableName = creatableObject.name;
+  if (drugList) {
+    readableName = getTxName(drugList, creatableObject.name);
   }
 
-  // Remove all mutation reviews that don't have any reviewables
-  removeLeafNodes(parentReview);
-};
+  const valuePathParts = [currValuePath, nameKey];
+  const valuePath = valuePathParts.join('/');
+  const title = readableName;
 
-const findObjectReviews = (
-  object: Record<string, any>,
-  objectName: string,
-  objectKey: string,
-  historyLocationString: HISTORY_LOCATION_STRINGS,
-  uuids: string[],
-  editorReviewMap: EditorReviewMap,
-  parentReview: BaseReviewLevel
-) => {
-  for (const [key, value] of Object.entries(object)) {
-    if (key.endsWith('_uuid') && uuids.includes(value)) {
-      const { fieldKey, reviewKey, ...rest } = getRelevantKeysFromUuidKey(key);
-      const title = `${objectName}/${fieldKey}`;
-      const currentValPath = `${parentReview.currentValPath}/${objectKey}/${fieldKey}`;
-      const reviewPath = `${parentReview.currentValPath}/${objectKey}/${reviewKey}`;
-      const meReview: ReviewLevel = new ReviewLevel(
-        title,
-        currentValPath,
-        object[fieldKey],
-        reviewPath,
-        object[reviewKey],
-        object[reviewKey].lastReviewed as string,
-        value,
-        { [fieldKey]: object[fieldKey] },
-        { [fieldKey]: object[reviewKey].lastReviewed },
-        isNestedUnderCreateOrDelete(parentReview)
-      );
-      if (fieldKey === 'oncogenic' || fieldKey === 'effect') {
-        meReview.diffMethod = DiffMethod.WORDS;
-      }
-      meReview.historyLocationString = getHistoryLocationString(parentReview, historyLocationString);
-      parentReview.addChild(meReview);
-      editorReviewMap.add(getEditorFromReview(object[reviewKey]), meReview);
-    }
-  }
-};
+  const metaReview = new MetaReviewLevel({
+    title,
+    valuePath: currValuePath,
+    historyLocation: buildHistoryLocation(parentReview, readableName),
+  });
 
-const findDiagnosticLevelReviews = (
-  diagnostic: Implication,
-  uuids: string[],
-  editorReviewMap: EditorReviewMap,
-  parentReview: BaseReviewLevel
-) => {
-  const diagnosticTitle = 'Diagnostic Implication';
-  const diagnosticPath = `${parentReview.currentValPath}/diagnostic`;
-  const skipDiagnosticKeys: (keyof Implication)[] = ['excludedRCTs_uuid'];
-  for (const [dKey, dValue] of Object.entries(diagnostic)) {
-    if (skipDiagnosticKeys.includes(dKey as keyof Implication)) continue;
-    if (dKey.endsWith('_uuid') && uuids.includes(dValue)) {
-      const { fieldKey, reviewKey, ...rest } = getRelevantKeysFromUuidKey(dKey);
-      const title = `${diagnosticTitle}/${fieldKey}`;
-      const currentValPath = `${diagnosticPath}/${fieldKey}`;
-      const reviewPath = `${diagnosticPath}/${reviewKey}`;
-      const diagnosticReview: ReviewLevel = new ReviewLevel(
-        title,
-        currentValPath,
-        diagnostic[fieldKey],
-        reviewPath,
-        diagnostic[reviewKey],
-        diagnostic[reviewKey].lastReviewed as string,
-        dValue,
-        { [fieldKey]: diagnostic[fieldKey] },
-        { [fieldKey]: diagnostic[reviewKey].lastReviewed },
-        isNestedUnderCreateOrDelete(parentReview)
-      );
-      diagnosticReview.historyLocationString = getHistoryLocationString(parentReview, HISTORY_LOCATION_STRINGS.DIAGNOSTIC);
-      parentReview.addChild(diagnosticReview);
-      editorReviewMap.add(getEditorFromReview(diagnostic[reviewKey]), diagnosticReview);
-    }
+  const nameReview = creatableObject.name_review;
+
+  if (!nameReview) {
+    return metaReview;
   }
 
-  getRelevantCancerTypesReview(
-    `${diagnosticPath}/excludedRCTs`,
-    diagnostic,
-    uuids,
-    editorReviewMap,
-    parentReview,
-    new MetaReviewLevel(diagnosticTitle, diagnosticPath)
-  );
-};
+  let readableOldName = nameReview.lastReviewed as string;
 
-const findPrognosticLevelReviews = (
-  prognostic: Implication,
-  uuids: string[],
-  editorReviewMap: EditorReviewMap,
-  parentReview: BaseReviewLevel
-) => {
-  const prognosticTitle = 'Prognostic Implication';
-  const prognosticPath = `${parentReview.currentValPath}/prognostic`;
-  const skipPrognosticKeys: (keyof Implication)[] = ['excludedRCTs_uuid'];
-  for (const [pKey, pValue] of Object.entries(prognostic)) {
-    if (skipPrognosticKeys.includes(pKey as keyof Implication)) continue;
-    if (pKey.endsWith('_uuid') && uuids.includes(pValue)) {
-      const { fieldKey, reviewKey, ...rest } = getRelevantKeysFromUuidKey(pKey);
-      const title = `${prognosticTitle}/${fieldKey}`;
-      const currentValPath = `${prognosticPath}/${fieldKey}`;
-      const reviewPath = `${prognosticPath}/${reviewKey}`;
-      const prognosticReview: ReviewLevel = new ReviewLevel(
-        title,
-        currentValPath,
-        prognostic[fieldKey],
-        reviewPath,
-        prognostic[reviewKey],
-        prognostic[reviewKey].lastReviewed as string,
-        pValue,
-        { [fieldKey]: prognostic[fieldKey] },
-        { [fieldKey]: prognostic[reviewKey].lastReviewed },
-        isNestedUnderCreateOrDelete(parentReview)
-      );
-      prognosticReview.historyLocationString = getHistoryLocationString(parentReview, HISTORY_LOCATION_STRINGS.PROGNOSTIC);
-      parentReview.addChild(prognosticReview);
-      editorReviewMap.add(getEditorFromReview(prognostic[reviewKey]), prognosticReview);
+  let nameUpdated = false;
+  let oldState;
+  let newState;
+  if (nameReview.added || nameReview.promotedToMutation) {
+    newState = creatableObject;
+  } else if (nameReview.removed || nameReview.demotedToVus) {
+    oldState = creatableObject;
+  } else if (nameReview.lastReviewed) {
+    // Name was edited, so we save the old and new name to history
+    nameUpdated = true;
+    if (drugList) {
+      readableOldName = getTxName(drugList, readableOldName);
     }
+    oldState = nameReview.lastReviewed;
+    newState = creatableObject.name;
+  } else {
+    return metaReview;
   }
 
-  getRelevantCancerTypesReview(
-    `${prognosticPath}/excludedRCTs`,
-    prognostic,
-    uuids,
-    editorReviewMap,
-    parentReview,
-    new MetaReviewLevel(prognosticTitle, prognosticPath)
-  );
+  const nameReviewLevel = new ReviewLevel({
+    title: nameUpdated ? makeFirebaseKeysReadable([nameKey])[0] : '',
+    valuePath,
+    historyLocation: buildHistoryLocation(parentReview, readableName),
+    currentVal: readableName,
+    reviewInfo: {
+      reviewPath: `${valuePath}_review`,
+      review: nameReview,
+      lastReviewedString: readableOldName,
+      uuid: creatableObject.name_uuid,
+      diffMethod: DiffMethod.WORDS,
+    },
+    historyData: { oldState, newState },
+  });
+
+  _.pull(uuids, creatableObject.name_uuid);
+  editorReviewMap.add(nameReviewLevel);
+
+  metaReview.addChild(nameReviewLevel);
+
+  if (!nameUpdated) {
+    return getCompactReviewInfo(metaReview) as ReviewLevel;
+  }
+
+  return metaReview;
 };
 
-const findTumorLevelReviews = (
-  drugList: readonly IDrug[],
-  tumors: Tumor[],
+export const buildCancerTypeNameReview = (
+  tumor: Tumor,
+  currValuePath: string,
+  parentReview: BaseReviewLevel,
   uuids: string[],
-  editorReviewMap: EditorReviewMap,
-  parentReview: BaseReviewLevel
+  editorReviewMap: EditorReviewMap
 ) => {
-  for (const [tumorIndex, tumor] of tumors.entries()) {
-    const tumorTitle = getCancerTypesNameWithExclusion(tumor.cancerTypes, tumor?.excludedCancerTypes || [], true);
-    const tumorPath = `${parentReview.currentValPath}/tumors/${tumorIndex}`;
-    const lastReviewTumorString = getCancerTypesNameWithExclusion(
-      (tumor.cancerTypes_review?.lastReviewed as CancerType[]) || [],
-      (tumor.excludedCancerTypes_review?.lastReviewed as CancerType[]) || [],
+  const nameKey = 'cancerTypes';
+  const nameReviewKey = `${nameKey}_review`;
+
+  const valuePathParts = [parentReview.valuePath, nameKey];
+  const valuePath = valuePathParts.join('/');
+  const title = makeFirebaseKeysReadable([nameKey])[0];
+
+  const readableName = getCancerTypesNameWithExclusion(tumor.cancerTypes, tumor?.excludedCancerTypes || [], true);
+
+  const metaReview = new MetaReviewLevel({
+    title: readableName,
+    valuePath: currValuePath,
+    historyLocation: buildHistoryLocation(parentReview, readableName),
+  });
+
+  const cancerTypesReview = tumor.cancerTypes_review;
+  const excludedCTReview = tumor.excludedCancerTypes_review;
+
+  if (!cancerTypesReview || !excludedCTReview) {
+    return metaReview;
+  }
+
+  let nameNeedsReview = false;
+  let nameUpdated = false;
+  let oldState, newState;
+  let oldTumorName;
+  const newTumorName = readableName;
+
+  if (cancerTypesReview?.added) {
+    newState = tumor;
+    nameNeedsReview = true;
+  } else if (cancerTypesReview?.removed) {
+    oldState = tumor;
+    nameNeedsReview = true;
+  } else if (cancerTypesReview?.lastReviewed || excludedCTReview?.lastReviewed) {
+    nameUpdated = true;
+    nameNeedsReview = true;
+    oldState = oldTumorName = getCancerTypesNameWithExclusion(
+      (cancerTypesReview?.lastReviewed as CancerType[]) || [],
+      (excludedCTReview?.lastReviewed as CancerType[]) || [],
       true
     );
-
-    let defaultReview: ReviewLevel | MetaReviewLevel;
-    if (tumor.cancerTypes_review?.added || tumor.cancerTypes_review?.removed) {
-      defaultReview = new ReviewLevel(
-        tumorTitle,
-        `${tumorPath}/cancerTypes`,
-        tumorTitle,
-        `${tumorPath}/cancerTypes_review`,
-        tumor.cancerTypes_review,
-        lastReviewTumorString,
-        tumor.cancerTypes_uuid,
-        tumor.cancerTypes_review.added ? tumor : undefined,
-        tumor.cancerTypes_review.removed ? tumor : undefined
-      );
-      editorReviewMap.add(getEditorFromReview(tumor.cancerTypes_review), defaultReview as ReviewLevel);
-    } else if (tumor.cancerTypes_review?.lastReviewed || tumor.excludedCancerTypes_review?.lastReviewed) {
-      defaultReview = new MetaReviewLevel(tumorTitle, tumorPath);
-      const fieldKey = tumor.cancerTypes_review?.lastReviewed ? 'cancerTypes' : 'excludedCancerTypes';
-      const tumorNameReview = new ReviewLevel(
-        'Name',
-        `${tumorPath}/${fieldKey}`,
-        tumorTitle,
-        `${tumorPath}/${fieldKey}_review`,
-        tumor.cancerTypes_review,
-        lastReviewTumorString,
-        tumor.cancerTypes_uuid,
-        tumor,
-        tumor.cancerTypes_review.lastReviewed as string
-      );
-      defaultReview.addChild(tumorNameReview);
-      editorReviewMap.add(getEditorFromReview(tumor.cancerTypes_review), defaultReview as ReviewLevel);
-    } else {
-      defaultReview = new MetaReviewLevel(tumorTitle, tumorPath);
-    }
-    defaultReview.historyLocationString = getHistoryLocationString(parentReview, tumorTitle);
-    parentReview.addChild(defaultReview);
-
-    const parentTumorReview = parentReview.children[tumorTitle];
-
-    const skipTumorKeys: (keyof Tumor)[] = ['TIs', 'cancerTypes_uuid', 'excludedCancerTypes_uuid', 'prognostic_uuid', 'diagnostic_uuid'];
-    for (const [tumorKey, tumorValue] of Object.entries(tumor)) {
-      if (skipTumorKeys.includes(tumorKey as keyof Tumor)) continue;
-      if (tumorKey.endsWith('_uuid') && uuids.includes(tumorValue as string)) {
-        const { fieldKey, reviewKey, ...rest } = getRelevantKeysFromUuidKey(tumorKey);
-        const tumorReview = new ReviewLevel(
-          fieldKey,
-          `${tumorPath}/${fieldKey}`,
-          tumor[fieldKey],
-          `${tumorPath}/${reviewKey}`,
-          tumor[reviewKey],
-          tumor[reviewKey].lastReviewed as string,
-          tumorValue,
-          { [fieldKey]: tumor[fieldKey] },
-          { [fieldKey]: tumor[reviewKey].lastReviewed },
-          isNestedUnderCreateOrDelete(parentTumorReview)
-        );
-        let currentHistoryLocation = '';
-        if ((tumorKey as keyof Tumor) === 'diagnosticSummary_uuid') {
-          tumorReview.oldState = tumor.diagnosticSummary_review.lastReviewed as string;
-          tumorReview.newState = tumor.diagnosticSummary;
-          currentHistoryLocation = HISTORY_LOCATION_STRINGS.DIAGNOSTIC_SUMMARY;
-        }
-        if ((tumorKey as keyof Tumor) === 'prognosticSummary_uuid') {
-          tumorReview.oldState = tumor.prognosticSummary_review.lastReviewed as string;
-          tumorReview.newState = tumor.prognosticSummary;
-          currentHistoryLocation = HISTORY_LOCATION_STRINGS.PROGNOSTIC_SUMMARY;
-        }
-        tumorReview.historyLocationString = getHistoryLocationString(parentTumorReview, currentHistoryLocation);
-        parentTumorReview.addChild(tumorReview);
-        editorReviewMap.add(getEditorFromReview(tumor[reviewKey]), tumorReview);
-      }
-    }
-
-    findDiagnosticLevelReviews(tumor.diagnostic, uuids, editorReviewMap, parentTumorReview);
-    findPrognosticLevelReviews(tumor.prognostic, uuids, editorReviewMap, parentTumorReview);
-
-    // Handle treatment reviews
-    findTreatmentLevelReviews(drugList, tumor, uuids, editorReviewMap, parentTumorReview);
-
-    removeLeafNodes(parentReview);
+    newState = newTumorName;
+  } else {
+    return metaReview;
   }
+
+  let nameReviewLevel;
+  if (nameNeedsReview) {
+    nameReviewLevel = new ReviewLevel({
+      title,
+      valuePath,
+      historyLocation: buildHistoryLocation(parentReview, newTumorName),
+      currentVal: newTumorName,
+      reviewInfo: {
+        reviewPath: `${valuePath}/${nameReviewKey}`,
+        review: cancerTypesReview,
+        lastReviewedString: oldTumorName,
+        uuid: tumor.cancerTypes_uuid,
+      },
+      historyData: {
+        oldState,
+        newState,
+      },
+    });
+    _.pull(uuids, tumor.cancerTypes_uuid);
+    editorReviewMap.add(nameReviewLevel);
+  }
+
+  if (nameUpdated) {
+    metaReview.addChild(nameReviewLevel);
+  }
+
+  return metaReview;
 };
 
-const findTreatmentLevelReviews = (
-  drugList: readonly IDrug[],
-  tumor: Tumor,
-  uuids: string[],
-  editorReviewMap: EditorReviewMap,
-  parentReview: BaseReviewLevel
-) => {
-  for (const [tiIndex, ti] of tumor.TIs.entries()) {
-    if (!ti.treatments) continue;
-    for (const [treatmentIndex, treatment] of ti.treatments.entries()) {
-      const treatmentTitle = getTxName(drugList, treatment.name);
-      const treatmentPath = `${parentReview.currentValPath}/TIs/${tiIndex}/treatments/${treatmentIndex}`;
-      let defaultReview: ReviewLevel | MetaReviewLevel;
-      if (treatment.name_review?.added || treatment.name_review?.removed) {
-        defaultReview = new ReviewLevel(
-          treatmentTitle,
-          `${treatmentPath}/name`,
-          getTxName(drugList, treatment.name),
-          `${treatmentPath}/name_review`,
-          treatment.name_review,
-          treatment.name_review?.lastReviewed ? getTxName(drugList, treatment.name_review?.lastReviewed as string) : undefined,
-          treatment.name_uuid,
-          treatment.name_review.added ? treatment : undefined,
-          treatment.name_review.removed ? treatment : undefined
-        );
-        editorReviewMap.add(getEditorFromReview(treatment.name_review), defaultReview as ReviewLevel);
-      } else if (treatment.name_review?.lastReviewed) {
-        defaultReview = new MetaReviewLevel(treatmentTitle, treatmentPath);
-        const treatmentNameReview = new ReviewLevel(
-          'Name',
-          `${treatmentPath}/name`,
-          getTxName(drugList, treatment.name),
-          `${treatmentPath}/name_review`,
-          treatment.name_review,
-          treatment.name_review?.lastReviewed ? getTxName(drugList, treatment.name_review?.lastReviewed as string) : undefined,
-          treatment.name_uuid,
-          treatment.name,
-          treatment.name_review.lastReviewed as string
-        );
-        defaultReview.addChild(treatmentNameReview);
-        editorReviewMap.add(getEditorFromReview(treatment.name_review), defaultReview as ReviewLevel);
-      } else {
-        defaultReview = new MetaReviewLevel(treatmentTitle, treatmentPath);
-      }
-      const treatmentHistoryString = `${TI_TYPE_TO_HISTORY_STRING[ti.type]}, ${treatment.name}`;
-      defaultReview.historyLocationString = getHistoryLocationString(parentReview, treatmentHistoryString);
-      parentReview.addChild(defaultReview);
-
-      const parentTreatmentReview = parentReview.children[treatmentTitle];
-
-      const skipTreatmentKeys: (keyof Treatment)[] = ['name_uuid', 'excludedRCTs_uuid'];
-      for (const [treatmentKey, treatmentValue] of Object.entries(treatment)) {
-        if (skipTreatmentKeys.includes(treatmentKey as keyof Treatment)) continue;
-        if (treatmentKey.endsWith('_uuid') && uuids.includes(treatmentValue as string)) {
-          const { fieldKey, reviewKey, ...rest } = getRelevantKeysFromUuidKey(treatmentKey);
-          const treatmentReview = new ReviewLevel(
-            fieldKey,
-            `${treatmentPath}/${fieldKey}`,
-            treatment[fieldKey],
-            `${treatmentPath}/${reviewKey}`,
-            treatment[reviewKey],
-            treatment[reviewKey]?.lastReviewed as string,
-            treatmentValue,
-            { [fieldKey]: treatment[fieldKey] },
-            { [fieldKey]: treatment[reviewKey].lastReviewed },
-            isNestedUnderCreateOrDelete(parentTreatmentReview)
-          );
-          treatmentReview.historyLocationString = getHistoryLocationString(parentTreatmentReview, '');
-          parentTreatmentReview.addChild(treatmentReview);
-          editorReviewMap.add(getEditorFromReview(treatment[reviewKey]), treatmentReview);
-        }
-      }
-
-      getRelevantCancerTypesReview(
-        `${treatmentPath}/excludedRCTs`,
-        treatment,
-        uuids,
-        editorReviewMap,
-        parentReview,
-        new MetaReviewLevel(treatmentTitle, treatmentPath)
-      );
-    }
-  }
-  removeLeafNodes(parentReview);
-};
-
-const getRelevantCancerTypesReview = (
-  rctPath: string,
-  relevantCancerTypesInfo: Implication | Treatment,
-  uuids: string[],
-  editorReviewMap: EditorReviewMap,
+export const buildStringReview = (
+  obj: Record<string, any>,
+  currValuePath: string,
+  relevantKeys: RelevantKeys,
   parentReview: BaseReviewLevel,
-  currentLevelMetaReview: MetaReviewLevel
+  uuids: string[],
+  editorReviewMap: EditorReviewMap
 ) => {
-  if (!relevantCancerTypesInfo.excludedRCTs && !relevantCancerTypesInfo.excludedRCTs_review) return;
-  if (!uuids.includes(relevantCancerTypesInfo.excludedRCTs_uuid)) return;
+  const { fieldKey, reviewKey, uuidKey } = relevantKeys;
+  const lastReviewedString = (obj[reviewKey] as Review).lastReviewed as string;
+  const currentString = obj[fieldKey] as string;
 
-  let defaultReview: ReviewLevel;
+  const readableKey = makeFirebaseKeysReadable([fieldKey])[0];
 
-  const currentRCTString = relevantCancerTypesInfo.excludedRCTs ? getCancerTypesName(relevantCancerTypesInfo.excludedRCTs, true, '\t') : '';
-  const oldRCTString =
-    relevantCancerTypesInfo?.excludedRCTs_review?.initialUpdate || !relevantCancerTypesInfo?.excludedRCTs_review?.lastReviewed
-      ? ''
-      : getCancerTypesName(relevantCancerTypesInfo.excludedRCTs_review.lastReviewed as CancerType[], true, '\t');
+  const stringReviewLevel = new ReviewLevel({
+    title: readableKey,
+    valuePath: joinPathParts(currValuePath, fieldKey),
+    currentVal: obj[fieldKey],
+    historyLocation: buildHistoryLocation(parentReview, readableKey),
+    reviewInfo: {
+      reviewPath: joinPathParts(currValuePath, reviewKey),
+      review: obj[reviewKey],
+      lastReviewedString,
+      uuid: obj[uuidKey],
+      diffMethod: DiffMethod.CHARS,
+    },
+    historyData: {
+      oldState: lastReviewedString,
+      newState: currentString,
+    },
+    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+  });
 
-  if (relevantCancerTypesInfo?.excludedRCTs_review?.initialUpdate || relevantCancerTypesInfo?.excludedRCTs_review?.lastReviewed) {
-    defaultReview = new ReviewLevel(
-      'Relevant Cancer Types',
-      rctPath,
-      currentRCTString,
-      `${rctPath}_review`,
-      relevantCancerTypesInfo.excludedRCTs_review,
-      oldRCTString,
-      relevantCancerTypesInfo.excludedRCTs_uuid,
-      currentRCTString,
-      oldRCTString
-    );
-    editorReviewMap.add(getEditorFromReview(relevantCancerTypesInfo.excludedRCTs_review), defaultReview);
-    defaultReview.historyLocationString = getHistoryLocationString(parentReview, HISTORY_LOCATION_STRINGS.RELEVANT_CANCER_TYPE);
-    currentLevelMetaReview.addChild(defaultReview);
-    parentReview.addChild(currentLevelMetaReview);
+  _.pull(uuids, obj[uuidKey]);
+  editorReviewMap.add(stringReviewLevel);
+
+  return stringReviewLevel;
+};
+
+export const buildObjectReview = (
+  obj: Record<string, any>,
+  key: string,
+  parentReview: BaseReviewLevel,
+  uuids: string[],
+  editorReviewMap: EditorReviewMap
+) => {
+  const readableKey = makeFirebaseKeysReadable([key])[0];
+  const metaReview = new MetaReviewLevel({
+    title: readableKey,
+    valuePath: joinPathParts(parentReview.valuePath, key),
+    historyLocation: buildHistoryLocation(parentReview, readableKey),
+    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+  });
+  if (key === 'prognostic' || key === 'diagnostic') {
+    const rctReview = buildRCTReview(obj as Implication, metaReview, uuids, editorReviewMap);
+    if (rctReview) {
+      metaReview.addChild(rctReview);
+    }
+  }
+
+  return metaReview;
+};
+
+export const buildRCTReview = (
+  implication: Implication | Treatment,
+  parentReview: BaseReviewLevel,
+  uuids: string[],
+  editorReviewMap: EditorReviewMap
+) => {
+  if (!implication.excludedRCTs && !implication.excludedRCTs_review) return;
+
+  const nameKey = 'excludedRCTs';
+
+  const valuePathParts = [parentReview.valuePath, nameKey];
+  const valuePath = valuePathParts.join('/');
+  const title = makeFirebaseKeysReadable([nameKey])[0];
+
+  const isInitialUpdate = implication.excludedRCTs_review?.initialUpdate || false;
+  const hasLastReviewed = !!implication.excludedRCTs_review?.lastReviewed;
+
+  const newRCTString = implication.excludedRCTs ? getCancerTypesName(implication.excludedRCTs, true, '\t') : '';
+  let oldRCTString = '';
+  if (hasLastReviewed) {
+    oldRCTString = getCancerTypesName(implication.excludedRCTs_review.lastReviewed as CancerType[], true, '\t');
+  }
+
+  if (isInitialUpdate || hasLastReviewed) {
+    const rctReview = new ReviewLevel({
+      title,
+      valuePath,
+      historyLocation: buildHistoryLocation(parentReview, title),
+      currentVal: newRCTString,
+      reviewInfo: {
+        reviewPath: `${valuePath}_review`,
+        review: implication.excludedRCTs_review,
+        lastReviewedString: oldRCTString,
+        uuid: implication.excludedRCTs_uuid,
+        diffMethod: DiffMethod.WORDS,
+      },
+      historyData: {
+        oldState: oldRCTString,
+        newState: newRCTString,
+      },
+      nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+    });
+    _.pull(uuids, implication.excludedRCTs_uuid);
+    editorReviewMap.add(rctReview);
+    return rctReview;
   }
 };
 
@@ -983,7 +686,7 @@ export const clearReview = (review: Review) => {
 export const getAllNestedReviewUuids = (baseReviewLevel: BaseReviewLevel, uuids: string[]) => {
   if (baseReviewLevel.reviewLevelType === ReviewLevelType.REVIEWABLE) {
     const reviewLevel = baseReviewLevel as ReviewLevel;
-    uuids.push(reviewLevel.uuid);
+    uuids.push(reviewLevel.reviewInfo.uuid);
     for (const childReview of Object.values(reviewLevel.children)) {
       getAllNestedReviewUuids(childReview, uuids);
     }

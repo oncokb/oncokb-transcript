@@ -1,7 +1,5 @@
 import React, { useMemo } from 'react';
 import Collapsible from './Collapsible';
-import { TextFormat } from 'react-jhipster';
-import { APP_EXPANDED_DATETIME_FORMAT } from 'app/config/constants/constants';
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
 import {
   BaseReviewLevel,
@@ -71,23 +69,25 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
     return props.baseReviewLevel;
   }, [props.baseReviewLevel]);
 
+  const isUnderCreationOrDeletion = rootReview.nestedUnderCreateOrDelete;
+
   const reviewAction = useMemo(() => {
     if (rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE) {
       const reviewLevel = rootReview as ReviewLevel;
-      return reviewLevel.reviewAction;
+      return reviewLevel.reviewInfo.reviewAction;
     }
   }, [rootReview]);
 
   const borderLeftColor = useMemo(() => {
     let color = ReviewCollapsibleColorClass[reviewAction];
-    if (rootReview.isUnderCreationOrDeletion || rootReview.reviewLevelType === ReviewLevelType.META) {
+    if (isUnderCreationOrDeletion || rootReview.reviewLevelType === ReviewLevelType.META) {
       color = undefined;
     }
     return color;
   }, [rootReview]);
 
   const getReviewActions = () => {
-    return !rootReview.isUnderCreationOrDeletion && rootReview.reviewLevelType !== ReviewLevelType.META ? (
+    return !isUnderCreationOrDeletion && rootReview.reviewLevelType !== ReviewLevelType.META ? (
       <>
         <ActionIcon
           icon={faCheck}
@@ -108,11 +108,11 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
   };
 
   const getEditorInfo = () => {
-    if (!rootReview.isUnderCreationOrDeletion && rootReview.reviewLevelType !== ReviewLevelType.META) {
+    if (!isUnderCreationOrDeletion && rootReview.reviewLevelType !== ReviewLevelType.META) {
       const reviewLevel = rootReview as ReviewLevel;
       const action = ReviewTypeTitle[reviewAction];
-      const editor = reviewLevel.review.updatedBy;
-      const updatedTime = new Date(reviewLevel.review.updateTime).toString();
+      const editor = reviewLevel.reviewInfo.review.updatedBy;
+      const updatedTime = new Date(reviewLevel.reviewInfo.review.updateTime).toString();
       return getReviewInfo(editor, updatedTime, action);
     }
   };
@@ -132,8 +132,9 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       return undefined;
     }
     const reviewLevel = props.baseReviewLevel as ReviewLevel;
-    if (reviewLevel.currentValPath.includes('excludedRCTs')) {
-      const lastReviewedCancerTypes = reviewLevel?.lastReviewedString === '' ? [] : reviewLevel?.lastReviewedString?.split('\t');
+    if (reviewLevel.valuePath.includes('excludedRCTs')) {
+      const lastReviewedCancerTypes =
+        reviewLevel?.reviewInfo.lastReviewedString === '' ? [] : reviewLevel?.reviewInfo.lastReviewedString?.split('\t');
       const currentCancerTypes = reviewLevel.currentVal === '' ? [] : reviewLevel.currentVal.split('\t');
       const newExclusions = _.difference(currentCancerTypes, lastReviewedCancerTypes);
       const revertedExclusions = _.difference(lastReviewedCancerTypes, currentCancerTypes);
@@ -173,9 +174,9 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       );
     }
     if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
-      let oldValue = reviewLevel.lastReviewedString;
+      let oldValue = reviewLevel.reviewInfo.lastReviewedString;
       let newValue = reviewLevel.currentVal.toString();
-      if (!reviewLevel.isUnderCreationOrDeletion && oldValue !== '' && newValue !== '') {
+      if (!isUnderCreationOrDeletion && oldValue !== '' && newValue !== '') {
         oldValue = oldValue?.replace(/\.\s+/g, '.\n');
         newValue = newValue?.replace(/\.\s+/g, '.\n');
       }
@@ -187,8 +188,8 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
             extraLinesSurroundingDiff={0}
             oldValue={oldValue}
             newValue={newValue}
-            compareMethod={reviewLevel?.diffMethod || DiffMethod.CHARS}
-            splitView={props.splitView ? reviewLevel.review.lastReviewed && reviewLevel.currentVal : false}
+            compareMethod={reviewLevel?.reviewInfo.diffMethod || DiffMethod.CHARS}
+            splitView={props.splitView ? reviewLevel.reviewInfo.review.lastReviewed && reviewLevel.currentVal : false}
             hideLineNumbers
             renderContent={source => {
               return <TextWithRefs content={source} />;
@@ -201,7 +202,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
 
   const getColorOptions = () => {
     let colorOptions: CollapsibleColorProps;
-    const disableBorder = props.baseReviewLevel.isUnderCreationOrDeletion || props.baseReviewLevel.reviewLevelType === ReviewLevelType.META;
+    const disableBorder = props.baseReviewLevel.nestedUnderCreateOrDelete || props.baseReviewLevel.reviewLevelType === ReviewLevelType.META;
     if (disableBorder) {
       colorOptions = { hideLeftBorder: true };
     } else {
@@ -210,12 +211,13 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
     return colorOptions;
   };
 
+  const isDeletion = reviewAction === ReviewAction.DELETE || reviewAction === ReviewAction.DEMOTE_MUTATION;
+
   const defaultReviewCollapsibleDisplayOptions: CollapsibleDisplayProps = {
-    disableCollapsible: reviewAction === ReviewAction.DELETE,
+    disableCollapsible: isDeletion,
     hideAction: false,
     hideInfo: false,
   };
-  const isDeletion = reviewAction === ReviewAction.DELETE || reviewAction === ReviewAction.DEMOTE_MUTATION;
 
   return (
     <Collapsible
@@ -229,7 +231,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       isPendingDelete={isDeletion}
       badge={
         props.baseReviewLevel.reviewLevelType !== ReviewLevelType.META &&
-        !props.baseReviewLevel.isUnderCreationOrDeletion && (
+        !props.baseReviewLevel.nestedUnderCreateOrDelete && (
           <DefaultBadge color={ReviewCollapsibleBootstrapClass[reviewAction]} text={ReviewActionLabels[reviewAction]} />
         )
       }
