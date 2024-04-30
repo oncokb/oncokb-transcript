@@ -24,7 +24,7 @@ import { isEqualIngoreCase, parseAlterationName } from '../util/utils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
 import './add-mutation-modal.scss';
 import classNames from 'classnames';
-import { REFERENCE_GENOME } from 'app/config/constants/constants';
+import { READABLE_ALTERATION, REFERENCE_GENOME } from 'app/config/constants/constants';
 
 type AlterationData = {
   type: AlterationTypeEnum;
@@ -76,7 +76,7 @@ function AddMutationModal({
     AlterationTypeEnum.StructuralVariant,
     AlterationTypeEnum.CdnaChange,
     AlterationTypeEnum.Any,
-  ].map(type => ({ label: type, value: type }));
+  ].map(type => ({ label: READABLE_ALTERATION[type], value: type }));
   const consequenceOptions: DropdownOption[] = consequences.map(consequence => ({ label: consequence.name, value: consequence.id }));
 
   const [inputValue, setInputValue] = useState('');
@@ -654,8 +654,8 @@ function AddMutationModal({
         <AddMutationModalDropdown
           label="Type"
           options={typeOptions}
-          value={typeOptions.find(option => option.label === alterationData.type)}
-          onChange={newValue => handleFieldChange(newValue?.label, 'type', alterationIndex, excludingIndex)}
+          value={typeOptions.find(option => option.value === alterationData.type)}
+          onChange={newValue => handleFieldChange(newValue?.value, 'type', alterationIndex, excludingIndex)}
         />
         <AddMutationModalField
           label="Alteration"
