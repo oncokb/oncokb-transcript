@@ -155,11 +155,21 @@ export const joinPathParts = (parentPath: string, ...pathParts: string[]) => {
   return parts.join('/');
 };
 
-const removeLeafNodes = (parentReview: BaseReviewLevel) => {
+export const removeLeafNodes = (parentReview: BaseReviewLevel) => {
   for (const key of Object.keys(parentReview.children)) {
     const childReview = parentReview.children[key];
     if (childReview.hasChildren()) continue;
+    let shouldRemove = false;
     if (childReview.reviewLevelType === ReviewLevelType.META) {
+      shouldRemove = true;
+    }
+    if (childReview.reviewLevelType === ReviewLevelType.REVIEWABLE) {
+      const reviewLevel = childReview as ReviewLevel;
+      // If a new entity is created, we don't show in review mode until at least one field has been updated
+      shouldRemove =
+        [ReviewAction.CREATE, ReviewAction.PROMOTE_VUS].includes(reviewLevel.reviewInfo.reviewAction) && !reviewLevel.hasChildren();
+    }
+    if (shouldRemove) {
       delete parentReview.children[key];
     }
   }
