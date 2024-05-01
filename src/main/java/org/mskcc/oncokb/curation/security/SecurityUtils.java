@@ -45,11 +45,6 @@ public final class SecurityUtils {
             if (attributes.containsKey("preferred_username")) {
                 return (String) attributes.get("preferred_username");
             }
-        } else if (authentication.getPrincipal() instanceof DefaultOAuth2User) {
-            Map<String, Object> attributes = ((DefaultOAuth2User) authentication.getPrincipal()).getAttributes();
-            if (attributes.containsKey("preferred_username")) {
-                return (String) attributes.get("preferred_username");
-            }
         } else if (authentication.getPrincipal() instanceof String) {
             return (String) authentication.getPrincipal();
         }

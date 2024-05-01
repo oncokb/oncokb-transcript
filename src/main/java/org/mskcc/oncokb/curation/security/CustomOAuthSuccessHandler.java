@@ -23,6 +23,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -90,9 +92,10 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             .map(SimpleGrantedAuthority::new)
             .collect(Collectors.toList());
 
-        OAuth2User oAuth2User = authentication.getPrincipal();
+        OidcUser oAuth2User = (OidcUser) authentication.getPrincipal();
+
         OAuth2AuthenticationToken authenticationWithAuthorities = new OAuth2AuthenticationToken(
-            new DefaultOAuth2User(oAuth2User.getAuthorities(), oAuth2User.getAttributes(), "name"),
+            new DefaultOidcUser(oAuth2User.getAuthorities(), oAuth2User.getIdToken(), "sub"),
             authorities,
             authentication.getAuthorizedClientRegistrationId()
         );
