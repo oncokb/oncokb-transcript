@@ -29,7 +29,7 @@ export const DefaultAddMutationModal = (props: IDefaultAddMutationModal) => {
                 {props.warningMessages.map(message => {
                   return (
                     <div key={message} className="warning-message">
-                      <FaExclamationTriangle className="mr-2" size={DEFAULT_ICON_SIZE} />
+                      <FaExclamationTriangle className="me-2" size={DEFAULT_ICON_SIZE} />
                       <div className="d-flex">{message}</div>
                     </div>
                   );
@@ -43,7 +43,7 @@ export const DefaultAddMutationModal = (props: IDefaultAddMutationModal) => {
                 {props.errorMessages.map(message => {
                   return (
                     <div key={message} className="error-message">
-                      <FaExclamationCircle className="mr-2" size={DEFAULT_ICON_SIZE} />
+                      <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
                       <div>{message}</div>
                     </div>
                   );
@@ -54,7 +54,7 @@ export const DefaultAddMutationModal = (props: IDefaultAddMutationModal) => {
             )}
           </div>
           <div className="d-flex align-items-start">
-            <Button className="mr-2" onClick={props.onCancel} outline color="danger">
+            <Button className="me-2" onClick={props.onCancel} outline color="danger">
               Cancel
             </Button>
             <Button

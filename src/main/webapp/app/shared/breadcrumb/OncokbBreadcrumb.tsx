@@ -57,7 +57,7 @@ const OncokbBreadcrumb: React.FunctionComponent<StoreProps> = props => {
   const breadcrumbs = parsePath(location.pathname);
 
   return (
-    <Breadcrumb style={{ height: '45px' }} listClassName="pl-0">
+    <Breadcrumb style={{ height: '45px' }} listClassName="ps-0">
       {breadcrumbs.map((trial, index) => {
         return (
           <BreadcrumbItem key={`breadcrumb-item${index}`}>

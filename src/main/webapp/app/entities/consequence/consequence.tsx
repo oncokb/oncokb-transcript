@@ -32,7 +32,7 @@ export const Consequence = (props: IConsequenceProps) => {
     <div>
       <h2 id="consequence-heading" data-cy="ConsequenceHeading">
         Consequences
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.CONSEQUENCE} entityAction={ENTITY_ACTION.ADD} />
+        <EntityActionButton className="ms-2" color="primary" entityType={ENTITY_TYPE.CONSEQUENCE} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {props.consequenceList && (

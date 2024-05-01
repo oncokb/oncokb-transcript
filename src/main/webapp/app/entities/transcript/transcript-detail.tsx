@@ -52,7 +52,7 @@ export const TranscriptDetail = (props: ITranscriptDetailProps) => {
           <dt>Flag</dt>
           <dd>
             {transcriptEntity.flags
-              ? transcriptEntity.flags.map((val, i) => <FlagBadge key={`${val.id}`} flag={val} tagClassName={'mr-2'} />)
+              ? transcriptEntity.flags.map((val, i) => <FlagBadge key={`${val.id}`} flag={val} tagClassName={'me-2'} />)
               : null}
           </dd>
           {transcriptEntity.ensemblGene && (

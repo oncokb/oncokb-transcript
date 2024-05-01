@@ -5,7 +5,7 @@ import React from 'react';
 const FlagBadge: React.FunctionComponent<{ flag: IFlag; tagClassName: string }> = props => {
   return (
     <Tooltip placement="top" overlay={<span>{props.flag.description}</span>}>
-      <span className={`badge badge-pill badge-info ${props.tagClassName}`}>{props.flag.name}</span>
+      <span className={`badge rounded-pill text-bg-info ${props.tagClassName}`}>{props.flag.name}</span>
     </Tooltip>
   );
 };

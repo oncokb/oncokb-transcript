@@ -45,7 +45,7 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
               <></>
             ) : (
               <div className="d-flex">
-                <div className="ml-auto">
+                <div className="ms-auto">
                   <input
                     onChange={(event: any) => {
                       setSearchKeyword(event.target.value.toLowerCase());

@@ -42,27 +42,21 @@ function GeneListPageToolsTab({ addMetaListener, metaData, createGene }: StorePr
 
   return (
     <div>
-      <Row className="mb-2">
-        <Col className="px-0">
-          <h6>{CURATE_NEW_GENE_TEXT}</h6>
-        </Col>
-      </Row>
-      <Row className="mb-2">
-        <Col className="px-0">
-          <GeneSelect onChange={handleChangeSelectedGene} />
-        </Col>
-      </Row>
-      <Row className={`align-items-center ${showGeneExistsWarning ? 'justify-content-between' : 'justify-content-end'}`}>
+      <h6 className="mb-2">{CURATE_NEW_GENE_TEXT}</h6>
+      <div className="mb-2">
+        <GeneSelect onChange={handleChangeSelectedGene} />
+      </div>
+      <div className={`d-flex align-items-center ${showGeneExistsWarning ? 'justify-content-between' : 'justify-content-end'}`}>
         {showGeneExistsWarning && (
-          <div className="error-message mr-2">
-            <FaExclamationCircle className="mr-2" size={DEFAULT_ICON_SIZE} color="danger" />
+          <div className="error-message me-2">
+            <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} color="danger" />
             <span>Gene already exists</span>
           </div>
         )}
         <Button color="primary" disabled={createButtonDisabled} onClick={handleCreateGene}>
           Create
         </Button>
-      </Row>
+      </div>
     </div>
   );
 }

@@ -43,22 +43,22 @@ export function CurationToolsTab({
     callbacks.push(
       onValue(ref(firebaseDb, `${genePath}/name`), snapshot => {
         setGeneName(snapshot.val());
-      })
+      }),
     );
     callbacks.push(
       onValue(ref(firebaseDb, `${genePath}/summary`), snapshot => {
         setGeneSummary(snapshot.val());
-      })
+      }),
     );
     callbacks.push(
       onValue(ref(firebaseDb, `${genePath}/background`), snapshot => {
         setGeneBackground(snapshot.val());
-      })
+      }),
     );
     callbacks.push(
       onValue(ref(firebaseDb, `${genePath}/type`), snapshot => {
         setGeneType(snapshot.val());
-      })
+      }),
     );
 
     return () => callbacks.forEach(callback => callback?.());
@@ -115,7 +115,7 @@ export function CurationToolsTab({
   }, [geneEntities]);
 
   function getStatusIcon(checkPassed: boolean) {
-    const marginClassNames = 'mt-1 mr-2';
+    const marginClassNames = 'mb-1 me-2';
     return checkPassed ? (
       <FaRegCheckCircle className={`text-success ${marginClassNames}`} />
     ) : (
@@ -153,7 +153,7 @@ export function CurationToolsTab({
     if (isReleased) {
       return (
         <Row>
-          <FaRegCheckCircle size="24px" className="text-success mt-1 mr-2" />
+          <FaRegCheckCircle size="24px" className="text-success mt-1 me-2" />
           <h6 style={{ marginTop: '6px' }}>Gene is released</h6>
         </Row>
       );
@@ -164,30 +164,28 @@ export function CurationToolsTab({
         <div>
           <div className="mb-3">
             {tests.map((test, index) => (
-              <Row key={index} className="mb-1">
+              <div key={index} className="mb-1">
                 {getStatusIcon(test.passed)}
                 <span>{test.text}</span>
-              </Row>
+              </div>
             ))}
           </div>
-          <Row className="justify-content-end pt-3 border-top">
-            <Button className="mr-2" outline color="danger" onClick={() => setReleaseGeneClicked(clicked => !clicked)}>
+          <div className="d-flex justify-content-end pt-3 border-top">
+            <Button className="me-2" outline color="danger" onClick={() => setReleaseGeneClicked(clicked => !clicked)}>
               Cancel
             </Button>
-            <Button className="mr-2" color="primary" disabled={confirmButtonDisabled} onClick={handleConfirmClick}>
+            <Button className="me-2" color="primary" disabled={confirmButtonDisabled} onClick={handleConfirmClick}>
               Confirm
             </Button>
-          </Row>
+          </div>
         </div>
       );
     }
 
     return (
-      <Row>
-        <Button color="primary" onClick={() => setReleaseGeneClicked(clicked => !clicked)}>
-          Release Gene
-        </Button>
-      </Row>
+      <Button color="primary" onClick={() => setReleaseGeneClicked(clicked => !clicked)}>
+        Release Gene
+      </Button>
     );
   }
 

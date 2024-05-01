@@ -1,5 +1,5 @@
 import { ReactElement, useEffect, useMemo, useState } from 'react';
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 import React from 'react';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -99,9 +99,9 @@ export default function BaseCollapsible({
     <div className={classNames('card', collapsibleClassName, styles.main)}>
       <div
         className={classNames(
-          'd-flex align-items-center p-1 bg-transparent pr-2',
+          'd-flex align-items-center p-1 bg-transparent pe-2',
           styles.header,
-          colorOptions.hideLeftBorder ? styles.hiddenHeaderLeftBorder : undefined
+          colorOptions.hideLeftBorder ? styles.hiddenHeaderLeftBorder : undefined,
         )}
         ref={collapsibleRef}
       >
@@ -118,18 +118,18 @@ export default function BaseCollapsible({
             >
               {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
             </button>
-            <span className={classNames(titleClassName ? titleClassName : 'font-weight-bold')}>
+            <span className={classNames(titleClassName ? titleClassName : 'fw-bold')}>
               {title}
               {badge}
             </span>
           </div>
 
-          <div className="mr-auto" />
+          <div className="me-auto" />
           <div className="d-flex align-items-center">
             {infoComponent}
             {actionComponent}
             {showLoadingSpinner && (
-              <span className="pl-2">
+              <span className="ps-2">
                 <Spinner
                   style={{ color: colorOptions.hideLeftBorder === true ? colorOptions.backgroundColor : colorOptions.borderLeftColor }}
                   size="sm"

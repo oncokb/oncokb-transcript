@@ -88,11 +88,11 @@ const GeneHeader = ({
     <div style={{ width: '100%' }}>
       <div className="d-flex justify-content-between align-items-center">
         <div className="d-flex align-items-center mb-1">
-          <span style={{ fontSize: '3rem', lineHeight: 1 }} className={'mr-3'}>
+          <span style={{ fontSize: '3rem', lineHeight: 1 }} className={'me-3'}>
             {hugoSymbol}
           </span>
           {!isReviewing && <CommentIcon id={`${hugoSymbol}_curation_page`} path={`${firebaseGenePath}/name_comments`} />}
-          <div className="ml-3">
+          <div className="ms-3">
             <SomaticGermlineToggleButton hugoSymbol={hugoSymbol} />
           </div>
         </div>
@@ -103,24 +103,24 @@ const GeneHeader = ({
           <span>
             {geneEntity?.entrezGeneId && (
               <span>
-                <span className="font-weight-bold text-nowrap">Entrez Gene:</span>
-                <span className="ml-1">
+                <span className="fw-bold text-nowrap">Entrez Gene:</span>
+                <span className="ms-1">
                   <PubmedGeneLink entrezGeneId={geneEntity.entrezGeneId} />
                 </span>
               </span>
             )}
             {geneEntity?.hgncId && (
-              <span className="ml-2">
-                <span className="font-weight-bold">HGNC:</span>
-                <span className="ml-1">
+              <span className="ms-2">
+                <span className="fw-bold">HGNC:</span>
+                <span className="ms-1">
                   <HgncLink id={geneEntity.hgncId} />
                 </span>
               </span>
             )}
             {geneEntity?.synonyms && geneEntity.synonyms.length > 0 && (
-              <span className="ml-2">
-                <span className="font-weight-bold">Gene aliases:</span>
-                <span className="ml-1">
+              <span className="ms-2">
+                <span className="fw-bold">Gene aliases:</span>
+                <span className="ms-1">
                   <WithSeparator separator={', '}>
                     {geneEntity.synonyms.map(synonym => (
                       <span className={'text-nowrap'} key={synonym.name}>
@@ -131,8 +131,8 @@ const GeneHeader = ({
                 </span>
               </span>
             )}
-            <span className="ml-2">
-              <span className="font-weight-bold mr-2">External Links:</span>
+            <span className="ms-2">
+              <span className="fw-bold me-2">External Links:</span>
               <WithSeparator separator={InlineDivider}>
                 <a href={`https://cbioportal.mskcc.org/ln?q=${hugoSymbol}`} target="_blank" rel="noopener noreferrer">
                   {CBIOPORTAL} <ExternalLinkIcon />

@@ -5,7 +5,7 @@ import { Badge } from 'reactstrap';
 const SynonymBadge: React.FunctionComponent<{ synonym: ISynonym }> = props => {
   const synonym = props.synonym;
   return (
-    <Badge key={`${synonym.type}-${synonym.source}-${synonym.name}`} pill color="info" className={'mr-2'}>
+    <Badge key={`${synonym.type}-${synonym.source}-${synonym.name}`} pill color="info" className={'me-2'}>
       {synonym.name} ({synonym.source})
     </Badge>
   );

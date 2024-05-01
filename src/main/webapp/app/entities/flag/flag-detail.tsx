@@ -52,9 +52,9 @@ export const FlagDetail = (props: IFlagDetailProps) => {
           </dt>
           <dd>
             {(flagEntity.genes || []).map(gene => {
-              const badgeClassName = oncokbIds.includes(gene.id) ? 'badge-info' : 'badge-warning';
+              const badgeClassName = oncokbIds.includes(gene.id) ? 'text-bg-info' : 'text-bg-warning';
               return (
-                <span key={gene.id} className={`badge badge-pill ${badgeClassName} mr-1`}>
+                <span key={gene.id} className={`badge rounded-pill ${badgeClassName} me-1`}>
                   {getGeneName(gene)}
                 </span>
               );

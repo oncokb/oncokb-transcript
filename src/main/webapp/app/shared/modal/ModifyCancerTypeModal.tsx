@@ -100,7 +100,7 @@ const ModifyCancerTypeModalContent = observer(
           promises.push(getICancerTypeFromCancerType(cancerType));
         }
         modifyCancerTypeModalStore.setIncludedCancerTypes(
-          getCancerTypeSelectOptionsFromICancerTypes(await Promise.all<ICancerType>(promises))
+          getCancerTypeSelectOptionsFromICancerTypes(await Promise.all<ICancerType>(promises)),
         );
       }
     }
@@ -112,7 +112,7 @@ const ModifyCancerTypeModalContent = observer(
           promises.push(getICancerTypeFromCancerType(cancerType));
         }
         modifyCancerTypeModalStore.setExcludedCancerTypes(
-          getCancerTypeSelectOptionsFromICancerTypes(await Promise.all<ICancerType>(promises))
+          getCancerTypeSelectOptionsFromICancerTypes(await Promise.all<ICancerType>(promises)),
         );
       }
     }
@@ -161,7 +161,7 @@ const ModifyCancerTypeModalContent = observer(
         modifyCancerTypeModalStore.includedCancerTypes,
         modifyCancerTypeModalStore.isErrorFetchingICancerTypes,
         modifyCancerTypeModalStore.isErrorIncludedAndExcluded,
-      ]
+      ],
     );
 
     return (
@@ -171,8 +171,8 @@ const ModifyCancerTypeModalContent = observer(
           <div>
             {modifyCancerTypeModalStore.isErrorFetchingICancerTypes && (
               <div className={`mb-4 error-message`}>
-                <FaExclamationCircle className="mr-2" size={DEFAULT_ICON_SIZE} />
-                <span className="mr-3">Error fetching cancer types</span>
+                <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
+                <span className="me-3">Error fetching cancer types</span>
                 <Button
                   disabled={modifyCancerTypeModalStore.isRetryButtonClicked}
                   outline
@@ -201,7 +201,7 @@ const ModifyCancerTypeModalContent = observer(
               !modifyCancerTypeModalStore.isErrorFetchingICancerTypes &&
               !modifyCancerTypeModalStore.isErrorIncludedAndExcluded ? (
                 <div className={`mt-2 mb-4 error-message`}>
-                  <FaExclamationCircle className="mr-2" size={DEFAULT_ICON_SIZE} />
+                  <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
                   <span>You must include at least one cancer type</span>
                 </div>
               ) : (
@@ -222,14 +222,14 @@ const ModifyCancerTypeModalContent = observer(
           <div className="d-flex justify-content-between align-items-center">
             {modifyCancerTypeModalStore.isErrorIncludedAndExcluded ? (
               <div className="error-message">
-                <FaExclamationCircle className="mr-2" size={DEFAULT_ICON_SIZE} />
-                <span className="mr-3">Cancer types may not be both included and excluded</span>
+                <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
+                <span className="me-3">Cancer types may not be both included and excluded</span>
               </div>
             ) : (
               <div />
             )}
             <div style={{ flexShrink: 0 }}>
-              <Button className="mr-2" onClick={onCancel}>
+              <Button className="me-2" onClick={onCancel}>
                 Cancel
               </Button>
               <Button
@@ -237,10 +237,10 @@ const ModifyCancerTypeModalContent = observer(
                 disabled={isConfirmButtonDisabled}
                 onClick={() => {
                   const includedCancerTypes = modifyCancerTypeModalStore.includedCancerTypes.map(option =>
-                    getCancerTypeFromCancerTypeSelectOption(option)
+                    getCancerTypeFromCancerTypeSelectOption(option),
                   );
                   const excludedCancerTypes = modifyCancerTypeModalStore.excludedCancerTypes.map(option =>
-                    getCancerTypeFromCancerTypeSelectOption(option)
+                    getCancerTypeFromCancerTypeSelectOption(option),
                   );
 
                   const newTumor = cancerTypeToEdit ? _.cloneDeep(cancerTypeToEdit) : new Tumor();
@@ -260,7 +260,7 @@ const ModifyCancerTypeModalContent = observer(
         </ModalFooter>
       </Modal>
     );
-  }
+  },
 );
 
 const mapStoreToProps = ({ cancerTypeStore, modifyCancerTypeModalStore, firebaseAppStore }: IRootStore) => ({

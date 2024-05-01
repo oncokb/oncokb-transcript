@@ -10,13 +10,13 @@ const AddMutationButton: React.FunctionComponent<{
 }> = ({ showAddMutationModal, onClickHandler, showIcon = true, showFullTitle = false }) => {
   return (
     <Button
-      className="d-flex align-items-center mr-2"
+      className="d-flex align-items-center me-2"
       color="primary"
       outline
       size="sm"
       onClick={() => onClickHandler(showAddMutationModal)}
     >
-      {showIcon && <FaPlus className="mr-2" />}
+      {showIcon && <FaPlus className="me-2" />}
       <span>{showFullTitle ? 'Add Mutation' : 'Add'}</span>
     </Button>
   );

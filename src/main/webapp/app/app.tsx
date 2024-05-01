@@ -6,7 +6,7 @@ import 'react-table/react-table.css';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import { IRootStore } from 'app/stores';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import { AUTHORITIES } from 'app/config/constants/constants';
@@ -32,7 +32,7 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
     <Router basename={baseHref}>
       <Layout>
         <div className="app-container">
-          <ToastContainer position={toast.POSITION.TOP_CENTER} className="toastify-container" toastClassName="toastify-toast" />
+          <ToastContainer position={'top-center'} className="toastify-container" toastClassName="toastify-toast" />
           {props.loadingAuth ? (
             <LoadingIndicator isLoading size={LoaderSize.LARGE} center={true} />
           ) : (

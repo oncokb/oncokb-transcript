@@ -7,6 +7,7 @@ const EntityPageLink: React.FunctionComponent<{
   entityType: ENTITY_TYPE;
   entityAction: ENTITY_ACTION;
   entityId?: number | string;
+  children: React.ReactNode;
 }> = props => {
   return <Link to={getEntityActionRoute(props.entityType, props.entityAction, props.entityId)}>{props.children}</Link>;
 };

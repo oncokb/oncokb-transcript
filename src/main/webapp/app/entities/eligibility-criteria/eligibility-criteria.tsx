@@ -26,7 +26,7 @@ export const EligibilityCriteria = (props: IEligibilityCriteriaProps) => {
       <h2 id="eligibility-criteria-heading" data-cy="EligibilityCriteriaHeading">
         Eligibility Criteria
         <EntityActionButton
-          className="ml-2"
+          className="ms-2"
           color="primary"
           entityType={ENTITY_TYPE.ELIGIBILITY_CRITERIA}
           entityAction={ENTITY_ACTION.ADD}

@@ -63,7 +63,7 @@ const AddVusModal = (props: IAddVusModalProps) => {
         variants.map(o => o.label),
         mutationList,
         props.vusList,
-        { useFullAlterationName: false, exact: false, excludedMutationUuid: props.convertOptions?.mutationUuid }
+        { useFullAlterationName: false, exact: false, excludedMutationUuid: props.convertOptions?.mutationUuid },
       );
       setDuplicateAlterations(dupAlts);
     }
@@ -174,8 +174,8 @@ const AddVusModal = (props: IAddVusModalProps) => {
     }
     return (
       <Row className="align-items-center mb-3">
-        <Col className="pr-0">{selectComponent}</Col>
-        <Col className="col-auto pl-2">
+        <Col className="pe-0">{selectComponent}</Col>
+        <Col className="col-auto ps-2">
           <Button color="primary" disabled={!inputValue} onClick={handleVariantAdded}>
             Add
           </Button>

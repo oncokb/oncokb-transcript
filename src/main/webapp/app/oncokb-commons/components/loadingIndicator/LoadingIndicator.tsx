@@ -2,7 +2,7 @@ import * as React from 'react';
 import { If, Then } from 'react-if';
 import Spinner from 'react-spinkit';
 import classnames from 'classnames';
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 export enum LoaderSize {
   LARGE,
@@ -18,6 +18,7 @@ export interface ILoader {
   centerRelativeToContainer?: boolean;
   size?: LoaderSize;
   className?: string;
+  children?: React.ReactNode;
 }
 
 export default class LoadingIndicator extends React.Component<ILoader> {
@@ -38,7 +39,6 @@ export default class LoadingIndicator extends React.Component<ILoader> {
 
     const parentStyles = {
       [styles.centered]: this.props.center,
-      [styles['centered-relative-to-container']]: this.props.centerRelativeToContainer,
       [styles['centered-with-children']]:
         (this.props.center || this.props.centerRelativeToContainer) && React.Children.count(this.props.children) > 0,
     };

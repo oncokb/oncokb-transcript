@@ -43,7 +43,7 @@ export const Alteration = (props: IAlterationProps) => {
     <div>
       <h2 id="alteration-heading" data-cy="AlterationHeading">
         Alterations
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.ALTERATION} entityAction={ENTITY_ACTION.ADD} />
+        <EntityActionButton className="ms-2" color="primary" entityType={ENTITY_TYPE.ALTERATION} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {alterationList && (

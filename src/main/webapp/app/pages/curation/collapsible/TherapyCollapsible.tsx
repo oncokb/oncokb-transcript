@@ -17,7 +17,7 @@ import BadgeGroup from '../BadgeGroup';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
 import RCTButton from '../button/RCTButton';
 import TreatmentLevelSummary from '../nestLevelSummary/TreatmentLevelSummary';
-import styles from '../styles.module.scss';
+import * as styles from './styles.module.scss';
 import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import { RemovableCollapsible } from './RemovableCollapsible';
 import TherapyDropdownGroup from './TherapyDropdownGroup';
@@ -53,13 +53,13 @@ function TherapyCollapsible({
     callbacks.push(
       onValue(ref(firebaseDb, `${therapyPath}/name`), snapshot => {
         setTreatmentName(snapshot.val());
-      })
+      }),
     );
     callbacks.push(
       onValue(ref(firebaseDb, `${therapyPath}/name_review`), snapshot => {
         setTreatmentReview(snapshot.val());
         setIsRemovableWithoutReview(isSectionRemovableWithoutReview(snapshot.val()));
-      })
+      }),
     );
 
     onValue(
@@ -67,7 +67,7 @@ function TherapyCollapsible({
       snapshot => {
         setTreatmentUuid(snapshot.val());
       },
-      { onlyOnce: true }
+      { onlyOnce: true },
     );
   }, [therapyPath, firebaseDb]);
 

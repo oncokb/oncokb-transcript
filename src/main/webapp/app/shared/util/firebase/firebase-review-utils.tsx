@@ -188,14 +188,14 @@ export const reformatReviewTitle = (baseReviewLevel: BaseReviewLevel) => {
   const titleParts = reviewTitle.split('/');
   const isNonActionableLevel = baseReviewLevel.reviewLevelType === ReviewLevelType.META || baseReviewLevel.nestedUnderCreateOrDelete;
   if (isNonActionableLevel) {
-    return <span className="font-weight-normal">{titleParts.join(' / ')}</span>;
+    return <span className="fw-normal">{titleParts.join(' / ')}</span>;
   }
   const lastTitlePart = titleParts.pop();
   return (
     <>
-      <span className="font-weight-normal">{titleParts.join(' / ')}</span>
-      {titleParts.length > 0 && <span className="font-weight-normal"> / </span>}
-      <span className="font-weight-bold">{lastTitlePart}</span>
+      <span className="fw-normal">{titleParts.join(' / ')}</span>
+      {titleParts.length > 0 && <span className="fw-normal"> / </span>}
+      <span className="fw-bold">{lastTitlePart}</span>
     </>
   );
 };

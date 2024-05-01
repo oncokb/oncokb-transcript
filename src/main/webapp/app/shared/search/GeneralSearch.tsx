@@ -92,7 +92,7 @@ export const GeneralSearch = props => {
     return (
       <>
         <components.GroupHeading {...groupHeadingProps}>
-          <div style={{ color: 'black', fontSize: '16px' }} className="font-weight-bold">
+          <div style={{ color: 'black', fontSize: '16px' }} className="fw-bold">
             {groupHeadingProps.data.label}
           </div>
         </components.GroupHeading>
@@ -137,7 +137,7 @@ export const GeneralSearch = props => {
           }}
         />
       </div>
-      <div className={'ml-2'} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div className={'ms-2'} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <DefaultTooltip placement="bottom" overlay={SearchInfoIconOverlay}>
           <FontAwesomeIcon icon={faInfoCircle} />
         </DefaultTooltip>

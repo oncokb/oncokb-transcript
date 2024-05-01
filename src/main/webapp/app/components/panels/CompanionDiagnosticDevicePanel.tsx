@@ -19,7 +19,7 @@ import { Association, CancerType } from 'app/shared/api/generated';
 import { associationClient } from 'app/shared/api/clients';
 import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 
-const SidebarMenuItem: React.FunctionComponent<{ style?: React.CSSProperties }> = ({ style, children }) => {
+const SidebarMenuItem: React.FunctionComponent<{ style?: React.CSSProperties; children: React.ReactNode }> = ({ style, children }) => {
   return <div style={{ padding: '0.5rem 1rem', ...style }}>{children}</div>;
 };
 
@@ -98,7 +98,7 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
                 <AlterationSelect isMulti geneId={selectedGeneId} onChange={onAlterationChange} />
               </div>
               <DefaultTooltip overlay={'Create new alteration'}>
-                <Button className="ml-1" color="primary" onClick={redirectToCreateAlteration}>
+                <Button className="ms-1" color="primary" onClick={redirectToCreateAlteration}>
                   <FontAwesomeIcon icon={faPlus} size="sm" />
                 </Button>
               </DefaultTooltip>
@@ -116,7 +116,7 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
                 <FdaSubmissionSelect cdxId={id} isMulti onChange={onFdaSubmissionChange} />
               </div>
               <DefaultTooltip overlay={'Create new Fda Submission'}>
-                <Button className="ml-1" color="primary" onClick={redirectToCreateFdaSubmission}>
+                <Button className="ms-1" color="primary" onClick={redirectToCreateFdaSubmission}>
                   <FontAwesomeIcon icon={faPlus} size="sm" />
                 </Button>
               </DefaultTooltip>

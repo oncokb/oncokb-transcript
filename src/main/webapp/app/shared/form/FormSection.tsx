@@ -3,6 +3,7 @@ import React from 'react';
 interface IFormSectionProps {
   sectionTitle?: string;
   isFirst?: boolean;
+  children: React.ReactNode;
 }
 
 export const FormSection: React.FunctionComponent<IFormSectionProps> = ({ sectionTitle, isFirst = false, children }) => {

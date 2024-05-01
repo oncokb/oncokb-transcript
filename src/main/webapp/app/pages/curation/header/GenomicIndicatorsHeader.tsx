@@ -33,7 +33,7 @@ function GenomicIndicatorsHeader({ genomicIndicatorsPath, firebaseDb, authStore,
   function getAddButton() {
     const addButton = (
       <AddButton
-        className={classNames(isGenomicIndicator ? 'ml-2' : null)}
+        className={classNames(isGenomicIndicator ? 'ms-2' : null)}
         title={!isGenomicIndicator ? 'Genomic Indicators' : null}
         disabled={isEmptyIndicatorName}
         onClickHandler={() => {

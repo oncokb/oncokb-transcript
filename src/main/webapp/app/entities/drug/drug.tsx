@@ -9,7 +9,7 @@ import { filterByKeyword, getAlterationName, getEntityTableActionsColumn, getGen
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { IAlteration } from 'app/shared/model/alteration.model';
 import _ from 'lodash';
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 import { IAssociation } from 'app/shared/model/association.model';
 
 export interface IDrugProps extends StoreProps, RouteComponentProps<{ url: string }> {}
@@ -106,7 +106,7 @@ export const Drug = (props: IDrugProps) => {
     <div>
       <h2 id="drug-heading" data-cy="DrugHeading">
         Drugs
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.DRUG} entityAction={ENTITY_ACTION.ADD} />
+        <EntityActionButton className="ms-2" color="primary" entityType={ENTITY_TYPE.DRUG} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>{drugList && <OncoKBTable data={props.drugList.concat()} columns={columns} loading={props.loading} showPagination />}</div>
     </div>

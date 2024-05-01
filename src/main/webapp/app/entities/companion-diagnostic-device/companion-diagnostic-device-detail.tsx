@@ -28,7 +28,7 @@ export const CompanionDiagnosticDeviceDetail = (props: ICompanionDiagnosticDevic
           <h2>
             Companion Diagnostic Device
             <EntityActionButton
-              className="ml-2"
+              className="ms-2"
               color="primary"
               entityId={companionDiagnosticDeviceEntity.id}
               entityType={ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE}

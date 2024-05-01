@@ -43,12 +43,12 @@ const ReviewPage = (props: IReviewPageProps) => {
     callbacks.push(
       onValue(ref(props.firebaseDb, firebaseGenePath), snapshot => {
         setGeneData(snapshot.val());
-      })
+      }),
     );
     callbacks.push(
       onValue(ref(props.firebaseDb, firebaseMetaReviewPath), snapshot => {
         setMetaReview(snapshot.val());
-      })
+      }),
     );
 
     return () => callbacks.forEach(callback => callback?.());
@@ -128,7 +128,7 @@ const ReviewPage = (props: IReviewPageProps) => {
           <Row>
             <Col>
               <Button
-                className="mr-2 mb-2"
+                className="me-2 mb-2"
                 outline
                 color="primary"
                 size="sm"
@@ -138,7 +138,7 @@ const ReviewPage = (props: IReviewPageProps) => {
               </Button>
               {editorReviewMap.getEditorList().map(editor => (
                 <Button
-                  className="mr-2 mb-2"
+                  className="me-2 mb-2"
                   key={editor}
                   outline
                   color="primary"

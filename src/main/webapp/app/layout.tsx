@@ -9,7 +9,11 @@ import { IRootStore } from './stores';
 // Paths that should show the curation panel
 const includedPaths = ['/companion-diagnostic-device/:id/edit'];
 
-const Layout: React.FunctionComponent<StoreProps> = props => {
+interface ILayoutProps extends StoreProps {
+  children: React.ReactNode;
+}
+
+const Layout: React.FunctionComponent<ILayoutProps> = props => {
   const history = useHistory();
 
   useEffect(() => {

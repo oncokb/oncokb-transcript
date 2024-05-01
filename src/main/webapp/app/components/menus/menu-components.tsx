@@ -9,12 +9,13 @@ type NavDropDownProps = {
   style?: any;
   icon: IconProp;
   id: any;
+  children: React.ReactNode;
 };
 
 export const NavDropdown: React.FunctionComponent<NavDropDownProps> = props => (
   <UncontrolledDropdown nav inNavbar id={props.id}>
     <DropdownToggle nav caret className="d-flex align-items-center">
-      <FontAwesomeIcon icon={props.icon} className="mr-2" />
+      <FontAwesomeIcon icon={props.icon} className="me-2" />
       <span>{props.name}</span>
     </DropdownToggle>
     <DropdownMenu right style={props.style}>

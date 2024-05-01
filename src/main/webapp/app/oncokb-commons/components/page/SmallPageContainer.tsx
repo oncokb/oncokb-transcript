@@ -4,6 +4,7 @@ import { Col, Row } from 'reactstrap';
 const SmallPageContainer: React.FunctionComponent<{
   size?: 'sm' | 'lg';
   className?: string;
+  children: React.ReactNode;
 }> = props => {
   return (
     <Row className={`justify-content-center ${props.className}`}>

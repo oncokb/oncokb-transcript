@@ -67,7 +67,7 @@ const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props 
   const loadCancerTypeOptions = async (
     searchWord: string,
     prevOptions: any[],
-    { page, type }: { page: number; type: SearchOptionType }
+    { page, type }: { page: number; type: SearchOptionType },
   ) => {
     let result = undefined;
     let options = [];
@@ -104,7 +104,7 @@ const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props 
       additional={{ ...defaultAdditional, type: SearchOptionType.CANCER_TYPE }}
       loadOptions={loadCancerTypeOptions}
       reduceOptions={reduceGroupedOptions}
-      isOptionDisabled={option => disabledOptions?.some(disabled => disabled.value === option.value) || false}
+      isOptionDisabled={option => disabledOptions?.some(disabled => disabled.value === (option as CancerTypeSelectOption).value) || false}
       cacheUniqs={[props.value]}
       placeholder="Select a cancer type..."
       isClearable

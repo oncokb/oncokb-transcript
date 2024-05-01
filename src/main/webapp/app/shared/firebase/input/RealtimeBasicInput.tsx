@@ -7,8 +7,8 @@ import { onValue, ref } from 'firebase/database';
 import { inject } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { FormFeedback, Input, Label, LabelProps } from 'reactstrap';
-import { InputType } from 'reactstrap/es/Input';
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
+import { InputType } from 'reactstrap/types/lib/Input';
 
 export enum RealtimeInputType {
   TEXT = 'text',
@@ -38,7 +38,7 @@ export const RealtimeBasicLabel: React.FunctionComponent<IRealtimeBasicLabel> = 
     <Label {...labelProps} id={id} for={id} className={classnames(labelClass, 'text-nowrap')}>
       <div className="d-flex align-items-center">
         {label}
-        {labelIcon && <span className="mr-2" />}
+        {labelIcon && <span className="me-2" />}
         {labelIcon}
       </div>
     </Label>
@@ -91,17 +91,17 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     callbacks.push(
       onValue(ref(db, firebasePath), snapshot => {
         setInputValue(snapshot.val());
-      })
+      }),
     );
     callbacks.push(
       onValue(ref(db, `${firebasePath}_review`), snapshot => {
         setInputValueReview(snapshot.val());
-      })
+      }),
     );
     callbacks.push(
       onValue(ref(db, `${firebasePath}_uuid`), snapshot => {
         setInputValueUuid(snapshot.val());
-      })
+      }),
     );
     return () => {
       callbacks.forEach(callback => callback?.());
@@ -109,7 +109,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   }, [firebasePath, db]);
 
   const labelComponent = label && (
-    <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'font-weight-bold'} />
+    <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'fw-bold'} />
   );
 
   const inputChangeHandler = e => {
@@ -137,7 +137,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   const inputComponent = (
     <>
       <Input
-        className={classNames(inputClass, isCheckType && 'ml-1 position-relative', isTextType && styles.editableTextBox)}
+        className={classNames(inputClass, isCheckType && 'ms-1 position-relative', isTextType && styles.editableTextBox)}
         id={id}
         name={`${id}-${label.toLowerCase()}`}
         autoComplete="off"
@@ -171,7 +171,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
         </>
       ) : isInlineInputText ? (
         <div className={'d-flex'}>
-          <div className={'mr-2 d-flex'}>{labelComponent}:</div>
+          <div className={'me-2 d-flex'}>{labelComponent}:</div>
           {inputComponent}
         </div>
       ) : (

@@ -21,6 +21,7 @@ const getPubMedContent = (pubMedDto: PubMedDTO) => {
 
 export interface IPubMedArticleTooltip extends StoreProps {
   pmid: string;
+  children: React.ReactNode;
 }
 
 const PubMedArticleTooltipContent: React.FunctionComponent<IPubMedArticleTooltip> = props => {
@@ -48,7 +49,7 @@ const PubMedArticleTooltipContent: React.FunctionComponent<IPubMedArticleTooltip
             {pubMedDto.synonyms?.length > 0 && (
               <p>
                 {pubMedDto.synonyms.map(synonym => (
-                  <span className={'mr-2'} key={`${synonym.type}-${synonym.source}-${synonym.name}`}>
+                  <span className={'me-2'} key={`${synonym.type}-${synonym.source}-${synonym.name}`}>
                     <b>{synonym.source === 'pubmed' ? 'PMID' : synonym.source?.toUpperCase()}</b>: {synonym.name}
                   </span>
                 ))}

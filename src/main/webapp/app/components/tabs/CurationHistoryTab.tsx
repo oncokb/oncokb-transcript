@@ -123,10 +123,10 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
 
       content.push(
         <div>
-          <Row className="justify-content-between" style={{ marginBottom: '22px' }}>
+          <div className="d-flex justify-content-between align-items-center" style={{ marginBottom: '22px' }}>
             <span>
               <TextFormat value={data.createdAt} type="date" format={APP_HISTORY_FORMAT} />
-              <span className="mr-2" />
+              <span className="me-2" />
               <TextFormat value={data.createdAt} type="date" format={APP_TIME_FORMAT} />
             </span>
             <DefaultTooltip
@@ -136,16 +136,16 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
             >
               <FaHistory color={isContentAvailable ? 'black' : GREY} />
             </DefaultTooltip>
-          </Row>
-          <Row className="mb-2">
+          </div>
+          <div className="mb-2">
             <span>{`${data.admin} approved ${data.operation} by ${data.editBy}`}</span>
-          </Row>
-          <Row className="border-bottom pb-3 mb-3">
+          </div>
+          <div className="border-bottom pb-3 mb-3">
             <span>
               <b>Location: </b> {`${formatLocation(data.location, drugList, data.objectField)}`}
             </span>
-          </Row>
-        </div>
+          </div>
+        </div>,
       );
     }
     return content;
@@ -155,7 +155,7 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
 
   return (
     <div>
-      <Row className="mb-3">
+      <div className="mb-3">
         <Label for="start-date">Start Date</Label>
         <Input
           id="start-date"
@@ -165,8 +165,8 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
           type="date"
           name="date"
         />
-      </Row>
-      <Row className="mb-3">
+      </div>
+      <div className="mb-3">
         <Label for="end-date">End Date</Label>
         <Input
           id="end-date"
@@ -176,8 +176,8 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
           type="date"
           name="date"
         />
-      </Row>
-      <Row className="mb-3">
+      </div>
+      <div className="mb-3">
         <Label for="author">Author</Label>
         <ReactSelect
           value={historyTabStore.selectedAuthor}
@@ -192,8 +192,8 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
           }}
           options={authorDropdownOptions}
         />
-      </Row>
-      <Row className={`justify-content-${historyTabStore.isFiltered ? 'between' : 'end'}`}>
+      </div>
+      <div className={`d-flex justify-content-${historyTabStore.isFiltered ? 'between' : 'end'}`}>
         {historyTabStore.isFiltered && (
           <Button outline color="danger" size="sm" onClick={() => historyTabStore.reset()}>
             Clear Filters
@@ -202,15 +202,15 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
         <Button onClick={() => historyTabStore.applyFilters()} color="primary">
           Apply
         </Button>
-      </Row>
-      <Row className="border-top mt-3">
+      </div>
+      <div className="border-top mt-3">
         <h6 className="pt-3">Change History</h6>
-      </Row>
-      <Row className="mb-3 change-history-length">
+      </div>
+      <div className="mb-3 change-history-length">
         <span>{`Showing ${!historyTabStore.isFiltered ? 'latest' : ''} ${historyContent.length} ${
           historyContent.length !== 1 ? 'changes' : 'change'
         }`}</span>
-      </Row>
+      </div>
       {historyContent}
     </div>
   );

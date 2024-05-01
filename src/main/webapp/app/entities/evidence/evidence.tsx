@@ -26,7 +26,7 @@ export const Evidence = (props: IEvidenceProps) => {
     <div>
       <h2 id="evidence-heading" data-cy="EvidenceHeading">
         Evidences
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.EVIDENCE} entityAction={ENTITY_ACTION.ADD} />
+        <EntityActionButton className="ms-2" color="primary" entityType={ENTITY_TYPE.EVIDENCE} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {props.evidenceList && (

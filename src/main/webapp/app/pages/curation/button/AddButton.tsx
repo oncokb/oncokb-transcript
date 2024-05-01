@@ -16,14 +16,14 @@ const AddButton: React.FunctionComponent<{
   }
   return (
     <Button
-      className={classNames('d-flex align-items-center mr-2', className)}
+      className={classNames('d-flex align-items-center me-2', className)}
       color="primary"
       outline
       disabled={disabled}
       size="sm"
       onClick={onClickHandler}
     >
-      {showIcon && <FaPlus className="mr-2" />}
+      {showIcon && <FaPlus className="me-2" />}
       <span>{text}</span>
     </Button>
   );

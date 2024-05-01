@@ -22,7 +22,7 @@ import TherapiesList from '../list/TherapiesList';
 import CancerTypeLevelSummary from '../nestLevelSummary/CancerTypeLevelSummary';
 import Collapsible from './Collapsible';
 import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
-import styles from '../styles.module.scss';
+import * as styles from '../styles.module.scss';
 import BadgeGroup from '../BadgeGroup';
 import { RemovableCollapsible } from './RemovableCollapsible';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
@@ -53,19 +53,19 @@ function CancerTypeCollapsible({
     callbacks.push(
       onValue(ref(firebaseDb, `${cancerTypePath}/cancerTypes`), snapshot => {
         setCancerTypes(snapshot.val());
-      })
+      }),
     );
     callbacks.push(
       onValue(ref(firebaseDb, `${cancerTypePath}/excludedCancerTypes`), snapshot => {
         setExcludedCancerTypes(snapshot.val());
-      })
+      }),
     );
     callbacks.push(
       onValue(ref(firebaseDb, `${cancerTypePath}/cancerTypes_review`), snapshot => {
         const review = snapshot.val() as Review;
         setCancerTypesReview(review);
         setIsRemovableWithoutReview(isSectionRemovableWithoutReview(review));
-      })
+      }),
     );
 
     onValue(
@@ -73,7 +73,7 @@ function CancerTypeCollapsible({
       snapshot => {
         setCancerTypesUuid(snapshot.val());
       },
-      { onlyOnce: true }
+      { onlyOnce: true },
     );
 
     return () => callbacks.forEach(callback => callback?.());

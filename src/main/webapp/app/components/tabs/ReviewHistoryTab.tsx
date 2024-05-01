@@ -65,20 +65,20 @@ function ReviewHistoryTab({ firebaseDb, drugList, getDrugs }: StoreProps) {
 
   return (
     <div>
-      <Row className="mb-3">
+      <div className="mb-3">
         <Label for="start-date">Start Date</Label>
         <Input id="start-date" value={startDate} onChange={event => setStartDate(event.target.value)} type="date" name="date" />
-      </Row>
-      <Row className="mb-3">
+      </div>
+      <div className="mb-3">
         <Label for="end-date">End Date</Label>
         <Input id="end-date" value={endDate} onChange={event => setEndDate(event.target.value)} type="date" name="date" />
-      </Row>
-      <Row className="align-items-center justify-content-end">
-        {!historyCollection && <Spinner className="mr-2" color="primary" size="sm" />}
+      </div>
+      <div className="d-flex align-items-center justify-content-end">
+        {!historyCollection && <Spinner className="me-2" color="primary" size="sm" />}
         <Button disabled={!historyCollection} onClick={handleDownload} color="primary">
           Download
         </Button>
-      </Row>
+      </div>
     </div>
   );
 }
