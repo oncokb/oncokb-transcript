@@ -13,7 +13,7 @@ export default function GeneRealtimeComponentHeader({ title, tooltip, commentIco
     <>
       {title && <span style={{ marginRight: '8px' }}>{title}</span>}
       {tooltip}
-      <div className="mr-3" />
+      <div className="me-3" />
       {commentIcon}
     </>
   );

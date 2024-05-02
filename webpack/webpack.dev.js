@@ -74,7 +74,7 @@ module.exports = async options =>
           ws: true,
         },
       ],
-      https: options.tls,
+      server: options.tls ? 'https' : 'http',
       historyApiFallback: true,
     },
     stats: process.env.JHI_DISABLE_WEBPACK_LOGS ? 'none' : options.stats,
@@ -111,7 +111,7 @@ module.exports = async options =>
         },
         {
           reload: false,
-        }
+        },
       ),
       new webpack.HotModuleReplacementPlugin(),
       new WebpackNotifierPlugin({

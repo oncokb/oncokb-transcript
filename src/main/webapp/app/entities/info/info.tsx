@@ -28,7 +28,7 @@ export const Info = (props: IInfoProps) => {
     <div>
       <h2 id="info-heading" data-cy="InfoHeading">
         Infos
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.INFO} entityAction={ENTITY_ACTION.ADD} />
+        <EntityActionButton className="ms-2" color="primary" entityType={ENTITY_TYPE.INFO} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>{props.infoList && <OncoKBTable data={props.infoList.concat()} columns={columns} loading={props.loading} showPagination />}</div>
     </div>

@@ -77,7 +77,7 @@ const TimeSeries = ({ data, groupByDay = true }: ITimeSeriesProps) => {
               groupByDay={false}
             />
           </TimeSeriesInfo>
-        ))
+        )),
       )}
     </>
   );
@@ -110,7 +110,7 @@ const TimeSeriesInfo = ({ date, children }: ITimeSeriesInfoProps) => {
   return (
     <Col>
       {date && (
-        <Row className="pl-1">
+        <Row className="ps-1">
           <h5>
             <TextFormat value={date} type="date" format={APP_HISTORY_FORMAT} />
           </h5>

@@ -21,7 +21,7 @@ const getAssociatedAlterations = (associations?: IAssociation[]) => {
   return (
     associations
       ?.map(association =>
-        association.alterations?.map(alt => `${alt.genes?.map(gene => gene.hugoSymbol).join('-')} ${alt.alteration}`).join()
+        association.alterations?.map(alt => `${alt.genes?.map(gene => gene.hugoSymbol).join('-')} ${alt.alteration}`).join(),
       )
       .join() || ''
   );
@@ -78,7 +78,7 @@ export const GenomicIndicator = (props: IGenomicIndicatorProps) => {
     <div>
       <h2 id="genomic-indicator-heading" data-cy="GenomicIndicatorHeading">
         Genomic Indicators
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.GENOMIC_INDICATOR} entityAction={ENTITY_ACTION.ADD} />
+        <EntityActionButton className="ms-2" color="primary" entityType={ENTITY_TYPE.GENOMIC_INDICATOR} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {props.genomicIndicatorList && (

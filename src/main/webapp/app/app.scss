@@ -83,7 +83,9 @@ Generic styles
 }
 
 .shadow {
-  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px;
+  box-shadow:
+    rgba(0, 0, 0, 0.12) 0px 1px 6px,
+    rgba(0, 0, 0, 0.12) 0px 1px 4px;
   border-radius: 2px;
 }
 
@@ -411,4 +413,19 @@ http://stackoverflow.com/questions/23436430/bootstrap-3-input-group-100-width */
 
 .form-check-input {
   margin-top: 0.1rem;
+}
+
+.btn-secondary {
+  --bs-btn-color: #fff !important;
+  --bs-btn-disabled-color: #fff !important;
+  --bs-btn-hover-color: #fff !important;
+}
+
+.text-bg-info,
+.text-bg-success {
+  color: #fff !important;
+}
+
+a {
+  text-decoration: none !important;
 }

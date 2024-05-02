@@ -40,7 +40,7 @@ export const SeqRegion = (props: ISeqRegionProps) => {
     <div>
       <h2 id="seq-region-heading" data-cy="SeqRegionHeading">
         Seq Regions
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.SEQ_REGION} entityAction={ENTITY_ACTION.ADD} />
+        <EntityActionButton className="ms-2" color="primary" entityType={ENTITY_TYPE.SEQ_REGION} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {props.seqRegionList && (

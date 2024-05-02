@@ -59,22 +59,22 @@ const RelevantCancerTypesModalContent = observer(
 
       async function setRelevantCancerTypes() {
         const relevantCancerTypeQueries: RelevantCancerTypeQuery[] = convertCancerTypesToRelevantCancerTypeQueries(
-          relevantCancerTypesModalStore.tumor.cancerTypes
+          relevantCancerTypesModalStore.tumor.cancerTypes,
         );
         const excludedRelevantCancerTypeQueries: RelevantCancerTypeQuery[] = convertCancerTypesToRelevantCancerTypeQueries(
-          relevantCancerTypesModalStore.tumor.excludedCancerTypes
+          relevantCancerTypesModalStore.tumor.excludedCancerTypes,
         );
 
         const fetchedRelevantCancerTypes = (
           await cancerTypeClient.getRelevantCancerTypes(
             { relevantCancerTypeQueries, excludedRelevantCancerTypeQueries },
-            relevantCancerTypesModalStore.level ? `LEVEL_${relevantCancerTypesModalStore.level}` : null
+            relevantCancerTypesModalStore.level ? `LEVEL_${relevantCancerTypesModalStore.level}` : null,
           )
         ).data;
 
         if (!relevantCancerTypesModalStore.firebaseExcludedRCTs) {
           relevantCancerTypesModalStore.setRelevantCancerTypes(
-            fetchedRelevantCancerTypes.map(rct => convertFetchedCancerTypeToRelevantCancerType(rct, false))
+            fetchedRelevantCancerTypes.map(rct => convertFetchedCancerTypeToRelevantCancerType(rct, false)),
           );
           return;
         }
@@ -109,18 +109,16 @@ const RelevantCancerTypesModalContent = observer(
           const rct = original as RelevantCancerType;
 
           return (
-            <Container>
-              <Row className={classNames('d-flex', 'align-items-center', 'all-children-margin')}>
-                {rct.isDeleted ? <s>{rct.mainType}</s> : <span>{rct.mainType}</span>}
-                {rct.isDeleted && (
-                  <DefaultBadge
-                    color="danger"
-                    text="Deleted"
-                    tooltipOverlay={<span>This RCT is deleted. Press the revert button to undo the deletion.</span>}
-                  />
-                )}
-              </Row>
-            </Container>
+            <div className={classNames('d-flex', 'align-items-center', 'all-children-margin')}>
+              {rct.isDeleted ? <s>{rct.mainType}</s> : <span>{rct.mainType}</span>}
+              {rct.isDeleted && (
+                <DefaultBadge
+                  color="danger"
+                  text="Deleted"
+                  tooltipOverlay={<span>This RCT is deleted. Press the revert button to undo the deletion.</span>}
+                />
+              )}
+            </div>
           );
         },
       },
@@ -217,7 +215,7 @@ const RelevantCancerTypesModalContent = observer(
           <div className="d-flex justify-content-between">
             {allCancerTypesDeleted && (
               <div className="error-message">
-                <FaExclamationCircle className="mr-2" size={'25px'} />
+                <FaExclamationCircle className="me-2" size={'25px'} />
                 <span>You must include at least one cancer type</span>
               </div>
             )}
@@ -226,7 +224,7 @@ const RelevantCancerTypesModalContent = observer(
                 <span>
                   {`There ${pluralize('is', numberDeletedRcts)} ${numberDeletedRcts} excluded cancer ${pluralize(
                     'type',
-                    numberDeletedRcts
+                    numberDeletedRcts,
                   )}`}
                 </span>
               </div>
@@ -243,10 +241,10 @@ const RelevantCancerTypesModalContent = observer(
                   <Button
                     outline
                     color="danger"
-                    className="ml-1 mr-2"
+                    className="ms-1 me-2"
                     onClick={() => {
                       relevantCancerTypesModalStore.setRelevantCancerTypes(
-                        relevantCancerTypesModalStore.relevantCancerTypes.map(rct => ({ ...rct, isDeleted: false }))
+                        relevantCancerTypesModalStore.relevantCancerTypes.map(rct => ({ ...rct, isDeleted: false })),
                       );
                     }}
                   >
@@ -254,7 +252,7 @@ const RelevantCancerTypesModalContent = observer(
                   </Button>
                 </>
               )}
-              <Button className="mr-2" onClick={onCancel}>
+              <Button className="me-2" onClick={onCancel}>
                 Cancel
               </Button>
               <Button
@@ -281,7 +279,7 @@ const RelevantCancerTypesModalContent = observer(
         </ModalFooter>
       </Modal>
     );
-  }
+  },
 );
 
 const mapStoreToProps = ({ relevantCancerTypesModalStore }: IRootStore) => ({

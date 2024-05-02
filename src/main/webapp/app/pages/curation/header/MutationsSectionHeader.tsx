@@ -1,6 +1,6 @@
 import { CHECKBOX_LABEL_LEFT_MARGIN, UPDATE_MUTATION_FILTERS_DEBOUNCE_MILLISECONDS } from 'app/config/constants/constants';
 import { ONCOGENICITY_OPTIONS, MUTATION_EFFECT_OPTIONS, TX_LEVEL_OPTIONS } from 'app/config/constants/firebase';
-import { Mutation } from 'app/shared/model/firebase/firebase.model';
+import { FIREBASE_ONCOGENICITY, Mutation, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import { getFilterModalStats, getMutationName } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
@@ -48,14 +48,14 @@ function MutationsSectionHeader({
 
   const [oncogenicityFilter, setOncogenicityFilter] = useState(initFilterCheckboxState(FilterType.ONCOGENICITY, ONCOGENICITY_OPTIONS));
   const [tempOncogenicityFilter, setTempOncogenicityFilter] = useState(
-    initFilterCheckboxState(FilterType.ONCOGENICITY, ONCOGENICITY_OPTIONS)
+    initFilterCheckboxState(FilterType.ONCOGENICITY, ONCOGENICITY_OPTIONS),
   );
 
   const [mutationEffectFilter, setMutationEffectFilter] = useState(
-    initFilterCheckboxState(FilterType.MUTATION_EFFECT, MUTATION_EFFECT_OPTIONS)
+    initFilterCheckboxState(FilterType.MUTATION_EFFECT, MUTATION_EFFECT_OPTIONS),
   );
   const [tempMutationEffectFilter, setTempMutationEffectFilter] = useState(
-    initFilterCheckboxState(FilterType.MUTATION_EFFECT, MUTATION_EFFECT_OPTIONS)
+    initFilterCheckboxState(FilterType.MUTATION_EFFECT, MUTATION_EFFECT_OPTIONS),
   );
 
   const [txLevelFilter, setTxLevelFilter] = useState(initFilterCheckboxState(FilterType.TX_LEVEL, TX_LEVEL_OPTIONS));
@@ -90,7 +90,7 @@ function MutationsSectionHeader({
         const selectedOncogenicities = oncogenicityFilter.filter(filter => filter.selected);
         const matchesOncogenicity =
           selectedOncogenicities.length === 0 ||
-          selectedOncogenicities.some(oncogenicity => oncogenicity.label === mutation.mutation_effect.oncogenic);
+          selectedOncogenicities.some(oncogenicity => (oncogenicity.label as FIREBASE_ONCOGENICITY) === mutation.mutation_effect.oncogenic);
 
         const selectedMutationEffects = mutationEffectFilter.filter(filter => filter.selected);
         const matchesMutationEffect =
@@ -134,7 +134,7 @@ function MutationsSectionHeader({
               }
 
               for (const treatment of TI.treatments) {
-                if (selectedTxLevels.some(txLevel => txLevel.label === treatment.level)) {
+                if (selectedTxLevels.some(txLevel => (txLevel.label as TX_LEVELS) === treatment.level)) {
                   return true;
                 }
               }
@@ -209,7 +209,7 @@ function MutationsSectionHeader({
           selected: boolean;
         }[]
       >
-    >
+    >,
   ) {
     setState(currentState =>
       currentState.map((filter, filterIndex) => {
@@ -217,7 +217,7 @@ function MutationsSectionHeader({
           return { label: filter.label, selected: !filter.selected };
         }
         return filter;
-      })
+      }),
     );
   }
 
@@ -234,7 +234,7 @@ function MutationsSectionHeader({
   return (
     <div className={'d-flex align-items-center mb-2 mt-4'}>
       <div className={'d-flex align-items-center mb-2'}>
-        <h5 className="mb-0 mr-2">Mutations:</h5>
+        <h5 className="mb-0 me-2">Mutations:</h5>
         <AddMutationButton showAddMutationModal={showAddMutationModal} onClickHandler={(show: boolean) => setShowAddMutationModal(!show)} />
       </div>
       <div style={{ width: '100%' }} className="d-flex align-items-center justify-content-between mb-2">
@@ -245,7 +245,7 @@ function MutationsSectionHeader({
               color={mutationsAreFiltered ? 'gold' : null}
               style={{ cursor: 'pointer' }}
               onClick={handleToggleFilterModal}
-              className="mr-2"
+              className="me-2"
               id="filter"
             />
             <Input placeholder={'Search Mutation'} value={mutationFilter} onChange={event => setMutationFilter(event.target.value)} />
@@ -321,7 +321,7 @@ function MutationsSectionHeader({
                 const isDisabled = !checkboxEnabled(FilterType.TX_LEVEL, filter.label);
 
                 return (
-                  <Col style={{ flexGrow: 0 }} key={filter.label}>
+                  <Col className="col-2" key={filter.label}>
                     <InputGroup>
                       <Input
                         id={`tx-level-filter-${filter.label}`}
@@ -378,7 +378,7 @@ function MutationsSectionHeader({
             )}
             <Row className="justify-content-end">
               {showFilterModalCancelButton && (
-                <Col className="px-0 mr-2" style={{ flexGrow: 0 }}>
+                <Col className="px-0 me-2" style={{ flexGrow: 0 }}>
                   <Button
                     outline
                     color="danger"
@@ -393,7 +393,7 @@ function MutationsSectionHeader({
                   </Button>
                 </Col>
               )}
-              <Col className="px-0 mr-2" style={{ flexGrow: 0 }}>
+              <Col className="px-0 me-2" style={{ flexGrow: 0 }}>
                 <Button
                   color="primary"
                   onClick={() => {

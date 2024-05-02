@@ -74,7 +74,7 @@ export const EnsemblGene = (props: IEnsemblGeneProps) => {
     <div>
       <h2 id="ensembl-gene-heading" data-cy="EnsemblGeneHeading">
         Ensembl Genes
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.ENSEMBL_GENE} entityAction={ENTITY_ACTION.ADD} />
+        <EntityActionButton className="ms-2" color="primary" entityType={ENTITY_TYPE.ENSEMBL_GENE} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {ensemblGeneList && (

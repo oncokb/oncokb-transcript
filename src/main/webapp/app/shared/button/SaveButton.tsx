@@ -6,7 +6,7 @@ export const SaveButton: React.FunctionComponent<ButtonProps & React.HTMLAttribu
   return (
     <Button color="primary" type="submit" size="sm" {...props}>
       <FontAwesomeIcon icon="save" />
-      <span className="ml-2">Save</span>
+      <span className="ms-2">Save</span>
     </Button>
   );
 };

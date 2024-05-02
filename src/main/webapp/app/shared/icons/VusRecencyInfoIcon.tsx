@@ -8,14 +8,14 @@ export const VusRecencyInfoIcon = props => {
   const overlay = (
     <>
       <div>
-        <FontAwesomeIcon className="mr-2" icon={faCircle} color={WARNING} size="sm" />
+        <FontAwesomeIcon className="me-2" icon={faCircle} color={WARNING} size="sm" />
         <span>{'More than 3 months old'}</span>
       </div>
       <div>
-        <FontAwesomeIcon className="mr-2" icon={faCircle} color={DANGER} size="sm" />
+        <FontAwesomeIcon className="me-2" icon={faCircle} color={DANGER} size="sm" />
         <span>{'More than 6 months old'}</span>
       </div>
     </>
   );
-  return <InfoIcon type="info" overlay={overlay} className="ml-2" />;
+  return <InfoIcon type="info" overlay={overlay} className="ms-2" />;
 };

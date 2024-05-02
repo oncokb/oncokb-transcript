@@ -13,17 +13,12 @@ import {
 import _, { bind } from 'lodash';
 import { getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
 import { getTxName } from './firebase-utils';
-import { READABLE_FIELD, ReviewAction } from 'app/config/constants/firebase';
+import { READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import { DiffMethod } from 'react-diff-viewer-continued';
 import React from 'react';
 import { makeFirebaseKeysReadable } from './firebase-history-utils';
 import drug from 'app/entities/drug/drug';
-
-export enum ReviewLevelType {
-  META, // This means that the review level is used for grouping purposes
-  REVIEWABLE, // This means that the review level has reviewable content
-}
 
 export interface ReviewChildren {
   [key: string]: BaseReviewLevel;
@@ -198,14 +193,14 @@ export const reformatReviewTitle = (baseReviewLevel: BaseReviewLevel) => {
   const titleParts = reviewTitle.split('/');
   const isNonActionableLevel = baseReviewLevel.reviewLevelType === ReviewLevelType.META || baseReviewLevel.nestedUnderCreateOrDelete;
   if (isNonActionableLevel) {
-    return <span className="font-weight-normal">{titleParts.join(' / ')}</span>;
+    return <span className="fw-normal">{titleParts.join(' / ')}</span>;
   }
   const lastTitlePart = titleParts.pop();
   return (
     <>
-      <span className="font-weight-normal">{titleParts.join(' / ')}</span>
-      {titleParts.length > 0 && <span className="font-weight-normal"> / </span>}
-      <span className="font-weight-bold">{lastTitlePart}</span>
+      <span className="fw-normal">{titleParts.join(' / ')}</span>
+      {titleParts.length > 0 && <span className="fw-normal"> / </span>}
+      <span className="fw-bold">{lastTitlePart}</span>
     </>
   );
 };
@@ -237,7 +232,7 @@ const isNestedUnderCreateOrDelete = (parentReview: BaseReviewLevel) => {
   const parent = parentReview as ReviewLevel;
   if (
     [ReviewAction.CREATE, ReviewAction.DELETE, ReviewAction.DEMOTE_MUTATION, ReviewAction.PROMOTE_VUS].includes(
-      parent.reviewInfo.reviewAction
+      parent.reviewInfo.reviewAction,
     )
   ) {
     return true;
@@ -310,7 +305,7 @@ export const findReviewRecursive = (
   uuids: string[],
   parentReview: BaseReviewLevel,
   editorReviewMap: EditorReviewMap,
-  drugList: readonly IDrug[]
+  drugList: readonly IDrug[],
 ) => {
   if (uuids.length === 0) return;
   if (typeof currObj === 'object') {
@@ -398,7 +393,7 @@ export const buildNameReview = (
   parentReview: BaseReviewLevel,
   uuids: string[],
   editorReviewMap: EditorReviewMap,
-  drugList?: readonly IDrug[]
+  drugList?: readonly IDrug[],
 ) => {
   const nameKey = 'name';
 
@@ -476,7 +471,7 @@ export const buildCancerTypeNameReview = (
   currValuePath: string,
   parentReview: BaseReviewLevel,
   uuids: string[],
-  editorReviewMap: EditorReviewMap
+  editorReviewMap: EditorReviewMap,
 ) => {
   const nameKey = 'cancerTypes';
   const nameReviewKey = `${nameKey}_review`;
@@ -518,7 +513,7 @@ export const buildCancerTypeNameReview = (
     oldState = oldTumorName = getCancerTypesNameWithExclusion(
       (cancerTypesReview?.lastReviewed as CancerType[]) || [],
       (excludedCTReview?.lastReviewed as CancerType[]) || [],
-      true
+      true,
     );
     newState = newTumorName;
   } else {
@@ -560,7 +555,7 @@ export const buildStringReview = (
   relevantKeys: RelevantKeys,
   parentReview: BaseReviewLevel,
   uuids: string[],
-  editorReviewMap: EditorReviewMap
+  editorReviewMap: EditorReviewMap,
 ) => {
   const { fieldKey, reviewKey, uuidKey } = relevantKeys;
   const lastReviewedString = (obj[reviewKey] as Review).lastReviewed as string;
@@ -598,7 +593,7 @@ export const buildObjectReview = (
   key: string,
   parentReview: BaseReviewLevel,
   uuids: string[],
-  editorReviewMap: EditorReviewMap
+  editorReviewMap: EditorReviewMap,
 ) => {
   const readableKey = makeFirebaseKeysReadable([key])[0];
   const metaReview = new MetaReviewLevel({
@@ -621,7 +616,7 @@ export const buildRCTReview = (
   implication: Implication | Treatment,
   parentReview: BaseReviewLevel,
   uuids: string[],
-  editorReviewMap: EditorReviewMap
+  editorReviewMap: EditorReviewMap,
 ) => {
   if (!implication.excludedRCTs && !implication.excludedRCTs_review) return;
 

@@ -10,7 +10,7 @@ import { observer } from 'mobx-react';
 import { Mutation } from 'app/shared/model/firebase/firebase.model';
 import { compareMutations, getFirebaseGenePath } from 'app/shared/util/firebase/firebase-utils';
 import MutationCollapsible from '../collapsible/MutationCollapsible';
-import styles from '../styles.module.scss';
+import * as styles from '../styles.module.scss';
 import MutationsSectionHeader from '../header/MutationsSectionHeader';
 import classNames from 'classnames';
 import _ from 'lodash';
@@ -61,7 +61,7 @@ function MutationsSection({
           })
         );
       },
-      { onlyOnce: true }
+      { onlyOnce: true },
     );
   }, [hugoSymbol, isGermline]);
 

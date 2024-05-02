@@ -103,14 +103,14 @@ function AddMutationModal({
     callbacks.push(
       onValue(ref(firebaseDb, getFirebaseVusPath(isGermline, hugoSymbol)), snapshot => {
         setVusList(snapshot.val());
-      })
+      }),
     );
 
     if (mutationToEditPath) {
       callbacks.push(
         onValue(ref(firebaseDb, mutationToEditPath), snapshot => {
           setMutationToEdit(snapshot.val());
-        })
+        }),
       );
     }
 
@@ -184,8 +184,8 @@ function AddMutationModal({
               entityStatusExcludingAlterations[i][exIndex],
               parsedAlterations[i].excluding[exIndex],
               [],
-              ''
-            )
+              '',
+            ),
           );
         }
         excludingAlterations.push(excluding);
@@ -197,8 +197,8 @@ function AddMutationModal({
           parsedAlterations[index].alteration,
           excludingAlterations[index] || [],
           parsedAlterations[index].comment,
-          parsedAlterations[index].name
-        )
+          parsedAlterations[index].name,
+        ),
       );
 
       setTabStates(alterations);
@@ -224,7 +224,7 @@ function AddMutationModal({
   function filterAlterationsAndNotify(
     alterations: ReturnType<typeof parseAlterationName>,
     alterationData: AlterationData[],
-    alterationIndex?: number
+    alterationIndex?: number,
   ) {
     // remove alterations that already exist in modal
     const newAlterations = alterations.filter(alt => {
@@ -277,7 +277,7 @@ function AddMutationModal({
     alterationName: string,
     excluding: AlterationData[],
     comment: string,
-    variantName?: string
+    variantName?: string,
   ): AlterationData {
     const alteration = entityStatusAlteration.entity;
     return {
@@ -315,14 +315,14 @@ function AddMutationModal({
     if (
       _.isEqual(
         newParsedAlteration[0].excluding,
-        alterationData[alterationIndex]?.excluding.map(ex => ex.alteration)
+        alterationData[alterationIndex]?.excluding.map(ex => ex.alteration),
       )
     ) {
       newExcluding = alterationData[alterationIndex].excluding;
     } else {
       const excludingEntityStatusAlterations = await fetchAlterations(newParsedAlteration[0].excluding);
       newExcluding = excludingEntityStatusAlterations.map((ex, index) =>
-        convertEntityStatusAlterationToAlterationData(ex, newParsedAlteration[0].excluding[index], [], '')
+        convertEntityStatusAlterationToAlterationData(ex, newParsedAlteration[0].excluding[index], [], ''),
       );
     }
 
@@ -349,8 +349,8 @@ function AddMutationModal({
           newParsedAlteration[index + newAlterations.length].alteration,
           newExcluding,
           newComment,
-          newVariantName
-        )
+          newVariantName,
+        ),
       ),
     ];
     newAlterations[0].alterationFieldValueWhileFetching = null;
@@ -367,7 +367,7 @@ function AddMutationModal({
       await fetchNormalAlteration(newAlteration, alterationIndex, alterationData);
       setIsFetchingAlteration(false);
     }, 1000),
-    [tabStates.length]
+    [tabStates.length],
   );
 
   function handleNormalAlterationChange(newValue: string, alterationIndex: number) {
@@ -383,7 +383,7 @@ function AddMutationModal({
     newAlteration: string,
     alterationIndex: number,
     excludingIndex: number,
-    alterationData: AlterationData[]
+    alterationData: AlterationData[],
   ) {
     const newParsedAlteration = parseAlterationName(newAlteration);
 
@@ -402,7 +402,7 @@ function AddMutationModal({
       alterationData.some(
         state =>
           state.alteration.toLowerCase() === alteration &&
-          _.isEqual(state.excluding.map(ex => ex.alteration.toLowerCase()).sort(), excluding)
+          _.isEqual(state.excluding.map(ex => ex.alteration.toLowerCase()).sort(), excluding),
       )
     ) {
       notifyError(new Error('Duplicate alteration(s) removed'));
@@ -428,7 +428,7 @@ function AddMutationModal({
     newAlterations = [
       ...newAlterations,
       ...(await Promise.all(alterationPromises)).map((alt, index) =>
-        convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[index].alteration, [], newParsedAlteration[index].comment)
+        convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[index].alteration, [], newParsedAlteration[index].comment),
       ),
     ];
 
@@ -444,7 +444,7 @@ function AddMutationModal({
       await fetchExcludedAlteration(newAlteration, alterationIndex, excludingIndex, alterationData);
       setIsFetchingExcludingAlteration(false);
     }, 1000),
-    []
+    [],
   );
 
   async function handleAlterationChange(newValue: string, alterationIndex: number, excludingIndex?: number, isDebounced = true) {
@@ -511,7 +511,7 @@ function AddMutationModal({
     ]);
 
     const newExcludingAlterations = newEntityStatusExcludingAlterations.map((alt, index) =>
-      convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[0].excluding[index], [], '')
+      convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[0].excluding[index], [], ''),
     );
     const newAlterations = newEntityStatusAlterations.map((alt, index) =>
       convertEntityStatusAlterationToAlterationData(
@@ -519,8 +519,8 @@ function AddMutationModal({
         newParsedAlteration[index].alteration,
         _.cloneDeep(newExcludingAlterations),
         newParsedAlteration[index].comment,
-        newParsedAlteration[index].name
-      )
+        newParsedAlteration[index].name,
+      ),
     );
 
     setTabStates(states => [...states, ...newAlterations]);
@@ -548,7 +548,7 @@ function AddMutationModal({
       tabStates.some(
         state =>
           state.alteration.toLowerCase() === alteration &&
-          _.isEqual(state.excluding.map(ex => ex.alteration.toLowerCase()).sort(), excluding)
+          _.isEqual(state.excluding.map(ex => ex.alteration.toLowerCase()).sort(), excluding),
       )
     ) {
       notifyError(new Error('Duplicate alteration(s) removed'));
@@ -561,7 +561,7 @@ function AddMutationModal({
     const newEntityStatusAlterations = await fetchAlterations(newParsedAlteration.map(alt => alt.alteration));
 
     const newAlterations = newEntityStatusAlterations.map((alt, index) =>
-      convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[index].alteration, [], newComment, newVariantName)
+      convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[index].alteration, [], newComment, newVariantName),
     );
 
     setTabStates(states => {
@@ -600,7 +600,7 @@ function AddMutationModal({
     if (tabAlterationData.error) {
       return (
         <span>
-          <FaExclamationTriangle className="text-danger mr-1 mb-1" />
+          <FaExclamationTriangle className="text-danger me-1 mb-1" />
           {fullAlterationName}
         </span>
       );
@@ -609,7 +609,7 @@ function AddMutationModal({
     if (tabAlterationData.warning) {
       return (
         <span>
-          <FaExclamationTriangle className="text-warning mr-1 mb-1" />
+          <FaExclamationTriangle className="text-warning me-1 mb-1" />
           {fullAlterationName}
         </span>
       );
@@ -646,13 +646,9 @@ function AddMutationModal({
     return (
       <>
         {alterationData.warning && (
-          <Row>
-            <Col className="px-0">
-              <Alert color="warning" className="alteration-message" fade={false}>
-                {alterationData.warning}
-              </Alert>
-            </Col>
-          </Row>
+          <Alert color="warning" className="alteration-message" fade={false}>
+            {alterationData.warning}
+          </Alert>
         )}
         <AddMutationModalDropdown
           label="Type"
@@ -783,9 +779,9 @@ function AddMutationModal({
 
     return (
       <>
-        <Row className="align-items-center mb-3">
-          <Col className="px-0 col-3 mr-3">
-            <span className="mr-2">Excluding</span>
+        <div className="d-flex align-items-center mb-3">
+          <Col className="px-0 col-3 me-3">
+            <span className="me-2">Excluding</span>
             {!isSectionEmpty && (
               <>
                 {excludingCollapsed ? (
@@ -818,7 +814,7 @@ function AddMutationModal({
                 setTabStates(states => {
                   const newStates = _.cloneDeep(states);
                   newStates[alterationIndex].excluding = newStates[alterationIndex].excluding.filter(state =>
-                    newAlterations.some(alt => getFullAlterationName(alt) === getFullAlterationName(state))
+                    newAlterations.some(alt => getFullAlterationName(alt) === getFullAlterationName(state)),
                   );
                   return newStates;
                 })
@@ -826,16 +822,16 @@ function AddMutationModal({
               onKeyDown={event => handleKeyDownExcluding(event, alterationIndex)}
             />
           </Col>
-          <Col className="col-auto pl-2 pr-0">
+          <Col className="col-auto ps-2 pe-0">
             <Button color="primary" disabled={!excludingInputValue} onClick={() => handleAlterationAddedExcluding(alterationIndex)}>
               <FaPlus />
             </Button>
           </Col>
-        </Row>
+        </div>
         {!isSectionEmpty && (
           <Row className="align-items-center">
             <Col className="px-0">
-              <div className="pr-3">
+              <div className="pe-3">
                 <Tabs
                   tabs={alterationData.excluding.map((ex, index) => ({
                     title: getTabTitle(ex, true),
@@ -856,52 +852,46 @@ function AddMutationModal({
 
     return (
       <div>
-        <Row>
-          <Col className="px-0">
-            <Alert color="danger" className="alteration-message" fade={false}>
-              {alterationData.error}
-            </Alert>
-          </Col>
-        </Row>
-        <Row>
-          {suggestion && (
-            <Col className="px-0 d-flex justify-content-end" style={{ marginTop: '-10px' }}>
-              <Button
-                className="mr-1"
-                color="danger"
-                outline
-                size="sm"
-                onClick={() => {
-                  setTabStates(states => {
-                    const newStates = _.cloneDeep(states);
-                    if (!_.isNil(excludingIndex)) {
-                      newStates[alterationIndex].excluding.splice(excludingIndex, 1);
-                    } else {
-                      newStates.splice(alterationIndex, 1);
-                    }
-                    return newStates;
-                  });
+        <Alert color="danger" className="alteration-message" fade={false}>
+          {alterationData.error}
+        </Alert>
+        {suggestion && (
+          <div className="d-flex justify-content-end" style={{ marginTop: '-10px' }}>
+            <Button
+              className="me-1"
+              color="danger"
+              outline
+              size="sm"
+              onClick={() => {
+                setTabStates(states => {
+                  const newStates = _.cloneDeep(states);
+                  if (!_.isNil(excludingIndex)) {
+                    newStates[alterationIndex].excluding.splice(excludingIndex, 1);
+                  } else {
+                    newStates.splice(alterationIndex, 1);
+                  }
+                  return newStates;
+                });
 
-                  inputRef.current.focus();
-                }}
-              >
-                No
-              </Button>
-              <Button
-                onClick={() => {
-                  const newAlterationData = _.cloneDeep(alterationData);
-                  newAlterationData.alteration = suggestion;
-                  handleAlterationChange(getFullAlterationName(newAlterationData, false), alterationIndex, excludingIndex, false);
-                }}
-                color="success"
-                outline
-                size="sm"
-              >
-                Yes
-              </Button>
-            </Col>
-          )}
-        </Row>
+                inputRef.current.focus();
+              }}
+            >
+              No
+            </Button>
+            <Button
+              onClick={() => {
+                const newAlterationData = _.cloneDeep(alterationData);
+                newAlterationData.alteration = suggestion;
+                handleAlterationChange(getFullAlterationName(newAlterationData, false), alterationIndex, excludingIndex, false);
+              }}
+              color="success"
+              outline
+              size="sm"
+            >
+              Yes
+            </Button>
+          </div>
+        )}
       </div>
     );
   }
@@ -909,7 +899,7 @@ function AddMutationModal({
   const modalBody = (
     <>
       <Row className="align-items-center mb-3">
-        <Col className={classNames(!convertOptions?.isConverting && 'pr-0')}>
+        <Col className={classNames(!convertOptions?.isConverting && 'pe-0')}>
           <CreatableSelect
             ref={inputRef}
             components={{
@@ -931,14 +921,14 @@ function AddMutationModal({
             })}
             onChange={(newAlterations: AlterationData[]) =>
               setTabStates(states =>
-                states.filter(state => newAlterations.some(alt => getFullAlterationName(alt) === getFullAlterationName(state)))
+                states.filter(state => newAlterations.some(alt => getFullAlterationName(alt) === getFullAlterationName(state))),
               )
             }
             onKeyDown={handleKeyDown}
           />
         </Col>
         {!convertOptions?.isConverting ? (
-          <Col className="col-auto pl-2">
+          <Col className="col-auto ps-2">
             <Button color="primary" disabled={!inputValue} onClick={handleAlterationAdded}>
               Add
             </Button>
@@ -946,7 +936,7 @@ function AddMutationModal({
         ) : undefined}
       </Row>
       {tabStates.length > 0 && (
-        <div className="pr-3">
+        <div className="pe-3">
           <Tabs
             tabs={tabStates.map((alterationData, index) => {
               return {
@@ -1033,10 +1023,10 @@ interface IAddMutationModalFieldProps {
 
 function AddMutationModalField({ label, value: value, placeholder, onChange, isLoading }: IAddMutationModalFieldProps) {
   return (
-    <Row className="align-items-center mb-3">
-      <Col className="px-0 col-3 mr-3 align-items-center">
+    <div className="d-flex align-items-center mb-3">
+      <Col className="px-0 col-3 me-3 align-items-center">
         <div className="d-flex align-items-center">
-          <span className="mr-2">{label}</span>
+          <span className="me-2">{label}</span>
           {isLoading && <Spinner color="primary" size="sm" />}
         </div>
       </Col>
@@ -1049,7 +1039,7 @@ function AddMutationModalField({ label, value: value, placeholder, onChange, isL
           placeholder={placeholder}
         />
       </Col>
-    </Row>
+    </div>
   );
 }
 
@@ -1067,14 +1057,14 @@ interface IAddMutationModalDropdownProps {
 
 function AddMutationModalDropdown({ label, value, options, menuPlacement, onChange }: IAddMutationModalDropdownProps) {
   return (
-    <Row className="align-items-center mb-3">
-      <Col className="px-0 col-3 mr-3">
+    <div className="d-flex align-items-center mb-3">
+      <Col className="px-0 col-3 me-3">
         <span>{label}</span>
       </Col>
       <Col className="px-0">
         <ReactSelect value={value} options={options} onChange={onChange} menuPlacement={menuPlacement} isClearable />
       </Col>
-    </Row>
+    </div>
   );
 }
 

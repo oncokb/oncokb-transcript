@@ -51,7 +51,7 @@ export const CategoricalAlteration = (props: ICategoricalAlterationProps) => {
       <h2 id="categorical-alteration-heading" data-cy="CategoricalAlterationHeading">
         Categorical Alterations
         <EntityActionButton
-          className="ml-2"
+          className="ms-2"
           color="primary"
           entityType={ENTITY_TYPE.CATEGORICAL_ALTERATION}
           entityAction={ENTITY_ACTION.ADD}

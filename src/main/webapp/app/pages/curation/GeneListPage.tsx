@@ -15,6 +15,7 @@ import GeneListPageToolsTab from 'app/components/tabs/GeneListPageToolsTab';
 import CurationDataValidationTab from 'app/components/tabs/CurationDataValidationTab';
 import { FB_COLLECTION } from 'app/config/constants/firebase';
 import ReviewHistoryTab from 'app/components/tabs/ReviewHistoryTab';
+import * as styles from './styles.module.scss';
 
 type GeneMetaInfo = {
   hugoSymbol: string;

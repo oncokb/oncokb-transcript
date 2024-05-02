@@ -24,7 +24,7 @@ export const getFdaSubmissionLinks = (fdaSubmissions: IFdaSubmission[]) => {
       <WithSeparator separator=", ">
         {fdaSubmissions
           .sort((a, b) =>
-            getFdaSubmissionNumber(a.number, a.supplementNumber).localeCompare(getFdaSubmissionNumber(b.number, b.supplementNumber))
+            getFdaSubmissionNumber(a.number, a.supplementNumber).localeCompare(getFdaSubmissionNumber(b.number, b.supplementNumber)),
           )
           .map(submission => {
             const submissionNumber = getFdaSubmissionNumber(submission.number, submission.supplementNumber);
@@ -108,7 +108,7 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
       <h2 id="companion-diagnostic-device-heading" data-cy="CompanionDiagnosticDeviceHeading">
         Companion Diagnostic Devices
         <EntityActionButton
-          className="ml-2"
+          className="ms-2"
           color="primary"
           entityType={ENTITY_TYPE.COMPANION_DIAGNOSTIC_DEVICE}
           entityAction={ENTITY_ACTION.ADD}

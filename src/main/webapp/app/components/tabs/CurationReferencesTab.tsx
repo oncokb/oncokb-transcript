@@ -131,7 +131,7 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
 
     const newDisplayedReferences = newDisplayedReferenceKeys.map(refKey => allReferences[refKey]);
     newDisplayedReferences.sort((a, b) =>
-      getReferenceFullName(a[0].reference).toLowerCase().localeCompare(getReferenceFullName(b[0].reference).toLowerCase())
+      getReferenceFullName(a[0].reference).toLowerCase().localeCompare(getReferenceFullName(b[0].reference).toLowerCase()),
     );
     newDisplayedReferences.forEach(refData =>
       refData.sort((a, b) => {
@@ -162,7 +162,7 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
         }
 
         return aMutation.name.localeCompare(bMutation.name);
-      })
+      }),
     );
 
     setDisplayedReferences(newDisplayedReferences);
@@ -170,20 +170,20 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
 
   return (
     <div>
-      <Row className="mb-3">
+      <div className="mb-3">
         <Input value={inputValue} onChange={event => setInputValue(event.target.value)} placeholder="Enter PMID or abstract" />
-      </Row>
+      </div>
       {displayedReferences.map(data => {
         return (
           <div key={`${data[0].reference.content}`}>
-            <Row className="mb-2">
+            <div className="mb-2">
               <span>
                 <a target="_blank" rel="noopener noreferrer" href={data[0].reference.link}>
                   {`${data[0].reference.prefix}${data[0].reference.content}`}
                 </a>
               </span>
-            </Row>
-            <Row className="border-bottom pb-3 mb-3">
+            </div>
+            <div className="border-bottom pb-3 mb-3">
               <span>
                 <b>Location(s):</b>
                 <ul style={{ listStyleType: 'number', listStylePosition: 'inside', paddingLeft: 0 }}>
@@ -192,7 +192,7 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
                   ))}
                 </ul>
               </span>
-            </Row>
+            </div>
           </div>
         );
       })}

@@ -8,7 +8,7 @@ import React from 'react';
 import { FaCheckCircle } from 'react-icons/fa';
 import { useLocation } from 'react-router-dom';
 import { Button, ButtonGroup } from 'reactstrap';
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 
 const BUTTON_WIDTH = 130;
 
@@ -47,7 +47,7 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
         disabled={isSomatic}
         onClick={handleSomaticClicked}
       >
-        {isSomatic && <FaCheckCircle className="mr-2" style={{ marginBottom: '.1rem' }} />}
+        {isSomatic && <FaCheckCircle className="me-2" style={{ marginBottom: '.1rem' }} />}
         <span>Somatic</span>
       </Button>
       <Button
@@ -57,7 +57,7 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
         disabled={!isSomatic}
         onClick={handleGermlineClicked}
       >
-        {!isSomatic && <FaCheckCircle className="mr-2" style={{ marginBottom: '.1rem' }} />}
+        {!isSomatic && <FaCheckCircle className="me-2" style={{ marginBottom: '.1rem' }} />}
         <span>Germline</span>
       </Button>
     </ButtonGroup>

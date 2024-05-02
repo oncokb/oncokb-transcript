@@ -7,6 +7,7 @@ import { Col, Row } from 'reactstrap';
 
 export interface IPageContainerProps extends StoreProps {
   className?: string;
+  children: React.ReactNode;
 }
 
 const PageContainer: React.FunctionComponent<IPageContainerProps> = props => {

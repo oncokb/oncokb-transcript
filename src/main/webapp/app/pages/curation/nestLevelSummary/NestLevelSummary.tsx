@@ -51,7 +51,7 @@ export const NestLevelSummary = ({ summaryStats, hideOncogenicity, isTreatmentSt
           );
         })}
       {Object.keys(summaryStats.txLevels)
-        .filter(k => k !== TX_LEVELS.LEVEL_NO)
+        .filter(k => (k as TX_LEVELS) !== TX_LEVELS.LEVEL_NO)
         .sort(sortByTxLevel)
         .map(k => {
           lastBadgeHasHiddenNumber = false;

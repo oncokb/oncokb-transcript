@@ -16,7 +16,7 @@ const CountBadge = (props: CountBadgeProps) => {
   return (
     <div className="mx-1">
       <div className={classNames('count-badge-wrapper')}>
-        <span className="font-weight-bold">{props.base}</span>
+        <span className="fw-bold">{props.base}</span>
         {hideWhenOne ? undefined : (
           <span className="count-badge mb-2">
             <span className="badge rounded-pill bg-info text-white count-badge-content">{count}</span>

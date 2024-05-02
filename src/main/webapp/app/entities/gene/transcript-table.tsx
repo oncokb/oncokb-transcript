@@ -74,7 +74,7 @@ export const TranscriptTable = (props: IGeneTranscriptsProps) => {
         return (
           <div>
             {(cell.original.flags || []).map(flag => (
-              <FlagBadge key={flag.flag} flag={flag} tagClassName={'mr-1'} />
+              <FlagBadge key={flag.flag} flag={flag} tagClassName={'me-1'} />
             ))}
           </div>
         );

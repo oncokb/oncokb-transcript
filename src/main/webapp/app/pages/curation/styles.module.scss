@@ -1,7 +1,7 @@
 @import '../../variables.scss';
 
 .textarea {
-  min-height: 100px;
+  min-height: 100px !important;
 }
 .summaryTextarea {
   min-height: 20px;

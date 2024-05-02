@@ -75,7 +75,7 @@ const VusTable = ({
     callbacks.push(
       onValue(ref(firebaseDb, firebaseVusPath), snapshot => {
         setVusData(snapshot.val());
-      })
+      }),
     );
     return () => {
       callbacks.forEach(callback => callback?.());
@@ -178,39 +178,33 @@ const VusTable = ({
       sortable: false,
       Cell(cell: { original: VusTableData }) {
         return (
-          <Container>
-            <Row className={classNames('d-flex', 'align-items-center', 'all-children-margin')}>
-              <CommentIcon
-                id={cell.original.uuid}
-                key={cell.original.uuid}
-                path={`${firebaseVusPath}/${cell.original.uuid}/name_comments`}
-              />
-              <MutationConvertIcon
-                mutationName={cell.original.name}
-                tooltipProps={{ overlay: <div>Convert alteration(s) to VUS</div> }}
-                onClick={() => {
-                  setVusToPromote(cell.original);
-                  currentActionVusUuid.current = cell.original.uuid;
-                }}
-              />
-              <ActionIcon
-                icon={faSync}
-                color={PRIMARY}
-                onClick={async () => {
-                  await handleRefresh(cell.original.uuid);
-                }}
-                tooltipProps={{ overlay: <div>After rechecking that the variant is still a VUS, click to update the date to today.</div> }}
-              />
-              <ActionIcon
-                icon={faTrashAlt}
-                color={DANGER}
-                onClick={() => {
-                  currentActionVusUuid.current = cell.original.uuid;
-                  setShowConfirmModal(true);
-                }}
-              />
-            </Row>
-          </Container>
+          <div className={classNames('d-flex', 'align-items-center', 'all-children-margin')}>
+            <CommentIcon id={cell.original.uuid} key={cell.original.uuid} path={`${firebaseVusPath}/${cell.original.uuid}/name_comments`} />
+            <MutationConvertIcon
+              mutationName={cell.original.name}
+              tooltipProps={{ overlay: <div>Convert alteration(s) to VUS</div> }}
+              onClick={() => {
+                setVusToPromote(cell.original);
+                currentActionVusUuid.current = cell.original.uuid;
+              }}
+            />
+            <ActionIcon
+              icon={faSync}
+              color={PRIMARY}
+              onClick={async () => {
+                await handleRefresh(cell.original.uuid);
+              }}
+              tooltipProps={{ overlay: <div>After rechecking that the variant is still a VUS, click to update the date to today.</div> }}
+            />
+            <ActionIcon
+              icon={faTrashAlt}
+              color={DANGER}
+              onClick={() => {
+                currentActionVusUuid.current = cell.original.uuid;
+                setShowConfirmModal(true);
+              }}
+            />
+          </div>
         );
       },
     },
@@ -222,8 +216,8 @@ const VusTable = ({
         <div className={'justify-content-between align-items-center mt-5'}>
           <div className={'d-flex align-items-center mb-2'}>
             <span style={{ fontSize: '1.25rem' }}>Variants of Unknown Significance (Investigated and data not found)</span>
-            <AddButton className="ml-2" onClickHandler={() => setShowAddVusModal(true)} />
-            <Button onClick={handleDownload} color="primary" size="sm" outline className={'ml-2'}>
+            <AddButton className="ms-2" onClickHandler={() => setShowAddVusModal(true)} />
+            <Button onClick={handleDownload} color="primary" size="sm" outline className={'ms-2'}>
               Download
             </Button>
           </div>

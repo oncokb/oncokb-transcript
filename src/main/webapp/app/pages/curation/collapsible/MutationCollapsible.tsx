@@ -36,7 +36,7 @@ import BadgeGroup from '../BadgeGroup';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
 import FirebaseList from '../list/FirebaseList';
 import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
-import styles from '../styles.module.scss';
+import * as styles from '../styles.module.scss';
 import CancerTypeCollapsible from './CancerTypeCollapsible';
 import Collapsible from './Collapsible';
 import { RemovableCollapsible } from './RemovableCollapsible';
@@ -92,7 +92,7 @@ const MutationCollapsible = ({
         acc.push(...next.annotation.exons);
         return acc;
       }, [] as ProteinExonDTO[]),
-      'exon'
+      'exon',
     ).sort((a, b) => a.range.start - b.range.start);
   }, [relatedAnnotationResult]);
 
@@ -103,9 +103,11 @@ const MutationCollapsible = ({
   const hotspots = useMemo(() => {
     return _.uniq(
       relatedAnnotationResult.reduce((acc, next) => {
-        acc.push(...next.annotation.hotspot?.associatedHotspots);
+        if (next.annotation?.hotspot?.associatedHotspots) {
+          acc.push(...next.annotation.hotspot.associatedHotspots);
+        }
         return acc;
-      }, [] as HotspotDTO[])
+      }, [] as HotspotDTO[]),
     );
   }, [relatedAnnotationResult]);
 
@@ -119,24 +121,24 @@ const MutationCollapsible = ({
     callbacks.push(
       onValue(ref(firebaseDb, getFirebaseVusPath(isGermline, hugoSymbol)), snapshot => {
         setVusData(snapshot.val());
-      })
+      }),
     );
     callbacks.push(
       onValue(ref(firebaseDb, `${mutationPath}/name`), snapshot => {
         setMutationName(snapshot.val());
-      })
+      }),
     );
     callbacks.push(
       onValue(ref(firebaseDb, `${mutationPath}/alterations`), snapshot => {
         setMutationAlterations(snapshot.val());
-      })
+      }),
     );
     callbacks.push(
       onValue(ref(firebaseDb, `${mutationPath}/name_review`), snapshot => {
         const review = snapshot.val() as Review;
         setMutationNameReview(review);
         setIsRemovableWithoutReview(isSectionRemovableWithoutReview(review));
-      })
+      }),
     );
 
     onValue(
@@ -144,7 +146,7 @@ const MutationCollapsible = ({
       snapshot => {
         setMutationUuid(snapshot.val());
       },
-      { onlyOnce: true }
+      { onlyOnce: true },
     );
 
     return () => callbacks.forEach(callback => callback?.());

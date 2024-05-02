@@ -32,7 +32,7 @@ export const NciThesaurus = (props: INciThesaurusProps) => {
     <div>
       <h2 id="nci-thesaurus-heading" data-cy="NciThesaurusHeading">
         NCI Thesauruses
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.NCI_THESAURUS} entityAction={ENTITY_ACTION.ADD} />
+        <EntityActionButton className="ms-2" color="primary" entityType={ENTITY_TYPE.NCI_THESAURUS} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div className="table-responsive">
         {mapStoreToProps && (

@@ -21,7 +21,7 @@ import { RealtimeCheckedInputGroup, RealtimeTextAreaInput } from 'app/shared/fir
 import GeneHeader from './header/GeneHeader';
 import ReviewPage from './review/ReviewPage';
 import VusTable from 'app/shared/table/VusTable';
-import styles from './styles.module.scss';
+import * as styles from './styles.module.scss';
 import CurationReferencesTab from 'app/components/tabs/CurationReferencesTab';
 import GenomicIndicatorsTable from 'app/shared/table/GenomicIndicatorsTable';
 import GeneRealtimeComponentHeader from './header/GeneRealtimeComponentHeader';
@@ -61,7 +61,7 @@ export const CurationPage = (props: ICurationPageProps) => {
         onValue(ref(props.firebaseDb, firebaseMetaCurrentReviewerPath), snapshot => {
           const currentReviewer = snapshot.val();
           setIsReviewing(currentReviewer?.toLowerCase() === props.fullName.toLowerCase());
-        })
+        }),
       );
       return () => {
         cleanupCallbacks.forEach(callback => callback && callback());
@@ -146,7 +146,7 @@ export const CurationPage = (props: ICurationPageProps) => {
                 <RealtimeCheckedInputGroup
                   groupHeader={
                     <>
-                      <span className="mr-2">Gene Type</span>
+                      <span className="me-2">Gene Type</span>
                       {<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.GENE_TYPE} />}
                     </>
                   }
@@ -251,7 +251,7 @@ export const CurationPage = (props: ICurationPageProps) => {
                   newRCTs,
                   props.relevantCancerTypesModalStore.excludedRCTsReview,
                   props.relevantCancerTypesModalStore.excludedRCTsUuid,
-                  props.relevantCancerTypesModalStore.firebaseExcludedRCTs === undefined
+                  props.relevantCancerTypesModalStore.firebaseExcludedRCTs === undefined,
                 );
                 props.relevantCancerTypesModalStore.closeModal();
               } catch (error) {

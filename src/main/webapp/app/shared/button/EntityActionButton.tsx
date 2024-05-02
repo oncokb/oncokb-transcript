@@ -22,25 +22,26 @@ const ENTITY_ACTION_ICONS: { [key in ENTITY_ACTION]: IconProp } = {
   [ENTITY_ACTION.DELETE]: 'trash',
 };
 
-const EntityActionButton: React.FunctionComponent<EntityActionButtonProps & ButtonProps & React.HTMLAttributes<HTMLButtonElement>> =
-  props => {
-    const { entityId, entityType, entityAction, showText = true, ...buttonProps } = props;
-    const path = getEntityActionRoute(entityType, entityAction, entityId);
+const EntityActionButton: React.FunctionComponent<
+  EntityActionButtonProps & ButtonProps & React.HTMLAttributes<HTMLButtonElement>
+> = props => {
+  const { entityId, entityType, entityAction, showText = true, ...buttonProps } = props;
+  const path = getEntityActionRoute(entityType, entityAction, entityId);
 
-    if (path === null) {
-      return (
-        <Button className="mr-2" {...buttonProps} size="sm" disabled>
-          Entity path not available
-        </Button>
-      );
-    } else {
-      return (
-        <Button className="mr-2" tag={Link} to={path} {...buttonProps} size="sm" outline>
-          <FontAwesomeIcon icon={ENTITY_ACTION_ICONS[entityAction]} />
-          {showText && <span className="ml-2">{entityAction}</span>}
-        </Button>
-      );
-    }
-  };
+  if (path === null) {
+    return (
+      <Button className="me-2" {...buttonProps} size="sm" disabled>
+        Entity path not available
+      </Button>
+    );
+  } else {
+    return (
+      <Button className="me-2" tag={Link} to={path} {...buttonProps} size="sm" outline>
+        <FontAwesomeIcon icon={ENTITY_ACTION_ICONS[entityAction]} />
+        {showText && <span className="ms-2">{entityAction}</span>}
+      </Button>
+    );
+  }
+};
 
 export default EntityActionButton;

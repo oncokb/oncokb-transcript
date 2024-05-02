@@ -28,7 +28,7 @@ export const SpecimenType = (props: ISpecimenTypeProps) => {
     <div>
       <h2 id="specimen-type-heading" data-cy="SpecimenTypeHeading">
         Specimen Types
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.SPECIMEN_TYPE} entityAction={ENTITY_ACTION.ADD} />
+        <EntityActionButton className="ms-2" color="primary" entityType={ENTITY_TYPE.SPECIMEN_TYPE} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {specimenTypeList && <OncoKBTable data={specimenTypeList.concat()} columns={columns} loading={props.loading} showPagination />}

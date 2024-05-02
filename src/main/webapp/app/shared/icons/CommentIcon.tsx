@@ -199,9 +199,7 @@ const CommentBox = observer((props: ICommentBoxProps) => {
     <>
       {sortedCommentItems && sortedCommentItems.length > 0 && (
         <div ref={scrollContainerRef} style={{ maxHeight: '320px', overflow: 'auto' }}>
-          <ListGroup className="mx-2" flush>
-            {sortedCommentItems}
-          </ListGroup>
+          <ListGroup flush>{sortedCommentItems}</ListGroup>
         </div>
       )}
       <CommentInput
@@ -235,30 +233,26 @@ const CommentInput = observer((props: ICommentInputProps) => {
   }, []);
 
   return (
-    <Container>
-      <Row>
-        <InputGroup className="m-2">
-          <Input
-            className="rounded-0"
-            placeholder="Add comment"
-            onChange={event => props.commentStore.setCommentInputValue(event.target.value)}
-            value={props.commentStore.commentInputValue}
-            onKeyPress={handleKeyPress}
-          />
-          <Button
-            className="rounded-0"
-            outline
-            disabled={props.commentStore.commentInputValue === ''}
-            onClick={() => {
-              props.onCreateComment(props.commentStore.commentInputValue);
-              props.commentStore.setCommentInputValue('');
-            }}
-          >
-            <FontAwesomeIcon icon={'plus'} />
-          </Button>
-        </InputGroup>
-      </Row>
-    </Container>
+    <InputGroup className="p-2">
+      <Input
+        className="rounded-0"
+        placeholder="Add comment"
+        onChange={event => props.commentStore.setCommentInputValue(event.target.value)}
+        value={props.commentStore.commentInputValue}
+        onKeyPress={handleKeyPress}
+      />
+      <Button
+        className="rounded-0"
+        outline
+        disabled={props.commentStore.commentInputValue === ''}
+        onClick={() => {
+          props.onCreateComment(props.commentStore.commentInputValue);
+          props.commentStore.setCommentInputValue('');
+        }}
+      >
+        <FontAwesomeIcon icon={'plus'} />
+      </Button>
+    </InputGroup>
   );
 });
 
@@ -285,35 +279,29 @@ const CommentItem = observer((props: ICommentItemProps) => {
 
   return (
     <ListGroupItem>
-      <Row className="mb-2">
-        <Col>
-          <Row>{props.comment.userName}</Row>
-          <Row>
-            <TextFormat value={new Date(parseInt(props.comment.date, 10))} type="date" format={APP_DATETIME_FORMAT} />
-          </Row>
-        </Col>
-        <Col>
-          <Row style={{ justifyContent: 'right' }}>
-            <Button
-              className="mr-2"
-              size="sm"
-              outline
-              color={isResolved ? 'secondary' : 'primary'}
-              onClick={() => (isResolved ? props.onUnresolveComment() : props.onResolveComment())}
-            >
-              {isResolved ? 'Unresolve' : 'Resolve'}
-            </Button>
-            <Button size="sm" outline color={isPendingDeletion ? 'secondary' : 'danger'} onClick={handleDelete}>
-              {isPendingDeletion ? 'Revert' : 'Delete'}
-            </Button>
-          </Row>
-        </Col>
-      </Row>
-      <Row>
-        <Col className="pl-0 pr-0">
-          <b>{props.comment.content}</b>
-        </Col>
-      </Row>
+      <div className="mb-2 d-flex justify-content-between">
+        <div>
+          <div>{props.comment.userName}</div>
+          <TextFormat value={new Date(parseInt(props.comment.date, 10))} type="date" format={APP_DATETIME_FORMAT} />
+        </div>
+        <div>
+          <Button
+            className="me-2"
+            size="sm"
+            outline
+            color={isResolved ? 'secondary' : 'primary'}
+            onClick={() => (isResolved ? props.onUnresolveComment() : props.onResolveComment())}
+          >
+            {isResolved ? 'Unresolve' : 'Resolve'}
+          </Button>
+          <Button size="sm" outline color={isPendingDeletion ? 'secondary' : 'danger'} onClick={handleDelete}>
+            {isPendingDeletion ? 'Revert' : 'Delete'}
+          </Button>
+        </div>
+      </div>
+      <div>
+        <b>{props.comment.content}</b>
+      </div>
     </ListGroupItem>
   );
 });

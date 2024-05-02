@@ -46,7 +46,7 @@ export const Transcript = (props: ITranscriptProps) => {
     <div>
       <h2 id="transcript-heading" data-cy="TranscriptHeading">
         Transcripts
-        <EntityActionButton className="ml-2" color="primary" entityType={ENTITY_TYPE.TRANSCRIPT} entityAction={ENTITY_ACTION.ADD} />
+        <EntityActionButton className="ms-2" color="primary" entityType={ENTITY_TYPE.TRANSCRIPT} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div>
         {props.transcriptList && (

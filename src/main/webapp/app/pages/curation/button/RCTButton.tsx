@@ -23,12 +23,12 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
     callbacks.push(
       onValue(ref(firebaseDb, cancerTypePath), snapshot => {
         setCancerType(snapshot.val());
-      })
+      }),
     );
     callbacks.push(
       onValue(ref(firebaseDb, relevantCancerTypesInfoPath), snapshot => {
         setRelevantCancerTypesInfo(snapshot.val());
-      })
+      }),
     );
   }, []);
 
@@ -39,7 +39,7 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
       relevantCancerTypesInfo.excludedRCTs_review,
       relevantCancerTypesInfo.excludedRCTs_uuid,
       relevantCancerTypesInfo.level || null,
-      relevantCancerTypesInfo.excludedRCTs
+      relevantCancerTypesInfo.excludedRCTs,
     );
   }
 
@@ -47,7 +47,7 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
   let overlayText: string;
   if (cancerType && relevantCancerTypesInfo) {
     const cancerTypeContainsSpecialCancerType = Object.values(SPECIAL_CANCER_TYPES).some(specialCancerType =>
-      cancerType.cancerTypes.some(ct => ct.mainType === specialCancerType)
+      cancerType.cancerTypes.some(ct => ct.mainType === (specialCancerType as string)),
     );
     if (cancerTypeContainsSpecialCancerType) {
       overlayText = 'This cancer type contains too many RCTs. Please modify the excluding cancer types instead.';
@@ -68,7 +68,7 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
       disabled={disabled}
       onClick={handleClick}
     >
-      <FaPen className="mr-1" />
+      <FaPen className="me-1" />
       <span>RCTs</span>
     </Button>
   );

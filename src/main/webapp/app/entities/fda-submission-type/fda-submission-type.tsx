@@ -31,7 +31,7 @@ export const FdaSubmissionType = (props: IFdaSubmissionTypeProps) => {
       <h2 id="fda-submission-type-heading" data-cy="FdaSubmissionTypeHeading">
         FDA Submission Types
         <EntityActionButton
-          className="ml-2"
+          className="ms-2"
           color="primary"
           entityType={ENTITY_TYPE.FDA_SUBMISSION_TYPE}
           entityAction={ENTITY_ACTION.ADD}

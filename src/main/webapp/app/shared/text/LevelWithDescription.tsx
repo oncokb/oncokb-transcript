@@ -20,7 +20,7 @@ export const LevelWithDescription = (props: ILevelWithDescriptionProps) => {
   return (
     <div className="d-flex align-items-center">
       {levelIcon}
-      <span className="ml-2" style={{ textOverflow: 'ellipsis', overflow: 'hidden' }}>
+      <span className="ms-2" style={{ textOverflow: 'ellipsis', overflow: 'hidden' }}>
         {' '}
         {ALL_LEVEL_DESCRIPTIONS[props.level]}
       </span>

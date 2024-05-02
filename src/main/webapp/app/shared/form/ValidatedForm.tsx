@@ -6,6 +6,7 @@ interface IValidatedFormProps {
   onSubmit: SubmitHandler<FieldValues>;
   defaultValues?: DefaultValues<FieldValues>;
   mode?: keyof ValidationMode;
+  children: React.ReactNode;
 }
 
 export const ValidatedForm: React.FunctionComponent<IValidatedFormProps> = ({ children, onSubmit, defaultValues, mode, ...rest }) => {

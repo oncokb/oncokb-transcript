@@ -163,19 +163,19 @@ const ModifyTherapyModalContent = observer(
           <div>
             {isDuplicate && (
               <div className="error-message">
-                <FaExclamationCircle className="mr-2" size={DEFAULT_ICON_SIZE} />
+                <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
                 <span>Each therapy must be unique</span>
               </div>
             )}
             {isEmptyTherapy && (
               <div className="error-message">
-                <FaExclamationCircle className="mr-2" size={DEFAULT_ICON_SIZE} />
+                <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
                 <span>You must include at least one drug for each therapy</span>
               </div>
             )}
             {alreadyExists && (
               <div className="error-message">
-                <FaExclamationCircle className="mr-2" size={DEFAULT_ICON_SIZE} />
+                <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
                 <span>Therapy already exists</span>
               </div>
             )}
@@ -206,14 +206,14 @@ const ModifyTherapyModalContent = observer(
             return accumulator.concat(ti.treatments);
           }, []);
           setCurrentTreatments(currentTreatmentsForCancerType);
-        })
+        }),
       );
 
       if (treatmentToEditPath) {
         callbacks.push(
           onValue(ref(firebaseDb, treatmentToEditPath), snapshot => {
             setTreatmentToEdit(snapshot.val());
-          })
+          }),
         );
       }
 
@@ -244,9 +244,9 @@ const ModifyTherapyModalContent = observer(
             .map(therapy =>
               therapy
                 .map(drug =>
-                  drug.uuid ? drug.uuid : newDrugs.find(newDrug => _.isEqual(newDrug.nciThesaurus, parseNcitUniqId(drug.value))).uuid
+                  drug.uuid ? drug.uuid : newDrugs.find(newDrug => _.isEqual(newDrug.nciThesaurus, parseNcitUniqId(drug.value))).uuid,
                 )
-                .join(' + ')
+                .join(' + '),
             )
             .join(', ');
 
@@ -264,7 +264,7 @@ const ModifyTherapyModalContent = observer(
                   <div className={`${index === 0 ? 'mt-2' : 'mt-3'}`} key={generateUuid()}>
                     <h6 className="mb-2">Therapy</h6>
                     <div className="d-flex align-items-center">
-                      <div className="mr-3" style={{ display: 'inline-block', width: '93%' }}>
+                      <div className="me-3" style={{ display: 'inline-block', width: '93%' }}>
                         <DrugSelect
                           drugList={drugList}
                           onChange={options => modifyTherapyModalStore.setTherapy(index, options)}
@@ -301,7 +301,7 @@ const ModifyTherapyModalContent = observer(
         }
       />
     );
-  }
+  },
 );
 
 const mapStoreToProps = ({ modifyTherapyModalStore, firebaseAppStore }: IRootStore) => ({

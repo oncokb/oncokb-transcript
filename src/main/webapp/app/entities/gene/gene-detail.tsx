@@ -6,7 +6,7 @@ import { Button, Col, Row } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
-import styles from './gene.module.scss';
+import * as styles from './gene.module.scss';
 import classnames from 'classnames';
 import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
 import { TranscriptTable } from 'app/entities/gene/transcript-table';
@@ -115,7 +115,7 @@ export const GeneDetail = (props: IGeneDetailProps) => {
                     <span className={'h4'}>
                       {eg.referenceGenome}: {eg.ensemblGeneId}
                     </span>
-                    <span className={'ml-1'}>{getGenomicLocation(eg)}</span>
+                    <span className={'ms-1'}>{getGenomicLocation(eg)}</span>
                   </div>
                   <TranscriptTable
                     ensemblGeneId={eg.id}
@@ -136,14 +136,14 @@ export const GeneDetail = (props: IGeneDetailProps) => {
               Align Selected Transcripts
             </Button>
             {selectedTranscriptIds.length > 0 && (
-              <Button color={'primary'} outline className={'ml-2'} onClick={clearSelectedTranscripts}>
+              <Button color={'primary'} outline className={'ms-2'} onClick={clearSelectedTranscripts}>
                 Clear Selection
               </Button>
             )}
           </div>
           <div>
             <LoadingIndicator isLoading={aligningTranscripts} className={'d-flex flex-column align-items-center'}>
-              <span className={'ml-2'}>Loading alignment result for selected transcripts</span>
+              <span className={'ms-2'}>Loading alignment result for selected transcripts</span>
             </LoadingIndicator>
           </div>
           {alignmentResult.mview && <iframe style={{ border: 0, height: '100vh' }} width={'100%'} srcDoc={alignmentResult.mview}></iframe>}
