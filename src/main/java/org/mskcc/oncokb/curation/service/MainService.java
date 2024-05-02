@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
-import org.genome_nexus.client.Exon;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.dto.AnnotationDTO;
 import org.mskcc.oncokb.curation.domain.dto.HotspotDTO;
@@ -111,20 +110,20 @@ public class MainService {
             return alterationWithStatus;
         }
 
-        EntityStatus<Alteration> pcAlterationWithStatus = alterationUtils.parseProteinChange(alteration.getAlteration());
-        if (pcAlterationWithStatus == null) {
+        EntityStatus<Alteration> alterationWithEntityStatus = alterationUtils.parseAlteration(alteration.getAlteration());
+        if (alterationWithEntityStatus == null) {
             alterationWithStatus.setMessage("No alteration provided");
             alterationWithStatus.setType(EntityStatusType.ERROR);
             return alterationWithStatus;
         }
 
-        Alteration pcAlteration = pcAlterationWithStatus.getEntity();
-        if (pcAlteration.getType() != null) {
-            alteration.setType(pcAlteration.getType());
+        Alteration parsedAlteration = alterationWithEntityStatus.getEntity();
+        if (parsedAlteration.getType() != null) {
+            alteration.setType(parsedAlteration.getType());
         }
         Set<Gene> genes = alteration.getGenes();
-        if (pcAlteration.getType().equals(STRUCTURAL_VARIANT) && !pcAlteration.getGenes().isEmpty()) {
-            genes = pcAlteration.getGenes();
+        if (parsedAlteration.getType().equals(STRUCTURAL_VARIANT) && !parsedAlteration.getGenes().isEmpty()) {
+            genes = parsedAlteration.getGenes();
         }
         Set<Gene> annotatedGenes = genes
             .stream()
@@ -150,10 +149,10 @@ public class MainService {
             .map(Optional::get)
             .collect(Collectors.toSet());
         alteration.setGenes(annotatedGenes);
-        alteration.setAlteration(pcAlteration.getAlteration());
-        alteration.setName(pcAlteration.getName());
-        if (PROTEIN_CHANGE.equals(pcAlteration.getType())) {
-            alteration.setProteinChange(pcAlteration.getProteinChange());
+        alteration.setAlteration(parsedAlteration.getAlteration());
+        alteration.setName(parsedAlteration.getName());
+        if (PROTEIN_CHANGE.equals(parsedAlteration.getType())) {
+            alteration.setProteinChange(parsedAlteration.getProteinChange());
         }
 
         if (!alteration.getGenes().isEmpty() && alteration.getGenes().stream().anyMatch(gene -> gene.getEntrezGeneId() < 0)) {
@@ -161,8 +160,8 @@ public class MainService {
         }
 
         if (alteration.getConsequence() == null) {
-            if (pcAlteration.getConsequence() != null) {
-                Optional<Consequence> consequenceOptional = consequenceService.findByTerm(pcAlteration.getConsequence().getTerm());
+            if (parsedAlteration.getConsequence() != null) {
+                Optional<Consequence> consequenceOptional = consequenceService.findByTerm(parsedAlteration.getConsequence().getTerm());
                 if (consequenceOptional.isEmpty()) {
                     consequenceOptional = consequenceService.findByTerm("UNKNOWN");
                 }
@@ -173,16 +172,16 @@ public class MainService {
         }
 
         if (alteration.getStart() == null) {
-            alteration.setStart(pcAlteration.getStart());
+            alteration.setStart(parsedAlteration.getStart());
         }
         if (alteration.getEnd() == null) {
-            alteration.setEnd(pcAlteration.getEnd());
+            alteration.setEnd(parsedAlteration.getEnd());
         }
         if (alteration.getRefResidues() == null) {
-            alteration.setRefResidues(pcAlteration.getRefResidues());
+            alteration.setRefResidues(parsedAlteration.getRefResidues());
         }
         if (alteration.getVariantResidues() == null) {
-            alteration.setVariantResidues(pcAlteration.getVariantResidues());
+            alteration.setVariantResidues(parsedAlteration.getVariantResidues());
         }
         if (alteration.getName() == null) {
             alteration.setName(alteration.getAlteration());
@@ -215,8 +214,8 @@ public class MainService {
             }
         }
 
-        alterationWithStatus.setMessage(pcAlterationWithStatus.getMessage());
-        alterationWithStatus.setType(pcAlterationWithStatus.getType());
+        alterationWithStatus.setMessage(alterationWithEntityStatus.getMessage());
+        alterationWithStatus.setType(alterationWithEntityStatus.getType());
 
         // Provide annotation for the alteration
         // 1. check whether alteration is hotspot

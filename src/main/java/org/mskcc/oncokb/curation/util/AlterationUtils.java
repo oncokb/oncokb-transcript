@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
+import org.checkerframework.checker.regex.qual.Regex;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.*;
 import org.springframework.stereotype.Component;
@@ -20,17 +21,17 @@ public class AlterationUtils {
     private static final String FUSION_REGEX = "\\s*(\\w*)" + FUSION_SEPARATOR + "(\\w*)\\s*(?i)(fusion)?\\s*";
     private static final String FUSION_ALT_REGEX = "\\s*(\\w*)" + FUSION_ALTERNATIVE_SEPARATOR + "(\\w*)\\s+(?i)fusion\\s*";
 
-    private Alteration parseFusionProteinChange(String proteinChange) {
-        Alteration alteration = new Alteration();
+    private Alteration parseFusion(String alteration) {
+        Alteration alt = new Alteration();
 
         Consequence consequence = new Consequence();
         consequence.setTerm(SVConsequence.FUSION.name());
-        alteration.setType(AlterationType.STRUCTURAL_VARIANT);
-        alteration.setConsequence(consequence);
+        alt.setType(AlterationType.STRUCTURAL_VARIANT);
+        alt.setConsequence(consequence);
 
-        if (proteinChange.contains(FUSION_SEPARATOR) || proteinChange.contains(FUSION_ALTERNATIVE_SEPARATOR)) {
-            alteration.setGenes(
-                getGenesStrs(proteinChange)
+        if (alteration.contains(FUSION_SEPARATOR) || alteration.contains(FUSION_ALTERNATIVE_SEPARATOR)) {
+            alt.setGenes(
+                getGenesStrs(alteration)
                     .stream()
                     .map(hugoSymbol -> {
                         Gene gene = new Gene();
@@ -39,90 +40,129 @@ public class AlterationUtils {
                     })
                     .collect(Collectors.toSet())
             );
-            alteration.setAlteration(alteration.getGenes().stream().map(Gene::getHugoSymbol).collect(Collectors.joining("-")) + " Fusion");
+            alt.setAlteration(alt.getGenes().stream().map(Gene::getHugoSymbol).collect(Collectors.joining("-")) + " Fusion");
         } else {
-            alteration.setAlteration(proteinChange.substring(0, 1).toUpperCase() + proteinChange.toLowerCase().substring(1));
+            alt.setAlteration(alteration.substring(0, 1).toUpperCase() + alteration.toLowerCase().substring(1));
         }
-        alteration.setName(alteration.getAlteration());
-        return alteration;
+        alt.setName(alt.getAlteration());
+        return alt;
     }
 
-    private Alteration parseCnaProteinChange(String proteinChange) {
+    private Alteration parseCopyNumberAlteration(String alteration) {
         CNAConsequence cnaTerm = CNAConsequence.UNKNOWN;
 
-        Optional<CNAConsequence> cnaConsequenceOptional = getCNAConsequence(proteinChange);
+        Optional<CNAConsequence> cnaConsequenceOptional = getCNAConsequence(alteration);
         if (cnaConsequenceOptional.isPresent()) {
             cnaTerm = cnaConsequenceOptional.get();
         }
 
-        Alteration alteration = new Alteration();
+        Alteration alt = new Alteration();
         Consequence consequence = new Consequence();
         consequence.setTerm(cnaTerm.name());
-        alteration.setType(AlterationType.COPY_NUMBER_ALTERATION);
-        alteration.setConsequence(consequence);
+        alt.setType(AlterationType.COPY_NUMBER_ALTERATION);
+        alt.setConsequence(consequence);
 
-        alteration.setAlteration(cnaTerm.name().substring(0, 1) + cnaTerm.name().toLowerCase().substring(1));
-        alteration.setName(alteration.getAlteration());
+        alt.setAlteration(cnaTerm.name().substring(0, 1) + cnaTerm.name().toLowerCase().substring(1));
+        alt.setName(alt.getAlteration());
 
-        return alteration;
+        return alt;
     }
 
-    public EntityStatus<Alteration> parseProteinChange(String proteinChange) {
+    private Alteration parseCodingDnaChange(String codingDnaChange) {
+        Alteration alt = new Alteration();
+        Consequence consequence = new Consequence();
+        consequence.setTerm(UNKNOWN.name());
+        alt.setType(AlterationType.CDNA_CHANGE);
+        alt.setConsequence(consequence);
+        alt.setAlteration(codingDnaChange);
+        alt.setName(codingDnaChange);
+        return alt;
+    }
+
+    private Alteration parseGenomicChange(String genomicChange) {
+        Alteration alt = new Alteration();
+        Consequence consequence = new Consequence();
+        consequence.setTerm(UNKNOWN.name());
+        alt.setType(AlterationType.GENOMIC_CHANGE);
+        alt.setConsequence(consequence);
+        alt.setAlteration(genomicChange);
+        alt.setName(genomicChange);
+        return alt;
+    }
+
+    public EntityStatus<Alteration> parseAlteration(String alteration) {
         EntityStatus<Alteration> entityWithStatus = new EntityStatus<>();
         String message = "";
         EntityStatusType status = EntityStatusType.OK;
 
-        if (StringUtils.isEmpty(proteinChange)) {
+        if (StringUtils.isEmpty(alteration)) {
             return null;
         }
-        if (isFusion(proteinChange)) {
-            Alteration alteration = parseFusionProteinChange(proteinChange);
-            entityWithStatus.setEntity(alteration);
+        if (isFusion(alteration)) {
+            Alteration alt = parseFusion(alteration);
+            entityWithStatus.setEntity(alt);
             entityWithStatus.setType(status);
             entityWithStatus.setMessage(message);
             return entityWithStatus;
         }
 
-        if (isCopyNumberAlteration(proteinChange)) {
-            Alteration alteration = parseCnaProteinChange(proteinChange);
-            entityWithStatus.setEntity(alteration);
+        if (isCopyNumberAlteration(alteration)) {
+            Alteration alt = parseCopyNumberAlteration(alteration);
+            entityWithStatus.setEntity(alt);
             entityWithStatus.setType(status);
             entityWithStatus.setMessage(message);
             return entityWithStatus;
         }
 
+        if (alteration.startsWith("c.")) {
+            Alteration alt = parseCodingDnaChange(alteration);
+            entityWithStatus.setEntity(alt);
+            entityWithStatus.setType(status);
+            entityWithStatus.setMessage(message);
+            return entityWithStatus;
+        }
+
+        if (isGenomicChange(alteration)) {
+            Alteration alt = parseGenomicChange(alteration);
+            entityWithStatus.setEntity(alt);
+            entityWithStatus.setType(status);
+            entityWithStatus.setMessage(message);
+            return entityWithStatus;
+        }
+
+        // the following is to parse the alteration as protein change
         MutationConsequence term = UNKNOWN;
         String ref = null;
         String var = null;
         Integer start = null;
         Integer end = null;
 
-        if (proteinChange == null) {
-            proteinChange = "";
+        if (alteration == null) {
+            alteration = "";
         }
 
-        if (proteinChange.startsWith("p.")) {
-            proteinChange = proteinChange.substring(2);
+        if (alteration.startsWith("p.")) {
+            alteration = alteration.substring(2);
         }
 
-        if (proteinChange.indexOf("[") != -1) {
-            proteinChange = proteinChange.substring(0, proteinChange.indexOf("["));
+        if (alteration.indexOf("[") != -1) {
+            alteration = alteration.substring(0, alteration.indexOf("["));
         }
 
-        String altStr = proteinChange;
+        String altStr = alteration;
 
         // we need to deal with the exclusion format so the protein change can properly be interpreted.
         String excludedStr = "";
-        Matcher exclusionMatch = getExclusionCriteriaMatcher(proteinChange);
+        Matcher exclusionMatch = getExclusionCriteriaMatcher(alteration);
         if (exclusionMatch.matches()) {
-            proteinChange = exclusionMatch.group(1);
+            alteration = exclusionMatch.group(1);
             excludedStr = exclusionMatch.group(3).trim();
         }
 
-        proteinChange = proteinChange.trim();
+        alteration = alteration.trim();
 
         Pattern p = Pattern.compile("^([A-Z\\*]+)([0-9]+)([A-Z\\*\\?]*)$");
-        Matcher m = p.matcher(proteinChange);
+        Matcher m = p.matcher(alteration);
         if (m.matches()) {
             ref = m.group(1);
             start = Integer.valueOf(m.group(2));
@@ -163,7 +203,7 @@ public class AlterationUtils {
             }
         } else {
             p = Pattern.compile("([A-Z]?)([0-9]+)(_[A-Z]?([0-9]+))?(delins|ins|del)([A-Z0-9]+)");
-            m = p.matcher(proteinChange);
+            m = p.matcher(alteration);
             if (m.matches()) {
                 if (m.group(1) != null && m.group(3) == null) {
                     // we only want to specify reference when it's one position ins/del
@@ -194,7 +234,7 @@ public class AlterationUtils {
                 }
             } else {
                 p = Pattern.compile("([A-Z]?)([0-9]+)(_[A-Z]?([0-9]+))?(_)?splice");
-                m = p.matcher(proteinChange);
+                m = p.matcher(alteration);
                 if (m.matches()) {
                     if (m.group(1) != null && m.group(3) == null) {
                         // we only want to specify reference when it's one position splice
@@ -209,7 +249,7 @@ public class AlterationUtils {
                     term = SPLICE_REGION_VARIANT;
                 } else {
                     p = Pattern.compile("([A-Z]?)([0-9]+)_([A-Z]?)([0-9]+)(.+)");
-                    m = p.matcher(proteinChange);
+                    m = p.matcher(alteration);
                     if (m.matches()) {
                         start = Integer.valueOf(m.group(2));
                         end = Integer.valueOf(m.group(4));
@@ -251,7 +291,7 @@ public class AlterationUtils {
                         }
                     } else {
                         p = Pattern.compile("([A-Z\\*])([0-9]+)[A-Z]?fs.*");
-                        m = p.matcher(proteinChange);
+                        m = p.matcher(alteration);
                         if (m.matches()) {
                             ref = m.group(1);
                             start = Integer.valueOf(m.group(2));
@@ -260,7 +300,7 @@ public class AlterationUtils {
                             term = FRAMESHIFT_VARIANT;
                         } else {
                             p = Pattern.compile("([A-Z]+)?([0-9]+)([A-Za-z]]+)");
-                            m = p.matcher(proteinChange);
+                            m = p.matcher(alteration);
                             if (m.matches()) {
                                 ref = m.group(1);
                                 start = Integer.valueOf(m.group(2));
@@ -285,7 +325,7 @@ public class AlterationUtils {
                                  * *327Aext*?
                                  */
                                 p = Pattern.compile("(\\*)([0-9]+)[A-Z]ext([A-Z]+)?\\*([0-9]+)?(\\?)?");
-                                m = p.matcher(proteinChange);
+                                m = p.matcher(alteration);
                                 if (m.matches()) {
                                     ref = m.group(1);
                                     start = Integer.valueOf(m.group(2));
@@ -293,7 +333,7 @@ public class AlterationUtils {
                                     term = STOP_LOST;
                                 } else {
                                     p = Pattern.compile("([A-Z\\*])?([0-9]+)=");
-                                    m = p.matcher(proteinChange);
+                                    m = p.matcher(alteration);
                                     if (m.matches()) {
                                         var = ref = m.group(1);
                                         start = Integer.valueOf(m.group(2));
@@ -305,7 +345,7 @@ public class AlterationUtils {
                                         }
                                     } else {
                                         p = Pattern.compile("([0-9]+)");
-                                        m = p.matcher(proteinChange);
+                                        m = p.matcher(alteration);
                                         if (m.matches()) {
                                             start = Integer.valueOf(m.group(1));
                                             end = start;
@@ -321,35 +361,35 @@ public class AlterationUtils {
         }
 
         // truncating
-        if (proteinChange.toLowerCase().matches("truncating mutations?")) {
+        if (alteration.toLowerCase().matches("truncating mutations?")) {
             term = FEATURE_TRUNCATION;
         }
 
-        Alteration alteration = new Alteration();
-        alteration.setType(AlterationType.PROTEIN_CHANGE);
-        alteration.setRefResidues(ref);
-        alteration.setVariantResidues(var);
-        alteration.setStart(start);
-        alteration.setEnd(end);
-        alteration.setAlteration(altStr);
-        alteration.setProteinChange(proteinChange);
+        Alteration alt = new Alteration();
+        alt.setType(AlterationType.PROTEIN_CHANGE);
+        alt.setRefResidues(ref);
+        alt.setVariantResidues(var);
+        alt.setStart(start);
+        alt.setEnd(end);
+        alt.setAlteration(altStr);
+        alt.setProteinChange(alteration);
 
         Consequence consequence = new Consequence();
         consequence.setTerm(Optional.ofNullable(term).orElse(MutationConsequence.UNKNOWN).name());
-        alteration.setConsequence(consequence);
+        alt.setConsequence(consequence);
 
         // Change the positional name
-        if (isPositionedAlteration(alteration)) {
+        if (isPositionedAlteration(alt)) {
             if (StringUtils.isEmpty(excludedStr)) {
-                alteration.setName(alteration.getAlteration() + " Missense Mutations");
+                alt.setName(alt.getAlteration() + " Missense Mutations");
             } else {
-                alteration.setName(proteinChange + " Missense Mutations, excluding " + excludedStr);
+                alt.setName(alteration + " Missense Mutations, excluding " + excludedStr);
             }
         } else {
-            alteration.setName(proteinChange);
+            alt.setName(alteration);
         }
 
-        entityWithStatus.setEntity(alteration);
+        entityWithStatus.setEntity(alt);
         entityWithStatus.setType(status);
         entityWithStatus.setMessage(message);
         return entityWithStatus;
@@ -429,6 +469,12 @@ public class AlterationUtils {
     public static Boolean isCopyNumberAlteration(String alteration) {
         String cnaUpperCase = alteration.toUpperCase();
         return getCNAConsequence(cnaUpperCase).isPresent();
+    }
+
+    public static Boolean isGenomicChange(String alteration) {
+        Pattern p = Pattern.compile("(([0-9]{1,2}|X|Y|MT):)?g\\..*");
+        Matcher m = p.matcher(alteration);
+        return m.matches();
     }
 
     public static String removeExclusionCriteria(String proteinChange) {
