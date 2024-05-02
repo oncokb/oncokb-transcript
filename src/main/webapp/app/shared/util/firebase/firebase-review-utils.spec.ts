@@ -14,6 +14,7 @@ import {
   getRelevantKeysFromUuidKey,
   getReviewAction,
   joinPathParts,
+  removeLeafNodes,
 } from './firebase-review-utils';
 import { Gene, GeneType, Implication, Mutation, Review, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { DiffMethod } from 'react-diff-viewer-continued';
@@ -543,6 +544,51 @@ describe('Firebase Review Utils', () => {
         clearAllNestedReviews(obj);
         expect(obj).toStrictEqual(expected);
       });
+    });
+  });
+
+  describe('removeLeafNodes', () => {
+    let parentReview: MetaReviewLevel;
+
+    beforeEach(() => {
+      parentReview = new MetaReviewLevel({ title: '', valuePath: '', historyLocation: '' });
+    });
+
+    it('should keep parentReview unchanged if no children', () => {
+      removeLeafNodes(parentReview);
+      const expectedReview = {
+        title: '',
+        valuePath: '',
+        historyLocation: '',
+      };
+      expect(parentReview).toEqual(expect.objectContaining(expectedReview));
+    });
+
+    it('should remove meta review level with no children', () => {
+      const metaReview = new MetaReviewLevel({ title: 'V600E', valuePath: 'mutations/0', historyLocation: 'V600E' });
+      parentReview.addChild(metaReview);
+      removeLeafNodes(parentReview);
+      expect(parentReview.hasChildren()).toBeFalsy;
+    });
+
+    it('should remove review level if review action is create', () => {
+      const reviewLevel = new ReviewLevel({
+        title: 'V600E',
+        valuePath: 'mutations/0/name',
+        historyLocation: 'V600E',
+        currentVal: 'V600E',
+        reviewInfo: {
+          reviewPath: 'mutations/0/name_review',
+          review: new Review('User', undefined, true),
+          lastReviewedString: '',
+          uuid: 'uuid',
+        },
+        historyData: { newState: 'V600E' },
+      });
+      parentReview.addChild(reviewLevel);
+
+      removeLeafNodes(parentReview);
+      expect(parentReview.hasChildren()).toBeFalsy();
     });
   });
 });
