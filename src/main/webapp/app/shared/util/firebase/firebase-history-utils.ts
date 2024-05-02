@@ -125,13 +125,13 @@ export const parseAddRecord = (record: HistoryRecord, drugList: readonly IDrug[]
   } else if (typeof record.new === 'object') {
     const readableLocation = makeLocationReadable(
       record.location.split(',').map(key => key.trim()),
-      drugList
+      drugList,
     ).join(', ');
     parsedRecords.push({ ...record, location: readableLocation, new: JSON.stringify(record.new, null, 4) });
 
     if (duplicateNestedUpdates) {
       const updatedEntries = findEntriesInObjectByUuids(record.new, record.uuids?.split(',') || [], drugList).filter(
-        entry => entry[0] !== READABLE_FIELD.NAME
+        entry => (entry[0] as READABLE_FIELD) !== READABLE_FIELD.NAME,
       );
 
       for (const entry of updatedEntries) {
@@ -151,7 +151,7 @@ export const parseAddRecord = (record: HistoryRecord, drugList: readonly IDrug[]
 export const parseDeleteRecord = (record: HistoryRecord, drugList: readonly IDrug[]): HistoryRecord[] => {
   const readableLocation = makeLocationReadable(
     record.location.split(',').map(key => key.trim()),
-    drugList
+    drugList,
   ).join(', ');
 
   return [{ ...record, location: readableLocation, old: JSON.stringify(record.old) }];
@@ -163,7 +163,7 @@ export const parseUpdateRecord = (record: HistoryRecord, drugList: readonly IDru
   if (typeof record.new === 'string') {
     const readableLocation = makeLocationReadable(
       record.location.split(',').map(key => key.trim()),
-      drugList
+      drugList,
     ).join(', ');
     parsedRecords.push({ ...record, location: readableLocation });
   } else if (typeof record.new === 'object') {
@@ -202,7 +202,7 @@ export const parseUpdateRecord = (record: HistoryRecord, drugList: readonly IDru
 export const parseNameChangeRecord = (record: HistoryRecord, drugList: readonly IDrug[]): HistoryRecord[] => {
   const readableLocation = makeLocationReadable(
     record.location.split(',').map(key => key.trim()),
-    drugList
+    drugList,
   ).join(', ');
   return [{ ...record, location: readableLocation }];
 };
@@ -362,7 +362,7 @@ export function getHistoryEntryStrings(entries: DownloadableHistoryEntry[]) {
   for (const entry of sortedEntries) {
     if (!entry.new && !entry.old) {
       strings.push(
-        `${entry.hugoSymbol} ${entry.location}${entry.level ? ' ' + entry.level : ''} ${HISTORY_OPERATION_TO_PAST_TENSE[entry.operation]}`
+        `${entry.hugoSymbol} ${entry.location}${entry.level ? ' ' + entry.level : ''} ${HISTORY_OPERATION_TO_PAST_TENSE[entry.operation]}`,
       );
     } else if ((entry.new || entry.old) && entry.new !== entry.old) {
       const operationLine = `${entry.hugoSymbol} ${entry.location} ${HISTORY_OPERATION_TO_PAST_TENSE[entry.operation]}\n`;
@@ -413,7 +413,7 @@ export function getGeneHistoryForDateRange(
   historyList: HistoryList,
   drugList: readonly IDrug[],
   start?: Date,
-  end?: Date
+  end?: Date,
 ) {
   const result: DownloadableHistoryResult = {
     gene: [],
@@ -491,7 +491,7 @@ export function getGeneHistoryForDateRange(
       isAlteration = true;
     }
 
-    if (geneFields.some(field => record.location === field)) {
+    if (geneFields.some(field => (record.location as READABLE_FIELD) === field)) {
       // gene
       result.gene.push(entry);
     } else if (isAlteration) {

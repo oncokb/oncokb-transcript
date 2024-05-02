@@ -1,9 +1,8 @@
-import { GENE_TYPE, ReviewAction } from 'app/config/constants/firebase';
+import { GENE_TYPE, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import {
   EditorReviewMap,
   MetaReviewLevel,
   ReviewLevel,
-  ReviewLevelType,
   buildCancerTypeNameReview,
   buildNameReview,
   buildRCTReview,
@@ -77,7 +76,7 @@ describe('Firebase Review Utils', () => {
         { fieldKey: 'background', reviewKey: 'background_review', uuidKey: 'background_uuid' },
         defaultParentReview,
         uuids,
-        editorReviewMap
+        editorReviewMap,
       );
 
       const expectedValues = {
@@ -117,7 +116,7 @@ describe('Firebase Review Utils', () => {
         { fieldKey: 'ocg', reviewKey: 'ocg_review', uuidKey: 'ocg_uuid' },
         defaultParentReview,
         uuids,
-        editorReviewMap
+        editorReviewMap,
       );
 
       expect(uuids).toStrictEqual([]);
@@ -286,7 +285,7 @@ describe('Firebase Review Utils', () => {
         parentReview,
         uuids,
         editorReviewMap,
-        drugList
+        drugList,
       );
 
       expect(treatmentNameReview.title).toEqual('DrugA + DrugB');

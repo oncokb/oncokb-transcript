@@ -25,7 +25,7 @@ const getHotspotTypeName = (hotspotType: HotspotType) => {
 };
 
 const getHotspotDescription = (hotspotType: string) => {
-  if (hotspotType === HotspotType.HOTSPOT_V1) {
+  if ((hotspotType as HotspotType) === HotspotType.HOTSPOT_V1) {
     return (
       <div>
         Identified as a recurrent hotspot (statistically significant) in a population-scale cohort of tumor samples of various cancer types
@@ -33,7 +33,7 @@ const getHotspotDescription = (hotspotType: string) => {
         <Linkout to={getNCBIlink('/pubmed/26619011')}>Chang et al. 2016</Linkout>.
       </div>
     );
-  } else if (hotspotType === HotspotType.THREE_D) {
+  } else if ((hotspotType as HotspotType) === HotspotType.THREE_D) {
     return (
       <div>
         Mutations clustering in 3D protein structures identified in 11,119 tumor samples across 41 tumor types by the algorithm described in{' '}

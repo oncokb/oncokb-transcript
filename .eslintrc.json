@@ -46,8 +46,12 @@
 
     // Added by Ben while upgrading node
     "@typescript-eslint/no-unsafe-argument": "off",
-    "@typescript-eslint/no-unsafe-enum-comparison": "off",
-    "@typescript-eslint/no-misused-promises": "off",
+    "@typescript-eslint/no-misused-promises": [
+      "error",
+      {
+        "checksVoidReturn": false
+      }
+    ],
 
     "@typescript-eslint/ban-types": [
       "error",

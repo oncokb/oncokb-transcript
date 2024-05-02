@@ -12,7 +12,7 @@ const OncokbBreadcrumb: React.FunctionComponent<StoreProps> = props => {
 
   const getEntityIdMapping = (path: string) => {
     const basePath = path.substring(path.indexOf('/'), path.indexOf('/', 1));
-    switch (basePath) {
+    switch (basePath as PAGE_ROUTE) {
       case PAGE_ROUTE.FDA_SUBMISSION:
         return `${props.fdaSubmission?.number}${props.fdaSubmission?.supplementNumber ? '/' + props.fdaSubmission?.supplementNumber : ''}`;
       case PAGE_ROUTE.FDA_SUBMISSION_TYPE:

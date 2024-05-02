@@ -1,4 +1,4 @@
-import { HistoryRecord, HistoryRecordState } from 'app/shared/model/firebase/firebase.model';
+import { HistoryOperationType, HistoryRecord, HistoryRecordState } from 'app/shared/model/firebase/firebase.model';
 import { RequiredTimeSeriesEventData, ExtraTimeSeriesEventData } from '../timeSeries/TimeSeries';
 import ReactDiffViewer from 'react-diff-viewer-continued';
 import React from 'react';
@@ -12,32 +12,32 @@ export default function constructTimeSeriesData(record: FlattenedHistory): Requi
   let content: React.ReactNode;
 
   switch (record.operation) {
-    case 'promote':
+    case HistoryOperationType.PROMOTE_VUS:
       operation = 'promotion to mutation';
       bubbleColor = 'green';
       content = getTimeSeriesDataContent(record.new, record.old);
       break;
-    case 'add':
+    case HistoryOperationType.ADD:
       operation = 'addition';
       bubbleColor = 'green';
       content = getTimeSeriesDataContent(record.new, record.old);
       break;
-    case 'update':
+    case HistoryOperationType.UPDATE:
       bubbleColor = 'orange';
       operation = 'update';
       content = getTimeSeriesDataContent(record.new, record.old);
       break;
-    case 'demote':
+    case HistoryOperationType.DEMOTE_MUTATION:
       bubbleColor = 'red';
       operation = 'demotion to VUS';
       content = <></>;
       break;
-    case 'delete':
+    case HistoryOperationType.DELETE:
       bubbleColor = 'red';
       operation = 'deletion';
       content = <></>;
       break;
-    case 'name change':
+    case HistoryOperationType.NAME_CHANGE:
       bubbleColor = 'orange';
       operation = 'name change';
       content = getTimeSeriesDataContent(record.new, record.old);

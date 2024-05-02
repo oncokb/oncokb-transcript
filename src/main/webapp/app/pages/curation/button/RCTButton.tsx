@@ -47,7 +47,7 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
   let overlayText: string;
   if (cancerType && relevantCancerTypesInfo) {
     const cancerTypeContainsSpecialCancerType = Object.values(SPECIAL_CANCER_TYPES).some(specialCancerType =>
-      cancerType.cancerTypes.some(ct => ct.mainType === specialCancerType),
+      cancerType.cancerTypes.some(ct => ct.mainType === (specialCancerType as string)),
     );
     if (cancerTypeContainsSpecialCancerType) {
       overlayText = 'This cancer type contains too many RCTs. Please modify the excluding cancer types instead.';

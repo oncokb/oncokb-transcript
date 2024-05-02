@@ -1,6 +1,6 @@
 import { CHECKBOX_LABEL_LEFT_MARGIN, UPDATE_MUTATION_FILTERS_DEBOUNCE_MILLISECONDS } from 'app/config/constants/constants';
 import { ONCOGENICITY_OPTIONS, MUTATION_EFFECT_OPTIONS, TX_LEVEL_OPTIONS } from 'app/config/constants/firebase';
-import { Mutation } from 'app/shared/model/firebase/firebase.model';
+import { FIREBASE_ONCOGENICITY, Mutation, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import { getFilterModalStats, getMutationName } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
@@ -90,7 +90,7 @@ function MutationsSectionHeader({
         const selectedOncogenicities = oncogenicityFilter.filter(filter => filter.selected);
         const matchesOncogenicity =
           selectedOncogenicities.length === 0 ||
-          selectedOncogenicities.some(oncogenicity => oncogenicity.label === mutation.mutation_effect.oncogenic);
+          selectedOncogenicities.some(oncogenicity => (oncogenicity.label as FIREBASE_ONCOGENICITY) === mutation.mutation_effect.oncogenic);
 
         const selectedMutationEffects = mutationEffectFilter.filter(filter => filter.selected);
         const matchesMutationEffect =
@@ -134,7 +134,7 @@ function MutationsSectionHeader({
               }
 
               for (const treatment of TI.treatments) {
-                if (selectedTxLevels.some(txLevel => txLevel.label === treatment.level)) {
+                if (selectedTxLevels.some(txLevel => (txLevel.label as TX_LEVELS) === treatment.level)) {
                   return true;
                 }
               }

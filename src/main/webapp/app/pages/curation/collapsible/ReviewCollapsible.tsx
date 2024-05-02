@@ -4,7 +4,6 @@ import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
 import {
   BaseReviewLevel,
   ReviewLevel,
-  ReviewLevelType,
   getCompactReviewInfo,
   reformatReviewTitle,
   reviewLevelSortMethod,
@@ -14,7 +13,7 @@ import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { DANGER, SUCCESS, WARNING } from 'app/config/colors';
 import TextWithRefs from 'app/shared/links/TextWithRefs';
 import DefaultBadge from 'app/shared/badge/DefaultBadge';
-import { ReviewAction, ReviewActionLabels } from 'app/config/constants/firebase';
+import { ReviewAction, ReviewActionLabels, ReviewLevelType } from 'app/config/constants/firebase';
 import _ from 'lodash';
 import { CollapsibleColorProps, CollapsibleDisplayProps } from './BaseCollapsible';
 import { getReviewInfo } from 'app/shared/util/firebase/firebase-utils';
@@ -64,7 +63,7 @@ export interface IReviewCollapsibleProps {
 export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
   const rootReview: BaseReviewLevel = useMemo(() => {
     Object.keys(props.baseReviewLevel.children).forEach(
-      key => (props.baseReviewLevel.children[key] = getCompactReviewInfo(props.baseReviewLevel.children[key]))
+      key => (props.baseReviewLevel.children[key] = getCompactReviewInfo(props.baseReviewLevel.children[key])),
     );
     return props.baseReviewLevel;
   }, [props.baseReviewLevel]);
