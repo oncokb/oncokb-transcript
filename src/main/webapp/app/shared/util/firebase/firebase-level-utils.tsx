@@ -1,4 +1,4 @@
-import { DX_LEVELS, PX_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import { DX_LEVELS, FDA_LEVELS, PX_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import { SortOrder, sortByIndex } from './firebase-utils';
 import {
   ALL_LEVELS,
@@ -13,7 +13,6 @@ import {
 } from 'app/config/constants/firebase';
 import React from 'react';
 import { LevelWithDescription } from 'app/shared/text/LevelWithDescription';
-import { PropagationType } from 'app/pages/curation/collapsible/TherapyDropdownGroup';
 import { RealtimeDropdownOptions } from 'app/shared/firebase/input/RealtimeDropdownInput';
 
 export enum LevelType {
@@ -88,7 +87,6 @@ export const getTxLevelDropdownOptions = () => {
 export type PropagatedDropdownLevels = {
   dropdownOptions: RealtimeDropdownOptions[];
   defaultPropagation: TX_LEVELS | FDA_LEVEL_KEYS | '';
-  propagationType: PropagationType;
 };
 
 export const getFdaPropagationInfo = (txLevel: TX_LEVELS): PropagatedDropdownLevels => {
@@ -104,7 +102,6 @@ export const getFdaPropagationInfo = (txLevel: TX_LEVELS): PropagatedDropdownLev
   return {
     dropdownOptions: getLevelDropdownOptions(propagationOptions),
     defaultPropagation: defaultPropagation as FDA_LEVEL_KEYS,
-    propagationType: PropagationType.FDA,
   };
 };
 
@@ -116,4 +113,13 @@ export const getPropagatedLevelDropdownOptions = (txLevel: TX_LEVELS): RealtimeD
     propagationOptions = [TX_LEVELS.LEVEL_4, TX_LEVELS.LEVEL_NO];
   }
   return getLevelDropdownOptions(propagationOptions);
+};
+
+export const convertToFdaLevelKey = (fdaLevel: FDA_LEVELS) => {
+  const fdaLevelKeyMapping = Object.keys(FDA_LEVEL_KEYS_MAPPING) as FDA_LEVEL_KEYS[];
+  for (const k of fdaLevelKeyMapping) {
+    if (FDA_LEVEL_KEYS_MAPPING[k] === fdaLevel) {
+      return k;
+    }
+  }
 };
