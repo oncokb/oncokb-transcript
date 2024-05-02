@@ -1,4 +1,6 @@
 import React from 'react';
+import { Button } from 'reactstrap';
+import { Link } from 'react-router-dom';
 
 interface IErrorBoundaryProps {
   readonly children: JSX.Element | JSX.Element[];
@@ -10,7 +12,8 @@ interface IErrorBoundaryState {
 }
 
 class ErrorBoundary extends React.Component<IErrorBoundaryProps, IErrorBoundaryState> {
-  readonly state: IErrorBoundaryState = { error: undefined, errorInfo: undefined };
+  private defaultState = { error: undefined, errorInfo: undefined };
+  readonly state: IErrorBoundaryState = this.defaultState;
 
   componentDidCatch(error, errorInfo) {
     this.setState({
@@ -31,6 +34,9 @@ class ErrorBoundary extends React.Component<IErrorBoundaryProps, IErrorBoundaryS
       ) : undefined;
       return (
         <div>
+          <Button tag={Link} className={'mb-2'} to="/" replace color="primary" onClick={() => this.setState(this.defaultState)}>
+            <span className="d-none d-md-inline">Back to Home Page</span>
+          </Button>
           <h2 className="error">An unexpected error has occurred.</h2>
           {errorDetails}
         </div>
