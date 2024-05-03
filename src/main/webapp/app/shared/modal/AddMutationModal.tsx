@@ -755,6 +755,7 @@ function AddMutationModal({
           label="Genes"
           value={alterationData.genes?.map(gene => gene.hugoSymbol).join(', ')}
           placeholder="Input genes"
+          disabled
           onChange={newValue => handleFieldChange(newValue, 'genes', alterationIndex, excludingIndex)}
         />
       </div>
@@ -1019,9 +1020,10 @@ interface IAddMutationModalFieldProps {
   placeholder: string;
   onChange: (newValue: string) => void;
   isLoading?: boolean;
+  disabled?: boolean;
 }
 
-function AddMutationModalField({ label, value: value, placeholder, onChange, isLoading }: IAddMutationModalFieldProps) {
+function AddMutationModalField({ label, value: value, placeholder, onChange, isLoading, disabled }: IAddMutationModalFieldProps) {
   return (
     <div className="d-flex align-items-center mb-3">
       <Col className="px-0 col-3 me-3 align-items-center">
@@ -1032,6 +1034,7 @@ function AddMutationModalField({ label, value: value, placeholder, onChange, isL
       </Col>
       <Col className="px-0">
         <Input
+          disabled={disabled}
           value={value}
           onChange={event => {
             onChange(event.target.value);
