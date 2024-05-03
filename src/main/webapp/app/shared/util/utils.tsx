@@ -14,8 +14,8 @@ import _ from 'lodash';
 import { ParsedRef, parseReferences } from 'app/oncokb-commons/components/RefComponent';
 import { IDrug } from 'app/shared/model/drug.model';
 import { IRule } from 'app/shared/model/rule.model';
-import { ProteinExonDTO } from 'app/shared/api/generated';
 import { INTEGER_REGEX, REFERENCE_LINK_REGEX, SINGLE_NUCLEOTIDE_POS_REGEX, UUID_REGEX } from 'app/config/constants/regex';
+import { ProteinExonDTO } from 'app/shared/api/generated/curation';
 
 export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
   if (!cancerType) return '';
@@ -33,7 +33,7 @@ export const getCancerTypesName = (cancerTypes: ICancerType[] | CancerType[], om
 export const getCancerTypesNameWithExclusion = (
   cancerTypes: ICancerType[] | CancerType[],
   excludedCancerTypes: ICancerType[] | CancerType[],
-  omitCode = false
+  omitCode = false,
 ): string => {
   let name = getCancerTypesName(cancerTypes, omitCode);
   if (excludedCancerTypes.length > 0) {

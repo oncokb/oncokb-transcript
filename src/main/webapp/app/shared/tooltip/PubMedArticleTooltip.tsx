@@ -3,7 +3,7 @@ import { IRootStore } from 'app/stores';
 import { connect } from 'app/shared/util/typed-inject';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import LoadingIndicator from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
-import { PubMedDTO } from 'app/shared/api/generated';
+import { PubMedDTO } from 'app/shared/api/generated/curation';
 import _ from 'lodash';
 import { formatDate } from 'app/shared/util/utils';
 

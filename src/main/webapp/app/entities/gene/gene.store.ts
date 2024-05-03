@@ -3,7 +3,7 @@ import { IRootStore } from 'app/stores';
 import axios from 'axios';
 import PaginationCrudStore from 'app/shared/util/pagination-crud-store';
 import { transcriptClient } from 'app/shared/api/clients';
-import { EnsemblGene } from 'app/shared/api/generated';
+import { EnsemblGene } from 'app/shared/api/generated/curation';
 import { makeObservable } from 'mobx';
 import { ENTITY_TYPE } from 'app/config/constants/constants';
 

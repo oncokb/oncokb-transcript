@@ -6586,6 +6586,943 @@ export class AlterationResourceApi extends BaseAPI {
 }
 
 /**
+ * ApiProxyApi - axios parameter creator
+ * @export
+ */
+export const ApiProxyApiAxiosParamCreator = function (configuration?: Configuration) {
+  return {
+    /**
+     *
+     * @param {string} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy: async (body: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'body' is not null or undefined
+      assertParamExists('proxy', 'body', body);
+      const localVarPath = `/api/**`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (body !== undefined) {
+        localVarQueryParameter['body'] = body;
+      }
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy1: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/api/**`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy10: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/legacy-api/**`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'HEAD', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy11: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/legacy-api/**`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy12: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/legacy-api/**`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'OPTIONS', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy13: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/legacy-api/**`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy2: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/api/**`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy3: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/api/**`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'HEAD', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy4: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/api/**`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy5: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/api/**`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'OPTIONS', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy6: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/api/**`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy7: async (body: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      // verify required parameter 'body' is not null or undefined
+      assertParamExists('proxy7', 'body', body);
+      const localVarPath = `/legacy-api/**`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      if (body !== undefined) {
+        localVarQueryParameter['body'] = body;
+      }
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy8: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/legacy-api/**`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy9: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/legacy-api/**`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+  };
+};
+
+/**
+ * ApiProxyApi - functional programming interface
+ * @export
+ */
+export const ApiProxyApiFp = function (configuration?: Configuration) {
+  const localVarAxiosParamCreator = ApiProxyApiAxiosParamCreator(configuration);
+  return {
+    /**
+     *
+     * @param {string} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async proxy(body: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy(body, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async proxy1(body?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy1(body, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async proxy10(
+      body?: string,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy10(body, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async proxy11(
+      body?: string,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy11(body, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async proxy12(
+      body?: string,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy12(body, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async proxy13(
+      body?: string,
+      options?: AxiosRequestConfig
+    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy13(body, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async proxy2(body?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy2(body, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async proxy3(body?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy3(body, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async proxy4(body?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy4(body, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async proxy5(body?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy5(body, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async proxy6(body?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy6(body, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {string} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async proxy7(body: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy7(body, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async proxy8(body?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy8(body, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async proxy9(body?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy9(body, options);
+      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+    },
+  };
+};
+
+/**
+ * ApiProxyApi - factory interface
+ * @export
+ */
+export const ApiProxyApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+  const localVarFp = ApiProxyApiFp(configuration);
+  return {
+    /**
+     *
+     * @param {string} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy(body: string, options?: any): AxiosPromise<string> {
+      return localVarFp.proxy(body, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy1(body?: string, options?: any): AxiosPromise<string> {
+      return localVarFp.proxy1(body, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy10(body?: string, options?: any): AxiosPromise<string> {
+      return localVarFp.proxy10(body, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy11(body?: string, options?: any): AxiosPromise<string> {
+      return localVarFp.proxy11(body, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy12(body?: string, options?: any): AxiosPromise<string> {
+      return localVarFp.proxy12(body, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy13(body?: string, options?: any): AxiosPromise<string> {
+      return localVarFp.proxy13(body, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy2(body?: string, options?: any): AxiosPromise<string> {
+      return localVarFp.proxy2(body, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy3(body?: string, options?: any): AxiosPromise<string> {
+      return localVarFp.proxy3(body, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy4(body?: string, options?: any): AxiosPromise<string> {
+      return localVarFp.proxy4(body, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy5(body?: string, options?: any): AxiosPromise<string> {
+      return localVarFp.proxy5(body, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy6(body?: string, options?: any): AxiosPromise<string> {
+      return localVarFp.proxy6(body, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy7(body: string, options?: any): AxiosPromise<string> {
+      return localVarFp.proxy7(body, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy8(body?: string, options?: any): AxiosPromise<string> {
+      return localVarFp.proxy8(body, options).then(request => request(axios, basePath));
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    proxy9(body?: string, options?: any): AxiosPromise<string> {
+      return localVarFp.proxy9(body, options).then(request => request(axios, basePath));
+    },
+  };
+};
+
+/**
+ * ApiProxyApi - object-oriented interface
+ * @export
+ * @class ApiProxyApi
+ * @extends {BaseAPI}
+ */
+export class ApiProxyApi extends BaseAPI {
+  /**
+   *
+   * @param {string} body
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ApiProxyApi
+   */
+  public proxy(body: string, options?: AxiosRequestConfig) {
+    return ApiProxyApiFp(this.configuration)
+      .proxy(body, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} [body]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ApiProxyApi
+   */
+  public proxy1(body?: string, options?: AxiosRequestConfig) {
+    return ApiProxyApiFp(this.configuration)
+      .proxy1(body, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} [body]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ApiProxyApi
+   */
+  public proxy10(body?: string, options?: AxiosRequestConfig) {
+    return ApiProxyApiFp(this.configuration)
+      .proxy10(body, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} [body]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ApiProxyApi
+   */
+  public proxy11(body?: string, options?: AxiosRequestConfig) {
+    return ApiProxyApiFp(this.configuration)
+      .proxy11(body, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} [body]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ApiProxyApi
+   */
+  public proxy12(body?: string, options?: AxiosRequestConfig) {
+    return ApiProxyApiFp(this.configuration)
+      .proxy12(body, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} [body]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ApiProxyApi
+   */
+  public proxy13(body?: string, options?: AxiosRequestConfig) {
+    return ApiProxyApiFp(this.configuration)
+      .proxy13(body, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} [body]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ApiProxyApi
+   */
+  public proxy2(body?: string, options?: AxiosRequestConfig) {
+    return ApiProxyApiFp(this.configuration)
+      .proxy2(body, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} [body]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ApiProxyApi
+   */
+  public proxy3(body?: string, options?: AxiosRequestConfig) {
+    return ApiProxyApiFp(this.configuration)
+      .proxy3(body, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} [body]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ApiProxyApi
+   */
+  public proxy4(body?: string, options?: AxiosRequestConfig) {
+    return ApiProxyApiFp(this.configuration)
+      .proxy4(body, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} [body]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ApiProxyApi
+   */
+  public proxy5(body?: string, options?: AxiosRequestConfig) {
+    return ApiProxyApiFp(this.configuration)
+      .proxy5(body, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} [body]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ApiProxyApi
+   */
+  public proxy6(body?: string, options?: AxiosRequestConfig) {
+    return ApiProxyApiFp(this.configuration)
+      .proxy6(body, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} body
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ApiProxyApi
+   */
+  public proxy7(body: string, options?: AxiosRequestConfig) {
+    return ApiProxyApiFp(this.configuration)
+      .proxy7(body, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} [body]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ApiProxyApi
+   */
+  public proxy8(body?: string, options?: AxiosRequestConfig) {
+    return ApiProxyApiFp(this.configuration)
+      .proxy8(body, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+
+  /**
+   *
+   * @param {string} [body]
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof ApiProxyApi
+   */
+  public proxy9(body?: string, options?: AxiosRequestConfig) {
+    return ApiProxyApiFp(this.configuration)
+      .proxy9(body, options)
+      .then(request => request(this.axios, this.basePath));
+  }
+}
+
+/**
  * ArticleResourceApi - axios parameter creator
  * @export
  */

@@ -16,7 +16,7 @@ import {
   AnnotateAlterationBody,
   Gene,
   Alteration as ApiAlteration,
-} from '../api/generated';
+} from '../api/generated/curation';
 import { IGene } from '../model/gene.model';
 import { getDuplicateMutations, getFirebaseGenePath, getFirebaseVusPath } from '../util/firebase/firebase-utils';
 import { componentInject } from '../util/typed-inject';

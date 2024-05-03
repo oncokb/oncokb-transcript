@@ -11,7 +11,7 @@ import _ from 'lodash';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import GeneSelect from 'app/shared/select/GeneSelect';
 import { REFERENCE_GENOME } from 'app/config/constants/constants';
-import { Alteration, Gene } from 'app/shared/api/generated';
+import { Alteration, Gene } from 'app/shared/api/generated/curation';
 
 export interface IAlterationUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 

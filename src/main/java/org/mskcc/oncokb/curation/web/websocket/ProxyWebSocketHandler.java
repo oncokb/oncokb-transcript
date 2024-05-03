@@ -28,7 +28,7 @@ public class ProxyWebSocketHandler implements WebSocketHandler {
             String incomingUri = session.getUri().toString();
             StandardWebSocketClient client = new StandardWebSocketClient();
             OncoCoreWebSocketHandler handler = new OncoCoreWebSocketHandler(session);
-            client.doHandshake(handler, this.baseUrl + incomingUri);
+            client.doHandshake(handler, this.baseUrl + "/api" + incomingUri);
             this.oncoHandler = handler;
         } catch (Exception e) {
             e.printStackTrace();

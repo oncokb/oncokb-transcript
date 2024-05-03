@@ -249,7 +249,7 @@ function CurationDataValidationTab() {
   const onError = useCallback(() => {
     notifyError(new Error('Error while attempting to validate. Please try again.'));
   }, []);
-  const url = relativeWebsocketUrlToAbsolute('/api/websocket/curation/validation');
+  const url = relativeWebsocketUrlToAbsolute('/websocket/curation/validation');
   const messages = useWebSocket<ValidationResult>({ onOpen, onClose, onError, allowConnection: isValidating, url }, [validationCounter]);
 
   return (
