@@ -1,4 +1,4 @@
-import { AlterationTypeEnum } from 'app/shared/api/generated';
+import { AlterationTypeEnum } from 'app/shared/api/generated/curation';
 import { GREY } from '../colors';
 
 export const AUTHORITIES = {
