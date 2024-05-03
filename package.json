@@ -66,7 +66,8 @@
     "ci:server:package": "yarn run java:$yarn_package_config_packaging:$yarn_package_config_default_environment",
     "ci:e2e:package": "yarn run java:$yarn_package_config_packaging:$yarn_package_config_default_environment -- -Pe2e -Denforcer.skip=true",
     "preci:e2e:server:start": "yarn run docker:db:await --if-present && yarn run docker:others:await --if-present",
-    "ci:e2e:server:start": "java -jar target/e2e.$yarn_package_config_packaging --spring.profiles.active=$yarn_package_config_default_environment -Dlogging.level.ROOT=OFF -Dlogging.level.org.zalando=OFF -Dlogging.level.tech.jhipster=OFF -Dlogging.level.org.mskcc.oncokb.curation=OFF -Dlogging.level.org.springframework=OFF -Dlogging.level.org.springframework.web=OFF -Dlogging.level.org.springframework.security=OFF --logging.level.org.springframework.web=ERROR"
+    "ci:e2e:server:start": "java -jar target/e2e.$yarn_package_config_packaging --spring.profiles.active=$yarn_package_config_default_environment -Dlogging.level.ROOT=OFF -Dlogging.level.org.zalando=OFF -Dlogging.level.tech.jhipster=OFF -Dlogging.level.org.mskcc.oncokb.curation=OFF -Dlogging.level.org.springframework=OFF -Dlogging.level.org.springframework.web=OFF -Dlogging.level.org.springframework.security=OFF --logging.level.org.springframework.web=ERROR",
+    "wdio": "TS_NODE_PROJECT=src/test/javascript/tsconfig.json wdio run ./wdio.conf.ts"
   },
   "config": {
     "backend_port": "9090",
@@ -138,6 +139,10 @@
     "@types/webpack-env": "1.18.4",
     "@typescript-eslint/eslint-plugin": "7.8.0",
     "@typescript-eslint/parser": "7.8.0",
+    "@wdio/cli": "^8.36.1",
+    "@wdio/local-runner": "^8.36.1",
+    "@wdio/mocha-framework": "^8.36.1",
+    "@wdio/spec-reporter": "^8.36.1",
     "autoprefixer": "10.4.19",
     "browser-sync": "3.0.2",
     "browser-sync-webpack-plugin": "2.3.0",
@@ -188,6 +193,7 @@
     "thread-loader": "4.0.2",
     "ts-jest": "29.1.2",
     "ts-loader": "9.5.1",
+    "ts-node": "^10.9.2",
     "typescript": "5.4.5",
     "wait-on": "7.2.0",
     "webpack": "5.91.0",
