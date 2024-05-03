@@ -1,9 +1,9 @@
 import { FDA_LEVEL_KEYS, FDA_LEVEL_KEYS_MAPPING } from 'app/config/constants/firebase';
 import { Review, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
-import { getLevelDropdownOption } from 'app/shared/util/firebase/firebase-level-utils';
+import { convertToFdaLevelKey, getLevelDropdownOption } from 'app/shared/util/firebase/firebase-level-utils';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import RealtimeDropdownInput, { IRealtimeDropdownInput } from './RealtimeDropdownInput';
 import { componentInject } from 'app/shared/util/typed-inject';
 
@@ -38,6 +38,8 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
     ...dropdownProps
   } = props;
 
+  const levelFetchCount = useRef(0);
+
   const [currentLOE, setCurrentLOE] = useState(undefined);
   const [LOEReview, setLOEReview] = useState<Review>(undefined);
   const [LOEUuid, setLOEUuid] = useState<string>(undefined);
@@ -50,13 +52,10 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
       onValue(ref(firebaseDb, firebaseLevelPath), snapshot => {
         let level = snapshot.val();
         if (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_FDA) {
-          for (const k of Object.keys(FDA_LEVEL_KEYS_MAPPING)) {
-            if (FDA_LEVEL_KEYS_MAPPING[k] === level) {
-              level = k;
-            }
-          }
+          level = convertToFdaLevelKey(level);
         }
         setCurrentLOE(level);
+        levelFetchCount.current++;
       })
     );
     callbacks.push(
@@ -88,36 +87,48 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
   }, [currentLOE]);
 
   useEffect(() => {
-    if (!LOEUuid) {
-      return;
-    }
-    // When highest level changes, the propagated levels should reset to no level
-    if (
-      highestLevel &&
-      (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_SOLID || levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_LIQUID)
-    ) {
-      updateReviewableContent(firebaseLevelPath, currentLOE, TX_LEVELS.LEVEL_NO, LOEReview, LOEUuid);
-    }
-  }, [highestLevel, LOEUuid]);
+    if (!LOEUuid) return;
 
-  useEffect(() => {
-    if (!LOEUuid) {
+    // Only update to default propagation level after highestLevel is changed by user, not on initial load.
+    // Initially, it should display the levels retrieved from firebase
+    if (levelFetchCount.current === 1) {
+      levelFetchCount.current++;
       return;
     }
-    if (propagatedFdaLevel && propagatedFdaLevel !== currentLOE) {
-      updateReviewableContent(firebaseLevelPath, currentLOE, FDA_LEVEL_KEYS_MAPPING[propagatedFdaLevel], LOEReview, LOEUuid);
+
+    if (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_SOLID || levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_LIQUID) {
+      // When highestLevel changes, the propagated levels should reset to no level
+      if (highestLevel) {
+        updateReviewableContent(firebaseLevelPath, currentLOE, TX_LEVELS.LEVEL_NO, LOEReview, LOEUuid);
+      }
     }
-  }, [propagatedFdaLevel, LOEUuid]);
+
+    if (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_FDA) {
+      // When highestLevel changes, the fda propagation should be reset to default
+      if (propagatedFdaLevel) {
+        updateReviewableContent(
+          firebaseLevelPath,
+          FDA_LEVEL_KEYS_MAPPING[currentLOE],
+          FDA_LEVEL_KEYS_MAPPING[propagatedFdaLevel],
+          LOEReview,
+          LOEUuid
+        );
+      }
+    }
+  }, [highestLevel, LOEUuid, propagatedFdaLevel]);
 
   const onChangeHandler = (newValue, actionMeta) => {
+    let oldLevel = currentLOE;
     let newLevel = newValue?.value;
     if (!newLevel) {
       newLevel = TX_LEVELS.LEVEL_EMPTY;
     }
     if (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_FDA) {
       newLevel = FDA_LEVEL_KEYS_MAPPING[newLevel];
+      oldLevel = FDA_LEVEL_KEYS_MAPPING[oldLevel];
     }
-    updateReviewableContent(firebaseLevelPath, currentLOE, newLevel, LOEReview, LOEUuid);
+
+    updateReviewableContent(firebaseLevelPath, oldLevel, newLevel, LOEReview, LOEUuid);
     if (props.onChange) {
       props.onChange(newLevel, actionMeta);
     }
