@@ -85,7 +85,7 @@ const GeneListPage = (props: StoreProps) => {
       {props.firebaseReady && (
         <>
           {!!props.metaData && !!geneMeta ? (
-            <Row>
+            <Row id={'gene-list'}>
               <Col>
                 <OncoKBTable
                   data={geneMeta}

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "moduleResolution": "node",
-    "types": ["node", "@wdio/globals/types", "expect-webdriverio", "@wdio/mocha-framework"],
+    "types": ["node", "@wdio/globals/types", "expect-webdriverio", "@wdio/mocha-framework", "@wdio/visual-service"],
     "target": "es2022",
     "skipLibCheck": true,
     "noEmit": true,

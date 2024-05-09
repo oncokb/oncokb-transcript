@@ -13,6 +13,7 @@ export type FirebaseProperties = {
   messagingSenderId: string;
   appId: string;
   measurementId: string;
+  isTest?: boolean; // this will be injected by tests and will not come from the backend
 };
 
 type ServerConfig = {

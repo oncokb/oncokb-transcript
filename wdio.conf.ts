@@ -1,4 +1,6 @@
 import type { Options } from '@wdio/types';
+import * as path from 'path';
+
 export const config: Options.Testrunner = {
   //
   // ====================
@@ -9,6 +11,25 @@ export const config: Options.Testrunner = {
   autoCompileOpts: {
     autoCompile: true,
   },
+  injectGlobals: true,
+
+  suites: {
+    screenshot: ['./src/test/javascript/spec/screenshot.ts'],
+  },
+
+  services: [
+    [
+      'visual',
+      {
+        // Some options, see the docs for more
+        baselineFolder: path.join(process.cwd(), 'tests', 'baseline'),
+        formatImageName: '{tag}-{logName}-{width}x{height}',
+        screenshotPath: path.join(process.cwd(), 'tmp'),
+        savePerInstance: true,
+        // ... more options
+      },
+    ],
+  ],
 
   //
   // ==================
