@@ -32,10 +32,20 @@ export class FirebaseMetaService {
    * @param add Whether the field should be reviewed or removed from review view
    */
   updateGeneReviewUuid = (hugoSymbol: string, uuid: string, add: boolean, isGermline: boolean) => {
-    if (add) {
-      return this.firebaseRepository.update(`${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review`, { [uuid]: true });
-    }
-    return this.firebaseRepository.delete(getFirebaseMetaGeneReviewPath(isGermline, hugoSymbol, uuid));
+    // Setting to null in firebase update will remove that key
+    const updateObject = {
+      [uuid]: add ? true : null,
+    };
+    return this.firebaseRepository.update(`${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review`, updateObject);
+  };
+
+  updateMeta = (hugoSymbol: string, uuid: string, add: boolean, isGermline: boolean) => {
+    const updateObject = {
+      lastModifiedBy: this.authStore.fullName,
+      lastModifiedAt: new Date().getTime().toString(),
+      [`review/${uuid}`]: add ? true : null,
+    };
+    return this.firebaseRepository.update(getFirebaseMetaGenePath(isGermline, hugoSymbol), updateObject);
   };
 
   /**

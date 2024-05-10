@@ -32,7 +32,13 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
     <Router basename={baseHref}>
       <Layout>
         <div className="app-container">
-          <ToastContainer position={'top-center'} className="toastify-container" toastClassName="toastify-toast" />
+          <ToastContainer
+            position={'top-center'}
+            className="toastify-container"
+            toastClassName="toastify-toast"
+            pauseOnHover
+            pauseOnFocusLoss
+          />
           {props.loadingAuth ? (
             <LoadingIndicator isLoading size={LoaderSize.LARGE} center={true} />
           ) : (

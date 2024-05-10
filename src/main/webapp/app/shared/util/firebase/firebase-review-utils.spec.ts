@@ -12,12 +12,14 @@ import {
   findReviews,
   getRelevantKeysFromUuidKey,
   getReviewAction,
+  getUpdatedReview,
   joinPathParts,
   removeLeafNodes,
 } from './firebase-review-utils';
 import { Gene, GeneType, Implication, Mutation, Review, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { DiffMethod } from 'react-diff-viewer-continued';
 import { IDrug } from 'app/shared/model/drug.model';
+import { ICancerType } from 'app/shared/model/cancer-type.model';
 
 describe('Firebase Review Utils', () => {
   describe('getRelevantKeysFromUuidKey', () => {
@@ -588,6 +590,69 @@ describe('Firebase Review Utils', () => {
 
       removeLeafNodes(parentReview);
       expect(parentReview.hasChildren()).toBeFalsy();
+    });
+  });
+
+  describe('getUpdatedReview', () => {
+    const editorName = 'User';
+
+    describe('when working with string fields', () => {
+      it('should set lastReviewed to empty string when content has not been reviewed yet', () => {
+        const { updatedReview } = getUpdatedReview(undefined, '', 'New description', editorName);
+        expect(updatedReview.lastReviewed).toEqual('');
+      });
+
+      it('should set lastReviewed to old value when field has been updated', () => {
+        const oldReview = new Review('User', 'Old description');
+        const { updatedReview } = getUpdatedReview(oldReview, 'Old description', 'New Description', editorName);
+        expect(updatedReview.lastReviewed).toEqual('Old description');
+      });
+
+      it('should detect reverted change', () => {
+        const oldReview = new Review('User', 'Old description');
+        const { updatedReview, isChangeReverted } = getUpdatedReview(oldReview, 'New description', 'Old description', editorName);
+        expect(updatedReview).not.toHaveProperty('lastReviewed');
+        expect(isChangeReverted).toBeTruthy();
+      });
+    });
+
+    describe('when working with relevant cancer types', () => {
+      it('should detect reverted excluded RCTs when initialUpdate is true', () => {
+        const oldReview = new Review('User', undefined, undefined, undefined, true);
+        const currentValue: ICancerType[] = [{ code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' }];
+        const { updatedReview, isChangeReverted } = getUpdatedReview(oldReview, currentValue, [], editorName);
+        expect(updatedReview).not.toHaveProperty('lastReviewed');
+        expect(isChangeReverted).toBeTruthy();
+      });
+
+      it('should detect reverted excluded RCTs when RCT is already pending review', () => {
+        const excludedCancerTypes: ICancerType[] = [{ code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' }];
+        const currentValue: ICancerType[] = [
+          { code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' },
+          { code: 'MEL', mainType: 'Melanoma', subtype: 'Melanoma' },
+        ];
+        const oldReview = new Review('User', excludedCancerTypes);
+        const { updatedReview, isChangeReverted } = getUpdatedReview(oldReview, currentValue, excludedCancerTypes, editorName);
+        expect(updatedReview).not.toHaveProperty('lastReviewed');
+        expect(isChangeReverted).toBeTruthy();
+      });
+    });
+
+    describe('when working with name changes', () => {
+      it('should set lastReviewed to old value when name has changed', () => {
+        const oldReview = new Review('User', undefined);
+        const currentVal = 'V600E';
+        const { updatedReview } = getUpdatedReview(oldReview, currentVal, 'V600K', editorName);
+        expect(updatedReview.lastReviewed).toEqual(currentVal);
+      });
+
+      it('should detect reverted name', () => {
+        const oldReview = new Review('User', 'V600E');
+        const currentVal = 'V600K';
+        const { updatedReview, isChangeReverted } = getUpdatedReview(oldReview, currentVal, 'V600E', editorName);
+        expect(updatedReview).not.toHaveProperty('lastReviewed');
+        expect(isChangeReverted).toBeTruthy();
+      });
     });
   });
 });

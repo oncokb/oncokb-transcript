@@ -1,5 +1,5 @@
 import { FB_COLLECTION } from 'app/config/constants/firebase';
-import { buildFirebaseGenePath, parseFirebaseGenePath } from './firebase-path-utils';
+import { buildFirebaseGenePath, extractArrayPath, parseFirebaseGenePath } from './firebase-path-utils';
 
 describe('FirebasePathUtils', () => {
   describe('parseFirebaseGenePath', () => {
@@ -29,6 +29,16 @@ describe('FirebasePathUtils', () => {
       expect(buildFirebaseGenePath(hugoSymbol, 'mutations/0/tumors/0/cancerTypes')).toEqual('Genes/BRAF/mutations/0/tumors/0/cancerTypes');
 
       expect(buildFirebaseGenePath('', 'mutations_uuid')).toEqual(undefined);
+    });
+  });
+
+  describe('extractArrayPath', () => {
+    test.each([
+      { path: 'mutations/0/name', firebaseArrayPath: 'mutations', deleteIndex: 0 },
+      { path: 'mutations/0/tumors/10/cancerTypes', firebaseArrayPath: 'mutations/0/tumors', deleteIndex: 10 },
+      { path: 'mutations/0/tumors/0/TIs/0/treatments/0/name', firebaseArrayPath: 'mutations/0/tumors/0/TIs/0/treatments', deleteIndex: 0 },
+    ])('should return arrayPath = $arrayPath and index = $index when given $path', ({ path, firebaseArrayPath, deleteIndex }) => {
+      expect(extractArrayPath(path)).toEqual({ firebaseArrayPath, deleteIndex });
     });
   });
 });

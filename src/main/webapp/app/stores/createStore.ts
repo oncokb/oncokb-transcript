@@ -234,20 +234,21 @@ export function createStores(history: History): IRootStore {
   /* Firebase Services */
   const firebaseMetaService = new FirebaseMetaService(firebaseRepository, rootStore.authStore);
   const firebaseHistoryService = new FirebaseHistoryService(firebaseRepository);
+  const firebaseVusService = new FirebaseVusService(firebaseRepository, rootStore.authStore);
   const firebaseGeneReviewService = new FirebaseGeneReviewService(
     firebaseRepository,
     rootStore.authStore,
     firebaseMetaService,
-    firebaseHistoryService
+    firebaseHistoryService,
+    firebaseVusService,
   );
   const firebaseGeneService = new FirebaseGeneService(
     firebaseRepository,
     rootStore.authStore,
     firebaseMutationConvertIconStore,
     firebaseMetaService,
-    firebaseGeneReviewService
+    firebaseGeneReviewService,
   );
-  const firebaseVusService = new FirebaseVusService(firebaseRepository, rootStore.authStore);
 
   rootStore.firebaseMetaService = firebaseMetaService;
   rootStore.firebaseHistoryService = firebaseHistoryService;

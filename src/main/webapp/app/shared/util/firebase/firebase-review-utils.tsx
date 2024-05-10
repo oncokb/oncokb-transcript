@@ -10,15 +10,14 @@ import {
   Treatment,
   Tumor,
 } from 'app/shared/model/firebase/firebase.model';
-import _, { bind } from 'lodash';
+import _ from 'lodash';
 import { getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
-import { getTxName } from './firebase-utils';
-import { READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
+import { getFirebaseGenePath, getFirebaseVusPath, getTxName } from './firebase-utils';
+import { ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import { DiffMethod } from 'react-diff-viewer-continued';
 import React from 'react';
-import { makeFirebaseKeysReadable } from './firebase-history-utils';
-import drug from 'app/entities/drug/drug';
+import { buildHistoryFromReviews, makeFirebaseKeysReadable } from './firebase-history-utils';
 
 export interface ReviewChildren {
   [key: string]: BaseReviewLevel;
@@ -696,4 +695,37 @@ export const getAllNestedReviewUuids = (baseReviewLevel: BaseReviewLevel, uuids:
       getAllNestedReviewUuids(childReview, uuids);
     }
   }
+};
+
+export const getUpdatedReview = (oldReview: Review, currentValue: any, newValue: any, editorName: string) => {
+  /* eslint-disable no-console */
+  console.log(oldReview, currentValue, newValue, editorName);
+  // Update Review
+  if (!oldReview) {
+    oldReview = new Review(editorName);
+  }
+  oldReview.updateTime = new Date().getTime();
+  oldReview.updatedBy = editorName;
+
+  // Update Review when value is reverted to original
+  let isChangeReverted = false;
+  if (!('lastReviewed' in oldReview)) {
+    oldReview.lastReviewed = currentValue;
+    if (oldReview.lastReviewed === undefined) {
+      oldReview = clearReview(oldReview);
+    }
+    if (oldReview?.initialUpdate) {
+      if (Array.isArray(newValue) && newValue.length === 0) {
+        isChangeReverted = true;
+      }
+    }
+  } else if (_.isEqual(oldReview.lastReviewed, newValue)) {
+    isChangeReverted = true;
+  }
+
+  if (isChangeReverted) {
+    oldReview = clearReview(oldReview);
+  }
+
+  return { updatedReview: oldReview, isChangeReverted };
 };
