@@ -73,7 +73,7 @@ describe('Firebase Gene Review Service', () => {
         summary: 'new',
         summary_review: {
           lastReviewed: 'old',
-          updateTime: 1672531200000,
+          updateTime: DEFAULT_DATE.getTime(),
           updatedBy: mockAuthStore.fullName,
         },
       });
