@@ -12,12 +12,12 @@ import {
 } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
 import { getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
-import { getFirebaseGenePath, getFirebaseVusPath, getTxName } from './firebase-utils';
+import { getTxName } from './firebase-utils';
 import { ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import { DiffMethod } from 'react-diff-viewer-continued';
 import React from 'react';
-import { buildHistoryFromReviews, makeFirebaseKeysReadable } from './firebase-history-utils';
+import { makeFirebaseKeysReadable } from './firebase-history-utils';
 
 export interface ReviewChildren {
   [key: string]: BaseReviewLevel;
@@ -698,8 +698,6 @@ export const getAllNestedReviewUuids = (baseReviewLevel: BaseReviewLevel, uuids:
 };
 
 export const getUpdatedReview = (oldReview: Review, currentValue: any, newValue: any, editorName: string) => {
-  /* eslint-disable no-console */
-  console.log(oldReview, currentValue, newValue, editorName);
   // Update Review
   if (!oldReview) {
     oldReview = new Review(editorName);
