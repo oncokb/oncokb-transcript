@@ -17,7 +17,7 @@ import { ReviewAction, ReviewActionLabels, ReviewLevelType } from 'app/config/co
 import _ from 'lodash';
 import { CollapsibleColorProps, CollapsibleDisplayProps } from './BaseCollapsible';
 import { getReviewInfo } from 'app/shared/util/firebase/firebase-utils';
-import { notifyCurationPageError, notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { notifyCurationPageError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 export enum ReviewType {
   CREATE,
@@ -87,7 +87,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
   }, [rootReview]);
 
   const getReviewActions = () => {
-    return !isUnderCreationOrDeletion && rootReview.reviewLevelType !== ReviewLevelType.META ? (
+    return !isUnderCreationOrDeletion && rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE ? (
       <>
         <ActionIcon
           icon={faCheck}

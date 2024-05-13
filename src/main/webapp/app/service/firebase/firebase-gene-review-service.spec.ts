@@ -38,9 +38,9 @@ describe('Firebase Gene Review Service', () => {
     jest.useFakeTimers().setSystemTime(DEFAULT_DATE);
   };
 
-  describe('updateReviewableContent', () => {
-    beforeEach(() => _beforeEach());
+  beforeEach(_beforeEach);
 
+  describe('updateReviewableContent', () => {
     it('should update to firebase path with correct object', async () => {
       await firebaseGeneReviewService.updateReviewableContent(
         'Genes/BRAF/mutations/0/description',
@@ -95,8 +95,6 @@ describe('Firebase Gene Review Service', () => {
   });
 
   describe('acceptChanges', () => {
-    beforeEach(() => _beforeEach());
-
     it('should accept updates', async () => {
       const hugoSymbol = 'BRAF';
       const gene = new Gene(hugoSymbol);
@@ -237,8 +235,6 @@ describe('Firebase Gene Review Service', () => {
   });
 
   describe('rejectChanges', () => {
-    beforeEach(() => _beforeEach());
-
     it('should delete lastReviewed and set value back to lastReviewed when rejecting update', async () => {
       const hugoSymbol = 'BRAF';
       const gene = new Gene(hugoSymbol);

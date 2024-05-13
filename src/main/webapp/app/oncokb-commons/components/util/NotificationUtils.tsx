@@ -40,9 +40,8 @@ export const notifyError = (error: Error | OncoKBError, additionalInfo?: string,
 };
 
 export const notifyCurationPageError = (error: Error | OncoKBError | SentryError, additionalInfo?: string) => {
-  const sentryError = error as SentryError;
-  if (sentryError.sentryId) {
-    additionalInfo = `\n Please reach out to dev team with error code: ${sentryError.sentryId}`;
+  if ('sentryId' in error) {
+    additionalInfo = `\n Please reach out to dev team with error code: ${error.sentryId}`;
   }
   return toast.error(getErrorMessage(error, additionalInfo), {
     position: 'top-right',
