@@ -90,6 +90,8 @@ describe('Screenshot Tests', () => {
       statusCode: 200,
       fetchResponse: false,
     });
+
+    await browser.setWindowSize(1920, 1080);
   });
 
   it('should compare gene list', async () => {
@@ -97,8 +99,6 @@ describe('Screenshot Tests', () => {
 
     const geneList = await $('#gene-list');
     await geneList.waitForDisplayed();
-
-    await browser.checkElement(geneList, 'gene-list', methodOptions);
 
     const result = await browser.checkElement(geneList, 'gene-list', methodOptions);
     expect(result).toBe(0);

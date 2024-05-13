@@ -157,3 +157,9 @@ Desktop.ini
 ######################
 /coverage/
 /.nyc_output/
+
+######################
+# Screenshots
+######################
+/src/test/javascript/screenshots/actual
+/src/test/javascript/screenshots/diff

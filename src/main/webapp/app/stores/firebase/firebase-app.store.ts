@@ -1,4 +1,5 @@
 import { AppConfig } from 'app/appConfig';
+import { AUTH_EMULATOR_URL } from 'app/config/constants/firebase';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import BaseStore from 'app/shared/util/base-store';
 import { IRootStore } from 'app/stores/createStore';
@@ -63,7 +64,7 @@ export class FirebaseAppStore extends BaseStore {
 
         const auth = getAuth();
         if (isTest) {
-          connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+          connectAuthEmulator(auth, AUTH_EMULATOR_URL, { disableWarnings: true });
         }
         return onAuthStateChanged(auth, user => {
           if (!user) {
