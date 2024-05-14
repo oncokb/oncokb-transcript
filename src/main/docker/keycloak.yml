@@ -13,18 +13,19 @@ services:
     networks:
       - kc-network
   keycloak:
-    image: bitnami/keycloak:14.0.0
+    image: quay.io/keycloak/keycloak:17.0.1
+    command: start-dev
     #volumes:
     #- ./realm-config:/opt/bitnami/keycloak/data/import
     environment:
-      KEYCLOAK_ADMIN_USER: admin
+      KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-      KEYCLOAK_DATABASE_VENDOR: postgres
-      KEYCLOAK_DATABASE_HOST: keycloak-db
-      KEYCLOAK_DATABASE_PORT: 5432
-      KEYCLOAK_DATABASE_NAME: keycloak
-      KEYCLOAK_DATABASE_USER: root
-      KEYCLOAK_DATABASE_PASSWORD: root
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloak-db
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: root
+      KC_DB_PASSWORD: root
       #KEYCLOAK_EXTRA_ARGS_PREPENDED: --import-realm
       #KEYCLOAK_BIND_ADDRESS: keycloak-db
     depends_on:
