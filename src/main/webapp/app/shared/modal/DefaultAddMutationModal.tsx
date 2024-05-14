@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaExclamationCircle, FaExclamationTriangle } from 'react-icons/fa';
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 import { DEFAULT_ICON_SIZE } from 'app/config/constants/constants';
 
 export interface IDefaultAddMutationModal {
@@ -8,6 +8,7 @@ export interface IDefaultAddMutationModal {
   onCancel: () => void;
   onConfirm: () => void;
   confirmButtonDisabled: boolean;
+  isConfirmPending?: boolean;
   isUpdate?: boolean;
   errorMessages?: string[];
   warningMessages?: string[];
@@ -63,6 +64,7 @@ export const DefaultAddMutationModal = (props: IDefaultAddMutationModal) => {
               color={props.confirmButtonDisabled ? 'secondary' : 'primary'}
             >
               {props.isUpdate ? 'Update' : 'Confirm'}
+              {props.isConfirmPending && <Spinner size="sm" className="ms-2" />}
             </Button>
           </div>
         </div>

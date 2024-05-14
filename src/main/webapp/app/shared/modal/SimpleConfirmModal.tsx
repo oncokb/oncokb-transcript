@@ -1,7 +1,7 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
+import { Button, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 
 export const SimpleConfirmModal: React.FunctionComponent<{
   title?: string;
@@ -16,6 +16,7 @@ export const SimpleConfirmModal: React.FunctionComponent<{
   confirmDisabled?: boolean;
   onCancel?: () => void;
   onConfirm?: () => void;
+  showConfirmLoader?: boolean;
   style?: React.CSSProperties;
 }> = props => {
   const onCancel = (event?: any) => {
@@ -49,6 +50,7 @@ export const SimpleConfirmModal: React.FunctionComponent<{
             </>
           )}{' '}
           {props.confirmText || 'Confirm'}
+          {props.showConfirmLoader && <Spinner size="sm" className="ms-2" />}
         </Button>
       </ModalFooter>
     </Modal>

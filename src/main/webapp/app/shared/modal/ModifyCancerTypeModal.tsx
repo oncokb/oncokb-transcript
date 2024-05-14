@@ -15,7 +15,7 @@ import _ from 'lodash';
 export interface IModifyCancerTypeModalProps extends StoreProps {
   cancerTypesUuid: string;
   cancerTypesPathToEdit?: string;
-  onConfirm: (newTumor: Tumor) => void;
+  onConfirm: (newTumor: Tumor) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -54,6 +54,7 @@ const ModifyCancerTypeModalContent = observer(
     firebaseDb,
   }: IModifyCancerTypeModalProps) => {
     const [cancerTypeToEdit, setCancerTypeToEdit] = useState<Tumor>(null);
+    const [isConfirmPending, setIsConfirmPending] = useState(false);
 
     function getCancerTypeFromCancerTypeSelectOption(cancerTypeSelectOption: CancerTypeSelectOption) {
       const cancerType = new CancerType();
@@ -156,11 +157,13 @@ const ModifyCancerTypeModalContent = observer(
       () =>
         modifyCancerTypeModalStore.isErrorFetchingICancerTypes ||
         modifyCancerTypeModalStore.isErrorIncludedAndExcluded ||
-        modifyCancerTypeModalStore.includedCancerTypes.length < 1,
+        modifyCancerTypeModalStore.includedCancerTypes.length < 1 ||
+        isConfirmPending,
       [
         modifyCancerTypeModalStore.includedCancerTypes,
         modifyCancerTypeModalStore.isErrorFetchingICancerTypes,
         modifyCancerTypeModalStore.isErrorIncludedAndExcluded,
+        isConfirmPending,
       ],
     );
 
@@ -235,7 +238,7 @@ const ModifyCancerTypeModalContent = observer(
               <Button
                 color="primary"
                 disabled={isConfirmButtonDisabled}
-                onClick={() => {
+                onClick={async () => {
                   const includedCancerTypes = modifyCancerTypeModalStore.includedCancerTypes.map(option =>
                     getCancerTypeFromCancerTypeSelectOption(option),
                   );
@@ -250,10 +253,16 @@ const ModifyCancerTypeModalContent = observer(
                     newTumor.excludedCancerTypes_uuid = generateUuid();
                   }
 
-                  onConfirm(newTumor);
+                  setIsConfirmPending(true);
+                  try {
+                    await onConfirm(newTumor);
+                  } finally {
+                    setIsConfirmPending(false);
+                  }
                 }}
               >
                 Confirm
+                {isConfirmPending && <Spinner size="sm" className="ms-2" />}
               </Button>
             </div>
           </div>

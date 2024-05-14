@@ -89,6 +89,7 @@ function AddMutationModal({
   const [errorMessagesEnabled, setErrorMessagesEnabled] = useState(true);
   const [isFetchingAlteration, setIsFetchingAlteration] = useState(false);
   const [isFetchingExcludingAlteration, setIsFetchingExcludingAlteration] = useState(false);
+  const [isConfirmPending, setIsConfirmPending] = useState(false);
 
   const [vusList, setVusList] = useState<VusObjList>(null);
 
@@ -998,8 +999,13 @@ function AddMutationModal({
         newMutation.alterations = newAlterations;
 
         setErrorMessagesEnabled(false);
-        await onConfirm(newMutation, mutationList?.length || 0);
-        setErrorMessagesEnabled(true);
+        setIsConfirmPending(true);
+        try {
+          await onConfirm(newMutation, mutationList?.length || 0);
+        } finally {
+          setErrorMessagesEnabled(true);
+          setIsConfirmPending(false);
+        }
       }}
       errorMessages={modalErrorMessage && errorMessagesEnabled ? [modalErrorMessage] : null}
       warningMessages={modalWarningMessage ? [modalWarningMessage] : null}
@@ -1008,8 +1014,10 @@ function AddMutationModal({
         mutationAlreadyExists.exists ||
         isFetchingAlteration ||
         isFetchingExcludingAlteration ||
-        tabStates.some(tab => tab.error || tab.excluding.some(ex => ex.error))
+        tabStates.some(tab => tab.error || tab.excluding.some(ex => ex.error)) ||
+        isConfirmPending
       }
+      isConfirmPending={isConfirmPending}
     />
   );
 }
