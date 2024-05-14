@@ -69,7 +69,7 @@
     "ci:e2e:server:start": "java -jar target/e2e.$yarn_package_config_packaging --spring.profiles.active=$yarn_package_config_default_environment -Dlogging.level.ROOT=OFF -Dlogging.level.org.zalando=OFF -Dlogging.level.tech.jhipster=OFF -Dlogging.level.org.mskcc.oncokb.curation=OFF -Dlogging.level.org.springframework=OFF -Dlogging.level.org.springframework.web=OFF -Dlogging.level.org.springframework.security=OFF --logging.level.org.springframework.web=ERROR",
     "wdio": "TS_NODE_PROJECT=src/test/javascript/tsconfig.json wdio run ./wdio.conf.ts",
     "firebase-emulator": "node_modules/firebase-tools/lib/bin/firebase.js emulators:start --import src/test/javascript/firebase",
-    "screenshot-test": "yarn start & yarn run firebase-emulator & wait-on http-get://localhost:9000 & wait-on http-get://localhost:9095 & wait-on http-get://localhost:9099 && yarn run wdio && kill $(lsof -t -i:9000) kill $(lsof -t -i:9095) kill $(lsof -t -i:9099) kill $(lsof -t -i:4000)"
+    "screenshot-test": "yarn start > /dev/null & yarn run firebase-emulator > /dev/null & wait-on http-get://localhost:9000 & wait-on http-get://localhost:9095 & wait-on http-get://localhost:9099 && yarn run wdio && kill $(lsof -t -i:9000) kill $(lsof -t -i:4400)"
   },
   "config": {
     "backend_port": "9090",
