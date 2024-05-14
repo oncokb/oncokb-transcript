@@ -68,7 +68,7 @@
     "preci:e2e:server:start": "yarn run docker:db:await --if-present && yarn run docker:others:await --if-present",
     "ci:e2e:server:start": "java -jar target/e2e.$yarn_package_config_packaging --spring.profiles.active=$yarn_package_config_default_environment -Dlogging.level.ROOT=OFF -Dlogging.level.org.zalando=OFF -Dlogging.level.tech.jhipster=OFF -Dlogging.level.org.mskcc.oncokb.curation=OFF -Dlogging.level.org.springframework=OFF -Dlogging.level.org.springframework.web=OFF -Dlogging.level.org.springframework.security=OFF --logging.level.org.springframework.web=ERROR",
     "wdio": "TS_NODE_PROJECT=src/test/javascript/tsconfig.json wdio run ./wdio.conf.ts",
-    "firebase-emulator": "node_modules/firebase-tools/lib/bin/firebase.js emulators:start --import src/test/javascript/firebase",
+    "firebase-emulator": "node_modules/firebase-tools/lib/bin/firebase.js emulators:start --import src/test/javascript/firebase --project oncokb-curation-test-54b6c",
     "screenshot-test": "yarn start & yarn run firebase-emulator & wait-on http-get://localhost:9000 & wait-on http-get://localhost:9095 & wait-on http-get://localhost:9099 && yarn run wdio && kill $(lsof -t -i:9000) kill $(lsof -t -i:4400)"
   },
   "config": {
