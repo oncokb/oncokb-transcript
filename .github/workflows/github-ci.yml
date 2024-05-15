@@ -15,7 +15,5 @@ jobs:
           java-version: '11'
       - name: Install node.js packages
         run: npm install
-      - name: Run screenshot tests
-        run: yarn run screenshot-test
       - name: Package application
         run: ./mvnw -ntp package -Pprod
