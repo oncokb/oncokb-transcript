@@ -182,7 +182,7 @@ const VusTable = ({
             <CommentIcon id={cell.original.uuid} key={cell.original.uuid} path={`${firebaseVusPath}/${cell.original.uuid}/name_comments`} />
             <MutationConvertIcon
               mutationName={cell.original.name}
-              tooltipProps={{ overlay: <div>Convert alteration(s) to VUS</div> }}
+              tooltipProps={{ overlay: <div>Promote VUS to mutation list</div> }}
               onClick={() => {
                 setVusToPromote(cell.original);
                 currentActionVusUuid.current = cell.original.uuid;
