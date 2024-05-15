@@ -436,6 +436,7 @@ const MutationCollapsible = ({
           itemBuilder={index => {
             return (
               <CancerTypeCollapsible
+                allCancerTypesPath={`${mutationPath}/tumors`}
                 cancerTypePath={`${mutationPath}/tumors/${index}`}
                 mutationName={mutationName}
                 parsedHistoryList={parsedHistoryList}
@@ -454,6 +455,7 @@ const MutationCollapsible = ({
       </RemovableCollapsible>
       <ModifyCancerTypeModal
         cancerTypesUuid={`new_cancer_type_for_${mutationUuid}`}
+        allCancerTypesPath={`${mutationPath}/tumors`}
         onConfirm={async newTumor => {
           try {
             await addTumor(`${mutationPath}/tumors`, newTumor);

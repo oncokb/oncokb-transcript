@@ -29,12 +29,14 @@ import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-util
 
 interface ICancerTypeCollapsibleProps extends StoreProps {
   cancerTypePath: string;
+  allCancerTypesPath: string;
   mutationName: string;
   parsedHistoryList: Map<string, FlattenedHistory[]>;
 }
 
 function CancerTypeCollapsible({
   cancerTypePath,
+  allCancerTypesPath,
   mutationName,
   parsedHistoryList,
   firebaseDb,
@@ -225,6 +227,7 @@ function CancerTypeCollapsible({
       </RemovableCollapsible>
       <ModifyCancerTypeModal
         cancerTypesUuid={cancerTypesUuid}
+        allCancerTypesPath={allCancerTypesPath}
         cancerTypesPathToEdit={cancerTypePath}
         onConfirm={async newTumor => {
           try {
