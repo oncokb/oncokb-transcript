@@ -6,7 +6,7 @@
    dependencies on your machine:
 
    1. [Docker](https://www.docker.com/get-started).
-   2. [mysql](https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/).
+   2. [mysql 8](https://dev.mysql.com/doc/mysql-installation-excerpt/8.0/en/).
    3. [Java 11](https://dev.java/download/) SDK.
    4. [Node.js](https://nodejs.org): We use Node to run a development web server
       and build the project. Depending on your system, you can install Node either
@@ -118,15 +118,16 @@
 
    1. Go to [Firebase Console](https://console.firebase.google.com/) and create
       a new project
-   2. Select gear icon next to **Project Overview**
-   3. Choose **Service Account** on header
-   4. Under **Firebase Admin SDK** section, click on **Generate new private key**
-   5. Move the service account credentials under `src/main/resources/<CREDENTIALS_FILENAME>.json`
-   6. Update `application.frontend.firebase.service-account-credentials-path`
-      to the filename
-   7. Under **Project Overview** page in the **General** tab, find the Firebase
-      config. Update the application properties accordingly.
-   8. Create a Firebase Realtime Database and configure the rules as such:
+      - You can disable Google Analytics
+   2. Expand **Build** and click **Realtime Database**
+   3. Click **Create Database**
+      - You can use the default location
+      - Start in locked mode
+   4. Import a JSON file with seed data.
+      - If you wish to have sample data for firebase then please contact
+        [dev@oncokb.org](mailto:dev@oncokb.org)
+   5. Click the **Rules** section of the **Realtime Database** page
+   6. Create a Firebase Realtime Database and configure the rules as such:
 
       ```json
       {
@@ -137,8 +138,22 @@
       }
       ```
 
-   9. If you wish to have sample data for firebase then please contact
-      [dev@oncokb.org](mailto:dev@oncokb.org)
+   7. Click **Publish** to save the changes
+   8. Select gear icon next to **Project Overview**
+   9. Click **Project settings**
+   10. Choose **Service Accounts** on header
+   11. Under **Firebase Admin SDK** section, click on **Generate new private key**
+   12. Move the service account credentials under `src/main/resources/<CREDENTIALS_FILENAME>.json`
+   13. Update `application.firebase.service-account-credentials-path`
+       to the filename
+   14. Under **Project Overview** page in the **General** tab under the **Your apps**
+       section click the `</>` to add a web application.
+   15. Pick whatever name you want to represent the oncokb curation frontend
+       - You do not need to setup firebase hosting
+   16. The resulting credential and paste them in the corresponding fields
+       in `application.firebase`
+   17. Expand **Build** and click **Authentication**
+   18. Click the **Sign-in method** section and add email/password provider
 
 6. Verify that your mysql configuration in [application-dev.yaml](src/main/resources/config/application-dev.yml)
    is correct for you mysql server instance.
@@ -243,6 +258,20 @@ yarn test
 
 ## Build production docker image
 
+If you are already logged into docker hub:
+
 ```sh
 ./mvnw -ntp package -Pprod verify jib:build -DskipTests -Djib.to.image=oncokb/oncokb-curation:0.6.0
+```
+
+If you want to explicitly pass a username and password:
+
+```sh
+./mvnw -ntp package \
+    -Pprod verify \
+    jib:build \
+    -DskipTests \
+    -Djib.to.image=oncokb/oncokb-curation:0.6.0 \
+    -Djib.to.auth.username=USERNAME \
+    -Djib.to.auth.password=PASSWORD
 ```
