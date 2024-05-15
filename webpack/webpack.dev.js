@@ -99,7 +99,6 @@ module.exports = async options =>
         {
           https: options.tls,
           host: 'localhost',
-          open: false,
           port: 9000,
           proxy: {
             target: `http${options.tls ? 's' : ''}://localhost:9060`,
