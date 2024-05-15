@@ -22,7 +22,7 @@ describe('Firebase Gene Review Service', () => {
   const mockVusService = mock<FirebaseVusService>();
   let firebaseGeneReviewService: FirebaseGeneReviewService;
 
-  const _beforeEach = () => {
+  beforeEach(() => {
     mockReset(mockFirebaseRepository);
     mockReset(mockAuthStore);
     mockReset(mockMetaService);
@@ -36,9 +36,7 @@ describe('Firebase Gene Review Service', () => {
       mockVusService,
     );
     jest.useFakeTimers().setSystemTime(DEFAULT_DATE);
-  };
-
-  beforeEach(_beforeEach);
+  });
 
   describe('updateReviewableContent', () => {
     it('should update to firebase path with correct object', async () => {

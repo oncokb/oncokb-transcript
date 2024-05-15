@@ -1,7 +1,7 @@
 import { ToastOptions, toast } from 'react-toastify';
 import _ from 'lodash';
 import { OncoKBError } from '../alert/ErrorAlertUtils';
-import { LONG_TOAST_CLOSE_MILLISECONDS } from 'app/config/constants/constants';
+import { DEFAULT_TOAST_ERROR_OPTIONS, LONG_TOAST_CLOSE_MILLISECONDS } from 'app/config/constants/constants';
 import { SentryError } from 'app/config/sentry-error';
 
 const getFormattedMessage = (message: string) => {
@@ -35,18 +35,9 @@ export const notifySuccess = (message: string, options?: ToastOptions) => {
 export const notifyWarning = (error: OncoKBError, additionalInfo?: string, options?: ToastOptions) => {
   return toast.warn(getErrorMessage(error, additionalInfo), options);
 };
-export const notifyError = (error: Error | OncoKBError, additionalInfo?: string, options?: ToastOptions) => {
-  return toast.error(getErrorMessage(error, additionalInfo), options);
-};
-
-export const notifyCurationPageError = (error: Error | OncoKBError | SentryError, additionalInfo?: string) => {
+export const notifyError = (error: Error | OncoKBError | SentryError, additionalInfo?: string, options?: ToastOptions) => {
   if ('sentryId' in error) {
     additionalInfo = `\n Please reach out to dev team with error code: ${error.sentryId}`;
   }
-  return toast.error(getErrorMessage(error, additionalInfo), {
-    position: 'top-right',
-    autoClose: LONG_TOAST_CLOSE_MILLISECONDS,
-    draggable: false,
-    closeOnClick: false,
-  });
+  return toast.error(getErrorMessage(error, additionalInfo), options || DEFAULT_TOAST_ERROR_OPTIONS);
 };

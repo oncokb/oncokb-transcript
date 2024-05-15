@@ -17,7 +17,7 @@ import { ReviewAction, ReviewActionLabels, ReviewLevelType } from 'app/config/co
 import _ from 'lodash';
 import { CollapsibleColorProps, CollapsibleDisplayProps } from './BaseCollapsible';
 import { getReviewInfo } from 'app/shared/util/firebase/firebase-utils';
-import { notifyCurationPageError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 export enum ReviewType {
   CREATE,
@@ -93,16 +93,16 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
           icon={faCheck}
           color={SUCCESS}
           onClick={() => {
-            props.handleAccept(props.hugoSymbol, [props.baseReviewLevel as ReviewLevel], props.isGermline).catch(error => {
-              notifyCurationPageError(error);
-            });
+            props
+              .handleAccept(props.hugoSymbol, [props.baseReviewLevel as ReviewLevel], props.isGermline)
+              .catch(error => notifyError(error));
           }}
         />
         <ActionIcon
           icon={faTimes}
           color={DANGER}
           onClick={() => {
-            props.handleDelete(props.hugoSymbol, props.baseReviewLevel as ReviewLevel, props.isGermline);
+            props.handleDelete(props.hugoSymbol, props.baseReviewLevel as ReviewLevel, props.isGermline).catch(error => notifyError(error));
           }}
         />
       </>

@@ -1,5 +1,6 @@
 import { AlterationTypeEnum } from 'app/shared/api/generated';
 import { GREY } from '../colors';
+import { ToastOptions } from 'react-toastify';
 
 export const AUTHORITIES = {
   ADMIN: 'ROLE_ADMIN',
@@ -412,3 +413,10 @@ export const DEFAULT_ICON_SIZE = 18;
 export const CURATE_NEW_GENE_TEXT = 'Curate New Gene';
 
 export const DISABLED_COLLAPSIBLE_COLOR = GREY;
+
+export const DEFAULT_TOAST_ERROR_OPTIONS: ToastOptions = {
+  position: 'top-right',
+  autoClose: LONG_TOAST_CLOSE_MILLISECONDS,
+  draggable: false,
+  closeOnClick: false,
+};
