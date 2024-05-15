@@ -60,7 +60,11 @@ export const CurationPage = (props: ICurationPageProps) => {
       cleanupCallbacks.push(
         onValue(ref(props.firebaseDb, firebaseMetaCurrentReviewerPath), snapshot => {
           const currentReviewer = snapshot.val();
-          setIsReviewing(currentReviewer?.toLowerCase() === props.fullName.toLowerCase());
+          const isReviewer = currentReviewer?.toLowerCase() === props.fullName.toLowerCase();
+          setIsReviewing(isReviewer);
+          if (isReviewer) {
+            props.toggleOncoKBSidebar(false);
+          }
         }),
       );
       return () => {
@@ -297,6 +301,7 @@ const mapStoreToProps = ({
   authStore,
   firebaseGeneService,
   openMutationCollapsibleStore,
+  layoutStore,
 }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   firebaseInitSuccess: firebaseAppStore.firebaseInitSuccess,
@@ -312,6 +317,7 @@ const mapStoreToProps = ({
   fullName: authStore.fullName,
   updateRelevantCancerTypes: firebaseGeneService.updateRelevantCancerTypes,
   setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
+  toggleOncoKBSidebar: layoutStore.toggleOncoKBSidebar,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
