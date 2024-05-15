@@ -50,8 +50,6 @@ function ModifyTherapyModal({
   );
 }
 
-export type AsyncStatus = 'NOT_STARTED' | 'PENDING' | 'COMPLETED';
-
 const ModifyTherapyModalContent = observer(
   ({
     treatmentUuid,
