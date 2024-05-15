@@ -16,7 +16,7 @@ describe('Screenshot Tests', () => {
     const firebaseConfig = JSON.stringify({
       firebase: {
         enabled: true,
-        isTest: true,
+        connectToAuthEmulator: true,
         databaseURL: DATABASE_EMULATOR_URL,
         apiKey: 'AIzaSyCUd3bf-TEg5T78w_-RKT6uV_pf3VTVvo8',
         projectId: 'oncokb-curation-test-54b6c',

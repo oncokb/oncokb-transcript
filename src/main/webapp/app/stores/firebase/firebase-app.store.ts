@@ -53,7 +53,7 @@ export class FirebaseAppStore extends BaseStore {
   }
 
   initializeFirebase() {
-    const { enabled, isTest, ...firebaseOptions } = AppConfig.serverConfig.frontend.firebase;
+    const { enabled, connectToAuthEmulator, ...firebaseOptions } = AppConfig.serverConfig.frontend.firebase;
     this.firebaseEnabled = enabled;
     if (this.firebaseEnabled) {
       try {
@@ -63,7 +63,7 @@ export class FirebaseAppStore extends BaseStore {
         this.firebaseInitSuccess = true;
 
         const auth = getAuth();
-        if (isTest) {
+        if (connectToAuthEmulator) {
           connectAuthEmulator(auth, AUTH_EMULATOR_URL, { disableWarnings: true });
         }
         return onAuthStateChanged(auth, user => {
