@@ -272,13 +272,19 @@ const ModifyCancerTypeModalContent = observer(
         <ModalFooter style={{ display: 'inline-block' }}>
           <div className="d-flex justify-content-between align-items-center">
             {modifyCancerTypeModalStore.isErrorIncludedAndExcluded || modifyCancerTypeModalStore.isErrorDuplicate ? (
-              <div className="error-message">
-                <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
-                <span className="me-3">
-                  {modifyCancerTypeModalStore.isErrorIncludedAndExcluded
-                    ? 'Cancer types may not be both included and excluded'
-                    : 'Cancer type already exists'}
-                </span>
+              <div className="me-3">
+                {modifyCancerTypeModalStore.isErrorIncludedAndExcluded && (
+                  <div className="error-message">
+                    <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
+                    <span>Cancer types may not be both included and excluded</span>
+                  </div>
+                )}
+                {modifyCancerTypeModalStore.isErrorDuplicate && (
+                  <div className="error-message">
+                    <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
+                    <span>Cancer type already exists</span>
+                  </div>
+                )}
               </div>
             ) : (
               <div />
