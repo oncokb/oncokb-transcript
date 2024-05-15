@@ -301,7 +301,7 @@ export const getDuplicateMutations = (
   currentMutations: string[],
   mutationList: readonly Mutation[],
   vusList: VusObjList,
-  options: { useFullAlterationName?: boolean; excludedMutationUuid?: string; excludedVusName?: string; exact?: boolean }
+  options: { useFullAlterationName?: boolean; excludedMutationUuid?: string; excludedVusName?: string; exact?: boolean },
 ) => {
   const mutationNames =
     mutationList
@@ -318,7 +318,7 @@ export const getDuplicateMutations = (
             }
             return parsedAlteration.alteration.toLowerCase();
           })
-          .sort()
+          .sort(),
       ) || [];
 
   const vusNames = Object.values(vusList || [])
@@ -484,10 +484,10 @@ export function compareMutationsByProteinChangePosition(mut1: Mutation, mut2: Mu
 
 export function compareMutationsByCategoricalAlteration(mut1: Mutation, mut2: Mutation) {
   const mut1IsCategorical = Object.values(CategoricalAlterationType).some(
-    categorical => categorical.toLowerCase() === mut1.name.toLowerCase()
+    categorical => categorical.toLowerCase() === mut1.name.toLowerCase(),
   );
   const mut2IsCategorical = Object.values(CategoricalAlterationType).some(
-    categorical => categorical.toLowerCase() === mut2.name.toLowerCase()
+    categorical => categorical.toLowerCase() === mut2.name.toLowerCase(),
   );
 
   if ((mut1IsCategorical && mut2IsCategorical) || (!mut1IsCategorical && !mut2IsCategorical)) {
@@ -705,40 +705,42 @@ export const getCancerTypeStats = (tumor?: Tumor) => {
     pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
   };
 
-  if (tumor.summary) {
-    stats.TTS++;
-  }
-  if (tumor.diagnosticSummary) {
-    stats.DxS++;
-  }
-  if (tumor.prognosticSummary) {
-    stats.PxS++;
-  }
-  tumor.TIs.forEach(ti => {
-    if (ti.treatments) {
-      ti.treatments.forEach(treatment => {
-        if (isTxLevelPresent(treatment.level)) {
-          if (!stats.txLevels[treatment.level]) {
-            stats.txLevels[treatment.level] = 1;
-          } else {
-            stats.txLevels[treatment.level]++;
+  if (tumor) {
+    if (tumor.summary) {
+      stats.TTS++;
+    }
+    if (tumor.diagnosticSummary) {
+      stats.DxS++;
+    }
+    if (tumor.prognosticSummary) {
+      stats.PxS++;
+    }
+    tumor.TIs.forEach(ti => {
+      if (ti.treatments) {
+        ti.treatments.forEach(treatment => {
+          if (isTxLevelPresent(treatment.level)) {
+            if (!stats.txLevels[treatment.level]) {
+              stats.txLevels[treatment.level] = 1;
+            } else {
+              stats.txLevels[treatment.level]++;
+            }
           }
-        }
-      });
+        });
+      }
+    });
+    if (tumor.diagnostic?.level) {
+      if (!stats.dxLevels[tumor.diagnostic.level]) {
+        stats.dxLevels[tumor.diagnostic.level] = 1;
+      } else {
+        stats.dxLevels[tumor.diagnostic.level]++;
+      }
     }
-  });
-  if (tumor?.diagnostic?.level) {
-    if (!stats.dxLevels[tumor.diagnostic.level]) {
-      stats.dxLevels[tumor.diagnostic.level] = 1;
-    } else {
-      stats.dxLevels[tumor.diagnostic.level]++;
-    }
-  }
-  if (tumor?.prognostic?.level) {
-    if (!stats.dxLevels[tumor.prognostic.level]) {
-      stats.pxLevels[tumor.prognostic.level] = 1;
-    } else {
-      stats.pxLevels[tumor.prognostic.level]++;
+    if (tumor.prognostic?.level) {
+      if (!stats.dxLevels[tumor.prognostic.level]) {
+        stats.pxLevels[tumor.prognostic.level] = 1;
+      } else {
+        stats.pxLevels[tumor.prognostic.level]++;
+      }
     }
   }
   return stats;
