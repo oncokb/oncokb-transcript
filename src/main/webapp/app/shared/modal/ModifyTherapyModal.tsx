@@ -20,7 +20,7 @@ export interface IModifyTherapyModalProps extends StoreProps {
   treatmentToEditPath?: string;
   drugList: readonly IDrug[];
   cancerTypePath: string;
-  onConfirm: (newTreatment: Treatment, newDrugs: IDrug[]) => void;
+  onConfirm: (newTreatment: Treatment, newDrugs: IDrug[]) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -63,6 +63,7 @@ const ModifyTherapyModalContent = observer(
   }: IModifyTherapyModalProps) => {
     const [currentTreatments, setCurrentTreatments] = useState<Treatment[]>([]);
     const [treatmentToEdit, setTreatmentToEdit] = useState<Treatment>(null);
+    const [isConfirmPending, setIsConfirmPending] = useState(false);
 
     const disableDeleteTherapy = modifyTherapyModalStore.selectedTreatments.length < 2;
     const isEmptyTherapy = modifyTherapyModalStore.selectedTreatments.some(therapy => therapy.length === 0);
@@ -228,7 +229,7 @@ const ModifyTherapyModalContent = observer(
       <SimpleConfirmModal
         title={treatmentUuid.startsWith('new_treatment_for') ? 'Add Therapy(s)' : 'Modify Therapy(s)'}
         show={true}
-        onConfirm={() => {
+        onConfirm={async () => {
           const newDrugs: IDrug[] = modifyTherapyModalStore.selectedTreatments.reduce((accumulator: IDrug[], currentTreatment) => {
             const drugs = currentTreatment
               .filter(therapy => therapy.ncit && !accumulator.some(treatment => treatment.nciThesaurus.id === therapy.ncit.id))
@@ -252,9 +253,15 @@ const ModifyTherapyModalContent = observer(
 
           const newTreatment = treatmentToEdit ? _.cloneDeep(treatmentToEdit) : new Treatment('');
           newTreatment.name = newTreatmentName;
-          onConfirm(newTreatment, newDrugs);
+          setIsConfirmPending(true);
+          try {
+            await onConfirm(newTreatment, newDrugs);
+          } finally {
+            setIsConfirmPending(false);
+          }
         }}
-        confirmDisabled={isEmptyTherapy || isDuplicate || alreadyExists}
+        confirmDisabled={isEmptyTherapy || isDuplicate || alreadyExists || isConfirmPending}
+        showConfirmLoader={isConfirmPending}
         onCancel={onCancel}
         body={
           <div>

@@ -11,11 +11,12 @@ import { observer } from 'mobx-react-lite';
 import { DEFAULT_ICON_SIZE } from 'app/config/constants/constants';
 import { onValue, ref } from 'firebase/database';
 import _ from 'lodash';
+import { AsyncSaveButton } from '../button/AsyncSaveButton';
 
 export interface IModifyCancerTypeModalProps extends StoreProps {
   cancerTypesUuid: string;
   cancerTypesPathToEdit?: string;
-  onConfirm: (newTumor: Tumor) => void;
+  onConfirm: (newTumor: Tumor) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -54,6 +55,7 @@ const ModifyCancerTypeModalContent = observer(
     firebaseDb,
   }: IModifyCancerTypeModalProps) => {
     const [cancerTypeToEdit, setCancerTypeToEdit] = useState<Tumor>(null);
+    const [isConfirmPending, setIsConfirmPending] = useState(false);
 
     function getCancerTypeFromCancerTypeSelectOption(cancerTypeSelectOption: CancerTypeSelectOption) {
       const cancerType = new CancerType();
@@ -156,13 +158,38 @@ const ModifyCancerTypeModalContent = observer(
       () =>
         modifyCancerTypeModalStore.isErrorFetchingICancerTypes ||
         modifyCancerTypeModalStore.isErrorIncludedAndExcluded ||
-        modifyCancerTypeModalStore.includedCancerTypes.length < 1,
+        modifyCancerTypeModalStore.includedCancerTypes.length < 1 ||
+        isConfirmPending,
       [
         modifyCancerTypeModalStore.includedCancerTypes,
         modifyCancerTypeModalStore.isErrorFetchingICancerTypes,
         modifyCancerTypeModalStore.isErrorIncludedAndExcluded,
+        isConfirmPending,
       ],
     );
+
+    const handleConfirm = async () => {
+      const includedCancerTypes = modifyCancerTypeModalStore.includedCancerTypes.map(option =>
+        getCancerTypeFromCancerTypeSelectOption(option),
+      );
+      const excludedCancerTypes = modifyCancerTypeModalStore.excludedCancerTypes.map(option =>
+        getCancerTypeFromCancerTypeSelectOption(option),
+      );
+
+      const newTumor = cancerTypeToEdit ? _.cloneDeep(cancerTypeToEdit) : new Tumor();
+      newTumor.cancerTypes = includedCancerTypes;
+      newTumor.excludedCancerTypes = excludedCancerTypes;
+      if (!newTumor.excludedCancerTypes_uuid) {
+        newTumor.excludedCancerTypes_uuid = generateUuid();
+      }
+
+      setIsConfirmPending(true);
+      try {
+        await onConfirm(newTumor);
+      } finally {
+        setIsConfirmPending(false);
+      }
+    };
 
     return (
       <Modal isOpen>
@@ -232,29 +259,7 @@ const ModifyCancerTypeModalContent = observer(
               <Button className="me-2" onClick={onCancel}>
                 Cancel
               </Button>
-              <Button
-                color="primary"
-                disabled={isConfirmButtonDisabled}
-                onClick={() => {
-                  const includedCancerTypes = modifyCancerTypeModalStore.includedCancerTypes.map(option =>
-                    getCancerTypeFromCancerTypeSelectOption(option),
-                  );
-                  const excludedCancerTypes = modifyCancerTypeModalStore.excludedCancerTypes.map(option =>
-                    getCancerTypeFromCancerTypeSelectOption(option),
-                  );
-
-                  const newTumor = cancerTypeToEdit ? _.cloneDeep(cancerTypeToEdit) : new Tumor();
-                  newTumor.cancerTypes = includedCancerTypes;
-                  newTumor.excludedCancerTypes = excludedCancerTypes;
-                  if (!newTumor.excludedCancerTypes_uuid) {
-                    newTumor.excludedCancerTypes_uuid = generateUuid();
-                  }
-
-                  onConfirm(newTumor);
-                }}
-              >
-                Confirm
-              </Button>
+              <AsyncSaveButton disabled={isConfirmButtonDisabled} onClick={handleConfirm} isSavePending={isConfirmPending} />
             </div>
           </div>
         </ModalFooter>
