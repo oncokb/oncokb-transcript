@@ -388,3 +388,5 @@ export const HISTORY_OPERATION_TO_PAST_TENSE: { [operation in HistoryOperationTy
 };
 
 export const PATHOGENIC_VARIANTS = 'Pathogenic Variants';
+
+export const AUTH_EMULATOR_URL = 'http://127.0.0.1:9099';
