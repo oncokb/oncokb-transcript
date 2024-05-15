@@ -13,7 +13,7 @@ import {
 } from 'app/shared/model/firebase/firebase.model';
 import { isTxLevelPresent } from 'app/shared/util/firebase/firebase-level-utils';
 import { parseFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
-import { FirebaseGeneReviewService, getUpdatedReview } from 'app/service/firebase/firebase-gene-review-service';
+import { FirebaseGeneReviewService } from 'app/service/firebase/firebase-gene-review-service';
 import { getFirebaseGenePath, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
 import AuthStore from '../../stores/authentication.store';
 import { FirebaseRepository } from '../../stores/firebase/firebase-repository';
@@ -23,6 +23,7 @@ import { isPromiseOk } from 'app/shared/util/utils';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { getErrorMessage } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
 import { FirebaseDataStore } from 'app/stores/firebase/firebase-data.store';
+import { getUpdatedReview } from 'app/shared/util/firebase/firebase-review-utils';
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {
@@ -66,7 +67,7 @@ export class FirebaseGeneService {
     authStore: AuthStore,
     firebaseMutationConvertIconStore: FirebaseDataStore<Mutation[]>,
     firebaseMetaService: FirebaseMetaService,
-    firebaseGeneReviewService: FirebaseGeneReviewService
+    firebaseGeneReviewService: FirebaseGeneReviewService,
   ) {
     this.firebaseRepository = firebaseRepository;
     this.authStore = authStore;
@@ -270,7 +271,7 @@ export class FirebaseGeneService {
       tumor.excludedCancerTypes_review,
       currentExcludedCancerTypes,
       tumor.excludedCancerTypes,
-      this.authStore.fullName
+      this.authStore.fullName,
     );
 
     tumor.cancerTypes_review = cancerTypesReview.updatedReview;
@@ -291,7 +292,7 @@ export class FirebaseGeneService {
         hugoSymbol,
         tumor.excludedCancerTypes_uuid,
         !excludedCancerTypesReview.isChangeReverted,
-        false
+        false,
       );
     });
   };
@@ -303,7 +304,7 @@ export class FirebaseGeneService {
         currentTreatmentName,
         treatment.name,
         treatment.name_review,
-        treatment.name_uuid
+        treatment.name_uuid,
       );
     });
   };
@@ -326,7 +327,7 @@ export class FirebaseGeneService {
         currentMutationName,
         mutation.name,
         mutation.name_review,
-        mutation.name_uuid
+        mutation.name_uuid,
       );
     });
 
@@ -362,7 +363,7 @@ export class FirebaseGeneService {
     newRelevantCancerTypes: CancerType[],
     review: Review,
     uuid: string,
-    initialUpdate?: boolean
+    initialUpdate?: boolean,
   ) => {
     const { hugoSymbol } = parseFirebaseGenePath(rctPath);
     if (initialUpdate) {
@@ -378,7 +379,7 @@ export class FirebaseGeneService {
         currentRelevantCancerTypes || [],
         newRelevantCancerTypes,
         review,
-        uuid
+        uuid,
       );
     });
   };

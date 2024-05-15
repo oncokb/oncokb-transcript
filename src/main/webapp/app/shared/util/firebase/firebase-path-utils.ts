@@ -20,11 +20,19 @@ export const parseFirebaseGenePath = (path: string) => {
   } as FirebaseGenePathDetails;
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 export const buildFirebaseGenePath = (hugoSymbol: string, fieldKey: string) => {
   if (hugoSymbol.length === 0) {
     return undefined;
   }
   return `${FB_COLLECTION.GENES}/${hugoSymbol}/${fieldKey}`;
+};
+
+export const extractArrayPath = (valuePath: string) => {
+  const pathParts = valuePath.split('/');
+  // First pop is to remove the field key that comes with the reviewLevel's valuePath.
+  // For instance, valuePath can be 'mutations/0/name'
+  pathParts.pop();
+  const deleteIndex = parseInt(pathParts.pop(), 10); // Remove index
+  const firebaseArrayPath = pathParts.join('/');
+  return { firebaseArrayPath, deleteIndex };
 };

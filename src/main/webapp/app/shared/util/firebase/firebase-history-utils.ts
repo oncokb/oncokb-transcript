@@ -35,11 +35,11 @@ export const buildHistoryFromReviews = (reviewerName: string, reviewLevels: Revi
       historyRecord.old = reviewLevel.historyData.oldState;
     }
 
-    if (historyOperation === HistoryOperationType.DELETE) {
+    if (historyOperation === HistoryOperationType.DELETE || historyOperation === HistoryOperationType.DEMOTE_MUTATION) {
       // DELETIONs do not have uuid fields
       delete historyRecord.uuids;
     }
-    if (historyOperation === HistoryOperationType.ADD) {
+    if (historyOperation === HistoryOperationType.ADD || historyOperation === HistoryOperationType.PROMOTE_VUS) {
       delete historyRecord.old;
     }
 

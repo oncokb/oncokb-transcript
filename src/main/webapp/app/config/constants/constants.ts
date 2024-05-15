@@ -1,5 +1,6 @@
 import { AlterationTypeEnum } from 'app/shared/api/generated/curation';
 import { GREY } from '../colors';
+import { ToastOptions } from 'react-toastify';
 
 export const AUTHORITIES = {
   ADMIN: 'ROLE_ADMIN',
@@ -26,6 +27,8 @@ export const REDIRECT_TIMEOUT_MILLISECONDS = 10000;
 export const SHORT_REDIRECT = 2000;
 export const CLOSE_TOOLTIP_DURATION_MILLISECONDS = 300;
 export const MAX_COMMENT_LENGTH = 100;
+
+export const LONG_TOAST_CLOSE_MILLISECONDS = 10000;
 
 export const GET_ALL_DRUGS_PAGE_SIZE = 100000;
 
@@ -410,3 +413,10 @@ export const DEFAULT_ICON_SIZE = 18;
 export const CURATE_NEW_GENE_TEXT = 'Curate New Gene';
 
 export const DISABLED_COLLAPSIBLE_COLOR = GREY;
+
+export const DEFAULT_TOAST_ERROR_OPTIONS: ToastOptions = {
+  position: 'top-right',
+  autoClose: LONG_TOAST_CLOSE_MILLISECONDS,
+  draggable: false,
+  closeOnClick: false,
+};
