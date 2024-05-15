@@ -11,6 +11,7 @@ import { observer } from 'mobx-react-lite';
 import { DEFAULT_ICON_SIZE } from 'app/config/constants/constants';
 import { onValue, ref } from 'firebase/database';
 import _ from 'lodash';
+import { AsyncSaveButton } from '../button/AsyncSaveButton';
 
 export interface IModifyCancerTypeModalProps extends StoreProps {
   cancerTypesUuid: string;
@@ -167,6 +168,29 @@ const ModifyCancerTypeModalContent = observer(
       ],
     );
 
+    const handleConfirm = async () => {
+      const includedCancerTypes = modifyCancerTypeModalStore.includedCancerTypes.map(option =>
+        getCancerTypeFromCancerTypeSelectOption(option),
+      );
+      const excludedCancerTypes = modifyCancerTypeModalStore.excludedCancerTypes.map(option =>
+        getCancerTypeFromCancerTypeSelectOption(option),
+      );
+
+      const newTumor = cancerTypeToEdit ? _.cloneDeep(cancerTypeToEdit) : new Tumor();
+      newTumor.cancerTypes = includedCancerTypes;
+      newTumor.excludedCancerTypes = excludedCancerTypes;
+      if (!newTumor.excludedCancerTypes_uuid) {
+        newTumor.excludedCancerTypes_uuid = generateUuid();
+      }
+
+      setIsConfirmPending(true);
+      try {
+        await onConfirm(newTumor);
+      } finally {
+        setIsConfirmPending(false);
+      }
+    };
+
     return (
       <Modal isOpen>
         <ModalHeader>{cancerTypesUuid.startsWith('new_cancer_type_for') ? 'Add Cancer Type(s)' : 'Modify Cancer Type(s)'}</ModalHeader>
@@ -235,35 +259,7 @@ const ModifyCancerTypeModalContent = observer(
               <Button className="me-2" onClick={onCancel}>
                 Cancel
               </Button>
-              <Button
-                color="primary"
-                disabled={isConfirmButtonDisabled}
-                onClick={async () => {
-                  const includedCancerTypes = modifyCancerTypeModalStore.includedCancerTypes.map(option =>
-                    getCancerTypeFromCancerTypeSelectOption(option),
-                  );
-                  const excludedCancerTypes = modifyCancerTypeModalStore.excludedCancerTypes.map(option =>
-                    getCancerTypeFromCancerTypeSelectOption(option),
-                  );
-
-                  const newTumor = cancerTypeToEdit ? _.cloneDeep(cancerTypeToEdit) : new Tumor();
-                  newTumor.cancerTypes = includedCancerTypes;
-                  newTumor.excludedCancerTypes = excludedCancerTypes;
-                  if (!newTumor.excludedCancerTypes_uuid) {
-                    newTumor.excludedCancerTypes_uuid = generateUuid();
-                  }
-
-                  setIsConfirmPending(true);
-                  try {
-                    await onConfirm(newTumor);
-                  } finally {
-                    setIsConfirmPending(false);
-                  }
-                }}
-              >
-                Confirm
-                {isConfirmPending && <Spinner size="sm" className="ms-2" />}
-              </Button>
+              <AsyncSaveButton disabled={isConfirmButtonDisabled} onClick={handleConfirm} isSavePending={isConfirmPending} />
             </div>
           </div>
         </ModalFooter>

@@ -17,7 +17,7 @@ export interface IAddVusModalProps extends StoreProps {
   isGermline: boolean;
   vusList: VusObjList;
   onCancel: () => void;
-  onConfirm: (variants: string[]) => void;
+  onConfirm: (variants: string[]) => Promise<void>;
   convertOptions?: {
     initialAlterations: string[];
     mutationUuid: string;

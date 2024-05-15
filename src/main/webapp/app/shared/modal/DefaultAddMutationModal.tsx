@@ -2,11 +2,12 @@ import React from 'react';
 import { FaExclamationCircle, FaExclamationTriangle } from 'react-icons/fa';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 import { DEFAULT_ICON_SIZE } from 'app/config/constants/constants';
+import { AsyncSaveButton } from '../button/AsyncSaveButton';
 
 export interface IDefaultAddMutationModal {
   modalBody: JSX.Element;
   onCancel: () => void;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
   confirmButtonDisabled: boolean;
   isConfirmPending?: boolean;
   isUpdate?: boolean;
@@ -58,14 +59,12 @@ export const DefaultAddMutationModal = (props: IDefaultAddMutationModal) => {
             <Button className="me-2" onClick={props.onCancel} outline color="danger">
               Cancel
             </Button>
-            <Button
+            <AsyncSaveButton
               onClick={props.onConfirm}
               disabled={props.confirmButtonDisabled}
-              color={props.confirmButtonDisabled ? 'secondary' : 'primary'}
-            >
-              {props.isUpdate ? 'Update' : 'Confirm'}
-              {props.isConfirmPending && <Spinner size="sm" className="ms-2" />}
-            </Button>
+              isSavePending={props.isConfirmPending}
+              isUpdate={props.isUpdate}
+            />
           </div>
         </div>
       </ModalFooter>

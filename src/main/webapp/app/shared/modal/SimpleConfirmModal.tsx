@@ -2,6 +2,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
+import { AsyncSaveButton } from '../button/AsyncSaveButton';
 
 export const SimpleConfirmModal: React.FunctionComponent<{
   title?: string;
@@ -36,22 +37,17 @@ export const SimpleConfirmModal: React.FunctionComponent<{
           )}{' '}
           {props.cancelText || 'Cancel'}
         </Button>
-        <Button
+        <AsyncSaveButton
           disabled={props.confirmDisabled}
           color={props.confirmColor || 'primary'}
           onClick={(event: any) => {
             event.preventDefault();
             if (props.onConfirm) props.onConfirm();
           }}
-        >
-          {props.confirmIcon && (
-            <>
-              <FontAwesomeIcon icon={props.confirmIcon} /> &nbsp;
-            </>
-          )}{' '}
-          {props.confirmText || 'Confirm'}
-          {props.showConfirmLoader && <Spinner size="sm" className="ms-2" />}
-        </Button>
+          icon={props.confirmIcon}
+          confirmText={props.confirmText}
+          isSavePending={props.showConfirmLoader}
+        />
       </ModalFooter>
     </Modal>
   );
