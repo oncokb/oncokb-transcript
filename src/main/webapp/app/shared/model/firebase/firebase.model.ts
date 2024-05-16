@@ -501,15 +501,3 @@ export class HistoryRecord {
   operation: HistoryOperationType | '' = '';
   uuids? = ''; // This is a comma seperated string of uuids. This helps identify which fields under CREATE has been updated
 }
-
-export class UsersCollection {
-  [email: string]: FirebaseUser;
-}
-export class FirebaseUser {
-  email = '';
-  genes = {
-    read: '',
-    write: '',
-  };
-  name = '';
-}

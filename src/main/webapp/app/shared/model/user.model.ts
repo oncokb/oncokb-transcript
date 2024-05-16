@@ -1,9 +1,10 @@
 export interface IUser {
   id?: any;
-  login?: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
+  login: string;
+  // the following three elements will be made required.
+  firstName: string;
+  lastName: string;
+  email: string;
   activated?: boolean;
   langKey?: string;
   authorities?: any[];
