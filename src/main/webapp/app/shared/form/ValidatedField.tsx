@@ -70,7 +70,7 @@ export type IValidatedSelectProps<Option, IsMulti extends boolean = false, Group
   validate?: RegisterOptions;
 };
 export const ValidatedSelect = <Option, IsMulti extends boolean = false, Group extends GroupBase<Option> = GroupBase<Option>>(
-  props: IValidatedSelectProps<Option, IsMulti, Group>
+  props: IValidatedSelectProps<Option, IsMulti, Group>,
 ) => {
   const {
     formState: { errors },
@@ -110,6 +110,7 @@ export const ValidatedSelect = <Option, IsMulti extends boolean = false, Group e
             />
           );
         }}
+        defaultValue={props.defaultValue}
         name={props.name}
         rules={props.validate}
       />

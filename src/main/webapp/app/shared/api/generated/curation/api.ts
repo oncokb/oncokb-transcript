@@ -133,7 +133,7 @@ export const AddTranscriptBodyFlagsEnum = {
   EnsemblCanonical: 'ENSEMBL_CANONICAL',
 } as const;
 
-export type AddTranscriptBodyFlagsEnum = typeof AddTranscriptBodyFlagsEnum[keyof typeof AddTranscriptBodyFlagsEnum];
+export type AddTranscriptBodyFlagsEnum = (typeof AddTranscriptBodyFlagsEnum)[keyof typeof AddTranscriptBodyFlagsEnum];
 
 /**
  *
@@ -320,7 +320,7 @@ export const AlterationTypeEnum = {
   Na: 'NA',
 } as const;
 
-export type AlterationTypeEnum = typeof AlterationTypeEnum[keyof typeof AlterationTypeEnum];
+export type AlterationTypeEnum = (typeof AlterationTypeEnum)[keyof typeof AlterationTypeEnum];
 
 /**
  *
@@ -363,13 +363,13 @@ export interface AlterationAnnotationStatus {
    * @type {boolean}
    * @memberof AlterationAnnotationStatus
    */
-  warning?: boolean;
+  ok?: boolean;
   /**
    *
    * @type {boolean}
    * @memberof AlterationAnnotationStatus
    */
-  ok?: boolean;
+  warning?: boolean;
   /**
    *
    * @type {boolean}
@@ -384,7 +384,8 @@ export const AlterationAnnotationStatusTypeEnum = {
   Error: 'ERROR',
 } as const;
 
-export type AlterationAnnotationStatusTypeEnum = typeof AlterationAnnotationStatusTypeEnum[keyof typeof AlterationAnnotationStatusTypeEnum];
+export type AlterationAnnotationStatusTypeEnum =
+  (typeof AlterationAnnotationStatusTypeEnum)[keyof typeof AlterationAnnotationStatusTypeEnum];
 
 /**
  *
@@ -533,7 +534,7 @@ export const AlterationTypeFilterEqualsEnum = {
   Na: 'NA',
 } as const;
 
-export type AlterationTypeFilterEqualsEnum = typeof AlterationTypeFilterEqualsEnum[keyof typeof AlterationTypeFilterEqualsEnum];
+export type AlterationTypeFilterEqualsEnum = (typeof AlterationTypeFilterEqualsEnum)[keyof typeof AlterationTypeFilterEqualsEnum];
 export const AlterationTypeFilterNotEqualsEnum = {
   GenomicChange: 'GENOMIC_CHANGE',
   CdnaChange: 'CDNA_CHANGE',
@@ -546,7 +547,7 @@ export const AlterationTypeFilterNotEqualsEnum = {
   Na: 'NA',
 } as const;
 
-export type AlterationTypeFilterNotEqualsEnum = typeof AlterationTypeFilterNotEqualsEnum[keyof typeof AlterationTypeFilterNotEqualsEnum];
+export type AlterationTypeFilterNotEqualsEnum = (typeof AlterationTypeFilterNotEqualsEnum)[keyof typeof AlterationTypeFilterNotEqualsEnum];
 export const AlterationTypeFilterInEnum = {
   GenomicChange: 'GENOMIC_CHANGE',
   CdnaChange: 'CDNA_CHANGE',
@@ -559,7 +560,7 @@ export const AlterationTypeFilterInEnum = {
   Na: 'NA',
 } as const;
 
-export type AlterationTypeFilterInEnum = typeof AlterationTypeFilterInEnum[keyof typeof AlterationTypeFilterInEnum];
+export type AlterationTypeFilterInEnum = (typeof AlterationTypeFilterInEnum)[keyof typeof AlterationTypeFilterInEnum];
 export const AlterationTypeFilterNotInEnum = {
   GenomicChange: 'GENOMIC_CHANGE',
   CdnaChange: 'CDNA_CHANGE',
@@ -572,7 +573,7 @@ export const AlterationTypeFilterNotInEnum = {
   Na: 'NA',
 } as const;
 
-export type AlterationTypeFilterNotInEnum = typeof AlterationTypeFilterNotInEnum[keyof typeof AlterationTypeFilterNotInEnum];
+export type AlterationTypeFilterNotInEnum = (typeof AlterationTypeFilterNotInEnum)[keyof typeof AlterationTypeFilterNotInEnum];
 
 /**
  *
@@ -606,7 +607,7 @@ export const AnnotateAlterationBodyReferenceGenomeEnum = {
 } as const;
 
 export type AnnotateAlterationBodyReferenceGenomeEnum =
-  typeof AnnotateAlterationBodyReferenceGenomeEnum[keyof typeof AnnotateAlterationBodyReferenceGenomeEnum];
+  (typeof AnnotateAlterationBodyReferenceGenomeEnum)[keyof typeof AnnotateAlterationBodyReferenceGenomeEnum];
 
 /**
  *
@@ -723,7 +724,7 @@ export const ArticleTypeEnum = {
   FdadrugSummaryReview: 'FDADRUG_SUMMARY_REVIEW',
 } as const;
 
-export type ArticleTypeEnum = typeof ArticleTypeEnum[keyof typeof ArticleTypeEnum];
+export type ArticleTypeEnum = (typeof ArticleTypeEnum)[keyof typeof ArticleTypeEnum];
 
 /**
  *
@@ -840,7 +841,7 @@ export const ArticleTypeFilterEqualsEnum = {
   FdadrugSummaryReview: 'FDADRUG_SUMMARY_REVIEW',
 } as const;
 
-export type ArticleTypeFilterEqualsEnum = typeof ArticleTypeFilterEqualsEnum[keyof typeof ArticleTypeFilterEqualsEnum];
+export type ArticleTypeFilterEqualsEnum = (typeof ArticleTypeFilterEqualsEnum)[keyof typeof ArticleTypeFilterEqualsEnum];
 export const ArticleTypeFilterNotEqualsEnum = {
   Pubmed: 'PUBMED',
   Abstract: 'ABSTRACT',
@@ -851,7 +852,7 @@ export const ArticleTypeFilterNotEqualsEnum = {
   FdadrugSummaryReview: 'FDADRUG_SUMMARY_REVIEW',
 } as const;
 
-export type ArticleTypeFilterNotEqualsEnum = typeof ArticleTypeFilterNotEqualsEnum[keyof typeof ArticleTypeFilterNotEqualsEnum];
+export type ArticleTypeFilterNotEqualsEnum = (typeof ArticleTypeFilterNotEqualsEnum)[keyof typeof ArticleTypeFilterNotEqualsEnum];
 export const ArticleTypeFilterInEnum = {
   Pubmed: 'PUBMED',
   Abstract: 'ABSTRACT',
@@ -862,7 +863,7 @@ export const ArticleTypeFilterInEnum = {
   FdadrugSummaryReview: 'FDADRUG_SUMMARY_REVIEW',
 } as const;
 
-export type ArticleTypeFilterInEnum = typeof ArticleTypeFilterInEnum[keyof typeof ArticleTypeFilterInEnum];
+export type ArticleTypeFilterInEnum = (typeof ArticleTypeFilterInEnum)[keyof typeof ArticleTypeFilterInEnum];
 export const ArticleTypeFilterNotInEnum = {
   Pubmed: 'PUBMED',
   Abstract: 'ABSTRACT',
@@ -873,7 +874,7 @@ export const ArticleTypeFilterNotInEnum = {
   FdadrugSummaryReview: 'FDADRUG_SUMMARY_REVIEW',
 } as const;
 
-export type ArticleTypeFilterNotInEnum = typeof ArticleTypeFilterNotInEnum[keyof typeof ArticleTypeFilterNotInEnum];
+export type ArticleTypeFilterNotInEnum = (typeof ArticleTypeFilterNotInEnum)[keyof typeof ArticleTypeFilterNotInEnum];
 
 /**
  *
@@ -1102,7 +1103,7 @@ export const CancerTypeTumorFormEnum = {
   Mixed: 'MIXED',
 } as const;
 
-export type CancerTypeTumorFormEnum = typeof CancerTypeTumorFormEnum[keyof typeof CancerTypeTumorFormEnum];
+export type CancerTypeTumorFormEnum = (typeof CancerTypeTumorFormEnum)[keyof typeof CancerTypeTumorFormEnum];
 
 /**
  *
@@ -1240,7 +1241,7 @@ export const CategoricalAlterationAlterationTypeEnum = {
 } as const;
 
 export type CategoricalAlterationAlterationTypeEnum =
-  typeof CategoricalAlterationAlterationTypeEnum[keyof typeof CategoricalAlterationAlterationTypeEnum];
+  (typeof CategoricalAlterationAlterationTypeEnum)[keyof typeof CategoricalAlterationAlterationTypeEnum];
 
 /**
  *
@@ -1813,7 +1814,7 @@ export const EligibilityCriteriaTypeEnum = {
   Exclusion: 'EXCLUSION',
 } as const;
 
-export type EligibilityCriteriaTypeEnum = typeof EligibilityCriteriaTypeEnum[keyof typeof EligibilityCriteriaTypeEnum];
+export type EligibilityCriteriaTypeEnum = (typeof EligibilityCriteriaTypeEnum)[keyof typeof EligibilityCriteriaTypeEnum];
 
 /**
  *
@@ -1902,28 +1903,28 @@ export const EligibilityCriteriaTypeFilterEqualsEnum = {
 } as const;
 
 export type EligibilityCriteriaTypeFilterEqualsEnum =
-  typeof EligibilityCriteriaTypeFilterEqualsEnum[keyof typeof EligibilityCriteriaTypeFilterEqualsEnum];
+  (typeof EligibilityCriteriaTypeFilterEqualsEnum)[keyof typeof EligibilityCriteriaTypeFilterEqualsEnum];
 export const EligibilityCriteriaTypeFilterNotEqualsEnum = {
   Inclusion: 'INCLUSION',
   Exclusion: 'EXCLUSION',
 } as const;
 
 export type EligibilityCriteriaTypeFilterNotEqualsEnum =
-  typeof EligibilityCriteriaTypeFilterNotEqualsEnum[keyof typeof EligibilityCriteriaTypeFilterNotEqualsEnum];
+  (typeof EligibilityCriteriaTypeFilterNotEqualsEnum)[keyof typeof EligibilityCriteriaTypeFilterNotEqualsEnum];
 export const EligibilityCriteriaTypeFilterInEnum = {
   Inclusion: 'INCLUSION',
   Exclusion: 'EXCLUSION',
 } as const;
 
 export type EligibilityCriteriaTypeFilterInEnum =
-  typeof EligibilityCriteriaTypeFilterInEnum[keyof typeof EligibilityCriteriaTypeFilterInEnum];
+  (typeof EligibilityCriteriaTypeFilterInEnum)[keyof typeof EligibilityCriteriaTypeFilterInEnum];
 export const EligibilityCriteriaTypeFilterNotInEnum = {
   Inclusion: 'INCLUSION',
   Exclusion: 'EXCLUSION',
 } as const;
 
 export type EligibilityCriteriaTypeFilterNotInEnum =
-  typeof EligibilityCriteriaTypeFilterNotInEnum[keyof typeof EligibilityCriteriaTypeFilterNotInEnum];
+  (typeof EligibilityCriteriaTypeFilterNotInEnum)[keyof typeof EligibilityCriteriaTypeFilterNotInEnum];
 
 /**
  *
@@ -1998,7 +1999,7 @@ export const EnsemblGeneReferenceGenomeEnum = {
   Grch38: 'GRCh38',
 } as const;
 
-export type EnsemblGeneReferenceGenomeEnum = typeof EnsemblGeneReferenceGenomeEnum[keyof typeof EnsemblGeneReferenceGenomeEnum];
+export type EnsemblGeneReferenceGenomeEnum = (typeof EnsemblGeneReferenceGenomeEnum)[keyof typeof EnsemblGeneReferenceGenomeEnum];
 
 /**
  *
@@ -2687,7 +2688,7 @@ export const FdaSubmissionTypeTypeEnum = {
   DrugBla: 'DRUG_BLA',
 } as const;
 
-export type FdaSubmissionTypeTypeEnum = typeof FdaSubmissionTypeTypeEnum[keyof typeof FdaSubmissionTypeTypeEnum];
+export type FdaSubmissionTypeTypeEnum = (typeof FdaSubmissionTypeTypeEnum)[keyof typeof FdaSubmissionTypeTypeEnum];
 
 /**
  *
@@ -3020,7 +3021,7 @@ export const GenomeFragmentTypeEnum = {
   ThreePrimeUtr: 'THREE_PRIME_UTR',
 } as const;
 
-export type GenomeFragmentTypeEnum = typeof GenomeFragmentTypeEnum[keyof typeof GenomeFragmentTypeEnum];
+export type GenomeFragmentTypeEnum = (typeof GenomeFragmentTypeEnum)[keyof typeof GenomeFragmentTypeEnum];
 
 /**
  *
@@ -3122,7 +3123,8 @@ export const GenomeFragmentTypeFilterEqualsEnum = {
   ThreePrimeUtr: 'THREE_PRIME_UTR',
 } as const;
 
-export type GenomeFragmentTypeFilterEqualsEnum = typeof GenomeFragmentTypeFilterEqualsEnum[keyof typeof GenomeFragmentTypeFilterEqualsEnum];
+export type GenomeFragmentTypeFilterEqualsEnum =
+  (typeof GenomeFragmentTypeFilterEqualsEnum)[keyof typeof GenomeFragmentTypeFilterEqualsEnum];
 export const GenomeFragmentTypeFilterNotEqualsEnum = {
   Gene: 'GENE',
   Exon: 'EXON',
@@ -3131,7 +3133,7 @@ export const GenomeFragmentTypeFilterNotEqualsEnum = {
 } as const;
 
 export type GenomeFragmentTypeFilterNotEqualsEnum =
-  typeof GenomeFragmentTypeFilterNotEqualsEnum[keyof typeof GenomeFragmentTypeFilterNotEqualsEnum];
+  (typeof GenomeFragmentTypeFilterNotEqualsEnum)[keyof typeof GenomeFragmentTypeFilterNotEqualsEnum];
 export const GenomeFragmentTypeFilterInEnum = {
   Gene: 'GENE',
   Exon: 'EXON',
@@ -3139,7 +3141,7 @@ export const GenomeFragmentTypeFilterInEnum = {
   ThreePrimeUtr: 'THREE_PRIME_UTR',
 } as const;
 
-export type GenomeFragmentTypeFilterInEnum = typeof GenomeFragmentTypeFilterInEnum[keyof typeof GenomeFragmentTypeFilterInEnum];
+export type GenomeFragmentTypeFilterInEnum = (typeof GenomeFragmentTypeFilterInEnum)[keyof typeof GenomeFragmentTypeFilterInEnum];
 export const GenomeFragmentTypeFilterNotInEnum = {
   Gene: 'GENE',
   Exon: 'EXON',
@@ -3147,7 +3149,7 @@ export const GenomeFragmentTypeFilterNotInEnum = {
   ThreePrimeUtr: 'THREE_PRIME_UTR',
 } as const;
 
-export type GenomeFragmentTypeFilterNotInEnum = typeof GenomeFragmentTypeFilterNotInEnum[keyof typeof GenomeFragmentTypeFilterNotInEnum];
+export type GenomeFragmentTypeFilterNotInEnum = (typeof GenomeFragmentTypeFilterNotInEnum)[keyof typeof GenomeFragmentTypeFilterNotInEnum];
 
 /**
  *
@@ -3642,7 +3644,7 @@ export const MatchTranscriptVMTargetReferenceGenomeEnum = {
 } as const;
 
 export type MatchTranscriptVMTargetReferenceGenomeEnum =
-  typeof MatchTranscriptVMTargetReferenceGenomeEnum[keyof typeof MatchTranscriptVMTargetReferenceGenomeEnum];
+  (typeof MatchTranscriptVMTargetReferenceGenomeEnum)[keyof typeof MatchTranscriptVMTargetReferenceGenomeEnum];
 
 /**
  *
@@ -3910,7 +3912,7 @@ export const PubMedDTOTypeEnum = {
   FdadrugSummaryReview: 'FDADRUG_SUMMARY_REVIEW',
 } as const;
 
-export type PubMedDTOTypeEnum = typeof PubMedDTOTypeEnum[keyof typeof PubMedDTOTypeEnum];
+export type PubMedDTOTypeEnum = (typeof PubMedDTOTypeEnum)[keyof typeof PubMedDTOTypeEnum];
 
 /**
  *
@@ -3955,25 +3957,26 @@ export const ReferenceGenomeFilterEqualsEnum = {
   Grch38: 'GRCh38',
 } as const;
 
-export type ReferenceGenomeFilterEqualsEnum = typeof ReferenceGenomeFilterEqualsEnum[keyof typeof ReferenceGenomeFilterEqualsEnum];
+export type ReferenceGenomeFilterEqualsEnum = (typeof ReferenceGenomeFilterEqualsEnum)[keyof typeof ReferenceGenomeFilterEqualsEnum];
 export const ReferenceGenomeFilterNotEqualsEnum = {
   Grch37: 'GRCh37',
   Grch38: 'GRCh38',
 } as const;
 
-export type ReferenceGenomeFilterNotEqualsEnum = typeof ReferenceGenomeFilterNotEqualsEnum[keyof typeof ReferenceGenomeFilterNotEqualsEnum];
+export type ReferenceGenomeFilterNotEqualsEnum =
+  (typeof ReferenceGenomeFilterNotEqualsEnum)[keyof typeof ReferenceGenomeFilterNotEqualsEnum];
 export const ReferenceGenomeFilterInEnum = {
   Grch37: 'GRCh37',
   Grch38: 'GRCh38',
 } as const;
 
-export type ReferenceGenomeFilterInEnum = typeof ReferenceGenomeFilterInEnum[keyof typeof ReferenceGenomeFilterInEnum];
+export type ReferenceGenomeFilterInEnum = (typeof ReferenceGenomeFilterInEnum)[keyof typeof ReferenceGenomeFilterInEnum];
 export const ReferenceGenomeFilterNotInEnum = {
   Grch37: 'GRCh37',
   Grch38: 'GRCh38',
 } as const;
 
-export type ReferenceGenomeFilterNotInEnum = typeof ReferenceGenomeFilterNotInEnum[keyof typeof ReferenceGenomeFilterNotInEnum];
+export type ReferenceGenomeFilterNotInEnum = (typeof ReferenceGenomeFilterNotInEnum)[keyof typeof ReferenceGenomeFilterNotInEnum];
 
 /**
  *
@@ -4162,7 +4165,7 @@ export const SequenceSequenceTypeEnum = {
   Genomic: 'GENOMIC',
 } as const;
 
-export type SequenceSequenceTypeEnum = typeof SequenceSequenceTypeEnum[keyof typeof SequenceSequenceTypeEnum];
+export type SequenceSequenceTypeEnum = (typeof SequenceSequenceTypeEnum)[keyof typeof SequenceSequenceTypeEnum];
 
 /**
  *
@@ -4239,28 +4242,28 @@ export const SequenceTypeFilterEqualsEnum = {
   Genomic: 'GENOMIC',
 } as const;
 
-export type SequenceTypeFilterEqualsEnum = typeof SequenceTypeFilterEqualsEnum[keyof typeof SequenceTypeFilterEqualsEnum];
+export type SequenceTypeFilterEqualsEnum = (typeof SequenceTypeFilterEqualsEnum)[keyof typeof SequenceTypeFilterEqualsEnum];
 export const SequenceTypeFilterNotEqualsEnum = {
   Protein: 'PROTEIN',
   Cdna: 'CDNA',
   Genomic: 'GENOMIC',
 } as const;
 
-export type SequenceTypeFilterNotEqualsEnum = typeof SequenceTypeFilterNotEqualsEnum[keyof typeof SequenceTypeFilterNotEqualsEnum];
+export type SequenceTypeFilterNotEqualsEnum = (typeof SequenceTypeFilterNotEqualsEnum)[keyof typeof SequenceTypeFilterNotEqualsEnum];
 export const SequenceTypeFilterInEnum = {
   Protein: 'PROTEIN',
   Cdna: 'CDNA',
   Genomic: 'GENOMIC',
 } as const;
 
-export type SequenceTypeFilterInEnum = typeof SequenceTypeFilterInEnum[keyof typeof SequenceTypeFilterInEnum];
+export type SequenceTypeFilterInEnum = (typeof SequenceTypeFilterInEnum)[keyof typeof SequenceTypeFilterInEnum];
 export const SequenceTypeFilterNotInEnum = {
   Protein: 'PROTEIN',
   Cdna: 'CDNA',
   Genomic: 'GENOMIC',
 } as const;
 
-export type SequenceTypeFilterNotInEnum = typeof SequenceTypeFilterNotInEnum[keyof typeof SequenceTypeFilterNotInEnum];
+export type SequenceTypeFilterNotInEnum = (typeof SequenceTypeFilterNotInEnum)[keyof typeof SequenceTypeFilterNotInEnum];
 
 /**
  *
@@ -4567,7 +4570,7 @@ export const TranscriptReferenceGenomeEnum = {
   Grch38: 'GRCh38',
 } as const;
 
-export type TranscriptReferenceGenomeEnum = typeof TranscriptReferenceGenomeEnum[keyof typeof TranscriptReferenceGenomeEnum];
+export type TranscriptReferenceGenomeEnum = (typeof TranscriptReferenceGenomeEnum)[keyof typeof TranscriptReferenceGenomeEnum];
 
 /**
  *
@@ -4819,7 +4822,7 @@ export const TranscriptDTOReferenceGenomeEnum = {
   Grch38: 'GRCh38',
 } as const;
 
-export type TranscriptDTOReferenceGenomeEnum = typeof TranscriptDTOReferenceGenomeEnum[keyof typeof TranscriptDTOReferenceGenomeEnum];
+export type TranscriptDTOReferenceGenomeEnum = (typeof TranscriptDTOReferenceGenomeEnum)[keyof typeof TranscriptDTOReferenceGenomeEnum];
 
 /**
  *
@@ -4872,7 +4875,7 @@ export const TranscriptPairVMReferenceGenomeEnum = {
 } as const;
 
 export type TranscriptPairVMReferenceGenomeEnum =
-  typeof TranscriptPairVMReferenceGenomeEnum[keyof typeof TranscriptPairVMReferenceGenomeEnum];
+  (typeof TranscriptPairVMReferenceGenomeEnum)[keyof typeof TranscriptPairVMReferenceGenomeEnum];
 
 /**
  *
@@ -4906,7 +4909,7 @@ export const TranscriptSuggestionVMReferenceGenomeEnum = {
 } as const;
 
 export type TranscriptSuggestionVMReferenceGenomeEnum =
-  typeof TranscriptSuggestionVMReferenceGenomeEnum[keyof typeof TranscriptSuggestionVMReferenceGenomeEnum];
+  (typeof TranscriptSuggestionVMReferenceGenomeEnum)[keyof typeof TranscriptSuggestionVMReferenceGenomeEnum];
 
 /**
  *
@@ -4952,28 +4955,28 @@ export const TumorFormFilterEqualsEnum = {
   Mixed: 'MIXED',
 } as const;
 
-export type TumorFormFilterEqualsEnum = typeof TumorFormFilterEqualsEnum[keyof typeof TumorFormFilterEqualsEnum];
+export type TumorFormFilterEqualsEnum = (typeof TumorFormFilterEqualsEnum)[keyof typeof TumorFormFilterEqualsEnum];
 export const TumorFormFilterNotEqualsEnum = {
   Solid: 'SOLID',
   Liquid: 'LIQUID',
   Mixed: 'MIXED',
 } as const;
 
-export type TumorFormFilterNotEqualsEnum = typeof TumorFormFilterNotEqualsEnum[keyof typeof TumorFormFilterNotEqualsEnum];
+export type TumorFormFilterNotEqualsEnum = (typeof TumorFormFilterNotEqualsEnum)[keyof typeof TumorFormFilterNotEqualsEnum];
 export const TumorFormFilterInEnum = {
   Solid: 'SOLID',
   Liquid: 'LIQUID',
   Mixed: 'MIXED',
 } as const;
 
-export type TumorFormFilterInEnum = typeof TumorFormFilterInEnum[keyof typeof TumorFormFilterInEnum];
+export type TumorFormFilterInEnum = (typeof TumorFormFilterInEnum)[keyof typeof TumorFormFilterInEnum];
 export const TumorFormFilterNotInEnum = {
   Solid: 'SOLID',
   Liquid: 'LIQUID',
   Mixed: 'MIXED',
 } as const;
 
-export type TumorFormFilterNotInEnum = typeof TumorFormFilterNotInEnum[keyof typeof TumorFormFilterNotInEnum];
+export type TumorFormFilterNotInEnum = (typeof TumorFormFilterNotInEnum)[keyof typeof TumorFormFilterNotInEnum];
 
 /**
  *
@@ -5084,19 +5087,19 @@ export interface UserDTO {
    * @type {string}
    * @memberof UserDTO
    */
-  firstName?: string;
+  firstName: string;
   /**
    *
    * @type {string}
    * @memberof UserDTO
    */
-  lastName?: string;
+  lastName: string;
   /**
    *
    * @type {string}
    * @memberof UserDTO
    */
-  email?: string;
+  email: string;
   /**
    *
    * @type {string}
@@ -5568,7 +5571,7 @@ export const AlleleStateResourceApiFp = function (configuration?: Configuration)
      */
     async createAlleleState(
       alleleState: AlleleState,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AlleleState>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createAlleleState(alleleState, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -5581,7 +5584,7 @@ export const AlleleStateResourceApiFp = function (configuration?: Configuration)
      */
     async deleteAlleleState(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteAlleleState(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -5592,7 +5595,7 @@ export const AlleleStateResourceApiFp = function (configuration?: Configuration)
      * @throws {RequiredError}
      */
     async getAllAlleleStates(
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<AlleleState>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllAlleleStates(options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -5605,7 +5608,7 @@ export const AlleleStateResourceApiFp = function (configuration?: Configuration)
      */
     async getAlleleState(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AlleleState>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAlleleState(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -5620,7 +5623,7 @@ export const AlleleStateResourceApiFp = function (configuration?: Configuration)
     async partialUpdateAlleleState(
       id: number,
       alleleState: AlleleState,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AlleleState>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateAlleleState(id, alleleState, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -5635,7 +5638,7 @@ export const AlleleStateResourceApiFp = function (configuration?: Configuration)
     async updateAlleleState(
       id: number,
       alleleState: AlleleState,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AlleleState>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateAlleleState(id, alleleState, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -5809,7 +5812,7 @@ export const AlterationControllerApiAxiosParamCreator = function (configuration?
      */
     annotateAlterations: async (
       annotateAlterationBody: Array<AnnotateAlterationBody>,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'annotateAlterationBody' is not null or undefined
       assertParamExists('annotateAlterations', 'annotateAlterationBody', annotateAlterationBody);
@@ -5855,7 +5858,7 @@ export const AlterationControllerApiFp = function (configuration?: Configuration
      */
     async annotateAlterations(
       annotateAlterationBody: Array<AnnotateAlterationBody>,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<AlterationAnnotationStatus>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.annotateAlterations(annotateAlterationBody, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -5878,7 +5881,7 @@ export const AlterationControllerApiFactory = function (configuration?: Configur
      */
     annotateAlterations(
       annotateAlterationBody: Array<AnnotateAlterationBody>,
-      options?: any
+      options?: any,
     ): AxiosPromise<Array<AlterationAnnotationStatus>> {
       return localVarFp.annotateAlterations(annotateAlterationBody, options).then(request => request(axios, basePath));
     },
@@ -6241,7 +6244,7 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
      */
     async countAlterations(
       criteria: AlterationCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countAlterations(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -6254,7 +6257,7 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
      */
     async createAlteration(
       alteration: Alteration,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Alteration>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createAlteration(alteration, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -6267,7 +6270,7 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
      */
     async deleteAlteration(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteAlteration(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -6280,7 +6283,7 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
      */
     async findByGeneId(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Alteration>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.findByGeneId(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -6295,7 +6298,7 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
     async getAllAlterations(
       criteria: AlterationCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Alteration>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllAlterations(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -6308,7 +6311,7 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
      */
     async getAlteration(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Alteration>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAlteration(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -6323,7 +6326,7 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
     async partialUpdateAlteration(
       id: number,
       alteration: Alteration,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Alteration>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateAlteration(id, alteration, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -6338,7 +6341,7 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
     async searchAlterations(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Alteration>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchAlterations(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -6353,7 +6356,7 @@ export const AlterationResourceApiFp = function (configuration?: Configuration) 
     async updateAlteration(
       id: number,
       alteration: Alteration,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Alteration>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateAlteration(id, alteration, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -6593,138 +6596,11 @@ export const ApiProxyApiAxiosParamCreator = function (configuration?: Configurat
   return {
     /**
      *
-     * @param {string} body
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    proxy: async (body: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      // verify required parameter 'body' is not null or undefined
-      assertParamExists('proxy', 'body', body);
-      const localVarPath = `/api/**`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      if (body !== undefined) {
-        localVarQueryParameter['body'] = body;
-      }
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
      * @param {string} [body]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    proxy1: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      const localVarPath = `/api/**`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    proxy10: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      const localVarPath = `/legacy-api/**`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'HEAD', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    proxy11: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      const localVarPath = `/legacy-api/**`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    proxy12: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    proxy: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       const localVarPath = `/legacy-api/**`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -6755,39 +6631,8 @@ export const ApiProxyApiAxiosParamCreator = function (configuration?: Configurat
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    proxy13: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    proxy1: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       const localVarPath = `/legacy-api/**`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    proxy2: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      const localVarPath = `/api/**`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -6817,8 +6662,39 @@ export const ApiProxyApiAxiosParamCreator = function (configuration?: Configurat
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
+    proxy2: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+      const localVarPath = `/legacy-api/**`;
+      // use dummy base URL string because the URL constructor only accepts absolute URLs.
+      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+      let baseOptions;
+      if (configuration) {
+        baseOptions = configuration.baseOptions;
+      }
+
+      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      setSearchParams(localVarUrlObj, localVarQueryParameter);
+      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
+      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
+
+      return {
+        url: toPathString(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     *
+     * @param {string} [body]
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
     proxy3: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      const localVarPath = `/api/**`;
+      const localVarPath = `/legacy-api/**`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -6849,69 +6725,7 @@ export const ApiProxyApiAxiosParamCreator = function (configuration?: Configurat
      * @throws {RequiredError}
      */
     proxy4: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      const localVarPath = `/api/**`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    proxy5: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      const localVarPath = `/api/**`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'OPTIONS', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    proxy6: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      const localVarPath = `/api/**`;
+      const localVarPath = `/legacy-api/**`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
       let baseOptions;
@@ -6941,9 +6755,9 @@ export const ApiProxyApiAxiosParamCreator = function (configuration?: Configurat
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    proxy7: async (body: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    proxy5: async (body: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       // verify required parameter 'body' is not null or undefined
-      assertParamExists('proxy7', 'body', body);
+      assertParamExists('proxy5', 'body', body);
       const localVarPath = `/legacy-api/**`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -6975,7 +6789,7 @@ export const ApiProxyApiAxiosParamCreator = function (configuration?: Configurat
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    proxy8: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+    proxy6: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
       const localVarPath = `/legacy-api/**`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -6984,38 +6798,7 @@ export const ApiProxyApiAxiosParamCreator = function (configuration?: Configurat
         baseOptions = configuration.baseOptions;
       }
 
-      const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options };
-      const localVarHeaderParameter = {} as any;
-      const localVarQueryParameter = {} as any;
-
-      localVarHeaderParameter['Content-Type'] = 'application/json';
-
-      setSearchParams(localVarUrlObj, localVarQueryParameter);
-      let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-      localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
-      localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration);
-
-      return {
-        url: toPathString(localVarUrlObj),
-        options: localVarRequestOptions,
-      };
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    proxy9: async (body?: string, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-      const localVarPath = `/legacy-api/**`;
-      // use dummy base URL string because the URL constructor only accepts absolute URLs.
-      const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions;
-      if (configuration) {
-        baseOptions = configuration.baseOptions;
-      }
-
-      const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options };
+      const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options };
       const localVarHeaderParameter = {} as any;
       const localVarQueryParameter = {} as any;
 
@@ -7043,11 +6826,11 @@ export const ApiProxyApiFp = function (configuration?: Configuration) {
   return {
     /**
      *
-     * @param {string} body
+     * @param {string} [body]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async proxy(body: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+    async proxy(body?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.proxy(body, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
@@ -7059,58 +6842,6 @@ export const ApiProxyApiFp = function (configuration?: Configuration) {
      */
     async proxy1(body?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.proxy1(body, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async proxy10(
-      body?: string,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy10(body, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async proxy11(
-      body?: string,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy11(body, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async proxy12(
-      body?: string,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy12(body, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async proxy13(
-      body?: string,
-      options?: AxiosRequestConfig
-    ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy13(body, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
     /**
@@ -7145,11 +6876,11 @@ export const ApiProxyApiFp = function (configuration?: Configuration) {
     },
     /**
      *
-     * @param {string} [body]
+     * @param {string} body
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async proxy5(body?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+    async proxy5(body: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.proxy5(body, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
@@ -7161,36 +6892,6 @@ export const ApiProxyApiFp = function (configuration?: Configuration) {
      */
     async proxy6(body?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.proxy6(body, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {string} body
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async proxy7(body: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy7(body, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async proxy8(body?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy8(body, options);
-      return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    async proxy9(body?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-      const localVarAxiosArgs = await localVarAxiosParamCreator.proxy9(body, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
   };
@@ -7205,11 +6906,11 @@ export const ApiProxyApiFactory = function (configuration?: Configuration, baseP
   return {
     /**
      *
-     * @param {string} body
+     * @param {string} [body]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    proxy(body: string, options?: any): AxiosPromise<string> {
+    proxy(body?: string, options?: any): AxiosPromise<string> {
       return localVarFp.proxy(body, options).then(request => request(axios, basePath));
     },
     /**
@@ -7220,42 +6921,6 @@ export const ApiProxyApiFactory = function (configuration?: Configuration, baseP
      */
     proxy1(body?: string, options?: any): AxiosPromise<string> {
       return localVarFp.proxy1(body, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    proxy10(body?: string, options?: any): AxiosPromise<string> {
-      return localVarFp.proxy10(body, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    proxy11(body?: string, options?: any): AxiosPromise<string> {
-      return localVarFp.proxy11(body, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    proxy12(body?: string, options?: any): AxiosPromise<string> {
-      return localVarFp.proxy12(body, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    proxy13(body?: string, options?: any): AxiosPromise<string> {
-      return localVarFp.proxy13(body, options).then(request => request(axios, basePath));
     },
     /**
      *
@@ -7286,11 +6951,11 @@ export const ApiProxyApiFactory = function (configuration?: Configuration, baseP
     },
     /**
      *
-     * @param {string} [body]
+     * @param {string} body
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    proxy5(body?: string, options?: any): AxiosPromise<string> {
+    proxy5(body: string, options?: any): AxiosPromise<string> {
       return localVarFp.proxy5(body, options).then(request => request(axios, basePath));
     },
     /**
@@ -7301,33 +6966,6 @@ export const ApiProxyApiFactory = function (configuration?: Configuration, baseP
      */
     proxy6(body?: string, options?: any): AxiosPromise<string> {
       return localVarFp.proxy6(body, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {string} body
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    proxy7(body: string, options?: any): AxiosPromise<string> {
-      return localVarFp.proxy7(body, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    proxy8(body?: string, options?: any): AxiosPromise<string> {
-      return localVarFp.proxy8(body, options).then(request => request(axios, basePath));
-    },
-    /**
-     *
-     * @param {string} [body]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    proxy9(body?: string, options?: any): AxiosPromise<string> {
-      return localVarFp.proxy9(body, options).then(request => request(axios, basePath));
     },
   };
 };
@@ -7341,12 +6979,12 @@ export const ApiProxyApiFactory = function (configuration?: Configuration, baseP
 export class ApiProxyApi extends BaseAPI {
   /**
    *
-   * @param {string} body
+   * @param {string} [body]
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof ApiProxyApi
    */
-  public proxy(body: string, options?: AxiosRequestConfig) {
+  public proxy(body?: string, options?: AxiosRequestConfig) {
     return ApiProxyApiFp(this.configuration)
       .proxy(body, options)
       .then(request => request(this.axios, this.basePath));
@@ -7362,58 +7000,6 @@ export class ApiProxyApi extends BaseAPI {
   public proxy1(body?: string, options?: AxiosRequestConfig) {
     return ApiProxyApiFp(this.configuration)
       .proxy1(body, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {string} [body]
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof ApiProxyApi
-   */
-  public proxy10(body?: string, options?: AxiosRequestConfig) {
-    return ApiProxyApiFp(this.configuration)
-      .proxy10(body, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {string} [body]
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof ApiProxyApi
-   */
-  public proxy11(body?: string, options?: AxiosRequestConfig) {
-    return ApiProxyApiFp(this.configuration)
-      .proxy11(body, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {string} [body]
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof ApiProxyApi
-   */
-  public proxy12(body?: string, options?: AxiosRequestConfig) {
-    return ApiProxyApiFp(this.configuration)
-      .proxy12(body, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {string} [body]
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof ApiProxyApi
-   */
-  public proxy13(body?: string, options?: AxiosRequestConfig) {
-    return ApiProxyApiFp(this.configuration)
-      .proxy13(body, options)
       .then(request => request(this.axios, this.basePath));
   }
 
@@ -7458,12 +7044,12 @@ export class ApiProxyApi extends BaseAPI {
 
   /**
    *
-   * @param {string} [body]
+   * @param {string} body
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof ApiProxyApi
    */
-  public proxy5(body?: string, options?: AxiosRequestConfig) {
+  public proxy5(body: string, options?: AxiosRequestConfig) {
     return ApiProxyApiFp(this.configuration)
       .proxy5(body, options)
       .then(request => request(this.axios, this.basePath));
@@ -7479,45 +7065,6 @@ export class ApiProxyApi extends BaseAPI {
   public proxy6(body?: string, options?: AxiosRequestConfig) {
     return ApiProxyApiFp(this.configuration)
       .proxy6(body, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {string} body
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof ApiProxyApi
-   */
-  public proxy7(body: string, options?: AxiosRequestConfig) {
-    return ApiProxyApiFp(this.configuration)
-      .proxy7(body, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {string} [body]
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof ApiProxyApi
-   */
-  public proxy8(body?: string, options?: AxiosRequestConfig) {
-    return ApiProxyApiFp(this.configuration)
-      .proxy8(body, options)
-      .then(request => request(this.axios, this.basePath));
-  }
-
-  /**
-   *
-   * @param {string} [body]
-   * @param {*} [options] Override http request option.
-   * @throws {RequiredError}
-   * @memberof ApiProxyApi
-   */
-  public proxy9(body?: string, options?: AxiosRequestConfig) {
-    return ApiProxyApiFp(this.configuration)
-      .proxy9(body, options)
       .then(request => request(this.axios, this.basePath));
   }
 }
@@ -7857,7 +7404,7 @@ export const ArticleResourceApiFp = function (configuration?: Configuration) {
      */
     async countArticles(
       criteria: ArticleCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countArticles(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -7870,7 +7417,7 @@ export const ArticleResourceApiFp = function (configuration?: Configuration) {
      */
     async createArticle(
       article: Article,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Article>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createArticle(article, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -7883,7 +7430,7 @@ export const ArticleResourceApiFp = function (configuration?: Configuration) {
      */
     async deleteArticle(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteArticle(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -7898,7 +7445,7 @@ export const ArticleResourceApiFp = function (configuration?: Configuration) {
     async getAllArticles(
       criteria: ArticleCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Article>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllArticles(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -7911,7 +7458,7 @@ export const ArticleResourceApiFp = function (configuration?: Configuration) {
      */
     async getArticle(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Article>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getArticle(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -7924,7 +7471,7 @@ export const ArticleResourceApiFp = function (configuration?: Configuration) {
      */
     async getPubMedArticle(
       pmid: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PubMedDTO>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getPubMedArticle(pmid, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -7939,7 +7486,7 @@ export const ArticleResourceApiFp = function (configuration?: Configuration) {
     async partialUpdateArticle(
       id: number,
       article: Article,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Article>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateArticle(id, article, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -7954,7 +7501,7 @@ export const ArticleResourceApiFp = function (configuration?: Configuration) {
     async searchArticles(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Article>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchArticles(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -7969,7 +7516,7 @@ export const ArticleResourceApiFp = function (configuration?: Configuration) {
     async updateArticle(
       id: number,
       article: Article,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Article>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateArticle(id, article, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -8396,7 +7943,7 @@ export const AssociationResourceApiFp = function (configuration?: Configuration)
      */
     async createAssociation(
       association: Association,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Association>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createAssociation(association, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -8409,7 +7956,7 @@ export const AssociationResourceApiFp = function (configuration?: Configuration)
      */
     async deleteAssociation(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteAssociation(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -8424,7 +7971,7 @@ export const AssociationResourceApiFp = function (configuration?: Configuration)
     async getAllAssociations(
       filter?: string,
       eagerload?: boolean,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Association>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllAssociations(filter, eagerload, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -8437,7 +7984,7 @@ export const AssociationResourceApiFp = function (configuration?: Configuration)
      */
     async getAssociation(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Association>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAssociation(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -8452,7 +7999,7 @@ export const AssociationResourceApiFp = function (configuration?: Configuration)
     async searchAssociations(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Association>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchAssociations(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -8637,7 +8184,7 @@ export const AuditResourceApiAxiosParamCreator = function (configuration?: Confi
       entityType: string,
       limit: number,
       queryParams: MultiValueMapStringString,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'entityType' is not null or undefined
       assertParamExists('getChanges', 'entityType', entityType);
@@ -8690,7 +8237,7 @@ export const AuditResourceApiAxiosParamCreator = function (configuration?: Confi
       entityType: string,
       entityId: number,
       commitId: number,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'entityType' is not null or undefined
       assertParamExists('getPrevVersion', 'entityType', entityType);
@@ -8747,7 +8294,7 @@ export const AuditResourceApiFp = function (configuration?: Configuration) {
      * @throws {RequiredError}
      */
     async getAuditedEntities(
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<string>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAuditedEntities(options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -8764,7 +8311,7 @@ export const AuditResourceApiFp = function (configuration?: Configuration) {
       entityType: string,
       limit: number,
       queryParams: MultiValueMapStringString,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<EntityAuditEvent>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getChanges(entityType, limit, queryParams, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -8781,7 +8328,7 @@ export const AuditResourceApiFp = function (configuration?: Configuration) {
       entityType: string,
       entityId: number,
       commitId: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EntityAuditEvent>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getPrevVersion(entityType, entityId, commitId, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -8816,7 +8363,7 @@ export const AuditResourceApiFactory = function (configuration?: Configuration, 
       entityType: string,
       limit: number,
       queryParams: MultiValueMapStringString,
-      options?: any
+      options?: any,
     ): AxiosPromise<Array<EntityAuditEvent>> {
       return localVarFp.getChanges(entityType, limit, queryParams, options).then(request => request(axios, basePath));
     },
@@ -9161,7 +8708,7 @@ export const CancerTypeResourceApiAxiosParamCreator = function (configuration?: 
     getRelevantCancerTypes: async (
       relevantCancerTypeBody: RelevantCancerTypeBody,
       levelOfEvidence?: string,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'relevantCancerTypeBody' is not null or undefined
       assertParamExists('getRelevantCancerTypes', 'relevantCancerTypeBody', relevantCancerTypeBody);
@@ -9324,7 +8871,7 @@ export const CancerTypeResourceApiFp = function (configuration?: Configuration) 
      */
     async countCancerTypes(
       criteria: CancerTypeCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countCancerTypes(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -9337,7 +8884,7 @@ export const CancerTypeResourceApiFp = function (configuration?: Configuration) 
      */
     async createCancerType(
       cancerType: CancerType,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CancerType>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createCancerType(cancerType, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -9350,7 +8897,7 @@ export const CancerTypeResourceApiFp = function (configuration?: Configuration) 
      */
     async deleteCancerType(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteCancerType(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -9365,7 +8912,7 @@ export const CancerTypeResourceApiFp = function (configuration?: Configuration) 
     async getAllCancerTypes(
       criteria: CancerTypeCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CancerType>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllCancerTypes(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -9378,7 +8925,7 @@ export const CancerTypeResourceApiFp = function (configuration?: Configuration) 
      */
     async getCancerType(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CancerType>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getCancerType(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -9393,7 +8940,7 @@ export const CancerTypeResourceApiFp = function (configuration?: Configuration) 
     async getRelevantCancerTypes(
       relevantCancerTypeBody: RelevantCancerTypeBody,
       levelOfEvidence?: string,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CancerType>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getRelevantCancerTypes(relevantCancerTypeBody, levelOfEvidence, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -9408,7 +8955,7 @@ export const CancerTypeResourceApiFp = function (configuration?: Configuration) 
     async partialUpdateCancerType(
       id: number,
       cancerType: CancerType,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CancerType>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateCancerType(id, cancerType, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -9423,7 +8970,7 @@ export const CancerTypeResourceApiFp = function (configuration?: Configuration) 
     async searchCancerTypes(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CancerType>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchCancerTypes(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -9438,7 +8985,7 @@ export const CancerTypeResourceApiFp = function (configuration?: Configuration) 
     async updateCancerType(
       id: number,
       cancerType: CancerType,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CancerType>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateCancerType(id, cancerType, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -9509,7 +9056,7 @@ export const CancerTypeResourceApiFactory = function (configuration?: Configurat
     getRelevantCancerTypes(
       relevantCancerTypeBody: RelevantCancerTypeBody,
       levelOfEvidence?: string,
-      options?: any
+      options?: any,
     ): AxiosPromise<Array<CancerType>> {
       return localVarFp.getRelevantCancerTypes(relevantCancerTypeBody, levelOfEvidence, options).then(request => request(axios, basePath));
     },
@@ -9690,7 +9237,7 @@ export const CategoricalAlterationResourceApiAxiosParamCreator = function (confi
      */
     createCategoricalAlteration: async (
       categoricalAlteration: CategoricalAlteration,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'categoricalAlteration' is not null or undefined
       assertParamExists('createCategoricalAlteration', 'categoricalAlteration', categoricalAlteration);
@@ -9815,7 +9362,7 @@ export const CategoricalAlterationResourceApiAxiosParamCreator = function (confi
     partialUpdateCategoricalAlteration: async (
       id: number,
       categoricalAlteration: CategoricalAlteration,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('partialUpdateCategoricalAlteration', 'id', id);
@@ -9855,7 +9402,7 @@ export const CategoricalAlterationResourceApiAxiosParamCreator = function (confi
     updateCategoricalAlteration: async (
       id: number,
       categoricalAlteration: CategoricalAlteration,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('updateCategoricalAlteration', 'id', id);
@@ -9903,7 +9450,7 @@ export const CategoricalAlterationResourceApiFp = function (configuration?: Conf
      */
     async createCategoricalAlteration(
       categoricalAlteration: CategoricalAlteration,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CategoricalAlteration>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createCategoricalAlteration(categoricalAlteration, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -9916,7 +9463,7 @@ export const CategoricalAlterationResourceApiFp = function (configuration?: Conf
      */
     async deleteCategoricalAlteration(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteCategoricalAlteration(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -9927,7 +9474,7 @@ export const CategoricalAlterationResourceApiFp = function (configuration?: Conf
      * @throws {RequiredError}
      */
     async getAllCategoricalAlterations(
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CategoricalAlteration>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllCategoricalAlterations(options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -9940,7 +9487,7 @@ export const CategoricalAlterationResourceApiFp = function (configuration?: Conf
      */
     async getCategoricalAlteration(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CategoricalAlteration>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getCategoricalAlteration(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -9955,7 +9502,7 @@ export const CategoricalAlterationResourceApiFp = function (configuration?: Conf
     async partialUpdateCategoricalAlteration(
       id: number,
       categoricalAlteration: CategoricalAlteration,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CategoricalAlteration>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateCategoricalAlteration(id, categoricalAlteration, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -9970,7 +9517,7 @@ export const CategoricalAlterationResourceApiFp = function (configuration?: Conf
     async updateCategoricalAlteration(
       id: number,
       categoricalAlteration: CategoricalAlteration,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CategoricalAlteration>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateCategoricalAlteration(id, categoricalAlteration, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -10030,7 +9577,7 @@ export const CategoricalAlterationResourceApiFactory = function (configuration?:
     partialUpdateCategoricalAlteration(
       id: number,
       categoricalAlteration: CategoricalAlteration,
-      options?: any
+      options?: any,
     ): AxiosPromise<CategoricalAlteration> {
       return localVarFp.partialUpdateCategoricalAlteration(id, categoricalAlteration, options).then(request => request(axios, basePath));
     },
@@ -10044,7 +9591,7 @@ export const CategoricalAlterationResourceApiFactory = function (configuration?:
     updateCategoricalAlteration(
       id: number,
       categoricalAlteration: CategoricalAlteration,
-      options?: any
+      options?: any,
     ): AxiosPromise<CategoricalAlteration> {
       return localVarFp.updateCategoricalAlteration(id, categoricalAlteration, options).then(request => request(axios, basePath));
     },
@@ -10251,7 +9798,7 @@ export const ClinicalTrialArmResourceApiAxiosParamCreator = function (configurat
     getAllClinicalTrialArms: async (
       criteria: ClinicalTrialArmCriteria,
       pageable: Pageable,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'criteria' is not null or undefined
       assertParamExists('getAllClinicalTrialArms', 'criteria', criteria);
@@ -10326,7 +9873,7 @@ export const ClinicalTrialArmResourceApiAxiosParamCreator = function (configurat
     partialUpdateClinicalTrialArm: async (
       id: number,
       clinicalTrialArm: ClinicalTrialArm,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('partialUpdateClinicalTrialArm', 'id', id);
@@ -10407,7 +9954,7 @@ export const ClinicalTrialArmResourceApiAxiosParamCreator = function (configurat
     updateClinicalTrialArm: async (
       id: number,
       clinicalTrialArm: ClinicalTrialArm,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('updateClinicalTrialArm', 'id', id);
@@ -10455,7 +10002,7 @@ export const ClinicalTrialArmResourceApiFp = function (configuration?: Configura
      */
     async countClinicalTrialArms(
       criteria: ClinicalTrialArmCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countClinicalTrialArms(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -10468,7 +10015,7 @@ export const ClinicalTrialArmResourceApiFp = function (configuration?: Configura
      */
     async createClinicalTrialArm(
       clinicalTrialArm: ClinicalTrialArm,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ClinicalTrialArm>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createClinicalTrialArm(clinicalTrialArm, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -10481,7 +10028,7 @@ export const ClinicalTrialArmResourceApiFp = function (configuration?: Configura
      */
     async deleteClinicalTrialArm(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteClinicalTrialArm(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -10496,7 +10043,7 @@ export const ClinicalTrialArmResourceApiFp = function (configuration?: Configura
     async getAllClinicalTrialArms(
       criteria: ClinicalTrialArmCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ClinicalTrialArm>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllClinicalTrialArms(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -10509,7 +10056,7 @@ export const ClinicalTrialArmResourceApiFp = function (configuration?: Configura
      */
     async getClinicalTrialArm(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ClinicalTrialArm>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getClinicalTrialArm(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -10524,7 +10071,7 @@ export const ClinicalTrialArmResourceApiFp = function (configuration?: Configura
     async partialUpdateClinicalTrialArm(
       id: number,
       clinicalTrialArm: ClinicalTrialArm,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ClinicalTrialArm>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateClinicalTrialArm(id, clinicalTrialArm, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -10539,7 +10086,7 @@ export const ClinicalTrialArmResourceApiFp = function (configuration?: Configura
     async searchClinicalTrialArms(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ClinicalTrialArm>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchClinicalTrialArms(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -10554,7 +10101,7 @@ export const ClinicalTrialArmResourceApiFp = function (configuration?: Configura
     async updateClinicalTrialArm(
       id: number,
       clinicalTrialArm: ClinicalTrialArm,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ClinicalTrialArm>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateClinicalTrialArm(id, clinicalTrialArm, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -10877,7 +10424,7 @@ export const ClinicalTrialResourceApiAxiosParamCreator = function (configuration
     getAllClinicalTrials: async (
       criteria: ClinicalTrialCriteria,
       pageable: Pageable,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'criteria' is not null or undefined
       assertParamExists('getAllClinicalTrials', 'criteria', criteria);
@@ -10952,7 +10499,7 @@ export const ClinicalTrialResourceApiAxiosParamCreator = function (configuration
     partialUpdateClinicalTrial: async (
       id: number,
       clinicalTrial: ClinicalTrial,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('partialUpdateClinicalTrial', 'id', id);
@@ -11077,7 +10624,7 @@ export const ClinicalTrialResourceApiFp = function (configuration?: Configuratio
      */
     async countClinicalTrials(
       criteria: ClinicalTrialCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countClinicalTrials(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -11090,7 +10637,7 @@ export const ClinicalTrialResourceApiFp = function (configuration?: Configuratio
      */
     async createClinicalTrial(
       clinicalTrial: ClinicalTrial,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ClinicalTrial>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createClinicalTrial(clinicalTrial, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -11103,7 +10650,7 @@ export const ClinicalTrialResourceApiFp = function (configuration?: Configuratio
      */
     async deleteClinicalTrial(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteClinicalTrial(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -11118,7 +10665,7 @@ export const ClinicalTrialResourceApiFp = function (configuration?: Configuratio
     async getAllClinicalTrials(
       criteria: ClinicalTrialCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ClinicalTrial>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllClinicalTrials(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -11131,7 +10678,7 @@ export const ClinicalTrialResourceApiFp = function (configuration?: Configuratio
      */
     async getClinicalTrial(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ClinicalTrial>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getClinicalTrial(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -11146,7 +10693,7 @@ export const ClinicalTrialResourceApiFp = function (configuration?: Configuratio
     async partialUpdateClinicalTrial(
       id: number,
       clinicalTrial: ClinicalTrial,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ClinicalTrial>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateClinicalTrial(id, clinicalTrial, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -11161,7 +10708,7 @@ export const ClinicalTrialResourceApiFp = function (configuration?: Configuratio
     async searchClinicalTrials(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ClinicalTrial>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchClinicalTrials(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -11176,7 +10723,7 @@ export const ClinicalTrialResourceApiFp = function (configuration?: Configuratio
     async updateClinicalTrial(
       id: number,
       clinicalTrial: ClinicalTrial,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ClinicalTrial>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateClinicalTrial(id, clinicalTrial, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -11400,7 +10947,7 @@ export const CompanionDiagnosticDeviceResourceApiAxiosParamCreator = function (c
      */
     countCompanionDiagnosticDevices: async (
       criteria: CompanionDiagnosticDeviceCriteria,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'criteria' is not null or undefined
       assertParamExists('countCompanionDiagnosticDevices', 'criteria', criteria);
@@ -11437,7 +10984,7 @@ export const CompanionDiagnosticDeviceResourceApiAxiosParamCreator = function (c
      */
     createCompanionDiagnosticDevice: async (
       companionDiagnosticDevice: CompanionDiagnosticDevice,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'companionDiagnosticDevice' is not null or undefined
       assertParamExists('createCompanionDiagnosticDevice', 'companionDiagnosticDevice', companionDiagnosticDevice);
@@ -11503,7 +11050,7 @@ export const CompanionDiagnosticDeviceResourceApiAxiosParamCreator = function (c
      */
     getAllCompanionDiagnosticDevices: async (
       criteria: CompanionDiagnosticDeviceCriteria,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'criteria' is not null or undefined
       assertParamExists('getAllCompanionDiagnosticDevices', 'criteria', criteria);
@@ -11572,7 +11119,7 @@ export const CompanionDiagnosticDeviceResourceApiAxiosParamCreator = function (c
     partialUpdateCompanionDiagnosticDevice: async (
       id: number,
       companionDiagnosticDevice: CompanionDiagnosticDevice,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('partialUpdateCompanionDiagnosticDevice', 'id', id);
@@ -11646,7 +11193,7 @@ export const CompanionDiagnosticDeviceResourceApiAxiosParamCreator = function (c
     updateCompanionDiagnosticDevice: async (
       id: number,
       companionDiagnosticDevice: CompanionDiagnosticDevice,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('updateCompanionDiagnosticDevice', 'id', id);
@@ -11694,7 +11241,7 @@ export const CompanionDiagnosticDeviceResourceApiFp = function (configuration?: 
      */
     async countCompanionDiagnosticDevices(
       criteria: CompanionDiagnosticDeviceCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countCompanionDiagnosticDevices(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -11707,7 +11254,7 @@ export const CompanionDiagnosticDeviceResourceApiFp = function (configuration?: 
      */
     async createCompanionDiagnosticDevice(
       companionDiagnosticDevice: CompanionDiagnosticDevice,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompanionDiagnosticDevice>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createCompanionDiagnosticDevice(companionDiagnosticDevice, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -11720,7 +11267,7 @@ export const CompanionDiagnosticDeviceResourceApiFp = function (configuration?: 
      */
     async deleteCompanionDiagnosticDevice(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteCompanionDiagnosticDevice(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -11733,7 +11280,7 @@ export const CompanionDiagnosticDeviceResourceApiFp = function (configuration?: 
      */
     async getAllCompanionDiagnosticDevices(
       criteria: CompanionDiagnosticDeviceCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CompanionDiagnosticDevice>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllCompanionDiagnosticDevices(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -11746,7 +11293,7 @@ export const CompanionDiagnosticDeviceResourceApiFp = function (configuration?: 
      */
     async getCompanionDiagnosticDevice(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompanionDiagnosticDevice>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getCompanionDiagnosticDevice(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -11761,12 +11308,12 @@ export const CompanionDiagnosticDeviceResourceApiFp = function (configuration?: 
     async partialUpdateCompanionDiagnosticDevice(
       id: number,
       companionDiagnosticDevice: CompanionDiagnosticDevice,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompanionDiagnosticDevice>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateCompanionDiagnosticDevice(
         id,
         companionDiagnosticDevice,
-        options
+        options,
       );
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
@@ -11778,7 +11325,7 @@ export const CompanionDiagnosticDeviceResourceApiFp = function (configuration?: 
      */
     async searchCompanionDiagnosticDevices(
       query: string,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<CompanionDiagnosticDevice>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchCompanionDiagnosticDevices(query, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -11793,7 +11340,7 @@ export const CompanionDiagnosticDeviceResourceApiFp = function (configuration?: 
     async updateCompanionDiagnosticDevice(
       id: number,
       companionDiagnosticDevice: CompanionDiagnosticDevice,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompanionDiagnosticDevice>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateCompanionDiagnosticDevice(id, companionDiagnosticDevice, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -11808,7 +11355,7 @@ export const CompanionDiagnosticDeviceResourceApiFp = function (configuration?: 
 export const CompanionDiagnosticDeviceResourceApiFactory = function (
   configuration?: Configuration,
   basePath?: string,
-  axios?: AxiosInstance
+  axios?: AxiosInstance,
 ) {
   const localVarFp = CompanionDiagnosticDeviceResourceApiFp(configuration);
   return {
@@ -11829,7 +11376,7 @@ export const CompanionDiagnosticDeviceResourceApiFactory = function (
      */
     createCompanionDiagnosticDevice(
       companionDiagnosticDevice: CompanionDiagnosticDevice,
-      options?: any
+      options?: any,
     ): AxiosPromise<CompanionDiagnosticDevice> {
       return localVarFp.createCompanionDiagnosticDevice(companionDiagnosticDevice, options).then(request => request(axios, basePath));
     },
@@ -11850,7 +11397,7 @@ export const CompanionDiagnosticDeviceResourceApiFactory = function (
      */
     getAllCompanionDiagnosticDevices(
       criteria: CompanionDiagnosticDeviceCriteria,
-      options?: any
+      options?: any,
     ): AxiosPromise<Array<CompanionDiagnosticDevice>> {
       return localVarFp.getAllCompanionDiagnosticDevices(criteria, options).then(request => request(axios, basePath));
     },
@@ -11873,7 +11420,7 @@ export const CompanionDiagnosticDeviceResourceApiFactory = function (
     partialUpdateCompanionDiagnosticDevice(
       id: number,
       companionDiagnosticDevice: CompanionDiagnosticDevice,
-      options?: any
+      options?: any,
     ): AxiosPromise<CompanionDiagnosticDevice> {
       return localVarFp
         .partialUpdateCompanionDiagnosticDevice(id, companionDiagnosticDevice, options)
@@ -11898,7 +11445,7 @@ export const CompanionDiagnosticDeviceResourceApiFactory = function (
     updateCompanionDiagnosticDevice(
       id: number,
       companionDiagnosticDevice: CompanionDiagnosticDevice,
-      options?: any
+      options?: any,
     ): AxiosPromise<CompanionDiagnosticDevice> {
       return localVarFp.updateCompanionDiagnosticDevice(id, companionDiagnosticDevice, options).then(request => request(axios, basePath));
     },
@@ -11988,7 +11535,7 @@ export class CompanionDiagnosticDeviceResourceApi extends BaseAPI {
   public partialUpdateCompanionDiagnosticDevice(
     id: number,
     companionDiagnosticDevice: CompanionDiagnosticDevice,
-    options?: AxiosRequestConfig
+    options?: AxiosRequestConfig,
   ) {
     return CompanionDiagnosticDeviceResourceApiFp(this.configuration)
       .partialUpdateCompanionDiagnosticDevice(id, companionDiagnosticDevice, options)
@@ -12280,7 +11827,7 @@ export const ConsequenceResourceApiFp = function (configuration?: Configuration)
      */
     async countConsequences(
       criteria: ConsequenceCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countConsequences(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -12293,7 +11840,7 @@ export const ConsequenceResourceApiFp = function (configuration?: Configuration)
      */
     async createConsequence(
       consequence: Consequence,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Consequence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createConsequence(consequence, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -12306,7 +11853,7 @@ export const ConsequenceResourceApiFp = function (configuration?: Configuration)
      */
     async deleteConsequence(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteConsequence(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -12319,7 +11866,7 @@ export const ConsequenceResourceApiFp = function (configuration?: Configuration)
      */
     async getAllConsequences(
       criteria: ConsequenceCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Consequence>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllConsequences(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -12332,7 +11879,7 @@ export const ConsequenceResourceApiFp = function (configuration?: Configuration)
      */
     async getConsequence(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Consequence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getConsequence(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -12347,7 +11894,7 @@ export const ConsequenceResourceApiFp = function (configuration?: Configuration)
     async partialUpdateConsequence(
       id: number,
       consequence: Consequence,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Consequence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateConsequence(id, consequence, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -12362,7 +11909,7 @@ export const ConsequenceResourceApiFp = function (configuration?: Configuration)
     async updateConsequence(
       id: number,
       consequence: Consequence,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Consequence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateConsequence(id, consequence, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -12837,7 +12384,7 @@ export const DrugResourceApiFp = function (configuration?: Configuration) {
      */
     async countDrugs(
       criteria: DrugCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countDrugs(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -12870,7 +12417,7 @@ export const DrugResourceApiFp = function (configuration?: Configuration) {
      */
     async getAllDrugs(
       criteria: DrugCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Drug>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllDrugs(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -12895,7 +12442,7 @@ export const DrugResourceApiFp = function (configuration?: Configuration) {
     async partialUpdateDrug(
       id: number,
       drug: Drug,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Drug>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateDrug(id, drug, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -12908,7 +12455,7 @@ export const DrugResourceApiFp = function (configuration?: Configuration) {
      */
     async searchDrugs(
       query: string,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Drug>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchDrugs(query, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -12923,7 +12470,7 @@ export const DrugResourceApiFp = function (configuration?: Configuration) {
     async updateDrug(
       id: number,
       drug: Drug,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Drug>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateDrug(id, drug, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -13242,7 +12789,7 @@ export const EligibilityCriteriaResourceApiAxiosParamCreator = function (configu
     getAllEligibilityCriteria: async (
       criteria: EligibilityCriteriaCriteria,
       pageable: Pageable,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'criteria' is not null or undefined
       assertParamExists('getAllEligibilityCriteria', 'criteria', criteria);
@@ -13317,7 +12864,7 @@ export const EligibilityCriteriaResourceApiAxiosParamCreator = function (configu
     partialUpdateEligibilityCriteria: async (
       id: number,
       eligibilityCriteria: EligibilityCriteria,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('partialUpdateEligibilityCriteria', 'id', id);
@@ -13398,7 +12945,7 @@ export const EligibilityCriteriaResourceApiAxiosParamCreator = function (configu
     updateEligibilityCriteria: async (
       id: number,
       eligibilityCriteria: EligibilityCriteria,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('updateEligibilityCriteria', 'id', id);
@@ -13446,7 +12993,7 @@ export const EligibilityCriteriaResourceApiFp = function (configuration?: Config
      */
     async countEligibilityCriteria(
       criteria: EligibilityCriteriaCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countEligibilityCriteria(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -13459,7 +13006,7 @@ export const EligibilityCriteriaResourceApiFp = function (configuration?: Config
      */
     async createEligibilityCriteria(
       eligibilityCriteria: EligibilityCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EligibilityCriteria>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createEligibilityCriteria(eligibilityCriteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -13472,7 +13019,7 @@ export const EligibilityCriteriaResourceApiFp = function (configuration?: Config
      */
     async deleteEligibilityCriteria(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteEligibilityCriteria(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -13487,7 +13034,7 @@ export const EligibilityCriteriaResourceApiFp = function (configuration?: Config
     async getAllEligibilityCriteria(
       criteria: EligibilityCriteriaCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<EligibilityCriteria>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllEligibilityCriteria(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -13500,7 +13047,7 @@ export const EligibilityCriteriaResourceApiFp = function (configuration?: Config
      */
     async getEligibilityCriteria(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EligibilityCriteria>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getEligibilityCriteria(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -13515,7 +13062,7 @@ export const EligibilityCriteriaResourceApiFp = function (configuration?: Config
     async partialUpdateEligibilityCriteria(
       id: number,
       eligibilityCriteria: EligibilityCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EligibilityCriteria>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateEligibilityCriteria(id, eligibilityCriteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -13530,7 +13077,7 @@ export const EligibilityCriteriaResourceApiFp = function (configuration?: Config
     async searchEligibilityCriteria(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<EligibilityCriteria>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchEligibilityCriteria(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -13545,7 +13092,7 @@ export const EligibilityCriteriaResourceApiFp = function (configuration?: Config
     async updateEligibilityCriteria(
       id: number,
       eligibilityCriteria: EligibilityCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EligibilityCriteria>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateEligibilityCriteria(id, eligibilityCriteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -13597,7 +13144,7 @@ export const EligibilityCriteriaResourceApiFactory = function (configuration?: C
     getAllEligibilityCriteria(
       criteria: EligibilityCriteriaCriteria,
       pageable: Pageable,
-      options?: any
+      options?: any,
     ): AxiosPromise<Array<EligibilityCriteria>> {
       return localVarFp.getAllEligibilityCriteria(criteria, pageable, options).then(request => request(axios, basePath));
     },
@@ -13620,7 +13167,7 @@ export const EligibilityCriteriaResourceApiFactory = function (configuration?: C
     partialUpdateEligibilityCriteria(
       id: number,
       eligibilityCriteria: EligibilityCriteria,
-      options?: any
+      options?: any,
     ): AxiosPromise<EligibilityCriteria> {
       return localVarFp.partialUpdateEligibilityCriteria(id, eligibilityCriteria, options).then(request => request(axios, basePath));
     },
@@ -13820,7 +13367,7 @@ export const EnsemblGeneControllerApiFp = function (configuration?: Configuratio
      */
     async addEnsemblGene(
       addEnsemblGeneBody: AddEnsemblGeneBody,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EnsemblGene>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.addEnsemblGene(addEnsemblGeneBody, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -13981,7 +13528,7 @@ export const EnsemblGeneResourceApiAxiosParamCreator = function (configuration?:
     getAllEnsemblGenes: async (
       criteria: EnsemblGeneCriteria,
       pageable: Pageable,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'criteria' is not null or undefined
       assertParamExists('getAllEnsemblGenes', 'criteria', criteria);
@@ -14177,7 +13724,7 @@ export const EnsemblGeneResourceApiFp = function (configuration?: Configuration)
      */
     async countEnsemblGenes(
       criteria: EnsemblGeneCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countEnsemblGenes(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -14190,7 +13737,7 @@ export const EnsemblGeneResourceApiFp = function (configuration?: Configuration)
      */
     async createEnsemblGene(
       ensemblGene: EnsemblGene,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EnsemblGene>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createEnsemblGene(ensemblGene, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -14203,7 +13750,7 @@ export const EnsemblGeneResourceApiFp = function (configuration?: Configuration)
      */
     async deleteEnsemblGene(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteEnsemblGene(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -14218,7 +13765,7 @@ export const EnsemblGeneResourceApiFp = function (configuration?: Configuration)
     async getAllEnsemblGenes(
       criteria: EnsemblGeneCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<EnsemblGene>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllEnsemblGenes(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -14231,7 +13778,7 @@ export const EnsemblGeneResourceApiFp = function (configuration?: Configuration)
      */
     async getEnsemblGene(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EnsemblGene>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getEnsemblGene(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -14246,7 +13793,7 @@ export const EnsemblGeneResourceApiFp = function (configuration?: Configuration)
     async partialUpdateEnsemblGene(
       id: number,
       ensemblGene: EnsemblGene,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EnsemblGene>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateEnsemblGene(id, ensemblGene, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -14261,7 +13808,7 @@ export const EnsemblGeneResourceApiFp = function (configuration?: Configuration)
     async searchEnsemblGenes(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<EnsemblGene>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchEnsemblGenes(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -14276,7 +13823,7 @@ export const EnsemblGeneResourceApiFp = function (configuration?: Configuration)
     async updateEnsemblGene(
       id: number,
       ensemblGene: EnsemblGene,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EnsemblGene>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateEnsemblGene(id, ensemblGene, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -14791,7 +14338,7 @@ export const EvidenceResourceApiFp = function (configuration?: Configuration) {
      */
     async countEvidences(
       criteria: EvidenceCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countEvidences(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -14804,7 +14351,7 @@ export const EvidenceResourceApiFp = function (configuration?: Configuration) {
      */
     async createEvidence(
       evidence: Evidence,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Evidence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createEvidence(evidence, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -14817,7 +14364,7 @@ export const EvidenceResourceApiFp = function (configuration?: Configuration) {
      */
     async deleteEvidence(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteEvidence(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -14832,7 +14379,7 @@ export const EvidenceResourceApiFp = function (configuration?: Configuration) {
     async getAllEvidences(
       criteria: EvidenceCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Evidence>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllEvidences(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -14845,7 +14392,7 @@ export const EvidenceResourceApiFp = function (configuration?: Configuration) {
      */
     async getEvidence(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Evidence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getEvidence(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -14860,7 +14407,7 @@ export const EvidenceResourceApiFp = function (configuration?: Configuration) {
     async partialUpdateEvidence(
       id: number,
       evidence: Evidence,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Evidence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateEvidence(id, evidence, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -14875,7 +14422,7 @@ export const EvidenceResourceApiFp = function (configuration?: Configuration) {
     async searchEvidences(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Evidence>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchEvidences(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -14890,7 +14437,7 @@ export const EvidenceResourceApiFp = function (configuration?: Configuration) {
     async updateEvidence(
       id: number,
       evidence: Evidence,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Evidence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateEvidence(id, evidence, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -15405,7 +14952,7 @@ export const FdaDrugResourceApiFp = function (configuration?: Configuration) {
      */
     async countFdaDrugs(
       criteria: FdaDrugCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countFdaDrugs(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -15418,7 +14965,7 @@ export const FdaDrugResourceApiFp = function (configuration?: Configuration) {
      */
     async createFdaDrug(
       fdaDrug: FdaDrug,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FdaDrug>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createFdaDrug(fdaDrug, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -15431,7 +14978,7 @@ export const FdaDrugResourceApiFp = function (configuration?: Configuration) {
      */
     async deleteFdaDrug(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteFdaDrug(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -15446,7 +14993,7 @@ export const FdaDrugResourceApiFp = function (configuration?: Configuration) {
     async getAllFdaDrugs(
       criteria: FdaDrugCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<FdaDrug>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllFdaDrugs(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -15459,7 +15006,7 @@ export const FdaDrugResourceApiFp = function (configuration?: Configuration) {
      */
     async getFdaDrug(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FdaDrug>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getFdaDrug(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -15474,7 +15021,7 @@ export const FdaDrugResourceApiFp = function (configuration?: Configuration) {
     async partialUpdateFdaDrug(
       id: number,
       fdaDrug: FdaDrug,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FdaDrug>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateFdaDrug(id, fdaDrug, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -15489,7 +15036,7 @@ export const FdaDrugResourceApiFp = function (configuration?: Configuration) {
     async searchFdaDrugs(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<FdaDrug>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchFdaDrugs(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -15504,7 +15051,7 @@ export const FdaDrugResourceApiFp = function (configuration?: Configuration) {
     async updateFdaDrug(
       id: number,
       fdaDrug: FdaDrug,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FdaDrug>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateFdaDrug(id, fdaDrug, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -15857,7 +15404,7 @@ export const FdaSubmissionResourceApiAxiosParamCreator = function (configuration
     getAllFdaSubmissions: async (
       criteria: FdaSubmissionCriteria,
       pageable: Pageable,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'criteria' is not null or undefined
       assertParamExists('getAllFdaSubmissions', 'criteria', criteria);
@@ -15971,7 +15518,7 @@ export const FdaSubmissionResourceApiAxiosParamCreator = function (configuration
     partialUpdateFdaSubmission: async (
       id: number,
       fdaSubmission: FdaSubmission,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('partialUpdateFdaSubmission', 'id', id);
@@ -16096,7 +15643,7 @@ export const FdaSubmissionResourceApiFp = function (configuration?: Configuratio
      */
     async countFdaSubmissions(
       criteria: FdaSubmissionCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countFdaSubmissions(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -16109,7 +15656,7 @@ export const FdaSubmissionResourceApiFp = function (configuration?: Configuratio
      */
     async createFdaSubmission(
       fdaSubmission: FdaSubmission,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FdaSubmission>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createFdaSubmission(fdaSubmission, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -16122,7 +15669,7 @@ export const FdaSubmissionResourceApiFp = function (configuration?: Configuratio
      */
     async deleteFdaSubmission(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteFdaSubmission(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -16135,7 +15682,7 @@ export const FdaSubmissionResourceApiFp = function (configuration?: Configuratio
      */
     async findFdaSubmissionsByCompanionDiagnosticDevice(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<FdaSubmission>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.findFdaSubmissionsByCompanionDiagnosticDevice(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -16150,7 +15697,7 @@ export const FdaSubmissionResourceApiFp = function (configuration?: Configuratio
     async getAllFdaSubmissions(
       criteria: FdaSubmissionCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<FdaSubmission>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllFdaSubmissions(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -16163,7 +15710,7 @@ export const FdaSubmissionResourceApiFp = function (configuration?: Configuratio
      */
     async getFdaSubmission(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FdaSubmission>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getFdaSubmission(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -16178,7 +15725,7 @@ export const FdaSubmissionResourceApiFp = function (configuration?: Configuratio
     async getFdaSubmissionByNumber(
       number: string,
       supplementNumber?: string,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FdaSubmission>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getFdaSubmissionByNumber(number, supplementNumber, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -16193,7 +15740,7 @@ export const FdaSubmissionResourceApiFp = function (configuration?: Configuratio
     async partialUpdateFdaSubmission(
       id: number,
       fdaSubmission: FdaSubmission,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FdaSubmission>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateFdaSubmission(id, fdaSubmission, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -16208,7 +15755,7 @@ export const FdaSubmissionResourceApiFp = function (configuration?: Configuratio
     async searchFdaSubmissions(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<FdaSubmission>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchFdaSubmissions(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -16223,7 +15770,7 @@ export const FdaSubmissionResourceApiFp = function (configuration?: Configuratio
     async updateFdaSubmission(
       id: number,
       fdaSubmission: FdaSubmission,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FdaSubmission>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateFdaSubmission(id, fdaSubmission, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -16615,7 +16162,7 @@ export const FdaSubmissionTypeResourceApiAxiosParamCreator = function (configura
     partialUpdateFdaSubmissionType: async (
       id: number,
       fdaSubmissionType: FdaSubmissionType,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('partialUpdateFdaSubmissionType', 'id', id);
@@ -16655,7 +16202,7 @@ export const FdaSubmissionTypeResourceApiAxiosParamCreator = function (configura
     updateFdaSubmissionType: async (
       id: number,
       fdaSubmissionType: FdaSubmissionType,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('updateFdaSubmissionType', 'id', id);
@@ -16703,7 +16250,7 @@ export const FdaSubmissionTypeResourceApiFp = function (configuration?: Configur
      */
     async createFdaSubmissionType(
       fdaSubmissionType: FdaSubmissionType,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FdaSubmissionType>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createFdaSubmissionType(fdaSubmissionType, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -16716,7 +16263,7 @@ export const FdaSubmissionTypeResourceApiFp = function (configuration?: Configur
      */
     async deleteFdaSubmissionType(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteFdaSubmissionType(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -16727,7 +16274,7 @@ export const FdaSubmissionTypeResourceApiFp = function (configuration?: Configur
      * @throws {RequiredError}
      */
     async getAllFdaSubmissionTypes(
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<FdaSubmissionType>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllFdaSubmissionTypes(options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -16740,7 +16287,7 @@ export const FdaSubmissionTypeResourceApiFp = function (configuration?: Configur
      */
     async getFdaSubmissionType(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FdaSubmissionType>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getFdaSubmissionType(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -16755,7 +16302,7 @@ export const FdaSubmissionTypeResourceApiFp = function (configuration?: Configur
     async partialUpdateFdaSubmissionType(
       id: number,
       fdaSubmissionType: FdaSubmissionType,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FdaSubmissionType>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateFdaSubmissionType(id, fdaSubmissionType, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -16770,7 +16317,7 @@ export const FdaSubmissionTypeResourceApiFp = function (configuration?: Configur
     async updateFdaSubmissionType(
       id: number,
       fdaSubmissionType: FdaSubmissionType,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FdaSubmissionType>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateFdaSubmissionType(id, fdaSubmissionType, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -17235,7 +16782,7 @@ export const FlagResourceApiFp = function (configuration?: Configuration) {
      */
     async countFlags(
       criteria: FlagCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countFlags(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -17270,7 +16817,7 @@ export const FlagResourceApiFp = function (configuration?: Configuration) {
     async getAllFlags(
       criteria: FlagCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Flag>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllFlags(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -17295,7 +16842,7 @@ export const FlagResourceApiFp = function (configuration?: Configuration) {
     async partialUpdateFlag(
       id: number,
       flag: Flag,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Flag>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateFlag(id, flag, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -17310,7 +16857,7 @@ export const FlagResourceApiFp = function (configuration?: Configuration) {
     async searchFlags(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Flag>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchFlags(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -17325,7 +16872,7 @@ export const FlagResourceApiFp = function (configuration?: Configuration) {
     async updateFlag(
       id: number,
       flag: Flag,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Flag>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateFlag(id, flag, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -17626,7 +17173,7 @@ export const GeneControllerApiFp = function (configuration?: Configuration) {
      */
     async findGeneBySymbol(
       symbol: string,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Gene>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.findGeneBySymbol(symbol, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -17639,7 +17186,7 @@ export const GeneControllerApiFp = function (configuration?: Configuration) {
      */
     async findGenesBySymbols(
       requestBody: Array<string>,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Gene>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.findGenesBySymbols(requestBody, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -18019,7 +17566,7 @@ export const GeneResourceApiFp = function (configuration?: Configuration) {
      */
     async countGenes(
       criteria: GeneCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countGenes(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -18054,7 +17601,7 @@ export const GeneResourceApiFp = function (configuration?: Configuration) {
     async getAllGenes(
       criteria: GeneCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Gene>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllGenes(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -18079,7 +17626,7 @@ export const GeneResourceApiFp = function (configuration?: Configuration) {
     async partialUpdateGene(
       id: number,
       gene: Gene,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Gene>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateGene(id, gene, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -18096,7 +17643,7 @@ export const GeneResourceApiFp = function (configuration?: Configuration) {
       query: string,
       pageable: Pageable,
       exact?: boolean,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Gene>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchGenes(query, pageable, exact, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -18111,7 +17658,7 @@ export const GeneResourceApiFp = function (configuration?: Configuration) {
     async updateGene(
       id: number,
       gene: Gene,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Gene>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateGene(id, gene, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -18436,7 +17983,7 @@ export const GenomeFragmentResourceApiAxiosParamCreator = function (configuratio
     getAllGenomeFragments: async (
       criteria: GenomeFragmentCriteria,
       pageable: Pageable,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'criteria' is not null or undefined
       assertParamExists('getAllGenomeFragments', 'criteria', criteria);
@@ -18511,7 +18058,7 @@ export const GenomeFragmentResourceApiAxiosParamCreator = function (configuratio
     partialUpdateGenomeFragment: async (
       id: number,
       genomeFragment: GenomeFragment,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('partialUpdateGenomeFragment', 'id', id);
@@ -18636,7 +18183,7 @@ export const GenomeFragmentResourceApiFp = function (configuration?: Configurati
      */
     async countGenomeFragments(
       criteria: GenomeFragmentCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countGenomeFragments(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -18649,7 +18196,7 @@ export const GenomeFragmentResourceApiFp = function (configuration?: Configurati
      */
     async createGenomeFragment(
       genomeFragment: GenomeFragment,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GenomeFragment>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createGenomeFragment(genomeFragment, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -18662,7 +18209,7 @@ export const GenomeFragmentResourceApiFp = function (configuration?: Configurati
      */
     async deleteGenomeFragment(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteGenomeFragment(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -18677,7 +18224,7 @@ export const GenomeFragmentResourceApiFp = function (configuration?: Configurati
     async getAllGenomeFragments(
       criteria: GenomeFragmentCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<GenomeFragment>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllGenomeFragments(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -18690,7 +18237,7 @@ export const GenomeFragmentResourceApiFp = function (configuration?: Configurati
      */
     async getGenomeFragment(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GenomeFragment>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getGenomeFragment(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -18705,7 +18252,7 @@ export const GenomeFragmentResourceApiFp = function (configuration?: Configurati
     async partialUpdateGenomeFragment(
       id: number,
       genomeFragment: GenomeFragment,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GenomeFragment>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateGenomeFragment(id, genomeFragment, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -18720,7 +18267,7 @@ export const GenomeFragmentResourceApiFp = function (configuration?: Configurati
     async searchGenomeFragments(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<GenomeFragment>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchGenomeFragments(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -18735,7 +18282,7 @@ export const GenomeFragmentResourceApiFp = function (configuration?: Configurati
     async updateGenomeFragment(
       id: number,
       genomeFragment: GenomeFragment,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GenomeFragment>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateGenomeFragment(id, genomeFragment, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -19122,7 +18669,7 @@ export const GenomicIndicatorResourceApiAxiosParamCreator = function (configurat
     partialUpdateGenomicIndicator: async (
       id: number,
       genomicIndicator: GenomicIndicator,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('partialUpdateGenomicIndicator', 'id', id);
@@ -19203,7 +18750,7 @@ export const GenomicIndicatorResourceApiAxiosParamCreator = function (configurat
     updateGenomicIndicator: async (
       id: number,
       genomicIndicator: GenomicIndicator,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('updateGenomicIndicator', 'id', id);
@@ -19251,7 +18798,7 @@ export const GenomicIndicatorResourceApiFp = function (configuration?: Configura
      */
     async countGenomicIndicators(
       criteria: GenomicIndicatorCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countGenomicIndicators(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -19264,7 +18811,7 @@ export const GenomicIndicatorResourceApiFp = function (configuration?: Configura
      */
     async createGenomicIndicator(
       genomicIndicator: GenomicIndicator,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GenomicIndicator>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createGenomicIndicator(genomicIndicator, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -19277,7 +18824,7 @@ export const GenomicIndicatorResourceApiFp = function (configuration?: Configura
      */
     async deleteGenomicIndicator(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteGenomicIndicator(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -19290,7 +18837,7 @@ export const GenomicIndicatorResourceApiFp = function (configuration?: Configura
      */
     async getAllGenomicIndicators(
       criteria: GenomicIndicatorCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<GenomicIndicator>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllGenomicIndicators(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -19303,7 +18850,7 @@ export const GenomicIndicatorResourceApiFp = function (configuration?: Configura
      */
     async getGenomicIndicator(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GenomicIndicator>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getGenomicIndicator(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -19318,7 +18865,7 @@ export const GenomicIndicatorResourceApiFp = function (configuration?: Configura
     async partialUpdateGenomicIndicator(
       id: number,
       genomicIndicator: GenomicIndicator,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GenomicIndicator>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateGenomicIndicator(id, genomicIndicator, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -19333,7 +18880,7 @@ export const GenomicIndicatorResourceApiFp = function (configuration?: Configura
     async searchGenomicIndicators(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<GenomicIndicator>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchGenomicIndicators(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -19348,7 +18895,7 @@ export const GenomicIndicatorResourceApiFp = function (configuration?: Configura
     async updateGenomicIndicator(
       id: number,
       genomicIndicator: GenomicIndicator,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GenomicIndicator>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateGenomicIndicator(id, genomicIndicator, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -19813,7 +19360,7 @@ export const InfoResourceApiFp = function (configuration?: Configuration) {
     async partialUpdateInfo(
       id: number,
       info: Info,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Info>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateInfo(id, info, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -19828,7 +19375,7 @@ export const InfoResourceApiFp = function (configuration?: Configuration) {
     async updateInfo(
       id: number,
       info: Info,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Info>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateInfo(id, info, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -20124,7 +19671,7 @@ export const LevelOfEvidenceResourceApiAxiosParamCreator = function (configurati
     partialUpdateLevelOfEvidence: async (
       id: number,
       levelOfEvidence: LevelOfEvidence,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'id' is not null or undefined
       assertParamExists('partialUpdateLevelOfEvidence', 'id', id);
@@ -20208,7 +19755,7 @@ export const LevelOfEvidenceResourceApiFp = function (configuration?: Configurat
      */
     async createLevelOfEvidence(
       levelOfEvidence: LevelOfEvidence,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LevelOfEvidence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createLevelOfEvidence(levelOfEvidence, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -20221,7 +19768,7 @@ export const LevelOfEvidenceResourceApiFp = function (configuration?: Configurat
      */
     async deleteLevelOfEvidence(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteLevelOfEvidence(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -20232,7 +19779,7 @@ export const LevelOfEvidenceResourceApiFp = function (configuration?: Configurat
      * @throws {RequiredError}
      */
     async getAllLevelOfEvidences(
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<LevelOfEvidence>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllLevelOfEvidences(options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -20245,7 +19792,7 @@ export const LevelOfEvidenceResourceApiFp = function (configuration?: Configurat
      */
     async getLevelOfEvidence(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LevelOfEvidence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getLevelOfEvidence(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -20260,7 +19807,7 @@ export const LevelOfEvidenceResourceApiFp = function (configuration?: Configurat
     async partialUpdateLevelOfEvidence(
       id: number,
       levelOfEvidence: LevelOfEvidence,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LevelOfEvidence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateLevelOfEvidence(id, levelOfEvidence, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -20275,7 +19822,7 @@ export const LevelOfEvidenceResourceApiFp = function (configuration?: Configurat
     async updateLevelOfEvidence(
       id: number,
       levelOfEvidence: LevelOfEvidence,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LevelOfEvidence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateLevelOfEvidence(id, levelOfEvidence, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -20641,7 +20188,7 @@ export const NciThesaurusResourceApiAxiosParamCreator = function (configuration?
     getAllNciThesauruses: async (
       criteria: NciThesaurusCriteria,
       pageable: Pageable,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'criteria' is not null or undefined
       assertParamExists('getAllNciThesauruses', 'criteria', criteria);
@@ -20830,7 +20377,7 @@ export const NciThesaurusResourceApiFp = function (configuration?: Configuration
      */
     async countNciThesauruses(
       criteria: NciThesaurusCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countNciThesauruses(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -20843,7 +20390,7 @@ export const NciThesaurusResourceApiFp = function (configuration?: Configuration
      */
     async createNciThesaurus(
       nciThesaurus: NciThesaurus,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NciThesaurus>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createNciThesaurus(nciThesaurus, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -20856,7 +20403,7 @@ export const NciThesaurusResourceApiFp = function (configuration?: Configuration
      */
     async deleteNciThesaurus(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteNciThesaurus(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -20871,7 +20418,7 @@ export const NciThesaurusResourceApiFp = function (configuration?: Configuration
     async getAllNciThesauruses(
       criteria: NciThesaurusCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<NciThesaurus>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllNciThesauruses(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -20884,7 +20431,7 @@ export const NciThesaurusResourceApiFp = function (configuration?: Configuration
      */
     async getNciThesaurus(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NciThesaurus>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getNciThesaurus(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -20899,7 +20446,7 @@ export const NciThesaurusResourceApiFp = function (configuration?: Configuration
     async partialUpdateNciThesaurus(
       id: number,
       nciThesaurus: NciThesaurus,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NciThesaurus>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateNciThesaurus(id, nciThesaurus, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -20912,7 +20459,7 @@ export const NciThesaurusResourceApiFp = function (configuration?: Configuration
      */
     async searchNciThesaurus(
       query: string,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<NciThesaurus>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchNciThesaurus(query, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -20927,7 +20474,7 @@ export const NciThesaurusResourceApiFp = function (configuration?: Configuration
     async updateNciThesaurus(
       id: number,
       nciThesaurus: NciThesaurus,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NciThesaurus>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateNciThesaurus(id, nciThesaurus, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -21485,7 +21032,7 @@ export const RuleResourceApiFp = function (configuration?: Configuration) {
     async partialUpdateRule(
       id: number,
       rule: Rule,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Rule>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateRule(id, rule, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -21500,7 +21047,7 @@ export const RuleResourceApiFp = function (configuration?: Configuration) {
     async updateRule(
       id: number,
       rule: Rule,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Rule>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateRule(id, rule, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -21718,7 +21265,7 @@ export const SearchControllerApiFp = function (configuration?: Configuration) {
      */
     async search(
       query: string,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchResultDTO>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.search(query, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22023,7 +21570,7 @@ export const SeqRegionResourceApiFp = function (configuration?: Configuration) {
      */
     async createSeqRegion(
       seqRegion: SeqRegion,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SeqRegion>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createSeqRegion(seqRegion, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22036,7 +21583,7 @@ export const SeqRegionResourceApiFp = function (configuration?: Configuration) {
      */
     async deleteSeqRegion(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteSeqRegion(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22047,7 +21594,7 @@ export const SeqRegionResourceApiFp = function (configuration?: Configuration) {
      * @throws {RequiredError}
      */
     async getAllSeqRegions(
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<SeqRegion>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllSeqRegions(options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22060,7 +21607,7 @@ export const SeqRegionResourceApiFp = function (configuration?: Configuration) {
      */
     async getSeqRegion(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SeqRegion>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getSeqRegion(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22075,7 +21622,7 @@ export const SeqRegionResourceApiFp = function (configuration?: Configuration) {
     async partialUpdateSeqRegion(
       id: number,
       seqRegion: SeqRegion,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SeqRegion>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateSeqRegion(id, seqRegion, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22090,7 +21637,7 @@ export const SeqRegionResourceApiFp = function (configuration?: Configuration) {
     async searchSeqRegions(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<SeqRegion>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchSeqRegions(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22105,7 +21652,7 @@ export const SeqRegionResourceApiFp = function (configuration?: Configuration) {
     async updateSeqRegion(
       id: number,
       seqRegion: SeqRegion,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SeqRegion>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateSeqRegion(id, seqRegion, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22307,7 +21854,7 @@ export const SequenceControllerApiAxiosParamCreator = function (configuration?: 
       referenceGenome: 'GRCh37' | 'GRCh38',
       entrezGeneId: number,
       sequenceType?: 'PROTEIN' | 'CDNA' | 'GENOMIC',
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'referenceGenome' is not null or undefined
       assertParamExists('findCanonicalSequence', 'referenceGenome', referenceGenome);
@@ -22358,7 +21905,7 @@ export const SequenceControllerApiAxiosParamCreator = function (configuration?: 
       referenceGenome: 'GRCh37' | 'GRCh38',
       requestBody: Array<number>,
       sequenceType?: 'PROTEIN' | 'CDNA' | 'GENOMIC',
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'referenceGenome' is not null or undefined
       assertParamExists('findCanonicalSequences', 'referenceGenome', referenceGenome);
@@ -22418,7 +21965,7 @@ export const SequenceControllerApiFp = function (configuration?: Configuration) 
       referenceGenome: 'GRCh37' | 'GRCh38',
       entrezGeneId: number,
       sequenceType?: 'PROTEIN' | 'CDNA' | 'GENOMIC',
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Sequence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.findCanonicalSequence(referenceGenome, entrezGeneId, sequenceType, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22435,7 +21982,7 @@ export const SequenceControllerApiFp = function (configuration?: Configuration) 
       referenceGenome: 'GRCh37' | 'GRCh38',
       requestBody: Array<number>,
       sequenceType?: 'PROTEIN' | 'CDNA' | 'GENOMIC',
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Sequence>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.findCanonicalSequences(referenceGenome, requestBody, sequenceType, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22462,7 +22009,7 @@ export const SequenceControllerApiFactory = function (configuration?: Configurat
       referenceGenome: 'GRCh37' | 'GRCh38',
       entrezGeneId: number,
       sequenceType?: 'PROTEIN' | 'CDNA' | 'GENOMIC',
-      options?: any
+      options?: any,
     ): AxiosPromise<Sequence> {
       return localVarFp
         .findCanonicalSequence(referenceGenome, entrezGeneId, sequenceType, options)
@@ -22480,7 +22027,7 @@ export const SequenceControllerApiFactory = function (configuration?: Configurat
       referenceGenome: 'GRCh37' | 'GRCh38',
       requestBody: Array<number>,
       sequenceType?: 'PROTEIN' | 'CDNA' | 'GENOMIC',
-      options?: any
+      options?: any,
     ): AxiosPromise<Array<Sequence>> {
       return localVarFp
         .findCanonicalSequences(referenceGenome, requestBody, sequenceType, options)
@@ -22509,7 +22056,7 @@ export class SequenceControllerApi extends BaseAPI {
     referenceGenome: 'GRCh37' | 'GRCh38',
     entrezGeneId: number,
     sequenceType?: 'PROTEIN' | 'CDNA' | 'GENOMIC',
-    options?: AxiosRequestConfig
+    options?: AxiosRequestConfig,
   ) {
     return SequenceControllerApiFp(this.configuration)
       .findCanonicalSequence(referenceGenome, entrezGeneId, sequenceType, options)
@@ -22529,7 +22076,7 @@ export class SequenceControllerApi extends BaseAPI {
     referenceGenome: 'GRCh37' | 'GRCh38',
     requestBody: Array<number>,
     sequenceType?: 'PROTEIN' | 'CDNA' | 'GENOMIC',
-    options?: AxiosRequestConfig
+    options?: AxiosRequestConfig,
   ) {
     return SequenceControllerApiFp(this.configuration)
       .findCanonicalSequences(referenceGenome, requestBody, sequenceType, options)
@@ -22842,7 +22389,7 @@ export const SequenceResourceApiFp = function (configuration?: Configuration) {
      */
     async countSequences(
       criteria: SequenceCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countSequences(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22855,7 +22402,7 @@ export const SequenceResourceApiFp = function (configuration?: Configuration) {
      */
     async createSequence(
       sequence: Sequence,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Sequence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createSequence(sequence, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22868,7 +22415,7 @@ export const SequenceResourceApiFp = function (configuration?: Configuration) {
      */
     async deleteSequence(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteSequence(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22883,7 +22430,7 @@ export const SequenceResourceApiFp = function (configuration?: Configuration) {
     async getAllSequences(
       criteria: SequenceCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Sequence>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllSequences(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22896,7 +22443,7 @@ export const SequenceResourceApiFp = function (configuration?: Configuration) {
      */
     async getSequence(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Sequence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getSequence(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22911,7 +22458,7 @@ export const SequenceResourceApiFp = function (configuration?: Configuration) {
     async partialUpdateSequence(
       id: number,
       sequence: Sequence,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Sequence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateSequence(id, sequence, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22926,7 +22473,7 @@ export const SequenceResourceApiFp = function (configuration?: Configuration) {
     async searchSequences(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Sequence>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchSequences(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -22941,7 +22488,7 @@ export const SequenceResourceApiFp = function (configuration?: Configuration) {
     async updateSequence(
       id: number,
       sequence: Sequence,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Sequence>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateSequence(id, sequence, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -23367,7 +22914,7 @@ export const SpecimenTypeResourceApiFp = function (configuration?: Configuration
      */
     async createSpecimenType(
       specimenType: SpecimenType,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SpecimenType>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createSpecimenType(specimenType, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -23380,7 +22927,7 @@ export const SpecimenTypeResourceApiFp = function (configuration?: Configuration
      */
     async deleteSpecimenType(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteSpecimenType(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -23391,7 +22938,7 @@ export const SpecimenTypeResourceApiFp = function (configuration?: Configuration
      * @throws {RequiredError}
      */
     async getAllSpecimenTypes(
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<SpecimenType>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllSpecimenTypes(options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -23404,7 +22951,7 @@ export const SpecimenTypeResourceApiFp = function (configuration?: Configuration
      */
     async getSpecimenType(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SpecimenType>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getSpecimenType(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -23419,7 +22966,7 @@ export const SpecimenTypeResourceApiFp = function (configuration?: Configuration
     async partialUpdateSpecimenType(
       id: number,
       specimenType: SpecimenType,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SpecimenType>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateSpecimenType(id, specimenType, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -23434,7 +22981,7 @@ export const SpecimenTypeResourceApiFp = function (configuration?: Configuration
     async updateSpecimenType(
       id: number,
       specimenType: SpecimenType,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SpecimenType>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateSpecimenType(id, specimenType, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -23899,7 +23446,7 @@ export const SynonymResourceApiFp = function (configuration?: Configuration) {
      */
     async countSynonyms(
       criteria: SynonymCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countSynonyms(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -23912,7 +23459,7 @@ export const SynonymResourceApiFp = function (configuration?: Configuration) {
      */
     async createSynonym(
       synonym: Synonym,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Synonym>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createSynonym(synonym, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -23925,7 +23472,7 @@ export const SynonymResourceApiFp = function (configuration?: Configuration) {
      */
     async deleteSynonym(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteSynonym(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -23940,7 +23487,7 @@ export const SynonymResourceApiFp = function (configuration?: Configuration) {
     async getAllSynonyms(
       criteria: SynonymCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Synonym>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllSynonyms(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -23953,7 +23500,7 @@ export const SynonymResourceApiFp = function (configuration?: Configuration) {
      */
     async getSynonym(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Synonym>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getSynonym(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -23968,7 +23515,7 @@ export const SynonymResourceApiFp = function (configuration?: Configuration) {
     async partialUpdateSynonym(
       id: number,
       synonym: Synonym,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Synonym>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateSynonym(id, synonym, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -23983,7 +23530,7 @@ export const SynonymResourceApiFp = function (configuration?: Configuration) {
     async searchSynonymss(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Synonym>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchSynonymss(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -23998,7 +23545,7 @@ export const SynonymResourceApiFp = function (configuration?: Configuration) {
     async updateSynonym(
       id: number,
       synonym: Synonym,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Synonym>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateSynonym(id, synonym, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -24257,7 +23804,7 @@ export const TranscriptControllerApiAxiosParamCreator = function (configuration?
     compareTranscript: async (
       hugoSymbol: string,
       transcriptComparisonVM: TranscriptComparisonVM,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'hugoSymbol' is not null or undefined
       assertParamExists('compareTranscript', 'hugoSymbol', hugoSymbol);
@@ -24297,7 +23844,7 @@ export const TranscriptControllerApiAxiosParamCreator = function (configuration?
     findTranscriptsByEnsemblIds: async (
       referenceGenome: 'GRCh37' | 'GRCh38',
       requestBody: Array<string>,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'referenceGenome' is not null or undefined
       assertParamExists('findTranscriptsByEnsemblIds', 'referenceGenome', referenceGenome);
@@ -24341,7 +23888,7 @@ export const TranscriptControllerApiAxiosParamCreator = function (configuration?
     matchTranscript: async (
       hugoSymbol: string,
       matchTranscriptVM: MatchTranscriptVM,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'hugoSymbol' is not null or undefined
       assertParamExists('matchTranscript', 'hugoSymbol', hugoSymbol);
@@ -24387,7 +23934,7 @@ export const TranscriptControllerApiAxiosParamCreator = function (configuration?
       curatedResidue: string,
       grch37Transcript: string,
       grch38Transcript: string,
-      options: AxiosRequestConfig = {}
+      options: AxiosRequestConfig = {},
     ): Promise<RequestArgs> => {
       // verify required parameter 'hugoSymbol' is not null or undefined
       assertParamExists('suggestVariant', 'hugoSymbol', hugoSymbol);
@@ -24454,7 +24001,7 @@ export const TranscriptControllerApiFp = function (configuration?: Configuration
      */
     async addTranscript(
       addTranscriptBody: AddTranscriptBody,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TranscriptDTO>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.addTranscript(addTranscriptBody, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -24469,7 +24016,7 @@ export const TranscriptControllerApiFp = function (configuration?: Configuration
     async compareTranscript(
       hugoSymbol: string,
       transcriptComparisonVM: TranscriptComparisonVM,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TranscriptComparisonResultVM>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.compareTranscript(hugoSymbol, transcriptComparisonVM, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -24484,7 +24031,7 @@ export const TranscriptControllerApiFp = function (configuration?: Configuration
     async findTranscriptsByEnsemblIds(
       referenceGenome: 'GRCh37' | 'GRCh38',
       requestBody: Array<string>,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<TranscriptDTO>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.findTranscriptsByEnsemblIds(referenceGenome, requestBody, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -24499,7 +24046,7 @@ export const TranscriptControllerApiFp = function (configuration?: Configuration
     async matchTranscript(
       hugoSymbol: string,
       matchTranscriptVM: MatchTranscriptVM,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TranscriptMatchResultVM>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.matchTranscript(hugoSymbol, matchTranscriptVM, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -24520,7 +24067,7 @@ export const TranscriptControllerApiFp = function (configuration?: Configuration
       curatedResidue: string,
       grch37Transcript: string,
       grch38Transcript: string,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AllReferenceTranscriptSuggestionVM>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.suggestVariant(
         hugoSymbol,
@@ -24528,7 +24075,7 @@ export const TranscriptControllerApiFp = function (configuration?: Configuration
         curatedResidue,
         grch37Transcript,
         grch38Transcript,
-        options
+        options,
       );
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
     },
@@ -24561,7 +24108,7 @@ export const TranscriptControllerApiFactory = function (configuration?: Configur
     compareTranscript(
       hugoSymbol: string,
       transcriptComparisonVM: TranscriptComparisonVM,
-      options?: any
+      options?: any,
     ): AxiosPromise<TranscriptComparisonResultVM> {
       return localVarFp.compareTranscript(hugoSymbol, transcriptComparisonVM, options).then(request => request(axios, basePath));
     },
@@ -24575,7 +24122,7 @@ export const TranscriptControllerApiFactory = function (configuration?: Configur
     findTranscriptsByEnsemblIds(
       referenceGenome: 'GRCh37' | 'GRCh38',
       requestBody: Array<string>,
-      options?: any
+      options?: any,
     ): AxiosPromise<Array<TranscriptDTO>> {
       return localVarFp.findTranscriptsByEnsemblIds(referenceGenome, requestBody, options).then(request => request(axios, basePath));
     },
@@ -24605,7 +24152,7 @@ export const TranscriptControllerApiFactory = function (configuration?: Configur
       curatedResidue: string,
       grch37Transcript: string,
       grch38Transcript: string,
-      options?: any
+      options?: any,
     ): AxiosPromise<AllReferenceTranscriptSuggestionVM> {
       return localVarFp
         .suggestVariant(hugoSymbol, proteinPosition, curatedResidue, grch37Transcript, grch38Transcript, options)
@@ -24693,7 +24240,7 @@ export class TranscriptControllerApi extends BaseAPI {
     curatedResidue: string,
     grch37Transcript: string,
     grch38Transcript: string,
-    options?: AxiosRequestConfig
+    options?: AxiosRequestConfig,
   ) {
     return TranscriptControllerApiFp(this.configuration)
       .suggestVariant(hugoSymbol, proteinPosition, curatedResidue, grch37Transcript, grch38Transcript, options)
@@ -25039,7 +24586,7 @@ export const TranscriptResourceApiFp = function (configuration?: Configuration) 
      */
     async alignTranscripts(
       requestBody: Array<number>,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ClustalOResp>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.alignTranscripts(requestBody, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -25052,7 +24599,7 @@ export const TranscriptResourceApiFp = function (configuration?: Configuration) 
      */
     async countTranscripts(
       criteria: TranscriptCriteria,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<number>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.countTranscripts(criteria, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -25065,7 +24612,7 @@ export const TranscriptResourceApiFp = function (configuration?: Configuration) 
      */
     async createTranscript(
       transcriptDTO: TranscriptDTO,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TranscriptDTO>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createTranscript(transcriptDTO, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -25078,7 +24625,7 @@ export const TranscriptResourceApiFp = function (configuration?: Configuration) 
      */
     async deleteTranscript(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteTranscript(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -25093,7 +24640,7 @@ export const TranscriptResourceApiFp = function (configuration?: Configuration) 
     async getAllTranscripts(
       criteria: TranscriptCriteria,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<TranscriptDTO>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getAllTranscripts(criteria, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -25106,7 +24653,7 @@ export const TranscriptResourceApiFp = function (configuration?: Configuration) 
      */
     async getTranscript(
       id: number,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TranscriptDTO>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getTranscript(id, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -25121,7 +24668,7 @@ export const TranscriptResourceApiFp = function (configuration?: Configuration) 
     async partialUpdateTranscript(
       id: number,
       transcriptDTO: TranscriptDTO,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TranscriptDTO>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.partialUpdateTranscript(id, transcriptDTO, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -25136,7 +24683,7 @@ export const TranscriptResourceApiFp = function (configuration?: Configuration) 
     async searchTranscripts(
       query: string,
       pageable: Pageable,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<TranscriptDTO>>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.searchTranscripts(query, pageable, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -25151,7 +24698,7 @@ export const TranscriptResourceApiFp = function (configuration?: Configuration) 
     async updateTranscript(
       id: number,
       transcriptDTO: TranscriptDTO,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TranscriptDTO>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateTranscript(id, transcriptDTO, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -25563,7 +25110,7 @@ export const UserResourceApiFp = function (configuration?: Configuration) {
      */
     async createUser(
       userDTO: UserDTO,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<User>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.createUser(userDTO, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -25576,7 +25123,7 @@ export const UserResourceApiFp = function (configuration?: Configuration) {
      */
     async deleteUser(
       login: string,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.deleteUser(login, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -25598,7 +25145,7 @@ export const UserResourceApiFp = function (configuration?: Configuration) {
      */
     async getUser(
       login: string,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDTO>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.getUser(login, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
@@ -25613,7 +25160,7 @@ export const UserResourceApiFp = function (configuration?: Configuration) {
     async updateUser(
       id: number,
       userDTO: UserDTO,
-      options?: AxiosRequestConfig
+      options?: AxiosRequestConfig,
     ): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserDTO>> {
       const localVarAxiosArgs = await localVarAxiosParamCreator.updateUser(id, userDTO, options);
       return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
