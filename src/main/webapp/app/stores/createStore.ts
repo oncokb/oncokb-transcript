@@ -92,7 +92,7 @@ import { FirebaseVusService } from 'app/service/firebase/firebase-vus-service';
 import { ModifyCancerTypeModalStore } from 'app/shared/modal/modify-cancer-type-modal.store';
 import { ModifyTherapyModalStore } from 'app/shared/modal/modify-therapy-modal.store';
 import { RelevantCancerTypesModalStore } from 'app/shared/modal/relevant-cancer-types-modal-store';
-import { HistoryList, MetaCollection, Mutation, UsersCollection, VusObjList } from 'app/shared/model/firebase/firebase.model';
+import { HistoryList, MetaCollection, Mutation, VusObjList } from 'app/shared/model/firebase/firebase.model';
 import { HistoryTabStore } from '../components/tabs/history-tab.store';
 import { FirebaseHistoryService } from '../service/firebase/firebase-history-service';
 import { CommentStore } from './comment.store';
@@ -150,7 +150,6 @@ export interface IRootStore {
   readonly firebaseAppStore: FirebaseAppStore;
   readonly firebaseHistoryStore: FirebaseDataStore<HistoryList>;
   readonly firebaseVusStore: FirebaseDataStore<VusObjList>;
-  readonly firebaseUsersStore: FirebaseDataStore<UsersCollection>;
   readonly firebaseMetaStore: FirebaseDataStore<MetaCollection>;
   readonly firebaseMutationListStore: FirebaseDataStore<Mutation[]>;
   readonly firebaseMutationConvertIconStore: FirebaseDataStore<Mutation[]>;
@@ -215,7 +214,6 @@ export function createStores(history: History): IRootStore {
   const firebaseAppStore = new FirebaseAppStore(rootStore);
   const firebaseHistoryStore = new FirebaseDataStore<HistoryList>(firebaseAppStore);
   const firebaseVusStore = new FirebaseDataStore<VusObjList>(firebaseAppStore);
-  const firebaseUsersStore = new FirebaseDataStore<UsersCollection>(firebaseAppStore);
   const firebaseMetaStore = new FirebaseDataStore<MetaCollection>(firebaseAppStore);
   const firebaseMutationListStore = new FirebaseDataStore<Mutation[]>(firebaseAppStore);
   const firebaseMutationConvertIconStore = new FirebaseDataStore<Mutation[]>(firebaseAppStore);
@@ -223,7 +221,6 @@ export function createStores(history: History): IRootStore {
   rootStore.firebaseAppStore = firebaseAppStore;
   rootStore.firebaseHistoryStore = firebaseHistoryStore;
   rootStore.firebaseVusStore = firebaseVusStore;
-  rootStore.firebaseUsersStore = firebaseUsersStore;
   rootStore.firebaseMetaStore = firebaseMetaStore;
   rootStore.firebaseMutationListStore = firebaseMutationListStore;
   rootStore.firebaseMutationConvertIconStore = firebaseMutationConvertIconStore;

@@ -39,7 +39,6 @@ export enum FB_COLLECTION {
   META = 'Meta',
   GERMLINE_META = 'Germline_Meta',
   SETTING = 'Setting',
-  USERS = 'Users',
   VUS = 'VUS',
   GERMLINE_VUS = 'Germline_VUS',
 }
@@ -61,7 +60,6 @@ export const FB_COLLECTION_PATH = {
   GERMLINE_VUS: `${FB_COLLECTION.GERMLINE_VUS}/:hugoSymbol`,
   HISTORY: `${FB_COLLECTION.HISTORY}/:hugoSymbol/api`,
   GERMLINE_HISTORY: `${FB_COLLECTION.GERMLINE_HISTORY}/:hugoSymbol/api`,
-  USERS: `${FB_COLLECTION.USERS}`,
 };
 
 export enum ONCOKB_STYLES_ONCOGENICITY_CLASSNAMES {

@@ -1,7 +1,6 @@
 import { APP_HISTORY_FORMAT, APP_TIME_FORMAT, GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
-import { HistoryList, HistoryRecord } from 'app/shared/model/firebase/firebase.model';
+import { HistoryRecord } from 'app/shared/model/firebase/firebase.model';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
-import { getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
@@ -30,9 +29,7 @@ type HistoryTabData = {
   objectField?: string;
 };
 
-const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener, historyTabStore, getDrugs }: ICurationHistoryTabProps) => {
-  const firebaseUsersPath = getFirebasePath('USERS');
-
+const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabStore, getDrugs }: ICurationHistoryTabProps) => {
   const [drugList, setDrugList] = useState<IDrug[]>([]);
 
   function findObjectFieldsInRecord(record: HistoryRecord) {
@@ -59,21 +56,17 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
 
   const authorDropdownOptions = useMemo(() => {
     const options = [];
-    if (usersData) {
-      for (const [email, data] of Object.entries(usersData)) {
-        options.push({ value: email, label: data.name || `[${email}]` });
+    if (users) {
+      for (const user of users) {
+        options.push({ value: user.email, label: `${user.firstName} ${user.lastName}` });
       }
     }
     return options;
-  }, [usersData]);
+  }, [users]);
 
   useEffect(() => {
-    const cleanupCallbacks = [];
-    cleanupCallbacks.push(addUsersListener(firebaseUsersPath));
-
+    getUsers({});
     return () => {
-      cleanupCallbacks.forEach(callback => callback && callback());
-
       historyTabStore.reset();
     };
   }, []);
@@ -216,9 +209,9 @@ const CurationHistoryTab = observer(({ historyData, usersData, addUsersListener,
   );
 });
 
-const mapStoreToProps = ({ historyTabStore, firebaseUsersStore, drugStore }: IRootStore) => ({
-  usersData: firebaseUsersStore.data,
-  addUsersListener: firebaseUsersStore.addListener,
+const mapStoreToProps = ({ historyTabStore, drugStore, userStore }: IRootStore) => ({
+  users: userStore.entities,
+  getUsers: userStore.getEntities,
   getDrugs: drugStore.getEntities,
   historyTabStore,
 });
