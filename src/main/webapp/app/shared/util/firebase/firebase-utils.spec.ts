@@ -71,7 +71,7 @@ describe('FirebaseUtils', () => {
         } as Mutation;
         expect(
           getMutationName(mutation.name, mutation.alterations),
-          'Mutation name should include both protein change and cdna when available'
+          'Mutation name should include both protein change and cdna when available',
         ).toEqual('cdna (comment) (p.protein change)');
 
         mutation = {
@@ -83,7 +83,7 @@ describe('FirebaseUtils', () => {
           ],
         } as Mutation;
         expect(getMutationName(mutation.name, mutation.alterations), 'Mutation name should include protein change').toEqual(
-          'protein change'
+          'protein change',
         );
 
         mutation = {
@@ -108,7 +108,7 @@ describe('FirebaseUtils', () => {
         } as Mutation;
         expect(
           getMutationName(mutation.name, mutation.alterations),
-          'Mutation name should include both protein change and cdna when available'
+          'Mutation name should include both protein change and cdna when available',
         ).toEqual('cdna (comment) (p.protein change)');
 
         mutation = {
@@ -119,7 +119,7 @@ describe('FirebaseUtils', () => {
           ],
         } as Mutation;
         expect(getMutationName(mutation.name, mutation.alterations), 'Mutation name should include protein change').toEqual(
-          'protein change'
+          'protein change',
         );
 
         mutation = {
@@ -176,7 +176,7 @@ describe('FirebaseUtils', () => {
         input => {
           const expectedTxName = 'drug-1 + drug-2';
           expect(getTxName(drugList, input)).toEqual(expectedTxName);
-        }
+        },
       );
 
       test.each([['uuid-1+uuid-2, uuid-1'], ['uuid-1+uuid-2,uuid-1'], ['uuid-1+uuid-2 , uuid-1'], ['uuid-1+uuid-2 ,uuid-1']])(
@@ -184,7 +184,7 @@ describe('FirebaseUtils', () => {
         input => {
           const expectedTxName = 'drug-1 + drug-2, drug-1';
           expect(getTxName(drugList, input)).toEqual(expectedTxName);
-        }
+        },
       );
     });
     describe('Check name format when the input is inappropriate', () => {
@@ -598,6 +598,22 @@ describe('FirebaseUtils', () => {
 
         expect(JSON.stringify(getMutationStats(mutation), null, 4)).toBe(JSON.stringify(expected, null, 4));
       });
+
+      it('should return empty stats if mutation is null', () => {
+        const expected = {
+          TT: 0,
+          oncogenicity: undefined,
+          mutationEffect: undefined,
+          TTS: 0,
+          DxS: 0,
+          PxS: 0,
+          txLevels: {},
+          dxLevels: {},
+          pxLevels: {},
+        };
+
+        expect(JSON.stringify(getCancerTypeStats(null), null, 4)).toEqual(JSON.stringify(expected, null, 4));
+      });
     });
 
     describe('getCancerTypeStats', () => {
@@ -619,6 +635,19 @@ describe('FirebaseUtils', () => {
         };
 
         expect(JSON.stringify(getCancerTypeStats(tumor2), null, 4)).toEqual(JSON.stringify(expected, null, 4));
+      });
+
+      it('should return empty stats if tumor is null', () => {
+        const expected = {
+          TT: 0,
+          TTS: 0,
+          DxS: 0,
+          PxS: 0,
+          txLevels: {},
+          dxLevels: {},
+          pxLevels: {},
+        };
+        expect(JSON.stringify(getCancerTypeStats(null), null, 4)).toEqual(JSON.stringify(expected, null, 4));
       });
     });
   });
