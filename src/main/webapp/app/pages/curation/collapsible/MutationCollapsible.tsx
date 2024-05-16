@@ -210,7 +210,7 @@ const MutationCollapsible = ({
             <MutationConvertIcon
               mutationName={mutationName}
               mutationNameReview={mutationNameReview}
-              tooltipProps={{ overlay: <div>Convert alteration(s) to VUS</div> }}
+              tooltipProps={{ overlay: <div>Demote alteration(s) to VUS</div> }}
               onClick={() => setIsConvertingToVus(true)}
             />
             <EditIcon
