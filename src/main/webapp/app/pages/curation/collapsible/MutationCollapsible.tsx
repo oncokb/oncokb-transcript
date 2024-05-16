@@ -155,6 +155,9 @@ const MutationCollapsible = ({
   async function handleDemoteToVus() {
     await deleteSection(`${mutationPath}/name`, mutationNameReview, mutationUuid, true);
     setIsConvertingToVus(false);
+    if (open) {
+      onToggle();
+    }
   }
 
   if (!mutationUuid || !mutationName) {
@@ -220,7 +223,12 @@ const MutationCollapsible = ({
             />
             <DeleteSectionButton
               sectionName={title}
-              deleteHandler={() => deleteSection(`${mutationPath}/name`, mutationNameReview, mutationUuid)}
+              deleteHandler={async () => {
+                await deleteSection(`${mutationPath}/name`, mutationNameReview, mutationUuid);
+                if (open) {
+                  onToggle();
+                }
+              }}
               isRemovableWithoutReview={isRemovableWithoutReview}
             />
           </>
