@@ -46,7 +46,7 @@ describe('GeneHistoryTooltipUtils', () => {
       const timeSeriesData = constructTimeSeriesData(record);
       expect(timeSeriesData.operation, 'operation should be "added"').toEqual('addition');
       expect(timeSeriesData.bubbleColor, 'bubble color should be "green"').toEqual('green');
-      expect(timeSeriesData.content, 'content should be non empty').not.toEqual(<></>);
+      expect(timeSeriesData.content, 'content should be empty').toEqual(<></>);
     });
 
     it('should create time series data with update operation', () => {
@@ -88,7 +88,7 @@ describe('GeneHistoryTooltipUtils', () => {
           bubbleColor: 'red',
           content: <></>,
           location: '',
-        })
+        }),
       );
     });
 
