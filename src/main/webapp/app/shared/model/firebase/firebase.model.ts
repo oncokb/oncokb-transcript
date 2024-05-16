@@ -237,9 +237,6 @@ export class MutationEffect {
   oncogenic: FIREBASE_ONCOGENICITY | '' = '';
   oncogenic_review?: Review;
   oncogenic_uuid: string = generateUuid();
-  germline?: GermlineMutation = new GermlineMutation();
-  germline_uuid?: string = generateUuid();
-  germline_comments?: Comment[] = [];
   short = '';
 
   // Germline
@@ -276,30 +273,6 @@ export class CancerRisk {
   mosaic = '';
   mosaic_review?: Review;
   mosaic_uuid: string = generateUuid();
-}
-
-export class GermlineMutation {
-  pathogenic: `${PATHOGENICITY}` | '' = '';
-  pathogenic_review?: Review;
-  pathogenic_uuid: string = generateUuid();
-  penetrance: `${PENETRANCE}` | '' = '';
-  penetrance_review?: Review;
-  penetrance_uuid: string = generateUuid();
-  penetranceDescription: `${PENETRANCE}` | '' = '';
-  penetranceDescription_review?: Review;
-  penetranceDescription_uuid: string = generateUuid();
-  inheritanceMechanism: `${GERMLINE_INHERITANCE_MECHANISM}` | '' = '';
-  inheritanceMechanism_review?: Review;
-  inheritanceMechanism_uuid: string = generateUuid();
-  inheritanceMechanismDescription: `${GERMLINE_INHERITANCE_MECHANISM}` | '' = '';
-  inheritanceMechanismDescription_review?: Review;
-  inheritanceMechanismDescription_uuid: string = generateUuid();
-  cancerRisk = new CancerRisk();
-  cancerRisk_review?: Review;
-  cancerRisk_uuid: string = generateUuid();
-  description = '';
-  description_review?: Review;
-  description_uuid: string = generateUuid();
 }
 
 export class Tumor {
