@@ -55,6 +55,7 @@ export const RealtimeCheckedInputGroup = (props: IRealtimeCheckedInputGroup) => 
               firebasePath={option.firebasePath}
               className="me-2"
               label={option.label}
+              id={`${option.firebasePath}-${option.label}`}
             />
           ) : (
             <RealtimeCheckboxInput
