@@ -15,12 +15,12 @@ export default function constructTimeSeriesData(record: FlattenedHistory): Requi
     case HistoryOperationType.PROMOTE_VUS:
       operation = 'promotion to mutation';
       bubbleColor = 'green';
-      content = getTimeSeriesDataContent(record.new, record.old);
+      content = <></>;
       break;
     case HistoryOperationType.ADD:
       operation = 'addition';
       bubbleColor = 'green';
-      content = getTimeSeriesDataContent(record.new, record.old);
+      content = <></>;
       break;
     case HistoryOperationType.UPDATE:
       bubbleColor = 'orange';
