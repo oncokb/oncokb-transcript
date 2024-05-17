@@ -62,10 +62,21 @@ export class BaseReviewLevel {
 }
 
 export type MetaReviewLevelParams = Omit<BaseReviewLevelParams, 'reviewLevelType'>;
-
 export class MetaReviewLevel extends BaseReviewLevel {
   constructor(params: MetaReviewLevelParams) {
     super({ reviewLevelType: ReviewLevelType.META, ...params });
+  }
+}
+
+export type MultiSelectionReviewLevelParams = Omit<BaseReviewLevelParams, 'reviewLevelType'>;
+export class MultiSelectionReviewLevel extends BaseReviewLevel {
+  reviewAction = ReviewAction.UPDATE;
+  constructor(baseReviewLevelParams: MultiSelectionReviewLevelParams) {
+    super({ reviewLevelType: ReviewLevelType.REVIEWABLE_MULTI, ...baseReviewLevelParams });
+  }
+
+  getReviewLevels() {
+    return Object.values(this.children) as ReviewLevel[];
   }
 }
 
@@ -170,6 +181,7 @@ export const removeLeafNodes = (parentReview: BaseReviewLevel) => {
 };
 
 export const getCompactReviewInfo = (review: BaseReviewLevel) => {
+  if (review.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) return review;
   if (!review.hasChildren()) {
     return review;
   }
@@ -205,8 +217,18 @@ export const reformatReviewTitle = (baseReviewLevel: BaseReviewLevel) => {
 };
 
 export const reviewLevelSortMethod = (a: BaseReviewLevel, b: BaseReviewLevel) => {
-  const aReviewAction = a.reviewLevelType === ReviewLevelType.META ? undefined : (a as ReviewLevel).reviewInfo.reviewAction;
-  const bReviewAction = b.reviewLevelType === ReviewLevelType.META ? undefined : (b as ReviewLevel).reviewInfo.reviewAction;
+  const aReviewAction =
+    a.reviewLevelType === ReviewLevelType.META
+      ? undefined
+      : a.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI
+        ? (a as MultiSelectionReviewLevel).reviewAction
+        : (a as ReviewLevel).reviewInfo.reviewAction;
+  const bReviewAction =
+    b.reviewLevelType === ReviewLevelType.META
+      ? undefined
+      : a.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI
+        ? (b as MultiSelectionReviewLevel).reviewAction
+        : (b as ReviewLevel).reviewInfo.reviewAction;
 
   const reviewActionPriority = [ReviewAction.NAME_CHANGE, ReviewAction.UPDATE, undefined, ReviewAction.CREATE, ReviewAction.DELETE];
   const aIndex = reviewActionPriority.indexOf(aReviewAction);
@@ -368,9 +390,13 @@ export const findReviewRecursive = (
 
       if (typeof value === 'object' && !key.includes('_uuid')) {
         const newPath = joinPathParts(currValuePath, key);
-        const metaReview = buildObjectReview(value, key, parentReview, uuids, editorReviewMap);
-        parentReview.addChild(metaReview);
+        let metaReview = buildObjectReview(value, key, parentReview, uuids, editorReviewMap);
         findReviewRecursive(value, newPath, uuids, metaReview, editorReviewMap, drugList);
+        if (key === 'type') {
+          // Checkbox reviewables should be converted to MultiSelectionReviewLevel so that they are grouped under one collapsible
+          metaReview = convertToMultiSelectionReview(metaReview);
+        }
+        parentReview.addChild(metaReview);
         removeLeafNodes(parentReview);
         continue;
       }
@@ -384,6 +410,17 @@ export const findReviewRecursive = (
       }
     }
   }
+};
+
+export const convertToMultiSelectionReview = (parentMetaReview: MetaReviewLevel) => {
+  if (!parentMetaReview.hasChildren()) return parentMetaReview;
+  const multiSelectionReviewLevel = new MultiSelectionReviewLevel({
+    title: parentMetaReview.title,
+    valuePath: parentMetaReview.valuePath,
+    historyLocation: parentMetaReview.historyLocation,
+  });
+  multiSelectionReviewLevel.children = parentMetaReview.children;
+  return multiSelectionReviewLevel;
 };
 
 export const buildNameReview = (

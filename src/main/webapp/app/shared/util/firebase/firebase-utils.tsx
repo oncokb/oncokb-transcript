@@ -301,7 +301,7 @@ export const getDuplicateMutations = (
   currentMutations: string[],
   mutationList: readonly Mutation[],
   vusList: VusObjList,
-  options: { useFullAlterationName?: boolean; excludedMutationUuid?: string; excludedVusName?: string; exact?: boolean }
+  options: { useFullAlterationName?: boolean; excludedMutationUuid?: string; excludedVusName?: string; exact?: boolean },
 ) => {
   const mutationNames =
     mutationList
@@ -318,7 +318,7 @@ export const getDuplicateMutations = (
             }
             return parsedAlteration.alteration.toLowerCase();
           })
-          .sort()
+          .sort(),
       ) || [];
 
   const vusNames = Object.values(vusList || [])
@@ -484,10 +484,10 @@ export function compareMutationsByProteinChangePosition(mut1: Mutation, mut2: Mu
 
 export function compareMutationsByCategoricalAlteration(mut1: Mutation, mut2: Mutation) {
   const mut1IsCategorical = Object.values(CategoricalAlterationType).some(
-    categorical => categorical.toLowerCase() === mut1.name.toLowerCase()
+    categorical => categorical.toLowerCase() === mut1.name.toLowerCase(),
   );
   const mut2IsCategorical = Object.values(CategoricalAlterationType).some(
-    categorical => categorical.toLowerCase() === mut2.name.toLowerCase()
+    categorical => categorical.toLowerCase() === mut2.name.toLowerCase(),
   );
 
   if ((mut1IsCategorical && mut2IsCategorical) || (!mut1IsCategorical && !mut2IsCategorical)) {
@@ -760,13 +760,21 @@ export const getTreatmentStats = (treatment?: Treatment) => {
   return stats;
 };
 
-export const getReviewInfo = (editor: string, updateTime: string, action: string) => {
-  return (
-    <span style={{ fontSize: '90%' }}>
-      {action} by {editor} on{' '}
+export const getReviewInfo = (editor: string, action: string, updateTime?: string) => {
+  const baseText = `${action} by ${editor}`;
+  let timeComponent;
+  if (updateTime) {
+    timeComponent = (
       <>
+        <span> on </span>
         <TextFormat value={updateTime} type="date" format={APP_EXPANDED_DATETIME_FORMAT} />
       </>
+    );
+  }
+  return (
+    <span style={{ fontSize: '90%' }}>
+      {baseText}
+      {timeComponent}
     </span>
   );
 };

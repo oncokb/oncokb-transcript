@@ -3,6 +3,7 @@ import Collapsible from './Collapsible';
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
 import {
   BaseReviewLevel,
+  MultiSelectionReviewLevel,
   ReviewLevel,
   getCompactReviewInfo,
   reformatReviewTitle,
@@ -52,11 +53,21 @@ const ReviewCollapsibleBootstrapClass = {
   [ReviewAction.DEMOTE_MUTATION]: 'danger',
 };
 
+const REACT_DIFF_VIEWER_STYLES = {
+  contentText: {
+    fontFamily: 'inherit',
+  },
+  codeFold: {
+    fontFamily: 'inherit',
+    backgroundColor: 'white',
+  },
+};
+
 export interface IReviewCollapsibleProps {
   hugoSymbol: string;
   baseReviewLevel: BaseReviewLevel;
   isGermline: boolean;
-  handleDelete?: (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean) => Promise<void>;
+  handleDelete?: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) => Promise<void>;
   handleAccept?: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) => Promise<void>;
   splitView?: boolean;
 }
@@ -76,6 +87,9 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       const reviewLevel = rootReview as ReviewLevel;
       return reviewLevel.reviewInfo.reviewAction;
     }
+    if (rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) {
+      return ReviewAction.UPDATE;
+    }
   }, [rootReview]);
 
   const borderLeftColor = useMemo(() => {
@@ -86,23 +100,33 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
     return color;
   }, [rootReview]);
 
+  const getReviewLevelsForActions = () => {
+    let reviewLevels: ReviewLevel[] = [];
+    if (rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) {
+      reviewLevels = reviewLevels.concat((rootReview as MultiSelectionReviewLevel).getReviewLevels());
+    }
+    if (rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE) {
+      reviewLevels.push(rootReview as ReviewLevel);
+    }
+    return reviewLevels;
+  };
+
   const getReviewActions = () => {
-    return !isUnderCreationOrDeletion && rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE ? (
+    return (!isUnderCreationOrDeletion && rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE) ||
+      rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI ? (
       <>
         <ActionIcon
           icon={faCheck}
           color={SUCCESS}
-          onClick={() => {
-            props
-              .handleAccept(props.hugoSymbol, [props.baseReviewLevel as ReviewLevel], props.isGermline)
-              .catch(error => notifyError(error));
-          }}
+          onClick={() =>
+            props.handleAccept(props.hugoSymbol, getReviewLevelsForActions(), props.isGermline).catch(error => notifyError(error))
+          }
         />
         <ActionIcon
           icon={faTimes}
           color={DANGER}
           onClick={() => {
-            props.handleDelete(props.hugoSymbol, props.baseReviewLevel as ReviewLevel, props.isGermline).catch(error => notifyError(error));
+            props.handleDelete(props.hugoSymbol, getReviewLevelsForActions(), props.isGermline).catch(error => notifyError(error));
           }}
         />
       </>
@@ -110,26 +134,26 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
   };
 
   const getEditorInfo = () => {
-    if (!isUnderCreationOrDeletion && rootReview.reviewLevelType !== ReviewLevelType.META) {
-      const reviewLevel = rootReview as ReviewLevel;
-      const action = ReviewTypeTitle[reviewAction];
-      const editor = reviewLevel.reviewInfo.review.updatedBy;
-      const updatedTime = new Date(reviewLevel.reviewInfo.review.updateTime).toString();
-      return getReviewInfo(editor, updatedTime, action);
+    let reviewLevel: ReviewLevel;
+    if (!isUnderCreationOrDeletion && rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE) {
+      reviewLevel = rootReview as ReviewLevel;
+    } else if (rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) {
+      const multiReviewLevel = rootReview as MultiSelectionReviewLevel;
+      const multiSelectionReviews = multiReviewLevel.getReviewLevels();
+      const numEditors = _.uniq(multiSelectionReviews.map(r => r.reviewInfo.review.updatedBy)).length;
+      if (numEditors > 1) {
+        return getReviewInfo('multiple users', ReviewTypeTitle[reviewAction]);
+      }
+      reviewLevel = multiSelectionReviews[0];
     }
+
+    const action = ReviewTypeTitle[reviewAction];
+    const editor = reviewLevel.reviewInfo.review.updatedBy;
+    const updatedTime = new Date(reviewLevel.reviewInfo.review.updateTime).toString();
+    return getReviewInfo(editor, action, updatedTime);
   };
 
-  const newStyles = {
-    contentText: {
-      fontFamily: 'inherit',
-    },
-    codeFold: {
-      fontFamily: 'inherit',
-      backgroundColor: 'white',
-    },
-  };
-
-  const getCollapsibleContent = () => {
+  const getReviewableContent = () => {
     if (isDeletion) {
       return undefined;
     }
@@ -185,7 +209,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       return (
         <div className="mb-2">
           <ReactDiffViewer
-            styles={newStyles}
+            styles={REACT_DIFF_VIEWER_STYLES}
             showDiffOnly
             extraLinesSurroundingDiff={0}
             oldValue={oldValue}
@@ -200,6 +224,55 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
         </div>
       );
     }
+  };
+
+  const getMultiSelectionReviewContent = () => {
+    const multiSelectionReviewLevel = props.baseReviewLevel as MultiSelectionReviewLevel;
+    const joinedNewParts = [];
+    const joinedOldParts = [];
+    for (const reviewLevel of multiSelectionReviewLevel.getReviewLevels()) {
+      joinedNewParts.push(reviewLevel.currentVal);
+      joinedOldParts.push(reviewLevel.reviewInfo.lastReviewedString);
+    }
+    /* eslint-disable no-console */
+    console.log(joinedNewParts, joinedOldParts);
+    return (
+      <div className="mb-2">
+        <ReactDiffViewer
+          styles={REACT_DIFF_VIEWER_STYLES}
+          showDiffOnly
+          extraLinesSurroundingDiff={0}
+          oldValue={joinedOldParts.filter(p => p !== '').join('\t')}
+          newValue={joinedNewParts.filter(p => p !== '').join('\t')}
+          compareMethod={DiffMethod.WORDS}
+          hideLineNumbers
+          splitView={false}
+        />
+      </div>
+    );
+  };
+
+  const getCollapsibleBody = () => {
+    if (props.baseReviewLevel.reviewLevelType === ReviewLevelType.META) {
+      return Object.values(rootReview.children)
+        ?.sort(reviewLevelSortMethod)
+        ?.map(childReview => (
+          <ReviewCollapsible
+            splitView={props.splitView}
+            key={childReview.title}
+            isGermline={props.isGermline}
+            baseReviewLevel={childReview}
+            hugoSymbol={props.hugoSymbol}
+            handleAccept={props.handleAccept}
+            handleDelete={props.handleDelete}
+          />
+        ));
+    } else if (props.baseReviewLevel.reviewLevelType === ReviewLevelType.REVIEWABLE) {
+      return getReviewableContent();
+    } else if (props.baseReviewLevel.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) {
+      return getMultiSelectionReviewContent();
+    }
+    return <></>;
   };
 
   const getColorOptions = () => {
@@ -238,23 +311,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
         )
       }
     >
-      {props.baseReviewLevel.hasChildren()
-        ? Object.values(rootReview.children)
-            ?.sort(reviewLevelSortMethod)
-            ?.map(childReview => {
-              return (
-                <ReviewCollapsible
-                  splitView={props.splitView}
-                  key={childReview.title}
-                  isGermline={props.isGermline}
-                  baseReviewLevel={childReview}
-                  hugoSymbol={props.hugoSymbol}
-                  handleAccept={props.handleAccept}
-                  handleDelete={props.handleDelete}
-                />
-              );
-            })
-        : getCollapsibleContent()}
+      {getCollapsibleBody()}
     </Collapsible>
   );
 };
