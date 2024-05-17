@@ -16,13 +16,23 @@ import { AsyncSaveButton } from '../button/AsyncSaveButton';
 export interface IModifyCancerTypeModalProps extends StoreProps {
   cancerTypesUuid: string;
   cancerTypesPathToEdit?: string;
+  allCancerTypesPath: string;
   onConfirm: (newTumor: Tumor) => Promise<void>;
   onCancel: () => void;
+}
+
+export function getCancerTypeFromCancerTypeSelectOption(cancerTypeSelectOption: CancerTypeSelectOption) {
+  const cancerType = new CancerType();
+  cancerType.code = cancerTypeSelectOption.code;
+  cancerType.mainType = cancerTypeSelectOption.mainType;
+  cancerType.subtype = cancerTypeSelectOption.subtype;
+  return cancerType;
 }
 
 function ModifyCancerTypeModal({
   cancerTypesUuid,
   cancerTypesPathToEdit,
+  allCancerTypesPath,
   onConfirm,
   onCancel,
   searchCancerTypes,
@@ -33,6 +43,7 @@ function ModifyCancerTypeModal({
     <ModifyCancerTypeModalContent
       cancerTypesUuid={cancerTypesUuid}
       cancerTypesPathToEdit={cancerTypesPathToEdit}
+      allCancerTypesPath={allCancerTypesPath}
       onConfirm={onConfirm}
       onCancel={onCancel}
       searchCancerTypes={searchCancerTypes}
@@ -48,6 +59,7 @@ const ModifyCancerTypeModalContent = observer(
   ({
     cancerTypesUuid,
     cancerTypesPathToEdit,
+    allCancerTypesPath,
     onConfirm,
     onCancel,
     searchCancerTypes,
@@ -56,14 +68,7 @@ const ModifyCancerTypeModalContent = observer(
   }: IModifyCancerTypeModalProps) => {
     const [cancerTypeToEdit, setCancerTypeToEdit] = useState<Tumor>(null);
     const [isConfirmPending, setIsConfirmPending] = useState(false);
-
-    function getCancerTypeFromCancerTypeSelectOption(cancerTypeSelectOption: CancerTypeSelectOption) {
-      const cancerType = new CancerType();
-      cancerType.code = cancerTypeSelectOption.code;
-      cancerType.mainType = cancerTypeSelectOption.mainType;
-      cancerType.subtype = cancerTypeSelectOption.subtype;
-      return cancerType;
-    }
+    const [allCancerTypes, setAllCancerTypes] = useState<Tumor[]>([]);
 
     async function getICancerTypeFromCancerType(cancerType: CancerType) {
       try {
@@ -103,6 +108,8 @@ const ModifyCancerTypeModalContent = observer(
         }
         modifyCancerTypeModalStore.setIncludedCancerTypes(
           getCancerTypeSelectOptionsFromICancerTypes(await Promise.all<ICancerType>(promises)),
+          allCancerTypes,
+          cancerTypeToEdit?.cancerTypes_uuid,
         );
       }
     }
@@ -115,6 +122,8 @@ const ModifyCancerTypeModalContent = observer(
         }
         modifyCancerTypeModalStore.setExcludedCancerTypes(
           getCancerTypeSelectOptionsFromICancerTypes(await Promise.all<ICancerType>(promises)),
+          allCancerTypes,
+          cancerTypeToEdit?.cancerTypes_uuid,
         );
       }
     }
@@ -134,15 +143,23 @@ const ModifyCancerTypeModalContent = observer(
     }
 
     useEffect(() => {
-      let unsubscribe;
+      const callbacks = [];
       if (cancerTypesPathToEdit) {
-        unsubscribe = onValue(ref(firebaseDb, cancerTypesPathToEdit), snapshot => {
-          setCancerTypeToEdit(snapshot.val());
-        });
+        callbacks.push(
+          onValue(ref(firebaseDb, cancerTypesPathToEdit), snapshot => {
+            setCancerTypeToEdit(snapshot.val());
+          }),
+        );
       }
 
-      return () => unsubscribe?.();
-    }, [cancerTypesPathToEdit]);
+      callbacks.push(
+        onValue(ref(firebaseDb, allCancerTypesPath), snapshot => {
+          setAllCancerTypes(snapshot.val() || []);
+        }),
+      );
+
+      return () => callbacks.forEach(callback => callback?.());
+    }, [cancerTypesPathToEdit, allCancerTypesPath]);
 
     // There is a bug when 2 people edit the same cancer type at the same time,
     // the updates will not be reflected on each other's screens, possibly leading to data being overwritten
@@ -158,12 +175,14 @@ const ModifyCancerTypeModalContent = observer(
       () =>
         modifyCancerTypeModalStore.isErrorFetchingICancerTypes ||
         modifyCancerTypeModalStore.isErrorIncludedAndExcluded ||
+        modifyCancerTypeModalStore.isErrorDuplicate ||
         modifyCancerTypeModalStore.includedCancerTypes.length < 1 ||
         isConfirmPending,
       [
         modifyCancerTypeModalStore.includedCancerTypes,
         modifyCancerTypeModalStore.isErrorFetchingICancerTypes,
         modifyCancerTypeModalStore.isErrorIncludedAndExcluded,
+        modifyCancerTypeModalStore.isErrorDuplicate,
         isConfirmPending,
       ],
     );
@@ -221,12 +240,15 @@ const ModifyCancerTypeModalContent = observer(
               <CancerTypeSelect
                 isDisabled={modifyCancerTypeModalStore.isErrorFetchingICancerTypes}
                 value={modifyCancerTypeModalStore.includedCancerTypes}
-                onChange={options => modifyCancerTypeModalStore.setIncludedCancerTypes(options)}
+                onChange={options =>
+                  modifyCancerTypeModalStore.setIncludedCancerTypes(options, allCancerTypes, cancerTypeToEdit?.cancerTypes_uuid)
+                }
                 isMulti
               />
               {isConfirmButtonDisabled &&
               !modifyCancerTypeModalStore.isErrorFetchingICancerTypes &&
-              !modifyCancerTypeModalStore.isErrorIncludedAndExcluded ? (
+              !modifyCancerTypeModalStore.isErrorIncludedAndExcluded &&
+              !modifyCancerTypeModalStore.isErrorDuplicate ? (
                 <div className={`mt-2 mb-4 error-message`}>
                   <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
                   <span>You must include at least one cancer type</span>
@@ -238,7 +260,9 @@ const ModifyCancerTypeModalContent = observer(
               <CancerTypeSelect
                 isDisabled={modifyCancerTypeModalStore.isErrorFetchingICancerTypes}
                 value={modifyCancerTypeModalStore.excludedCancerTypes}
-                onChange={options => modifyCancerTypeModalStore.setExcludedCancerTypes(options)}
+                onChange={options =>
+                  modifyCancerTypeModalStore.setExcludedCancerTypes(options, allCancerTypes, cancerTypeToEdit?.cancerTypes_uuid)
+                }
                 isMulti
                 disabledOptions={modifyCancerTypeModalStore.includedCancerTypes}
               />
@@ -247,10 +271,20 @@ const ModifyCancerTypeModalContent = observer(
         </ModalBody>
         <ModalFooter style={{ display: 'inline-block' }}>
           <div className="d-flex justify-content-between align-items-center">
-            {modifyCancerTypeModalStore.isErrorIncludedAndExcluded ? (
-              <div className="error-message">
-                <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
-                <span className="me-3">Cancer types may not be both included and excluded</span>
+            {modifyCancerTypeModalStore.isErrorIncludedAndExcluded || modifyCancerTypeModalStore.isErrorDuplicate ? (
+              <div className="me-3">
+                {modifyCancerTypeModalStore.isErrorIncludedAndExcluded && (
+                  <div className="error-message">
+                    <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
+                    <span>Cancer types may not be both included and excluded</span>
+                  </div>
+                )}
+                {modifyCancerTypeModalStore.isErrorDuplicate && (
+                  <div className="error-message">
+                    <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
+                    <span>Cancer type already exists</span>
+                  </div>
+                )}
               </div>
             ) : (
               <div />
