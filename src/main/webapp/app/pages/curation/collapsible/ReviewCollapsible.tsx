@@ -202,8 +202,8 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       );
     }
     if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
-      let oldValue = reviewLevel.reviewInfo.lastReviewedString;
-      let newValue = reviewLevel.currentVal.toString();
+      let oldValue = reviewLevel.historyData.oldState as string;
+      let newValue = reviewLevel.historyData.newState as string;
       if (!isUnderCreationOrDeletion && oldValue !== '' && newValue !== '') {
         oldValue = oldValue?.replace(/\.\s+/g, '.\n');
         newValue = newValue?.replace(/\.\s+/g, '.\n');
