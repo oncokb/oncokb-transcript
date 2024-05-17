@@ -307,6 +307,7 @@ export const ALL_TI_TYPE_HISTORY_STRINGS = [
 export enum ReviewLevelType {
   META, // This means that the review level is used for grouping purposes
   REVIEWABLE, // This means that the review level has reviewable content
+  REVIEWABLE_MULTI, // This means that the review level is displaying multi-selections (checkboxes)
 }
 
 export enum READABLE_FIELD {
@@ -337,8 +338,8 @@ export enum READABLE_FIELD {
   ADDITIONAL_INFORMATION = 'Additional Information',
   FDA_LEVEL = 'FDA Level',
   INDICATION = 'Indication',
-  PROPAGATION = 'Propagation',
-  PROPAGATION_LIQUID = 'Propagation Liquid',
+  PROPAGATION = 'Propagation to Other Solid Tumor Types',
+  PROPAGATION_LIQUID = 'Propagation to Other Liquid Tumor Types',
   LEVEL = 'Level',
   RCT = 'Relevant Cancer Types',
 }
@@ -373,7 +374,9 @@ export const FIREBASE_KEY_TO_READABLE_FIELD: { [key: string]: READABLE_FIELD } =
   level: READABLE_FIELD.LEVEL,
   excludedRCTs: READABLE_FIELD.RCT,
   diagnostic: READABLE_FIELD.DIAGNOSTIC,
+  diagnosticSummary: READABLE_FIELD.DIAGNOSTIC_SUMMARY,
   prognostic: READABLE_FIELD.PROGNOSTIC,
+  prognosticSummary: READABLE_FIELD.PROGNOSTIC_SUMMARY,
 };
 
 export const HISTORY_OPERATION_TO_PAST_TENSE: { [operation in HistoryOperationType]: string } = {

@@ -123,49 +123,52 @@ export class FirebaseGeneReviewService {
     }
   };
 
-  rejectChanges = async (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean) => {
+  rejectChanges = async (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) => {
     const geneFirebasePath = getFirebaseGenePath(isGermline, hugoSymbol);
     const vusFirebasePath = getFirebaseVusPath(isGermline, hugoSymbol);
-    const fieldPath = reviewLevel.valuePath;
-    const { uuid, review, reviewPath, reviewAction } = reviewLevel.reviewInfo;
 
-    if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
-      const resetReview = new Review(this.authStore.fullName);
-      try {
-        await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), {
-          [reviewPath]: resetReview,
-          [fieldPath]: review.lastReviewed,
-        });
-        await this.firebaseMetaService.updateMeta(hugoSymbol, uuid, false, isGermline);
-      } catch (error) {
-        throw new SentryError('Failed to reject updates in review mode', { hugoSymbol, reviewLevel, isGermline });
-      }
-    }
+    for (const reviewLevel of reviewLevels) {
+      const fieldPath = reviewLevel.valuePath;
+      const { uuid, review, reviewPath, reviewAction } = reviewLevel.reviewInfo;
 
-    review.updateTime = new Date().getTime();
-    review.updatedBy = this.authStore.fullName;
-    if (reviewAction === ReviewAction.DELETE || reviewAction === ReviewAction.DEMOTE_MUTATION) {
-      clearReview(review);
-      try {
-        await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), { [reviewPath]: review });
-        await this.firebaseMetaService.updateMeta(hugoSymbol, uuid, false, isGermline);
-      } catch (error) {
-        throw new SentryError('Failed to reject deletion in review mode', { hugoSymbol, reviewLevel, isGermline });
-      }
-    }
-
-    if (reviewAction === ReviewAction.CREATE || reviewAction === ReviewAction.PROMOTE_VUS) {
-      const { firebaseArrayPath, deleteIndex } = extractArrayPath(reviewLevel.valuePath);
-      const firebasePath = geneFirebasePath + '/' + firebaseArrayPath;
-      try {
-        await this.firebaseRepository.deleteFromArray(firebasePath, [deleteIndex]);
-        await this.deleteAllNestedUuids(hugoSymbol, reviewLevel, isGermline);
-        if (review.promotedToMutation) {
-          const variants = parseAlterationName(reviewLevel.currentVal)[0].alteration.split(', ');
-          await this.firebaseVusService.addVus(vusFirebasePath, variants);
+      if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
+        const resetReview = new Review(this.authStore.fullName);
+        try {
+          await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), {
+            [reviewPath]: resetReview,
+            [fieldPath]: review.lastReviewed,
+          });
+          await this.firebaseMetaService.updateMeta(hugoSymbol, uuid, false, isGermline);
+        } catch (error) {
+          throw new SentryError('Failed to reject updates in review mode', { hugoSymbol, reviewLevel, isGermline });
         }
-      } catch (error) {
-        throw new SentryError('Failed to reject creation in review mode', { hugoSymbol, reviewLevel, isGermline });
+      }
+
+      review.updateTime = new Date().getTime();
+      review.updatedBy = this.authStore.fullName;
+      if (reviewAction === ReviewAction.DELETE || reviewAction === ReviewAction.DEMOTE_MUTATION) {
+        clearReview(review);
+        try {
+          await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), { [reviewPath]: review });
+          await this.firebaseMetaService.updateMeta(hugoSymbol, uuid, false, isGermline);
+        } catch (error) {
+          throw new SentryError('Failed to reject deletion in review mode', { hugoSymbol, reviewLevel, isGermline });
+        }
+      }
+
+      if (reviewAction === ReviewAction.CREATE || reviewAction === ReviewAction.PROMOTE_VUS) {
+        const { firebaseArrayPath, deleteIndex } = extractArrayPath(reviewLevel.valuePath);
+        const firebasePath = geneFirebasePath + '/' + firebaseArrayPath;
+        try {
+          await this.firebaseRepository.deleteFromArray(firebasePath, [deleteIndex]);
+          await this.deleteAllNestedUuids(hugoSymbol, reviewLevel, isGermline);
+          if (review.promotedToMutation) {
+            const variants = parseAlterationName(reviewLevel.currentVal)[0].alteration.split(', ');
+            await this.firebaseVusService.addVus(vusFirebasePath, variants);
+          }
+        } catch (error) {
+          throw new SentryError('Failed to reject creation in review mode', { hugoSymbol, reviewLevel, isGermline });
+        }
       }
     }
   };

@@ -258,7 +258,7 @@ describe('Firebase Gene Review Service', () => {
         },
       });
 
-      await firebaseGeneReviewService.rejectChanges(hugoSymbol, reviewLevel, false);
+      await firebaseGeneReviewService.rejectChanges(hugoSymbol, [reviewLevel], false);
 
       expect(mockFirebaseRepository.update).toHaveBeenCalledWith('Genes/BRAF', {
         background: '',
@@ -291,7 +291,7 @@ describe('Firebase Gene Review Service', () => {
         },
       });
 
-      await firebaseGeneReviewService.rejectChanges(hugoSymbol, reviewLevel, false);
+      await firebaseGeneReviewService.rejectChanges(hugoSymbol, [reviewLevel], false);
 
       expect(mockFirebaseRepository.update).toHaveBeenCalledWith('Genes/BRAF', {
         'mutations/0/name_review': { updateTime: DEFAULT_DATE.getTime(), updatedBy: mockAuthStore.fullName },
@@ -324,7 +324,7 @@ describe('Firebase Gene Review Service', () => {
         },
       });
 
-      await firebaseGeneReviewService.rejectChanges(hugoSymbol, reviewLevel, false);
+      await firebaseGeneReviewService.rejectChanges(hugoSymbol, [reviewLevel], false);
 
       expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [12]);
       // We expect both alterations (V600E and V600K) to be added back to VUS list

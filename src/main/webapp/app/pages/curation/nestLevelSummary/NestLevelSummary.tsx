@@ -20,6 +20,18 @@ export type NestLevelSummaryStats = {
   dxLevels: any;
   pxLevels: any;
 };
+const hiddenCountSummaryKeys: (keyof NestLevelSummaryStats)[] = ['TTS', 'DxS', 'PxS'];
+const levelSummaryKeys: (keyof NestLevelSummaryStats)[] = ['dxLevels', 'pxLevels', 'txLevels'];
+
+const READABLE_SUMMARY_KEY: { [key in keyof NestLevelSummaryStats]: string } = {
+  TT: 'tumor type(s)',
+  TTS: 'Tx summary',
+  DxS: 'Dx summary',
+  PxS: 'Px summary',
+  dxLevels: 'Dx level',
+  pxLevels: 'Px level',
+  txLevels: 'Tx Level',
+};
 
 export interface NestLevelSummaryProps {
   summaryStats: NestLevelSummaryStats;
@@ -27,70 +39,93 @@ export interface NestLevelSummaryProps {
   isTreatmentStats?: boolean;
 }
 
-export const NestLevelSummary = ({ summaryStats, hideOncogenicity, isTreatmentStats }: NestLevelSummaryProps) => {
-  const summaryKeys: (keyof NestLevelSummaryStats)[] = ['TTS', 'DxS', 'PxS'];
+function getTooltipText(key: keyof NestLevelSummaryStats, count: number, level?: DX_LEVELS | PX_LEVELS | TX_LEVELS) {
+  if (hiddenCountSummaryKeys.includes(key)) {
+    return `${READABLE_SUMMARY_KEY[key]} available`;
+  }
+  if (levelSummaryKeys.includes(key)) {
+    return `${count} ${READABLE_SUMMARY_KEY[key]} ${level.replace(/\D/g, '')} curated`;
+  }
+  return `${count} ${READABLE_SUMMARY_KEY[key]} curated`;
+}
 
+export const NestLevelSummary = ({ summaryStats, hideOncogenicity, isTreatmentStats }: NestLevelSummaryProps) => {
   let lastBadgeHasHiddenNumber = false;
 
   const badges = summaryStats ? (
     <>
-      {Object.keys(summaryStats)
+      {(Object.keys(summaryStats) as (keyof NestLevelSummaryStats)[])
         .filter(k => summaryStats[k] && summaryStats[k] > 0)
         .map(k => {
-          const hideWhenOne = summaryKeys.includes(k as keyof NestLevelSummaryStats);
+          const hideWhenOne = hiddenCountSummaryKeys.includes(k);
           if (hideWhenOne) {
             lastBadgeHasHiddenNumber = true;
           }
           return (
             <CountBadge
               count={summaryStats[k]}
-              base={k}
+              base={
+                <DefaultTooltip placement="top" overlay={<span>{getTooltipText(k, summaryStats[k])}</span>}>
+                  <span>{k}</span>
+                </DefaultTooltip>
+              }
               key={`summaries-${k}`}
-              hideWhenOne={summaryKeys.includes(k as keyof NestLevelSummaryStats)}
+              hideWhenOne={hideWhenOne}
             />
           );
         })}
-      {Object.keys(summaryStats.txLevels)
-        .filter(k => (k as TX_LEVELS) !== TX_LEVELS.LEVEL_NO)
+      {(Object.keys(summaryStats.txLevels) as TX_LEVELS[])
+        .filter(k => k !== TX_LEVELS.LEVEL_NO)
         .sort(sortByTxLevel)
         .map(k => {
           lastBadgeHasHiddenNumber = false;
-          return isTreatmentStats ? (
-            <div key={`tx-levels-${k}`} className="count-badge-wrapper all-children-margin">
-              <OncoKBIcon iconType="level" value={k as TX_LEVELS} />
-            </div>
-          ) : (
+          return (
             <CountBadge
               count={summaryStats.txLevels[k]}
-              base={<OncoKBIcon iconType="level" value={k as TX_LEVELS} />}
+              base={
+                <DefaultTooltip placement="top" overlay={<span>{getTooltipText('txLevels', summaryStats.txLevels[k], k)}</span>}>
+                  <div>
+                    <OncoKBIcon iconType="level" value={k} />
+                  </div>
+                </DefaultTooltip>
+              }
               key={`tx-levels-${k}`}
+              hideWhenOne={isTreatmentStats}
             />
           );
         })}
-      {Object.keys(summaryStats.dxLevels)
-        .sort(sortByDxLevel)
-        .map(k => {
-          lastBadgeHasHiddenNumber = false;
-          return (
-            <CountBadge
-              count={summaryStats.dxLevels[k]}
-              base={<OncoKBIcon iconType="level" value={k as DX_LEVELS} />}
-              key={`dx-levels-${k}`}
-            />
-          );
-        })}
-      {Object.keys(summaryStats.pxLevels)
-        .sort(sortByPxLevel)
-        .map(k => {
-          lastBadgeHasHiddenNumber = false;
-          return (
-            <CountBadge
-              count={summaryStats.pxLevels[k]}
-              base={<OncoKBIcon iconType="level" value={k as PX_LEVELS} />}
-              key={`px-levels-${k}`}
-            />
-          );
-        })}
+      {(Object.keys(summaryStats.dxLevels) as DX_LEVELS[]).sort(sortByDxLevel).map(k => {
+        lastBadgeHasHiddenNumber = false;
+        return (
+          <CountBadge
+            count={summaryStats.dxLevels[k]}
+            base={
+              <DefaultTooltip placement="top" overlay={<span>{getTooltipText('dxLevels', summaryStats.dxLevels[k], k)}</span>}>
+                <div>
+                  <OncoKBIcon iconType="level" value={k} />
+                </div>
+              </DefaultTooltip>
+            }
+            key={`dx-levels-${k}`}
+          />
+        );
+      })}
+      {(Object.keys(summaryStats.pxLevels) as PX_LEVELS[]).sort(sortByPxLevel).map(k => {
+        lastBadgeHasHiddenNumber = false;
+        return (
+          <CountBadge
+            count={summaryStats.pxLevels[k]}
+            base={
+              <DefaultTooltip placement="top" overlay={<span>{getTooltipText('pxLevels', summaryStats.pxLevels[k], k)}</span>}>
+                <div>
+                  <OncoKBIcon iconType="level" value={k} />
+                </div>
+              </DefaultTooltip>
+            }
+            key={`px-levels-${k}`}
+          />
+        );
+      })}
       {!hideOncogenicity && summaryStats.oncogenicity ? (
         <CountBadge
           hideWhenOne

@@ -762,13 +762,21 @@ export const getTreatmentStats = (treatment?: Treatment) => {
   return stats;
 };
 
-export const getReviewInfo = (editor: string, updateTime: string, action: string) => {
-  return (
-    <span style={{ fontSize: '90%' }}>
-      {action} by {editor} on{' '}
+export const getReviewInfo = (editor: string, action: string, updateTime?: string) => {
+  const baseText = `${action} by ${editor}`;
+  let timeComponent;
+  if (updateTime) {
+    timeComponent = (
       <>
+        <span> on </span>
         <TextFormat value={updateTime} type="date" format={APP_EXPANDED_DATETIME_FORMAT} />
       </>
+    );
+  }
+  return (
+    <span style={{ fontSize: '90%' }}>
+      {baseText}
+      {timeComponent}
     </span>
   );
 };
