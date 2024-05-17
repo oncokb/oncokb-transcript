@@ -1,6 +1,6 @@
 import { action, makeObservable, observable } from 'mobx';
 import { CancerTypeSelectOption } from '../select/CancerTypeSelect';
-import { Tumor } from '../model/firebase/firebase.model';
+import { CancerType, Tumor } from '../model/firebase/firebase.model';
 import { getCancerTypeFromCancerTypeSelectOption } from './ModifyCancerTypeModal';
 import { getCancerTypesName } from '../util/utils';
 import _ from 'lodash';
@@ -43,6 +43,12 @@ export class ModifyCancerTypeModalStore {
     this.isErrorIncludedAndExcluded = false;
   }
 
+  private getSortedCancerTypeName(cancerTypes: CancerType[]) {
+    const cancerTypeParts = getCancerTypesName(cancerTypes, true, ',').split(',');
+    cancerTypeParts.sort();
+    return cancerTypeParts.join(',');
+  }
+
   private setIsErrorDuplicate(
     included: CancerTypeSelectOption[],
     excluded: CancerTypeSelectOption[],
@@ -50,27 +56,17 @@ export class ModifyCancerTypeModalStore {
     cancerTypeToEditUuid?: string,
   ) {
     const includedCancerTypes = included.map(option => getCancerTypeFromCancerTypeSelectOption(option));
-    const newCancerTypeIncludedParts = getCancerTypesName(includedCancerTypes, true, ',').split(',');
-    newCancerTypeIncludedParts.sort();
-    const newCancerTypeIncluded = newCancerTypeIncludedParts.join(',');
+    const newCancerTypeIncluded = this.getSortedCancerTypeName(includedCancerTypes);
 
     const excludedCancerTypes = excluded.map(option => getCancerTypeFromCancerTypeSelectOption(option));
-    const newCancerTypeExcludedParts = getCancerTypesName(excludedCancerTypes, true, ',').split(',');
-    newCancerTypeExcludedParts.sort();
-    const newCancerTypeExcluded = newCancerTypeExcludedParts.join(',');
+    const newCancerTypeExcluded = this.getSortedCancerTypeName(excludedCancerTypes);
 
     for (const cancerType of allCancerTypes) {
       if (cancerType.cancerTypes_uuid !== cancerTypeToEditUuid) {
-        const currentCancerTypeIncludedParts = getCancerTypesName(cancerType.cancerTypes, true, ',').split(',');
-        currentCancerTypeIncludedParts.sort();
+        const currentCancerTypeIncluded = this.getSortedCancerTypeName(cancerType.cancerTypes);
+        const currentCancerTypeExcluded = this.getSortedCancerTypeName(cancerType.excludedCancerTypes || []);
 
-        const currentCancerTypeExcludedParts = getCancerTypesName(cancerType.excludedCancerTypes || [], true, ',').split(',');
-        currentCancerTypeExcludedParts.sort();
-
-        if (
-          newCancerTypeIncluded === currentCancerTypeIncludedParts.join(',') &&
-          newCancerTypeExcluded === currentCancerTypeExcludedParts.join(',')
-        ) {
+        if (newCancerTypeIncluded === currentCancerTypeIncluded && newCancerTypeExcluded === currentCancerTypeExcluded) {
           this.isErrorDuplicate = true;
           return;
         }
