@@ -188,7 +188,7 @@ describe('FirebaseHistoryUtils', () => {
 
       expect(parsedRecords[2].new).toBe('New Propagation');
       expect(parsedRecords[2].old).toBe(undefined);
-      expect(parsedRecords[2].location).toBe('Mutation, Cancer Type, 12a3, Propagation');
+      expect(parsedRecords[2].location).toBe('Mutation, Cancer Type, 12a3, Propagation to Other Solid Tumor Types');
     });
 
     it('should produce records with undefined new when old has field not in new', () => {
@@ -217,7 +217,7 @@ describe('FirebaseHistoryUtils', () => {
 
       expect(parsedRecords[1].new).toBe('New Propagation');
       expect(parsedRecords[1].old).toBe(undefined);
-      expect(parsedRecords[1].location).toBe('Mutation, Cancer Type, 12a3, Propagation');
+      expect(parsedRecords[1].location).toBe('Mutation, Cancer Type, 12a3, Propagation to Other Solid Tumor Types');
 
       expect(parsedRecords[2].new).toBe(undefined);
       expect(parsedRecords[2].old).toBe('Old Indication');

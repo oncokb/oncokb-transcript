@@ -30,7 +30,7 @@ const READABLE_SUMMARY_KEY: { [key in keyof NestLevelSummaryStats]: string } = {
   PxS: 'Px summary',
   dxLevels: 'Dx level',
   pxLevels: 'Px level',
-  txLevels: 'Level',
+  txLevels: 'Tx Level',
 };
 
 export interface NestLevelSummaryProps {

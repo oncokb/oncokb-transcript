@@ -236,16 +236,14 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       joinedNewParts.push(reviewLevel.currentVal);
       joinedOldParts.push(reviewLevel.reviewInfo.lastReviewedString);
     }
-    /* eslint-disable no-console */
-    console.log(joinedNewParts, joinedOldParts);
     return (
       <div className="mb-2">
         <ReactDiffViewer
           styles={REACT_DIFF_VIEWER_STYLES}
           showDiffOnly
           extraLinesSurroundingDiff={0}
-          oldValue={joinedOldParts.filter(p => p !== '').join('\t')}
-          newValue={joinedNewParts.filter(p => p !== '').join('\t')}
+          oldValue={joinedOldParts.filter(p => p !== '').join(', ')}
+          newValue={joinedNewParts.filter(p => p !== '').join(', ')}
           compareMethod={DiffMethod.WORDS}
           hideLineNumbers
           splitView={false}
