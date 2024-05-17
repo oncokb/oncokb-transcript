@@ -179,7 +179,9 @@ export const getCompactReviewInfo = (review: BaseReviewLevel) => {
   }
   let childReview = Object.values(review.children)[0];
   if (childReview.nestedUnderCreateOrDelete) {
-    return review;
+    if (review.reviewLevelType === ReviewLevelType.REVIEWABLE && (review as ReviewLevel).reviewInfo.reviewAction === ReviewAction.CREATE) {
+      return review;
+    }
   }
   childReview = getCompactReviewInfo(childReview);
   childReview.title = [review.title, childReview.title].filter(part => part !== '').join('/');
@@ -253,6 +255,10 @@ export class EditorReviewMap {
   }
 
   add(reviewLevel: ReviewLevel) {
+    if (reviewLevel.nestedUnderCreateOrDelete) {
+      // We only accept/reject changes at the top level (mutation/ct/therapy)
+      return;
+    }
     const editor = reviewLevel.reviewInfo.review.updatedBy;
     if (Object.keys(this.map).includes(editor)) {
       this.map[editor].push(reviewLevel);
@@ -691,9 +697,9 @@ export const getAllNestedReviewUuids = (baseReviewLevel: BaseReviewLevel, uuids:
   if (baseReviewLevel.reviewLevelType === ReviewLevelType.REVIEWABLE) {
     const reviewLevel = baseReviewLevel as ReviewLevel;
     uuids.push(reviewLevel.reviewInfo.uuid);
-    for (const childReview of Object.values(reviewLevel.children)) {
-      getAllNestedReviewUuids(childReview, uuids);
-    }
+  }
+  for (const childReview of Object.values(baseReviewLevel.children)) {
+    getAllNestedReviewUuids(childReview, uuids);
   }
 };
 
