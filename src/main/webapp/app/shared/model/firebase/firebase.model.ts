@@ -126,6 +126,16 @@ export class GenomicIndicator {
   name = '';
   name_uuid: string = generateUuid();
   name_review?: Review;
+  allele_state: AlleleState = new AlleleState();
+  description = '';
+  description_uuid = generateUuid();
+  description_review?: Review;
+  associationVariants?: { name: string; uuid: string }[] = [];
+  associationVariants_uuid: string = generateUuid();
+  associationVariants_review?: Review;
+}
+
+export class AlleleState {
   monoallelic: ALLELE_STATE.MONOALLELIC | '' = '';
   monoallelic_uuid = generateUuid();
   monoallelic_review?: Review;
@@ -135,14 +145,7 @@ export class GenomicIndicator {
   mosaic: ALLELE_STATE.MOSAIC | '' = '';
   mosaic_uuid = generateUuid();
   mosaic_review?: Review;
-  description = '';
-  description_uuid = generateUuid();
-  description_review?: Review;
-  associationVariants?: { name: string; uuid: string }[] = [];
-  associationVariants_uuid: string = generateUuid();
-  associationVariants_review?: Review;
 }
-
 export class Gene {
   name = '';
   name_comments?: Comment[] = [];

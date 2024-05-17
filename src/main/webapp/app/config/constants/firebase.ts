@@ -343,6 +343,7 @@ export enum READABLE_FIELD {
   LEVEL = 'Level',
   RCT = 'Relevant Cancer Types',
   GENOMIC_INDICATORS = 'Genomic Indicators',
+  ALLELE_STATE = 'Allele State',
 }
 
 export const FIREBASE_KEY_TO_READABLE_FIELD: { [key: string]: READABLE_FIELD } = {
@@ -379,6 +380,7 @@ export const FIREBASE_KEY_TO_READABLE_FIELD: { [key: string]: READABLE_FIELD } =
   prognostic: READABLE_FIELD.PROGNOSTIC,
   genomic_indicators: READABLE_FIELD.GENOMIC_INDICATORS,
   prognosticSummary: READABLE_FIELD.PROGNOSTIC_SUMMARY,
+  allele_state: READABLE_FIELD.ALLELE_STATE,
 };
 
 export const HISTORY_OPERATION_TO_PAST_TENSE: { [operation in HistoryOperationType]: string } = {

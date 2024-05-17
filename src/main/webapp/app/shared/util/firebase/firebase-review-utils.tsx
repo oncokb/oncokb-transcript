@@ -410,7 +410,7 @@ export const findReviewRecursive = (
         const newPath = joinPathParts(currValuePath, key);
         let metaReview = buildObjectReview(value, key, parentReview, uuids, editorReviewMap);
         findReviewRecursive(value, newPath, uuids, metaReview, editorReviewMap, drugList);
-        if (key === 'type') {
+        if (key === 'type' || key === 'allele_state') {
           // Checkbox reviewables should be converted to MultiSelectionReviewLevel so that they are grouped under one collapsible
           metaReview = convertToMultiSelectionReview(metaReview);
         }

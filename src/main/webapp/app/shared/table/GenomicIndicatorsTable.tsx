@@ -72,7 +72,7 @@ const GenomicIndicatorsTable = ({
         if (newGenomicIndicatorsLength !== genomicIndicatorsLength) {
           setGenomicIndicatorsLength(newGenomicIndicatorsLength);
         }
-      })
+      }),
     );
     return () => {
       callbacks.forEach(callback => callback?.());
@@ -138,7 +138,7 @@ const GenomicIndicatorsTable = ({
                     options={[ALLELE_STATE.MONOALLELIC, ALLELE_STATE.BIALLELIC, ALLELE_STATE.MOSAIC].map(label => {
                       return {
                         label,
-                        firebasePath: `${genomicIndicatorPath}/${label.toLowerCase()}`,
+                        firebasePath: `${genomicIndicatorPath}/allele_state/${label.toLowerCase()}`,
                       };
                     })}
                   />
@@ -215,7 +215,7 @@ const GenomicIndicatorsTable = ({
                         uuid: value.value,
                       })),
                       genomicIndicator.associationVariants_review,
-                      genomicIndicator.associationVariants_uuid
+                      genomicIndicator.associationVariants_uuid,
                     );
                   }}
                 />
@@ -311,7 +311,7 @@ function GenomicIndicatorCell({ genomicIndicatorPath, firebaseDb, buildCell }: I
     callbacks.push(
       onValue(ref(firebaseDb, genomicIndicatorPath), snapshot => {
         setGenomicIndicator(snapshot.val());
-      })
+      }),
     );
 
     return () => callbacks.forEach(callback => callback?.());
