@@ -475,7 +475,7 @@ export const buildCancerTypeNameReview = (
   const nameKey = 'cancerTypes';
   const nameReviewKey = `${nameKey}_review`;
 
-  const valuePathParts = [parentReview.valuePath, nameKey];
+  const valuePathParts = [currValuePath, nameKey];
   const valuePath = valuePathParts.join('/');
   const title = makeFirebaseKeysReadable([nameKey])[0];
 
@@ -490,11 +490,10 @@ export const buildCancerTypeNameReview = (
   const cancerTypesReview = tumor.cancerTypes_review;
   const excludedCTReview = tumor.excludedCancerTypes_review;
 
-  if (!cancerTypesReview || !excludedCTReview) {
+  if (!cancerTypesReview && !excludedCTReview) {
     return metaReview;
   }
 
-  let nameNeedsReview = false;
   let nameUpdated = false;
   let oldState, newState;
   let oldTumorName;
@@ -502,13 +501,10 @@ export const buildCancerTypeNameReview = (
 
   if (cancerTypesReview?.added) {
     newState = tumor;
-    nameNeedsReview = true;
   } else if (cancerTypesReview?.removed) {
     oldState = tumor;
-    nameNeedsReview = true;
   } else if (cancerTypesReview?.lastReviewed || excludedCTReview?.lastReviewed) {
     nameUpdated = true;
-    nameNeedsReview = true;
     oldState = oldTumorName = getCancerTypesNameWithExclusion(
       (cancerTypesReview?.lastReviewed as CancerType[]) || [],
       (excludedCTReview?.lastReviewed as CancerType[]) || [],
@@ -519,30 +515,29 @@ export const buildCancerTypeNameReview = (
     return metaReview;
   }
 
-  let nameReviewLevel;
-  if (nameNeedsReview) {
-    nameReviewLevel = new ReviewLevel({
-      title,
-      valuePath,
-      historyLocation: buildHistoryLocation(parentReview, newTumorName),
-      currentVal: newTumorName,
-      reviewInfo: {
-        reviewPath: `${valuePath}/${nameReviewKey}`,
-        review: cancerTypesReview,
-        lastReviewedString: oldTumorName,
-        uuid: tumor.cancerTypes_uuid,
-      },
-      historyData: {
-        oldState,
-        newState,
-      },
-    });
-    _.pull(uuids, tumor.cancerTypes_uuid);
-    editorReviewMap.add(nameReviewLevel);
-  }
+  const nameReviewLevel = new ReviewLevel({
+    title: nameUpdated ? title : '',
+    valuePath,
+    historyLocation: buildHistoryLocation(parentReview, newTumorName),
+    currentVal: newTumorName,
+    reviewInfo: {
+      reviewPath: `${valuePath}/${nameReviewKey}`,
+      review: cancerTypesReview,
+      lastReviewedString: oldTumorName,
+      uuid: tumor.cancerTypes_uuid,
+    },
+    historyData: {
+      oldState,
+      newState,
+    },
+  });
+  _.pull(uuids, tumor.cancerTypes_uuid);
+  editorReviewMap.add(nameReviewLevel);
 
-  if (nameUpdated) {
-    metaReview.addChild(nameReviewLevel);
+  metaReview.addChild(nameReviewLevel);
+
+  if (!nameUpdated) {
+    return getCompactReviewInfo(metaReview) as ReviewLevel;
   }
 
   return metaReview;
