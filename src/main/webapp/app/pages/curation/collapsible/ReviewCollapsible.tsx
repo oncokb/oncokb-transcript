@@ -145,6 +145,8 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
         return getReviewInfo('multiple users', ReviewTypeTitle[reviewAction]);
       }
       reviewLevel = multiSelectionReviews[0];
+    } else {
+      return <></>;
     }
 
     const action = ReviewTypeTitle[reviewAction];
