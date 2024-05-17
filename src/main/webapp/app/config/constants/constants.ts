@@ -380,9 +380,9 @@ export enum MUTATION_EFFECT {
 
 export enum PENETRANCE {
   HIGH = 'High',
-  INTERMEDIATE = 'Intermediate',
+  MODERATE = 'Moderate',
   LOW = 'Low',
-  OTHER = 'Other',
+  UNCERTAIN = 'Uncertain',
 }
 
 export enum GERMLINE_INHERITANCE_MECHANISM {
