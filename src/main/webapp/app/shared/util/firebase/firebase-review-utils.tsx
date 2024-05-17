@@ -13,7 +13,7 @@ import {
 import _ from 'lodash';
 import { getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
 import { getTxName } from './firebase-utils';
-import { ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
+import { READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import { DiffMethod } from 'react-diff-viewer-continued';
 import React from 'react';
@@ -170,9 +170,21 @@ export const removeLeafNodes = (parentReview: BaseReviewLevel) => {
     }
     if (childReview.reviewLevelType === ReviewLevelType.REVIEWABLE) {
       const reviewLevel = childReview as ReviewLevel;
+
+      const reviewTitle = reviewLevel.title;
+      let showGenomicIndicatorReview = false;
+      if (reviewTitle.includes(READABLE_FIELD.GENOMIC_INDICATORS)) {
+        const reviewTitleParts = reviewTitle.split('/');
+        if (reviewTitleParts[reviewTitleParts.length - 1]?.trim().length > 0) {
+          showGenomicIndicatorReview = true;
+        }
+      }
+
       // If a new entity is created, we don't show in review mode until at least one field has been updated
       shouldRemove =
-        [ReviewAction.CREATE, ReviewAction.PROMOTE_VUS].includes(reviewLevel.reviewInfo.reviewAction) && !reviewLevel.hasChildren();
+        [ReviewAction.CREATE, ReviewAction.PROMOTE_VUS].includes(reviewLevel.reviewInfo.reviewAction) &&
+        !reviewLevel.hasChildren() &&
+        !showGenomicIndicatorReview;
     }
     if (shouldRemove) {
       delete parentReview.children[key];
@@ -398,7 +410,7 @@ export const findReviewRecursive = (
         const newPath = joinPathParts(currValuePath, key);
         let metaReview = buildObjectReview(value, key, parentReview, uuids, editorReviewMap);
         findReviewRecursive(value, newPath, uuids, metaReview, editorReviewMap, drugList);
-        if (key === 'type') {
+        if (key === 'type' || key === 'allele_state') {
           // Checkbox reviewables should be converted to MultiSelectionReviewLevel so that they are grouped under one collapsible
           metaReview = convertToMultiSelectionReview(metaReview);
         }
@@ -409,7 +421,8 @@ export const findReviewRecursive = (
 
       if (key.endsWith('_uuid') && uuids.includes(value as string)) {
         const relevantKeys = getRelevantKeysFromUuidKey(key);
-        if (typeof currObj[relevantKeys.fieldKey] === 'string') {
+
+        if (typeof currObj[relevantKeys.fieldKey] === 'string' || relevantKeys.fieldKey === 'associationVariants') {
           const stringReviewLevel = buildStringReview(currObj, currValuePath, relevantKeys, parentReview, uuids, editorReviewMap);
           parentReview.addChild(stringReviewLevel);
         }
@@ -442,6 +455,8 @@ export const buildNameReview = (
   let readableName = creatableObject.name;
   if (drugList) {
     readableName = getTxName(drugList, creatableObject.name);
+  } else if (currValuePath.includes('genomic_indicators')) {
+    readableName = `${READABLE_FIELD.GENOMIC_INDICATORS} / ${readableName}`;
   }
 
   const valuePathParts = [currValuePath, nameKey];
@@ -595,8 +610,16 @@ export const buildStringReview = (
   editorReviewMap: EditorReviewMap,
 ) => {
   const { fieldKey, reviewKey, uuidKey } = relevantKeys;
-  const lastReviewedString = (obj[reviewKey] as Review).lastReviewed as string;
-  const currentString = obj[fieldKey] as string;
+
+  let lastReviewedString: string;
+  let currentString: string;
+  if (fieldKey === 'associationVariants') {
+    lastReviewedString = (((obj[reviewKey] as Review).lastReviewed as any[]) || []).map(variant => variant.name).join(', ');
+    currentString = obj[fieldKey].map(variant => variant.name).join(', ');
+  } else {
+    lastReviewedString = (obj[reviewKey] as Review).lastReviewed as string;
+    currentString = obj[fieldKey] as string;
+  }
 
   const readableKey = makeFirebaseKeysReadable([fieldKey])[0];
 
@@ -759,7 +782,7 @@ export const getUpdatedReview = (oldReview: Review, currentValue: any, newValue:
     isChangeReverted = true;
   }
 
-  if (isChangeReverted) {
+  if (isChangeReverted && !oldReview.added) {
     oldReview = clearReview(oldReview);
   }
 
