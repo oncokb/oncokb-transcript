@@ -1,6 +1,7 @@
 package org.mskcc.oncokb.curation.web.rest;
 
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
+import org.mskcc.oncokb.curation.security.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -27,7 +28,11 @@ public class ClientForwardController {
     @GetMapping(value = "/index.html")
     public ResponseEntity<String> index() {
         Context context = new Context();
-        context.setVariable("frontendConfig", applicationProperties.getFrontend());
+
+        // Only to add frontend config after authentication
+        if (SecurityUtils.isAuthenticated()) {
+            context.setVariable("frontendConfig", applicationProperties.getFrontend());
+        }
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.TEXT_HTML);
