@@ -1,0 +1,24 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
+    ports:
+      - "9000:9000"
+    command: yarn start
+
+  screenshot-test:
+    build: 
+      context: .
+      dockerfile:  ./docker/app/Dockerfile
+    command: yarn run wdio 
+
+  firebase:
+    build:
+      context: .
+      dockerfile: ./docker/firebase/Dockerfile
+    ports:
+      - "9095:9095"
+      - "9099:9099"
+      - "4000:4000"
+    command: firebase emulators:start --import firebase --project oncokb-curation-test-54b6c
