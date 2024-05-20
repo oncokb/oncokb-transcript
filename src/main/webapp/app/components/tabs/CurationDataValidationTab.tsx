@@ -33,42 +33,38 @@ function ValidationSearchForm({ onChange, className, disabled }: ValidationSearc
 
   return (
     <Form className={className}>
-      <Row>
-        <Col className="px-0">
-          <FormGroup inline check>
-            <Input
-              type="checkbox"
-              name="validationResult"
-              id={successId}
-              value="Success"
-              checked={validationResultFilter.success}
-              disabled={disabled}
-              onChange={event => {
-                setValidationResultFilter(x => ({ ...x, success: event.target.checked }));
-              }}
-            />
-            <Label check for={successId}>
-              Success
-            </Label>
-          </FormGroup>
-          <FormGroup inline check>
-            <Input
-              type="checkbox"
-              name="validationResult"
-              id={errorId}
-              value="Error"
-              checked={validationResultFilter.error}
-              disabled={disabled}
-              onChange={event => {
-                setValidationResultFilter(x => ({ ...x, error: event.target.checked }));
-              }}
-            />
-            <Label check for={errorId}>
-              Error
-            </Label>
-          </FormGroup>
-        </Col>
-      </Row>
+      <FormGroup inline check>
+        <Input
+          type="checkbox"
+          name="validationResult"
+          id={successId}
+          value="Success"
+          checked={validationResultFilter.success}
+          disabled={disabled}
+          onChange={event => {
+            setValidationResultFilter(x => ({ ...x, success: event.target.checked }));
+          }}
+        />
+        <Label check for={successId}>
+          Success
+        </Label>
+      </FormGroup>
+      <FormGroup inline check>
+        <Input
+          type="checkbox"
+          name="validationResult"
+          id={errorId}
+          value="Error"
+          checked={validationResultFilter.error}
+          disabled={disabled}
+          onChange={event => {
+            setValidationResultFilter(x => ({ ...x, error: event.target.checked }));
+          }}
+        />
+        <Label check for={errorId}>
+          Error
+        </Label>
+      </FormGroup>
     </Form>
   );
 }
@@ -255,19 +251,15 @@ function CurationDataValidationTab() {
   return (
     <>
       <Row>
-        <Col className="d-flex flex-wrap align-content-center justify-content-start" style={{ gap: '1rem' }}>
+        <Col className="d-flex flex-wrap align-content-center justify-content-between">
           {validationCounter > 0 && (
-            <>
-              <h2 className="h3 d-flex justify-content-center align-items-center pr-4" style={{ margin: '0px' }}>
+            <div className={'d-flex flex-wrap align-items-baseline'}>
+              <span className="fs-3 fw-bold" style={{ margin: '0px' }}>
                 Validation Result
-              </h2>
-              <ValidationSearchForm
-                className="d-flex justify-content-center align-items-center"
-                disabled={isValidating}
-                onChange={setValidationResultFilter}
-              />
+              </span>
+              <ValidationSearchForm className="ms-2" disabled={isValidating} onChange={setValidationResultFilter} />
               <div className="flex-grow-1"></div>
-            </>
+            </div>
           )}
           <div className="d-flex justify-content-center align-items-center">
             <Button
@@ -279,7 +271,7 @@ function CurationDataValidationTab() {
               onClick={() => setValidationCounter(x => x + 1)}
             >
               {validationCounter > 0 && (
-                <span className="pr-2">{isValidating ? <Spinner size="sm" /> : <FontAwesomeIcon icon={faRedo} />}</span>
+                <span className="pe-2">{isValidating ? <Spinner size="sm" /> : <FontAwesomeIcon icon={faRedo} />}</span>
               )}
               <span>{isValidating ? 'Validating' : 'Validate'}</span>
             </Button>

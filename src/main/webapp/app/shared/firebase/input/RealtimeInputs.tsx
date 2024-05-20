@@ -62,6 +62,7 @@ export const RealtimeCheckedInputGroup = (props: IRealtimeCheckedInputGroup) => 
               disabled={props.disabled}
               key={option.label}
               firebasePath={option.firebasePath}
+              style={{ marginTop: '0.1rem' }}
               className="me-2"
               label={option.label}
             />

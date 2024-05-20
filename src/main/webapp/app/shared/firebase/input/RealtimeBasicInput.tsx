@@ -75,6 +75,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     children,
     parseRefs = false,
     updateReviewableContent,
+    style,
     ...otherProps
   } = props;
 
@@ -134,6 +135,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     return label === RADIO_OPTION_NONE;
   }
 
+  const inputStyle = isCheckType ? { marginRight: '0.25rem', ...style } : null;
   const inputComponent = (
     <>
       <Input
@@ -145,7 +147,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
           inputChangeHandler(e);
         }}
         type={props.type as InputType}
-        style={isCheckType ? { marginRight: '0.25rem' } : null}
+        style={inputStyle}
         value={inputValue}
         invalid={invalid}
         checked={isCheckType && isChecked()}
