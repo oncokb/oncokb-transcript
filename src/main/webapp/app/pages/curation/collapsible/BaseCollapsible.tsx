@@ -16,6 +16,7 @@ export type CollapsibleColorProps =
 
 export type CollapsibleDisplayProps = {
   disableCollapsible?: boolean;
+  hideToggle?: boolean;
   hideInfo?: boolean;
   hideAction?: boolean;
 };
@@ -111,8 +112,8 @@ export default function BaseCollapsible({
             onClick={handleToggle}
           >
             <button
-              disabled={displayOptions?.disableCollapsible}
-              style={{ opacity: displayOptions?.disableCollapsible ? '0' : '1' }}
+              disabled={displayOptions?.disableCollapsible || displayOptions?.hideToggle}
+              style={{ opacity: displayOptions?.disableCollapsible || displayOptions?.hideToggle ? '0' : '1' }}
               type="button"
               className={classNames('btn', 'py-1')}
             >

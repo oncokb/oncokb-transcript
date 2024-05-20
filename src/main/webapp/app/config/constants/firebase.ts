@@ -342,6 +342,9 @@ export enum READABLE_FIELD {
   PROPAGATION_LIQUID = 'Propagation to Other Liquid Tumor Types',
   LEVEL = 'Level',
   RCT = 'Relevant Cancer Types',
+  GENOMIC_INDICATORS = 'Genomic Indicator',
+  ALLELE_STATE = 'Allele State',
+  ASSOCIATION_VARIANTS = 'Association Variants',
 }
 
 export const FIREBASE_KEY_TO_READABLE_FIELD: { [key: string]: READABLE_FIELD } = {
@@ -376,7 +379,10 @@ export const FIREBASE_KEY_TO_READABLE_FIELD: { [key: string]: READABLE_FIELD } =
   diagnostic: READABLE_FIELD.DIAGNOSTIC,
   diagnosticSummary: READABLE_FIELD.DIAGNOSTIC_SUMMARY,
   prognostic: READABLE_FIELD.PROGNOSTIC,
+  genomic_indicators: READABLE_FIELD.GENOMIC_INDICATORS,
   prognosticSummary: READABLE_FIELD.PROGNOSTIC_SUMMARY,
+  allele_state: READABLE_FIELD.ALLELE_STATE,
+  associationVariants: READABLE_FIELD.ASSOCIATION_VARIANTS,
 };
 
 export const HISTORY_OPERATION_TO_PAST_TENSE: { [operation in HistoryOperationType]: string } = {

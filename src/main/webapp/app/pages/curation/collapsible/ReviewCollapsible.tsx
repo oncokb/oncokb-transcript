@@ -112,8 +112,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
   };
 
   const getReviewActions = () => {
-    return (!isUnderCreationOrDeletion && rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE) ||
-      rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI ? (
+    return !isUnderCreationOrDeletion ? (
       <>
         <ActionIcon
           icon={faCheck}
@@ -135,7 +134,9 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
 
   const getEditorInfo = () => {
     let reviewLevel: ReviewLevel;
-    if (!isUnderCreationOrDeletion && rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE) {
+    if (isUnderCreationOrDeletion || rootReview.reviewLevelType === ReviewLevelType.META) {
+      return <></>;
+    } else if (rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE) {
       reviewLevel = rootReview as ReviewLevel;
     } else if (rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) {
       const multiReviewLevel = rootReview as MultiSelectionReviewLevel;
@@ -145,8 +146,6 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
         return getReviewInfo('multiple users', ReviewTypeTitle[reviewAction]);
       }
       reviewLevel = multiSelectionReviews[0];
-    } else {
-      return <></>;
     }
 
     const action = ReviewTypeTitle[reviewAction];
@@ -202,8 +201,8 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
       );
     }
     if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
-      let oldValue = reviewLevel.reviewInfo.lastReviewedString;
-      let newValue = reviewLevel.currentVal.toString();
+      let oldValue = reviewLevel.historyData.oldState as string;
+      let newValue = reviewLevel.historyData.newState as string;
       if (!isUnderCreationOrDeletion && oldValue !== '' && newValue !== '') {
         oldValue = oldValue?.replace(/\.\s+/g, '.\n');
         newValue = newValue?.replace(/\.\s+/g, '.\n');
@@ -253,7 +252,11 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
   };
 
   const getCollapsibleBody = () => {
-    if (props.baseReviewLevel.reviewLevelType === ReviewLevelType.META) {
+    const children = rootReview.children && Object.values(rootReview.children);
+
+    if (props.baseReviewLevel.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) {
+      return getMultiSelectionReviewContent();
+    } else if (children?.length > 0) {
       return Object.values(rootReview.children)
         ?.sort(reviewLevelSortMethod)
         ?.map(childReview => (
@@ -267,12 +270,9 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
             handleDelete={props.handleDelete}
           />
         ));
-    } else if (props.baseReviewLevel.reviewLevelType === ReviewLevelType.REVIEWABLE) {
+    } else {
       return getReviewableContent();
-    } else if (props.baseReviewLevel.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) {
-      return getMultiSelectionReviewContent();
     }
-    return <></>;
   };
 
   const getColorOptions = () => {
@@ -292,6 +292,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
     disableCollapsible: isDeletion,
     hideAction: false,
     hideInfo: false,
+    hideToggle: !rootReview.hasChildren() && reviewAction === ReviewAction.CREATE,
   };
 
   return (
