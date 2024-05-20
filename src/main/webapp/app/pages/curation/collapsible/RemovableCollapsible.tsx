@@ -16,7 +16,7 @@ export const RemovableCollapsible = ({ review, ...collapsibleProps }: IRemovable
     if (review?.removed) reviewAction = ReviewAction.DELETE;
     if (review?.demotedToVus) reviewAction = ReviewAction.DEMOTE_MUTATION;
     if (reviewAction) {
-      infoComponent = getReviewInfo(review.updatedBy, new Date(review.updateTime).toString(), ReviewTypeTitle[reviewAction]);
+      infoComponent = getReviewInfo(review.updatedBy, ReviewTypeTitle[reviewAction], new Date(review.updateTime).toString());
     }
   }
 
