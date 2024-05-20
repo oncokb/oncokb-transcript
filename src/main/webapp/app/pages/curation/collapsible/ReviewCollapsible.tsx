@@ -215,7 +215,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
             extraLinesSurroundingDiff={0}
             oldValue={oldValue}
             newValue={newValue}
-            compareMethod={reviewLevel?.reviewInfo.diffMethod || DiffMethod.CHARS}
+            compareMethod={reviewLevel?.reviewInfo.diffMethod || DiffMethod.WORDS}
             splitView={props.splitView ? reviewLevel.reviewInfo.review.lastReviewed && reviewLevel.currentVal : false}
             hideLineNumbers
             renderContent={source => {

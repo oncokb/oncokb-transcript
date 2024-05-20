@@ -634,7 +634,7 @@ export const buildStringReview = (
       review: obj[reviewKey],
       lastReviewedString,
       uuid: obj[uuidKey],
-      diffMethod: DiffMethod.CHARS,
+      diffMethod: DiffMethod.WORDS,
     },
     historyData: {
       oldState: lastReviewedString,
