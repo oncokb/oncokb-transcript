@@ -59,8 +59,8 @@ export class FirebaseGeneReviewService {
     }
 
     try {
-      await this.firebaseMetaService.updateMeta(hugoSymbol, uuid, !isChangeReverted, isGermline);
       await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), updateObject);
+      await this.firebaseMetaService.updateMeta(hugoSymbol, uuid, !isChangeReverted, isGermline);
     } catch (error) {
       throw new SentryError('Failed to update reviewable content', { firebasePath, currentValue, updateValue, review, uuid });
     }
