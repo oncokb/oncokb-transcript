@@ -81,10 +81,35 @@ export const UserManagementUpdate = (props: IUserManagementUpdateProps) => {
                   validate: v => isEmail(v),
                 }}
               />
-              <ValidatedField type="text" name="firstName" label={'First Name'} />
-              <ValidatedField type="text" name="lastName" label={'Last Name'} />
+              <ValidatedField
+                type="text"
+                name="firstName"
+                label={'First Name'}
+                validate={{
+                  required: true,
+                  minLength: 1,
+                  maxLength: 50,
+                }}
+              />
+              <ValidatedField
+                type="text"
+                name="lastName"
+                label={'Last Name'}
+                validate={{
+                  required: true,
+                  minLength: 1,
+                  maxLength: 50,
+                }}
+              />
               <ValidatedField type="checkbox" name="activated" check={user?.activated?.toString() || 'false'} label={'Activated'} />
-              <ValidatedSelect isMulti label="Profiles" name={'authorities'} options={authorityOptions} />
+              <ValidatedSelect
+                required
+                isMulti
+                label="Profiles"
+                name={'authorities'}
+                options={authorityOptions}
+                defaultValue={[{ label: USER_AUTHORITY.ROLE_USER, value: USER_AUTHORITY.ROLE_USER }]}
+              />
               <SaveButton disabled={isInvalid || updating} />
             </ValidatedForm>
           )}

@@ -20,12 +20,15 @@ public class UserDTO {
     @Size(min = 1, max = 50)
     private String login;
 
+    @NotBlank
     @Size(max = 50)
     private String firstName;
 
+    @NotBlank
     @Size(max = 50)
     private String lastName;
 
+    @NotBlank
     @Email
     @Size(min = 5, max = 254)
     private String email;
