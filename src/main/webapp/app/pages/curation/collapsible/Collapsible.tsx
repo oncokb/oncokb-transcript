@@ -32,6 +32,7 @@ export default function Collapsible({
     disableCollapsible: displayOptions?.disableCollapsible || false,
     hideAction: displayOptions?.hideAction || false,
     hideInfo: displayOptions?.hideInfo || false,
+    hideToggle: displayOptions?.hideToggle || false,
   };
 
   const displayOptionsOverride = createDisplayOptions(isPendingDelete, defaultDisplayOptions, displayOptions);
@@ -55,6 +56,9 @@ function shouldDisableOverride(isPendingDelete: boolean, displayOptionsOverride:
   if (displayOptionsOverride.disableCollapsible) {
     return true;
   }
+  if (displayOptionsOverride.hideToggle) {
+    return true;
+  }
   return disableOpen;
 }
 
@@ -62,7 +66,7 @@ function createColorOptions(
   colorOptions: CollapsibleColorProps,
   displayOptionsOverride: CollapsibleDisplayProps,
   defaultColorOptions: CollapsibleColorProps,
-  isPendingDelete: boolean
+  isPendingDelete: boolean,
 ) {
   const forceLeftColor = colorOptions.hideLeftBorder !== true && colorOptions.forceLeftColor;
   if (displayOptionsOverride.disableCollapsible && !forceLeftColor) {
@@ -81,7 +85,7 @@ function createColorOptions(
 function createDisplayOptions(
   isPendingDelete: boolean,
   defaultDisplayOptions: CollapsibleDisplayProps,
-  displayOptions: CollapsibleDisplayProps
+  displayOptions: CollapsibleDisplayProps,
 ) {
   if (isPendingDelete) {
     defaultDisplayOptions.disableCollapsible = true;

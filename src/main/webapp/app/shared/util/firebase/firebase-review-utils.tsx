@@ -240,7 +240,7 @@ export const reviewLevelSortMethod = (a: BaseReviewLevel, b: BaseReviewLevel) =>
   const bReviewAction =
     b.reviewLevelType === ReviewLevelType.META
       ? undefined
-      : a.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI
+      : b.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI
         ? (b as MultiSelectionReviewLevel).reviewAction
         : (b as ReviewLevel).reviewInfo.reviewAction;
 
@@ -437,6 +437,7 @@ export const convertToMultiSelectionReview = (parentMetaReview: MetaReviewLevel)
     title: parentMetaReview.title,
     valuePath: parentMetaReview.valuePath,
     historyLocation: parentMetaReview.historyLocation,
+    nestedUnderCreateorDelete: parentMetaReview.nestedUnderCreateOrDelete,
   });
   multiSelectionReviewLevel.children = parentMetaReview.children;
   return multiSelectionReviewLevel;
