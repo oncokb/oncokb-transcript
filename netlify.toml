@@ -1,11 +1,12 @@
 [[redirects]]
   from = "/websocket"
   to = "https://beta.curation.oncokb.org/websocket"
+  status = 200
 
 [[redirects]]
   from = "/api/*"
   to = "https://beta.curation.oncokb.org/api/:splat"
-status = 200
+  status = 200
 
 [[redirects]]
   from = "/oidc/*"
@@ -15,22 +16,27 @@ status = 200
 [[redirects]]
   from = "/legacy-api/*"
   to = "https://beta.curation.oncokb.org/legacy-api/:splat"
+  status = 200
 
 [[redirects]]
   from = "/services/*"
   to = "https://beta.curation.oncokb.org/services/:splat"
+  status = 200
 
 [[redirects]]
   from = "/management/*"
   to = "https://beta.curation.oncokb.org/management/:splat"
+  status = 200
 
 [[redirects]]
   from = "/v3/api-docs/*"
   to = "https://beta.curation.oncokb.org/v3/api-docs/:splat"
+  status = 200
 
 [[redirects]]
   from = "/h2-console/*"
   to = "https://beta.curation.oncokb.org/h2-console/:splat"
+  status = 200
 
 [[redirects]]
   from = "/oauth2/*"
@@ -45,4 +51,5 @@ status = 200
 [[redirects]]
   from = "/auth/*"
   to = "https://beta.curation.oncokb.org/auth/:splat"
+  status = 200
 
