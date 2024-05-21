@@ -7,34 +7,34 @@
   to = "https://beta.curation.oncokb.org/api/:splat"
 
 [[redirects]]
-  from = "/legacy-api"
-  to = "https://beta.curation.oncokb.org/legacy-api"
+  from = "/legacy-api/*"
+  to = "https://beta.curation.oncokb.org/legacy-api/:splat"
 
 [[redirects]]
-  from = "/services"
-  to = "https://beta.curation.oncokb.org/services"
+  from = "/services/*"
+  to = "https://beta.curation.oncokb.org/services/:splat"
 
 [[redirects]]
-  from = "/management"
-  to = "https://beta.curation.oncokb.org/management"
+  from = "/management/*"
+  to = "https://beta.curation.oncokb.org/management/:splat"
 
 [[redirects]]
-  from = "/v3/api-docs"
-  to = "https://beta.curation.oncokb.org/v3/api-docs"
+  from = "/v3/api-docs/*"
+  to = "https://beta.curation.oncokb.org/v3/api-docs/:splat"
 
 [[redirects]]
-  from = "/h2-console"
-  to = "https://beta.curation.oncokb.org/h2-console"
+  from = "/h2-console/*"
+  to = "https://beta.curation.oncokb.org/h2-console/:splat"
 
 [[redirects]]
   from = "/oauth2/*"
   to = "https://beta.curation.oncokb.org/oauth2/:splat"
 
 [[redirects]]
-  from = "/login"
-  to = "https://beta.curation.oncokb.org/login"
+  from = "/login/*"
+  to = "https://beta.curation.oncokb.org/login/:splat"
 
 [[redirects]]
-  from = "/auth"
-  to = "https://beta.curation.oncokb.org/auth"
+  from = "/auth/*"
+  to = "https://beta.curation.oncokb.org/auth/:splat"
 
