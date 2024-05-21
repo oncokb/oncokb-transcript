@@ -1,0 +1,40 @@
+[[redirects]]
+  from = "/websocket"
+  to = "https://beta.curation.oncokb.org/websocket"
+
+[[redirects]]
+  from = "/api"
+  to = "https://beta.curation.oncokb.org/api"
+
+[[redirects]]
+  from = "/legacy-api"
+  to = "https://beta.curation.oncokb.org/legacy-api"
+
+[[redirects]]
+  from = "/services"
+  to = "https://beta.curation.oncokb.org/services"
+
+[[redirects]]
+  from = "/management"
+  to = "https://beta.curation.oncokb.org/management"
+
+[[redirects]]
+  from = "/v3/api-docs"
+  to = "https://beta.curation.oncokb.org/v3/api-docs"
+
+[[redirects]]
+  from = "/h2-console"
+  to = "https://beta.curation.oncokb.org/h2-console"
+
+[[redirects]]
+  from = "/oauth2"
+  to = "https://beta.curation.oncokb.org/oauth2"
+
+[[redirects]]
+  from = "/login"
+  to = "https://beta.curation.oncokb.org/login"
+
+[[redirects]]
+  from = "/auth"
+  to = "https://beta.curation.oncokb.org/auth"
+
