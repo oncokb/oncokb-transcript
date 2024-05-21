@@ -123,7 +123,7 @@ export const CurationPage = (props: ICurationPageProps) => {
     </Row>
   );
 
-  return props.firebaseInitSuccess && !props.loadingGenes && props.drugList.length > 0 ? (
+  return props.firebaseInitSuccess && !props.loadingGenes && props.drugList.length > 0 && !!geneEntity ? (
     isReviewing ? (
       <div>
         {geneHeader}
