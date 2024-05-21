@@ -96,6 +96,10 @@ const GeneListPage = (props: StoreProps) => {
                       id: 'needsReview',
                       desc: true,
                     },
+                    {
+                      id: 'lastModifiedAt',
+                      desc: true,
+                    },
                   ]}
                 />
               </Col>
