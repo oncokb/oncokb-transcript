@@ -9,12 +9,6 @@
   status = 200
 
 [[redirects]]
-  from = "/oidc/*"
-  to = "https://beta.curation.oncokb.org/oidc/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
   from = "/legacy-api/*"
   to = "https://beta.curation.oncokb.org/legacy-api/:splat"
   status = 200
@@ -40,16 +34,17 @@
   status = 200
 
 [[redirects]]
-  from = "/oauth2/*"
-  to = "https://beta.curation.oncokb.org/oauth2/:splat"
+  from = "/oauth2/authorization/oidc"
+  to = "https://beta.curation.oncokb.org/oauth2/authorization/oidc/:splat"
   status = 200
   force = true
 
 [[redirects]]
-  from = "/login/*"
-  to = "https://beta.curation.oncokb.org/login/:splat"
+  from = "/login/oauth2/code/*"
+  to = "https://beta.curation.oncokb.org/login/oauth2/code/:splat"
   status = 200
   force = true
+
 
 [[redirects]]
   from = "/auth/*"
