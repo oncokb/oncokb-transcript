@@ -35,7 +35,7 @@ export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hu
 export const CurationPage = (props: ICurationPageProps) => {
   const { pathname } = useLocation();
   const isGermline = pathname.includes('germline');
-  const hugoSymbolParam = props.match.params.hugoSymbol.toUpperCase();
+  const hugoSymbolParam = props.match.params.hugoSymbol;
 
   const [isReviewing, setIsReviewing] = useState(false);
   const [isReviewFinished, setIsReviewFinished] = useState(false);
