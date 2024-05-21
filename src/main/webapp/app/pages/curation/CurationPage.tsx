@@ -35,25 +35,34 @@ export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hu
 export const CurationPage = (props: ICurationPageProps) => {
   const { pathname } = useLocation();
   const isGermline = pathname.includes('germline');
+  const hugoSymbolParam = props.match.params.hugoSymbol.toUpperCase();
 
-  const hugoSymbol = props.match.params.hugoSymbol.toUpperCase();
+  const [isReviewing, setIsReviewing] = useState(false);
+  const [isReviewFinished, setIsReviewFinished] = useState(false);
+  const [mutationListRendered, setMutationListRendered] = useState(false);
+
+  const mutationsSectionRef = useRef<HTMLDivElement>(null);
+
+  const geneEntity: IGene | undefined = useMemo(() => {
+    return props.geneEntities.find(gene => gene.hugoSymbol.toUpperCase() === hugoSymbolParam.toUpperCase());
+  }, [props.geneEntities]);
+  const hugoSymbol = geneEntity?.hugoSymbol;
 
   const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
   const firebaseHistoryPath = getFirebaseHistoryPath(isGermline, hugoSymbol);
   const mutationsPath = `${firebaseGenePath}/mutations`;
   const firebaseMetaCurrentReviewerPath = `${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review/currentReviewer`;
 
-  const [isReviewing, setIsReviewing] = useState(false);
-  const [isReviewFinished, setIsReviewFinished] = useState(false);
-
-  const [mutationListRendered, setMutationListRendered] = useState(false);
-
-  const mutationsSectionRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    props.searchGeneEntities({ query: hugoSymbolParam, exact: true });
+    props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
+    return () => {
+      props.setOpenMutationCollapsibleIndex(null);
+    };
+  }, []);
 
   useEffect(() => {
-    if (props.firebaseInitSuccess) {
-      props.searchGeneEntities({ query: hugoSymbol, exact: true });
-
+    if (geneEntity && props.firebaseInitSuccess) {
       const cleanupCallbacks = [];
       cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
       cleanupCallbacks.push(props.addMutationListListener(mutationsPath));
@@ -71,21 +80,7 @@ export const CurationPage = (props: ICurationPageProps) => {
         cleanupCallbacks.forEach(callback => callback && callback());
       };
     }
-  }, [props.firebaseInitSuccess, props.firebaseDb, firebaseGenePath, firebaseHistoryPath, firebaseMetaCurrentReviewerPath]);
-
-  useEffect(() => {
-    props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      props.setOpenMutationCollapsibleIndex(null);
-    };
-  }, []);
-
-  const geneEntity: IGene | undefined = useMemo(() => {
-    return props.geneEntities.find(gene => gene.hugoSymbol === hugoSymbol);
-  }, [props.geneEntities]);
+  }, [geneEntity, props.firebaseInitSuccess, props.firebaseDb, firebaseGenePath, firebaseHistoryPath, firebaseMetaCurrentReviewerPath]);
 
   const tabHistoryList = useMemo(() => {
     if (!props.historyData) {

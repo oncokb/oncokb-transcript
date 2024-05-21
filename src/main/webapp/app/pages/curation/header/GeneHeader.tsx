@@ -84,6 +84,8 @@ const GeneHeader = ({
     return <>{button}</>;
   };
 
+  const hideEntrezGeneId = hugoSymbol === 'Other Biomarkers';
+
   return (
     <div style={{ width: '100%' }}>
       <div className="d-flex justify-content-between align-items-center">
@@ -101,7 +103,7 @@ const GeneHeader = ({
       {!isReviewing && (
         <>
           <span>
-            {geneEntity?.entrezGeneId && (
+            {!hideEntrezGeneId && geneEntity?.entrezGeneId && (
               <span>
                 <span className="fw-bold text-nowrap">Entrez Gene:</span>
                 <span className="ms-1">
