@@ -3,8 +3,8 @@
   to = "https://beta.curation.oncokb.org/websocket"
 
 [[redirects]]
-  from = "/api"
-  to = "https://beta.curation.oncokb.org/api"
+  from = "/api/*"
+  to = "https://beta.curation.oncokb.org/api/:splat"
 
 [[redirects]]
   from = "/legacy-api"
@@ -27,8 +27,8 @@
   to = "https://beta.curation.oncokb.org/h2-console"
 
 [[redirects]]
-  from = "/oauth2"
-  to = "https://beta.curation.oncokb.org/oauth2"
+  from = "/oauth2/*"
+  to = "https://beta.curation.oncokb.org/oauth2/:splat"
 
 [[redirects]]
   from = "/login"
