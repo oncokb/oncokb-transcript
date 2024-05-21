@@ -35,19 +35,22 @@
 
 [[redirects]]
   from = "/oauth2/authorization/oidc"
-  to = "https://beta.curation.oncokb.org/oauth2/authorization/oidc/:splat"
+  to = "https://beta.curation.oncokb.org/oauth2/authorization/oidc"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/oauth2/authorization/oidc/*"
+  to = "https://beta.curation.oncokb.org/oauth2/authorization/oidc/:splat"
+  status = 200
 
 [[redirects]]
   from = "/login/oauth2/code/*"
   to = "https://beta.curation.oncokb.org/login/oauth2/code/:splat"
   status = 200
-  force = true
 
 
 [[redirects]]
   from = "/auth/*"
   to = "https://beta.curation.oncokb.org/auth/:splat"
   status = 200
-  force = true
