@@ -1,29 +1,34 @@
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
 import React, { useState } from 'react';
-import ActionIcon from 'app/shared/icons/ActionIcon';
+import ActionIcon, { IActionIcon } from 'app/shared/icons/ActionIcon';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { DANGER } from 'app/config/colors';
 
-export interface DeleteSectionButtonProps {
+export interface DeleteSectionButtonProps extends Omit<IActionIcon, 'icon' | 'color' | 'onClick'> {
   sectionName: string;
   deleteHandler: () => void;
   isRemovableWithoutReview: boolean;
 }
 
-export const DeleteSectionButton = (props: DeleteSectionButtonProps) => {
+export const DeleteSectionButton = ({
+  sectionName,
+  deleteHandler,
+  isRemovableWithoutReview,
+  ...actionIconProps
+}: DeleteSectionButtonProps) => {
   const [showModal, setShowModal] = useState(false);
 
   return (
     <>
-      <ActionIcon icon={faTrashAlt} onClick={() => setShowModal(true)} color={DANGER} />
+      <ActionIcon icon={faTrashAlt} onClick={() => setShowModal(true)} color={DANGER} {...actionIconProps} />
       <SimpleConfirmModal
         title={'Are you sure you want to delete this section?'}
         body={
           <>
             <div>
-              You are deleting the section <b>{props.sectionName}</b> and all underlying section(s).
+              You are deleting the section <b>{sectionName}</b> and all underlying section(s).
             </div>
-            {props.isRemovableWithoutReview ? (
+            {isRemovableWithoutReview ? (
               <div className="mt-2">This section will be removed immediately since it is newly added and has not been reviewed yet.</div>
             ) : (
               <div className="mt-2">This deletion will need to be reviewed before it is fully removed from our system.</div>
@@ -32,7 +37,7 @@ export const DeleteSectionButton = (props: DeleteSectionButtonProps) => {
         }
         onCancel={() => setShowModal(false)}
         onConfirm={() => {
-          props.deleteHandler();
+          deleteHandler();
           setShowModal(false);
         }}
         show={showModal}

@@ -17,6 +17,7 @@ import {
   reviewLevelSortMethod,
 } from 'app/shared/util/firebase/firebase-review-utils';
 import { getFirebaseGenePath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
+import { Mutation } from 'app/shared/model/firebase/firebase.model';
 
 interface IReviewPageProps extends StoreProps {
   hugoSymbol: string;
@@ -32,6 +33,7 @@ const ReviewPage = (props: IReviewPageProps) => {
 
   const [geneData, setGeneData] = useState(null);
   const [metaReview, setMetaReview] = useState(null);
+  const [mutations, setMutations] = useState<Mutation[]>([]);
 
   const [reviewUuids, setReviewUuids] = useState([]);
   const [rootReview, setRootReview] = useState<BaseReviewLevel>(undefined);
@@ -48,6 +50,11 @@ const ReviewPage = (props: IReviewPageProps) => {
     callbacks.push(
       onValue(ref(props.firebaseDb, firebaseMetaReviewPath), snapshot => {
         setMetaReview(snapshot.val());
+      }),
+    );
+    callbacks.push(
+      onValue(ref(props.firebaseDb, `${firebaseGenePath}/mutations`), snapshot => {
+        setMutations(snapshot.val() || []);
       }),
     );
 
@@ -69,13 +76,13 @@ const ReviewPage = (props: IReviewPageProps) => {
   useEffect(() => {
     if (geneData) {
       const reviewMap = new EditorReviewMap();
-      const reviews = findReviews(props.drugList, geneData, reviewUuids, reviewMap);
+      const reviews = findReviews(props.drugList, geneData, reviewUuids, reviewMap, mutations);
       Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
       setEditorReviewMap(reviewMap);
       setRootReview(reviews);
       props.handleReviewFinished(!reviews.hasChildren());
     }
-  }, [geneData, reviewUuids]);
+  }, [geneData, reviewUuids, mutations]);
 
   const acceptAllChangesFromEditors = (editors: string[]) => {
     let reviewLevels = [] as ReviewLevel[];

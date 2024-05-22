@@ -32,6 +32,7 @@ const GenomicIndicatorsTable = ({
   updateReviewableContent,
   updateGeneMetaContent,
   updateGeneReviewUuid,
+  fetchGenomicIndicators,
 }: IGenomicIndicatorsTableProps) => {
   const [genomicIndicatorsLength, setGenomicIndicatorsLength] = useState<number>(0);
 
@@ -47,7 +48,8 @@ const GenomicIndicatorsTable = ({
     const review = new Review(name, undefined, undefined, true);
 
     if (removeWithoutReview) {
-      return deleteGenomicIndicators(genomicIndicatorsPath, [index]);
+      await deleteGenomicIndicators(genomicIndicatorsPath, [index]);
+      return await fetchGenomicIndicators(genomicIndicatorsPath);
     }
 
     // Let the deletion be reviewed
@@ -74,6 +76,9 @@ const GenomicIndicatorsTable = ({
         }
       }),
     );
+
+    fetchGenomicIndicators(genomicIndicatorsPath);
+
     return () => {
       callbacks.forEach(callback => callback?.());
     };
@@ -178,7 +183,6 @@ const GenomicIndicatorsTable = ({
       style: { overflow: 'visible', padding: 0 },
       Cell({ index }: CellInfo) {
         const genomicIndicatorPath = `${genomicIndicatorsPath}/${index}`;
-
         return (
           <GenomicIndicatorCell
             genomicIndicatorPath={genomicIndicatorPath}
@@ -195,7 +199,16 @@ const GenomicIndicatorsTable = ({
                   placeholder="Select Variants"
                   isMulti
                   isDisabled={genomicIndicator.name_review?.removed || false}
-                  value={genomicIndicator.associationVariants?.map(variant => ({ label: variant.name, value: variant.uuid })) || []}
+                  value={
+                    genomicIndicator.associationVariants?.map(variant => {
+                      if (variant === PATHOGENIC_VARIANTS) {
+                        return { label: PATHOGENIC_VARIANTS, value: variant };
+                      }
+
+                      const associatedMutation = mutations.find(mutation => mutation.name_uuid === variant);
+                      return { label: getMutationName(associatedMutation.name, associatedMutation.alterations), value: variant };
+                    }) || []
+                  }
                   options={[
                     {
                       label: PATHOGENIC_VARIANTS,
@@ -206,17 +219,15 @@ const GenomicIndicatorsTable = ({
                       value: mutation.name_uuid,
                     })) || []),
                   ]}
-                  onChange={(newValue: { label: string; value: string }[]) => {
-                    updateReviewableContent(
+                  onChange={async (newValue: { label: string; value: string }[]) => {
+                    await updateReviewableContent(
                       `${genomicIndicatorPath}/associationVariants`,
                       genomicIndicator.associationVariants,
-                      newValue.map(value => ({
-                        name: value.label,
-                        uuid: value.value,
-                      })),
+                      newValue.map(value => value.value),
                       genomicIndicator.associationVariants_review,
                       genomicIndicator.associationVariants_uuid,
                     );
+                    await fetchGenomicIndicators(genomicIndicatorsPath);
                   }}
                 />
               );
@@ -282,6 +293,7 @@ const mapStoreToProps = ({
   firebaseGeneReviewService,
   firebaseMetaService,
   firebaseMutationListStore,
+  firebaseGenomicIndicatorsStore,
 }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   authStore,
@@ -290,6 +302,7 @@ const mapStoreToProps = ({
   updateGeneMetaContent: firebaseMetaService.updateGeneMetaContent,
   updateGeneReviewUuid: firebaseMetaService.updateGeneReviewUuid,
   mutations: firebaseMutationListStore.data,
+  fetchGenomicIndicators: firebaseGenomicIndicatorsStore.fetchData,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

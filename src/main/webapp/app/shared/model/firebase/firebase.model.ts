@@ -130,7 +130,7 @@ export class GenomicIndicator {
   description = '';
   description_uuid = generateUuid();
   description_review?: Review;
-  associationVariants?: { name: string; uuid: string }[] = [];
+  associationVariants?: string[] = [];
   associationVariants_uuid: string = generateUuid();
   associationVariants_review?: Review;
 }

@@ -92,7 +92,7 @@ import { FirebaseVusService } from 'app/service/firebase/firebase-vus-service';
 import { ModifyCancerTypeModalStore } from 'app/shared/modal/modify-cancer-type-modal.store';
 import { ModifyTherapyModalStore } from 'app/shared/modal/modify-therapy-modal.store';
 import { RelevantCancerTypesModalStore } from 'app/shared/modal/relevant-cancer-types-modal-store';
-import { HistoryList, MetaCollection, Mutation, VusObjList } from 'app/shared/model/firebase/firebase.model';
+import { GenomicIndicator, HistoryList, MetaCollection, Mutation, VusObjList } from 'app/shared/model/firebase/firebase.model';
 import { HistoryTabStore } from '../components/tabs/history-tab.store';
 import { FirebaseHistoryService } from '../service/firebase/firebase-history-service';
 import { CommentStore } from './comment.store';
@@ -153,6 +153,7 @@ export interface IRootStore {
   readonly firebaseMetaStore: FirebaseDataStore<MetaCollection>;
   readonly firebaseMutationListStore: FirebaseDataStore<Mutation[]>;
   readonly firebaseMutationConvertIconStore: FirebaseDataStore<Mutation[]>;
+  readonly firebaseGenomicIndicatorsStore: FirebaseDataStore<GenomicIndicator[]>;
 
   /* Firebase services */
   readonly firebaseGeneReviewService: FirebaseGeneReviewService;
@@ -217,6 +218,7 @@ export function createStores(history: History): IRootStore {
   const firebaseMetaStore = new FirebaseDataStore<MetaCollection>(firebaseAppStore);
   const firebaseMutationListStore = new FirebaseDataStore<Mutation[]>(firebaseAppStore);
   const firebaseMutationConvertIconStore = new FirebaseDataStore<Mutation[]>(firebaseAppStore);
+  const firebaseGenomicIndicatorsStore = new FirebaseDataStore<GenomicIndicator[]>(firebaseAppStore);
 
   rootStore.firebaseAppStore = firebaseAppStore;
   rootStore.firebaseHistoryStore = firebaseHistoryStore;
@@ -224,6 +226,7 @@ export function createStores(history: History): IRootStore {
   rootStore.firebaseMetaStore = firebaseMetaStore;
   rootStore.firebaseMutationListStore = firebaseMutationListStore;
   rootStore.firebaseMutationConvertIconStore = firebaseMutationConvertIconStore;
+  rootStore.firebaseGenomicIndicatorsStore = firebaseGenomicIndicatorsStore;
 
   /* Firebase Repository */
   const firebaseRepository = new FirebaseRepository(firebaseAppStore);

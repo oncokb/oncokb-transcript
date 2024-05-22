@@ -387,7 +387,7 @@ export class FirebaseGeneService {
   addGenomicIndicator = async (genomicIndicatorsPath: string) => {
     const newGenomicIndicator = new GenomicIndicator();
 
-    newGenomicIndicator.associationVariants = [{ name: PATHOGENIC_VARIANTS, uuid: PATHOGENIC_VARIANTS }];
+    newGenomicIndicator.associationVariants = [PATHOGENIC_VARIANTS];
 
     const newReview = new Review(this.authStore.fullName);
     newReview.updateTime = new Date().getTime();

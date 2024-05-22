@@ -12,8 +12,8 @@ import {
 } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
 import { getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
-import { getTxName } from './firebase-utils';
-import { READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
+import { getMutationName, getTxName } from './firebase-utils';
+import { PATHOGENIC_VARIANTS, READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import { DiffMethod } from 'react-diff-viewer-continued';
 import React from 'react';
@@ -310,7 +310,13 @@ export class EditorReviewMap {
   }
 }
 
-export const findReviews = (drugList: readonly IDrug[], gene: Gene, uuids: string[], editorReviewMap: EditorReviewMap) => {
+export const findReviews = (
+  drugList: readonly IDrug[],
+  gene: Gene,
+  uuids: string[],
+  editorReviewMap: EditorReviewMap,
+  mutations: Mutation[],
+) => {
   const rootReview: BaseReviewLevel = new BaseReviewLevel({
     reviewLevelType: ReviewLevelType.META,
     title: '',
@@ -318,7 +324,7 @@ export const findReviews = (drugList: readonly IDrug[], gene: Gene, uuids: strin
     historyLocation: '',
   });
 
-  findReviewRecursive(gene, '', uuids, rootReview, editorReviewMap, drugList);
+  findReviewRecursive(gene, '', uuids, rootReview, editorReviewMap, drugList, mutations);
   return rootReview;
 };
 
@@ -345,6 +351,7 @@ export const findReviewRecursive = (
   parentReview: BaseReviewLevel,
   editorReviewMap: EditorReviewMap,
   drugList: readonly IDrug[],
+  mutationList: Mutation[],
 ) => {
   if (uuids.length === 0) return;
   if (typeof currObj === 'object') {
@@ -357,7 +364,7 @@ export const findReviewRecursive = (
           const giPath = joinPathParts(currValuePath, 'genomic_indicators', index.toString());
           const nameReview = buildNameReview(gi, giPath, parentReview, uuids, editorReviewMap);
           parentReview.addChild(nameReview);
-          findReviewRecursive(gi, giPath, uuids, nameReview, editorReviewMap, drugList);
+          findReviewRecursive(gi, giPath, uuids, nameReview, editorReviewMap, drugList, mutationList);
         });
         removeLeafNodes(parentReview);
         continue;
@@ -369,7 +376,7 @@ export const findReviewRecursive = (
           const mutationPath = joinPathParts(currValuePath, 'mutations', index.toString());
           const nameReview = buildNameReview(mutation, mutationPath, parentReview, uuids, editorReviewMap);
           parentReview.addChild(nameReview);
-          findReviewRecursive(mutation, mutationPath, uuids, nameReview, editorReviewMap, drugList);
+          findReviewRecursive(mutation, mutationPath, uuids, nameReview, editorReviewMap, drugList, mutations);
         });
         removeLeafNodes(parentReview);
         continue;
@@ -381,7 +388,7 @@ export const findReviewRecursive = (
           const tumorPath = joinPathParts(currValuePath, 'tumors', index.toString());
           const cancerTypeNameReview = buildCancerTypeNameReview(tumor, tumorPath, parentReview, uuids, editorReviewMap);
           parentReview.addChild(cancerTypeNameReview);
-          findReviewRecursive(tumor, tumorPath, uuids, cancerTypeNameReview, editorReviewMap, drugList);
+          findReviewRecursive(tumor, tumorPath, uuids, cancerTypeNameReview, editorReviewMap, drugList, mutationList);
         });
         removeLeafNodes(parentReview);
         continue;
@@ -399,7 +406,7 @@ export const findReviewRecursive = (
             if (rctReview) {
               treatmentNameReview.addChild(rctReview);
             }
-            findReviewRecursive(treatment, treatmentPath, uuids, treatmentNameReview, editorReviewMap, drugList);
+            findReviewRecursive(treatment, treatmentPath, uuids, treatmentNameReview, editorReviewMap, drugList, mutationList);
           }
           removeLeafNodes(parentReview);
         }
@@ -409,7 +416,7 @@ export const findReviewRecursive = (
       if (typeof value === 'object' && !key.includes('_uuid')) {
         const newPath = joinPathParts(currValuePath, key);
         let metaReview = buildObjectReview(value, key, parentReview, uuids, editorReviewMap);
-        findReviewRecursive(value, newPath, uuids, metaReview, editorReviewMap, drugList);
+        findReviewRecursive(value, newPath, uuids, metaReview, editorReviewMap, drugList, mutationList);
         if (key === 'type' || key === 'allele_state') {
           // Checkbox reviewables should be converted to MultiSelectionReviewLevel so that they are grouped under one collapsible
           metaReview = convertToMultiSelectionReview(metaReview);
@@ -423,7 +430,15 @@ export const findReviewRecursive = (
         const relevantKeys = getRelevantKeysFromUuidKey(key);
 
         if (typeof currObj[relevantKeys.fieldKey] === 'string' || relevantKeys.fieldKey === 'associationVariants') {
-          const stringReviewLevel = buildStringReview(currObj, currValuePath, relevantKeys, parentReview, uuids, editorReviewMap);
+          const stringReviewLevel = buildStringReview(
+            currObj,
+            currValuePath,
+            relevantKeys,
+            parentReview,
+            uuids,
+            editorReviewMap,
+            mutationList,
+          );
           parentReview.addChild(stringReviewLevel);
         }
       }
@@ -602,6 +617,19 @@ export const buildCancerTypeNameReview = (
   return metaReview;
 };
 
+const getAssociationVariantStringFromUuids = (uuids: string[], mutations: Mutation[]) => {
+  return uuids
+    .map(uuid => {
+      if (uuid === PATHOGENIC_VARIANTS) {
+        return PATHOGENIC_VARIANTS;
+      }
+
+      const associatedMutation = mutations.find(mutation => mutation.name_uuid === uuid);
+      return getMutationName(associatedMutation.name, associatedMutation.alterations);
+    })
+    .join(', ');
+};
+
 export const buildStringReview = (
   obj: Record<string, any>,
   currValuePath: string,
@@ -609,14 +637,15 @@ export const buildStringReview = (
   parentReview: BaseReviewLevel,
   uuids: string[],
   editorReviewMap: EditorReviewMap,
+  mutations: Mutation[],
 ) => {
   const { fieldKey, reviewKey, uuidKey } = relevantKeys;
 
   let lastReviewedString: string;
   let currentString: string;
   if (fieldKey === 'associationVariants') {
-    lastReviewedString = (((obj[reviewKey] as Review).lastReviewed as any[]) || []).map(variant => variant.name).join(', ');
-    currentString = obj[fieldKey].map(variant => variant.name).join(', ');
+    lastReviewedString = getAssociationVariantStringFromUuids(((obj[reviewKey] as Review).lastReviewed as string[]) || [], mutations);
+    currentString = getAssociationVariantStringFromUuids(obj[fieldKey], mutations);
   } else {
     lastReviewedString = (obj[reviewKey] as Review).lastReviewed as string;
     currentString = obj[fieldKey] as string;
