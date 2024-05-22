@@ -201,6 +201,7 @@ const GenomicIndicatorsTable = ({
                   isDisabled={genomicIndicator.name_review?.removed || false}
                   value={
                     genomicIndicator.associationVariants?.map(variant => {
+                      // remove when working on https://github.com/oncokb/oncokb-pipeline/issues/389
                       if (variant.uuid === PATHOGENIC_VARIANTS) {
                         return { label: PATHOGENIC_VARIANTS, value: variant.uuid };
                       }
