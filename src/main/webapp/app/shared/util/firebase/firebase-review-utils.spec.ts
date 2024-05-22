@@ -80,7 +80,6 @@ describe('Firebase Review Utils', () => {
         defaultParentReview,
         uuids,
         editorReviewMap,
-        [],
       );
 
       const expectedValues = {
@@ -121,7 +120,6 @@ describe('Firebase Review Utils', () => {
         defaultParentReview,
         uuids,
         editorReviewMap,
-        [],
       );
 
       expect(uuids).toStrictEqual([]);
@@ -464,7 +462,7 @@ describe('Firebase Review Utils', () => {
       });
 
       it('should return all reviews', () => {
-        findReviewRecursive(gene, '', uuids, parentReview, editorReviewMap, drugList, []);
+        findReviewRecursive(gene, '', uuids, parentReview, editorReviewMap, drugList);
 
         const expectedReview = {
           reviewLevelType: 0,

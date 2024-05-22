@@ -1,8 +1,7 @@
 import React from 'react';
-import ActionIcon from 'app/shared/icons/ActionIcon';
+import ActionIcon, { IActionIcon } from 'app/shared/icons/ActionIcon';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 
-type SpanProps = JSX.IntrinsicElements['span'];
-export default function EditIcon(props: SpanProps) {
+export default function EditIcon(props: Omit<IActionIcon, 'icon'>) {
   return <ActionIcon {...props} icon={faPen} />;
 }

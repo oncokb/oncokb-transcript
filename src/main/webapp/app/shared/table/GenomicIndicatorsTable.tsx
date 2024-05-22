@@ -201,12 +201,12 @@ const GenomicIndicatorsTable = ({
                   isDisabled={genomicIndicator.name_review?.removed || false}
                   value={
                     genomicIndicator.associationVariants?.map(variant => {
-                      if (variant === PATHOGENIC_VARIANTS) {
-                        return { label: PATHOGENIC_VARIANTS, value: variant };
+                      if (variant.uuid === PATHOGENIC_VARIANTS) {
+                        return { label: PATHOGENIC_VARIANTS, value: variant.uuid };
                       }
 
-                      const associatedMutation = mutations.find(mutation => mutation.name_uuid === variant);
-                      return { label: getMutationName(associatedMutation.name, associatedMutation.alterations), value: variant };
+                      const associatedMutation = mutations.find(mutation => mutation.name_uuid === variant.uuid);
+                      return { label: getMutationName(associatedMutation.name, associatedMutation.alterations), value: variant.uuid };
                     }) || []
                   }
                   options={[
@@ -223,7 +223,10 @@ const GenomicIndicatorsTable = ({
                     await updateReviewableContent(
                       `${genomicIndicatorPath}/associationVariants`,
                       genomicIndicator.associationVariants,
-                      newValue.map(value => value.value),
+                      newValue.map(value => ({
+                        name: value.label,
+                        uuid: value.value,
+                      })),
                       genomicIndicator.associationVariants_review,
                       genomicIndicator.associationVariants_uuid,
                     );

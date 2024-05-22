@@ -135,10 +135,6 @@ export const parseAddRecord = (record: HistoryRecord, drugList: readonly IDrug[]
       );
 
       for (const entry of updatedEntries) {
-        if (typeof entry[1] !== 'string') {
-          continue;
-        }
-
         parsedRecords.push({
           new: entry[1],
           operation: HistoryOperationType.UPDATE,
@@ -232,6 +228,11 @@ export const findEntriesInObjectByUuids = (object: any, uuids: string[], drugLis
         const index = uuids.indexOf(value as string);
         if (index !== -1) {
           const fieldName = key.replace('_uuid', '');
+
+          if ((makeLocationReadable([fieldName], drugList).join() as READABLE_FIELD) === READABLE_FIELD.ASSOCIATION_VARIANTS) {
+            nestedObject.object[fieldName] = nestedObject.object[fieldName].map(variant => variant.name).join(', ');
+          }
+
           fieldValues[index] = [
             makeLocationReadable([...nestedObject.locationFields, fieldName], drugList).join(', '),
             nestedObject.object[fieldName],

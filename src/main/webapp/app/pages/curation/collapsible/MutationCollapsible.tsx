@@ -119,7 +119,7 @@ const MutationCollapsible = ({
     const associatedIndicators: string[] = [];
     for (const genomicIndicator of genomicIndicators) {
       for (const variant of genomicIndicator.associationVariants || []) {
-        if (mutationUuid === variant) {
+        if (mutationUuid === variant.uuid) {
           associatedIndicators.push(genomicIndicator.name_uuid);
         }
       }
@@ -238,6 +238,12 @@ const MutationCollapsible = ({
               onClick={() => {
                 setIsEditingMutation(true);
               }}
+              tooltipProps={
+                isAssociatedWithGenomicIndicator
+                  ? { overlay: <span>Cannot modify because mutation is associated with genomic indicator(s)</span> }
+                  : null
+              }
+              disabled={isAssociatedWithGenomicIndicator}
             />
             <DeleteSectionButton
               sectionName={title}
@@ -250,7 +256,7 @@ const MutationCollapsible = ({
               isRemovableWithoutReview={isRemovableWithoutReview}
               tooltipProps={
                 isAssociatedWithGenomicIndicator
-                  ? { overlay: <span>Cannot delete because mutation is associated with a genomic indicator</span> }
+                  ? { overlay: <span>Cannot delete because mutation is associated with genomic indicator(s)</span> }
                   : null
               }
               disabled={isAssociatedWithGenomicIndicator}
@@ -506,7 +512,6 @@ const MutationCollapsible = ({
           hugoSymbol={hugoSymbol}
           isGermline={isGermline}
           mutationToEditPath={isEditingMutation ? mutationPath : null}
-          isAssociatedWithGenomicIndicator={isAssociatedWithGenomicIndicator}
           onConfirm={async newMutation => {
             try {
               await updateMutationName(mutationPath, firebaseMutationsPath, mutationName, newMutation);

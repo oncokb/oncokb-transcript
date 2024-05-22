@@ -5,7 +5,7 @@ import { onValue, ref } from 'firebase/database';
 import _, { isNil } from 'lodash';
 import { flow, flowResult } from 'mobx';
 import React, { KeyboardEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FaChevronDown, FaChevronUp, FaExclamationCircle, FaExclamationTriangle, FaPlus } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp, FaExclamationTriangle, FaPlus } from 'react-icons/fa';
 import ReactSelect, { MenuPlacement } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import { Alert, Button, Col, Input, Row, Spinner } from 'reactstrap';
@@ -24,7 +24,7 @@ import { isEqualIngoreCase, parseAlterationName } from '../util/utils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
 import './add-mutation-modal.scss';
 import classNames from 'classnames';
-import { DEFAULT_ICON_SIZE, READABLE_ALTERATION, REFERENCE_GENOME } from 'app/config/constants/constants';
+import { READABLE_ALTERATION, REFERENCE_GENOME } from 'app/config/constants/constants';
 
 type AlterationData = {
   type: AlterationTypeEnum;
@@ -54,7 +54,6 @@ interface IAddMutationModalProps extends StoreProps {
     alteration: string;
     isConverting: boolean;
   };
-  isAssociatedWithGenomicIndicator?: boolean;
 }
 
 function AddMutationModal({
@@ -70,7 +69,6 @@ function AddMutationModal({
   onCancel,
   firebaseDb,
   convertOptions,
-  isAssociatedWithGenomicIndicator,
 }: IAddMutationModalProps) {
   const typeOptions: DropdownOption[] = [
     AlterationTypeEnum.ProteinChange,
@@ -902,55 +900,43 @@ function AddMutationModal({
 
   const modalBody = (
     <>
-      <div className="mb-3">
-        <Row className="align-items-center">
-          <Col className={classNames(!convertOptions?.isConverting && 'pe-0')}>
-            <CreatableSelect
-              ref={inputRef}
-              components={{
-                DropdownIndicator: null,
-              }}
-              isMulti
-              isDisabled={convertOptions?.isConverting || isAssociatedWithGenomicIndicator}
-              menuIsOpen={false}
-              placeholder="Enter alteration(s)"
-              inputValue={inputValue}
-              onInputChange={(newInput, { action }) => {
-                if (action !== 'menu-close' && action !== 'input-blur') {
-                  setInputValue(newInput);
-                }
-              }}
-              value={tabStates.map(state => {
-                const fullAlterationName = getFullAlterationName(state);
-                return { label: fullAlterationName, value: fullAlterationName, ...state };
-              })}
-              onChange={(newAlterations: AlterationData[]) =>
-                setTabStates(states =>
-                  states.filter(state => newAlterations.some(alt => getFullAlterationName(alt) === getFullAlterationName(state))),
-                )
+      <Row className="align-items-center mb-3">
+        <Col className={classNames(!convertOptions?.isConverting && 'pe-0')}>
+          <CreatableSelect
+            ref={inputRef}
+            components={{
+              DropdownIndicator: null,
+            }}
+            isMulti
+            isDisabled={convertOptions?.isConverting}
+            menuIsOpen={false}
+            placeholder="Enter alteration(s)"
+            inputValue={inputValue}
+            onInputChange={(newInput, { action }) => {
+              if (action !== 'menu-close' && action !== 'input-blur') {
+                setInputValue(newInput);
               }
-              onKeyDown={handleKeyDown}
-            />
+            }}
+            value={tabStates.map(state => {
+              const fullAlterationName = getFullAlterationName(state);
+              return { label: fullAlterationName, value: fullAlterationName, ...state };
+            })}
+            onChange={(newAlterations: AlterationData[]) =>
+              setTabStates(states =>
+                states.filter(state => newAlterations.some(alt => getFullAlterationName(alt) === getFullAlterationName(state))),
+              )
+            }
+            onKeyDown={handleKeyDown}
+          />
+        </Col>
+        {!convertOptions?.isConverting ? (
+          <Col className="col-auto ps-2">
+            <Button color="primary" disabled={!inputValue} onClick={handleAlterationAdded}>
+              Add
+            </Button>
           </Col>
-          {!convertOptions?.isConverting ? (
-            <Col className="col-auto ps-2">
-              <Button color="primary" disabled={!inputValue} onClick={handleAlterationAdded}>
-                Add
-              </Button>
-            </Col>
-          ) : undefined}
-        </Row>
-        {isAssociatedWithGenomicIndicator && (
-          <Row className="mt-2">
-            <Col>
-              <div className="error-message">
-                <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
-                <div>Cannot modify alterations associated with a genomic indicator</div>
-              </div>
-            </Col>
-          </Row>
-        )}
-      </div>
+        ) : undefined}
+      </Row>
       {tabStates.length > 0 && (
         <div className="pe-3">
           <Tabs

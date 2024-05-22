@@ -33,7 +33,6 @@ const ReviewPage = (props: IReviewPageProps) => {
 
   const [geneData, setGeneData] = useState(null);
   const [metaReview, setMetaReview] = useState(null);
-  const [mutations, setMutations] = useState<Mutation[]>([]);
 
   const [reviewUuids, setReviewUuids] = useState([]);
   const [rootReview, setRootReview] = useState<BaseReviewLevel>(undefined);
@@ -50,11 +49,6 @@ const ReviewPage = (props: IReviewPageProps) => {
     callbacks.push(
       onValue(ref(props.firebaseDb, firebaseMetaReviewPath), snapshot => {
         setMetaReview(snapshot.val());
-      }),
-    );
-    callbacks.push(
-      onValue(ref(props.firebaseDb, `${firebaseGenePath}/mutations`), snapshot => {
-        setMutations(snapshot.val() || []);
       }),
     );
 
@@ -76,13 +70,13 @@ const ReviewPage = (props: IReviewPageProps) => {
   useEffect(() => {
     if (geneData) {
       const reviewMap = new EditorReviewMap();
-      const reviews = findReviews(props.drugList, geneData, reviewUuids, reviewMap, mutations);
+      const reviews = findReviews(props.drugList, geneData, reviewUuids, reviewMap);
       Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
       setEditorReviewMap(reviewMap);
       setRootReview(reviews);
       props.handleReviewFinished(!reviews.hasChildren());
     }
-  }, [geneData, reviewUuids, mutations]);
+  }, [geneData, reviewUuids]);
 
   const acceptAllChangesFromEditors = (editors: string[]) => {
     let reviewLevels = [] as ReviewLevel[];
