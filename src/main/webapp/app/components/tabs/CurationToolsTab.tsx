@@ -1,7 +1,7 @@
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Row } from 'reactstrap';
+import { Button, Col, Row } from 'reactstrap';
 import { FaRegCheckCircle } from 'react-icons/fa';
 import { FaRegCircleXmark } from 'react-icons/fa6';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
@@ -112,7 +112,7 @@ export function CurationToolsTab({
     const geneData = geneEntities.find(entity => entity.hugoSymbol === geneName);
     setIsReleased(geneData?.flags?.some(flag => isReleasedFlag(flag)) || false);
     geneToUpdate.current = geneData;
-  }, [geneEntities]);
+  }, [geneEntities, geneName]);
 
   function getStatusIcon(checkPassed: boolean) {
     const marginClassNames = 'mb-1 me-2';
@@ -153,8 +153,10 @@ export function CurationToolsTab({
     if (isReleased) {
       return (
         <Row>
-          <FaRegCheckCircle size="24px" className="text-success mt-1 me-2" />
-          <h6 style={{ marginTop: '6px' }}>Gene is released</h6>
+          <Col className={'d-flex align-items-center'}>
+            <FaRegCheckCircle className="text-success me-2" />
+            <span>Gene is released</span>
+          </Col>
         </Row>
       );
     }
