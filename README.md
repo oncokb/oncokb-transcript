@@ -249,6 +249,61 @@ To launch your application's tests, run:
 
 ### Client tests
 
+#### Set up
+
+To run the tests the first time, you need to follow the steps in below.
+
+1. Run the brew command for the Mac in the [compiling section](https://github.com/Automattic/node-canvas?tab=readme-ov-file#compiling) of the node-canvas readme. For other systems, please see [compiling section](https://github.com/Automattic/node-canvas?tab=readme-ov-file#compiling) for instructions.
+
+```sh
+brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
+```
+
+2. Install the new npm packages with yarn.
+
+```sh
+yarn install --frozen-lockfile
+```
+
+3. Log into the firebase CLI
+
+```sh
+npx firebase login
+```
+
+4. Create an emulated version of firebase locally.
+
+```sh
+npx firebase init
+```
+
+- Select `Set up local emulators for Firebase products`
+- Name your project, for instance `oncokb-local`
+- Enter when prompted for the project name so it defaulted to your project
+- Select Authentication Emulator, Database Emulator when asked which emulators to setup
+
+#### Screenshot test
+
+1. Start up just the local client
+
+```sh
+yarn start
+```
+
+2. Start the firebase emulator
+
+```sh
+yarn run firebase-emulator
+```
+
+3. Run web driver IO
+
+```sh
+yarn run wdio
+```
+
+#### Unit test
+
 Unit tests are run by [Jest](https://jestjs.io/docs/getting-started). They're
 located in [src/test/javascript/](src/test/javascript/) and can be run with:
 
