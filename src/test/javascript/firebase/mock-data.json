@@ -64365,21 +64365,6 @@
       }
     }
   },
-  "Users": {
-    "test1": {
-      "email": "user@gmail.com",
-      "genes": {
-        "read": "all",
-        "write": "all"
-      },
-      "name": "User"
-    },
-    "test2": {
-      "admin": true,
-      "email": "user@gmail.com",
-      "name": "User"
-    }
-  },
   "VUS": {
     "BRAF": {
       "-LH_Z9CaIbqrfgaWRGWk": {
