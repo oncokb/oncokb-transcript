@@ -1,13 +1,4 @@
-import { componentInject } from 'app/shared/util/typed-inject';
-import { getSectionClassName } from 'app/shared/util/utils';
-import { IRootStore } from 'app/stores';
-import { observer } from 'mobx-react';
-import React, { useEffect, useState } from 'react';
-import { Alert, Button, Col, FormGroup, Input, Label, Row } from 'reactstrap';
-import _ from 'lodash';
 import { IDrug } from 'app/shared/model/drug.model';
-import { onValue, ref } from 'firebase/database';
-import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 import {
   BaseReviewLevel,
   EditorReviewMap,
@@ -17,6 +8,14 @@ import {
   reviewLevelSortMethod,
 } from 'app/shared/util/firebase/firebase-review-utils';
 import { getFirebaseGenePath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
+import { componentInject } from 'app/shared/util/typed-inject';
+import { getSectionClassName } from 'app/shared/util/utils';
+import { IRootStore } from 'app/stores';
+import { onValue, ref } from 'firebase/database';
+import { observer } from 'mobx-react';
+import React, { useEffect, useState } from 'react';
+import { Alert, Button, Col, FormGroup, Input, Label, Row } from 'reactstrap';
+import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 
 interface IReviewPageProps extends StoreProps {
   hugoSymbol: string;

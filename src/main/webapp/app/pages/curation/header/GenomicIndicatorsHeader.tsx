@@ -13,7 +13,12 @@ export interface IGenomicIndicatorsHeaderProps extends StoreProps {
   genomicIndicatorsPath: string;
 }
 
-function GenomicIndicatorsHeader({ genomicIndicatorsPath, firebaseDb, authStore, addGenomicIndicator }: IGenomicIndicatorsHeaderProps) {
+function GenomicIndicatorsHeader({
+  genomicIndicatorsPath,
+  firebaseDb,
+  addGenomicIndicator,
+  fetchGenomicIndicators,
+}: IGenomicIndicatorsHeaderProps) {
   const [genomicIndicators, setGenomicIndicators] = useState<GenomicIndicator[]>([]);
 
   useEffect(() => {
@@ -36,8 +41,9 @@ function GenomicIndicatorsHeader({ genomicIndicatorsPath, firebaseDb, authStore,
         className={classNames(isGenomicIndicator ? 'ms-2' : null)}
         title={!isGenomicIndicator ? 'Genomic Indicators' : null}
         disabled={isEmptyIndicatorName}
-        onClickHandler={() => {
-          addGenomicIndicator(genomicIndicatorsPath);
+        onClickHandler={async () => {
+          await addGenomicIndicator(genomicIndicatorsPath);
+          await fetchGenomicIndicators(genomicIndicatorsPath);
         }}
       />
     );
@@ -60,10 +66,11 @@ function GenomicIndicatorsHeader({ genomicIndicatorsPath, firebaseDb, authStore,
   );
 }
 
-const mapStoreToProps = ({ firebaseAppStore, authStore, firebaseGeneService }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, authStore, firebaseGeneService, firebaseGenomicIndicatorsStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   authStore,
   addGenomicIndicator: firebaseGeneService.addGenomicIndicator,
+  fetchGenomicIndicators: firebaseGenomicIndicatorsStore.fetchData,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

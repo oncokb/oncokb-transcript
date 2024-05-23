@@ -51,6 +51,7 @@ export const CurationPage = (props: ICurationPageProps) => {
   const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
   const firebaseHistoryPath = getFirebaseHistoryPath(isGermline, hugoSymbol);
   const mutationsPath = `${firebaseGenePath}/mutations`;
+  const genomicIndicatorsPath = `${firebaseGenePath}/genomic_indicators`;
   const firebaseMetaCurrentReviewerPath = `${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review/currentReviewer`;
 
   useEffect(() => {
@@ -226,7 +227,7 @@ export const CurationPage = (props: ICurationPageProps) => {
                     }))}
                   />
                 </div>
-                <GenomicIndicatorsTable genomicIndicatorsPath={`${firebaseGenePath}/genomic_indicators`} />
+                <GenomicIndicatorsTable genomicIndicatorsPath={genomicIndicatorsPath} />
               </>
             )}
           </div>

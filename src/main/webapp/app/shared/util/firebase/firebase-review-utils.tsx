@@ -12,8 +12,8 @@ import {
 } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
 import { getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
-import { getTxName } from './firebase-utils';
-import { READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
+import { getMutationName, getTxName } from './firebase-utils';
+import { PATHOGENIC_VARIANTS, READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import { DiffMethod } from 'react-diff-viewer-continued';
 import React from 'react';

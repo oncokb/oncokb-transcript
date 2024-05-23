@@ -9,10 +9,10 @@ import {
 } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import { History, HistoryCollection, HistoryList, HistoryOperationType, HistoryRecord } from 'app/shared/model/firebase/firebase.model';
+import _ from 'lodash';
 import { getCancerTypesNameWithExclusion, isUuid } from '../utils';
 import { BaseReviewLevel, ReviewLevel } from './firebase-review-utils';
 import { getMutationName, getTxName } from './firebase-utils';
-import _ from 'lodash';
 
 export const buildHistoryFromReviews = (reviewerName: string, reviewLevels: ReviewLevel[]) => {
   const history = new History(reviewerName);
@@ -228,6 +228,11 @@ export const findEntriesInObjectByUuids = (object: any, uuids: string[], drugLis
         const index = uuids.indexOf(value as string);
         if (index !== -1) {
           const fieldName = key.replace('_uuid', '');
+
+          if ((makeLocationReadable([fieldName], drugList).join() as READABLE_FIELD) === READABLE_FIELD.ASSOCIATION_VARIANTS) {
+            nestedObject.object[fieldName] = nestedObject.object[fieldName].map(variant => variant.name).join(', ');
+          }
+
           fieldValues[index] = [
             makeLocationReadable([...nestedObject.locationFields, fieldName], drugList).join(', '),
             nestedObject.object[fieldName],
