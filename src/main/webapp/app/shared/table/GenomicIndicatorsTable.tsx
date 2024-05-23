@@ -233,6 +233,7 @@ const GenomicIndicatorsTable = ({
                     );
                     await fetchGenomicIndicators(genomicIndicatorsPath);
                   }}
+                  noOptionsMessage={() => 'No such mutation in Mutations List'}
                 />
               );
             }}
