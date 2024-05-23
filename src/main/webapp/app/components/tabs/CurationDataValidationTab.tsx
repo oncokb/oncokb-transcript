@@ -257,7 +257,7 @@ function CurationDataValidationTab() {
               <span className="fs-3 fw-bold" style={{ margin: '0px' }}>
                 Validation Result
               </span>
-              <ValidationSearchForm className="ms-2" disabled={isValidating} onChange={setValidationResultFilter} />
+              <ValidationSearchForm className="ms-4" disabled={isValidating} onChange={setValidationResultFilter} />
               <div className="flex-grow-1"></div>
             </div>
           )}
