@@ -81,7 +81,7 @@ export type FlattenedHistory = HistoryRecord & Omit<History, 'records'>;
 export const parseHistory = (history: HistoryList, drugList: readonly IDrug[]) => {
   const parsedHistory: FlattenedHistory[] = []; // ADD TYPE
   for (const historyEntry of Object.values(history)) {
-    if (Symbol.iterator in historyEntry.records) {
+    if (historyEntry.records && Symbol.iterator in historyEntry.records) {
       const parsedRecords: HistoryRecord[] = [];
 
       for (const record of historyEntry.records) {
