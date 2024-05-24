@@ -233,6 +233,7 @@ const GenomicIndicatorsTable = ({
                     );
                     await fetchGenomicIndicators(genomicIndicatorsPath);
                   }}
+                  noOptionsMessage={() => 'Please add this mutation in the Mutations List below first'}
                 />
               );
             }}
