@@ -1,4 +1,4 @@
-import { APP_EXPANDED_DATETIME_FORMAT } from 'app/config/constants/constants';
+import { APP_EXPANDED_DATETIME_FORMAT, CURRENT_REVIEWER } from 'app/config/constants/constants';
 import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
@@ -80,6 +80,33 @@ export const getTxName = (drugList: readonly IDrug[], txUuidName: string) => {
 
 export const geneNeedsReview = (meta: Meta | undefined) => {
   return geneMetaReviewHasUuids(meta?.review);
+};
+
+export const mutationNeedsReview = (mutation: Mutation, review: MetaReview) => {
+  const ignoreNameChange = mutation.name_review?.added || false;
+  const uuids = Object.keys(review).filter(key => key !== CURRENT_REVIEWER);
+
+  let nestedObjects = [mutation];
+  while (nestedObjects.length > 0) {
+    const newNestedObjects = [];
+
+    for (const nestedObject of nestedObjects) {
+      for (const [key, val] of Object.entries(nestedObject)) {
+        if (key === 'name_uuid' || key === 'cancerTypes_uuid') {
+          if (!ignoreNameChange && uuids.includes(val)) {
+            return true;
+          }
+        } else if (key.endsWith('_uuid') && uuids.includes(val)) {
+          return true;
+        } else if (typeof val === 'object') {
+          newNestedObjects.push(val);
+        }
+      }
+    }
+
+    nestedObjects = newNestedObjects;
+  }
+  return false;
 };
 
 export const geneMetaReviewHasUuids = (metaReview: MetaReview) => {

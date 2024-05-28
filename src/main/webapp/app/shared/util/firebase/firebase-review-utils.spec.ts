@@ -16,10 +16,11 @@ import {
   joinPathParts,
   removeLeafNodes,
 } from './firebase-review-utils';
-import { Gene, GeneType, Implication, Mutation, Review, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
+import { Gene, GeneType, Implication, MetaReview, Mutation, Review, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { DiffMethod } from 'react-diff-viewer-continued';
 import { IDrug } from 'app/shared/model/drug.model';
 import { ICancerType } from 'app/shared/model/cancer-type.model';
+import { mutationNeedsReview } from './firebase-utils';
 
 describe('Firebase Review Utils', () => {
   describe('getRelevantKeysFromUuidKey', () => {
@@ -652,6 +653,61 @@ describe('Firebase Review Utils', () => {
         const { updatedReview, isChangeReverted } = getUpdatedReview(oldReview, currentVal, 'V600E', editorName);
         expect(updatedReview).not.toHaveProperty('lastReviewed');
         expect(isChangeReverted).toBeTruthy();
+      });
+    });
+
+    describe('mutationNeedsReview', () => {
+      it('should return true when not added and name needs review', () => {
+        const mutation = new Mutation('V600E');
+        mutation.name_review = new Review('User');
+
+        const metaReview = new MetaReview();
+        metaReview[mutation.name_uuid] = true;
+
+        expect(mutationNeedsReview(mutation, metaReview)).toBeTruthy();
+      });
+
+      it('should return false when added and name/cancer_types needs review', () => {
+        const treatment = new Treatment('Treatment');
+        treatment.name_review = new Review('User');
+
+        const tumor = new Tumor();
+        tumor.cancerTypes_review = new Review('User');
+        tumor.TIs[0].treatments = [treatment];
+
+        const mutation = new Mutation('V600E');
+        mutation.name_review = new Review('User');
+        mutation.name_review.added = true;
+        mutation.tumors = [tumor];
+
+        const metaReview = new MetaReview();
+        metaReview[mutation.name_uuid] = true;
+        metaReview[tumor.cancerTypes_uuid] = true;
+        metaReview[treatment.name_uuid] = true;
+
+        expect(mutationNeedsReview(mutation, metaReview)).toBeFalsy();
+      });
+
+      it('should return true when added and non name/cancer_types needs review', () => {
+        const treatment = new Treatment('Treatment');
+        treatment.name_review = new Review('User');
+
+        const tumor = new Tumor();
+        tumor.cancerTypes_review = new Review('User');
+        tumor.TIs[0].treatments = [treatment];
+
+        const mutation = new Mutation('V600E');
+        mutation.name_review = new Review('User');
+        mutation.name_review.added = true;
+        mutation.tumors = [tumor];
+
+        const metaReview = new MetaReview();
+        metaReview[mutation.name_uuid] = true;
+        metaReview[tumor.cancerTypes_uuid] = true;
+        metaReview[treatment.name_uuid] = true;
+        metaReview[treatment.description_uuid] = true;
+
+        expect(mutationNeedsReview(mutation, metaReview)).toBeTruthy();
       });
     });
   });

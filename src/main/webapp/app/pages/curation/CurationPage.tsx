@@ -3,7 +3,6 @@ import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { RouteComponentProps, useLocation } from 'react-router-dom';
 import { getFirebaseGenePath, getFirebaseHistoryPath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
-import { HistoryRecord } from 'app/shared/model/firebase/firebase.model';
 import { Col, Row } from 'reactstrap';
 import { getSectionClassName } from 'app/shared/util/utils';
 import { GENE_TYPE, GENE_TYPE_KEY, INHERITANCE_MECHANISM_OPTIONS, READABLE_FIELD, PENETRANCE_OPTIONS } from 'app/config/constants/firebase';
@@ -52,7 +51,8 @@ export const CurationPage = (props: ICurationPageProps) => {
   const firebaseHistoryPath = getFirebaseHistoryPath(isGermline, hugoSymbol);
   const mutationsPath = `${firebaseGenePath}/mutations`;
   const genomicIndicatorsPath = `${firebaseGenePath}/genomic_indicators`;
-  const firebaseMetaCurrentReviewerPath = `${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review/currentReviewer`;
+  const firebaseMetaGeneReviewPath = `${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review`;
+  const firebaseMetaCurrentReviewerPath = `${firebaseMetaGeneReviewPath}/currentReviewer`;
 
   useEffect(() => {
     props.searchGeneEntities({ query: hugoSymbolParam, exact: true });
@@ -234,6 +234,7 @@ export const CurationPage = (props: ICurationPageProps) => {
           <div ref={mutationsSectionRef}>
             <MutationsSection
               mutationsPath={mutationsPath}
+              metaGeneReviewPath={firebaseMetaGeneReviewPath}
               hugoSymbol={hugoSymbol}
               isGermline={isGermline}
               parsedHistoryList={tooltipHistoryList}

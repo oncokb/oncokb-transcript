@@ -1,19 +1,21 @@
 import { CHECKBOX_LABEL_LEFT_MARGIN, UPDATE_MUTATION_FILTERS_DEBOUNCE_MILLISECONDS } from 'app/config/constants/constants';
 import { ONCOGENICITY_OPTIONS, MUTATION_EFFECT_OPTIONS, TX_LEVEL_OPTIONS } from 'app/config/constants/firebase';
-import { FIREBASE_ONCOGENICITY, Mutation, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
-import { getFilterModalStats, getMutationName } from 'app/shared/util/firebase/firebase-utils';
+import { FIREBASE_ONCOGENICITY, MetaReview, Mutation, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import { getFilterModalStats, getMutationName, mutationNeedsReview } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { DataSnapshot, onValue, ref } from 'firebase/database';
 import _ from 'lodash';
 import React, { useEffect, useMemo, useState } from 'react';
-import { FaFilter } from 'react-icons/fa';
+import { FaFilter, FaSort } from 'react-icons/fa';
 import { Button, Col, Container, Input, InputGroup, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
 import AddMutationButton from '../button/AddMutationButton';
+import ReactSelect from 'react-select';
 
 export interface IMutationsSectionHeaderProps extends StoreProps {
   hugoSymbol: string;
   mutationsPath: string;
+  metaGeneReviewPath: string;
   filteredIndices: number[];
   setFilteredIndices: React.Dispatch<React.SetStateAction<number[]>>;
   showAddMutationModal: boolean;
@@ -28,12 +30,22 @@ enum FilterType {
   REVIEWED,
 }
 
-const HOTSPOT_OPTIONS = ['Yes', 'No'];
-const REVIEWED_OPTIONS = ['Yes', 'No'];
+enum SortOptions {
+  DEFAULT = 'Default Sort',
+  LAST_MODIFIED_BY = 'Last Modified By',
+  EXON_INCREASING = 'Exon Increasing',
+  POSITION = 'Position',
+}
+
+const YES = 'Yes';
+const NO = 'No';
+const HOTSPOT_OPTIONS = [YES, NO];
+const REVIEWED_OPTIONS = [YES, NO];
 
 function MutationsSectionHeader({
   hugoSymbol,
   mutationsPath,
+  metaGeneReviewPath,
   filteredIndices,
   setFilteredIndices,
   showAddMutationModal,
@@ -43,6 +55,7 @@ function MutationsSectionHeader({
 }: IMutationsSectionHeaderProps) {
   const [mutationsInitialized, setMutationsInitialized] = useState(false);
   const [mutations, setMutations] = useState<Mutation[]>([]);
+  const [metaReview, setMetaReview] = useState<MetaReview>(null);
 
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [mutationFilter, setMutationFilter] = useState('');
@@ -74,17 +87,26 @@ function MutationsSectionHeader({
   }, UPDATE_MUTATION_FILTERS_DEBOUNCE_MILLISECONDS);
 
   useEffect(() => {
-    const unsubscribe = onValue(ref(firebaseDb, mutationsPath), snapshot => {
-      if (mutationsInitialized) {
-        setMutationsDebounced(snapshot);
-      } else {
-        setMutations(snapshot.val());
-        setMutationsInitialized(true);
-      }
-    });
+    const callbacks = [];
 
-    return () => unsubscribe?.();
-  }, [mutationsInitialized]);
+    callbacks.push(
+      onValue(ref(firebaseDb, mutationsPath), snapshot => {
+        if (mutationsInitialized) {
+          setMutationsDebounced(snapshot);
+        } else {
+          setMutations(snapshot.val());
+          setMutationsInitialized(true);
+        }
+      }),
+    );
+    callbacks.push(
+      onValue(ref(firebaseDb, metaGeneReviewPath), snapshot => {
+        setMetaReview(snapshot.val());
+      }),
+    );
+
+    return () => callbacks.forEach(callback => callback?.());
+  }, [mutationsInitialized, mutationsPath, metaGeneReviewPath]);
 
   useEffect(() => {
     const newFilteredIndices =
@@ -117,7 +139,7 @@ function MutationsSectionHeader({
             .map(result => result.annotation?.hotspot?.hotspot);
           isHotspotMatch =
             uniqueHotspotStatus.filter(status => {
-              const mappedOption = status ? 'Yes' : 'No';
+              const mappedOption = status ? YES : NO;
               return selectedHotspot.includes(mappedOption);
             }).length > 0;
         }
@@ -148,7 +170,26 @@ function MutationsSectionHeader({
           return false;
         }
 
-        if (matchesName && matchesOncogenicity && matchesMutationEffect && matchesTxLevel() && isHotspotMatch) {
+        function matchesReview() {
+          if (!metaReview) {
+            return false;
+          }
+
+          const selectedReviews = reviewedFilter.filter(filter => filter.selected);
+          const needsReview = mutationNeedsReview(mutation, metaReview);
+
+          if (selectedReviews.length === 0) {
+            return true;
+          } else if (selectedReviews.length > 1) {
+            return false;
+          } else if (selectedReviews[0].label === YES) {
+            return !needsReview;
+          } else {
+            return needsReview;
+          }
+        }
+
+        if (matchesName && matchesOncogenicity && matchesMutationEffect && matchesTxLevel() && isHotspotMatch && matchesReview()) {
           return [...accumulator, index];
         }
 
@@ -158,16 +199,27 @@ function MutationsSectionHeader({
     if (!_.isEqual(filteredIndices, newFilteredIndices)) {
       setFilteredIndices(newFilteredIndices);
     }
-  }, [mutations, filteredIndices, mutationFilter, oncogenicityFilter, mutationEffectFilter, txLevelFilter, hotspotFilter]);
+  }, [
+    mutations,
+    metaReview,
+    filteredIndices,
+    mutationFilter,
+    oncogenicityFilter,
+    mutationEffectFilter,
+    txLevelFilter,
+    hotspotFilter,
+    reviewedFilter,
+  ]);
 
   const showFilterModalCancelButton = useMemo(() => {
     return (
       tempOncogenicityFilter.some(filter => filter.selected) ||
       tempMutationEffectFilter.some(filter => filter.selected) ||
       tempTxLevelFilter.some(filter => filter.selected) ||
-      tempHotspotFilter.some(filter => filter.selected)
+      tempHotspotFilter.some(filter => filter.selected) ||
+      tempReviewedFilter.some(filter => filter.selected)
     );
-  }, [tempOncogenicityFilter, tempMutationEffectFilter, tempTxLevelFilter, tempHotspotFilter]);
+  }, [tempOncogenicityFilter, tempMutationEffectFilter, tempTxLevelFilter, tempHotspotFilter, tempReviewedFilter]);
 
   const mutationsAreFiltered = useMemo(() => {
     return (
@@ -175,9 +227,10 @@ function MutationsSectionHeader({
       mutationEffectFilter.some(filter => filter.selected) ||
       txLevelFilter.some(filter => filter.selected) ||
       mutationFilter ||
-      hotspotFilter.some(filter => filter.selected)
+      hotspotFilter.some(filter => filter.selected) ||
+      reviewedFilter.some(filter => filter.selected)
     );
-  }, [oncogenicityFilter, mutationEffectFilter, txLevelFilter, mutationFilter, hotspotFilter]);
+  }, [oncogenicityFilter, mutationEffectFilter, txLevelFilter, mutationFilter, hotspotFilter, reviewedFilter]);
 
   useEffect(() => {
     const availableFilters = getFilterModalStats(mutations);
@@ -186,7 +239,7 @@ function MutationsSectionHeader({
       ...availableFilters.mutationEffects.map(option => getCheckboxUniqKey(FilterType.MUTATION_EFFECT, option)),
       ...availableFilters.txLevels.map(option => getCheckboxUniqKey(FilterType.TX_LEVEL, option)),
       ...HOTSPOT_OPTIONS.map(option => getCheckboxUniqKey(FilterType.HOTSPOT, option)),
-      ...REVIEWED_OPTIONS.map(option => getCheckboxUniqKey(FilterType.HOTSPOT, option)),
+      ...REVIEWED_OPTIONS.map(option => getCheckboxUniqKey(FilterType.REVIEWED, option)),
     ]);
   }, [mutations]);
 
@@ -247,11 +300,20 @@ function MutationsSectionHeader({
         {mutationsAreFiltered ? <span>{`Showing ${filteredIndices.length} of ${mutations.length} matching the search`}</span> : <span />}
         {mutations?.length > 0 && (
           <div className="d-flex align-items-center">
+            <div style={{ width: 300 }}>
+              <ReactSelect
+                defaultValue={{ label: SortOptions.DEFAULT, value: SortOptions.DEFAULT }}
+                options={Object.values(SortOptions).map(option => ({ label: option, value: option }))}
+                components={{
+                  DropdownIndicator: () => <FaSort className="mx-1" />,
+                }}
+              />
+            </div>
             <FaFilter
               color={mutationsAreFiltered ? 'gold' : null}
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: 'pointer', minWidth: 15 }}
               onClick={handleToggleFilterModal}
-              className="me-2"
+              className="mx-2"
               id="filter"
             />
             <Input placeholder={'Search Mutation'} value={mutationFilter} onChange={event => setMutationFilter(event.target.value)} />
@@ -420,6 +482,7 @@ function MutationsSectionHeader({
                       setTempMutationEffectFilter(initFilterCheckboxState(FilterType.MUTATION_EFFECT, MUTATION_EFFECT_OPTIONS));
                       setTempTxLevelFilter(initFilterCheckboxState(FilterType.TX_LEVEL, TX_LEVEL_OPTIONS));
                       setTempHotspotFilter(initFilterCheckboxState(FilterType.HOTSPOT, HOTSPOT_OPTIONS));
+                      setTempReviewedFilter(initFilterCheckboxState(FilterType.REVIEWED, REVIEWED_OPTIONS));
                     }}
                   >
                     Reset
@@ -434,6 +497,7 @@ function MutationsSectionHeader({
                     setMutationEffectFilter(tempMutationEffectFilter);
                     setTxLevelFilter(tempTxLevelFilter);
                     setHotspotFilter(tempHotspotFilter);
+                    setReviewedFilter(tempReviewedFilter);
                     setShowFilterModal(false);
                   }}
                 >
@@ -448,6 +512,7 @@ function MutationsSectionHeader({
                     setTempMutationEffectFilter(mutationEffectFilter);
                     setTempTxLevelFilter(txLevelFilter);
                     setTempHotspotFilter(hotspotFilter);
+                    setTempReviewedFilter(reviewedFilter);
                     setShowFilterModal(false);
                   }}
                 >
