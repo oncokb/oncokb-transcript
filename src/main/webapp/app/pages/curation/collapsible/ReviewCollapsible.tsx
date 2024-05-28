@@ -6,6 +6,8 @@ import {
   MultiSelectionReviewLevel,
   ReviewLevel,
   getCompactReviewInfo,
+  isCreateReview,
+  isDeleteReview,
   reformatReviewTitle,
   reviewLevelSortMethod,
 } from 'app/shared/util/firebase/firebase-review-utils';
@@ -286,7 +288,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
     return colorOptions;
   };
 
-  const isDeletion = reviewAction === ReviewAction.DELETE || reviewAction === ReviewAction.DEMOTE_MUTATION;
+  const isDeletion = isDeleteReview(rootReview);
 
   const defaultReviewCollapsibleDisplayOptions: CollapsibleDisplayProps = {
     disableCollapsible: isDeletion,
