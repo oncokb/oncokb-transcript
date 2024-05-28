@@ -58,7 +58,7 @@ const ReviewPage = (props: IReviewPageProps) => {
       let uuids = [];
       for (const key of Object.keys(metaReview)) {
         if (metaReview[key] === true) {
-          uuids = uuids.concat(key.split(', '));
+          uuids = uuids.concat(key.split(', ').map(uuid => uuid.trim()));
         }
       }
       setReviewUuids(uuids);
