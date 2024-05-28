@@ -259,9 +259,11 @@ export class FirebaseGeneService {
     const name = this.authStore.fullName;
     newTumor.cancerTypes_review = new Review(name, undefined, true, undefined);
 
+    const tumorNameUuid = `${newTumor.cancerTypes_uuid}, ${newTumor.excludedCancerTypes_uuid}`;
+
     return this.firebaseRepository.pushToArray(tumorPath, [newTumor]).then(() => {
       this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, false);
-      this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, newTumor.cancerTypes_uuid, true, false);
+      this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, tumorNameUuid, true, false);
     });
   };
 
@@ -277,6 +279,11 @@ export class FirebaseGeneService {
     tumor.cancerTypes_review = cancerTypesReview.updatedReview;
     tumor.excludedCancerTypes_review = excludedCancerTypesReview.updatedReview;
 
+    const isChangeReverted = cancerTypesReview.isChangeReverted || excludedCancerTypesReview.isChangeReverted;
+    // The legacy platform combines the uuid of cancerTypes and excludedCancerTypes in review mode.
+    // To maintain compatibility, we will do the same here.
+    const tumorNameUuid = `${tumor.cancerTypes_uuid}, ${tumor.excludedCancerTypes_uuid}`;
+
     const { hugoSymbol } = parseFirebaseGenePath(tumorPath);
 
     return this.firebaseRepository.update(tumorPath, tumor).then(() => {
@@ -287,13 +294,7 @@ export class FirebaseGeneService {
         this.firebaseRepository.delete(`${tumorPath}/excludedCancerTypes_review/lastReviewed`);
       }
       this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, false);
-      this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, tumor.cancerTypes_uuid, !cancerTypesReview.isChangeReverted, false);
-      this.firebaseMetaService.updateGeneReviewUuid(
-        hugoSymbol,
-        tumor.excludedCancerTypes_uuid,
-        !excludedCancerTypesReview.isChangeReverted,
-        false,
-      );
+      this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, tumorNameUuid, !isChangeReverted, false);
     });
   };
 

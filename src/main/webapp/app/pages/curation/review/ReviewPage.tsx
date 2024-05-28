@@ -55,10 +55,10 @@ const ReviewPage = (props: IReviewPageProps) => {
 
   useEffect(() => {
     if (metaReview) {
-      const uuids = [];
+      let uuids = [];
       for (const key of Object.keys(metaReview)) {
         if (metaReview[key] === true) {
-          uuids.push(key);
+          uuids = uuids.concat(key.split(',').map(uuid => uuid.trim()));
         }
       }
       setReviewUuids(uuids);
