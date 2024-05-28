@@ -16,6 +16,7 @@ import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { Alert, Button, Col, FormGroup, Input, Label, Row } from 'reactstrap';
 import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
+import _ from 'lodash';
 
 interface IReviewPageProps extends StoreProps {
   hugoSymbol: string;
@@ -55,10 +56,10 @@ const ReviewPage = (props: IReviewPageProps) => {
 
   useEffect(() => {
     if (metaReview) {
-      const uuids = [];
+      let uuids = [];
       for (const key of Object.keys(metaReview)) {
         if (metaReview[key] === true) {
-          uuids.push(key);
+          uuids = uuids.concat(key.split(', '));
         }
       }
       setReviewUuids(uuids);

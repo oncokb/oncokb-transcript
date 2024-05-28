@@ -18,6 +18,7 @@ import { IDrug } from 'app/shared/model/drug.model';
 import { DiffMethod } from 'react-diff-viewer-continued';
 import React from 'react';
 import { makeFirebaseKeysReadable } from './firebase-history-utils';
+import { ICancerType } from 'app/shared/model/cancer-type.model';
 
 export interface ReviewChildren {
   [key: string]: BaseReviewLevel;
@@ -111,6 +112,21 @@ export class ReviewLevel extends BaseReviewLevel {
     this.reviewInfo = reviewInfo;
     this.reviewInfo.reviewAction = getReviewAction(reviewInfo.review, reviewInfo.reviewPath);
     this.historyData = historyData;
+  }
+}
+
+export type TumorReviewLevelParams = {
+  currentExcludedCancerTypes?: ICancerType[];
+  excludedCancerTypesReviewInfo?: ReviewInfo;
+} & ReviewLevelParams;
+export class TumorReviewLevel extends ReviewLevel {
+  currentExcludedCancerTypes: ICancerType[];
+  excludedCancerTypesReviewInfo: ReviewInfo;
+
+  constructor({ currentExcludedCancerTypes, excludedCancerTypesReviewInfo, ...reviewLevelParams }: TumorReviewLevelParams) {
+    super({ ...reviewLevelParams });
+    this.excludedCancerTypesReviewInfo = excludedCancerTypesReviewInfo;
+    this.currentExcludedCancerTypes = currentExcludedCancerTypes;
   }
 }
 
@@ -541,10 +557,10 @@ export const buildCancerTypeNameReview = (
   editorReviewMap: EditorReviewMap,
 ) => {
   const nameKey = 'cancerTypes';
-  const nameReviewKey = `${nameKey}_review`;
 
   const valuePathParts = [currValuePath, nameKey];
   const valuePath = valuePathParts.join('/');
+  const excludedCancerTypesPath = [currValuePath, 'excludedCancerTypes'].join('/');
   const title = makeFirebaseKeysReadable([nameKey])[0];
 
   const readableName = getCancerTypesNameWithExclusion(tumor.cancerTypes, tumor?.excludedCancerTypes || [], true);
@@ -583,23 +599,32 @@ export const buildCancerTypeNameReview = (
     return metaReview;
   }
 
-  const nameReviewLevel = new ReviewLevel({
+  const tumorNameUuid = `${tumor.cancerTypes_uuid}, ${tumor.excludedCancerTypes_uuid}`;
+  const nameReviewLevel = new TumorReviewLevel({
     title: nameUpdated ? title : '',
     valuePath,
     historyLocation: buildHistoryLocation(parentReview, newTumorName),
     currentVal: newTumorName,
     reviewInfo: {
-      reviewPath: `${valuePath}/${nameReviewKey}`,
+      reviewPath: `${valuePath}_review`,
       review: cancerTypesReview,
       lastReviewedString: oldTumorName,
-      uuid: tumor.cancerTypes_uuid,
+      uuid: tumorNameUuid,
     },
     historyData: {
       oldState,
       newState,
     },
+    currentExcludedCancerTypes: tumor.excludedCancerTypes,
+    excludedCancerTypesReviewInfo: {
+      reviewPath: `${excludedCancerTypesPath}_review`,
+      review: excludedCTReview,
+      lastReviewedString: undefined,
+      uuid: undefined,
+    },
   });
   _.pull(uuids, tumor.cancerTypes_uuid);
+  _.pull(uuids, tumor.excludedCancerTypes_uuid);
   editorReviewMap.add(nameReviewLevel);
 
   metaReview.addChild(nameReviewLevel);

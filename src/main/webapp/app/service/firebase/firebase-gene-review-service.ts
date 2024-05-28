@@ -9,6 +9,7 @@ import { buildHistoryFromReviews } from '../../shared/util/firebase/firebase-his
 import { extractArrayPath, parseFirebaseGenePath } from '../../shared/util/firebase/firebase-path-utils';
 import {
   ReviewLevel,
+  TumorReviewLevel,
   clearAllNestedReviews,
   clearReview,
   getAllNestedReviewUuids,
@@ -87,8 +88,14 @@ export class FirebaseGeneReviewService {
           continue;
         }
         clearReview(review);
+        const updateObject: any = { [reviewPath]: review };
+        if ('excludedCancerTypesReviewInfo' in reviewLevel && 'currentExcludedCancerTypes' in reviewLevel) {
+          const tumorReviewLevel = reviewLevel as TumorReviewLevel;
+          const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo.reviewPath;
+          updateObject[excludedCtReviewPath] = review;
+        }
         try {
-          await this.firebaseRepository.update(geneFirebasePath, { [reviewPath]: review });
+          await this.firebaseRepository.update(geneFirebasePath, updateObject);
           await this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, false, isGermline);
         } catch (error) {
           throw new SentryError('Failed update when accepting changes in review mode', { hugoSymbol, reviewLevel, isGermline });
@@ -135,11 +142,19 @@ export class FirebaseGeneReviewService {
 
       if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
         const resetReview = new Review(this.authStore.fullName);
+        const updateObject = {
+          [reviewPath]: resetReview,
+          [fieldPath]: review.lastReviewed,
+        };
+        if ('excludedCancerTypesReviewInfo' in reviewLevel && 'currentExcludedCancerTypes' in reviewLevel) {
+          const tumorReviewLevel = reviewLevel as TumorReviewLevel;
+          const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo.reviewPath;
+          const excludedCtPath = excludedCtReviewPath.replace('_review', '');
+          updateObject[excludedCtReviewPath] = resetReview;
+          updateObject[excludedCtPath] = tumorReviewLevel.excludedCancerTypesReviewInfo.review.lastReviewed;
+        }
         try {
-          await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), {
-            [reviewPath]: resetReview,
-            [fieldPath]: review.lastReviewed,
-          });
+          await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), updateObject);
           await this.firebaseMetaService.updateMeta(hugoSymbol, uuid, false, isGermline);
         } catch (error) {
           throw new SentryError('Failed to reject updates in review mode', { hugoSymbol, reviewLevel, isGermline });
