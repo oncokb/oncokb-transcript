@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import * as Sentry from '@sentry/react';
 
 interface IErrorBoundaryProps {
   readonly children: JSX.Element | JSX.Element[];
@@ -32,6 +33,10 @@ class ErrorBoundary extends React.Component<IErrorBoundaryProps, IErrorBoundaryS
           {errorInfo.componentStack}
         </details>
       ) : undefined;
+
+      // Always send crash error to sentry
+      Sentry.captureException(error ? error : errorInfo);
+
       return (
         <div>
           <Button tag={Link} className={'mb-2'} to="/" replace color="primary" onClick={() => this.setState(this.defaultState)}>

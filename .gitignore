@@ -164,3 +164,5 @@ Desktop.ini
 ######################
 /src/test/javascript/screenshots/actual
 /src/test/javascript/screenshots/diff
+# Sentry Config File
+.env.sentry-build-plugin
