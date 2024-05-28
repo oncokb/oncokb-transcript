@@ -295,12 +295,6 @@ export class FirebaseGeneService {
       }
       this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, false);
       this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, tumorNameUuid, !isChangeReverted, false);
-      // this.firebaseMetaService.updateGeneReviewUuid(
-      //   hugoSymbol,
-      //   tumor.excludedCancerTypes_uuid,
-      //   !excludedCancerTypesReview.isChangeReverted,
-      //   false,
-      // );
     });
   };
 
