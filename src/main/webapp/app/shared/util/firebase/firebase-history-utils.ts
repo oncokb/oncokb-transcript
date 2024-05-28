@@ -52,9 +52,11 @@ export const getUuidsFromReview = (reviewLevel: ReviewLevel) => {
   const updatedFieldUuids = []; // Only the fields where data change has occurred should have its uuids added
   switch (reviewLevel.reviewInfo.reviewAction) {
     case ReviewAction.CREATE:
+    case ReviewAction.PROMOTE_VUS:
       findAllUuidsFromReview(reviewLevel, updatedFieldUuids);
       break;
     case ReviewAction.DELETE:
+    case ReviewAction.DEMOTE_MUTATION:
       return undefined;
     default:
       updatedFieldUuids.push(reviewLevel.reviewInfo.uuid);

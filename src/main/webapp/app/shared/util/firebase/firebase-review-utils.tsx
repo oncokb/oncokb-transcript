@@ -181,15 +181,28 @@ export const removeLeafNodes = (parentReview: BaseReviewLevel) => {
       }
 
       // If a new entity is created, we don't show in review mode until at least one field has been updated
-      shouldRemove =
-        [ReviewAction.CREATE, ReviewAction.PROMOTE_VUS].includes(reviewLevel.reviewInfo.reviewAction) &&
-        !reviewLevel.hasChildren() &&
-        !showGenomicIndicatorReview;
+      shouldRemove = isCreateReview(reviewLevel) && !reviewLevel.hasChildren() && !showGenomicIndicatorReview;
     }
     if (shouldRemove) {
       delete parentReview.children[key];
     }
   }
+};
+
+export const isCreateReview = (review: BaseReviewLevel) => {
+  if (review.reviewLevelType === ReviewLevelType.REVIEWABLE) {
+    const reviewLevel = review as ReviewLevel;
+    return [ReviewAction.CREATE, ReviewAction.PROMOTE_VUS].includes(reviewLevel.reviewInfo.reviewAction);
+  }
+  return false;
+};
+
+export const isDeleteReview = (review: BaseReviewLevel) => {
+  if (review.reviewLevelType === ReviewLevelType.REVIEWABLE) {
+    const reviewLevel = review as ReviewLevel;
+    return [ReviewAction.DELETE, ReviewAction.DEMOTE_MUTATION].includes(reviewLevel.reviewInfo.reviewAction);
+  }
+  return false;
 };
 
 export const getCompactReviewInfo = (review: BaseReviewLevel) => {
@@ -203,7 +216,7 @@ export const getCompactReviewInfo = (review: BaseReviewLevel) => {
   }
   let childReview = Object.values(review.children)[0];
   if (childReview.nestedUnderCreateOrDelete) {
-    if (review.reviewLevelType === ReviewLevelType.REVIEWABLE && (review as ReviewLevel).reviewInfo.reviewAction === ReviewAction.CREATE) {
+    if (isCreateReview(review)) {
       return review;
     }
   }
@@ -265,11 +278,7 @@ const isNestedUnderCreateOrDelete = (parentReview: BaseReviewLevel) => {
     return parentReview.nestedUnderCreateOrDelete;
   }
   const parent = parentReview as ReviewLevel;
-  if (
-    [ReviewAction.CREATE, ReviewAction.DELETE, ReviewAction.DEMOTE_MUTATION, ReviewAction.PROMOTE_VUS].includes(
-      parent.reviewInfo.reviewAction,
-    )
-  ) {
+  if (isCreateReview(parent) || isDeleteReview(parent)) {
     return true;
   } else {
     return parent.nestedUnderCreateOrDelete;

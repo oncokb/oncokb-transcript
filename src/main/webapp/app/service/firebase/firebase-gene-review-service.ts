@@ -13,6 +13,8 @@ import {
   clearReview,
   getAllNestedReviewUuids,
   getUpdatedReview,
+  isCreateReview,
+  isDeleteReview,
 } from '../../shared/util/firebase/firebase-review-utils';
 import { getFirebaseGenePath, getFirebaseVusPath } from '../../shared/util/firebase/firebase-utils';
 import { generateUuid, parseAlterationName } from '../../shared/util/utils';
@@ -93,7 +95,7 @@ export class FirebaseGeneReviewService {
         }
       }
 
-      if (reviewAction === ReviewAction.DELETE || reviewAction === ReviewAction.DEMOTE_MUTATION) {
+      if (isDeleteReview(reviewLevel)) {
         const { firebaseArrayPath, deleteIndex } = extractArrayPath(reviewLevel.valuePath);
         const firebasePath = geneFirebasePath + '/' + firebaseArrayPath;
         try {
@@ -109,7 +111,7 @@ export class FirebaseGeneReviewService {
         }
       }
 
-      if (reviewAction === ReviewAction.CREATE || reviewAction === ReviewAction.PROMOTE_VUS) {
+      if (isCreateReview(reviewLevel)) {
         const pathParts = reviewLevel.valuePath.split('/');
         pathParts.pop(); // Remove name or cancerTypes
         clearAllNestedReviews(reviewLevel.historyData.newState);
@@ -146,7 +148,7 @@ export class FirebaseGeneReviewService {
 
       review.updateTime = new Date().getTime();
       review.updatedBy = this.authStore.fullName;
-      if (reviewAction === ReviewAction.DELETE || reviewAction === ReviewAction.DEMOTE_MUTATION) {
+      if (isDeleteReview(reviewLevel)) {
         clearReview(review);
         try {
           await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), { [reviewPath]: review });
@@ -156,7 +158,7 @@ export class FirebaseGeneReviewService {
         }
       }
 
-      if (reviewAction === ReviewAction.CREATE || reviewAction === ReviewAction.PROMOTE_VUS) {
+      if (isCreateReview(reviewLevel)) {
         const { firebaseArrayPath, deleteIndex } = extractArrayPath(reviewLevel.valuePath);
         const firebasePath = geneFirebasePath + '/' + firebaseArrayPath;
         try {
