@@ -19,6 +19,7 @@ import { onValue, ref } from 'firebase/database';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
+  metaGeneReviewPath: string;
   hugoSymbol: string;
   isGermline: boolean;
   parsedHistoryList: Map<string, FlattenedHistory[]>;
@@ -27,6 +28,7 @@ export interface IMutationsSectionProps extends StoreProps {
 
 function MutationsSection({
   mutationsPath,
+  metaGeneReviewPath,
   hugoSymbol,
   isGermline,
   parsedHistoryList,
@@ -155,6 +157,7 @@ function MutationsSection({
             <MutationsSectionHeader
               hugoSymbol={hugoSymbol}
               mutationsPath={mutationsPath}
+              metaGeneReviewPath={metaGeneReviewPath}
               filteredIndices={filteredIndices}
               setFilteredIndices={setFilteredIndices}
               showAddMutationModal={showAddMutationModal}
