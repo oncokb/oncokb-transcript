@@ -73,9 +73,16 @@ export const config: Options.Testrunner = {
   // Sauce Labs platform configurator - a great tool to configure your capabilities:
   // https://saucelabs.com/platform/platform-configurator
   //
+  hostname: 'chrome',
+  port: 4444,
+  path: '/wd/hub',
   capabilities: [
     {
       browserName: 'chrome',
+      acceptInsecureCerts: true,
+      'goog:chromeOptions': {
+        args: ['--ignore-certificate-errors', '--allow-insecure-localhost'],
+      },
     },
   ],
 
