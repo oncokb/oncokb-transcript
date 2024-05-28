@@ -25,9 +25,11 @@ enum FilterType {
   MUTATION_EFFECT,
   TX_LEVEL,
   HOTSPOT,
+  REVIEWED,
 }
 
 const HOTSPOT_OPTIONS = ['Yes', 'No'];
+const REVIEWED_OPTIONS = ['Yes', 'No'];
 
 function MutationsSectionHeader({
   hugoSymbol,
@@ -63,6 +65,9 @@ function MutationsSectionHeader({
 
   const [hotspotFilter, setHotspotFilter] = useState(initFilterCheckboxState(FilterType.HOTSPOT, HOTSPOT_OPTIONS));
   const [tempHotspotFilter, setTempHotspotFilter] = useState(initFilterCheckboxState(FilterType.HOTSPOT, HOTSPOT_OPTIONS));
+
+  const [reviewedFilter, setReviewedFilter] = useState(initFilterCheckboxState(FilterType.REVIEWED, REVIEWED_OPTIONS));
+  const [tempReviewedFilter, setTempReviewedFilter] = useState(initFilterCheckboxState(FilterType.REVIEWED, REVIEWED_OPTIONS));
 
   const setMutationsDebounced = _.debounce((snapshot: DataSnapshot) => {
     setMutations(snapshot.val());
@@ -181,6 +186,7 @@ function MutationsSectionHeader({
       ...availableFilters.mutationEffects.map(option => getCheckboxUniqKey(FilterType.MUTATION_EFFECT, option)),
       ...availableFilters.txLevels.map(option => getCheckboxUniqKey(FilterType.TX_LEVEL, option)),
       ...HOTSPOT_OPTIONS.map(option => getCheckboxUniqKey(FilterType.HOTSPOT, option)),
+      ...REVIEWED_OPTIONS.map(option => getCheckboxUniqKey(FilterType.HOTSPOT, option)),
     ]);
   }, [mutations]);
 
@@ -326,6 +332,33 @@ function MutationsSectionHeader({
                       <Input
                         id={`tx-level-filter-${filter.label}`}
                         onChange={() => handleFilterCheckboxChange(index, setTempTxLevelFilter)}
+                        checked={filter.selected}
+                        disabled={isDisabled}
+                        style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
+                        type="checkbox"
+                      />
+                      <Label
+                        for={`tx-level-filter-${filter.label}`}
+                        style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: CHECKBOX_LABEL_LEFT_MARGIN }}
+                      >
+                        {filter.label}
+                      </Label>
+                    </InputGroup>
+                  </Col>
+                );
+              })}
+            </Row>
+            <h6 className="mb-2 mt-2">Reviewed</h6>
+            <Row className="align-items-start justify-content-start">
+              {tempReviewedFilter.map((filter, index) => {
+                const isDisabled = !checkboxEnabled(FilterType.REVIEWED, filter.label);
+
+                return (
+                  <Col className="col-2" key={filter.label}>
+                    <InputGroup>
+                      <Input
+                        id={`tx-level-filter-${filter.label}`}
+                        onChange={() => handleFilterCheckboxChange(index, setTempReviewedFilter)}
                         checked={filter.selected}
                         disabled={isDisabled}
                         style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
