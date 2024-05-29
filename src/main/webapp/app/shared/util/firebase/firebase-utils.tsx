@@ -27,6 +27,7 @@ import { replaceUrlParams } from '../url-utils';
 import { extractPositionFromSingleNucleotideAlteration, isUuid, parseAlterationName } from '../utils';
 import { isTxLevelPresent } from './firebase-level-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
+import { hasReview } from './firebase-review-utils';
 
 export const getValueByNestedKey = (obj: any, nestedKey = '') => {
   return nestedKey.split('/').reduce((currObj, currKey) => {
@@ -784,3 +785,27 @@ export const getReviewInfo = (editor: string, action: string, updateTime?: strin
 export const getAllCommentsString = (comments: Comment[]) => {
   return comments.map(comment => comment.content).join('\n');
 };
+
+export function findNestedUuids(obj: any, uuids: string[] = []) {
+  // Base case: if the input is not an object, return
+  if (typeof obj !== 'object' || obj === null) {
+    return uuids;
+  }
+
+  // Iterate through each key in the object
+  for (const key of Object.keys(obj)) {
+    if (key.endsWith('_review') && hasReview(obj[key])) {
+      // If the key ends with "_review" and has reviewable content, add the corresponding "_uuid" key to the result array
+      const uuidKey = key.slice(0, -7) + '_uuid';
+      if (obj[uuidKey]) {
+        uuids.push(obj[uuidKey]);
+      }
+    }
+    // If the value is an object, recursively call the function
+    if (typeof obj[key] === 'object') {
+      findNestedUuids(obj[key], uuids);
+    }
+  }
+
+  return uuids;
+}

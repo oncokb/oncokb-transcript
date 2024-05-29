@@ -2,7 +2,7 @@ import { CancerType, Review } from 'app/shared/model/firebase/firebase.model';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { getCancerTypesNameWithExclusion } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
-import { onValue, ref } from 'firebase/database';
+import { get, onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
@@ -81,6 +81,11 @@ function CancerTypeCollapsible({
     return () => callbacks.forEach(callback => callback?.());
   }, [cancerTypePath, firebaseDb]);
 
+  async function handleDeleteCancerType() {
+    const snapshot = await get(ref(firebaseDb, cancerTypePath));
+    deleteSection(`${cancerTypePath}/cancerTypes`, snapshot.val(), cancerTypesReview, cancerTypesUuid);
+  }
+
   if (!cancerTypes || !cancerTypesUuid) {
     return <></>;
   }
@@ -110,7 +115,7 @@ function CancerTypeCollapsible({
             />
             <DeleteSectionButton
               sectionName={cancerTypeName}
-              deleteHandler={() => deleteSection(`${cancerTypePath}/cancerTypes`, cancerTypesReview, cancerTypesUuid)}
+              deleteHandler={handleDeleteCancerType}
               isRemovableWithoutReview={isRemovableWithoutReview}
             />
           </>
