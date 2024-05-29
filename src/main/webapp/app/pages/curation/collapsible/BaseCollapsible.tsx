@@ -63,7 +63,11 @@ export default function BaseCollapsible({
 
   const infoComponent = useMemo(() => {
     if (!displayOptions?.hideInfo) {
-      return info;
+      return (
+        <div className="d-flex" data-testid="collapsible-info">
+          {info}
+        </div>
+      );
     }
   }, [displayOptions]);
 
@@ -73,7 +77,9 @@ export default function BaseCollapsible({
         return (
           <>
             <div className={classNames(styles.divider)} />
-            <div className={'collapsible-action all-children-margin'}>{action}</div>
+            <div className={'collapsible-action all-children-margin'} data-testid="collapsible-action">
+              {action}
+            </div>
           </>
         );
       }
@@ -83,7 +89,7 @@ export default function BaseCollapsible({
   const collapsibleRef = node => {
     if (!node) return;
 
-    if (colorOptions.hideLeftBorder === false && colorOptions.borderLeftColor) {
+    if (colorOptions?.hideLeftBorder === false && colorOptions?.borderLeftColor) {
       const borderLeftColor = colorOptions.borderLeftColor;
       // By default use the borderLeft color as the backgroundColor if backgroundColor is not passed in
       const backgroundColor = colorOptions?.backgroundColor ? colorOptions.backgroundColor : borderLeftColor;
@@ -102,14 +108,16 @@ export default function BaseCollapsible({
         className={classNames(
           'd-flex align-items-center p-1 bg-transparent pe-2',
           styles.header,
-          colorOptions.hideLeftBorder ? styles.hiddenHeaderLeftBorder : undefined,
+          colorOptions?.hideLeftBorder ? styles.hiddenHeaderLeftBorder : undefined,
         )}
         ref={collapsibleRef}
+        data-testid="collapsible-card"
       >
         <div style={{ flexGrow: 1 }} className="d-flex align-items-center">
           <div
             className={classNames(styles.collapsibleTitleWrapper, displayOptions?.disableCollapsible && styles.disabledCollapsible)}
             onClick={handleToggle}
+            data-testid="collapsible-title-wrapper"
           >
             <button
               disabled={displayOptions?.disableCollapsible || displayOptions?.hideToggle}
@@ -132,7 +140,7 @@ export default function BaseCollapsible({
             {showLoadingSpinner && (
               <span className="ps-2">
                 <Spinner
-                  style={{ color: colorOptions.hideLeftBorder === true ? colorOptions.backgroundColor : colorOptions.borderLeftColor }}
+                  style={{ color: colorOptions?.hideLeftBorder === true ? colorOptions.backgroundColor : colorOptions.borderLeftColor }}
                   size="sm"
                 />
               </span>
