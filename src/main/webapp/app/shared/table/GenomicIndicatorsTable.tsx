@@ -13,11 +13,12 @@ import './genomic-indicators-table.scss';
 import { DeleteSectionButton } from 'app/pages/curation/button/DeleteSectionButton';
 import DefaultBadge from '../badge/DefaultBadge';
 import { DELETED_SECTION_TOOLTIP_OVERLAY } from 'app/pages/curation/BadgeGroup';
-import { getFirebasePath, getMutationName, isSectionRemovableWithoutReview } from '../util/firebase/firebase-utils';
+import { findNestedUuids, getFirebasePath, getMutationName, isSectionRemovableWithoutReview } from '../util/firebase/firebase-utils';
 import { DANGER } from 'app/config/colors';
 import { getHexColorWithAlpha } from '../util/utils';
 import { parseFirebaseGenePath } from '../util/firebase/firebase-path-utils';
 import GenomicIndicatorsHeader from 'app/pages/curation/header/GenomicIndicatorsHeader';
+import { SentryError } from 'app/config/sentry-error';
 
 export interface IGenomicIndicatorsTableProps extends StoreProps {
   genomicIndicatorsPath: string;
@@ -32,6 +33,7 @@ const GenomicIndicatorsTable = ({
   updateReviewableContent,
   updateGeneMetaContent,
   updateGeneReviewUuid,
+  updateMeta,
   fetchGenomicIndicators,
 }: IGenomicIndicatorsTableProps) => {
   const [genomicIndicatorsLength, setGenomicIndicatorsLength] = useState<number>(0);
@@ -48,17 +50,27 @@ const GenomicIndicatorsTable = ({
     const review = new Review(name, undefined, undefined, true);
 
     if (removeWithoutReview) {
-      await deleteGenomicIndicators(genomicIndicatorsPath, [index]);
-      return await fetchGenomicIndicators(genomicIndicatorsPath);
+      const nestedUuids = findNestedUuids(genomicIndicator);
+      try {
+        await deleteGenomicIndicators(genomicIndicatorsPath, [index]);
+        for (const id of nestedUuids) {
+          await updateGeneReviewUuid(hugoSymbol, id, false, true);
+        }
+        return await fetchGenomicIndicators(genomicIndicatorsPath);
+      } catch (error) {
+        throw new SentryError('Failed to genomic indicator without review', { genomicIndicator, index });
+      }
     }
 
     // Let the deletion be reviewed
-    return update(ref(firebaseDb, `${getFirebasePath('GERMLINE_GENE', hugoSymbol)}`), {
-      [`${pathFromGene}_review`]: review,
-    }).then(() => {
-      updateGeneMetaContent(hugoSymbol, true);
-      updateGeneReviewUuid(hugoSymbol, genomicIndicator.name_uuid, true, true);
-    });
+    try {
+      await update(ref(firebaseDb, `${getFirebasePath('GERMLINE_GENE', hugoSymbol)}`), {
+        [`${pathFromGene}_review`]: review,
+      });
+      await updateMeta(hugoSymbol, genomicIndicator.name_uuid, true, true);
+    } catch (error) {
+      throw new SentryError('Failed to mark genomic indicator deletion for review', { genomicIndicator, index });
+    }
   }
 
   useEffect(() => {
@@ -308,6 +320,7 @@ const mapStoreToProps = ({
   updateGeneReviewUuid: firebaseMetaService.updateGeneReviewUuid,
   mutations: firebaseMutationListStore.data,
   fetchGenomicIndicators: firebaseGenomicIndicatorsStore.fetchData,
+  updateMeta: firebaseMetaService.updateMeta,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

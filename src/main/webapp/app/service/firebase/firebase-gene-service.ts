@@ -12,9 +12,9 @@ import {
   Tumor,
 } from 'app/shared/model/firebase/firebase.model';
 import { isTxLevelPresent } from 'app/shared/util/firebase/firebase-level-utils';
-import { parseFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
+import { extractArrayPath, parseFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
 import { FirebaseGeneReviewService } from 'app/service/firebase/firebase-gene-review-service';
-import { getFirebaseGenePath, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
+import { findNestedUuids, getFirebaseGenePath, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
 import AuthStore from '../../stores/authentication.store';
 import { FirebaseRepository } from '../../stores/firebase/firebase-repository';
 import { FirebaseMetaService } from './firebase-meta-service';
@@ -24,6 +24,7 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import { getErrorMessage } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
 import { FirebaseDataStore } from 'app/stores/firebase/firebase-data.store';
 import { getUpdatedReview } from 'app/shared/util/firebase/firebase-review-utils';
+import { SentryError } from 'app/config/sentry-error';
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {
@@ -192,7 +193,13 @@ export class FirebaseGeneService {
     return summary;
   };
 
-  deleteSection = async (path: string, review: Review, uuid: string, isDemotedToVus = false) => {
+  deleteSection = async (
+    path: string,
+    sectionObject: Mutation | Tumor | Treatment | GenomicIndicator,
+    review: Review,
+    uuid: string,
+    isDemotedToVus = false,
+  ) => {
     const isGermline = path.toLowerCase().includes('germline');
     const name = this.authStore.fullName;
     const pathDetails = parseFirebaseGenePath(path);
@@ -211,21 +218,25 @@ export class FirebaseGeneService {
     }
 
     if (removeWithoutReview) {
-      const pathParts = path.split('/');
-      const indexToRemove = parseInt(pathParts.pop(), 10);
-      const arrayPath = pathParts.join('/');
-      return this.firebaseRepository.deleteFromArray(arrayPath, [indexToRemove]);
+      const { firebaseArrayPath, deleteIndex } = extractArrayPath(path);
+      const nestedUuids = findNestedUuids(sectionObject);
+      try {
+        await this.firebaseRepository.deleteFromArray(firebaseArrayPath, [deleteIndex]);
+        for (const id of nestedUuids) {
+          await this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, id, false, isGermline);
+        }
+      } catch (error) {
+        throw new SentryError('Failed to delete without review', { path, sectionObject, review, uuid, isDemotedToVus });
+      }
+    } else {
+      // Let the deletion be reviewed
+      try {
+        await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), { [`${pathFromGene}_review`]: review });
+        await this.firebaseMetaService.updateMeta(hugoSymbol, uuid, true, isGermline);
+      } catch (error) {
+        throw new SentryError('Failed to mark deletion for review', { path, sectionObject, review, uuid, isDemotedToVus });
+      }
     }
-
-    // Let the deletion be reviewed
-    return this.firebaseRepository
-      .update(getFirebaseGenePath(isGermline, hugoSymbol), {
-        [`${pathFromGene}_review`]: review,
-      })
-      .then(() => {
-        this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, isGermline);
-        this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, true, isGermline);
-      });
   };
 
   createGene = async (hugoSymbol: string, isGermline: boolean, routeAfter?: string) => {

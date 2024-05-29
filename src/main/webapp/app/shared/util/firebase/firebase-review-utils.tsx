@@ -823,3 +823,16 @@ export const getUpdatedReview = (oldReview: Review, currentValue: any, newValue:
 
   return { updatedReview: oldReview, isChangeReverted };
 };
+
+export const hasReview = (review: Review) => {
+  if (review.lastReviewed === '' || !_.isEmpty(review.lastReviewed)) {
+    return true;
+  }
+  const reviewableKeys: (keyof Review)[] = ['added', 'promotedToMutation', 'removed', 'demotedToVus', 'initialUpdate'];
+  for (const key of reviewableKeys) {
+    if (review[key] === true) {
+      return true;
+    }
+  }
+  return false;
+};

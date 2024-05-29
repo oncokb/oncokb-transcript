@@ -23,6 +23,7 @@ import { Alteration, Review } from 'app/shared/model/firebase/firebase.model';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import {
+  findNestedUuids,
   getFirebaseGenePath,
   getFirebaseVusPath,
   getMutationName,
@@ -32,7 +33,7 @@ import {
 import { componentInject } from 'app/shared/util/typed-inject';
 import { getExonRanges } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
-import { onValue, ref } from 'firebase/database';
+import { get, onValue, ref } from 'firebase/database';
 import _ from 'lodash';
 import { observer } from 'mobx-react';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -170,12 +171,11 @@ const MutationCollapsible = ({
     return () => callbacks.forEach(callback => callback?.());
   }, [mutationPath, firebaseDb]);
 
-  async function handleDemoteToVus() {
-    await deleteSection(`${mutationPath}/name`, mutationNameReview, mutationUuid, true);
-    setIsConvertingToVus(false);
-    if (open) {
-      onToggle();
-    }
+  async function handleDeleteMutation(toVus = false) {
+    const snapshot = await get(ref(firebaseDb, mutationPath));
+    await deleteSection(`${mutationPath}/name`, snapshot.val(), mutationNameReview, mutationUuid, toVus);
+    if (toVus) setIsConvertingToVus(false);
+    if (open) onToggle();
   }
 
   if (!mutationUuid || !mutationName) {
@@ -247,12 +247,7 @@ const MutationCollapsible = ({
             />
             <DeleteSectionButton
               sectionName={title}
-              deleteHandler={async () => {
-                await deleteSection(`${mutationPath}/name`, mutationNameReview, mutationUuid);
-                if (open) {
-                  onToggle();
-                }
-              }}
+              deleteHandler={() => handleDeleteMutation()}
               isRemovableWithoutReview={isRemovableWithoutReview}
               tooltipProps={
                 isAssociatedWithGenomicIndicator
@@ -531,7 +526,7 @@ const MutationCollapsible = ({
           isGermline={isGermline}
           vusList={vusData}
           onCancel={() => setIsConvertingToVus(false)}
-          onConfirm={handleDemoteToVus}
+          onConfirm={() => handleDeleteMutation(true)}
           convertOptions={{
             initialAlterations: mutationName.split(',').map(alteration => alteration.trim()),
             isConverting: true,
@@ -552,6 +547,7 @@ const mapStoreToProps = ({
   drugStore,
   curationPageStore,
   firebaseGenomicIndicatorsStore,
+  firebaseMutationListStore,
 }: IRootStore) => ({
   deleteSection: firebaseGeneService.deleteSection,
   addTumor: firebaseGeneService.addTumor,
@@ -564,6 +560,7 @@ const mapStoreToProps = ({
   firebaseDb: firebaseAppStore.firebaseDb,
   annotatedAltsCache: curationPageStore.annotatedAltsCache,
   genomicIndicators: firebaseGenomicIndicatorsStore.data,
+  mutationList: firebaseMutationListStore.data,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

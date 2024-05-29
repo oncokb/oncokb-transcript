@@ -10,7 +10,7 @@ import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-util
 import { getTxName, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { onValue, ref } from 'firebase/database';
+import { get, onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import BadgeGroup from '../BadgeGroup';
@@ -71,6 +71,11 @@ function TherapyCollapsible({
     );
   }, [therapyPath, firebaseDb]);
 
+  async function handleDeleteTherapy() {
+    const snapshot = await get(ref(firebaseDb, therapyPath));
+    deleteSection(`${therapyPath}/name`, snapshot.val(), treatmentReview, treatmentUuid);
+  }
+
   if (!treatmentUuid || !treatmentName) {
     return <></>;
   }
@@ -96,7 +101,7 @@ function TherapyCollapsible({
             />
             <DeleteSectionButton
               sectionName={cancerTypeName}
-              deleteHandler={() => deleteSection(`${therapyPath}/name`, treatmentReview, treatmentUuid)}
+              deleteHandler={handleDeleteTherapy}
               isRemovableWithoutReview={isRemovableWithoutReview}
             />
           </>
