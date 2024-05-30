@@ -16,6 +16,7 @@ import { IDrug } from 'app/shared/model/drug.model';
 import { IRule } from 'app/shared/model/rule.model';
 import { INTEGER_REGEX, REFERENCE_LINK_REGEX, SINGLE_NUCLEOTIDE_POS_REGEX, UUID_REGEX } from 'app/config/constants/regex';
 import { ProteinExonDTO } from 'app/shared/api/generated/curation';
+import { IQueryParams } from './jhipster-types';
 
 export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
   if (!cancerType) return '';
@@ -375,3 +376,7 @@ export function getExonRanges(exons: ProteinExonDTO[]) {
 export function isUuid(str: string) {
   return UUID_REGEX.test(str);
 }
+
+export const parseSort = (sort: IQueryParams['sort']) => {
+  return sort.map(sortMethod => `&sort=${sortMethod}`).join('');
+};
