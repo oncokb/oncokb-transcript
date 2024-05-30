@@ -76,8 +76,8 @@ const MutationCollapsible = ({
 }: IMutationCollapsibleProps) => {
   const firebaseMutationsPath = `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`;
 
-  const [mutationUuid, setMutationUuid] = useState<string>(null);
-  const [mutationName, setMutationName] = useState<string>(null);
+  const [mutationUuid, setMutationUuid] = useState<string>('');
+  const [mutationName, setMutationName] = useState<string>('');
   const [mutationNameReview, setMutationNameReview] = useState<Review>(null);
   const [mutationAlterations, setMutationAlterations] = useState<Alteration[]>(null);
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
@@ -175,7 +175,10 @@ const MutationCollapsible = ({
     const snapshot = await get(ref(firebaseDb, mutationPath));
     await deleteSection(`${mutationPath}/name`, snapshot.val(), mutationNameReview, mutationUuid, toVus);
     if (toVus) setIsConvertingToVus(false);
-    if (open) onToggle();
+  }
+
+  if (_.isNil(mutationUuid) || (_.isNil(mutationName) && open)) {
+    onToggle();
   }
 
   if (!mutationUuid || !mutationName) {
