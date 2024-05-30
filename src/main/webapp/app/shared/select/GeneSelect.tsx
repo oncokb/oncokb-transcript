@@ -30,9 +30,9 @@ const GeneSelect = (props: IGeneSelectProps) => {
     let result = undefined;
     let options: GeneSelectOption[] = [];
     if (searchWord) {
-      result = await searchGenes({ query: searchWord, page: page - 1, size: ITEMS_PER_PAGE, sort: sortParamter });
+      result = await searchGenes({ query: searchWord, page: page - 1, size: ITEMS_PER_PAGE, sort: [sortParamter] });
     } else {
-      result = await getGenes({ page: page - 1, size: ITEMS_PER_PAGE, sort: sortParamter });
+      result = await getGenes({ page: page - 1, size: ITEMS_PER_PAGE, sort: [sortParamter] });
     }
 
     options = result?.data?.map((entity: IGene) => ({

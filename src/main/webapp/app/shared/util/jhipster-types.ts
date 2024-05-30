@@ -9,7 +9,7 @@ export interface IQueryParams {
   query?: string;
   page?: number;
   size?: number;
-  sort?: string;
+  sort?: string[];
 }
 
 export interface ISearchParams extends IQueryParams {

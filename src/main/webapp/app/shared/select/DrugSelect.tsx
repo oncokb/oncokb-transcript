@@ -49,7 +49,7 @@ const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
     }
 
     async function fetchAllDrugs() {
-      const drugs: IDrug[] = (await getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: sortParameter }))?.['data'];
+      const drugs: IDrug[] = (await getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: [sortParameter] }))?.['data'];
       setDrugOptions(getDrugSelectOptionsFromDrugs(drugs));
     }
 

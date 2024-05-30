@@ -3,12 +3,13 @@ import ReactTable, { TableProps } from 'react-table';
 import { Col, Input, Row } from 'reactstrap';
 import { ASC, DESC, ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
 import { debouncedSearchWithPagination } from '../util/pagination-crud-store';
+import { IQueryParams, ISearchParams } from '../util/jhipster-types';
 
 /* eslint-disable @typescript-eslint/ban-types */
 export interface IOncoKBAsyncTableProps<T> extends Partial<TableProps<T>> {
   initialPaginationState: PaginationState<T>;
-  searchEntities: ({ query, page, size, sort }) => void;
-  getEntities: ({ page, size, sort }) => void;
+  searchEntities: ({ query, page, size, sort }: ISearchParams) => void;
+  getEntities: ({ page, size, sort }: IQueryParams) => void;
   totalItems: number;
   loading?: boolean;
   fixedHeight?: boolean;
@@ -28,17 +29,19 @@ export const OncoKBAsyncTable = <T extends object>(props: IOncoKBAsyncTableProps
   useEffect(() => {
     if (searchKeyword) {
       debouncedSearchWithPagination(
-        searchKeyword,
-        paginationState.activePage - 1,
-        props.pageSize,
-        `${paginationState.sort as string},${paginationState.order}`,
-        props.searchEntities
+        {
+          query: searchKeyword,
+          page: paginationState.activePage - 1,
+          size: props.pageSize,
+          sort: [`${paginationState.sort as string},${paginationState.order}`],
+        },
+        props.searchEntities,
       );
     } else {
       props.getEntities({
         page: paginationState.activePage - 1,
         size: pageSize,
-        sort: `${paginationState.sort as string},${paginationState.order}`,
+        sort: [`${paginationState.sort as string},${paginationState.order}`],
       });
     }
   }, [paginationState.activePage, paginationState.order, paginationState.sort, pageSize, searchKeyword]);

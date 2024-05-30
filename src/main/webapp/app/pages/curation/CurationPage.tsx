@@ -56,7 +56,7 @@ export const CurationPage = (props: ICurationPageProps) => {
 
   useEffect(() => {
     props.searchGeneEntities({ query: hugoSymbolParam, exact: true });
-    props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
+    props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
     return () => {
       props.setOpenMutationCollapsibleIndex(null);
     };
