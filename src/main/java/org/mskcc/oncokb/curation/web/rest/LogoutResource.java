@@ -2,6 +2,7 @@ package org.mskcc.oncokb.curation.web.rest;
 
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import org.mskcc.oncokb.curation.security.SecurityUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,22 +34,9 @@ public class LogoutResource {
      */
     @PostMapping("/api/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
-        StringBuilder logoutUrl = new StringBuilder();
-
-        // Get keycloak logout endpoint (host/auth/realms/<my_realm>/protocol/openid-connect/logout)
-        logoutUrl.append(this.registration.getProviderDetails().getConfigurationMetadata().get("end_session_endpoint").toString());
-
-        String originUrl = request.getHeader(HttpHeaders.ORIGIN);
-
-        OAuth2AuthenticationToken auth = (OAuth2AuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        OidcUser oAuth2User = (OidcUser) auth.getPrincipal();
-        String idTokenHint = oAuth2User.getIdToken().getTokenValue();
-
-        // After logout redirect to home page
-        logoutUrl.append("?post_logout_redirect_uri=").append(originUrl);
-        logoutUrl.append("&id_token_hint=").append(idTokenHint);
-
+        String logoutUrl = SecurityUtils.getKeycloakLogoutURL(this.registration);
         request.getSession().invalidate();
-        return ResponseEntity.ok().body(Map.of("logoutUrl", logoutUrl.toString()));
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok().body(Map.of("logoutUrl", logoutUrl));
     }
 }
