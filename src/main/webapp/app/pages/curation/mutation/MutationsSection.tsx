@@ -69,7 +69,7 @@ function MutationsSection({
     return (
       <>
         {!_.isNil(openMutationCollapsibleIndex) && (
-          // though a great minHeight would reduce blinking more, need to choose a minHeight that looks good on the smallest possible mutation
+          // though a greater minHeight would reduce blinking more, need to choose a minHeight that looks good on the smallest possible mutation
           <div style={{ transition: 'height 0.5s, opacity 0.5s', minHeight: 400 }} className={'mb-2'}>
             <MutationCollapsible
               open
