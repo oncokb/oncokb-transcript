@@ -2,7 +2,7 @@ import { browser, $, expect } from '@wdio/globals';
 import { WdioCheckElementMethodOptions } from '@wdio/visual-service/dist/types';
 import * as path from 'path';
 
-// const BASE_URL = 'http://chrome:9000';
+const BASE_URL = 'https://app:9000';
 // const DATABASE_EMULATOR_URL = 'http://127.0.0.1:9095/?ns=mock-data';
 
 describe('Screenshot Tests', () => {
@@ -89,9 +89,9 @@ describe('Screenshot Tests', () => {
   });
 
   it('should compare gene list', async () => {
-    await browser.url('https://google.com');
-    await browser.pause(180000);
-    // await browser.url(`${BASE_URL}/curation`);
+    // await browser.url('https://google.com');
+    await browser.url(`${BASE_URL}/curation`);
+    await browser.pause(6000);
 
     const geneList = await $('#gene-list');
     await geneList.waitForDisplayed();

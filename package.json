@@ -16,7 +16,7 @@
     "jest": "jest --coverage --logHeapUsage --maxWorkers=2 --config jest.conf.js",
     "jest:update": "yarn run jest -- --updateSnapshot",
     "start": "yarn run webapp:dev --",
-    "start-tls": "yarn run webapp:dev -- --env.tls",
+    "start-tls": "yarn run webapp:dev --env tls",
     "pretest": "yarn run lint",
     "test": "yarn run jest --",
     "test-ci": "yarn run lint && yarn run jest:update --",
