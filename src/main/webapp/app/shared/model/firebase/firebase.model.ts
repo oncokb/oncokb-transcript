@@ -69,7 +69,7 @@ export enum FDA_LEVELS {
   LEVEL_FDA1 = 'Fda1',
   LEVEL_FDA2 = 'Fda2',
   LEVEL_FDA3 = 'Fda3',
-  LEVEL_FDA_NO = 'FdaNo',
+  LEVEL_FDA_NO = 'no',
 }
 
 // In future, we want to remove the TI Types because they distinguishable
