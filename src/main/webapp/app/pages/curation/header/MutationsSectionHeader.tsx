@@ -20,6 +20,7 @@ export interface IMutationsSectionHeaderProps extends StoreProps {
   setFilteredIndices: React.Dispatch<React.SetStateAction<number[]>>;
   showAddMutationModal: boolean;
   setShowAddMutationModal: React.Dispatch<React.SetStateAction<boolean>>;
+  setSortMethod: React.Dispatch<React.SetStateAction<SortOptions>>;
 }
 
 enum FilterType {
@@ -30,7 +31,7 @@ enum FilterType {
   REVIEWED,
 }
 
-enum SortOptions {
+export enum SortOptions {
   DEFAULT = 'Default Sort',
   LAST_MODIFIED_BY = 'Last Modified By',
   EXON_INCREASING = 'Exon Increasing',
@@ -50,6 +51,7 @@ function MutationsSectionHeader({
   setFilteredIndices,
   showAddMutationModal,
   setShowAddMutationModal,
+  setSortMethod,
   firebaseDb,
   annotatedAltsCache,
 }: IMutationsSectionHeaderProps) {
@@ -306,6 +308,9 @@ function MutationsSectionHeader({
                 options={Object.values(SortOptions).map(option => ({ label: option, value: option }))}
                 components={{
                   DropdownIndicator: () => <FaSort className="mx-1" />,
+                }}
+                onChange={newValue => {
+                  setSortMethod(newValue.value);
                 }}
               />
             </div>

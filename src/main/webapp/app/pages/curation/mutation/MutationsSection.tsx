@@ -11,7 +11,7 @@ import { Mutation } from 'app/shared/model/firebase/firebase.model';
 import { compareMutations, getFirebaseGenePath } from 'app/shared/util/firebase/firebase-utils';
 import MutationCollapsible from '../collapsible/MutationCollapsible';
 import * as styles from '../styles.module.scss';
-import MutationsSectionHeader from '../header/MutationsSectionHeader';
+import MutationsSectionHeader, { SortOptions } from '../header/MutationsSectionHeader';
 import classNames from 'classnames';
 import _ from 'lodash';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
@@ -42,6 +42,7 @@ function MutationsSection({
 }: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
   const [filteredIndices, setFilteredIndices] = useState<number[]>([]);
+  const [sortMethod, setSortMethod] = useState<SortOptions>(SortOptions.DEFAULT);
 
   const mutationSectionRef = useRef<HTMLDivElement>(null);
 
@@ -94,7 +95,7 @@ function MutationsSection({
           <FirebaseList<Mutation>
             path={mutationsPath}
             pushDirection="front"
-            defaultSort={compareMutations}
+            sort={getSortFunction()}
             itemBuilder={index => {
               return (
                 <div className="mb-2">
@@ -123,6 +124,21 @@ function MutationsSection({
         </div>
       </>
     );
+  }
+
+  function getSortFunction() {
+    switch (sortMethod) {
+      case SortOptions.DEFAULT:
+        return compareMutations;
+      case SortOptions.LAST_MODIFIED_BY:
+        return () => 0;
+      case SortOptions.EXON_INCREASING:
+        return;
+      case SortOptions.POSITION:
+        return;
+      default:
+        return;
+    }
   }
 
   return (
@@ -162,6 +178,7 @@ function MutationsSection({
               setFilteredIndices={setFilteredIndices}
               showAddMutationModal={showAddMutationModal}
               setShowAddMutationModal={setShowAddMutationModal}
+              setSortMethod={setSortMethod}
             />
           </Col>
         </Row>

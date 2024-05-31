@@ -36,7 +36,7 @@ import { IRootStore } from 'app/stores';
 import { get, onValue, ref } from 'firebase/database';
 import _ from 'lodash';
 import { observer } from 'mobx-react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from 'reactstrap';
 import BadgeGroup from '../BadgeGroup';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
@@ -170,6 +170,20 @@ const MutationCollapsible = ({
 
     return () => callbacks.forEach(callback => callback?.());
   }, [mutationPath, firebaseDb]);
+
+  const cancerTypeCollapsibleBuilder = useCallback(
+    index => {
+      return (
+        <CancerTypeCollapsible
+          allCancerTypesPath={`${mutationPath}/tumors`}
+          cancerTypePath={`${mutationPath}/tumors/${index}`}
+          mutationName={mutationName}
+          parsedHistoryList={parsedHistoryList}
+        />
+      );
+    },
+    [mutationPath, mutationName, parsedHistoryList],
+  );
 
   async function handleDeleteMutation(toVus = false) {
     const snapshot = await get(ref(firebaseDb, mutationPath));
@@ -466,20 +480,7 @@ const MutationCollapsible = ({
             </Collapsible>
           </>
         )}
-        <FirebaseList
-          path={`${mutationPath}/tumors`}
-          pushDirection="back"
-          itemBuilder={index => {
-            return (
-              <CancerTypeCollapsible
-                allCancerTypesPath={`${mutationPath}/tumors`}
-                cancerTypePath={`${mutationPath}/tumors/${index}`}
-                mutationName={mutationName}
-                parsedHistoryList={parsedHistoryList}
-              />
-            );
-          }}
-        />
+        <FirebaseList path={`${mutationPath}/tumors`} pushDirection="back" itemBuilder={cancerTypeCollapsibleBuilder} />
         <Button
           className={'mt-2 mb-1'}
           outline
