@@ -1,23 +1,31 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { PAGE_ROUTE } from 'app/config/constants/constants';
+import {
+  KEYCLOAK_LOGOUT_REDIRECT_PARAM,
+  KEYCLOAK_SESSION_TERMINATED_PARAM,
+  KEYCLOAK_UNAUTHORIZED_PARAM,
+  PAGE_ROUTE,
+} from 'app/config/constants/constants';
+import { setUrlParams } from 'app/shared/util/url-utils';
+
+function getKeycloakLogoutUrl(baseLogoutUrl: string) {
+  const redirectUrl = setUrlParams(window.location.href, { [KEYCLOAK_SESSION_TERMINATED_PARAM]: true });
+  // Encoding URI will allow us to include multiple search params in redirect uri param
+  const keyCloakLogoutUrl = setUrlParams(baseLogoutUrl, { [KEYCLOAK_LOGOUT_REDIRECT_PARAM]: redirectUrl });
+  return keyCloakLogoutUrl;
+}
 
 export interface ILogoutProps extends StoreProps, RouteComponentProps {
   logoutUrl: string;
 }
 
 export const Logout = (props: ILogoutProps) => {
-  const sessionTerminated = useMemo(() => {
-    const searchParams = new URLSearchParams(props.location.search);
-    return !!searchParams.get('session_terminated');
-  }, [props.location.search]);
+  const searchParams = new URLSearchParams(props.location.search);
 
-  const unauthorizedAccess = useMemo(() => {
-    const searchParams = new URLSearchParams(props.location.search);
-    return !!searchParams.get('unauthorized');
-  }, [props.location.search]);
+  const sessionTerminated = !!searchParams.get(KEYCLOAK_SESSION_TERMINATED_PARAM);
+  const unauthorizedAccess = !!searchParams.get(KEYCLOAK_UNAUTHORIZED_PARAM);
 
   useEffect(() => {
     if (unauthorizedAccess && !sessionTerminated) {
@@ -30,15 +38,7 @@ export const Logout = (props: ILogoutProps) => {
   useEffect(() => {
     if (props.logoutUrl) {
       if (!sessionTerminated || unauthorizedAccess) {
-        let updatedLogoutUrl = `${props.logoutUrl}&post_logout_redirect_uri=`;
-        let redirectUrl = window.location.href;
-        if (!unauthorizedAccess) {
-          redirectUrl += '?session_terminated=true';
-        } else {
-          redirectUrl += '&session_terminated=true';
-        }
-        updatedLogoutUrl += encodeURIComponent(redirectUrl);
-        window.location.href = updatedLogoutUrl;
+        window.location.href = getKeycloakLogoutUrl(props.logoutUrl);
       }
     }
   }, [props.logoutUrl, sessionTerminated, unauthorizedAccess]);
@@ -47,7 +47,7 @@ export const Logout = (props: ILogoutProps) => {
     return <></>;
   }
 
-  if (unauthorizedAccess && !sessionTerminated) {
+  if (unauthorizedAccess) {
     return <></>;
   }
 
