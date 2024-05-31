@@ -1,6 +1,5 @@
-import { FDA_LEVEL_KEYS, FDA_LEVEL_KEYS_MAPPING } from 'app/config/constants/firebase';
-import { Review, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
-import { convertToFdaLevelKey, getLevelDropdownOption } from 'app/shared/util/firebase/firebase-level-utils';
+import { FDA_LEVELS, Review, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import { getLevelDropdownOption } from 'app/shared/util/firebase/firebase-level-utils';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
 import React, { useEffect, useRef, useState } from 'react';
@@ -20,7 +19,7 @@ export interface IRealtimeLevelDropdown extends IRealtimeDropdownInput, StorePro
   levelOfEvidenceType: LevelOfEvidenceType;
   firebaseLevelPath: string;
   highestLevel?: TX_LEVELS; // Required for propagated levels
-  propagatedFdaLevel?: FDA_LEVEL_KEYS;
+  propagatedFdaLevel?: FDA_LEVELS;
   placeholder?: string;
 }
 
@@ -50,25 +49,22 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
     const callbacks = [];
     callbacks.push(
       onValue(ref(firebaseDb, firebaseLevelPath), snapshot => {
-        let level = snapshot.val();
-        if (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_FDA) {
-          level = convertToFdaLevelKey(level);
-        }
+        const level = snapshot.val();
         setCurrentLOE(level);
         levelFetchCount.current++;
-      })
+      }),
     );
     callbacks.push(
       onValue(ref(firebaseDb, `${firebaseLevelPath}_review`), snapshot => {
         setLOEReview(snapshot.val());
-      })
+      }),
     );
     onValue(
       ref(firebaseDb, `${firebaseLevelPath}_uuid`),
       snapshot => {
         setLOEUuid(snapshot.val());
       },
-      { onlyOnce: true }
+      { onlyOnce: true },
     );
 
     return () => {
@@ -106,26 +102,16 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
     if (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_FDA) {
       // When highestLevel changes, the fda propagation should be reset to default
       if (propagatedFdaLevel) {
-        updateReviewableContent(
-          firebaseLevelPath,
-          FDA_LEVEL_KEYS_MAPPING[currentLOE],
-          FDA_LEVEL_KEYS_MAPPING[propagatedFdaLevel],
-          LOEReview,
-          LOEUuid
-        );
+        updateReviewableContent(firebaseLevelPath, currentLOE, propagatedFdaLevel, LOEReview, LOEUuid);
       }
     }
   }, [highestLevel, LOEUuid, propagatedFdaLevel]);
 
   const onChangeHandler = (newValue, actionMeta) => {
-    let oldLevel = currentLOE;
+    const oldLevel = currentLOE;
     let newLevel = newValue?.value;
     if (!newLevel) {
       newLevel = TX_LEVELS.LEVEL_EMPTY;
-    }
-    if (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_FDA) {
-      newLevel = FDA_LEVEL_KEYS_MAPPING[newLevel];
-      oldLevel = FDA_LEVEL_KEYS_MAPPING[oldLevel];
     }
 
     updateReviewableContent(firebaseLevelPath, oldLevel, newLevel, LOEReview, LOEUuid);

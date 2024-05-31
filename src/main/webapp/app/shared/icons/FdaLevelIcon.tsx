@@ -1,11 +1,11 @@
-import { FDA_LEVEL_KEYS } from 'app/config/constants/firebase';
 import React from 'react';
 import { faCircle as farCircle } from '@fortawesome/free-regular-svg-icons';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FDA_LEVELS } from '../model/firebase/firebase.model';
 
 export interface IFdaLevelIcon {
-  level: FDA_LEVEL_KEYS;
+  level: FDA_LEVELS;
 }
 
 export const FdaLevelIcon = (props: IFdaLevelIcon) => {

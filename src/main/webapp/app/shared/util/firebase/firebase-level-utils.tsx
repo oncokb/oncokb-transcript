@@ -4,8 +4,6 @@ import {
   ALL_LEVELS,
   DIAGNOSTIC_LEVELS_ORDERING,
   FDA_LEVELS_ORDERING,
-  FDA_LEVEL_KEYS,
-  FDA_LEVEL_KEYS_MAPPING,
   PROGNOSTIC_LEVELS_ORDERING,
   THERAPEUTIC_LEVELS_ORDERING,
   THERAPEUTIC_RESISTANCE_LEVELS,
@@ -25,7 +23,7 @@ export enum LevelType {
   FDA,
 }
 
-export type LEVELS = ONCOKB_LEVELS | FDA_LEVEL_KEYS;
+export type LEVELS = ONCOKB_LEVELS | FDA_LEVELS;
 
 export type ONCOKB_LEVELS = TX_LEVELS | PX_LEVELS | DX_LEVELS;
 
@@ -68,11 +66,7 @@ export const getLevelDropdownOptions = (levels: LEVELS[]) => {
 };
 
 export const getLevelDropdownOption = (level: LEVELS): RealtimeDropdownOptions => {
-  let mappedFdaLevel = undefined;
-  if (level in FDA_LEVEL_KEYS) {
-    mappedFdaLevel = FDA_LEVEL_KEYS_MAPPING[level];
-  }
-  return { label: <LevelWithDescription level={level} />, value: mappedFdaLevel ? mappedFdaLevel : level };
+  return { label: <LevelWithDescription level={level} />, value: level };
 };
 
 export const getTxLevelDropdownOptions = () => {
@@ -86,22 +80,22 @@ export const getTxLevelDropdownOptions = () => {
 
 export type PropagatedDropdownLevels = {
   dropdownOptions: RealtimeDropdownOptions[];
-  defaultPropagation: TX_LEVELS | FDA_LEVEL_KEYS | '';
+  defaultPropagation: TX_LEVELS | FDA_LEVELS | '';
 };
 
 export const getFdaPropagationInfo = (txLevel: TX_LEVELS): PropagatedDropdownLevels => {
-  let propagationOptions: FDA_LEVEL_KEYS[] = [];
+  let propagationOptions: FDA_LEVELS[] = [];
   let defaultPropagation = '';
   if (txLevel === TX_LEVELS.LEVEL_1 || txLevel === TX_LEVELS.LEVEL_2 || txLevel === TX_LEVELS.LEVEL_R1) {
-    propagationOptions = [FDA_LEVEL_KEYS.LEVEL_FDA2, FDA_LEVEL_KEYS.LEVEL_FDA3, FDA_LEVEL_KEYS.LEVEL_FDA_NO];
-    defaultPropagation = FDA_LEVEL_KEYS.LEVEL_FDA2;
+    propagationOptions = [FDA_LEVELS.LEVEL_FDA2, FDA_LEVELS.LEVEL_FDA3, FDA_LEVELS.LEVEL_FDA_NO];
+    defaultPropagation = FDA_LEVELS.LEVEL_FDA2;
   } else {
-    propagationOptions = [FDA_LEVEL_KEYS.LEVEL_FDA3, FDA_LEVEL_KEYS.LEVEL_FDA_NO];
-    defaultPropagation = FDA_LEVEL_KEYS.LEVEL_FDA3;
+    propagationOptions = [FDA_LEVELS.LEVEL_FDA3, FDA_LEVELS.LEVEL_FDA_NO];
+    defaultPropagation = FDA_LEVELS.LEVEL_FDA3;
   }
   return {
     dropdownOptions: getLevelDropdownOptions(propagationOptions),
-    defaultPropagation: defaultPropagation as FDA_LEVEL_KEYS,
+    defaultPropagation: defaultPropagation as FDA_LEVELS,
   };
 };
 
@@ -113,13 +107,4 @@ export const getPropagatedLevelDropdownOptions = (txLevel: TX_LEVELS): RealtimeD
     propagationOptions = [TX_LEVELS.LEVEL_4, TX_LEVELS.LEVEL_NO];
   }
   return getLevelDropdownOptions(propagationOptions);
-};
-
-export const convertToFdaLevelKey = (fdaLevel: FDA_LEVELS) => {
-  const fdaLevelKeyMapping = Object.keys(FDA_LEVEL_KEYS_MAPPING) as FDA_LEVEL_KEYS[];
-  for (const k of fdaLevelKeyMapping) {
-    if (FDA_LEVEL_KEYS_MAPPING[k] === fdaLevel) {
-      return k;
-    }
-  }
 };
