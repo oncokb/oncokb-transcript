@@ -24,7 +24,7 @@ function ReviewHistoryTab({ firebaseDb, drugList, getDrugs }: StoreProps) {
   }, []);
 
   useEffect(() => {
-    getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
+    getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
   }, []);
 
   function handleDownload() {

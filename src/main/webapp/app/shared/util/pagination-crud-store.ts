@@ -2,13 +2,14 @@ import axios, { AxiosResponse } from 'axios';
 import { IRootStore } from 'app/stores';
 import BaseCrudStore from 'app/shared/util/base-crud-store';
 import _ from 'lodash';
-import { ICrudSearchAction } from 'app/shared/util/jhipster-types';
+import { ICrudSearchAction, ISearchParams } from 'app/shared/util/jhipster-types';
 import { ENTITY_TYPE } from 'app/config/constants/constants';
 import { getEntityResourcePath } from 'app/shared/util/RouteUtils';
 import { computed, makeObservable } from 'mobx';
+import { parseSort } from './utils';
 
 export const debouncedSearchWithPagination = _.debounce(
-  (query: string, page, size, sort, searchEntities) => {
+  ({ query, page, size, sort }: ISearchParams, searchEntities) => {
     if (query && query.length > 2) {
       return searchEntities({
         query,
@@ -21,18 +22,22 @@ export const debouncedSearchWithPagination = _.debounce(
     }
   },
   1000,
-  { leading: true }
+  { leading: true },
 );
 
 export class PaginationCrudStore<T> extends BaseCrudStore<T> {
   searchEntities: ICrudSearchAction<T> = this.updateHandler(this.getSearch);
 
-  constructor(protected rootStore: IRootStore, protected entityType: ENTITY_TYPE, protected settings = { clearOnUnobserved: false }) {
+  constructor(
+    protected rootStore: IRootStore,
+    protected entityType: ENTITY_TYPE,
+    protected settings = { clearOnUnobserved: false },
+  ) {
     super(rootStore, getEntityResourcePath(entityType), settings);
   }
 
   *getAll({ page, size, sort }) {
-    this.lastUrl = `${this.apiUrl}${sort ? `?page=${page}&size=${size}&sort=${sort}` : ''}`;
+    this.lastUrl = `${this.apiUrl}${sort ? `?page=${page}&size=${size}${parseSort(sort)}` : ''}`;
     return yield* this.getAllFromLastUrl();
   }
 
@@ -43,9 +48,9 @@ export class PaginationCrudStore<T> extends BaseCrudStore<T> {
     return result;
   }
 
-  *getSearch({ query, exact, page, size, sort }) {
+  *getSearch({ query, exact, page, size, sort }: ISearchParams) {
     let url = `${this.apiUrl}/search?query=${query}${page ? `&page=${page}` : ''}${size ? `&size=${size}` : ''}${
-      sort ? `&sort=${sort}` : ''
+      sort ? parseSort(sort) : ''
     }`;
     if (exact !== undefined) {
       url = `${url}&exact=${exact}`;

@@ -73,7 +73,7 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
 
   useEffect(() => {
     async function fetchAllDrugs() {
-      const drugs = await getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
+      const drugs = await getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
       setDrugList(drugs['data']);
     }
 

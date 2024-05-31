@@ -72,9 +72,14 @@ const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props 
     let result = undefined;
     let options = [];
     if (searchWord) {
-      result = await props.searchCancerTypes({ query: searchWord, page: page - 1, size: ITEMS_PER_PAGE, sort: DEFAULT_SORT_PARAMETER });
+      result = await props.searchCancerTypes({
+        query: searchWord,
+        page: page - 1,
+        size: ITEMS_PER_PAGE,
+        sort: ['subtype,ASC', 'mainType,ASC'],
+      });
     } else {
-      result = await props.getCancerTypes({ page: page - 1, size: ITEMS_PER_PAGE, sort: 'id,ASC' });
+      result = await props.getCancerTypes({ page: page - 1, size: ITEMS_PER_PAGE, sort: ['subtype,ASC', 'mainType,ASC'] });
     }
 
     options = getAllCancerTypesOptions(result.data);

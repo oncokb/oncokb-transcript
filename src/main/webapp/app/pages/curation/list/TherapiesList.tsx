@@ -60,7 +60,7 @@ const TherapiesList = ({
               treatmentIndex,
               treatment,
             };
-          })
+          }),
         );
       }, []);
 
@@ -113,7 +113,7 @@ const TherapiesList = ({
         onConfirm={async (newTreatment, newDrugs) => {
           try {
             await Promise.all(newDrugs.map(drug => createDrug(drug)));
-            await getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: 'id,asc' });
+            await getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
             await addTreatment(`${tisPath}/${tisLength - 1}/treatments`, newTreatment);
           } catch (error) {
             notifyError(error);
