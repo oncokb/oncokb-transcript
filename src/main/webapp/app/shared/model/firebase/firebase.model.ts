@@ -66,10 +66,10 @@ export enum PX_LEVELS {
 }
 
 export enum FDA_LEVELS {
-  LEVEL_FDA1 = '1',
-  LEVEL_FDA2 = '2',
-  LEVEL_FDA3 = '3',
-  LEVEL_FDA_NO = 'no',
+  LEVEL_FDA1 = 'Fda1',
+  LEVEL_FDA2 = 'Fda2',
+  LEVEL_FDA3 = 'Fda3',
+  LEVEL_FDA_NO = 'FdaNo',
 }
 
 // In future, we want to remove the TI Types because they distinguishable

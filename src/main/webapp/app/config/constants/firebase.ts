@@ -122,24 +122,6 @@ export const PATHOGENICITY_OPTIONS = [
   PATHOGENICITY.BENIGN,
 ];
 
-/**
- * We need this enum because FDA_LEVELS enum has the same value as TX_LEVELS enum.
- * We cannot directly change FDA_LEVELS.LEVEL_FDA1 to 'Fda1' because we don't want to update firebase yet.
- */
-export enum FDA_LEVEL_KEYS {
-  LEVEL_FDA1 = 'Fda1',
-  LEVEL_FDA2 = 'Fda2',
-  LEVEL_FDA3 = 'Fda3',
-  LEVEL_FDA_NO = 'FdaNo',
-}
-
-export const FDA_LEVEL_KEYS_MAPPING: { [key in FDA_LEVEL_KEYS]: FDA_LEVELS } = {
-  [FDA_LEVEL_KEYS.LEVEL_FDA1]: FDA_LEVELS.LEVEL_FDA1,
-  [FDA_LEVEL_KEYS.LEVEL_FDA2]: FDA_LEVELS.LEVEL_FDA2,
-  [FDA_LEVEL_KEYS.LEVEL_FDA3]: FDA_LEVELS.LEVEL_FDA3,
-  [FDA_LEVEL_KEYS.LEVEL_FDA_NO]: FDA_LEVELS.LEVEL_FDA_NO,
-};
-
 export const THERAPEUTIC_SENSITIVE_LEVELS = [
   TX_LEVELS.LEVEL_1,
   TX_LEVELS.LEVEL_2,
@@ -164,7 +146,7 @@ export const PROGNOSTIC_LEVELS_ORDERING = [PX_LEVELS.LEVEL_PX1, PX_LEVELS.LEVEL_
 
 export const DIAGNOSTIC_LEVELS_ORDERING = [DX_LEVELS.LEVEL_DX1, DX_LEVELS.LEVEL_DX2, DX_LEVELS.LEVEL_DX3];
 
-export const FDA_LEVELS_ORDERING = [FDA_LEVEL_KEYS.LEVEL_FDA1, FDA_LEVEL_KEYS.LEVEL_FDA2, FDA_LEVEL_KEYS.LEVEL_FDA3];
+export const FDA_LEVELS_ORDERING = [FDA_LEVELS.LEVEL_FDA1, FDA_LEVELS.LEVEL_FDA2, FDA_LEVELS.LEVEL_FDA3];
 
 export const ALL_LEVELS = [
   ...THERAPEUTIC_LEVELS_ORDERING,
@@ -215,11 +197,11 @@ export const DX_LEVEL_DESCRIPTIONS: { [key in DX_LEVELS]: string } = {
   [DX_LEVELS.LEVEL_DX3]: 'Biomarker that may assist disease diagnosis in this indication based on clinical evidence',
 };
 
-export const FDA_LEVEL_DESCRIPTIONS: { [key in FDA_LEVEL_KEYS]: string } = {
-  [FDA_LEVEL_KEYS.LEVEL_FDA1]: 'Companion Diagnostics',
-  [FDA_LEVEL_KEYS.LEVEL_FDA2]: 'Cancer Mutations with Evidence of Clinical Significance',
-  [FDA_LEVEL_KEYS.LEVEL_FDA3]: 'Cancer Mutations with Potential of Clinical Significance',
-  [FDA_LEVEL_KEYS.LEVEL_FDA_NO]: 'No level',
+export const FDA_LEVEL_DESCRIPTIONS: { [key in FDA_LEVELS]: string } = {
+  [FDA_LEVELS.LEVEL_FDA1]: 'Companion Diagnostics',
+  [FDA_LEVELS.LEVEL_FDA2]: 'Cancer Mutations with Evidence of Clinical Significance',
+  [FDA_LEVELS.LEVEL_FDA3]: 'Cancer Mutations with Potential of Clinical Significance',
+  [FDA_LEVELS.LEVEL_FDA_NO]: 'No level',
 };
 
 export const ALL_LEVEL_DESCRIPTIONS = {

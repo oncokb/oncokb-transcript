@@ -1,6 +1,5 @@
-import { FDA_LEVEL_KEYS } from 'app/config/constants/firebase';
 import { RealtimeDropdownOptions } from 'app/shared/firebase/input/RealtimeDropdownInput';
-import { TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
+import { FDA_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import {
   getFdaPropagationInfo,
   getPropagatedLevelDropdownOptions,
@@ -31,7 +30,7 @@ const PLACEHOLDER = 'You must select a level';
 const TherapyDropdownGroup = ({ firebaseDb, treatmentPath }: ITherapyDropdownGroup) => {
   const [highestLevel, setHighestLevel] = useState<TX_LEVELS>(null);
   const [propOptions, setPropOptions] = useState<RealtimeDropdownOptions[]>(null);
-  const [propFdaLevel, setPropFdaLevel] = useState<FDA_LEVEL_KEYS>(null);
+  const [propFdaLevel, setPropFdaLevel] = useState<FDA_LEVELS>(null);
   const [propFdaOptions, setPropFdaOptions] = useState<RealtimeDropdownOptions[]>(null);
   const [isPropagationLevelsDisabled, setIsPropagationLevelsDisabled] = useState(true);
   const [isFdaPropagationLevelDisabled, setIsFdaPropagationLevelDisabled] = useState(true);
@@ -41,7 +40,7 @@ const TherapyDropdownGroup = ({ firebaseDb, treatmentPath }: ITherapyDropdownGro
     callbacks.push(
       onValue(ref(firebaseDb, `${treatmentPath}/level`), snapshot => {
         setHighestLevel(snapshot.val());
-      })
+      }),
     );
     return () => {
       callbacks.forEach(callback => callback?.());
@@ -55,7 +54,7 @@ const TherapyDropdownGroup = ({ firebaseDb, treatmentPath }: ITherapyDropdownGro
     setPropOptions(getPropagatedLevelDropdownOptions(highestLevel));
 
     const fdaPropagation = getFdaPropagationInfo(highestLevel);
-    setPropFdaLevel(fdaPropagation.defaultPropagation as FDA_LEVEL_KEYS);
+    setPropFdaLevel(fdaPropagation.defaultPropagation as FDA_LEVELS);
     setPropFdaOptions(fdaPropagation.dropdownOptions);
   }, [highestLevel]);
 
