@@ -68,7 +68,7 @@ function createColorOptions(
   defaultColorOptions: CollapsibleColorProps,
   isPendingDelete: boolean,
 ) {
-  const forceLeftColor = colorOptions.hideLeftBorder !== true && colorOptions.forceLeftColor;
+  const forceLeftColor = colorOptions?.hideLeftBorder !== true && colorOptions?.forceLeftColor;
   if (displayOptionsOverride.disableCollapsible && !forceLeftColor) {
     if (defaultColorOptions.hideLeftBorder === false) {
       defaultColorOptions.borderLeftColor = DISABLED_COLLAPSIBLE_COLOR;

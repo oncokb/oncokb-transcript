@@ -20,5 +20,7 @@ export const RemovableCollapsible = ({ review, ...collapsibleProps }: IRemovable
     }
   }
 
-  return <Collapsible {...collapsibleProps} info={infoComponent} displayOptions={{ hideAction: review?.removed }} />;
+  const hideAction = review?.removed || review?.demotedToVus;
+
+  return <Collapsible {...collapsibleProps} info={infoComponent} displayOptions={{ hideAction }} />;
 };
