@@ -9,7 +9,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
@@ -116,5 +119,21 @@ public final class SecurityUtils {
 
     private static List<GrantedAuthority> mapRolesToGrantedAuthorities(Collection<String> roles) {
         return roles.stream().filter(role -> role.startsWith("ROLE_")).map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+    }
+
+    public static String getKeycloakLogoutURL(ClientRegistration clientRegistration) {
+        StringBuilder logoutUrl = new StringBuilder();
+
+        // Get keycloak logout endpoint (host/auth/realms/<my_realm>/protocol/openid-connect/logout)
+        logoutUrl.append(clientRegistration.getProviderDetails().getConfigurationMetadata().get("end_session_endpoint").toString());
+
+        // Get id token
+        OAuth2AuthenticationToken auth = (OAuth2AuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        OidcUser oAuth2User = (OidcUser) auth.getPrincipal();
+        String idTokenHint = oAuth2User.getIdToken().getTokenValue();
+
+        logoutUrl.append("?id_token_hint=").append(idTokenHint);
+
+        return logoutUrl.toString();
     }
 }

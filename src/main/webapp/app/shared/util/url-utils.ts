@@ -23,3 +23,12 @@ export const replaceUrlParams = (url: string, ...params: (string | number)[]) =>
 
   return url;
 };
+
+export const setUrlParams = (urlString: string, params: Record<string, any>) => {
+  const url = new URL(urlString);
+  for (const [key, value] of Object.entries(params)) {
+    // Set will override the param if it already exists in the URL
+    url.searchParams.set(key, value);
+  }
+  return url.toString();
+};

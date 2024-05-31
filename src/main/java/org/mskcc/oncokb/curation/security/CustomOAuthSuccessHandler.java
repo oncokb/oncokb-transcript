@@ -77,9 +77,7 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             SecurityContextHolder.getContext().setAuthentication(authenticationWithAuthorities);
             super.onAuthenticationSuccess(request, response, authenticationWithAuthorities);
         } else {
-            request.getSession().invalidate();
-            SecurityContextHolder.clearContext();
-            redirectStrategy.sendRedirect(request, response, "/logout");
+            redirectStrategy.sendRedirect(request, response, "/logout?unauthorized=true");
         }
 
         clearAuthenticationAttributes(request);
