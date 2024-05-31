@@ -86,6 +86,7 @@ module.exports = async options =>
         },
       ],
       server: options.tls ? 'https' : 'http',
+      allowedHosts: 'all',
       historyApiFallback: true,
     },
     stats: process.env.JHI_DISABLE_WEBPACK_LOGS ? 'none' : options.stats,
