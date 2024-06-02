@@ -81,7 +81,7 @@ export const config: Options.Testrunner = {
       browserName: 'chrome',
       acceptInsecureCerts: true,
       'goog:chromeOptions': {
-        args: ['--ignore-certificate-errors', '--allow-insecure-localhost'],
+        args: ['--allow-insecure-localhost', '--disable-web-security', '--allow-running-insecure-content', '--auto-open-devtools-for-tabs'],
       },
     },
   ],
