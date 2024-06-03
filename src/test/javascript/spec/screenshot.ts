@@ -85,11 +85,11 @@ describe('Screenshot Tests', () => {
       statusCode: 200,
       fetchResponse: false,
     });
-    // await browser.setWindowSize(1920, 1080);
+
+    await browser.setWindowSize(1920, 1080);
   });
 
   it('should compare gene list', async () => {
-    // await browser.url('https://google.com');
     await browser.url(`${BASE_URL}/curation`);
     await browser.pause(6000);
 

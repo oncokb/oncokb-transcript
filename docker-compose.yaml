@@ -14,6 +14,8 @@ services:
     depends_on:
       chrome:
         condition: service_healthy
+    volumes:
+      - ./src/test/javascript/screenshots:/app/src/test/javascript/screenshots
     command: yarn run wdio 
 
   firebase:
