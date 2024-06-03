@@ -26,3 +26,10 @@ jobs:
               echo "Test container failed with exit code $exit_code"
               exit 1
             fi
+
+        - name: Archive screenshots
+          if: failure()
+          uses: actions/upload-artifact@v2
+          with: 
+            name: visual-regression-screenshots
+            path: ./src/test/javascript/screenshots
