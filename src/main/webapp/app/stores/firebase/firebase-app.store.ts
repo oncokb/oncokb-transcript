@@ -1,5 +1,5 @@
 import { AppConfig } from 'app/appConfig';
-import { AUTH_EMULATOR_URL } from 'app/config/constants/firebase';
+import { AUTH_EMULATOR_URL, DATABASE_EMULATOR_PORT, FIREBASE_EMULATOR_HOST } from 'app/config/constants/firebase';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import BaseStore from 'app/shared/util/base-store';
 import { IRootStore } from 'app/stores/createStore';
@@ -64,7 +64,7 @@ export class FirebaseAppStore extends BaseStore {
 
         const auth = getAuth();
         if (connectToAuthEmulator) {
-          connectDatabaseEmulator(this.firebaseDb, 'firebase', 9095);
+          connectDatabaseEmulator(this.firebaseDb, FIREBASE_EMULATOR_HOST, DATABASE_EMULATOR_PORT);
           connectAuthEmulator(auth, AUTH_EMULATOR_URL, { disableWarnings: true });
         }
         return onAuthStateChanged(auth, user => {

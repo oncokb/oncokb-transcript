@@ -7,7 +7,7 @@ services:
       - "9000:9000"
     healthcheck:
       test: ["CMD", "curl", "-k", "https://localhost:9000"]
-    command: yarn start-tls
+    command: yarn start-tls DOCKER=true
 
   wdio:
     build: 
@@ -22,7 +22,9 @@ services:
         condition: service_healthy
     volumes:
       - ./src/test/javascript/screenshots:/app/src/test/javascript/screenshots
-    command: yarn run wdio 
+    environment:
+      - DOCKER=true
+    command: yarn run wdio
 
   firebase:
     build:
@@ -35,7 +37,7 @@ services:
       - "4400:4400"
     healthcheck:
       test: ["CMD", "curl", "http://localhost:4400"]
-    command: firebase emulators:start --import firebase --project oncokb-curation-test-54b6c
+    command: firebase emulators:start --import firebase --project oncokb-curation-test-54b6c # change config here 
 
   chrome:
     image: seleniarm/standalone-chromium # for those with m1 processors

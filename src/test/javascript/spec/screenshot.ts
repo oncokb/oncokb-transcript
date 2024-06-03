@@ -2,8 +2,8 @@ import { browser, $, expect } from '@wdio/globals';
 import { WdioCheckElementMethodOptions } from '@wdio/visual-service/dist/types';
 import * as path from 'path';
 
-const BASE_URL = 'https://app:9000';
-const DATABASE_EMULATOR_URL = 'http://firebase/?ns=mock-data';
+const BASE_URL = process.env.DOCKER ? 'https://app:9000' : 'http://localhost:9000';
+const DATABASE_EMULATOR_URL = process.env.DOCKER ? 'http://firebase/?ns=mock-data' : 'http://localhost/?ns=mock-data';
 
 describe('Screenshot Tests', () => {
   const methodOptions: WdioCheckElementMethodOptions = {
