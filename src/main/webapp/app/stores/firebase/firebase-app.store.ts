@@ -6,7 +6,7 @@ import { IRootStore } from 'app/stores/createStore';
 import axios, { AxiosResponse } from 'axios';
 import { FirebaseApp, FirebaseOptions, initializeApp } from 'firebase/app';
 import { connectAuthEmulator, getAuth, onAuthStateChanged, signInWithCustomToken, signOut } from 'firebase/auth';
-import { Database, getDatabase } from 'firebase/database';
+import { Database, connectDatabaseEmulator, getDatabase } from 'firebase/database';
 import { action, computed, makeObservable, observable } from 'mobx';
 
 export class FirebaseAppStore extends BaseStore {
@@ -64,6 +64,7 @@ export class FirebaseAppStore extends BaseStore {
 
         const auth = getAuth();
         if (connectToAuthEmulator) {
+          connectDatabaseEmulator(this.firebaseDb, 'firebase', 9095);
           connectAuthEmulator(auth, AUTH_EMULATOR_URL, { disableWarnings: true });
         }
         return onAuthStateChanged(auth, user => {
