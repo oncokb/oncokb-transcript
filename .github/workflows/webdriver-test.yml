@@ -17,16 +17,6 @@ jobs:
             docker-compose up -d
             docker-compose run --rm wdio
         
-        - name: Check exit code
-          if: always()
-          run: |
-            exit_code=$(docker-compose ps -q wdio --exit-code)
-            echo "Exit code: $exit_code"
-            if [ $exit_code -ne 0 ]; then
-              echo "Test container failed with exit code $exit_code"
-              exit 1
-            fi
-
         - name: Archive screenshots
           if: failure()
           uses: actions/upload-artifact@v2
