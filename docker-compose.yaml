@@ -5,6 +5,8 @@ services:
       dockerfile: ./docker/app/Dockerfile
     ports:
       - "9000:9000"
+    healthcheck:
+      test: ["CMD", "curl", "-k", "https://localhost:9000"]
     command: yarn start-tls
 
   wdio:
@@ -12,6 +14,10 @@ services:
       context: .
       dockerfile:  ./docker/app/Dockerfile
     depends_on:
+      app:
+        condition: service_healthy
+      firebase:
+        condition: service_healthy
       chrome:
         condition: service_healthy
     volumes:
@@ -26,6 +32,9 @@ services:
       - "9095:9095"
       - "9099:9099"
       - "4000:4000"
+      - "4400:4400"
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:4400"]
     command: firebase emulators:start --import firebase --project oncokb-curation-test-54b6c
 
   chrome:
