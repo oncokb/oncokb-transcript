@@ -84,7 +84,7 @@ export default function BaseCollapsible({
         return (
           <>
             <div className={classNames(styles.divider)} />
-            <div className={'collapsible-action all-children-margin'} data-testid="collapsible-action">
+            <div className={'collapsible-action all-children-margin'} data-testid={getDataTestid('collapsible-action', title)}>
               {action}
             </div>
           </>
@@ -118,7 +118,7 @@ export default function BaseCollapsible({
           colorOptions?.hideLeftBorder ? styles.hiddenHeaderLeftBorder : undefined,
         )}
         ref={collapsibleRef}
-        data-testid="collapsible-card"
+        data-testid={getDataTestid('collapsible-card', title)}
       >
         <div style={{ flexGrow: 1 }} className="d-flex align-items-center">
           <div

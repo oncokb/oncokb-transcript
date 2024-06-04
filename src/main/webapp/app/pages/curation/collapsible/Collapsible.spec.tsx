@@ -5,9 +5,11 @@ import Collapsible, { CollapsibleProps } from './Collapsible';
 import { DANGER } from 'app/config/colors';
 import { DISABLED_COLLAPSIBLE_COLOR } from 'app/config/constants/constants';
 
+const DEFAULT_TITLE = 'Default Title';
+
 function buildCollapsible(props?: Partial<CollapsibleProps>) {
   return (
-    <Collapsible title={'Default Title'} {...props}>
+    <Collapsible title={DEFAULT_TITLE} {...props}>
       <div>Default content</div>
     </Collapsible>
   );
@@ -15,7 +17,7 @@ function buildCollapsible(props?: Partial<CollapsibleProps>) {
 
 function assertToggleDisabled() {
   expect(screen.getByRole('button')).toBeDisabled();
-  fireEvent.click(screen.getByTestId('collapsible-title-wrapper'));
+  fireEvent.click(screen.getByTestId(`${DEFAULT_TITLE}-collapsible-title-wrapper`));
   expect(screen.queryByText('Default content')).toBeNull();
 }
 
@@ -24,10 +26,10 @@ describe('Collapsible tests', () => {
     render(buildCollapsible());
 
     expect(screen.queryByText('Default content')).toBeNull();
-    fireEvent.click(screen.getByTestId('collapsible-title-wrapper'));
+    fireEvent.click(screen.getByTestId(`${DEFAULT_TITLE}-collapsible-title-wrapper`));
     expect(screen.getByText('Default content')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId('collapsible-title-wrapper'));
+    fireEvent.click(screen.getByTestId(`${DEFAULT_TITLE}-collapsible-title-wrapper`));
     expect(screen.queryByText('Default content')).toBeNull();
   });
 
@@ -48,7 +50,7 @@ describe('Collapsible tests', () => {
     });
 
     it('should have grey border', () => {
-      expect(screen.getByTestId('collapsible-card')).toHaveStyle(`border-left-color: ${DISABLED_COLLAPSIBLE_COLOR}`);
+      expect(screen.getByTestId(`${DEFAULT_TITLE}-collapsible-card`)).toHaveStyle(`border-left-color: ${DISABLED_COLLAPSIBLE_COLOR}`);
     });
 
     it('toggle button should be disabled', () => {
@@ -67,7 +69,7 @@ describe('Collapsible tests', () => {
     });
 
     it('should have red left border', () => {
-      expect(screen.getByTestId('collapsible-card')).toHaveStyle(`border-left-color: ${DANGER}`);
+      expect(screen.getByTestId(`${DEFAULT_TITLE}-collapsible-card`)).toHaveStyle(`border-left-color: ${DANGER}`);
     });
 
     it('toggle button should be disabled', () => {
