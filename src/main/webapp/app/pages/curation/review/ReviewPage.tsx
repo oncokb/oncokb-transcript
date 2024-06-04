@@ -85,7 +85,7 @@ const ReviewPage = (props: IReviewPageProps) => {
   };
 
   return (
-    <>
+    <div data-testid="review-page">
       <Row className={`${getSectionClassName()} justify-content-between`}>
         <Col>
           {props.reviewFinished ? (
@@ -171,7 +171,7 @@ const ReviewPage = (props: IReviewPageProps) => {
           </Col>
         </Row>
       ) : undefined}
-    </>
+    </div>
   );
 };
 

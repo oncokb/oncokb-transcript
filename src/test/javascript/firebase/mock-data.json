@@ -2457,6 +2457,42 @@
                 {
                   "name": "Investigational implications for resistance to therapy",
                   "name_uuid": "f002d764-0526-4f46-b67e-98b47001d735",
+                  "treatments": [
+                    {
+                      "description": "Desc",
+                      "description_review": {
+                        "lastReviewed": "",
+                        "updateTime": 1717517911547,
+                        "updatedBy": "undefined undefined"
+                      },
+                      "description_uuid": "90026d5f-5111-4372-a61e-5a5e13efab16",
+                      "excludedRCTs_uuid": "ddb608a3-56af-4871-b82f-dbb2cb000202",
+                      "fdaLevel": "no",
+                      "fdaLevel_uuid": "bdf7e03b-bbf0-44ea-8b21-e682efd2a997",
+                      "indication": "",
+                      "indication_uuid": "4f72d6b6-7a9b-4c29-93a1-05fa78620c27",
+                      "level": "",
+                      "level_uuid": "cbc41c97-6c09-4d44-955f-46df3aa0df1b",
+                      "name": "2e8ce490-86c2-45a4-a6e4-db5e5314981c",
+                      "name_review": {
+                        "added": true,
+                        "updateTime": 1717517906834,
+                        "updatedBy": "undefined undefined"
+                      },
+                      "name_uuid": "69961749-0415-49e3-aa34-54cc77c57b2c",
+                      "propagation": "",
+                      "propagationLiquid": "",
+                      "propagationLiquid_uuid": "5654225a-03a0-4d98-b31c-6bc9759dda20",
+                      "propagation_uuid": "37724741-3721-466f-a43f-613cea4932c8",
+                      "short": "Additional info",
+                      "short_review": {
+                        "lastReviewed": "",
+                        "updateTime": 1717517914898,
+                        "updatedBy": "undefined undefined"
+                      },
+                      "short_uuid": "a63b6c91-7d3d-43ea-9f73-ddf55faa43d3"
+                    }
+                  ],
                   "treatments_uuid": "6113b273-d1d2-452f-8194-7299d2a020ed",
                   "type": "IR"
                 }
@@ -9679,8 +9715,9 @@
           "mutation_effect_uuid": "2464bce2-bc43-416c-b230-67229aaa584e",
           "name": "E46K",
           "name_review": {
-            "updateTime": 1680541084235,
-            "updatedBy": "User"
+            "removed": true,
+            "updateTime": 1717517923181,
+            "updatedBy": "undefined undefined"
           },
           "name_uuid": "3bc4a8fb-7069-498e-8792-79a3fc8a0ebc",
           "tumors_uuid": "db0bffad-cb1e-4615-8f1d-db6c2ef5b4cd"
@@ -9865,8 +9902,10 @@
           "mutation_effect_uuid": "8bcdd7c8-b265-44f5-9b9d-6f1905c9e7f0",
           "name": "G258V",
           "name_review": {
-            "updateTime": 1680546248164,
-            "updatedBy": "User"
+            "demotedToVus": true,
+            "removed": true,
+            "updateTime": 1717517928319,
+            "updatedBy": "undefined undefined"
           },
           "name_uuid": "b38c0589-2d24-44fc-af43-eff4e6129b30",
           "tumors_uuid": "7f7cf80f-6b56-4de4-8c14-abc195d48f36"
@@ -10772,10 +10811,11 @@
         }
       ],
       "name": "BRAF",
-      "summary": "BRAF, an intracellular kinase, is frequently mutated in melanoma, thyroid and lung cancers among others.",
+      "summary": "BRAF, an intracellular kinase, is frequently mutated in melanoma, thyroid and lung cancers among others. Other info",
       "summary_review": {
-        "updateTime": 1687447296471,
-        "updatedBy": "User"
+        "lastReviewed": "BRAF, an intracellular kinase, is frequently mutated in melanoma, thyroid and lung cancers among others.",
+        "updateTime": 1717517893267,
+        "updatedBy": "undefined undefined"
       },
       "summary_uuid": "fb828c84-3a02-4f45-8721-01c20b7794d3",
       "type": {
@@ -64336,13 +64376,19 @@
   },
   "Meta": {
     "BRAF": {
-      "lastModifiedAt": 1710275347552,
-      "lastModifiedBy": "User",
+      "lastModifiedAt": "1717517928468",
+      "lastModifiedBy": "undefined undefined",
       "lastSavedAt": 1710275384540,
       "lastSavedBy": "User",
       "movingSection": false,
       "review": {
-        "currentReviewer": ""
+        "3bc4a8fb-7069-498e-8792-79a3fc8a0ebc": true,
+        "69961749-0415-49e3-aa34-54cc77c57b2c": true,
+        "90026d5f-5111-4372-a61e-5a5e13efab16": true,
+        "a63b6c91-7d3d-43ea-9f73-ddf55faa43d3": true,
+        "b38c0589-2d24-44fc-af43-eff4e6129b30": true,
+        "currentReviewer": "",
+        "fb828c84-3a02-4f45-8721-01c20b7794d3": true
       }
     },
     "ROS1": {

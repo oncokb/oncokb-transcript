@@ -69,6 +69,22 @@ describe('Screenshot Tests', () => {
           flags: [],
           associations: [],
         },
+        {
+          id: 15,
+          uuid: '939cd40b-b515-499d-b099-fd29027c0d17',
+          name: 'Dabrafenib',
+          nciThesaurus: {
+            id: 163898,
+            version: '23.11d',
+            code: 'C82386',
+            preferredName: 'Dabrafenib',
+            displayName: 'Dabrafenib',
+            synonyms: null,
+          },
+          fdaDrugs: [],
+          flags: [],
+          associations: [],
+        },
       ],
       {
         statusCode: 200,
@@ -76,7 +92,7 @@ describe('Screenshot Tests', () => {
       },
     );
     const genesMock = await browser.mock('**/api/genes/search*');
-    genesMock.respond([], {
+    genesMock.respond([{ hugoSymbol: 'BRAF' }, { hugoSymbol: 'ROS1' }, { hugoSymbol: 'TP53' }], {
       statusCode: 200,
       fetchResponse: false,
     });
@@ -97,5 +113,94 @@ describe('Screenshot Tests', () => {
 
     const result = await browser.checkElement(geneList, 'gene-list', methodOptions);
     expect(result).toBe(0);
+  });
+
+  it('should compare VUS table', async () => {
+    await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
+
+    const vusTable = await $('div[data-testid="vus-table"]');
+    await vusTable.waitForDisplayed();
+
+    const result = await browser.checkElement(vusTable, 'vus-table', methodOptions);
+    expect(result).toBe(0);
+  });
+
+  it('should compare mutation collapsible info', async () => {
+    await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
+
+    const mutationCollapsibleInfo = await $('div[data-testid="V600E-collapsible-info"]');
+    await mutationCollapsibleInfo.waitForDisplayed();
+
+    const result = await browser.checkElement(mutationCollapsibleInfo, 'mutation-collapsible-info', methodOptions);
+    expect(result).toBe(0);
+  });
+
+  it('should compare mutation effect not curatable', async () => {
+    await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
+
+    const mutationCollapsibleButton = await $('div[data-testid="V600E, V600K-collapsible-title-wrapper"]');
+    await mutationCollapsibleButton.click();
+
+    const mutationEffectNotCuratable = await $('div[data-testid="Mutation Effect-collapsible"]');
+    await mutationEffectNotCuratable.waitForDisplayed();
+
+    const result = await browser.checkElement(mutationEffectNotCuratable, 'mutation-effect-not-curatable', methodOptions);
+    expect(result).toBe(0);
+  });
+
+  it('should compare open therapy collapsible', async () => {
+    await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
+
+    const mutationCollapsibleButton = await $('div[data-testid="V600E-collapsible-title-wrapper"]');
+    await mutationCollapsibleButton.click();
+
+    const cancerTypeCollapsibleButton = await $('div[data-testid="Cancer Type: Melanoma-collapsible-title-wrapper"]');
+    await cancerTypeCollapsibleButton.click();
+
+    const therapyCollapsibleButton = await $('div[data-testid="Therapy: Dabrafenib-collapsible-title-wrapper"]');
+    await therapyCollapsibleButton.click();
+
+    const openTherapyCollapsible = await $('div[data-testid="Therapy: Dabrafenib-collapsible"]');
+    await openTherapyCollapsible.waitForDisplayed();
+    await openTherapyCollapsible.scrollIntoView();
+
+    const result = await browser.checkElement(openTherapyCollapsible, 'open-therapy-collapsible', methodOptions);
+    expect(result).toBe(0);
+  });
+
+  it('should compare modify therapy modal', async () => {
+    await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
+
+    const mutationCollapsibleButton = await $('div[data-testid="V600E-collapsible-title-wrapper"]');
+    await mutationCollapsibleButton.click();
+
+    const cancerTypeCollapsibleButton = await $('div[data-testid="Cancer Type: Melanoma-collapsible-title-wrapper"]');
+    await cancerTypeCollapsibleButton.click();
+
+    const addTherapyButton = await $('button[data-testid="add-therapy"]');
+    await addTherapyButton.click();
+
+    const modifyTherapyModal = await $('div[data-testid="simple-confirm-modal-content"]');
+    await modifyTherapyModal.waitForDisplayed();
+
+    const result = await browser.checkElement(modifyTherapyModal, 'add-therapy-modal', methodOptions);
+    expect(result).toBe(0);
+  });
+
+  it('should compare review page', async () => {
+    await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
+
+    const reviewButton = await $('button[data-testid="review-button"]');
+    await reviewButton.click();
+
+    const reviewPage = await $('div[data-testid="review-page"]');
+    await reviewPage.waitForDisplayed();
+
+    const result = await browser.checkElement(reviewPage, 'review-page', methodOptions);
+    expect(result).toBe(0);
+
+    // reset by going back to curation page
+    const reviewCompleteButton = await $('button[data-testid="review-complete-button"]');
+    await reviewCompleteButton.click();
   });
 });

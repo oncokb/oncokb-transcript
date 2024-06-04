@@ -37,6 +37,13 @@ export interface BaseCollapsibleProps {
   showLoadingSpinner?: boolean;
 }
 
+function getDataTestid(dataTestid: string, identifier: React.ReactNode) {
+  if (typeof identifier === 'string') {
+    return `${identifier}-${dataTestid}`;
+  }
+  return dataTestid;
+}
+
 export default function BaseCollapsible({
   children,
   title,
@@ -64,7 +71,7 @@ export default function BaseCollapsible({
   const infoComponent = useMemo(() => {
     if (!displayOptions?.hideInfo) {
       return (
-        <div className="d-flex" data-testid="collapsible-info">
+        <div className="d-flex" data-testid={getDataTestid('collapsible-info', title)}>
           {info}
         </div>
       );
@@ -103,7 +110,7 @@ export default function BaseCollapsible({
   };
 
   return (
-    <div className={classNames('card', collapsibleClassName, styles.main)}>
+    <div className={classNames('card', collapsibleClassName, styles.main)} data-testid={getDataTestid('collapsible', title)}>
       <div
         className={classNames(
           'd-flex align-items-center p-1 bg-transparent pe-2',
@@ -117,7 +124,7 @@ export default function BaseCollapsible({
           <div
             className={classNames(styles.collapsibleTitleWrapper, displayOptions?.disableCollapsible && styles.disabledCollapsible)}
             onClick={handleToggle}
-            data-testid="collapsible-title-wrapper"
+            data-testid={getDataTestid('collapsible-title-wrapper', title)}
           >
             <button
               disabled={displayOptions?.disableCollapsible || displayOptions?.hideToggle}

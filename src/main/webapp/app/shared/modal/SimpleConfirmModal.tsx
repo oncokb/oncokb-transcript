@@ -26,29 +26,31 @@ export const SimpleConfirmModal: React.FunctionComponent<{
   };
   return (
     <Modal style={props.style} isOpen={props.show} toggle={() => onCancel()}>
-      <ModalHeader toggle={() => onCancel()}>{props.title || 'Please confirm'}</ModalHeader>
-      <ModalBody>{props.body ? props.body : 'Are you sure?'}</ModalBody>
-      <ModalFooter>
-        <Button color={props.cancelColor || 'secondary'} onClick={(event: any) => onCancel(event)}>
-          {props.cancelIcon && (
-            <>
-              <FontAwesomeIcon icon={props.cancelIcon} /> &nbsp;
-            </>
-          )}{' '}
-          {props.cancelText || 'Cancel'}
-        </Button>
-        <AsyncSaveButton
-          disabled={props.confirmDisabled}
-          color={props.confirmColor || 'primary'}
-          onClick={(event: any) => {
-            event.preventDefault();
-            if (props.onConfirm) props.onConfirm();
-          }}
-          icon={props.confirmIcon}
-          confirmText={props.confirmText}
-          isSavePending={props.showConfirmLoader}
-        />
-      </ModalFooter>
+      <div data-testid="simple-confirm-modal-content">
+        <ModalHeader toggle={() => onCancel()}>{props.title || 'Please confirm'}</ModalHeader>
+        <ModalBody>{props.body ? props.body : 'Are you sure?'}</ModalBody>
+        <ModalFooter>
+          <Button color={props.cancelColor || 'secondary'} onClick={(event: any) => onCancel(event)}>
+            {props.cancelIcon && (
+              <>
+                <FontAwesomeIcon icon={props.cancelIcon} /> &nbsp;
+              </>
+            )}{' '}
+            {props.cancelText || 'Cancel'}
+          </Button>
+          <AsyncSaveButton
+            disabled={props.confirmDisabled}
+            color={props.confirmColor || 'primary'}
+            onClick={(event: any) => {
+              event.preventDefault();
+              if (props.onConfirm) props.onConfirm();
+            }}
+            icon={props.confirmIcon}
+            confirmText={props.confirmText}
+            isSavePending={props.showConfirmLoader}
+          />
+        </ModalFooter>
+      </div>
     </Modal>
   );
 };
