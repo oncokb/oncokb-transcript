@@ -108,6 +108,7 @@ module.exports = async options => {
             SERVER_API_URL: `''`,
             DOCKER: options.DOCKER,
           },
+          'Date.now': process.env.DOCKER ? () => 1717459200000 : 'Date.now',
         }),
         new webpack.DefinePlugin({
           DEVELOPMENT: JSON.stringify(development),

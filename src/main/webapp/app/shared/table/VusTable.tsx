@@ -175,6 +175,7 @@ const VusTable = ({
     {
       id: 'actions',
       Header: 'Actions',
+      width: 150,
       sortable: false,
       Cell(cell: { original: VusTableData }) {
         return (

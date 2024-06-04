@@ -125,13 +125,13 @@ describe('Screenshot Tests', () => {
     expect(result).toBe(0);
   });
 
-  it('should compare mutation collapsible info', async () => {
+  it('should compare mutation collapsible', async () => {
     await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
 
-    const mutationCollapsibleInfo = await $('div[data-testid="V600E-collapsible-info"]');
-    await mutationCollapsibleInfo.waitForDisplayed();
+    const mutationCollapsible = await $('div[data-testid="V600E-collapsible"]');
+    await mutationCollapsible.waitForDisplayed();
 
-    const result = await browser.checkElement(mutationCollapsibleInfo, 'mutation-collapsible-info', methodOptions);
+    const result = await browser.checkElement(mutationCollapsible, 'mutation-collapsible', methodOptions);
     expect(result).toBe(0);
   });
 
