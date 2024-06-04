@@ -378,4 +378,6 @@ export const HISTORY_OPERATION_TO_PAST_TENSE: { [operation in HistoryOperationTy
 
 export const PATHOGENIC_VARIANTS = 'Pathogenic Variants';
 
-export const AUTH_EMULATOR_URL = 'http://127.0.0.1:9099';
+export const FIREBASE_EMULATOR_HOST = process.env.DOCKER ? 'firebase' : 'localhost';
+export const DATABASE_EMULATOR_PORT = 9095;
+export const AUTH_EMULATOR_URL = `http://${FIREBASE_EMULATOR_HOST}:9099`;

@@ -106,6 +106,7 @@ module.exports = async options => {
             // If you use an API server, in `prod` mode, you will need to enable CORS
             // (see the `jhipster.cors` common JHipster property in the `application-*.yml` configurations)
             SERVER_API_URL: `''`,
+            DOCKER: options.DOCKER,
           },
         }),
         new webpack.DefinePlugin({
@@ -141,7 +142,7 @@ module.exports = async options => {
           base: '/',
         }),
       ],
-    }
+    },
     // jhipster-needle-add-webpack-config - JHipster will add custom config
   );
 };

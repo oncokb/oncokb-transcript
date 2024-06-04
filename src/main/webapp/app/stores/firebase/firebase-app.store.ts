@@ -1,12 +1,12 @@
 import { AppConfig } from 'app/appConfig';
-import { AUTH_EMULATOR_URL } from 'app/config/constants/firebase';
+import { AUTH_EMULATOR_URL, DATABASE_EMULATOR_PORT, FIREBASE_EMULATOR_HOST } from 'app/config/constants/firebase';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import BaseStore from 'app/shared/util/base-store';
 import { IRootStore } from 'app/stores/createStore';
 import axios, { AxiosResponse } from 'axios';
 import { FirebaseApp, FirebaseOptions, initializeApp } from 'firebase/app';
 import { connectAuthEmulator, getAuth, onAuthStateChanged, signInWithCustomToken, signOut } from 'firebase/auth';
-import { Database, getDatabase } from 'firebase/database';
+import { Database, connectDatabaseEmulator, getDatabase } from 'firebase/database';
 import { action, computed, makeObservable, observable } from 'mobx';
 
 export class FirebaseAppStore extends BaseStore {
@@ -53,7 +53,7 @@ export class FirebaseAppStore extends BaseStore {
   }
 
   initializeFirebase() {
-    const { enabled, connectToAuthEmulator, ...firebaseOptions } = AppConfig.serverConfig.frontend.firebase;
+    const { enabled, connectToFirebaseEmulators, ...firebaseOptions } = AppConfig.serverConfig.frontend.firebase;
     this.firebaseEnabled = enabled;
     if (this.firebaseEnabled) {
       try {
@@ -63,7 +63,8 @@ export class FirebaseAppStore extends BaseStore {
         this.firebaseInitSuccess = true;
 
         const auth = getAuth();
-        if (connectToAuthEmulator) {
+        if (connectToFirebaseEmulators) {
+          connectDatabaseEmulator(this.firebaseDb, FIREBASE_EMULATOR_HOST, DATABASE_EMULATOR_PORT);
           connectAuthEmulator(auth, AUTH_EMULATOR_URL, { disableWarnings: true });
         }
         return onAuthStateChanged(auth, user => {

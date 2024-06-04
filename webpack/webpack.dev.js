@@ -12,7 +12,7 @@ const commonConfig = require('./webpack.common.js');
 const ENV = 'development';
 
 module.exports = async options =>
-  webpackMerge(await commonConfig({ env: ENV }), {
+  webpackMerge(await commonConfig({ ...options, env: ENV }), {
     devtool: 'cheap-module-source-map', // https://reactjs.org/docs/cross-origin-errors.html
     mode: ENV,
     entry: ['./src/main/webapp/app/index'],
@@ -86,6 +86,7 @@ module.exports = async options =>
         },
       ],
       server: options.tls ? 'https' : 'http',
+      allowedHosts: 'all',
       historyApiFallback: true,
     },
     stats: process.env.JHI_DISABLE_WEBPACK_LOGS ? 'none' : options.stats,
