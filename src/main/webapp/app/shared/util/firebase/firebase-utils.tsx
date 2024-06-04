@@ -279,7 +279,7 @@ export const compareFirebaseOncogenicities = (a: FIREBASE_ONCOGENICITY, b: FIREB
 
 export const getVusTimestampClass = (time: string | number) => {
   const vusTime = new Date(time);
-  const now = new Date();
+  const now = process.env.DOCKER ? new Date(1717459200000) : new Date(); // want to use same time everytime for tests
   const month = now.getMonth();
   const year = now.getFullYear();
   const monthDiff = (year - vusTime.getFullYear()) * 12 + month - vusTime.getMonth();
