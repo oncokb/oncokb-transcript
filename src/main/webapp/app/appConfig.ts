@@ -13,7 +13,7 @@ export type FirebaseProperties = {
   messagingSenderId: string;
   appId: string;
   measurementId: string;
-  connectToAuthEmulator?: boolean; // this will be injected by tests and will not come from the backend
+  connectToFirebaseEmulators?: boolean; // this will be injected by tests and will not come from the backend
 };
 
 type ServerConfig = {

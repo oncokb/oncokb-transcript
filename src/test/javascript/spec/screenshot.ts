@@ -16,7 +16,7 @@ describe('Screenshot Tests', () => {
     const firebaseConfig = JSON.stringify({
       firebase: {
         enabled: true,
-        connectToAuthEmulator: true,
+        connectToFirebaseEmulators: true,
         databaseURL: DATABASE_EMULATOR_URL,
         apiKey: 'AIzaSyCUd3bf-TEg5T78w_-RKT6uV_pf3VTVvo8',
         projectId: 'oncokb-curation-test-54b6c',
@@ -91,7 +91,6 @@ describe('Screenshot Tests', () => {
 
   it('should compare gene list', async () => {
     await browser.url(`${BASE_URL}/curation`);
-    await browser.pause(6000);
 
     const geneList = await $('#gene-list');
     await geneList.waitForDisplayed();
