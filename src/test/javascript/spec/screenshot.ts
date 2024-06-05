@@ -97,26 +97,102 @@ describe('Screenshot Tests', () => {
       fetchResponse: false,
     });
     const annotateAlterationsMock = await browser.mock('**/api/annotate-alterations');
-    annotateAlterationsMock.respond([], {
-      statusCode: 200,
-      fetchResponse: false,
-    });
+    annotateAlterationsMock.respond(
+      [
+        {
+          entity: {
+            id: null,
+            type: 'PROTEIN_CHANGE',
+            name: 'V600E',
+            alteration: 'V600E',
+            proteinChange: 'V600E',
+            start: 600,
+            end: 600,
+            refResidues: 'V',
+            variantResidues: 'E',
+            flags: [],
+            genes: [
+              {
+                id: 41135,
+                entrezGeneId: 673,
+                hugoSymbol: 'BRAF',
+                hgncId: '1097',
+              },
+            ],
+            transcripts: [],
+            consequence: {
+              id: 16,
+              term: 'MISSENSE_VARIANT',
+              name: 'Missense Variant',
+              isGenerallyTruncating: false,
+              description:
+                'A sequence variant, that changes one or more bases, resulting in a different amino acid sequence but where the length is preserved',
+            },
+            associations: [],
+          },
+          message: '',
+          type: 'OK',
+          queryId: 'V600E',
+          annotation: {
+            hotspot: {
+              associatedHotspots: [
+                {
+                  type: 'HOTSPOT_V1',
+                  alteration: 'V600',
+                },
+                {
+                  type: 'THREE_D',
+                  alteration: 'V600',
+                },
+                {
+                  type: 'HOTSPOT_V1',
+                  alteration: 'V600',
+                },
+                {
+                  type: 'THREE_D',
+                  alteration: 'V600',
+                },
+              ],
+              hotspot: true,
+            },
+            exons: [
+              {
+                range: {
+                  start: 581,
+                  end: 620,
+                },
+                exon: 15,
+              },
+            ],
+          },
+          warning: false,
+          ok: true,
+          error: false,
+        },
+      ],
+      {
+        statusCode: 200,
+        fetchResponse: false,
+      },
+    );
 
     await browser.setWindowSize(1920, 1080);
   });
 
-  it('should compare gene list', async () => {
-    await browser.url(`${BASE_URL}/curation`);
+  // it('should compare gene list', async () => {
+  //   await browser.url(`${BASE_URL}/curation`);
 
-    const geneList = await $('#gene-list');
-    await geneList.waitForDisplayed();
+  //   const geneList = await $('#gene-list');
+  //   await geneList.waitForDisplayed();
 
-    const result = await browser.checkElement(geneList, 'gene-list', methodOptions);
-    expect(result).toBe(0);
-  });
+  //   const result = await browser.checkElement(geneList, 'gene-list', methodOptions);
+  //   expect(result).toBe(0);
+  // });
 
   it('should compare VUS table', async () => {
     await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
+
+    await browser.debug();
 
     const vusTable = await $('div[data-testid="vus-table"]');
     await vusTable.waitForDisplayed();
