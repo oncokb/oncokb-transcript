@@ -8,7 +8,12 @@ import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
 import { Mutation } from 'app/shared/model/firebase/firebase.model';
-import { compareMutations, getFirebaseGenePath } from 'app/shared/util/firebase/firebase-utils';
+import {
+  compareMutationsByLastModified,
+  compareMutationsByProteinChangePosition,
+  compareMutationsDefault,
+  getFirebaseGenePath,
+} from 'app/shared/util/firebase/firebase-utils';
 import MutationCollapsible from '../collapsible/MutationCollapsible';
 import * as styles from '../styles.module.scss';
 import MutationsSectionHeader, { SortOptions } from '../header/MutationsSectionHeader';
@@ -129,13 +134,13 @@ function MutationsSection({
   function getSortFunction() {
     switch (sortMethod) {
       case SortOptions.DEFAULT:
-        return compareMutations;
-      case SortOptions.LAST_MODIFIED_BY:
-        return () => 0;
+        return compareMutationsDefault;
+      case SortOptions.LAST_MODIFIED:
+        return compareMutationsByLastModified;
       case SortOptions.EXON_INCREASING:
         return;
       case SortOptions.POSITION:
-        return;
+        return compareMutationsByProteinChangePosition;
       default:
         return;
     }

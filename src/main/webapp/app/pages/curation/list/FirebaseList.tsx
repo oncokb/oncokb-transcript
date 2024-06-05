@@ -68,9 +68,6 @@ function FirebaseList<T>({
     return () => unsubscribe?.();
   }, [path, firebaseDb, indices, numItemsAdded, setNumItemsAdded]);
 
-  /* eslint-disable no-console */
-  console.log(numItemsAdded);
-
   useEffect(() => {
     async function getItems() {
       const items = (await get(ref(firebaseDb, path))).val();

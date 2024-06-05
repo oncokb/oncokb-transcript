@@ -527,7 +527,43 @@ export function compareMutationsByCategoricalAlteration(mut1: Mutation, mut2: Mu
   }
 }
 
-export function compareMutations(mut1: Mutation, mut2: Mutation) {
+export function getMutationModifiedTimestamp(mutation: Mutation): number | null {
+  let modifiedTime: number = null;
+  let nestedObjects = [mutation];
+  while (nestedObjects.length > 0) {
+    const newNestedObjects = [];
+
+    for (const nestedObject of nestedObjects) {
+      for (const [key, val] of Object.entries(nestedObject)) {
+        if (key.endsWith('review')) {
+          const review = val as Review;
+          if (modifiedTime === null) {
+            modifiedTime = review.updateTime;
+          } else {
+            modifiedTime = Math.max(review.updateTime, modifiedTime);
+          }
+        } else if (typeof val === 'object') {
+          newNestedObjects.push(val);
+        }
+      }
+    }
+
+    nestedObjects = newNestedObjects;
+  }
+  return modifiedTime;
+}
+
+export function compareMutationsByLastModified(mut1: Mutation, mut2: Mutation, order: SortOrder = 'desc') {
+  const mutation1LastModified = getMutationModifiedTimestamp(mut1);
+  const mutation2LastModifed = getMutationModifiedTimestamp(mut2);
+  if (order === 'asc') {
+    return mutation1LastModified - mutation2LastModifed;
+  } else {
+    return mutation2LastModifed - mutation1LastModified;
+  }
+}
+
+export function compareMutationsDefault(mut1: Mutation, mut2: Mutation) {
   let order = compareMutationsByDeleted(mut1, mut2);
   if (order !== 0) {
     return order;

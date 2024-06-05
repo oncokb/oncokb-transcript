@@ -33,7 +33,7 @@ enum FilterType {
 
 export enum SortOptions {
   DEFAULT = 'Default Sort',
-  LAST_MODIFIED_BY = 'Last Modified By',
+  LAST_MODIFIED = 'Last Modified',
   EXON_INCREASING = 'Exon Increasing',
   POSITION = 'Position',
 }
