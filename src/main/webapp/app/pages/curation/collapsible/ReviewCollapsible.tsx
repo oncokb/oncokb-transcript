@@ -292,8 +292,8 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
 
   const defaultReviewCollapsibleDisplayOptions: CollapsibleDisplayProps = {
     disableCollapsible: isDeletion,
-    hideAction: false,
-    hideInfo: false,
+    hideAction: rootReview.reviewLevelType === ReviewLevelType.META,
+    hideInfo: rootReview.reviewLevelType === ReviewLevelType.META,
     hideToggle: !rootReview.hasChildren() && reviewAction === ReviewAction.CREATE,
   };
 
