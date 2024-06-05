@@ -58,7 +58,7 @@ function MutationsSection({
               name: mut.name,
               alterations: mut.alterations,
             };
-          })
+          }),
         );
       },
       { onlyOnce: true },
@@ -69,19 +69,18 @@ function MutationsSection({
     return (
       <>
         {!_.isNil(openMutationCollapsibleIndex) && (
-          <div style={{ transition: 'height 0.5s, opacity 0.5s' }} className={'mb-2'}>
-            <div>
-              <MutationCollapsible
-                open
-                mutationPath={`${mutationsPath}/${openMutationCollapsibleIndex}`}
-                hugoSymbol={hugoSymbol}
-                isGermline={isGermline}
-                parsedHistoryList={parsedHistoryList}
-                onToggle={() => {
-                  setOpenMutationCollapsibleIndex(null);
-                }}
-              />
-            </div>
+          // though a greater minHeight would reduce blinking more, need to choose a minHeight that looks good on the smallest possible mutation
+          <div style={{ transition: 'height 0.5s, opacity 0.5s', minHeight: 400 }} className={'mb-2'}>
+            <MutationCollapsible
+              open
+              mutationPath={`${mutationsPath}/${openMutationCollapsibleIndex}`}
+              hugoSymbol={hugoSymbol}
+              isGermline={isGermline}
+              parsedHistoryList={parsedHistoryList}
+              onToggle={() => {
+                setOpenMutationCollapsibleIndex(null);
+              }}
+            />
           </div>
         )}
         <div
