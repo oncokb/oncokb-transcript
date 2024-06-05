@@ -550,7 +550,6 @@ const mapStoreToProps = ({
   drugStore,
   curationPageStore,
   firebaseGenomicIndicatorsStore,
-  firebaseMutationListStore,
 }: IRootStore) => ({
   deleteSection: firebaseGeneService.deleteSection,
   addTumor: firebaseGeneService.addTumor,
@@ -563,7 +562,6 @@ const mapStoreToProps = ({
   firebaseDb: firebaseAppStore.firebaseDb,
   annotatedAltsCache: curationPageStore.annotatedAltsCache,
   genomicIndicators: firebaseGenomicIndicatorsStore.data,
-  mutationList: firebaseMutationListStore.data,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
