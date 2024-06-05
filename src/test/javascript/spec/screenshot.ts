@@ -179,20 +179,18 @@ describe('Screenshot Tests', () => {
     await browser.setWindowSize(1920, 1080);
   });
 
-  // it('should compare gene list', async () => {
-  //   await browser.url(`${BASE_URL}/curation`);
+  it('should compare gene list', async () => {
+    await browser.url(`${BASE_URL}/curation`);
 
-  //   const geneList = await $('#gene-list');
-  //   await geneList.waitForDisplayed();
+    const geneList = await $('#gene-list');
+    await geneList.waitForDisplayed();
 
-  //   const result = await browser.checkElement(geneList, 'gene-list', methodOptions);
-  //   expect(result).toBe(0);
-  // });
+    const result = await browser.checkElement(geneList, 'gene-list', methodOptions);
+    expect(result).toBe(0);
+  });
 
   it('should compare VUS table', async () => {
     await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
-
-    await browser.debug();
 
     const vusTable = await $('div[data-testid="vus-table"]');
     await vusTable.waitForDisplayed();
