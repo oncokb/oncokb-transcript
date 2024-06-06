@@ -1,4 +1,3 @@
-import { IDrug } from 'app/shared/model/drug.model';
 import {
   BaseReviewLevel,
   EditorReviewMap,
@@ -11,26 +10,34 @@ import { getFirebaseGenePath, getFirebaseMetaGenePath } from 'app/shared/util/fi
 import { componentInject } from 'app/shared/util/typed-inject';
 import { getSectionClassName } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
-import { onValue, ref } from 'firebase/database';
+import { get, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { Alert, Button, Col, FormGroup, Input, Label, Row } from 'reactstrap';
 import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
+import { RouteComponentProps } from 'react-router-dom';
+import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
+import { GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
+import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
+import GeneHeader from '../header/GeneHeader';
 
-interface IReviewPageProps extends StoreProps {
-  hugoSymbol: string;
-  isGermline: boolean;
-  reviewFinished: boolean;
-  handleReviewFinished: (isFinished: boolean) => void;
-  drugList: readonly IDrug[];
-}
+interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
-const ReviewPage = (props: IReviewPageProps) => {
-  const firebaseGenePath = getFirebaseGenePath(props.isGermline, props.hugoSymbol);
-  const firebaseMetaReviewPath = `${getFirebaseMetaGenePath(props.isGermline, props.hugoSymbol)}/review`;
+const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPageProps) => {
+  const pathname = props.location.pathname;
+  const isGermline = pathname.includes('germline');
+  const hugoSymbolParam = props.match.params.hugoSymbol;
+
+  const { geneEntity, hugoSymbol } = useMatchGeneEntity(hugoSymbolParam, props.searchGeneEntities, props.geneEntities);
+
+  const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
+  const firebaseMetaReviewPath = `${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review`;
 
   const [geneData, setGeneData] = useState(null);
   const [metaReview, setMetaReview] = useState(null);
+  const [isLoadingMetaReview, setIsLoadingMetaReview] = useState(false);
+
+  const [isReviewFinished, setIsReviewFinished] = useState(false);
 
   const [reviewUuids, setReviewUuids] = useState([]);
   const [rootReview, setRootReview] = useState<BaseReviewLevel>(undefined);
@@ -38,41 +45,41 @@ const ReviewPage = (props: IReviewPageProps) => {
   const [splitView, setSplitView] = useState(false);
 
   useEffect(() => {
-    const callbacks = [];
-    callbacks.push(
-      onValue(ref(props.firebaseDb, firebaseGenePath), snapshot => {
-        setGeneData(snapshot.val());
-      }),
-    );
-    callbacks.push(
-      onValue(ref(props.firebaseDb, firebaseMetaReviewPath), snapshot => {
-        setMetaReview(snapshot.val());
-      }),
-    );
+    if (geneEntity && props.firebaseInitSuccess) {
+      // Fetch the data when the user enters review mode. We don't use a listener
+      // because there shouldn't be another user editing the gene when it is being reviewed.
+      get(ref(props.firebaseDb, firebaseGenePath)).then(snapshot => setGeneData(snapshot.val()));
+      setIsLoadingMetaReview(true);
+      get(ref(props.firebaseDb, firebaseMetaReviewPath))
+        .then(snapshot => setMetaReview(snapshot.val()))
+        .finally(() => setIsLoadingMetaReview(false));
+    }
 
-    return () => callbacks.forEach(callback => callback?.());
-  }, []);
+    props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
+  }, [geneEntity, props.firebaseDb, props.firebaseInitSuccess]);
 
   useEffect(() => {
     if (metaReview) {
-      let uuids = [];
-      for (const key of Object.keys(metaReview)) {
-        if (metaReview[key] === true) {
-          uuids = uuids.concat(key.split(',').map(uuid => uuid.trim()));
+      const uuids = Object.keys(metaReview).reduce((acc, curr) => {
+        if (metaReview[curr] === true) {
+          // The legacy platform uses comma seperated string to denote that
+          // a tumor needs review (requires both cancerTypes and excludedCancerTypes)
+          acc = [...acc, ...curr.split(',').map(uuid => uuid.trim())];
         }
-      }
+        return acc;
+      }, []);
       setReviewUuids(uuids);
     }
   }, [metaReview]);
 
   useEffect(() => {
-    if (geneData) {
+    if (geneData && !isLoadingMetaReview) {
       const reviewMap = new EditorReviewMap();
       const reviews = findReviews(props.drugList, geneData, reviewUuids, reviewMap);
       Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
       setEditorReviewMap(reviewMap);
       setRootReview(reviews);
-      props.handleReviewFinished(!reviews.hasChildren());
+      setIsReviewFinished(!reviews.hasChildren());
     }
   }, [geneData, reviewUuids]);
 
@@ -81,14 +88,22 @@ const ReviewPage = (props: IReviewPageProps) => {
     for (const editor of editors) {
       reviewLevels = reviewLevels.concat(editorReviewMap.getReviewsByEditor(editor));
     }
-    props.acceptReviewChangeHandler(props.hugoSymbol, reviewLevels, props.isGermline);
+    props.acceptReviewChangeHandler(hugoSymbol, reviewLevels, isGermline);
   };
 
-  return (
+  return props.firebaseInitSuccess && !props.loadingGenes && props.drugList.length > 0 && !!geneEntity ? (
     <div data-testid="review-page">
+      <GeneHeader
+        hugoSymbol={hugoSymbol}
+        firebaseGenePath={firebaseGenePath}
+        geneEntity={geneEntity}
+        isGermline={isGermline}
+        isReviewFinished={isReviewFinished}
+        isReviewing={true}
+      />
       <Row className={`${getSectionClassName()} justify-content-between`}>
         <Col>
-          {props.reviewFinished ? (
+          {isReviewFinished ? (
             <Alert color="success" fade={false}>
               <div className="d-flex justify-content-center">All items have been reviewed. Click the Review Complete button to exit.</div>
             </Alert>
@@ -104,7 +119,7 @@ const ReviewPage = (props: IReviewPageProps) => {
           )}
         </Col>
       </Row>
-      {!props.reviewFinished && (
+      {!isReviewFinished && (
         <>
           <Row className="mb-4">
             <Col>
@@ -160,8 +175,8 @@ const ReviewPage = (props: IReviewPageProps) => {
               .map(reviewLevel => (
                 <ReviewCollapsible
                   splitView={splitView}
-                  hugoSymbol={props.hugoSymbol}
-                  isGermline={props.isGermline}
+                  hugoSymbol={hugoSymbol}
+                  isGermline={isGermline}
                   key={reviewLevel.valuePath}
                   baseReviewLevel={reviewLevel}
                   handleAccept={props.acceptReviewChangeHandler}
@@ -172,14 +187,22 @@ const ReviewPage = (props: IReviewPageProps) => {
         </Row>
       ) : undefined}
     </div>
+  ) : (
+    <LoadingIndicator key={'curation-review-page-loading'} size={LoaderSize.LARGE} center isLoading />
   );
 };
 
-const mapStoreToProps = ({ firebaseAppStore, firebaseGeneReviewService, authStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, firebaseGeneReviewService, authStore, drugStore, geneStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   fullName: authStore.fullName,
   rejectReviewChangeHandler: firebaseGeneReviewService.rejectChanges,
   acceptReviewChangeHandler: firebaseGeneReviewService.acceptChanges,
+  drugList: drugStore.entities,
+  getDrugs: drugStore.getEntities,
+  searchGeneEntities: geneStore.searchEntities,
+  geneEntities: geneStore.entities,
+  loadingGenes: geneStore.loading,
+  firebaseInitSuccess: firebaseAppStore.firebaseInitSuccess,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
