@@ -6,7 +6,7 @@ import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { DataSnapshot, onValue, ref } from 'firebase/database';
 import _ from 'lodash';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FaFilter, FaSort } from 'react-icons/fa';
 import { Button, Col, Container, Input, InputGroup, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
 import AddMutationButton from '../button/AddMutationButton';
@@ -92,6 +92,8 @@ function MutationsSectionHeader({
   const [tempNeedsReviewFilter, setTempNeedsReviewFilter] = useState(
     initFilterCheckboxState(FilterType.NEEDS_REVIEW, NEEDS_REVIEW_OPTIONS),
   );
+
+  const sortSelectRef = useRef<HTMLDivElement>(null);
 
   const setMutationsDebounced = _.debounce((snapshot: DataSnapshot) => {
     setMutations(snapshot.val());
@@ -330,12 +332,15 @@ function MutationsSectionHeader({
               onClick={handleToggleFilterModal}
               id="filter"
             />
-            <div className="mx-2" style={{ width: 320 }}>
+            <div ref={sortSelectRef} className="mx-2" style={{ width: 320 }}>
               <ReactSelect
                 defaultValue={{ label: SortOptions.DEFAULT, value: SortOptions.DEFAULT }}
                 options={Object.values(SortOptions).map(option => ({ label: option, value: option }))}
                 components={{
                   DropdownIndicator: () => <FaSort className="mx-1" />,
+                }}
+                classNames={{
+                  control: () => 'border',
                 }}
                 onChange={newValue => {
                   setSortMethod(newValue.value);
@@ -343,7 +348,7 @@ function MutationsSectionHeader({
               />
             </div>
             <Input
-              style={{ minHeight: 38 }}
+              style={{ minHeight: sortSelectRef.current?.clientHeight }}
               placeholder={'Search Mutation'}
               value={mutationFilter}
               onChange={event => setMutationFilter(event.target.value)}
