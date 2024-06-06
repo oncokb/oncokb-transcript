@@ -114,7 +114,13 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
   };
 
   const getReviewActions = () => {
-    return !isUnderCreationOrDeletion ? (
+    if (isUnderCreationOrDeletion) {
+      return undefined;
+    }
+    if (rootReview.reviewLevelType === ReviewLevelType.META) {
+      return undefined;
+    }
+    return (
       <>
         <ActionIcon
           icon={faCheck}
@@ -131,7 +137,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
           }}
         />
       </>
-    ) : undefined;
+    );
   };
 
   const getEditorInfo = () => {
