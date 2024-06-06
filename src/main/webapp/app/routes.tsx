@@ -13,6 +13,7 @@ import Entities from 'app/entities';
 import PageContainer from './components/PageContainer';
 import GeneListPage from './pages/curation/GeneListPage';
 import CurationPage from './pages/curation/CurationPage';
+import ReviewPage from './pages/curation/review/ReviewPage';
 
 const Account = Loadable({
   loader: () => import(/* webpackChunkName: "account" */ './pages/account/SettingsPage'),
@@ -44,11 +45,29 @@ const Routes: React.FunctionComponent<IRoutesProps> = (props: IRoutesProps) => {
             <ErrorBoundaryRoute exact path={PAGE_ROUTE.OAUTH} component={LoginRedirect} />
             <PrivateRoute exact path={PAGE_ROUTE.SEARCH} component={SearchPage} />
             <PrivateRoute exact path={PAGE_ROUTE.CURATION} component={GeneListPage} hasAnyAuthorities={[AUTHORITIES.CURATOR]} />
-            <PrivateRoute exact path={PAGE_ROUTE.CURATION_GENE} component={CurationPage} hasAnyAuthorities={[AUTHORITIES.CURATOR]} />
+            <PrivateRoute
+              exact
+              path={PAGE_ROUTE.CURATION_GENE_SOMATIC}
+              component={CurationPage}
+              hasAnyAuthorities={[AUTHORITIES.CURATOR]}
+            />
+            <Redirect exact from={PAGE_ROUTE.CURATION_GENE} to={PAGE_ROUTE.CURATION_GENE_SOMATIC} />
+            <PrivateRoute
+              exact
+              path={PAGE_ROUTE.CURATION_GENE_SOMATIC_REVIEW}
+              component={ReviewPage}
+              hasAnyAuthorities={[AUTHORITIES.CURATOR]}
+            />
             <PrivateRoute
               exact
               path={PAGE_ROUTE.CURATION_GENE_GERMLINE}
               component={CurationPage}
+              hasAnyAuthorities={[AUTHORITIES.CURATOR]}
+            />
+            <PrivateRoute
+              exact
+              path={PAGE_ROUTE.CURATION_GENE_GERMLINE_REVIEW}
+              component={ReviewPage}
               hasAnyAuthorities={[AUTHORITIES.CURATOR]}
             />
             <PrivateRoute exact path={PAGE_ROUTE.ACCOUNT} component={Account} hasAnyAuthorities={[AUTHORITIES.USER]} />
