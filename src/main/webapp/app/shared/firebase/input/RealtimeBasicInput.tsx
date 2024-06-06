@@ -7,8 +7,8 @@ import { onValue, ref } from 'firebase/database';
 import { inject } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { FormFeedback, Input, Label, LabelProps } from 'reactstrap';
-import * as styles from './styles.module.scss';
 import { InputType } from 'reactstrap/types/lib/Input';
+import * as styles from './styles.module.scss';
 
 export enum RealtimeInputType {
   TEXT = 'text',
@@ -139,6 +139,12 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   const inputComponent = (
     <>
       <Input
+        innerRef={inputRef => {
+          if (inputRef && type === RealtimeInputType.TEXTAREA) {
+            inputRef.style.height = 'auto';
+            inputRef.style.height = `${inputRef.scrollHeight}px`;
+          }
+        }}
         className={classNames(inputClass, isCheckType && 'ms-1 position-relative', isTextType && styles.editableTextBox)}
         id={id}
         name={`${id}-${label.toLowerCase()}`}
