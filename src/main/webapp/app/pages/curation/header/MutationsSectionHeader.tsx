@@ -304,7 +304,13 @@ function MutationsSectionHeader({
         {mutationsAreFiltered ? <span>{`Showing ${filteredIndices.length} of ${mutations.length} matching the search`}</span> : <span />}
         {mutations?.length > 0 && (
           <div className="d-flex align-items-center">
-            <div style={{ width: 300 }}>
+            <FaFilter
+              color={mutationsAreFiltered ? 'gold' : null}
+              style={{ cursor: 'pointer', minWidth: 15 }}
+              onClick={handleToggleFilterModal}
+              id="filter"
+            />
+            <div className="mx-2" style={{ width: 320 }}>
               <ReactSelect
                 defaultValue={{ label: SortOptions.DEFAULT, value: SortOptions.DEFAULT }}
                 options={Object.values(SortOptions).map(option => ({ label: option, value: option }))}
@@ -316,14 +322,12 @@ function MutationsSectionHeader({
                 }}
               />
             </div>
-            <FaFilter
-              color={mutationsAreFiltered ? 'gold' : null}
-              style={{ cursor: 'pointer', minWidth: 15 }}
-              onClick={handleToggleFilterModal}
-              className="mx-2"
-              id="filter"
+            <Input
+              style={{ minHeight: 38 }}
+              placeholder={'Search Mutation'}
+              value={mutationFilter}
+              onChange={event => setMutationFilter(event.target.value)}
             />
-            <Input placeholder={'Search Mutation'} value={mutationFilter} onChange={event => setMutationFilter(event.target.value)} />
           </div>
         )}
       </div>
@@ -337,6 +341,33 @@ function MutationsSectionHeader({
         </ModalHeader>
         <ModalBody>
           <Container>
+            <h6 className="mb-2 mt-2">Needs Review</h6>
+            <Row className="align-items-start justify-content-start">
+              {tempNeedsReviewFilter.map((filter, index) => {
+                const isDisabled = !checkboxEnabled(FilterType.NEEDS_REVIEW, filter.label);
+
+                return (
+                  <Col className="col-3" key={filter.label}>
+                    <InputGroup>
+                      <Input
+                        id={`tx-level-filter-${filter.label}`}
+                        onChange={() => handleFilterCheckboxChange(index, setTempNeedsReviewFilter)}
+                        checked={filter.selected}
+                        disabled={isDisabled}
+                        style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
+                        type="checkbox"
+                      />
+                      <Label
+                        for={`tx-level-filter-${filter.label}`}
+                        style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: CHECKBOX_LABEL_LEFT_MARGIN }}
+                      >
+                        {filter.label}
+                      </Label>
+                    </InputGroup>
+                  </Col>
+                );
+              })}
+            </Row>
             <h6 className="mb-2">Oncogenicity</h6>
             <Row>
               {tempOncogenicityFilter.map((filter, index) => {
@@ -401,33 +432,6 @@ function MutationsSectionHeader({
                       <Input
                         id={`tx-level-filter-${filter.label}`}
                         onChange={() => handleFilterCheckboxChange(index, setTempTxLevelFilter)}
-                        checked={filter.selected}
-                        disabled={isDisabled}
-                        style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
-                        type="checkbox"
-                      />
-                      <Label
-                        for={`tx-level-filter-${filter.label}`}
-                        style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: CHECKBOX_LABEL_LEFT_MARGIN }}
-                      >
-                        {filter.label}
-                      </Label>
-                    </InputGroup>
-                  </Col>
-                );
-              })}
-            </Row>
-            <h6 className="mb-2 mt-2">Needs Review</h6>
-            <Row className="align-items-start justify-content-start">
-              {tempNeedsReviewFilter.map((filter, index) => {
-                const isDisabled = !checkboxEnabled(FilterType.NEEDS_REVIEW, filter.label);
-
-                return (
-                  <Col className="col-3" key={filter.label}>
-                    <InputGroup>
-                      <Input
-                        id={`tx-level-filter-${filter.label}`}
-                        onChange={() => handleFilterCheckboxChange(index, setTempNeedsReviewFilter)}
                         checked={filter.selected}
                         disabled={isDisabled}
                         style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}

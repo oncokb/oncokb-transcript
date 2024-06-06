@@ -563,6 +563,11 @@ export function compareMutationsByLastModified(mut1: Mutation, mut2: Mutation, o
   }
 }
 
+export function compareMutationsByName(mut1: Mutation, mut2: Mutation, order: SortOrder = 'asc') {
+  const comparison = getMutationName(mut1.name, mut1.alterations).localeCompare(getMutationName(mut2.name, mut2.alterations));
+  return order === 'asc' ? comparison : comparison * -1;
+}
+
 export function compareMutationsDefault(mut1: Mutation, mut2: Mutation) {
   let order = compareMutationsByDeleted(mut1, mut2);
   if (order !== 0) {
@@ -599,7 +604,7 @@ export function compareMutationsDefault(mut1: Mutation, mut2: Mutation) {
     return order;
   }
 
-  return mut1.name.localeCompare(mut2.name);
+  return compareMutationsByName(mut1, mut2);
 }
 
 export const getFilterModalStats = (mutations: readonly Mutation[]) => {
