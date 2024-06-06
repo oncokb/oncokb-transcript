@@ -4,9 +4,11 @@ import '@testing-library/jest-dom';
 import { RemovableCollapsible } from './RemovableCollapsible';
 import { Review } from 'app/shared/model/firebase/firebase.model';
 
+const DEFAULT_TITLE = 'Default Title';
+
 function buildCollapsible(review: Review) {
   return (
-    <RemovableCollapsible title={'Default Title'} review={review} info={<div>Info section</div>} action={<div>Action section</div>}>
+    <RemovableCollapsible title={DEFAULT_TITLE} review={review} info={<div>Info section</div>} action={<div>Action section</div>}>
       <div>Default content</div>
     </RemovableCollapsible>
   );
@@ -23,11 +25,11 @@ describe('Removable Collapsible', () => {
     });
 
     it('should hide actions when pending deletion', () => {
-      expect(screen.queryByTestId('collapsible-action')).toBeNull();
+      expect(screen.queryByTestId(`${DEFAULT_TITLE}-collapsible-action`)).toBeNull();
     });
 
     it('should have info section', () => {
-      expect(screen.getByTestId('collapsible-info')).toBeInTheDocument();
+      expect(screen.getByTestId(`${DEFAULT_TITLE}-collapsible-info`)).toBeInTheDocument();
     });
   });
 
@@ -41,11 +43,11 @@ describe('Removable Collapsible', () => {
     });
 
     it('should hide actions when pending deletion', () => {
-      expect(screen.queryByTestId('collapsible-action')).toBeNull();
+      expect(screen.queryByTestId(`${DEFAULT_TITLE}-collapsible-action`)).toBeNull();
     });
 
     it('should have info section', () => {
-      expect(screen.getByTestId('collapsible-info')).toBeInTheDocument();
+      expect(screen.getByTestId(`${DEFAULT_TITLE}-collapsible-info`)).toBeInTheDocument();
     });
   });
 
@@ -58,11 +60,11 @@ describe('Removable Collapsible', () => {
     });
 
     it('should have action section', () => {
-      expect(screen.getByTestId('collapsible-action')).toBeInTheDocument();
+      expect(screen.getByTestId(`${DEFAULT_TITLE}-collapsible-action`)).toBeInTheDocument();
     });
 
     it('should have info section', () => {
-      expect(screen.getByTestId('collapsible-info')).toBeInTheDocument();
+      expect(screen.getByTestId(`${DEFAULT_TITLE}-collapsible-info`)).toBeInTheDocument();
     });
   });
 });

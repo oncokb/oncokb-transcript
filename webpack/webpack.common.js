@@ -8,6 +8,8 @@ const ESLintPlugin = require('eslint-webpack-plugin');
 const utils = require('./utils.js');
 const environment = require('./environment');
 
+const DEFAULT_DATE = 1717459200000;
+
 const getTsLoaderRule = env => {
   const rules = [
     {
@@ -108,6 +110,8 @@ module.exports = async options => {
             SERVER_API_URL: `''`,
             DOCKER: options.DOCKER,
           },
+          'Date.now': process.env.DOCKER ? `() => ${DEFAULT_DATE}` : 'Date.now',
+          'new Date()': process.env.DOCKER ? `new Date(${DEFAULT_DATE})` : 'new Date()',
         }),
         new webpack.DefinePlugin({
           DEVELOPMENT: JSON.stringify(development),

@@ -142,7 +142,7 @@ const VusTable = ({
       ),
       id: LAST_EDITED_AT,
       accessor: 'time.value',
-      width: 250,
+      width: 300,
       Cell(cell: { original: VusTableData }) {
         const time = cell.original.time.value;
         const color = getVusTimestampClass(time);
@@ -175,6 +175,7 @@ const VusTable = ({
     {
       id: 'actions',
       Header: 'Actions',
+      width: 150,
       sortable: false,
       Cell(cell: { original: VusTableData }) {
         return (
@@ -213,7 +214,7 @@ const VusTable = ({
   return (
     <>
       {vusData ? (
-        <div className={'justify-content-between align-items-center mt-5'}>
+        <div className={'justify-content-between align-items-center mt-5'} data-testid="vus-table">
           <div className={'d-flex align-items-center mb-2'}>
             <span style={{ fontSize: '1.25rem' }}>Variants of Unknown Significance (Investigated and data not found)</span>
             <AddButton className="ms-2" onClickHandler={() => setShowAddVusModal(true)} />

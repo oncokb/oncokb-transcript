@@ -59,13 +59,13 @@ const GeneHeader = ({
     if (geneMetaReviewHasUuids(metaReview)) {
       if (isReviewing || isReviewFinished) {
         button = (
-          <Button color="primary" onClick={handleReviewButtonClick}>
+          <Button color="primary" onClick={handleReviewButtonClick} data-testid="review-complete-button">
             Review Complete
           </Button>
         );
       } else {
         button = (
-          <Button outline color="primary" onClick={handleReviewButtonClick}>
+          <Button outline color="primary" onClick={handleReviewButtonClick} data-testid="review-button">
             Review
           </Button>
         );
@@ -73,7 +73,7 @@ const GeneHeader = ({
     } else {
       if (isReviewFinished) {
         button = (
-          <Button color="primary" onClick={handleReviewButtonClick}>
+          <Button color="primary" onClick={handleReviewButtonClick} data-testid="review-complete-button">
             Review Complete
           </Button>
         );

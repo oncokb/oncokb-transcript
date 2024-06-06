@@ -99,6 +99,7 @@ const TherapiesList = ({
         );
       })}
       <Button
+        data-testid="add-therapy"
         className={txObjects.length > 0 ? `mt-2` : null}
         outline
         color="primary"

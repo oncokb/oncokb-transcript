@@ -247,7 +247,7 @@ To launch your application's tests, run:
 ./mvnw verify
 ```
 
-### Client tests
+### Unit tests
 
 #### Set up
 
@@ -282,27 +282,7 @@ npx firebase init
 - Enter when prompted for the project name so it defaulted to your project
 - Select Authentication Emulator, Database Emulator when asked which emulators to setup
 
-#### Screenshot test
-
-1. Start up just the local client
-
-```sh
-yarn start
-```
-
-2. Start the firebase emulator
-
-```sh
-yarn run firebase-emulator
-```
-
-3. Run web driver IO
-
-```sh
-yarn run wdio
-```
-
-#### Unit test
+#### Run unit tests
 
 Unit tests are run by [Jest](https://jestjs.io/docs/getting-started). They're
 located in [src/test/javascript/](src/test/javascript/) and can be run with:
@@ -310,6 +290,38 @@ located in [src/test/javascript/](src/test/javascript/) and can be run with:
 ```sh
 yarn test
 ```
+
+### End-to-end tests
+
+We use the [WebDriverIO](https://webdriver.io/) framework for our end-to-end testing, allowing us to test interactions like a user and take screenshots. We provide two options for running these tests: locally and in docker.
+
+**IMPORTANT**: Expect the screenshot tests to fail if ran locally due to resolution issues. Local development for screenshot tests is only recommended during development for faster iteration. To update screenshots, wait for the [GitHub action](.github/workflows/webdriver-test.yml) after pushing your changes and retrieve the updated screenshots from the `actual` folder.
+
+#### Run tests locally
+
+1. Follow the [Set up](#set-up) instructions
+
+2. Start up just the local client
+
+```sh
+yarn start
+```
+
+3. Start the firebase emulator
+
+```sh
+yarn run firebase-emulator
+```
+
+4. Run web driver IO
+
+```sh
+yarn run wdio
+```
+
+#### Run tests in Docker
+
+Run `docker compose up` to build and run the tests. Make sure to update the images after making changes to the project.
 
 ## Build production docker image
 
