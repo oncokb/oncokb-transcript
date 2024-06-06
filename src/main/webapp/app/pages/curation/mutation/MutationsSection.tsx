@@ -1,26 +1,27 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Col, Row } from 'reactstrap';
-import FirebaseList from '../list/FirebaseList';
-import MutationName from './MutationName';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
-import { componentInject } from 'app/shared/util/typed-inject';
-import { IRootStore } from 'app/stores';
-import { observer } from 'mobx-react';
 import { Mutation } from 'app/shared/model/firebase/firebase.model';
+import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import {
   compareMutationsByLastModified,
   compareMutationsByProteinChangePosition,
   compareMutationsDefault,
   getFirebaseGenePath,
+  getMutationName,
 } from 'app/shared/util/firebase/firebase-utils';
-import MutationCollapsible from '../collapsible/MutationCollapsible';
-import * as styles from '../styles.module.scss';
-import MutationsSectionHeader, { SortOptions } from '../header/MutationsSectionHeader';
+import { componentInject } from 'app/shared/util/typed-inject';
+import { IRootStore } from 'app/stores';
 import classNames from 'classnames';
-import _ from 'lodash';
-import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import { onValue, ref } from 'firebase/database';
+import _ from 'lodash';
+import { observer } from 'mobx-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Col, Row } from 'reactstrap';
+import MutationCollapsible from '../collapsible/MutationCollapsible';
+import MutationsSectionHeader, { SortOptions } from '../header/MutationsSectionHeader';
+import FirebaseList from '../list/FirebaseList';
+import * as styles from '../styles.module.scss';
+import MutationName from './MutationName';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
@@ -100,13 +101,14 @@ function MutationsSection({
           <FirebaseList<Mutation>
             path={mutationsPath}
             pushDirection="front"
-            sort={getSortFunction()}
+            sort={getSortFunction}
             itemBuilder={index => {
               return (
                 <div className="mb-2">
                   <MutationCollapsible
                     disableOpen
                     mutationPath={`${mutationsPath}/${index}`}
+                    showLastModified={sortMethod === SortOptions.LAST_MODIFIED}
                     hugoSymbol={hugoSymbol}
                     isGermline={isGermline}
                     parsedHistoryList={parsedHistoryList}
@@ -131,16 +133,24 @@ function MutationsSection({
     );
   }
 
-  function getSortFunction() {
+  function getSortFunction(mutation1: Mutation, mutation2: Mutation) {
+    let order: number;
+
     switch (sortMethod) {
       case SortOptions.DEFAULT:
-        return compareMutationsDefault;
+        return compareMutationsDefault(mutation1, mutation2);
       case SortOptions.LAST_MODIFIED:
-        return compareMutationsByLastModified;
-      case SortOptions.EXON_INCREASING:
+        return compareMutationsByLastModified(mutation1, mutation2);
+      case SortOptions.POSITION_INCREASING:
+        order = compareMutationsByProteinChangePosition(mutation1, mutation2);
+        if (order === 0) {
+          order = getMutationName(mutation1.name, mutation1.alterations).localeCompare(
+            getMutationName(mutation2.name, mutation2.alterations),
+          );
+        }
+        return order;
+      case SortOptions.POSITION_DECREASING:
         return;
-      case SortOptions.POSITION:
-        return compareMutationsByProteinChangePosition;
       default:
         return;
     }
