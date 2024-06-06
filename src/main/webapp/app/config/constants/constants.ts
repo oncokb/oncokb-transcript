@@ -109,8 +109,11 @@ export enum FEATURE_PAGE_ROUTE {
   SEARCH = '/search',
   /* Below are curation related paths */
   CURATION = '/curation',
-  CURATION_GENE = '/curation/:hugoSymbol/somatic',
+  CURATION_GENE = '/curation/:hugoSymbol',
+  CURATION_GENE_SOMATIC = '/curation/:hugoSymbol/somatic',
+  CURATION_GENE_SOMATIC_REVIEW = '/curation/:hugoSymbol/somatic/review',
   CURATION_GENE_GERMLINE = '/curation/:hugoSymbol/germline',
+  CURATION_GENE_GERMLINE_REVIEW = '/curation/:hugoSymbol/germline/review',
 }
 
 export const PAGE_ROUTE = {
