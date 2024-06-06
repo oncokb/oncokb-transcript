@@ -1,6 +1,7 @@
 import { browser, $, expect } from '@wdio/globals';
 import setUpMocks from '../setup-mocks';
 import { BASE_URL, PUB_MED_ARTICLE_TITLE, PUB_MED_PMID } from '../constants';
+import { CLOSE_SIDEBAR_BUTTON_ID, OPEN_SIDEBAR_BUTTON_ID } from '../../../main/webapp/app/config/constants/html-id.ts';
 
 describe('Screenshot Tests', () => {
   before(async () => {
@@ -36,8 +37,8 @@ describe('Screenshot Tests', () => {
   it('should open/close sidebar', async () => {
     await browser.url(`${BASE_URL}/curation`);
 
-    let openSidebarButton = await $('span[data-testid="open-sidebar-button"]');
-    let closeSidebarButton = await $('span[data-testid="close-sidebar-button"]');
+    let openSidebarButton = await $(`span[data-testid="${OPEN_SIDEBAR_BUTTON_ID}"]`);
+    let closeSidebarButton = await $(`span[data-testid="${CLOSE_SIDEBAR_BUTTON_ID}"]`);
     await closeSidebarButton.waitForDisplayed();
 
     expect(await openSidebarButton.isExisting()).toBe(false);
@@ -45,8 +46,8 @@ describe('Screenshot Tests', () => {
 
     await closeSidebarButton.click();
 
-    openSidebarButton = await $('span[data-testid="open-sidebar-button"]');
-    closeSidebarButton = await $('span[data-testid="close-sidebar-button"]');
+    openSidebarButton = await $(`span[data-testid="${OPEN_SIDEBAR_BUTTON_ID}"]`);
+    closeSidebarButton = await $(`span[data-testid="${CLOSE_SIDEBAR_BUTTON_ID}"]`);
     expect(openSidebarButton).toExist();
     expect(await closeSidebarButton.isExisting()).toBe(false);
   });

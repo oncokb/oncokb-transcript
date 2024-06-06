@@ -5,3 +5,26 @@ export function downloadFile(fileName: string, content: string, options: BlobPro
   downloadLink.download = fileName;
   downloadLink.click();
 }
+
+export const fileToArray = (fileString: string, separator: string): string[][] => {
+  if (!fileString || !fileString.trim()) {
+    return [];
+  }
+
+  const result = [];
+  fileString
+    .split(/(\r)?\n/)
+    .filter(row => !!row)
+    .forEach(row => {
+      result.push(row.split(separator));
+    });
+  return result;
+};
+
+export const tsvToArray = (fileString: string): string[][] => {
+  return fileToArray(fileString, '\t');
+};
+
+export const csvToArray = (fileString: string): string[][] => {
+  return fileToArray(fileString, ',');
+};

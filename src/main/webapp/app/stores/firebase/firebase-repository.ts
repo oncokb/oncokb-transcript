@@ -1,4 +1,4 @@
-import { push, ref, remove, runTransaction, set, update } from 'firebase/database';
+import { push, ref, remove, runTransaction, set, update, get } from 'firebase/database';
 import FirebaseAppStore from './firebase-app.store';
 
 export class FirebaseRepository {
@@ -10,6 +10,10 @@ export class FirebaseRepository {
 
   create = async (path: string, value: unknown) => {
     return await set(ref(this.firebaseAppStore.firebaseDb, path), value);
+  };
+
+  get = async (path: string) => {
+    return await get(ref(this.firebaseAppStore.firebaseDb, path));
   };
 
   update = async (path: string, value: any) => {

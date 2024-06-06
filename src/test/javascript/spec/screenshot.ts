@@ -1,18 +1,10 @@
 import { browser, $, expect } from '@wdio/globals';
-import { WdioCheckElementMethodOptions } from '@wdio/visual-service/dist/types';
-import * as path from 'path';
-import { BASE_URL } from '../constants';
+import { BASE_URL, SCREENSHOT_METHOD_OPTIONS } from '../constants';
 import setUpMocks from '../setup-mocks';
 
 const ALLOWED_MISMATCH_PERCENTAGE = 0;
 
 describe('Screenshot Tests', () => {
-  const methodOptions: WdioCheckElementMethodOptions = {
-    actualFolder: path.join(process.cwd(), 'src/test/javascript/screenshots/actual'),
-    baselineFolder: path.join(process.cwd(), 'src/test/javascript/screenshots/baseline'),
-    diffFolder: path.join(process.cwd(), 'src/test/javascript/screenshots/diff'),
-  };
-
   before(async () => {
     await setUpMocks();
   });
@@ -23,7 +15,7 @@ describe('Screenshot Tests', () => {
     const geneList = await $('#gene-list');
     await geneList.waitForDisplayed();
 
-    const result = await browser.checkElement(geneList, 'gene-list', methodOptions);
+    const result = await browser.checkElement(geneList, 'gene-list', SCREENSHOT_METHOD_OPTIONS);
     expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
   });
 
@@ -33,7 +25,7 @@ describe('Screenshot Tests', () => {
     const vusTable = await $('div[data-testid="vus-table"]');
     await vusTable.waitForDisplayed();
 
-    const result = await browser.checkElement(vusTable, 'vus-table', methodOptions);
+    const result = await browser.checkElement(vusTable, 'vus-table', SCREENSHOT_METHOD_OPTIONS);
     expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
   });
 
@@ -43,7 +35,7 @@ describe('Screenshot Tests', () => {
     const mutationCollapsible = await $('div[data-testid="V600E-collapsible"]');
     await mutationCollapsible.waitForDisplayed();
 
-    const result = await browser.checkElement(mutationCollapsible, 'mutation-collapsible', methodOptions);
+    const result = await browser.checkElement(mutationCollapsible, 'mutation-collapsible', SCREENSHOT_METHOD_OPTIONS);
     expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
   });
 
@@ -56,7 +48,7 @@ describe('Screenshot Tests', () => {
     const mutationEffectNotCuratable = await $('div[data-testid="Mutation Effect-collapsible"]');
     await mutationEffectNotCuratable.waitForDisplayed();
 
-    const result = await browser.checkElement(mutationEffectNotCuratable, 'mutation-effect-not-curatable', methodOptions);
+    const result = await browser.checkElement(mutationEffectNotCuratable, 'mutation-effect-not-curatable', SCREENSHOT_METHOD_OPTIONS);
     expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
   });
 
@@ -76,7 +68,7 @@ describe('Screenshot Tests', () => {
     await openTherapyCollapsible.waitForDisplayed();
     await openTherapyCollapsible.scrollIntoView();
 
-    const result = await browser.checkElement(openTherapyCollapsible, 'open-therapy-collapsible', methodOptions);
+    const result = await browser.checkElement(openTherapyCollapsible, 'open-therapy-collapsible', SCREENSHOT_METHOD_OPTIONS);
     expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
   });
 
@@ -95,7 +87,7 @@ describe('Screenshot Tests', () => {
     const modifyTherapyModal = await $('div[data-testid="simple-confirm-modal-content"]');
     await modifyTherapyModal.waitForDisplayed();
 
-    const result = await browser.checkElement(modifyTherapyModal, 'add-therapy-modal', methodOptions);
+    const result = await browser.checkElement(modifyTherapyModal, 'add-therapy-modal', SCREENSHOT_METHOD_OPTIONS);
     expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
   });
 
@@ -109,7 +101,7 @@ describe('Screenshot Tests', () => {
     const rootReview = await $('div[data-testid="root-review"]');
     await rootReview.waitForDisplayed();
 
-    const result = await browser.checkElement(reviewPage, 'review-page', methodOptions);
+    const result = await browser.checkElement(reviewPage, 'review-page', SCREENSHOT_METHOD_OPTIONS);
     expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
 
     // reset by going back to curation page
