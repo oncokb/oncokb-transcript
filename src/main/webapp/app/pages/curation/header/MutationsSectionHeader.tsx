@@ -31,6 +31,13 @@ enum FilterType {
   NEEDS_REVIEW,
 }
 
+type Filter = {
+  type: FilterType;
+  label: string;
+  selected: boolean;
+  disabled: boolean;
+};
+
 export enum SortOptions {
   DEFAULT = 'Default Sort',
   LAST_MODIFIED = 'Last Modified',
@@ -259,25 +266,15 @@ function MutationsSectionHeader({
     setShowFilterModal(showModal => !showModal);
   }
 
-  function initFilterCheckboxState(type: FilterType, options: string[]) {
+  function initFilterCheckboxState(type: FilterType, options: string[]): Filter[] {
     return options.map(option => ({ type, label: option, selected: false, disabled: false }));
   }
 
-  function handleFilterCheckboxChange(
-    index: number,
-    setState: React.Dispatch<
-      React.SetStateAction<
-        {
-          label: string;
-          selected: boolean;
-        }[]
-      >
-    >,
-  ) {
+  function handleFilterCheckboxChange(index: number, setState: React.Dispatch<React.SetStateAction<Filter[]>>) {
     setState(currentState =>
       currentState.map((filter, filterIndex) => {
         if (index === filterIndex) {
-          return { label: filter.label, selected: !filter.selected };
+          return { ...filter, label: filter.label, selected: !filter.selected };
         }
         return filter;
       }),
@@ -291,6 +288,29 @@ function MutationsSectionHeader({
         onClickHandler={(show: boolean) => setShowAddMutationModal(!show)}
         showFullTitle
       />
+    );
+  }
+
+  function getCheckboxGroup(filter: Filter, onChange: () => void) {
+    const isDisabled = !checkboxEnabled(filter.type, filter.label);
+
+    return (
+      <InputGroup>
+        <Input
+          id={`${filter.type}-${filter.label}`}
+          onChange={onChange}
+          checked={filter.selected}
+          disabled={isDisabled}
+          style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
+          type="checkbox"
+        />
+        <Label
+          for={`${filter.type}-${filter.label}`}
+          style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: CHECKBOX_LABEL_LEFT_MARGIN }}
+        >
+          {filter.label}
+        </Label>
+      </InputGroup>
     );
   }
 
@@ -344,26 +364,9 @@ function MutationsSectionHeader({
             <h6 className="mb-2 mt-2">Needs Review</h6>
             <Row className="align-items-start justify-content-start">
               {tempNeedsReviewFilter.map((filter, index) => {
-                const isDisabled = !checkboxEnabled(FilterType.NEEDS_REVIEW, filter.label);
-
                 return (
                   <Col className="col-3" key={filter.label}>
-                    <InputGroup>
-                      <Input
-                        id={`tx-level-filter-${filter.label}`}
-                        onChange={() => handleFilterCheckboxChange(index, setTempNeedsReviewFilter)}
-                        checked={filter.selected}
-                        disabled={isDisabled}
-                        style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
-                        type="checkbox"
-                      />
-                      <Label
-                        for={`tx-level-filter-${filter.label}`}
-                        style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: CHECKBOX_LABEL_LEFT_MARGIN }}
-                      >
-                        {filter.label}
-                      </Label>
-                    </InputGroup>
+                    {getCheckboxGroup(filter, () => handleFilterCheckboxChange(index, setTempNeedsReviewFilter))}
                   </Col>
                 );
               })}
@@ -371,25 +374,9 @@ function MutationsSectionHeader({
             <h6 className="mb-2">Oncogenicity</h6>
             <Row>
               {tempOncogenicityFilter.map((filter, index) => {
-                const isDisabled = !checkboxEnabled(FilterType.ONCOGENICITY, filter.label);
                 return (
                   <Col className="col-6" key={filter.label}>
-                    <InputGroup>
-                      <Input
-                        id={`oncogenicity-filter-${filter.label}`}
-                        onChange={() => handleFilterCheckboxChange(index, setTempOncogenicityFilter)}
-                        checked={filter.selected}
-                        disabled={isDisabled}
-                        style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
-                        type="checkbox"
-                      />
-                      <Label
-                        for={`oncogenicity-filter-${filter.label}`}
-                        style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: CHECKBOX_LABEL_LEFT_MARGIN }}
-                      >
-                        {filter.label}
-                      </Label>
-                    </InputGroup>
+                    {getCheckboxGroup(filter, () => handleFilterCheckboxChange(index, setTempOncogenicityFilter))}
                   </Col>
                 );
               })}
@@ -397,26 +384,9 @@ function MutationsSectionHeader({
             <h6 className="mb-2 mt-2">Mutation effect</h6>
             <Row>
               {tempMutationEffectFilter.map((filter, index) => {
-                const isDisabled = !checkboxEnabled(FilterType.MUTATION_EFFECT, filter.label);
-
                 return (
                   <Col className="col-6" key={filter.label}>
-                    <InputGroup>
-                      <Input
-                        id={`mutation-effect-filter-${filter.label}`}
-                        onChange={() => handleFilterCheckboxChange(index, setTempMutationEffectFilter)}
-                        checked={filter.selected}
-                        disabled={isDisabled}
-                        style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
-                        type="checkbox"
-                      />
-                      <Label
-                        for={`mutation-effect-filter-${filter.label}`}
-                        style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: CHECKBOX_LABEL_LEFT_MARGIN }}
-                      >
-                        {filter.label}
-                      </Label>
-                    </InputGroup>
+                    {getCheckboxGroup(filter, () => handleFilterCheckboxChange(index, setTempMutationEffectFilter))}
                   </Col>
                 );
               })}
@@ -424,26 +394,9 @@ function MutationsSectionHeader({
             <h6 className="mb-2 mt-2">Therapeutic levels</h6>
             <Row className="align-items-start justify-content-start">
               {tempTxLevelFilter.map((filter, index) => {
-                const isDisabled = !checkboxEnabled(FilterType.TX_LEVEL, filter.label);
-
                 return (
                   <Col className="col-2" key={filter.label}>
-                    <InputGroup>
-                      <Input
-                        id={`tx-level-filter-${filter.label}`}
-                        onChange={() => handleFilterCheckboxChange(index, setTempTxLevelFilter)}
-                        checked={filter.selected}
-                        disabled={isDisabled}
-                        style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
-                        type="checkbox"
-                      />
-                      <Label
-                        for={`tx-level-filter-${filter.label}`}
-                        style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: CHECKBOX_LABEL_LEFT_MARGIN }}
-                      >
-                        {filter.label}
-                      </Label>
-                    </InputGroup>
+                    {getCheckboxGroup(filter, () => handleFilterCheckboxChange(index, setTempTxLevelFilter))}
                   </Col>
                 );
               })}
@@ -453,29 +406,9 @@ function MutationsSectionHeader({
                 <h6 className="mb-2 mt-2">Hotspot</h6>
                 <Row className="align-items-start justify-content-start">
                   {tempHotspotFilter.map((filter, index) => {
-                    const isDisabled = !checkboxEnabled(FilterType.HOTSPOT, filter.label);
-
                     return (
                       <Col className="col-3" key={filter.label}>
-                        <InputGroup>
-                          <Input
-                            id={`hotspot-filter-${filter.label}`}
-                            onChange={() => handleFilterCheckboxChange(index, setTempHotspotFilter)}
-                            checked={filter.selected}
-                            disabled={isDisabled}
-                            style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
-                            type="checkbox"
-                          />
-                          <Label
-                            for={`hotspot-filter-${filter.label}`}
-                            style={{
-                              cursor: `${isDisabled ? null : 'pointer'}`,
-                              marginLeft: CHECKBOX_LABEL_LEFT_MARGIN,
-                            }}
-                          >
-                            {filter.label}
-                          </Label>
-                        </InputGroup>
+                        {getCheckboxGroup(filter, () => handleFilterCheckboxChange(index, setTempHotspotFilter))}
                       </Col>
                     );
                   })}
