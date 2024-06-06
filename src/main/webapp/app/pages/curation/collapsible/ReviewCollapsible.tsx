@@ -114,7 +114,13 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
   };
 
   const getReviewActions = () => {
-    return !isUnderCreationOrDeletion ? (
+    if (isUnderCreationOrDeletion) {
+      return undefined;
+    }
+    if (rootReview.reviewLevelType === ReviewLevelType.META) {
+      return undefined;
+    }
+    return (
       <>
         <ActionIcon
           icon={faCheck}
@@ -131,7 +137,7 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
           }}
         />
       </>
-    ) : undefined;
+    );
   };
 
   const getEditorInfo = () => {
@@ -292,8 +298,8 @@ export const ReviewCollapsible = (props: IReviewCollapsibleProps) => {
 
   const defaultReviewCollapsibleDisplayOptions: CollapsibleDisplayProps = {
     disableCollapsible: isDeletion,
-    hideAction: rootReview.reviewLevelType === ReviewLevelType.META,
-    hideInfo: rootReview.reviewLevelType === ReviewLevelType.META,
+    hideAction: false,
+    hideInfo: false,
     hideToggle: !rootReview.hasChildren() && reviewAction === ReviewAction.CREATE,
   };
 
