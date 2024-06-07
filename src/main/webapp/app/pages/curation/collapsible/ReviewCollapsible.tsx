@@ -313,7 +313,6 @@ export const ReviewCollapsible = ({
     );
   };
 
-  /* eslint-disable no-console */
   const getCollapsibleBody = () => {
     const children = rootReview.children && Object.values(rootReview.children);
 
