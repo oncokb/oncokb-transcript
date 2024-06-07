@@ -14,7 +14,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.service.QueryService;
-import tech.jhipster.service.filter.StringFilter;
 
 /**
  * Service for executing complex queries for {@link CancerType} entities in the database.
@@ -36,13 +35,7 @@ public class CancerTypeQueryService extends QueryService<CancerType> {
 
     @Transactional(readOnly = true)
     public Page<CancerType> findBySearchQuery(String query, Pageable page) {
-        CancerTypeCriteria cancerTypeCriteria = new CancerTypeCriteria();
-        StringFilter stringFilter = new StringFilter();
-        stringFilter.setContains(query);
-        cancerTypeCriteria.setMainType(stringFilter);
-        cancerTypeCriteria.setSubtype(stringFilter);
-        cancerTypeCriteria.setCode(stringFilter);
-        return findByCriteria(cancerTypeCriteria, page);
+        return cancerTypeRepository.findAllByQueryPrioritizeStartsWith(query, query, page);
     }
 
     /**
@@ -119,34 +112,27 @@ public class CancerTypeQueryService extends QueryService<CancerType> {
                 specification = specification.or(buildSpecification(criteria.getTumorForm(), CancerType_.tumorForm));
             }
             if (criteria.getChildrenId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getChildrenId(),
-                            root -> root.join(CancerType_.children, JoinType.LEFT).get(CancerType_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getChildrenId(), root -> root.join(CancerType_.children, JoinType.LEFT).get(CancerType_.id))
+                );
             }
             if (criteria.getSynonymId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getSynonymId(), root -> root.join(CancerType_.synonyms, JoinType.LEFT).get(Synonym_.id))
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getSynonymId(), root -> root.join(CancerType_.synonyms, JoinType.LEFT).get(Synonym_.id))
+                );
             }
             if (criteria.getParentId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getParentId(), root -> root.join(CancerType_.parent, JoinType.LEFT).get(CancerType_.id))
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getParentId(), root -> root.join(CancerType_.parent, JoinType.LEFT).get(CancerType_.id))
+                );
             }
             if (criteria.getAssociationId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getAssociationId(),
-                            root -> root.join(CancerType_.associations, JoinType.LEFT).get(Association_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getAssociationId(),
+                        root -> root.join(CancerType_.associations, JoinType.LEFT).get(Association_.id)
+                    )
+                );
             }
         }
         return specification;
