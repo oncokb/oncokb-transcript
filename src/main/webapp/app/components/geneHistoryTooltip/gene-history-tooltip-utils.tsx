@@ -1,10 +1,10 @@
-import { HistoryOperationType, HistoryRecord, HistoryRecordState } from 'app/shared/model/firebase/firebase.model';
+import { HistoryOperationType } from 'app/shared/model/firebase/firebase.model';
 import { RequiredTimeSeriesEventData, ExtraTimeSeriesEventData } from '../timeSeries/TimeSeries';
-import ReactDiffViewer from 'react-diff-viewer-continued';
 import React from 'react';
 import { getTxName } from 'app/shared/util/firebase/firebase-utils';
 import { IDrug } from 'app/shared/model/drug.model';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
+import DiffViewer from 'app/components/diff-viewer/DiffViewer';
 
 export default function constructTimeSeriesData(record: FlattenedHistory): RequiredTimeSeriesEventData | ExtraTimeSeriesEventData {
   let operation: string;
@@ -25,7 +25,7 @@ export default function constructTimeSeriesData(record: FlattenedHistory): Requi
     case HistoryOperationType.UPDATE:
       bubbleColor = 'orange';
       operation = 'update';
-      content = getTimeSeriesDataContent(record.new, record.old);
+      content = getTimeSeriesDataContent(record.new as string, record.old as string);
       break;
     case HistoryOperationType.DEMOTE_MUTATION:
       bubbleColor = 'red';
@@ -40,7 +40,7 @@ export default function constructTimeSeriesData(record: FlattenedHistory): Requi
     case HistoryOperationType.NAME_CHANGE:
       bubbleColor = 'orange';
       operation = 'name change';
-      content = getTimeSeriesDataContent(record.new, record.old);
+      content = getTimeSeriesDataContent(record.new as string, record.old as string);
       break;
     default:
       operation = '';
@@ -62,10 +62,10 @@ export default function constructTimeSeriesData(record: FlattenedHistory): Requi
   };
 }
 
-export function getTimeSeriesDataContent(newContent: HistoryRecordState, oldContent?: HistoryRecordState) {
+export function getTimeSeriesDataContent(newContent: string, oldContent?: string) {
   return (
     <div className="gene-history-event-content">
-      <ReactDiffViewer showDiffOnly={false} oldValue={oldContent} newValue={newContent} splitView={false} hideLineNumbers />
+      <DiffViewer new={newContent} old={oldContent} type={'merged'} />
     </div>
   );
 }

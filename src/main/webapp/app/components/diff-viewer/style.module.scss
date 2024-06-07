@@ -1,0 +1,37 @@
+@import '~bootstrap/scss/_functions.scss';
+@import '~bootstrap/scss/_variables.scss';
+@import '../../variables.scss';
+
+.diff {
+  padding: $input-padding-y $input-padding-x;
+  border: $input-border-width solid transparent;
+}
+
+.disabledText {
+  background-color: $light-grey !important;
+}
+
+.section {
+  display: flex;
+  padding: $spacer * 0.5;
+}
+
+.sectionHeader {
+  width: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sectionContent {
+  margin-left: $spacer * 0.5;
+  padding: $spacer * 0.25 $spacer * 0.5;
+}
+
+.newContent {
+  background-color: #acf2bd;
+}
+
+.oldContent {
+  background-color: #fdb8c0;
+}

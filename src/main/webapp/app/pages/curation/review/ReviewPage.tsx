@@ -5,6 +5,7 @@ import {
   findReviews,
   getCompactReviewInfo,
   reviewLevelSortMethod,
+  getGenePathFromValuePath,
 } from 'app/shared/util/firebase/firebase-review-utils';
 import { getFirebaseGenePath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
@@ -43,8 +44,6 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   const [rootReview, setRootReview] = useState<BaseReviewLevel>(undefined);
   const [reviewChildren, setReviewChildren] = useState<BaseReviewLevel[]>([]);
   const [editorReviewMap, setEditorReviewMap] = useState(new EditorReviewMap());
-
-  const [splitView, setSplitView] = useState(false);
 
   useEffect(() => {
     if (geneEntity && props.firebaseInitSuccess) {
@@ -138,24 +137,6 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
       </Row>
       {!isReviewFinished && (
         <>
-          <Row className="mb-4">
-            <Col>
-              <FormGroup check inline>
-                <Input
-                  type="radio"
-                  checked={!splitView}
-                  onChange={() => {
-                    setSplitView(false);
-                  }}
-                />
-                <Label check>Unified View</Label>
-              </FormGroup>
-              <FormGroup check inline>
-                <Input type="radio" checked={splitView} onChange={() => setSplitView(true)} />
-                <Label check>Split View</Label>
-              </FormGroup>
-            </Col>
-          </Row>
           <Row>
             <Col>
               <Button
@@ -189,10 +170,13 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
           <Col>
             {reviewChildren.sort(reviewLevelSortMethod).map(reviewLevel => (
               <ReviewCollapsible
-                splitView={splitView}
                 hugoSymbol={hugoSymbol}
                 isGermline={isGermline}
                 key={reviewLevel.valuePath}
+                firebase={{
+                  path: getGenePathFromValuePath(hugoSymbol, reviewLevel.valuePath),
+                  db: props.firebaseDb,
+                }}
                 baseReviewLevel={reviewLevel}
                 handleAccept={props.acceptReviewChangeHandler}
                 handleReject={props.rejectReviewChangeHandler}
