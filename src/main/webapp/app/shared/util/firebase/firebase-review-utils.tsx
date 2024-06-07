@@ -11,7 +11,7 @@ import {
   Tumor,
 } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
-import { getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
+import { generateUuid, getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
 import { getMutationName, getTxName } from './firebase-utils';
 import { PATHOGENIC_VARIANTS, READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
@@ -33,6 +33,8 @@ export type BaseReviewLevelParams = {
   nestedUnderCreateorDelete?: boolean;
 };
 export class BaseReviewLevel {
+  id: string; // id is used to uniquely identify a review level
+  isPendingSave: boolean;
   reviewLevelType: ReviewLevelType;
   title: string;
   children?: ReviewChildren;
@@ -41,6 +43,8 @@ export class BaseReviewLevel {
   nestedUnderCreateOrDelete?: boolean;
 
   constructor({ reviewLevelType, title, valuePath, historyLocation, nestedUnderCreateorDelete = false }: BaseReviewLevelParams) {
+    this.id = generateUuid();
+    this.isPendingSave = false;
     this.reviewLevelType = reviewLevelType;
     this.title = title;
     this.valuePath = valuePath;
@@ -493,6 +497,7 @@ export const buildNameReview = (
     title,
     valuePath: currValuePath,
     historyLocation: buildHistoryLocation(parentReview, readableName),
+    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
   });
 
   const nameReview = creatableObject.name_review;
@@ -535,6 +540,7 @@ export const buildNameReview = (
       diffMethod: DiffMethod.WORDS,
     },
     historyData: { oldState, newState },
+    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
   });
 
   _.pull(uuids, creatableObject.name_uuid);
@@ -569,6 +575,7 @@ export const buildCancerTypeNameReview = (
     title: readableName,
     valuePath: currValuePath,
     historyLocation: buildHistoryLocation(parentReview, readableName),
+    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
   });
 
   const cancerTypesReview = tumor.cancerTypes_review;
@@ -622,6 +629,7 @@ export const buildCancerTypeNameReview = (
       lastReviewedString: undefined,
       uuid: undefined,
     },
+    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
   });
   _.pull(uuids, tumor.cancerTypes_uuid);
   _.pull(uuids, tumor.excludedCancerTypes_uuid);
