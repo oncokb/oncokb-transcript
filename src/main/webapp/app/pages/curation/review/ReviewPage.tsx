@@ -46,6 +46,8 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
 
   const [splitView, setSplitView] = useState(false);
 
+  /* eslint-disable no-console */
+
   useEffect(() => {
     if (geneEntity && props.firebaseInitSuccess) {
       // Fetch the data when the user enters review mode. We don't use a listener
@@ -76,6 +78,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
       const reviewMap = new EditorReviewMap();
       const reviews = findReviews(props.drugList, geneData, _.clone(reviewUuids), reviewMap);
       Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
+      console.log(_.cloneDeep(reviews));
       setEditorReviewMap(reviewMap);
       setRootReview(reviews);
       setReviewChildren(Object.values(reviews.children));
