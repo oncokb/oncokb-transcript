@@ -44,10 +44,23 @@ export class FirebaseGeneReviewService {
     this.firebaseVusService = firebaseVusService;
   }
 
-  updateReviewableContent = async (firebasePath: string, currentValue: any, updateValue: any, review: Review, uuid: string) => {
+  updateReviewableContent = async (
+    firebasePath: string,
+    currentValue: any,
+    updateValue: any,
+    review: Review,
+    uuid: string,
+    updateMetaData: boolean = true,
+  ) => {
     const isGermline = firebasePath.toLowerCase().includes('germline');
 
-    const { updatedReview, isChangeReverted } = getUpdatedReview(review, currentValue, updateValue, this.authStore.fullName);
+    const { updatedReview, isChangeReverted } = getUpdatedReview(
+      review,
+      currentValue,
+      updateValue,
+      this.authStore.fullName,
+      updateMetaData,
+    );
 
     const { hugoSymbol, pathFromGene } = parseFirebaseGenePath(firebasePath);
 

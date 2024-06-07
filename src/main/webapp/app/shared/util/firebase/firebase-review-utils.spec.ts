@@ -14,9 +14,10 @@ import {
   getUpdatedReview,
   joinPathParts,
   removeLeafNodes,
+  getGenePathFromValuePath,
+  showAsFirebaseTextArea,
 } from './firebase-review-utils';
 import { Gene, GeneType, Implication, MetaReview, Mutation, Review, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
-import { DiffMethod } from 'react-diff-viewer-continued';
 import { IDrug } from 'app/shared/model/drug.model';
 import { ICancerType } from 'app/shared/model/cancer-type.model';
 import { mutationNeedsReview } from './firebase-utils';
@@ -95,7 +96,6 @@ describe('Firebase Review Utils', () => {
           lastReviewedString: '',
           uuid: gene.background_uuid,
           reviewAction: ReviewAction.UPDATE,
-          diffMethod: DiffMethod.WORDS,
         },
         historyData: {
           oldState: '',
@@ -179,7 +179,6 @@ describe('Firebase Review Utils', () => {
           lastReviewedString: 'V600E',
           uuid: defaultMutation.name_uuid,
           reviewAction: ReviewAction.NAME_CHANGE,
-          diffMethod: DiffMethod.WORDS,
         },
         historyData: {
           oldState: 'V600E',
@@ -211,7 +210,6 @@ describe('Firebase Review Utils', () => {
           lastReviewedString: undefined,
           uuid: defaultMutation.name_uuid,
           reviewAction: ReviewAction.CREATE,
-          diffMethod: DiffMethod.WORDS,
         },
         historyData: {
           oldState: undefined,
@@ -244,7 +242,6 @@ describe('Firebase Review Utils', () => {
           lastReviewedString: undefined,
           uuid: defaultMutation.name_uuid,
           reviewAction: ReviewAction.DELETE,
-          diffMethod: DiffMethod.WORDS,
         },
         historyData: {
           oldState: defaultMutation,
@@ -386,7 +383,6 @@ describe('Firebase Review Utils', () => {
           lastReviewedString: '',
           uuid: implication.excludedRCTs_uuid,
           reviewAction: ReviewAction.UPDATE,
-          diffMethod: DiffMethod.WORDS,
         },
         historyData: {
           oldState: '',
@@ -430,7 +426,6 @@ describe('Firebase Review Utils', () => {
           lastReviewedString: 'Uveal Melanoma',
           uuid: implication.excludedRCTs_uuid,
           reviewAction: ReviewAction.UPDATE,
-          diffMethod: DiffMethod.WORDS,
         },
         historyData: {
           oldState: 'Uveal Melanoma',
@@ -496,7 +491,6 @@ describe('Firebase Review Utils', () => {
                 review: gene.background_review,
                 lastReviewedString: 'new background',
                 uuid: gene.background_uuid,
-                diffMethod: DiffMethod.WORDS,
                 reviewAction: ReviewAction.UPDATE,
               },
               historyData: { oldState: 'new background', newState: 'new background' },
@@ -534,7 +528,6 @@ describe('Firebase Review Utils', () => {
                         review: mutation.mutation_effect.description_review,
                         lastReviewedString: 'old description',
                         uuid: mutation.mutation_effect.description_uuid,
-                        diffMethod: DiffMethod.WORDS,
                         reviewAction: ReviewAction.UPDATE,
                       },
                       historyData: { oldState: 'old description', newState: 'new description' },
@@ -726,6 +719,42 @@ describe('Firebase Review Utils', () => {
 
         expect(mutationNeedsReview(mutation, metaReview)).toBeTruthy();
       });
+    });
+  });
+
+  describe('getGenePathFromValuePath', () => {
+    it('path is properly generated', () => {
+      expect(getGenePathFromValuePath('BRAF', 'background')).toEqual('Genes/BRAF/background');
+      expect(getGenePathFromValuePath('BRAF', '')).toEqual('Genes/BRAF');
+      expect(getGenePathFromValuePath('', 'background')).toEqual('Genes');
+      expect(getGenePathFromValuePath('', '')).toEqual('Genes');
+    });
+    it('front slash should be trimmed', () => {
+      expect(getGenePathFromValuePath('BRAF', '')).toEqual('Genes/BRAF');
+      expect(getGenePathFromValuePath('/BRAF', '')).toEqual('Genes/BRAF');
+      expect(getGenePathFromValuePath('BRAF', 'background')).toEqual('Genes/BRAF/background');
+      expect(getGenePathFromValuePath('BRAF', '/background')).toEqual('Genes/BRAF/background');
+    });
+  });
+
+  describe('showAsFirebaseTextArea', () => {
+    it('summary should use textarea', () => {
+      expect(showAsFirebaseTextArea('BRAF', 'summary')).toBeTruthy();
+      expect(showAsFirebaseTextArea('BRAF', '/summary')).toBeTruthy();
+    });
+    it('background should use textarea', () => {
+      expect(showAsFirebaseTextArea('BRAF', 'background')).toBeTruthy();
+    });
+    it('description should use textarea', () => {
+      expect(showAsFirebaseTextArea('BRAF', 'mutations/0/mutation_effect/description')).toBeTruthy();
+    });
+    it('dx/px summaries should use textarea', () => {
+      expect(showAsFirebaseTextArea('BRAF', 'fake_path/diagnosticSummary')).toBeTruthy();
+      expect(showAsFirebaseTextArea('BRAF', 'fake_path/prognosticSummary')).toBeTruthy();
+    });
+    it('other scenarios that it should not use textarea', () => {
+      expect(showAsFirebaseTextArea('', '')).toBeFalsy();
+      expect(showAsFirebaseTextArea('BRAF', 'mutations/0/oncogenic')).toBeFalsy();
     });
   });
 });
