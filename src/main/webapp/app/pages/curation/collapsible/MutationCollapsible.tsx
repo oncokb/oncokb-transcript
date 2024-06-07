@@ -218,7 +218,9 @@ const MutationCollapsible = ({
         onToggle={() => !isMutationPendingDelete && onToggle()}
         info={
           <>
-            {showLastModified && <MutationLastModified className="me-2" mutationUuid={mutationUuid} />}
+            {showLastModified && (
+              <MutationLastModified className="me-2" mutationUuid={mutationUuid} hugoSymbol={hugoSymbol} isGermline={isGermline} />
+            )}
             <MutationLevelSummary mutationPath={mutationPath} hideOncogenicity={isStringMutation} />
             {hotspots.length > 0 && <HotspotIcon associatedHotspots={hotspots} />}
             {exonRanges.length > 0 && (

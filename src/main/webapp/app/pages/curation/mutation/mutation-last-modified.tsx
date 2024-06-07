@@ -6,22 +6,39 @@ import _ from 'lodash';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { TextFormat } from 'react-jhipster';
+import * as Sentry from '@sentry/react';
+import { notifySentryException } from 'app/config/sentry-error';
 
 export interface IMutationLastModifedProps extends StoreProps {
   mutationUuid: string;
+
+  // just for error info
+  hugoSymbol: string;
+  isGermline: boolean;
+
   className?: string;
 }
 
-export function MutationLastModified({ mutationUuid, mutationList, className }: IMutationLastModifedProps) {
+export function MutationLastModified({ mutationUuid, mutationList, hugoSymbol, isGermline, className }: IMutationLastModifedProps) {
   const [lastModified, setLastModified] = useState<number>(null);
 
   useEffect(() => {
     if (mutationList && _.isNil(lastModified)) {
-      setLastModified(getMutationModifiedTimestamp(mutationList.find(mutation => mutation.name_uuid === mutationUuid)));
+      const mutation = mutationList.find(mut => mut.name_uuid === mutationUuid);
+      const timestamp = getMutationModifiedTimestamp(mutation);
+      setLastModified(timestamp);
+
+      if (isNaN(timestamp)) {
+        notifySentryException('Invalid date encountered when trying to show mutation last modified time', {
+          hugoSymbol,
+          mutation,
+          isGermline,
+        });
+      }
     }
   }, [mutationUuid, mutationList, lastModified]);
 
-  return !_.isNil(lastModified) ? (
+  return !_.isNil(lastModified) && !isNaN(lastModified) ? (
     <span className={className}>
       <i>
         Last modifed: <TextFormat value={lastModified} type="date" format={APP_DATETIME_FORMAT} />

@@ -535,7 +535,7 @@ export function getMutationModifiedTimestamp(mutation: Mutation): number | null 
 
     for (const nestedObject of nestedObjects) {
       for (const [key, val] of Object.entries(nestedObject)) {
-        if (key.endsWith('review')) {
+        if (key.endsWith('_review')) {
           const review = val as Review;
           if (modifiedTime === null) {
             modifiedTime = review.updateTime;
