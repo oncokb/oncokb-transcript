@@ -46,8 +46,6 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
 
   const [splitView, setSplitView] = useState(false);
 
-  /* eslint-disable no-console */
-
   useEffect(() => {
     if (geneEntity && props.firebaseInitSuccess) {
       // Fetch the data when the user enters review mode. We don't use a listener
@@ -74,12 +72,10 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   }, [metaReview]);
 
   useEffect(() => {
-    console.log('generating inital reviews');
     if (geneData && !_.isNil(reviewUuids)) {
       const reviewMap = new EditorReviewMap();
       const reviews = findReviews(props.drugList, geneData, _.clone(reviewUuids), reviewMap);
       Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
-      console.log(_.cloneDeep(reviews));
       setEditorReviewMap(reviewMap);
       setRootReview(reviews);
       setReviewChildren(Object.values(reviews.children));
@@ -101,18 +97,16 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   const markRootCollapsibleAsPending = (reviewLevelId: string) => {
     const newReviewChildren = reviewChildren.map(c => {
       if (c.id === reviewLevelId) {
-        c.isPendingSave = true;
+        c.hideLevel = true;
       }
       return c;
     });
     setReviewChildren(newReviewChildren);
-    if (newReviewChildren.length === 0 || newReviewChildren.filter(c => c.isPendingSave).length === reviewChildren.length) {
+    if (newReviewChildren.length === 0 || newReviewChildren.filter(c => c.hideLevel).length === reviewChildren.length) {
       setRootReview(null);
       setIsReviewFinished(true);
     }
   };
-
-  console.log('reviewchild', reviewChildren);
 
   return props.firebaseInitSuccess && !props.loadingGenes && props.drugList.length > 0 && !!geneEntity ? (
     <>

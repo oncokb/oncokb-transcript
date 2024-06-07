@@ -124,14 +124,15 @@ export const ReviewCollapsible = ({
   }, [rootReview]);
 
   const markCollapsibleAsPending = (reviewLevelId: string, action: ActionType) => {
-    // Filter out the review level
+    // Optimistic UI render: we assume that the save is successfull and immediately hide
+    // the collapsible when an action is clicked.
     const newReviewChildren = reviewChildren.map(c => {
       if (c.id === reviewLevelId) {
-        c.isPendingSave = true;
+        c.hideLevel = true;
       }
       return c;
     });
-    if (newReviewChildren.length === 0 || newReviewChildren.filter(c => c.isPendingSave).length === reviewChildren.length) {
+    if (newReviewChildren.length === 0 || newReviewChildren.filter(c => c.hideLevel).length === reviewChildren.length) {
       handleActionClick(action);
     } else {
       setReviewChildren(newReviewChildren);
@@ -155,8 +156,8 @@ export const ReviewCollapsible = ({
         await handleReject(hugoSymbol, getReviewLevelsForActions(), isGermline);
       }
     } catch (error) {
-      // Ideally, we want to do a rollback. For now, we need to tell the reviewer to stop
-      // and a dev needs to fix the data
+      // Perform a rollback if the save fails. We can show the collapsible again when the core API fails.
+      // However for Firebase, we will have tell the user to stop reviewing and a dev needs to fix the data.
       notifyError(error);
     }
   };
@@ -312,7 +313,6 @@ export const ReviewCollapsible = ({
     );
   };
 
-  /* eslint-disable no-console */
   const getCollapsibleBody = () => {
     const children = rootReview.children && Object.values(rootReview.children);
 
@@ -358,7 +358,7 @@ export const ReviewCollapsible = ({
     hideToggle: !rootReview.hasChildren() && reviewAction === ReviewAction.CREATE,
   };
 
-  if (rootReview.isPendingSave) {
+  if (rootReview.hideLevel) {
     return <></>;
   }
 
