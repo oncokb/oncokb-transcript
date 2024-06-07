@@ -188,7 +188,7 @@ describe('Screenshot Tests', () => {
     await geneList.waitForDisplayed();
 
     const result = await browser.checkElement(geneList, 'gene-list', methodOptions);
-    expect(result).toBe(ALLOWED_MISMATCH_PERCENTAGE);
+    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
   });
 
   it('should compare VUS table', async () => {
@@ -198,7 +198,7 @@ describe('Screenshot Tests', () => {
     await vusTable.waitForDisplayed();
 
     const result = await browser.checkElement(vusTable, 'vus-table', methodOptions);
-    expect(result).toBe(ALLOWED_MISMATCH_PERCENTAGE);
+    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
   });
 
   it('should compare mutation collapsible', async () => {
@@ -208,7 +208,7 @@ describe('Screenshot Tests', () => {
     await mutationCollapsible.waitForDisplayed();
 
     const result = await browser.checkElement(mutationCollapsible, 'mutation-collapsible', methodOptions);
-    expect(result).toBe(ALLOWED_MISMATCH_PERCENTAGE);
+    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
   });
 
   it('should compare mutation effect not curatable', async () => {
@@ -221,7 +221,7 @@ describe('Screenshot Tests', () => {
     await mutationEffectNotCuratable.waitForDisplayed();
 
     const result = await browser.checkElement(mutationEffectNotCuratable, 'mutation-effect-not-curatable', methodOptions);
-    expect(result).toBe(ALLOWED_MISMATCH_PERCENTAGE);
+    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
   });
 
   it('should compare open therapy collapsible', async () => {
@@ -241,7 +241,7 @@ describe('Screenshot Tests', () => {
     await openTherapyCollapsible.scrollIntoView();
 
     const result = await browser.checkElement(openTherapyCollapsible, 'open-therapy-collapsible', methodOptions);
-    expect(result).toBe(ALLOWED_MISMATCH_PERCENTAGE);
+    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
   });
 
   it('should compare modify therapy modal', async () => {
@@ -260,7 +260,7 @@ describe('Screenshot Tests', () => {
     await modifyTherapyModal.waitForDisplayed();
 
     const result = await browser.checkElement(modifyTherapyModal, 'add-therapy-modal', methodOptions);
-    expect(result).toBe(ALLOWED_MISMATCH_PERCENTAGE);
+    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
   });
 
   it('should compare review page', async () => {
@@ -273,7 +273,7 @@ describe('Screenshot Tests', () => {
     await reviewPage.waitForDisplayed();
 
     const result = await browser.checkElement(reviewPage, 'review-page', methodOptions);
-    expect(result).toBe(ALLOWED_MISMATCH_PERCENTAGE);
+    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
 
     // reset by going back to curation page
     const reviewCompleteButton = await $('button[data-testid="review-complete-button"]');
