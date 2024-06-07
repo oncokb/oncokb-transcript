@@ -20,6 +20,7 @@ import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
 import { GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import GeneHeader from '../header/GeneHeader';
+import _ from 'lodash';
 
 interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -35,24 +36,24 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
 
   const [geneData, setGeneData] = useState(null);
   const [metaReview, setMetaReview] = useState(null);
-  const [isLoadingMetaReview, setIsLoadingMetaReview] = useState(false);
 
   const [isReviewFinished, setIsReviewFinished] = useState(false);
 
-  const [reviewUuids, setReviewUuids] = useState([]);
+  const [reviewUuids, setReviewUuids] = useState<string[]>(null);
   const [rootReview, setRootReview] = useState<BaseReviewLevel>(undefined);
+  const [reviewChildren, setReviewChildren] = useState<BaseReviewLevel[]>([]);
   const [editorReviewMap, setEditorReviewMap] = useState(new EditorReviewMap());
+
   const [splitView, setSplitView] = useState(false);
+
+  /* eslint-disable no-console */
 
   useEffect(() => {
     if (geneEntity && props.firebaseInitSuccess) {
       // Fetch the data when the user enters review mode. We don't use a listener
       // because there shouldn't be another user editing the gene when it is being reviewed.
       get(ref(props.firebaseDb, firebaseGenePath)).then(snapshot => setGeneData(snapshot.val()));
-      setIsLoadingMetaReview(true);
-      get(ref(props.firebaseDb, firebaseMetaReviewPath))
-        .then(snapshot => setMetaReview(snapshot.val()))
-        .finally(() => setIsLoadingMetaReview(false));
+      get(ref(props.firebaseDb, firebaseMetaReviewPath)).then(snapshot => setMetaReview(snapshot.val()));
     }
 
     props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
@@ -73,15 +74,21 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   }, [metaReview]);
 
   useEffect(() => {
-    if (geneData && !isLoadingMetaReview) {
+    console.log('generating inital reviews');
+    if (geneData && !_.isNil(reviewUuids)) {
       const reviewMap = new EditorReviewMap();
-      const reviews = findReviews(props.drugList, geneData, reviewUuids, reviewMap);
+      const reviews = findReviews(props.drugList, geneData, _.clone(reviewUuids), reviewMap);
       Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
+      console.log(_.cloneDeep(reviews));
       setEditorReviewMap(reviewMap);
       setRootReview(reviews);
+      setReviewChildren(Object.values(reviews.children));
       setIsReviewFinished(!reviews.hasChildren());
     }
-  }, [geneData, reviewUuids]);
+    if (reviewUuids?.length === 0) {
+      setIsReviewFinished(true);
+    }
+  }, [geneData, reviewUuids, props.drugList]);
 
   const acceptAllChangesFromEditors = (editors: string[]) => {
     let reviewLevels = [] as ReviewLevel[];
@@ -90,6 +97,22 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     }
     props.acceptReviewChangeHandler(hugoSymbol, reviewLevels, isGermline);
   };
+
+  const markRootCollapsibleAsPending = (reviewLevelId: string) => {
+    const newReviewChildren = reviewChildren.map(c => {
+      if (c.id === reviewLevelId) {
+        c.isPendingSave = true;
+      }
+      return c;
+    });
+    setReviewChildren(newReviewChildren);
+    if (newReviewChildren.length === 0 || newReviewChildren.filter(c => c.isPendingSave).length === reviewChildren.length) {
+      setRootReview(null);
+      setIsReviewFinished(true);
+    }
+  };
+
+  console.log('reviewchild', reviewChildren);
 
   return props.firebaseInitSuccess && !props.loadingGenes && props.drugList.length > 0 && !!geneEntity ? (
     <>
@@ -167,22 +190,21 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
         </>
       )}
 
-      {rootReview ? (
+      {reviewChildren?.length > 0 ? (
         <Row>
           <Col>
-            {Object.values(rootReview.children)
-              .sort(reviewLevelSortMethod)
-              .map(reviewLevel => (
-                <ReviewCollapsible
-                  splitView={splitView}
-                  hugoSymbol={hugoSymbol}
-                  isGermline={isGermline}
-                  key={reviewLevel.valuePath}
-                  baseReviewLevel={reviewLevel}
-                  handleAccept={props.acceptReviewChangeHandler}
-                  handleDelete={props.rejectReviewChangeHandler}
-                />
-              ))}
+            {reviewChildren.sort(reviewLevelSortMethod).map(reviewLevel => (
+              <ReviewCollapsible
+                splitView={splitView}
+                hugoSymbol={hugoSymbol}
+                isGermline={isGermline}
+                key={reviewLevel.valuePath}
+                baseReviewLevel={reviewLevel}
+                handleAccept={props.acceptReviewChangeHandler}
+                handleReject={props.rejectReviewChangeHandler}
+                rootDelete={markRootCollapsibleAsPending}
+              />
+            ))}
           </Col>
         </Row>
       ) : undefined}
