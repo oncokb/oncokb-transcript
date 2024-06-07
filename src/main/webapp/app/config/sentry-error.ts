@@ -1,5 +1,11 @@
 import * as Sentry from '@sentry/react';
 
+export function notifySentryException(errorMessage, data: Record<string, unknown>) {
+  return Sentry.captureException(errorMessage, scope => {
+    scope.setExtra('functionArgs', JSON.stringify(data));
+    return scope;
+  });
+}
 export class SentryError extends Error {
   public sentryId: string;
   constructor(errMessage: string, data: any) {
@@ -7,9 +13,6 @@ export class SentryError extends Error {
 
     this.name = 'SentryError';
 
-    this.sentryId = Sentry.captureException(errMessage, scope => {
-      scope.setExtra('functionArgs', JSON.stringify(data));
-      return scope;
-    });
+    this.sentryId = notifySentryException(errMessage, data);
   }
 }

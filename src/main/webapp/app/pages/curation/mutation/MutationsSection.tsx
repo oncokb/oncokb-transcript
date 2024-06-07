@@ -1,24 +1,33 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Col, Row } from 'reactstrap';
-import FirebaseList from '../list/FirebaseList';
-import MutationName from './MutationName';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
+import { Mutation } from 'app/shared/model/firebase/firebase.model';
+import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
+import {
+  compareMutationsByLastModified,
+  compareMutationsByName,
+  compareMutationsByProteinChangePosition,
+  compareMutationsDefault,
+  getFirebaseGenePath,
+  getMutationName,
+} from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { observer } from 'mobx-react';
-import { Mutation } from 'app/shared/model/firebase/firebase.model';
-import { compareMutations, getFirebaseGenePath } from 'app/shared/util/firebase/firebase-utils';
-import MutationCollapsible from '../collapsible/MutationCollapsible';
-import * as styles from '../styles.module.scss';
-import MutationsSectionHeader from '../header/MutationsSectionHeader';
 import classNames from 'classnames';
-import _ from 'lodash';
-import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import { onValue, ref } from 'firebase/database';
+import _ from 'lodash';
+import { observer } from 'mobx-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Col, Row } from 'reactstrap';
+import MutationCollapsible from '../collapsible/MutationCollapsible';
+import MutationsSectionHeader, { SortOptions } from '../header/MutationsSectionHeader';
+import FirebaseList from '../list/FirebaseList';
+import * as styles from '../styles.module.scss';
+import MutationName from './MutationName';
+import { extractPositionFromSingleNucleotideAlteration } from 'app/shared/util/utils';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
+  metaGeneReviewPath: string;
   hugoSymbol: string;
   isGermline: boolean;
   parsedHistoryList: Map<string, FlattenedHistory[]>;
@@ -27,6 +36,7 @@ export interface IMutationsSectionProps extends StoreProps {
 
 function MutationsSection({
   mutationsPath,
+  metaGeneReviewPath,
   hugoSymbol,
   isGermline,
   parsedHistoryList,
@@ -40,6 +50,7 @@ function MutationsSection({
 }: IMutationsSectionProps) {
   const [showAddMutationModal, setShowAddMutationModal] = useState(false);
   const [filteredIndices, setFilteredIndices] = useState<number[]>([]);
+  const [sortMethod, setSortMethod] = useState<SortOptions>(SortOptions.DEFAULT);
 
   const mutationSectionRef = useRef<HTMLDivElement>(null);
 
@@ -92,13 +103,14 @@ function MutationsSection({
           <FirebaseList<Mutation>
             path={mutationsPath}
             pushDirection="front"
-            defaultSort={compareMutations}
+            sort={getSortFunction}
             itemBuilder={index => {
               return (
                 <div className="mb-2">
                   <MutationCollapsible
                     disableOpen
                     mutationPath={`${mutationsPath}/${index}`}
+                    showLastModified={sortMethod === SortOptions.LAST_MODIFIED}
                     hugoSymbol={hugoSymbol}
                     isGermline={isGermline}
                     parsedHistoryList={parsedHistoryList}
@@ -122,6 +134,36 @@ function MutationsSection({
       </>
     );
   }
+
+  const getSortFunction = useCallback(
+    (mutation1: Mutation, mutation2: Mutation) => {
+      let order: number;
+      let mutation1IsProteinChange: boolean;
+      let mutation2IsProteinChange: boolean;
+
+      switch (sortMethod) {
+        case SortOptions.DEFAULT:
+          return compareMutationsDefault(mutation1, mutation2);
+        case SortOptions.LAST_MODIFIED:
+          return compareMutationsByLastModified(mutation1, mutation2);
+        case SortOptions.POSITION_INCREASING:
+          order = compareMutationsByProteinChangePosition(mutation1, mutation2);
+          return order === 0 ? compareMutationsByName(mutation1, mutation2) : order;
+        case SortOptions.POSITION_DECREASING:
+          mutation1IsProteinChange = !_.isNil(extractPositionFromSingleNucleotideAlteration(mutation1.name));
+          mutation2IsProteinChange = !_.isNil(extractPositionFromSingleNucleotideAlteration(mutation2.name));
+          if (mutation1IsProteinChange && mutation2IsProteinChange) {
+            return compareMutationsByProteinChangePosition(mutation1, mutation2) * -1;
+          } else if (!mutation1IsProteinChange && !mutation2IsProteinChange) {
+            return compareMutationsByName(mutation1, mutation2);
+          }
+          return compareMutationsByProteinChangePosition(mutation1, mutation2);
+        default:
+          return;
+      }
+    },
+    [sortMethod],
+  );
 
   return (
     <>
@@ -155,10 +197,12 @@ function MutationsSection({
             <MutationsSectionHeader
               hugoSymbol={hugoSymbol}
               mutationsPath={mutationsPath}
+              metaGeneReviewPath={metaGeneReviewPath}
               filteredIndices={filteredIndices}
               setFilteredIndices={setFilteredIndices}
               showAddMutationModal={showAddMutationModal}
               setShowAddMutationModal={setShowAddMutationModal}
+              setSortMethod={setSortMethod}
             />
           </Col>
         </Row>

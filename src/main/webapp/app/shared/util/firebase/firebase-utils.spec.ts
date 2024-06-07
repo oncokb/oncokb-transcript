@@ -7,6 +7,7 @@ import {
   geneNeedsReview,
   getCancerTypeStats,
   getFirebasePath,
+  getMutationModifiedTimestamp,
   getMutationName,
   getMutationStats,
   getTxName,
@@ -25,6 +26,7 @@ import {
   MetaReview,
   Mutation,
   PX_LEVELS,
+  Review,
   TX_LEVELS,
   Treatment,
   Tumor,
@@ -545,6 +547,34 @@ describe('FirebaseUtils', () => {
       [new Mutation('Truncating Mutations'), new Mutation('VUS'), 0],
     ])('should compare mutations correctly', (mut1, mut2, expected) => {
       expect(compareMutationsByCategoricalAlteration(mut1, mut2)).toEqual(expected);
+    });
+  });
+
+  describe('getMutationModifedTimestamp', () => {
+    it('should get most recent modified time', () => {
+      const APR_1_2023 = 1680307200000;
+      const JULY_3_2023 = 1688345678000;
+      const OCT_1_2023 = 1696118400000;
+      const JAN_1_2024 = 1709539200000;
+
+      const mutation = new Mutation('');
+      mutation.name_review = new Review('');
+      mutation.name_review.updateTime = JULY_3_2023;
+      mutation.alterations_review = new Review('');
+      mutation.alterations_review.updateTime = APR_1_2023;
+
+      const tumor = new Tumor();
+      tumor.cancerTypes_review = new Review('');
+      tumor.cancerTypes_review.updateTime = JAN_1_2024;
+
+      const treatment = new Treatment('');
+      treatment.description_review = new Review('');
+      treatment.description_review.updateTime = OCT_1_2023;
+
+      tumor.TIs[0].treatments = [treatment];
+      mutation.tumors = [tumor];
+
+      expect(getMutationModifiedTimestamp(mutation)).toBe(JAN_1_2024);
     });
   });
 

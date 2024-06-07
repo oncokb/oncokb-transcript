@@ -1,4 +1,4 @@
-import { APP_EXPANDED_DATETIME_FORMAT } from 'app/config/constants/constants';
+import { APP_EXPANDED_DATETIME_FORMAT, CURRENT_REVIEWER } from 'app/config/constants/constants';
 import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
@@ -81,6 +81,33 @@ export const getTxName = (drugList: readonly IDrug[], txUuidName: string) => {
 
 export const geneNeedsReview = (meta: Meta | undefined) => {
   return geneMetaReviewHasUuids(meta?.review);
+};
+
+export const mutationNeedsReview = (mutation: Mutation, review: MetaReview) => {
+  const ignoreNameChange = mutation.name_review?.added || false;
+  const uuids = Object.keys(review).filter(key => key !== CURRENT_REVIEWER);
+
+  let nestedObjects = [mutation];
+  while (nestedObjects.length > 0) {
+    const newNestedObjects = [];
+
+    for (const nestedObject of nestedObjects) {
+      for (const [key, val] of Object.entries(nestedObject)) {
+        if (key === 'name_uuid' || key === 'cancerTypes_uuid') {
+          if (!ignoreNameChange && uuids.includes(val)) {
+            return true;
+          }
+        } else if (key.endsWith('_uuid') && uuids.includes(val)) {
+          return true;
+        } else if (typeof val === 'object') {
+          newNestedObjects.push(val);
+        }
+      }
+    }
+
+    nestedObjects = newNestedObjects;
+  }
+  return false;
 };
 
 export const geneMetaReviewHasUuids = (metaReview: MetaReview) => {
@@ -500,7 +527,48 @@ export function compareMutationsByCategoricalAlteration(mut1: Mutation, mut2: Mu
   }
 }
 
-export function compareMutations(mut1: Mutation, mut2: Mutation) {
+export function getMutationModifiedTimestamp(mutation: Mutation): number | null {
+  let modifiedTime: number = null;
+  let nestedObjects = [mutation];
+  while (nestedObjects.length > 0) {
+    const newNestedObjects = [];
+
+    for (const nestedObject of nestedObjects) {
+      for (const [key, val] of Object.entries(nestedObject)) {
+        if (key.endsWith('_review')) {
+          const review = val as Review;
+          if (modifiedTime === null) {
+            modifiedTime = review.updateTime;
+          } else {
+            modifiedTime = Math.max(review.updateTime, modifiedTime);
+          }
+        } else if (typeof val === 'object') {
+          newNestedObjects.push(val);
+        }
+      }
+    }
+
+    nestedObjects = newNestedObjects;
+  }
+  return modifiedTime;
+}
+
+export function compareMutationsByLastModified(mut1: Mutation, mut2: Mutation, order: SortOrder = 'desc') {
+  const mutation1LastModified = getMutationModifiedTimestamp(mut1);
+  const mutation2LastModifed = getMutationModifiedTimestamp(mut2);
+  if (order === 'asc') {
+    return mutation1LastModified - mutation2LastModifed;
+  } else {
+    return mutation2LastModifed - mutation1LastModified;
+  }
+}
+
+export function compareMutationsByName(mut1: Mutation, mut2: Mutation, order: SortOrder = 'asc') {
+  const comparison = getMutationName(mut1.name, mut1.alterations).localeCompare(getMutationName(mut2.name, mut2.alterations));
+  return order === 'asc' ? comparison : comparison * -1;
+}
+
+export function compareMutationsDefault(mut1: Mutation, mut2: Mutation) {
   let order = compareMutationsByDeleted(mut1, mut2);
   if (order !== 0) {
     return order;
@@ -536,7 +604,7 @@ export function compareMutations(mut1: Mutation, mut2: Mutation) {
     return order;
   }
 
-  return mut1.name.localeCompare(mut2.name);
+  return compareMutationsByName(mut1, mut2);
 }
 
 export const getFilterModalStats = (mutations: readonly Mutation[]) => {

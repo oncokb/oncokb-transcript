@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
-import { onValue, ref } from 'firebase/database';
+import { get, onValue, ref } from 'firebase/database';
 import InfiniteScroll from '@larryyangsen/react-infinite-scroller';
 import _ from 'lodash';
 
@@ -15,7 +15,7 @@ export interface IFirebaseListProps<T> extends StoreProps {
     renderCount: number;
   };
   filter?: (firebaseIndex: number) => boolean;
-  defaultSort?: (a: T, b: T) => number;
+  sort?: (a: T, b: T) => number;
   onInitialRender?: () => void;
 }
 
@@ -25,7 +25,7 @@ function FirebaseList<T>({
   pushDirection,
   scrollOptions,
   filter,
-  defaultSort,
+  sort,
   onInitialRender,
   firebaseDb,
 }: IFirebaseListProps<T>) {
@@ -56,33 +56,39 @@ function FirebaseList<T>({
   useEffect(() => {
     const listRef = ref(firebaseDb, path);
     const unsubscribe = onValue(listRef, snapshot => {
-      if (!snapshot.val() && indices?.length !== 0) {
-        // this happens for empty array, such as tumors for a new mutation
-        setIndices([]);
+      if (!snapshot.val() || !indices) {
         return;
       }
 
-      if (!indices) {
-        const items = snapshot.val();
-        const itemsWithIndices = items.map((item, index) => ({ ...item, index }));
-        setIndices(
-          defaultSort
-            ? itemsWithIndices
-                .sort((a, b) => {
-                  const { aIndex, ...aWithoutIndex } = a;
-                  const { bIndex, ...bWithoutIndex } = b;
-                  return defaultSort(aWithoutIndex, bWithoutIndex);
-                })
-                .map(item => item.index)
-            : itemsWithIndices.map(item => item.index)
-        );
-      } else if (snapshot.size !== indices.length + numItemsAdded) {
+      if (snapshot.size !== indices.length + numItemsAdded) {
         setNumItemsAdded(snapshot.size - indices.length);
       }
     });
 
     return () => unsubscribe?.();
   }, [path, firebaseDb, indices, numItemsAdded, setNumItemsAdded]);
+
+  useEffect(() => {
+    async function getItems() {
+      const items = (await get(ref(firebaseDb, path))).val();
+      if (!items && indices?.length !== 0) {
+        setIndices([]);
+        return;
+      }
+
+      const itemsWithIndices = items.map((item, index) => ({ ...item, index }));
+      if (sort) {
+        itemsWithIndices.sort((a, b) => {
+          const { aIndex, ...aWithoutIndex } = a;
+          const { bIndex, ...bWithoutIndex } = b;
+          return sort(aWithoutIndex, bWithoutIndex);
+        });
+      }
+      setIndices(itemsWithIndices.map(item => item.index));
+    }
+
+    getItems();
+  }, [path, firebaseDb, sort]);
 
   const listItems = useMemo(() => {
     if (!indices) {

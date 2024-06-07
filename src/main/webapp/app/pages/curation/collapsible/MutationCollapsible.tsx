@@ -23,7 +23,6 @@ import { Alteration, Review } from 'app/shared/model/firebase/firebase.model';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import {
-  findNestedUuids,
   getFirebaseGenePath,
   getFirebaseVusPath,
   getMutationName,
@@ -36,11 +35,12 @@ import { IRootStore } from 'app/stores';
 import { get, onValue, ref } from 'firebase/database';
 import _ from 'lodash';
 import { observer } from 'mobx-react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from 'reactstrap';
 import BadgeGroup from '../BadgeGroup';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
 import FirebaseList from '../list/FirebaseList';
+import MutationLastModified from '../mutation/mutation-last-modified';
 import MutationLevelSummary from '../nestLevelSummary/MutationLevelSummary';
 import * as styles from '../styles.module.scss';
 import CancerTypeCollapsible from './CancerTypeCollapsible';
@@ -56,6 +56,7 @@ export interface IMutationCollapsibleProps extends StoreProps {
   disableOpen?: boolean;
   onToggle?: () => void;
   parsedHistoryList: Map<string, FlattenedHistory[]>;
+  showLastModified?: boolean;
 }
 
 const MutationCollapsible = ({
@@ -73,6 +74,7 @@ const MutationCollapsible = ({
   modifyCancerTypeModalStore,
   annotatedAltsCache,
   genomicIndicators,
+  showLastModified,
 }: IMutationCollapsibleProps) => {
   const firebaseMutationsPath = `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`;
 
@@ -171,6 +173,20 @@ const MutationCollapsible = ({
     return () => callbacks.forEach(callback => callback?.());
   }, [mutationPath, firebaseDb]);
 
+  const cancerTypeCollapsibleBuilder = useCallback(
+    index => {
+      return (
+        <CancerTypeCollapsible
+          allCancerTypesPath={`${mutationPath}/tumors`}
+          cancerTypePath={`${mutationPath}/tumors/${index}`}
+          mutationName={mutationName}
+          parsedHistoryList={parsedHistoryList}
+        />
+      );
+    },
+    [mutationPath, mutationName, parsedHistoryList],
+  );
+
   async function handleDeleteMutation(toVus = false) {
     const snapshot = await get(ref(firebaseDb, mutationPath));
     await deleteSection(`${mutationPath}/name`, snapshot.val(), mutationNameReview, mutationUuid, toVus);
@@ -202,6 +218,9 @@ const MutationCollapsible = ({
         onToggle={() => !isMutationPendingDelete && onToggle()}
         info={
           <>
+            {showLastModified && (
+              <MutationLastModified className="me-2" mutationUuid={mutationUuid} hugoSymbol={hugoSymbol} isGermline={isGermline} />
+            )}
             <MutationLevelSummary mutationPath={mutationPath} hideOncogenicity={isStringMutation} />
             {hotspots.length > 0 && <HotspotIcon associatedHotspots={hotspots} />}
             {exonRanges.length > 0 && (
@@ -466,20 +485,7 @@ const MutationCollapsible = ({
             </Collapsible>
           </>
         )}
-        <FirebaseList
-          path={`${mutationPath}/tumors`}
-          pushDirection="back"
-          itemBuilder={index => {
-            return (
-              <CancerTypeCollapsible
-                allCancerTypesPath={`${mutationPath}/tumors`}
-                cancerTypePath={`${mutationPath}/tumors/${index}`}
-                mutationName={mutationName}
-                parsedHistoryList={parsedHistoryList}
-              />
-            );
-          }}
-        />
+        <FirebaseList path={`${mutationPath}/tumors`} pushDirection="back" itemBuilder={cancerTypeCollapsibleBuilder} />
         <Button
           className={'mt-2 mb-1'}
           outline
