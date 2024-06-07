@@ -5,7 +5,7 @@ import * as path from 'path';
 const BASE_URL = process.env.DOCKER ? 'https://app:9000' : 'http://localhost:9000';
 const DATABASE_EMULATOR_URL = process.env.DOCKER ? 'http://firebase/?ns=mock-data' : 'http://localhost/?ns=mock-data';
 
-const ALLOWED_MISMATCH_PERCENTAGE = 3;
+const ALLOWED_MISMATCH_PERCENTAGE = 0;
 
 describe('Screenshot Tests', () => {
   const methodOptions: WdioCheckElementMethodOptions = {
