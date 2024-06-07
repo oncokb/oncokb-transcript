@@ -97,10 +97,14 @@ const GeneHeader = ({
               <span style={{ fontSize: '3rem', lineHeight: 1 }} className={'me-3'}>
                 {hugoSymbol}
               </span>
-              {!isReviewing && <CommentIcon id={`${hugoSymbol}_curation_page`} path={`${firebaseGenePath}/name_comments`} />}
-              <div className="ms-3">
-                <SomaticGermlineToggleButton hugoSymbol={hugoSymbol} />
-              </div>
+              {!isReviewing && (
+                <>
+                  <CommentIcon id={`${hugoSymbol}_curation_page`} path={`${firebaseGenePath}/name_comments`} />
+                  <div className="ms-3">
+                    <SomaticGermlineToggleButton hugoSymbol={hugoSymbol} />
+                  </div>
+                </>
+              )}
             </div>
             {getReviewButton()}
           </div>
