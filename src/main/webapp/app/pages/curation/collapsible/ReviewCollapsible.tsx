@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Collapsible from './Collapsible';
-import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
 import {
   BaseReviewLevel,
   MultiSelectionReviewLevel,
@@ -10,17 +9,19 @@ import {
   isDeleteReview,
   reformatReviewTitle,
   reviewLevelSortMethod,
+  showAsFirebaseTextArea,
+  getGenePathFromValuePath,
 } from 'app/shared/util/firebase/firebase-review-utils';
 import ActionIcon from 'app/shared/icons/ActionIcon';
 import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { DANGER, SUCCESS, WARNING } from 'app/config/colors';
-import TextWithRefs from 'app/shared/links/TextWithRefs';
 import DefaultBadge from 'app/shared/badge/DefaultBadge';
 import { ReviewAction, ReviewActionLabels, ReviewLevelType } from 'app/config/constants/firebase';
 import _ from 'lodash';
 import { CollapsibleColorProps, CollapsibleDisplayProps } from './BaseCollapsible';
 import { getReviewInfo } from 'app/shared/util/firebase/firebase-utils';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import DiffViewer, { FirebaseContent } from 'app/components/diff-viewer/DiffViewer';
 
 export enum ReviewType {
   CREATE,
@@ -74,12 +75,12 @@ export interface IReviewCollapsibleProps {
   hugoSymbol: string;
   baseReviewLevel: BaseReviewLevel;
   isGermline: boolean;
+  firebase: FirebaseContent;
   parentDelete?: (reviewlLevelId: string, action: ActionType, isPending?: boolean) => void;
   rootDelete?: (isPending?: boolean) => void;
   handleAccept: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean, isAcceptAll?: boolean) => Promise<void>;
   handleReject: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) => Promise<void>;
   handleCreateAction: (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean, action: ActionType) => Promise<void>;
-  splitView?: boolean;
   disableActions?: boolean;
   isRoot?: boolean;
 }
@@ -93,7 +94,7 @@ export const ReviewCollapsible = ({
   handleCreateAction,
   parentDelete,
   rootDelete,
-  splitView,
+  firebase,
   disableActions = false,
   isRoot = false,
 }: IReviewCollapsibleProps) => {
@@ -315,28 +316,16 @@ export const ReviewCollapsible = ({
       );
     }
     if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
-      let oldValue = reviewLevel.historyData.oldState as string;
-      let newValue = reviewLevel.historyData.newState as string;
-      if (!isUnderCreationOrDeletion && oldValue !== '' && newValue !== '') {
-        oldValue = oldValue?.replace(/\.\s+/g, '.\n');
-        newValue = newValue?.replace(/\.\s+/g, '.\n');
-      }
+      const oldValue = reviewLevel.historyData.oldState as string;
+      const newValue = reviewLevel.historyData.newState as string;
+      const showTextArea = showAsFirebaseTextArea(hugoSymbol, reviewLevel.valuePath);
       return (
-        <div className="mb-2">
-          <ReactDiffViewer
-            styles={REACT_DIFF_VIEWER_STYLES}
-            showDiffOnly
-            extraLinesSurroundingDiff={0}
-            oldValue={oldValue}
-            newValue={newValue}
-            compareMethod={reviewLevel?.reviewInfo.diffMethod || DiffMethod.WORDS}
-            splitView={splitView ? reviewLevel.reviewInfo.review.lastReviewed && reviewLevel.currentVal : false}
-            hideLineNumbers
-            renderContent={source => {
-              return <TextWithRefs content={source} />;
-            }}
-          />
-        </div>
+        <>
+          <div className="mb-2">
+            {showTextArea && <DiffViewer type={'tabs'} new={firebase} old={oldValue} />}
+            {!showTextArea && <DiffViewer type={'stack'} new={newValue} old={oldValue} />}
+          </div>
+        </>
       );
     }
   };
@@ -351,15 +340,10 @@ export const ReviewCollapsible = ({
     }
     return (
       <div className="mb-2">
-        <ReactDiffViewer
-          styles={REACT_DIFF_VIEWER_STYLES}
-          showDiffOnly
-          extraLinesSurroundingDiff={0}
-          oldValue={joinedOldParts.filter(p => p !== '').join(', ')}
-          newValue={joinedNewParts.filter(p => p !== '').join(', ')}
-          compareMethod={DiffMethod.WORDS}
-          hideLineNumbers
-          splitView={false}
+        <DiffViewer
+          type={'stack'}
+          new={joinedNewParts.filter(p => p !== '').join(', ')}
+          old={joinedOldParts.filter(p => p !== '').join(', ')}
         />
       </div>
     );
@@ -375,7 +359,6 @@ export const ReviewCollapsible = ({
         ?.sort(reviewLevelSortMethod)
         ?.map(childReview => (
           <ReviewCollapsible
-            splitView={splitView}
             key={childReview.title}
             isGermline={isGermline}
             baseReviewLevel={childReview}
@@ -385,6 +368,10 @@ export const ReviewCollapsible = ({
             handleCreateAction={handleCreateAction}
             parentDelete={deleteHandlerForChild}
             disableActions={disableActions}
+            firebase={{
+              path: getGenePathFromValuePath(hugoSymbol, childReview.valuePath),
+              db: firebase?.db,
+            }}
           />
         ));
     } else {
