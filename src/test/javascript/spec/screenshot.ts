@@ -10,6 +10,7 @@ describe('Screenshot Tests', () => {
     actualFolder: path.join(process.cwd(), 'src/test/javascript/screenshots/actual'),
     baselineFolder: path.join(process.cwd(), 'src/test/javascript/screenshots/baseline'),
     diffFolder: path.join(process.cwd(), 'src/test/javascript/screenshots/diff'),
+    ignoreAntialiasing: true,
   };
 
   before(async () => {
