@@ -2,9 +2,13 @@
 
 .textarea {
   min-height: 100px !important;
+  overflow-y: hidden;
+  resize: none;
 }
 .summaryTextarea {
-  min-height: 20px;
+  min-height: 20px !important;
+  overflow-y: hidden;
+  resize: none;
 }
 
 .link {
