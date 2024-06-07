@@ -34,7 +34,7 @@ export type BaseReviewLevelParams = {
 };
 export class BaseReviewLevel {
   id: string; // id is used to uniquely identify a review level
-  isPendingSave: boolean;
+  hideLevel: boolean;
   reviewLevelType: ReviewLevelType;
   title: string;
   children?: ReviewChildren;
@@ -44,7 +44,7 @@ export class BaseReviewLevel {
 
   constructor({ reviewLevelType, title, valuePath, historyLocation, nestedUnderCreateorDelete = false }: BaseReviewLevelParams) {
     this.id = generateUuid();
-    this.isPendingSave = false;
+    this.hideLevel = false;
     this.reviewLevelType = reviewLevelType;
     this.title = title;
     this.valuePath = valuePath;
