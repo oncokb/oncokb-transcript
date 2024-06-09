@@ -205,5 +205,18 @@ describe('Utils', () => {
       const result = findAndSplitReferenceInString(input);
       expect(result).toEqual(expectedOutput);
     });
+
+    test.each([
+      [''],
+      ['This is a test with no reference identifier'],
+      ['This is a test with empty () parenthesis'],
+      ['This is a test with nested (PMID: 123 (PMID: 224) rest )'],
+      ['(Abstract: title link)'],
+      ['PMID: 123)'],
+      ['(PMID: 123  (PMID: 1234)'],
+      ['()(())'],
+    ])('should have same character count as original string', originalString => {
+      expect(findAndSplitReferenceInString(originalString).join('').length).toEqual(originalString.length);
+    });
   });
 });
