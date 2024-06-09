@@ -424,3 +424,5 @@ export const DEFAULT_TOAST_ERROR_OPTIONS: ToastOptions = {
 export const KEYCLOAK_LOGOUT_REDIRECT_PARAM = 'post_logout_redirect_uri';
 export const KEYCLOAK_SESSION_TERMINATED_PARAM = 'session_terminated';
 export const KEYCLOAK_UNAUTHORIZED_PARAM = 'unauthorized';
+
+export const REFERENCE_IDENTIFIERS = ['PMID: ', 'Abstract: ', 'NCT'];

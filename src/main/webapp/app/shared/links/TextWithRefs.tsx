@@ -1,6 +1,7 @@
-import { REFERENCE_LINK_REGEX } from 'app/config/constants/regex';
 import { ParsedRef, parseReferences } from 'app/oncokb-commons/components/RefComponent';
 import React from 'react';
+import { findAndSplitReferenceInString } from '../util/utils';
+import { REFERENCE_IDENTIFIERS } from 'app/config/constants/constants';
 
 export interface ITextWithRefsProps {
   content: string;
@@ -8,11 +9,11 @@ export interface ITextWithRefsProps {
 
 export default function TextWithRefs({ content }: ITextWithRefsProps) {
   const result: JSX.Element[] = [];
-  const parts = content?.split(REFERENCE_LINK_REGEX) || [];
+  const parts = findAndSplitReferenceInString(content);
 
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
-    if (part.match(REFERENCE_LINK_REGEX)) {
+    if (REFERENCE_IDENTIFIERS.find(identifier => part.substring(1, identifier.length) === identifier)) {
       const parsedRefs = parseReferences(part, true);
       for (const parsedRef of parsedRefs) {
         if (parsedRef.link) {

@@ -4,7 +4,7 @@ import { IAlteration } from '../model/alteration.model';
 import { v4 as uuidv4 } from 'uuid';
 import { IGene } from 'app/shared/model/gene.model';
 import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
-import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
+import { ENTITY_ACTION, ENTITY_TYPE, REFERENCE_IDENTIFIERS } from 'app/config/constants/constants';
 import EntityActionButton from '../button/EntityActionButton';
 import { SORT } from './pagination.constants';
 import { PaginationState } from '../table/OncoKBAsyncTable';
@@ -14,7 +14,7 @@ import _ from 'lodash';
 import { ParsedRef, parseReferences } from 'app/oncokb-commons/components/RefComponent';
 import { IDrug } from 'app/shared/model/drug.model';
 import { IRule } from 'app/shared/model/rule.model';
-import { INTEGER_REGEX, REFERENCE_LINK_REGEX, SINGLE_NUCLEOTIDE_POS_REGEX, UUID_REGEX } from 'app/config/constants/regex';
+import { INTEGER_REGEX, SINGLE_NUCLEOTIDE_POS_REGEX, UUID_REGEX } from 'app/config/constants/regex';
 import { ProteinExonDTO } from 'app/shared/api/generated/curation';
 import { IQueryParams } from './jhipster-types';
 
@@ -323,12 +323,69 @@ export function extractPositionFromSingleNucleotideAlteration(alteration: string
   }
 }
 
+export const findAndSplitReferenceInString = (input: string): string[] => {
+  if (input.length === 0) {
+    return [input];
+  }
+
+  const startSeqs = REFERENCE_IDENTIFIERS;
+  const results = [];
+  let startIndex = -1;
+  let lastIndex = 0;
+  let nestingLevel = 0; // Keep track of nested parenthesis
+
+  for (let i = 0; i < input.length; i++) {
+    // Check for the opening parenthesis
+    if (startIndex === -1 && input[i] === '(') {
+      // Look ahead to check for any of the start sequences
+      for (const seq of startSeqs) {
+        if (input.substring(i + 1, i + 1 + seq.length) === seq) {
+          if (i > lastIndex) {
+            // Add the part before the current match
+            results.push(input.substring(lastIndex, i));
+          }
+          startIndex = i;
+          nestingLevel = 1; // Initialize nesting level
+          break;
+        }
+      }
+    } else if (startIndex !== -1) {
+      // If start sequence found, manage nesting level
+      if (input[i] === '(') {
+        nestingLevel++;
+      } else if (input[i] === ')') {
+        nestingLevel--;
+        if (nestingLevel === 0) {
+          results.push(input.substring(startIndex, i + 1));
+          lastIndex = i + 1; // Update the last processed index
+          startIndex = -1; // Reset start index to look for new matches
+        }
+      }
+    }
+  }
+
+  // If there is an unfinished match and we have finished looking through entire string
+  if (startIndex !== -1 && nestingLevel > 0) {
+    let lastResult = results.pop() || '';
+    lastResult += input.substring(startIndex);
+    results.push(lastResult);
+    return results;
+  }
+
+  // Add any remaining part of the string after the last match
+  if (lastIndex < input.length) {
+    results.push(input.substring(lastIndex));
+  }
+
+  return results;
+};
+
 export function parseTextForReferences(text: string) {
   let content: Array<ParsedRef> = [];
 
-  const parts = text.split(REFERENCE_LINK_REGEX);
+  const parts = findAndSplitReferenceInString(text);
   parts.forEach((part: string) => {
-    if (part.match(REFERENCE_LINK_REGEX)) {
+    if (REFERENCE_IDENTIFIERS.find(identifier => part.substring(1, 1 + identifier.length) === identifier)) {
       const parsedRef = parseReferences(part, true);
       parsedRef.filter(ref => ref.link).forEach(ref => content.push(ref));
     }

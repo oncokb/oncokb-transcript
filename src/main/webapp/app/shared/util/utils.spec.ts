@@ -1,5 +1,5 @@
 import 'jest-expect-message';
-import { getCancerTypeName, expandAlterationName, generateUuid, isUuid, parseAlterationName } from './utils';
+import { getCancerTypeName, expandAlterationName, generateUuid, isUuid, parseAlterationName, findAndSplitReferenceInString } from './utils';
 
 describe('Utils', () => {
   describe('getCancerTypeName', () => {
@@ -131,6 +131,79 @@ describe('Utils', () => {
 
       const notUuid = '12345ase';
       expect(isUuid(notUuid)).toBeFalsy();
+    });
+  });
+
+  describe('findAndSplitReferenceInString', () => {
+    it('should return an empty array when input is an empty string', () => {
+      const input = '';
+      const expectedOutput = [''];
+      const result = findAndSplitReferenceInString(input);
+      expect(result).toEqual(expectedOutput);
+    });
+
+    it('should correctly split string with empty parenthesis', () => {
+      const input = 'This is a string with only parentheses ()';
+      const expectedOutput = ['This is a string with only parentheses ()'];
+      const result = findAndSplitReferenceInString(input);
+      expect(result).toEqual(expectedOutput);
+    });
+
+    it('should correctly split string with no reference identifiers', () => {
+      const input = 'This is a text with no reference identifiers';
+      const expectedOutput = ['This is a text with no reference identifiers'];
+      const result = findAndSplitReferenceInString(input);
+      expect(result).toEqual(expectedOutput);
+    });
+
+    it('should correctly split string containing multiple reference identifiers', () => {
+      const input = 'This is a reference (PMID: 123456) and another reference (Abstract: abc) and one more (NCT123) and rest of text';
+      const expectedOutput = [
+        'This is a reference ',
+        '(PMID: 123456)',
+        ' and another reference ',
+        '(Abstract: abc)',
+        ' and one more ',
+        '(NCT123)',
+        ' and rest of text',
+      ];
+      const result = findAndSplitReferenceInString(input);
+      expect(result).toEqual(expectedOutput);
+    });
+
+    it('should handle string with reference identifiers but no closing parentheses', () => {
+      const input = 'This is a reference (PMID: 123456';
+      const expectedOutput = ['This is a reference (PMID: 123456'];
+      const result = findAndSplitReferenceInString(input);
+      expect(result).toEqual(expectedOutput);
+    });
+
+    it('should handle string with reference identifiers but no surrounding parenthesis', () => {
+      const input = 'This is a reference PMID: 123456';
+      const expectedOutput = ['This is a reference PMID: 123456'];
+      const result = findAndSplitReferenceInString(input);
+      expect(result).toEqual(expectedOutput);
+    });
+
+    it('should handle string with reference identifiers with nested parenthesis', () => {
+      const input = 'This is a reference (Abstract: Title https://test.org/path(20)rest)';
+      const expectedOutput = ['This is a reference ', '(Abstract: Title https://test.org/path(20)rest)'];
+      const result = findAndSplitReferenceInString(input);
+      expect(result).toEqual(expectedOutput);
+    });
+
+    it('should handle string with no reference identifier but has parenthesis', () => {
+      const input = 'A statistically (significant) hotspot ... Preclinical st(udie)s suggest.';
+      const expectedOutput = ['A statistically (significant) hotspot ... Preclinical st(udie)s suggest.'];
+      const result = findAndSplitReferenceInString(input);
+      expect(result).toEqual(expectedOutput);
+    });
+
+    it('should handle string with reference identifier not immediately after opening parenthesis', () => {
+      const input = 'This is a reference (test PMID:123 )';
+      const expectedOutput = ['This is a reference (test PMID:123 )'];
+      const result = findAndSplitReferenceInString(input);
+      expect(result).toEqual(expectedOutput);
     });
   });
 });
