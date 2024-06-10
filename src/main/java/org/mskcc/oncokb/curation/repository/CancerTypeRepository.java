@@ -29,6 +29,15 @@ public interface CancerTypeRepository extends JpaRepository<CancerType, Long>, J
     @Query("select cancerType from CancerType cancerType left join fetch cancerType.synonyms where cancerType.id =:id")
     Optional<CancerType> findOneWithEagerRelationships(@Param("id") Long id);
 
+    @Query(
+        "SELECT cancerType from CancerType cancerType WHERE cancerType.mainType LIKE %:containing% OR cancerType.subtype LIKE %:containing% OR cancerType.code LIKE %:containing% ORDER BY CASE WHEN cancerType.subtype LIKE :startsWith% THEN 0 WHEN cancerType.subtype IS NULL AND cancerType.mainType LIKE :startsWith% THEN 0 ELSE 1 END"
+    )
+    Page<CancerType> findAllByQueryPrioritizeStartsWith(
+        @Param("containing") String containing,
+        @Param("startsWith") String startsWith,
+        Pageable pageable
+    );
+
     List<CancerType> findAllByMainTypeIs(@Param("maintype") String mainType);
 
     List<CancerType> findByTumorFormIn(List<TumorForm> tumorForms);
