@@ -15,6 +15,7 @@ import { MetaReview } from 'app/shared/model/firebase/firebase.model';
 import { Button } from 'reactstrap';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import SomaticGermlineToggleButton from '../button/SomaticGermlineToggleButton';
+import { getCbioportalResultsPageMutationTabUrl } from 'app/shared/util/url-utils';
 
 export interface IGeneHeaderProps extends StoreProps {
   hugoSymbol: string;
@@ -136,7 +137,7 @@ const GeneHeader = ({
             <span className="ms-2">
               <span className="fw-bold me-2">External Links:</span>
               <WithSeparator separator={InlineDivider}>
-                <a href={`https://cbioportal.mskcc.org/ln?q=${hugoSymbol}`} target="_blank" rel="noopener noreferrer">
+                <a href={getCbioportalResultsPageMutationTabUrl(hugoSymbol)} target="_blank" rel="noopener noreferrer">
                   {CBIOPORTAL} <ExternalLinkIcon />
                 </a>
                 <a href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${hugoSymbol}`} target="_blank" rel="noopener noreferrer">
