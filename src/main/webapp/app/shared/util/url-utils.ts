@@ -32,3 +32,10 @@ export const setUrlParams = (urlString: string, params: Record<string, any>) => 
   }
   return url.toString();
 };
+
+export const getCbioportalResultsPageMutationTabUrl = (hugoSymbol: string) => {
+  if (!hugoSymbol) {
+    return '';
+  }
+  return `https://cbioportal.mskcc.org/results/mutations?cancer_study_list=mskimpact&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&profileFilter=mutations%2Cstructural_variants%2Ccna&case_set_id=mskimpact_cnaseq&geneset_list=%20&tab_index=tab_visualize&Action=Submit&gene_list=${hugoSymbol}`;
+};
