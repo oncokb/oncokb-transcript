@@ -9,7 +9,6 @@ import {
   buildStringReview,
   clearAllNestedReviews,
   findReviewRecursive,
-  findReviews,
   getRelevantKeysFromUuidKey,
   getReviewAction,
   getUpdatedReview,
@@ -88,6 +87,8 @@ describe('Firebase Review Utils', () => {
         valuePath: 'background',
         historyLocation: 'Background',
         currentVal: 'test',
+        hideLevel: false,
+        id: expect.any(String),
         reviewInfo: {
           reviewPath: 'background_review',
           review: gene.background_review,
@@ -102,9 +103,8 @@ describe('Firebase Review Utils', () => {
         },
         reviewLevelType: ReviewLevelType.REVIEWABLE,
       };
-      const expectedStringReview = new ReviewLevel(expectedValues);
 
-      expect(stringReview).toStrictEqual(expectedStringReview);
+      expect(stringReview).toEqual(expect.objectContaining(expectedValues));
     });
 
     it('should remove uuid and update editorReviewMap', () => {
@@ -171,6 +171,8 @@ describe('Firebase Review Utils', () => {
         valuePath: 'mutations/0/name',
         historyLocation: 'V600',
         currentVal: 'V600',
+        hideLevel: false,
+        id: expect.any(String),
         reviewInfo: {
           reviewPath: 'mutations/0/name_review',
           review: defaultMutation.name_review,
@@ -185,10 +187,9 @@ describe('Firebase Review Utils', () => {
         },
         reviewLevelType: ReviewLevelType.REVIEWABLE,
       };
-      const expectedNameReview = new ReviewLevel(expectedValues);
 
       const nameReview = metaReview.children['Name'] as ReviewLevel;
-      expect(nameReview).toStrictEqual(expectedNameReview);
+      expect(nameReview).toEqual(expect.objectContaining(expectedValues));
     });
 
     it('should detect added mutation', () => {
@@ -202,6 +203,8 @@ describe('Firebase Review Utils', () => {
         valuePath: 'mutations/0/name',
         historyLocation: 'V600E',
         currentVal: 'V600E',
+        hideLevel: false,
+        id: expect.any(String),
         reviewInfo: {
           reviewPath: 'mutations/0/name_review',
           review: defaultMutation.name_review,
@@ -216,9 +219,8 @@ describe('Firebase Review Utils', () => {
         },
         reviewLevelType: ReviewLevelType.REVIEWABLE,
       };
-      const expectedNameReview = new ReviewLevel(expectedValues);
 
-      expect(newMutationReview).toStrictEqual(expectedNameReview);
+      expect(newMutationReview).toEqual(expect.objectContaining(expectedValues));
     });
 
     it('should detect deleted mutation', () => {
@@ -232,12 +234,16 @@ describe('Firebase Review Utils', () => {
         valuePath: 'mutations/0/name',
         historyLocation: 'V600E',
         currentVal: 'V600E',
+        hideLevel: false,
+        children: {},
+        id: expect.any(String),
+        nestedUnderCreateOrDelete: false,
         reviewInfo: {
           reviewPath: 'mutations/0/name_review',
           review: defaultMutation.name_review,
           lastReviewedString: undefined,
           uuid: defaultMutation.name_uuid,
-          reviewAction: ReviewAction.CREATE,
+          reviewAction: ReviewAction.DELETE,
           diffMethod: DiffMethod.WORDS,
         },
         historyData: {
@@ -246,9 +252,8 @@ describe('Firebase Review Utils', () => {
         },
         reviewLevelType: ReviewLevelType.REVIEWABLE,
       };
-      const expectedNameReview = new ReviewLevel(expectedValues);
 
-      expect(newMutationReview).toStrictEqual(expectedNameReview);
+      expect(newMutationReview).toEqual(expect.objectContaining(expectedValues));
     });
 
     it('should remove uuid from list when there is a name change', () => {
@@ -373,6 +378,8 @@ describe('Firebase Review Utils', () => {
         valuePath: 'mutations/0/tumors/0/prognostic/excludedRCTs',
         historyLocation: 'V600E, Melanoma, Prognostic, Relevant Cancer Types',
         currentVal: 'Ocular Melanoma',
+        hideLevel: false,
+        id: expect.any(String),
         reviewInfo: {
           reviewPath: 'mutations/0/tumors/0/prognostic/excludedRCTs_review',
           review: implication.excludedRCTs_review,
@@ -387,9 +394,8 @@ describe('Firebase Review Utils', () => {
         },
         reviewLevelType: ReviewLevelType.REVIEWABLE,
       };
-      const expectedNameReview = new ReviewLevel(expectedValues);
 
-      expect(rctReview).toStrictEqual(expectedNameReview);
+      expect(rctReview).toEqual(expect.objectContaining(expectedValues));
     });
 
     it('should return RCT review when there are already excluded cancer types', () => {
@@ -416,6 +422,8 @@ describe('Firebase Review Utils', () => {
         valuePath: 'mutations/0/tumors/0/diagnostic/excludedRCTs',
         historyLocation: 'V600E, Melanoma, Diagnostic, Relevant Cancer Types',
         currentVal: 'Ocular Melanoma\tUveal Melanoma',
+        hideLevel: false,
+        id: expect.any(String),
         reviewInfo: {
           reviewPath: 'mutations/0/tumors/0/diagnostic/excludedRCTs_review',
           review: implication.excludedRCTs_review,
@@ -430,9 +438,8 @@ describe('Firebase Review Utils', () => {
         },
         reviewLevelType: ReviewLevelType.REVIEWABLE,
       };
-      const expectedNameReview = new ReviewLevel(expectedValues);
 
-      expect(rctReview).toStrictEqual(expectedNameReview);
+      expect(rctReview).toEqual(expect.objectContaining(expectedValues));
     });
   });
 
@@ -471,6 +478,8 @@ describe('Firebase Review Utils', () => {
           valuePath: '',
           historyLocation: '',
           nestedUnderCreateOrDelete: false,
+          hideLevel: false,
+          id: expect.any(String),
           children: {
             Background: {
               reviewLevelType: 1,
@@ -478,6 +487,8 @@ describe('Firebase Review Utils', () => {
               valuePath: 'background',
               historyLocation: 'Background',
               nestedUnderCreateOrDelete: false,
+              hideLevel: false,
+              id: expect.any(String),
               children: {},
               currentVal: 'new background',
               reviewInfo: {
@@ -496,6 +507,8 @@ describe('Firebase Review Utils', () => {
               valuePath: 'mutations/0',
               historyLocation: 'V600E',
               nestedUnderCreateOrDelete: false,
+              hideLevel: false,
+              id: expect.any(String),
               children: {
                 'Mutation Effect': {
                   reviewLevelType: 0,
@@ -503,6 +516,8 @@ describe('Firebase Review Utils', () => {
                   valuePath: 'mutations/0/mutation_effect',
                   historyLocation: 'V600E, Mutation Effect',
                   nestedUnderCreateOrDelete: false,
+                  hideLevel: false,
+                  id: expect.any(String),
                   children: {
                     Description: {
                       reviewLevelType: 1,
@@ -510,6 +525,8 @@ describe('Firebase Review Utils', () => {
                       valuePath: 'mutations/0/mutation_effect/description',
                       historyLocation: 'V600E, Mutation Effect, Description',
                       nestedUnderCreateOrDelete: false,
+                      hideLevel: false,
+                      id: expect.any(String),
                       children: {},
                       currentVal: 'new description',
                       reviewInfo: {
