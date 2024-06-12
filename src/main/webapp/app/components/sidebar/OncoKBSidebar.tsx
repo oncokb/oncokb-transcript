@@ -31,6 +31,7 @@ const OncoKBSidebar = ({ showOncoKBSidebar, defaultOpen = false, ...props }: IOn
           onClick={() => {
             props.toggleOncoKBSidebar(true);
           }}
+          data-testid="open-sidebar-button"
         />
       </div>
     </div>
@@ -155,12 +156,13 @@ const OncoKBSidebarExpanded = observer(
               toggleOncoKBSidebar(false);
               setOncoKBSidebarWidth(ONCOKB_SIDEBAR_MIN_WIDTH);
             }}
+            data-testid="close-sidebar-button"
           />
         </div>
         <div style={{ marginTop: '2rem', display: 'flex', width: '100%' }}>{children}</div>
       </div>
     );
-  }
+  },
 );
 
 const mapStoreToProps = ({ layoutStore }: IRootStore) => ({

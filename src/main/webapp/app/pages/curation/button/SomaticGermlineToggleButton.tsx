@@ -49,6 +49,7 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
         style={{ width: BUTTON_WIDTH }}
         disabled={isSomatic}
         onClick={handleToggle}
+        data-testid="somatic-button"
       >
         {isSomatic && <FaCheckCircle className="me-2" style={{ marginBottom: '.1rem' }} />}
         <span>Somatic</span>
@@ -59,6 +60,7 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
         style={{ width: BUTTON_WIDTH }}
         disabled={!isSomatic}
         onClick={handleToggle}
+        data-testid="germline-button"
       >
         {!isSomatic && <FaCheckCircle className="me-2" style={{ marginBottom: '.1rem' }} />}
         <span>Germline</span>

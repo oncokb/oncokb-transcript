@@ -19,7 +19,7 @@ function MutationName({ mutationPath, firebaseDb }: IMutationNameProps) {
     return () => unsubscribe?.();
   }, [mutationPath]);
 
-  return <span>{mutationName}</span>;
+  return <span data-testid="mutation-breadcrumbs-name">{mutationName}</span>;
 }
 
 const mapStoreToProps = ({ firebaseAppStore }: IRootStore) => ({

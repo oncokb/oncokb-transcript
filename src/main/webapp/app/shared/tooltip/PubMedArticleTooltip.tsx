@@ -42,7 +42,7 @@ const PubMedArticleTooltipContent: React.FunctionComponent<IPubMedArticleTooltip
         const date = new Date(pubMedDto.date);
         return (
           <div>
-            <h5>{pubMedDto.title}</h5>
+            <h5 data-testid={`${props.pmid}-pub-med-title`}>{pubMedDto.title}</h5>
             <p>
               {pubMedDto.authors}, {pubMedDto.additionalInfo.journal.isoAbbreviation}, on {formatDate(date, true)}
             </p>

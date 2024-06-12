@@ -81,7 +81,7 @@ function MutationsSection({
       <>
         {!_.isNil(openMutationCollapsibleIndex) && (
           // though a greater minHeight would reduce blinking more, need to choose a minHeight that looks good on the smallest possible mutation
-          <div style={{ transition: 'height 0.5s, opacity 0.5s', minHeight: 400 }} className={'mb-2'}>
+          <div style={{ transition: 'height 0.5s, opacity 0.5s', minHeight: 400 }} className={'mb-2'} data-testid="single-mutation-view">
             <MutationCollapsible
               open
               mutationPath={`${mutationsPath}/${openMutationCollapsibleIndex}`}
@@ -99,6 +99,7 @@ function MutationsSection({
             visibility: !_.isNil(openMutationCollapsibleIndex) ? 'hidden' : 'inherit',
             maxHeight: !_.isNil(openMutationCollapsibleIndex) ? '0px' : null,
           }}
+          data-testid="mutation-list"
         >
           <FirebaseList<Mutation>
             path={mutationsPath}
