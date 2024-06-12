@@ -14,13 +14,13 @@ import { get, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { Alert, Button, Col, FormGroup, Input, Label, Row } from 'reactstrap';
-import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 import { RouteComponentProps } from 'react-router-dom';
 import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
 import { GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import GeneHeader from '../header/GeneHeader';
 import _ from 'lodash';
+import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 
 interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -91,17 +91,24 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     for (const editor of editors) {
       reviewLevels = reviewLevels.concat(editorReviewMap.getReviewsByEditor(editor));
     }
-    props.acceptReviewChangeHandler(hugoSymbol, reviewLevels, isGermline);
+    props.acceptReviewChangeHandler(hugoSymbol, reviewLevels, isGermline, true);
   };
 
-  const markRootCollapsibleAsPending = (reviewLevelId: string) => {
-    const newReviewChildren = reviewChildren.map(c => {
-      if (c.id === reviewLevelId) {
-        c.hideLevel = true;
-      }
-      return c;
-    });
+  const deleteCollapsible = (reviewLevelId: string, isPending = false) => {
+    let newReviewChildren = reviewChildren;
+    if (isPending) {
+      newReviewChildren = reviewChildren.map(c => {
+        if (c.id === reviewLevelId) {
+          c.hideLevel = true;
+        }
+        return c;
+      });
+    } else {
+      newReviewChildren = reviewChildren.filter(c => c.id !== reviewLevelId);
+    }
+
     setReviewChildren(newReviewChildren);
+
     if (newReviewChildren.length === 0 || newReviewChildren.filter(c => c.hideLevel).length === reviewChildren.length) {
       setRootReview(null);
       setIsReviewFinished(true);
@@ -196,7 +203,8 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
                 baseReviewLevel={reviewLevel}
                 handleAccept={props.acceptReviewChangeHandler}
                 handleReject={props.rejectReviewChangeHandler}
-                rootDelete={markRootCollapsibleAsPending}
+                handleCreateAction={props.createActionHandler}
+                rootDelete={deleteCollapsible}
               />
             ))}
           </Col>
@@ -211,8 +219,9 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
 const mapStoreToProps = ({ firebaseAppStore, firebaseGeneReviewService, authStore, drugStore, geneStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   fullName: authStore.fullName,
-  rejectReviewChangeHandler: firebaseGeneReviewService.rejectChanges,
   acceptReviewChangeHandler: firebaseGeneReviewService.acceptChanges,
+  rejectReviewChangeHandler: firebaseGeneReviewService.rejectChanges,
+  createActionHandler: firebaseGeneReviewService.handleCreateAction,
   drugList: drugStore.entities,
   getDrugs: drugStore.getEntities,
   searchGeneEntities: geneStore.searchEntities,
