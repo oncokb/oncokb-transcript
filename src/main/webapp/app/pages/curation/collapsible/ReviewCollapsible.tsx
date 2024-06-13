@@ -21,9 +21,6 @@ import _ from 'lodash';
 import { CollapsibleColorProps, CollapsibleDisplayProps } from './BaseCollapsible';
 import { getReviewInfo } from 'app/shared/util/firebase/firebase-utils';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { IRootStore } from 'app/stores';
-import { inject } from 'mobx-react';
-import { componentInject } from 'app/shared/util/typed-inject';
 
 export enum ReviewType {
   CREATE,
@@ -83,6 +80,7 @@ export interface IReviewCollapsibleProps {
   handleReject: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) => Promise<void>;
   handleCreateAction: (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean, action: ActionType) => Promise<void>;
   splitView?: boolean;
+  disableActions?: boolean;
 }
 
 export const ReviewCollapsible = ({
@@ -95,6 +93,7 @@ export const ReviewCollapsible = ({
   parentDelete,
   rootDelete,
   splitView,
+  disableActions = false,
 }: IReviewCollapsibleProps) => {
   const [rootReview, setRootReview] = useState<BaseReviewLevel>(baseReviewLevel);
   const [reviewChildren, setReviewChildren] = useState<BaseReviewLevel[]>([]);
@@ -203,13 +202,14 @@ export const ReviewCollapsible = ({
     }
     return (
       <>
-        <ActionIcon icon={faCheck} color={SUCCESS} onClick={() => handleActionClick(ActionType.ACCEPT)} />
+        <ActionIcon icon={faCheck} color={SUCCESS} onClick={() => handleActionClick(ActionType.ACCEPT)} disabled={disableActions} />
         <ActionIcon
           icon={faTimes}
           color={DANGER}
           onClick={() => {
             handleActionClick(ActionType.REJECT);
           }}
+          disabled={disableActions}
         />
       </>
     );
@@ -353,6 +353,7 @@ export const ReviewCollapsible = ({
             handleReject={handleReject}
             handleCreateAction={handleCreateAction}
             parentDelete={deleteCollapsible}
+            disableActions={disableActions}
           />
         ));
     } else {

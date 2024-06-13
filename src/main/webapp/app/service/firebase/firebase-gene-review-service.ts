@@ -117,7 +117,7 @@ export class FirebaseGeneReviewService {
       }
 
       if (isCreateReview(reviewLevel) && isAcceptAll) {
-        this.handleCreateAction(hugoSymbol, reviewLevel, isGermline, ActionType.ACCEPT);
+        await this.handleCreateAction(hugoSymbol, reviewLevel, isGermline, ActionType.ACCEPT);
       }
     }
   };
