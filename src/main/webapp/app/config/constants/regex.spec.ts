@@ -45,6 +45,14 @@ describe('Regex constants test', () => {
       ])('Regex should capture Abstract', (reference, expected) => {
         expect(REFERENCE_LINK_REGEX.test(reference)).toEqual(expected);
       });
+
+      it('should handle abstracts with one level of nested parenthesis in url', () => {
+        expect(
+          REFERENCE_LINK_REGEX.test(
+            '(Abstract: Solomon, BJ. Abstract #1372P, Annals of Oncology Vol 34, Suppl 2. https://www.annalsofoncology.org/article/S0923-7534(23)03242-8/fulltext)',
+          ),
+        ).toEqual(true);
+      });
     });
 
     it('Regex should capture expected matches', () => {
