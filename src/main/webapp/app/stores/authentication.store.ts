@@ -1,5 +1,5 @@
 import { action, computed, makeObservable, observable } from 'mobx';
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import BaseStore from 'app/shared/util/base-store';
 import { IRootStore } from 'app/stores/createStore';
 import { OncoKBError } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
@@ -120,7 +120,9 @@ export class AuthStore extends BaseStore {
       this.fetchingSession = false;
       this.loginError = e;
       this.loading = false;
-      throw e;
+      if (!axios.isAxiosError(e) || (e as AxiosError).response.status !== 401) {
+        throw e;
+      }
     }
   }
 }
