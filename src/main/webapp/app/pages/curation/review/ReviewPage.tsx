@@ -13,14 +13,16 @@ import { IRootStore } from 'app/stores';
 import { get, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
-import { Alert, Button, Col, FormGroup, Input, Label, Row } from 'reactstrap';
-import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
+import { Alert, Col, FormGroup, Input, Label, Row } from 'reactstrap';
 import { RouteComponentProps } from 'react-router-dom';
 import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
 import { GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import GeneHeader from '../header/GeneHeader';
 import _ from 'lodash';
+import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
 
 interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -40,22 +42,28 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   const [isReviewFinished, setIsReviewFinished] = useState(false);
 
   const [reviewUuids, setReviewUuids] = useState<string[]>(null);
-  const [rootReview, setRootReview] = useState<BaseReviewLevel>(undefined);
-  const [reviewChildren, setReviewChildren] = useState<BaseReviewLevel[]>([]);
+  const [rootReview, setRootReview] = useState<BaseReviewLevel>(null);
   const [editorReviewMap, setEditorReviewMap] = useState(new EditorReviewMap());
-
+  const [editorsToAcceptChangesFrom, setEditorsToAcceptChangesFrom] = useState<string[]>([]);
+  const [isAcceptingAll, setIsAcceptingAll] = useState(false);
   const [splitView, setSplitView] = useState(false);
+
+  const fetchFirebaseData = () => {
+    // Fetch the data when the user enters review mode. We don't use a listener
+    // because there shouldn't be another user editing the gene when it is being reviewed.
+    get(ref(props.firebaseDb, firebaseGenePath)).then(snapshot => setGeneData(snapshot.val()));
+    get(ref(props.firebaseDb, firebaseMetaReviewPath)).then(snapshot => setMetaReview(snapshot.val()));
+  };
 
   useEffect(() => {
     if (geneEntity && props.firebaseInitSuccess) {
-      // Fetch the data when the user enters review mode. We don't use a listener
-      // because there shouldn't be another user editing the gene when it is being reviewed.
-      get(ref(props.firebaseDb, firebaseGenePath)).then(snapshot => setGeneData(snapshot.val()));
-      get(ref(props.firebaseDb, firebaseMetaReviewPath)).then(snapshot => setMetaReview(snapshot.val()));
+      fetchFirebaseData();
     }
-
-    props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
   }, [geneEntity, props.firebaseDb, props.firebaseInitSuccess]);
+
+  useEffect(() => {
+    props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
+  }, []);
 
   useEffect(() => {
     if (metaReview) {
@@ -78,7 +86,6 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
       Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
       setEditorReviewMap(reviewMap);
       setRootReview(reviews);
-      setReviewChildren(Object.values(reviews.children));
       setIsReviewFinished(!reviews.hasChildren());
     }
     if (reviewUuids?.length === 0) {
@@ -86,27 +93,24 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     }
   }, [geneData, reviewUuids, props.drugList]);
 
-  const acceptAllChangesFromEditors = (editors: string[]) => {
+  const acceptAllChangesFromEditors = async (editors: string[]) => {
     let reviewLevels = [] as ReviewLevel[];
     for (const editor of editors) {
       reviewLevels = reviewLevels.concat(editorReviewMap.getReviewsByEditor(editor));
     }
-    props.acceptReviewChangeHandler(hugoSymbol, reviewLevels, isGermline);
-  };
-
-  const markRootCollapsibleAsPending = (reviewLevelId: string) => {
-    const newReviewChildren = reviewChildren.map(c => {
-      if (c.id === reviewLevelId) {
-        c.hideLevel = true;
-      }
-      return c;
-    });
-    setReviewChildren(newReviewChildren);
-    if (newReviewChildren.length === 0 || newReviewChildren.filter(c => c.hideLevel).length === reviewChildren.length) {
-      setRootReview(null);
-      setIsReviewFinished(true);
+    try {
+      setIsAcceptingAll(true);
+      await props.acceptReviewChangeHandler(hugoSymbol, reviewLevels, isGermline, true);
+      fetchFirebaseData();
+    } catch (error) {
+      notifyError(error);
+    } finally {
+      setIsAcceptingAll(false);
+      setEditorsToAcceptChangesFrom([]);
     }
   };
+
+  const allEditors = editorReviewMap.getEditorList();
 
   return props.firebaseInitSuccess && !props.loadingGenes && props.drugList.length > 0 && !!geneEntity ? (
     <div data-testid="review-page">
@@ -158,47 +162,61 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
           </Row>
           <Row>
             <Col>
-              <Button
+              <AsyncSaveButton
                 className="me-2 mb-2"
                 outline
                 color="primary"
                 size="sm"
-                onClick={() => acceptAllChangesFromEditors(editorReviewMap.getEditorList())}
-              >
-                Accept all changes
-              </Button>
+                onClick={() => {
+                  setEditorsToAcceptChangesFrom(allEditors);
+                  acceptAllChangesFromEditors(allEditors);
+                }}
+                disabled={isAcceptingAll}
+                confirmText="Accept all changes"
+                isSavePending={_.isEqual(allEditors, editorsToAcceptChangesFrom)}
+              />
               {editorReviewMap.getEditorList().map(editor => (
-                <Button
+                <AsyncSaveButton
                   className="me-2 mb-2"
                   key={editor}
                   outline
                   color="primary"
                   size="sm"
-                  onClick={() => acceptAllChangesFromEditors([editor])}
-                >
-                  Accept all changes from {editor}
-                </Button>
+                  onClick={() => {
+                    setEditorsToAcceptChangesFrom([editor]);
+                    acceptAllChangesFromEditors([editor]);
+                  }}
+                  disabled={isAcceptingAll}
+                  confirmText={`Accept all changes from ${editor}`}
+                  isSavePending={_.isEqual([editor], editorsToAcceptChangesFrom)}
+                />
               ))}
             </Col>
           </Row>
         </>
       )}
-
-      {reviewChildren?.length > 0 ? (
+      {rootReview ? (
         <Row>
           <Col>
-            {reviewChildren.sort(reviewLevelSortMethod).map(reviewLevel => (
-              <ReviewCollapsible
-                splitView={splitView}
-                hugoSymbol={hugoSymbol}
-                isGermline={isGermline}
-                key={reviewLevel.valuePath}
-                baseReviewLevel={reviewLevel}
-                handleAccept={props.acceptReviewChangeHandler}
-                handleReject={props.rejectReviewChangeHandler}
-                rootDelete={markRootCollapsibleAsPending}
-              />
-            ))}
+            <ReviewCollapsible
+              splitView={splitView}
+              hugoSymbol={hugoSymbol}
+              isGermline={isGermline}
+              baseReviewLevel={rootReview}
+              handleAccept={props.acceptReviewChangeHandler}
+              handleReject={props.rejectReviewChangeHandler}
+              handleCreateAction={props.createActionHandler}
+              disableActions={isAcceptingAll}
+              isRoot={true}
+              rootDelete={isPending => {
+                if (isPending) {
+                  setRootReview(_.cloneDeep(rootReview));
+                } else {
+                  setRootReview(null);
+                  setIsReviewFinished(true);
+                }
+              }}
+            />
           </Col>
         </Row>
       ) : undefined}
@@ -211,8 +229,9 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
 const mapStoreToProps = ({ firebaseAppStore, firebaseGeneReviewService, authStore, drugStore, geneStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   fullName: authStore.fullName,
-  rejectReviewChangeHandler: firebaseGeneReviewService.rejectChanges,
   acceptReviewChangeHandler: firebaseGeneReviewService.acceptChanges,
+  rejectReviewChangeHandler: firebaseGeneReviewService.rejectChanges,
+  createActionHandler: firebaseGeneReviewService.handleCreateAction,
   drugList: drugStore.entities,
   getDrugs: drugStore.getEntities,
   searchGeneEntities: geneStore.searchEntities,
