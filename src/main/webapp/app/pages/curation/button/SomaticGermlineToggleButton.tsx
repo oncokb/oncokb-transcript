@@ -9,33 +9,36 @@ import { FaCheckCircle } from 'react-icons/fa';
 import { useLocation } from 'react-router-dom';
 import { Button, ButtonGroup } from 'reactstrap';
 import * as styles from './styles.module.scss';
+import { GERMLINE_PATH, SOMATIC_GERMLINE_SETTING_KEY, SOMATIC_PATH } from 'app/config/constants/constants';
 
 const BUTTON_WIDTH = 130;
 
 export interface ISomaticGermlineToggleButtonProps extends StoreProps {
-  hugoSymbol: string;
+  hugoSymbol?: string;
 }
 
 function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISomaticGermlineToggleButtonProps) {
   const { pathname } = useLocation();
-  const isSomatic = !pathname.includes('germline');
+  const isSomatic = !pathname.includes(GERMLINE_PATH);
 
-  function handleSomaticClicked() {
-    window.location.href = pathname.replace('germline', 'somatic');
-  }
+  const currentVariantType = isSomatic ? SOMATIC_PATH : GERMLINE_PATH;
+  const newVariantType = isSomatic ? GERMLINE_PATH : SOMATIC_PATH;
 
-  async function handleGermlineClicked() {
-    const germlineGenePath = getFirebasePath('GERMLINE_GENE', hugoSymbol);
-
-    try {
-      const snapshot = await get(ref(firebaseDb, germlineGenePath));
-      if (!snapshot.exists()) {
-        await createGene(hugoSymbol, true);
+  async function handleToggle() {
+    if (hugoSymbol) {
+      // On curation page
+      const genePath = getFirebasePath(isSomatic ? 'GENE' : 'GERMLINE_GENE', hugoSymbol);
+      try {
+        const snapshot = await get(ref(firebaseDb, genePath));
+        if (!snapshot.exists()) {
+          await createGene(hugoSymbol, !isSomatic);
+        }
+      } catch (error) {
+        notifyError(error);
       }
-      window.location.href = pathname.replace('somatic', 'germline');
-    } catch (error) {
-      notifyError(error);
     }
+    localStorage.setItem(SOMATIC_GERMLINE_SETTING_KEY, newVariantType);
+    window.location.href = pathname.replace(currentVariantType, newVariantType);
   }
 
   return (
@@ -45,7 +48,7 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
         color={isSomatic ? 'primary' : 'secondary'}
         style={{ width: BUTTON_WIDTH }}
         disabled={isSomatic}
-        onClick={handleSomaticClicked}
+        onClick={handleToggle}
       >
         {isSomatic && <FaCheckCircle className="me-2" style={{ marginBottom: '.1rem' }} />}
         <span>Somatic</span>
@@ -55,7 +58,7 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
         color={isSomatic ? 'secondary' : 'warning'}
         style={{ width: BUTTON_WIDTH }}
         disabled={!isSomatic}
-        onClick={handleGermlineClicked}
+        onClick={handleToggle}
       >
         {!isSomatic && <FaCheckCircle className="me-2" style={{ marginBottom: '.1rem' }} />}
         <span>Germline</span>

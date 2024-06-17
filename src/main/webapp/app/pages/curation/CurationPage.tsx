@@ -6,7 +6,7 @@ import { getFirebaseGenePath, getFirebaseHistoryPath, getFirebaseMetaGenePath } 
 import { Col, Row } from 'reactstrap';
 import { getSectionClassName } from 'app/shared/util/utils';
 import { GENE_TYPE, GENE_TYPE_KEY, INHERITANCE_MECHANISM_OPTIONS, READABLE_FIELD, PENETRANCE_OPTIONS } from 'app/config/constants/firebase';
-import { GET_ALL_DRUGS_PAGE_SIZE, RADIO_OPTION_NONE } from 'app/config/constants/constants';
+import { GERMLINE_PATH, GET_ALL_DRUGS_PAGE_SIZE, RADIO_OPTION_NONE } from 'app/config/constants/constants';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
 import MutationsSection from './mutation/MutationsSection';
@@ -31,7 +31,7 @@ export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hu
 
 export const CurationPage = (props: ICurationPageProps) => {
   const pathname = props.location.pathname;
-  const isGermline = pathname.includes('germline');
+  const isGermline = pathname.includes(GERMLINE_PATH);
   const hugoSymbolParam = props.match.params.hugoSymbol;
 
   const [mutationListRendered, setMutationListRendered] = useState(false);

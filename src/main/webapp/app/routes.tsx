@@ -6,7 +6,7 @@ import Logout from 'app/pages/login/logout';
 import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoute from 'app/shared/error/error-boundary-route';
 import PageNotFound from 'app/shared/error/page-not-found';
-import { AUTHORITIES, PAGE_ROUTE } from 'app/config/constants/constants';
+import { AUTHORITIES, GERMLINE_PATH, PAGE_ROUTE, SOMATIC_GERMLINE_SETTING_KEY } from 'app/config/constants/constants';
 import SearchPage from './pages/SearchPage';
 import LoginRedirect from './pages/login/login-redirect';
 import Entities from 'app/entities';
@@ -30,6 +30,8 @@ export type IRoutesProps = {
 };
 
 const Routes: React.FunctionComponent<IRoutesProps> = (props: IRoutesProps) => {
+  /* eslint-disable no-console */
+  const wasGermline = localStorage.getItem(SOMATIC_GERMLINE_SETTING_KEY) === GERMLINE_PATH;
   return (
     <div className="view-routes">
       <Switch>
@@ -44,14 +46,20 @@ const Routes: React.FunctionComponent<IRoutesProps> = (props: IRoutesProps) => {
             <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGOUT} component={Logout} />
             <ErrorBoundaryRoute exact path={PAGE_ROUTE.OAUTH} component={LoginRedirect} />
             <PrivateRoute exact path={PAGE_ROUTE.SEARCH} component={SearchPage} />
-            <PrivateRoute exact path={PAGE_ROUTE.CURATION} component={GeneListPage} hasAnyAuthorities={[AUTHORITIES.CURATOR]} />
+            <PrivateRoute exact path={PAGE_ROUTE.CURATION_SOMATIC} component={GeneListPage} hasAnyAuthorities={[AUTHORITIES.CURATOR]} />
+            <Redirect exact from={PAGE_ROUTE.CURATION} to={wasGermline ? PAGE_ROUTE.CURATION_GERMLINE : PAGE_ROUTE.CURATION_SOMATIC} />
+            <PrivateRoute exact path={PAGE_ROUTE.CURATION_GERMLINE} component={GeneListPage} hasAnyAuthorities={[AUTHORITIES.CURATOR]} />
             <PrivateRoute
               exact
               path={PAGE_ROUTE.CURATION_GENE_SOMATIC}
               component={CurationPage}
               hasAnyAuthorities={[AUTHORITIES.CURATOR]}
             />
-            <Redirect exact from={PAGE_ROUTE.CURATION_GENE} to={PAGE_ROUTE.CURATION_GENE_SOMATIC} />
+            <Redirect
+              exact
+              from={PAGE_ROUTE.CURATION_GENE}
+              to={wasGermline ? PAGE_ROUTE.CURATION_GENE_GERMLINE : PAGE_ROUTE.CURATION_GENE_SOMATIC}
+            />
             <PrivateRoute
               exact
               path={PAGE_ROUTE.CURATION_GENE_SOMATIC_REVIEW}

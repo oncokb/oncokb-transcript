@@ -16,7 +16,7 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Col, FormGroup, Input, Label, Row } from 'reactstrap';
 import { RouteComponentProps } from 'react-router-dom';
 import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
-import { GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
+import { GERMLINE_PATH, GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import GeneHeader from '../header/GeneHeader';
 import _ from 'lodash';
@@ -28,7 +28,7 @@ interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol:
 
 const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPageProps) => {
   const pathname = props.location.pathname;
-  const isGermline = pathname.includes('germline');
+  const isGermline = pathname.includes(GERMLINE_PATH);
   const hugoSymbolParam = props.match.params.hugoSymbol;
 
   const { geneEntity, hugoSymbol } = useMatchGeneEntity(hugoSymbolParam, props.searchGeneEntities, props.geneEntities);

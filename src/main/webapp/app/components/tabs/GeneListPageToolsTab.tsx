@@ -1,24 +1,22 @@
 import { CURATE_NEW_GENE_TEXT, DEFAULT_ICON_SIZE, PAGE_ROUTE } from 'app/config/constants/constants';
-import { FB_COLLECTION } from 'app/config/constants/firebase';
 import GeneSelect from 'app/shared/select/GeneSelect';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { FaExclamationCircle } from 'react-icons/fa';
-import { Button, Col, Row } from 'reactstrap';
+import { Button } from 'reactstrap';
 import './curation-tools-tab.scss';
+import { MetaCollection } from 'app/shared/model/firebase/firebase.model';
 
-function GeneListPageToolsTab({ addMetaListener, metaData, createGene }: StoreProps) {
+export interface IGeneListPageToolsTab extends StoreProps {
+  metaData: MetaCollection;
+}
+
+function GeneListPageToolsTab({ metaData, createGene }: IGeneListPageToolsTab) {
   const selectedGene = useRef<string>(null);
   const [createButtonDisabled, setCreateButtonDisabled] = useState(true);
   const [showGeneExistsWarning, setShowGeneExistsWarning] = useState(false);
-
-  useEffect(() => {
-    const callback = addMetaListener(FB_COLLECTION.META);
-
-    return () => callback && callback();
-  }, []);
 
   function handleChangeSelectedGene(option) {
     const gene = option?.label;
@@ -61,9 +59,7 @@ function GeneListPageToolsTab({ addMetaListener, metaData, createGene }: StorePr
   );
 }
 
-const mapStoreToProps = ({ firebaseMetaStore, firebaseGeneService }: IRootStore) => ({
-  addMetaListener: firebaseMetaStore.addListener,
-  metaData: firebaseMetaStore.data,
+const mapStoreToProps = ({ firebaseGeneService }: IRootStore) => ({
   createGene: firebaseGeneService.createGene,
 });
 

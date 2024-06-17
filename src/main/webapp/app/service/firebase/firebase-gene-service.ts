@@ -25,6 +25,7 @@ import { getErrorMessage } from 'app/oncokb-commons/components/alert/ErrorAlertU
 import { FirebaseDataStore } from 'app/stores/firebase/firebase-data.store';
 import { getUpdatedReview } from 'app/shared/util/firebase/firebase-review-utils';
 import { SentryError } from 'app/config/sentry-error';
+import { GERMLINE_PATH } from 'app/config/constants/constants';
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {
@@ -200,7 +201,7 @@ export class FirebaseGeneService {
     uuid: string,
     isDemotedToVus = false,
   ) => {
-    const isGermline = path.toLowerCase().includes('germline');
+    const isGermline = path.toLowerCase().includes(GERMLINE_PATH);
     const name = this.authStore.fullName;
     const pathDetails = parseFirebaseGenePath(path);
     if (pathDetails === undefined) {

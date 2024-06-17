@@ -22,6 +22,7 @@ import { generateUuid, parseAlterationName } from '../../shared/util/utils';
 import { FirebaseVusService } from './firebase-vus-service';
 import { SentryError } from 'app/config/sentry-error';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
+import { GERMLINE_PATH } from 'app/config/constants/constants';
 
 export class FirebaseGeneReviewService {
   firebaseRepository: FirebaseRepository;

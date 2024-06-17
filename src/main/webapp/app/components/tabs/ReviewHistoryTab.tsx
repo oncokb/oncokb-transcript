@@ -8,7 +8,7 @@ import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
 import React, { useEffect, useState } from 'react';
-import { Button, Input, Label, Row, Spinner } from 'reactstrap';
+import { Button, Input, Label, Spinner } from 'reactstrap';
 
 function ReviewHistoryTab({ firebaseDb, drugList, getDrugs }: StoreProps) {
   const [historyCollection, setHistoryCollection] = useState<HistoryCollection>(null);
