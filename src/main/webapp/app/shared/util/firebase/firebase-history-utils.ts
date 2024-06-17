@@ -17,9 +17,6 @@ import { getMutationName, getTxName } from './firebase-utils';
 export const buildHistoryFromReviews = (reviewerName: string, reviewLevels: ReviewLevel[]) => {
   const history = new History(reviewerName);
   for (const reviewLevel of reviewLevels) {
-    if (reviewLevel.nestedUnderCreateOrDelete) {
-      continue;
-    }
     const historyOperation = ReviewActionToHistoryOperationMapping[reviewLevel.reviewInfo.reviewAction];
 
     const historyRecord: HistoryRecord = {
