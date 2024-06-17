@@ -13,7 +13,7 @@ import { IRootStore } from 'app/stores';
 import { get, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
-import { Alert, Button, Col, FormGroup, Input, Label, Row } from 'reactstrap';
+import { Alert, Col, FormGroup, Input, Label, Row } from 'reactstrap';
 import { RouteComponentProps } from 'react-router-dom';
 import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
 import { GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
@@ -42,7 +42,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   const [isReviewFinished, setIsReviewFinished] = useState(false);
 
   const [reviewUuids, setReviewUuids] = useState<string[]>(null);
-  const [reviewChildren, setReviewChildren] = useState<BaseReviewLevel[]>([]);
+  const [rootReview, setRootReview] = useState<BaseReviewLevel>(null);
   const [editorReviewMap, setEditorReviewMap] = useState(new EditorReviewMap());
   const [editorsToAcceptChangesFrom, setEditorsToAcceptChangesFrom] = useState<string[]>([]);
   const [isAcceptingAll, setIsAcceptingAll] = useState(false);
@@ -59,8 +59,11 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     if (geneEntity && props.firebaseInitSuccess) {
       fetchFirebaseData();
     }
-    props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
   }, [geneEntity, props.firebaseDb, props.firebaseInitSuccess]);
+
+  useEffect(() => {
+    props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
+  }, []);
 
   useEffect(() => {
     if (metaReview) {
@@ -82,7 +85,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
       const reviews = findReviews(props.drugList, geneData, _.clone(reviewUuids), reviewMap);
       Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
       setEditorReviewMap(reviewMap);
-      setReviewChildren(Object.values(reviews.children));
+      setRootReview(reviews);
       setIsReviewFinished(!reviews.hasChildren());
     }
     if (reviewUuids?.length === 0) {
@@ -104,26 +107,6 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     } finally {
       setIsAcceptingAll(false);
       setEditorsToAcceptChangesFrom([]);
-    }
-  };
-
-  const deleteCollapsible = (reviewLevelId: string, isPending = false) => {
-    let newReviewChildren = reviewChildren;
-    if (isPending) {
-      newReviewChildren = reviewChildren.map(c => {
-        if (c.id === reviewLevelId) {
-          c.hideLevel = true;
-        }
-        return c;
-      });
-    } else {
-      newReviewChildren = reviewChildren.filter(c => c.id !== reviewLevelId);
-    }
-
-    setReviewChildren(newReviewChildren);
-
-    if (newReviewChildren.length === 0 || newReviewChildren.filter(c => c.hideLevel).length === reviewChildren.length) {
-      setIsReviewFinished(true);
     }
   };
 
@@ -212,24 +195,28 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
           </Row>
         </>
       )}
-
-      {reviewChildren?.length > 0 ? (
+      {rootReview ? (
         <Row>
           <Col>
-            {reviewChildren.sort(reviewLevelSortMethod).map(reviewLevel => (
-              <ReviewCollapsible
-                splitView={splitView}
-                hugoSymbol={hugoSymbol}
-                isGermline={isGermline}
-                key={reviewLevel.valuePath}
-                baseReviewLevel={reviewLevel}
-                handleAccept={props.acceptReviewChangeHandler}
-                handleReject={props.rejectReviewChangeHandler}
-                handleCreateAction={props.createActionHandler}
-                rootDelete={deleteCollapsible}
-                disableActions={isAcceptingAll}
-              />
-            ))}
+            <ReviewCollapsible
+              splitView={splitView}
+              hugoSymbol={hugoSymbol}
+              isGermline={isGermline}
+              baseReviewLevel={rootReview}
+              handleAccept={props.acceptReviewChangeHandler}
+              handleReject={props.rejectReviewChangeHandler}
+              handleCreateAction={props.createActionHandler}
+              disableActions={isAcceptingAll}
+              isRoot={true}
+              rootDelete={isPending => {
+                if (isPending) {
+                  setRootReview(_.cloneDeep(rootReview));
+                } else {
+                  setRootReview(null);
+                  setIsReviewFinished(true);
+                }
+              }}
+            />
           </Col>
         </Row>
       ) : undefined}
