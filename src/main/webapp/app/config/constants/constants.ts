@@ -433,4 +433,9 @@ export const KEYCLOAK_LOGOUT_REDIRECT_PARAM = 'post_logout_redirect_uri';
 export const KEYCLOAK_SESSION_TERMINATED_PARAM = 'session_terminated';
 export const KEYCLOAK_UNAUTHORIZED_PARAM = 'unauthorized';
 
-export const SOMATIC_GERMLINE_SETTING_KEY = 'oncokbCurationSomaticGermlineSettingKey';
+/**
+ * LocalStorage Keys
+ * Use getLocalStorageKey util method to attach application name to key
+ */
+export const PRIORITY_ENTITY_MENU_ITEM_KEY = 'entityMenuPriorityKey';
+export const SOMATIC_GERMLINE_SETTING_KEY = 'somaticGermlineSettingKey';

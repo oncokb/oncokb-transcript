@@ -18,6 +18,10 @@ import { INTEGER_REGEX, REFERENCE_LINK_REGEX, SINGLE_NUCLEOTIDE_POS_REGEX, UUID_
 import { ProteinExonDTO } from 'app/shared/api/generated/curation';
 import { IQueryParams } from './jhipster-types';
 
+export const getLocalStorageKey = (key: string) => {
+  return `oncokbCuration-${key}`;
+};
+
 export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
   if (!cancerType) return '';
   if (!cancerType.subtype) return cancerType.mainType;

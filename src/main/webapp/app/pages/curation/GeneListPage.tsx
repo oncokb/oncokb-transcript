@@ -95,23 +95,25 @@ const GeneListPage = (props: IGeneListPage) => {
     },
   ];
 
-  const sidebarTabs = [
-    {
-      title: 'Tools',
-      content: <GeneListPageToolsTab metaData={isGermline ? props.germlineMetaData : props.metaData} />,
-    },
-  ];
-
-  if (!isGermline) {
-    sidebarTabs.push({
-      title: 'Data Validation',
-      content: <CurationDataValidationTab />,
-    });
-    sidebarTabs.push({
+  const sidebarTabs = useMemo(() => {
+    const tabs = [
+      {
+        title: 'Tools',
+        content: <GeneListPageToolsTab metaData={isGermline ? props.germlineMetaData : props.metaData} />,
+      },
+    ];
+    if (!isGermline) {
+      tabs.push({
+        title: 'Data Validation',
+        content: <CurationDataValidationTab />,
+      });
+    }
+    tabs.push({
       title: 'History',
-      content: <ReviewHistoryTab />,
+      content: <ReviewHistoryTab isGermline={isGermline} />,
     });
-  }
+    return tabs;
+  }, [props.germlineMetaData, props.metaData]);
 
   return (
     <>
