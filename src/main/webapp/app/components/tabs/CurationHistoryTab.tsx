@@ -1,5 +1,4 @@
 import { APP_HISTORY_FORMAT, APP_TIME_FORMAT, GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
-import { HistoryRecord } from 'app/shared/model/firebase/firebase.model';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
@@ -8,7 +7,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { FaHistory } from 'react-icons/fa';
 import { TextFormat } from 'react-jhipster';
 import ReactSelect from 'react-select';
-import { Button, Input, Label, Row } from 'reactstrap';
+import { Button, Input, Label } from 'reactstrap';
 import constructTimeSeriesData, { formatLocation } from '../geneHistoryTooltip/gene-history-tooltip-utils';
 import { ExtraTimeSeriesEventData, RequiredTimeSeriesEventData } from '../timeSeries/TimeSeries';
 import './curation-history-tab.scss';
@@ -21,28 +20,8 @@ export interface ICurationHistoryTabProps extends StoreProps {
   historyData: FlattenedHistory[];
 }
 
-type HistoryTabData = {
-  record: HistoryRecord;
-  timeStamp: number;
-  admin: string;
-  location: string;
-  objectField?: string;
-};
-
 const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabStore, getDrugs }: ICurationHistoryTabProps) => {
   const [drugList, setDrugList] = useState<IDrug[]>([]);
-
-  function findObjectFieldsInRecord(record: HistoryRecord) {
-    const fields = ['description', 'oncogenic', 'effect', 'penetrance', 'inheritanceMechanism', 'monoallelic', 'biallelic', 'mosaic'];
-
-    const output: string[] = [];
-    for (const field of fields) {
-      if (record.new[field]) {
-        output.push(field);
-      }
-    }
-    return output;
-  }
 
   const parsedHistoryData = useMemo(() => {
     if (!historyData) {

@@ -152,7 +152,7 @@ const GenomicIndicatorsTable = ({
                   <RealtimeCheckedInputGroup
                     disabled={genomicIndicator.name_review?.removed || false}
                     groupHeader={''}
-                    options={[ALLELE_STATE.MONOALLELIC, ALLELE_STATE.BIALLELIC, ALLELE_STATE.MOSAIC].map(label => {
+                    options={[ALLELE_STATE.MONOALLELIC, ALLELE_STATE.BIALLELIC, ALLELE_STATE.MOSAIC, ALLELE_STATE.CARRIER].map(label => {
                       return {
                         label,
                         firebasePath: `${genomicIndicatorPath}/allele_state/${label.toLowerCase()}`,
