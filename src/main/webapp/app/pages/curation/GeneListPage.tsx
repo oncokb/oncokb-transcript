@@ -4,8 +4,8 @@ import { IRootStore } from 'app/stores';
 import { Col, Row } from 'reactstrap';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { geneNeedsReview } from 'app/shared/util/firebase/firebase-utils';
-import { Link } from 'react-router-dom';
-import { APP_DATETIME_FORMAT, PAGE_ROUTE } from 'app/config/constants/constants';
+import { Link, RouteComponentProps, generatePath } from 'react-router-dom';
+import { APP_DATETIME_FORMAT, GERMLINE_PATH, PAGE_ROUTE } from 'app/config/constants/constants';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword } from 'app/shared/util/utils';
 import { TextFormat } from 'react-jhipster';
@@ -15,7 +15,11 @@ import GeneListPageToolsTab from 'app/components/tabs/GeneListPageToolsTab';
 import CurationDataValidationTab from 'app/components/tabs/CurationDataValidationTab';
 import { FB_COLLECTION } from 'app/config/constants/firebase';
 import ReviewHistoryTab from 'app/components/tabs/ReviewHistoryTab';
-import * as styles from './styles.module.scss';
+import SomaticGermlineToggleButton from './button/SomaticGermlineToggleButton';
+
+const getCurationPageLink = (hugoSymbol: string, isGermline: boolean) => {
+  return generatePath(isGermline ? PAGE_ROUTE.CURATION_GENE_GERMLINE : PAGE_ROUTE.CURATION_GENE_SOMATIC, { hugoSymbol });
+};
 
 type GeneMetaInfo = {
   hugoSymbol: string;
@@ -24,11 +28,16 @@ type GeneMetaInfo = {
   needsReview: boolean;
 };
 
-const GeneListPage = (props: StoreProps) => {
+export interface IGeneListPage extends StoreProps, RouteComponentProps {}
+
+const GeneListPage = (props: IGeneListPage) => {
+  const pathname = props.location.pathname;
+  const isGermline = pathname.includes(GERMLINE_PATH);
+
   useEffect(() => {
     if (props.firebaseReady) {
-      const unsubscribe = props.addMetaListener(FB_COLLECTION.META);
-      return () => unsubscribe && unsubscribe();
+      const unsubscribe = props.addMetaListener(isGermline ? FB_COLLECTION.GERMLINE_META : FB_COLLECTION.META);
+      return () => unsubscribe?.();
     }
   }, [props.firebaseReady]);
 
@@ -56,7 +65,7 @@ const GeneListPage = (props: StoreProps) => {
       accessor: 'hugoSymbol',
       Header: 'Hugo Symbol',
       Cell(cell: { value: string }): any {
-        return <Link to={`${PAGE_ROUTE.CURATION}/${cell.value}/somatic`}>{cell.value}</Link>;
+        return <Link to={getCurationPageLink(cell.value, isGermline)}>{cell.value}</Link>;
       },
       onFilter: (data: GeneMetaInfo, keyword) => (data.hugoSymbol ? filterByKeyword(data.hugoSymbol, keyword) : false),
     },
@@ -80,51 +89,63 @@ const GeneListPage = (props: StoreProps) => {
     },
   ];
 
+  const sidebarTabs = useMemo(() => {
+    const tabs = [
+      {
+        title: 'Tools',
+        content: <GeneListPageToolsTab metaData={props.metaData} />,
+      },
+    ];
+    if (!isGermline) {
+      tabs.push({
+        title: 'Data Validation',
+        content: <CurationDataValidationTab />,
+      });
+    }
+    tabs.push({
+      title: 'History',
+      content: <ReviewHistoryTab isGermline={isGermline} />,
+    });
+    return tabs;
+  }, [props.metaData]);
+
   return (
     <>
       {props.firebaseReady && (
         <>
-          {!!props.metaData && !!geneMeta ? (
-            <Row id={'gene-list'}>
-              <Col>
-                <OncoKBTable
-                  data={geneMeta}
-                  columns={columns}
-                  showPagination
-                  defaultSorted={[
-                    {
-                      id: 'needsReview',
-                      desc: true,
-                    },
-                    {
-                      id: 'lastModifiedAt',
-                      desc: true,
-                    },
-                  ]}
-                />
-              </Col>
-            </Row>
+          {geneMeta ? (
+            <>
+              <Row>
+                <Col>
+                  <SomaticGermlineToggleButton />
+                </Col>
+              </Row>
+              <Row id={'gene-list'}>
+                <Col>
+                  <OncoKBTable
+                    data={geneMeta}
+                    columns={columns}
+                    showPagination
+                    defaultSorted={[
+                      {
+                        id: 'needsReview',
+                        desc: true,
+                      },
+                      {
+                        id: 'lastModifiedAt',
+                        desc: true,
+                      },
+                    ]}
+                  />
+                </Col>
+              </Row>
+              <OncoKBSidebar defaultOpen>
+                <Tabs tabs={sidebarTabs} />
+              </OncoKBSidebar>
+            </>
           ) : (
             <LoadingIndicator size={LoaderSize.LARGE} center={true} isLoading />
           )}
-          <OncoKBSidebar defaultOpen>
-            <Tabs
-              tabs={[
-                {
-                  title: 'Tools',
-                  content: <GeneListPageToolsTab />,
-                },
-                {
-                  title: 'Data Validation',
-                  content: <CurationDataValidationTab />,
-                },
-                {
-                  title: 'History',
-                  content: <ReviewHistoryTab />,
-                },
-              ]}
-            />
-          </OncoKBSidebar>
         </>
       )}
       {props.firebaseInitError && <div>Error loading Firebase.</div>}

@@ -7,16 +7,14 @@ import PrivateRoute from 'app/shared/auth/private-route';
 import ErrorBoundaryRoute from 'app/shared/error/error-boundary-route';
 import PageNotFound from 'app/shared/error/page-not-found';
 import { AUTHORITIES, PAGE_ROUTE } from 'app/config/constants/constants';
-import SearchPage from './pages/SearchPage';
-import LoginRedirect from './pages/login/login-redirect';
+import SearchPage from '../pages/SearchPage';
+import LoginRedirect from '../pages/login/login-redirect';
 import Entities from 'app/entities';
-import PageContainer from './components/PageContainer';
-import GeneListPage from './pages/curation/GeneListPage';
-import CurationPage from './pages/curation/CurationPage';
-import ReviewPage from './pages/curation/review/ReviewPage';
+import PageContainer from '../components/PageContainer';
+import CurationRoutes from './curation-routes';
 
 const Account = Loadable({
-  loader: () => import(/* webpackChunkName: "account" */ './pages/account/SettingsPage'),
+  loader: () => import(/* webpackChunkName: "account" */ '../pages/account/SettingsPage'),
   loading: () => <div>loading ...</div>,
 });
 
@@ -44,32 +42,8 @@ const Routes: React.FunctionComponent<IRoutesProps> = (props: IRoutesProps) => {
             <ErrorBoundaryRoute exact path={PAGE_ROUTE.LOGOUT} component={Logout} />
             <ErrorBoundaryRoute exact path={PAGE_ROUTE.OAUTH} component={LoginRedirect} />
             <PrivateRoute exact path={PAGE_ROUTE.SEARCH} component={SearchPage} />
-            <PrivateRoute exact path={PAGE_ROUTE.CURATION} component={GeneListPage} hasAnyAuthorities={[AUTHORITIES.CURATOR]} />
-            <PrivateRoute
-              exact
-              path={PAGE_ROUTE.CURATION_GENE_SOMATIC}
-              component={CurationPage}
-              hasAnyAuthorities={[AUTHORITIES.CURATOR]}
-            />
-            <Redirect exact from={PAGE_ROUTE.CURATION_GENE} to={PAGE_ROUTE.CURATION_GENE_SOMATIC} />
-            <PrivateRoute
-              exact
-              path={PAGE_ROUTE.CURATION_GENE_SOMATIC_REVIEW}
-              component={ReviewPage}
-              hasAnyAuthorities={[AUTHORITIES.CURATOR]}
-            />
-            <PrivateRoute
-              exact
-              path={PAGE_ROUTE.CURATION_GENE_GERMLINE}
-              component={CurationPage}
-              hasAnyAuthorities={[AUTHORITIES.CURATOR]}
-            />
-            <PrivateRoute
-              exact
-              path={PAGE_ROUTE.CURATION_GENE_GERMLINE_REVIEW}
-              component={ReviewPage}
-              hasAnyAuthorities={[AUTHORITIES.CURATOR]}
-            />
+            <PrivateRoute path={PAGE_ROUTE.CURATION} component={CurationRoutes} hasAnyAuthorities={[AUTHORITIES.CURATOR]} />
+            <CurationRoutes />
             <PrivateRoute exact path={PAGE_ROUTE.ACCOUNT} component={Account} hasAnyAuthorities={[AUTHORITIES.USER]} />
             <PrivateRoute path="/admin" component={Admin} hasAnyAuthorities={[AUTHORITIES.ADMIN]} />
             <PrivateRoute path="/" component={Entities} hasAnyAuthorities={[AUTHORITIES.USER]} />

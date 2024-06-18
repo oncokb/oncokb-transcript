@@ -109,12 +109,17 @@ export enum FEATURE_PAGE_ROUTE {
   SEARCH = '/search',
   /* Below are curation related paths */
   CURATION = '/curation',
+  CURATION_SOMATIC = '/curation/somatic',
+  CURATION_GERMLINE = '/curation/germline',
   CURATION_GENE = '/curation/:hugoSymbol',
   CURATION_GENE_SOMATIC = '/curation/:hugoSymbol/somatic',
   CURATION_GENE_SOMATIC_REVIEW = '/curation/:hugoSymbol/somatic/review',
   CURATION_GENE_GERMLINE = '/curation/:hugoSymbol/germline',
   CURATION_GENE_GERMLINE_REVIEW = '/curation/:hugoSymbol/germline/review',
 }
+
+export const GERMLINE_PATH = 'germline';
+export const SOMATIC_PATH = 'somatic';
 
 export const PAGE_ROUTE = {
   ...FEATURE_PAGE_ROUTE,
@@ -427,3 +432,10 @@ export const DEFAULT_TOAST_ERROR_OPTIONS: ToastOptions = {
 export const KEYCLOAK_LOGOUT_REDIRECT_PARAM = 'post_logout_redirect_uri';
 export const KEYCLOAK_SESSION_TERMINATED_PARAM = 'session_terminated';
 export const KEYCLOAK_UNAUTHORIZED_PARAM = 'unauthorized';
+
+/**
+ * LocalStorage Keys
+ * All keys should be prefixed with the app name "oncokbCuration-" to avoid name clashes with other apps
+ */
+export const PRIORITY_ENTITY_MENU_ITEM_KEY = 'oncokbCuration-entityMenuPriorityKey';
+export const SOMATIC_GERMLINE_SETTING_KEY = 'oncokbCuration-somaticGermlineSettingKey';
