@@ -3,7 +3,6 @@ import CurationPage from 'app/pages/curation/CurationPage';
 import GeneListPage from 'app/pages/curation/GeneListPage';
 import ReviewPage from 'app/pages/curation/review/ReviewPage';
 import PrivateRoute from 'app/shared/auth/private-route';
-import { getLocalStorageKey } from 'app/shared/util/utils';
 import React from 'react';
 import { Redirect, Switch, useLocation } from 'react-router-dom';
 
@@ -12,7 +11,7 @@ const CurationRoutes = () => {
   let isGermline = pathname.includes(GERMLINE_PATH);
   let isSomatic = pathname.includes(SOMATIC_PATH);
 
-  const storageKey = getLocalStorageKey(SOMATIC_GERMLINE_SETTING_KEY);
+  const storageKey = SOMATIC_GERMLINE_SETTING_KEY;
 
   if (!isGermline && !isSomatic) {
     isGermline = localStorage.getItem(storageKey) === GERMLINE_PATH;

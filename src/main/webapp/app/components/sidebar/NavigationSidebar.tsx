@@ -30,7 +30,6 @@ import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_EXPANDED_WIDTH } from 'app/stores/layo
 import _ from 'lodash';
 import classNames from 'classnames';
 import { WHOLE_NUMBER_REGEX } from 'app/config/constants/regex';
-import { getLocalStorageKey } from 'app/shared/util/utils';
 
 const ENTITY_MENU_NAME: { [key in ENTITY_TYPE]?: string } = {
   [ENTITY_TYPE.ALTERATION]: 'Alteration',
@@ -174,7 +173,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
   const [entityMenuFrequencies, setEntityMenuFrequencies] = useState(getDefaultEntityMenuFrequencies() as EntityMenuFrequency[]);
   const [entityMenuOrder, setEntityMenuOrder] = useState(DEFAULT_ENTITY_MENU_ORDER);
 
-  const entityMenuLocalStorageKey = getLocalStorageKey(PRIORITY_ENTITY_MENU_ITEM_KEY);
+  const entityMenuLocalStorageKey = PRIORITY_ENTITY_MENU_ITEM_KEY;
 
   const handlePriorityMenuItemClick = (type: ENTITY_TYPE) => {
     if (DEFAULT_ENTITY_MENU_ORDER.includes(type)) {

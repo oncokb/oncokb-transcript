@@ -435,7 +435,7 @@ export const KEYCLOAK_UNAUTHORIZED_PARAM = 'unauthorized';
 
 /**
  * LocalStorage Keys
- * Use getLocalStorageKey util method to attach application name to key
+ * All keys should be prefixed with the app name "oncokbCuration-" to avoid name clashes with other apps
  */
-export const PRIORITY_ENTITY_MENU_ITEM_KEY = 'entityMenuPriorityKey';
-export const SOMATIC_GERMLINE_SETTING_KEY = 'somaticGermlineSettingKey';
+export const PRIORITY_ENTITY_MENU_ITEM_KEY = 'oncokbCuration-entityMenuPriorityKey';
+export const SOMATIC_GERMLINE_SETTING_KEY = 'oncokbCuration-somaticGermlineSettingKey';

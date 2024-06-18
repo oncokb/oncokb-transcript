@@ -10,7 +10,6 @@ import { useLocation } from 'react-router-dom';
 import { Button, ButtonGroup } from 'reactstrap';
 import * as styles from './styles.module.scss';
 import { GERMLINE_PATH, SOMATIC_GERMLINE_SETTING_KEY, SOMATIC_PATH } from 'app/config/constants/constants';
-import { getLocalStorageKey } from 'app/shared/util/utils';
 
 const BUTTON_WIDTH = 130;
 
@@ -38,7 +37,7 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
         notifyError(error);
       }
     }
-    localStorage.setItem(getLocalStorageKey(SOMATIC_GERMLINE_SETTING_KEY), newVariantType);
+    localStorage.setItem(SOMATIC_GERMLINE_SETTING_KEY, newVariantType);
     window.location.href = pathname.replace(currentVariantType, newVariantType);
   }
 
