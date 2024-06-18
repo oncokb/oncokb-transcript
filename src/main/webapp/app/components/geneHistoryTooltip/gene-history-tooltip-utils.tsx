@@ -90,6 +90,8 @@ export function formatLocation(location: string, drugList: IDrug[], objectField:
       return location + ', Biallelic';
     } else if (objectField === 'mosaic') {
       return location + ', Mosaic';
+    } else if (objectField === 'carrier') {
+      return location + ', Carrier';
     }
   } else if (lastSubstring.endsWith('Penetrance')) {
     if (objectField === 'penetrance') {

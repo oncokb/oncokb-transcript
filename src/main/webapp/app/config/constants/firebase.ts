@@ -22,6 +22,7 @@ export enum ALLELE_STATE {
   MONOALLELIC = 'Monoallelic',
   BIALLELIC = 'Biallelic',
   MOSAIC = 'Mosaic',
+  CARRIER = 'Carrier',
 }
 
 export const GENE_TYPE_KEY: { [key in GENE_TYPE]: string } = {
@@ -306,6 +307,7 @@ export enum READABLE_FIELD {
   BIALLELIC = 'Biallelic',
   MONOALLELIC = 'Monoallelic',
   MOSAIC = 'Mosaic',
+  CARRIER = 'Carrier',
   DIAGNOSTIC = 'Diagnostic',
   PROGNOSTIC = 'Prognostic',
   DIAGNOSTIC_SUMMARY = 'Diagnostic Summary',
@@ -350,6 +352,7 @@ export const FIREBASE_KEY_TO_READABLE_FIELD: { [key: string]: READABLE_FIELD } =
   biallelic: READABLE_FIELD.BIALLELIC,
   monoallelic: READABLE_FIELD.MONOALLELIC,
   mosaic: READABLE_FIELD.MOSAIC,
+  carrier: READABLE_FIELD.CARRIER,
   oncogenic: READABLE_FIELD.ONCOGENIC,
   short: READABLE_FIELD.ADDITIONAL_INFORMATION,
   fdaLevel: READABLE_FIELD.FDA_LEVEL,

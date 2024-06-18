@@ -145,6 +145,9 @@ export class AlleleState {
   mosaic: ALLELE_STATE.MOSAIC | '' = '';
   mosaic_uuid = generateUuid();
   mosaic_review?: Review;
+  carrier: ALLELE_STATE.CARRIER | '' = '';
+  carrier_uuid = generateUuid();
+  carrier_review?: Review;
 }
 export class Gene {
   name = '';
