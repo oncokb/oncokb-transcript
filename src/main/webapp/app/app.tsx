@@ -10,7 +10,7 @@ import { ToastContainer } from 'react-toastify';
 import { IRootStore } from 'app/stores';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
 import { AUTHORITIES } from 'app/config/constants/constants';
-import AppRoutes from 'app/routes';
+import AppRoutes from 'app/routes/routes';
 import NavigationSidebar from 'app/components/sidebar/NavigationSidebar';
 import Layout from './layout';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
