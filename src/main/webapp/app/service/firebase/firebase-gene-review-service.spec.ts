@@ -9,7 +9,6 @@ import { mock, mockReset } from 'jest-mock-extended';
 import { SentryError } from 'app/config/sentry-error';
 import { ReviewLevel } from 'app/shared/util/firebase/firebase-review-utils';
 import { ReviewAction } from 'app/config/constants/firebase';
-import { DiffMethod } from 'react-diff-viewer-continued';
 import _ from 'lodash';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
 
@@ -111,7 +110,6 @@ describe('Firebase Gene Review Service', () => {
           lastReviewedString: '',
           uuid: gene.background_uuid,
           reviewAction: ReviewAction.UPDATE,
-          diffMethod: DiffMethod.CHARS,
         },
         historyData: {
           oldState: '',
@@ -150,7 +148,6 @@ describe('Firebase Gene Review Service', () => {
           lastReviewedString: undefined,
           uuid: mutation.name_uuid,
           reviewAction: ReviewAction.DELETE,
-          diffMethod: DiffMethod.CHARS,
         },
         historyData: {
           oldState: mutation,
@@ -183,7 +180,6 @@ describe('Firebase Gene Review Service', () => {
           lastReviewedString: undefined,
           uuid: mutation.name_uuid,
           reviewAction: ReviewAction.DEMOTE_MUTATION,
-          diffMethod: DiffMethod.CHARS,
         },
         historyData: {
           oldState: mutation,
@@ -216,7 +212,6 @@ describe('Firebase Gene Review Service', () => {
           lastReviewedString: undefined,
           uuid: mutation.name_uuid,
           reviewAction: ReviewAction.CREATE,
-          diffMethod: DiffMethod.CHARS,
         },
         historyData: {
           newState: mutation,
@@ -252,7 +247,6 @@ describe('Firebase Gene Review Service', () => {
           lastReviewedString: '',
           uuid: gene.background_uuid,
           reviewAction: ReviewAction.UPDATE,
-          diffMethod: DiffMethod.CHARS,
         },
         historyData: {
           oldState: '',
@@ -286,7 +280,6 @@ describe('Firebase Gene Review Service', () => {
           lastReviewedString: undefined,
           uuid: mutation.name_uuid,
           reviewAction: ReviewAction.DELETE,
-          diffMethod: DiffMethod.CHARS,
         },
         historyData: {
           oldState: mutation,
@@ -321,7 +314,6 @@ describe('Firebase Gene Review Service', () => {
     //       lastReviewedString: undefined,
     //       uuid: mutation.name_uuid,
     //       reviewAction: ReviewAction.PROMOTE_VUS,
-    //       diffMethod: DiffMethod.CHARS,
     //     },
     //     historyData: {
     //       oldState: mutation,

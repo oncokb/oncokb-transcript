@@ -56,6 +56,7 @@ export interface IRealtimeBasicInput extends React.InputHTMLAttributes<HTMLInput
   labelIcon?: JSX.Element;
   inputClass?: string;
   parseRefs?: boolean;
+  updateMetaData?: boolean;
 }
 
 const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props: IRealtimeBasicInput) => {
@@ -76,6 +77,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     parseRefs = false,
     updateReviewableContent,
     style,
+    updateMetaData,
     ...otherProps
   } = props;
 
@@ -121,7 +123,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
       updateValue = e.target.value;
     }
 
-    updateReviewableContent(firebasePath, inputValue, updateValue, inputValueReview, inputValueUuid);
+    updateReviewableContent(firebasePath, inputValue, updateValue, inputValueReview, inputValueUuid, updateMetaData);
 
     if (onChange) {
       onChange(e);

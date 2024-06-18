@@ -4,7 +4,7 @@ import {
   ReviewLevel,
   findReviews,
   getCompactReviewInfo,
-  reviewLevelSortMethod,
+  getGenePathFromValuePath,
 } from 'app/shared/util/firebase/firebase-review-utils';
 import { getFirebaseGenePath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
@@ -46,7 +46,6 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   const [editorReviewMap, setEditorReviewMap] = useState(new EditorReviewMap());
   const [editorsToAcceptChangesFrom, setEditorsToAcceptChangesFrom] = useState<string[]>([]);
   const [isAcceptingAll, setIsAcceptingAll] = useState(false);
-  const [splitView, setSplitView] = useState(false);
 
   const fetchFirebaseData = () => {
     // Fetch the data when the user enters review mode. We don't use a listener
@@ -142,24 +141,6 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
       </Row>
       {!isReviewFinished && (
         <>
-          <Row className="mb-4">
-            <Col>
-              <FormGroup check inline>
-                <Input
-                  type="radio"
-                  checked={!splitView}
-                  onChange={() => {
-                    setSplitView(false);
-                  }}
-                />
-                <Label check>Unified View</Label>
-              </FormGroup>
-              <FormGroup check inline>
-                <Input type="radio" checked={splitView} onChange={() => setSplitView(true)} />
-                <Label check>Split View</Label>
-              </FormGroup>
-            </Col>
-          </Row>
           <Row>
             <Col>
               <AsyncSaveButton
@@ -199,7 +180,6 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
         <Row>
           <Col>
             <ReviewCollapsible
-              splitView={splitView}
               hugoSymbol={hugoSymbol}
               isGermline={isGermline}
               baseReviewLevel={rootReview}
@@ -208,6 +188,10 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
               handleCreateAction={props.createActionHandler}
               disableActions={isAcceptingAll}
               isRoot={true}
+              firebase={{
+                path: getGenePathFromValuePath(hugoSymbol, rootReview.valuePath),
+                db: props.firebaseDb,
+              }}
               rootDelete={isPending => {
                 if (isPending) {
                   setRootReview(_.cloneDeep(rootReview));
