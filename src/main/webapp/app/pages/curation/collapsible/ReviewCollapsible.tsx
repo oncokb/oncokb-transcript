@@ -61,16 +61,6 @@ const ReviewCollapsibleBootstrapClass = {
   [ReviewAction.DEMOTE_MUTATION]: 'danger',
 };
 
-const REACT_DIFF_VIEWER_STYLES = {
-  contentText: {
-    fontFamily: 'inherit',
-  },
-  codeFold: {
-    fontFamily: 'inherit',
-    backgroundColor: 'white',
-  },
-};
-
 export interface IReviewCollapsibleProps {
   hugoSymbol: string;
   baseReviewLevel: BaseReviewLevel;
@@ -123,7 +113,12 @@ export const ReviewCollapsible = ({
 
   const borderLeftColor = useMemo(() => {
     let color = ReviewCollapsibleColorClass[reviewAction];
-    if (!isCreateReview(baseReviewLevel) || baseReviewLevel.reviewLevelType === ReviewLevelType.META) {
+    if (isCreateReview(baseReviewLevel)) {
+      return color;
+    }
+    if (baseReviewLevel.reviewLevelType === ReviewLevelType.META) {
+      color = undefined;
+    } else if (baseReviewLevel.nestedUnderCreateOrDelete) {
       color = undefined;
     }
     return color;
@@ -381,7 +376,13 @@ export const ReviewCollapsible = ({
 
   const getColorOptions = () => {
     let colorOptions: CollapsibleColorProps;
-    const disableBorder = !isCreateReview(baseReviewLevel) || baseReviewLevel.reviewLevelType === ReviewLevelType.META;
+    let disableBorder = false;
+    if (isCreateReview(baseReviewLevel)) {
+      disableBorder = false;
+    } else if (baseReviewLevel.reviewLevelType === ReviewLevelType.META || baseReviewLevel.nestedUnderCreateOrDelete) {
+      disableBorder = true;
+    }
+
     if (disableBorder) {
       colorOptions = { hideLeftBorder: true };
     } else {
