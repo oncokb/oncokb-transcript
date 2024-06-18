@@ -36,35 +36,29 @@ const GeneListPage = (props: IGeneListPage) => {
 
   useEffect(() => {
     if (props.firebaseReady) {
-      const callbacks = [];
-      if (isGermline) {
-        callbacks.push(props.addGermlineMetaListener(FB_COLLECTION.GERMLINE_META));
-      } else {
-        callbacks.push(props.addMetaListener(FB_COLLECTION.META));
-      }
-      return () => callbacks.forEach(callback => callback?.());
+      const unsubscribe = props.addMetaListener(isGermline ? FB_COLLECTION.GERMLINE_META : FB_COLLECTION.META);
+      return () => unsubscribe?.();
     }
   }, [props.firebaseReady]);
 
   const geneMeta = useMemo(() => {
     const ignoredKeys = ['collaborators', 'undefined'];
-    const meta = isGermline ? props.germlineMetaData : props.metaData;
-    if (meta) {
+    if (props.metaData) {
       const geneMetaInfoList: GeneMetaInfo[] = [];
-      Object.keys(meta)
+      Object.keys(props.metaData)
         .filter(key => !ignoredKeys.includes(key))
         .map(key => {
           const geneMetaInfo: GeneMetaInfo = {
             hugoSymbol: key,
-            lastModifiedAt: meta[key].lastModifiedAt,
-            lastModifiedBy: meta[key].lastModifiedBy,
-            needsReview: geneNeedsReview(meta[key]),
+            lastModifiedAt: props.metaData[key].lastModifiedAt,
+            lastModifiedBy: props.metaData[key].lastModifiedBy,
+            needsReview: geneNeedsReview(props.metaData[key]),
           };
           geneMetaInfoList.push(geneMetaInfo);
         });
       return geneMetaInfoList;
     }
-  }, [props.metaData, props.germlineMetaData]);
+  }, [props.metaData]);
 
   const columns: SearchColumn<GeneMetaInfo>[] = [
     {
@@ -99,7 +93,7 @@ const GeneListPage = (props: IGeneListPage) => {
     const tabs = [
       {
         title: 'Tools',
-        content: <GeneListPageToolsTab metaData={isGermline ? props.germlineMetaData : props.metaData} />,
+        content: <GeneListPageToolsTab metaData={props.metaData} />,
       },
     ];
     if (!isGermline) {
@@ -113,7 +107,7 @@ const GeneListPage = (props: IGeneListPage) => {
       content: <ReviewHistoryTab isGermline={isGermline} />,
     });
     return tabs;
-  }, [props.germlineMetaData, props.metaData]);
+  }, [props.metaData]);
 
   return (
     <>
@@ -160,14 +154,12 @@ const GeneListPage = (props: IGeneListPage) => {
   );
 };
 
-const mapStoreToProps = ({ firebaseMetaStore, firebaseAppStore, firebaseGermlineMetaStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseMetaStore, firebaseAppStore }: IRootStore) => ({
   firebaseReady: firebaseAppStore.firebaseReady,
   firebaseInitError: firebaseAppStore.firebaseInitError,
   firebaseLoginError: firebaseAppStore.firebaseLoginError,
   addMetaListener: firebaseMetaStore.addListener,
   metaData: firebaseMetaStore.data,
-  addGermlineMetaListener: firebaseGermlineMetaStore.addListener,
-  germlineMetaData: firebaseGermlineMetaStore.data,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;

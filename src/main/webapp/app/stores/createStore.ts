@@ -151,7 +151,6 @@ export interface IRootStore {
   readonly firebaseHistoryStore: FirebaseDataStore<HistoryList>;
   readonly firebaseVusStore: FirebaseDataStore<VusObjList>;
   readonly firebaseMetaStore: FirebaseDataStore<MetaCollection>;
-  readonly firebaseGermlineMetaStore: FirebaseDataStore<MetaCollection>;
   readonly firebaseMutationListStore: FirebaseDataStore<Mutation[]>;
   readonly firebaseMutationConvertIconStore: FirebaseDataStore<Mutation[]>;
   readonly firebaseGenomicIndicatorsStore: FirebaseDataStore<GenomicIndicator[]>;
@@ -217,7 +216,6 @@ export function createStores(history: History): IRootStore {
   const firebaseHistoryStore = new FirebaseDataStore<HistoryList>(firebaseAppStore);
   const firebaseVusStore = new FirebaseDataStore<VusObjList>(firebaseAppStore);
   const firebaseMetaStore = new FirebaseDataStore<MetaCollection>(firebaseAppStore);
-  const firebaseGermlineMetaStore = new FirebaseDataStore<MetaCollection>(firebaseAppStore);
   const firebaseMutationListStore = new FirebaseDataStore<Mutation[]>(firebaseAppStore);
   const firebaseMutationConvertIconStore = new FirebaseDataStore<Mutation[]>(firebaseAppStore);
   const firebaseGenomicIndicatorsStore = new FirebaseDataStore<GenomicIndicator[]>(firebaseAppStore);
@@ -226,7 +224,6 @@ export function createStores(history: History): IRootStore {
   rootStore.firebaseHistoryStore = firebaseHistoryStore;
   rootStore.firebaseVusStore = firebaseVusStore;
   rootStore.firebaseMetaStore = firebaseMetaStore;
-  rootStore.firebaseGermlineMetaStore = firebaseGermlineMetaStore;
   rootStore.firebaseMutationListStore = firebaseMutationListStore;
   rootStore.firebaseMutationConvertIconStore = firebaseMutationConvertIconStore;
   rootStore.firebaseGenomicIndicatorsStore = firebaseGenomicIndicatorsStore;
