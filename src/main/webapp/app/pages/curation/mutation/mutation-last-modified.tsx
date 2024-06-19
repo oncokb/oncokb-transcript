@@ -8,6 +8,8 @@ import React, { useEffect, useState } from 'react';
 import { TextFormat } from 'react-jhipster';
 import * as Sentry from '@sentry/react';
 import { notifySentryException } from 'app/config/sentry-error';
+import { GREY } from 'app/config/colors';
+import classNames from 'classnames';
 
 export interface IMutationLastModifedProps extends StoreProps {
   mutationUuid: string;
@@ -39,10 +41,8 @@ export function MutationLastModified({ mutationUuid, mutationList, hugoSymbol, i
   }, [mutationUuid, mutationList, lastModified]);
 
   return !_.isNil(lastModified) && !isNaN(lastModified) ? (
-    <span className={className}>
-      <i>
-        Last modifed: <TextFormat value={lastModified} type="date" format={APP_DATETIME_FORMAT} />
-      </i>
+    <span className={classNames('d-flex align-items-center', className)} style={{ fontSize: '0.75rem', color: GREY }}>
+      Last modified: <TextFormat value={lastModified} type="date" format={APP_DATETIME_FORMAT} />
     </span>
   ) : (
     <></>
