@@ -3,6 +3,7 @@ import { Implication, Treatment, Tumor } from 'app/shared/model/firebase/firebas
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
+import { Unsubscribe } from 'firebase/auth';
 import { onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
@@ -15,11 +16,14 @@ export interface IRCTButtonProps extends StoreProps {
 }
 
 function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, relevantCancerTypesModalStore }: IRCTButtonProps) {
-  const [cancerType, setCancerType] = useState<Tumor>(null);
-  const [relevantCancerTypesInfo, setRelevantCancerTypesInfo] = useState<Implication | Treatment>(null);
+  const [cancerType, setCancerType] = useState<Tumor>();
+  const [relevantCancerTypesInfo, setRelevantCancerTypesInfo] = useState<Implication | Treatment>();
 
   useEffect(() => {
-    const callbacks = [];
+    if (!firebaseDb) {
+      return;
+    }
+    const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(firebaseDb, cancerTypePath), snapshot => {
         setCancerType(snapshot.val());
@@ -33,18 +37,20 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
   }, []);
 
   function handleClick() {
-    relevantCancerTypesModalStore.openModal(
-      `${relevantCancerTypesInfoPath}/excludedRCTs`,
-      cancerType,
-      relevantCancerTypesInfo.excludedRCTs_review,
-      relevantCancerTypesInfo.excludedRCTs_uuid,
-      relevantCancerTypesInfo.level || null,
-      relevantCancerTypesInfo.excludedRCTs,
-    );
+    if (relevantCancerTypesInfo && cancerType && relevantCancerTypesInfo.excludedRCTs_review && relevantCancerTypesInfo.excludedRCTs_uuid) {
+      relevantCancerTypesModalStore?.openModal(
+        `${relevantCancerTypesInfoPath}/excludedRCTs`,
+        cancerType,
+        relevantCancerTypesInfo.excludedRCTs_review,
+        relevantCancerTypesInfo.excludedRCTs_uuid,
+        relevantCancerTypesInfo.level || undefined,
+        relevantCancerTypesInfo.excludedRCTs,
+      );
+    }
   }
 
   let disabled = true;
-  let overlayText: string;
+  let overlayText: string = '';
   if (cancerType && relevantCancerTypesInfo) {
     const cancerTypeContainsSpecialCancerType = Object.values(SPECIAL_CANCER_TYPES).some(specialCancerType =>
       cancerType.cancerTypes.some(ct => ct.mainType === (specialCancerType as string)),

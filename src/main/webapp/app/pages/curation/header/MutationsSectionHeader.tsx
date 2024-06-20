@@ -13,6 +13,7 @@ import AddMutationButton from '../button/AddMutationButton';
 import ReactSelect from 'react-select';
 import * as styles from './styles.module.scss';
 import classNames from 'classnames';
+import { Unsubscribe } from 'firebase/auth';
 
 export interface IMutationsSectionHeaderProps extends StoreProps {
   hugoSymbol: string;
@@ -66,7 +67,7 @@ function MutationsSectionHeader({
 }: IMutationsSectionHeaderProps) {
   const [mutationsInitialized, setMutationsInitialized] = useState(false);
   const [mutations, setMutations] = useState<Mutation[]>([]);
-  const [metaReview, setMetaReview] = useState<MetaReview>(null);
+  const [metaReview, setMetaReview] = useState<MetaReview | null>(null);
 
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [mutationFilter, setMutationFilter] = useState('');
@@ -102,7 +103,10 @@ function MutationsSectionHeader({
   }, UPDATE_MUTATION_FILTERS_DEBOUNCE_MILLISECONDS);
 
   useEffect(() => {
-    const callbacks = [];
+    if (!firebaseDb) {
+      return;
+    }
+    const callbacks: Unsubscribe[] = [];
 
     callbacks.push(
       onValue(ref(firebaseDb, mutationsPath), snapshot => {
@@ -145,14 +149,15 @@ function MutationsSectionHeader({
         let isHotspotMatch = true;
         if (selectedHotspot.length > 0) {
           const uniqueHotspotStatus = annotatedAltsCache
-            .get(hugoSymbol, [
+            ?.get(hugoSymbol, [
               {
-                alterations: mutation.alterations,
-                name: mutation.name,
+                alterations: mutation.alterations ?? [],
+                name: mutation.name ?? '',
               },
             ])
-            .map(result => result.annotation?.hotspot?.hotspot);
+            .map(result => typeof result !== 'string' && result?.annotation?.hotspot?.hotspot);
           isHotspotMatch =
+            !!uniqueHotspotStatus &&
             uniqueHotspotStatus.filter(status => {
               const mappedOption = status ? YES : NO;
               return selectedHotspot.includes(mappedOption);
@@ -326,7 +331,7 @@ function MutationsSectionHeader({
         {mutations?.length > 0 && (
           <div className="d-flex align-items-center">
             <FaFilter
-              color={mutationsAreFiltered ? 'gold' : null}
+              color={mutationsAreFiltered ? 'gold' : undefined}
               style={{ cursor: 'pointer', minWidth: 15 }}
               onClick={handleToggleFilterModal}
               id="filter"
@@ -342,7 +347,9 @@ function MutationsSectionHeader({
                   control: () => 'border',
                 }}
                 onChange={newValue => {
-                  setSortMethod(newValue.value);
+                  if (newValue) {
+                    setSortMethod(newValue.value);
+                  }
                 }}
               />
             </div>
@@ -405,7 +412,7 @@ function MutationsSectionHeader({
                 );
               })}
             </Row>
-            {!annotatedAltsCache.loading && (
+            {!annotatedAltsCache?.loading && (
               <>
                 <h6 className="mb-2 mt-2">Hotspot</h6>
                 <Row className="align-items-start justify-content-start">

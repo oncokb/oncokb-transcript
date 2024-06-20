@@ -17,6 +17,7 @@ import { convertDateTimeFromServer, convertDateTimeToServer } from 'app/shared/u
 import GenericSidebar from 'app/components/sidebar/OncoKBSidebar';
 import CompanionDiagnosticDevicePanel from 'app/components/panels/CompanionDiagnosticDevicePanel';
 import { WHOLE_NUMBER_REGEX } from 'app/config/constants/regex';
+import { ISpecimenType } from 'app/shared/model/specimen-type.model';
 
 export interface ICompanionDiagnosticDeviceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -42,17 +43,20 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
     values.lastUpdated = convertDateTimeToServer(values.lastUpdated);
 
     const specimenTypeValues = mapSelectOptionList(values.specimenTypes);
-    const updatedSpecimenTypes = [];
+    const updatedSpecimenTypes: ISpecimenType[] = [];
     for (const stv of specimenTypeValues) {
       if (!WHOLE_NUMBER_REGEX.test(stv.id)) {
         try {
-          const result = (await props.createSpecimenType({ type: stv.id, name: stv.id })) as any;
+          const result = await props.createSpecimenType({ type: stv.id, name: stv.id });
           updatedSpecimenTypes.push(result.data);
         } catch (error) {
-          notifyError(error, 'Could not create new specimen type');
+          notifyError(error as Error, 'Could not create new specimen type');
         }
       } else {
-        updatedSpecimenTypes.push(props.specimenTypes.find(st => st.id === parseInt(stv.id, 10)));
+        const specimenType = props.specimenTypes.find(st => st.id === parseInt(stv.id, 10));
+        if (specimenType) {
+          updatedSpecimenTypes.push(specimenType);
+        }
       }
     }
     const entity: ICompanionDiagnosticDevice = {
@@ -73,20 +77,15 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
       ? {}
       : {
           ...companionDiagnosticDeviceEntity,
-          specimenTypes: companionDiagnosticDeviceEntity?.specimenTypes?.map(e => ({ label: e.type, value: e.id.toString() })),
-          lastUpdated: convertDateTimeFromServer(companionDiagnosticDeviceEntity?.lastUpdated),
+          specimenTypes: companionDiagnosticDeviceEntity?.specimenTypes?.map(e => ({ label: e.type, value: e.id?.toString() })),
+          lastUpdated: companionDiagnosticDeviceEntity?.lastUpdated
+            ? convertDateTimeFromServer(companionDiagnosticDeviceEntity?.lastUpdated)
+            : null,
         };
 
   const specimenTypesOptions = specimenTypes?.map(specType => {
     return { label: specType.type, value: `${specType.id}` };
   });
-
-  const biomarkerAssociations = _.uniq(
-    (companionDiagnosticDeviceEntity.fdaSubmissions || []).reduce((acc, fdaSubmission) => {
-      acc.push(...(fdaSubmission?.associations || []));
-      return acc;
-    }, [])
-  );
 
   return (
     <>
@@ -209,4 +208,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(CompanionDiagnosticDeviceUpdate);
+export default connect<ICompanionDiagnosticDeviceUpdateProps, StoreProps>(mapStoreToProps)(CompanionDiagnosticDeviceUpdate);

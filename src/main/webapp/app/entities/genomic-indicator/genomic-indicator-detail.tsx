@@ -41,7 +41,7 @@ export const GenomicIndicatorDetail = (props: IGenomicIndicatorDetailProps) => {
             <span>
               {genomicIndicatorEntity.associations
                 ?.map(association =>
-                  association.alterations?.map(alt => `${alt.genes?.map(gene => gene.hugoSymbol).join('-')} ${alt.alteration}`).join()
+                  association.alterations?.map(alt => `${alt.genes?.map(gene => gene.hugoSymbol).join('-')} ${alt.alteration}`).join(),
                 )
                 .join() || 'NA'}
             </span>
@@ -65,4 +65,4 @@ const mapStoreToProps = ({ genomicIndicatorStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(GenomicIndicatorDetail);
+export default connect<IGenomicIndicatorDetailProps, StoreProps>(mapStoreToProps)(GenomicIndicatorDetail);

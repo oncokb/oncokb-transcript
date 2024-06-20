@@ -49,8 +49,8 @@ export class FirebaseGeneReviewService {
     firebasePath: string,
     currentValue: any,
     updateValue: any,
-    review: Review,
-    uuid: string,
+    review: Review | null | undefined,
+    uuid: string | null,
     updateMetaData: boolean = true,
   ) => {
     const isGermline = firebasePath.toLowerCase().includes('germline');
@@ -63,7 +63,13 @@ export class FirebaseGeneReviewService {
       updateMetaData,
     );
 
-    const { hugoSymbol, pathFromGene } = parseFirebaseGenePath(firebasePath);
+    const { hugoSymbol, pathFromGene } = parseFirebaseGenePath(firebasePath) ?? {};
+
+    if (!pathFromGene) {
+      throw new SentryError('Path from Gene is empty', { pathFromGene });
+    } else if (!hugoSymbol) {
+      throw new SentryError('Hugo symbol is empty', { pathFromGene });
+    }
 
     const updateObject = {
       [pathFromGene]: updateValue,
@@ -100,11 +106,16 @@ export class FirebaseGeneReviewService {
 
       if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
         clearReview(review);
-        const updateObject: any = { [reviewPath]: review };
+        const updateObject: Record<string, Review | undefined> = { [reviewPath]: review };
         if ('excludedCancerTypesReviewInfo' in reviewLevel && 'currentExcludedCancerTypes' in reviewLevel) {
           const tumorReviewLevel = reviewLevel as TumorReviewLevel;
-          const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo.reviewPath;
-          updateObject[excludedCtReviewPath] = review;
+          const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo?.reviewPath;
+          if (excludedCtReviewPath) {
+            updateObject[excludedCtReviewPath] = review;
+          }
+        }
+        if (!uuid) {
+          throw new SentryError('UUID is missing', { hugoSymbol, reviewLevel, isGermline });
         }
         try {
           await this.firebaseRepository.update(geneFirebasePath, updateObject);
@@ -117,6 +128,12 @@ export class FirebaseGeneReviewService {
       if (isDeleteReview(reviewLevel)) {
         const { firebaseArrayPath, deleteIndex } = extractArrayPath(reviewLevel.valuePath);
         const firebasePath = geneFirebasePath + '/' + firebaseArrayPath;
+        if (!review) {
+          throw new SentryError('Review is missing', { hugoSymbol, reviewLevel, isGermline });
+        }
+        if (!uuid) {
+          throw new SentryError('UUID is missing', { hugoSymbol, reviewLevel, isGermline });
+        }
         try {
           await this.firebaseRepository.deleteFromArray(firebasePath, [deleteIndex]);
           await this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, false, isGermline);
@@ -145,14 +162,21 @@ export class FirebaseGeneReviewService {
         const resetReview = new Review(this.authStore.fullName);
         const updateObject = {
           [reviewPath]: resetReview,
-          [fieldPath]: review.lastReviewed,
+          [fieldPath]: review?.lastReviewed,
         };
         if ('excludedCancerTypesReviewInfo' in reviewLevel && 'currentExcludedCancerTypes' in reviewLevel) {
           const tumorReviewLevel = reviewLevel as TumorReviewLevel;
-          const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo.reviewPath;
-          const excludedCtPath = excludedCtReviewPath.replace('_review', '');
-          updateObject[excludedCtReviewPath] = resetReview;
-          updateObject[excludedCtPath] = tumorReviewLevel.excludedCancerTypesReviewInfo.review.lastReviewed;
+          const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo?.reviewPath;
+          const excludedCtPath = excludedCtReviewPath?.replace('_review', '');
+          if (excludedCtReviewPath) {
+            updateObject[excludedCtReviewPath] = resetReview;
+          }
+          if (excludedCtPath) {
+            updateObject[excludedCtPath] = tumorReviewLevel.excludedCancerTypesReviewInfo?.review?.lastReviewed;
+          }
+        }
+        if (!uuid) {
+          throw new SentryError('UUID is missing', { hugoSymbol, reviewLevel, isGermline });
         }
         try {
           await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), updateObject);
@@ -161,11 +185,17 @@ export class FirebaseGeneReviewService {
           throw new SentryError('Failed to reject updates in review mode', { hugoSymbol, reviewLevel, isGermline });
         }
       }
+      if (!review) {
+        throw new SentryError('Review is missing', { hugoSymbol, reviewLevel, isGermline });
+      }
 
       review.updateTime = new Date().getTime();
       review.updatedBy = this.authStore.fullName;
       if (isDeleteReview(reviewLevel)) {
         clearReview(review);
+        if (!uuid) {
+          throw new SentryError('UUID is missing', { hugoSymbol, reviewLevel, isGermline });
+        }
         try {
           await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), { [reviewPath]: review });
           await this.firebaseMetaService.updateMeta(hugoSymbol, uuid, false, isGermline);
@@ -203,7 +233,7 @@ export class FirebaseGeneReviewService {
       try {
         await this.firebaseRepository.deleteFromArray(firebasePath, [deleteIndex]);
         await this.deleteAllNestedUuids(hugoSymbol, reviewLevel, isGermline);
-        if (reviewLevel.reviewInfo.review.promotedToMutation) {
+        if (reviewLevel.reviewInfo.review?.promotedToMutation) {
           const variants = parseAlterationName(reviewLevel.currentVal)[0].alteration.split(', ');
           await this.firebaseVusService.addVus(vusFirebasePath, variants);
         }

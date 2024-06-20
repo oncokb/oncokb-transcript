@@ -21,6 +21,7 @@ import * as styles from './styles.module.scss';
 import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import { RemovableCollapsible } from './RemovableCollapsible';
 import TherapyDropdownGroup from './TherapyDropdownGroup';
+import { Unsubscribe } from 'firebase/auth';
 
 export interface ITherapyCollapsibleProps extends StoreProps {
   therapyPath: string;
@@ -45,13 +46,16 @@ function TherapyCollapsible({
   updateTreatmentName,
   deleteSection,
 }: ITherapyCollapsibleProps) {
-  const [treatmentUuid, setTreatmentUuid] = useState<string>(null);
-  const [treatmentName, setTreatmentName] = useState<string>(null);
-  const [treatmentReview, setTreatmentReview] = useState<Review>(null);
+  const [treatmentUuid, setTreatmentUuid] = useState<string | null>(null);
+  const [treatmentName, setTreatmentName] = useState<string | null>(null);
+  const [treatmentReview, setTreatmentReview] = useState<Review | null>(null);
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
 
   useEffect(() => {
-    const callbacks = [];
+    if (!firebaseDb) {
+      return;
+    }
+    const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(firebaseDb, `${therapyPath}/name`), snapshot => {
         setTreatmentName(snapshot.val());
@@ -74,15 +78,18 @@ function TherapyCollapsible({
   }, [therapyPath, firebaseDb]);
 
   async function handleDeleteTherapy() {
+    if (!firebaseDb || treatmentUuid === null) {
+      return;
+    }
     const snapshot = await get(ref(firebaseDb, therapyPath));
-    deleteSection(`${therapyPath}/name`, snapshot.val(), treatmentReview, treatmentUuid);
+    deleteSection?.(`${therapyPath}/name`, snapshot.val(), treatmentReview, treatmentUuid);
   }
 
   if (!treatmentUuid || !treatmentName) {
     return <></>;
   }
 
-  const treatmentNameString = getTxName(drugList, treatmentName);
+  const treatmentNameString = getTxName(drugList ?? [], treatmentName);
 
   return (
     <>
@@ -98,7 +105,7 @@ function TherapyCollapsible({
             <RCTButton cancerTypePath={cancerTypePath} relevantCancerTypesInfoPath={`${therapyPath}`} />
             <EditIcon
               onClick={() => {
-                modifyTherapyModalStore.openModal(treatmentUuid);
+                modifyTherapyModalStore?.openModal(treatmentUuid);
               }}
             />
             <DeleteSectionButton
@@ -142,19 +149,19 @@ function TherapyCollapsible({
       <ModifyTherapyModal
         treatmentUuid={treatmentUuid}
         treatmentToEditPath={therapyPath}
-        drugList={drugList}
+        drugList={drugList ?? []}
         cancerTypePath={cancerTypePath}
         onConfirm={async (newTreatment, newDrugs) => {
           try {
-            await Promise.all(newDrugs.map(drug => createDrug(drug)));
-            await updateTreatmentName(therapyPath, treatmentName, newTreatment, isGermline);
+            await Promise.all(newDrugs.map(drug => createDrug?.(drug)));
+            await updateTreatmentName?.(therapyPath, treatmentName, newTreatment, isGermline);
           } catch (error) {
-            notifyError(error);
+            notifyError(error as Error);
           }
 
-          modifyTherapyModalStore.closeModal();
+          modifyTherapyModalStore?.closeModal();
         }}
-        onCancel={modifyTherapyModalStore.closeModal}
+        onCancel={() => modifyTherapyModalStore?.closeModal()}
       />
     </>
   );

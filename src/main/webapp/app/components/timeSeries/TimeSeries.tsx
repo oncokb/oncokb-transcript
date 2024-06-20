@@ -96,7 +96,7 @@ const TimeSeriesInfo = ({ date, children }: ITimeSeriesInfoProps) => {
 
   useEffect(() => {
     function updateLineHeight() {
-      setLineHeight(timelineRef.current.clientHeight - lastChildRef.current.clientHeight - 10); // 10 is height of margin from react-event-timeline
+      setLineHeight((timelineRef.current?.clientHeight ?? 0) - (lastChildRef.current?.clientHeight ?? 0) - 10); // 10 is height of margin from react-event-timeline
     }
 
     updateLineHeight();
@@ -160,14 +160,12 @@ const TimeSeriesEvent = ({
         groupByDay ? (
           <div>
             <span className="time-series-event-timestamp">
-              <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />
+              {createdAt && <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />}
             </span>{' '}
             <span>{`${admin} approved ${operation} by ${editBy}`}</span>
           </div>
         ) : (
-          <h5>
-            <TextFormat value={createdAt} type="date" format={APP_HISTORY_FORMAT} />
-          </h5>
+          <h5>{createdAt && <TextFormat value={createdAt} type="date" format={APP_HISTORY_FORMAT} />}</h5>
         )
       }
       subtitle={
@@ -179,7 +177,7 @@ const TimeSeriesEvent = ({
         ) : (
           <div>
             <span className="time-series-event-timestamp">
-              <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />
+              {createdAt && <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />}
             </span>{' '}
             <span>{`${admin} approved ${operation} by ${editBy}`}</span>
           </div>

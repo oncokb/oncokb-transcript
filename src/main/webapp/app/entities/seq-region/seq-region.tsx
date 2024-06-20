@@ -3,13 +3,12 @@ import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
 
 import { ISeqRegion } from 'app/shared/model/seq-region.model';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword, getEntityTableActionsColumn } from 'app/shared/util/utils';
-import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
 export interface ISeqRegionProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const SeqRegion = (props: ISeqRegionProps) => {
@@ -59,4 +58,4 @@ const mapStoreToProps = ({ seqRegionStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(SeqRegion);
+export default connect<ISeqRegionProps, StoreProps>(mapStoreToProps)(SeqRegion);

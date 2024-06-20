@@ -50,9 +50,9 @@ const GeneListPage = (props: IGeneListPage) => {
         .map(key => {
           const geneMetaInfo: GeneMetaInfo = {
             hugoSymbol: key,
-            lastModifiedAt: props.metaData[key].lastModifiedAt,
-            lastModifiedBy: props.metaData[key].lastModifiedBy,
-            needsReview: geneNeedsReview(props.metaData[key]),
+            lastModifiedAt: props.metaData?.[key].lastModifiedAt ?? '',
+            lastModifiedBy: props.metaData?.[key].lastModifiedBy ?? '',
+            needsReview: geneNeedsReview(props.metaData?.[key]),
           };
           geneMetaInfoList.push(geneMetaInfo);
         });
@@ -164,4 +164,4 @@ const mapStoreToProps = ({ firebaseMetaStore, firebaseAppStore }: IRootStore) =>
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(GeneListPage);
+export default connect<IGeneListPage, StoreProps>(mapStoreToProps)(GeneListPage);

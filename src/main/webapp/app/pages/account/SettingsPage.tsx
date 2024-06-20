@@ -57,4 +57,4 @@ const mapStoreToProps = ({ authStore, settingsStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(SettingsPage);
+export default connect<IUserSettingsProps, StoreProps>(mapStoreToProps)(SettingsPage);

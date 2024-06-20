@@ -3,17 +3,21 @@ import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
 
 import { IGenomeFragment } from 'app/shared/model/genome-fragment.model';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
-import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
-import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
-import OncoKBAsyncTable from 'app/shared/table/OncoKBAsyncTable';
+import OncoKBAsyncTable, { PaginationState } from 'app/shared/table/OncoKBAsyncTable';
 import { getEntityTableActionsColumn, getPaginationFromSearchParams } from 'app/shared/util/utils';
 import { Column } from 'react-table';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 
 export interface IGenomeFragmentProps extends StoreProps, RouteComponentProps<{ url: string }> {}
+
+const defaultPaginationState: PaginationState<IGenomeFragment> = {
+  sort: 'id',
+  order: 'asc',
+  activePage: 1,
+};
 
 export const GenomeFragment = (props: IGenomeFragmentProps) => {
   const columns: Column<IGenomeFragment>[] = [
@@ -37,7 +41,7 @@ export const GenomeFragment = (props: IGenomeFragmentProps) => {
             data={props.genomeFragmentList.concat()}
             columns={columns}
             loading={props.loading}
-            initialPaginationState={getPaginationFromSearchParams(props.location.search)}
+            initialPaginationState={getPaginationFromSearchParams(props.location.search) ?? defaultPaginationState}
             searchEntities={props.searchEntities}
             getEntities={props.getEntities}
             totalItems={props.totalItems}
@@ -58,4 +62,4 @@ const mapStoreToProps = ({ genomeFragmentStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(GenomeFragment);
+export default connect<IGenomeFragmentProps, StoreProps>(mapStoreToProps)(GenomeFragment);

@@ -8,7 +8,7 @@ import { GREY } from 'app/config/colors';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 
 export interface IGeneHistoryTooltipProps {
-  historyData: Map<string, FlattenedHistory[]>;
+  historyData: Map<string, FlattenedHistory[]> | undefined;
   location?: string;
   groupByDay?: boolean;
 }
@@ -20,8 +20,11 @@ function GeneHistoryTooltip({ location, historyData }: IGeneHistoryTooltipProps)
     }
 
     const parsedData: (RequiredTimeSeriesEventData | ExtraTimeSeriesEventData)[] = [];
-    for (const record of historyData.get(location) || []) {
-      parsedData.push(constructTimeSeriesData(record));
+    for (const record of historyData.get(location ?? '') ?? []) {
+      const parsed = constructTimeSeriesData(record);
+      if (parsed !== undefined) {
+        parsedData.push(parsed);
+      }
     }
     return parsedData;
   }, [historyData, location]);

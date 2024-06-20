@@ -1,9 +1,10 @@
 import { IGenomicIndicator } from 'app/shared/model/genomic-indicator.model';
 
-export interface IAlleleState {
+// CrudStore cannot use an interface
+export type IAlleleState = {
   id?: number;
   name?: string;
   genomicIndicators?: IGenomicIndicator[] | null;
-}
+};
 
 export const defaultValue: Readonly<IAlleleState> = {};

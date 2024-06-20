@@ -59,4 +59,4 @@ const mapStoreToProps = ({ ensemblGeneStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(EnsemblGeneDeleteDialog);
+export default connect<IEnsemblGeneDeleteDialogProps, StoreProps>(mapStoreToProps)(EnsemblGeneDeleteDialog);

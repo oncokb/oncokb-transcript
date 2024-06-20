@@ -63,4 +63,4 @@ const mapStoreToProps = ({ synonymStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(Synonym);
+export default connect<ISynonymProps, StoreProps>(mapStoreToProps)(Synonym);

@@ -10,7 +10,8 @@ import { IEligibilityCriteria } from 'app/shared/model/eligibility-criteria.mode
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import { IGenomicIndicator } from 'app/shared/model/genomic-indicator.model';
 
-export interface IAssociation {
+// CrudStore cannot use an interface
+export type IAssociation = {
   id?: number;
   name?: string | null;
   rules?: IRule[] | null;
@@ -24,6 +25,6 @@ export interface IAssociation {
   eligibilityCriteria?: IEligibilityCriteria[] | null;
   fdaSubmissions?: IFdaSubmission[] | null;
   genomicIndicators?: IGenomicIndicator[] | null;
-}
+};
 
 export const defaultValue: Readonly<IAssociation> = {};

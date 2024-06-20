@@ -59,4 +59,4 @@ const mapStoreToProps = ({ cancerTypeStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(CancerTypeDeleteDialog);
+export default connect<ICancerTypeDeleteDialogProps, StoreProps>(mapStoreToProps)(CancerTypeDeleteDialog);

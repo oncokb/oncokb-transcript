@@ -6,7 +6,6 @@ import {} from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants/constants';
 export interface ICancerTypeDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const CancerTypeDetail = (props: ICancerTypeDetailProps) => {
@@ -81,4 +80,4 @@ const mapStoreToProps = ({ cancerTypeStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(CancerTypeDetail);
+export default connect<ICancerTypeDetailProps, StoreProps>(mapStoreToProps)(CancerTypeDetail);

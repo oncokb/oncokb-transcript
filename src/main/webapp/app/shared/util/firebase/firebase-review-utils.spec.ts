@@ -187,7 +187,7 @@ describe('Firebase Review Utils', () => {
         reviewLevelType: ReviewLevelType.REVIEWABLE,
       };
 
-      const nameReview = metaReview.children['Name'] as ReviewLevel;
+      const nameReview = metaReview.children?.['Name'] as ReviewLevel;
       expect(nameReview).toEqual(expect.objectContaining(expectedValues));
     });
 
@@ -365,7 +365,7 @@ describe('Firebase Review Utils', () => {
       const implication = new Implication();
       implication.excludedRCTs_review = new Review('User', undefined, undefined, undefined, true);
       implication.excludedRCTs = [{ code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' }];
-      const uuids = [implication.excludedRCTs_uuid];
+      const uuids = [implication.excludedRCTs_uuid as string];
 
       const rctReview = buildRCTReview(implication, parentReview, uuids, editorReviewMap);
 
@@ -408,7 +408,7 @@ describe('Firebase Review Utils', () => {
       // There is already an excluded CT
       implication.excludedRCTs_review = new Review('User', oldExclusions);
       implication.excludedRCTs = newExclusions;
-      const uuids = [implication.excludedRCTs_uuid];
+      const uuids = [implication.excludedRCTs_uuid as string];
 
       const rctReview = buildRCTReview(implication, parentReview, uuids, editorReviewMap);
 
@@ -610,13 +610,13 @@ describe('Firebase Review Utils', () => {
     describe('when working with string fields', () => {
       it('should set lastReviewed to empty string when content has not been reviewed yet', () => {
         const { updatedReview } = getUpdatedReview(undefined, '', 'New description', editorName);
-        expect(updatedReview.lastReviewed).toEqual('');
+        expect(updatedReview?.lastReviewed).toEqual('');
       });
 
       it('should set lastReviewed to old value when field has been updated', () => {
         const oldReview = new Review('User', 'Old description');
         const { updatedReview } = getUpdatedReview(oldReview, 'Old description', 'New Description', editorName);
-        expect(updatedReview.lastReviewed).toEqual('Old description');
+        expect(updatedReview?.lastReviewed).toEqual('Old description');
       });
 
       it('should detect reverted change', () => {
@@ -654,7 +654,7 @@ describe('Firebase Review Utils', () => {
         const oldReview = new Review('User', undefined);
         const currentVal = 'V600E';
         const { updatedReview } = getUpdatedReview(oldReview, currentVal, 'V600K', editorName);
-        expect(updatedReview.lastReviewed).toEqual(currentVal);
+        expect(updatedReview?.lastReviewed).toEqual(currentVal);
       });
 
       it('should detect reverted name', () => {

@@ -62,7 +62,7 @@ export const NciThesaurusUpdate = (props: INciThesaurusUpdateProps) => {
       ? {}
       : {
           ...nciThesaurusEntity,
-          synonyms: nciThesaurusEntity?.synonyms?.map(e => e.id.toString()),
+          synonyms: nciThesaurusEntity?.synonyms?.map(e => e.id?.toString()),
         };
 
   return (
@@ -145,4 +145,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(NciThesaurusUpdate);
+export default connect<INciThesaurusUpdateProps, StoreProps>(mapStoreToProps)(NciThesaurusUpdate);

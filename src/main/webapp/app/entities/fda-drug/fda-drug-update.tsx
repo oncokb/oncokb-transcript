@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
+import { Button, Row, Col } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
-
-import { IDrug } from 'app/shared/model/drug.model';
-import { IFdaDrug } from 'app/shared/model/fda-drug.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
 
 export interface IFdaDrugUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -42,11 +37,12 @@ export const FdaDrugUpdate = (props: IFdaDrugUpdateProps) => {
     }
   }, [updateSuccess]);
 
+  // TYPE-ISSUE: Not sure what type values is
   const saveEntity = values => {
     const entity = {
       ...fdaDrugEntity,
       ...values,
-      drug: drugs.find(it => it.id.toString() === values.drugId.toString()),
+      drug: drugs.find(it => it.id?.toString() === values.drugId.toString()),
     };
 
     if (isNew) {
@@ -141,4 +137,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(FdaDrugUpdate);
+export default connect<IFdaDrugUpdateProps, StoreProps>(mapStoreToProps)(FdaDrugUpdate);

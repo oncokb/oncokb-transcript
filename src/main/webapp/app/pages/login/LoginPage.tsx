@@ -27,4 +27,4 @@ const mapStoreToProps = ({ authStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(Login);
+export default connect<ILoginProps, StoreProps>(mapStoreToProps)(Login);

@@ -6,7 +6,6 @@ import {} from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT } from 'app/config/constants/constants';
 export interface ISpecimenTypeDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const SpecimenTypeDetail = (props: ISpecimenTypeDetailProps) => {
@@ -48,4 +47,4 @@ const mapStoreToProps = ({ specimenTypeStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(SpecimenTypeDetail);
+export default connect<ISpecimenTypeDetailProps, StoreProps>(mapStoreToProps)(SpecimenTypeDetail);

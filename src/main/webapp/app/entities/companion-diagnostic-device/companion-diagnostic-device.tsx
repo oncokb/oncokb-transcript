@@ -12,10 +12,11 @@ import { TextFormat } from 'react-jhipster';
 import _ from 'lodash';
 import { filterByKeyword, getEntityTableActionsColumn } from 'app/shared/util/utils';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
+import { IDrug } from 'app/shared/model/drug.model';
 export interface ICompanionDiagnosticDeviceProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
-export const getFdaSubmissionNumber = (primaryNumber: string, supplementNumber: string) => {
-  return supplementNumber ? `${primaryNumber}/${supplementNumber}` : primaryNumber;
+export const getFdaSubmissionNumber = (primaryNumber: string | undefined, supplementNumber: string | undefined) => {
+  return supplementNumber ? `${primaryNumber}/${supplementNumber}` : primaryNumber ?? '';
 };
 
 export const getFdaSubmissionLinks = (fdaSubmissions: IFdaSubmission[]) => {
@@ -48,12 +49,11 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
   }, []);
 
   const getUniqDrugs = (fdaSubmissions: IFdaSubmission[]) => {
-    const drugs = [];
-    fdaSubmissions.forEach(fdaSubmission => {
-      fdaSubmission.associations?.reduce((acc, val) => {
+    const drugs = fdaSubmissions.flatMap(fdaSubmission => {
+      return fdaSubmission.associations?.reduce((acc: (string | undefined)[], val) => {
         acc.push(...(val.drugs || []).map(drug => drug.name));
         return acc;
-      }, drugs);
+      }, []);
     });
     return _.uniq(drugs);
   };
@@ -75,7 +75,13 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
       id: 'drugs',
       Header: 'Associated Drugs',
       Cell(cell: { original: ICompanionDiagnosticDevice }) {
-        return <>{getUniqDrugs(cell.original.fdaSubmissions).sort().join(', ')}</>;
+        return (
+          <>
+            {getUniqDrugs(cell.original.fdaSubmissions ?? [])
+              .sort()
+              .join(', ')}
+          </>
+        );
       },
     },
     {
@@ -87,7 +93,7 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
           ? filterByKeyword(data.fdaSubmissions.map(s => getFdaSubmissionNumber(s.number, s.supplementNumber)).join(', '), keyword)
           : false,
       Cell(cell: { original: ICompanionDiagnosticDevice }) {
-        return <>{getFdaSubmissionLinks(cell.original.fdaSubmissions)}</>;
+        return <>{getFdaSubmissionLinks(cell.original.fdaSubmissions ?? [])}</>;
       },
       minWidth: 250,
     },
@@ -131,4 +137,4 @@ const mapStoreToProps = ({ companionDiagnosticDeviceStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(CompanionDiagnosticDevice);
+export default connect<ICompanionDiagnosticDeviceProps, StoreProps>(mapStoreToProps)(CompanionDiagnosticDevice);

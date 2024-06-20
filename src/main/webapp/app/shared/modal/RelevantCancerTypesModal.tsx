@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { SimpleConfirmModal } from './SimpleConfirmModal';
 import { Alert, Button, Container, Modal, ModalBody, ModalFooter, ModalHeader, Row } from 'reactstrap';
 import { IRootStore } from 'app/stores';
 import { componentInject } from '../util/typed-inject';
@@ -26,7 +25,7 @@ export interface IRelevantCancerTypesModalProps extends StoreProps {
 }
 
 const RelevantCancerTypesModal = observer((props: IRelevantCancerTypesModalProps) => {
-  return props.relevantCancerTypesModalStore.isOpen ? <RelevantCancerTypesModalContent {...props} /> : <></>;
+  return props.relevantCancerTypesModalStore?.isOpen ? <RelevantCancerTypesModalContent {...props} /> : <></>;
 });
 
 const RelevantCancerTypesModalContent = observer(
@@ -34,8 +33,8 @@ const RelevantCancerTypesModalContent = observer(
     const [showWarning, setShowWarning] = useState(true);
 
     const allCancerTypesDeleted =
-      relevantCancerTypesModalStore.relevantCancerTypes.length > 0 &&
-      relevantCancerTypesModalStore.relevantCancerTypes.every(rct => rct.isDeleted);
+      (relevantCancerTypesModalStore?.relevantCancerTypes.length ?? 0) > 0 &&
+      relevantCancerTypesModalStore?.relevantCancerTypes.every(rct => rct.isDeleted);
 
     useEffect(() => {
       function convertFetchedCancerTypeToRelevantCancerType(cancerType: FetchedCancerType, isDeleted: boolean) {
@@ -59,28 +58,28 @@ const RelevantCancerTypesModalContent = observer(
 
       async function setRelevantCancerTypes() {
         const relevantCancerTypeQueries: RelevantCancerTypeQuery[] = convertCancerTypesToRelevantCancerTypeQueries(
-          relevantCancerTypesModalStore.tumor.cancerTypes,
+          relevantCancerTypesModalStore?.tumor?.cancerTypes ?? [],
         );
         const excludedRelevantCancerTypeQueries: RelevantCancerTypeQuery[] = convertCancerTypesToRelevantCancerTypeQueries(
-          relevantCancerTypesModalStore.tumor.excludedCancerTypes,
+          relevantCancerTypesModalStore?.tumor?.excludedCancerTypes ?? [],
         );
 
         const fetchedRelevantCancerTypes = (
           await cancerTypeClient.getRelevantCancerTypes(
             { relevantCancerTypeQueries, excludedRelevantCancerTypeQueries },
-            relevantCancerTypesModalStore.level ? `LEVEL_${relevantCancerTypesModalStore.level}` : null,
+            relevantCancerTypesModalStore?.level ? `LEVEL_${relevantCancerTypesModalStore.level}` : '',
           )
         ).data;
 
-        if (!relevantCancerTypesModalStore.firebaseExcludedRCTs) {
-          relevantCancerTypesModalStore.setRelevantCancerTypes(
+        if (!relevantCancerTypesModalStore?.firebaseExcludedRCTs) {
+          relevantCancerTypesModalStore?.setRelevantCancerTypes(
             fetchedRelevantCancerTypes.map(rct => convertFetchedCancerTypeToRelevantCancerType(rct, false)),
           );
           return;
         }
 
         const rcts = fetchedRelevantCancerTypes.map(rct => {
-          for (const firebaseRct of relevantCancerTypesModalStore.firebaseExcludedRCTs) {
+          for (const firebaseRct of relevantCancerTypesModalStore?.firebaseExcludedRCTs ?? []) {
             if ((rct.code && rct.code === firebaseRct.code) || (!rct.code && !firebaseRct.code && rct.mainType === firebaseRct.mainType)) {
               return convertFetchedCancerTypeToRelevantCancerType(rct, true);
             }
@@ -95,7 +94,7 @@ const RelevantCancerTypesModalContent = observer(
 
     useEffect(() => {
       return () => {
-        relevantCancerTypesModalStore.closeModal();
+        relevantCancerTypesModalStore?.closeModal();
       };
     }, []);
 
@@ -172,7 +171,7 @@ const RelevantCancerTypesModalContent = observer(
                     icon={faUndo}
                     color={ONCOKB_BLUE}
                     onClick={() => {
-                      relevantCancerTypesModalStore.setDeleted(index, false);
+                      relevantCancerTypesModalStore?.setDeleted(index, false);
                     }}
                   />
                 ) : (
@@ -180,7 +179,7 @@ const RelevantCancerTypesModalContent = observer(
                     icon={faTrashAlt}
                     color={DANGER}
                     onClick={() => {
-                      relevantCancerTypesModalStore.setDeleted(index, true);
+                      relevantCancerTypesModalStore?.setDeleted(index, true);
                     }}
                   />
                 )}
@@ -191,13 +190,13 @@ const RelevantCancerTypesModalContent = observer(
       },
     ];
 
-    const numberDeletedRcts = relevantCancerTypesModalStore.relevantCancerTypes.filter(rct => rct.isDeleted).length;
+    const numberDeletedRcts = relevantCancerTypesModalStore?.relevantCancerTypes.filter(rct => rct.isDeleted).length;
 
     return (
       <Modal isOpen style={{ maxWidth: '650px' }}>
         <ModalHeader>Modify Relevant Cancer Types</ModalHeader>
         <ModalBody>
-          {relevantCancerTypesModalStore.relevantCancerTypes.length > 50 && (
+          {(relevantCancerTypesModalStore?.relevantCancerTypes.length ?? 0) > 50 && (
             <Alert color="warning" fade={false} isOpen={showWarning} toggle={() => setShowWarning(false)}>
               There are more than 50 cancer types. You may want to consider modifying the cancer type above this section and adding excluded
               cancer types instead.
@@ -207,7 +206,7 @@ const RelevantCancerTypesModalContent = observer(
             style={{ minHeight: '400px' }}
             showPageSizeOptions={false}
             defaultPageSize={5}
-            data={relevantCancerTypesModalStore.relevantCancerTypes}
+            data={relevantCancerTypesModalStore?.relevantCancerTypes ?? []}
             columns={columns}
           />
         </ModalBody>
@@ -219,7 +218,7 @@ const RelevantCancerTypesModalContent = observer(
                 <span>You must include at least one cancer type</span>
               </div>
             )}
-            {numberDeletedRcts > 0 && !allCancerTypesDeleted && (
+            {(numberDeletedRcts ?? 0) > 0 && !allCancerTypesDeleted && (
               <div className="d-flex align-items-center">
                 <span>
                   {`There ${pluralize('is', numberDeletedRcts)} ${numberDeletedRcts} excluded cancer ${pluralize(
@@ -229,9 +228,9 @@ const RelevantCancerTypesModalContent = observer(
                 </span>
               </div>
             )}
-            {!allCancerTypesDeleted && numberDeletedRcts <= 0 && <div />}
+            {!allCancerTypesDeleted && (numberDeletedRcts ?? 0) <= 0 && <div />}
             <div>
-              {relevantCancerTypesModalStore.relevantCancerTypes.some(rct => rct.isDeleted) && (
+              {relevantCancerTypesModalStore?.relevantCancerTypes.some(rct => rct.isDeleted) && (
                 <>
                   <InfoIcon
                     className="text-danger"
@@ -259,15 +258,16 @@ const RelevantCancerTypesModalContent = observer(
                 color="primary"
                 disabled={allCancerTypesDeleted}
                 onClick={() => {
-                  const savedExcludedRCTs = relevantCancerTypesModalStore.relevantCancerTypes
-                    .filter(rct => rct.isDeleted)
-                    .map(rct => {
-                      const ct = new CancerType();
-                      ct.mainType = rct.mainType;
-                      ct.subtype = rct.subtype;
-                      ct.code = rct.code;
-                      return ct;
-                    });
+                  const savedExcludedRCTs =
+                    relevantCancerTypesModalStore?.relevantCancerTypes
+                      .filter(rct => rct.isDeleted)
+                      .map(rct => {
+                        const ct = new CancerType();
+                        ct.mainType = rct.mainType;
+                        ct.subtype = rct.subtype;
+                        ct.code = rct.code;
+                        return ct;
+                      }) ?? [];
 
                   onConfirm(savedExcludedRCTs, savedExcludedRCTs.length === relevantCancerTypesModalStore?.firebaseExcludedRCTs?.length);
                 }}

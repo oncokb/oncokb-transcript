@@ -26,6 +26,7 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { FlattenedHistory, parseHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
+import { Unsubscribe } from 'firebase/auth';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -54,8 +55,11 @@ export const CurationPage = (props: ICurationPageProps) => {
   }, []);
 
   useEffect(() => {
+    if (!props.firebaseDb) {
+      return;
+    }
     if (geneEntity && props.firebaseInitSuccess) {
-      const cleanupCallbacks = [];
+      const cleanupCallbacks: Unsubscribe[] = [];
       cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
       cleanupCallbacks.push(props.addMutationListListener(mutationsPath));
       return () => {
@@ -82,7 +86,7 @@ export const CurationPage = (props: ICurationPageProps) => {
       if (!newList.has(historyData.location)) {
         newList.set(historyData.location, [historyData]);
       } else {
-        newList.get(historyData.location).push(historyData);
+        newList.get(historyData.location)?.push(historyData);
       }
     }
 
@@ -191,9 +195,9 @@ export const CurationPage = (props: ICurationPageProps) => {
           <MutationsSection
             mutationsPath={mutationsPath}
             metaGeneReviewPath={firebaseMetaGeneReviewPath}
-            hugoSymbol={hugoSymbol}
+            hugoSymbol={hugoSymbol ?? ''}
             isGermline={isGermline}
-            parsedHistoryList={tooltipHistoryList}
+            parsedHistoryList={tooltipHistoryList ?? new Map()}
             onMutationListRender={() => setMutationListRendered(true)}
           />
         </div>
@@ -203,8 +207,8 @@ export const CurationPage = (props: ICurationPageProps) => {
             try {
               const newRCTs = noneDeleted ? [] : newExcludedRCTs;
               await props.updateRelevantCancerTypes(
-                props.relevantCancerTypesModalStore.pathToRelevantCancerTypes,
-                noneDeleted ? [] : props.relevantCancerTypesModalStore.firebaseExcludedRCTs,
+                props.relevantCancerTypesModalStore.pathToRelevantCancerTypes ?? '',
+                noneDeleted ? [] : props.relevantCancerTypesModalStore.firebaseExcludedRCTs ?? [],
                 newRCTs,
                 props.relevantCancerTypesModalStore.excludedRCTsReview,
                 props.relevantCancerTypesModalStore.excludedRCTsUuid,
@@ -213,7 +217,7 @@ export const CurationPage = (props: ICurationPageProps) => {
               );
               props.relevantCancerTypesModalStore.closeModal();
             } catch (error) {
-              notifyError(error);
+              notifyError(error as Error);
             }
           }}
           onCancel={() => props.relevantCancerTypesModalStore.closeModal()}
@@ -275,4 +279,4 @@ const mapStoreToProps = ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(CurationPage);
+export default connect<ICurationPageProps, StoreProps>(mapStoreToProps)(CurationPage);

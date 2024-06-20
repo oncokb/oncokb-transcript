@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Col, Row } from 'reactstrap';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import { getGeneName } from 'app/shared/util/utils';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 
@@ -21,7 +21,7 @@ export const FlagDetail = (props: IFlagDetailProps) => {
   }, [props.flagEntity.type]);
 
   const flagEntity = props.flagEntity;
-  const oncokbIds = props.oncokbGeneFlagEntity?.genes.map(oncokbGene => oncokbGene.id) || [];
+  const oncokbIds = props.oncokbGeneFlagEntity?.genes?.map(oncokbGene => oncokbGene.id) || [];
   return (
     <Row>
       <Col md="8">
@@ -76,4 +76,4 @@ const mapStoreToProps = ({ flagStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(FlagDetail);
+export default connect<IFlagDetailProps, StoreProps>(mapStoreToProps)(FlagDetail);

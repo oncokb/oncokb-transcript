@@ -18,7 +18,7 @@ function getKeycloakLogoutUrl(baseLogoutUrl: string) {
 }
 
 export interface ILogoutProps extends StoreProps, RouteComponentProps {
-  logoutUrl: string;
+  logoutUrl: string | null;
 }
 
 export const Logout = (props: ILogoutProps) => {
@@ -89,4 +89,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(Logout);
+export default connect<ILogoutProps, StoreProps>(mapStoreToProps)(Logout);

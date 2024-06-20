@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText, Label } from 'reactstrap';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col, Label } from 'reactstrap';
 import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 
-import { IGene } from 'app/shared/model/gene.model';
-import { ISeqRegion } from 'app/shared/model/seq-region.model';
-import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
-import { getGeneName } from 'app/shared/util/utils';
 import GeneSelect from 'app/shared/select/GeneSelect';
 import { SaveButton } from 'app/shared/button/SaveButton';
 
@@ -19,9 +12,8 @@ export interface IEnsemblGeneUpdateProps extends StoreProps, RouteComponentProps
 
 export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
-  const [selectedGeneId, setSelectedGeneId] = useState();
+  const [selectedGeneId, setSelectedGeneId] = useState<number>();
 
-  const genes = props.genes;
   const seqRegions = props.seqRegions;
   const ensemblGeneEntity = props.ensemblGeneEntity;
   const loading = props.loading;
@@ -49,6 +41,7 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
     }
   }, [updateSuccess]);
 
+  // TYPE-ISSUE: don't know values' type
   const saveEntity = values => {
     const entity = {
       ...ensemblGeneEntity,
@@ -56,7 +49,7 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
       gene: {
         id: selectedGeneId,
       },
-      seqRegion: seqRegions.find(it => it.id.toString() === values.seqRegionId.toString()),
+      seqRegion: seqRegions.find(it => it.id?.toString() === values.seqRegionId.toString()),
     };
 
     if (isNew) {
@@ -147,7 +140,7 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
                 }}
               />
               <Label>Gene</Label>
-              <GeneSelect onChange={option => setSelectedGeneId(option.value)} className={'mb-3'} />
+              <GeneSelect isMulti={false} onChange={option => setSelectedGeneId(option?.value)} className={'mb-3'} />
               <ValidatedField id="ensembl-gene-seqRegion" name="seqRegionId" data-cy="seqRegion" label="Seq Region" type="select">
                 <option value="" key="0" />
                 {seqRegions
@@ -184,4 +177,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(EnsemblGeneUpdate);
+export default connect<IEnsemblGeneUpdateProps, StoreProps>(mapStoreToProps)(EnsemblGeneUpdate);

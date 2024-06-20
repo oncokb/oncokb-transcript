@@ -28,6 +28,7 @@ export const UserManagementUpdate = (props: IUserManagementUpdateProps) => {
     props.history.push('/admin/user-management');
   };
 
+  // TYPE-ISSUE: Is values supposed to be IUser?
   const saveUser = values => {
     const entity = {
       ...user,
@@ -131,4 +132,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(UserManagementUpdate);
+export default connect<IUserManagementUpdateProps, StoreProps>(mapStoreToProps)(UserManagementUpdate);

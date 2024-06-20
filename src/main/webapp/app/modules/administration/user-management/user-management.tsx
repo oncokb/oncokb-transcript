@@ -53,7 +53,7 @@ export const UserManagement = (props: IUserManagementProps) => {
       Cell(cell: { original: IUser }) {
         return (
           <Button color={cell.original.activated ? 'success' : 'danger'} onClick={toggleActive(cell.original)}>
-            {getStatus(cell.original.activated)}
+            {getStatus(cell.original.activated ?? false)}
           </Button>
         );
       },
@@ -98,4 +98,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(UserManagement);
+export default connect<IUserManagementProps, StoreProps>(mapStoreToProps)(UserManagement);

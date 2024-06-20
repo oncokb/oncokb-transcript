@@ -1,7 +1,8 @@
 import { IAlleleState } from 'app/shared/model/allele-state.model';
 import { IAssociation } from 'app/shared/model/association.model';
 
-export interface IGenomicIndicator {
+// CrudStore cannot use interface
+export type IGenomicIndicator = {
   id?: number;
   uuid?: string;
   type?: string;
@@ -9,6 +10,6 @@ export interface IGenomicIndicator {
   description?: string | null;
   alleleStates?: IAlleleState[] | null;
   associations?: IAssociation[] | null;
-}
+};
 
 export const defaultValue: Readonly<IGenomicIndicator> = {};

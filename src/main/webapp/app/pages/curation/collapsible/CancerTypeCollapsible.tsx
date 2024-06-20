@@ -11,8 +11,7 @@ import EditIcon from 'app/shared/icons/EditIcon';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import _ from 'lodash';
-import { getLevelDropdownOptions } from 'app/shared/util/firebase/firebase-level-utils';
-import { DIAGNOSTIC_LEVELS_ORDERING, READABLE_FIELD, PROGNOSTIC_LEVELS_ORDERING } from 'app/config/constants/firebase';
+import { READABLE_FIELD } from 'app/config/constants/firebase';
 import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
 import RealtimeLevelDropdownInput, { LevelOfEvidenceType } from 'app/shared/firebase/input/RealtimeLevelDropdownInput';
 import CommentIcon from 'app/shared/icons/CommentIcon';
@@ -26,12 +25,13 @@ import * as styles from '../styles.module.scss';
 import BadgeGroup from '../BadgeGroup';
 import { RemovableCollapsible } from './RemovableCollapsible';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
+import { Unsubscribe } from 'firebase/auth';
 
 interface ICancerTypeCollapsibleProps extends StoreProps {
   cancerTypePath: string;
   allCancerTypesPath: string;
   mutationName: string;
-  parsedHistoryList: Map<string, FlattenedHistory[]>;
+  parsedHistoryList: Map<string, FlattenedHistory[]> | undefined;
   isGermline: boolean;
 }
 
@@ -46,14 +46,17 @@ function CancerTypeCollapsible({
   deleteSection,
   isGermline,
 }: ICancerTypeCollapsibleProps) {
-  const [cancerTypes, setCancerTypes] = useState<CancerType[]>(null);
-  const [cancerTypesUuid, setCancerTypesUuid] = useState<string>(null);
-  const [cancerTypesReview, setCancerTypesReview] = useState<Review>(null);
+  const [cancerTypes, setCancerTypes] = useState<CancerType[] | null>(null);
+  const [cancerTypesUuid, setCancerTypesUuid] = useState<string | null>(null);
+  const [cancerTypesReview, setCancerTypesReview] = useState<Review | null>(null);
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
-  const [excludedCancerTypes, setExcludedCancerTypes] = useState<CancerType[]>(null);
+  const [excludedCancerTypes, setExcludedCancerTypes] = useState<CancerType[] | null>(null);
 
   useEffect(() => {
-    const callbacks = [];
+    if (!firebaseDb) {
+      return;
+    }
+    const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(firebaseDb, `${cancerTypePath}/cancerTypes`), snapshot => {
         setCancerTypes(snapshot.val());
@@ -84,8 +87,11 @@ function CancerTypeCollapsible({
   }, [cancerTypePath, firebaseDb]);
 
   async function handleDeleteCancerType() {
+    if (!firebaseDb || !cancerTypesReview || !cancerTypesUuid) {
+      return;
+    }
     const snapshot = await get(ref(firebaseDb, cancerTypePath));
-    deleteSection(`${cancerTypePath}/cancerTypes`, snapshot.val(), cancerTypesReview, cancerTypesUuid);
+    deleteSection?.(`${cancerTypePath}/cancerTypes`, snapshot.val(), cancerTypesReview, cancerTypesUuid);
   }
 
   if (!cancerTypes || !cancerTypesUuid) {
@@ -112,7 +118,7 @@ function CancerTypeCollapsible({
             <CommentIcon id={cancerTypesUuid} path={`${cancerTypePath}/cancerTypes_comments`} />
             <EditIcon
               onClick={() => {
-                modifyCancerTypeModalStore.openModal(cancerTypesUuid);
+                modifyCancerTypeModalStore?.openModal(cancerTypesUuid);
               }}
             />
             <DeleteSectionButton
@@ -168,7 +174,7 @@ function CancerTypeCollapsible({
           badge={<BadgeGroup firebasePath={`${cancerTypePath}/TIs`} />}
         >
           <TherapiesList
-            parsedHistoryList={parsedHistoryList}
+            parsedHistoryList={parsedHistoryList ?? new Map()}
             mutationName={mutationName}
             cancerTypeName={cancerTypeName}
             cancerTypePath={cancerTypePath}
@@ -183,53 +189,62 @@ function CancerTypeCollapsible({
           colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.DIAGNOSTIC]] }}
           action={
             <>
-              <CommentIcon id={`${cancerTypesUuid}_diagnostic_comments`} path={`${cancerTypePath}/diagnostic_comments`} />
-              <RCTButton cancerTypePath={cancerTypePath} relevantCancerTypesInfoPath={`${cancerTypePath}/diagnostic`} />
+              <GeneHistoryTooltip
+                key={'gene-history-tooltip'}
+                historyData={parsedHistoryList}
+                location={`${mutationName}, ${cancerTypeName}`}
+              />
+              <CommentIcon id={cancerTypesUuid} path={`${cancerTypePath}/cancerTypes_comments`} />
+              <EditIcon
+                onClick={() => {
+                  modifyCancerTypeModalStore?.openModal(cancerTypesUuid);
+                }}
+              />
+              <DeleteSectionButton
+                sectionName={cancerTypeName}
+                deleteHandler={handleDeleteCancerType}
+                isRemovableWithoutReview={isRemovableWithoutReview}
+              />
             </>
           }
-          badge={<BadgeGroup firebasePath={`${cancerTypePath}/diagnostic`} />}
+          badge={<BadgeGroup firebasePath={cancerTypePath} showDeletedBadge={cancerTypesReview?.removed || false} />}
+          isPendingDelete={cancerTypesReview?.removed || false}
         >
-          <RealtimeLevelDropdownInput
-            firebaseLevelPath={`${cancerTypePath}/diagnostic/level`}
-            levelOfEvidenceType={LevelOfEvidenceType.DIAGNOSTIC}
-            label="Level of evidence"
-            name="diagnosticLevel"
-            options={getLevelDropdownOptions(DIAGNOSTIC_LEVELS_ORDERING)}
+          <RealtimeTextAreaInput
+            firebasePath={`${cancerTypePath}/summary`}
+            inputClass={styles.summaryTextarea}
+            label="Therapeutic Summary (Optional)"
+            labelIcon={
+              <GeneHistoryTooltip
+                historyData={parsedHistoryList}
+                location={`${mutationName}, ${cancerTypeName}, ${READABLE_FIELD.SUMMARY}`}
+              />
+            }
+            name="txSummary"
           />
           <RealtimeTextAreaInput
-            firebasePath={`${cancerTypePath}/diagnostic/description`}
-            inputClass={styles.textarea}
-            label="Description of Evidence"
-            name="evidenceDescription"
-            parseRefs
-          />
-        </Collapsible>
-        <Collapsible
-          collapsibleClassName={'mt-2'}
-          key={`${cancerTypesUuid}_prognostic`}
-          title="Prognostic Implication"
-          colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.PROGNOSTIC]] }}
-          action={
-            <>
-              <CommentIcon id={`${cancerTypesUuid}_prognostic_comments`} path={`${cancerTypePath}/prognostic_comments`} />
-              <RCTButton cancerTypePath={cancerTypePath} relevantCancerTypesInfoPath={`${cancerTypePath}/prognostic`} />
-            </>
-          }
-          badge={<BadgeGroup firebasePath={`${cancerTypePath}/prognostic`} />}
-        >
-          <RealtimeLevelDropdownInput
-            firebaseLevelPath={`${cancerTypePath}/prognostic/level`}
-            levelOfEvidenceType={LevelOfEvidenceType.PROGNOSTIC}
-            label="Level of evidence"
-            name="prognosticLevel"
-            options={getLevelDropdownOptions(PROGNOSTIC_LEVELS_ORDERING)}
+            firebasePath={`${cancerTypePath}/diagnosticSummary`}
+            inputClass={styles.summaryTextarea}
+            label="Diagnostic Summary (Optional)"
+            labelIcon={
+              <GeneHistoryTooltip
+                historyData={parsedHistoryList}
+                location={`${mutationName}, ${cancerTypeName}, ${READABLE_FIELD.DIAGNOSTIC_SUMMARY}`}
+              />
+            }
+            name="dxSummary"
           />
           <RealtimeTextAreaInput
-            firebasePath={`${cancerTypePath}/prognostic/description`}
-            inputClass={styles.textarea}
-            label="Description of Evidence"
-            name="evidenceDescription"
-            parseRefs
+            firebasePath={`${cancerTypePath}/prognosticSummary`}
+            inputClass={styles.summaryTextarea}
+            label="Prognostic Summary (Optional)"
+            labelIcon={
+              <GeneHistoryTooltip
+                historyData={parsedHistoryList}
+                location={`${mutationName}, ${cancerTypeName}, ${READABLE_FIELD.PROGNOSTIC_SUMMARY}`}
+              />
+            }
+            name="pxSummary"
           />
         </Collapsible>
       </RemovableCollapsible>
@@ -239,15 +254,15 @@ function CancerTypeCollapsible({
         cancerTypesPathToEdit={cancerTypePath}
         onConfirm={async newTumor => {
           try {
-            await updateTumorName(cancerTypePath, cancerTypes, excludedCancerTypes, newTumor, isGermline);
+            await updateTumorName?.(cancerTypePath, cancerTypes, excludedCancerTypes, newTumor, isGermline);
           } catch (error) {
-            notifyError(error);
+            notifyError(error as Error);
           }
 
-          modifyCancerTypeModalStore.closeModal();
+          modifyCancerTypeModalStore?.closeModal();
         }}
         onCancel={() => {
-          modifyCancerTypeModalStore.closeModal();
+          modifyCancerTypeModalStore?.closeModal();
         }}
       />
     </>

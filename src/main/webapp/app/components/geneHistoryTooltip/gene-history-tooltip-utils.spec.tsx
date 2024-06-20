@@ -44,9 +44,9 @@ describe('GeneHistoryTooltipUtils', () => {
       };
 
       const timeSeriesData = constructTimeSeriesData(record);
-      expect(timeSeriesData.operation, 'operation should be "added"').toEqual('addition');
-      expect(timeSeriesData.bubbleColor, 'bubble color should be "green"').toEqual('green');
-      expect(timeSeriesData.content, 'content should be empty').toEqual(<></>);
+      expect(timeSeriesData?.operation, 'operation should be "added"').toEqual('addition');
+      expect(timeSeriesData?.bubbleColor, 'bubble color should be "green"').toEqual('green');
+      expect(timeSeriesData?.content, 'content should be empty').toEqual(<></>);
     });
 
     it('should create time series data with update operation', () => {
@@ -62,17 +62,17 @@ describe('GeneHistoryTooltipUtils', () => {
       };
 
       const timeSeriesData = constructTimeSeriesData(record);
-      expect(timeSeriesData.operation, 'operation should be "updated"').toEqual('update');
-      expect(timeSeriesData.bubbleColor, 'bubble color should be "orange"').toEqual('orange');
-      expect(timeSeriesData.content, 'content should be non empty').not.toEqual(<></>);
+      expect(timeSeriesData?.operation, 'operation should be "updated"').toEqual('update');
+      expect(timeSeriesData?.bubbleColor, 'bubble color should be "orange"').toEqual('orange');
+      expect(timeSeriesData?.content, 'content should be non empty').not.toEqual(<></>);
     });
 
     it('should create time series data with delete operation', () => {
       const record: FlattenedHistory = {
         lastEditBy: USER_NAME,
         location: '',
-        new: null,
-        old: null,
+        new: undefined,
+        old: undefined,
         operation: HistoryOperationType.DELETE,
         uuids: '',
         admin: ADMIN,
@@ -98,8 +98,8 @@ describe('GeneHistoryTooltipUtils', () => {
       const record: FlattenedHistory = {
         lastEditBy: USER_NAME,
         location: '',
-        new: null,
-        old: null,
+        new: undefined,
+        old: undefined,
         operation: 'invalid' as HistoryOperationType,
         uuids: '',
         admin: ADMIN,

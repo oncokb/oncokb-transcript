@@ -1,17 +1,16 @@
 import { APP_DATETIME_FORMAT } from 'app/config/constants/constants';
 import { getMutationModifiedTimestamp } from 'app/shared/util/firebase/firebase-utils';
-import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import _ from 'lodash';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { TextFormat } from 'react-jhipster';
-import * as Sentry from '@sentry/react';
 import { notifySentryException } from 'app/config/sentry-error';
 import { GREY } from 'app/config/colors';
 import classNames from 'classnames';
+import { componentInject } from 'app/shared/util/typed-inject';
 
-export interface IMutationLastModifedProps extends StoreProps {
+export interface IMutationLastModifiedProps extends StoreProps {
   mutationUuid: string;
 
   // just for error info
@@ -21,13 +20,19 @@ export interface IMutationLastModifedProps extends StoreProps {
   className?: string;
 }
 
-export function MutationLastModified({ mutationUuid, mutationList, hugoSymbol, isGermline, className }: IMutationLastModifedProps) {
-  const [lastModified, setLastModified] = useState<number>(null);
+export function MutationLastModified({ mutationUuid, mutationList, hugoSymbol, isGermline, className }: IMutationLastModifiedProps) {
+  const [lastModified, setLastModified] = useState<number | null>(null);
 
   useEffect(() => {
     if (mutationList && _.isNil(lastModified)) {
       const mutation = mutationList.find(mut => mut.name_uuid === mutationUuid);
+      if (!mutation) {
+        return;
+      }
       const timestamp = getMutationModifiedTimestamp(mutation);
+      if (!timestamp) {
+        return;
+      }
       setLastModified(timestamp);
 
       if (isNaN(timestamp)) {

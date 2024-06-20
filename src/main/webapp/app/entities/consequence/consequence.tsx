@@ -51,4 +51,4 @@ const mapStoreToProps = ({ consequenceStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(Consequence);
+export default connect<IConsequenceProps, StoreProps>(mapStoreToProps)(Consequence);

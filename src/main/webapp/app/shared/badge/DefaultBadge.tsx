@@ -3,8 +3,8 @@ import classNames from 'classnames';
 import DefaultTooltip from '../tooltip/DefaultTooltip';
 
 export interface IDefaultBadgeProps {
-  color: string;
-  text: string;
+  color: string | undefined;
+  text: string | undefined;
   tooltipOverlay?: (() => React.ReactNode) | React.ReactNode;
   className?: string;
   style?: React.CSSProperties;

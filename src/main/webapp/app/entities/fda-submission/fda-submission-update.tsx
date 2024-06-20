@@ -39,6 +39,7 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
     props.getFdaSubmissionTypes({});
   }, []);
 
+  // TYPE-ISSUE: I don't know what type values is
   const saveEntity = values => {
     values.dateReceived = convertDateTimeToServer(values.dateReceived);
     values.decisionDate = convertDateTimeToServer(values.decisionDate);
@@ -46,9 +47,9 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
       ...fdaSubmissionEntity,
       ...values,
       companionDiagnosticDevice: companionDiagnosticDevices.find(
-        it => it.id.toString() === values.companionDiagnosticDeviceId.value.toString()
+        it => it.id?.toString() === values.companionDiagnosticDeviceId.value.toString(),
       ),
-      type: fdaSubmissionTypes.find(it => it.id.toString() === values.typeId.value.toString()),
+      type: fdaSubmissionTypes.find(it => it.id?.toString() === values.typeId.value.toString()),
       id: isNew ? null : props.match.params.id,
     };
 
@@ -70,8 +71,8 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
       ? isFetch
         ? {
             ...fdaSubmissionEntity,
-            dateReceived: convertDateTimeFromServer(fdaSubmissionEntity.dateReceived),
-            decisionDate: convertDateTimeFromServer(fdaSubmissionEntity.decisionDate),
+            dateReceived: fdaSubmissionEntity.dateReceived ? convertDateTimeFromServer(fdaSubmissionEntity.dateReceived) : null,
+            decisionDate: fdaSubmissionEntity.decisionDate ? convertDateTimeFromServer(fdaSubmissionEntity.decisionDate) : null,
             companionDiagnosticDeviceId: defaultCompanionDiagnosticDevice,
             typeId: defaultType,
           }
@@ -81,8 +82,8 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
           }
       : {
           ...fdaSubmissionEntity,
-          dateReceived: convertDateTimeFromServer(fdaSubmissionEntity.dateReceived),
-          decisionDate: convertDateTimeFromServer(fdaSubmissionEntity.decisionDate),
+          dateReceived: fdaSubmissionEntity.dateReceived ? convertDateTimeFromServer(fdaSubmissionEntity.dateReceived) : null,
+          decisionDate: fdaSubmissionEntity.decisionDate ? convertDateTimeFromServer(fdaSubmissionEntity.decisionDate) : null,
           companionDiagnosticDeviceId: defaultCompanionDiagnosticDevice,
           typeId: defaultType,
         };
@@ -242,4 +243,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(FdaSubmissionUpdate);
+export default connect<IFdaSubmissionUpdateProps, StoreProps>(mapStoreToProps)(FdaSubmissionUpdate);

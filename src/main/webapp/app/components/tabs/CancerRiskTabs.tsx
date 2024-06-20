@@ -15,9 +15,12 @@ export interface ICancerRiskTabsProps extends StoreProps {
 }
 
 function CancerRiskTabs({ cancerRiskPath, firebaseDb, textAreaClass }: ICancerRiskTabsProps) {
-  const [cancerRisk, setCancerRisk] = useState<CancerRisk>(null);
+  const [cancerRisk, setCancerRisk] = useState<CancerRisk>();
 
   useEffect(() => {
+    if (!firebaseDb) {
+      return;
+    }
     const unsubscribe = onValue(ref(firebaseDb, cancerRiskPath), snapshot => {
       setCancerRisk(snapshot.val());
     });
@@ -45,7 +48,7 @@ function CancerRiskTabs({ cancerRiskPath, firebaseDb, textAreaClass }: ICancerRi
               <RealtimeTextAreaInput
                 key={lowercaseAlleleState}
                 firebasePath={`${cancerRiskPath}/${lowercaseAlleleState}`}
-                inputClass={textAreaClass || null}
+                inputClass={textAreaClass ?? undefined}
                 label=""
                 name={lowercaseAlleleState}
                 parseRefs

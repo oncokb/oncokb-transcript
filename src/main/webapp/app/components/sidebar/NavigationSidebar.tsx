@@ -187,12 +187,13 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
   };
 
   useEffect(() => {
-    const frequencies = JSON.parse(localStorage.getItem(entityMenuLocalStorageKey));
+    const localStorageFrequencies = localStorage.getItem(entityMenuLocalStorageKey);
+    const frequencies = localStorageFrequencies ? JSON.parse(localStorageFrequencies) : null;
     let parsedFrequencies = entityMenuFrequencies;
     if (frequencies) {
-      parsedFrequencies = Object.keys(ENTITY_TYPE)
-        .filter((key: ENTITY_TYPE) => DEFAULT_ENTITY_MENU_ORDER.includes(ENTITY_TYPE[key]))
-        .map((key: ENTITY_TYPE) => {
+      parsedFrequencies = (Object.keys(ENTITY_TYPE) as ENTITY_TYPE[])
+        .filter(key => DEFAULT_ENTITY_MENU_ORDER.includes(ENTITY_TYPE[key]))
+        .map(key => {
           let frequency = 0;
           const target = _.find(frequencies, { type: ENTITY_TYPE[key] });
           frequency = target && WHOLE_NUMBER_REGEX.test(target.frequency) ? parseInt(target.frequency, 10) : 0;
@@ -232,7 +233,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
           <Menu>
             {props.isCurator && (
               <MenuItemCollapsible
-                isCollapsed={props.isNavSidebarCollapsed}
+                isCollapsed={props.isNavSidebarCollapsed ?? false}
                 text="Curation"
                 icon={<FiFileText size={DEFAULT_NAV_ICON_SIZE} />}
                 nav={<NavLink to={PAGE_ROUTE.CURATION} />}
@@ -241,7 +242,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
             {props.isUser && (
               <>
                 <MenuItemCollapsible
-                  isCollapsed={props.isNavSidebarCollapsed}
+                  isCollapsed={props.isNavSidebarCollapsed ?? false}
                   text={'Search'}
                   icon={<BiSearchAlt size={DEFAULT_NAV_ICON_SIZE} />}
                   nav={<NavLink to={PAGE_ROUTE.SEARCH} />}
@@ -255,17 +256,17 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
                 </SubMenu>
               </>
             )}
-            {!props.isCurator && !props.isUser && <NoSidebarAccess isCollapsed={props.isNavSidebarCollapsed} />}
+            {!props.isCurator && !props.isUser && <NoSidebarAccess isCollapsed={props.isNavSidebarCollapsed ?? false} />}
           </Menu>
         </div>
         <MenuDivider />
         <Menu>
-          <SubMenu label={props.account.firstName} icon={<FaUserCircle size={DEFAULT_NAV_ICON_SIZE} />}>
+          <SubMenu label={props.account?.firstName} icon={<FaUserCircle size={DEFAULT_NAV_ICON_SIZE} />}>
             <MenuItem component={<NavLink to={PAGE_ROUTE.ACCOUNT} />}>Account Settings</MenuItem>
             {props.isAdmin && <MenuItem component={<NavLink to={PAGE_ROUTE.USER} />}>User Management</MenuItem>}
           </SubMenu>
           <MenuItemCollapsible
-            isCollapsed={props.isNavSidebarCollapsed}
+            isCollapsed={props.isNavSidebarCollapsed ?? false}
             text={'Sign out'}
             icon={<FaSignOutAlt size={DEFAULT_NAV_ICON_SIZE} />}
             nav={<NavLink to={PAGE_ROUTE.LOGOUT} />}
@@ -289,9 +290,9 @@ const mapStoreToProps = ({ layoutStore, authStore }: IRootStore) => ({
   isNavSidebarCollapsed: layoutStore.isNavigationSidebarCollapsed,
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,
   isAuthenticated: authStore.isAuthenticated,
-  isAdmin: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.ADMIN]),
-  isCurator: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.CURATOR]),
-  isUser: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.USER]),
+  isAdmin: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.ADMIN]),
+  isCurator: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.CURATOR]),
+  isUser: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.USER]),
   account: authStore.account,
 });
 

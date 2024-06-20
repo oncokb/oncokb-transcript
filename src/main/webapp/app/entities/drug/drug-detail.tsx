@@ -51,11 +51,7 @@ export const DrugDetail = (props: IDrugDetailProps) => {
           <dt>
             <span id="brandNames">Also known as</span>
           </dt>
-          <dd>
-            {drugEntity.nciThesaurus?.synonyms.map((synonym, index) => (
-              <SynonymBadge synonym={synonym} key={index} />
-            ))}
-          </dd>
+          <dd>{drugEntity.nciThesaurus?.synonyms?.map((synonym, index) => <SynonymBadge synonym={synonym} key={index} />)}</dd>
         </dl>
         <EntityActionButton color="primary" entityId={drugEntity.id} entityType={ENTITY_TYPE.DRUG} entityAction={ENTITY_ACTION.EDIT} />
       </Col>
@@ -70,4 +66,4 @@ const mapStoreToProps = ({ drugStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(DrugDetail);
+export default connect<IDrugDetailProps, StoreProps>(mapStoreToProps)(DrugDetail);

@@ -1,30 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { Props as SelectProps } from 'react-select';
+import { ActionMeta, OnChangeValue, Props as SelectProps, SingleValue } from 'react-select';
 import { IRootStore } from 'app/stores/createStore';
-import { connect } from '../util/typed-inject';
+import { InjectProps, connect } from '../util/typed-inject';
 import { IAlteration } from '../model/alteration.model';
 import Select from 'react-select';
 import { flow, flowResult } from 'mobx';
 
-interface IAlterationSelectProps extends SelectProps, StoreProps {
+type AlterationSelectOption = {
+  value: number;
+  label: string;
+};
+
+interface IAlterationSelectProps extends SelectProps<AlterationSelectOption, true>, StoreProps {
   geneId: string;
 }
 
-const AlterationSelect: React.FunctionComponent<IAlterationSelectProps> = props => {
+const AlterationSelect = (props: IAlterationSelectProps) => {
   const { geneId, getAlterationsByGeneId, ...selectProps } = props;
-  const [alterationList, setAlterationList] = useState([]);
-  const [alterationValue, setAlterationValue] = useState(null);
+  const [alterationList, setAlterationList] = useState<OnChangeValue<AlterationSelectOption, true>>([]);
+  const [alterationValue, setAlterationValue] = useState<OnChangeValue<AlterationSelectOption, true> | null>(null);
 
   useEffect(() => {
     const loadAlterationOptions = async (id: string) => {
-      let options = [];
+      let options: AlterationSelectOption[] = [];
       if (id) {
         const alterations: IAlteration[] = await flowResult(getAlterationsByGeneId({ geneId: parseInt(id, 10) }));
-        alterations?.sort((a: IAlteration, b: IAlteration) => (a.name > b.name ? 1 : b.name > a.name ? -1 : 0));
-        options = alterations?.map((alteration: IAlteration) => ({
-          value: alteration.id,
-          label: alteration.name,
-        }));
+        alterations?.sort((a: IAlteration, b: IAlteration) =>
+          (a?.name ?? '') > (b?.name ?? '') ? 1 : (b?.name ?? '') > (a?.name ?? '') ? -1 : 0,
+        );
+        options = alterations?.map(
+          (alteration: IAlteration): AlterationSelectOption => ({
+            value: alteration.id ?? 0,
+            label: alteration.name ?? '',
+          }),
+        );
         setAlterationList(options);
       }
     };
@@ -34,14 +43,18 @@ const AlterationSelect: React.FunctionComponent<IAlterationSelectProps> = props 
     }
   }, [geneId]);
 
-  const onAlterationChange = (option, actionMeta) => {
+  const onAlterationChange: (
+    newValue: OnChangeValue<AlterationSelectOption, true>,
+    actionMeta: ActionMeta<AlterationSelectOption>,
+  ) => void = (option, actionMeta) => {
     setAlterationValue(option);
-    props.onChange(option, actionMeta);
+    props.onChange?.(option, actionMeta);
   };
 
   return (
     <Select
       {...selectProps}
+      isMulti
       name={'alterations'}
       value={alterationValue}
       options={alterationList}
@@ -59,4 +72,7 @@ const mapStoreToProps = ({ alterationStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(AlterationSelect);
+export default function (props: InjectProps<IAlterationSelectProps, StoreProps>) {
+  const InjectedAlterationSelect = connect<Omit<IAlterationSelectProps, 'isMulti'>, StoreProps>(mapStoreToProps)(AlterationSelect);
+  return <InjectedAlterationSelect {...props} />;
+}

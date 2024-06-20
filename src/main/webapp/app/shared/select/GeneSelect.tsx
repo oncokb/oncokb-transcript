@@ -1,45 +1,52 @@
 import React, { useState } from 'react';
-import { components, OptionProps, Props as SelectProps } from 'react-select';
-import { AsyncPaginate } from 'react-select-async-paginate';
+import { components, GroupBase, OptionProps, Props as SelectProps } from 'react-select';
+import { AsyncPaginate, LoadOptions } from 'react-select-async-paginate';
 import { defaultAdditional } from 'app/components/panels/CompanionDiagnosticDevicePanel';
 import { DEFAULT_ENTITY_SORT_FIELD, DEFAULT_SORT_DIRECTION, ENTITY_TYPE, SearchOptionType } from 'app/config/constants/constants';
 import { IRootStore } from 'app/stores/createStore';
-import { connect } from '../util/typed-inject';
+import { connect, InjectProps } from '../util/typed-inject';
 import { IGene } from '../model/gene.model';
 import { ITEMS_PER_PAGE } from '../util/pagination.constants';
 import { getEntityPaginationSortParameter } from '../util/entity-utils';
-import { EntitySelectOption } from './SelectOption';
+import { EntitySelectOption, SelectText } from './SelectOption';
 import { ISynonym } from 'app/shared/model/synonym.model';
 
-export interface IGeneSelectProps extends SelectProps, StoreProps {}
+export interface IGeneSelectProps<IsMulti extends boolean> extends SelectProps<GeneSelectOption, IsMulti>, StoreProps {}
 
-const sortParamter = getEntityPaginationSortParameter(DEFAULT_ENTITY_SORT_FIELD[ENTITY_TYPE.GENE], DEFAULT_SORT_DIRECTION);
+const sortParameter = getEntityPaginationSortParameter(DEFAULT_ENTITY_SORT_FIELD[ENTITY_TYPE.GENE] ?? '', DEFAULT_SORT_DIRECTION);
 
-interface GeneSelectOption {
-  value: number;
-  synonyms: ISynonym[];
-  label: string;
+export interface GeneSelectOption {
+  value?: number;
+  synonyms?: ISynonym[];
+  label?: string;
 }
 
-const GeneSelect = (props: IGeneSelectProps) => {
+const GeneSelect = <IsMulti extends boolean>(props: IGeneSelectProps<IsMulti>) => {
   const { getGenes, searchGenes, ...selectProps } = props;
 
   const [searchInput, setSearchInput] = useState('');
 
-  const loadGeneOptions = async (searchWord: string, prevOptions: any[], { page, type }: { page: number; type: SearchOptionType }) => {
-    let result = undefined;
+  const loadGeneOptions: LoadOptions<GeneSelectOption, GroupBase<GeneSelectOption>, { page: number; type: SearchOptionType }> = async (
+    searchWord,
+    _,
+    { page, type } = { page: 0, type: SearchOptionType.CDX },
+  ) => {
+    let result: Awaited<ReturnType<typeof searchGenes>> | undefined = undefined;
     let options: GeneSelectOption[] = [];
     if (searchWord) {
-      result = await searchGenes({ query: searchWord, page: page - 1, size: ITEMS_PER_PAGE, sort: [sortParamter] });
+      result = await searchGenes({ query: searchWord, page: page - 1, size: ITEMS_PER_PAGE, sort: [sortParameter] });
     } else {
-      result = await getGenes({ page: page - 1, size: ITEMS_PER_PAGE, sort: [sortParamter] });
+      result = await getGenes({ page: page - 1, size: ITEMS_PER_PAGE, sort: [sortParameter] });
     }
 
-    options = result?.data?.map((entity: IGene) => ({
-      value: entity.id,
-      synonyms: entity.synonyms,
-      label: entity.hugoSymbol,
-    }));
+    options =
+      result?.data?.map(
+        (entity: IGene): GeneSelectOption => ({
+          value: entity.id ?? -1,
+          synonyms: entity.synonyms ?? [],
+          label: entity.hugoSymbol ?? '',
+        }),
+      ) ?? [];
 
     return {
       options,
@@ -51,10 +58,10 @@ const GeneSelect = (props: IGeneSelectProps) => {
     };
   };
 
-  const Option: React.FunctionComponent = (optionProps: OptionProps<GeneSelectOption>) => {
+  const Option: React.FunctionComponent<OptionProps<GeneSelectOption>> = optionProps => {
     const searchKeyword = searchInput || '';
-    const subTitles = [];
-    if (optionProps.data.synonyms?.length > 0) {
+    const subTitles: SelectText[] = [];
+    if (optionProps.data.synonyms && optionProps.data.synonyms?.length > 0) {
       subTitles.push({
         label: 'Also known as ',
         text: optionProps.data.synonyms.map(alias => alias.name).join(', '),
@@ -66,7 +73,7 @@ const GeneSelect = (props: IGeneSelectProps) => {
         <components.Option {...optionProps}>
           <EntitySelectOption
             title={{
-              text: optionProps.data.label,
+              text: optionProps.data.label ?? '',
               searchWords: [searchKeyword],
             }}
             subTitles={subTitles}
@@ -99,4 +106,7 @@ const mapStoreToProps = ({ geneStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(GeneSelect);
+export default function <IsMulti extends boolean = boolean>(props: InjectProps<IGeneSelectProps<IsMulti>, StoreProps>) {
+  const InjectedGeneSelect = connect<IGeneSelectProps<IsMulti>, StoreProps>(mapStoreToProps)(GeneSelect);
+  return <InjectedGeneSelect {...props} />;
+}

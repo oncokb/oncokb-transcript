@@ -5,9 +5,9 @@ import { Row, Col } from 'reactstrap';
 import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 
-import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import { generateUuid } from 'app/shared/util/utils';
+import { IGenomicIndicator } from 'app/shared/model/genomic-indicator.model';
 
 export interface IGenomicIndicatorUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -37,7 +37,7 @@ export const GenomicIndicatorUpdate = (props: IGenomicIndicatorUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = values => {
+  const saveEntity = (values: IGenomicIndicator) => {
     const entity = {
       ...genomicIndicatorEntity,
       ...values,
@@ -130,4 +130,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(GenomicIndicatorUpdate);
+export default connect<IGenomicIndicatorUpdateProps, StoreProps>(mapStoreToProps)(GenomicIndicatorUpdate);

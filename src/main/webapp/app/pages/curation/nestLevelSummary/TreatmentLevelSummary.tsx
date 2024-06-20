@@ -3,11 +3,12 @@ import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { DataSnapshot, onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
-import React, { useCallback, useEffect, useState } from 'react';
-import NestLevelSummary from './NestLevelSummary';
+import React, { useEffect, useState } from 'react';
+import NestLevelSummary, { NestLevelSummaryStats } from './NestLevelSummary';
 import './nest-level-summary.scss';
 import _ from 'lodash';
 import { UPDATE_SUMMARY_STATS_DEBOUNCE_MILLISECONDS } from 'app/config/constants/constants';
+import { Unsubscribe } from 'firebase/auth';
 
 export interface TreatmentLevelSummaryProps extends StoreProps {
   treatmentPath: string;
@@ -15,7 +16,7 @@ export interface TreatmentLevelSummaryProps extends StoreProps {
 
 const TreatmentLevelSummary = ({ firebaseDb, treatmentPath }: TreatmentLevelSummaryProps) => {
   const [treatmentStatsInitialized, setTreatmentStatsInitialized] = useState(false);
-  const [treatmentStats, setTreatmentStats] = useState(undefined);
+  const [treatmentStats, setTreatmentStats] = useState<NestLevelSummaryStats>();
 
   const updateTreatmentStats = (snapshot: DataSnapshot) => {
     const calcTreatmentStats = getTreatmentStats(snapshot.val());
@@ -25,7 +26,10 @@ const TreatmentLevelSummary = ({ firebaseDb, treatmentPath }: TreatmentLevelSumm
   const updateTreatmentStatsDebounced = _.debounce(updateTreatmentStats, UPDATE_SUMMARY_STATS_DEBOUNCE_MILLISECONDS);
 
   useEffect(() => {
-    const callbacks = [];
+    if (!firebaseDb) {
+      return;
+    }
+    const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(firebaseDb, treatmentPath), snapshot => {
         if (treatmentStatsInitialized) {
@@ -34,12 +38,12 @@ const TreatmentLevelSummary = ({ firebaseDb, treatmentPath }: TreatmentLevelSumm
           updateTreatmentStats(snapshot);
           setTreatmentStatsInitialized(true);
         }
-      })
+      }),
     );
     return () => callbacks.forEach(callback => callback?.());
   }, [treatmentStatsInitialized]);
 
-  return <NestLevelSummary isTreatmentStats summaryStats={treatmentStats} />;
+  return <>{treatmentStats && <NestLevelSummary isTreatmentStats summaryStats={treatmentStats} />}</>;
 };
 
 const mapStoreToProps = ({ firebaseAppStore }: IRootStore) => ({

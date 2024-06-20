@@ -23,6 +23,7 @@ import _ from 'lodash';
 import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
+import { Unsubscribe } from 'firebase/auth';
 
 interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -31,7 +32,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   const isGermline = pathname.includes(GERMLINE_PATH);
   const hugoSymbolParam = props.match.params.hugoSymbol;
 
-  const { geneEntity, hugoSymbol } = useMatchGeneEntity(hugoSymbolParam, props.searchGeneEntities, props.geneEntities);
+  const { geneEntity, hugoSymbol } = useMatchGeneEntity(hugoSymbolParam, props.searchGeneEntities, props.geneEntities ?? []);
 
   const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
   const firebaseMetaReviewPath = `${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review`;
@@ -41,13 +42,16 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
 
   const [isReviewFinished, setIsReviewFinished] = useState(false);
 
-  const [reviewUuids, setReviewUuids] = useState<string[]>(null);
-  const [rootReview, setRootReview] = useState<BaseReviewLevel>(null);
+  const [reviewUuids, setReviewUuids] = useState<string[] | null>(null);
+  const [rootReview, setRootReview] = useState<BaseReviewLevel | null>(null);
   const [editorReviewMap, setEditorReviewMap] = useState(new EditorReviewMap());
   const [editorsToAcceptChangesFrom, setEditorsToAcceptChangesFrom] = useState<string[]>([]);
   const [isAcceptingAll, setIsAcceptingAll] = useState(false);
 
   const fetchFirebaseData = () => {
+    if (!props.firebaseDb) {
+      return;
+    }
     // Fetch the data when the user enters review mode. We don't use a listener
     // because there shouldn't be another user editing the gene when it is being reviewed.
     get(ref(props.firebaseDb, firebaseGenePath)).then(snapshot => setGeneData(snapshot.val()));
@@ -61,14 +65,14 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   }, [geneEntity, props.firebaseDb, props.firebaseInitSuccess]);
 
   useEffect(() => {
-    props.getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
+    props.getDrugs?.({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
   }, []);
 
   useEffect(() => {
     if (metaReview) {
-      const uuids = Object.keys(metaReview).reduce((acc, curr) => {
+      const uuids = Object.keys(metaReview).reduce((acc: string[], curr) => {
         if (metaReview[curr] === true) {
-          // The legacy platform uses comma seperated string to denote that
+          // The legacy platform uses comma separated string to denote that
           // a tumor needs review (requires both cancerTypes and excludedCancerTypes)
           acc = [...acc, ...curr.split(',').map(uuid => uuid.trim())];
         }
@@ -81,8 +85,8 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   useEffect(() => {
     if (geneData && !_.isNil(reviewUuids)) {
       const reviewMap = new EditorReviewMap();
-      const reviews = findReviews(props.drugList, geneData, _.clone(reviewUuids), reviewMap);
-      Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
+      const reviews = findReviews(props.drugList ?? [], geneData, _.clone(reviewUuids), reviewMap);
+      Object.entries(reviews.children ?? {}).forEach(([key, value]) => (reviews.children![key] = getCompactReviewInfo(value)));
       setEditorReviewMap(reviewMap);
       setRootReview(reviews);
       setIsReviewFinished(!reviews.hasChildren());
@@ -99,10 +103,10 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     }
     try {
       setIsAcceptingAll(true);
-      await props.acceptReviewChangeHandler(hugoSymbol, reviewLevels, isGermline, true);
+      await props.acceptReviewChangeHandler?.(hugoSymbol ?? '', reviewLevels, isGermline, true);
       fetchFirebaseData();
     } catch (error) {
-      notifyError(error);
+      notifyError(error as Error);
     } finally {
       setIsAcceptingAll(false);
       setEditorsToAcceptChangesFrom([]);
@@ -111,7 +115,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
 
   const allEditors = editorReviewMap.getEditorList();
 
-  return props.firebaseInitSuccess && !props.loadingGenes && props.drugList.length > 0 && !!geneEntity ? (
+  return props.firebaseInitSuccess && !props.loadingGenes && props.drugList !== undefined && props.drugList.length > 0 && !!geneEntity ? (
     <div data-testid="review-page">
       <GeneHeader
         hugoSymbol={hugoSymbol}
@@ -180,7 +184,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
         <Row>
           <Col>
             <ReviewCollapsible
-              hugoSymbol={hugoSymbol}
+              hugoSymbol={hugoSymbol ?? ''}
               isGermline={isGermline}
               baseReviewLevel={rootReview}
               handleAccept={props.acceptReviewChangeHandler}
@@ -189,8 +193,8 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
               disableActions={isAcceptingAll}
               isRoot={true}
               firebase={{
-                path: getGenePathFromValuePath(hugoSymbol, rootReview.valuePath, isGermline),
-                db: props.firebaseDb,
+                path: getGenePathFromValuePath(hugoSymbol ?? '', rootReview.valuePath, isGermline),
+                db: props.firebaseDb!,
               }}
               rootDelete={isPending => {
                 if (isPending) {

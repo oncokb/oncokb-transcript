@@ -25,16 +25,19 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
   const newVariantType = isSomatic ? GERMLINE_PATH : SOMATIC_PATH;
 
   async function handleToggle() {
+    if (!firebaseDb) {
+      return;
+    }
     if (hugoSymbol) {
       // On curation page
       const genePath = getFirebasePath(isSomatic ? 'GENE' : 'GERMLINE_GENE', hugoSymbol);
       try {
         const snapshot = await get(ref(firebaseDb, genePath));
         if (!snapshot.exists()) {
-          await createGene(hugoSymbol, !isSomatic);
+          await createGene?.(hugoSymbol, !isSomatic);
         }
       } catch (error) {
-        notifyError(error);
+        notifyError(error as Error);
       }
     }
     localStorage.setItem(SOMATIC_GERMLINE_SETTING_KEY, newVariantType);

@@ -21,8 +21,8 @@ export const hasAnyAuthority = (authorities: string[], hasAnyAuthorities: string
 export class AuthStore extends BaseStore {
   public isAuthenticated = false;
   public account: IUser = USER_DEFAULT_VALUE;
-  public redirectMessage: string = null;
-  public logoutUrl: string = null;
+  public redirectMessage: string | null = null;
+  public logoutUrl: string | null = null;
   public loginSuccess = false;
   public loginError: OncoKBError | undefined = undefined; // Errors returned from server side
   public fetchingSession = false;
@@ -89,27 +89,27 @@ export class AuthStore extends BaseStore {
     return this.account.firstName + ' ' + this.account.lastName;
   }
 
-  *logoutGen() {
+  async *logoutGen() {
     try {
       this.reset();
       this.rootStore.firebaseAppStore.signOutFromFirebase();
-      const result: AxiosResponse = yield axios.post('/api/logout', {});
+      const result: AxiosResponse = yield await axios.post('/api/logout', {});
       this.logoutUrl = result.data.logoutUrl;
       return result;
     } catch (e) {
-      this.errorMessage = e.message;
-      throw e;
+      this.errorMessage = (e as Error).message;
+      throw e as Error;
     }
   }
 
-  *getSessionGen() {
+  async *getSessionGen() {
     if (this.isAuthenticated) {
       return this.account;
     }
     try {
       this.loading = true;
       this.fetchingSession = true;
-      const result: AxiosResponse = yield axios.get('/api/account');
+      const result: AxiosResponse = yield await axios.get('/api/account');
       this.account = result.data;
       this.isAuthenticated = !!result.data;
       this.fetchingSession = false;
@@ -118,9 +118,9 @@ export class AuthStore extends BaseStore {
     } catch (e) {
       this.isAuthenticated = false;
       this.fetchingSession = false;
-      this.loginError = e;
+      this.loginError = e as Error;
       this.loading = false;
-      if (!axios.isAxiosError(e) || (e as AxiosError).response.status !== 401) {
+      if (!axios.isAxiosError(e) || (e as AxiosError).response?.status !== 401) {
         throw e;
       }
     }

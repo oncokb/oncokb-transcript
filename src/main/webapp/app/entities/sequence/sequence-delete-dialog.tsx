@@ -59,4 +59,4 @@ const mapStoreToProps = ({ sequenceStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(SequenceDeleteDialog);
+export default connect<ISequenceDeleteDialogProps, StoreProps>(mapStoreToProps)(SequenceDeleteDialog);

@@ -4,19 +4,25 @@ import { ICrudGetAction, ICrudGetAllAction } from 'app/shared/util/jhipster-type
 import BaseStore from 'app/shared/util/base-store';
 import { IRootStore } from 'app/stores';
 
-export abstract class BaseReadStore<T> extends BaseStore {
+export abstract class BaseReadStore<T extends object> extends BaseStore {
   public entities: ReadonlyArray<T> = [];
-  public entity: Readonly<T> = null;
+  // TYPE-ISSUE: making this type null adds about 300 more errors
+  public entity: Readonly<T> = null as any;
   public totalItems = 0;
-  public lastUrl: string = null;
+  public lastUrl: string | null = null;
 
-  getEntities: ICrudGetAllAction<T> = this.readHandler(this.getAll);
+  // TYPE-ISSUE: BaseStore needs a generic type
+  getEntities: ICrudGetAllAction<T> = this.readHandler(this.getAll) as any;
 
   getEntity: ICrudGetAction<T> = this.readHandler(this.get);
 
   reset = this.resetBase;
 
-  constructor(protected rootStore: IRootStore, protected apiUrl: string, protected settings = { clearOnUnobserved: false }) {
+  constructor(
+    protected rootStore: IRootStore,
+    protected apiUrl: string,
+    protected settings = { clearOnUnobserved: false },
+  ) {
     super(rootStore);
 
     makeObservable(this, {
@@ -39,7 +45,7 @@ export abstract class BaseReadStore<T> extends BaseStore {
   }
 
   resetEntity() {
-    this.entity = {} as any;
+    this.entity = {} as Readonly<T>;
   }
 
   resetEntities() {
@@ -54,7 +60,7 @@ export abstract class BaseReadStore<T> extends BaseStore {
     this.resetEntities();
   }
 
-  abstract getAll({ page, size, sort });
+  abstract getAll({ page, size, sort }: { page: number; size: number; sort: string });
 
   abstract getAllFromLastUrl();
 

@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 
-import { ITranscript } from 'app/shared/model/transcript.model';
-import { ISequence } from 'app/shared/model/sequence.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface ISequenceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
@@ -43,11 +38,12 @@ export const SequenceUpdate = (props: ISequenceUpdateProps) => {
     }
   }, [updateSuccess]);
 
+  // TYPE-ISSUE: I'm not sure what values is supposed to be
   const saveEntity = values => {
     const entity = {
       ...sequenceEntity,
       ...values,
-      transcript: transcripts.find(it => it.id.toString() === values.transcriptId.toString()),
+      transcript: transcripts.find(it => it.id?.toString() === values.transcriptId.toString()),
     };
 
     if (isNew) {
@@ -121,4 +117,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(SequenceUpdate);
+export default connect<ISequenceUpdateProps, StoreProps>(mapStoreToProps)(SequenceUpdate);

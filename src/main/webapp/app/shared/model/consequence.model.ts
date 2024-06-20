@@ -1,7 +1,8 @@
 import { IAlteration } from 'app/shared/model/alteration.model';
 import { ICategoricalAlteration } from 'app/shared/model/categorical-alteration.model';
 
-export interface IConsequence {
+// CrudStore cannot use interface
+export type IConsequence = {
   id?: number;
   term?: string;
   name?: string;
@@ -9,7 +10,7 @@ export interface IConsequence {
   description?: string | null;
   alterations?: IAlteration[] | null;
   categoricalAlterations?: ICategoricalAlteration[] | null;
-}
+};
 
 export const defaultValue: Readonly<IConsequence> = {
   isGenerallyTruncating: false,

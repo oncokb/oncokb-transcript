@@ -51,4 +51,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(UserManagementDeleteDialog);
+export default connect<IUserManagementDeleteDialogProps, StoreProps>(mapStoreToProps)(UserManagementDeleteDialog);

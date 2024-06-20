@@ -41,12 +41,14 @@ export const Drug = (props: IDrugProps) => {
   const getUniqueGenes = (associations: IAssociation[]) => {
     const biomarkers: DrugAssocBiomarkers = {};
     associations?.forEach(val => {
-      for (const alteration of val.alterations) {
+      for (const alteration of val?.alterations ?? []) {
         const geneName = getGeneNameFromAlteration(alteration);
-        if (geneName in biomarkers) {
-          biomarkers[geneName].push(alteration);
-        } else {
-          biomarkers[geneName] = [alteration];
+        if (geneName) {
+          if (geneName in biomarkers) {
+            biomarkers[geneName].push(alteration);
+          } else {
+            biomarkers[geneName] = [alteration];
+          }
         }
       }
     });
@@ -122,4 +124,4 @@ const mapStoreToProps = ({ drugStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(Drug);
+export default connect<IDrugProps, StoreProps>(mapStoreToProps)(Drug);

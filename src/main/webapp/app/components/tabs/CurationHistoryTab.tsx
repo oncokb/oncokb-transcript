@@ -17,7 +17,7 @@ import { FlattenedHistory, isBetweenDates } from 'app/shared/util/firebase/fireb
 import _ from 'lodash';
 
 export interface ICurationHistoryTabProps extends StoreProps {
-  historyData: FlattenedHistory[];
+  historyData: FlattenedHistory[] | undefined;
 }
 
 const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabStore, getDrugs }: ICurationHistoryTabProps) => {
@@ -34,7 +34,7 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
   }, [historyData]);
 
   const authorDropdownOptions = useMemo(() => {
-    const options = [];
+    const options: { value: string; label: string }[] = [];
     if (users) {
       for (const user of users) {
         options.push({ value: user.email, label: `${user.firstName} ${user.lastName}` });
@@ -44,26 +44,26 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
   }, [users]);
 
   useEffect(() => {
-    getUsers({});
+    getUsers?.({});
     return () => {
-      historyTabStore.reset();
+      historyTabStore?.reset();
     };
   }, []);
 
   useEffect(() => {
     async function fetchAllDrugs() {
-      const drugs = await getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
-      setDrugList(drugs['data']);
+      const drugs = await getDrugs?.({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
+      setDrugList(drugs?.['data'] ?? []);
     }
 
     fetchAllDrugs();
   }, []);
 
-  function getHistoryContent(historyTabData: FlattenedHistory[], maxLength: number = null) {
+  function getHistoryContent(historyTabData: FlattenedHistory[], maxLength: number | null = null) {
     const filteredData = historyTabData.filter(data => {
-      const author = historyTabStore.appliedAuthor;
-      const startDate = historyTabStore.appliedStartDate && new Date(historyTabStore.appliedStartDate);
-      const endDate = historyTabStore.appliedEndDate && new Date(historyTabStore.appliedEndDate);
+      const author = historyTabStore?.appliedAuthor;
+      const startDate = historyTabStore?.appliedStartDate ? new Date(historyTabStore.appliedStartDate) : undefined;
+      const endDate = historyTabStore?.appliedEndDate ? new Date(historyTabStore.appliedEndDate) : undefined;
 
       let matchesAuthor = false;
       let matchesDates = false;
@@ -91,7 +91,7 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
     // CONSTRUCT HISTORY TAB CONTENT
     const content: JSX.Element[] = [];
     for (const data of eventData) {
-      const isContentAvailable = data.content['props']?.children ? true : false;
+      const isContentAvailable = data.content?.['props']?.children ? true : false;
 
       content.push(
         <div>
@@ -114,7 +114,7 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
           </div>
           <div className="border-bottom pb-3 mb-3">
             <span>
-              <b>Location: </b> {`${formatLocation(data.location, drugList, data.objectField)}`}
+              <b>Location: </b> {`${formatLocation(data.location, drugList, data.objectField ?? '')}`}
             </span>
           </div>
         </div>,
@@ -123,7 +123,7 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
     return content;
   }
 
-  const historyContent = getHistoryContent(parsedHistoryData, historyTabStore.isFiltered ? null : 10);
+  const historyContent = getHistoryContent(parsedHistoryData, historyTabStore?.isFiltered ? null : 10);
 
   return (
     <div>
@@ -131,9 +131,9 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
         <Label for="start-date">Start Date</Label>
         <Input
           id="start-date"
-          value={historyTabStore.selectedStartDate}
-          defaultValue={historyTabStore.appliedStartDate}
-          onChange={event => historyTabStore.setSelectedStartDate(event.target.value)}
+          value={historyTabStore?.selectedStartDate}
+          defaultValue={historyTabStore?.appliedStartDate}
+          onChange={event => historyTabStore?.setSelectedStartDate(event.target.value)}
           type="date"
           name="date"
         />
@@ -142,9 +142,9 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
         <Label for="end-date">End Date</Label>
         <Input
           id="end-date"
-          value={historyTabStore.selectedEndDate}
-          defaultValue={historyTabStore.appliedEndDate}
-          onChange={event => historyTabStore.setSelectedEndDate(event.target.value)}
+          value={historyTabStore?.selectedEndDate}
+          defaultValue={historyTabStore?.appliedEndDate}
+          onChange={event => historyTabStore?.setSelectedEndDate(event.target.value)}
           type="date"
           name="date"
         />
@@ -152,10 +152,10 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
       <div className="mb-3">
         <Label for="author">Author</Label>
         <ReactSelect
-          value={historyTabStore.selectedAuthor}
+          value={historyTabStore?.selectedAuthor}
           id="author"
-          defaultValue={historyTabStore.appliedAuthor}
-          onChange={selection => historyTabStore.setSelectedAuthor(selection)}
+          defaultValue={historyTabStore?.appliedAuthor}
+          onChange={selection => historyTabStore?.setSelectedAuthor(selection)}
           styles={{
             container: containerStyles => ({
               ...containerStyles,
@@ -165,13 +165,13 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
           options={authorDropdownOptions}
         />
       </div>
-      <div className={`d-flex justify-content-${historyTabStore.isFiltered ? 'between' : 'end'}`}>
-        {historyTabStore.isFiltered && (
+      <div className={`d-flex justify-content-${historyTabStore?.isFiltered ? 'between' : 'end'}`}>
+        {historyTabStore?.isFiltered && (
           <Button outline color="danger" size="sm" onClick={() => historyTabStore.reset()}>
             Clear Filters
           </Button>
         )}
-        <Button onClick={() => historyTabStore.applyFilters()} color="primary">
+        <Button onClick={() => historyTabStore?.applyFilters()} color="primary">
           Apply
         </Button>
       </div>
@@ -179,7 +179,7 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
         <h6 className="pt-3">Change History</h6>
       </div>
       <div className="mb-3 change-history-length">
-        <span>{`Showing ${!historyTabStore.isFiltered ? 'latest' : ''} ${historyContent.length} ${
+        <span>{`Showing ${!historyTabStore?.isFiltered ? 'latest' : ''} ${historyContent.length} ${
           historyContent.length !== 1 ? 'changes' : 'change'
         }`}</span>
       </div>

@@ -47,15 +47,16 @@ import CancerTypeCollapsible from './CancerTypeCollapsible';
 import Collapsible from './Collapsible';
 import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import { RemovableCollapsible } from './RemovableCollapsible';
+import { Unsubscribe } from 'firebase/auth';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
-  hugoSymbol: string;
+  hugoSymbol: string | undefined;
   isGermline: boolean;
   open?: boolean;
   disableOpen?: boolean;
   onToggle?: () => void;
-  parsedHistoryList: Map<string, FlattenedHistory[]>;
+  parsedHistoryList: Map<string, FlattenedHistory[]> | undefined;
   showLastModified?: boolean;
 }
 
@@ -80,27 +81,30 @@ const MutationCollapsible = ({
 
   const [mutationUuid, setMutationUuid] = useState<string>('');
   const [mutationName, setMutationName] = useState<string>('');
-  const [mutationNameReview, setMutationNameReview] = useState<Review>(null);
-  const [mutationAlterations, setMutationAlterations] = useState<Alteration[]>(null);
+  const [mutationNameReview, setMutationNameReview] = useState<Review | null>(null);
+  const [mutationAlterations, setMutationAlterations] = useState<Alteration[] | null>(null);
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
   const [relatedAnnotationResult, setRelatedAnnotationResult] = useState<AlterationAnnotationStatus[]>([]);
 
   useEffect(() => {
-    setRelatedAnnotationResult(annotatedAltsCache.get(hugoSymbol, [{ name: mutationName, alterations: mutationAlterations }]));
-  }, [annotatedAltsCache.loading, mutationName, mutationAlterations]);
+    const arr = annotatedAltsCache?.get(hugoSymbol ?? '', [{ name: mutationName, alterations: mutationAlterations }]) ?? [];
+    setRelatedAnnotationResult(arr.filter((x): x is AlterationAnnotationStatus => x !== undefined && x !== null && typeof x !== 'string'));
+  }, [annotatedAltsCache?.loading, mutationName, mutationAlterations]);
 
   const exons = useMemo(() => {
     return _.uniqBy(
       relatedAnnotationResult.reduce((acc, next) => {
-        acc.push(...next.annotation.exons);
+        if (next.annotation?.exons) {
+          acc.push(...next.annotation.exons);
+        }
         return acc;
       }, [] as ProteinExonDTO[]),
       'exon',
-    ).sort((a, b) => a.range.start - b.range.start);
+    ).sort((a, b) => (a.range?.start ?? 0) - (b.range?.start ?? 0));
   }, [relatedAnnotationResult]);
 
   const exonRanges = useMemo(() => {
-    return getExonRanges(exons);
+    return getExonRanges(exons.filter(x => x !== undefined));
   }, [exons]);
 
   const hotspots = useMemo(() => {
@@ -138,7 +142,10 @@ const MutationCollapsible = ({
   const [isConvertingToVus, setIsConvertingToVus] = useState(false);
 
   useEffect(() => {
-    const callbacks = [];
+    if (!firebaseDb) {
+      return;
+    }
+    const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(firebaseDb, getFirebaseVusPath(isGermline, hugoSymbol)), snapshot => {
         setVusData(snapshot.val());
@@ -189,13 +196,16 @@ const MutationCollapsible = ({
   );
 
   async function handleDeleteMutation(toVus = false) {
+    if (!firebaseDb) {
+      return;
+    }
     const snapshot = await get(ref(firebaseDb, mutationPath));
-    await deleteSection(`${mutationPath}/name`, snapshot.val(), mutationNameReview, mutationUuid, toVus);
+    await deleteSection?.(`${mutationPath}/name`, snapshot.val(), mutationNameReview, mutationUuid, toVus);
     if (toVus) setIsConvertingToVus(false);
   }
 
   if (_.isNil(mutationUuid) || (_.isNil(mutationName) && open)) {
-    onToggle();
+    onToggle?.();
   }
 
   if (!mutationUuid || !mutationName) {
@@ -216,11 +226,11 @@ const MutationCollapsible = ({
         colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.MUTATION]] }}
         review={mutationNameReview}
         disableOpen={disableOpen}
-        onToggle={() => !isMutationPendingDelete && onToggle()}
+        onToggle={() => !isMutationPendingDelete && onToggle?.()}
         info={
           <>
             {showLastModified && (
-              <MutationLastModified className="me-2" mutationUuid={mutationUuid} hugoSymbol={hugoSymbol} isGermline={isGermline} />
+              <MutationLastModified className="me-2" mutationUuid={mutationUuid} hugoSymbol={hugoSymbol ?? ''} isGermline={isGermline} />
             )}
             <MutationLevelSummary mutationPath={mutationPath} hideOncogenicity={isStringMutation} />
             {hotspots.length > 0 && <HotspotIcon associatedHotspots={hotspots} />}
@@ -231,7 +241,7 @@ const MutationCollapsible = ({
                     <div className={'d-flex flex-column'}>
                       {exons.map(exon => (
                         <div key={exon.exon}>
-                          <b>Exon {exon.exon}</b>: {exon.range.start}~{exon.range.end}
+                          <b>Exon {exon.exon}</b>: {exon.range?.start}~{exon.range?.end}
                         </div>
                       ))}
                     </div>
@@ -491,7 +501,7 @@ const MutationCollapsible = ({
           className={'mt-2 mb-1'}
           outline
           color="primary"
-          onClick={() => modifyCancerTypeModalStore.openModal(`new_cancer_type_for_${mutationUuid}`)}
+          onClick={() => modifyCancerTypeModalStore?.openModal(`new_cancer_type_for_${mutationUuid}`)}
         >
           Add Cancer Type
         </Button>
@@ -501,15 +511,15 @@ const MutationCollapsible = ({
         allCancerTypesPath={`${mutationPath}/tumors`}
         onConfirm={async newTumor => {
           try {
-            await addTumor(`${mutationPath}/tumors`, newTumor, isGermline);
+            await addTumor?.(`${mutationPath}/tumors`, newTumor, isGermline);
           } catch (error) {
-            notifyError(error);
+            notifyError(error as Error);
           }
 
-          modifyCancerTypeModalStore.closeModal();
+          modifyCancerTypeModalStore?.closeModal();
         }}
         onCancel={() => {
-          modifyCancerTypeModalStore.closeModal();
+          modifyCancerTypeModalStore?.closeModal();
         }}
       />
       {isEditingMutation ? (
@@ -519,9 +529,9 @@ const MutationCollapsible = ({
           mutationToEditPath={isEditingMutation ? mutationPath : null}
           onConfirm={async newMutation => {
             try {
-              await updateMutationName(mutationPath, firebaseMutationsPath, mutationName, newMutation);
+              await updateMutationName?.(mutationPath, firebaseMutationsPath, mutationName, newMutation);
             } catch (error) {
-              notifyError(error);
+              notifyError(error as Error);
             }
             setIsEditingMutation(false);
           }}

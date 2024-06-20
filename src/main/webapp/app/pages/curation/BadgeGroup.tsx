@@ -4,6 +4,7 @@ import NotCuratableBadge from 'app/shared/badge/NotCuratableBadge';
 import { isSectionEmpty } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
+import { Unsubscribe } from 'firebase/auth';
 import { onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -36,12 +37,15 @@ const BadgeGroup = (props: IBadgeGroupProps) => {
   const [sectionData, setSectionData] = useState(null);
 
   useEffect(() => {
-    const callbacks = [];
+    if (!props.firebaseDb) {
+      return;
+    }
+    const callbacks: Unsubscribe[] = [];
     if (!props.showDeletedBadge && !props.showNotCuratableBadge?.show) {
       callbacks.push(
         onValue(ref(props.firebaseDb, props.firebasePath), snapshot => {
           setSectionData(snapshot.val());
-        })
+        }),
       );
     }
     return () => callbacks.forEach(callback => callback?.());

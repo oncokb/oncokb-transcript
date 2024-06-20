@@ -59,4 +59,4 @@ const mapStoreToProps = ({ clinicalTrialStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(ClinicalTrialDeleteDialog);
+export default connect<IClinicalTrialDeleteDialogProps, StoreProps>(mapStoreToProps)(ClinicalTrialDeleteDialog);

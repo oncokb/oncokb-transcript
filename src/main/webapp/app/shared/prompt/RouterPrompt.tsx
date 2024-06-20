@@ -13,7 +13,7 @@ const RouterPrompt = ({ when, message }: RouterPromptProps) => {
   const [confirmedNavigation, setConfirmedNavigation] = useState(false);
 
   const history = useHistory();
-  const eventListenerRef = useRef(undefined);
+  const eventListenerRef = useRef<((e: BeforeUnloadEvent) => 'false' | undefined) | undefined>(undefined);
 
   const closeModal = () => {
     setModalVisible(false);
@@ -51,7 +51,7 @@ const RouterPrompt = ({ when, message }: RouterPromptProps) => {
   }, [when]);
 
   useEffect(() => {
-    const eventListener = event => eventListenerRef.current(event);
+    const eventListener = (event: BeforeUnloadEvent) => eventListenerRef.current?.(event);
     window.addEventListener('beforeunload', eventListener);
     return () => {
       window.removeEventListener('beforeunload', eventListener);

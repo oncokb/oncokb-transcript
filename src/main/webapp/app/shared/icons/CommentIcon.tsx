@@ -32,6 +32,9 @@ const CommentIcon = observer((props: ICommentIconProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
 
   useEffect(() => {
+    if (!props.firebaseDb) {
+      return;
+    }
     const unsubscribe = onValue(ref(props.firebaseDb, props.path), snapshot => {
       setComments(snapshot.val() || []);
     });
@@ -48,19 +51,19 @@ const CommentIcon = observer((props: ICommentIconProps) => {
     color = 'green';
   }
 
-  const timeoutId = useRef(null);
+  const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
   function handleMouseEnter() {
-    if (props.commentStore.openCommentsId !== props.id) {
-      runInAction(() => props.commentStore.setOpenCommentsId(props.id));
+    if (props.commentStore?.openCommentsId !== props.id) {
+      runInAction(() => props.commentStore?.setOpenCommentsId(props.id));
     }
-    clearTimeout(timeoutId.current);
+    clearTimeout(timeoutId.current ?? undefined);
   }
 
   function handleMouseLeave() {
     const id = setTimeout(() => {
-      if (props.id === props.commentStore.openCommentsId) {
-        runInAction(() => props.commentStore.setOpenCommentsId(null));
+      if (props.id === props.commentStore?.openCommentsId) {
+        runInAction(() => props.commentStore?.setOpenCommentsId(null));
       }
     }, CLOSE_TOOLTIP_DURATION_MILLISECONDS);
 
@@ -70,38 +73,38 @@ const CommentIcon = observer((props: ICommentIconProps) => {
   async function handleCreateComment(content: string) {
     const newComment = new Comment();
     newComment.content = content;
-    newComment.email = props.account.email;
+    newComment.email = props.account?.email ?? '';
     newComment.resolved = 'false';
     newComment.userName = getUserFullName(props.account);
 
     try {
-      await props.handleFirebasePushToArray(props.path, [newComment]);
+      await props.handleFirebasePushToArray?.(props.path, [newComment]);
     } catch (error) {
-      notifyError(error);
+      notifyError(error as Error);
     }
   }
 
   async function handleDeleteComments(indices: number[]) {
     try {
-      await props.deleteComments(props.path, indices);
+      await props.deleteComments?.(props.path, indices);
     } catch (error) {
-      notifyError(error);
+      notifyError(error as Error);
     }
   }
 
   async function handleResolveComment(index: number) {
     try {
-      await props.handleFirebaseUpdate(`${props.path}/${index}`, { resolved: true });
+      await props.handleFirebaseUpdate?.(`${props.path}/${index}`, { resolved: true });
     } catch (error) {
-      notifyError(error);
+      notifyError(error as Error);
     }
   }
 
   async function handleUnresolveComment(index: number) {
     try {
-      await props.handleFirebaseUpdate(`${props.path}/${index}`, { resolved: false });
+      await props.handleFirebaseUpdate?.(`${props.path}/${index}`, { resolved: false });
     } catch (error) {
-      notifyError(error);
+      notifyError(error as Error);
     }
   }
 
@@ -115,17 +118,19 @@ const CommentIcon = observer((props: ICommentIconProps) => {
         overlayInnerStyle={{ minWidth: '400px', padding: 0 }}
         placement="left"
         destroyTooltipOnHide
-        visible={props.id === props.commentStore.openCommentsId}
+        visible={props.id === props.commentStore?.openCommentsId}
         overlay={
-          <CommentBox
-            commentStore={props.commentStore}
-            openCommentsId={props.id}
-            comments={comments}
-            onCreateComment={handleCreateComment}
-            onResolveComment={handleResolveComment}
-            onUnresolveComment={handleUnresolveComment}
-            onDeleteComments={handleDeleteComments}
-          />
+          props.commentStore && (
+            <CommentBox
+              commentStore={props.commentStore}
+              openCommentsId={props.id}
+              comments={comments}
+              onCreateComment={handleCreateComment}
+              onResolveComment={handleResolveComment}
+              onUnresolveComment={handleUnresolveComment}
+              onDeleteComments={handleDeleteComments}
+            />
+          )
         }
       >
         <div>
@@ -180,11 +185,11 @@ const CommentBox = observer((props: ICommentBoxProps) => {
           comment={comment}
           index={index}
           onResolveComment={() => {
-            runInAction(() => props.commentStore.setOpenCommentsScrollPosition(scrollContainerRef.current.scrollTop));
+            runInAction(() => props.commentStore.setOpenCommentsScrollPosition(scrollContainerRef.current?.scrollTop ?? 0));
             props.onResolveComment(index);
           }}
           onUnresolveComment={() => {
-            runInAction(() => props.commentStore.setOpenCommentsScrollPosition(scrollContainerRef.current.scrollTop));
+            runInAction(() => props.commentStore.setOpenCommentsScrollPosition(scrollContainerRef.current?.scrollTop ?? 0));
             props.onUnresolveComment(index);
           }}
         />,

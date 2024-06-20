@@ -69,4 +69,4 @@ const mapStoreToProps = ({ articleStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(Article);
+export default connect<IArticleProps, StoreProps>(mapStoreToProps)(Article);

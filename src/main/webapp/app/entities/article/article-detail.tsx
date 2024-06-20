@@ -1,15 +1,12 @@
 import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, Badge } from 'reactstrap';
-import { byteSize } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import SynonymBadge from 'app/shared/badge/SynonymBadge';
-import WithSeparator from 'react-with-separator';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 export interface IArticleDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const ArticleDetail = (props: IArticleDetailProps) => {
@@ -50,11 +47,7 @@ export const ArticleDetail = (props: IArticleDetailProps) => {
           <dt>
             <span id="authors">Synonyms</span>
           </dt>
-          <dd>
-            {articleEntity.synonyms?.map((synonym, index) => (
-              <SynonymBadge synonym={synonym} key={index} />
-            ))}
-          </dd>
+          <dd>{articleEntity.synonyms?.map((synonym, index) => <SynonymBadge synonym={synonym} key={index} />)}</dd>
         </dl>
         <EntityActionButton
           color="primary"
@@ -74,4 +67,4 @@ const mapStoreToProps = ({ articleStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(ArticleDetail);
+export default connect<IArticleDetailProps, StoreProps>(mapStoreToProps)(ArticleDetail);

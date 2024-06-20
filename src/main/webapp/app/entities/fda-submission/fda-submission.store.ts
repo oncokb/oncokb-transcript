@@ -24,7 +24,7 @@ export class FdaSubmissionStore extends PaginationCrudStore<IFdaSubmission> {
       this.entity = result.data || {};
       return this.entity;
     } catch (error) {
-      notifyError(error, `Could not find information for ${submissionNumber}.`);
+      notifyError(error as Error, `Could not find information for ${submissionNumber}.`);
     }
   }
 
@@ -36,7 +36,7 @@ export class FdaSubmissionStore extends PaginationCrudStore<IFdaSubmission> {
       }
       return [];
     } catch (error) {
-      notifyError(error);
+      notifyError(error as Error);
     }
   }
 }

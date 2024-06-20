@@ -18,7 +18,7 @@ import { INTEGER_REGEX, REFERENCE_LINK_REGEX, SINGLE_NUCLEOTIDE_POS_REGEX, UUID_
 import { ProteinExonDTO } from 'app/shared/api/generated/curation';
 import { IQueryParams } from './jhipster-types';
 
-export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
+export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string | undefined => {
   if (!cancerType) return '';
   if (!cancerType.subtype) return cancerType.mainType;
 
@@ -27,8 +27,8 @@ export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode
   return name;
 };
 
-export const getCancerTypesName = (cancerTypes: ICancerType[] | CancerType[], omitCode = false, seperator = ', '): string => {
-  return cancerTypes.map(cancerType => getCancerTypeName(cancerType, omitCode)).join(seperator);
+export const getCancerTypesName = (cancerTypes: (ICancerType | CancerType)[], omitCode = false, separator = ', '): string => {
+  return cancerTypes.map(cancerType => getCancerTypeName(cancerType, omitCode)).join(separator);
 };
 
 export const getCancerTypesNameWithExclusion = (
@@ -48,7 +48,7 @@ export const getGeneName = (gene: IGene): string => {
 };
 
 export const getGeneNameFromAlteration = (alteration: IAlteration) => {
-  return alteration.genes.map(gene => gene.hugoSymbol).join('::');
+  return alteration.genes?.map(gene => gene.hugoSymbol).join('::');
 };
 
 export const getGeneNamesFromAlterations = (alterations: IAlteration[]) => {
@@ -59,16 +59,19 @@ export const getGeneNamesStringFromAlterations = (alterations: IAlteration[]) =>
   return getGeneNamesFromAlterations(alterations).join(', ');
 };
 
-export const getTreatmentName = (drugs: IDrug[], rule?: IRule): string => {
+export const getTreatmentName = (drugs: IDrug[], rule?: IRule): string | undefined => {
   if (rule == null) {
     return drugs.map(drug => drug.name).join(', ');
   } else {
     const drugMap = drugs.reduce((map, next) => {
+      if (!next.id) {
+        throw new Error('next.id is missing');
+      }
       map[next.id.toString()] = next;
       return map;
     }, {});
     return rule.rule
-      .split(',')
+      ?.split(',')
       .map(treatment => {
         return treatment
           .split('+')
@@ -104,10 +107,10 @@ export function filterByKeyword(value: string | undefined | null, keyword: strin
 
 export const getGenomicLocation = (ensemblGene: IEnsemblGene) => {
   let chromosome = '';
-  if (ensemblGene.seqRegion.chromosome !== ensemblGene.seqRegion.name) {
-    chromosome = `(${ensemblGene.seqRegion.chromosome})`;
+  if (ensemblGene.seqRegion?.chromosome !== ensemblGene.seqRegion?.name) {
+    chromosome = `(${ensemblGene.seqRegion?.chromosome})`;
   }
-  return `Chromosome ${ensemblGene.seqRegion.name}${chromosome}: ${ensemblGene.start}-${ensemblGene.end} ${
+  return `Chromosome ${ensemblGene.seqRegion?.name}${chromosome}: ${ensemblGene.start}-${ensemblGene.end} ${
     ensemblGene.strand === 1 ? 'forward' : 'reverse'
   } strand`;
 };
@@ -116,7 +119,7 @@ export const getPaginationFromSearchParams = (search: string) => {
   const params = new URLSearchParams(search);
   const page = params.get('page');
   let sort = params.get(SORT);
-  let order = undefined;
+  let order: string | undefined = undefined;
   if (sort) {
     const sortSplit = sort.split(',');
     sort = sortSplit[0];
@@ -174,8 +177,11 @@ export const getEntityTableActionsColumn = (entityType: ENTITY_TYPE) => {
   return actionsColumn;
 };
 
-export function getUserFullName(user: IUser) {
-  let name;
+export function getUserFullName(user: IUser | undefined) {
+  if (!user) {
+    return '';
+  }
+  let name: string;
   if (user.firstName && user.lastName) {
     name = `${user.firstName} ${user.lastName}`;
   } else if (user.firstName) {
@@ -235,17 +241,17 @@ export function parseAlterationName(alterationName: string): { alteration: strin
   let regex = new RegExp('\\[(.*)\\]', 'i');
   const nameSection = regex.exec(alterationName);
   let name = '';
-  if (nameSection?.length > 1) {
+  if (nameSection && nameSection?.length > 1) {
     name = nameSection[1];
   }
 
-  const alterationNameWithoutVariantName = alterationName.replace(nameSection?.[0], '');
+  const alterationNameWithoutVariantName = alterationName.replace(nameSection?.[0] ?? '', '');
 
   regex = new RegExp('({ *excluding[^}]+})', 'i');
   const excludingSection = regex.exec(alterationName);
   let alterationNameWithoutVariantNameAndExcluding = alterationNameWithoutVariantName;
   const excluding: string[] = [];
-  if (excludingSection?.length > 1) {
+  if (excludingSection && excludingSection?.length > 1) {
     alterationNameWithoutVariantNameAndExcluding = alterationNameWithoutVariantName.replace(excludingSection[1], '');
 
     excludingSection[1] = excludingSection[1].slice(1, -1); // remove curly braces
@@ -256,7 +262,7 @@ export function parseAlterationName(alterationName: string): { alteration: strin
     }
   }
 
-  const parentheses = [];
+  const parentheses: string[] = [];
   let comment = '';
   for (const c of alterationName) {
     if (c === '(') {
@@ -313,9 +319,9 @@ export function getHexColorWithAlpha(hexColor: string, alpha: number) {
   return `${hexColor}${alphaHex}`;
 }
 
-export function extractPositionFromSingleNucleotideAlteration(alteration: string) {
+export function extractPositionFromSingleNucleotideAlteration(alteration: string | undefined) {
   const regex = SINGLE_NUCLEOTIDE_POS_REGEX;
-  const match = regex.exec(alteration);
+  const match = regex.exec(alteration ?? '');
   if (match) {
     return match[1];
   } else {
@@ -345,21 +351,23 @@ export function getReferenceFullName(reference: ParsedRef) {
   return `${reference.prefix}${reference.content}`;
 }
 
-export function isEqualIngoreCase(a: string, b: string) {
+export function isEqualIgnoreCase(a: string, b: string) {
   return a.toLowerCase() === b.toLowerCase();
 }
 
-export function getExonRanges(exons: ProteinExonDTO[]) {
+export function getExonRanges(exons: (ProteinExonDTO | undefined)[]) {
   const exonRanges: string[] = [];
   let startExon = 0;
   let endExon = 0;
   for (let i = 0; i < exons.length; i++) {
     const exon = exons[i];
-    if (startExon === 0) {
-      startExon = endExon = exon.exon;
+    if (startExon === 0 && exon?.exon) {
+      startExon = endExon = exon?.exon;
     }
 
-    if (i + 1 === exons.length || exons[i + 1].exon - 1 !== endExon) {
+    const secondExon = exons[i + 1]?.exon;
+
+    if (i + 1 === exons.length || (secondExon && secondExon - 1 !== endExon)) {
       if (startExon === endExon) {
         exonRanges.push(startExon.toString());
       } else {
@@ -378,5 +386,9 @@ export function isUuid(str: string) {
 }
 
 export const parseSort = (sort: IQueryParams['sort']) => {
-  return sort.map(sortMethod => `&sort=${sortMethod}`).join('');
+  return sort?.map(sortMethod => `&sort=${sortMethod}`).join('');
+};
+
+export const hasValue = <T,>(value: T | null | undefined): value is T => {
+  return value !== null && value !== undefined;
 };

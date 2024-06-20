@@ -19,6 +19,7 @@ import { getHexColorWithAlpha } from '../util/utils';
 import { parseFirebaseGenePath } from '../util/firebase/firebase-path-utils';
 import GenomicIndicatorsHeader from 'app/pages/curation/header/GenomicIndicatorsHeader';
 import { SentryError } from 'app/config/sentry-error';
+import { Unsubscribe } from 'firebase/auth';
 
 export interface IGenomicIndicatorsTableProps extends StoreProps {
   genomicIndicatorsPath: string;
@@ -39,24 +40,24 @@ const GenomicIndicatorsTable = ({
   const [genomicIndicatorsLength, setGenomicIndicatorsLength] = useState<number>(0);
 
   async function deleteGenomicIndicator(genomicIndicator: GenomicIndicator, index: number) {
-    const name = authStore.fullName;
+    const name = authStore?.fullName;
 
     const pathDetails = parseFirebaseGenePath(`${genomicIndicatorsPath}/${index}/name`);
-    const hugoSymbol = pathDetails.hugoSymbol;
-    const pathFromGene = pathDetails.pathFromGene;
+    const hugoSymbol = pathDetails?.hugoSymbol;
+    const pathFromGene = pathDetails?.pathFromGene;
 
-    const removeWithoutReview = isSectionRemovableWithoutReview(genomicIndicator.name_review);
+    const removeWithoutReview = isSectionRemovableWithoutReview(genomicIndicator?.name_review);
 
-    const review = new Review(name, undefined, undefined, true);
+    const review = new Review(name ?? '', undefined, undefined, true);
 
-    if (removeWithoutReview) {
+    if (removeWithoutReview && hugoSymbol) {
       const nestedUuids = findNestedUuids(genomicIndicator);
       try {
-        await deleteGenomicIndicators(genomicIndicatorsPath, [index]);
+        await deleteGenomicIndicators?.(genomicIndicatorsPath, [index]);
         for (const id of nestedUuids) {
-          await updateGeneReviewUuid(hugoSymbol, id, false, true);
+          await updateGeneReviewUuid?.(hugoSymbol, id, false, true);
         }
-        return await fetchGenomicIndicators(genomicIndicatorsPath);
+        return await fetchGenomicIndicators?.(genomicIndicatorsPath);
       } catch (error) {
         throw new SentryError('Failed to genomic indicator without review', { genomicIndicator, index });
       }
@@ -64,32 +65,35 @@ const GenomicIndicatorsTable = ({
 
     // Let the deletion be reviewed
     try {
-      await update(ref(firebaseDb, `${getFirebasePath('GERMLINE_GENE', hugoSymbol)}`), {
-        [`${pathFromGene}_review`]: review,
-      });
-      await updateMeta(hugoSymbol, genomicIndicator.name_uuid, true, true);
+      if (firebaseDb && hugoSymbol) {
+        await update(ref(firebaseDb, `${getFirebasePath('GERMLINE_GENE', hugoSymbol)}`), {
+          [`${pathFromGene}_review`]: review,
+        });
+        await updateMeta?.(hugoSymbol, genomicIndicator.name_uuid, true, true);
+      }
     } catch (error) {
       throw new SentryError('Failed to mark genomic indicator deletion for review', { genomicIndicator, index });
     }
   }
 
   useEffect(() => {
-    const callbacks = [];
-    callbacks.push(
-      onValue(ref(firebaseDb, genomicIndicatorsPath), snapshot => {
-        const data = snapshot.val();
-        let newGenomicIndicatorsLength = 0;
-        if (data) {
-          newGenomicIndicatorsLength = typeof data === 'object' ? Object.keys(data).length : (data as []).length;
-        }
+    const callbacks: Unsubscribe[] = [];
+    if (firebaseDb) {
+      callbacks.push(
+        onValue(ref(firebaseDb, genomicIndicatorsPath), snapshot => {
+          const data = snapshot.val();
+          let newGenomicIndicatorsLength = 0;
+          if (data) {
+            newGenomicIndicatorsLength = typeof data === 'object' ? Object.keys(data).length : (data as []).length;
+          }
 
-        if (newGenomicIndicatorsLength !== genomicIndicatorsLength) {
-          setGenomicIndicatorsLength(newGenomicIndicatorsLength);
-        }
-      }),
-    );
-
-    fetchGenomicIndicators(genomicIndicatorsPath);
+          if (newGenomicIndicatorsLength !== genomicIndicatorsLength) {
+            setGenomicIndicatorsLength(newGenomicIndicatorsLength);
+          }
+        }),
+      );
+    }
+    fetchGenomicIndicators?.(genomicIndicatorsPath);
 
     return () => {
       callbacks.forEach(callback => callback?.());
@@ -103,35 +107,39 @@ const GenomicIndicatorsTable = ({
       style: { overflow: 'visible', padding: 0 },
       Cell({ index }: CellInfo) {
         return (
-          <GenomicIndicatorNameCell
-            genomicIndicatorsPath={genomicIndicatorsPath}
-            firebaseIndex={index}
-            firebaseDb={firebaseDb}
-            buildCell={genomicIndicators => {
-              const thisCellIndicator = genomicIndicators[index];
+          <>
+            {firebaseDb && (
+              <GenomicIndicatorNameCell
+                genomicIndicatorsPath={genomicIndicatorsPath}
+                firebaseIndex={index}
+                firebaseDb={firebaseDb}
+                buildCell={genomicIndicators => {
+                  const thisCellIndicator = genomicIndicators[index];
 
-              let isDuplicateName = false;
-              for (let i = 0; i < genomicIndicators.length; i++) {
-                if (i !== index && thisCellIndicator.name === genomicIndicators[i]?.name) {
-                  isDuplicateName = true;
-                  break;
-                }
-              }
+                  let isDuplicateName = false;
+                  for (let i = 0; i < genomicIndicators.length; i++) {
+                    if (i !== index && thisCellIndicator.name === genomicIndicators[i]?.name) {
+                      isDuplicateName = true;
+                      break;
+                    }
+                  }
 
-              return (
-                <>
-                  <RealtimeTextAreaInput
-                    style={{ height: '60px', marginBottom: isDuplicateName ? 0 : null }}
-                    firebasePath={`${genomicIndicatorsPath}/${index}/name`}
-                    label=""
-                    disabled={thisCellIndicator.name_review?.removed || false}
-                    invalid={isDuplicateName}
-                    invalidMessage="Name must be unique"
-                  />
-                </>
-              );
-            }}
-          />
+                  return (
+                    <>
+                      <RealtimeTextAreaInput
+                        style={{ height: '60px', marginBottom: isDuplicateName ? 0 : undefined }}
+                        firebasePath={`${genomicIndicatorsPath}/${index}/name`}
+                        label=""
+                        disabled={thisCellIndicator.name_review?.removed || false}
+                        invalid={isDuplicateName}
+                        invalidMessage="Name must be unique"
+                      />
+                    </>
+                  );
+                }}
+              />
+            )}
+          </>
         );
       },
     },
@@ -173,20 +181,24 @@ const GenomicIndicatorsTable = ({
         const genomicIndicatorPath = `${genomicIndicatorsPath}/${index}`;
 
         return (
-          <GenomicIndicatorCell
-            genomicIndicatorPath={genomicIndicatorPath}
-            firebaseDb={firebaseDb}
-            buildCell={genomicIndicator => {
-              return (
-                <RealtimeTextAreaInput
-                  style={{ height: '60px' }}
-                  firebasePath={`${genomicIndicatorsPath}/${index}/description`}
-                  label=""
-                  disabled={genomicIndicator.name_review?.removed || false}
-                />
-              );
-            }}
-          />
+          <>
+            {firebaseDb && (
+              <GenomicIndicatorCell
+                genomicIndicatorPath={genomicIndicatorPath}
+                firebaseDb={firebaseDb}
+                buildCell={genomicIndicator => {
+                  return (
+                    <RealtimeTextAreaInput
+                      style={{ height: '60px' }}
+                      firebasePath={`${genomicIndicatorsPath}/${index}/description`}
+                      label=""
+                      disabled={genomicIndicator.name_review?.removed || false}
+                    />
+                  );
+                }}
+              />
+            )}
+          </>
         );
       },
     },
@@ -196,60 +208,66 @@ const GenomicIndicatorsTable = ({
       Cell({ index }: CellInfo) {
         const genomicIndicatorPath = `${genomicIndicatorsPath}/${index}`;
         return (
-          <GenomicIndicatorCell
-            genomicIndicatorPath={genomicIndicatorPath}
-            firebaseDb={firebaseDb}
-            buildCell={genomicIndicator => {
-              return (
-                <RealtimeDropdownInput
-                  styles={{
-                    multiValueLabel: baseStyles => ({
-                      ...baseStyles,
-                      whiteSpace: 'normal',
-                    }),
-                  }}
-                  placeholder="Select Variants"
-                  isMulti
-                  isDisabled={genomicIndicator.name_review?.removed || false}
-                  value={
-                    genomicIndicator.associationVariants?.map(variant => {
-                      // remove when working on https://github.com/oncokb/oncokb-pipeline/issues/389
-                      if (variant.uuid === PATHOGENIC_VARIANTS) {
-                        return { label: PATHOGENIC_VARIANTS, value: variant.uuid };
-                      }
+          <>
+            {firebaseDb && (
+              <GenomicIndicatorCell
+                genomicIndicatorPath={genomicIndicatorPath}
+                firebaseDb={firebaseDb}
+                buildCell={genomicIndicator => {
+                  return (
+                    <RealtimeDropdownInput
+                      styles={{
+                        multiValueLabel: baseStyles => ({
+                          ...baseStyles,
+                          whiteSpace: 'normal',
+                        }),
+                      }}
+                      placeholder="Select Variants"
+                      isMulti
+                      isDisabled={genomicIndicator.name_review?.removed || false}
+                      value={
+                        genomicIndicator.associationVariants?.map(variant => {
+                          // remove when working on https://github.com/oncokb/oncokb-pipeline/issues/389
+                          if (variant.uuid === PATHOGENIC_VARIANTS) {
+                            return { label: PATHOGENIC_VARIANTS, value: variant.uuid };
+                          }
 
-                      const associatedMutation = mutations.find(mutation => mutation.name_uuid === variant.uuid);
-                      return { label: getMutationName(associatedMutation.name, associatedMutation.alterations), value: variant.uuid };
-                    }) || []
-                  }
-                  options={[
-                    {
-                      label: PATHOGENIC_VARIANTS,
-                      value: PATHOGENIC_VARIANTS,
-                    },
-                    ...(mutations?.map(mutation => ({
-                      label: getMutationName(mutation.name, mutation.alterations),
-                      value: mutation.name_uuid,
-                    })) || []),
-                  ]}
-                  onChange={async (newValue: { label: string; value: string }[]) => {
-                    await updateReviewableContent(
-                      `${genomicIndicatorPath}/associationVariants`,
-                      genomicIndicator.associationVariants,
-                      newValue.map(value => ({
-                        name: value.label,
-                        uuid: value.value,
-                      })),
-                      genomicIndicator.associationVariants_review,
-                      genomicIndicator.associationVariants_uuid,
-                    );
-                    await fetchGenomicIndicators(genomicIndicatorsPath);
-                  }}
-                  noOptionsMessage={() => 'Please add this mutation in the Mutations List below first'}
-                />
-              );
-            }}
-          />
+                          const associatedMutation = mutations?.find(mutation => mutation.name_uuid === variant.uuid);
+                          return { label: getMutationName(associatedMutation?.name, associatedMutation?.alterations), value: variant.uuid };
+                        }) || []
+                      }
+                      options={[
+                        {
+                          label: PATHOGENIC_VARIANTS,
+                          value: PATHOGENIC_VARIANTS,
+                        },
+                        ...(mutations?.map(mutation => ({
+                          label: getMutationName(mutation.name, mutation.alterations),
+                          value: mutation.name_uuid,
+                        })) || []),
+                      ]}
+                      onChange={async newValue => {
+                        if (genomicIndicator.associationVariants_review) {
+                          await updateReviewableContent?.(
+                            `${genomicIndicatorPath}/associationVariants`,
+                            genomicIndicator.associationVariants,
+                            newValue.map(value => ({
+                              name: value.label,
+                              uuid: value.value,
+                            })),
+                            genomicIndicator.associationVariants_review,
+                            genomicIndicator.associationVariants_uuid,
+                          );
+                          await fetchGenomicIndicators?.(genomicIndicatorsPath);
+                        }
+                      }}
+                      noOptionsMessage={() => 'Please add this mutation in the Mutations List below first'}
+                    />
+                  );
+                }}
+              />
+            )}
+          </>
         );
       },
     },
@@ -330,22 +348,24 @@ export default componentInject(mapStoreToProps)(observer(GenomicIndicatorsTable)
 interface IGenomicIndicatorCellProps {
   genomicIndicatorPath: string;
   mutations?: Mutation[];
-  firebaseDb: Database;
+  firebaseDb: Database | undefined;
   buildCell: (genomicIndicator: GenomicIndicator) => React.ReactNode;
 }
 
 function GenomicIndicatorCell({ genomicIndicatorPath, firebaseDb, buildCell }: IGenomicIndicatorCellProps) {
-  const [genomicIndicator, setGenomicIndicator] = useState<GenomicIndicator>(null);
+  const [genomicIndicator, setGenomicIndicator] = useState<GenomicIndicator | null>(null);
 
   useEffect(() => {
-    const callbacks = [];
-    callbacks.push(
-      onValue(ref(firebaseDb, genomicIndicatorPath), snapshot => {
-        setGenomicIndicator(snapshot.val());
-      }),
-    );
+    if (firebaseDb) {
+      const callbacks: Unsubscribe[] = [];
+      callbacks.push(
+        onValue(ref(firebaseDb, genomicIndicatorPath), snapshot => {
+          setGenomicIndicator(snapshot.val());
+        }),
+      );
 
-    return () => callbacks.forEach(callback => callback?.());
+      return () => callbacks.forEach(callback => callback?.());
+    }
   }, [genomicIndicatorPath, firebaseDb]);
 
   function getCell() {
@@ -361,7 +381,7 @@ function GenomicIndicatorCell({ genomicIndicatorPath, firebaseDb, buildCell }: I
       style={{
         padding: '7px 5px',
         height: '100%',
-        backgroundColor: genomicIndicator?.name_review?.removed ? getHexColorWithAlpha(DANGER, 0.05) : null,
+        backgroundColor: genomicIndicator?.name_review?.removed ? getHexColorWithAlpha(DANGER, 0.05) : undefined,
       }}
     >
       {getCell()}
@@ -378,7 +398,7 @@ interface IGenomicIndicatorNameCellProps {
 }
 
 function GenomicIndicatorNameCell({ genomicIndicatorsPath, firebaseIndex, firebaseDb, buildCell }: IGenomicIndicatorNameCellProps) {
-  const [genomicIndicators, setGenomicIndicators] = useState<GenomicIndicator[]>(null);
+  const [genomicIndicators, setGenomicIndicators] = useState<GenomicIndicator[] | null>(null);
 
   useEffect(() => {
     const unsubscribe = onValue(ref(firebaseDb, genomicIndicatorsPath), snapshot => {
@@ -401,7 +421,7 @@ function GenomicIndicatorNameCell({ genomicIndicatorsPath, firebaseIndex, fireba
       style={{
         padding: '7px 5px',
         height: '100%',
-        backgroundColor: genomicIndicators?.[firebaseIndex]?.name_review?.removed ? getHexColorWithAlpha(DANGER, 0.05) : null,
+        backgroundColor: genomicIndicators?.[firebaseIndex]?.name_review?.removed ? getHexColorWithAlpha(DANGER, 0.05) : undefined,
       }}
     >
       {getCell()}

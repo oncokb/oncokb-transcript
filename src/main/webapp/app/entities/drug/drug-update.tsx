@@ -8,19 +8,17 @@ import { SaveButton } from 'app/shared/button/SaveButton';
 import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import NcitCodeSelect, { parseNcitUniqId } from 'app/shared/select/NcitCodeSelect';
-import { generateUuid } from 'app/shared/util/utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { IDrug } from 'app/shared/model/drug.model';
 
 export interface IDrugUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const DrugUpdate = (props: IDrugUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
-  const nciThesauruses = props.nciThesauruses;
   const flags = props.flags;
-  const associations = props.associations;
   const drugEntity = props.drugEntity;
-  const [selectedNcit, setSelectedNcit] = useState({
+  const [selectedNcit, setSelectedNcit] = useState<{ id: number | undefined; code: string | undefined } | null | undefined>({
     id: props.drugEntity?.nciThesaurus?.id,
     code: props.drugEntity?.nciThesaurus?.code,
   });
@@ -57,11 +55,11 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
     });
   }, [drugEntity]);
 
-  const saveEntity = values => {
+  const saveEntity = (values: IDrug) => {
     const entity = {
       ...drugEntity,
       ...values,
-      flags: mapIdList(values.flags),
+      flags: mapIdList(values.flags ?? []),
     };
     if (selectedNcit === undefined) {
       delete entity.nciThesaurus;
@@ -82,7 +80,7 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
       : {
           ...drugEntity,
           nciThesaurusId: drugEntity?.nciThesaurus?.id,
-          flags: drugEntity?.flags?.map(e => e.id.toString()),
+          flags: drugEntity?.flags?.map(e => e.id?.toString()),
         };
 
   return (
@@ -133,12 +131,15 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
               </ValidatedField>
               <FormGroup>
                 <Label>Code</Label>
-                <NcitCodeSelect
-                  ncit={drugEntity.nciThesaurus}
-                  onChange={selectedOption => {
-                    setSelectedNcit(selectedOption ? parseNcitUniqId(selectedOption.value) : undefined);
-                  }}
-                />
+                {drugEntity.nciThesaurus && (
+                  <NcitCodeSelect
+                    isMulti={false}
+                    ncit={drugEntity.nciThesaurus}
+                    onChange={selectedOption => {
+                      setSelectedNcit(selectedOption ? parseNcitUniqId(selectedOption.value) : undefined);
+                    }}
+                  />
+                )}
               </FormGroup>
               <SaveButton disabled={updating} />
             </ValidatedForm>
@@ -168,4 +169,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(DrugUpdate);
+export default connect<IDrugUpdateProps, StoreProps>(mapStoreToProps)(DrugUpdate);

@@ -60,7 +60,7 @@ export const TranscriptDetail = (props: ITranscriptDetailProps) => {
               <dt>Ensembl Gene</dt>
               <dd>{transcriptEntity.ensemblGene.ensemblGeneId}</dd>
               <dt>Gene</dt>
-              <dd>{transcriptEntity.ensemblGene.gene.hugoSymbol}</dd>
+              <dd>{transcriptEntity.ensemblGene.gene?.hugoSymbol}</dd>
             </>
           )}
         </dl>
@@ -82,4 +82,4 @@ const mapStoreToProps = ({ transcriptStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(TranscriptDetail);
+export default connect<ITranscriptDetailProps, StoreProps>(mapStoreToProps)(TranscriptDetail);

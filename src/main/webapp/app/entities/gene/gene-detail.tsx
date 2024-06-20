@@ -12,7 +12,7 @@ import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
 import { TranscriptTable } from 'app/entities/gene/transcript-table';
 import GeneFlags from 'app/entities/gene/gene-flags';
 import { ITranscript } from 'app/shared/model/transcript.model';
-import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
+import LoadingIndicator from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { ClustalOResp } from 'app/shared/api/generated/curation';
 import { responseFailure } from 'app/config/notification-middleware-mobx';
 import { getGenomicLocation } from 'app/shared/util/utils';
@@ -23,7 +23,7 @@ export const GeneDetail = (props: IGeneDetailProps) => {
   const [ensemblGenes, setEnsemblGenes] = useState<IEnsemblGene[]>([]);
   const [loadingEnsemblGenes, setLoadingEnsemblGenes] = useState(false);
 
-  const [selectedTranscriptIds, setSelectedTranscriptIds] = useState([]);
+  const [selectedTranscriptIds, setSelectedTranscriptIds] = useState<number[]>([]);
   const [selectedTranscripts, setSelectedTranscripts] = useState<{ [key: number]: ITranscript }>({});
 
   const [aligningTranscripts, setAligningTranscripts] = useState(false);
@@ -49,10 +49,10 @@ export const GeneDetail = (props: IGeneDetailProps) => {
   }, [props.geneEntity.id]);
 
   const onToggleTranscript = (transcript: ITranscript) => {
-    if (transcript.id in selectedTranscripts) {
+    if (transcript.id && transcript.id in selectedTranscripts) {
       delete selectedTranscripts[transcript.id];
       setSelectedTranscriptIds(selectedTranscriptIds.filter(id => id !== transcript.id));
-    } else {
+    } else if (transcript.id) {
       selectedTranscripts[transcript.id] = transcript;
       setSelectedTranscriptIds([...selectedTranscriptIds, transcript.id]);
     }
@@ -100,7 +100,7 @@ export const GeneDetail = (props: IGeneDetailProps) => {
             </span>
           </div>
           <div>
-            <GeneFlags flags={geneEntity.flags} />
+            <GeneFlags flags={geneEntity.flags ?? []} />
           </div>
         </Col>
       </Row>
@@ -117,12 +117,14 @@ export const GeneDetail = (props: IGeneDetailProps) => {
                     </span>
                     <span className={'ms-1'}>{getGenomicLocation(eg)}</span>
                   </div>
-                  <TranscriptTable
-                    ensemblGeneId={eg.id}
-                    onToggleTranscript={onToggleTranscript}
-                    disableTranscriptAlignment={aligningTranscripts}
-                    selectedTranscriptIds={selectedTranscriptIds}
-                  />
+                  {eg.id && (
+                    <TranscriptTable
+                      ensemblGeneId={eg.id}
+                      onToggleTranscript={onToggleTranscript}
+                      disableTranscriptAlignment={aligningTranscripts}
+                      selectedTranscriptIds={selectedTranscriptIds}
+                    />
+                  )}
                 </div>
               );
             })}
@@ -162,4 +164,4 @@ const mapStoreToProps = ({ geneStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(GeneDetail);
+export default connect<IGeneDetailProps, StoreProps>(mapStoreToProps)(GeneDetail);

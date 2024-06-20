@@ -41,6 +41,7 @@ export const CategoricalAlterationUpdate = (props: ICategoricalAlterationUpdateP
     }
   }, [updateSuccess]);
 
+  // TYPE-ISSUE: I don't know what type values is
   const saveEntity = values => {
     const entity = {
       ...categoricalAlterationEntity,
@@ -152,4 +153,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(CategoricalAlterationUpdate);
+export default connect<ICategoricalAlterationUpdateProps, StoreProps>(mapStoreToProps)(CategoricalAlterationUpdate);

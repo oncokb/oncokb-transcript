@@ -17,7 +17,7 @@ const Layout: React.FunctionComponent<ILayoutProps> = props => {
   const history = useHistory();
 
   useEffect(() => {
-    history.listen((location, action) => {
+    history.listen((location: { pathname: string }) => {
       const matchedPath = includedPaths.filter(path => matchPath(location.pathname, { path, exact: true }))[0];
       props.toggleOncoKBSidebar(!!matchedPath);
     });
@@ -32,4 +32,4 @@ const mapStoreToProps = ({ layoutStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(Layout);
+export default connect<ILayoutProps, StoreProps>(mapStoreToProps)(Layout);

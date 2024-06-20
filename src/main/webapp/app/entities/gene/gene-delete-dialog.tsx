@@ -59,4 +59,4 @@ const mapStoreToProps = ({ geneStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(GeneDeleteDialog);
+export default connect<IGeneDeleteDialogProps, StoreProps>(mapStoreToProps)(GeneDeleteDialog);

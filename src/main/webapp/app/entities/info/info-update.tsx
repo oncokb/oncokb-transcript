@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 
-import { IInfo } from 'app/shared/model/info.model';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
 
 export interface IInfoUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
@@ -39,6 +36,7 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
     }
   }, [updateSuccess]);
 
+  // TYPE-ISSUE: I'm not sure what type this is supposed to be
   const saveEntity = values => {
     values.created = convertDateTimeToServer(values.created);
     values.lastUpdated = convertDateTimeToServer(values.lastUpdated);
@@ -63,8 +61,8 @@ export const InfoUpdate = (props: IInfoUpdateProps) => {
         }
       : {
           ...infoEntity,
-          created: convertDateTimeFromServer(infoEntity.created),
-          lastUpdated: convertDateTimeFromServer(infoEntity.lastUpdated),
+          created: convertDateTimeFromServer(infoEntity.created ?? ''),
+          lastUpdated: convertDateTimeFromServer(infoEntity.lastUpdated ?? ''),
         };
 
   return (
@@ -135,4 +133,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(InfoUpdate);
+export default connect<IInfoUpdateProps, StoreProps>(mapStoreToProps)(InfoUpdate);

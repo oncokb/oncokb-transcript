@@ -7,7 +7,7 @@ import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
-import { filterByKeyword, getAlterationName, getEntityTableActionsColumn } from 'app/shared/util/utils';
+import { filterByKeyword, getEntityTableActionsColumn } from 'app/shared/util/utils';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { IAssociation } from 'app/shared/model/association.model';
 import { IAlleleState } from 'app/shared/model/allele-state.model';
@@ -24,8 +24,8 @@ const getAssociatedAlterations = (associations?: IAssociation[]) => {
   );
 };
 
-const getAssociatedAlleleStates = (alleleStates?: IAlleleState[]) => {
-  return alleleStates?.map(alleleState => alleleState.name).join();
+const getAssociatedAlleleStates = (alleleStates: IAlleleState[] | undefined) => {
+  return alleleStates?.map(alleleState => alleleState.name).join() ?? '';
 };
 
 export const GenomicIndicator = (props: IGenomicIndicatorProps) => {
@@ -94,4 +94,4 @@ const mapStoreToProps = ({ genomicIndicatorStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(GenomicIndicator);
+export default connect<IGenomicIndicatorProps, StoreProps>(mapStoreToProps)(GenomicIndicator);

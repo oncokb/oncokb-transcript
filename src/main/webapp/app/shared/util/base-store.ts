@@ -5,7 +5,7 @@ import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/N
 
 export class BaseStore {
   public loading = false;
-  public errorMessage = null;
+  public errorMessage: string | null = null;
   public updating = false;
   public updateSuccess = false;
 
@@ -28,7 +28,7 @@ export class BaseStore {
   updateHandler = <R, Args extends any[]>(
     param: (...args: Args) => Generator<any, R, any> | AsyncGenerator<any, R, any>,
     successMessage?,
-    errorMessage?
+    errorMessage?,
   ) => flow(handleOperation(this, param, this.updateOperationHandler(successMessage, errorMessage)));
 
   updateOperationHandler = (successMessage?, errorMessage?) => {
@@ -67,7 +67,7 @@ export class BaseStore {
   readHandler = <R, Args extends any[]>(
     param: (...args: Args) => Generator<any, R, any> | AsyncGenerator<any, R, any>,
     successMessage?: string,
-    errorMessage?: string
+    errorMessage?: string,
   ) => flow(handleOperation(this, param, this.readOperationHandler(successMessage, errorMessage)));
 
   readOperationHandler = (successMessage?: string, errorMessage?: string) => {

@@ -18,7 +18,7 @@ export interface IGeneTranscriptsProps {
 }
 
 export const TranscriptTable = (props: IGeneTranscriptsProps) => {
-  const [transcriptList, setTranscriptList] = useState([]);
+  const [transcriptList, setTranscriptList] = useState<ITranscript[]>([]);
   const [loadingTranscripts, setLoadingTranscripts] = useState(false);
 
   useEffect(() => {
@@ -88,11 +88,11 @@ export const TranscriptTable = (props: IGeneTranscriptsProps) => {
           <div>
             <input
               type={'checkbox'}
-              checked={props.selectedTranscriptIds.includes(cell.original.id)}
+              checked={!!cell.original.id && props.selectedTranscriptIds.includes(cell.original.id)}
               disabled={props.disableTranscriptAlignment}
               onChange={() => props.onToggleTranscript(cell.original)}
             />{' '}
-            {getComparisonOrder(cell.original.id)}
+            {cell.original.id ? getComparisonOrder(cell.original.id) : undefined}
           </div>
         );
       },

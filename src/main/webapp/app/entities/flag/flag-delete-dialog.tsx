@@ -59,4 +59,4 @@ const mapStoreToProps = ({ flagStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(FlagDeleteDialog);
+export default connect<IFlagDeleteDialogProps, StoreProps>(mapStoreToProps)(FlagDeleteDialog);

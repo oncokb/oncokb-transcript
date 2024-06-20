@@ -29,7 +29,7 @@ export type BaseReviewLevelParams = {
   children?: ReviewChildren;
   valuePath: string;
   historyLocation: string;
-  nestedUnderCreateorDelete?: boolean;
+  nestedUnderCreateOrDelete?: boolean;
 };
 export class BaseReviewLevel {
   id: string; // id is used to uniquely identify a review level
@@ -41,14 +41,14 @@ export class BaseReviewLevel {
   historyLocation: string;
   nestedUnderCreateOrDelete?: boolean;
 
-  constructor({ reviewLevelType, title, valuePath, historyLocation, nestedUnderCreateorDelete = false }: BaseReviewLevelParams) {
+  constructor({ reviewLevelType, title, valuePath, historyLocation, nestedUnderCreateOrDelete = false }: BaseReviewLevelParams) {
     this.id = generateUuid();
     this.hideLevel = false;
     this.reviewLevelType = reviewLevelType;
     this.title = title;
     this.valuePath = valuePath;
     this.historyLocation = historyLocation;
-    this.nestedUnderCreateOrDelete = nestedUnderCreateorDelete;
+    this.nestedUnderCreateOrDelete = nestedUnderCreateOrDelete;
     this.children = {};
   }
 
@@ -57,11 +57,15 @@ export class BaseReviewLevel {
   }
 
   childrenCount() {
-    return Object.keys(this.children).length;
+    return Object.keys(this.children ?? []).length;
   }
 
   addChild(childReview: BaseReviewLevel) {
-    this.children[childReview.title] = childReview;
+    if (this.children) {
+      this.children[childReview.title] = childReview;
+    } else {
+      throw new Error('No children!');
+    }
   }
 }
 
@@ -80,15 +84,15 @@ export class MultiSelectionReviewLevel extends BaseReviewLevel {
   }
 
   getReviewLevels() {
-    return Object.values(this.children) as ReviewLevel[];
+    return Object.values(this.children ?? []) as ReviewLevel[];
   }
 }
 
 export type ReviewInfo = {
   reviewPath: string;
-  review: Review;
-  lastReviewedString: string;
-  uuid: string;
+  review: Review | undefined;
+  lastReviewedString: string | undefined;
+  uuid: string | undefined;
   reviewAction?: ReviewAction;
 };
 
@@ -98,12 +102,14 @@ export type HistoryData = {
 };
 
 export type ReviewLevelParams = Omit<BaseReviewLevelParams, 'reviewLevelType'> & {
+  // TYPE-ISSUE: USE GENERIC TYPE
   currentVal: any;
   reviewInfo: ReviewInfo;
   historyData: HistoryData;
 };
 
 export class ReviewLevel extends BaseReviewLevel {
+  // TYPE-ISSUE: USE GENERIC TYPE
   currentVal: any;
   reviewInfo: ReviewInfo;
   historyData: HistoryData;
@@ -122,8 +128,8 @@ export type TumorReviewLevelParams = {
   excludedCancerTypesReviewInfo?: ReviewInfo;
 } & ReviewLevelParams;
 export class TumorReviewLevel extends ReviewLevel {
-  currentExcludedCancerTypes: ICancerType[];
-  excludedCancerTypesReviewInfo: ReviewInfo;
+  currentExcludedCancerTypes: ICancerType[] | undefined;
+  excludedCancerTypesReviewInfo: ReviewInfo | undefined;
 
   constructor({ currentExcludedCancerTypes, excludedCancerTypesReviewInfo, ...reviewLevelParams }: TumorReviewLevelParams) {
     super({ ...reviewLevelParams });
@@ -132,17 +138,17 @@ export class TumorReviewLevel extends ReviewLevel {
   }
 }
 
-export const getReviewAction = (review: Review, reviewPath: string): ReviewAction => {
-  if (review.demotedToVus) {
+export const getReviewAction = (review: Review | undefined, reviewPath: string): ReviewAction => {
+  if (review?.demotedToVus) {
     return ReviewAction.DEMOTE_MUTATION;
   }
-  if (review.promotedToMutation) {
+  if (review?.promotedToMutation) {
     return ReviewAction.PROMOTE_VUS;
   }
-  if (review.added) {
+  if (review?.added) {
     return ReviewAction.CREATE;
   }
-  if (review.removed) {
+  if (review?.removed) {
     return ReviewAction.DELETE;
   }
   if (reviewPath.endsWith('cancerTypes_review') || reviewPath.endsWith('name_review')) {
@@ -170,7 +176,7 @@ export const getRelevantKeysFromUuidKey = (uuidKey: string) => {
 };
 
 export const joinPathParts = (parentPath: string, ...pathParts: string[]) => {
-  let parts = [];
+  let parts: string[] = [];
   if (parentPath !== '') {
     parts.push(parentPath);
   }
@@ -179,8 +185,7 @@ export const joinPathParts = (parentPath: string, ...pathParts: string[]) => {
 };
 
 export const removeLeafNodes = (parentReview: BaseReviewLevel) => {
-  for (const key of Object.keys(parentReview.children)) {
-    const childReview = parentReview.children[key];
+  for (const [key, childReview] of Object.entries(parentReview.children ?? [])) {
     if (childReview.hasChildren()) continue;
     let shouldRemove = false;
     if (childReview.reviewLevelType === ReviewLevelType.META) {
@@ -201,7 +206,7 @@ export const removeLeafNodes = (parentReview: BaseReviewLevel) => {
       // If a new entity is created, we don't show in review mode until at least one field has been updated
       shouldRemove = isCreateReview(reviewLevel) && !reviewLevel.hasChildren() && !showGenomicIndicatorReview;
     }
-    if (shouldRemove) {
+    if (shouldRemove && parentReview.children) {
       delete parentReview.children[key];
     }
   }
@@ -210,7 +215,11 @@ export const removeLeafNodes = (parentReview: BaseReviewLevel) => {
 export const isCreateReview = (review: BaseReviewLevel) => {
   if (review.reviewLevelType === ReviewLevelType.REVIEWABLE) {
     const reviewLevel = review as ReviewLevel;
-    return [ReviewAction.CREATE, ReviewAction.PROMOTE_VUS].includes(reviewLevel.reviewInfo.reviewAction);
+    if (reviewLevel.reviewInfo?.reviewAction !== undefined) {
+      return [ReviewAction.CREATE, ReviewAction.PROMOTE_VUS].includes(reviewLevel.reviewInfo?.reviewAction);
+    } else {
+      return false;
+    }
   }
   return false;
 };
@@ -218,29 +227,35 @@ export const isCreateReview = (review: BaseReviewLevel) => {
 export const isDeleteReview = (review: BaseReviewLevel) => {
   if (review.reviewLevelType === ReviewLevelType.REVIEWABLE) {
     const reviewLevel = review as ReviewLevel;
-    return [ReviewAction.DELETE, ReviewAction.DEMOTE_MUTATION].includes(reviewLevel.reviewInfo.reviewAction);
+    if (reviewLevel.reviewInfo?.reviewAction) {
+      return [ReviewAction.DELETE, ReviewAction.DEMOTE_MUTATION].includes(reviewLevel.reviewInfo.reviewAction);
+    } else {
+      return false;
+    }
   }
   return false;
 };
 
 export const getCompactReviewInfo = (review: BaseReviewLevel) => {
   if (review.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) return review;
-  if (!review.hasChildren()) {
+  if (!review.hasChildren?.()) {
     return review;
   }
   const numOfChildren = review.childrenCount();
   if (numOfChildren > 1) {
     return review;
   }
-  let childReview = Object.values(review.children)[0];
+  let childReview: BaseReviewLevel | undefined = Object.values(review.children ?? [])[0];
   if (childReview.nestedUnderCreateOrDelete) {
     if (isCreateReview(review)) {
       return review;
     }
   }
   childReview = getCompactReviewInfo(childReview);
-  childReview.title = [review.title, childReview.title].filter(part => part !== '').join('/');
-  childReview.nestedUnderCreateOrDelete = review.nestedUnderCreateOrDelete;
+  if (childReview) {
+    childReview.title = [review.title, childReview.title].filter(part => part !== '').join('/');
+    childReview.nestedUnderCreateOrDelete = review.nestedUnderCreateOrDelete;
+  }
   return childReview;
 };
 
@@ -320,11 +335,13 @@ export class EditorReviewMap {
       // We only accept/reject changes at the top level (mutation/ct/therapy)
       return;
     }
-    const editor = reviewLevel.reviewInfo.review.updatedBy;
-    if (Object.keys(this.map).includes(editor)) {
-      this.map[editor].push(reviewLevel);
-    } else {
-      this.map[editor] = [reviewLevel];
+    const editor = reviewLevel.reviewInfo.review?.updatedBy;
+    if (editor) {
+      if (Object.keys(this.map).includes(editor)) {
+        this.map[editor].push(reviewLevel);
+      } else {
+        this.map[editor] = [reviewLevel];
+      }
     }
   }
 
@@ -464,7 +481,7 @@ export const convertToMultiSelectionReview = (parentMetaReview: MetaReviewLevel)
     title: parentMetaReview.title,
     valuePath: parentMetaReview.valuePath,
     historyLocation: parentMetaReview.historyLocation,
-    nestedUnderCreateorDelete: parentMetaReview.nestedUnderCreateOrDelete,
+    nestedUnderCreateOrDelete: parentMetaReview.nestedUnderCreateOrDelete,
   });
   multiSelectionReviewLevel.children = parentMetaReview.children;
   return multiSelectionReviewLevel;
@@ -489,13 +506,13 @@ export const buildNameReview = (
 
   const valuePathParts = [currValuePath, nameKey];
   const valuePath = valuePathParts.join('/');
-  const title = readableName;
+  const title = readableName ?? '';
 
   const metaReview = new MetaReviewLevel({
     title,
     valuePath: currValuePath,
-    historyLocation: buildHistoryLocation(parentReview, readableName),
-    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+    historyLocation: buildHistoryLocation(parentReview, readableName ?? ''),
+    nestedUnderCreateOrDelete: isNestedUnderCreateOrDelete(parentReview),
   });
 
   const nameReview = creatableObject.name_review;
@@ -504,11 +521,11 @@ export const buildNameReview = (
     return metaReview;
   }
 
-  let readableOldName = nameReview.lastReviewed as string;
+  let readableOldName = nameReview.lastReviewed as string | undefined;
 
   let nameUpdated = false;
-  let oldState;
-  let newState;
+  let oldState: HistoryRecordState | undefined;
+  let newState: HistoryRecordState | undefined;
   if (nameReview.added || nameReview.promotedToMutation) {
     newState = creatableObject;
   } else if (nameReview.removed || nameReview.demotedToVus) {
@@ -519,7 +536,7 @@ export const buildNameReview = (
     if (drugList) {
       readableOldName = getTxName(drugList, readableOldName);
     }
-    oldState = nameReview.lastReviewed;
+    oldState = nameReview.lastReviewed as string;
     newState = creatableObject.name;
   } else {
     return metaReview;
@@ -528,7 +545,7 @@ export const buildNameReview = (
   const nameReviewLevel = new ReviewLevel({
     title: nameUpdated ? makeFirebaseKeysReadable([nameKey])[0] : '',
     valuePath,
-    historyLocation: buildHistoryLocation(parentReview, readableName),
+    historyLocation: buildHistoryLocation(parentReview, readableName ?? ''),
     currentVal: readableName,
     reviewInfo: {
       reviewPath: `${valuePath}_review`,
@@ -537,7 +554,7 @@ export const buildNameReview = (
       uuid: creatableObject.name_uuid,
     },
     historyData: { oldState, newState },
-    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+    nestedUnderCreateOrDelete: isNestedUnderCreateOrDelete(parentReview),
   });
 
   _.pull(uuids, creatableObject.name_uuid);
@@ -572,7 +589,7 @@ export const buildCancerTypeNameReview = (
     title: readableName,
     valuePath: currValuePath,
     historyLocation: buildHistoryLocation(parentReview, readableName),
-    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+    nestedUnderCreateOrDelete: isNestedUnderCreateOrDelete(parentReview),
   });
 
   const cancerTypesReview = tumor.cancerTypes_review;
@@ -626,7 +643,7 @@ export const buildCancerTypeNameReview = (
       lastReviewedString: undefined,
       uuid: undefined,
     },
-    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+    nestedUnderCreateOrDelete: isNestedUnderCreateOrDelete(parentReview),
   });
   _.pull(uuids, tumor.cancerTypes_uuid);
   _.pull(uuids, tumor.excludedCancerTypes_uuid);
@@ -678,7 +695,7 @@ export const buildStringReview = (
       oldState: lastReviewedString,
       newState: currentString,
     },
-    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+    nestedUnderCreateOrDelete: isNestedUnderCreateOrDelete(parentReview),
   });
 
   _.pull(uuids, obj[uuidKey]);
@@ -688,7 +705,7 @@ export const buildStringReview = (
 };
 
 export const buildObjectReview = (
-  obj: Record<string, any>,
+  obj: object | Implication | null,
   key: string,
   parentReview: BaseReviewLevel,
   uuids: string[],
@@ -699,7 +716,7 @@ export const buildObjectReview = (
     title: readableKey,
     valuePath: joinPathParts(parentReview.valuePath, key),
     historyLocation: buildHistoryLocation(parentReview, readableKey),
-    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+    nestedUnderCreateOrDelete: isNestedUnderCreateOrDelete(parentReview),
   });
   if (key === 'prognostic' || key === 'diagnostic') {
     const rctReview = buildRCTReview(obj as Implication, metaReview, uuids, editorReviewMap);
@@ -731,7 +748,7 @@ export const buildRCTReview = (
   const newRCTString = implication.excludedRCTs ? getCancerTypesName(implication.excludedRCTs, true, '\t') : '';
   let oldRCTString = '';
   if (hasLastReviewed) {
-    oldRCTString = getCancerTypesName(implication.excludedRCTs_review.lastReviewed as CancerType[], true, '\t');
+    oldRCTString = getCancerTypesName(implication.excludedRCTs_review?.lastReviewed as CancerType[], true, '\t');
   }
 
   if (isInitialUpdate || hasLastReviewed) {
@@ -750,7 +767,7 @@ export const buildRCTReview = (
         oldState: oldRCTString,
         newState: newRCTString,
       },
-      nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+      nestedUnderCreateOrDelete: isNestedUnderCreateOrDelete(parentReview),
     });
     _.pull(uuids, implication.excludedRCTs_uuid);
     editorReviewMap.add(rctReview);
@@ -776,28 +793,30 @@ export const clearAllNestedReviews = (obj: any) => {
   return;
 };
 
-export const clearReview = (review: Review) => {
-  delete review.lastReviewed;
-  delete review.added;
-  delete review.removed;
-  delete review.demotedToVus;
-  delete review.promotedToMutation;
-  delete review.initialUpdate;
+export const clearReview = (review: Review | null | undefined) => {
+  delete review?.lastReviewed;
+  delete review?.added;
+  delete review?.removed;
+  delete review?.demotedToVus;
+  delete review?.promotedToMutation;
+  delete review?.initialUpdate;
   return review;
 };
 
 export const getAllNestedReviewUuids = (baseReviewLevel: BaseReviewLevel, uuids: string[]) => {
   if (baseReviewLevel.reviewLevelType === ReviewLevelType.REVIEWABLE) {
     const reviewLevel = baseReviewLevel as ReviewLevel;
-    uuids.push(reviewLevel.reviewInfo.uuid);
+    if (reviewLevel.reviewInfo.uuid) {
+      uuids.push(reviewLevel.reviewInfo.uuid);
+    }
   }
-  for (const childReview of Object.values(baseReviewLevel.children)) {
+  for (const childReview of Object.values(baseReviewLevel.children ?? [])) {
     getAllNestedReviewUuids(childReview, uuids);
   }
 };
 
 export const getUpdatedReview = (
-  oldReview: Review,
+  oldReview: Review | null | undefined,
   currentValue: any,
   newValue: any,
   editorName: string,
@@ -813,7 +832,7 @@ export const getUpdatedReview = (
 
   // Update Review when value is reverted to original
   let isChangeReverted = false;
-  if (!('lastReviewed' in oldReview)) {
+  if (oldReview !== null && oldReview !== undefined && !('lastReviewed' in oldReview)) {
     oldReview.lastReviewed = currentValue;
     if (oldReview.lastReviewed === undefined) {
       oldReview = clearReview(oldReview);
@@ -823,11 +842,11 @@ export const getUpdatedReview = (
         isChangeReverted = true;
       }
     }
-  } else if (_.isEqual(oldReview.lastReviewed, newValue)) {
+  } else if (oldReview !== null && oldReview !== undefined && _.isEqual(oldReview.lastReviewed, newValue)) {
     isChangeReverted = true;
   }
 
-  if (isChangeReverted && !oldReview.added) {
+  if (oldReview !== null && oldReview !== undefined && isChangeReverted && !oldReview.added) {
     oldReview = clearReview(oldReview);
   }
 

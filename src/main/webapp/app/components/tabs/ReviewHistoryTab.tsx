@@ -15,11 +15,14 @@ export interface IReviewHistoryTab extends StoreProps {
 }
 
 function ReviewHistoryTab({ isGermline, firebaseDb, drugList, getDrugs }: IReviewHistoryTab) {
-  const [historyCollection, setHistoryCollection] = useState<HistoryCollection>(null);
+  const [historyCollection, setHistoryCollection] = useState<HistoryCollection>();
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
   useEffect(() => {
+    if (!firebaseDb) {
+      return;
+    }
     const unsubscribe = onValue(ref(firebaseDb, isGermline ? FB_COLLECTION.GERMLINE_HISTORY : FB_COLLECTION.HISTORY), snapshot => {
       setHistoryCollection(snapshot.val());
     });
@@ -28,14 +31,14 @@ function ReviewHistoryTab({ isGermline, firebaseDb, drugList, getDrugs }: IRevie
   }, []);
 
   useEffect(() => {
-    getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
+    getDrugs?.({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
   }, []);
 
   function handleDownload() {
-    const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
 
-    const history = getAllGeneHistoryForDateRange(historyCollection, drugList, start, end);
+    const history = getAllGeneHistoryForDateRange(historyCollection ?? {}, drugList ?? [], start, end);
 
     const content: string[] = [];
     if (history.gene.length > 0) {
@@ -63,7 +66,7 @@ function ReviewHistoryTab({ isGermline, firebaseDb, drugList, getDrugs }: IRevie
     try {
       downloadFile('README.md', content.join('\n'));
     } catch (error) {
-      notifyError(error);
+      notifyError(error as Error);
     }
   }
 

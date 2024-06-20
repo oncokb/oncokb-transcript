@@ -2,11 +2,11 @@ import Tabs from 'app/components/tabs/tabs';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
-import _, { isNil } from 'lodash';
+import _, { isNil, result } from 'lodash';
 import { flow, flowResult } from 'mobx';
 import React, { KeyboardEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FaChevronDown, FaChevronUp, FaExclamationTriangle, FaPlus } from 'react-icons/fa';
-import ReactSelect, { MenuPlacement } from 'react-select';
+import ReactSelect, { GroupBase, MenuPlacement } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import { Alert, Button, Col, Input, Row, Spinner } from 'reactstrap';
 import { Alteration, Mutation, VusObjList } from '../model/firebase/firebase.model';
@@ -20,11 +20,13 @@ import {
 import { IGene } from '../model/gene.model';
 import { getDuplicateMutations, getFirebaseGenePath, getFirebaseVusPath } from '../util/firebase/firebase-utils';
 import { componentInject } from '../util/typed-inject';
-import { isEqualIngoreCase, parseAlterationName } from '../util/utils';
+import { hasValue, isEqualIgnoreCase, parseAlterationName } from '../util/utils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
 import './add-mutation-modal.scss';
 import classNames from 'classnames';
 import { READABLE_ALTERATION, REFERENCE_GENOME } from 'app/config/constants/constants';
+import { Unsubscribe } from 'firebase/auth';
+import Select from 'react-select/dist/declarations/src/Select';
 
 type AlterationData = {
   type: AlterationTypeEnum;
@@ -45,11 +47,11 @@ type AlterationData = {
 };
 
 interface IAddMutationModalProps extends StoreProps {
-  hugoSymbol: string;
+  hugoSymbol: string | undefined;
   isGermline: boolean;
   onConfirm: (mutation: Mutation, mutationFirebaseIndex: number) => Promise<void>;
   onCancel: () => void;
-  mutationToEditPath?: string;
+  mutationToEditPath?: string | null;
   convertOptions?: {
     alteration: string;
     isConverting: boolean;
@@ -78,29 +80,33 @@ function AddMutationModal({
     AlterationTypeEnum.GenomicChange,
     AlterationTypeEnum.Any,
   ].map(type => ({ label: READABLE_ALTERATION[type], value: type }));
-  const consequenceOptions: DropdownOption[] = consequences.map(consequence => ({ label: consequence.name, value: consequence.id }));
+  const consequenceOptions: DropdownOption[] =
+    consequences?.map((consequence): DropdownOption => ({ label: consequence.name ?? '', value: consequence.id })) ?? [];
 
   const [inputValue, setInputValue] = useState('');
   const [tabStates, setTabStates] = useState<AlterationData[]>([]);
   const [excludingInputValue, setExcludingInputValue] = useState('');
   const [excludingCollapsed, setExcludingCollapsed] = useState(true);
   const [mutationAlreadyExists, setMutationAlreadyExists] = useState({ exists: false, inMutationList: false, inVusList: false });
-  const [mutationToEdit, setMutationToEdit] = useState<Mutation>(null);
+  const [mutationToEdit, setMutationToEdit] = useState<Mutation | null>(null);
   const [errorMessagesEnabled, setErrorMessagesEnabled] = useState(true);
   const [isFetchingAlteration, setIsFetchingAlteration] = useState(false);
   const [isFetchingExcludingAlteration, setIsFetchingExcludingAlteration] = useState(false);
   const [isConfirmPending, setIsConfirmPending] = useState(false);
 
-  const [vusList, setVusList] = useState<VusObjList>(null);
+  const [vusList, setVusList] = useState<VusObjList | null>(null);
 
-  const inputRef = useRef(null);
+  const inputRef = useRef<Select<AlterationData, true, GroupBase<AlterationData>> | null>(null);
 
   const geneEntity: IGene | undefined = useMemo(() => {
-    return geneEntities.find(gene => gene.hugoSymbol === hugoSymbol);
+    return geneEntities?.find(gene => gene.hugoSymbol === hugoSymbol);
   }, [geneEntities]);
 
   useEffect(() => {
-    const callbacks = [];
+    if (!firebaseDb) {
+      return;
+    }
+    const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(firebaseDb, getFirebaseVusPath(isGermline, hugoSymbol)), snapshot => {
         setVusList(snapshot.val());
@@ -125,7 +131,7 @@ function AddMutationModal({
   }, [convertOptions?.isConverting]);
 
   useEffect(() => {
-    const dupMutations = getDuplicateMutations(currentMutationNames, mutationList, vusList, {
+    const dupMutations = getDuplicateMutations(currentMutationNames, mutationList ?? [], vusList ?? {}, {
       useFullAlterationName: true,
       excludedMutationUuid: mutationToEdit?.name_uuid,
       excludedVusName: convertOptions?.isConverting ? convertOptions.alteration : '',
@@ -151,24 +157,24 @@ function AddMutationModal({
         excluding: alteration.excluding?.map(ex => convertAlterationToAlterationData(ex)) || [],
         genes: alteration?.genes || [],
         proteinChange: alteration?.proteinChange,
-        proteinStart: alteration?.proteinStart === -1 ? null : alteration?.proteinStart,
-        proteinEnd: alteration?.proteinEnd === -1 ? null : alteration?.proteinEnd,
+        proteinStart: alteration?.proteinStart === -1 ? undefined : alteration?.proteinStart,
+        proteinEnd: alteration?.proteinEnd === -1 ? undefined : alteration?.proteinEnd,
         refResidues: alteration?.refResidues,
         varResidues: alteration?.varResidues,
       };
     }
 
     async function setExistingAlterations() {
-      if (mutationToEdit.alterations?.length > 0) {
-        setTabStates(mutationToEdit.alterations.map(alt => convertAlterationToAlterationData(alt)));
+      if ((mutationToEdit?.alterations?.length ?? 0) > 0) {
+        setTabStates(mutationToEdit?.alterations?.map(alt => convertAlterationToAlterationData(alt)) ?? []);
         return;
       }
 
-      const parsedAlterations = mutationToEdit.name.split(',').map(name => parseAlterationName(name.trim())[0]); // at this point can be sure each alteration name does not have / character
+      const parsedAlterations = mutationToEdit?.name?.split(',').map(name => parseAlterationName(name.trim())[0]); // at this point can be sure each alteration name does not have / character
 
-      const entityStatusAlterationsPromise = fetchAlterations(parsedAlterations.map(alt => alt.alteration));
+      const entityStatusAlterationsPromise = fetchAlterations(parsedAlterations?.map(alt => alt.alteration) ?? []);
       const excludingEntityStatusAlterationsPromises: Promise<AlterationAnnotationStatus[]>[] = [];
-      for (const alt of parsedAlterations) {
+      for (const alt of parsedAlterations ?? []) {
         excludingEntityStatusAlterationsPromises.push(fetchAlterations(alt.excluding));
       }
       const [entityStatusAlterations, entityStatusExcludingAlterations] = await Promise.all([
@@ -177,32 +183,36 @@ function AddMutationModal({
       ]);
 
       const excludingAlterations: AlterationData[][] = [];
-      for (let i = 0; i < parsedAlterations.length; i++) {
-        const excluding: AlterationData[] = [];
-        for (let exIndex = 0; exIndex < parsedAlterations[i].excluding.length; exIndex++) {
-          excluding.push(
-            convertEntityStatusAlterationToAlterationData(
-              entityStatusExcludingAlterations[i][exIndex],
-              parsedAlterations[i].excluding[exIndex],
-              [],
-              '',
-            ),
-          );
+      if (parsedAlterations) {
+        for (let i = 0; i < parsedAlterations.length; i++) {
+          const excluding: AlterationData[] = [];
+          for (let exIndex = 0; exIndex < parsedAlterations[i].excluding.length; exIndex++) {
+            excluding.push(
+              convertEntityStatusAlterationToAlterationData(
+                entityStatusExcludingAlterations[i][exIndex],
+                parsedAlterations[i].excluding[exIndex],
+                [],
+                '',
+              ),
+            );
+          }
+          excludingAlterations.push(excluding);
         }
-        excludingAlterations.push(excluding);
       }
 
-      const alterations = entityStatusAlterations.map((alt, index) =>
-        convertEntityStatusAlterationToAlterationData(
-          alt,
-          parsedAlterations[index].alteration,
-          excludingAlterations[index] || [],
-          parsedAlterations[index].comment,
-          parsedAlterations[index].name,
-        ),
-      );
+      if (parsedAlterations) {
+        const alterations = entityStatusAlterations.map((alt, index) =>
+          convertEntityStatusAlterationToAlterationData(
+            alt,
+            parsedAlterations[index].alteration,
+            excludingAlterations[index] || [],
+            parsedAlterations[index].comment,
+            parsedAlterations[index].name,
+          ),
+        );
 
-      setTabStates(alterations);
+        setTabStates(alterations);
+      }
     }
 
     if (mutationToEdit) {
@@ -211,7 +221,7 @@ function AddMutationModal({
   }, [mutationToEdit]);
 
   useEffect(() => {
-    getConsequences({});
+    getConsequences?.({});
   }, []);
 
   useEffect(() => {
@@ -249,27 +259,35 @@ function AddMutationModal({
     return newAlterations;
   }
 
-  async function fetchAlteration(alterationName: string) {
+  async function fetchAlteration(alterationName: string): Promise<AlterationAnnotationStatus | undefined> {
     try {
       const request: AnnotateAlterationBody[] = [
         {
           referenceGenome: REFERENCE_GENOME.GRCH37,
-          alteration: { alteration: alterationName, genes: [{ id: geneEntity.id } as Gene] } as ApiAlteration,
+          alteration: { alteration: alterationName, genes: [{ id: geneEntity?.id } as Gene] } as ApiAlteration,
         },
       ];
-      const alts = await flowResult(annotateAlterations(request));
+      const alts = await flowResult(annotateAlterations?.(request));
       return alts[0];
     } catch (error) {
-      notifyError(error);
+      notifyError(error as Error);
     }
   }
 
   async function fetchAlterations(alterationNames: string[]) {
     try {
       const alterationPromises = alterationNames.map(name => fetchAlteration(name));
-      return await Promise.all(alterationPromises);
+      const alterations = await Promise.all(alterationPromises);
+      const filtered: AlterationAnnotationStatus[] = [];
+      for (const alteration of alterations) {
+        if (alteration !== undefined) {
+          filtered.push(alteration);
+        }
+      }
+      return filtered;
     } catch (error) {
-      notifyError(error);
+      notifyError(error as Error);
+      return [];
     }
   }
 
@@ -282,10 +300,10 @@ function AddMutationModal({
   ): AlterationData {
     const alteration = entityStatusAlteration.entity;
     return {
-      type: alteration?.type,
+      type: alteration?.type ?? AlterationTypeEnum.Unknown,
       alteration: alterationName,
-      name: variantName || alteration?.name,
-      consequence: alteration?.consequence?.name,
+      name: variantName ?? alteration?.name ?? '',
+      consequence: alteration?.consequence?.name ?? '',
       comment,
       excluding,
       genes: alteration?.genes,
@@ -294,8 +312,8 @@ function AddMutationModal({
       proteinEnd: alteration?.end,
       refResidues: alteration?.refResidues,
       varResidues: alteration?.variantResidues,
-      warning: entityStatusAlteration.warning ? entityStatusAlteration.message : null,
-      error: entityStatusAlteration.error ? entityStatusAlteration.message : null,
+      warning: entityStatusAlteration.warning ? entityStatusAlteration.message : undefined,
+      error: entityStatusAlteration.error ? entityStatusAlteration.message : undefined,
     };
   }
 
@@ -304,7 +322,7 @@ function AddMutationModal({
     if (newParsedAlteration.length === 0) {
       setTabStates(states => {
         const newStates = _.cloneDeep(states);
-        newStates[alterationIndex].alterationFieldValueWhileFetching = null;
+        newStates[alterationIndex].alterationFieldValueWhileFetching = undefined;
         return newStates;
       });
     }
@@ -322,12 +340,13 @@ function AddMutationModal({
       newExcluding = alterationData[alterationIndex].excluding;
     } else {
       const excludingEntityStatusAlterations = await fetchAlterations(newParsedAlteration[0].excluding);
-      newExcluding = excludingEntityStatusAlterations.map((ex, index) =>
-        convertEntityStatusAlterationToAlterationData(ex, newParsedAlteration[0].excluding[index], [], ''),
-      );
+      newExcluding =
+        excludingEntityStatusAlterations?.map((ex, index) =>
+          convertEntityStatusAlterationToAlterationData(ex, newParsedAlteration[0].excluding[index], [], ''),
+        ) ?? [];
     }
 
-    const alterationPromises: Promise<AlterationAnnotationStatus>[] = [];
+    const alterationPromises: Promise<AlterationAnnotationStatus | undefined>[] = [];
     let newAlterations: AlterationData[] = [];
     if (newParsedAlteration[0].alteration !== alterationData[alterationIndex]?.alteration) {
       alterationPromises.push(fetchAlteration(newParsedAlteration[0].alteration));
@@ -344,17 +363,19 @@ function AddMutationModal({
 
     newAlterations = [
       ...newAlterations,
-      ...(await Promise.all(alterationPromises)).map((alt, index) =>
-        convertEntityStatusAlterationToAlterationData(
-          alt,
-          newParsedAlteration[index + newAlterations.length].alteration,
-          newExcluding,
-          newComment,
-          newVariantName,
+      ...(await Promise.all(alterationPromises))
+        .filter(hasValue)
+        .map((alt, index) =>
+          convertEntityStatusAlterationToAlterationData(
+            alt,
+            newParsedAlteration[index + newAlterations.length].alteration,
+            newExcluding,
+            newComment,
+            newVariantName,
+          ),
         ),
-      ),
     ];
-    newAlterations[0].alterationFieldValueWhileFetching = null;
+    newAlterations[0].alterationFieldValueWhileFetching = undefined;
 
     setTabStates(states => {
       const newStates = _.cloneDeep(states);
@@ -415,7 +436,7 @@ function AddMutationModal({
       return;
     }
 
-    const alterationPromises: Promise<AlterationAnnotationStatus>[] = [];
+    const alterationPromises: Promise<AlterationAnnotationStatus | undefined>[] = [];
     let newAlterations: AlterationData[] = [];
     if (newParsedAlteration[0].alteration !== alterationData[alterationIndex]?.excluding[excludingIndex].alteration) {
       alterationPromises.push(fetchAlteration(newParsedAlteration[0].alteration));
@@ -428,9 +449,18 @@ function AddMutationModal({
     }
     newAlterations = [
       ...newAlterations,
-      ...(await Promise.all(alterationPromises)).map((alt, index) =>
-        convertEntityStatusAlterationToAlterationData(alt, newParsedAlteration[index].alteration, [], newParsedAlteration[index].comment),
-      ),
+      ...(await Promise.all(alterationPromises))
+        .map((alt, index) =>
+          alt
+            ? convertEntityStatusAlterationToAlterationData(
+                alt,
+                newParsedAlteration[index].alteration,
+                [],
+                newParsedAlteration[index].comment,
+              )
+            : undefined,
+        )
+        .filter(hasValue),
     ];
 
     setTabStates(states => {
@@ -654,7 +684,7 @@ function AddMutationModal({
         <AddMutationModalDropdown
           label="Type"
           options={typeOptions}
-          value={typeOptions.find(option => option.value === alterationData.type)}
+          value={typeOptions.find(option => option.value === alterationData.type) ?? { label: '', value: undefined }}
           onChange={newValue => handleFieldChange(newValue?.value, 'type', alterationIndex, excludingIndex)}
         />
         <AddMutationModalField
@@ -691,7 +721,7 @@ function AddMutationModal({
         />
         <AddMutationModalField
           label="Protein Change"
-          value={alterationData.proteinChange}
+          value={alterationData.proteinChange ?? ''}
           placeholder="Input protein change"
           onChange={newValue => handleFieldChange(newValue, 'proteinChange', alterationIndex, excludingIndex)}
         />
@@ -721,10 +751,10 @@ function AddMutationModal({
         />
         <AddMutationModalDropdown
           label="Consequence"
-          value={consequenceOptions.find(option => option.label === alterationData.consequence)}
+          value={consequenceOptions.find(option => option.label === alterationData.consequence) ?? { label: '', value: undefined }}
           options={consequenceOptions}
           menuPlacement="top"
-          onChange={newValue => handleFieldChange(newValue?.label, 'consequence', alterationIndex, excludingIndex)}
+          onChange={newValue => handleFieldChange(newValue?.label ?? '', 'consequence', alterationIndex, excludingIndex)}
         />
       </div>
     );
@@ -754,7 +784,7 @@ function AddMutationModal({
         />
         <AddMutationModalField
           label="Genes"
-          value={alterationData.genes?.map(gene => gene.hugoSymbol).join(', ')}
+          value={alterationData.genes?.map(gene => gene.hugoSymbol).join(', ') ?? ''}
           placeholder="Input genes"
           disabled
           onChange={newValue => handleFieldChange(newValue, 'genes', alterationIndex, excludingIndex)}
@@ -787,7 +817,7 @@ function AddMutationModal({
             {!isSectionEmpty && (
               <>
                 {excludingCollapsed ? (
-                  <FaChevronDown style={{ cursor: 'pointer' }} onClick={isSectionEmpty ? null : () => setExcludingCollapsed(false)} />
+                  <FaChevronDown style={{ cursor: 'pointer' }} onClick={isSectionEmpty ? undefined : () => setExcludingCollapsed(false)} />
                 ) : (
                   <FaChevronUp style={{ cursor: 'pointer' }} onClick={() => setExcludingCollapsed(true)} />
                 )}
@@ -812,7 +842,7 @@ function AddMutationModal({
                 const fullAlterationName = getFullAlterationName(state, false);
                 return { label: fullAlterationName, value: fullAlterationName, ...state };
               })}
-              onChange={(newAlterations: AlterationData[]) =>
+              onChange={(newAlterations: readonly AlterationData[]) =>
                 setTabStates(states => {
                   const newStates = _.cloneDeep(states);
                   newStates[alterationIndex].excluding = newStates[alterationIndex].excluding.filter(state =>
@@ -850,7 +880,7 @@ function AddMutationModal({
   }
 
   function getErrorSection(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
-    const suggestion = new RegExp('The alteration name is invalid, do you mean (.+)\\?').exec(alterationData.error)?.[1];
+    const suggestion = new RegExp('The alteration name is invalid, do you mean (.+)\\?').exec(alterationData.error ?? '')?.[1];
 
     return (
       <div>
@@ -875,7 +905,7 @@ function AddMutationModal({
                   return newStates;
                 });
 
-                inputRef.current.focus();
+                inputRef.current?.focus();
               }}
             >
               No
@@ -921,7 +951,7 @@ function AddMutationModal({
               const fullAlterationName = getFullAlterationName(state);
               return { label: fullAlterationName, value: fullAlterationName, ...state };
             })}
-            onChange={(newAlterations: AlterationData[]) =>
+            onChange={(newAlterations: readonly AlterationData[]) =>
               setTabStates(states =>
                 states.filter(state => newAlterations.some(alt => getFullAlterationName(alt) === getFullAlterationName(state))),
               )
@@ -952,7 +982,7 @@ function AddMutationModal({
     </>
   );
 
-  let modalErrorMessage: string;
+  let modalErrorMessage: string | undefined = undefined;
   if (mutationAlreadyExists.exists) {
     modalErrorMessage = 'Mutation already exists in';
     if (mutationAlreadyExists.inMutationList && mutationAlreadyExists.inVusList) {
@@ -964,8 +994,8 @@ function AddMutationModal({
     }
   }
 
-  let modalWarningMessage: string;
-  if (convertOptions?.isConverting && !isEqualIngoreCase(convertOptions.alteration, currentMutationNames.join(', '))) {
+  let modalWarningMessage: string | undefined = undefined;
+  if (convertOptions?.isConverting && !isEqualIgnoreCase(convertOptions.alteration, currentMutationNames.join(', '))) {
     modalWarningMessage = 'Name differs from original VUS name';
   }
 
@@ -1007,8 +1037,8 @@ function AddMutationModal({
           setIsConfirmPending(false);
         }
       }}
-      errorMessages={modalErrorMessage && errorMessagesEnabled ? [modalErrorMessage] : null}
-      warningMessages={modalWarningMessage ? [modalWarningMessage] : null}
+      errorMessages={modalErrorMessage && errorMessagesEnabled ? [modalErrorMessage] : undefined}
+      warningMessages={modalWarningMessage ? [modalWarningMessage] : undefined}
       confirmButtonDisabled={
         tabStates.length === 0 ||
         mutationAlreadyExists.exists ||
@@ -1063,7 +1093,7 @@ interface IAddMutationModalDropdownProps {
   value: DropdownOption;
   options: DropdownOption[];
   menuPlacement?: MenuPlacement;
-  onChange: (newValue: DropdownOption) => void;
+  onChange: (newValue: DropdownOption | null) => void;
 }
 
 function AddMutationModalDropdown({ label, value, options, menuPlacement, onChange }: IAddMutationModalDropdownProps) {

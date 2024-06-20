@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
+import { Button, Row, Col } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 
-import { IAssociation } from 'app/shared/model/association.model';
-import { IClinicalTrial } from 'app/shared/model/clinical-trial.model';
-import { IClinicalTrialArm } from 'app/shared/model/clinical-trial-arm.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
 
 export interface IClinicalTrialArmUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
@@ -45,12 +41,13 @@ export const ClinicalTrialArmUpdate = (props: IClinicalTrialArmUpdateProps) => {
     }
   }, [updateSuccess]);
 
+  // TYPE-ISSUE I don't know what type values is
   const saveEntity = values => {
     const entity = {
       ...clinicalTrialArmEntity,
       ...values,
       associations: mapIdList(values.associations),
-      clinicalTrial: clinicalTrials.find(it => it.id.toString() === values.clinicalTrialId.toString()),
+      clinicalTrial: clinicalTrials.find(it => it.id?.toString() === values.clinicalTrialId.toString()),
     };
 
     if (isNew) {
@@ -65,7 +62,7 @@ export const ClinicalTrialArmUpdate = (props: IClinicalTrialArmUpdateProps) => {
       ? {}
       : {
           ...clinicalTrialArmEntity,
-          associations: clinicalTrialArmEntity?.associations?.map(e => e.id.toString()),
+          associations: clinicalTrialArmEntity?.associations?.map(e => e.id?.toString()),
           clinicalTrialId: clinicalTrialArmEntity?.clinicalTrial?.id,
         };
 
@@ -165,4 +162,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(ClinicalTrialArmUpdate);
+export default connect<IClinicalTrialArmUpdateProps, StoreProps>(mapStoreToProps)(ClinicalTrialArmUpdate);

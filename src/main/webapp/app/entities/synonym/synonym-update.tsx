@@ -1,29 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 
-import { IArticle } from 'app/shared/model/article.model';
-import { ICancerType } from 'app/shared/model/cancer-type.model';
-import { IGene } from 'app/shared/model/gene.model';
-import { INciThesaurus } from 'app/shared/model/nci-thesaurus.model';
-import { ISynonym } from 'app/shared/model/synonym.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
+import { ISynonym } from 'app/shared/model/synonym.model';
 
 export interface ISynonymUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const SynonymUpdate = (props: ISynonymUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
-  const articles = props.articles;
-  const cancerTypes = props.cancerTypes;
-  const genes = props.genes;
-  const nciThesauruses = props.nciThesauruses;
   const synonymEntity = props.synonymEntity;
   const loading = props.loading;
   const updating = props.updating;
@@ -52,7 +41,7 @@ export const SynonymUpdate = (props: ISynonymUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = values => {
+  const saveEntity = (values: ISynonym) => {
     const entity = {
       ...synonymEntity,
       ...values,
@@ -150,4 +139,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(SynonymUpdate);
+export default connect<ISynonymUpdateProps, StoreProps>(mapStoreToProps)(SynonymUpdate);

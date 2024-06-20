@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
+import { Button, Row, Col } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 
-import { IAssociation } from 'app/shared/model/association.model';
-import { IClinicalTrial } from 'app/shared/model/clinical-trial.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { IClinicalTrial } from 'app/shared/model/clinical-trial.model';
 
 export interface IClinicalTrialUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -42,11 +40,11 @@ export const ClinicalTrialUpdate = (props: IClinicalTrialUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = values => {
+  const saveEntity = (values: IClinicalTrial) => {
     const entity = {
       ...clinicalTrialEntity,
       ...values,
-      associations: mapIdList(values.associations),
+      associations: mapIdList(values.associations ?? []),
     };
 
     if (isNew) {
@@ -61,7 +59,7 @@ export const ClinicalTrialUpdate = (props: IClinicalTrialUpdateProps) => {
       ? {}
       : {
           ...clinicalTrialEntity,
-          associations: clinicalTrialEntity?.associations?.map(e => e.id.toString()),
+          associations: clinicalTrialEntity?.associations?.map(e => e.id?.toString()),
         };
 
   return (
@@ -145,4 +143,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(ClinicalTrialUpdate);
+export default connect<IClinicalTrialUpdateProps, StoreProps>(mapStoreToProps)(ClinicalTrialUpdate);

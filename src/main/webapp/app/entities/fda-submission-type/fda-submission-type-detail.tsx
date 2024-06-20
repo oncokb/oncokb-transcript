@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col } from 'reactstrap';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
 
 import { IRootStore } from 'app/stores';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
@@ -66,4 +66,4 @@ const mapStoreToProps = ({ fdaSubmissionTypeStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(FdaSubmissionTypeDetail);
+export default connect<IFdaSubmissionTypeDetailProps, StoreProps>(mapStoreToProps)(FdaSubmissionTypeDetail);

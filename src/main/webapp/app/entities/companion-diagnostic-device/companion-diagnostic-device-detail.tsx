@@ -61,7 +61,9 @@ export const CompanionDiagnosticDeviceDetail = (props: ICompanionDiagnosticDevic
               <span id="platformType">Last Updated</span>
             </dt>
             <dd>
-              <TextFormat value={companionDiagnosticDeviceEntity.lastUpdated} type="date" format={APP_DATE_FORMAT} />
+              {companionDiagnosticDeviceEntity.lastUpdated && (
+                <TextFormat value={companionDiagnosticDeviceEntity.lastUpdated} type="date" format={APP_DATE_FORMAT} />
+              )}
             </dd>
             <dt>Specimen Type</dt>
             <dd>
@@ -89,7 +91,7 @@ export const CompanionDiagnosticDeviceDetail = (props: ICompanionDiagnosticDevic
       </Row>
       <Row className="mt-4">
         <Col>
-          <CdxBiomarkerAssociationTable fdaSubmissions={companionDiagnosticDeviceEntity.fdaSubmissions} />
+          <CdxBiomarkerAssociationTable fdaSubmissions={companionDiagnosticDeviceEntity.fdaSubmissions ?? []} />
         </Col>
       </Row>
     </>
@@ -103,4 +105,4 @@ const mapStoreToProps = ({ companionDiagnosticDeviceStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(CompanionDiagnosticDeviceDetail);
+export default connect<ICompanionDiagnosticDeviceDetailProps, StoreProps>(mapStoreToProps)(CompanionDiagnosticDeviceDetail);

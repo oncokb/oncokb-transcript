@@ -1,26 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
+import { Button, Row, Col } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
-
-import { IDrug } from 'app/shared/model/drug.model';
-import { IGene } from 'app/shared/model/gene.model';
-import { ITranscript } from 'app/shared/model/transcript.model';
 import { IFlag } from 'app/shared/model/flag.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
 
 export interface IFlagUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const FlagUpdate = (props: IFlagUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
-  const drugs = props.drugs;
-  const genes = props.genes;
-  const transcripts = props.transcripts;
   const flagEntity = props.flagEntity;
   const loading = props.loading;
   const updating = props.updating;
@@ -48,7 +39,7 @@ export const FlagUpdate = (props: IFlagUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = values => {
+  const saveEntity = (values: IFlag) => {
     const entity = {
       ...flagEntity,
       ...values,
@@ -161,4 +152,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(FlagUpdate);
+export default connect<IFlagUpdateProps, StoreProps>(mapStoreToProps)(FlagUpdate);

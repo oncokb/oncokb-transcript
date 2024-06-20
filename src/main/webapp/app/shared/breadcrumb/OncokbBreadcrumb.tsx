@@ -82,4 +82,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(OncokbBreadcrumb);
+export default connect<StoreProps, StoreProps>(mapStoreToProps)(OncokbBreadcrumb);

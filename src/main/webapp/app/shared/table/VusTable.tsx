@@ -13,7 +13,7 @@ import {
 import { TextFormat } from 'react-jhipster';
 import { APP_DATETIME_FORMAT, MAX_COMMENT_LENGTH } from 'app/config/constants/constants';
 import _ from 'lodash';
-import { formatDate, getUserFullName } from 'app/shared/util/utils';
+import { formatDate } from 'app/shared/util/utils';
 import CommentIcon from 'app/shared/icons/CommentIcon';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
@@ -31,11 +31,12 @@ import { DANGER, PRIMARY } from 'app/config/colors';
 import AddVusModal from '../modal/AddVusModal';
 import MutationConvertIcon from '../icons/MutationConvertIcon';
 import AddMutationModal from '../modal/AddMutationModal';
+import { Unsubscribe } from 'firebase/auth';
 
 export interface IVusTableProps extends StoreProps {
-  hugoSymbol: string;
+  hugoSymbol: string | undefined;
   isGermline: boolean;
-  mutationsSectionRef: React.MutableRefObject<HTMLDivElement>;
+  mutationsSectionRef: React.RefObject<HTMLDivElement>;
 }
 
 type VusTableData = Vus & {
@@ -62,37 +63,39 @@ const VusTable = ({
   const firebaseVusPath = getFirebaseVusPath(isGermline, hugoSymbol);
   const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
   const firebaseMutationsPath = `${firebaseGenePath}/mutations`;
-  const currentActionVusUuid = useRef<string>(null);
+  const currentActionVusUuid = useRef<string | null>(null);
 
-  const [vusData, setVusData] = useState(null);
+  const [vusData, setVusData] = useState<Record<string, VusTableData> | null>(null);
   const [showAddVusModal, setShowAddVusModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const [vusToPromote, setVusToPromote] = useState<VusTableData>(null);
+  const [vusToPromote, setVusToPromote] = useState<VusTableData | null>(null);
 
   useEffect(() => {
-    const callbacks = [];
-    callbacks.push(
-      onValue(ref(firebaseDb, firebaseVusPath), snapshot => {
-        setVusData(snapshot.val());
-      }),
-    );
+    const callbacks: Unsubscribe[] = [];
+    if (firebaseDb) {
+      callbacks.push(
+        onValue(ref(firebaseDb, firebaseVusPath), snapshot => {
+          setVusData(snapshot.val());
+        }),
+      );
+    }
     return () => {
       callbacks.forEach(callback => callback?.());
     };
-  }, []);
+  }, [firebaseDb]);
 
   const vusList: VusTableData[] = useMemo(() => {
     return vusData
-      ? Object.keys(vusData).map(uuid => {
-          return { uuid, ...vusData[uuid] };
+      ? Object.entries(vusData).map(([uuid, rest]) => {
+          return { ...rest, uuid };
         })
-      : null;
+      : [];
   }, [vusData]);
 
   function handleDownload() {
     const headerRow = `${VUS_NAME}\t${LAST_EDITED_AT}\t${LAST_EDITED_BY}\t${LATEST_COMMENT}`;
-    const dataRows = [];
+    const dataRows: string[] = [];
     for (const vus of vusList) {
       const latestComment = vus.name_comments ? getMostRecentComment(vus.name_comments).content : '';
       const lastEditedAt = formatDate(new Date(vus.time.value));
@@ -106,22 +109,24 @@ const VusTable = ({
 
   async function handleRefresh(uuid: string) {
     try {
-      await refreshVus(`${firebaseVusPath}/${uuid}`, vusData[uuid]);
+      if (vusData) {
+        await refreshVus?.(`${firebaseVusPath}/${uuid}`, vusData[uuid]);
+      }
     } catch (error) {
-      notifyError(error);
+      notifyError(error as Error);
     }
   }
 
   async function handleDelete() {
     try {
-      await deleteVus(`${firebaseVusPath}/${currentActionVusUuid.current}`);
+      await deleteVus?.(`${firebaseVusPath}/${currentActionVusUuid.current}`);
     } catch (error) {
-      notifyError(error);
+      notifyError(error as Error);
     }
   }
 
   async function handleAddVus(variants: string[]) {
-    await addVus(firebaseVusPath, variants);
+    await addVus?.(firebaseVusPath, variants);
     setShowAddVusModal(false);
   }
 
@@ -262,15 +267,15 @@ const VusTable = ({
             try {
               const aggregateComments = getAllCommentsString(vusToPromote.name_comments || []);
               handleDelete();
-              return await addMutation(firebaseMutationsPath, newMutation, isGermline, true, aggregateComments).then(() => {
+              return await addMutation?.(firebaseMutationsPath, newMutation, isGermline, true, aggregateComments).then(() => {
                 notifySuccess(`Promoted ${vusToPromote.name}`, { position: 'top-right' });
               });
             } catch (error) {
-              notifyError(error);
+              notifyError(error as Error);
             } finally {
               setVusToPromote(null);
               currentActionVusUuid.current = null;
-              setOpenMutationCollapsibleIndex(newMutationFirebaseIndex);
+              setOpenMutationCollapsibleIndex?.(newMutationFirebaseIndex);
               mutationsSectionRef.current?.scrollIntoView();
             }
           }}
@@ -287,7 +292,6 @@ const VusTable = ({
 
 const mapStoreToProps = ({
   firebaseAppStore,
-  firebaseVusStore,
   authStore,
   firebaseGeneService,
   firebaseVusService,

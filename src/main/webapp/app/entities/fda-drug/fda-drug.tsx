@@ -3,15 +3,19 @@ import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
 
 import { IFdaDrug } from 'app/shared/model/fda-drug.model';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
-import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.constants';
-import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 import { Column } from 'react-table';
 import { getEntityTableActionsColumn, getPaginationFromSearchParams } from 'app/shared/util/utils';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
-import OncoKBAsyncTable from 'app/shared/table/OncoKBAsyncTable';
+import OncoKBAsyncTable, { PaginationState } from 'app/shared/table/OncoKBAsyncTable';
+
+const defaultPaginationState: PaginationState<IFdaDrug> = {
+  sort: 'id',
+  order: 'asc',
+  activePage: 1,
+};
 
 export interface IFdaDrugProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
@@ -34,7 +38,7 @@ export const FdaDrug = (props: IFdaDrugProps) => {
             data={props.fdaDrugList.concat()}
             columns={columns}
             loading={props.loading}
-            initialPaginationState={getPaginationFromSearchParams(props.location.search)}
+            initialPaginationState={getPaginationFromSearchParams(props.location.search) ?? defaultPaginationState}
             searchEntities={props.searchEntities}
             getEntities={props.getEntities}
             totalItems={props.totalItems}
@@ -55,4 +59,4 @@ const mapStoreToProps = ({ fdaDrugStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(FdaDrug);
+export default connect<IFdaDrugProps, StoreProps>(mapStoreToProps)(FdaDrug);

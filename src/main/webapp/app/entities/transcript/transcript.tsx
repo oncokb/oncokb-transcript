@@ -75,4 +75,4 @@ const mapStoreToProps = ({ transcriptStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(Transcript);
+export default connect<ITranscriptProps, StoreProps>(mapStoreToProps)(Transcript);

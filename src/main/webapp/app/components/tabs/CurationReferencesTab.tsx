@@ -36,7 +36,7 @@ type ReferenceData = {
 };
 
 function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbstractsTabProps) {
-  const [gene, setGene] = useState<Gene>(null);
+  const [gene, setGene] = useState<Gene>();
   const [geneInitialized, setGeneInitialized] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [displayedReferences, setDisplayedReferences] = useState<DisplayedReferenceData[][]>([]);
@@ -48,6 +48,9 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
   const updateGeneDebounced = _.debounce(updateGene, 150);
 
   useEffect(() => {
+    if (!firebaseDb) {
+      return;
+    }
     const unsubscribe = onValue(ref(firebaseDb, genePath), snapshot => {
       if (geneInitialized) {
         updateGeneDebounced(snapshot);
@@ -94,10 +97,14 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
 
   function parseLocationPath(path: string): PathInfo {
     let mutationIndex = -1;
-    let mutation: Mutation;
+    let mutation: Mutation | undefined = undefined;
     let parsedPath = path.replace(/mutations, (\d+)/g, (match, index: string) => {
       mutationIndex = Number(index);
-      mutation = gene.mutations[mutationIndex];
+      const maybeMutation = gene?.mutations[mutationIndex];
+      if (!maybeMutation) {
+        throw new Error('mutation was not found');
+      }
+      mutation = maybeMutation;
       return getMutationName(mutation.name, mutation.alterations);
     });
 
@@ -105,15 +112,18 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
     if (mutationIndex > -1) {
       parsedPath = parsedPath.replace(/tumors, (\d+)/g, (match, index: string) => {
         tumorIndex = Number(index);
-        const tumor = gene.mutations[mutationIndex].tumors[tumorIndex];
+        const tumor = gene?.mutations[mutationIndex].tumors[tumorIndex];
+        if (!tumor) {
+          throw new Error('tumor was not found');
+        }
         return getCancerTypesNameWithExclusion(tumor.cancerTypes, tumor.excludedCancerTypes || [], true);
       });
     }
 
     if (tumorIndex > -1) {
       parsedPath = parsedPath.replace(/TIs, (\d+), treatments, (\d+)/g, (match, tiIndex, treatmentIndex) => {
-        const treatmentName = gene.mutations[mutationIndex].tumors[tumorIndex].TIs[tiIndex].treatments[treatmentIndex].name;
-        return getTxName(drugList, treatmentName);
+        const treatmentName = gene?.mutations[mutationIndex].tumors[tumorIndex].TIs[tiIndex].treatments[treatmentIndex].name;
+        return getTxName(drugList ?? [], treatmentName);
       });
     }
 
@@ -121,6 +131,10 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
     parsedPath = parsedPath.replace('mutation_effect', 'Mutation Effect');
     parsedPath = parsedPath.replace('description', 'Description');
     parsedPath = parsedPath.replace('short', 'Additional Information');
+
+    if (!mutation) {
+      throw new Error('mutation was not found');
+    }
 
     return { path: parsedPath, details: { mutation } };
   }
@@ -161,7 +175,7 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
           return order;
         }
 
-        return aMutation.name.localeCompare(bMutation.name);
+        return (aMutation.name ?? '').localeCompare(bMutation?.name ?? '');
       }),
     );
 

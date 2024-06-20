@@ -19,9 +19,9 @@ import { getCbioportalResultsPageMutationTabUrl } from 'app/shared/util/url-util
 import { generatePath, useHistory } from 'react-router-dom';
 
 export interface IGeneHeaderProps extends StoreProps {
-  hugoSymbol: string;
+  hugoSymbol: string | undefined;
   firebaseGenePath: string;
-  geneEntity: IGene;
+  geneEntity: IGene | undefined;
   isReviewing?: boolean;
   isReviewFinished?: boolean;
   isGermline?: boolean;
@@ -39,12 +39,15 @@ const GeneHeader = ({
 }: IGeneHeaderProps) => {
   const history = useHistory();
   const firebaseMetaPath = getFirebaseMetaGenePath(isGermline, hugoSymbol);
-  const [metaReview, setMetaReview] = useState<MetaReview>(undefined);
+  const [metaReview, setMetaReview] = useState<MetaReview>();
 
   const reviewPageRoute = isGermline ? PAGE_ROUTE.CURATION_GENE_GERMLINE_REVIEW : PAGE_ROUTE.CURATION_GENE_SOMATIC_REVIEW;
   const curationPageRoute = isGermline ? PAGE_ROUTE.CURATION_GENE_GERMLINE : PAGE_ROUTE.CURATION_GENE_SOMATIC;
 
   useEffect(() => {
+    if (!firebaseDb) {
+      return;
+    }
     const subscribe = onValue(ref(firebaseDb, `${firebaseMetaPath}/review`), snapshot => {
       setMetaReview(snapshot.val());
     });
@@ -52,12 +55,12 @@ const GeneHeader = ({
   }, []);
 
   const handleReviewButtonClick = () => {
-    updateCurrentReviewer(hugoSymbol, isGermline, !isReviewing);
-    history.push(generatePath(isReviewing ? curationPageRoute : reviewPageRoute, { hugoSymbol }));
+    updateCurrentReviewer?.(hugoSymbol ?? '', isGermline, !isReviewing);
+    history.push(generatePath(isReviewing ? curationPageRoute : reviewPageRoute, { hugoSymbol: hugoSymbol ?? '' }));
   };
 
   const getReviewButton = () => {
-    let button;
+    let button: JSX.Element;
     if (geneMetaReviewHasUuids(metaReview)) {
       if (isReviewing || isReviewFinished) {
         button = (
@@ -144,7 +147,7 @@ const GeneHeader = ({
                 <span className="ms-2">
                   <span className="fw-bold me-2">External Links:</span>
                   <WithSeparator separator={InlineDivider}>
-                    <a href={getCbioportalResultsPageMutationTabUrl(hugoSymbol)} target="_blank" rel="noopener noreferrer">
+                    <a href={getCbioportalResultsPageMutationTabUrl(hugoSymbol ?? '')} target="_blank" rel="noopener noreferrer">
                       {CBIOPORTAL} <ExternalLinkIcon />
                     </a>
                     <a href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${hugoSymbol}`} target="_blank" rel="noopener noreferrer">

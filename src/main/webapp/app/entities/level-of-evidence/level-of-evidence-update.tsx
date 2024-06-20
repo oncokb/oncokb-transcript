@@ -1,22 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
+import { Button, Row, Col } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
-
-import { IEvidence } from 'app/shared/model/evidence.model';
 import { ILevelOfEvidence } from 'app/shared/model/level-of-evidence.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
 
 export interface ILevelOfEvidenceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const LevelOfEvidenceUpdate = (props: ILevelOfEvidenceUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
-  const evidences = props.evidences;
   const levelOfEvidenceEntity = props.levelOfEvidenceEntity;
   const loading = props.loading;
   const updating = props.updating;
@@ -42,7 +37,7 @@ export const LevelOfEvidenceUpdate = (props: ILevelOfEvidenceUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = values => {
+  const saveEntity = (values: ILevelOfEvidence) => {
     const entity = {
       ...levelOfEvidenceEntity,
       ...values,
@@ -163,4 +158,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(LevelOfEvidenceUpdate);
+export default connect<ILevelOfEvidenceUpdateProps, StoreProps>(mapStoreToProps)(LevelOfEvidenceUpdate);

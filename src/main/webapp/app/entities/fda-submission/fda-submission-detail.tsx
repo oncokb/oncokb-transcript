@@ -102,11 +102,11 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
   );
 };
 
-const mapStoreToProps = ({ fdaSubmissionStore, layoutStore }: IRootStore) => ({
+const mapStoreToProps = ({ fdaSubmissionStore }: IRootStore) => ({
   fdaSubmissionEntity: fdaSubmissionStore.entity,
   getEntity: fdaSubmissionStore.getEntity,
 });
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(FdaSubmissionDetail);
+export default connect<IFdaSubmissionDetailProps, StoreProps>(mapStoreToProps)(FdaSubmissionDetail);

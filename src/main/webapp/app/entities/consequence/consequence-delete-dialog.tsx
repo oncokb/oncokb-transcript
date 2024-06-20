@@ -59,4 +59,4 @@ const mapStoreToProps = ({ consequenceStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(ConsequenceDeleteDialog);
+export default connect<IConsequenceDeleteDialogProps, StoreProps>(mapStoreToProps)(ConsequenceDeleteDialog);

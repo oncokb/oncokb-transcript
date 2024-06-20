@@ -16,18 +16,18 @@ import _ from 'lodash';
 interface CdxBiomarkerAssociationTableProps extends StoreProps {
   editable?: boolean;
   fdaSubmissions: IFdaSubmission[];
-  onDeleteBiomarkerAssociation: () => void;
+  onDeleteBiomarkerAssociation?: () => void;
 }
 
 export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerAssociationTableProps> = props => {
   const [showModal, setShowModal] = useState(false);
-  const [currentBiomarkerAssociationId, setCurrentBiomarkerAssociationId] = useState(null);
+  const [currentBiomarkerAssociationId, setCurrentBiomarkerAssociationId] = useState<number | null>(null);
 
   const handleDeleteIndication = () => {
     setShowModal(false);
     if (currentBiomarkerAssociationId) {
       props.deleteEntity(currentBiomarkerAssociationId).then(() => {
-        props.onDeleteBiomarkerAssociation();
+        props.onDeleteBiomarkerAssociation?.();
       });
     }
   };
@@ -40,16 +40,18 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
   const biomarkerAssociations: IAssociation[] = useMemo(() => {
     const associations: { [key: number]: IAssociation } = {};
     (props.fdaSubmissions || []).forEach(fdaSubmission => {
-      fdaSubmission.associations.forEach(association => {
+      fdaSubmission.associations?.forEach(association => {
         const assCopy = _.cloneDeep(association);
-        const assExists = assCopy.id in associations;
-        if (!assExists) {
-          if (assCopy.fdaSubmissions === undefined) {
-            assCopy.fdaSubmissions = [];
+        if (assCopy.id !== undefined) {
+          const assExists = assCopy.id in associations;
+          if (!assExists) {
+            if (assCopy.fdaSubmissions === undefined) {
+              assCopy.fdaSubmissions = [];
+            }
+            associations[assCopy.id] = assCopy;
           }
-          associations[assCopy.id] = assCopy;
+          associations[assCopy.id].fdaSubmissions?.push(fdaSubmission);
         }
-        associations[assCopy.id].fdaSubmissions.push(fdaSubmission);
       });
     });
     return Object.values(associations);
@@ -74,7 +76,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
       id: 'cancerType',
       Header: 'Cancer Type',
       Cell(cell: { original: IAssociation }) {
-        return <div>{cell.original.cancerTypes.map(ct => getCancerTypeName(ct)).join(', ')}</div>;
+        return <div>{cell.original.cancerTypes?.map(ct => getCancerTypeName(ct)).join(', ')}</div>;
       },
     },
     {
@@ -110,7 +112,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
               size="sm"
               onClick={() => {
                 setShowModal(true);
-                setCurrentBiomarkerAssociationId(cell.original.id);
+                setCurrentBiomarkerAssociationId(cell.original.id ?? null);
               }}
             >
               <FontAwesomeIcon icon={faTrashAlt} />
@@ -142,4 +144,4 @@ const mapStoreToProps = ({ associationStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(CdxBiomarkerAssociationTable);
+export default connect<CdxBiomarkerAssociationTableProps, StoreProps>(mapStoreToProps)(CdxBiomarkerAssociationTable);

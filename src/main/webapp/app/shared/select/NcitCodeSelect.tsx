@@ -1,12 +1,14 @@
 import React from 'react';
 import { Props as SelectProps } from 'react-select';
 import { IRootStore } from 'app/stores/createStore';
-import { connect } from '../util/typed-inject';
+import { InjectProps, connect } from '../util/typed-inject';
 import AsyncSelect from 'react-select/async';
 import { INciThesaurus } from 'app/shared/model/nci-thesaurus.model';
 import _ from 'lodash';
+import { DrugSelectOption } from './DrugSelect';
 
-export interface INcitCodeSelectProps extends SelectProps, StoreProps {
+type GetOptionFromNcitRtn = ReturnType<typeof getOptionFromNcit>;
+export interface INcitCodeSelectProps<IsMulti extends boolean> extends SelectProps<GetOptionFromNcitRtn, IsMulti>, StoreProps {
   ncit: INciThesaurus;
 }
 
@@ -26,23 +28,23 @@ export const parseNcitUniqId = (ncitId: string) => {
   }
 };
 
-export function getOptionFromNcit(ncit: INciThesaurus) {
+export function getOptionFromNcit(ncit: INciThesaurus): DrugSelectOption {
   return {
     value: getNcitUniqId(ncit),
     label: `${ncit.preferredName} (${ncit.code})`,
-    synonyms: ncit.synonyms,
+    synonyms: ncit.synonyms ?? undefined,
     ncit,
   };
 }
 
-const NcitCodeSelect: React.FunctionComponent<INcitCodeSelectProps> = props => {
+const NcitCodeSelect = <IsMulti extends boolean>(props: INcitCodeSelectProps<IsMulti>) => {
   const { searchEntities, ...selectProps } = props;
 
-  const onNcitChange = (option, actionMeta) => {
-    props.onChange(option, actionMeta);
+  const onNcitChange: INcitCodeSelectProps<IsMulti>['onChange'] = (option, actionMeta) => {
+    props.onChange?.(option, actionMeta);
   };
 
-  const loadNcitOptions = _.debounce((searchWord: string, callback: (options) => void) => {
+  const loadNcitOptions = _.debounce((searchWord: string, callback: (options: GetOptionFromNcitRtn[]) => void) => {
     if (searchWord) {
       searchEntities({ query: searchWord }).then(response => {
         callback(response.data.map(ncit => getOptionFromNcit(ncit)));
@@ -71,4 +73,7 @@ const mapStoreToProps = ({ nciThesaurusStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(NcitCodeSelect);
+export default function <IsMulti extends boolean = boolean>(props: InjectProps<INcitCodeSelectProps<IsMulti>, StoreProps>) {
+  const InjectedNcitCodeSelect = connect<INcitCodeSelectProps<IsMulti>, StoreProps>(mapStoreToProps)(NcitCodeSelect);
+  return <InjectedNcitCodeSelect {...props} />;
+}

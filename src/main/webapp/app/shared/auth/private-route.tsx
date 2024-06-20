@@ -12,14 +12,11 @@ interface IOwnProps extends RouteProps {
 
 export interface IPrivateRouteProps extends IOwnProps, StoreProps {}
 
-export const PrivateRouteComponent = ({
-  component: Component,
-  isAuthenticated,
-  account,
-  hasAnyAuthorities = [],
-  ...rest
-}: IPrivateRouteProps) => {
-  const isAuthorized = hasAnyAuthority(account.authorities, hasAnyAuthorities);
+export const PrivateRouteComponent = ({ component, isAuthenticated, account, hasAnyAuthorities = [], ...rest }: IPrivateRouteProps) => {
+  const isAuthorized = hasAnyAuthority(account.authorities ?? [], hasAnyAuthorities);
+
+  // TYPE-ISSUE: had to use any
+  const Component = component as any;
 
   const checkAuthorities = props =>
     isAuthorized ? (
@@ -73,6 +70,6 @@ type StoreProps = ReturnType<typeof mapStoreToProps>;
  * Accepts same props as React router Route.
  * The route also checks for authorization if hasAnyAuthorities is specified.
  */
-export const PrivateRoute = connect(mapStoreToProps)(PrivateRouteComponent);
+export const PrivateRoute = connect<IPrivateRouteProps, StoreProps>(mapStoreToProps)(PrivateRouteComponent);
 
 export default PrivateRoute;

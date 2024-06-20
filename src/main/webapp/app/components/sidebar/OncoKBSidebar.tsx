@@ -16,7 +16,7 @@ export interface IOncoKBSidebarProps extends StoreProps {
 const OncoKBSidebar = ({ showOncoKBSidebar, defaultOpen = false, ...props }: IOncoKBSidebarProps) => {
   useEffect(() => {
     if (defaultOpen) {
-      props.toggleOncoKBSidebar(true);
+      props.toggleOncoKBSidebar?.(true);
     }
   }, []);
 
@@ -29,7 +29,7 @@ const OncoKBSidebar = ({ showOncoKBSidebar, defaultOpen = false, ...props }: IOn
           size="lg"
           icon={faChevronLeft}
           onClick={() => {
-            props.toggleOncoKBSidebar(true);
+            props.toggleOncoKBSidebar?.(true);
           }}
           data-testid="open-sidebar-button"
         />
@@ -51,7 +51,7 @@ const OncoKBSidebarExpanded = observer(
 
     const sidebarRef = useRef<HTMLDivElement>(null);
     const draggableRef = useRef<HTMLDivElement>(null);
-    const sidebarHighlightTimer = useRef(null);
+    const sidebarHighlightTimer = useRef<NodeJS.Timeout>();
 
     const [sidebarBorderHovered, setSidebarBorderHovered] = useState(false);
     const [sidebarBorderLongHovered, setSidebarBorderLongHovered] = useState(false);
@@ -81,18 +81,18 @@ const OncoKBSidebarExpanded = observer(
       const startX = mouseDownEvent.pageX;
 
       function onMouseMove(mouseMoveEvent: MouseEvent) {
-        const newWidth = oncoKBSidebarWidth + startX - mouseMoveEvent.pageX;
+        const newWidth = (oncoKBSidebarWidth ?? 0) + startX - mouseMoveEvent.pageX;
 
-        if (newWidth > oncoKBSidebarWidth && newWidth > closeNavWidth) {
-          closeNavigationSidebar();
+        if (newWidth > (oncoKBSidebarWidth ?? 0) && newWidth > closeNavWidth) {
+          closeNavigationSidebar?.();
         }
 
         if (newWidth <= ONCOKB_SIDEBAR_MIN_WIDTH) {
-          setOncoKBSidebarWidth(ONCOKB_SIDEBAR_MIN_WIDTH);
+          setOncoKBSidebarWidth?.(ONCOKB_SIDEBAR_MIN_WIDTH);
         } else if (newWidth >= maxWidth) {
-          setOncoKBSidebarWidth(maxWidth);
+          setOncoKBSidebarWidth?.(maxWidth);
         } else {
-          setOncoKBSidebarWidth(oncoKBSidebarWidth + startX - mouseMoveEvent.pageX);
+          setOncoKBSidebarWidth?.((oncoKBSidebarWidth ?? 0) + startX - mouseMoveEvent?.pageX);
         }
       }
 
@@ -119,13 +119,21 @@ const OncoKBSidebarExpanded = observer(
     }
 
     function highlightSidebarBorder() {
-      sidebarRef.current.style.borderLeftColor = ONCOKB_BLUE;
-      draggableRef.current.style.opacity = '1';
+      if (sidebarRef.current) {
+        sidebarRef.current.style.borderLeftColor = ONCOKB_BLUE;
+      }
+      if (draggableRef.current) {
+        draggableRef.current.style.opacity = '1';
+      }
     }
 
     function unhighlightSidebarBorder() {
-      sidebarRef.current.style.borderLeftColor = '';
-      draggableRef.current.style.opacity = '';
+      if (sidebarRef.current) {
+        sidebarRef.current.style.borderLeftColor = '';
+      }
+      if (draggableRef.current) {
+        draggableRef.current.style.opacity = '';
+      }
     }
 
     return (
@@ -144,8 +152,8 @@ const OncoKBSidebarExpanded = observer(
               icon={faChevronLeft}
               className="mb-1"
               onClick={() => {
-                setOncoKBSidebarWidth(maxWidth);
-                closeNavigationSidebar();
+                setOncoKBSidebarWidth?.(maxWidth);
+                closeNavigationSidebar?.();
               }}
             />
           )}
@@ -153,8 +161,8 @@ const OncoKBSidebarExpanded = observer(
             size="lg"
             icon={faChevronRight}
             onClick={() => {
-              toggleOncoKBSidebar(false);
-              setOncoKBSidebarWidth(ONCOKB_SIDEBAR_MIN_WIDTH);
+              toggleOncoKBSidebar?.(false);
+              setOncoKBSidebarWidth?.(ONCOKB_SIDEBAR_MIN_WIDTH);
             }}
             data-testid="close-sidebar-button"
           />

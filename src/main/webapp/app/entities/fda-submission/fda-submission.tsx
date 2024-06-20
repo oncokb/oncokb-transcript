@@ -11,7 +11,7 @@ import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
 import OncoKBAsyncTable, { PaginationState } from 'app/shared/table/OncoKBAsyncTable';
-import { getEntityTableActionsColumn, getPaginationFromSearchParams } from 'app/shared/util/utils';
+import { getPaginationFromSearchParams } from 'app/shared/util/utils';
 
 const defaultPaginationState: PaginationState<IFdaSubmission> = {
   order: 'asc',
@@ -57,4 +57,4 @@ const mapStoreToProps = ({ fdaSubmissionStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(FdaSubmission);
+export default connect<IFdaSubmissionProps, StoreProps>(mapStoreToProps)(FdaSubmission);

@@ -6,7 +6,9 @@ import { IDrug } from 'app/shared/model/drug.model';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import DiffViewer from 'app/components/diff-viewer/DiffViewer';
 
-export default function constructTimeSeriesData(record: FlattenedHistory): RequiredTimeSeriesEventData | ExtraTimeSeriesEventData {
+export default function constructTimeSeriesData(
+  record: FlattenedHistory,
+): RequiredTimeSeriesEventData | ExtraTimeSeriesEventData | undefined {
   let operation: string;
   let bubbleColor: string;
   let content: React.ReactNode;
@@ -62,7 +64,7 @@ export default function constructTimeSeriesData(record: FlattenedHistory): Requi
   };
 }
 
-export function getTimeSeriesDataContent(newContent: string, oldContent?: string) {
+export function getTimeSeriesDataContent(newContent: string | undefined, oldContent?: string) {
   return (
     <div className="gene-history-event-content">
       <DiffViewer new={newContent} old={oldContent} type={'merged'} />

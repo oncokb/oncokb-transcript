@@ -38,7 +38,7 @@ export const Gene = (props: IGeneProps) => {
       accessor: 'flags',
       Header: 'Flags',
       Cell(cell: { original: IGene }) {
-        return <GeneFlags flags={cell.original.flags} />;
+        return <GeneFlags flags={cell.original.flags ?? undefined} />;
       },
       minWidth: 200,
     },
@@ -78,4 +78,4 @@ const mapStoreToProps = ({ geneStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(Gene);
+export default connect<IGeneProps, StoreProps>(mapStoreToProps)(Gene);

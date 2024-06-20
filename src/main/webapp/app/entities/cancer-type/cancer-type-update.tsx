@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
 import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 
-import { ISynonym } from 'app/shared/model/synonym.model';
-import { ICancerType } from 'app/shared/model/cancer-type.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
 
@@ -45,12 +41,13 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
     }
   }, [updateSuccess]);
 
+  // TYPE-ISSUE: I don't know what type values is
   const saveEntity = values => {
     const entity = {
       ...cancerTypeEntity,
       ...values,
       synonyms: mapIdList(values.synonyms),
-      parent: cancerTypes.find(it => it.id.toString() === values.parentId.toString()),
+      parent: cancerTypes.find(it => it.id?.toString() === values.parentId.toString()),
     };
 
     if (isNew) {
@@ -66,7 +63,7 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
       : {
           tumorForm: 'SOLID',
           ...cancerTypeEntity,
-          synonyms: cancerTypeEntity?.synonyms?.map(e => e.id.toString()),
+          synonyms: cancerTypeEntity?.synonyms?.map(e => e.id?.toString()),
           parentId: cancerTypeEntity?.parent?.id,
         };
 
@@ -162,4 +159,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(CancerTypeUpdate);
+export default connect<ICancerTypeUpdateProps, StoreProps>(mapStoreToProps)(CancerTypeUpdate);

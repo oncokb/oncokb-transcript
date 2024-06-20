@@ -6,10 +6,16 @@ import { IEvidence } from 'app/shared/model/evidence.model';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
-import OncoKBAsyncTable from 'app/shared/table/OncoKBAsyncTable';
+import OncoKBAsyncTable, { PaginationState } from 'app/shared/table/OncoKBAsyncTable';
 import { getEntityTableActionsColumn, getPaginationFromSearchParams } from 'app/shared/util/utils';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import { Column } from 'react-table';
+
+const defaultPaginationState: PaginationState<IEvidence> = {
+  activePage: 1,
+  order: 'asc',
+  sort: 'id',
+};
 
 export interface IEvidenceProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
@@ -34,7 +40,7 @@ export const Evidence = (props: IEvidenceProps) => {
             data={props.evidenceList.concat()}
             columns={columns}
             loading={props.loading}
-            initialPaginationState={getPaginationFromSearchParams(props.location.search)}
+            initialPaginationState={getPaginationFromSearchParams(props.location.search) ?? defaultPaginationState}
             searchEntities={props.searchEntities}
             getEntities={props.getEntities}
             totalItems={props.totalItems}
@@ -55,4 +61,4 @@ const mapStoreToProps = ({ evidenceStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(Evidence);
+export default connect<IEvidenceProps, StoreProps>(mapStoreToProps)(Evidence);

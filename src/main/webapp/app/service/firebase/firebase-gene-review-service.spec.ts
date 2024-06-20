@@ -222,7 +222,7 @@ describe('Firebase Gene Review Service', () => {
       await firebaseGeneReviewService.handleCreateAction(hugoSymbol, reviewLevel, false, ActionType.ACCEPT);
 
       const expectedMutation = _.cloneDeep(mutation);
-      delete expectedMutation.name_review.added;
+      delete expectedMutation.name_review?.added;
 
       expect(mockHistoryService.addHistory).toHaveBeenCalled();
       expect(mockFirebaseRepository.update).toHaveBeenCalledWith('Genes/BRAF', { 'mutations/0': expectedMutation });

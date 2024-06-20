@@ -8,13 +8,17 @@ export const debouncedSearch = _.debounce(
     searchEntities({
       query,
     }),
-  500
+  500,
 );
 
-export class CrudStore<T> extends BaseCrudStore<T> {
+export class CrudStore<T extends Record<string, unknown>> extends BaseCrudStore<T> {
   links: { [key: string]: number } = {};
 
-  constructor(protected rootStore: IRootStore, protected apiUrl: string, protected settings = { clearOnUnobserved: false }) {
+  constructor(
+    protected rootStore: IRootStore,
+    protected apiUrl: string,
+    protected settings = { clearOnUnobserved: false },
+  ) {
     super(rootStore, apiUrl, settings);
   }
 

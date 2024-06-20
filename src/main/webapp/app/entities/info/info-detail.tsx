@@ -1,13 +1,12 @@
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import React, { useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col } from 'reactstrap';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
 import { TextFormat } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootStore } from 'app/stores';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
+import { APP_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 export interface IInfoDetailProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const InfoDetail = (props: IInfoDetailProps) => {
@@ -55,4 +54,4 @@ const mapStoreToProps = ({ infoStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(InfoDetail);
+export default connect<IInfoDetailProps, StoreProps>(mapStoreToProps)(InfoDetail);

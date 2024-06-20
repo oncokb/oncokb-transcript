@@ -1,7 +1,7 @@
 import { AxiosResponse } from 'axios';
 import { CancellablePromise } from 'mobx/dist/api/flow';
 
-export type IPayload<T> = Promise<AxiosResponse<T>> | CancellablePromise<unknown>;
+export type IPayload<T> = Promise<AxiosResponse<T>> | CancellablePromise<AxiosResponse<T>>;
 
 export type ICrudGetAction<T> = (id: string | number) => IPayload<T>;
 

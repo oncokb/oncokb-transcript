@@ -59,4 +59,4 @@ const mapStoreToProps = ({ synonymStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(SynonymDeleteDialog);
+export default connect<ISynonymDeleteDialogProps, StoreProps>(mapStoreToProps)(SynonymDeleteDialog);

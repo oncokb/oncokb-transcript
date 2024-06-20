@@ -1,6 +1,7 @@
 import { IEvidence } from 'app/shared/model/evidence.model';
 
-export interface ILevelOfEvidence {
+// CrudStore cannot use an interface
+export type ILevelOfEvidence = {
   id?: number;
   type?: string;
   level?: string;
@@ -8,6 +9,6 @@ export interface ILevelOfEvidence {
   htmlDescription?: string;
   color?: string;
   evidences?: IEvidence[] | null;
-}
+};
 
 export const defaultValue: Readonly<ILevelOfEvidence> = {};

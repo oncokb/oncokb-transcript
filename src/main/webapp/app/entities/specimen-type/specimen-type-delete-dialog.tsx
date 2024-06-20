@@ -59,4 +59,4 @@ const mapStoreToProps = ({ specimenTypeStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(SpecimenTypeDeleteDialog);
+export default connect<ISpecimenTypeDeleteDialogProps, StoreProps>(mapStoreToProps)(SpecimenTypeDeleteDialog);

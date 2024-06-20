@@ -61,4 +61,4 @@ const mapStoreToProps = ({ eligibilityCriteriaStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(EligibilityCriteriaDeleteDialog);
+export default connect<IEligibilityCriteriaDeleteDialogProps, StoreProps>(mapStoreToProps)(EligibilityCriteriaDeleteDialog);
