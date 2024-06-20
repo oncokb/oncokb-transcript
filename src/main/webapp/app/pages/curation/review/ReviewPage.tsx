@@ -189,7 +189,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
               disableActions={isAcceptingAll}
               isRoot={true}
               firebase={{
-                path: getGenePathFromValuePath(hugoSymbol, rootReview.valuePath),
+                path: getGenePathFromValuePath(hugoSymbol, rootReview.valuePath, isGermline),
                 db: props.firebaseDb,
               }}
               rootDelete={isPending => {

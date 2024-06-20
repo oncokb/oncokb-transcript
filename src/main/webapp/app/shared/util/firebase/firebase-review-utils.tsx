@@ -13,7 +13,7 @@ import {
 import _ from 'lodash';
 import { generateUuid, getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
 import { getTxName } from './firebase-utils';
-import { READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
+import { FB_COLLECTION, READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import React from 'react';
 import { makeFirebaseKeysReadable } from './firebase-history-utils';
@@ -847,20 +847,21 @@ export const hasReview = (review: Review) => {
   return false;
 };
 
-export const getGenePathFromValuePath = (hugoSymbol: string, valuePath: string) => {
+export const getGenePathFromValuePath = (hugoSymbol: string, valuePath: string, isGermline = false) => {
   const _hugoSymbol = hugoSymbol.replace(/^\//, '');
   const _valuePath = valuePath.replace(/^\//, '');
+  const collection = isGermline ? FB_COLLECTION.GERMLINE_GENES : FB_COLLECTION.GENES;
   if (!_hugoSymbol) {
-    return 'Genes';
+    return collection;
   }
   if (!_valuePath) {
-    return `Genes/${_hugoSymbol}`;
+    return `${collection}/${_hugoSymbol}`;
   }
-  return `Genes/${_hugoSymbol}/${_valuePath}`;
+  return `${collection}/${_hugoSymbol}/${_valuePath}`;
 };
 
-export const showAsFirebaseTextArea = (hugoSymbol, valuePath: string) => {
-  const genePath = getGenePathFromValuePath(hugoSymbol, valuePath);
+export const showAsFirebaseTextArea = (hugoSymbol: string, valuePath: string, isGermline = false) => {
+  const genePath = getGenePathFromValuePath(hugoSymbol, valuePath, isGermline);
   return (
     genePath.endsWith('/description') ||
     genePath.endsWith('/background') ||

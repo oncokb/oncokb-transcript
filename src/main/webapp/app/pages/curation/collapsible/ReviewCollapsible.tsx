@@ -313,7 +313,7 @@ export const ReviewCollapsible = ({
     if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
       const oldValue = reviewLevel.historyData.oldState as string;
       const newValue = reviewLevel.historyData.newState as string;
-      const showTextArea = showAsFirebaseTextArea(hugoSymbol, reviewLevel.valuePath);
+      const showTextArea = showAsFirebaseTextArea(hugoSymbol, reviewLevel.valuePath, isGermline);
       return (
         <>
           <div className="mb-2">
@@ -364,7 +364,7 @@ export const ReviewCollapsible = ({
             parentDelete={deleteHandlerForChild}
             disableActions={disableActions}
             firebase={{
-              path: getGenePathFromValuePath(hugoSymbol, childReview.valuePath),
+              path: getGenePathFromValuePath(hugoSymbol, childReview.valuePath, isGermline),
               db: firebase?.db,
             }}
           />
