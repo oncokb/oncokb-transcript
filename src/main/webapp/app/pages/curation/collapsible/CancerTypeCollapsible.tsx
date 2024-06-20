@@ -32,6 +32,7 @@ interface ICancerTypeCollapsibleProps extends StoreProps {
   allCancerTypesPath: string;
   mutationName: string;
   parsedHistoryList: Map<string, FlattenedHistory[]>;
+  isGermline: boolean;
 }
 
 function CancerTypeCollapsible({
@@ -43,6 +44,7 @@ function CancerTypeCollapsible({
   modifyCancerTypeModalStore,
   updateTumorName,
   deleteSection,
+  isGermline,
 }: ICancerTypeCollapsibleProps) {
   const [cancerTypes, setCancerTypes] = useState<CancerType[]>(null);
   const [cancerTypesUuid, setCancerTypesUuid] = useState<string>(null);
@@ -171,6 +173,7 @@ function CancerTypeCollapsible({
             cancerTypeName={cancerTypeName}
             cancerTypePath={cancerTypePath}
             tisPath={`${cancerTypePath}/TIs`}
+            isGermline={isGermline}
           />
         </Collapsible>
         <Collapsible
@@ -236,7 +239,7 @@ function CancerTypeCollapsible({
         cancerTypesPathToEdit={cancerTypePath}
         onConfirm={async newTumor => {
           try {
-            await updateTumorName(cancerTypePath, cancerTypes, excludedCancerTypes, newTumor);
+            await updateTumorName(cancerTypePath, cancerTypes, excludedCancerTypes, newTumor, isGermline);
           } catch (error) {
             notifyError(error);
           }

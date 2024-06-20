@@ -181,6 +181,7 @@ const MutationCollapsible = ({
           cancerTypePath={`${mutationPath}/tumors/${index}`}
           mutationName={mutationName}
           parsedHistoryList={parsedHistoryList}
+          isGermline={isGermline}
         />
       );
     },
@@ -500,7 +501,7 @@ const MutationCollapsible = ({
         allCancerTypesPath={`${mutationPath}/tumors`}
         onConfirm={async newTumor => {
           try {
-            await addTumor(`${mutationPath}/tumors`, newTumor);
+            await addTumor(`${mutationPath}/tumors`, newTumor, isGermline);
           } catch (error) {
             notifyError(error);
           }

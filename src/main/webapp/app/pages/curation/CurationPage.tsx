@@ -58,16 +58,6 @@ export const CurationPage = (props: ICurationPageProps) => {
       const cleanupCallbacks = [];
       cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
       cleanupCallbacks.push(props.addMutationListListener(mutationsPath));
-      // cleanupCallbacks.push(
-      //   onValue(ref(props.firebaseDb, firebaseMetaCurrentReviewerPath), snapshot => {
-      //     const currentReviewer = snapshot.val();
-      //     const isReviewer = currentReviewer?.toLowerCase() === props.fullName.toLowerCase();
-      //     setIsReviewing(isReviewer);
-      //     if (isReviewer) {
-      //       props.toggleOncoKBSidebar(false);
-      //     }
-      //   }),
-      // );
       return () => {
         cleanupCallbacks.forEach(callback => callback && callback());
       };
@@ -218,6 +208,7 @@ export const CurationPage = (props: ICurationPageProps) => {
                 newRCTs,
                 props.relevantCancerTypesModalStore.excludedRCTsReview,
                 props.relevantCancerTypesModalStore.excludedRCTsUuid,
+                isGermline,
                 props.relevantCancerTypesModalStore.firebaseExcludedRCTs === undefined,
               );
               props.relevantCancerTypesModalStore.closeModal();

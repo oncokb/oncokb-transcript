@@ -266,7 +266,7 @@ export class FirebaseGeneService {
     }
   };
 
-  addTumor = async (tumorPath: string, newTumor: Tumor) => {
+  addTumor = async (tumorPath: string, newTumor: Tumor, isGermline: boolean) => {
     const { hugoSymbol } = parseFirebaseGenePath(tumorPath);
     const name = this.authStore.fullName;
     newTumor.cancerTypes_review = new Review(name, undefined, true, undefined);
@@ -274,12 +274,18 @@ export class FirebaseGeneService {
     const tumorNameUuid = `${newTumor.cancerTypes_uuid}, ${newTumor.excludedCancerTypes_uuid}`;
 
     return this.firebaseRepository.pushToArray(tumorPath, [newTumor]).then(() => {
-      this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, false);
-      this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, tumorNameUuid, true, false);
+      this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, isGermline);
+      this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, tumorNameUuid, true, isGermline);
     });
   };
 
-  updateTumorName = async (tumorPath: string, currentCancerTypes: CancerType[], currentExcludedCancerTypes: CancerType[], tumor: Tumor) => {
+  updateTumorName = async (
+    tumorPath: string,
+    currentCancerTypes: CancerType[],
+    currentExcludedCancerTypes: CancerType[],
+    tumor: Tumor,
+    isGermline: boolean,
+  ) => {
     const cancerTypesReview = getUpdatedReview(tumor.cancerTypes_review, currentCancerTypes, tumor.cancerTypes, this.authStore.fullName);
     const excludedCancerTypesReview = getUpdatedReview(
       tumor.excludedCancerTypes_review,
@@ -305,12 +311,12 @@ export class FirebaseGeneService {
       if (excludedCancerTypesReview.isChangeReverted) {
         this.firebaseRepository.delete(`${tumorPath}/excludedCancerTypes_review/lastReviewed`);
       }
-      this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, false);
-      this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, tumorNameUuid, !isChangeReverted, false);
+      this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, isGermline);
+      this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, tumorNameUuid, !isChangeReverted, isGermline);
     });
   };
 
-  updateTreatmentName = async (treatmentPath: string, currentTreatmentName: string, treatment: Treatment) => {
+  updateTreatmentName = async (treatmentPath: string, currentTreatmentName: string, treatment: Treatment, isGermline: boolean) => {
     return this.firebaseRepository.update(treatmentPath, treatment).then(() => {
       this.firebaseGeneReviewService.updateReviewableContent(
         `${treatmentPath}/name`,
@@ -322,14 +328,14 @@ export class FirebaseGeneService {
     });
   };
 
-  addTreatment = async (treatmentPath: string, newTreatment: Treatment) => {
+  addTreatment = async (treatmentPath: string, newTreatment: Treatment, isGermline: boolean) => {
     const { hugoSymbol } = parseFirebaseGenePath(treatmentPath);
     const name = this.authStore.fullName;
     newTreatment.name_review = new Review(name, undefined, true, undefined);
 
     return this.firebaseRepository.pushToArray(treatmentPath, [newTreatment]).then(() => {
-      this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, false);
-      this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, newTreatment.name_uuid, true, false);
+      this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, isGermline);
+      this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, newTreatment.name_uuid, true, isGermline);
     });
   };
 
@@ -347,7 +353,13 @@ export class FirebaseGeneService {
     await this.firebaseMutationConvertIconStore.fetchData(allMutationsPath);
   };
 
-  addMutation = async (mutationsPath: string, newMutation: Mutation, isPromotedToMutation = false, mutationEffectDescription?: string) => {
+  addMutation = async (
+    mutationsPath: string,
+    newMutation: Mutation,
+    isGermline: boolean,
+    isPromotedToMutation = false,
+    mutationEffectDescription?: string,
+  ) => {
     const { hugoSymbol } = parseFirebaseGenePath(mutationsPath);
     const name = this.authStore.fullName;
     newMutation.name_review = new Review(name, undefined, true, undefined);
@@ -361,9 +373,9 @@ export class FirebaseGeneService {
 
     await this.firebaseRepository.pushToArray(mutationsPath, [newMutation]).then(() => {
       this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, false);
-      this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, newMutation.name_uuid, true, false);
+      this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, newMutation.name_uuid, true, isGermline);
       if (mutationEffectDescription) {
-        this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, newMutation.mutation_effect.description_uuid, true, false);
+        this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, newMutation.mutation_effect.description_uuid, true, isGermline);
       }
     });
 
@@ -376,14 +388,15 @@ export class FirebaseGeneService {
     newRelevantCancerTypes: CancerType[],
     review: Review,
     uuid: string,
+    isGermline,
     initialUpdate?: boolean,
   ) => {
     const { hugoSymbol } = parseFirebaseGenePath(rctPath);
     if (initialUpdate) {
       return this.firebaseRepository.create(rctPath, newRelevantCancerTypes).then(() => {
         this.firebaseRepository.update(`${rctPath}_review`, new Review(this.authStore.fullName, undefined, undefined, undefined, true));
-        this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, false);
-        this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, true, false);
+        this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, isGermline);
+        this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, true, isGermline);
       });
     }
     return this.firebaseRepository.create(rctPath, newRelevantCancerTypes).then(() => {
