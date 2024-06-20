@@ -8,9 +8,11 @@ import { DataSnapshot, onValue, ref } from 'firebase/database';
 import _ from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FaFilter, FaSort } from 'react-icons/fa';
-import { Button, Col, Container, Input, InputGroup, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
+import { Button, Col, Container, FormGroup, Input, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap';
 import AddMutationButton from '../button/AddMutationButton';
 import ReactSelect from 'react-select';
+import * as styles from './styles.module.scss';
+import classNames from 'classnames';
 
 export interface IMutationsSectionHeaderProps extends StoreProps {
   hugoSymbol: string;
@@ -297,22 +299,19 @@ function MutationsSectionHeader({
     const isDisabled = !checkboxEnabled(filter.type, filter.label);
 
     return (
-      <InputGroup>
+      <FormGroup check className={styles.formGroupCheck}>
         <Input
+          className={styles.formCheckInput}
           id={`${filter.type}-${filter.label}`}
           onChange={onChange}
           checked={filter.selected}
           disabled={isDisabled}
-          style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: '0px' }}
           type="checkbox"
         />
-        <Label
-          for={`${filter.type}-${filter.label}`}
-          style={{ cursor: `${isDisabled ? null : 'pointer'}`, marginLeft: CHECKBOX_LABEL_LEFT_MARGIN }}
-        >
+        <Label className={classNames('form-check-label', styles.formCheckLabel)} for={`${filter.type}-${filter.label}`}>
           {filter.label}
         </Label>
-      </InputGroup>
+      </FormGroup>
     );
   }
 
