@@ -9,8 +9,8 @@ import { mock, mockReset } from 'jest-mock-extended';
 import { SentryError } from 'app/config/sentry-error';
 import { ReviewLevel } from 'app/shared/util/firebase/firebase-review-utils';
 import { ReviewAction } from 'app/config/constants/firebase';
-import { DiffMethod } from 'react-diff-viewer-continued';
 import _ from 'lodash';
+import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
 
 describe('Firebase Gene Review Service', () => {
   const DEFAULT_USERNAME = 'Test User';
@@ -110,7 +110,6 @@ describe('Firebase Gene Review Service', () => {
           lastReviewedString: '',
           uuid: gene.background_uuid,
           reviewAction: ReviewAction.UPDATE,
-          diffMethod: DiffMethod.CHARS,
         },
         historyData: {
           oldState: '',
@@ -149,7 +148,6 @@ describe('Firebase Gene Review Service', () => {
           lastReviewedString: undefined,
           uuid: mutation.name_uuid,
           reviewAction: ReviewAction.DELETE,
-          diffMethod: DiffMethod.CHARS,
         },
         historyData: {
           oldState: mutation,
@@ -182,7 +180,6 @@ describe('Firebase Gene Review Service', () => {
           lastReviewedString: undefined,
           uuid: mutation.name_uuid,
           reviewAction: ReviewAction.DEMOTE_MUTATION,
-          diffMethod: DiffMethod.CHARS,
         },
         historyData: {
           oldState: mutation,
@@ -215,14 +212,14 @@ describe('Firebase Gene Review Service', () => {
           lastReviewedString: undefined,
           uuid: mutation.name_uuid,
           reviewAction: ReviewAction.CREATE,
-          diffMethod: DiffMethod.CHARS,
         },
         historyData: {
           newState: mutation,
         },
       });
 
-      await firebaseGeneReviewService.acceptChanges(hugoSymbol, [reviewLevel], false);
+      // An entity is created once all its changes have been accepted or rejected.
+      await firebaseGeneReviewService.handleCreateAction(hugoSymbol, reviewLevel, false, ActionType.ACCEPT);
 
       const expectedMutation = _.cloneDeep(mutation);
       delete expectedMutation.name_review.added;
@@ -250,7 +247,6 @@ describe('Firebase Gene Review Service', () => {
           lastReviewedString: '',
           uuid: gene.background_uuid,
           reviewAction: ReviewAction.UPDATE,
-          diffMethod: DiffMethod.CHARS,
         },
         historyData: {
           oldState: '',
@@ -284,7 +280,6 @@ describe('Firebase Gene Review Service', () => {
           lastReviewedString: undefined,
           uuid: mutation.name_uuid,
           reviewAction: ReviewAction.DELETE,
-          diffMethod: DiffMethod.CHARS,
         },
         historyData: {
           oldState: mutation,
@@ -299,36 +294,37 @@ describe('Firebase Gene Review Service', () => {
       expect(mockMetaService.updateMeta).toHaveBeenCalledWith('BRAF', mutation.name_uuid, false, false);
     });
 
-    it('should add alterations back to VUS list if promotion to mutation is rejected', async () => {
-      const hugoSymbol = 'BRAF';
-      const mutationName = 'V600E, V600K';
-      const mutation = new Mutation(mutationName);
-      mutation.name_review = new Review('User');
-      mutation.name_review.promotedToMutation = true;
+    // With the change to move action buttons to individual collapsibles under a CREATED collapsible,
+    // there is no longer a way to reject it. Once we bring back that feature, we should re-enable this test.
+    // it('should add alterations back to VUS list if promotion to mutation is rejected', async () => {
+    //   const hugoSymbol = 'BRAF';
+    //   const mutationName = 'V600E, V600K';
+    //   const mutation = new Mutation(mutationName);
+    //   mutation.name_review = new Review('User');
+    //   mutation.name_review.promotedToMutation = true;
 
-      const reviewLevel = new ReviewLevel({
-        title: 'V600E, V600K',
-        valuePath: 'mutations/12/name',
-        historyLocation: 'V600E, V600K',
-        currentVal: 'V600E, V600K',
-        reviewInfo: {
-          reviewPath: 'mutations/0/name_review',
-          review: mutation.name_review,
-          lastReviewedString: undefined,
-          uuid: mutation.name_uuid,
-          reviewAction: ReviewAction.PROMOTE_VUS,
-          diffMethod: DiffMethod.CHARS,
-        },
-        historyData: {
-          oldState: mutation,
-        },
-      });
+    //   const reviewLevel = new ReviewLevel({
+    //     title: 'V600E, V600K',
+    //     valuePath: 'mutations/12/name',
+    //     historyLocation: 'V600E, V600K',
+    //     currentVal: 'V600E, V600K',
+    //     reviewInfo: {
+    //       reviewPath: 'mutations/0/name_review',
+    //       review: mutation.name_review,
+    //       lastReviewedString: undefined,
+    //       uuid: mutation.name_uuid,
+    //       reviewAction: ReviewAction.PROMOTE_VUS,
+    //     },
+    //     historyData: {
+    //       oldState: mutation,
+    //     },
+    //   });
 
-      await firebaseGeneReviewService.rejectChanges(hugoSymbol, [reviewLevel], false);
+    //   await firebaseGeneReviewService.handleCreateAction(hugoSymbol, reviewLevel, false, ActionType.REJECT);
 
-      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [12]);
-      // We expect both alterations (V600E and V600K) to be added back to VUS list
-      expect(mockVusService.addVus).toHaveBeenCalledWith('VUS/BRAF', ['V600E', 'V600K']);
-    });
+    //   expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [12]);
+    //   // We expect both alterations (V600E and V600K) to be added back to VUS list
+    //   expect(mockVusService.addVus).toHaveBeenCalledWith('VUS/BRAF', ['V600E', 'V600K']);
+    // });
   });
 });

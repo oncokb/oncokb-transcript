@@ -11,11 +11,10 @@ import {
   Tumor,
 } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
-import { getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
-import { getMutationName, getTxName } from './firebase-utils';
-import { PATHOGENIC_VARIANTS, READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
+import { generateUuid, getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
+import { getTxName } from './firebase-utils';
+import { READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
-import { DiffMethod } from 'react-diff-viewer-continued';
 import React from 'react';
 import { makeFirebaseKeysReadable } from './firebase-history-utils';
 import { ICancerType } from 'app/shared/model/cancer-type.model';
@@ -33,6 +32,8 @@ export type BaseReviewLevelParams = {
   nestedUnderCreateorDelete?: boolean;
 };
 export class BaseReviewLevel {
+  id: string; // id is used to uniquely identify a review level
+  hideLevel: boolean;
   reviewLevelType: ReviewLevelType;
   title: string;
   children?: ReviewChildren;
@@ -41,6 +42,8 @@ export class BaseReviewLevel {
   nestedUnderCreateOrDelete?: boolean;
 
   constructor({ reviewLevelType, title, valuePath, historyLocation, nestedUnderCreateorDelete = false }: BaseReviewLevelParams) {
+    this.id = generateUuid();
+    this.hideLevel = false;
     this.reviewLevelType = reviewLevelType;
     this.title = title;
     this.valuePath = valuePath;
@@ -87,7 +90,6 @@ export type ReviewInfo = {
   lastReviewedString: string;
   uuid: string;
   reviewAction?: ReviewAction;
-  diffMethod?: DiffMethod;
 };
 
 export type HistoryData = {
@@ -493,6 +495,7 @@ export const buildNameReview = (
     title,
     valuePath: currValuePath,
     historyLocation: buildHistoryLocation(parentReview, readableName),
+    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
   });
 
   const nameReview = creatableObject.name_review;
@@ -532,9 +535,9 @@ export const buildNameReview = (
       review: nameReview,
       lastReviewedString: readableOldName,
       uuid: creatableObject.name_uuid,
-      diffMethod: DiffMethod.WORDS,
     },
     historyData: { oldState, newState },
+    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
   });
 
   _.pull(uuids, creatableObject.name_uuid);
@@ -569,6 +572,7 @@ export const buildCancerTypeNameReview = (
     title: readableName,
     valuePath: currValuePath,
     historyLocation: buildHistoryLocation(parentReview, readableName),
+    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
   });
 
   const cancerTypesReview = tumor.cancerTypes_review;
@@ -622,6 +626,7 @@ export const buildCancerTypeNameReview = (
       lastReviewedString: undefined,
       uuid: undefined,
     },
+    nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
   });
   _.pull(uuids, tumor.cancerTypes_uuid);
   _.pull(uuids, tumor.excludedCancerTypes_uuid);
@@ -668,7 +673,6 @@ export const buildStringReview = (
       review: obj[reviewKey],
       lastReviewedString,
       uuid: obj[uuidKey],
-      diffMethod: DiffMethod.WORDS,
     },
     historyData: {
       oldState: lastReviewedString,
@@ -741,7 +745,6 @@ export const buildRCTReview = (
         review: implication.excludedRCTs_review,
         lastReviewedString: oldRCTString,
         uuid: implication.excludedRCTs_uuid,
-        diffMethod: DiffMethod.WORDS,
       },
       historyData: {
         oldState: oldRCTString,
@@ -793,13 +796,20 @@ export const getAllNestedReviewUuids = (baseReviewLevel: BaseReviewLevel, uuids:
   }
 };
 
-export const getUpdatedReview = (oldReview: Review, currentValue: any, newValue: any, editorName: string) => {
-  // Update Review
-  if (!oldReview) {
-    oldReview = new Review(editorName);
+export const getUpdatedReview = (
+  oldReview: Review,
+  currentValue: any,
+  newValue: any,
+  editorName: string,
+  updateMetaData: boolean = true,
+) => {
+  if (updateMetaData) {
+    if (!oldReview) {
+      oldReview = new Review(editorName);
+    }
+    oldReview.updateTime = new Date().getTime();
+    oldReview.updatedBy = editorName;
   }
-  oldReview.updateTime = new Date().getTime();
-  oldReview.updatedBy = editorName;
 
   // Update Review when value is reverted to original
   let isChangeReverted = false;
@@ -835,4 +845,27 @@ export const hasReview = (review: Review) => {
     }
   }
   return false;
+};
+
+export const getGenePathFromValuePath = (hugoSymbol: string, valuePath: string) => {
+  const _hugoSymbol = hugoSymbol.replace(/^\//, '');
+  const _valuePath = valuePath.replace(/^\//, '');
+  if (!_hugoSymbol) {
+    return 'Genes';
+  }
+  if (!_valuePath) {
+    return `Genes/${_hugoSymbol}`;
+  }
+  return `Genes/${_hugoSymbol}/${_valuePath}`;
+};
+
+export const showAsFirebaseTextArea = (hugoSymbol, valuePath: string) => {
+  const genePath = getGenePathFromValuePath(hugoSymbol, valuePath);
+  return (
+    genePath.endsWith('/description') ||
+    genePath.endsWith('/background') ||
+    genePath.endsWith('/summary') ||
+    genePath.endsWith('/diagnosticSummary') ||
+    genePath.endsWith('/prognosticSummary')
+  );
 };

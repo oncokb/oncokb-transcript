@@ -54,6 +54,13 @@ const ActionIcon: React.FunctionComponent<IActionIcon> = (props: IActionIcon) =>
       onMouseLeave(e);
     }
   };
+
+  const handleClick = e => {
+    if (!props.disabled) {
+      props.onClick?.(e);
+    }
+  };
+
   const iconComponent = defaultCompact ? (
     <span {...rest} style={containerStyle}>
       <FontAwesomeIcon icon={icon} color={defaultColor} />
@@ -70,6 +77,7 @@ const ActionIcon: React.FunctionComponent<IActionIcon> = (props: IActionIcon) =>
       containerStyle={containerStyle}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
     />
   );
   if (!tooltipProps) {

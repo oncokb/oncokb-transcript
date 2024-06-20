@@ -3,7 +3,14 @@ import './navigation-sidebar.scss';
 import oncokbLogo from 'oncokb-styles/dist/images/logo/oncokb.svg';
 import oncokbSmallLogo from 'oncokb-styles/dist/images/oncogenic.svg';
 import { observer } from 'mobx-react';
-import { AUTHORITIES, DEFAULT_NAV_ICON_SIZE, ENTITY_INFO, ENTITY_TYPE, PAGE_ROUTE } from 'app/config/constants/constants';
+import {
+  AUTHORITIES,
+  DEFAULT_NAV_ICON_SIZE,
+  ENTITY_INFO,
+  ENTITY_TYPE,
+  PAGE_ROUTE,
+  PRIORITY_ENTITY_MENU_ITEM_KEY,
+} from 'app/config/constants/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { NavLink } from 'react-router-dom';
@@ -23,8 +30,6 @@ import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_EXPANDED_WIDTH } from 'app/stores/layo
 import _ from 'lodash';
 import classNames from 'classnames';
 import { WHOLE_NUMBER_REGEX } from 'app/config/constants/regex';
-
-const PRIORITY_ENTITY_MENU_ITEM_KEY = 'oncokbCurationEntityMenuPriorityKey';
 
 const ENTITY_MENU_NAME: { [key in ENTITY_TYPE]?: string } = {
   [ENTITY_TYPE.ALTERATION]: 'Alteration',
@@ -168,6 +173,8 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
   const [entityMenuFrequencies, setEntityMenuFrequencies] = useState(getDefaultEntityMenuFrequencies() as EntityMenuFrequency[]);
   const [entityMenuOrder, setEntityMenuOrder] = useState(DEFAULT_ENTITY_MENU_ORDER);
 
+  const entityMenuLocalStorageKey = PRIORITY_ENTITY_MENU_ITEM_KEY;
+
   const handlePriorityMenuItemClick = (type: ENTITY_TYPE) => {
     if (DEFAULT_ENTITY_MENU_ORDER.includes(type)) {
       const targetIndex = entityMenuFrequencies.findIndex(e => e.type === type);
@@ -175,12 +182,12 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
         ...entityMenuFrequencies[targetIndex],
         frequency: entityMenuFrequencies[targetIndex].frequency + 1,
       };
-      localStorage.setItem(PRIORITY_ENTITY_MENU_ITEM_KEY, JSON.stringify(entityMenuFrequencies));
+      localStorage.setItem(entityMenuLocalStorageKey, JSON.stringify(entityMenuFrequencies));
     }
   };
 
   useEffect(() => {
-    const frequencies = JSON.parse(localStorage.getItem(PRIORITY_ENTITY_MENU_ITEM_KEY));
+    const frequencies = JSON.parse(localStorage.getItem(entityMenuLocalStorageKey));
     let parsedFrequencies = entityMenuFrequencies;
     if (frequencies) {
       parsedFrequencies = Object.keys(ENTITY_TYPE)

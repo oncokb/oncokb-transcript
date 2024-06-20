@@ -17,9 +17,6 @@ import { getMutationName, getTxName } from './firebase-utils';
 export const buildHistoryFromReviews = (reviewerName: string, reviewLevels: ReviewLevel[]) => {
   const history = new History(reviewerName);
   for (const reviewLevel of reviewLevels) {
-    if (reviewLevel.nestedUnderCreateOrDelete) {
-      continue;
-    }
     const historyOperation = ReviewActionToHistoryOperationMapping[reviewLevel.reviewInfo.reviewAction];
 
     const historyRecord: HistoryRecord = {
@@ -78,13 +75,18 @@ const findAllUuidsFromReview = (baseReviewLevel: BaseReviewLevel, uuids: string[
   }
 };
 
-export type FlattenedHistory = HistoryRecord & Omit<History, 'records'>;
+export type ParsedHistoryRecord = HistoryRecord & {
+  new?: string;
+  old?: string;
+};
+
+export type FlattenedHistory = ParsedHistoryRecord & Omit<History, 'records'>;
 
 export const parseHistory = (history: HistoryList, drugList: readonly IDrug[]) => {
   const parsedHistory: FlattenedHistory[] = []; // ADD TYPE
   for (const historyEntry of Object.values(history)) {
     if (historyEntry.records && Symbol.iterator in historyEntry.records) {
-      const parsedRecords: HistoryRecord[] = [];
+      const parsedRecords: ParsedHistoryRecord[] = [];
 
       for (const record of historyEntry.records) {
         switch (record.operation) {
@@ -120,16 +122,16 @@ export const parseHistory = (history: HistoryList, drugList: readonly IDrug[]) =
 };
 
 export const parseAddRecord = (record: HistoryRecord, drugList: readonly IDrug[], duplicateNestedUpdates: boolean) => {
-  const parsedRecords: HistoryRecord[] = []; // ADD TYPE
+  const parsedRecords: ParsedHistoryRecord[] = []; // ADD TYPE
 
   if (typeof record.new === 'string') {
-    parsedRecords.push(record);
+    parsedRecords.push({ ...record, old: '', new: record.new });
   } else if (typeof record.new === 'object') {
     const readableLocation = makeLocationReadable(
       record.location.split(',').map(key => key.trim()),
       drugList,
     ).join(', ');
-    parsedRecords.push({ ...record, location: readableLocation, new: JSON.stringify(record.new, null, 4) });
+    parsedRecords.push({ ...record, location: readableLocation, new: JSON.stringify(record.new, null, 4), old: '' });
 
     if (duplicateNestedUpdates) {
       const updatedEntries = findEntriesInObjectByUuids(record.new, record.uuids?.split(',') || [], drugList).filter(
@@ -138,7 +140,7 @@ export const parseAddRecord = (record: HistoryRecord, drugList: readonly IDrug[]
 
       for (const entry of updatedEntries) {
         parsedRecords.push({
-          new: entry[1],
+          new: entry[1] as string,
           operation: HistoryOperationType.UPDATE,
           lastEditBy: record.lastEditBy,
           location: `${readableLocation}, ${entry[0]}`,
@@ -150,24 +152,24 @@ export const parseAddRecord = (record: HistoryRecord, drugList: readonly IDrug[]
   return parsedRecords;
 };
 
-export const parseDeleteRecord = (record: HistoryRecord, drugList: readonly IDrug[]): HistoryRecord[] => {
+export const parseDeleteRecord = (record: HistoryRecord, drugList: readonly IDrug[]): ParsedHistoryRecord[] => {
   const readableLocation = makeLocationReadable(
     record.location.split(',').map(key => key.trim()),
     drugList,
   ).join(', ');
 
-  return [{ ...record, location: readableLocation, old: JSON.stringify(record.old) }];
+  return [{ ...record, location: readableLocation, new: '', old: JSON.stringify(record.old) }];
 };
 
 export const parseUpdateRecord = (record: HistoryRecord, drugList: readonly IDrug[]) => {
-  const parsedRecords: HistoryRecord[] = [];
+  const parsedRecords: ParsedHistoryRecord[] = [];
 
   if (typeof record.new === 'string') {
     const readableLocation = makeLocationReadable(
       record.location.split(',').map(key => key.trim()),
       drugList,
     ).join(', ');
-    parsedRecords.push({ ...record, location: readableLocation });
+    parsedRecords.push({ ...record, location: readableLocation, new: record.new, old: record.old as string });
   } else if (typeof record.new === 'object') {
     const readableLocation = record.location.split(',').map(key => key.trim());
 
@@ -201,12 +203,12 @@ export const parseUpdateRecord = (record: HistoryRecord, drugList: readonly IDru
   return parsedRecords;
 };
 
-export const parseNameChangeRecord = (record: HistoryRecord, drugList: readonly IDrug[]): HistoryRecord[] => {
+export const parseNameChangeRecord = (record: HistoryRecord, drugList: readonly IDrug[]): ParsedHistoryRecord[] => {
   const readableLocation = makeLocationReadable(
     record.location.split(',').map(key => key.trim()),
     drugList,
   ).join(', ');
-  return [{ ...record, location: readableLocation }];
+  return [{ ...record, location: readableLocation, new: record.new as string, old: record.old as string }];
 };
 
 /**

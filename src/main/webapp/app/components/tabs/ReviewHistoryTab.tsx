@@ -8,15 +8,19 @@ import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
 import React, { useEffect, useState } from 'react';
-import { Button, Input, Label, Row, Spinner } from 'reactstrap';
+import { Button, Input, Label, Spinner } from 'reactstrap';
 
-function ReviewHistoryTab({ firebaseDb, drugList, getDrugs }: StoreProps) {
+export interface IReviewHistoryTab extends StoreProps {
+  isGermline: boolean;
+}
+
+function ReviewHistoryTab({ isGermline, firebaseDb, drugList, getDrugs }: IReviewHistoryTab) {
   const [historyCollection, setHistoryCollection] = useState<HistoryCollection>(null);
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
   useEffect(() => {
-    const unsubscribe = onValue(ref(firebaseDb, FB_COLLECTION.HISTORY), snapshot => {
+    const unsubscribe = onValue(ref(firebaseDb, isGermline ? FB_COLLECTION.GERMLINE_HISTORY : FB_COLLECTION.HISTORY), snapshot => {
       setHistoryCollection(snapshot.val());
     });
 
