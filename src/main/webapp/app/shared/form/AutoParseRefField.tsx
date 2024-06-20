@@ -16,7 +16,7 @@ export const AutoParseRefField: React.FunctionComponent<IAutoParseRefField> = pr
       <span>References:</span>
       {content.map(c => {
         let ref = (
-          <span className="ms-2" key={c.content}>
+          <span className="ms-2" key={c.content} data-testid={c.content}>
             <a target="_blank" rel="noopener noreferrer" href={c.link} className="reference-link">
               {`${c.prefix}${c.content}`}
             </a>

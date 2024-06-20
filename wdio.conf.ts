@@ -15,6 +15,7 @@ export const config: Options.Testrunner = {
 
   suites: {
     screenshot: ['./src/test/javascript/spec/screenshot.ts'],
+    e2e: ['./src/test/javascript/spec/e2e.ts'],
   },
 
   services: [
@@ -85,6 +86,10 @@ export const config: Options.Testrunner = {
       },
     },
   ],
+
+  before(_capabilities, _specs, browser) {
+    browser.setWindowSize(1920, 1080);
+  },
 
   //
   // ===================
