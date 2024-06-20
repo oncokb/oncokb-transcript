@@ -28,6 +28,7 @@ export interface ITherapyCollapsibleProps extends StoreProps {
   mutationName: string;
   cancerTypeName: string;
   cancerTypePath: string;
+  isGermline: boolean;
 }
 
 function TherapyCollapsible({
@@ -36,6 +37,7 @@ function TherapyCollapsible({
   mutationName,
   cancerTypeName,
   cancerTypePath,
+  isGermline,
   firebaseDb,
   drugList,
   createDrug,
@@ -145,7 +147,7 @@ function TherapyCollapsible({
         onConfirm={async (newTreatment, newDrugs) => {
           try {
             await Promise.all(newDrugs.map(drug => createDrug(drug)));
-            await updateTreatmentName(therapyPath, treatmentName, newTreatment);
+            await updateTreatmentName(therapyPath, treatmentName, newTreatment, isGermline);
           } catch (error) {
             notifyError(error);
           }

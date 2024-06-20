@@ -18,6 +18,7 @@ export interface ITherapiesList extends StoreProps {
   mutationName: string;
   cancerTypeName: string;
   cancerTypePath: string;
+  isGermline: boolean;
 }
 
 type TxObject = {
@@ -38,6 +39,7 @@ const TherapiesList = ({
   createDrug,
   addTreatment,
   modifyTherapyModalStore,
+  isGermline,
 }: ITherapiesList) => {
   const [txObjects, setTxObjects] = useState<TxObject[]>([]);
   const [isSorted, setIsSorted] = useState(false);
@@ -94,6 +96,7 @@ const TherapiesList = ({
               mutationName={mutationName}
               cancerTypeName={cancerTypeName}
               cancerTypePath={cancerTypePath}
+              isGermline={isGermline}
             />
           </div>
         );
@@ -115,7 +118,7 @@ const TherapiesList = ({
           try {
             await Promise.all(newDrugs.map(drug => createDrug(drug)));
             await getDrugs({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
-            await addTreatment(`${tisPath}/${tisLength - 1}/treatments`, newTreatment);
+            await addTreatment(`${tisPath}/${tisLength - 1}/treatments`, newTreatment, isGermline);
           } catch (error) {
             notifyError(error);
           }

@@ -214,7 +214,7 @@ function MutationsSection({
           isGermline={isGermline}
           onConfirm={async (newMutation, newMutationIndex) => {
             try {
-              await addMutation(mutationsPath, newMutation);
+              await addMutation(mutationsPath, newMutation, isGermline);
               setShowAddMutationModal(show => !show);
               setOpenMutationCollapsibleIndex(newMutationIndex);
             } catch (error) {
