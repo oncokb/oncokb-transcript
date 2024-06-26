@@ -147,7 +147,6 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
               </ValidatedField>
               <Label>Gene</Label>
               <GeneSelect
-                isMulti={false}
                 onChange={option => {
                   setSelectedGeneId(option?.value);
                 }}

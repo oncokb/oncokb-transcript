@@ -128,7 +128,6 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
   return (
     <RealtimeDropdownInput
       {...dropdownProps}
-      isMulti={false}
       placeholder={placeholder ? placeholder : 'Select a level'}
       options={options}
       defaultValue={defaultValue}

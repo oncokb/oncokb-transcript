@@ -97,7 +97,6 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
           <SidebarMenuItem>Add Biomarker Association</SidebarMenuItem>
           <SidebarMenuItem>
             <GeneSelect
-              isMulti={false}
               onChange={option => {
                 const geneId = option ? option.value : null;
                 setSelectedGeneId(geneId?.toString() ?? null);
@@ -117,7 +116,7 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
             </div>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <CancerTypeSelect isMulti={false} onChange={onCancerTypeChange} />
+            <CancerTypeSelect onChange={onCancerTypeChange} />
           </SidebarMenuItem>
           <SidebarMenuItem>
             <DrugSelect isMulti onChange={onDrugChange} />

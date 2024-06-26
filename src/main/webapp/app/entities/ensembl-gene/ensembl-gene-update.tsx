@@ -140,7 +140,7 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
                 }}
               />
               <Label>Gene</Label>
-              <GeneSelect isMulti={false} onChange={option => setSelectedGeneId(option?.value)} className={'mb-3'} />
+              <GeneSelect onChange={option => setSelectedGeneId(option?.value)} className={'mb-3'} />
               <ValidatedField id="ensembl-gene-seqRegion" name="seqRegionId" data-cy="seqRegion" label="Seq Region" type="select">
                 <option value="" key="0" />
                 {seqRegions

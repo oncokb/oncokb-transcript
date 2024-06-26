@@ -124,7 +124,7 @@ const mapStoreToProps = ({ cancerTypeStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default function <IsMulti extends boolean = boolean>(props: InjectProps<ICancerTypeSelectProps<IsMulti>, StoreProps>) {
+export default function <IsMulti extends boolean = false>(props: InjectProps<ICancerTypeSelectProps<IsMulti>, StoreProps>) {
   const InjectedCancerTypeSelect = connect(mapStoreToProps)<ICancerTypeSelectProps<IsMulti>>(CancerTypeSelect);
   return <InjectedCancerTypeSelect {...props} />;
 }

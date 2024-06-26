@@ -133,7 +133,6 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
                 <Label>Code</Label>
                 {drugEntity.nciThesaurus && (
                   <NcitCodeSelect
-                    isMulti={false}
                     ncit={drugEntity.nciThesaurus}
                     onChange={selectedOption => {
                       setSelectedNcit(selectedOption ? parseNcitUniqId(selectedOption.value) : undefined);
