@@ -19,9 +19,10 @@ import DefaultBadge from 'app/shared/badge/DefaultBadge';
 import { ReviewAction, ReviewActionLabels, ReviewLevelType } from 'app/config/constants/firebase';
 import _ from 'lodash';
 import { CollapsibleColorProps, CollapsibleDisplayProps } from './BaseCollapsible';
-import { getReviewInfo } from 'app/shared/util/firebase/firebase-utils';
+import { getReviewInfo, getTxName } from 'app/shared/util/firebase/firebase-utils';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import DiffViewer, { FirebaseContent } from 'app/components/diff-viewer/DiffViewer';
+import { IDrug } from 'app/shared/model/drug.model';
 
 export enum ReviewType {
   CREATE,
@@ -73,6 +74,7 @@ export interface IReviewCollapsibleProps {
   handleCreateAction: (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean, action: ActionType) => Promise<void>;
   disableActions?: boolean;
   isRoot?: boolean;
+  drugList: readonly IDrug[];
 }
 
 export const ReviewCollapsible = ({
@@ -85,6 +87,7 @@ export const ReviewCollapsible = ({
   parentDelete,
   rootDelete,
   firebase,
+  drugList,
   disableActions = false,
   isRoot = false,
 }: IReviewCollapsibleProps) => {
@@ -311,8 +314,12 @@ export const ReviewCollapsible = ({
       );
     }
     if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
-      const oldValue = reviewLevel.historyData.oldState as string;
-      const newValue = reviewLevel.historyData.newState as string;
+      let oldValue = reviewLevel.historyData.oldState as string;
+      let newValue = reviewLevel.historyData.newState as string;
+      if (reviewLevel.valuePath.includes('treatments')) {
+        oldValue = getTxName(drugList, oldValue);
+        newValue = getTxName(drugList, newValue);
+      }
       const showTextArea = showAsFirebaseTextArea(hugoSymbol, reviewLevel.valuePath, isGermline);
       return (
         <>
@@ -367,6 +374,7 @@ export const ReviewCollapsible = ({
               path: getGenePathFromValuePath(hugoSymbol, childReview.valuePath, isGermline),
               db: firebase?.db,
             }}
+            drugList={drugList}
           />
         ));
     } else {
