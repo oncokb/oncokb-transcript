@@ -148,7 +148,7 @@ describe('FirebaseUtils', () => {
         } as Mutation;
         expect(getMutationName(mutation.name, mutation.alterations), 'Default mutation name should be used').toEqual('(No Name)');
         mutation = {
-          name: undefined,
+          name: '',
         } as Mutation;
         expect(getMutationName(mutation.name, mutation.alterations), 'Default mutation name should be used').toEqual('(No Name)');
       });

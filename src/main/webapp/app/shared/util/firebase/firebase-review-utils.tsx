@@ -238,7 +238,7 @@ export const isDeleteReview = (review: BaseReviewLevel) => {
 
 export const getCompactReviewInfo = (review: BaseReviewLevel) => {
   if (review.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) return review;
-  if (!review.hasChildren?.()) {
+  if (!review.hasChildren()) {
     return review;
   }
   const numOfChildren = review.childrenCount();
@@ -450,7 +450,7 @@ export const findReviewRecursive = (
         continue;
       }
 
-      if (typeof value === 'object' && !key.includes('_uuid')) {
+      if (value !== null && typeof value === 'object' && !key.includes('_uuid')) {
         const newPath = joinPathParts(currValuePath, key);
         let metaReview = buildObjectReview(value, key, parentReview, uuids, editorReviewMap);
         findReviewRecursive(value, newPath, uuids, metaReview, editorReviewMap, drugList);
@@ -506,7 +506,7 @@ export const buildNameReview = (
 
   const valuePathParts = [currValuePath, nameKey];
   const valuePath = valuePathParts.join('/');
-  const title = readableName ?? '';
+  const title = readableName;
 
   const metaReview = new MetaReviewLevel({
     title,
@@ -705,7 +705,7 @@ export const buildStringReview = (
 };
 
 export const buildObjectReview = (
-  obj: object | Implication | null,
+  obj: object,
   key: string,
   parentReview: BaseReviewLevel,
   uuids: string[],

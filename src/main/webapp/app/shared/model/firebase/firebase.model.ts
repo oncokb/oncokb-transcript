@@ -214,7 +214,7 @@ export class Mutation {
   mutation_effect: MutationEffect = new MutationEffect();
   mutation_effect_uuid: string = generateUuid();
   mutation_effect_comments?: Comment[] = []; // used for somatic
-  name: string | undefined = '';
+  name: string = '';
   name_comments?: Comment[] = [];
   name_review?: Review;
   alterations?: Alteration[] = [];
