@@ -161,6 +161,6 @@ const mapStoreToProps = ({ drugStore, nciThesaurusStore }: IRootStore) => ({
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
 export default function <IsMulti extends boolean = boolean>(props: InjectProps<IDrugSelectProps<IsMulti>, StoreProps>) {
-  const InjectedDrugSelect = connect<IDrugSelectProps<IsMulti>, StoreProps>(mapStoreToProps)(DrugSelect);
+  const InjectedDrugSelect = connect(mapStoreToProps)<IDrugSelectProps<IsMulti>>(DrugSelect);
   return <InjectedDrugSelect {...props} />;
 }

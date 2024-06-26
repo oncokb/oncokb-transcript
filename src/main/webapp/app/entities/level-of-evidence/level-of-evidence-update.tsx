@@ -158,4 +158,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<ILevelOfEvidenceUpdateProps, StoreProps>(mapStoreToProps)(LevelOfEvidenceUpdate);
+export default connect(mapStoreToProps)(LevelOfEvidenceUpdate);

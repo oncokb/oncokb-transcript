@@ -59,4 +59,4 @@ const mapStoreToProps = ({ levelOfEvidenceStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<ILevelOfEvidenceDeleteDialogProps, StoreProps>(mapStoreToProps)(LevelOfEvidenceDeleteDialog);
+export default connect(mapStoreToProps)(LevelOfEvidenceDeleteDialog);

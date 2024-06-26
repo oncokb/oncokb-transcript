@@ -123,4 +123,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IConsequenceUpdateProps, StoreProps>(mapStoreToProps)(ConsequenceUpdate);
+export default connect(mapStoreToProps)(ConsequenceUpdate);

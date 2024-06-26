@@ -70,6 +70,6 @@ const mapStoreToProps = ({ fdaSubmissionStore }: IRootStore) => ({
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
 export default function <IsMulti extends boolean = boolean>(props: InjectProps<IFdaSubmissionSelectProps<IsMulti>, StoreProps>) {
-  const InjectedFdaSubmissionSelect = connect<IFdaSubmissionSelectProps<IsMulti>, StoreProps>(mapStoreToProps)(FdaSubmissionSelect);
+  const InjectedFdaSubmissionSelect = connect(mapStoreToProps)<IFdaSubmissionSelectProps<IsMulti>>(FdaSubmissionSelect);
   return <InjectedFdaSubmissionSelect {...props} />;
 }

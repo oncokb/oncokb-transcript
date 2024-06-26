@@ -73,6 +73,6 @@ const mapStoreToProps = ({ alterationStore }: IRootStore) => ({
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
 export default function (props: InjectProps<IAlterationSelectProps, StoreProps>) {
-  const InjectedAlterationSelect = connect<Omit<IAlterationSelectProps, 'isMulti'>, StoreProps>(mapStoreToProps)(AlterationSelect);
+  const InjectedAlterationSelect = connect(mapStoreToProps)<Omit<IAlterationSelectProps, 'isMulti'>>(AlterationSelect);
   return <InjectedAlterationSelect {...props} />;
 }

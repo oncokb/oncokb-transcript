@@ -103,4 +103,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IPubMedArticleTooltip, StoreProps>(mapStoreToProps)(PubMedArticleTooltip);
+export default connect(mapStoreToProps)(PubMedArticleTooltip);

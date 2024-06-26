@@ -132,4 +132,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IUserManagementUpdateProps, StoreProps>(mapStoreToProps)(UserManagementUpdate);
+export default connect(mapStoreToProps)(UserManagementUpdate);

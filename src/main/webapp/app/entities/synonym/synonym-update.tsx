@@ -139,4 +139,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<ISynonymUpdateProps, StoreProps>(mapStoreToProps)(SynonymUpdate);
+export default connect(mapStoreToProps)(SynonymUpdate);

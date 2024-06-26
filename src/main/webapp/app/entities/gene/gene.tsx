@@ -78,4 +78,4 @@ const mapStoreToProps = ({ geneStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IGeneProps, StoreProps>(mapStoreToProps)(Gene);
+export default connect(mapStoreToProps)(Gene);

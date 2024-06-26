@@ -74,6 +74,6 @@ const mapStoreToProps = ({ nciThesaurusStore }: IRootStore) => ({
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
 export default function <IsMulti extends boolean = boolean>(props: InjectProps<INcitCodeSelectProps<IsMulti>, StoreProps>) {
-  const InjectedNcitCodeSelect = connect<INcitCodeSelectProps<IsMulti>, StoreProps>(mapStoreToProps)(NcitCodeSelect);
+  const InjectedNcitCodeSelect = connect(mapStoreToProps)<INcitCodeSelectProps<IsMulti>>(NcitCodeSelect);
   return <InjectedNcitCodeSelect {...props} />;
 }

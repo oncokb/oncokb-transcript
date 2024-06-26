@@ -63,4 +63,4 @@ const mapStoreToProps = ({ genomeFragmentStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IGenomeFragmentDetailProps, StoreProps>(mapStoreToProps)(GenomeFragmentDetail);
+export default connect(mapStoreToProps)(GenomeFragmentDetail);

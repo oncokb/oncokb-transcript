@@ -89,4 +89,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<ILogoutProps, StoreProps>(mapStoreToProps)(Logout);
+export default connect(mapStoreToProps)(Logout);

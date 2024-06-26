@@ -137,4 +137,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IFdaDrugUpdateProps, StoreProps>(mapStoreToProps)(FdaDrugUpdate);
+export default connect(mapStoreToProps)(FdaDrugUpdate);

@@ -3,6 +3,8 @@ import { IRootStore } from 'app/stores';
 import { MobXProviderContext } from 'mobx-react';
 import React from 'react';
 import { Props as SelectProps } from 'react-select';
+import { IValueMap } from 'mobx-react/dist/types/IValueMap';
+import { IStoresToProps } from 'mobx-react/dist/types/IStoresToProps';
 
 /**
 (storeState: IRootStore) => {
@@ -15,13 +17,15 @@ import { Props as SelectProps } from 'react-select';
 }
   */
 
-export type InjectProps<T extends object, S extends Partial<T>> = Omit<T, keyof S>;
-export type InjectedComponent<T extends object, S extends Partial<T>> = React.FC<InjectProps<T, S>>;
-export type GrabStoresFn<T extends object, S extends Partial<T>> = Parameters<typeof connect<T, S>>[0];
+export type InjectProps<T extends S, S extends object> = Omit<T, keyof S>;
+export type InjectedComponent<T extends S, S extends object> = React.FC<InjectProps<T, S>>;
+export type GrabStoresFn<S extends object> = Parameters<typeof connect<S>>[0];
 
-export function connect<T extends object, S extends Partial<T>>(grabStoresFn: (param: IRootStore, newProps: T) => S) {
-  return (baseComponent: React.FunctionComponent<T>): InjectedComponent<T, S> => {
-    const component = (ownProps: Omit<T, keyof S>) => {
+export function connect<S extends object>(
+  grabStoresFn: (param: IRootStore, newProps: unknown) => S,
+): <T extends S>(baseComponent: React.FunctionComponent<T>) => InjectedComponent<T, S> {
+  return <T extends S>(baseComponent: React.FunctionComponent<T>): InjectedComponent<T, S> => {
+    const component = (ownProps: Omit<unknown, keyof S>) => {
       const store = React.useContext(MobXProviderContext) as IRootStore;
       const newProps = { ...ownProps } as T;
       return useObserver(() => {

@@ -61,4 +61,4 @@ const mapStoreToProps = ({ fdaSubmissionTypeStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IFdaSubmissionTypeDeleteDialogProps, StoreProps>(mapStoreToProps)(FdaSubmissionTypeDeleteDialog);
+export default connect(mapStoreToProps)(FdaSubmissionTypeDeleteDialog);

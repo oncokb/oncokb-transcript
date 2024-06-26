@@ -144,4 +144,4 @@ const mapStoreToProps = ({ associationStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<CdxBiomarkerAssociationTableProps, StoreProps>(mapStoreToProps)(CdxBiomarkerAssociationTable);
+export default connect(mapStoreToProps)(CdxBiomarkerAssociationTable);

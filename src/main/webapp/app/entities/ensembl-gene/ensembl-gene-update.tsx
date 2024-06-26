@@ -177,4 +177,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IEnsemblGeneUpdateProps, StoreProps>(mapStoreToProps)(EnsemblGeneUpdate);
+export default connect(mapStoreToProps)(EnsemblGeneUpdate);

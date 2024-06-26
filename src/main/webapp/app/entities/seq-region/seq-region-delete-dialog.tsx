@@ -60,4 +60,4 @@ const mapStoreToProps = ({ seqRegionStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<ISeqRegionDeleteDialogProps, StoreProps>(mapStoreToProps)(SeqRegionDeleteDialog);
+export default connect(mapStoreToProps)(SeqRegionDeleteDialog);

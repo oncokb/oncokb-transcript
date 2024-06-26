@@ -164,4 +164,4 @@ const mapStoreToProps = ({ firebaseMetaStore, firebaseAppStore }: IRootStore) =>
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IGeneListPage, StoreProps>(mapStoreToProps)(GeneListPage);
+export default connect(mapStoreToProps)(GeneListPage);

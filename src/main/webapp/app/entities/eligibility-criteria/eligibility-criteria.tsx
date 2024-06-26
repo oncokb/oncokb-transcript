@@ -63,4 +63,4 @@ const mapStoreToProps = ({ eligibilityCriteriaStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IEligibilityCriteriaProps, StoreProps>(mapStoreToProps)(EligibilityCriteria);
+export default connect(mapStoreToProps)(EligibilityCriteria);

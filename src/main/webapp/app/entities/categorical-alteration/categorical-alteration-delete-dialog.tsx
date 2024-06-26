@@ -61,4 +61,4 @@ const mapStoreToProps = ({ categoricalAlterationStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<ICategoricalAlterationDeleteDialogProps, StoreProps>(mapStoreToProps)(CategoricalAlterationDeleteDialog);
+export default connect(mapStoreToProps)(CategoricalAlterationDeleteDialog);

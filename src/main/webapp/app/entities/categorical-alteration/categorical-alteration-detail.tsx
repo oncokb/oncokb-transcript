@@ -59,4 +59,4 @@ const mapStoreToProps = ({ categoricalAlterationStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<ICategoricalAlterationDetailProps, StoreProps>(mapStoreToProps)(CategoricalAlterationDetail);
+export default connect(mapStoreToProps)(CategoricalAlterationDetail);

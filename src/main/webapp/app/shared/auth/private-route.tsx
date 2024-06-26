@@ -70,6 +70,6 @@ type StoreProps = ReturnType<typeof mapStoreToProps>;
  * Accepts same props as React router Route.
  * The route also checks for authorization if hasAnyAuthorities is specified.
  */
-export const PrivateRoute = connect<IPrivateRouteProps, StoreProps>(mapStoreToProps)(PrivateRouteComponent);
+export const PrivateRoute = connect(mapStoreToProps)(PrivateRouteComponent);
 
 export default PrivateRoute;

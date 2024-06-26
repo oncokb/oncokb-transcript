@@ -237,4 +237,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IAlterationUpdateProps, StoreProps>(mapStoreToProps)(AlterationUpdate);
+export default connect(mapStoreToProps)(AlterationUpdate);

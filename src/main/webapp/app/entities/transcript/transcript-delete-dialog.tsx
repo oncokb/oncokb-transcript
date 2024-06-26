@@ -59,4 +59,4 @@ const mapStoreToProps = ({ transcriptStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<ITranscriptDeleteDialogProps, StoreProps>(mapStoreToProps)(TranscriptDeleteDialog);
+export default connect(mapStoreToProps)(TranscriptDeleteDialog);

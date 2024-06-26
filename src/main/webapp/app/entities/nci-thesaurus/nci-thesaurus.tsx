@@ -59,4 +59,4 @@ const mapStoreToProps = ({ nciThesaurusStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<INciThesaurusProps, StoreProps>(mapStoreToProps)(NciThesaurus);
+export default connect(mapStoreToProps)(NciThesaurus);

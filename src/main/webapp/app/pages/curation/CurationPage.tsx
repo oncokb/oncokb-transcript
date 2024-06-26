@@ -279,4 +279,4 @@ const mapStoreToProps = ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<ICurationPageProps, StoreProps>(mapStoreToProps)(CurationPage);
+export default connect(mapStoreToProps)(CurationPage);

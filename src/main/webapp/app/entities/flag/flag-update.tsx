@@ -152,4 +152,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IFlagUpdateProps, StoreProps>(mapStoreToProps)(FlagUpdate);
+export default connect(mapStoreToProps)(FlagUpdate);

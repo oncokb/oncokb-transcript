@@ -57,4 +57,4 @@ const mapStoreToProps = ({ fdaSubmissionStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IFdaSubmissionProps, StoreProps>(mapStoreToProps)(FdaSubmission);
+export default connect(mapStoreToProps)(FdaSubmission);

@@ -59,4 +59,4 @@ const mapStoreToProps = ({ nciThesaurusStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<INciThesaurusDeleteDialogProps, StoreProps>(mapStoreToProps)(NciThesaurusDeleteDialog);
+export default connect(mapStoreToProps)(NciThesaurusDeleteDialog);

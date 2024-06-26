@@ -139,4 +139,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IGenomeFragmentUpdateProps, StoreProps>(mapStoreToProps)(GenomeFragmentUpdate);
+export default connect(mapStoreToProps)(GenomeFragmentUpdate);

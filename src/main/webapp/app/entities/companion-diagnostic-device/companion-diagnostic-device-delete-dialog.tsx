@@ -66,4 +66,4 @@ const mapStoreToProps = ({ companionDiagnosticDeviceStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<ICompanionDiagnosticDeviceDeleteDialogProps, StoreProps>(mapStoreToProps)(CompanionDiagnosticDeviceDeleteDialog);
+export default connect(mapStoreToProps)(CompanionDiagnosticDeviceDeleteDialog);

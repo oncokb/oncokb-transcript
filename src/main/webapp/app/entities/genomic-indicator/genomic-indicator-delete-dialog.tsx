@@ -59,4 +59,4 @@ const mapStoreToProps = ({ genomicIndicatorStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IGenomicIndicatorDeleteDialogProps, StoreProps>(mapStoreToProps)(GenomicIndicatorDeleteDialog);
+export default connect(mapStoreToProps)(GenomicIndicatorDeleteDialog);

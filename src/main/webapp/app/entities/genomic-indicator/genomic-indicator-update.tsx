@@ -130,4 +130,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IGenomicIndicatorUpdateProps, StoreProps>(mapStoreToProps)(GenomicIndicatorUpdate);
+export default connect(mapStoreToProps)(GenomicIndicatorUpdate);

@@ -137,4 +137,4 @@ const mapStoreToProps = ({ companionDiagnosticDeviceStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<ICompanionDiagnosticDeviceProps, StoreProps>(mapStoreToProps)(CompanionDiagnosticDevice);
+export default connect(mapStoreToProps)(CompanionDiagnosticDevice);

@@ -59,4 +59,4 @@ const mapStoreToProps = ({ sequenceStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<ISequenceProps, StoreProps>(mapStoreToProps)(Sequence);
+export default connect(mapStoreToProps)(Sequence);

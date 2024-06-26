@@ -147,4 +147,4 @@ const mapStoreToProps = ({ associationStore }: IRootStore) => ({});
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<object, StoreProps>(mapStoreToProps)(CompanionDiagnosticDevicePanel);
+export default connect(mapStoreToProps)(CompanionDiagnosticDevicePanel);

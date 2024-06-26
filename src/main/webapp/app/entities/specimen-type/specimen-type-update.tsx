@@ -120,4 +120,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<ISpecimenTypeUpdateProps, StoreProps>(mapStoreToProps)(SpecimenTypeUpdate);
+export default connect(mapStoreToProps)(SpecimenTypeUpdate);

@@ -162,4 +162,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<IClinicalTrialArmUpdateProps, StoreProps>(mapStoreToProps)(ClinicalTrialArmUpdate);
+export default connect(mapStoreToProps)(ClinicalTrialArmUpdate);

@@ -114,4 +114,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<ISeqRegionUpdateProps, StoreProps>(mapStoreToProps)(SeqRegionUpdate);
+export default connect(mapStoreToProps)(SeqRegionUpdate);

@@ -145,4 +145,4 @@ const mapStoreToProps = (storeState: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect<INciThesaurusUpdateProps, StoreProps>(mapStoreToProps)(NciThesaurusUpdate);
+export default connect(mapStoreToProps)(NciThesaurusUpdate);
