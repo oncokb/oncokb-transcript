@@ -7,18 +7,26 @@ import { getFdaSubmissionNumber } from 'app/entities/companion-diagnostic-device
 import { flow, flowResult } from 'mobx';
 import Select from 'react-select';
 
-export interface IFdaSubmissionSelectProps<IsMulti extends boolean> extends SelectProps<IFdaSubmission, IsMulti>, StoreProps {
+export type FdaSubmissionSelectOption = {
+  label: string;
+  // TYPE-ISSUE: not sure what this should be
+  value: any;
+};
+
+export interface IFdaSubmissionSelectProps<IsMulti extends boolean> extends SelectProps<FdaSubmissionSelectOption, IsMulti>, StoreProps {
   cdxId: number;
 }
 
 const FdaSubmissionSelect = <IsMulti extends boolean>(props: IFdaSubmissionSelectProps<IsMulti>) => {
   const { getFdaSubmissionsByCdx, cdxId, ...selectProps } = props;
-  const [fdaSubmissionList, setFdaSubmissionList] = useState<OptionsOrGroups<IFdaSubmission, GroupBase<IFdaSubmission>> | undefined>([]);
-  const [fdaSubmissionValue, setFdaSubmissionValue] = useState<OnChangeValue<IFdaSubmission, IsMulti> | null>(null);
+  const [fdaSubmissionList, setFdaSubmissionList] = useState<
+    OptionsOrGroups<FdaSubmissionSelectOption, GroupBase<FdaSubmissionSelectOption>> | undefined
+  >([]);
+  const [fdaSubmissionValue, setFdaSubmissionValue] = useState<OnChangeValue<FdaSubmissionSelectOption, IsMulti> | null>(null);
 
   useEffect(() => {
     const loadFdaSubmissionOptions = async (id: number) => {
-      let options = [];
+      let options: FdaSubmissionSelectOption[] = [];
       if (id) {
         const fdaSubmissions = await flowResult(getFdaSubmissionsByCdx({ cdxId: id }));
         options = fdaSubmissions?.map((fdaSubmission: IFdaSubmission) => ({
@@ -34,10 +42,10 @@ const FdaSubmissionSelect = <IsMulti extends boolean>(props: IFdaSubmissionSelec
     }
   }, [cdxId]);
 
-  const onFdaSubmissionChange: (newValue: OnChangeValue<IFdaSubmission, IsMulti>, actionMeta: ActionMeta<IFdaSubmission>) => void = (
-    option,
-    actionMeta,
-  ) => {
+  const onFdaSubmissionChange: (
+    newValue: OnChangeValue<FdaSubmissionSelectOption, IsMulti>,
+    actionMeta: ActionMeta<FdaSubmissionSelectOption>,
+  ) => void = (option, actionMeta) => {
     setFdaSubmissionValue(option);
     props.onChange?.(option, actionMeta);
   };

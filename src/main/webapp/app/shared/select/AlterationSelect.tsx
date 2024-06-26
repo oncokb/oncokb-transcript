@@ -6,7 +6,7 @@ import { IAlteration } from '../model/alteration.model';
 import Select from 'react-select';
 import { flow, flowResult } from 'mobx';
 
-type AlterationSelectOption = {
+export type AlterationSelectOption = {
   value: number;
   label: string;
 };

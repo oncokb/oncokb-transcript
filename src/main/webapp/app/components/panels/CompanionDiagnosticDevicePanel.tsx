@@ -9,9 +9,9 @@ import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import CancerTypeSelect, { CancerTypeSelectOption } from 'app/shared/select/CancerTypeSelect';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import GeneSelect from 'app/shared/select/GeneSelect';
-import AlterationSelect from 'app/shared/select/AlterationSelect';
+import AlterationSelect, { AlterationSelectOption } from 'app/shared/select/AlterationSelect';
 import DrugSelect, { DrugSelectOption } from 'app/shared/select/DrugSelect';
-import FdaSubmissionSelect from 'app/shared/select/FdaSubmissionSelect';
+import FdaSubmissionSelect, { FdaSubmissionSelectOption } from 'app/shared/select/FdaSubmissionSelect';
 import { connect } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
@@ -31,11 +31,10 @@ export const defaultAdditional = {
 
 const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = props => {
   const [selectedGeneId, setSelectedGeneId] = useState<string | null>(null);
-  type AlterationChangeArg = Parameters<NonNullable<Parameters<typeof AlterationSelect>[0]['onChange']>>[0];
-  const [alterationValue, onAlterationChange] = useState<AlterationChangeArg | null>(null);
+  const [alterationValue, onAlterationChange] = useState<readonly AlterationSelectOption[] | null>(null);
   const [cancerTypeValue, onCancerTypeChange] = useState<CancerTypeSelectOption | null>(null);
   const [drugValue, onDrugChange] = useState<readonly DrugSelectOption[]>();
-  const [fdaSubmissionValue, onFdaSubmissionChange] = useState<readonly IFdaSubmission[]>();
+  const [fdaSubmissionValue, onFdaSubmissionChange] = useState<readonly FdaSubmissionSelectOption[]>();
 
   const history = useHistory();
   const location = useLocation();
@@ -46,8 +45,7 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
     const association: Association = {
       fdaSubmissions: fdaSubmissionValue?.map((fdaSubmission): FdaSubmission => {
         return {
-          // TYPE-ISSUE: value is not on FdaSubmission
-          id: (fdaSubmission as any).value,
+          id: fdaSubmission.value,
           number: '',
           curated: false,
           genetic: false,
