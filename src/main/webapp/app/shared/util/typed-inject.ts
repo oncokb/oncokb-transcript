@@ -21,13 +21,13 @@ export type InjectProps<T extends S, S extends object> = Omit<T, keyof S>;
 export type InjectedComponent<T extends S, S extends object> = React.FC<InjectProps<T, S>>;
 export type GrabStoresFn<S extends object> = Parameters<typeof connect<S>>[0];
 
-export function connect<S extends object>(
-  grabStoresFn: (param: IRootStore, newProps: unknown) => S,
-): <T extends S>(baseComponent: React.FunctionComponent<T>) => InjectedComponent<T, S> {
-  return <T extends S>(baseComponent: React.FunctionComponent<T>): InjectedComponent<T, S> => {
-    const component = (ownProps: Omit<unknown, keyof S>) => {
+export function connect<MapStoreToPropsRtn extends object>(grabStoresFn: (param: IRootStore, newProps: unknown) => MapStoreToPropsRtn) {
+  return <Props extends MapStoreToPropsRtn>(
+    baseComponent: React.FunctionComponent<Props>,
+  ): InjectedComponent<Props, MapStoreToPropsRtn> => {
+    const component = (ownProps: Omit<unknown, keyof MapStoreToPropsRtn>) => {
       const store = React.useContext(MobXProviderContext) as IRootStore;
-      const newProps = { ...ownProps } as T;
+      const newProps = { ...ownProps } as Props;
       return useObserver(() => {
         Object.assign(newProps, grabStoresFn(store || {}, newProps) || {});
         return baseComponent(newProps);
