@@ -51,7 +51,7 @@ import { Unsubscribe } from 'firebase/database';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
-  hugoSymbol: string | undefined;
+  hugoSymbol: string;
   isGermline: boolean;
   open?: boolean;
   disableOpen?: boolean;
@@ -239,11 +239,15 @@ const MutationCollapsible = ({
                 overlay={() => {
                   return (
                     <div className={'d-flex flex-column'}>
-                      {exons.map(exon => (
-                        <div key={exon.exon}>
-                          <b>Exon {exon.exon}</b>: {exon.range?.start}~{exon.range?.end}
-                        </div>
-                      ))}
+                      {exons
+                        .filter(
+                          (exon): exon is ProteinExonDTO & { range: NonNullable<ProteinExonDTO['range']> } => exon.range !== undefined,
+                        )
+                        .map(exon => (
+                          <div key={exon.exon}>
+                            <b>Exon {exon.exon}</b>: {exon.range.start}~{exon.range.end}
+                          </div>
+                        ))}
                     </div>
                   );
                 }}
