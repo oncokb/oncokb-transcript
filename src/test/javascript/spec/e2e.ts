@@ -1,11 +1,26 @@
 import { browser, $, expect } from '@wdio/globals';
 import setUpMocks from '../setup-mocks';
-import { BASE_URL, PUB_MED_ARTICLE_TITLE, PUB_MED_PMID } from '../constants';
 import { CLOSE_SIDEBAR_BUTTON_ID, OPEN_SIDEBAR_BUTTON_ID } from '../../../main/webapp/app/config/constants/html-id.ts';
+import { BASE_URL, DATABASE_EMULATOR_URL, MOCK_DATA_JSON_FILE_PATH, PUB_MED_ARTICLE_TITLE, PUB_MED_PMID } from '../constants';
+import * as fs from 'fs';
+import * as admin from 'firebase-admin';
+import { createMutationOnCurationPage } from '../shared/utils';
 
-describe('Screenshot Tests', () => {
+describe('End to end tests', () => {
+  let adminApp: admin.app.App;
+
+  const backup = JSON.parse(fs.readFileSync(MOCK_DATA_JSON_FILE_PATH).toString());
+
   before(async () => {
     await setUpMocks();
+    adminApp = admin.initializeApp({
+      databaseURL: DATABASE_EMULATOR_URL,
+    });
+  });
+
+  beforeEach(async () => {
+    // Reset database to a clean state before each test
+    await adminApp.database().ref('/').set(backup);
   });
 
   it('should check somatic/germline toggle button colors', async () => {
@@ -77,5 +92,31 @@ describe('Screenshot Tests', () => {
     expect(mutationBreadcrumbsName).toHaveText('V600E');
     expect(await mutationList.isDisplayed()).toBe(false);
     expect(singleMutationView).toExist();
+  });
+
+  it('should delete mutation immediately if newly created and not reviewed', async () => {
+    await browser.url(`${BASE_URL}/curation/EMPTYGENE/somatic`);
+
+    // Click to open mutation modal
+    const addMutationButton = await $('button=Add Mutation');
+    await addMutationButton.waitForDisplayed();
+    await addMutationButton.click();
+
+    await createMutationOnCurationPage('V600E');
+
+    // Delete the mutation on curation page
+    const mutationDeleteBtn = await $("div[data-testid='V600E-collapsible']").$("svg[data-icon='trash-can']");
+    await mutationDeleteBtn.click();
+
+    const confirmDeleteBtn = await $("div[id='delete-section-modal']").$('button=Confirm');
+    await confirmDeleteBtn.click();
+
+    // The mutation should be deleted and should not be rendered
+    const mutationCollapsible = await $("div[data-testid='V600E-collapsible-title-wrapper']");
+    expect(await mutationCollapsible.isExisting()).toBe(false);
+
+    // Review is not required when deleting newly created mutations
+    const reviewButton = await $('button[data-testid="review-button"]');
+    expect(await reviewButton.isExisting()).toBe(false);
   });
 });

@@ -1,0 +1,36 @@
+{
+  "id": 451,
+  "type": "PUBMED",
+  "pmid": "15520807",
+  "title": "The RAF proteins take centre stage.",
+  "content": "Since their discovery over 20 years ago, the RAF proteins have been intensely studied. For most of that time, the focus of the field has been the C-RAF isoform and its role as an effector of the RAS proteins. However, a report that implicates B-RAF in human cancer has highlighted the importance of all members of this protein kinase family and recent studies have uncovered intriguing new data relating to their complex regulation and biological functions.",
+  "link": null,
+  "authors": "Wellbrock et al.",
+  "date": "2004-12-15T00:00:00Z",
+  "additionalInfo": {
+    "abstractTexts": [
+      {
+        "label": null,
+        "nlmCategory": null,
+        "value": "Since their discovery over 20 years ago, the RAF proteins have been intensely studied. For most of that time, the focus of the field has been the C-RAF isoform and its role as an effector of the RAS proteins. However, a report that implicates B-RAF in human cancer has highlighted the importance of all members of this protein kinase family and recent studies have uncovered intriguing new data relating to their complex regulation and biological functions."
+      }
+    ],
+    "journal": {
+      "issn": "1471-0072",
+      "volume": "5",
+      "issue": "11",
+      "pages": "875-85",
+      "title": "Nature reviews. Molecular cell biology",
+      "isoAbbreviation": "Nat Rev Mol Cell Biol"
+    },
+    "completedDate": "2004-12-15T00:00:00Z",
+    "revisedDate": "2022-04-08T00:00:00Z",
+    "dataBanks": []
+  },
+  "flags": [],
+  "synonyms": [
+    { "id": 434469, "type": "ARTICLE", "source": "pubmed", "code": null, "name": "The RAF proteins take centre stage.", "note": null },
+    { "id": 434470, "type": "ARTICLE", "source": "doi", "code": null, "name": "10.1038/nrm1498", "note": null },
+    { "id": 434471, "type": "ARTICLE", "source": "pii", "code": null, "name": "nrm1498", "note": null }
+  ]
+}

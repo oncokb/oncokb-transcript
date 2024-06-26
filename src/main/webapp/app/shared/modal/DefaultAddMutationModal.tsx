@@ -18,7 +18,7 @@ export interface IDefaultAddMutationModal {
 
 export const DefaultAddMutationModal = (props: IDefaultAddMutationModal) => {
   return (
-    <Modal isOpen>
+    <Modal isOpen id="default-add-mutation-modal">
       {props.modalHeader ? <ModalHeader>{props.modalHeader}</ModalHeader> : undefined}
       <ModalBody>
         <div>{props.modalBody}</div>

@@ -67,6 +67,7 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
       outline
       disabled={disabled}
       onClick={handleClick}
+      id={'relevant-cancer-types-button'}
     >
       <FaPen className="me-1" />
       <span>RCTs</span>

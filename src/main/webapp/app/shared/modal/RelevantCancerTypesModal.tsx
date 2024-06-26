@@ -194,7 +194,7 @@ const RelevantCancerTypesModalContent = observer(
     const numberDeletedRcts = relevantCancerTypesModalStore.relevantCancerTypes.filter(rct => rct.isDeleted).length;
 
     return (
-      <Modal isOpen style={{ maxWidth: '650px' }}>
+      <Modal isOpen style={{ maxWidth: '650px' }} id="relevant-cancer-type-modal">
         <ModalHeader>Modify Relevant Cancer Types</ModalHeader>
         <ModalBody>
           {relevantCancerTypesModalStore.relevantCancerTypes.length > 50 && (

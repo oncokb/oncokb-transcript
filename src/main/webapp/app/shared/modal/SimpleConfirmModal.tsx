@@ -19,13 +19,14 @@ export const SimpleConfirmModal: React.FunctionComponent<{
   onConfirm?: () => void;
   showConfirmLoader?: boolean;
   style?: React.CSSProperties;
+  id?: string;
 }> = props => {
   const onCancel = (event?: any) => {
     if (event) event.preventDefault();
     if (props.onCancel) props.onCancel();
   };
   return (
-    <Modal style={props.style} isOpen={props.show} toggle={() => onCancel()}>
+    <Modal style={props.style} isOpen={props.show} toggle={() => onCancel()} id={props.id}>
       <div data-testid="simple-confirm-modal-content">
         <ModalHeader toggle={() => onCancel()}>{props.title || 'Please confirm'}</ModalHeader>
         <ModalBody>{props.body ? props.body : 'Are you sure?'}</ModalBody>

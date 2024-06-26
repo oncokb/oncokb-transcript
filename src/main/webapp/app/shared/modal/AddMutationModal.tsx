@@ -903,6 +903,7 @@ function AddMutationModal({
       <Row className="align-items-center mb-3">
         <Col className={classNames(!convertOptions?.isConverting && 'pe-0')}>
           <CreatableSelect
+            inputId="add-mutation-modal-input"
             ref={inputRef}
             components={{
               DropdownIndicator: null,
@@ -938,7 +939,7 @@ function AddMutationModal({
         ) : undefined}
       </Row>
       {tabStates.length > 0 && (
-        <div className="pe-3">
+        <div className="pe-3" data-testid={'add-mutation-modal-tabs'}>
           <Tabs
             tabs={tabStates.map((alterationData, index) => {
               return {

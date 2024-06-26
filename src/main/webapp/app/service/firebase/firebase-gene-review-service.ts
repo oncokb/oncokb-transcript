@@ -145,14 +145,14 @@ export class FirebaseGeneReviewService {
         const resetReview = new Review(this.authStore.fullName);
         const updateObject = {
           [reviewPath]: resetReview,
-          [fieldPath]: review.lastReviewed,
+          [fieldPath]: review.lastReviewed ?? null,
         };
         if ('excludedCancerTypesReviewInfo' in reviewLevel && 'currentExcludedCancerTypes' in reviewLevel) {
           const tumorReviewLevel = reviewLevel as TumorReviewLevel;
           const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo.reviewPath;
           const excludedCtPath = excludedCtReviewPath.replace('_review', '');
           updateObject[excludedCtReviewPath] = resetReview;
-          updateObject[excludedCtPath] = tumorReviewLevel.excludedCancerTypesReviewInfo.review.lastReviewed;
+          updateObject[excludedCtPath] = tumorReviewLevel.excludedCancerTypesReviewInfo.review.lastReviewed ?? null;
         }
         try {
           await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), updateObject);

@@ -22,6 +22,7 @@ export const DeleteSectionButton = ({
     <>
       <ActionIcon icon={faTrashAlt} onClick={() => setShowModal(true)} color={DANGER} {...actionIconProps} />
       <SimpleConfirmModal
+        id={'delete-section-modal'}
         title={'Are you sure you want to delete this section?'}
         body={
           <>

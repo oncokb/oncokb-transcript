@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "uuid": "2e8ce490-86c2-45a4-a6e4-db5e5314981c",
+    "name": "Prednisolone",
+    "nciThesaurus": {
+      "id": 158405,
+      "version": "23.11d",
+      "code": "C769",
+      "preferredName": "Prednisolone",
+      "displayName": "Prednisolone",
+      "synonyms": null
+    },
+    "fdaDrugs": [],
+    "flags": [],
+    "associations": []
+  },
+  {
+    "id": 15,
+    "uuid": "939cd40b-b515-499d-b099-fd29027c0d17",
+    "name": "Dabrafenib",
+    "nciThesaurus": {
+      "id": 163898,
+      "version": "23.11d",
+      "code": "C82386",
+      "preferredName": "Dabrafenib",
+      "displayName": "Dabrafenib",
+      "synonyms": null
+    },
+    "fdaDrugs": [],
+    "flags": [],
+    "associations": []
+  }
+]

@@ -93,6 +93,7 @@
     "dayjs": "1.11.11",
     "diff-match-patch": "^1.0.5",
     "firebase": "^10.11.1",
+    "firebase-admin": "^12.2.0",
     "history": "^5.3.0",
     "jest-mock-extended": "^3.0.7",
     "loaders.css": "",
