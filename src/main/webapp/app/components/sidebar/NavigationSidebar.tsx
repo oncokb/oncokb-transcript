@@ -169,7 +169,7 @@ const MenuDivider: React.FunctionComponent = () => {
   return <div className="nav-menu-divider"></div>;
 };
 
-export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
+export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSidebarCollapsed = false, ...props }) => {
   const [entityMenuFrequencies, setEntityMenuFrequencies] = useState(getDefaultEntityMenuFrequencies() as EntityMenuFrequency[]);
   const [entityMenuOrder, setEntityMenuOrder] = useState(DEFAULT_ENTITY_MENU_ORDER);
 
@@ -211,11 +211,11 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
   }, []);
 
   return (
-    <Sidebar collapsed={props.isNavSidebarCollapsed} width={`${SIDEBAR_EXPANDED_WIDTH}px`} collapsedWidth={`${SIDEBAR_COLLAPSED_WIDTH}px`}>
+    <Sidebar collapsed={isNavSidebarCollapsed} width={`${SIDEBAR_EXPANDED_WIDTH}px`} collapsedWidth={`${SIDEBAR_COLLAPSED_WIDTH}px`}>
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div style={{ lineHeight: '5rem', display: 'flex', justifyContent: 'center' }}>
           <NavbarBrand tag={NavLink} to={PAGE_ROUTE.HOME}>
-            {props.isNavSidebarCollapsed ? (
+            {isNavSidebarCollapsed ? (
               <OptimizedImage height={30} src={oncokbSmallLogo} alt={'OncoKB'} />
             ) : (
               <OptimizedImage height={30} src={oncokbLogo} alt={'OncoKB'} />
@@ -233,7 +233,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
           <Menu>
             {props.isCurator && (
               <MenuItemCollapsible
-                isCollapsed={props.isNavSidebarCollapsed ?? false}
+                isCollapsed={isNavSidebarCollapsed}
                 text="Curation"
                 icon={<FiFileText size={DEFAULT_NAV_ICON_SIZE} />}
                 nav={<NavLink to={PAGE_ROUTE.CURATION} />}
@@ -242,7 +242,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
             {props.isUser && (
               <>
                 <MenuItemCollapsible
-                  isCollapsed={props.isNavSidebarCollapsed ?? false}
+                  isCollapsed={isNavSidebarCollapsed}
                   text={'Search'}
                   icon={<BiSearchAlt size={DEFAULT_NAV_ICON_SIZE} />}
                   nav={<NavLink to={PAGE_ROUTE.SEARCH} />}
@@ -256,7 +256,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
                 </SubMenu>
               </>
             )}
-            {!props.isCurator && !props.isUser && <NoSidebarAccess isCollapsed={props.isNavSidebarCollapsed ?? false} />}
+            {!props.isCurator && !props.isUser && <NoSidebarAccess isCollapsed={isNavSidebarCollapsed} />}
           </Menu>
         </div>
         <MenuDivider />
@@ -266,7 +266,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
             {props.isAdmin && <MenuItem component={<NavLink to={PAGE_ROUTE.USER} />}>User Management</MenuItem>}
           </SubMenu>
           <MenuItemCollapsible
-            isCollapsed={props.isNavSidebarCollapsed ?? false}
+            isCollapsed={isNavSidebarCollapsed}
             text={'Sign out'}
             icon={<FaSignOutAlt size={DEFAULT_NAV_ICON_SIZE} />}
             nav={<NavLink to={PAGE_ROUTE.LOGOUT} />}
@@ -274,11 +274,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
         </Menu>
         <MenuDivider />
         <div style={{ lineHeight: '5rem', display: 'flex', justifyContent: 'center' }}>
-          {props.isNavSidebarCollapsed ? (
-            <MskccLogo className="navbar-brand" size={'sm'} />
-          ) : (
-            <MskccLogo className="navbar-brand" size={'lg'} />
-          )}
+          {isNavSidebarCollapsed ? <MskccLogo className="navbar-brand" size={'sm'} /> : <MskccLogo className="navbar-brand" size={'lg'} />}
         </div>
       </div>
     </Sidebar>

@@ -9,7 +9,7 @@ import { DrugSelectOption } from './DrugSelect';
 
 type GetOptionFromNcitRtn = ReturnType<typeof getOptionFromNcit>;
 export interface INcitCodeSelectProps<IsMulti extends boolean> extends SelectProps<GetOptionFromNcitRtn, IsMulti>, StoreProps {
-  ncit: INciThesaurus;
+  ncit: INciThesaurus | null | undefined;
 }
 
 const NCIT_UID_SEPARATOR = '-';
