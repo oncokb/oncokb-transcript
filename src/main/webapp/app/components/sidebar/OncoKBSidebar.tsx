@@ -92,7 +92,7 @@ const OncoKBSidebarExpanded = observer(
         } else if (newWidth >= maxWidth) {
           setOncoKBSidebarWidth?.(maxWidth);
         } else {
-          setOncoKBSidebarWidth?.((oncoKBSidebarWidth ?? 0) + startX - mouseMoveEvent?.pageX);
+          setOncoKBSidebarWidth?.((oncoKBSidebarWidth ?? 0) + startX - mouseMoveEvent.pageX);
         }
       }
 
