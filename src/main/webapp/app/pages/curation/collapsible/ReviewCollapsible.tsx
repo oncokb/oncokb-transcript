@@ -62,6 +62,8 @@ const ReviewCollapsibleBootstrapClass = {
   [ReviewAction.DEMOTE_MUTATION]: 'danger',
 };
 
+const TREATMENT_NAME_REGEX = /treatments\/\d+\/name$/;
+
 export interface IReviewCollapsibleProps {
   hugoSymbol: string;
   baseReviewLevel: BaseReviewLevel;
@@ -316,7 +318,7 @@ export const ReviewCollapsible = ({
     if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
       let oldValue = reviewLevel.historyData.oldState as string;
       let newValue = reviewLevel.historyData.newState as string;
-      if (reviewLevel.valuePath.includes('treatments')) {
+      if (TREATMENT_NAME_REGEX.test(reviewLevel.valuePath)) {
         oldValue = getTxName(drugList, oldValue);
         newValue = getTxName(drugList, newValue);
       }
