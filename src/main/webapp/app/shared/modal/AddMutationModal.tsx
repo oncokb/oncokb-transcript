@@ -165,7 +165,7 @@ function AddMutationModal({
     }
 
     async function setExistingAlterations() {
-      if ((mutationToEdit?.alterations?.length ?? 0) > 0) {
+      if (mutationToEdit?.alterations?.length !== undefined && mutationToEdit.alterations.length > 0) {
         setTabStates(mutationToEdit?.alterations?.map(alt => convertAlterationToAlterationData(alt)) ?? []);
         return;
       }

@@ -48,7 +48,7 @@ export const getGeneName = (gene: IGene): string => {
 };
 
 export const getGeneNameFromAlteration = (alteration: IAlteration) => {
-  return alteration.genes?.map(gene => gene.hugoSymbol).join('::');
+  return alteration.genes?.map(gene => gene.hugoSymbol).join('::') ?? '';
 };
 
 export const getGeneNamesFromAlterations = (alterations: IAlteration[]) => {

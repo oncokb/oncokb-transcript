@@ -43,12 +43,10 @@ export const Drug = (props: IDrugProps) => {
     associations?.forEach(val => {
       for (const alteration of val?.alterations ?? []) {
         const geneName = getGeneNameFromAlteration(alteration);
-        if (geneName) {
-          if (geneName in biomarkers) {
-            biomarkers[geneName].push(alteration);
-          } else {
-            biomarkers[geneName] = [alteration];
-          }
+        if (geneName in biomarkers) {
+          biomarkers[geneName].push(alteration);
+        } else {
+          biomarkers[geneName] = [alteration];
         }
       }
     });
@@ -69,7 +67,7 @@ export const Drug = (props: IDrugProps) => {
     {
       id: 'code',
       Header: 'Code',
-      Cell(cell: { original }): JSX.Element {
+      Cell(cell): JSX.Element {
         return cell.original.nciThesaurus ? cell.original.nciThesaurus.code : '';
       },
       onFilter: (data: IDrug, keyword) => filterByKeyword(data.nciThesaurus?.code || '', keyword),

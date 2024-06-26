@@ -1,6 +1,10 @@
 import { push, ref, remove, runTransaction, set, update } from 'firebase/database';
 import FirebaseAppStore from './firebase-app.store';
 
+export const throwMissingFirebaseDBError = () => {
+  throw new Error('No firebaseDb');
+};
+
 export class FirebaseRepository {
   private firebaseAppStore: FirebaseAppStore;
 
@@ -12,7 +16,7 @@ export class FirebaseRepository {
     if (this.firebaseAppStore.firebaseDb) {
       return await set(ref(this.firebaseAppStore.firebaseDb, path), value);
     } else {
-      throw new Error('No firebaseDb');
+      throwMissingFirebaseDBError();
     }
   };
 
@@ -20,7 +24,7 @@ export class FirebaseRepository {
     if (this.firebaseAppStore.firebaseDb) {
       return await update(ref(this.firebaseAppStore.firebaseDb, path), value);
     } else {
-      throw new Error('No firebaseDb');
+      throwMissingFirebaseDBError();
     }
   };
 
@@ -28,7 +32,7 @@ export class FirebaseRepository {
     if (this.firebaseAppStore.firebaseDb) {
       return await remove(ref(this.firebaseAppStore.firebaseDb, path));
     } else {
-      throw new Error('No firebaseDb');
+      throwMissingFirebaseDBError();
     }
   };
 
@@ -38,7 +42,7 @@ export class FirebaseRepository {
       const newItemRef = push(listRef);
       return await set(newItemRef, value);
     } else {
-      throw new Error('No firebaseDb');
+      throwMissingFirebaseDBError();
     }
   };
 
@@ -54,7 +58,7 @@ export class FirebaseRepository {
       });
       return await update(listRef, pushUpdates);
     } else {
-      throw new Error('No firebaseDb');
+      throwMissingFirebaseDBError();
     }
   };
 
@@ -68,7 +72,7 @@ export class FirebaseRepository {
         return currentData;
       });
     } else {
-      throw new Error('No firebaseDb');
+      throwMissingFirebaseDBError();
     }
   };
 
@@ -84,7 +88,7 @@ export class FirebaseRepository {
         return newData;
       });
     } else {
-      throw new Error('No firebaseDb');
+      throwMissingFirebaseDBError();
     }
   };
 }
