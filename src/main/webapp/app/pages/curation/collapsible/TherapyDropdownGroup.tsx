@@ -15,7 +15,7 @@ import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
 import RealtimeLevelDropdownInput, { LevelOfEvidenceType } from 'app/shared/firebase/input/RealtimeLevelDropdownInput';
 import _ from 'lodash';
-import { Unsubscribe } from 'firebase/auth';
+import { Unsubscribe } from 'firebase/database';
 
 export enum PropagationType {
   SOLID,

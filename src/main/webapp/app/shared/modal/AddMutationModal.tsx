@@ -25,7 +25,7 @@ import { DefaultAddMutationModal } from './DefaultAddMutationModal';
 import './add-mutation-modal.scss';
 import classNames from 'classnames';
 import { READABLE_ALTERATION, REFERENCE_GENOME } from 'app/config/constants/constants';
-import { Unsubscribe } from 'firebase/auth';
+import { Unsubscribe } from 'firebase/database';
 import Select from 'react-select/dist/declarations/src/Select';
 
 type AlterationData = {

@@ -26,7 +26,7 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { FlattenedHistory, parseHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
-import { Unsubscribe } from 'firebase/auth';
+import { Unsubscribe } from 'firebase/database';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 

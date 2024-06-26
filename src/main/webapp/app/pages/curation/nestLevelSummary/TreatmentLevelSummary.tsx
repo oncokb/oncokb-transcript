@@ -8,7 +8,7 @@ import NestLevelSummary, { NestLevelSummaryStats } from './NestLevelSummary';
 import './nest-level-summary.scss';
 import _ from 'lodash';
 import { UPDATE_SUMMARY_STATS_DEBOUNCE_MILLISECONDS } from 'app/config/constants/constants';
-import { Unsubscribe } from 'firebase/auth';
+import { Unsubscribe } from 'firebase/database';
 
 export interface TreatmentLevelSummaryProps extends StoreProps {
   treatmentPath: string;

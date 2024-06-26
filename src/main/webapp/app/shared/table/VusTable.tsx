@@ -31,7 +31,7 @@ import { DANGER, PRIMARY } from 'app/config/colors';
 import AddVusModal from '../modal/AddVusModal';
 import MutationConvertIcon from '../icons/MutationConvertIcon';
 import AddMutationModal from '../modal/AddMutationModal';
-import { Unsubscribe } from 'firebase/auth';
+import { Unsubscribe } from 'firebase/database';
 
 export interface IVusTableProps extends StoreProps {
   hugoSymbol: string | undefined;

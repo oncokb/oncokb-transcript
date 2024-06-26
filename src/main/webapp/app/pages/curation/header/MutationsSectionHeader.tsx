@@ -13,7 +13,7 @@ import AddMutationButton from '../button/AddMutationButton';
 import ReactSelect from 'react-select';
 import * as styles from './styles.module.scss';
 import classNames from 'classnames';
-import { Unsubscribe } from 'firebase/auth';
+import { Unsubscribe } from 'firebase/database';
 
 export interface IMutationsSectionHeaderProps extends StoreProps {
   hugoSymbol: string;

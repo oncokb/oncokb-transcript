@@ -25,7 +25,7 @@ import * as styles from '../styles.module.scss';
 import BadgeGroup from '../BadgeGroup';
 import { RemovableCollapsible } from './RemovableCollapsible';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
-import { Unsubscribe } from 'firebase/auth';
+import { Unsubscribe } from 'firebase/database';
 
 interface ICancerTypeCollapsibleProps extends StoreProps {
   cancerTypePath: string;

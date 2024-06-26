@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { FormFeedback, Input, Label, LabelProps } from 'reactstrap';
 import { InputType } from 'reactstrap/types/lib/Input';
 import * as styles from './styles.module.scss';
-import { Unsubscribe } from 'firebase/auth';
+import { Unsubscribe } from 'firebase/database';
 
 export enum RealtimeInputType {
   TEXT = 'text',

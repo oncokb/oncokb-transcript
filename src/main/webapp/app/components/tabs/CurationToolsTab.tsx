@@ -12,7 +12,7 @@ import { CURRENT_REVIEWER } from 'app/config/constants/constants';
 import { GeneType } from 'app/shared/model/firebase/firebase.model';
 import { onValue, ref } from 'firebase/database';
 import { FB_COLLECTION } from 'app/config/constants/firebase';
-import { Unsubscribe } from 'firebase/auth';
+import { Unsubscribe } from 'firebase/database';
 
 export type ReleaseGeneTestData = {
   passed: boolean;

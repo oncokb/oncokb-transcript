@@ -21,7 +21,7 @@ import * as styles from './styles.module.scss';
 import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import { RemovableCollapsible } from './RemovableCollapsible';
 import TherapyDropdownGroup from './TherapyDropdownGroup';
-import { Unsubscribe } from 'firebase/auth';
+import { Unsubscribe } from 'firebase/database';
 
 export interface ITherapyCollapsibleProps extends StoreProps {
   therapyPath: string;

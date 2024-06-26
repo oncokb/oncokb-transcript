@@ -7,7 +7,7 @@ import { observer } from 'mobx-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import NestLevelSummary, { NestLevelSummaryStats } from './NestLevelSummary';
 import { UPDATE_SUMMARY_STATS_DEBOUNCE_MILLISECONDS } from 'app/config/constants/constants';
-import { Unsubscribe } from 'firebase/auth';
+import { Unsubscribe } from 'firebase/database';
 
 export interface CancerTypeLevelSummaryProps extends StoreProps {
   cancerTypePath: string;

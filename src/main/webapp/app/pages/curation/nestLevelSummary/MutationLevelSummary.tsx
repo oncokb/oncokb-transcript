@@ -8,7 +8,7 @@ import NestLevelSummary, { NestLevelSummaryStats } from './NestLevelSummary';
 import { DataSnapshot, onValue, ref } from 'firebase/database';
 import { getMutationStats } from 'app/shared/util/firebase/firebase-utils';
 import { UPDATE_SUMMARY_STATS_DEBOUNCE_MILLISECONDS } from 'app/config/constants/constants';
-import { Unsubscribe } from 'firebase/auth';
+import { Unsubscribe } from 'firebase/database';
 
 export interface MutationLevelSummaryProps extends StoreProps {
   mutationPath: string;

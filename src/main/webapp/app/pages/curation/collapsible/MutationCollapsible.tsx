@@ -47,7 +47,7 @@ import CancerTypeCollapsible from './CancerTypeCollapsible';
 import Collapsible from './Collapsible';
 import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import { RemovableCollapsible } from './RemovableCollapsible';
-import { Unsubscribe } from 'firebase/auth';
+import { Unsubscribe } from 'firebase/database';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;

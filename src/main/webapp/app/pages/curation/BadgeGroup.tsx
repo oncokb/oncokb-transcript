@@ -4,8 +4,7 @@ import NotCuratableBadge from 'app/shared/badge/NotCuratableBadge';
 import { isSectionEmpty } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { Unsubscribe } from 'firebase/auth';
-import { onValue, ref } from 'firebase/database';
+import { Unsubscribe, onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useMemo, useState } from 'react';
 

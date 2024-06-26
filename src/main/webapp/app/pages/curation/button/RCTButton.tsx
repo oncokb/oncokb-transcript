@@ -3,8 +3,7 @@ import { Implication, Treatment, Tumor } from 'app/shared/model/firebase/firebas
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { Unsubscribe } from 'firebase/auth';
-import { onValue, ref } from 'firebase/database';
+import { Unsubscribe, onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { FaPen } from 'react-icons/fa';

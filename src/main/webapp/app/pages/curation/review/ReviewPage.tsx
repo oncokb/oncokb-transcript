@@ -23,7 +23,6 @@ import _ from 'lodash';
 import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
-import { Unsubscribe } from 'firebase/auth';
 
 interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 

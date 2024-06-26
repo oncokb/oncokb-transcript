@@ -5,7 +5,7 @@ import { onValue, ref } from 'firebase/database';
 import React, { useEffect, useRef, useState } from 'react';
 import RealtimeDropdownInput, { IRealtimeDropdownInput, RealtimeDropdownOptions } from './RealtimeDropdownInput';
 import { InjectProps, componentInject } from 'app/shared/util/typed-inject';
-import { Unsubscribe } from 'firebase/auth';
+import { Unsubscribe } from 'firebase/database';
 
 export enum LevelOfEvidenceType {
   HIGHEST_LEVEL,

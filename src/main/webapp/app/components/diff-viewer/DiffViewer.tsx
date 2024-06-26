@@ -6,7 +6,7 @@ import classnames from 'classnames';
 import * as styles from './style.module.scss';
 import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
 import { Database, onValue, ref } from 'firebase/database';
-import { Unsubscribe } from 'firebase/auth';
+import { Unsubscribe } from 'firebase/database';
 
 export type FirebaseContent = {
   path: string;
