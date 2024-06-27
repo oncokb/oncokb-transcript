@@ -90,9 +90,9 @@ export class MultiSelectionReviewLevel extends BaseReviewLevel {
 
 export type ReviewInfo = {
   reviewPath: string;
-  review: Review | undefined;
+  review: Review;
   lastReviewedString: string | undefined;
-  uuid: string | undefined;
+  uuid: string;
   reviewAction?: ReviewAction;
 };
 
@@ -628,7 +628,7 @@ export const buildCancerTypeNameReview = (
     currentVal: newTumorName,
     reviewInfo: {
       reviewPath: `${valuePath}_review`,
-      review: cancerTypesReview,
+      review: cancerTypesReview!,
       lastReviewedString: oldTumorName,
       uuid: tumorNameUuid,
     },
@@ -639,9 +639,10 @@ export const buildCancerTypeNameReview = (
     currentExcludedCancerTypes: tumor.excludedCancerTypes,
     excludedCancerTypesReviewInfo: {
       reviewPath: `${excludedCancerTypesPath}_review`,
-      review: excludedCTReview,
+      review: excludedCTReview!,
       lastReviewedString: undefined,
-      uuid: undefined,
+      // TODO(Calvin): this needs to have a value
+      uuid: '',
     },
     nestedUnderCreateOrDelete: isNestedUnderCreateOrDelete(parentReview),
   });
@@ -759,9 +760,9 @@ export const buildRCTReview = (
       currentVal: newRCTString,
       reviewInfo: {
         reviewPath: `${valuePath}_review`,
-        review: implication.excludedRCTs_review,
+        review: implication.excludedRCTs_review!,
         lastReviewedString: oldRCTString,
-        uuid: implication.excludedRCTs_uuid,
+        uuid: implication.excludedRCTs_uuid!,
       },
       historyData: {
         oldState: oldRCTString,

@@ -117,14 +117,12 @@ export const GeneDetail = (props: IGeneDetailProps) => {
                     </span>
                     <span className={'ms-1'}>{getGenomicLocation(eg)}</span>
                   </div>
-                  {eg.id && (
-                    <TranscriptTable
-                      ensemblGeneId={eg.id}
-                      onToggleTranscript={onToggleTranscript}
-                      disableTranscriptAlignment={aligningTranscripts}
-                      selectedTranscriptIds={selectedTranscriptIds}
-                    />
-                  )}
+                  <TranscriptTable
+                    ensemblGeneId={eg.id}
+                    onToggleTranscript={onToggleTranscript}
+                    disableTranscriptAlignment={aligningTranscripts}
+                    selectedTranscriptIds={selectedTranscriptIds}
+                  />
                 </div>
               );
             })}
