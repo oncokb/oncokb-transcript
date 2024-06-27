@@ -7,7 +7,7 @@ import { BaseReadStore } from 'app/shared/util/base-read-store';
 
 export abstract class BaseCrudStore<T extends object> extends BaseReadStore<T> {
   // TYPE-ISSUE: BaseStore needs a generic type
-  createEntity: ICrudPutAction<T> = this.updateHandler(this.create, 'Successfully created entity') as any;
+  createEntity: ICrudPutAction<Omit<T, 'id'>, T> = this.updateHandler(this.create, 'Successfully created entity') as any;
 
   // TYPE-ISSUE: BaseStore needs a generic type
   updateEntity: ICrudPutAction<T> = this.updateHandler(this.update, 'Successfully updated entity') as any;

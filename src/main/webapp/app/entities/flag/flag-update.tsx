@@ -39,7 +39,7 @@ export const FlagUpdate = (props: IFlagUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = (values: IFlag) => {
+  const saveEntity = (values: Partial<IFlag>) => {
     const entity = {
       ...flagEntity,
       ...values,

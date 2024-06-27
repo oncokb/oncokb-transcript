@@ -40,7 +40,7 @@ export const ClinicalTrialUpdate = (props: IClinicalTrialUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = (values: IClinicalTrial) => {
+  const saveEntity = (values: Partial<IClinicalTrial>) => {
     const entity = {
       ...clinicalTrialEntity,
       ...values,

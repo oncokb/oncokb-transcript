@@ -19,4 +19,4 @@ export interface ISearchParams extends IQueryParams {
 export type ICrudGetAllAction<T> = (params: IQueryParams) => IPayload<T[]>;
 export type ICrudSearchAction<T> = (params: ISearchParams) => IPayload<T[]>;
 export type ICrudDeleteAction<T> = (id?: string | number) => IPayload<T>;
-export type ICrudPutAction<T> = (data?: T) => IPayload<T>;
+export type ICrudPutAction<T, S = T> = (data?: T) => IPayload<S>;

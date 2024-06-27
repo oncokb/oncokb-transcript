@@ -37,7 +37,7 @@ export const GenomicIndicatorUpdate = (props: IGenomicIndicatorUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = (values: IGenomicIndicator) => {
+  const saveEntity = (values: Partial<IGenomicIndicator>) => {
     const entity = {
       ...genomicIndicatorEntity,
       ...values,

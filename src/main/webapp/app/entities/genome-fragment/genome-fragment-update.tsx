@@ -60,8 +60,8 @@ export const GenomeFragmentUpdate = (props: IGenomeFragmentUpdateProps) => {
     isNew
       ? {}
       : {
-          type: 'GENE',
           ...genomeFragmentEntity,
+          type: genomeFragmentEntity.type ?? 'GENE',
           seqRegionId: genomeFragmentEntity?.seqRegion?.id,
           transcriptId: genomeFragmentEntity?.transcript?.id,
         };

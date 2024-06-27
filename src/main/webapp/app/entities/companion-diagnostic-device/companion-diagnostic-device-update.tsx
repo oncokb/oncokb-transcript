@@ -47,7 +47,7 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
     for (const stv of specimenTypeValues) {
       if (!WHOLE_NUMBER_REGEX.test(stv.id)) {
         try {
-          const result = await props.createSpecimenType({ type: stv.id, name: stv.id });
+          const result = await props.createSpecimenType({ type: stv.id, name: stv.id, companionDiagnosticDevices: [] });
           updatedSpecimenTypes.push(result.data);
         } catch (error) {
           notifyError(error as Error, 'Could not create new specimen type');

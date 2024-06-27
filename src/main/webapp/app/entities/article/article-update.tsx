@@ -45,7 +45,7 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = (values: IArticle) => {
+  const saveEntity = (values: Partial<IArticle>) => {
     // TYPE-ISSUE is date supposed to be a date object too?
     values.date = (values.date ? convertDateTimeToServer(values.date) : values.date) as string;
 
@@ -69,8 +69,8 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
           date: displayDefaultDateTime(),
         }
       : {
-          type: 'PUBMED',
           ...articleEntity,
+          type: articleEntity.type ?? 'PUBMED',
           date: convertDateTimeFromServer(articleEntity.date),
           flags: articleEntity?.flags?.map(e => e.id?.toString()),
           synonyms: articleEntity?.synonyms?.map(e => e.id?.toString()),

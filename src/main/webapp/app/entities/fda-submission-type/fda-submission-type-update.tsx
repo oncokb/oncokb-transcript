@@ -36,7 +36,7 @@ export const FdaSubmissionTypeUpdate = (props: IFdaSubmissionTypeUpdateProps) =>
     }
   }, [updateSuccess]);
 
-  const saveEntity = (values: IFdaSubmissionType) => {
+  const saveEntity = (values: Partial<IFdaSubmissionType>) => {
     const entity = {
       ...fdaSubmissionTypeEntity,
       ...values,
@@ -53,8 +53,8 @@ export const FdaSubmissionTypeUpdate = (props: IFdaSubmissionTypeUpdateProps) =>
     isNew
       ? {}
       : {
-          type: 'DEVICE_PMA',
           ...fdaSubmissionTypeEntity,
+          type: fdaSubmissionTypeEntity.type ?? 'DEVICE_PMA',
         };
 
   return (

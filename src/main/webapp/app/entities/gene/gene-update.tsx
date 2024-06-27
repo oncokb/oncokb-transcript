@@ -28,7 +28,7 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
     props.getGeneFlags({});
   }, []);
 
-  const saveEntity = (values: IGene) => {
+  const saveEntity = (values: Partial<IGene>) => {
     const entity = {
       ...geneEntity,
       ...values,

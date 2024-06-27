@@ -47,13 +47,16 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
   }, [updateSuccess]);
 
   // TYPE-ISSUE: is values supposed to be ITranscript?
+  // The call setSelectedGeneId is setting as a number
+  // onChange={option => { setSelectedGeneId(option?.value); }}
   const saveEntity = values => {
     const entity = {
       ...transcriptEntity,
       ...values,
       flags: mapIdList(values.flags),
       ensemblGene: ensemblGenes.find(it => it.id?.toString() === values.ensemblGeneId.toString()),
-      gene: genes.find(it => it.id?.toString() === selectedGeneId),
+      // TYPE-ISSUE: Is selectedGeneId a number or a string?
+      gene: genes.find(it => it.id?.toString() === selectedGeneId?.toString()),
     };
 
     if (isNew) {
@@ -67,8 +70,8 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
     isNew
       ? {}
       : {
-          referenceGenome: 'GRCh37',
           ...transcriptEntity,
+          referenceGenome: transcriptEntity.referenceGenome ?? 'GRCh37',
           flags: transcriptEntity?.flags?.map(e => e.id?.toString()),
           ensemblGeneId: transcriptEntity?.ensemblGene?.id,
           geneId: transcriptEntity?.gene?.id,

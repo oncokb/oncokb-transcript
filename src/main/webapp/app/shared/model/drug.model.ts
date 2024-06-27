@@ -5,13 +5,11 @@ import { IAssociation } from 'app/shared/model/association.model';
 
 // CrudStore cannot use interface
 export type IDrug = {
-  id?: number;
-  uuid?: string;
-  name?: string;
-  nciThesaurus?: INciThesaurus | null;
-  fdaDrugs?: IFdaDrug[] | null;
-  flags?: IFlag[] | null;
-  associations?: IAssociation[] | null;
+  id: number;
+  uuid: string;
+  name: string;
+  nciThesaurus: INciThesaurus | null | undefined;
+  fdaDrugs: IFdaDrug[] | null;
+  flags: IFlag[] | null;
+  associations: IAssociation[] | null;
 };
-
-export const defaultValue: Readonly<IDrug> = {};

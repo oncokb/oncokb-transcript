@@ -6,6 +6,7 @@ import { transcriptClient } from 'app/shared/api/clients';
 import { EnsemblGene } from 'app/shared/api/generated/curation';
 import { makeObservable } from 'mobx';
 import { ENTITY_TYPE } from 'app/config/constants/constants';
+import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
 
 export class GeneStore extends PaginationCrudStore<IGene> {
   ensemblGenes: EnsemblGene[] = [];
@@ -18,7 +19,7 @@ export class GeneStore extends PaginationCrudStore<IGene> {
 
   getEnsemblGenes(geneId?: number) {
     const query = geneId ? `?geneId.equals=${geneId}` : '';
-    return axios.get<IGene[]>(`api/ensembl-genes${query}`);
+    return axios.get<IEnsemblGene[]>(`api/ensembl-genes${query}`);
   }
 
   alignTranscripts(transcriptIds: number[]) {

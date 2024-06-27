@@ -37,7 +37,7 @@ export const LevelOfEvidenceUpdate = (props: ILevelOfEvidenceUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = (values: ILevelOfEvidence) => {
+  const saveEntity = (values: Partial<ILevelOfEvidence>) => {
     const entity = {
       ...levelOfEvidenceEntity,
       ...values,

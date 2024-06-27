@@ -3,14 +3,12 @@ import { FdaSubmissionTypeKey } from 'app/shared/model/enumerations/fda-submissi
 
 // CrudStore cannot use interface
 export type IFdaSubmissionType = {
-  id?: number;
-  type?: FdaSubmissionTypeKey;
-  name?: string;
-  shortName?: string | null;
-  submissionPrefix?: string | null;
-  submissionLink?: string | null;
-  description?: string | null;
-  fdaSubmissions?: IFdaSubmission[] | null;
+  id: number;
+  type: FdaSubmissionTypeKey;
+  name: string;
+  shortName: string | null;
+  submissionPrefix: string | null;
+  submissionLink: string | null;
+  description: string | null;
+  fdaSubmissions: IFdaSubmission[] | null;
 };
-
-export const defaultValue: Readonly<IFdaSubmissionType> = {};

@@ -63,8 +63,8 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
     isNew
       ? {}
       : {
-          referenceGenome: 'GRCh37',
           ...ensemblGeneEntity,
+          referenceGenome: ensemblGeneEntity.referenceGenome ?? 'GRCh37',
           geneId: ensemblGeneEntity?.gene?.id,
           seqRegionId: ensemblGeneEntity?.seqRegion?.id,
         };

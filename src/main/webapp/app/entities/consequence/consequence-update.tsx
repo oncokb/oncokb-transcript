@@ -36,7 +36,7 @@ export const ConsequenceUpdate = (props: IConsequenceUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = (values: IConsequence) => {
+  const saveEntity = (values: Partial<IConsequence>) => {
     const entity = {
       ...consequenceEntity,
       ...values,
