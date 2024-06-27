@@ -16,7 +16,9 @@ export interface ITherapiesList extends StoreProps {
   tisPath: string;
   parsedHistoryList: Map<string, FlattenedHistory[]>;
   mutationName: string;
+  mutationUuid: string;
   cancerTypeName: string;
+  cancerTypeUuid: string;
   cancerTypePath: string;
   isGermline: boolean;
 }
@@ -31,7 +33,9 @@ const TherapiesList = ({
   tisPath,
   parsedHistoryList,
   mutationName,
+  mutationUuid,
   cancerTypeName,
+  cancerTypeUuid,
   cancerTypePath,
   firebaseDb,
   drugList,
@@ -94,7 +98,9 @@ const TherapiesList = ({
               therapyPath={`${tisPath}/${therapy.tiIndex}/treatments/${therapy.treatmentIndex}`}
               parsedHistoryList={parsedHistoryList}
               mutationName={mutationName}
+              mutationUuid={mutationUuid}
               cancerTypeName={cancerTypeName}
+              cancerTypeUuid={cancerTypeUuid}
               cancerTypePath={cancerTypePath}
               isGermline={isGermline}
             />

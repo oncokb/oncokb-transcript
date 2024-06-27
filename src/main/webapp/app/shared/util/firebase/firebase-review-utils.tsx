@@ -2,6 +2,7 @@ import {
   CancerType,
   Gene,
   GenomicIndicator,
+  HistoryInfo,
   HistoryRecordState,
   Implication,
   Mutation,
@@ -12,7 +13,7 @@ import {
 } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
 import { generateUuid, getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
-import { getTxName } from './firebase-utils';
+import { getMutationName, getTxName } from './firebase-utils';
 import { FB_COLLECTION, READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import React from 'react';
@@ -29,6 +30,7 @@ export type BaseReviewLevelParams = {
   children?: ReviewChildren;
   valuePath: string;
   historyLocation: string;
+  historyInfo: HistoryInfo;
   nestedUnderCreateorDelete?: boolean;
 };
 export class BaseReviewLevel {
@@ -39,9 +41,17 @@ export class BaseReviewLevel {
   children?: ReviewChildren;
   valuePath: string;
   historyLocation: string;
+  historyInfo: HistoryInfo;
   nestedUnderCreateOrDelete?: boolean;
 
-  constructor({ reviewLevelType, title, valuePath, historyLocation, nestedUnderCreateorDelete = false }: BaseReviewLevelParams) {
+  constructor({
+    reviewLevelType,
+    title,
+    valuePath,
+    historyLocation,
+    nestedUnderCreateorDelete = false,
+    historyInfo,
+  }: BaseReviewLevelParams) {
     this.id = generateUuid();
     this.hideLevel = false;
     this.reviewLevelType = reviewLevelType;
@@ -50,6 +60,7 @@ export class BaseReviewLevel {
     this.historyLocation = historyLocation;
     this.nestedUnderCreateOrDelete = nestedUnderCreateorDelete;
     this.children = {};
+    this.historyInfo = historyInfo;
   }
 
   hasChildren() {
@@ -62,6 +73,16 @@ export class BaseReviewLevel {
 
   addChild(childReview: BaseReviewLevel) {
     this.children[childReview.title] = childReview;
+
+    if (!childReview.historyInfo.mutation && this.historyInfo?.mutation) {
+      childReview.historyInfo.mutation = this.historyInfo.mutation;
+    }
+    if (!childReview.historyInfo.cancerType && this.historyInfo?.cancerType) {
+      childReview.historyInfo.cancerType = this.historyInfo.cancerType;
+    }
+    if (!childReview.historyInfo.treatment && this.historyInfo?.treatment) {
+      childReview.historyInfo.treatment = this.historyInfo.treatment;
+    }
   }
 }
 
@@ -343,6 +364,7 @@ export const findReviews = (drugList: readonly IDrug[], gene: Gene, uuids: strin
     title: '',
     valuePath: '',
     historyLocation: '',
+    historyInfo: {},
   });
 
   findReviewRecursive(gene, '', uuids, rootReview, editorReviewMap, drugList);
@@ -465,6 +487,7 @@ export const convertToMultiSelectionReview = (parentMetaReview: MetaReviewLevel)
     valuePath: parentMetaReview.valuePath,
     historyLocation: parentMetaReview.historyLocation,
     nestedUnderCreateorDelete: parentMetaReview.nestedUnderCreateOrDelete,
+    historyInfo: { ...parentMetaReview.historyInfo, fields: [...(parentMetaReview.historyInfo.fields || [])] },
   });
   multiSelectionReviewLevel.children = parentMetaReview.children;
   return multiSelectionReviewLevel;
@@ -479,11 +502,12 @@ export const buildNameReview = (
   drugList?: readonly IDrug[],
 ) => {
   const nameKey = 'name';
+  const isGenomicIndiciator = currValuePath.includes('genomic_indicators');
 
   let readableName = creatableObject.name;
   if (drugList) {
     readableName = getTxName(drugList, creatableObject.name);
-  } else if (currValuePath.includes('genomic_indicators')) {
+  } else if (isGenomicIndiciator) {
     readableName = `${READABLE_FIELD.GENOMIC_INDICATORS} / ${readableName}`;
   }
 
@@ -491,11 +515,25 @@ export const buildNameReview = (
   const valuePath = valuePathParts.join('/');
   const title = readableName;
 
+  const historyInfo = _.cloneDeep(parentReview.historyInfo) || {};
+  if (!drugList && !isGenomicIndiciator) {
+    historyInfo.mutation = {
+      name: getMutationName((creatableObject as Mutation).name, (creatableObject as Mutation).alterations),
+      uuid: creatableObject.name_uuid,
+    };
+  } else if (drugList) {
+    historyInfo.treatment = {
+      name: readableName,
+      uuid: creatableObject.name_uuid,
+    };
+  }
+
   const metaReview = new MetaReviewLevel({
     title,
     valuePath: currValuePath,
     historyLocation: buildHistoryLocation(parentReview, readableName),
     nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+    historyInfo,
   });
 
   const nameReview = creatableObject.name_review;
@@ -537,6 +575,7 @@ export const buildNameReview = (
       uuid: creatableObject.name_uuid,
     },
     historyData: { oldState, newState },
+    historyInfo,
     nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
   });
 
@@ -568,11 +607,18 @@ export const buildCancerTypeNameReview = (
 
   const readableName = getCancerTypesNameWithExclusion(tumor.cancerTypes, tumor?.excludedCancerTypes || [], true);
 
+  const historyInfo = _.cloneDeep(parentReview.historyInfo) || {};
+  historyInfo.cancerType = {
+    name: readableName,
+    uuid: tumor.cancerTypes_uuid,
+  };
+
   const metaReview = new MetaReviewLevel({
     title: readableName,
     valuePath: currValuePath,
     historyLocation: buildHistoryLocation(parentReview, readableName),
     nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+    historyInfo,
   });
 
   const cancerTypesReview = tumor.cancerTypes_review;
@@ -619,6 +665,7 @@ export const buildCancerTypeNameReview = (
       oldState,
       newState,
     },
+    historyInfo,
     currentExcludedCancerTypes: tumor.excludedCancerTypes,
     excludedCancerTypesReviewInfo: {
       reviewPath: `${excludedCancerTypesPath}_review`,
@@ -663,6 +710,9 @@ export const buildStringReview = (
 
   const readableKey = makeFirebaseKeysReadable([fieldKey])[0];
 
+  const historyInfo = _.cloneDeep(parentReview.historyInfo) || {};
+  historyInfo.fields = [...(parentReview.historyInfo.fields || []), readableKey as READABLE_FIELD];
+
   const stringReviewLevel = new ReviewLevel({
     title: readableKey,
     valuePath: joinPathParts(currValuePath, fieldKey),
@@ -678,6 +728,7 @@ export const buildStringReview = (
       oldState: lastReviewedString,
       newState: currentString,
     },
+    historyInfo,
     nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
   });
 
@@ -695,11 +746,16 @@ export const buildObjectReview = (
   editorReviewMap: EditorReviewMap,
 ) => {
   const readableKey = makeFirebaseKeysReadable([key])[0];
+
+  const historyInfo = _.cloneDeep(parentReview.historyInfo) || {};
+  historyInfo.fields = [...(parentReview.historyInfo.fields || []), readableKey as READABLE_FIELD];
+
   const metaReview = new MetaReviewLevel({
     title: readableKey,
     valuePath: joinPathParts(parentReview.valuePath, key),
     historyLocation: buildHistoryLocation(parentReview, readableKey),
     nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+    historyInfo,
   });
   if (key === 'prognostic' || key === 'diagnostic') {
     const rctReview = buildRCTReview(obj as Implication, metaReview, uuids, editorReviewMap);
@@ -751,6 +807,7 @@ export const buildRCTReview = (
         newState: newRCTString,
       },
       nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
+      historyInfo: { ...parentReview.historyInfo, fields: [...(parentReview.historyInfo.fields || []), title as READABLE_FIELD] },
     });
     _.pull(uuids, implication.excludedRCTs_uuid);
     editorReviewMap.add(rctReview);

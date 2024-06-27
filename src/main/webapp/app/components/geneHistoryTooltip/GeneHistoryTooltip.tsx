@@ -9,18 +9,23 @@ import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-util
 
 export interface IGeneHistoryTooltipProps {
   historyData: Map<string, FlattenedHistory[]>;
-  location?: string;
+  location: string; // location using names
+  locationIdentifier: string; // location using uuids
   groupByDay?: boolean;
 }
 
-function GeneHistoryTooltip({ location, historyData }: IGeneHistoryTooltipProps) {
+function GeneHistoryTooltip({ location, locationIdentifier, historyData }: IGeneHistoryTooltipProps) {
   const parsedHistoryData = useMemo(() => {
     if (!historyData) {
       return [];
     }
 
     const parsedData: (RequiredTimeSeriesEventData | ExtraTimeSeriesEventData)[] = [];
-    for (const record of historyData.get(location) || []) {
+
+    const locationRecords = historyData.get(location) || [];
+    const locationIdentifierRecords = historyData.get(locationIdentifier) || [];
+
+    for (const record of [...locationRecords, ...locationIdentifierRecords]) {
       parsedData.push(constructTimeSeriesData(record));
     }
     return parsedData;

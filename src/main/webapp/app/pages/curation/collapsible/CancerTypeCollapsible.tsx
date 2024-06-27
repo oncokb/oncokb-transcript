@@ -26,11 +26,13 @@ import * as styles from '../styles.module.scss';
 import BadgeGroup from '../BadgeGroup';
 import { RemovableCollapsible } from './RemovableCollapsible';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
+import { getLocationIdentifier } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
 
 interface ICancerTypeCollapsibleProps extends StoreProps {
   cancerTypePath: string;
   allCancerTypesPath: string;
   mutationName: string;
+  mutationUuid: string;
   parsedHistoryList: Map<string, FlattenedHistory[]>;
   isGermline: boolean;
 }
@@ -39,6 +41,7 @@ function CancerTypeCollapsible({
   cancerTypePath,
   allCancerTypesPath,
   mutationName,
+  mutationUuid,
   parsedHistoryList,
   firebaseDb,
   modifyCancerTypeModalStore,
@@ -108,6 +111,7 @@ function CancerTypeCollapsible({
               key={'gene-history-tooltip'}
               historyData={parsedHistoryList}
               location={`${mutationName}, ${cancerTypeName}`}
+              locationIdentifier={getLocationIdentifier({ mutationUuid, cancerTypesUuid })}
             />
             <CommentIcon id={cancerTypesUuid} path={`${cancerTypePath}/cancerTypes_comments`} />
             <EditIcon
@@ -133,6 +137,7 @@ function CancerTypeCollapsible({
             <GeneHistoryTooltip
               historyData={parsedHistoryList}
               location={`${mutationName}, ${cancerTypeName}, ${READABLE_FIELD.SUMMARY}`}
+              locationIdentifier={getLocationIdentifier({ mutationUuid, cancerTypesUuid, fields: [READABLE_FIELD.SUMMARY] })}
             />
           }
           name="txSummary"
@@ -145,6 +150,7 @@ function CancerTypeCollapsible({
             <GeneHistoryTooltip
               historyData={parsedHistoryList}
               location={`${mutationName}, ${cancerTypeName}, ${READABLE_FIELD.DIAGNOSTIC_SUMMARY}`}
+              locationIdentifier={getLocationIdentifier({ mutationUuid, cancerTypesUuid, fields: [READABLE_FIELD.DIAGNOSTIC_SUMMARY] })}
             />
           }
           name="dxSummary"
@@ -157,6 +163,7 @@ function CancerTypeCollapsible({
             <GeneHistoryTooltip
               historyData={parsedHistoryList}
               location={`${mutationName}, ${cancerTypeName}, ${READABLE_FIELD.PROGNOSTIC_SUMMARY}`}
+              locationIdentifier={getLocationIdentifier({ mutationUuid, cancerTypesUuid, fields: [READABLE_FIELD.PROGNOSTIC_SUMMARY] })}
             />
           }
           name="pxSummary"
@@ -170,7 +177,9 @@ function CancerTypeCollapsible({
           <TherapiesList
             parsedHistoryList={parsedHistoryList}
             mutationName={mutationName}
+            mutationUuid={mutationUuid}
             cancerTypeName={cancerTypeName}
+            cancerTypeUuid={cancerTypesUuid}
             cancerTypePath={cancerTypePath}
             tisPath={`${cancerTypePath}/TIs`}
             isGermline={isGermline}

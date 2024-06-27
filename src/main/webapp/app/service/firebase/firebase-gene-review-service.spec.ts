@@ -115,6 +115,7 @@ describe('Firebase Gene Review Service', () => {
           oldState: '',
           newState: 'test',
         },
+        historyInfo: {},
       });
 
       await firebaseGeneReviewService.acceptChanges(hugoSymbol, [reviewLevel], false);
@@ -152,6 +153,7 @@ describe('Firebase Gene Review Service', () => {
         historyData: {
           oldState: mutation,
         },
+        historyInfo: {},
       });
 
       await firebaseGeneReviewService.acceptChanges(hugoSymbol, [reviewLevel], false);
@@ -184,6 +186,7 @@ describe('Firebase Gene Review Service', () => {
         historyData: {
           oldState: mutation,
         },
+        historyInfo: {},
       });
 
       await firebaseGeneReviewService.acceptChanges(hugoSymbol, [reviewLevel], false);
@@ -216,6 +219,7 @@ describe('Firebase Gene Review Service', () => {
         historyData: {
           newState: mutation,
         },
+        historyInfo: {},
       });
 
       // An entity is created once all its changes have been accepted or rejected.
@@ -252,6 +256,7 @@ describe('Firebase Gene Review Service', () => {
           oldState: '',
           newState: 'test',
         },
+        historyInfo: {},
       });
 
       await firebaseGeneReviewService.rejectChanges(hugoSymbol, [reviewLevel], false);
@@ -284,6 +289,7 @@ describe('Firebase Gene Review Service', () => {
         historyData: {
           oldState: mutation,
         },
+        historyInfo: {},
       });
 
       await firebaseGeneReviewService.rejectChanges(hugoSymbol, [reviewLevel], false);

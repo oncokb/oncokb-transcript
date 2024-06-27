@@ -47,6 +47,7 @@ import CancerTypeCollapsible from './CancerTypeCollapsible';
 import Collapsible from './Collapsible';
 import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import { RemovableCollapsible } from './RemovableCollapsible';
+import { getLocationIdentifier } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
@@ -180,6 +181,7 @@ const MutationCollapsible = ({
           allCancerTypesPath={`${mutationPath}/tumors`}
           cancerTypePath={`${mutationPath}/tumors/${index}`}
           mutationName={mutationName}
+          mutationUuid={mutationUuid}
           parsedHistoryList={parsedHistoryList}
           isGermline={isGermline}
         />
@@ -249,6 +251,7 @@ const MutationCollapsible = ({
               key={'gene-history-tooltip'}
               historyData={parsedHistoryList}
               location={getMutationName(mutationName, mutationAlterations)}
+              locationIdentifier={getLocationIdentifier({ mutationUuid })}
             />
             <CommentIcon id={mutationUuid} path={`${mutationPath}/name_comments`} />
             <MutationConvertIcon
@@ -316,6 +319,10 @@ const MutationCollapsible = ({
                       location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_EFFECT}, ${
                         READABLE_FIELD.PATHOGENIC
                       }`}
+                      locationIdentifier={getLocationIdentifier({
+                        mutationUuid,
+                        fields: [READABLE_FIELD.MUTATION_EFFECT, READABLE_FIELD.PATHOGENIC],
+                      })}
                     />
                   }
                 </>
@@ -338,6 +345,10 @@ const MutationCollapsible = ({
                         location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_EFFECT}, ${
                           READABLE_FIELD.ONCOGENIC
                         }`}
+                        locationIdentifier={getLocationIdentifier({
+                          mutationUuid,
+                          fields: [READABLE_FIELD.MUTATION_EFFECT, READABLE_FIELD.ONCOGENIC],
+                        })}
                       />
                     }
                   </>
@@ -358,6 +369,10 @@ const MutationCollapsible = ({
                         location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_EFFECT}, ${
                           READABLE_FIELD.EFFECT
                         }`}
+                        locationIdentifier={getLocationIdentifier({
+                          mutationUuid,
+                          fields: [READABLE_FIELD.MUTATION_EFFECT, READABLE_FIELD.EFFECT],
+                        })}
                       />
                     }
                   </>
@@ -380,6 +395,10 @@ const MutationCollapsible = ({
                 location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_EFFECT}, ${
                   READABLE_FIELD.DESCRIPTION
                 }`}
+                locationIdentifier={getLocationIdentifier({
+                  mutationUuid,
+                  fields: [READABLE_FIELD.MUTATION_EFFECT, READABLE_FIELD.DESCRIPTION],
+                })}
               />
             }
             name="description"
@@ -405,6 +424,10 @@ const MutationCollapsible = ({
                           location={`${getMutationName(mutationName, mutationAlterations)}, ${
                             READABLE_FIELD.MUTATION_SPECIFIC_PENETRANCE
                           }, ${READABLE_FIELD.PENETRANCE}`}
+                          locationIdentifier={getLocationIdentifier({
+                            mutationUuid,
+                            fields: [READABLE_FIELD.MUTATION_SPECIFIC_PENETRANCE, READABLE_FIELD.PENETRANCE],
+                          })}
                         />
                       }
                     </>
@@ -425,6 +448,10 @@ const MutationCollapsible = ({
                       location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_SPECIFIC_PENETRANCE}, ${
                         READABLE_FIELD.DESCRIPTION
                       }`}
+                      locationIdentifier={getLocationIdentifier({
+                        mutationUuid,
+                        fields: [READABLE_FIELD.MUTATION_SPECIFIC_PENETRANCE, READABLE_FIELD.DESCRIPTION],
+                      })}
                     />
                   }
                   name="description"
@@ -449,6 +476,10 @@ const MutationCollapsible = ({
                           location={`${getMutationName(mutationName, mutationAlterations)}, ${
                             READABLE_FIELD.MUTATION_SPECIFIC_INHERITANCE
                           }, ${READABLE_FIELD.INHERITANCE_MECHANISM}`}
+                          locationIdentifier={getLocationIdentifier({
+                            mutationUuid,
+                            fields: [READABLE_FIELD.MUTATION_SPECIFIC_INHERITANCE, READABLE_FIELD.INHERITANCE_MECHANISM],
+                          })}
                         />
                       }
                     </>
@@ -469,6 +500,10 @@ const MutationCollapsible = ({
                       location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.MUTATION_SPECIFIC_INHERITANCE}, ${
                         READABLE_FIELD.DESCRIPTION
                       }`}
+                      locationIdentifier={getLocationIdentifier({
+                        mutationUuid,
+                        fields: [READABLE_FIELD.MUTATION_SPECIFIC_INHERITANCE, READABLE_FIELD.DESCRIPTION],
+                      })}
                     />
                   }
                   name="description"

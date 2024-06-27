@@ -5,6 +5,7 @@ import { getTxName } from 'app/shared/util/firebase/firebase-utils';
 import { IDrug } from 'app/shared/model/drug.model';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import DiffViewer from 'app/components/diff-viewer/DiffViewer';
+import { READABLE_FIELD } from 'app/config/constants/firebase';
 
 export default function constructTimeSeriesData(record: FlattenedHistory): RequiredTimeSeriesEventData | ExtraTimeSeriesEventData {
   let operation: string;
@@ -123,4 +124,46 @@ export function formatLocation(location: string, drugList: IDrug[], objectField:
     }
   }
   return location;
+}
+
+export function getTooltipHistoryList(history: FlattenedHistory[]) {
+  const tooltipHistoryList = new Map<string, FlattenedHistory[]>();
+  for (const record of history) {
+    let locationIdentifier: string;
+    if (record.info) {
+      const { mutation, cancerType, treatment, fields } = record.info;
+      locationIdentifier = getLocationIdentifier({
+        mutationUuid: mutation?.uuid,
+        cancerTypesUuid: cancerType?.uuid,
+        treatmentUuid: treatment?.uuid,
+        fields,
+      });
+    } else {
+      locationIdentifier = record.location;
+    }
+
+    if (!tooltipHistoryList.get(locationIdentifier)) {
+      let prevRecords = tooltipHistoryList.get(record.location);
+      if (prevRecords) {
+        tooltipHistoryList.delete(record.location);
+      } else {
+        prevRecords = [];
+      }
+
+      tooltipHistoryList.set(locationIdentifier, [...prevRecords, record]);
+    } else {
+      tooltipHistoryList.get(locationIdentifier).push(record);
+    }
+  }
+  return tooltipHistoryList;
+}
+
+const LOCATION_IDENTIFIER_DEFAULT_VALUE = '$';
+export function getLocationIdentifier({
+  mutationUuid = LOCATION_IDENTIFIER_DEFAULT_VALUE,
+  cancerTypesUuid = LOCATION_IDENTIFIER_DEFAULT_VALUE,
+  treatmentUuid = LOCATION_IDENTIFIER_DEFAULT_VALUE,
+  fields = [] as READABLE_FIELD[],
+}) {
+  return `${mutationUuid}_${cancerTypesUuid}_${treatmentUuid}_${fields.join('_')}`;
 }
