@@ -11,7 +11,7 @@ import { ENTITY_TYPE } from 'app/config/constants/constants';
 const apiUrl = getEntityResourcePath(ENTITY_TYPE.TRANSCRIPT);
 
 export interface IGeneTranscriptsProps {
-  ensemblGeneId: number;
+  ensemblGeneId: number | undefined;
   selectedTranscriptIds: number[];
   onToggleTranscript: (transcript: ITranscript) => void;
   disableTranscriptAlignment: boolean;

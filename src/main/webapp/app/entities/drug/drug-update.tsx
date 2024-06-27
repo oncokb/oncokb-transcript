@@ -131,14 +131,12 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
               </ValidatedField>
               <FormGroup>
                 <Label>Code</Label>
-                {drugEntity.nciThesaurus && (
-                  <NcitCodeSelect
-                    ncit={drugEntity.nciThesaurus}
-                    onChange={selectedOption => {
-                      setSelectedNcit(selectedOption ? parseNcitUniqId(selectedOption.value) : undefined);
-                    }}
-                  />
-                )}
+                <NcitCodeSelect
+                  ncit={drugEntity.nciThesaurus}
+                  onChange={selectedOption => {
+                    setSelectedNcit(selectedOption ? parseNcitUniqId(selectedOption.value) : undefined);
+                  }}
+                />
               </FormGroup>
               <SaveButton disabled={updating} />
             </ValidatedForm>

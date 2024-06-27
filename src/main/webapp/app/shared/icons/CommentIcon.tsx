@@ -120,17 +120,16 @@ const CommentIcon = observer((props: ICommentIconProps) => {
         destroyTooltipOnHide
         visible={props.id === props.commentStore?.openCommentsId}
         overlay={
-          props.commentStore && (
-            <CommentBox
-              commentStore={props.commentStore}
-              openCommentsId={props.id}
-              comments={comments}
-              onCreateComment={handleCreateComment}
-              onResolveComment={handleResolveComment}
-              onUnresolveComment={handleUnresolveComment}
-              onDeleteComments={handleDeleteComments}
-            />
-          )
+          <CommentBox
+            // TYPE-ISSUE: should commentStore be null?
+            commentStore={props.commentStore!}
+            openCommentsId={props.id}
+            comments={comments}
+            onCreateComment={handleCreateComment}
+            onResolveComment={handleResolveComment}
+            onUnresolveComment={handleUnresolveComment}
+            onDeleteComments={handleDeleteComments}
+          />
         }
       >
         <div>
