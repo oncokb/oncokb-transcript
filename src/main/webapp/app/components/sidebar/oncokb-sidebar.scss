@@ -19,7 +19,8 @@
 }
 
 .draggable {
-  width: 10px;
+  min-width: 10px;
+  max-width: 10px;
   background: linear-gradient(to right, $oncokb-blue 30%, transparent 30%);
   opacity: 0;
   transition: opacity 150ms ease-in;
