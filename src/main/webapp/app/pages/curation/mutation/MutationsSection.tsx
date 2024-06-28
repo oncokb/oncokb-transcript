@@ -105,26 +105,7 @@ function MutationsSection({
             path={mutationsPath}
             pushDirection="front"
             sort={getSortFunction}
-            itemBuilder={index => {
-              return (
-                <div className="mb-2">
-                  <MutationCollapsible
-                    disableOpen
-                    mutationPath={`${mutationsPath}/${index}`}
-                    showLastModified={sortMethod === SortOptions.LAST_MODIFIED}
-                    hugoSymbol={hugoSymbol}
-                    isGermline={isGermline}
-                    parsedHistoryList={parsedHistoryList}
-                    onToggle={() => {
-                      setOpenMutationCollapsibleIndex(index);
-                      if (mutationSectionRef.current.getBoundingClientRect().top < 0) {
-                        mutationSectionRef.current.scrollIntoView();
-                      }
-                    }}
-                  />
-                </div>
-              );
-            }}
+            itemBuilder={itemBuilder}
             filter={index => {
               return filteredIndices.includes(index);
             }}
@@ -164,6 +145,30 @@ function MutationsSection({
       }
     },
     [sortMethod],
+  );
+
+  const itemBuilder = useCallback(
+    (index: number) => {
+      return (
+        <div className="mb-2">
+          <MutationCollapsible
+            disableOpen
+            mutationPath={`${mutationsPath}/${index}`}
+            showLastModified={sortMethod === SortOptions.LAST_MODIFIED}
+            hugoSymbol={hugoSymbol}
+            isGermline={isGermline}
+            parsedHistoryList={parsedHistoryList}
+            onToggle={() => {
+              setOpenMutationCollapsibleIndex(index);
+              if (mutationSectionRef.current.getBoundingClientRect().top < 0) {
+                mutationSectionRef.current.scrollIntoView();
+              }
+            }}
+          />
+        </div>
+      );
+    },
+    [mutationsPath, sortMethod, hugoSymbol, isGermline, parsedHistoryList, setOpenMutationCollapsibleIndex],
   );
 
   return (
