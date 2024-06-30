@@ -34,7 +34,6 @@ import LevelOfEvidence from './level-of-evidence';
 import NciThesaurus from './nci-thesaurus';
 import Synonym from './synonym';
 import PageNotFound from 'app/shared/error/page-not-found';
-/* jhipster-needle-add-route-import - JHipster will add routes here */
 
 const Routes = ({ match }) => (
   <div>
@@ -78,7 +77,6 @@ const Routes = ({ match }) => (
       <ErrorBoundaryRoute path={`${match.url}nci-thesaurus`} component={NciThesaurus} />
       <ErrorBoundaryRoute path={`${match.url}synonym`} component={Synonym} />
       <ErrorBoundaryRoute exact component={PageNotFound} />
-      {/* jhipster-needle-add-route-path - JHipster will add routes here */}
     </Switch>
   </div>
 );

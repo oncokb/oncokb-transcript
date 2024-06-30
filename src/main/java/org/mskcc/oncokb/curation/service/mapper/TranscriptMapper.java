@@ -27,12 +27,12 @@ public abstract class TranscriptMapper implements EntityMapper<TranscriptDTO, Tr
     protected void updateDTO(@MappingTarget TranscriptDTO transcriptDTO) {
         List<GenomeFragment> genomeFragmentList = genomeFragmentRepository.findAllByTranscriptId(transcriptDTO.getId());
 
-        Optional<GenomeFragment> geneInfo = genomeFragmentList
+        Optional<GenomeFragment> geneInfoOptional = genomeFragmentList
             .stream()
             .filter(genomeFragment -> genomeFragment.getType().equals(GenomeFragmentType.GENE))
             .findFirst();
-        if (geneInfo.isPresent()) {
-            GenomeFragment gf = geneInfo.get();
+        if (geneInfoOptional.isPresent()) {
+            GenomeFragment gf = geneInfoOptional.orElseThrow();
             transcriptDTO.setChromosome(gf.getSeqRegion().getChromosome());
             transcriptDTO.setStart(gf.getStart());
             transcriptDTO.setEnd(gf.getEnd());
@@ -47,9 +47,10 @@ public abstract class TranscriptMapper implements EntityMapper<TranscriptDTO, Tr
 
         List<GenomeFragment> utrs = genomeFragmentList
             .stream()
-            .filter(genomeFragment ->
-                genomeFragment.getType().equals(GenomeFragmentType.FIVE_PRIME_UTR) ||
-                genomeFragment.getType().equals(GenomeFragmentType.THREE_PRIME_UTR)
+            .filter(
+                genomeFragment ->
+                    genomeFragment.getType().equals(GenomeFragmentType.FIVE_PRIME_UTR) ||
+                    genomeFragment.getType().equals(GenomeFragmentType.THREE_PRIME_UTR)
             )
             .collect(Collectors.toList());
         transcriptDTO.setUtrs(utrs);

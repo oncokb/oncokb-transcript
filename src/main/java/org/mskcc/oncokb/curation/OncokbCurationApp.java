@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
+import org.mskcc.oncokb.curation.config.CRLFLogConverter;
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.config.application.FrontendProperties;
 import org.mskcc.oncokb.curation.importer.CdxImporter;
@@ -121,8 +122,7 @@ public class OncokbCurationApp {
                 return;
             }
             try {
-                FirebaseOptions options = FirebaseOptions
-                    .builder()
+                FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccountFileUrl.openStream()))
                     .setDatabaseUrl(applicationProperties.getFrontend().getFirebase().getDatabaseUrl())
                     .build();
@@ -194,8 +194,7 @@ public class OncokbCurationApp {
     private static void logApplicationStartup(Environment env) {
         String protocol = Optional.ofNullable(env.getProperty("server.ssl.key-store")).map(key -> "https").orElse("http");
         String serverPort = env.getProperty("server.port");
-        String contextPath = Optional
-            .ofNullable(env.getProperty("server.servlet.context-path"))
+        String contextPath = Optional.ofNullable(env.getProperty("server.servlet.context-path"))
             .filter(StringUtils::isNotBlank)
             .orElse("/");
         String hostAddress = "localhost";
@@ -205,11 +204,15 @@ public class OncokbCurationApp {
             log.warn("The host name could not be determined, using `localhost` as fallback");
         }
         log.info(
-            "\n----------------------------------------------------------\n\t" +
-            "Application '{}' is running! Access URLs:\n\t" +
-            "Local: \t\t{}://localhost:{}{}\n\t" +
-            "External: \t{}://{}:{}{}\n\t" +
-            "Profile(s): \t{}\n----------------------------------------------------------",
+            CRLFLogConverter.CRLF_SAFE_MARKER,
+            """
+
+            ----------------------------------------------------------
+            \tApplication '{}' is running! Access URLs:
+            \tLocal: \t\t{}://localhost:{}{}
+            \tExternal: \t{}://{}:{}{}
+            \tProfile(s): \t{}
+            ----------------------------------------------------------""",
             env.getProperty("spring.application.name"),
             protocol,
             serverPort,

@@ -2,17 +2,20 @@ package org.mskcc.oncokb.curation.security;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.mskcc.oncokb.curation.config.Constants;
+import org.mskcc.oncokb.curation.config.InstantTypeAdapter;
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.mskcc.oncokb.curation.service.UserService;
 import org.mskcc.oncokb.curation.service.dto.KeycloakUserDTO;
@@ -25,8 +28,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -47,7 +48,7 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
         throws IOException, ServletException {
         Map<String, Object> attributes = ((OAuth2AuthenticationToken) authentication).getPrincipal().getAttributes();
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().registerTypeAdapter(Instant.class, new InstantTypeAdapter()).create();
         String json = gson.toJson(attributes);
         KeycloakUserDTO keycloakUser = gson.fromJson(json, KeycloakUserDTO.class);
 
@@ -56,8 +57,10 @@ public class CustomOAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         // When we use the OncoKB public user table, then an activated user is not neccesarily
         // allowed to access this service. We will need to add a ROLE_CURATOR role to public
         // and check that the role exists here.
-        if (optionalUser.isPresent() && optionalUser.get().isActivated() && !optionalUser.get().getAuthorities().isEmpty()) {
-            UserDTO user = optionalUser.get();
+        if (
+            optionalUser.isPresent() && optionalUser.orElseThrow().isActivated() && !optionalUser.orElseThrow().getAuthorities().isEmpty()
+        ) {
+            UserDTO user = optionalUser.orElseThrow();
             if (keycloakUser.getImageUrl() != null) {
                 user.setImageUrl(keycloakUser.getImageUrl());
                 userService.updateUser(user);

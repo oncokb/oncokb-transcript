@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.Consequence;
 import org.mskcc.oncokb.curation.repository.ConsequenceRepository;
@@ -92,29 +92,28 @@ public class ConsequenceQueryService extends QueryService<Consequence> {
                 specification = specification.or(buildStringSpecification(criteria.getName(), Consequence_.name));
             }
             if (criteria.getIsGenerallyTruncating() != null) {
-                specification =
-                    specification.or(buildSpecification(criteria.getIsGenerallyTruncating(), Consequence_.isGenerallyTruncating));
+                specification = specification.or(
+                    buildSpecification(criteria.getIsGenerallyTruncating(), Consequence_.isGenerallyTruncating)
+                );
             }
             if (criteria.getDescription() != null) {
                 specification = specification.or(buildStringSpecification(criteria.getDescription(), Consequence_.description));
             }
             if (criteria.getAlterationId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getAlterationId(),
-                            root -> root.join(Consequence_.alterations, JoinType.LEFT).get(Alteration_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getAlterationId(),
+                        root -> root.join(Consequence_.alterations, JoinType.LEFT).get(Alteration_.id)
+                    )
+                );
             }
             if (criteria.getCategoricalAlterationId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getCategoricalAlterationId(),
-                            root -> root.join(Consequence_.categoricalAlterations, JoinType.LEFT).get(CategoricalAlteration_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getCategoricalAlterationId(),
+                        root -> root.join(Consequence_.categoricalAlterations, JoinType.LEFT).get(CategoricalAlteration_.id)
+                    )
+                );
             }
         }
         return specification;

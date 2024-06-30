@@ -3,8 +3,6 @@ version: '3.8'
 services:
   oncokb-curation-mysql:
     image: mysql:8.0.26
-    # volumes:
-    #   - ~/volumes/jhipster/oncokb-curation/mysql/:/var/lib/mysql/
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_DATABASE=oncokb-curation

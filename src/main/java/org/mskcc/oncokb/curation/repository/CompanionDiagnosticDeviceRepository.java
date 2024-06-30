@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
- * Spring Data SQL repository for the CompanionDiagnosticDevice entity.
+ * Spring Data JPA repository for the CompanionDiagnosticDevice entity.
  */
 @JaversSpringDataAuditable
 @Repository
@@ -17,7 +17,6 @@ public interface CompanionDiagnosticDeviceRepository
     extends JpaRepository<CompanionDiagnosticDevice, Long>, JpaSpecificationExecutor<CompanionDiagnosticDevice> {
     @Query(
         "select distinct companionDiagnosticDevice from CompanionDiagnosticDevice companionDiagnosticDevice" +
-        " left join fetch companionDiagnosticDevice.specimenTypes" +
         " left join fetch companionDiagnosticDevice.fdaSubmissions fa" +
         " left join fetch companionDiagnosticDevice.specimenTypes st" +
         " left join fetch fa.associations ba" +
@@ -31,8 +30,7 @@ public interface CompanionDiagnosticDeviceRepository
     List<CompanionDiagnosticDevice> findAllWithEagerRelationships();
 
     @Query(
-        "select companionDiagnosticDevice from CompanionDiagnosticDevice companionDiagnosticDevice left join fetch companionDiagnosticDevice.specimenTypes" +
-        " left join fetch companionDiagnosticDevice.specimenTypes" +
+        "select companionDiagnosticDevice from CompanionDiagnosticDevice companionDiagnosticDevice" +
         " left join fetch companionDiagnosticDevice.fdaSubmissions fa" +
         " left join fetch companionDiagnosticDevice.specimenTypes st" +
         " left join fetch fa.associations ba" +
@@ -49,8 +47,7 @@ public interface CompanionDiagnosticDeviceRepository
     Optional<CompanionDiagnosticDevice> findByName(String name);
 
     @Query(
-        "select companionDiagnosticDevice from CompanionDiagnosticDevice companionDiagnosticDevice left join fetch companionDiagnosticDevice.specimenTypes" +
-        " left join fetch companionDiagnosticDevice.specimenTypes" +
+        "select companionDiagnosticDevice from CompanionDiagnosticDevice companionDiagnosticDevice" +
         " left join fetch companionDiagnosticDevice.fdaSubmissions fa" +
         " left join fetch companionDiagnosticDevice.specimenTypes st" +
         " left join fetch fa.associations ba" +

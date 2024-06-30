@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 
 public class FileUtils {
 
@@ -43,7 +42,7 @@ public class FileUtils {
      */
     public static String readStream(InputStream is) throws IOException {
         List<String> lines = readTrimmedLinesStream(is);
-        return StringUtils.join(lines, "\n");
+        return String.join("\n", lines);
     }
 
     public static List<String> readTrimmedLinesStream(InputStream is) throws IOException {
@@ -128,17 +127,16 @@ public class FileUtils {
                     }
                 }
                 if (trim) {
-                    cellList =
-                        cellList
-                            .stream()
-                            .map(cell -> {
-                                if (cell == null) {
-                                    return "";
-                                } else {
-                                    return cell.trim();
-                                }
-                            })
-                            .collect(Collectors.toList());
+                    cellList = cellList
+                        .stream()
+                        .map(cell -> {
+                            if (cell == null) {
+                                return "";
+                            } else {
+                                return cell.trim();
+                            }
+                        })
+                        .collect(Collectors.toList());
                 }
                 return cellList;
             })

@@ -1,13 +1,13 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Evidence;
 import org.mskcc.oncokb.curation.repository.EvidenceRepository;
 import org.mskcc.oncokb.curation.service.EvidenceQueryService;
@@ -73,8 +73,7 @@ public class EvidenceResource {
             throw new BadRequestAlertException("A new evidence cannot already have an ID", ENTITY_NAME, "idexists");
         }
         Evidence result = evidenceService.save(evidence);
-        return ResponseEntity
-            .created(new URI("/api/evidences/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/evidences/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -107,8 +106,7 @@ public class EvidenceResource {
         }
 
         Evidence result = evidenceService.save(evidence);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, evidence.getId().toString()))
             .body(result);
     }
@@ -199,8 +197,7 @@ public class EvidenceResource {
     public ResponseEntity<Void> deleteEvidence(@PathVariable Long id) {
         log.debug("REST request to delete Evidence : {}", id);
         evidenceService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }

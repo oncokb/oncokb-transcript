@@ -1,9 +1,9 @@
 package org.mskcc.oncokb.curation.repository.timezone;
 
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.*;
 import java.util.Objects;
-import javax.persistence.*;
 
 @Entity
 @Table(name = "date_time_wrapper")

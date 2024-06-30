@@ -1,12 +1,12 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.LevelOfEvidence;
 import org.mskcc.oncokb.curation.repository.LevelOfEvidenceRepository;
 import org.mskcc.oncokb.curation.service.LevelOfEvidenceService;
@@ -57,8 +57,7 @@ public class LevelOfEvidenceResource {
             throw new BadRequestAlertException("A new levelOfEvidence cannot already have an ID", ENTITY_NAME, "idexists");
         }
         LevelOfEvidence result = levelOfEvidenceService.save(levelOfEvidence);
-        return ResponseEntity
-            .created(new URI("/api/level-of-evidences/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/level-of-evidences/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -91,8 +90,7 @@ public class LevelOfEvidenceResource {
         }
 
         LevelOfEvidence result = levelOfEvidenceService.save(levelOfEvidence);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, levelOfEvidence.getId().toString()))
             .body(result);
     }
@@ -167,8 +165,7 @@ public class LevelOfEvidenceResource {
     public ResponseEntity<Void> deleteLevelOfEvidence(@PathVariable Long id) {
         log.debug("REST request to delete LevelOfEvidence : {}", id);
         levelOfEvidenceService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }

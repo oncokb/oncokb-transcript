@@ -1,6 +1,6 @@
 package org.mskcc.oncokb.curation.web.rest.model;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class AddEnsemblGeneBody {
 

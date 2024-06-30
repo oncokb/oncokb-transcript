@@ -107,6 +107,7 @@ export enum FEATURE_PAGE_ROUTE {
   ACCOUNT = '/account',
   OAUTH = '/oauth2/authorization/oidc',
   SEARCH = '/search',
+  SWAGGER = '/swagger-ui/index.html',
   /* Below are curation related paths */
   CURATION = '/curation',
   CURATION_SOMATIC = '/curation/somatic',

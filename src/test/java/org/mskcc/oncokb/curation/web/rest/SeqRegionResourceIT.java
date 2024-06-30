@@ -6,10 +6,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -206,7 +206,7 @@ class SeqRegionResourceIT {
         int databaseSizeBeforeUpdate = seqRegionRepository.findAll().size();
 
         // Update the seqRegion
-        SeqRegion updatedSeqRegion = seqRegionRepository.findById(seqRegion.getId()).get();
+        SeqRegion updatedSeqRegion = seqRegionRepository.findById(seqRegion.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedSeqRegion are not directly saved in db
         em.detach(updatedSeqRegion);
         updatedSeqRegion.name(UPDATED_NAME).chromosome(UPDATED_CHROMOSOME).description(UPDATED_DESCRIPTION);

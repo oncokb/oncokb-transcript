@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.apache.commons.lang3.StringUtils;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
@@ -124,28 +124,25 @@ public class EnsemblGeneQueryService extends QueryService<EnsemblGene> {
                 specification = specification.or(buildRangeSpecification(criteria.getStrand(), EnsemblGene_.strand));
             }
             if (criteria.getTranscriptId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getTranscriptId(),
-                            root -> root.join(EnsemblGene_.transcripts, JoinType.LEFT).get(Transcript_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getTranscriptId(),
+                        root -> root.join(EnsemblGene_.transcripts, JoinType.LEFT).get(Transcript_.id)
+                    )
+                );
             }
             if (criteria.getGeneId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getGeneId(), root -> root.join(EnsemblGene_.gene, JoinType.LEFT).get(Gene_.id))
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getGeneId(), root -> root.join(EnsemblGene_.gene, JoinType.LEFT).get(Gene_.id))
+                );
             }
             if (criteria.getSeqRegionId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getSeqRegionId(),
-                            root -> root.join(EnsemblGene_.seqRegion, JoinType.LEFT).get(SeqRegion_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getSeqRegionId(),
+                        root -> root.join(EnsemblGene_.seqRegion, JoinType.LEFT).get(SeqRegion_.id)
+                    )
+                );
             }
         }
         return specification;

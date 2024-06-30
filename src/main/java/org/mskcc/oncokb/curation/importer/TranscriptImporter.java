@@ -152,48 +152,38 @@ public class TranscriptImporter {
             Page<Long> geneIdPage = geneService.findAllGeneIds(genePage);
             for (Gene gene : geneService.findAllByIdInWithGeneAliasAndEnsemblGenes(geneIdPage.getContent())) {
                 log.info("Saving GN canonical for gene {} {}", gene.getEntrezGeneId(), gene.getHugoSymbol());
-                Arrays
-                    .asList(new ReferenceGenome[] { ReferenceGenome.GRCh37, ReferenceGenome.GRCh38 })
-                    .forEach(referenceGenome -> {
-                        try {
-                            org.genome_nexus.client.EnsemblGene gnEnsemblGene = genomeNexusService.findCanonicalEnsemblGeneTranscript(
+                Arrays.asList(new ReferenceGenome[] { ReferenceGenome.GRCh37, ReferenceGenome.GRCh38 }).forEach(referenceGenome -> {
+                    try {
+                        org.genome_nexus.client.EnsemblGene gnEnsemblGene = genomeNexusService.findCanonicalEnsemblGeneTranscript(
+                            referenceGenome,
+                            gene.getEntrezGeneId()
+                        );
+                        if (gnEnsemblGene != null) {
+                            EnsemblTranscript gnEnsemblTranscript = genomeNexusService.findCanonicalEnsemblTranscript(
                                 referenceGenome,
-                                gene.getEntrezGeneId()
+                                gene.getHugoSymbol()
                             );
-                            if (gnEnsemblGene != null) {
-                                EnsemblTranscript gnEnsemblTranscript = genomeNexusService.findCanonicalEnsemblTranscript(
-                                    referenceGenome,
-                                    gene.getHugoSymbol()
-                                );
-                                Optional<TranscriptDTO> transcriptDTOOptional = mainService.createTranscript(
-                                    referenceGenome,
-                                    gnEnsemblTranscript.getTranscriptId(),
-                                    gene.getEntrezGeneId(),
-                                    // do not pass protein id when on GRCh37. We assume the GRCh37 version has the only one transcript, and we can save the subversion
-                                    ReferenceGenome.GRCh37.equals(referenceGenome) ? null : gnEnsemblTranscript.getProteinId(),
-                                    gnEnsemblTranscript.getRefseqMrnaId(),
-                                    null,
-                                    Collections.singletonList(TranscriptFlagEnum.GN_CANONICAL)
-                                );
-                                if (transcriptDTOOptional.isEmpty()) {
-                                    log.error(
-                                        "Failed to create transcript {} {} {}",
-                                        referenceGenome,
-                                        gene.getEntrezGeneId(),
-                                        gnEnsemblTranscript.getTranscriptId()
-                                    );
-                                } else {
-                                    log.info("Saved/updated for {}.", referenceGenome);
-                                }
-                            } else {
+                            Optional<TranscriptDTO> transcriptDTOOptional = mainService.createTranscript(
+                                referenceGenome,
+                                gnEnsemblTranscript.getTranscriptId(),
+                                gene.getEntrezGeneId(),
+                                // do not pass protein id when on GRCh37. We assume the GRCh37 version has the only one transcript, and we can save the subversion
+                                ReferenceGenome.GRCh37.equals(referenceGenome) ? null : gnEnsemblTranscript.getProteinId(),
+                                gnEnsemblTranscript.getRefseqMrnaId(),
+                                null,
+                                Collections.singletonList(TranscriptFlagEnum.GN_CANONICAL)
+                            );
+                            if (transcriptDTOOptional.isEmpty()) {
                                 log.error(
-                                    "Failed to find canonical ensemble gene id {} {} {}",
+                                    "Failed to create transcript {} {} {}",
                                     referenceGenome,
                                     gene.getEntrezGeneId(),
-                                    gene.getHugoSymbol()
+                                    gnEnsemblTranscript.getTranscriptId()
                                 );
+                            } else {
+                                log.info("Saved/updated for {}.", referenceGenome);
                             }
-                        } catch (ApiException e) {
+                        } else {
                             log.error(
                                 "Failed to find canonical ensemble gene id {} {} {}",
                                 referenceGenome,
@@ -201,7 +191,15 @@ public class TranscriptImporter {
                                 gene.getHugoSymbol()
                             );
                         }
-                    });
+                    } catch (ApiException e) {
+                        log.error(
+                            "Failed to find canonical ensemble gene id {} {} {}",
+                            referenceGenome,
+                            gene.getEntrezGeneId(),
+                            gene.getHugoSymbol()
+                        );
+                    }
+                });
             }
         }
 
@@ -223,27 +221,25 @@ public class TranscriptImporter {
                     String maneStatus = maneTranscript.getManeStatus();
                     Optional<TranscriptDTO> transcriptDTOOptional = Optional.empty();
                     if ("MANE Select".equals(maneStatus)) {
-                        transcriptDTOOptional =
-                            mainService.createTranscript(
-                                referenceGenome,
-                                maneTranscript.getEnsemblTranscriptId(),
-                                maneTranscript.getEntrezGeneId(),
-                                maneTranscript.getEnsemblProteinId(),
-                                maneTranscript.getRefSeqTranscriptId(),
-                                null,
-                                Collections.singletonList(TranscriptFlagEnum.MANE_SELECT)
-                            );
+                        transcriptDTOOptional = mainService.createTranscript(
+                            referenceGenome,
+                            maneTranscript.getEnsemblTranscriptId(),
+                            maneTranscript.getEntrezGeneId(),
+                            maneTranscript.getEnsemblProteinId(),
+                            maneTranscript.getRefSeqTranscriptId(),
+                            null,
+                            Collections.singletonList(TranscriptFlagEnum.MANE_SELECT)
+                        );
                     } else if ("MANE Plus Clinical".equals(maneStatus)) {
-                        transcriptDTOOptional =
-                            mainService.createTranscript(
-                                referenceGenome,
-                                maneTranscript.getEnsemblTranscriptId(),
-                                maneTranscript.getEntrezGeneId(),
-                                maneTranscript.getEnsemblProteinId(),
-                                maneTranscript.getRefSeqTranscriptId(),
-                                null,
-                                Collections.singletonList(TranscriptFlagEnum.MANE_PLUS_CLINICAL)
-                            );
+                        transcriptDTOOptional = mainService.createTranscript(
+                            referenceGenome,
+                            maneTranscript.getEnsemblTranscriptId(),
+                            maneTranscript.getEntrezGeneId(),
+                            maneTranscript.getEnsemblProteinId(),
+                            maneTranscript.getRefSeqTranscriptId(),
+                            null,
+                            Collections.singletonList(TranscriptFlagEnum.MANE_PLUS_CLINICAL)
+                        );
                     }
                     if (transcriptDTOOptional.isEmpty()) {
                         log.error("Failed to create MANE transcript {}", maneTranscript);
@@ -288,16 +284,15 @@ public class TranscriptImporter {
             } else {
                 log.info("Saved/updated grch37.");
             }
-            transcriptDTOOptional =
-                mainService.createTranscript(
-                    ReferenceGenome.GRCh38,
-                    oncokbTranscript.getGrch38EnsemblTranscript(),
-                    oncokbTranscript.getEntrezGeneId(),
-                    null,
-                    oncokbTranscript.getGrch38refSeq(),
-                    null,
-                    Collections.singletonList(TranscriptFlagEnum.ONCOKB)
-                );
+            transcriptDTOOptional = mainService.createTranscript(
+                ReferenceGenome.GRCh38,
+                oncokbTranscript.getGrch38EnsemblTranscript(),
+                oncokbTranscript.getEntrezGeneId(),
+                null,
+                oncokbTranscript.getGrch38refSeq(),
+                null,
+                Collections.singletonList(TranscriptFlagEnum.ONCOKB)
+            );
             if (transcriptDTOOptional.isEmpty()) {
                 log.error(
                     "Failed to create OncoKB transcript {} {}",

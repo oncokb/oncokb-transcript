@@ -6,10 +6,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -743,7 +743,7 @@ class SynonymResourceIT {
         int databaseSizeBeforeUpdate = synonymRepository.findAll().size();
 
         // Update the synonym
-        Synonym updatedSynonym = synonymRepository.findById(synonym.getId()).get();
+        Synonym updatedSynonym = synonymRepository.findById(synonym.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedSynonym are not directly saved in db
         em.detach(updatedSynonym);
         updatedSynonym.type(UPDATED_TYPE).source(UPDATED_SOURCE).code(UPDATED_CODE).name(UPDATED_NAME).note(UPDATED_NOTE);

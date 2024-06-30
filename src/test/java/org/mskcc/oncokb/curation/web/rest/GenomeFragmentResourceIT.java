@@ -6,10 +6,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -767,7 +767,7 @@ class GenomeFragmentResourceIT {
         int databaseSizeBeforeUpdate = genomeFragmentRepository.findAll().size();
 
         // Update the genomeFragment
-        GenomeFragment updatedGenomeFragment = genomeFragmentRepository.findById(genomeFragment.getId()).get();
+        GenomeFragment updatedGenomeFragment = genomeFragmentRepository.findById(genomeFragment.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedGenomeFragment are not directly saved in db
         em.detach(updatedGenomeFragment);
         updatedGenomeFragment.start(UPDATED_START).end(UPDATED_END).strand(UPDATED_STRAND).type(UPDATED_TYPE);

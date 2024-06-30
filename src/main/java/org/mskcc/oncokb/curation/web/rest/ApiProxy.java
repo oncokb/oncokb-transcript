@@ -1,9 +1,9 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import javax.servlet.http.HttpServletRequest;
 import org.mskcc.oncokb.curation.service.ApiProxyService;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
 import org.springframework.http.HttpEntity;

@@ -100,7 +100,7 @@ public class TranscriptService {
         GenomeFragment genomeFragment = new GenomeFragment();
         genomeFragment.setTranscript(savedTranscript);
         if (seqRegionOptional.isPresent()) {
-            genomeFragment.setSeqRegion(seqRegionOptional.get());
+            genomeFragment.setSeqRegion(seqRegionOptional.orElseThrow());
         }
         genomeFragment.setStart(transcriptDTO.getStart());
         genomeFragment.setEnd(transcriptDTO.getEnd());
@@ -124,7 +124,7 @@ public class TranscriptService {
                 Sequence sequence = new Sequence();
                 sequence.setTranscript(savedTranscript);
                 sequence.setSequenceType(SequenceType.PROTEIN);
-                sequence.setSequence(ensemblSequenceOptional.get().getSeq());
+                sequence.setSequence(ensemblSequenceOptional.orElseThrow().getSeq());
                 sequenceService.save(sequence);
             }
         }
@@ -219,7 +219,7 @@ public class TranscriptService {
             ensembleTranscriptId
         );
         if (transcriptOptional.isPresent()) {
-            return Optional.of(transcriptMapper.toDto(transcriptOptional.get()));
+            return Optional.of(transcriptMapper.toDto(transcriptOptional.orElseThrow()));
         } else {
             return Optional.empty();
         }
@@ -262,7 +262,7 @@ public class TranscriptService {
             ensembleTranscriptId
         );
         if (transcriptOptional.isPresent()) {
-            return Optional.of(transcriptMapper.toDto(transcriptOptional.get()));
+            return Optional.of(transcriptMapper.toDto(transcriptOptional.orElseThrow()));
         } else {
             return Optional.empty();
         }
@@ -295,10 +295,17 @@ public class TranscriptService {
             .stream()
             .filter(ensemblTranscript -> StringUtils.isNotEmpty(ensemblTranscript.getProteinId()))
             .filter(ensemblTranscript -> {
-                Optional<EnsemblSequence> sequence = ensemblService.getProteinSequence(referenceGenome, ensemblTranscript.getProteinId());
-                if (sequence.isPresent()) {
-                    if (sequence.get().getSeq().length() >= proteinPosition) {
-                        return sequence.get().getSeq().substring(proteinPosition - 1, proteinPosition).equals(expectedAllele);
+                Optional<EnsemblSequence> sequenceOptional = ensemblService.getProteinSequence(
+                    referenceGenome,
+                    ensemblTranscript.getProteinId()
+                );
+                if (sequenceOptional.isPresent()) {
+                    if (sequenceOptional.orElseThrow().getSeq().length() >= proteinPosition) {
+                        return sequenceOptional
+                            .orElseThrow()
+                            .getSeq()
+                            .substring(proteinPosition - 1, proteinPosition)
+                            .equals(expectedAllele);
                     } else {
                         return false;
                     }
@@ -323,7 +330,7 @@ public class TranscriptService {
                 sb.append("_");
                 sb.append(transcript.getEnsemblTranscriptId());
                 sb.append("\n");
-                sb.append(sequenceOptional.get().getSequence());
+                sb.append(sequenceOptional.orElseThrow().getSequence());
                 sb.append("\n");
             }
         }
@@ -332,27 +339,32 @@ public class TranscriptService {
 
     public TranscriptMatchResultVM matchTranscript(TranscriptPairVM transcript, ReferenceGenome referenceGenome, String hugoSymbol) {
         // Find whether both transcript length are the same
-        Optional<EnsemblTranscript> _ensemblTranscript = Optional.empty();
+        Optional<EnsemblTranscript> _ensemblTranscriptOptional = Optional.empty();
         try {
-            _ensemblTranscript = getEnsemblTranscript(hugoSymbol, transcript);
+            _ensemblTranscriptOptional = getEnsemblTranscript(hugoSymbol, transcript);
         } catch (ApiException e) {
             e.printStackTrace();
         }
         TranscriptMatchResultVM transcriptMatchResultVM = new TranscriptMatchResultVM();
 
-        if (_ensemblTranscript.isPresent()) {
-            transcriptMatchResultVM.setOriginalEnsemblTranscript(_ensemblTranscript.get());
-            Optional<EnsemblSequence> _sequence = ensemblService.getProteinSequence(
+        if (_ensemblTranscriptOptional.isPresent()) {
+            transcriptMatchResultVM.setOriginalEnsemblTranscript(_ensemblTranscriptOptional.orElseThrow());
+            Optional<EnsemblSequence> _sequenceOptional = ensemblService.getProteinSequence(
                 transcript.getReferenceGenome(),
-                _ensemblTranscript.get().getProteinId()
+                _ensemblTranscriptOptional.orElseThrow().getProteinId()
             );
-            if (_sequence.isPresent()) {
+            if (_sequenceOptional.isPresent()) {
                 List<EnsemblTranscript> targetEnsemblTranscripts = getEnsemblTranscriptList(hugoSymbol, referenceGenome);
                 if (targetEnsemblTranscripts.size() == 0) {
                     transcriptMatchResultVM.setNote("The target reference genome does not have any ensembl transcripts.");
                 } else {
                     try {
-                        pickEnsemblTranscript(transcriptMatchResultVM, referenceGenome, targetEnsemblTranscripts, _sequence.get());
+                        pickEnsemblTranscript(
+                            transcriptMatchResultVM,
+                            referenceGenome,
+                            targetEnsemblTranscripts,
+                            _sequenceOptional.orElseThrow()
+                        );
                     } catch (Exception exception) {
                         transcriptMatchResultVM.setNote(exception.getMessage());
                     }
@@ -401,9 +413,10 @@ public class TranscriptService {
     public Optional<EnsemblTranscript> getEnsemblTranscript(String hugoSymbol, TranscriptPairVM transcriptPairVM) throws ApiException {
         return getEnsemblTranscriptList(hugoSymbol, transcriptPairVM.getReferenceGenome())
             .stream()
-            .filter(ensemblTranscript ->
-                !StringUtils.isEmpty(ensemblTranscript.getTranscriptId()) &&
-                ensemblTranscript.getTranscriptId().equalsIgnoreCase(transcriptPairVM.getTranscript())
+            .filter(
+                ensemblTranscript ->
+                    !StringUtils.isEmpty(ensemblTranscript.getTranscriptId()) &&
+                    ensemblTranscript.getTranscriptId().equalsIgnoreCase(transcriptPairVM.getTranscript())
             )
             .findFirst();
     }
@@ -445,8 +458,9 @@ public class TranscriptService {
     ) {
         List<EnsemblTranscript> sameLengthList = availableTranscripts
             .stream()
-            .filter(ensemblTranscript ->
-                ensemblTranscript.getProteinLength() != null && ensemblTranscript.getProteinLength().equals(sequence.getSeq().length())
+            .filter(
+                ensemblTranscript ->
+                    ensemblTranscript.getProteinLength() != null && ensemblTranscript.getProteinLength().equals(sequence.getSeq().length())
             )
             .collect(Collectors.toList());
 
@@ -455,22 +469,25 @@ public class TranscriptService {
             .stream()
             .filter(filteredSequence -> filteredSequence.getSeq().length() == sequence.getSeq().length())
             .collect(Collectors.toList());
-        Optional<EnsemblSequence> sequenceSame = sequences
+        Optional<EnsemblSequence> sequenceSameOptional = sequences
             .stream()
             .filter(matchedSequence -> matchedSequence.getSeq().equals(sequence.getSeq()))
             .findAny();
 
-        if (sequenceSame.isPresent()) {
-            Optional<EnsemblTranscript> ensemblTranscript = getEnsemblTranscriptBySequence(sameLengthList, sequenceSame.get());
-            transcriptMatchResultVM.setTargetEnsemblTranscript(ensemblTranscript.get());
+        if (sequenceSameOptional.isPresent()) {
+            Optional<EnsemblTranscript> ensemblTranscriptOptional = getEnsemblTranscriptBySequence(
+                sameLengthList,
+                sequenceSameOptional.orElseThrow()
+            );
+            transcriptMatchResultVM.setTargetEnsemblTranscript(ensemblTranscriptOptional.orElseThrow());
             transcriptMatchResultVM.setNote("Same sequence");
         } else if (sequences.size() > 0) {
             // We should make some comparison with the original sequence for the same length
             sequences.sort(Comparator.comparingInt(s -> getNumOfMismatchSameLengthSequences(sequence.getSeq(), s.getSeq()).size()));
             EnsemblSequence pickedSequence = sequences.iterator().next();
 
-            Optional<EnsemblTranscript> ensemblTranscript = getEnsemblTranscriptBySequence(availableTranscripts, pickedSequence);
-            transcriptMatchResultVM.setTargetEnsemblTranscript(ensemblTranscript.get());
+            Optional<EnsemblTranscript> ensemblTranscriptOptional = getEnsemblTranscriptBySequence(availableTranscripts, pickedSequence);
+            transcriptMatchResultVM.setTargetEnsemblTranscript(ensemblTranscriptOptional.orElseThrow());
             List<MissMatchPairVM> missMatchPairVMS = getNumOfMismatchSameLengthSequences(sequence.getSeq(), pickedSequence.getSeq());
             transcriptMatchResultVM.setNote(
                 "Same length, but mismatch: " +
@@ -478,13 +495,14 @@ public class TranscriptService {
                 ". " +
                 missMatchPairVMS
                     .stream()
-                    .map(missMatchPairVM ->
-                        missMatchPairVM.getPosition() +
-                        "(" +
-                        missMatchPairVM.getReferenceAllele() +
-                        "," +
-                        missMatchPairVM.getTargetAlelel() +
-                        ")"
+                    .map(
+                        missMatchPairVM ->
+                            missMatchPairVM.getPosition() +
+                            "(" +
+                            missMatchPairVM.getReferenceAllele() +
+                            "," +
+                            missMatchPairVM.getTargetAlelel() +
+                            ")"
                     )
                     .collect(Collectors.joining(", "))
             );
@@ -492,8 +510,9 @@ public class TranscriptService {
             // we want to see whether there is any transcript includes the original sequence
             List<EnsemblTranscript> longerOnes = availableTranscripts
                 .stream()
-                .filter(ensemblTranscript ->
-                    ensemblTranscript.getProteinLength() != null && ensemblTranscript.getProteinLength() > sequence.getSeq().length()
+                .filter(
+                    ensemblTranscript ->
+                        ensemblTranscript.getProteinLength() != null && ensemblTranscript.getProteinLength() > sequence.getSeq().length()
                 )
                 .collect(Collectors.toList());
 
@@ -509,9 +528,9 @@ public class TranscriptService {
 
             if (sequencesContains.size() > 0) {
                 EnsemblSequence pickedSequence = sequencesContains.iterator().next();
-                Optional<EnsemblTranscript> ensemblTranscript = getEnsemblTranscriptBySequence(longerOnes, pickedSequence);
-                transcriptMatchResultVM.setTargetEnsemblTranscript(ensemblTranscript.get());
-                transcriptMatchResultVM.setNote("Longer one found, length: " + ensemblTranscript.get().getProteinLength());
+                Optional<EnsemblTranscript> ensemblTranscriptOptional = getEnsemblTranscriptBySequence(longerOnes, pickedSequence);
+                transcriptMatchResultVM.setTargetEnsemblTranscript(ensemblTranscriptOptional.orElseThrow());
+                transcriptMatchResultVM.setNote("Longer one found, length: " + ensemblTranscriptOptional.orElseThrow().getProteinLength());
             } else {
                 transcriptMatchResultVM.setNote("No matched sequence found");
             }
@@ -541,8 +560,8 @@ public class TranscriptService {
                     if (targetSequenceOptional.isPresent()) {
                         AlignmentResult alignmentResult =
                             this.alignmentService.calcOptimalAlignment(
-                                    refSequenceOptional.get().getSeq(),
-                                    targetSequenceOptional.get().getSeq(),
+                                    refSequenceOptional.orElseThrow().getSeq(),
+                                    targetSequenceOptional.orElseThrow().getSeq(),
                                     true
                                 );
                         EnrichedAlignmentResult enrichedAlignmentResult = new EnrichedAlignmentResult(alignmentResult);
@@ -597,10 +616,10 @@ public class TranscriptService {
 
     private void clearTranscriptCaches() {
         if (this.optionalCacheManager.isPresent()) {
-            for (String cacheKey : this.optionalCacheManager.get().getCacheNames()) {
+            for (String cacheKey : this.optionalCacheManager.orElseThrow().getCacheNames()) {
                 String cacheKeyPrefix = this.cacheNameResolver.getCacheName(CacheCategory.TRANSCRIPT, "");
                 if (cacheKey.startsWith(cacheKeyPrefix)) {
-                    Objects.requireNonNull(this.optionalCacheManager.get().getCache(cacheKey)).clear();
+                    Objects.requireNonNull(this.optionalCacheManager.orElseThrow().getCache(cacheKey)).clear();
                 }
             }
         }

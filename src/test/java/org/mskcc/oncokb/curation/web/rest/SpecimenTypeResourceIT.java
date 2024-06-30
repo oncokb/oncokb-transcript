@@ -6,10 +6,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -221,7 +221,7 @@ class SpecimenTypeResourceIT {
         int databaseSizeBeforeUpdate = specimenTypeRepository.findAll().size();
 
         // Update the specimenType
-        SpecimenType updatedSpecimenType = specimenTypeRepository.findById(specimenType.getId()).get();
+        SpecimenType updatedSpecimenType = specimenTypeRepository.findById(specimenType.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedSpecimenType are not directly saved in db
         em.detach(updatedSpecimenType);
         updatedSpecimenType.type(UPDATED_TYPE).name(UPDATED_NAME);

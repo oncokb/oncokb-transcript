@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.Synonym;
 import org.mskcc.oncokb.curation.repository.SynonymRepository;
@@ -98,34 +98,30 @@ public class SynonymQueryService extends QueryService<Synonym> {
                 specification = specification.or(buildStringSpecification(criteria.getName(), Synonym_.name));
             }
             if (criteria.getArticleId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getArticleId(), root -> root.join(Synonym_.articles, JoinType.LEFT).get(Article_.id))
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getArticleId(), root -> root.join(Synonym_.articles, JoinType.LEFT).get(Article_.id))
+                );
             }
             if (criteria.getCancerTypeId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getCancerTypeId(),
-                            root -> root.join(Synonym_.cancerTypes, JoinType.LEFT).get(CancerType_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getCancerTypeId(),
+                        root -> root.join(Synonym_.cancerTypes, JoinType.LEFT).get(CancerType_.id)
+                    )
+                );
             }
             if (criteria.getGeneId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getGeneId(), root -> root.join(Synonym_.genes, JoinType.LEFT).get(Gene_.id))
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getGeneId(), root -> root.join(Synonym_.genes, JoinType.LEFT).get(Gene_.id))
+                );
             }
             if (criteria.getNciThesaurusId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getNciThesaurusId(),
-                            root -> root.join(Synonym_.nciThesauruses, JoinType.LEFT).get(NciThesaurus_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getNciThesaurusId(),
+                        root -> root.join(Synonym_.nciThesauruses, JoinType.LEFT).get(NciThesaurus_.id)
+                    )
+                );
             }
         }
         return specification;

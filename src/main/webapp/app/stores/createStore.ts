@@ -103,6 +103,7 @@ import { CurationPageStore } from 'app/stores/curation-page.store';
 import CategoricalAlterationStore from 'app/entities/categorical-alteration/categorical-alteration.store';
 import { WindowStore } from './window-store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
+import ManagementStore from 'app/stores/management.store';
 
 export interface IRootStore {
   readonly loadingStore: LoadingBarStore;
@@ -111,6 +112,7 @@ export interface IRootStore {
   readonly userStore: UserStore;
   readonly routerStore: RouterStore;
   readonly layoutStore: LayoutStore;
+  readonly managementStore: ManagementStore;
   readonly curationPageStore: CurationPageStore;
   readonly windowStore: WindowStore;
 
@@ -163,7 +165,6 @@ export interface IRootStore {
   readonly firebaseMetaService: FirebaseMetaService;
   readonly firebaseHistoryService: FirebaseHistoryService;
   readonly firebaseVusService: FirebaseVusService;
-  /* jhipster-needle-add-store-field - JHipster will add store here */
 }
 
 export function createStores(history: History): IRootStore {
@@ -175,6 +176,7 @@ export function createStores(history: History): IRootStore {
   rootStore.userStore = new UserStore(rootStore);
   rootStore.routerStore = new RouterStore(history);
   rootStore.layoutStore = new LayoutStore(rootStore);
+  rootStore.managementStore = new ManagementStore(rootStore);
   rootStore.curationPageStore = new CurationPageStore(rootStore);
   rootStore.windowStore = new WindowStore();
 

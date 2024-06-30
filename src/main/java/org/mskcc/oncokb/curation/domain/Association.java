@@ -1,10 +1,10 @@
 package org.mskcc.oncokb.curation.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.*;
 import org.javers.core.metamodel.annotation.ShallowReference;
 
 /**

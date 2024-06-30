@@ -22,7 +22,7 @@ import { Button, NavbarBrand } from 'reactstrap';
 import { FiFileText } from 'react-icons/fi';
 import { GoDatabase } from 'react-icons/go';
 import { BiSearchAlt } from 'react-icons/bi';
-import { FaSignOutAlt, FaUserCircle, FaExclamationTriangle } from 'react-icons/fa';
+import { FaSignOutAlt, FaUserCircle, FaExclamationTriangle, FaExternalLinkAlt, FaExternalLinkSquareAlt } from 'react-icons/fa';
 import { HiMiniBars3 } from 'react-icons/hi2';
 import { IUser } from 'app/shared/model/user.model';
 import { MskccLogo } from 'app/shared/logo/MskccLogo';
@@ -31,6 +31,9 @@ import _ from 'lodash';
 import classNames from 'classnames';
 import { WHOLE_NUMBER_REGEX } from 'app/config/constants/regex';
 import CustomCursor from '../../../content/images/oncogenic-black.svg';
+import { ManagementInfo } from 'app/stores/management.store';
+import { flow } from 'mobx';
+import { Linkout } from 'app/shared/links/Linkout';
 
 const ENTITY_MENU_NAME: { [key in ENTITY_TYPE]?: string } = {
   [ENTITY_TYPE.ALTERATION]: 'Alteration',
@@ -211,6 +214,8 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSi
     setEntityMenuOrder(order);
   }, []);
 
+  props.fetchManagementInfo();
+
   return (
     <Sidebar
       collapsed={isNavSidebarCollapsed}
@@ -272,6 +277,12 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSi
             {props.isAdmin && <MenuItem component={<NavLink to={PAGE_ROUTE.USER} />}>User Management</MenuItem>}
           </SubMenu>
           <MenuItemCollapsible
+            isCollapsed={props.isNavSidebarCollapsed}
+            text={'API Swagger'}
+            icon={<FaExternalLinkAlt size={20} />}
+            nav={<Linkout to={`${window.location.origin}${PAGE_ROUTE.SWAGGER}`} />}
+          />
+          <MenuItemCollapsible
             isCollapsed={isNavSidebarCollapsed}
             text={'Sign out'}
             icon={<FaSignOutAlt size={DEFAULT_NAV_ICON_SIZE} />}
@@ -282,12 +293,22 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSi
         <div style={{ lineHeight: '5rem', display: 'flex', justifyContent: 'center' }}>
           {isNavSidebarCollapsed ? <MskccLogo className="navbar-brand" size={'sm'} /> : <MskccLogo className="navbar-brand" size={'lg'} />}
         </div>
+        {(props.managementVersion || props.managementCommit) && (
+          <>
+            <MenuDivider />
+            <div className={'d-flex justify-content-center'}>
+              <div>
+                {props.managementVersion} ({props.managementCommit})
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </Sidebar>
   );
 };
 
-const mapStoreToProps = ({ layoutStore, authStore }: IRootStore) => ({
+const mapStoreToProps = ({ layoutStore, authStore, managementStore }: IRootStore) => ({
   toggleNavigationSidebar: layoutStore.toggleNavigationSidebar,
   isNavSidebarCollapsed: layoutStore.isNavigationSidebarCollapsed,
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,
@@ -297,6 +318,9 @@ const mapStoreToProps = ({ layoutStore, authStore }: IRootStore) => ({
   isCurator: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.CURATOR]),
   isUser: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.USER]),
   account: authStore.account,
+  managementVersion: managementStore.version,
+  managementCommit: managementStore.commit,
+  fetchManagementInfo: flow(managementStore.fetchManagementInfo),
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

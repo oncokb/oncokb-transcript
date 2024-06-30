@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
- * Spring Data SQL repository for the ClinicalTrialArm entity.
+ * Spring Data JPA repository for the ClinicalTrialArm entity.
  */
 @JaversSpringDataAuditable
 @Repository

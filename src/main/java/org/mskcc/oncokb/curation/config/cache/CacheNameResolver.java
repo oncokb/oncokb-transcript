@@ -6,7 +6,26 @@ import org.springframework.stereotype.Component;
 @Component
 public class CacheNameResolver {
 
-    ApplicationProperties applicationProperties;
+    private final ApplicationProperties applicationProperties;
+
+    private final Liquibase liquibase = new Liquibase();
+
+    public Liquibase getLiquibase() {
+        return liquibase;
+    }
+
+    public static class Liquibase {
+
+        private Boolean asyncStart;
+
+        public Boolean getAsyncStart() {
+            return asyncStart;
+        }
+
+        public void setAsyncStart(Boolean asyncStart) {
+            this.asyncStart = asyncStart;
+        }
+    }
 
     public CacheNameResolver(ApplicationProperties applicationProperties) {
         this.applicationProperties = applicationProperties;

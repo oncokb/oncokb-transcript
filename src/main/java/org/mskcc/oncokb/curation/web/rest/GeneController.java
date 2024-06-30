@@ -47,7 +47,7 @@ public class GeneController {
                 .forEach(symbol -> {
                     Optional<Gene> geneOptional = getGeneBySymbol(symbol);
                     if (geneOptional.isPresent()) {
-                        genes.add(geneOptional.get());
+                        genes.add(geneOptional.orElseThrow());
                     }
                 });
         }

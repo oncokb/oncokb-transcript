@@ -166,7 +166,8 @@ public class CancerTypeUtils {
 
     public static TumorForm getTumorForm(String tissue) {
         if (StringUtils.isNotEmpty(tissue)) {
-            if (liquidTumorTissues.contains(tissue)) return TumorForm.LIQUID; else return TumorForm.SOLID;
+            if (liquidTumorTissues.contains(tissue)) return TumorForm.LIQUID;
+            else return TumorForm.SOLID;
         }
         return null;
     }

@@ -1,12 +1,12 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.AlleleState;
 import org.mskcc.oncokb.curation.repository.AlleleStateRepository;
 import org.mskcc.oncokb.curation.service.AlleleStateService;
@@ -56,8 +56,7 @@ public class AlleleStateResource {
             throw new BadRequestAlertException("A new alleleState cannot already have an ID", ENTITY_NAME, "idexists");
         }
         AlleleState result = alleleStateService.save(alleleState);
-        return ResponseEntity
-            .created(new URI("/api/allele-states/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/allele-states/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -90,8 +89,7 @@ public class AlleleStateResource {
         }
 
         AlleleState result = alleleStateService.save(alleleState);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, alleleState.getId().toString()))
             .body(result);
     }
@@ -166,8 +164,7 @@ public class AlleleStateResource {
     public ResponseEntity<Void> deleteAlleleState(@PathVariable Long id) {
         log.debug("REST request to delete AlleleState : {}", id);
         alleleStateService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }

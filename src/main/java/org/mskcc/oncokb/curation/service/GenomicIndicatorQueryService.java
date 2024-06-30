@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.GenomicIndicator;
 import org.mskcc.oncokb.curation.repository.GenomicIndicatorRepository;
@@ -95,22 +95,20 @@ public class GenomicIndicatorQueryService extends QueryService<GenomicIndicator>
                 specification = specification.or(buildStringSpecification(criteria.getName(), GenomicIndicator_.name));
             }
             if (criteria.getAlleleStateId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getAlleleStateId(),
-                            root -> root.join(GenomicIndicator_.alleleStates, JoinType.LEFT).get(AlleleState_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getAlleleStateId(),
+                        root -> root.join(GenomicIndicator_.alleleStates, JoinType.LEFT).get(AlleleState_.id)
+                    )
+                );
             }
             if (criteria.getAssociationId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getAssociationId(),
-                            root -> root.join(GenomicIndicator_.associations, JoinType.LEFT).get(Association_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getAssociationId(),
+                        root -> root.join(GenomicIndicator_.associations, JoinType.LEFT).get(Association_.id)
+                    )
+                );
             }
         }
         return specification;

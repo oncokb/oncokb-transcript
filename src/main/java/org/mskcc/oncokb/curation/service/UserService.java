@@ -22,6 +22,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,8 +97,7 @@ public class UserService {
      * @return updated user.
      */
     public Optional<UserDTO> updateUser(UserDTO userDTO) {
-        return Optional
-            .of(userRepository.findById(userDTO.getId()))
+        return Optional.of(userRepository.findById(userDTO.getId()))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .map(user -> {
@@ -155,31 +155,26 @@ public class UserService {
     @Transactional
     public Optional<UserDTO> getUserFromAuthentication(AbstractAuthenticationToken authToken) {
         if (authToken instanceof UsernamePasswordAuthenticationToken) { // Our custom JWT
-            Optional<User> user = userRepository.findOneByLogin(authToken.getName());
-            if (user.isPresent()) {
-                return Optional.of(userMapper.userToUserDTO(user.get()));
+            Optional<User> userOptional = userRepository.findOneByLogin(authToken.getName());
+            if (userOptional.isPresent()) {
+                return Optional.of(userMapper.userToUserDTO(userOptional.orElseThrow()));
             }
             return Optional.empty();
         }
 
         Map<String, Object> attributes;
         if (authToken instanceof OAuth2AuthenticationToken) { // Spring oauth2
-            attributes = ((OAuth2AuthenticationToken) authToken).getPrincipal().getAttributes();
+            return findOneByEmailIgnoreCase(((OidcUser) authToken.getPrincipal()).getEmail());
         } else {
             throw new IllegalArgumentException("AuthenticationToken is not OAuth2 or JWT!");
         }
-
-        Gson gson = new Gson();
-        String json = gson.toJson(attributes);
-        KeycloakUserDTO keycloakUser = gson.fromJson(json, KeycloakUserDTO.class);
-        return findOneByEmailIgnoreCase(keycloakUser.getEmail());
     }
 
     @Transactional(readOnly = true)
     public Optional<UserDTO> findOneByEmailIgnoreCase(String email) {
         Optional<User> optionalUser = userRepository.findOneByEmailIgnoreCase(email);
         if (optionalUser.isPresent()) {
-            return Optional.of(userMapper.userToUserDTO(optionalUser.get()));
+            return Optional.of(userMapper.userToUserDTO(optionalUser.orElseThrow()));
         }
         return Optional.empty();
     }
@@ -214,10 +209,10 @@ public class UserService {
 
     private void clearUserCaches(User user) {
         if (this.optionalCacheManager.isPresent()) {
-            for (String cacheKey : this.optionalCacheManager.get().getCacheNames()) {
+            for (String cacheKey : this.optionalCacheManager.orElseThrow().getCacheNames()) {
                 String cacheKeyPrefix = this.cacheNameResolver.getCacheName(CacheCategory.USER, "");
                 if (cacheKey.startsWith(cacheKeyPrefix)) {
-                    Objects.requireNonNull(this.optionalCacheManager.get().getCache(cacheKey)).clear();
+                    Objects.requireNonNull(this.optionalCacheManager.orElseThrow().getCache(cacheKey)).clear();
                 }
             }
         }

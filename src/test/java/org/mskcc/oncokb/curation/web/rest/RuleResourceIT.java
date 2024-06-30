@@ -6,10 +6,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -196,7 +196,7 @@ class RuleResourceIT {
         int databaseSizeBeforeUpdate = ruleRepository.findAll().size();
 
         // Update the rule
-        Rule updatedRule = ruleRepository.findById(rule.getId()).get();
+        Rule updatedRule = ruleRepository.findById(rule.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedRule are not directly saved in db
         em.detach(updatedRule);
         updatedRule.entity(UPDATED_ENTITY).rule(UPDATED_RULE).name(UPDATED_NAME);

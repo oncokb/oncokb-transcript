@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.GenomeFragment;
 import org.mskcc.oncokb.curation.repository.GenomeFragmentRepository;
@@ -98,22 +98,20 @@ public class GenomeFragmentQueryService extends QueryService<GenomeFragment> {
                 specification = specification.or(buildSpecification(criteria.getType(), GenomeFragment_.type));
             }
             if (criteria.getSeqRegionId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getSeqRegionId(),
-                            root -> root.join(GenomeFragment_.seqRegion, JoinType.LEFT).get(SeqRegion_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getSeqRegionId(),
+                        root -> root.join(GenomeFragment_.seqRegion, JoinType.LEFT).get(SeqRegion_.id)
+                    )
+                );
             }
             if (criteria.getTranscriptId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getTranscriptId(),
-                            root -> root.join(GenomeFragment_.transcript, JoinType.LEFT).get(Transcript_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getTranscriptId(),
+                        root -> root.join(GenomeFragment_.transcript, JoinType.LEFT).get(Transcript_.id)
+                    )
+                );
             }
         }
         return specification;

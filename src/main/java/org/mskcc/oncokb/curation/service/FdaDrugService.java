@@ -85,8 +85,7 @@ public class FdaDrugService {
     @Transactional(readOnly = true)
     public List<FdaDrug> findAllWhereDrugIsNull() {
         log.debug("Request to get all fdaDrugs where Drug is null");
-        return StreamSupport
-            .stream(fdaDrugRepository.findAll().spliterator(), false)
+        return StreamSupport.stream(fdaDrugRepository.findAll().spliterator(), false)
             .filter(fdaDrug -> fdaDrug.getDrug() == null)
             .collect(Collectors.toList());
     }

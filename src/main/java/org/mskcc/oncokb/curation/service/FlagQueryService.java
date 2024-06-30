@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.repository.FlagRepository;
@@ -107,36 +107,29 @@ public class FlagQueryService extends QueryService<Flag> {
                 specification = specification.or(buildStringSpecification(criteria.getName(), Flag_.name));
             }
             if (criteria.getAlterationId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getAlterationId(),
-                            root -> root.join(Flag_.alterations, JoinType.LEFT).get(Alteration_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getAlterationId(), root -> root.join(Flag_.alterations, JoinType.LEFT).get(Alteration_.id))
+                );
             }
             if (criteria.getArticleId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getArticleId(), root -> root.join(Flag_.articles, JoinType.LEFT).get(Article_.id))
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getArticleId(), root -> root.join(Flag_.articles, JoinType.LEFT).get(Article_.id))
+                );
             }
             if (criteria.getDrugId() != null) {
-                specification =
-                    specification.or(buildSpecification(criteria.getDrugId(), root -> root.join(Flag_.drugs, JoinType.LEFT).get(Drug_.id)));
+                specification = specification.or(
+                    buildSpecification(criteria.getDrugId(), root -> root.join(Flag_.drugs, JoinType.LEFT).get(Drug_.id))
+                );
             }
             if (criteria.getGeneId() != null) {
-                specification =
-                    specification.or(buildSpecification(criteria.getGeneId(), root -> root.join(Flag_.genes, JoinType.LEFT).get(Gene_.id)));
+                specification = specification.or(
+                    buildSpecification(criteria.getGeneId(), root -> root.join(Flag_.genes, JoinType.LEFT).get(Gene_.id))
+                );
             }
             if (criteria.getTranscriptId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getTranscriptId(),
-                            root -> root.join(Flag_.transcripts, JoinType.LEFT).get(Transcript_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getTranscriptId(), root -> root.join(Flag_.transcripts, JoinType.LEFT).get(Transcript_.id))
+                );
             }
         }
         return specification;

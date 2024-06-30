@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.CompanionDiagnosticDevice;
 import org.mskcc.oncokb.curation.repository.CompanionDiagnosticDeviceRepository;
@@ -105,40 +105,40 @@ public class CompanionDiagnosticDeviceQueryService extends QueryService<Companio
                 specification = specification.or(buildStringSpecification(criteria.getName(), CompanionDiagnosticDevice_.name));
             }
             if (criteria.getManufacturer() != null) {
-                specification =
-                    specification.or(buildStringSpecification(criteria.getManufacturer(), CompanionDiagnosticDevice_.manufacturer));
+                specification = specification.or(
+                    buildStringSpecification(criteria.getManufacturer(), CompanionDiagnosticDevice_.manufacturer)
+                );
             }
             if (criteria.getIndicationDetails() != null) {
-                specification =
-                    specification.or(
-                        buildStringSpecification(criteria.getIndicationDetails(), CompanionDiagnosticDevice_.indicationDetails)
-                    );
+                specification = specification.or(
+                    buildStringSpecification(criteria.getIndicationDetails(), CompanionDiagnosticDevice_.indicationDetails)
+                );
             }
             if (criteria.getPlatformType() != null) {
-                specification =
-                    specification.or(buildStringSpecification(criteria.getPlatformType(), CompanionDiagnosticDevice_.platformType));
+                specification = specification.or(
+                    buildStringSpecification(criteria.getPlatformType(), CompanionDiagnosticDevice_.platformType)
+                );
             }
             if (criteria.getLastUpdated() != null) {
-                specification =
-                    specification.or(buildRangeSpecification(criteria.getLastUpdated(), CompanionDiagnosticDevice_.lastUpdated));
+                specification = specification.or(
+                    buildRangeSpecification(criteria.getLastUpdated(), CompanionDiagnosticDevice_.lastUpdated)
+                );
             }
             if (criteria.getFdaSubmissionId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getFdaSubmissionId(),
-                            root -> root.join(CompanionDiagnosticDevice_.fdaSubmissions, JoinType.LEFT).get(FdaSubmission_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getFdaSubmissionId(),
+                        root -> root.join(CompanionDiagnosticDevice_.fdaSubmissions, JoinType.LEFT).get(FdaSubmission_.id)
+                    )
+                );
             }
             if (criteria.getSpecimenTypeId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getSpecimenTypeId(),
-                            root -> root.join(CompanionDiagnosticDevice_.specimenTypes, JoinType.LEFT).get(SpecimenType_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getSpecimenTypeId(),
+                        root -> root.join(CompanionDiagnosticDevice_.specimenTypes, JoinType.LEFT).get(SpecimenType_.id)
+                    )
+                );
             }
         }
         return specification;

@@ -192,8 +192,8 @@ public class MetaImporter {
     }
 
     private void importHotspot() throws IOException {
-        Flag hotspotFlag = flagService.findByTypeAndFlag(FlagType.HOTSPOT, HotspotFlagEnum.HOTSPOT_V1.name()).get();
-        Flag threeDFlag = flagService.findByTypeAndFlag(FlagType.HOTSPOT, HotspotFlagEnum.THREE_D.name()).get();
+        Flag hotspotFlag = flagService.findByTypeAndFlag(FlagType.HOTSPOT, HotspotFlagEnum.HOTSPOT_V1.name()).orElseThrow();
+        Flag threeDFlag = flagService.findByTypeAndFlag(FlagType.HOTSPOT, HotspotFlagEnum.THREE_D.name()).orElseThrow();
 
         List<List<String>> hotspotLines = parseTsvMetaFile("cancer_hotspots_gn.tsv");
         hotspotLines.forEach(line -> {
@@ -280,8 +280,7 @@ public class MetaImporter {
             Gene savedGene = this.geneService.save(gene);
 
             Set<Synonym> savedSynonyms = new HashSet<>();
-            Arrays
-                .stream(Optional.ofNullable(line.get(5)).orElse("").split("\\|"))
+            Arrays.stream(Optional.ofNullable(line.get(5)).orElse("").split("\\|"))
                 .filter(synonym -> StringUtils.isNotEmpty(synonym.trim()))
                 .forEach(synonym -> {
                     String trimmedSynonym = synonym.trim();
@@ -297,7 +296,7 @@ public class MetaImporter {
                         geneSynonym.setType(SynonymType.GENE.name());
                         savedSynonyms.add(synonymService.save(geneSynonym));
                     } else {
-                        savedSynonyms.add(synonymOptional.get());
+                        savedSynonyms.add(synonymOptional.orElseThrow());
                     }
                 });
             savedGene.setSynonyms(savedSynonyms);
@@ -324,8 +323,8 @@ public class MetaImporter {
 
                 Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(entrezGeneId);
                 Optional<Flag> flagOptional = flagService.findByTypeAndFlag(FlagType.GENE_PANEL, flag);
-                geneOptional.get().getFlags().add(flagOptional.get());
-                geneService.partialUpdate(geneOptional.get());
+                geneOptional.orElseThrow().getFlags().add(flagOptional.orElseThrow());
+                geneService.partialUpdate(geneOptional.orElseThrow());
             }
         });
     }
@@ -351,12 +350,12 @@ public class MetaImporter {
                 log.error("Can't find gene {}", line.get(0));
                 continue;
             }
-            ensemblGene.setGene(geneOptional.get());
+            ensemblGene.setGene(geneOptional.orElseThrow());
             ensemblGene.setReferenceGenome(ReferenceGenome.valueOf(line.get(2)));
             ensemblGene.setEnsemblGeneId(line.get(3));
             ensemblGene.setCanonical(Boolean.valueOf(line.get(4)));
             Optional<SeqRegion> seqRegionOptional = seqRegionService.findByName(line.get(5));
-            ensemblGene.setSeqRegion(seqRegionOptional.get());
+            ensemblGene.setSeqRegion(seqRegionOptional.orElseThrow());
             ensemblGene.setStart(Integer.valueOf(line.get(6)));
             ensemblGene.setEnd(Integer.valueOf(line.get(7)));
             ensemblGene.setStrand(Integer.valueOf(line.get(8)));
@@ -381,17 +380,17 @@ public class MetaImporter {
                 continue;
             }
             Optional<TranscriptDTO> transcriptOptional = transcriptService.findByEnsemblGeneAndEnsemblTranscriptId(
-                ensemblGeneOptional.get(),
+                ensemblGeneOptional.orElseThrow(),
                 line.get(4)
             );
             if (transcriptOptional.isEmpty()) {
                 log.error("Can't find transcript {}", line.get(4));
                 continue;
             }
-            genomeFragment.setTranscript(transcriptMapper.toEntity(transcriptOptional.get()));
+            genomeFragment.setTranscript(transcriptMapper.toEntity(transcriptOptional.orElseThrow()));
             genomeFragment.setType(GenomeFragmentType.valueOf(line.get(5)));
             Optional<SeqRegion> seqRegionOptional = seqRegionService.findByName(line.get(6));
-            genomeFragment.setSeqRegion(seqRegionOptional.get());
+            genomeFragment.setSeqRegion(seqRegionOptional.orElseThrow());
             genomeFragment.setStart(Integer.parseInt(line.get(7)));
             genomeFragment.setEnd(Integer.parseInt(line.get(8)));
             genomeFragment.setStrand(Integer.parseInt(line.get(9)));
@@ -407,22 +406,24 @@ public class MetaImporter {
         for (int i = 0; i < lines.size(); i++) {
             List<String> line = lines.get(i);
 
-            Optional<GenomicIndicator> existingGI = genomicIndicatorService.findByTypeAndName(GenomicIndicatorType.GERMLINE, line.get(3));
-            if (existingGI.isEmpty()) {
+            Optional<GenomicIndicator> existingGIOptional = genomicIndicatorService.findByTypeAndName(
+                GenomicIndicatorType.GERMLINE,
+                line.get(3)
+            );
+            if (existingGIOptional.isEmpty()) {
                 GenomicIndicator genomicIndicator = new GenomicIndicator();
                 genomicIndicator.setType(GenomicIndicatorType.GERMLINE.name());
                 genomicIndicator.setUuid(line.get(5));
                 genomicIndicator.setName(line.get(3));
                 genomicIndicator = genomicIndicatorService.save(genomicIndicator);
                 if (StringUtils.isNotEmpty(line.get(4))) {
-                    Set<AlleleState> alleleStateList = Arrays
-                        .stream(line.get(4).split(","))
-                        .map(alleleState -> alleleStateService.findByNameIgnoreCase(alleleState.trim()).get())
+                    Set<AlleleState> alleleStateList = Arrays.stream(line.get(4).split(","))
+                        .map(alleleState -> alleleStateService.findByNameIgnoreCase(alleleState.trim()).orElseThrow())
                         .collect(Collectors.toSet());
                     genomicIndicator.setAlleleStates(alleleStateList);
                     genomicIndicatorService.partialUpdate(genomicIndicator);
                 }
-                existingGI = Optional.of(genomicIndicatorService.save(genomicIndicator));
+                existingGIOptional = Optional.of(genomicIndicatorService.save(genomicIndicator));
             }
 
             Optional<Gene> geneOptional = geneService.findGeneByHugoSymbol(line.get(0));
@@ -431,11 +432,14 @@ public class MetaImporter {
                 continue;
             }
             Alteration alteration;
-            List<Alteration> alterationList = alterationService.findByNameOrAlterationAndGenesId(line.get(1), geneOptional.get().getId());
+            List<Alteration> alterationList = alterationService.findByNameOrAlterationAndGenesId(
+                line.get(1),
+                geneOptional.orElseThrow().getId()
+            );
             if (alterationList.isEmpty()) {
                 log.warn("Cannot find alteration {} in {}, will create a new one.", line.get(1), line.get(0));
                 Alteration newAlt = new Alteration();
-                newAlt.setGenes(Collections.singleton(geneOptional.get()));
+                newAlt.setGenes(Collections.singleton(geneOptional.orElseThrow()));
                 newAlt.setAlteration(line.get(1));
                 newAlt.setType(AlterationType.ANY);
                 newAlt.setProteinChange(line.get(2));
@@ -450,8 +454,8 @@ public class MetaImporter {
             if (alteration != null) {
                 Association association = new Association();
                 association.setAlterations(Collections.singleton(alteration));
-                existingGI.get().setAssociations(Collections.singleton(association));
-                genomicIndicatorService.partialUpdate(existingGI.get());
+                existingGIOptional.orElseThrow().setAssociations(Collections.singleton(association));
+                genomicIndicatorService.partialUpdate(existingGIOptional.orElseThrow());
             }
         }
     }
@@ -466,7 +470,7 @@ public class MetaImporter {
                 log.error("Can't find gene {}", line.get(0));
                 continue;
             }
-            transcript.setGene(geneOptional.get());
+            transcript.setGene(geneOptional.orElseThrow());
             Optional<EnsemblGene> ensemblGeneOptional = ensemblGeneService.findByEnsemblGeneIdAndReferenceGenome(
                 line.get(3),
                 ReferenceGenome.valueOf(line.get(2))
@@ -476,7 +480,7 @@ public class MetaImporter {
                 continue;
             }
             transcript.setReferenceGenome(ReferenceGenome.valueOf(line.get(2)));
-            transcript.setEnsemblGene(ensemblGeneOptional.get());
+            transcript.setEnsemblGene(ensemblGeneOptional.orElseThrow());
 
             transcript.setEnsemblTranscriptId(line.get(4));
             transcript.setCanonical(Boolean.valueOf(line.get(5)));
@@ -508,11 +512,11 @@ public class MetaImporter {
                     continue;
                 }
                 Optional<Flag> flagOptional = flagService.findByTypeAndFlag(FlagType.TRANSCRIPT, flag);
-                transcriptOptional.get().getFlags().add(flagOptional.get());
+                transcriptOptional.orElseThrow().getFlags().add(flagOptional.orElseThrow());
                 if (TranscriptFlagEnum.ONCOKB.name().equals(flag)) {
-                    transcriptOptional.get().setCanonical(true);
+                    transcriptOptional.orElseThrow().setCanonical(true);
                 }
-                transcriptService.partialUpdate(transcriptOptional.get());
+                transcriptService.partialUpdate(transcriptOptional.orElseThrow());
             }
             if ((i + 1) % 1000 == 0) {
                 log.info("Imported {}/{} transcript flag", i + 1, lines.size());
@@ -534,14 +538,14 @@ public class MetaImporter {
                 continue;
             }
             Optional<TranscriptDTO> transcriptOptional = transcriptService.findByEnsemblGeneAndEnsemblTranscriptId(
-                ensemblGeneOptional.get(),
+                ensemblGeneOptional.orElseThrow(),
                 line.get(4)
             );
             if (transcriptOptional.isEmpty()) {
                 log.error("Error find transcript {}", line.get(4));
                 continue;
             }
-            sequence.setTranscript(transcriptMapper.toEntity(transcriptOptional.get()));
+            sequence.setTranscript(transcriptMapper.toEntity(transcriptOptional.orElseThrow()));
             sequence.setSequenceType(SequenceType.valueOf(line.get(5)));
             sequence.setSequence(line.get(6));
             sequenceService.save(sequence);
@@ -595,7 +599,7 @@ public class MetaImporter {
                     if (synonymOptional.isEmpty()) {
                         return synonymService.save(synonym);
                     } else {
-                        return synonymOptional.get();
+                        return synonymOptional.orElseThrow();
                     }
                 })
                 .collect(Collectors.toSet());

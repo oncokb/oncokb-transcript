@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
- * Spring Data SQL repository for the CancerType entity.
+ * Spring Data JPA repository for the CancerType entity.
  */
 @JaversSpringDataAuditable
 @Repository

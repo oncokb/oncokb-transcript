@@ -29,12 +29,10 @@ public class OAuth2Configuration {
         );
 
         authorizedClientManager.setAuthorizedClientProvider(
-            OAuth2AuthorizedClientProviderBuilder
-                .builder()
+            OAuth2AuthorizedClientProviderBuilder.builder()
                 .authorizationCode()
                 .refreshToken(builder -> builder.clockSkew(Duration.ofMinutes(1)))
                 .clientCredentials()
-                .password()
                 .build()
         );
 

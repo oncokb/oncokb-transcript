@@ -38,6 +38,8 @@ public class CacheConfiguration extends CachingConfigurerSupport {
     public RedissonClient redissonClient(org.mskcc.oncokb.meta.model.application.ApplicationProperties applicationProperties)
         throws Exception {
         Config config = new Config();
+        // Fix Hibernate lazy initialization https://github.com/jhipster/generator-jhipster/issues/22889
+        config.setCodec(new org.redisson.codec.SerializationCodec());
         if (applicationProperties.getRedis().getType().equals(RedisType.SINGLE.getType())) {
             config
                 .useSingleServer()

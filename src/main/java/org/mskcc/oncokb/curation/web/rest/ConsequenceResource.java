@@ -1,12 +1,12 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Consequence;
 import org.mskcc.oncokb.curation.repository.ConsequenceRepository;
 import org.mskcc.oncokb.curation.service.ConsequenceQueryService;
@@ -65,8 +65,7 @@ public class ConsequenceResource {
             throw new BadRequestAlertException("A new consequence cannot already have an ID", ENTITY_NAME, "idexists");
         }
         Consequence result = consequenceService.save(consequence);
-        return ResponseEntity
-            .created(new URI("/api/consequences/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/consequences/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -99,8 +98,7 @@ public class ConsequenceResource {
         }
 
         Consequence result = consequenceService.save(consequence);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, consequence.getId().toString()))
             .body(result);
     }
@@ -189,8 +187,7 @@ public class ConsequenceResource {
     public ResponseEntity<Void> deleteConsequence(@PathVariable Long id) {
         log.debug("REST request to delete Consequence : {}", id);
         consequenceService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }

@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
 /**
- * Spring Data SQL repository for the GenomeFragment entity.
+ * Spring Data JPA repository for the GenomeFragment entity.
  */
 @Repository
 public interface GenomeFragmentRepository extends JpaRepository<GenomeFragment, Long>, JpaSpecificationExecutor<GenomeFragment> {

@@ -1,8 +1,8 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.repository.GeneRepository;
@@ -111,47 +111,37 @@ public class GeneQueryService extends QueryService<Gene> {
                 specification = specification.or(buildStringSpecification(criteria.getHgncId(), Gene_.hgncId));
             }
             if (criteria.getEnsemblGeneId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getEnsemblGeneId(),
-                            root -> root.join(Gene_.ensemblGenes, JoinType.LEFT).get(EnsemblGene_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getEnsemblGeneId(),
+                        root -> root.join(Gene_.ensemblGenes, JoinType.LEFT).get(EnsemblGene_.id)
+                    )
+                );
             }
             if (criteria.getEvidenceId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getEvidenceId(), root -> root.join(Gene_.evidences, JoinType.LEFT).get(Evidence_.id))
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getEvidenceId(), root -> root.join(Gene_.evidences, JoinType.LEFT).get(Evidence_.id))
+                );
             }
             if (criteria.getTranscriptId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getTranscriptId(),
-                            root -> root.join(Gene_.transcripts, JoinType.LEFT).get(Transcript_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getTranscriptId(), root -> root.join(Gene_.transcripts, JoinType.LEFT).get(Transcript_.id))
+                );
             }
             if (criteria.getFlagId() != null) {
-                specification =
-                    specification.or(buildSpecification(criteria.getFlagId(), root -> root.join(Gene_.flags, JoinType.LEFT).get(Flag_.id)));
+                specification = specification.or(
+                    buildSpecification(criteria.getFlagId(), root -> root.join(Gene_.flags, JoinType.LEFT).get(Flag_.id))
+                );
             }
             if (criteria.getSynonymId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getSynonymId(), root -> root.join(Gene_.synonyms, JoinType.LEFT).get(Synonym_.id))
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getSynonymId(), root -> root.join(Gene_.synonyms, JoinType.LEFT).get(Synonym_.id))
+                );
             }
             if (criteria.getAlterationId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getAlterationId(),
-                            root -> root.join(Gene_.alterations, JoinType.LEFT).get(Alteration_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getAlterationId(), root -> root.join(Gene_.alterations, JoinType.LEFT).get(Alteration_.id))
+                );
             }
         }
         return specification;

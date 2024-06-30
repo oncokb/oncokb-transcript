@@ -5,7 +5,6 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -236,7 +235,7 @@ public class EnsemblService {
             if (expand) {
                 requestParams.add("expand=1");
             }
-            sb.append(StringUtils.join(requestParams, "&"));
+            sb.append(String.join("&", requestParams));
         }
         return getEnsemblAPIUrl(referenceGenome) + sb;
     }

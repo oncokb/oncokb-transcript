@@ -1,12 +1,12 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.domain.nih.efetch.ArticleId;
 import org.mskcc.oncokb.curation.repository.ArticleRepository;
@@ -82,8 +82,7 @@ public class ArticleResource {
             throw new BadRequestAlertException("A new article cannot already have an ID", ENTITY_NAME, "idexists");
         }
         Article result = articleService.save(article);
-        return ResponseEntity
-            .created(new URI("/api/articles/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/articles/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -116,8 +115,7 @@ public class ArticleResource {
         }
 
         Article result = articleService.save(article);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, article.getId().toString()))
             .body(result);
     }
@@ -208,8 +206,7 @@ public class ArticleResource {
     public ResponseEntity<Void> deleteArticle(@PathVariable Long id) {
         log.debug("REST request to delete Article : {}", id);
         articleService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }
@@ -248,7 +245,7 @@ public class ArticleResource {
         if (matchedArticles.isEmpty()) {
             pubMedDTO = pubMedMapper.articleToPubMedDTO(articleService.fetchAndSavePubMed(String.valueOf(pmid)));
         } else {
-            pubMedDTO = pubMedMapper.articleToPubMedDTO(articleService.findOne(matchedArticles.iterator().next().getId()).get());
+            pubMedDTO = pubMedMapper.articleToPubMedDTO(articleService.findOne(matchedArticles.iterator().next().getId()).orElseThrow());
         }
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(pubMedDTO));
     }

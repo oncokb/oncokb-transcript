@@ -178,7 +178,7 @@ public class EnsemblGeneService {
                 .filter(ensemblGene -> ensemblGene.getGeneId().equals(et.getId()))
                 .findFirst();
             if (ensemblGeneGNOptional.isPresent()) {
-                String entrezGeneStr = ensemblGeneGNOptional.get().getEntrezGeneId();
+                String entrezGeneStr = ensemblGeneGNOptional.orElseThrow().getEntrezGeneId();
                 if (StringUtils.isNumeric(entrezGeneStr)) {
                     int entrezGeneId = Integer.parseInt(entrezGeneStr);
                     if (entrezGeneId > 0) {
@@ -194,13 +194,13 @@ public class EnsemblGeneService {
                                 ensemblGene.setStart(et.getStart());
                                 ensemblGene.setEnd(et.getEnd());
                                 if (seqRegionOptional.isPresent()) {
-                                    ensemblGene.setSeqRegion(seqRegionOptional.get());
+                                    ensemblGene.setSeqRegion(seqRegionOptional.orElseThrow());
                                 }
-                                ensemblGene.setGene(savedGeneOptional.get());
+                                ensemblGene.setGene(savedGeneOptional.orElseThrow());
                                 EnsemblGene savedEnsemblGene = save(ensemblGene);
                                 savedEnsemblGenes.add(savedEnsemblGene);
                             } else {
-                                savedEnsemblGenes.add(ensemblGeneOptional.get());
+                                savedEnsemblGenes.add(ensemblGeneOptional.orElseThrow());
                             }
                         } else {
                             log.error("The entrez gene is not available in DB {}", entrezGeneId);

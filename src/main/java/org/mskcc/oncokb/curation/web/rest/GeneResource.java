@@ -1,13 +1,13 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Gene;
 import org.mskcc.oncokb.curation.repository.GeneRepository;
 import org.mskcc.oncokb.curation.service.GeneQueryService;
@@ -67,8 +67,7 @@ public class GeneResource {
             throw new BadRequestAlertException("A new gene cannot already have an ID", ENTITY_NAME, "idexists");
         }
         Gene result = geneService.save(gene);
-        return ResponseEntity
-            .created(new URI("/api/genes/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/genes/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -99,8 +98,7 @@ public class GeneResource {
         }
 
         Gene result = geneService.save(gene);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, gene.getId().toString()))
             .body(result);
     }
@@ -153,8 +151,7 @@ public class GeneResource {
         log.debug("REST request to get Genes by criteria: {}", criteria);
         Page<Gene> page = geneQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(headers)
             .body(
                 geneService.findAllByIdInWithGeneAliasAndEnsemblGenes(
@@ -198,8 +195,7 @@ public class GeneResource {
     public ResponseEntity<Void> deleteGene(@PathVariable Long id) {
         log.debug("REST request to delete Gene : {}", id);
         geneService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }
@@ -223,8 +219,7 @@ public class GeneResource {
         }
         Page<Gene> page = geneQueryService.findBySearchQuery(query, exact, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(headers)
             .body(
                 geneService.findAllByIdInWithGeneAliasAndEnsemblGenes(

@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
- * Spring Data SQL repository for the Article entity.
+ * Spring Data JPA repository for the Article entity.
  */
 @JaversSpringDataAuditable
 @Repository
