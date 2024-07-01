@@ -61,4 +61,8 @@ export class FirebaseRepository {
       return newData;
     });
   };
+
+  getArrayKey = (path: string) => {
+    return push(ref(this.firebaseAppStore.firebaseDb, path)).key;
+  };
 }
