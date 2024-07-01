@@ -480,6 +480,7 @@ export class HistoryRecord {
   operation: HistoryOperationType | '' = '';
   uuids? = ''; // This is a comma seperated string of uuids. This helps identify which fields under CREATE has been updated
   info?: HistoryInfo;
+  ignoreNestedUpdates?: boolean;
 }
 
 export class HistoryInfo {
