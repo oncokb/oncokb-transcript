@@ -63,7 +63,7 @@ export default function constructTimeSeriesData(record: FlattenedHistory): Requi
   };
 }
 
-export function getTimeSeriesDataContent(newContent: string, oldContent?: string) {
+export function getTimeSeriesDataContent(newContent = '', oldContent = '') {
   return (
     <div className="gene-history-event-content">
       <DiffViewer new={newContent} old={oldContent} type={'merged'} />

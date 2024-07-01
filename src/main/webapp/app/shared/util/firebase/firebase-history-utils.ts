@@ -92,7 +92,7 @@ export const parseHistory = (history: HistoryList, drugList: readonly IDrug[]) =
       for (const record of historyEntry.records) {
         switch (record.operation) {
           case HistoryOperationType.ADD:
-            parsedRecords.push(...parseAddRecord(record, drugList, true));
+            parsedRecords.push(...parseAddRecord(record, drugList, false));
             break;
           case HistoryOperationType.DELETE:
             parsedRecords.push(...parseDeleteRecord(record, drugList));
