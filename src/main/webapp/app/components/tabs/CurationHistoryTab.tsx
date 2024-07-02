@@ -15,6 +15,7 @@ import { IDrug } from 'app/shared/model/drug.model';
 import { GREY } from 'app/config/colors';
 import { FlattenedHistory, isBetweenDates } from 'app/shared/util/firebase/firebase-history-utils';
 import _ from 'lodash';
+import { compareMutationsDefault } from 'app/shared/util/firebase/firebase-utils';
 
 export interface ICurationHistoryTabProps extends StoreProps {
   historyData: FlattenedHistory[];
@@ -35,12 +36,13 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
   }, [historyData]);
 
   const authorDropdownOptions = useMemo(() => {
-    const options = [];
+    const options: { label: string; value: string }[] = [];
     if (users) {
       for (const user of users) {
         options.push({ value: user.email, label: `${user.firstName} ${user.lastName}` });
       }
     }
+    options.sort((a, b) => a.label.localeCompare(b.label));
     return options;
   }, [users]);
 
@@ -53,7 +55,10 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
 
   const alterations = useMemo(() => {
     const alts = new Set<string>();
-    for (const mutation of mutations || []) {
+
+    const mutationList = mutations ? [...mutations] : [];
+    mutationList.sort(compareMutationsDefault);
+    for (const mutation of mutationList) {
       for (const alteration of mutation.alterations || []) {
         alts.add(alteration.alteration);
       }
@@ -190,6 +195,8 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
         <ReactSelect
           value={historyTabStore.selectedAuthor}
           id="author"
+          isClearable
+          backspaceRemovesValue
           defaultValue={historyTabStore.appliedAuthor}
           onChange={selection => historyTabStore.setSelectedAuthor(selection)}
           styles={{
@@ -206,6 +213,8 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
         <ReactSelect
           value={historyTabStore.selectedMutation}
           id="mutation"
+          isClearable
+          backspaceRemovesValue
           defaultValue={historyTabStore.appliedMutation}
           onInputChange={setMutationInput}
           onChange={selection => historyTabStore.setSelectedMutation(selection)}
