@@ -85,7 +85,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     if (geneData && !_.isNil(reviewUuids)) {
       const reviewMap = new EditorReviewMap();
       const reviews = findReviews(props.drugList ?? [], geneData, _.clone(reviewUuids), reviewMap);
-      Object.entries(reviews.children ?? {}).forEach(([key, value]) => (reviews.children![key] = getCompactReviewInfo(value)));
+      Object.entries(reviews.children ?? {}).forEach(([key, value]) => (reviews.children[key] = getCompactReviewInfo(value)));
       setEditorReviewMap(reviewMap);
       setRootReview(reviews);
       setIsReviewFinished(!reviews.hasChildren());
@@ -180,7 +180,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
         </>
       )}
       {rootReview ? (
-        <Row>
+        <Row data-testid="root-review">
           <Col>
             <ReviewCollapsible
               hugoSymbol={hugoSymbol ?? ''}

@@ -106,7 +106,8 @@ describe('Screenshot Tests', () => {
     await reviewButton.click();
 
     const reviewPage = await $('div[data-testid="review-page"]');
-    await reviewPage.waitForDisplayed();
+    const rootReview = await $('div[data-testid="root-review"]');
+    await rootReview.waitForDisplayed();
 
     const result = await browser.checkElement(reviewPage, 'review-page', methodOptions);
     expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);

@@ -65,7 +65,7 @@ export default function constructTimeSeriesData(
   };
 }
 
-export function getTimeSeriesDataContent(newContent: string | undefined, oldContent?: string) {
+export function getTimeSeriesDataContent(newContent = '', oldContent = '') {
   return (
     <div className="gene-history-event-content">
       <DiffViewer new={newContent} old={oldContent} type={'merged'} />
