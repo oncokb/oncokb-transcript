@@ -15,12 +15,14 @@ import { IDrug } from 'app/shared/model/drug.model';
 import { GREY } from 'app/config/colors';
 import { FlattenedHistory, isBetweenDates } from 'app/shared/util/firebase/firebase-history-utils';
 import _ from 'lodash';
+import { compareMutationsDefault } from 'app/shared/util/firebase/firebase-utils';
 
 export interface ICurationHistoryTabProps extends StoreProps {
   historyData: FlattenedHistory[];
 }
 
-const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabStore, getDrugs }: ICurationHistoryTabProps) => {
+const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabStore, getDrugs, mutations }: ICurationHistoryTabProps) => {
+  const [mutationInput, setMutationInput] = useState('');
   const [drugList, setDrugList] = useState<IDrug[]>([]);
 
   const parsedHistoryData = useMemo(() => {
@@ -34,12 +36,13 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
   }, [historyData]);
 
   const authorDropdownOptions = useMemo(() => {
-    const options = [];
+    const options: { label: string; value: string }[] = [];
     if (users) {
       for (const user of users) {
         options.push({ value: user.email, label: `${user.firstName} ${user.lastName}` });
       }
     }
+    options.sort((a, b) => a.label.localeCompare(b.label));
     return options;
   }, [users]);
 
@@ -49,6 +52,35 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
       historyTabStore.reset();
     };
   }, []);
+
+  const alterations = useMemo(() => {
+    const alts = new Set<string>();
+
+    const mutationList = mutations ? [...mutations] : [];
+    mutationList.sort(compareMutationsDefault);
+    for (const mutation of mutationList) {
+      for (const alteration of mutation.alterations || []) {
+        alts.add(alteration.alteration);
+      }
+      mutation.name.split(',').forEach(alt => alts.add(alt.trim()));
+    }
+    return alts;
+  }, [mutations]);
+
+  const mutationOptions = useMemo(() => {
+    const options: { label: string; value: string }[] = [];
+
+    const searchedMutation = mutationInput.trim().toLowerCase();
+    let searchedMutationExists = false;
+    for (const alt of alterations) {
+      if (alt.toLowerCase() === searchedMutation) {
+        searchedMutationExists = true;
+      }
+      options.push({ label: alt, value: alt });
+    }
+
+    return !mutationInput || searchedMutationExists ? options : [{ label: mutationInput, value: mutationInput }, ...options];
+  }, [alterations, mutationInput]);
 
   useEffect(() => {
     async function fetchAllDrugs() {
@@ -62,17 +94,26 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
   function getHistoryContent(historyTabData: FlattenedHistory[], maxLength: number = null) {
     const filteredData = historyTabData.filter(data => {
       const author = historyTabStore.appliedAuthor;
+      const mutation = historyTabStore.appliedMutation;
       const startDate = historyTabStore.appliedStartDate && new Date(historyTabStore.appliedStartDate);
       const endDate = historyTabStore.appliedEndDate && new Date(historyTabStore.appliedEndDate);
 
       let matchesAuthor = false;
+      let matchesMutation = false;
       let matchesDates = false;
       const timeStamp = new Date(data.timeStamp);
       if (!author || author.label === data.admin || author.label === data.lastEditBy) {
         matchesAuthor = true;
       }
+      if (
+        !mutation ||
+        data.location.toLowerCase().includes(mutation.label.toLowerCase()) ||
+        data.info?.mutation?.name.toLowerCase().includes(mutation.label.toLowerCase())
+      ) {
+        matchesMutation = true;
+      }
       matchesDates = isBetweenDates(timeStamp, startDate, endDate);
-      return matchesAuthor && matchesDates;
+      return matchesAuthor && matchesMutation && matchesDates;
     });
 
     // CONSTRUCT TIME SERIES DATA
@@ -154,6 +195,8 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
         <ReactSelect
           value={historyTabStore.selectedAuthor}
           id="author"
+          isClearable
+          backspaceRemovesValue
           defaultValue={historyTabStore.appliedAuthor}
           onChange={selection => historyTabStore.setSelectedAuthor(selection)}
           styles={{
@@ -163,6 +206,25 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
             }),
           }}
           options={authorDropdownOptions}
+        />
+      </div>
+      <div className="mb-3">
+        <Label for="mutation">Mutation</Label>
+        <ReactSelect
+          value={historyTabStore.selectedMutation}
+          id="mutation"
+          isClearable
+          backspaceRemovesValue
+          defaultValue={historyTabStore.appliedMutation}
+          onInputChange={setMutationInput}
+          onChange={selection => historyTabStore.setSelectedMutation(selection)}
+          styles={{
+            container: containerStyles => ({
+              ...containerStyles,
+              width: '100%',
+            }),
+          }}
+          options={mutationOptions}
         />
       </div>
       <div className={`d-flex justify-content-${historyTabStore.isFiltered ? 'between' : 'end'}`}>
@@ -188,11 +250,12 @@ const CurationHistoryTab = observer(({ historyData, getUsers, users, historyTabS
   );
 });
 
-const mapStoreToProps = ({ historyTabStore, drugStore, userStore }: IRootStore) => ({
+const mapStoreToProps = ({ historyTabStore, drugStore, userStore, firebaseMutationListStore }: IRootStore) => ({
   users: userStore.entities,
   getUsers: userStore.getEntities,
   getDrugs: drugStore.getEntities,
   historyTabStore,
+  mutations: firebaseMutationListStore.data,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
