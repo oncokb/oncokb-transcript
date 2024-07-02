@@ -18,6 +18,7 @@ import { IDrug } from 'app/shared/model/drug.model';
 import React from 'react';
 import { makeFirebaseKeysReadable } from './firebase-history-utils';
 import { ICancerType } from 'app/shared/model/cancer-type.model';
+import { TumorForm } from 'app/shared/model/enumerations/tumor-form.model';
 
 export interface ReviewChildren {
   [key: string]: BaseReviewLevel;
@@ -642,7 +643,7 @@ export const buildCancerTypeNameReview = (
         subtype: null,
         tissue: null,
         level: 0,
-        tumorForm: undefined,
+        tumorForm: TumorForm.MIXED,
         children: null,
         synonyms: [],
         parent: null,

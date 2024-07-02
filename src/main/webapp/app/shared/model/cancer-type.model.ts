@@ -10,7 +10,7 @@ export interface ICancerType {
   mainType: string;
   subtype: string | null;
   tissue: string | null;
-  tumorForm: TumorForm | undefined;
+  tumorForm: TumorForm;
   children: ICancerType[] | null;
   synonyms: ISynonym[] | null;
   parent: ICancerType | null;
