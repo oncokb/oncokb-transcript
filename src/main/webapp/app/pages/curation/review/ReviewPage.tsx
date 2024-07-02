@@ -177,7 +177,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
         </>
       )}
       {rootReview ? (
-        <Row>
+        <Row data-testid="root-review">
           <Col>
             <ReviewCollapsible
               hugoSymbol={hugoSymbol}
