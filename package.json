@@ -86,6 +86,8 @@
     "@sentry/react": "^7.112.2",
     "@sentry/webpack-plugin": "^2.17.0",
     "@superwf/mobx-react-router": "^7.4.0",
+    "ag-grid-community": "^32.0.0",
+    "ag-grid-react": "^32.0.0",
     "availity-reactstrap-validation": "^2.7.1",
     "axios": "1.6.8",
     "bootstrap": "5.3.3",

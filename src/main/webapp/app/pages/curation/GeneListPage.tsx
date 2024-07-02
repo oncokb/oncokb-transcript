@@ -16,6 +16,8 @@ import CurationDataValidationTab from 'app/components/tabs/CurationDataValidatio
 import { FB_COLLECTION } from 'app/config/constants/firebase';
 import ReviewHistoryTab from 'app/components/tabs/ReviewHistoryTab';
 import SomaticGermlineToggleButton from './button/SomaticGermlineToggleButton';
+import { OncoKBGrid } from 'app/shared/table/OncoKBGrid';
+import { ColDef, ColGroupDef, ColumnState, ICellRendererParams } from 'ag-grid-community';
 
 const getCurationPageLink = (hugoSymbol: string, isGermline: boolean) => {
   return generatePath(isGermline ? PAGE_ROUTE.CURATION_GENE_GERMLINE : PAGE_ROUTE.CURATION_GENE_SOMATIC, { hugoSymbol });
@@ -88,6 +90,37 @@ const GeneListPage = (props: IGeneListPage) => {
       },
     },
   ];
+  const columDefs: (ColDef<GeneMetaInfo> | ColGroupDef<GeneMetaInfo>)[] = [
+    {
+      field: 'hugoSymbol',
+      headerName: 'Hugo Symbol',
+      flex: 1,
+      cellRenderer: (params: ICellRendererParams) => <Link to={getCurationPageLink(params.value, isGermline)}>{params.value}</Link>,
+    },
+    {
+      field: 'lastModifiedAt',
+      headerName: 'Last modified at',
+      flex: 1,
+      cellRenderer: (params: ICellRendererParams) =>
+        params.value ? <TextFormat value={new Date(parseInt(params.value, 10))} type="date" format={APP_DATETIME_FORMAT} /> : '',
+      filter: 'agDateColumnFilter',
+    },
+    {
+      field: 'lastModifiedBy',
+      headerName: 'Last modified by',
+      flex: 1,
+      filter: 'agTextColumnFilter',
+      filterParams: {
+        values: geneMeta?.map(meta => meta.lastModifiedBy) || [], // Provide the list of values
+      },
+    },
+    {
+      field: 'needsReview',
+      headerName: 'Needs to be Reviewed',
+      flex: 1,
+      cellRenderer: (params: ICellRendererParams) => (params.value ? 'Yes' : 'No'),
+    },
+  ];
 
   const sidebarTabs = useMemo(() => {
     const tabs = [
@@ -136,6 +169,21 @@ const GeneListPage = (props: IGeneListPage) => {
                         desc: true,
                       },
                     ]}
+                  />
+                </Col>
+              </Row>
+              <Row className="mt-4">
+                <Col>
+                  <OncoKBGrid
+                    rowData={geneMeta}
+                    columnDefs={columDefs}
+                    onGridReady={params => {
+                      const defaultSortModel: ColumnState[] = [
+                        { colId: 'needsReview', sort: 'desc', sortIndex: 0 },
+                        { colId: 'lastModifiedAt', sort: 'asc', sortIndex: 1 },
+                      ];
+                      params.api.applyColumnState({ state: defaultSortModel });
+                    }}
                   />
                 </Col>
               </Row>
