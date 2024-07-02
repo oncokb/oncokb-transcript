@@ -111,7 +111,7 @@ module.exports = async options => {
             DOCKER: options.DOCKER,
           },
           Date: options.DOCKER
-            ? `(function() {
+            ? `((function() {
             const OriginalDate = Date;
             function CustomDate(...args) {
               if (args.length === 0) {
@@ -124,7 +124,7 @@ module.exports = async options => {
               return new OriginalDate(${DEFAULT_DATE}).getTime();
             };
             return CustomDate;
-          })()`
+          })())`
             : 'Date',
         }),
         new webpack.DefinePlugin({
