@@ -241,9 +241,9 @@ const ModifyTherapyModalContent = observer(
                   uuid: generateUuid(),
                   name: therapy.ncit?.preferredName ?? '',
                   nciThesaurus: parseNcitUniqId(therapy.value),
-                  associations: [],
-                  fdaDrugs: [],
-                  flags: [],
+                  associations: null,
+                  fdaDrugs: null,
+                  flags: null,
                 }));
               return accumulator.concat(drugs);
             }, []) ?? [];

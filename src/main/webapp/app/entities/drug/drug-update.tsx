@@ -25,7 +25,7 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
           id: props.drugEntity?.nciThesaurus?.id,
           code: props.drugEntity?.nciThesaurus?.code,
           version: '',
-          synonyms: [],
+          synonyms: null,
           displayName: null,
           preferredName: null,
         }
@@ -63,7 +63,7 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
           id: drugEntity.nciThesaurus.id,
           code: drugEntity.nciThesaurus.code,
           version: '',
-          synonyms: [],
+          synonyms: null,
           displayName: null,
           preferredName: null,
         }

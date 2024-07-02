@@ -24,7 +24,7 @@ export const parseNcitUniqId = (ncitId: string): INciThesaurus | null => {
       code: parts[1],
       preferredName: null,
       version: '',
-      synonyms: [],
+      synonyms: null,
       displayName: null,
     };
   } else {
