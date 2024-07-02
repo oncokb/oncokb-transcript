@@ -64,9 +64,6 @@ export const getTreatmentName = (drugs: IDrug[], rule?: IRule): string | undefin
     return drugs.map(drug => drug.name).join(', ');
   } else {
     const drugMap = drugs.reduce((map, next) => {
-      if (!next.id) {
-        throw new Error('next.id is missing');
-      }
       map[next.id.toString()] = next;
       return map;
     }, {});

@@ -47,9 +47,9 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
       ...fdaSubmissionEntity,
       ...values,
       companionDiagnosticDevice: companionDiagnosticDevices.find(
-        it => it.id?.toString() === values.companionDiagnosticDeviceId.value.toString(),
+        it => it.id.toString() === values.companionDiagnosticDeviceId.value.toString(),
       ),
-      type: fdaSubmissionTypes.find(it => it.id?.toString() === values.typeId.value.toString()),
+      type: fdaSubmissionTypes.find(it => it.id.toString() === values.typeId.value.toString()),
       id: isNew ? null : props.match.params.id,
     };
 

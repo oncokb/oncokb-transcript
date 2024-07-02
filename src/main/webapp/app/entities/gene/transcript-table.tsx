@@ -88,7 +88,7 @@ export const TranscriptTable = (props: IGeneTranscriptsProps) => {
           <div>
             <input
               type={'checkbox'}
-              checked={!!cell.original.id && props.selectedTranscriptIds.includes(cell.original.id)}
+              checked={props.selectedTranscriptIds.includes(cell.original.id)}
               disabled={props.disableTranscriptAlignment}
               onChange={() => props.onToggleTranscript(cell.original)}
             />{' '}

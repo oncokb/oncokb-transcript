@@ -43,7 +43,7 @@ export const SequenceUpdate = (props: ISequenceUpdateProps) => {
     const entity = {
       ...sequenceEntity,
       ...values,
-      transcript: transcripts.find(it => it.id?.toString() === values.transcriptId.toString()),
+      transcript: transcripts.find(it => it.id.toString() === values.transcriptId.toString()),
     };
 
     if (isNew) {

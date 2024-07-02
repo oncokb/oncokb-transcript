@@ -62,13 +62,13 @@ export const CompanionDiagnosticDevice = (props: ICompanionDiagnosticDeviceProps
     {
       accessor: 'name',
       Header: 'Device Name',
-      onFilter: (data: ICompanionDiagnosticDevice, keyword) => (data.name ? filterByKeyword(data.name, keyword) : false),
+      onFilter: (data: ICompanionDiagnosticDevice, keyword) => filterByKeyword(data.name, keyword),
       minWidth: 200,
     },
     {
       accessor: 'manufacturer',
       Header: 'Manufacturer',
-      onFilter: (data: ICompanionDiagnosticDevice, keyword) => (data.manufacturer ? filterByKeyword(data.manufacturer, keyword) : false),
+      onFilter: (data: ICompanionDiagnosticDevice, keyword) => filterByKeyword(data.manufacturer, keyword),
       minWidth: 150,
     },
     {

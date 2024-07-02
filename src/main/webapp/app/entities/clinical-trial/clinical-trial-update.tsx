@@ -59,7 +59,7 @@ export const ClinicalTrialUpdate = (props: IClinicalTrialUpdateProps) => {
       ? {}
       : {
           ...clinicalTrialEntity,
-          associations: clinicalTrialEntity?.associations?.map(e => e.id?.toString()),
+          associations: clinicalTrialEntity?.associations?.map(e => e.id.toString()),
         };
 
   return (

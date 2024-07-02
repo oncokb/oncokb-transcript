@@ -47,7 +47,7 @@ export const ClinicalTrialArmUpdate = (props: IClinicalTrialArmUpdateProps) => {
       ...clinicalTrialArmEntity,
       ...values,
       associations: mapIdList(values.associations),
-      clinicalTrial: clinicalTrials.find(it => it.id?.toString() === values.clinicalTrialId.toString()),
+      clinicalTrial: clinicalTrials.find(it => it.id.toString() === values.clinicalTrialId.toString()),
     };
 
     if (isNew) {
@@ -62,8 +62,8 @@ export const ClinicalTrialArmUpdate = (props: IClinicalTrialArmUpdateProps) => {
       ? {}
       : {
           ...clinicalTrialArmEntity,
-          associations: clinicalTrialArmEntity?.associations?.map(e => e.id?.toString()),
-          clinicalTrialId: clinicalTrialArmEntity?.clinicalTrial?.id,
+          associations: clinicalTrialArmEntity.associations?.map(e => e.id.toString()),
+          clinicalTrialId: clinicalTrialArmEntity.clinicalTrial?.id,
         };
 
   return (

@@ -37,12 +37,12 @@ export const GenomicIndicator = (props: IGenomicIndicatorProps) => {
     {
       accessor: 'uuid',
       Header: 'UUID',
-      onFilter: (data: IGenomicIndicator, keyword) => (data.uuid ? filterByKeyword(data.uuid, keyword) : false),
+      onFilter: (data: IGenomicIndicator, keyword) => filterByKeyword(data.uuid, keyword),
     },
     {
       accessor: 'name',
       Header: 'Name',
-      onFilter: (data: IGenomicIndicator, keyword) => (data.name ? filterByKeyword(data.name, keyword) : false),
+      onFilter: (data: IGenomicIndicator, keyword) => filterByKeyword(data.name, keyword),
     },
     {
       Header: 'Associated Allele States',

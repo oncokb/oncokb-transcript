@@ -51,10 +51,10 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
       label: 'Cancer Type Detailed',
       options: _.sortBy(_.uniq(getAllSubtypes(cancerTypeList)), 'name').map((cancerType): CancerTypeSelectOption => {
         return {
-          value: cancerType.id ?? 0,
+          value: cancerType.id,
           label: getCancerTypeName(cancerType) ?? '',
           code: cancerType.code ?? '',
-          mainType: cancerType.mainType ?? '',
+          mainType: cancerType.mainType,
           subtype: cancerType.subtype ?? '',
         };
       }),

@@ -65,8 +65,8 @@ const DrugSelect = <IsMulti extends boolean>(props: IDrugSelectProps<IsMulti>) =
   function Option(optionProps: OptionProps<DrugSelectOption>) {
     const title = optionProps.data.label;
     const synonyms = optionProps.data.synonyms;
-    synonyms?.sort((synonym1, synonym2) => (synonym1.name?.length ?? 0) - (synonym2.name?.length ?? 0));
-    const matchingSynonyms = synonyms?.filter(synonym => synonym.name?.toLowerCase().includes(input.trim().toLowerCase()));
+    synonyms?.sort((synonym1, synonym2) => synonym1.name.length - synonym2.name.length);
+    const matchingSynonyms = synonyms?.filter(synonym => synonym.name.toLowerCase().includes(input.trim().toLowerCase()));
     const matchingSynonymNames: string[] = [];
     if (matchingSynonyms) {
       for (const synonym of matchingSynonyms) {

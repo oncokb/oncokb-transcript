@@ -25,13 +25,11 @@ const AlterationSelect = (props: IAlterationSelectProps) => {
       let options: AlterationSelectOption[] = [];
       if (id) {
         const alterations: IAlteration[] = await flowResult(getAlterationsByGeneId({ geneId: parseInt(id, 10) }));
-        alterations?.sort((a: IAlteration, b: IAlteration) =>
-          (a?.name ?? '') > (b?.name ?? '') ? 1 : (b?.name ?? '') > (a?.name ?? '') ? -1 : 0,
-        );
+        alterations?.sort((a: IAlteration, b: IAlteration) => (a.name > b.name ? 1 : b.name > a.name ? -1 : 0));
         options = alterations?.map(
           (alteration: IAlteration): AlterationSelectOption => ({
-            value: alteration.id ?? 0,
-            label: alteration.name ?? '',
+            value: alteration.id,
+            label: alteration.name,
           }),
         );
         setAlterationList(options);

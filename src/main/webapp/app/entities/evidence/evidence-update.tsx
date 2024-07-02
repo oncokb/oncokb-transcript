@@ -47,7 +47,7 @@ export const EvidenceUpdate = (props: IEvidenceUpdateProps) => {
       ...evidenceEntity,
       ...values,
       levelOfEvidences: mapIdList(values.levelOfEvidences),
-      association: associations.find(it => it.id?.toString() === values.associationId.toString()),
+      association: associations.find(it => it.id.toString() === values.associationId.toString()),
     };
 
     if (isNew) {
@@ -63,7 +63,7 @@ export const EvidenceUpdate = (props: IEvidenceUpdateProps) => {
       : {
           ...evidenceEntity,
           associationId: evidenceEntity?.association?.id,
-          levelOfEvidences: evidenceEntity?.levelOfEvidences?.map(e => e.id?.toString()),
+          levelOfEvidences: evidenceEntity?.levelOfEvidences?.map(e => e.id.toString()),
         };
 
   return (

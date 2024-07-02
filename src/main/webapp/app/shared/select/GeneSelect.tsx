@@ -42,9 +42,9 @@ const GeneSelect = <IsMulti extends boolean>(props: IGeneSelectProps<IsMulti>) =
     options =
       result?.data?.map(
         (entity: IGene): GeneSelectOption => ({
-          value: entity.id ?? -1,
+          value: entity.id,
           synonyms: entity.synonyms ?? [],
-          label: entity.hugoSymbol ?? '',
+          label: entity.hugoSymbol,
         }),
       ) ?? [];
 

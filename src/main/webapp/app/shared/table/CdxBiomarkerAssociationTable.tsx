@@ -42,16 +42,14 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
     (props.fdaSubmissions || []).forEach(fdaSubmission => {
       fdaSubmission.associations?.forEach(association => {
         const assCopy = _.cloneDeep(association);
-        if (assCopy.id !== undefined) {
-          const assExists = assCopy.id in associations;
-          if (!assExists) {
-            if (assCopy.fdaSubmissions === undefined) {
-              assCopy.fdaSubmissions = [];
-            }
-            associations[assCopy.id] = assCopy;
+        const assExists = assCopy.id in associations;
+        if (!assExists) {
+          if (assCopy.fdaSubmissions === undefined) {
+            assCopy.fdaSubmissions = [];
           }
-          associations[assCopy.id].fdaSubmissions?.push(fdaSubmission);
+          associations[assCopy.id] = assCopy;
         }
+        associations[assCopy.id].fdaSubmissions?.push(fdaSubmission);
       });
     });
     return Object.values(associations);
@@ -112,7 +110,7 @@ export const CdxBiomarkerAssociationTable: React.FunctionComponent<CdxBiomarkerA
               size="sm"
               onClick={() => {
                 setShowModal(true);
-                setCurrentBiomarkerAssociationId(cell.original.id ?? null);
+                setCurrentBiomarkerAssociationId(cell.original.id);
               }}
             >
               <FontAwesomeIcon icon={faTrashAlt} />

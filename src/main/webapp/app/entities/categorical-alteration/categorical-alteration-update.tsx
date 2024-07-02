@@ -61,7 +61,7 @@ export const CategoricalAlterationUpdate = (props: ICategoricalAlterationUpdateP
       ? {}
       : {
           ...categoricalAlterationEntity,
-          alterationType: categoricalAlterationEntity.alterationType ?? 'PROTEIN_CHANGE',
+          alterationType: categoricalAlterationEntity.alterationType,
           consequence: categoricalAlterationEntity.consequence
             ? {
                 label: categoricalAlterationEntity?.consequence.term,

@@ -70,10 +70,10 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
         }
       : {
           ...articleEntity,
-          type: articleEntity.type ?? 'PUBMED',
+          type: articleEntity.type,
           date: convertDateTimeFromServer(articleEntity.date),
-          flags: articleEntity?.flags?.map(e => e.id?.toString()),
-          synonyms: articleEntity?.synonyms?.map(e => e.id?.toString()),
+          flags: articleEntity?.flags?.map(e => e.id.toString()),
+          synonyms: articleEntity?.synonyms?.map(e => e.id.toString()),
         };
 
   return (

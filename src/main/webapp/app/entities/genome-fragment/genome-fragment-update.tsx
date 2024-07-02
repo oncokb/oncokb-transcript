@@ -45,8 +45,8 @@ export const GenomeFragmentUpdate = (props: IGenomeFragmentUpdateProps) => {
     const entity = {
       ...genomeFragmentEntity,
       ...values,
-      seqRegion: seqRegions.find(it => it.id?.toString() === values.seqRegionId.toString()),
-      transcript: transcripts.find(it => it.id?.toString() === values.transcriptId.toString()),
+      seqRegion: seqRegions.find(it => it.id.toString() === values.seqRegionId.toString()),
+      transcript: transcripts.find(it => it.id.toString() === values.transcriptId.toString()),
     };
 
     if (isNew) {
@@ -61,7 +61,7 @@ export const GenomeFragmentUpdate = (props: IGenomeFragmentUpdateProps) => {
       ? {}
       : {
           ...genomeFragmentEntity,
-          type: genomeFragmentEntity.type ?? 'GENE',
+          type: genomeFragmentEntity.type,
           seqRegionId: genomeFragmentEntity?.seqRegion?.id,
           transcriptId: genomeFragmentEntity?.transcript?.id,
         };

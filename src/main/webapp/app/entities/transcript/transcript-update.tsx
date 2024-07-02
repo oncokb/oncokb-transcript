@@ -54,9 +54,9 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
       ...transcriptEntity,
       ...values,
       flags: mapIdList(values.flags),
-      ensemblGene: ensemblGenes.find(it => it.id?.toString() === values.ensemblGeneId.toString()),
+      ensemblGene: ensemblGenes.find(it => it.id.toString() === values.ensemblGeneId.toString()),
       // TYPE-ISSUE: Is selectedGeneId a number or a string?
-      gene: genes.find(it => it.id?.toString() === selectedGeneId?.toString()),
+      gene: genes.find(it => it.id.toString() === selectedGeneId?.toString()),
     };
 
     if (isNew) {
@@ -72,7 +72,7 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
       : {
           ...transcriptEntity,
           referenceGenome: transcriptEntity.referenceGenome ?? 'GRCh37',
-          flags: transcriptEntity?.flags?.map(e => e.id?.toString()),
+          flags: transcriptEntity?.flags?.map(e => e.id.toString()),
           ensemblGeneId: transcriptEntity?.ensemblGene?.id,
           geneId: transcriptEntity?.gene?.id,
         };
@@ -155,7 +155,7 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
                 }}
                 className={'mb-3'}
                 defaultValue={
-                  props.transcriptEntity?.gene && props.transcriptEntity.gene.id && props.transcriptEntity.gene.hugoSymbol
+                  props.transcriptEntity?.gene
                     ? {
                         value: props.transcriptEntity.gene.id,
                         label: props.transcriptEntity.gene.hugoSymbol,

@@ -32,8 +32,8 @@ export const SearchOption: React.FunctionComponent<SearchOptionProps> = props =>
       case SearchOptionType.CDX: {
         const data: ICompanionDiagnosticDevice = props.data;
         path = PAGE_ROUTE.COMPANION_DIAGNOSTIC_DEVICE + path;
-        title = { text: data.name ?? '', searchWords: [searchKeyword] };
-        subTitles = [{ label: 'Manufactured by ', text: data.manufacturer ?? '', searchWords: [searchKeyword] }];
+        title = { text: data.name, searchWords: [searchKeyword] };
+        subTitles = [{ label: 'Manufactured by ', text: data.manufacturer, searchWords: [searchKeyword] }];
         break;
       }
       case SearchOptionType.ARTICLE: {
@@ -45,7 +45,7 @@ export const SearchOption: React.FunctionComponent<SearchOptionProps> = props =>
       case SearchOptionType.DRUG: {
         const data: IDrug = props.data;
         path = PAGE_ROUTE.DRUG + path;
-        title = { text: data.name ?? '', searchWords: [searchKeyword] };
+        title = { text: data.name, searchWords: [searchKeyword] };
         subTitles = [];
         if (data.nciThesaurus?.synonyms) {
           subTitles.push({
@@ -68,7 +68,7 @@ export const SearchOption: React.FunctionComponent<SearchOptionProps> = props =>
       case SearchOptionType.ALTERATION: {
         const data: IAlteration = props.data;
         path = PAGE_ROUTE.ALTERATION + path;
-        title = { text: data.name ?? '', searchWords: [searchKeyword] };
+        title = { text: data.name, searchWords: [searchKeyword] };
         break;
       }
       default:

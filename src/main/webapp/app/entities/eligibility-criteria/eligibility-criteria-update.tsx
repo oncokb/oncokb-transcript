@@ -47,7 +47,7 @@ export const EligibilityCriteriaUpdate = (props: IEligibilityCriteriaUpdateProps
       ...eligibilityCriteriaEntity,
       ...values,
       associations: mapIdList(values.associations ?? []),
-      clinicalTrial: clinicalTrials.find(it => it.id?.toString() === values.clinicalTrialId.toString()),
+      clinicalTrial: clinicalTrials.find(it => it.id.toString() === values.clinicalTrialId.toString()),
     };
 
     if (isNew) {
@@ -62,8 +62,8 @@ export const EligibilityCriteriaUpdate = (props: IEligibilityCriteriaUpdateProps
       ? {}
       : {
           ...eligibilityCriteriaEntity,
-          type: eligibilityCriteriaEntity.type ?? 'INCLUSION',
-          associations: eligibilityCriteriaEntity?.associations?.map(e => e.id?.toString()),
+          type: eligibilityCriteriaEntity.type,
+          associations: eligibilityCriteriaEntity?.associations?.map(e => e.id.toString()),
           clinicalTrialId: eligibilityCriteriaEntity?.clinicalTrial?.id,
         };
 

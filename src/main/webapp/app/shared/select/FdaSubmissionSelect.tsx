@@ -31,7 +31,7 @@ const FdaSubmissionSelect = <IsMulti extends boolean>(props: IFdaSubmissionSelec
         const fdaSubmissions = await flowResult(getFdaSubmissionsByCdx({ cdxId: id }));
         options = fdaSubmissions?.map((fdaSubmission: IFdaSubmission) => ({
           value: fdaSubmission.id,
-          label: getFdaSubmissionNumber(fdaSubmission.number ?? '', fdaSubmission.supplementNumber),
+          label: getFdaSubmissionNumber(fdaSubmission.number, fdaSubmission.supplementNumber),
         }));
         setFdaSubmissionList(options);
       }

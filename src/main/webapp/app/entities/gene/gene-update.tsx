@@ -47,7 +47,7 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
       ? {}
       : {
           ...geneEntity,
-          flags: geneEntity?.flags?.map(e => e.id?.toString()),
+          flags: geneEntity?.flags?.map(e => e.id.toString()),
         };
 
   return (

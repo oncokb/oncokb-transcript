@@ -49,7 +49,7 @@ export const GeneDetail = (props: IGeneDetailProps) => {
   }, [props.geneEntity.id]);
 
   const onToggleTranscript = (transcript: ITranscript) => {
-    if (transcript.id && transcript.id in selectedTranscripts) {
+    if (transcript.id in selectedTranscripts) {
       delete selectedTranscripts[transcript.id];
       setSelectedTranscriptIds(selectedTranscriptIds.filter(id => id !== transcript.id));
     } else if (transcript.id) {

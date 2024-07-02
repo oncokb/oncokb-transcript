@@ -62,7 +62,7 @@ export const NciThesaurusUpdate = (props: INciThesaurusUpdateProps) => {
       ? {}
       : {
           ...nciThesaurusEntity,
-          synonyms: nciThesaurusEntity?.synonyms?.map(e => e.id?.toString()),
+          synonyms: nciThesaurusEntity?.synonyms?.map(e => e.id.toString()),
         };
 
   return (

@@ -20,17 +20,17 @@ export const CategoricalAlteration = (props: ICategoricalAlterationProps) => {
     {
       accessor: 'alterationType',
       Header: 'Alteration Type',
-      onFilter: (data: ICategoricalAlteration, keyword) => (data.alterationType ? filterByKeyword(data.alterationType, keyword) : false),
+      onFilter: (data: ICategoricalAlteration, keyword) => filterByKeyword(data.alterationType, keyword),
     },
     {
       accessor: 'type',
       Header: 'Type',
-      onFilter: (data: ICategoricalAlteration, keyword) => (data.type ? filterByKeyword(data.type, keyword) : false),
+      onFilter: (data: ICategoricalAlteration, keyword) => filterByKeyword(data.type, keyword),
     },
     {
       accessor: 'name',
       Header: 'Name',
-      onFilter: (data: ICategoricalAlteration, keyword) => (data.name ? filterByKeyword(data.name, keyword) : false),
+      onFilter: (data: ICategoricalAlteration, keyword) => filterByKeyword(data.name, keyword),
     },
     {
       accessor: 'consequence.term',

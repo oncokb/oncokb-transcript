@@ -77,7 +77,7 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
       ? {}
       : {
           ...companionDiagnosticDeviceEntity,
-          specimenTypes: companionDiagnosticDeviceEntity?.specimenTypes?.map(e => ({ label: e.type, value: e.id?.toString() })),
+          specimenTypes: companionDiagnosticDeviceEntity?.specimenTypes?.map(e => ({ label: e.type, value: e.id.toString() })),
           lastUpdated: companionDiagnosticDeviceEntity?.lastUpdated
             ? convertDateTimeFromServer(companionDiagnosticDeviceEntity?.lastUpdated)
             : null,

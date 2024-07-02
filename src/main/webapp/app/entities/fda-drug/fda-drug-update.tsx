@@ -42,7 +42,7 @@ export const FdaDrugUpdate = (props: IFdaDrugUpdateProps) => {
     const entity = {
       ...fdaDrugEntity,
       ...values,
-      drug: drugs.find(it => it.id?.toString() === values.drugId.toString()),
+      drug: drugs.find(it => it.id.toString() === values.drugId.toString()),
     };
 
     if (isNew) {

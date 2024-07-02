@@ -81,7 +81,7 @@ function AddMutationModal({
     AlterationTypeEnum.Any,
   ].map(type => ({ label: READABLE_ALTERATION[type], value: type }));
   const consequenceOptions: DropdownOption[] =
-    consequences?.map((consequence): DropdownOption => ({ label: consequence.name ?? '', value: consequence.id })) ?? [];
+    consequences?.map((consequence): DropdownOption => ({ label: consequence.name, value: consequence.id })) ?? [];
 
   const [inputValue, setInputValue] = useState('');
   const [tabStates, setTabStates] = useState<AlterationData[]>([]);

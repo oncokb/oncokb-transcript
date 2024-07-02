@@ -54,7 +54,7 @@ export const FdaSubmissionTypeUpdate = (props: IFdaSubmissionTypeUpdateProps) =>
       ? {}
       : {
           ...fdaSubmissionTypeEntity,
-          type: fdaSubmissionTypeEntity.type ?? 'DEVICE_PMA',
+          type: fdaSubmissionTypeEntity.type,
         };
 
   return (

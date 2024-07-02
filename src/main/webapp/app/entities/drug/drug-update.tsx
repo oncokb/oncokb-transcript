@@ -96,7 +96,7 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
       : {
           ...drugEntity,
           nciThesaurusId: drugEntity?.nciThesaurus?.id,
-          flags: drugEntity?.flags?.map(e => e.id?.toString()),
+          flags: drugEntity?.flags?.map(e => e.id.toString()),
         };
 
   return (

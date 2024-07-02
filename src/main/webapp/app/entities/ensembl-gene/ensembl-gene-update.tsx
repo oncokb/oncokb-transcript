@@ -49,7 +49,7 @@ export const EnsemblGeneUpdate = (props: IEnsemblGeneUpdateProps) => {
       gene: {
         id: selectedGeneId,
       },
-      seqRegion: seqRegions.find(it => it.id?.toString() === values.seqRegionId.toString()),
+      seqRegion: seqRegions.find(it => it.id.toString() === values.seqRegionId.toString()),
     };
 
     if (isNew) {

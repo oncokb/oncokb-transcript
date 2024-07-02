@@ -47,7 +47,7 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
       ...cancerTypeEntity,
       ...values,
       synonyms: mapIdList(values.synonyms),
-      parent: cancerTypes.find(it => it.id?.toString() === values.parentId.toString()),
+      parent: cancerTypes.find(it => it.id.toString() === values.parentId.toString()),
     };
 
     if (isNew) {
@@ -63,7 +63,7 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
       : {
           ...cancerTypeEntity,
           tumorForm: cancerTypeEntity.tumorForm ?? 'SOLID',
-          synonyms: cancerTypeEntity?.synonyms?.map(e => e.id?.toString()),
+          synonyms: cancerTypeEntity?.synonyms?.map(e => e.id.toString()),
           parentId: cancerTypeEntity?.parent?.id,
         };
 

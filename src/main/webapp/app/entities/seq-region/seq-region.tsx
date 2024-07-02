@@ -20,7 +20,7 @@ export const SeqRegion = (props: ISeqRegionProps) => {
     {
       accessor: 'name',
       Header: 'Name',
-      onFilter: (data: ISeqRegion, keyword) => (data.name ? filterByKeyword(data.name, keyword) : false),
+      onFilter: (data: ISeqRegion, keyword) => filterByKeyword(data.name, keyword),
     },
     {
       accessor: 'chromosome',
