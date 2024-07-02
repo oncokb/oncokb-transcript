@@ -20,7 +20,7 @@ export interface IModifyTherapyModalProps extends StoreProps {
   treatmentToEditPath?: string;
   drugList: readonly IDrug[];
   cancerTypePath: string;
-  onConfirm: (newTreatment: Treatment, newDrugs: IDrug[]) => Promise<void>;
+  onConfirm: (newTreatment: Treatment, newDrugs: Omit<IDrug, 'id'>[]) => Promise<void>;
   onCancel: () => void | undefined;
 }
 
@@ -233,14 +233,17 @@ const ModifyTherapyModalContent = observer(
         title={treatmentUuid.startsWith('new_treatment_for') ? 'Add Therapy(s)' : 'Modify Therapy(s)'}
         show={true}
         onConfirm={async () => {
-          const newDrugs: IDrug[] =
-            modifyTherapyModalStore?.selectedTreatments.reduce((accumulator: IDrug[], currentTreatment) => {
+          const newDrugs: Omit<IDrug, 'id'>[] =
+            modifyTherapyModalStore?.selectedTreatments.reduce((accumulator: Omit<IDrug, 'id'>[], currentTreatment) => {
               const drugs = currentTreatment
                 .filter(therapy => therapy.ncit && !accumulator.some(treatment => treatment.nciThesaurus?.id === therapy.ncit?.id))
-                .map<IDrug>(therapy => ({
+                .map<Omit<IDrug, 'id'>>(therapy => ({
                   uuid: generateUuid(),
                   name: therapy.ncit?.preferredName ?? '',
                   nciThesaurus: parseNcitUniqId(therapy.value),
+                  associations: null,
+                  fdaDrugs: null,
+                  flags: null,
                 }));
               return accumulator.concat(drugs);
             }, []) ?? [];

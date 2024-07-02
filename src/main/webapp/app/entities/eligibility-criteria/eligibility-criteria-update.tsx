@@ -61,8 +61,8 @@ export const EligibilityCriteriaUpdate = (props: IEligibilityCriteriaUpdateProps
     isNew
       ? {}
       : {
-          type: 'INCLUSION',
           ...eligibilityCriteriaEntity,
+          type: eligibilityCriteriaEntity.type ?? 'INCLUSION',
           associations: eligibilityCriteriaEntity?.associations?.map(e => e.id?.toString()),
           clinicalTrialId: eligibilityCriteriaEntity?.clinicalTrial?.id,
         };

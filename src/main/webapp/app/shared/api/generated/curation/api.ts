@@ -1034,7 +1034,7 @@ export interface CancerType {
    * @type {string}
    * @memberof CancerType
    */
-  code?: string;
+  code: string;
   /**
    *
    * @type {string}

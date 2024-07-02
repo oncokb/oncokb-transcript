@@ -61,8 +61,8 @@ export const CancerTypeUpdate = (props: ICancerTypeUpdateProps) => {
     isNew
       ? {}
       : {
-          tumorForm: 'SOLID',
           ...cancerTypeEntity,
+          tumorForm: cancerTypeEntity.tumorForm ?? 'SOLID',
           synonyms: cancerTypeEntity?.synonyms?.map(e => e.id?.toString()),
           parentId: cancerTypeEntity?.parent?.id,
         };

@@ -12,19 +12,17 @@ import { IGenomicIndicator } from 'app/shared/model/genomic-indicator.model';
 
 // CrudStore cannot use an interface
 export type IAssociation = {
-  id?: number;
-  name?: string | null;
-  rules?: IRule[] | null;
-  alterations?: IAlteration[] | null;
-  articles?: IArticle[] | null;
-  cancerTypes?: ICancerType[] | null;
-  drugs?: IDrug[] | null;
-  evidence?: IEvidence | null;
-  clinicalTrials?: IClinicalTrial[] | null;
-  clinicalTrialArms?: IClinicalTrialArm[] | null;
-  eligibilityCriteria?: IEligibilityCriteria[] | null;
-  fdaSubmissions?: IFdaSubmission[] | null;
-  genomicIndicators?: IGenomicIndicator[] | null;
+  id: number;
+  name: string | null;
+  rules: IRule[] | null;
+  alterations: IAlteration[] | null;
+  articles: IArticle[] | null;
+  cancerTypes: ICancerType[] | null;
+  drugs: IDrug[] | null;
+  evidence: IEvidence | null;
+  clinicalTrials: IClinicalTrial[] | null;
+  clinicalTrialArms: IClinicalTrialArm[] | null;
+  eligibilityCriteria: IEligibilityCriteria[] | null;
+  fdaSubmissions: IFdaSubmission[] | null;
+  genomicIndicators: IGenomicIndicator[] | null;
 };
-
-export const defaultValue: Readonly<IAssociation> = {};

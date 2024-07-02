@@ -3,15 +3,11 @@ import { ICategoricalAlteration } from 'app/shared/model/categorical-alteration.
 
 // CrudStore cannot use interface
 export type IConsequence = {
-  id?: number;
-  term?: string;
-  name?: string;
-  isGenerallyTruncating?: boolean;
-  description?: string | null;
-  alterations?: IAlteration[] | null;
-  categoricalAlterations?: ICategoricalAlteration[] | null;
-};
-
-export const defaultValue: Readonly<IConsequence> = {
-  isGenerallyTruncating: false,
+  id: number;
+  term: string;
+  name: string;
+  isGenerallyTruncating: boolean;
+  description: string | null;
+  alterations: IAlteration[] | null;
+  categoricalAlterations: ICategoricalAlteration[] | null;
 };

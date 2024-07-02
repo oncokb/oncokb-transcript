@@ -41,7 +41,7 @@ export const SynonymUpdate = (props: ISynonymUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = (values: ISynonym) => {
+  const saveEntity = (values: Partial<ISynonym>) => {
     const entity = {
       ...synonymEntity,
       ...values,

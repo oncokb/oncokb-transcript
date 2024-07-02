@@ -16,12 +16,16 @@ const NCIT_UID_SEPARATOR = '-';
 export const getNcitUniqId = (ncit: INciThesaurus) => {
   return `${ncit.id}${NCIT_UID_SEPARATOR}${ncit.code}`;
 };
-export const parseNcitUniqId = (ncitId: string) => {
+export const parseNcitUniqId = (ncitId: string): INciThesaurus | null => {
   const parts = ncitId.split(NCIT_UID_SEPARATOR);
   if (parts.length === 2) {
     return {
       id: Number(parts[0]),
       code: parts[1],
+      preferredName: null,
+      version: '',
+      synonyms: null,
+      displayName: null,
     };
   } else {
     return null;

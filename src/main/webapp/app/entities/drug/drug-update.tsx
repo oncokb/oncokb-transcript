@@ -10,6 +10,7 @@ import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 import NcitCodeSelect, { parseNcitUniqId } from 'app/shared/select/NcitCodeSelect';
 import { mapIdList } from 'app/shared/util/entity-utils';
 import { IDrug } from 'app/shared/model/drug.model';
+import { INciThesaurus } from 'app/shared/model/nci-thesaurus.model';
 
 export interface IDrugUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -18,10 +19,18 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
 
   const flags = props.flags;
   const drugEntity = props.drugEntity;
-  const [selectedNcit, setSelectedNcit] = useState<{ id: number | undefined; code: string | undefined } | null | undefined>({
-    id: props.drugEntity?.nciThesaurus?.id,
-    code: props.drugEntity?.nciThesaurus?.code,
-  });
+  const [selectedNcit, setSelectedNcit] = useState<INciThesaurus | null | undefined>(
+    props.drugEntity?.nciThesaurus
+      ? {
+          id: props.drugEntity?.nciThesaurus?.id,
+          code: props.drugEntity?.nciThesaurus?.code,
+          version: '',
+          synonyms: null,
+          displayName: null,
+          preferredName: null,
+        }
+      : null,
+  );
   const loading = props.loading;
   const updating = props.updating;
   const updateSuccess = props.updateSuccess;
@@ -49,13 +58,20 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
   }, [updateSuccess]);
 
   useEffect(() => {
-    setSelectedNcit({
-      id: drugEntity.nciThesaurus?.id,
-      code: drugEntity.nciThesaurus?.code,
-    });
+    const nciThesaurus: INciThesaurus | null = drugEntity.nciThesaurus
+      ? {
+          id: drugEntity.nciThesaurus.id,
+          code: drugEntity.nciThesaurus.code,
+          version: '',
+          synonyms: null,
+          displayName: null,
+          preferredName: null,
+        }
+      : null;
+    setSelectedNcit(nciThesaurus);
   }, [drugEntity]);
 
-  const saveEntity = (values: IDrug) => {
+  const saveEntity = (values: Partial<IDrug>) => {
     const entity = {
       ...drugEntity,
       ...values,

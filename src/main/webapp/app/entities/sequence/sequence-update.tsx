@@ -57,8 +57,8 @@ export const SequenceUpdate = (props: ISequenceUpdateProps) => {
     isNew
       ? {}
       : {
-          sequenceType: 'PROTEIN',
           ...sequenceEntity,
+          sequenceType: sequenceEntity.sequenceType ?? 'PROTEIN',
           transcriptId: sequenceEntity?.transcript?.id,
         };
 

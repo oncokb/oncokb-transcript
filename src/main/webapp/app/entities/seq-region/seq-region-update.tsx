@@ -35,7 +35,7 @@ export const SeqRegionUpdate = (props: ISeqRegionUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = (values: ISeqRegion) => {
+  const saveEntity = (values: Partial<ISeqRegion>) => {
     const entity = {
       ...seqRegionEntity,
       ...values,

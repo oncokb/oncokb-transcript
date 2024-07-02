@@ -18,6 +18,7 @@ import { IDrug } from 'app/shared/model/drug.model';
 import React from 'react';
 import { makeFirebaseKeysReadable } from './firebase-history-utils';
 import { ICancerType } from 'app/shared/model/cancer-type.model';
+import { TumorForm } from 'app/shared/model/enumerations/tumor-form.model';
 
 export interface ReviewChildren {
   [key: string]: BaseReviewLevel;
@@ -124,11 +125,11 @@ export class ReviewLevel extends BaseReviewLevel {
 }
 
 export type TumorReviewLevelParams = {
-  currentExcludedCancerTypes?: ICancerType[];
+  currentExcludedCancerTypes?: Omit<ICancerType, 'id'>[];
   excludedCancerTypesReviewInfo?: ReviewInfo;
 } & ReviewLevelParams;
 export class TumorReviewLevel extends ReviewLevel {
-  currentExcludedCancerTypes: ICancerType[] | undefined;
+  currentExcludedCancerTypes: Omit<ICancerType, 'id'>[] | undefined;
   excludedCancerTypesReviewInfo: ReviewInfo | undefined;
 
   constructor({ currentExcludedCancerTypes, excludedCancerTypesReviewInfo, ...reviewLevelParams }: TumorReviewLevelParams) {
@@ -636,7 +637,20 @@ export const buildCancerTypeNameReview = (
       oldState,
       newState,
     },
-    currentExcludedCancerTypes: tumor.excludedCancerTypes,
+    currentExcludedCancerTypes: tumor.excludedCancerTypes?.map(
+      (x): Omit<ICancerType, 'id'> => ({
+        color: null,
+        subtype: null,
+        tissue: null,
+        level: 0,
+        tumorForm: TumorForm.MIXED,
+        children: null,
+        synonyms: null,
+        parent: null,
+        associations: null,
+        ...x,
+      }),
+    ),
     excludedCancerTypesReviewInfo: {
       reviewPath: `${excludedCancerTypesPath}_review`,
       review: excludedCTReview!,

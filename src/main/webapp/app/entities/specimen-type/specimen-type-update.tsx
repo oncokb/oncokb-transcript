@@ -38,7 +38,7 @@ export const SpecimenTypeUpdate = (props: ISpecimenTypeUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = (values: ISpecimenType) => {
+  const saveEntity = (values: Partial<ISpecimenType>) => {
     const entity = {
       ...specimenTypeEntity,
       ...values,
