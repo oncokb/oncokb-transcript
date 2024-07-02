@@ -97,9 +97,7 @@ export const ReviewCollapsible = ({
   const [reviewChildren, setReviewChildren] = useState<BaseReviewLevel[]>([]);
 
   useEffect(() => {
-    Object.entries(baseReviewLevel.children ?? {}).forEach(
-      ([key, value]) => (baseReviewLevel.children![key] = getCompactReviewInfo(value)),
-    );
+    Object.entries(baseReviewLevel.children ?? {}).forEach(([key, value]) => (baseReviewLevel.children[key] = getCompactReviewInfo(value)));
     setRootReview(baseReviewLevel);
     setReviewChildren(Object.values(baseReviewLevel.children ?? {}));
   }, [baseReviewLevel]);
