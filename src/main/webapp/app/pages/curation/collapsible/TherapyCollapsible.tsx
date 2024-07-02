@@ -22,12 +22,15 @@ import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import { RemovableCollapsible } from './RemovableCollapsible';
 import TherapyDropdownGroup from './TherapyDropdownGroup';
 import { Unsubscribe } from 'firebase/database';
+import { getLocationIdentifier } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
 
 export interface ITherapyCollapsibleProps extends StoreProps {
   therapyPath: string;
-  parsedHistoryList: Map<string, FlattenedHistory[]>;
+  parsedHistoryList?: Map<string, FlattenedHistory[]>;
   mutationName: string;
+  mutationUuid: string;
   cancerTypeName: string;
+  cancerTypeUuid: string;
   cancerTypePath: string;
   isGermline: boolean;
 }
@@ -36,7 +39,9 @@ function TherapyCollapsible({
   therapyPath,
   parsedHistoryList,
   mutationName,
+  mutationUuid,
   cancerTypeName,
+  cancerTypeUuid,
   cancerTypePath,
   isGermline,
   firebaseDb,
@@ -127,6 +132,12 @@ function TherapyCollapsible({
             <GeneHistoryTooltip
               historyData={parsedHistoryList}
               location={`${mutationName}, ${cancerTypeName}, ${treatmentNameString}, ${READABLE_FIELD.DESCRIPTION}`}
+              locationIdentifier={getLocationIdentifier({
+                mutationUuid,
+                cancerTypesUuid: cancerTypeUuid,
+                treatmentUuid,
+                fields: [READABLE_FIELD.DESCRIPTION],
+              })}
             />
           }
           name="evidenceDescription"
@@ -140,6 +151,12 @@ function TherapyCollapsible({
             <GeneHistoryTooltip
               historyData={parsedHistoryList}
               location={`${mutationName}, ${cancerTypeName}, ${treatmentNameString}, ${READABLE_FIELD.ADDITIONAL_INFORMATION}`}
+              locationIdentifier={getLocationIdentifier({
+                mutationUuid,
+                cancerTypesUuid: cancerTypeUuid,
+                treatmentUuid,
+                fields: [READABLE_FIELD.ADDITIONAL_INFORMATION],
+              })}
             />
           }
           name="additionalEvidenceDescription"

@@ -34,6 +34,7 @@ export const buildHistoryFromReviews = (reviewerName: string, reviewLevels: Revi
       location: reviewLevel.historyLocation,
       operation: historyOperation ?? '',
       uuids: getUuidsFromReview(reviewLevel)?.join(','),
+      info: reviewLevel.historyInfo,
     };
     if (reviewLevel.historyData.newState !== undefined) {
       historyRecord.new = reviewLevel.historyData.newState;

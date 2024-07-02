@@ -8,22 +8,27 @@ import { GREY } from 'app/config/colors';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 
 export interface IGeneHistoryTooltipProps {
-  historyData: Map<string, FlattenedHistory[]> | undefined;
-  location?: string;
+  historyData?: Map<string, FlattenedHistory[]>;
+  location: string; // location using names
+  locationIdentifier: string; // location using uuids
   groupByDay?: boolean;
 }
 
-function GeneHistoryTooltip({ location, historyData }: IGeneHistoryTooltipProps) {
+function GeneHistoryTooltip({ location, locationIdentifier, historyData }: IGeneHistoryTooltipProps) {
   const parsedHistoryData = useMemo(() => {
     if (!historyData) {
       return [];
     }
 
     const parsedData: (RequiredTimeSeriesEventData | ExtraTimeSeriesEventData)[] = [];
-    for (const record of historyData.get(location ?? '') ?? []) {
-      const parsed = constructTimeSeriesData(record);
-      if (parsed !== undefined) {
-        parsedData.push(parsed);
+
+    const locationRecords = historyData.get(location) || [];
+    const locationIdentifierRecords = historyData.get(locationIdentifier) || [];
+
+    for (const record of [...locationRecords, ...locationIdentifierRecords]) {
+      const data = constructTimeSeriesData(record);
+      if (data !== undefined) {
+        parsedData.push(data);
       }
     }
     return parsedData;

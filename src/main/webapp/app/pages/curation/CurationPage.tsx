@@ -27,6 +27,7 @@ import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/load
 import { FlattenedHistory, parseHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
 import { Unsubscribe } from 'firebase/database';
+import { getLocationIdentifier, getTooltipHistoryList } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
@@ -81,16 +82,7 @@ export const CurationPage = (props: ICurationPageProps) => {
       return;
     }
 
-    const newList = new Map<string, FlattenedHistory[]>();
-    for (const historyData of tabHistoryList) {
-      if (!newList.has(historyData.location)) {
-        newList.set(historyData.location, [historyData]);
-      } else {
-        newList.get(historyData.location)?.push(historyData);
-      }
-    }
-
-    return newList;
+    return getTooltipHistoryList(tabHistoryList);
   }, [tabHistoryList]);
 
   return props.firebaseInitSuccess && !props.loadingGenes && props.drugList.length > 0 && !!geneEntity ? (
@@ -110,7 +102,13 @@ export const CurationPage = (props: ICurationPageProps) => {
                 groupHeader={
                   <>
                     <span className="me-2">Gene Type</span>
-                    {<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.GENE_TYPE} />}
+                    {
+                      <GeneHistoryTooltip
+                        historyData={tooltipHistoryList}
+                        location={READABLE_FIELD.GENE_TYPE}
+                        locationIdentifier={getLocationIdentifier({ fields: [READABLE_FIELD.GENE_TYPE] })}
+                      />
+                    }
                   </>
                 }
                 options={[GENE_TYPE.TUMOR_SUPPRESSOR, GENE_TYPE.ONCOGENE].map(label => {
@@ -127,7 +125,13 @@ export const CurationPage = (props: ICurationPageProps) => {
                 name="geneSummary"
                 labelIcon={
                   <GeneRealtimeComponentHeader
-                    tooltip={<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.SUMMARY} />}
+                    tooltip={
+                      <GeneHistoryTooltip
+                        historyData={tooltipHistoryList}
+                        location={READABLE_FIELD.SUMMARY}
+                        locationIdentifier={getLocationIdentifier({ fields: [READABLE_FIELD.SUMMARY] })}
+                      />
+                    }
                     commentIcon={<CommentIcon id={`${hugoSymbol}_gene_summary`} path={`${firebaseGenePath}/summary_comments`} />}
                   />
                 }
@@ -144,7 +148,13 @@ export const CurationPage = (props: ICurationPageProps) => {
                 parseRefs
                 labelIcon={
                   <GeneRealtimeComponentHeader
-                    tooltip={<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.BACKGROUND} />}
+                    tooltip={
+                      <GeneHistoryTooltip
+                        historyData={tooltipHistoryList}
+                        location={READABLE_FIELD.BACKGROUND}
+                        locationIdentifier={getLocationIdentifier({ fields: [READABLE_FIELD.BACKGROUND] })}
+                      />
+                    }
                     commentIcon={<CommentIcon id={`${hugoSymbol}_gene_background`} path={`${firebaseGenePath}/background_comments`} />}
                   />
                 }
@@ -158,7 +168,13 @@ export const CurationPage = (props: ICurationPageProps) => {
                   groupHeader={
                     <GeneRealtimeComponentHeader
                       title="Penetrance"
-                      tooltip={<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.PENETRANCE} />}
+                      tooltip={
+                        <GeneHistoryTooltip
+                          historyData={tooltipHistoryList}
+                          location={READABLE_FIELD.PENETRANCE}
+                          locationIdentifier={getLocationIdentifier({ fields: [READABLE_FIELD.PENETRANCE] })}
+                        />
+                      }
                       commentIcon={<CommentIcon id={`${hugoSymbol}_penetrance`} path={`${firebaseGenePath}/penetrance_comments`} />}
                     />
                   }
@@ -174,7 +190,13 @@ export const CurationPage = (props: ICurationPageProps) => {
                   groupHeader={
                     <GeneRealtimeComponentHeader
                       title="Mechanism of Inheritance"
-                      tooltip={<GeneHistoryTooltip historyData={tooltipHistoryList} location={READABLE_FIELD.INHERITANCE_MECHANISM} />}
+                      tooltip={
+                        <GeneHistoryTooltip
+                          historyData={tooltipHistoryList}
+                          location={READABLE_FIELD.INHERITANCE_MECHANISM}
+                          locationIdentifier={getLocationIdentifier({ fields: [READABLE_FIELD.INHERITANCE_MECHANISM] })}
+                        />
+                      }
                       commentIcon={
                         <CommentIcon id={`${hugoSymbol}_inheritanceMechanism`} path={`${firebaseGenePath}/inheritanceMechanism_comments`} />
                       }

@@ -1,5 +1,5 @@
 import { GERMLINE_INHERITANCE_MECHANISM, PATHOGENICITY, PENETRANCE } from 'app/config/constants/constants';
-import { ALLELE_STATE, GENE_TYPE } from 'app/config/constants/firebase';
+import { ALLELE_STATE, GENE_TYPE, READABLE_FIELD } from 'app/config/constants/firebase';
 import { AlterationTypeEnum, Gene as OncoKBGene } from 'app/shared/api/generated/curation';
 import { generateUuid } from 'app/shared/util/utils';
 import _ from 'lodash';
@@ -486,4 +486,21 @@ export class HistoryRecord {
   old?: HistoryRecordState = ''; // old is not required when operation is add
   operation: HistoryOperationType | '' = '';
   uuids? = ''; // This is a comma seperated string of uuids. This helps identify which fields under CREATE has been updated
+  info?: HistoryInfo;
+}
+
+export class HistoryInfo {
+  mutation?: {
+    uuid: string;
+    name: string;
+  };
+  cancerType?: {
+    uuid: string;
+    name: string;
+  };
+  treatment?: {
+    uuid: string;
+    name: string;
+  };
+  fields?: READABLE_FIELD[];
 }

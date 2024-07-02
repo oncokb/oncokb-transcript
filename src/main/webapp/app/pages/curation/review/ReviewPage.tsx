@@ -203,6 +203,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
                   setIsReviewFinished(true);
                 }
               }}
+              drugList={props.drugList}
             />
           </Col>
         </Row>

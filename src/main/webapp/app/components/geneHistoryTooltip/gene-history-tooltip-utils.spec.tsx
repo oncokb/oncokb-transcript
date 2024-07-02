@@ -1,9 +1,14 @@
 import 'jest-expect-message';
-import constructTimeSeriesData, { formatLocation, getTimeSeriesDataContent } from './gene-history-tooltip-utils';
+import constructTimeSeriesData, { formatLocation, getTimeSeriesDataContent, getTooltipHistoryList } from './gene-history-tooltip-utils';
 import { HistoryOperationType, HistoryRecord } from 'app/shared/model/firebase/firebase.model';
 import React from 'react';
 import * as firebaseUtils from 'app/shared/util/firebase/firebase-utils';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
+import { READABLE_FIELD } from 'app/config/constants/firebase';
+
+const USER_NAME = 'Test User 1';
+const ADMIN = 'Test Admin 1';
+const TIMESTAMP = 518022762874;
 
 describe('GeneHistoryTooltipUtils', () => {
   describe('getTimeSeriesDataContent', () => {
@@ -27,10 +32,6 @@ describe('GeneHistoryTooltipUtils', () => {
   });
 
   describe('constructTimeSeriesData', () => {
-    const USER_NAME = 'Test User 1';
-    const ADMIN = 'Test Admin 1';
-    const TIMESTAMP = 518022762874;
-
     it('should create time series data with add operation', () => {
       const record: FlattenedHistory = {
         lastEditBy: USER_NAME,
@@ -135,6 +136,159 @@ describe('GeneHistoryTooltipUtils', () => {
     it('should return input location if improperly formatted', () => {
       const location = 'BCR-ABL1 Fusion, B-Lymphoblastic Leukemia/Lymphoma, tx_implication, f42768c5-4918-4244-98dd-6ea97a4d3c2a';
       expect(formatLocation(location, [], '')).toBe(location);
+    });
+  });
+
+  describe('getTooltipHistoryList', () => {
+    const history: FlattenedHistory[] = [
+      {
+        lastEditBy: USER_NAME,
+        location: `V600`,
+        admin: ADMIN,
+        operation: HistoryOperationType.ADD,
+        timeStamp: TIMESTAMP,
+      },
+      {
+        lastEditBy: USER_NAME,
+        location: `V600E, ${READABLE_FIELD.MUTATION_EFFECT}`,
+        admin: ADMIN,
+        operation: HistoryOperationType.UPDATE,
+        timeStamp: TIMESTAMP,
+      },
+      {
+        lastEditBy: USER_NAME,
+        location: `V600E, ${READABLE_FIELD.MUTATION_EFFECT}`,
+        admin: ADMIN,
+        operation: HistoryOperationType.UPDATE,
+        timeStamp: TIMESTAMP,
+        info: {
+          mutation: {
+            uuid: '1',
+            name: 'V600E',
+          },
+          fields: [READABLE_FIELD.MUTATION_EFFECT],
+        },
+      },
+      {
+        lastEditBy: USER_NAME,
+        location: `V600`,
+        admin: ADMIN,
+        operation: HistoryOperationType.NAME_CHANGE,
+        timeStamp: TIMESTAMP,
+        info: {
+          mutation: {
+            uuid: '1',
+            name: 'V600',
+          },
+        },
+      },
+      {
+        lastEditBy: USER_NAME,
+        location: `V600, ${READABLE_FIELD.MUTATION_EFFECT}`,
+        admin: ADMIN,
+        operation: HistoryOperationType.UPDATE,
+        timeStamp: TIMESTAMP,
+        info: {
+          mutation: {
+            uuid: '2',
+            name: 'V600',
+          },
+          fields: [READABLE_FIELD.MUTATION_EFFECT],
+        },
+      },
+      {
+        lastEditBy: USER_NAME,
+        location: `V600G`,
+        admin: ADMIN,
+        operation: HistoryOperationType.UPDATE,
+        timeStamp: TIMESTAMP,
+        info: {
+          mutation: {
+            uuid: '1',
+            name: 'V600G',
+          },
+        },
+      },
+    ];
+
+    it('should group history even when name has changed', () => {
+      const expectedValue: ReturnType<typeof getTooltipHistoryList> = new Map();
+      expectedValue.set('1_$_$_', [
+        {
+          lastEditBy: USER_NAME,
+          location: `V600`,
+          admin: ADMIN,
+          operation: HistoryOperationType.ADD,
+          timeStamp: TIMESTAMP,
+        },
+        {
+          lastEditBy: USER_NAME,
+          location: `V600`,
+          admin: ADMIN,
+          operation: HistoryOperationType.NAME_CHANGE,
+          timeStamp: TIMESTAMP,
+          info: {
+            mutation: {
+              uuid: '1',
+              name: 'V600',
+            },
+          },
+        },
+        {
+          lastEditBy: USER_NAME,
+          location: `V600G`,
+          admin: ADMIN,
+          operation: HistoryOperationType.UPDATE,
+          timeStamp: TIMESTAMP,
+          info: {
+            mutation: {
+              uuid: '1',
+              name: 'V600G',
+            },
+          },
+        },
+      ]);
+      expectedValue.set('1_$_$_Mutation Effect', [
+        {
+          lastEditBy: USER_NAME,
+          location: `V600E, ${READABLE_FIELD.MUTATION_EFFECT}`,
+          admin: ADMIN,
+          operation: HistoryOperationType.UPDATE,
+          timeStamp: TIMESTAMP,
+        },
+        {
+          lastEditBy: USER_NAME,
+          location: `V600E, ${READABLE_FIELD.MUTATION_EFFECT}`,
+          admin: ADMIN,
+          operation: HistoryOperationType.UPDATE,
+          timeStamp: TIMESTAMP,
+          info: {
+            mutation: {
+              uuid: '1',
+              name: 'V600E',
+            },
+            fields: [READABLE_FIELD.MUTATION_EFFECT],
+          },
+        },
+      ]);
+      expectedValue.set('2_$_$_Mutation Effect', [
+        {
+          lastEditBy: USER_NAME,
+          location: `V600, ${READABLE_FIELD.MUTATION_EFFECT}`,
+          admin: ADMIN,
+          operation: HistoryOperationType.UPDATE,
+          timeStamp: TIMESTAMP,
+          info: {
+            mutation: {
+              uuid: '2',
+              name: 'V600',
+            },
+            fields: [READABLE_FIELD.MUTATION_EFFECT],
+          },
+        },
+      ]);
+
+      expect(getTooltipHistoryList(history)).toEqual(expectedValue);
     });
   });
 });
