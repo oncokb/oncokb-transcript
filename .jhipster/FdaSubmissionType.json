@@ -1,0 +1,51 @@
+{
+  "name": "FdaSubmissionType",
+  "fields": [
+    {
+      "fieldName": "type",
+      "fieldType": "FdaSubmissionTypeKey",
+      "fieldValues": "DEVICE_PMA,DEVICE_DENOVO,DEVICE_HDE,DEVICE_PMN,DRUG_NDA,DRUG_BLA",
+      "fieldValidateRules": ["required", "unique"]
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "shortName",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "submissionPrefix",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "submissionLink",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "fdaSubmission",
+      "otherEntityRelationshipName": "type",
+      "relationshipName": "fdaSubmission"
+    }
+  ],
+  "entityTableName": "fda_submission_type",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220401174645"
+}

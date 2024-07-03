@@ -1,63 +1,71 @@
-import 'react-toastify/dist/ReactToastify.css';
-import './app.scss';
-import 'app/config/dayjs.ts';
-
 import React, { useEffect } from 'react';
-import { Card } from 'reactstrap';
+import 'react-toastify/dist/ReactToastify.css';
+import 'oncokb-styles/dist/oncokb.css';
+import './app.scss';
+import 'react-table/react-table.css';
+import { componentInject } from 'app/shared/util/typed-inject';
+import { observer } from 'mobx-react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
-
-import { useAppDispatch, useAppSelector } from 'app/config/store';
-import { getSession } from 'app/shared/reducers/authentication';
-import { getProfile } from 'app/shared/reducers/application-profile';
-import Header from 'app/shared/layout/header/header';
-import Footer from 'app/shared/layout/footer/footer';
+import { ToastContainer } from 'react-toastify';
+import { IRootStore } from 'app/stores';
 import { hasAnyAuthority } from 'app/shared/auth/private-route';
-import ErrorBoundary from 'app/shared/error/error-boundary';
-import { AUTHORITIES } from 'app/config/constants';
-import AppRoutes from 'app/routes';
+import { AUTHORITIES } from 'app/config/constants/constants';
+import AppRoutes from 'app/routes/routes';
+import NavigationSidebar from 'app/components/sidebar/NavigationSidebar';
+import Layout from './layout';
+import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
-export const App = () => {
-  const dispatch = useAppDispatch();
+export type IAppProps = StoreProps;
 
+const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
   useEffect(() => {
-    dispatch(getSession());
-    dispatch(getProfile());
-  }, []);
+    let authSubscriber = undefined;
+    if (props.isCurator) {
+      authSubscriber = props.initializeFirebase();
+    }
+    return () => authSubscriber && authSubscriber();
+  }, [props.isCurator]);
 
-  const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
-  const isAdmin = useAppSelector(state => hasAnyAuthority(state.authentication.account.authorities, [AUTHORITIES.ADMIN]));
-  const ribbonEnv = useAppSelector(state => state.applicationProfile.ribbonEnv);
-  const isInProduction = useAppSelector(state => state.applicationProfile.inProduction);
-  const isOpenAPIEnabled = useAppSelector(state => state.applicationProfile.isOpenAPIEnabled);
-
-  const paddingTop = '60px';
   return (
     <Router basename={baseHref}>
-      <div className="app-container" style={{ paddingTop }}>
-        <ToastContainer position={toast.POSITION.TOP_LEFT} className="toastify-container" toastClassName="toastify-toast" />
-        <ErrorBoundary>
-          <Header
-            isAuthenticated={isAuthenticated}
-            isAdmin={isAdmin}
-            ribbonEnv={ribbonEnv}
-            isInProduction={isInProduction}
-            isOpenAPIEnabled={isOpenAPIEnabled}
+      <Layout>
+        <div className="app-container">
+          <ToastContainer
+            position={'top-center'}
+            className="toastify-container"
+            toastClassName="toastify-toast"
+            pauseOnHover
+            pauseOnFocusLoss
           />
-        </ErrorBoundary>
-        <div className="container-fluid view-container" id="app-view-container">
-          <Card className="jh-card">
-            <ErrorBoundary>
-              <AppRoutes />
-            </ErrorBoundary>
-          </Card>
-          <Footer />
+          {props.loadingAuth ? (
+            <LoadingIndicator isLoading size={LoaderSize.LARGE} center={true} />
+          ) : (
+            <div>
+              {props.isAuthorized && <NavigationSidebar />}
+              <div className="app-center-content-wrapper" style={{ margin: props.centerContentMargin }}>
+                <AppRoutes isCurator={props.isCurator} />
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      </Layout>
     </Router>
   );
 };
 
-export default App;
+const mapStoreToProps = ({ authStore, layoutStore, firebaseAppStore }: IRootStore) => ({
+  isAuthorized: authStore.isAuthorized,
+  authorities: authStore.account.authorities,
+  isCurator: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.CURATOR]),
+  loadingAuth: authStore.loading,
+  navigationSidebarWidth: layoutStore.navigationSidebarWidth,
+  toggleNavSidebar: layoutStore.toggleNavigationSidebar,
+  centerContentMargin: layoutStore.centerContentMargin,
+  initializeFirebase: firebaseAppStore.initializeFirebase,
+});
+
+type StoreProps = ReturnType<typeof mapStoreToProps>;
+
+export default componentInject(mapStoreToProps)(observer(App));

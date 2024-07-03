@@ -1,17 +1,24 @@
 import React from 'react';
+import { connect } from 'app/shared/util/typed-inject';
 import { Route, Redirect, RouteProps } from 'react-router-dom';
 
-import { useAppSelector } from 'app/config/store';
+import { IRootStore } from 'app/stores';
 import ErrorBoundary from 'app/shared/error/error-boundary';
+import { PAGE_ROUTE } from 'app/config/constants/constants';
 
 interface IOwnProps extends RouteProps {
   hasAnyAuthorities?: string[];
 }
 
-export const PrivateRouteComponent = ({ component: Component, hasAnyAuthorities = [], ...rest }: IOwnProps) => {
-  const isAuthenticated = useAppSelector(state => state.authentication.isAuthenticated);
-  const sessionHasBeenFetched = useAppSelector(state => state.authentication.sessionHasBeenFetched);
-  const account = useAppSelector(state => state.authentication.account);
+export interface IPrivateRouteProps extends IOwnProps, StoreProps {}
+
+export const PrivateRouteComponent = ({
+  component: Component,
+  isAuthenticated,
+  account,
+  hasAnyAuthorities = [],
+  ...rest
+}: IPrivateRouteProps) => {
   const isAuthorized = hasAnyAuthority(account.authorities, hasAnyAuthorities);
 
   const checkAuthorities = props =>
@@ -26,21 +33,17 @@ export const PrivateRouteComponent = ({ component: Component, hasAnyAuthorities 
     );
 
   const renderRedirect = props => {
-    if (!sessionHasBeenFetched) {
-      return <div></div>;
-    } else {
-      return isAuthenticated ? (
-        checkAuthorities(props)
-      ) : (
-        <Redirect
-          to={{
-            pathname: '/login',
-            search: props.location.search,
-            state: { from: props.location },
-          }}
-        />
-      );
-    }
+    return isAuthenticated ? (
+      checkAuthorities(props)
+    ) : (
+      <Redirect
+        to={{
+          pathname: PAGE_ROUTE.LOGIN,
+          search: props.location.search,
+          state: { from: props.location },
+        }}
+      />
+    );
   };
 
   if (!Component) throw new Error(`A component needs to be specified for private route for path ${(rest as any).path}`);
@@ -58,9 +61,18 @@ export const hasAnyAuthority = (authorities: string[], hasAnyAuthorities: string
   return false;
 };
 
+const mapStoreToProps = ({ authStore }: IRootStore) => ({
+  isAuthenticated: authStore.isAuthenticated,
+  account: authStore.account,
+});
+
+type StoreProps = ReturnType<typeof mapStoreToProps>;
+
 /**
  * A route wrapped in an authentication check so that routing happens only when you are authenticated.
  * Accepts same props as React router Route.
  * The route also checks for authorization if hasAnyAuthorities is specified.
  */
-export default PrivateRouteComponent;
+export const PrivateRoute = connect(mapStoreToProps)(PrivateRouteComponent);
+
+export default PrivateRoute;

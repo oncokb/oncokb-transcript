@@ -1,5 +1,8 @@
 # Prettier configuration
 
+plugins:
+  - prettier-plugin-java
+
 printWidth: 140
 singleQuote: true
 tabWidth: 2
@@ -9,10 +12,11 @@ useTabs: false
 arrowParens: avoid
 
 # jsx and tsx rules:
-bracketSameLine: false
+jsxBracketSameLine: false
 
 # java rules:
 overrides:
-  - files: "*.java"
+  - files: '*.java'
     options:
       tabWidth: 4
+      parser: 'java'

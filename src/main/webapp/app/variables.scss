@@ -1,0 +1,42 @@
+@import '~oncokb-styles/scss/vars';
+
+$oncokb-font-font-size: 15px;
+$oncokb-blue: #0968c3;
+/* Overwrite the bootstrap defaults */
+// $font-family-sans-serif: 'Gotham Book', serif;
+// color overwrite
+$blue: $oncokb-blue;
+$grey: #808080; // grey
+$medium-grey: #c5c5c5;
+$light-grey: #f8f9fa; // light grey
+$primary: $oncokb-blue;
+$secondary: $grey;
+$info: #009d9a;
+$success: #28a745;
+$warning: #ffc107;
+$danger: #dc3545;
+
+$link-hover-color: $oncokb-darker-blue;
+$nav-bg-color: $oncokb-blue;
+
+$navbar-padding-x: 0;
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 1050px,
+  xl: 1500px,
+) !default;
+
+// we only need to define the max width for xl, smaller size will use the fluid width.
+$container-max-widths: (
+  xl: 1500px,
+) !default;
+
+$view-wrapper-default-p-y: 2rem;
+
+$bigger-default-font-size: 1.2rem;
+
+$breadcrumb-bg: $light-grey;
+
+$text-box-bg: #f1f9ff80;

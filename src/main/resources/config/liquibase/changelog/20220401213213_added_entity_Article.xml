@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity Article.
+    -->
+    <changeSet id="20220401213213-1" author="jhipster">
+        <createTable tableName="article">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="uid" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="title" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="content" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="link" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="authors" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="date" type="${datetimeType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="additional_info" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+        <dropDefaultValue tableName="article" columnName="date" columnDataType="${datetimeType}"/>
+    </changeSet>
+
+    <changeSet id="20220401213213-1-relations" author="jhipster">
+
+        <createTable tableName="rel_article__flag">
+            <column name="flag_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="article_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="article_id, flag_id" tableName="rel_article__flag"/>
+
+        <createTable tableName="rel_article__synonym">
+            <column name="synonym_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="article_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="article_id, synonym_id" tableName="rel_article__synonym"/>
+    </changeSet>
+
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
+</databaseChangeLog>

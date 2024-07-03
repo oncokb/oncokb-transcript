@@ -12,7 +12,7 @@ const commonConfig = require('./webpack.common.js');
 const ENV = 'development';
 
 module.exports = async options =>
-  webpackMerge(await commonConfig({ env: ENV }), {
+  webpackMerge(await commonConfig({ ...options, env: ENV }), {
     devtool: 'cheap-module-source-map', // https://reactjs.org/docs/cross-origin-errors.html
     mode: ENV,
     entry: ['./src/main/webapp/app/index'],
@@ -27,15 +27,34 @@ module.exports = async options =>
     module: {
       rules: [
         {
+          test: /\.module\.scss$/,
+          use: [
+            'style-loader',
+            {
+              loader: 'css-loader',
+              options: {
+                modules: {
+                  localIdentName: '[name]__[local]__[hash:base64:5]',
+                },
+                importLoaders: 2,
+              },
+            },
+            'sass-loader',
+            utils.sassResourcesLoader,
+          ],
+        },
+        {
           test: /\.(sa|sc|c)ss$/,
+          exclude: /\.module\.scss$/,
           use: [
             'style-loader',
             'css-loader',
             'postcss-loader',
             {
               loader: 'sass-loader',
-              options: { implementation: sass },
+              options: { sourceMap: true },
             },
+            utils.sassResourcesLoader,
           ],
         },
       ],
@@ -48,13 +67,26 @@ module.exports = async options =>
       port: 9060,
       proxy: [
         {
-          context: ['/api', '/services', '/management', '/swagger-resources', '/v2/api-docs', '/v3/api-docs', '/h2-console', '/auth'],
+          context: [
+            '/websocket',
+            '/api',
+            '/legacy-api',
+            '/services',
+            '/management',
+            '/v3/api-docs',
+            '/h2-console',
+            '/oauth2',
+            '/login',
+            '/auth',
+          ],
           target: `http${options.tls ? 's' : ''}://localhost:9090`,
           secure: false,
           changeOrigin: options.tls,
+          ws: true,
         },
       ],
-      https: options.tls,
+      server: options.tls ? 'https' : 'http',
+      allowedHosts: 'all',
       historyApiFallback: true,
     },
     stats: process.env.JHI_DISABLE_WEBPACK_LOGS ? 'none' : options.stats,
@@ -74,6 +106,7 @@ module.exports = async options =>
             proxyOptions: {
               changeOrigin: false, //pass the Host header to the backend unchanged  https://github.com/Browsersync/browser-sync/issues/430
             },
+            ws: true,
           },
           socket: {
             clients: {
@@ -90,12 +123,12 @@ module.exports = async options =>
         },
         {
           reload: false,
-        }
+        },
       ),
       new webpack.HotModuleReplacementPlugin(),
       new WebpackNotifierPlugin({
-        title: 'Oncokb Transcript',
-        contentImage: path.join(__dirname, 'logo-jhipster.png'),
+        title: 'Oncokb Curation',
+        contentImage: path.join(__dirname, 'logo-oncokb.png'),
       }),
     ].filter(Boolean),
   });

@@ -1,15 +1,15 @@
 {
   "generator-jhipster": {
     "promptValues": {
-      "packageName": "org.mskcc.oncokb.transcript"
+      "packageName": "org.mskcc.oncokb.curation"
     },
-    "jhipsterVersion": "7.3.1",
+    "jhipsterVersion": "7.2.0",
     "applicationType": "monolith",
-    "baseName": "oncokb-transcript",
-    "packageName": "org.mskcc.oncokb.transcript",
-    "packageFolder": "org/mskcc/oncokb/transcript",
+    "baseName": "oncokb-curation",
+    "packageName": "org.mskcc.oncokb.curation",
+    "packageFolder": "org/mskcc/oncokb/curation",
     "serverPort": "9090",
-    "authenticationType": "jwt",
+    "authenticationType": "oauth2",
     "cacheProvider": "redis",
     "enableHibernateCache": false,
     "websocket": false,
@@ -24,19 +24,29 @@
     "jwtSecretKey": "NGUwNTlhNDNhOWQ2ZGJlMmEzODczOWJjYWM2MWY4NDAwOTM4YTBmNGFjM2UxNjczZDU2YWZjZjc3MjdkNmU4YjVhZmIwYzI1NDhjMDFkZThiYmE5Mjc5MjM0MGVhODU5MGFhMTAyOTE0M2I3ODA1MGUzZWFhYWUwNWY2ZDgyNjQ=",
     "embeddableLaunchScript": false,
     "useSass": true,
-    "clientPackageManager": "npm",
+    "clientPackageManager": "yarn",
     "skipClient": false,
     "creationTimestamp": 1592938365904,
     "testFrameworks": [],
     "jhiPrefix": "jhi",
     "entitySuffix": "",
     "dtoSuffix": "DTO",
-    "otherModules": [],
+    "otherModules": [
+      {
+        "name": "generator-jhipster-react-mobx",
+        "version": "1.3.0"
+      }
+    ],
     "enableTranslation": false,
-    "blueprints": [],
+    "blueprints": [
+      {
+        "name": "generator-jhipster-react-mobx",
+        "version": "1.3.0"
+      }
+    ],
     "clientFramework": "react",
     "skipUserManagement": true,
-    "withAdminUi": true,
+    "withAdminUi": false,
     "clientTheme": "none",
     "clientThemeVariant": "",
     "skipServer": false,
@@ -49,16 +59,36 @@
     "entities": [
       "Sequence",
       "Transcript",
-      "TranscriptUsage",
-      "Drug",
-      "DrugSynonym",
       "Info",
       "Gene",
-      "GeneAlias",
       "GenomeFragment",
-      "EnsemblGene"
+      "EnsemblGene",
+      "Drug",
+      "SpecimenType",
+      "CompanionDiagnosticDevice",
+      "FdaSubmissionType",
+      "FdaSubmission",
+      "Alteration",
+      "CancerType",
+      "Article",
+      "CategoricalAlteration",
+      "Consequence",
+      "FdaDrug",
+      "SeqRegion",
+      "Flag",
+      "Association",
+      "ClinicalTrial",
+      "ClinicalTrialArm",
+      "EligibilityCriteria",
+      "Evidence",
+      "GenomicIndicator",
+      "LevelOfEvidence",
+      "NciThesaurus",
+      "Synonym",
+      "AlleleState",
+      "Rule"
     ],
-    "lastLiquibaseTimestamp": 1638232024000,
+    "lastLiquibaseTimestamp": 1710954881000,
     "devServerPort": 9060,
     "enableGradleEnterprise": false
   }

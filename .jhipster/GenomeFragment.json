@@ -2,28 +2,35 @@
   "name": "GenomeFragment",
   "fields": [
     {
-      "fieldName": "chromosome",
-      "fieldType": "String"
-    },
-    {
       "fieldName": "start",
-      "fieldType": "Integer"
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "end",
-      "fieldType": "Integer"
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "strand",
-      "fieldType": "Integer"
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
     },
     {
       "fieldName": "type",
       "fieldType": "GenomeFragmentType",
-      "fieldValues": "GENE,EXON,FIVE_PRIME_UTR,THREE_PRIME_UTR"
+      "fieldValues": "GENE,EXON,FIVE_PRIME_UTR,THREE_PRIME_UTR",
+      "fieldValidateRules": ["required"]
     }
   ],
   "relationships": [
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "seqRegion",
+      "otherEntityRelationshipName": "genomeFragment",
+      "relationshipName": "seqRegion",
+      "otherEntityField": "name"
+    },
     {
       "relationshipType": "many-to-one",
       "otherEntityName": "transcript",
@@ -33,13 +40,12 @@
   ],
   "entityTableName": "genome_fragment",
   "dto": "no",
-  "pagination": "no",
+  "pagination": "pagination",
   "service": "serviceClass",
-  "jpaMetamodelFiltering": false,
+  "jpaMetamodelFiltering": true,
   "fluentMethods": true,
   "readOnly": false,
   "embedded": false,
   "applications": "*",
-  "skipClient": true,
-  "changelogDate": "20211118024252"
+  "changelogDate": "20220401174639"
 }

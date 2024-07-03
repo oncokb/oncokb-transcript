@@ -3,8 +3,8 @@
   "fields": [
     {
       "fieldName": "referenceGenome",
-      "fieldType": "String",
-      "fieldValidateRules": ["required"]
+      "fieldType": "ReferenceGenome",
+      "fieldValues": "GRCh37,GRCh38"
     },
     {
       "fieldName": "ensemblGeneId",
@@ -14,11 +14,6 @@
     {
       "fieldName": "canonical",
       "fieldType": "Boolean",
-      "fieldValidateRules": ["required"]
-    },
-    {
-      "fieldName": "chromosome",
-      "fieldType": "String",
       "fieldValidateRules": ["required"]
     },
     {
@@ -49,17 +44,23 @@
       "otherEntityName": "gene",
       "otherEntityRelationshipName": "ensemblGene",
       "relationshipName": "gene"
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "seqRegion",
+      "otherEntityRelationshipName": "ensemblGene",
+      "relationshipName": "seqRegion",
+      "otherEntityField": "name"
     }
   ],
   "entityTableName": "ensembl_gene",
   "dto": "no",
-  "pagination": "no",
+  "pagination": "pagination",
   "service": "serviceClass",
-  "jpaMetamodelFiltering": false,
+  "jpaMetamodelFiltering": true,
   "fluentMethods": true,
   "readOnly": false,
   "embedded": false,
   "applications": "*",
-  "skipClient": true,
-  "changelogDate": "20211130002704"
+  "changelogDate": "20220401174640"
 }

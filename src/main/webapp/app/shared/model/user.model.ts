@@ -1,9 +1,10 @@
 export interface IUser {
   id?: any;
-  login?: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
+  login: string;
+  // the following three elements will be made required.
+  firstName: string;
+  lastName: string;
+  email: string;
   activated?: boolean;
   langKey?: string;
   authorities?: any[];
@@ -11,7 +12,7 @@ export interface IUser {
   createdDate?: Date | null;
   lastModifiedBy?: string;
   lastModifiedDate?: Date | null;
-  password?: string;
+  imageUrl?: string;
 }
 
 export const defaultValue: Readonly<IUser> = {
@@ -27,5 +28,5 @@ export const defaultValue: Readonly<IUser> = {
   createdDate: null,
   lastModifiedBy: '',
   lastModifiedDate: null,
-  password: '',
+  imageUrl: '',
 };

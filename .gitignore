@@ -4,6 +4,7 @@
 /src/main/webapp/content/css/main.css
 /target/classes/static/**
 /src/test/javascript/coverage/
+/.firebaserc
 
 ######################
 # Node
@@ -157,3 +158,11 @@ Desktop.ini
 ######################
 /coverage/
 /.nyc_output/
+
+######################
+# Screenshots
+######################
+/src/test/javascript/screenshots/actual
+/src/test/javascript/screenshots/diff
+# Sentry Config File
+.env.sentry-build-plugin

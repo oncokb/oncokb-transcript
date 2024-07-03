@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity Drug.
+    -->
+    <changeSet id="20220401174641-1" author="jhipster">
+        <createTable tableName="drug">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="uuid" type="varchar(255)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_drug__uuid" />
+            </column>
+            <column name="name" type="${clobType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="ncit_code" type="varchar(255)">
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_drug__nci_thesaurus_code" />
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+    </changeSet>
+
+    <changeSet id="20220401174641-1-relations" author="jhipster">
+
+        <createTable tableName="rel_drug__flag">
+            <column name="flag_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="drug_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="drug_id, flag_id" tableName="rel_drug__flag"/>
+    </changeSet>
+
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
+</databaseChangeLog>

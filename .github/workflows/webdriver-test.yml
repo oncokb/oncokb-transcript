@@ -1,0 +1,25 @@
+name: Webdriver Test
+
+on: [push, pull_request]
+
+jobs:
+    build:
+      runs-on: ubuntu-latest
+
+      steps:
+        - uses: actions/checkout@v2
+
+        - name: Build Docker images
+          run: docker-compose build
+
+        - name: Run Docker containers
+          run: |
+            docker-compose up -d
+            docker-compose run --rm wdio
+        
+        - name: Archive screenshots
+          if: failure()
+          uses: actions/upload-artifact@v2
+          with: 
+            name: visual-regression-screenshots
+            path: ./src/test/javascript/screenshots

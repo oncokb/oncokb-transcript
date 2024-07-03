@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+    <!--
+        Added the constraints for entity EligibilityCriteria.
+    -->
+    <changeSet id="20231101214344-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="eligibility_criteria_id"
+                                 baseTableName="rel_eligibility_criteria__association"
+                                 constraintName="fk_rel_eligibility_criteria__as__eligibility_criteria_80_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="eligibility_criteria"/>
+
+        <addForeignKeyConstraint baseColumnNames="association_id"
+                                 baseTableName="rel_eligibility_criteria__association"
+                                 constraintName="fk_rel_eligibility_criteria__association__association_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="association"/>
+
+        <addForeignKeyConstraint baseColumnNames="clinical_trial_id"
+                                 baseTableName="eligibility_criteria"
+                                 constraintName="fk_eligibility_criteria__clinical_trial_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="clinical_trial"/>
+    </changeSet>
+</databaseChangeLog>

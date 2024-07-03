@@ -1,0 +1,75 @@
+{
+  "name": "CancerType",
+  "fields": [
+    {
+      "fieldName": "code",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "color",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "level",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "mainType",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "subtype",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "tissue",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "tumorForm",
+      "fieldType": "TumorForm",
+      "fieldValues": "SOLID,LIQUID,MIXED",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "cancerType",
+      "otherEntityRelationshipName": "parent",
+      "relationshipName": "children"
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "synonym",
+      "otherEntityRelationshipName": "cancerType",
+      "relationshipName": "synonym",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-one",
+      "otherEntityName": "cancerType",
+      "otherEntityRelationshipName": "children",
+      "relationshipName": "parent"
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "association",
+      "otherEntityRelationshipName": "cancerType",
+      "relationshipName": "association",
+      "ownerSide": false
+    }
+  ],
+  "entityTableName": "cancer_type",
+  "dto": "no",
+  "pagination": "pagination",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": true,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220401174649"
+}

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+    <!--
+        Added the constraints for entity Evidence.
+    -->
+    <changeSet id="20231101214345-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="association_id"
+                                 baseTableName="evidence"
+                                 constraintName="fk_evidence__association_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="association"/>
+
+        <addForeignKeyConstraint baseColumnNames="evidence_id"
+                                 baseTableName="rel_evidence__level_of_evidence"
+                                 constraintName="fk_rel_evidence__level_of_evidence__evidence_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="evidence"/>
+
+        <addForeignKeyConstraint baseColumnNames="level_of_evidence_id"
+                                 baseTableName="rel_evidence__level_of_evidence"
+                                 constraintName="fk_rel_evidence__level_of_evidence__level_of_evidence_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="level_of_evidence"/>
+
+        <addForeignKeyConstraint baseColumnNames="gene_id"
+                                 baseTableName="evidence"
+                                 constraintName="fk_evidence__gene_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="gene"/>
+    </changeSet>
+</databaseChangeLog>

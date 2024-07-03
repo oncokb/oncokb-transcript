@@ -1,0 +1,21 @@
+.count-badge-wrapper {
+  font-size: 90%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  height: 100%;
+}
+
+.count-badge {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.4rem;
+  font-size: 75%;
+
+  .count-badge-content {
+    border: 1.5px solid white;
+    padding: 0.2rem;
+    line-height: 0.5;
+  }
+}

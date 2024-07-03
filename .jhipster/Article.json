@@ -1,0 +1,77 @@
+{
+  "name": "Article",
+  "fields": [
+    {
+      "fieldName": "type",
+      "fieldType": "ArticleType",
+      "fieldValues": "PUBMED,ABSTRACT,REFERENCE,FDADRUG_LETTER,FDADRUG_LABEL,FDADRUG_SUMMARY,FDADRUG_SUMMARY_REVIEW",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "uid",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "title",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    },
+    {
+      "fieldName": "content",
+      "fieldType": "byte[]",
+      "fieldTypeBlobContent": "text"
+    },
+    {
+      "fieldName": "link",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "authors",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "date",
+      "fieldType": "Instant"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "flag",
+      "otherEntityRelationshipName": "article",
+      "relationshipName": "flag",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "synonym",
+      "otherEntityRelationshipName": "article",
+      "relationshipName": "synonym",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "association",
+      "otherEntityRelationshipName": "article",
+      "relationshipName": "association",
+      "ownerSide": false
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "fdaSubmission",
+      "otherEntityRelationshipName": "article",
+      "relationshipName": "fdaSubmission",
+      "ownerSide": false
+    }
+  ],
+  "entityTableName": "article",
+  "dto": "no",
+  "pagination": "pagination",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": true,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20220401213213"
+}

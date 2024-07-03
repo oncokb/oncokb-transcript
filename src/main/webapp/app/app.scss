@@ -1,44 +1,23 @@
 // Override Boostrap variables
 // Import Bootstrap source files from node_modules
 @import 'node_modules/bootstrap/scss/bootstrap';
-body {
-  background: #fafafa;
-  margin: 0;
+@import './variables.scss';
+
+html {
+  font-size: $oncokb-font-font-size;
 }
 
-a {
-  color: #533f03;
-  font-weight: bold;
-}
-
-* {
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  &:after,
-  &::before {
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-  }
+html,
+body,
+#root {
+  height: 100%;
+  overflow-x: hidden;
+  background-color: $light-grey;
 }
 
 .app-container {
-  box-sizing: border-box;
-  .view-container {
-    width: 100%;
-    height: calc(100% - 40px);
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 1rem;
-    .card {
-      padding: 1rem;
-    }
-    .view-routes {
-      height: 100%;
-      > div {
-        height: 100%;
-      }
-    }
-  }
+  min-height: 100%;
+  position: relative;
 }
 
 .fullscreen {
@@ -104,13 +83,29 @@ Generic styles
 }
 
 .shadow {
-  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px;
+  box-shadow:
+    rgba(0, 0, 0, 0.12) 0px 1px 6px,
+    rgba(0, 0, 0, 0.12) 0px 1px 4px;
   border-radius: 2px;
 }
 
 .error {
   color: white;
   background-color: red;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  color: $danger;
+  margin-right: 0.5rem;
+}
+
+.warning-message {
+  display: flex;
+  align-items: center;
+  color: $warning;
+  margin-right: 0.5rem;
 }
 
 .break {
@@ -310,3 +305,127 @@ http://stackoverflow.com/questions/23436430/bootstrap-3-input-group-100-width */
 }
 
 /* jhipster-needle-scss-add-main JHipster will add new css style */
+
+.app-center-content-wrapper {
+  transition: width, left, right, 300ms;
+  height: 100vh;
+}
+
+.view-routes {
+  height: 100%;
+  width: 100%;
+  padding: 4rem;
+  background-color: white;
+  border-left: 1px solid $medium-grey;
+  border-right: 1px solid $medium-grey;
+  overflow: auto;
+}
+
+// Overwrite react-table styles
+.oncokbReactTable.ReactTable {
+  .-sort-desc {
+    box-shadow: none !important;
+    &:before {
+      content: '\f0dd';
+      font-family: 'Font Awesome 5 Free';
+      font-weight: 900;
+      float: right;
+    }
+  }
+
+  .-sort-asc {
+    box-shadow: none !important;
+    &:before {
+      font-family: 'Font Awesome 5 Free';
+      content: '\f0de';
+      font-weight: 900;
+      float: right;
+    }
+  }
+
+  .rt-table {
+    .rt-thead {
+      .rt-resizable-header-content {
+        text-align: left;
+        white-space: normal;
+        word-break: break-word;
+      }
+    }
+
+    .rt-tbody {
+      .rt-td {
+        white-space: normal;
+        word-break: break-word;
+      }
+    }
+  }
+}
+
+.oncokbReactTable.ReactTable.fixedHeight {
+  .rt-table {
+    .rt-thead {
+      .rt-th:last-child {
+        // We fixed header so the scroll bar on the tbody occupies this width causing the header and body misalignment.
+        // Adding additional space to the last column of the table to align them.
+        margin-right: 15px;
+      }
+    }
+  }
+}
+
+// Override rc-tooltip styles
+.rc-tooltip {
+  opacity: 1 !important;
+  border-color: $light-grey;
+}
+
+// In rc-tooltip v6.1.2, there is a styling that causes the arrow to not be
+// in the middle. We are overriding the style here to fix that.
+.rc-tooltip-placement-top .rc-tooltip-arrow,
+.rc-tooltip-placement-topLeft .rc-tooltip-arrow,
+.rc-tooltip-placement-topRight .rc-tooltip-arrow {
+  transform: translate(0%, 5px) !important;
+}
+.rc-tooltip-placement-bottom .rc-tooltip-arrow,
+.rc-tooltip-placement-bottomLeft .rc-tooltip-arrow,
+.rc-tooltip-placement-bottomRight .rc-tooltip-arrow {
+  transform: translate(0%, -5px) !important;
+}
+
+// Override popover
+.popover {
+  max-width: fit-content;
+}
+
+.collapsible-action {
+  display: flex;
+  align-items: center;
+}
+.all-children-margin {
+  > * {
+    margin: 0 0.2rem;
+  }
+}
+
+.text-decoration-line-through {
+  text-decoration: line-through;
+}
+
+.btn-secondary {
+  --bs-btn-color: #fff !important;
+  --bs-btn-disabled-color: #fff !important;
+  --bs-btn-hover-color: #fff !important;
+}
+
+.text-bg-info,
+.text-bg-success {
+  color: #fff !important;
+}
+
+a {
+  text-decoration: none !important;
+}
+
+.toastify-toast {
+  display: inline-flex;
+}

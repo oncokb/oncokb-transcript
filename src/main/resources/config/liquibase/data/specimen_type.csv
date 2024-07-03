@@ -1,0 +1,10 @@
+id;type;name
+1;CFDNA;cfDNA from plasma
+2;WHOLE_BLOOD;Whole blood
+3;FFPE;FFPE
+4;BONE_MARROW;Bone marrow
+5;MONO_CELLS_BONE_MARROW;Mononuclear cells from bone marrow
+6;MONO_CELLS_PERIF_BLOOD;Mononuclear cells from peripheral blood
+7;PERIF_BLOOD;Peripheral Blood
+8;FFPE_MN_BLOOD;FFPE with matched normal from blood
+9;FFPE_MN_SALIVA;FFPE with matched normal from saliva

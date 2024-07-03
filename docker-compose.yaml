@@ -1,0 +1,48 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
+    ports:
+      - "9000:9000"
+    healthcheck:
+      test: ["CMD", "curl", "-k", "https://localhost:9000"]
+    command: yarn start-tls DOCKER=true
+
+  wdio:
+    build: 
+      context: .
+      dockerfile:  ./docker/app/Dockerfile
+    depends_on:
+      app:
+        condition: service_healthy
+      firebase:
+        condition: service_healthy
+      chrome:
+        condition: service_healthy
+    volumes:
+      - ./src/test/javascript/screenshots:/app/src/test/javascript/screenshots
+    environment:
+      - DOCKER=true
+    command: yarn run wdio
+
+  firebase:
+    build:
+      context: .
+      dockerfile: ./docker/firebase/Dockerfile
+    ports:
+      - "9095:9095"
+      - "9099:9099"
+      - "4000:4000"
+      - "4400:4400"
+    healthcheck:
+      test: ["CMD", "curl", "http://localhost:4400"]
+    command: firebase emulators:start --import firebase --project oncokb-curation-test-54b6c # change config here 
+
+  chrome:
+    image: seleniarm/standalone-chromium # for those with m1 processors
+    shm_size: 2g
+    healthcheck:
+      test: ["CMD", "/opt/bin/check-grid.sh", "--host", "0.0.0.0", "--port", "4444"]
+    ports:
+      - 4444:4444
