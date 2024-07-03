@@ -30,6 +30,7 @@ import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_EXPANDED_WIDTH } from 'app/stores/layo
 import _ from 'lodash';
 import classNames from 'classnames';
 import { WHOLE_NUMBER_REGEX } from 'app/config/constants/regex';
+import CustomCursor from '../../../content/images/oncogenic-black.svg';
 
 const ENTITY_MENU_NAME: { [key in ENTITY_TYPE]?: string } = {
   [ENTITY_TYPE.ALTERATION]: 'Alteration',
@@ -213,7 +214,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
     <Sidebar collapsed={props.isNavSidebarCollapsed} width={`${SIDEBAR_EXPANDED_WIDTH}px`} collapsedWidth={`${SIDEBAR_COLLAPSED_WIDTH}px`}>
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div style={{ lineHeight: '5rem', display: 'flex', justifyContent: 'center' }}>
-          <NavbarBrand tag={NavLink} to={PAGE_ROUTE.HOME}>
+          <NavbarBrand tag={NavLink} to={PAGE_ROUTE.HOME} style={{ cursor: 'url(' + CustomCursor + '), auto' }}>
             {props.isNavSidebarCollapsed ? (
               <OptimizedImage height={30} src={oncokbSmallLogo} alt={'OncoKB'} />
             ) : (
