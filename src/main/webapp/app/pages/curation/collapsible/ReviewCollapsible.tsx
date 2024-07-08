@@ -326,8 +326,8 @@ export const ReviewCollapsible = ({
       return (
         <>
           <div className="mb-2">
-            {showTextArea && <DiffViewer type={'tabs'} new={firebase} old={oldValue} />}
-            {!showTextArea && <DiffViewer type={'stack'} new={newValue} old={oldValue} />}
+            {showTextArea && <DiffViewer type={'tabs'} new={firebase} old={oldValue || ''} />}
+            {!showTextArea && <DiffViewer type={'stack'} new={newValue} old={oldValue || ''} />}
           </div>
         </>
       );

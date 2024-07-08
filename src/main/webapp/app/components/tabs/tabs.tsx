@@ -4,19 +4,21 @@ import * as styles from './styles.module.scss';
 import classNames from 'classnames';
 
 export type Tab = {
+  id?: string;
   title: React.ReactNode;
   content: React.ReactNode;
 };
 
 export interface ITabsProps {
   tabs: Tab[];
+  defaultOpenTabIndex?: number;
   isCollapsed?: boolean;
   className?: string;
   contentClassName?: string;
 }
 
-const Tabs = ({ tabs, isCollapsed = false, className, contentClassName }: ITabsProps) => {
-  const [openTabIndex, setOpenTabIndex] = useState(0);
+const Tabs = ({ tabs, isCollapsed = false, defaultOpenTabIndex = 0, className, contentClassName }: ITabsProps) => {
+  const [openTabIndex, setOpenTabIndex] = useState(defaultOpenTabIndex);
 
   useEffect(() => {
     if (openTabIndex >= tabs.length) {
@@ -30,6 +32,7 @@ const Tabs = ({ tabs, isCollapsed = false, className, contentClassName }: ITabsP
         {tabs.map((tab, index) => {
           return (
             <div
+              id={tab.id}
               onClick={() => setOpenTabIndex(index)}
               key={index}
               style={{ marginRight: index !== tabs.length - 1 ? 16 : 0 }}
