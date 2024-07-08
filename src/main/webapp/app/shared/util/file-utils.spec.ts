@@ -8,18 +8,22 @@ describe('File utils', () => {
     it('row without only space will return empty list', () => {
       expect(fileToArray(' ', '\t').length).toEqual(0);
     });
-    describe('row is properly parsed with different line break', () => {
-      it('with \n', () => {
+    describe('row is properly parsed with different line breaks', () => {
+      const runTestsForNewLines = (fileContent: string) => {
         const parsedResult = fileToArray('a\tb\nc\td', '\t');
         expect(parsedResult.length).toEqual(2);
         expect(parsedResult[0][0]).toEqual('a');
         expect(parsedResult[1][1]).toEqual('d');
+      };
+      // support multiple scenarios https://stackoverflow.com/a/20056634/1868022
+      it('with \n', () => {
+        runTestsForNewLines('a\tb\nc\td');
       });
       it('with \r\n', () => {
-        const parsedResult = fileToArray('a\tb\r\nc\td', '\t');
-        expect(parsedResult.length).toEqual(2);
-        expect(parsedResult[0][0]).toEqual('a');
-        expect(parsedResult[1][1]).toEqual('d');
+        runTestsForNewLines('a\tb\r\nc\td');
+      });
+      it('with \r', () => {
+        runTestsForNewLines('a\tb\r\nc\td');
       });
     });
     it('row is properly parsed with proper separator', () => {

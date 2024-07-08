@@ -13,7 +13,7 @@ export const fileToArray = (fileString: string, separator: string): string[][] =
 
   const result = [];
   fileString
-    .split(/(\r)?\n/)
+    .split(/\r\n|\n|\r/)
     .filter(row => !!row)
     .forEach(row => {
       result.push(row.split(separator));
