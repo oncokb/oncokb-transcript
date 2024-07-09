@@ -65,7 +65,7 @@ describe('Firebase Review Utils', () => {
 
     beforeEach(() => {
       editorReviewMap = new EditorReviewMap();
-      defaultParentReview = new MetaReviewLevel({ title: '', valuePath: '', historyLocation: '' });
+      defaultParentReview = new MetaReviewLevel({ title: '', valuePath: '', historyLocation: '', historyInfo: {} });
     });
 
     it('should return string review', () => {
@@ -101,6 +101,7 @@ describe('Firebase Review Utils', () => {
           oldState: '',
           newState: 'test',
         },
+        historyInfo: { fields: ['Background'] },
         reviewLevelType: ReviewLevelType.REVIEWABLE,
       };
 
@@ -136,7 +137,7 @@ describe('Firebase Review Utils', () => {
 
     beforeEach(() => {
       editorReviewMap = new EditorReviewMap();
-      defaultParentReview = new MetaReviewLevel({ title: '', valuePath: '', historyLocation: '' });
+      defaultParentReview = new MetaReviewLevel({ title: '', valuePath: '', historyLocation: '', historyInfo: {} });
       defaultMutation = new Mutation('V600E');
     });
 
@@ -280,6 +281,7 @@ describe('Firebase Review Utils', () => {
         title: 'V600E / Melanoma',
         valuePath: 'mutations/0/tumors/0',
         historyLocation: 'V600E, Melanoma',
+        historyInfo: {},
       });
       const treatment = new Treatment(`${drugAUuid} + ${drugBUuid}`);
       treatment.name_review = new Review('User', undefined, true);
@@ -306,7 +308,7 @@ describe('Firebase Review Utils', () => {
 
     beforeEach(() => {
       editorReviewMap = new EditorReviewMap();
-      defaultParentReview = new MetaReviewLevel({ title: 'V600E', valuePath: 'mutations/0', historyLocation: 'V600E' });
+      defaultParentReview = new MetaReviewLevel({ title: 'V600E', valuePath: 'mutations/0', historyLocation: 'V600E', historyInfo: {} });
       defaultTumor = new Tumor();
       defaultTumor.cancerTypes = [{ code: 'MEL', mainType: 'Melanoma', subtype: 'Melanoma' }];
     });
@@ -346,6 +348,7 @@ describe('Firebase Review Utils', () => {
         title: 'Melanoma',
         valuePath: 'mutations/0/tumors/0',
         historyLocation: 'V600E, Melanoma',
+        historyInfo: {},
       });
 
       const implication = new Implication();
@@ -360,6 +363,7 @@ describe('Firebase Review Utils', () => {
         title: 'Melanoma',
         valuePath: 'mutations/0/tumors/0/prognostic',
         historyLocation: 'V600E, Melanoma, Prognostic',
+        historyInfo: {},
       });
 
       const implication = new Implication();
@@ -399,6 +403,7 @@ describe('Firebase Review Utils', () => {
         title: 'Melanoma',
         valuePath: 'mutations/0/tumors/0/diagnostic',
         historyLocation: 'V600E, Melanoma, Diagnostic',
+        historyInfo: {},
       });
 
       const oldExclusions = [{ code: 'UM', mainType: 'Melanoma', subtype: 'Uveal Melanoma' }];
@@ -439,6 +444,8 @@ describe('Firebase Review Utils', () => {
   });
 
   describe('findReviewRecursive', () => {
+    const MUTATION_UUID = '12345';
+
     describe('find all reviews in gene object', () => {
       let parentReview: MetaReviewLevel;
       let editorReviewMap;
@@ -448,7 +455,7 @@ describe('Firebase Review Utils', () => {
       let drugList: readonly IDrug[];
       beforeEach(() => {
         uuids = [];
-        parentReview = new MetaReviewLevel({ title: '', valuePath: '', historyLocation: '' });
+        parentReview = new MetaReviewLevel({ title: '', valuePath: '', historyLocation: '', historyInfo: {} });
         editorReviewMap = new EditorReviewMap();
         drugList = [];
 
@@ -459,8 +466,10 @@ describe('Firebase Review Utils', () => {
 
         mutation = new Mutation('V600E');
         gene.mutations.push(mutation);
+        mutation.name_uuid = MUTATION_UUID;
         mutation.mutation_effect.description = 'new description';
         mutation.mutation_effect.description_review = new Review('User2', 'old description');
+        delete mutation.alterations; // want to simplify and just used name instead of alterations
         uuids.push(mutation.mutation_effect.description_uuid);
       });
 
@@ -472,6 +481,7 @@ describe('Firebase Review Utils', () => {
           title: '',
           valuePath: '',
           historyLocation: '',
+          historyInfo: {},
           nestedUnderCreateOrDelete: false,
           hideLevel: false,
           id: expect.any(String),
@@ -481,6 +491,9 @@ describe('Firebase Review Utils', () => {
               title: 'Background',
               valuePath: 'background',
               historyLocation: 'Background',
+              historyInfo: {
+                fields: ['Background'],
+              },
               nestedUnderCreateOrDelete: false,
               hideLevel: false,
               id: expect.any(String),
@@ -500,6 +513,12 @@ describe('Firebase Review Utils', () => {
               title: 'V600E',
               valuePath: 'mutations/0',
               historyLocation: 'V600E',
+              historyInfo: {
+                mutation: {
+                  name: 'V600E',
+                  uuid: MUTATION_UUID,
+                },
+              },
               nestedUnderCreateOrDelete: false,
               hideLevel: false,
               id: expect.any(String),
@@ -509,6 +528,13 @@ describe('Firebase Review Utils', () => {
                   title: 'Mutation Effect',
                   valuePath: 'mutations/0/mutation_effect',
                   historyLocation: 'V600E, Mutation Effect',
+                  historyInfo: {
+                    mutation: {
+                      name: 'V600E',
+                      uuid: MUTATION_UUID,
+                    },
+                    fields: ['Mutation Effect'],
+                  },
                   nestedUnderCreateOrDelete: false,
                   hideLevel: false,
                   id: expect.any(String),
@@ -518,6 +544,13 @@ describe('Firebase Review Utils', () => {
                       title: 'Description',
                       valuePath: 'mutations/0/mutation_effect/description',
                       historyLocation: 'V600E, Mutation Effect, Description',
+                      historyInfo: {
+                        mutation: {
+                          name: 'V600E',
+                          uuid: MUTATION_UUID,
+                        },
+                        fields: ['Mutation Effect', 'Description'],
+                      },
                       nestedUnderCreateOrDelete: false,
                       hideLevel: false,
                       id: expect.any(String),
@@ -563,7 +596,7 @@ describe('Firebase Review Utils', () => {
     let parentReview: MetaReviewLevel;
 
     beforeEach(() => {
-      parentReview = new MetaReviewLevel({ title: '', valuePath: '', historyLocation: '' });
+      parentReview = new MetaReviewLevel({ title: '', valuePath: '', historyLocation: '', historyInfo: {} });
     });
 
     it('should keep parentReview unchanged if no children', () => {
@@ -577,7 +610,7 @@ describe('Firebase Review Utils', () => {
     });
 
     it('should remove meta review level with no children', () => {
-      const metaReview = new MetaReviewLevel({ title: 'V600E', valuePath: 'mutations/0', historyLocation: 'V600E' });
+      const metaReview = new MetaReviewLevel({ title: 'V600E', valuePath: 'mutations/0', historyLocation: 'V600E', historyInfo: {} });
       parentReview.addChild(metaReview);
       removeLeafNodes(parentReview);
       expect(parentReview.hasChildren()).toBeFalsy;
@@ -596,6 +629,7 @@ describe('Firebase Review Utils', () => {
           uuid: 'uuid',
         },
         historyData: { newState: 'V600E' },
+        historyInfo: {},
       });
       parentReview.addChild(reviewLevel);
 

@@ -194,7 +194,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
         </>
       )}
       {rootReview ? (
-        <Row>
+        <Row data-testid="root-review">
           <Col>
             <ReviewCollapsible
               gene={geneData}
@@ -220,6 +220,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
                   setIsReviewFinished(true);
                 }
               }}
+              drugList={props.drugList}
             />
           </Col>
         </Row>

@@ -110,8 +110,22 @@ module.exports = async options => {
             SERVER_API_URL: `''`,
             DOCKER: options.DOCKER,
           },
-          'Date.now': process.env.DOCKER ? `() => ${DEFAULT_DATE}` : 'Date.now',
-          'new Date()': process.env.DOCKER ? `new Date(${DEFAULT_DATE})` : 'new Date()',
+          Date: options.DOCKER
+            ? `((function() {
+            const OriginalDate = Date;
+            function CustomDate(...args) {
+              if (args.length === 0) {
+                return new OriginalDate(${DEFAULT_DATE});
+              }
+              return new OriginalDate(...args);
+            }
+            CustomDate.prototype = OriginalDate.prototype;
+            CustomDate.now = function() {
+              return new OriginalDate(${DEFAULT_DATE}).getTime();
+            };
+            return CustomDate;
+          })())`
+            : 'Date',
         }),
         new webpack.DefinePlugin({
           DEVELOPMENT: JSON.stringify(development),

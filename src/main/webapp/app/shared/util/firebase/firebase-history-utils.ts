@@ -24,6 +24,7 @@ export const buildHistoryFromReviews = (reviewerName: string, reviewLevels: Revi
       location: reviewLevel.historyLocation,
       operation: historyOperation,
       uuids: getUuidsFromReview(reviewLevel)?.join(','),
+      info: reviewLevel.historyInfo,
     };
     if (reviewLevel.historyData.newState !== undefined) {
       historyRecord.new = reviewLevel.historyData.newState;
@@ -38,6 +39,7 @@ export const buildHistoryFromReviews = (reviewerName: string, reviewLevels: Revi
     }
     if (historyOperation === HistoryOperationType.ADD || historyOperation === HistoryOperationType.PROMOTE_VUS) {
       delete historyRecord.old;
+      historyRecord.ignoreNestedUpdates = true;
     }
 
     history.records.push(historyRecord);
@@ -91,7 +93,7 @@ export const parseHistory = (history: HistoryList, drugList: readonly IDrug[]) =
       for (const record of historyEntry.records) {
         switch (record.operation) {
           case HistoryOperationType.ADD:
-            parsedRecords.push(...parseAddRecord(record, drugList, true));
+            parsedRecords.push(...parseAddRecord(record, drugList, record.ignoreNestedUpdates ? false : true));
             break;
           case HistoryOperationType.DELETE:
             parsedRecords.push(...parseDeleteRecord(record, drugList));
@@ -106,7 +108,7 @@ export const parseHistory = (history: HistoryList, drugList: readonly IDrug[]) =
             parsedRecords.push(...parseDeleteRecord(record, drugList));
             break;
           case HistoryOperationType.PROMOTE_VUS:
-            parsedRecords.push(...parseAddRecord(record, drugList, true));
+            parsedRecords.push(...parseAddRecord(record, drugList, record.ignoreNestedUpdates ? false : true));
             break;
           default:
         }

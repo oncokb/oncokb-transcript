@@ -262,14 +262,7 @@ function CurationDataValidationTab() {
             </div>
           )}
           <div className="d-flex justify-content-center align-items-center">
-            <Button
-              disabled={isValidating}
-              outline
-              size="sm"
-              color="primary"
-              type="submit"
-              onClick={() => setValidationCounter(x => x + 1)}
-            >
+            <Button disabled={isValidating} outline color="primary" type="submit" onClick={() => setValidationCounter(x => x + 1)}>
               {validationCounter > 0 && (
                 <span className="pe-2">{isValidating ? <Spinner size="sm" /> : <FontAwesomeIcon icon={faRedo} />}</span>
               )}

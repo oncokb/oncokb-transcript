@@ -119,6 +119,7 @@ describe('Firebase Gene Review Service', () => {
           oldState: '',
           newState: 'test',
         },
+        historyInfo: {},
       });
 
       await firebaseGeneReviewService.acceptChanges({
@@ -163,6 +164,7 @@ describe('Firebase Gene Review Service', () => {
         historyData: {
           oldState: mutation,
         },
+        historyInfo: {},
       });
 
       await firebaseGeneReviewService.acceptChanges({
@@ -205,6 +207,7 @@ describe('Firebase Gene Review Service', () => {
         historyData: {
           oldState: mutation,
         },
+        historyInfo: {},
       });
 
       await firebaseGeneReviewService.acceptChanges({
@@ -247,6 +250,7 @@ describe('Firebase Gene Review Service', () => {
         historyData: {
           newState: mutation,
         },
+        historyInfo: {},
       });
 
       await firebaseGeneReviewService.handleCreateAction(hugoSymbol, reviewLevel, false, ActionType.ACCEPT);
@@ -293,6 +297,7 @@ describe('Firebase Gene Review Service', () => {
           oldState: '',
           newState: 'test',
         },
+        historyInfo: {},
       });
 
       await firebaseGeneReviewService.rejectChanges(hugoSymbol, [reviewLevel], false);
@@ -325,6 +330,7 @@ describe('Firebase Gene Review Service', () => {
         historyData: {
           oldState: mutation,
         },
+        historyInfo: {},
       });
 
       await firebaseGeneReviewService.rejectChanges(hugoSymbol, [reviewLevel], false);

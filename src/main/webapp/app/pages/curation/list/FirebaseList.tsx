@@ -113,7 +113,7 @@ function FirebaseList<T>({
       items.push({ item: <div key={index}>{itemBuilder(index)}</div>, index }); // is using index as key ok? I think it might since firebase order not chagning
     }
     return items;
-  }, [indices, numItemsAdded, path]);
+  }, [indices, numItemsAdded, path, itemBuilder]);
 
   function getList() {
     if (!filter) {
