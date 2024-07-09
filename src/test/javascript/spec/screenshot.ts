@@ -1,13 +1,26 @@
-import { browser, $, expect } from '@wdio/globals';
+import { browser, $ } from '@wdio/globals';
 import { WdioCheckElementMethodOptions } from '@wdio/visual-service/dist/types';
 import * as path from 'path';
-import { BASE_URL, DATABASE_EMULATOR_URL, MOCK_DATA_JSON_FILE_PATH } from '../constants';
+import { BASE_URL, DATABASE_EMULATOR_URL, MOCK_DATA_JSON_FILE_PATH, SCREENSHOT_METHOD_OPTIONS } from '../constants';
 import setUpMocks from '../setup-mocks';
 import * as fs from 'fs';
 import * as admin from 'firebase-admin';
-import { createMutationOnCurationPage } from '../shared/utils';
-
-const ALLOWED_MISMATCH_PERCENTAGE = 0;
+import { assertScreenShotMatch } from '../shared/test-utils';
+import { CollapsibleDataTestIdType, getCollapsibleDataTestId } from '../../../main/webapp/app/shared/util/test-id-utils';
+import {
+  ADD_MUTATION_MODAL_INPUT_ID,
+  ADD_THERAPY_BUTTON_ID,
+  DEFAULT_ADD_MUTATION_MODAL_ID,
+  GENE_HEADER_REVIEW_BUTTON_ID,
+  GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID,
+  GENE_LIST_TABLE_ID,
+  RCT_MODAL_BUTTON_ID,
+  RCT_MODAL_ID,
+  REVIEW_PAGE_ID,
+  SIMPLE_CONFIRM_MODAL_CONTENT_ID,
+  VUS_TABLE_ID,
+} from '../../../main/webapp/app/config/constants/html-id.ts';
+import { createMutationOnCurationPage } from '../shared/utils.ts';
 
 describe('Screenshot Tests', () => {
   let adminApp: admin.app.App;
@@ -35,100 +48,125 @@ describe('Screenshot Tests', () => {
   it('should compare gene list', async () => {
     await browser.url(`${BASE_URL}/curation`);
 
-    const geneList = await $('#gene-list');
+    const geneList = await $(`#${GENE_LIST_TABLE_ID}`);
     await geneList.waitForDisplayed();
 
     const result = await browser.checkElement(geneList, 'gene-list', SCREENSHOT_METHOD_OPTIONS);
-    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
+    assertScreenShotMatch(result);
   });
 
   it('should compare VUS table', async () => {
     await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
 
-    const vusTable = await $('div[data-testid="vus-table"]');
+    const vusTable = await $(`div[data-testid="${VUS_TABLE_ID}"]`);
     await vusTable.waitForDisplayed();
 
     const result = await browser.checkElement(vusTable, 'vus-table', SCREENSHOT_METHOD_OPTIONS);
-    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
+    assertScreenShotMatch(result);
   });
 
   it('should compare mutation collapsible', async () => {
     await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
 
-    const mutationCollapsible = await $('div[data-testid="V600E-collapsible"]');
+    const mutationCollapsible = await $(`div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.COLLAPSIBLE, 'V600E')}"]`);
     await mutationCollapsible.waitForDisplayed();
 
     const result = await browser.checkElement(mutationCollapsible, 'mutation-collapsible', SCREENSHOT_METHOD_OPTIONS);
-    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
+    assertScreenShotMatch(result);
   });
 
   it('should compare mutation effect not curatable', async () => {
     await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
 
-    const mutationCollapsibleButton = await $('div[data-testid="V600E, V600K-collapsible-title-wrapper"]');
+    const mutation = 'V600E, V600K';
+
+    const mutationCollapsibleButton = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, mutation)}"]`,
+    );
     await mutationCollapsibleButton.click();
 
-    const mutationEffectNotCuratable = await $('div[data-testid="Mutation Effect-collapsible"]');
+    const mutationEffectNotCuratable = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.COLLAPSIBLE, `${mutation}-mutation-effect`)}"]`,
+    );
     await mutationEffectNotCuratable.waitForDisplayed();
 
     const result = await browser.checkElement(mutationEffectNotCuratable, 'mutation-effect-not-curatable', SCREENSHOT_METHOD_OPTIONS);
-    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
+    assertScreenShotMatch(result);
   });
 
   it('should compare open therapy collapsible', async () => {
     await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
 
-    const mutationCollapsibleButton = await $('div[data-testid="V600E-collapsible-title-wrapper"]');
+    const mutation = 'V600E';
+    const cancerType = 'Melanoma';
+    const treatment = 'Dabrafenib';
+
+    const mutationCollapsibleButton = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, mutation)}"]`,
+    );
     await mutationCollapsibleButton.click();
 
-    const cancerTypeCollapsibleButton = await $('div[data-testid="Cancer Type: Melanoma-collapsible-title-wrapper"]');
+    const cancerTypeCollapsibleButton = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, `${mutation}-${cancerType}`)}"]`,
+    );
     await cancerTypeCollapsibleButton.click();
 
-    const therapyCollapsibleButton = await $('div[data-testid="Therapy: Dabrafenib-collapsible-title-wrapper"]');
+    const therapyCollapsibleButton = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, `${mutation}-${cancerType}-${treatment}`)}"]`,
+    );
     await therapyCollapsibleButton.click();
 
-    const openTherapyCollapsible = await $('div[data-testid="Therapy: Dabrafenib-collapsible"]');
+    const openTherapyCollapsible = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.COLLAPSIBLE, `${mutation}-${cancerType}-${treatment}`)}"]`,
+    );
     await openTherapyCollapsible.waitForDisplayed();
     await openTherapyCollapsible.scrollIntoView();
 
     const result = await browser.checkElement(openTherapyCollapsible, 'open-therapy-collapsible', SCREENSHOT_METHOD_OPTIONS);
-    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
+    assertScreenShotMatch(result);
   });
 
   it('should compare modify therapy modal', async () => {
     await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
 
-    const mutationCollapsibleButton = await $('div[data-testid="V600E-collapsible-title-wrapper"]');
+    const mutation = 'V600E';
+    const cancerType = 'Melanoma';
+
+    const mutationCollapsibleButton = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, mutation)}"]`,
+    );
     await mutationCollapsibleButton.click();
 
-    const cancerTypeCollapsibleButton = await $('div[data-testid="Cancer Type: Melanoma-collapsible-title-wrapper"]');
+    const cancerTypeCollapsibleButton = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, `${mutation}-${cancerType}`)}"]`,
+    );
     await cancerTypeCollapsibleButton.click();
 
-    const addTherapyButton = await $('button[data-testid="add-therapy"]');
+    const addTherapyButton = await $(`button[data-testid="${ADD_THERAPY_BUTTON_ID}"]`);
     await addTherapyButton.click();
 
-    const modifyTherapyModal = await $('div[data-testid="simple-confirm-modal-content"]');
+    const modifyTherapyModal = await $(`div[data-testid="${SIMPLE_CONFIRM_MODAL_CONTENT_ID}"]`);
     await modifyTherapyModal.waitForDisplayed();
 
     const result = await browser.checkElement(modifyTherapyModal, 'add-therapy-modal', SCREENSHOT_METHOD_OPTIONS);
-    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
+    assertScreenShotMatch(result);
   });
 
   it('should compare review page', async () => {
     await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
 
-    const reviewButton = await $('button[data-testid="review-button"]');
+    const reviewButton = await $(`button[data-testid="${GENE_HEADER_REVIEW_BUTTON_ID}"]`);
     await reviewButton.click();
 
-    const reviewPage = await $('div[data-testid="review-page"]');
+    const reviewPage = await $(`div[data-testid="${REVIEW_PAGE_ID}"]`);
     const rootReview = await $('div[data-testid="root-review"]');
     await rootReview.waitForDisplayed();
 
     const result = await browser.checkElement(reviewPage, 'review-page', SCREENSHOT_METHOD_OPTIONS);
-    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
+    assertScreenShotMatch(result);
 
     // reset by going back to curation page
-    const reviewCompleteButton = await $('button[data-testid="review-complete-button"]');
+    const reviewCompleteButton = await $(`button[data-testid="${GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID}"]`);
     await reviewCompleteButton.click();
   });
 
@@ -137,18 +175,19 @@ describe('Screenshot Tests', () => {
 
     // Click to open mutation modal
     const addMutationButton = await $('button=Add Mutation');
+    await addMutationButton.waitForClickable();
     await addMutationButton.click();
 
     // Add a new mutation
-    const mutationNameInput = await $('input#add-mutation-modal-input');
+    const mutationNameInput = await $(`input#${ADD_MUTATION_MODAL_INPUT_ID}`);
     await mutationNameInput.setValue('V600E');
     await browser.keys('Enter');
 
-    const addMutationModal = await $('div[id="default-add-mutation-modal"]');
+    const addMutationModal = await $(`div[id="${DEFAULT_ADD_MUTATION_MODAL_ID}"]`);
     await addMutationModal.waitForDisplayed();
 
     const result = await browser.checkElement(addMutationModal, 'add-mutation-modal', methodOptions);
-    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
+    assertScreenShotMatch(result);
   });
 
   it('should compare gene type on review page', async () => {
@@ -158,13 +197,13 @@ describe('Screenshot Tests', () => {
     await tsgCheckbox.waitForDisplayed();
     await tsgCheckbox.click();
 
-    const reviewButton = await $('button[data-testid="review-button"]');
+    const reviewButton = await $(`button[data-testid="${GENE_HEADER_REVIEW_BUTTON_ID}"]`);
     await reviewButton.click();
-    const reviewCollapsible = await $('div[data-testid="collapsible"]');
+    const reviewCollapsible = await $(`div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.COLLAPSIBLE, 'Gene Type')}"]`);
     await reviewCollapsible.waitForDisplayed();
 
     const result = await browser.checkElement(reviewCollapsible, 'gene-type-review-collapsible', methodOptions);
-    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
+    assertScreenShotMatch(result);
   });
 
   it('should compare updated gene summary on review page', async () => {
@@ -175,17 +214,19 @@ describe('Screenshot Tests', () => {
     await mutationEffectDesc.setValue('TP53 is the most frequently mutated gene in cancer. Additional text.');
 
     // Go to review page to compare collapsible
-    const reviewButton = await $('button[data-testid="review-button"]');
+    const reviewButton = await $(`button[data-testid="${GENE_HEADER_REVIEW_BUTTON_ID}"]`);
     await reviewButton.click();
-    const reviewCollapsible = await $('div[data-testid="collapsible"]');
+    const reviewCollapsible = await $(`div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.COLLAPSIBLE, 'Summary')}"]`);
     await reviewCollapsible.waitForDisplayed();
 
     const result = await browser.checkElement(reviewCollapsible, 'updated-gene-summary-review-collapsible', methodOptions);
-    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
+    assertScreenShotMatch(result);
   });
 
   it('should compare newly created mutation on review page', async () => {
     await browser.url(`${BASE_URL}/curation/EMPTYGENE/somatic`);
+
+    const mutation = 'V600E';
 
     // Click to open mutation modal
     const addMutationButton = await $('button=Add Mutation');
@@ -193,7 +234,7 @@ describe('Screenshot Tests', () => {
     await addMutationButton.click();
 
     // Add a new mutation
-    createMutationOnCurationPage('V600E');
+    createMutationOnCurationPage(mutation);
 
     // After mutation created, mutation collapsible should be opened.
     // Add content to newly created mutation.
@@ -203,17 +244,19 @@ describe('Screenshot Tests', () => {
     await mutationEffectDesc.addValue('Sample description');
 
     // Go to review page to compare collapsible
-    const reviewButton = await $('button[data-testid="review-button"]');
+    const reviewButton = await $(`button[data-testid="${GENE_HEADER_REVIEW_BUTTON_ID}"]`);
     await reviewButton.click();
-    const reviewCollapsible = await $('div[data-testid="collapsible"]');
+    const reviewCollapsible = await $(`div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.COLLAPSIBLE, mutation)}"]`);
     await reviewCollapsible.waitForDisplayed();
 
     const result = await browser.checkElement(reviewCollapsible, 'new-mutation-review-collapsible', methodOptions);
-    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
+    assertScreenShotMatch(result);
   });
 
   it('should compare deleted mutation collapsible on review page', async () => {
     await browser.url(`${BASE_URL}/curation/TP53/somatic`);
+
+    const mutation = 'Y220C';
 
     const trashCanIcon = await $("svg[data-icon='trash-can']");
     await trashCanIcon.click();
@@ -222,54 +265,72 @@ describe('Screenshot Tests', () => {
     await confirmDeleteBtn.click();
 
     // Go to review page to compare collapsible
-    const reviewButton = await $('button[data-testid="review-button"]');
+    const reviewButton = await $(`button[data-testid="${GENE_HEADER_REVIEW_BUTTON_ID}"]`);
     await reviewButton.click();
-    const reviewCollapsible = await $('div[data-testid="collapsible"]');
+    const reviewCollapsible = await $(`div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.COLLAPSIBLE, mutation)}"]`);
     await reviewCollapsible.waitForDisplayed();
 
     const result = await browser.checkElement(reviewCollapsible, 'deleted-mutation-review-collapsible', methodOptions);
-    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
+    assertScreenShotMatch(result);
   });
 
   it('should compare relevant cancer type modal', async () => {
     await browser.url(`${BASE_URL}/curation/TP53/somatic`);
 
+    const mutation = 'Oncogenic Mutations';
+    const cancerType = 'Mantle Cell Lymphoma';
+
     // Open collapsible
-    const mutationCollapsibleButton = await $('div[data-testid="Oncogenic Mutations-collapsible-title-wrapper"]');
+    const mutationCollapsibleButton = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, mutation)}"]`,
+    );
     await mutationCollapsibleButton.click();
 
-    const cancerTypeCollapsibleButton = await $('div[data-testid="Cancer Type: Mantle Cell Lymphoma-collapsible-title-wrapper"]');
+    const cancerTypeCollapsibleButton = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, `${mutation}-${cancerType}`)}"]`,
+    );
     await cancerTypeCollapsibleButton.click();
 
-    const rctButton = await $('div[data-testid="Prognostic Implication-collapsible-card"] button[id="relevant-cancer-types-button"]');
+    const rctButton = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.CARD, `${mutation}-${cancerType}-px-implication`)}"] button[id="${RCT_MODAL_BUTTON_ID}"]`,
+    );
     await rctButton.click();
 
-    const rctModal = await $('*[id="relevant-cancer-type-modal"]');
+    const rctModal = await $(`*[id="${RCT_MODAL_ID}"]`);
     await rctModal.waitForDisplayed();
 
     const result = await browser.checkElement(rctModal, 'relevant-cancer-types-modal', methodOptions);
-    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
+    assertScreenShotMatch(result);
   });
 
   it('should compare updated RCT on review page', async () => {
     await browser.url(`${BASE_URL}/curation/TP53/somatic`);
 
+    const mutation = 'Oncogenic Mutations';
+    const cancerType = 'Mantle Cell Lymphoma';
+
     // Open collapsible
-    const mutationCollapsibleButton = await $('div[data-testid="Oncogenic Mutations-collapsible-title-wrapper"]');
+    const mutationCollapsibleButton = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, mutation)}"]`,
+    );
     await mutationCollapsibleButton.click();
 
-    const cancerTypeCollapsibleButton = await $('div[data-testid="Cancer Type: Mantle Cell Lymphoma-collapsible-title-wrapper"]');
+    const cancerTypeCollapsibleButton = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, `${mutation}-${cancerType}`)}"]`,
+    );
     await cancerTypeCollapsibleButton.click();
 
     // Open RCT modal
-    const rctButton = await $('div[data-testid="Prognostic Implication-collapsible-card"]').$('button[id="relevant-cancer-types-button"]');
+    const rctButton = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.CARD, `${mutation}-${cancerType}-px-implication`)}"]`,
+    ).$(`button[id="${RCT_MODAL_BUTTON_ID}"]`);
     await rctButton.click();
 
-    const rctModal = await $('*[id="relevant-cancer-type-modal"]');
+    const rctModal = await $(`*[id="${RCT_MODAL_ID}"]`);
     await rctModal.waitForDisplayed();
 
     // Remove a cancer type from RCT list
-    const rctRemoveButtons = await $$("*[id='relevant-cancer-type-modal'] svg[data-icon='trash-can']");
+    const rctRemoveButtons = await $$(`*[id='${RCT_MODAL_ID}'] svg[data-icon='trash-can']`);
     await rctRemoveButtons[0].waitForDisplayed();
     await rctRemoveButtons[0].click();
 
@@ -278,12 +339,14 @@ describe('Screenshot Tests', () => {
     await rctConfirmButton.click();
 
     // Go to review page to compare collapsible
-    const reviewButton = await $('button[data-testid="review-button"]');
+    const reviewButton = await $(`button[data-testid="${GENE_HEADER_REVIEW_BUTTON_ID}"]`);
     await reviewButton.click();
-    const reviewCollapsible = await $('div[data-testid="collapsible"]');
+    const reviewCollapsible = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.COLLAPSIBLE, `${mutation}/${cancerType}/Prognostic/Relevant Cancer Types`)}"]`,
+    );
     await reviewCollapsible.waitForDisplayed();
 
     const result = await browser.checkElement(reviewCollapsible, 'updated-rct-review-collapsible', methodOptions);
-    expect(result).toBeLessThanOrEqual(ALLOWED_MISMATCH_PERCENTAGE);
+    assertScreenShotMatch(result);
   });
 });

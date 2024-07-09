@@ -212,6 +212,7 @@ const MutationCollapsible = ({
   return (
     <>
       <RemovableCollapsible
+        idPrefix={title}
         title={title}
         defaultOpen={open}
         collapsibleClassName="mb-1"
@@ -294,6 +295,7 @@ const MutationCollapsible = ({
         isPendingDelete={isMutationPendingDelete}
       >
         <Collapsible
+          idPrefix={`${mutationName}-mutation-effect`}
           title="Mutation Effect"
           defaultOpen={isMECuratable}
           colorOptions={{
@@ -408,6 +410,7 @@ const MutationCollapsible = ({
         {isGermline && (
           <>
             <Collapsible
+              idPrefix={`${mutationName}-penetrance`}
               collapsibleClassName="mt-2"
               title={'Mutation Specific Penetrance'}
               colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.PENETRANCE]] }}
@@ -460,6 +463,7 @@ const MutationCollapsible = ({
               </>
             </Collapsible>
             <Collapsible
+              idPrefix={`${mutationName}-mechanism-of-inheritance`}
               collapsibleClassName="mt-2"
               title={'Mutation Specific Mechanism of Inheritance'}
               colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.INHERITANCE_MECHANISM]] }}
@@ -512,6 +516,7 @@ const MutationCollapsible = ({
               </>
             </Collapsible>
             <Collapsible
+              idPrefix={`${mutationName}-cancer-risk`}
               collapsibleClassName="mt-2"
               title={'Mutation Specific Cancer Risk'}
               colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.CANCER_RISK]] }}

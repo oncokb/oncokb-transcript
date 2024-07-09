@@ -19,3 +19,5 @@ export const SCREENSHOT_METHOD_OPTIONS: WdioCheckElementMethodOptions = {
   baselineFolder: path.join(process.cwd(), 'src/test/javascript/screenshots/baseline'),
   diffFolder: path.join(process.cwd(), 'src/test/javascript/screenshots/diff'),
 };
+
+export const ALLOWED_MISMATCH_PERCENTAGE = 0;

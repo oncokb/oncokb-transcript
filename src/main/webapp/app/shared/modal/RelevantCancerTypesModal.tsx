@@ -19,6 +19,7 @@ import { CancerType as FetchedCancerType, RelevantCancerTypeQuery } from '../api
 import { FaExclamationCircle } from 'react-icons/fa';
 import InfoIcon from '../icons/InfoIcon';
 import pluralize from 'pluralize';
+import { RCT_MODAL_ID } from 'app/config/constants/html-id';
 
 export interface IRelevantCancerTypesModalProps extends StoreProps {
   onConfirm: (newRelevantCancerTypes: CancerType[], noneDeleted: boolean) => void;
@@ -194,7 +195,7 @@ const RelevantCancerTypesModalContent = observer(
     const numberDeletedRcts = relevantCancerTypesModalStore.relevantCancerTypes.filter(rct => rct.isDeleted).length;
 
     return (
-      <Modal isOpen style={{ maxWidth: '650px' }} id="relevant-cancer-type-modal">
+      <Modal isOpen style={{ maxWidth: '650px' }} id={RCT_MODAL_ID}>
         <ModalHeader>Modify Relevant Cancer Types</ModalHeader>
         <ModalBody>
           {relevantCancerTypesModalStore.relevantCancerTypes.length > 50 && (

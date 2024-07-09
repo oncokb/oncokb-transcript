@@ -21,7 +21,7 @@ const getCurationPageLink = (hugoSymbol: string, isGermline: boolean) => {
   return generatePath(isGermline ? PAGE_ROUTE.CURATION_GENE_GERMLINE : PAGE_ROUTE.CURATION_GENE_SOMATIC, { hugoSymbol });
 };
 import CurationDataImportTab from 'app/components/tabs/CurationDataImportTab';
-import { DATA_IMPORT_TAB_ID } from 'app/config/constants/html-id';
+import { DATA_IMPORT_TAB_ID, GENE_LIST_TABLE_ID } from 'app/config/constants/html-id';
 
 type GeneMetaInfo = {
   hugoSymbol: string;
@@ -127,7 +127,7 @@ const GeneListPage = (props: IGeneListPage) => {
                   <SomaticGermlineToggleButton />
                 </Col>
               </Row>
-              <Row id={'gene-list'}>
+              <Row id={GENE_LIST_TABLE_ID}>
                 <Col>
                   <OncoKBTable
                     data={geneMeta}

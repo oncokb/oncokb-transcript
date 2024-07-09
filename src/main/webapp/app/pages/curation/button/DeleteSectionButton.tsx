@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import ActionIcon, { IActionIcon } from 'app/shared/icons/ActionIcon';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { DANGER } from 'app/config/colors';
+import { DELETION_SECTION_MODAL_BUTTON_ID } from 'app/config/constants/html-id';
 
 export interface DeleteSectionButtonProps extends Omit<IActionIcon, 'icon' | 'color' | 'onClick'> {
   sectionName: string;
@@ -22,7 +23,7 @@ export const DeleteSectionButton = ({
     <>
       <ActionIcon icon={faTrashAlt} onClick={() => setShowModal(true)} color={DANGER} {...actionIconProps} />
       <SimpleConfirmModal
-        id={'delete-section-modal'}
+        id={DELETION_SECTION_MODAL_BUTTON_ID}
         title={'Are you sure you want to delete this section?'}
         body={
           <>

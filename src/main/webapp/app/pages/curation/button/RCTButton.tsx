@@ -1,4 +1,5 @@
 import { SPECIAL_CANCER_TYPES } from 'app/config/constants/constants';
+import { RCT_MODAL_BUTTON_ID } from 'app/config/constants/html-id';
 import { Implication, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { componentInject } from 'app/shared/util/typed-inject';
@@ -67,7 +68,7 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
       outline
       disabled={disabled}
       onClick={handleClick}
-      id={'relevant-cancer-types-button'}
+      id={RCT_MODAL_BUTTON_ID}
     >
       <FaPen className="me-1" />
       <span>RCTs</span>

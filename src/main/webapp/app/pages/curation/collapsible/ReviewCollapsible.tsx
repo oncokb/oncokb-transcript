@@ -420,6 +420,7 @@ export const ReviewCollapsible = ({
 
   return (
     <Collapsible
+      idPrefix={baseReviewLevel.title}
       defaultOpen
       collapsibleClassName={'mb-1'}
       title={reformatReviewTitle(baseReviewLevel)}

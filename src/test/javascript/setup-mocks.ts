@@ -4,6 +4,27 @@ import * as fs from 'fs';
 
 const DATA_DIR = 'src/test/javascript/data/';
 
+const getAlterationMockResponse = (requestBody: string, readFile = true) => {
+  const body = JSON.parse(requestBody);
+  const alterationName = body[0]?.alteration?.alteration?.toLowerCase();
+  let filePath = `${DATA_DIR}api-annotate-alterations-`;
+  switch (alterationName) {
+    case 'v600e':
+      filePath += alterationName;
+      break;
+    default:
+      break;
+  }
+  filePath += '.json';
+
+  if (fs.existsSync(filePath)) {
+    if (readFile) {
+      return JSON.parse(fs.readFileSync(filePath).toString());
+    }
+    return true;
+  }
+};
+
 export default async function setUpMocks() {
   const firebaseConfig = JSON.stringify({
     firebase: {
@@ -54,11 +75,20 @@ export default async function setUpMocks() {
   });
 
   const annotateAlterationsMock = await browser.mock('**/api/annotate-alterations');
-  const annotateAlterationsV600E = JSON.parse(fs.readFileSync(`${DATA_DIR}api-annotate-alterations-v600e.json`).toString());
-  annotateAlterationsMock.respond(annotateAlterationsV600E, {
-    statusCode: 200,
-    fetchResponse: false,
-  });
+  annotateAlterationsMock.respond(
+    req => {
+      return getAlterationMockResponse(req.postData ?? '');
+    },
+    {
+      statusCode: req => {
+        if (getAlterationMockResponse(req.postData ?? '', false) === true) {
+          return 200;
+        }
+        return 400;
+      },
+      fetchResponse: false,
+    },
+  );
 
   const pubMedArticleMock = await browser.mock('**/api/articles/pubmed/15520807');
   const pubmedArticle = JSON.parse(fs.readFileSync(`${DATA_DIR}api-articles-pubmed-15520807.json`).toString());
