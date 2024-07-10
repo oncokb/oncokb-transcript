@@ -76,7 +76,7 @@ export default async function setUpMocks() {
 
   const annotateAlterationsMock = await browser.mock('**/api/annotate-alterations');
   annotateAlterationsMock.respond(req => getAlterationMockResponse(req.postData ?? ''), {
-    statusCode: req => {
+    statusCode(req) {
       if (getAlterationMockResponse(req.postData ?? '', false) === true) {
         return 200;
       }
