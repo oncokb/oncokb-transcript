@@ -1,5 +1,5 @@
 import { DX_LEVELS, FDA_LEVELS, FIREBASE_ONCOGENICITY, PX_LEVELS, TI_TYPE, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
-import { getEvidence, pathToGetEvidenceArgs } from './core-submission';
+import { getEvidence, pathToGetEvidenceArgs } from './core-evidence-submission';
 import { Evidence, EvidenceEvidenceTypeEnum, EvidenceLevelOfEvidenceEnum } from 'app/shared/api/generated/core';
 import { generateUuid } from '../utils';
 import {
@@ -12,7 +12,7 @@ import {
   createMockTi,
   createMockTreatment,
   createMockTumor,
-} from './core-submission.mocks';
+} from '../core-submission-shared/core-submission.mocks';
 
 type GetEvidenceArgs = Parameters<typeof getEvidence>[0];
 type GetEvidenceRtn = ReturnType<typeof getEvidence>;

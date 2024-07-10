@@ -96,6 +96,7 @@ export class Treatment {
   description_review?: Review;
   description_uuid: string = generateUuid();
   indication = '';
+  indication_review?: Review;
   indication_uuid: string = generateUuid();
   level: TX_LEVELS = TX_LEVELS.LEVEL_EMPTY;
   level_review?: Review;

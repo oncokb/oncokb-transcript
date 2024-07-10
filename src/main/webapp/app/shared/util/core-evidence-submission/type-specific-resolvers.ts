@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { GetEvidenceArgs, KnownEffect } from './core-submission';
-import { mostRecentItem, LEVEL_MAPPING, validateTimeFormat } from './core-submission-utils';
+import { GetEvidenceArgs, KnownEffect } from './core-evidence-submission';
+import { mostRecentItem, LEVEL_MAPPING, validateTimeFormat } from './core-evidence-submission-utils';
 import { Evidence } from '../../api/generated/core/api';
 
 function handleInvestigationalResistanceToTherapy({ evidenceData }: { evidenceData: InitializeEvidenceDataRtn }) {

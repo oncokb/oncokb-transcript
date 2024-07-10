@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { Drug, DrugCollection, Gene, Mutation, MutationEffect, TI, TX_LEVELS, Treatment, Tumor } from '../../model/firebase/firebase.model';
 import { resolveTypeSpecificData } from './type-specific-resolvers';
-import { FDA_LEVEL_MAPPING, LEVEL_MAPPING, getNewPriorities, validateTimeFormat } from './core-submission-utils';
+import { FDA_LEVEL_MAPPING, LEVEL_MAPPING, getNewPriorities, validateTimeFormat } from './core-evidence-submission-utils';
 import { Evidence, EvidenceEvidenceTypeEnum } from '../../api/generated/core/api';
 
 export type GetEvidenceArgs = {

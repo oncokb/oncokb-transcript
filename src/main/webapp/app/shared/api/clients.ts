@@ -11,6 +11,7 @@ import {
   CancerTypeResourceApi,
   ArticleResourceApi,
 } from './generated/curation/api';
+import { DriveAnnotationApi } from './manual/drive-annotation-api';
 import { EvidenceApi } from './manual/evidence-api';
 
 export const fdaSubmissionClient = new FdaSubmissionResourceApi(null, '', axiosInstance);
@@ -25,3 +26,4 @@ export const cancerTypeClient = new CancerTypeResourceApi(null, '', axiosInstanc
 export const articleClient = new ArticleResourceApi(null, '', axiosInstance);
 
 export const evidenceClient = new EvidenceApi(null, '', axiosInstance);
+export const driveAnnotationClient = new DriveAnnotationApi(null, '', axiosInstance);

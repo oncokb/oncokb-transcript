@@ -202,6 +202,7 @@
        (user_id, authority_name)
        VALUES
        (@UserId, 'ROLE_ADMIN'),
+       (@UserId, 'ROLE_DEV'),
        (@UserId, 'ROLE_CURATOR'),
        (@UserId, 'ROLE_USER');
 
