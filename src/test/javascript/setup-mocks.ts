@@ -75,20 +75,15 @@ export default async function setUpMocks() {
   });
 
   const annotateAlterationsMock = await browser.mock('**/api/annotate-alterations');
-  annotateAlterationsMock.respond(
-    req => {
-      return getAlterationMockResponse(req.postData ?? '');
+  annotateAlterationsMock.respond(req => getAlterationMockResponse(req.postData ?? ''), {
+    statusCode: req => {
+      if (getAlterationMockResponse(req.postData ?? '', false) === true) {
+        return 200;
+      }
+      return 400;
     },
-    {
-      statusCode: req => {
-        if (getAlterationMockResponse(req.postData ?? '', false) === true) {
-          return 200;
-        }
-        return 400;
-      },
-      fetchResponse: false,
-    },
-  );
+    fetchResponse: false,
+  });
 
   const pubMedArticleMock = await browser.mock('**/api/articles/pubmed/15520807');
   const pubmedArticle = JSON.parse(fs.readFileSync(`${DATA_DIR}api-articles-pubmed-15520807.json`).toString());
