@@ -296,7 +296,7 @@ describe('Firebase Review Utils', () => {
         drugList,
       );
 
-      expect(treatmentNameReview.title).toEqual('DrugA + DrugB');
+      expect(treatmentNameReview.title).toEqual('Therapy: DrugA + DrugB');
       expect(treatmentNameReview.historyLocation).toEqual('V600E, Melanoma, DrugA + DrugB');
     });
   });
@@ -317,7 +317,7 @@ describe('Firebase Review Utils', () => {
       const uuids = []; // UUIDs array is empty because no name change
       const metaReview = buildCancerTypeNameReview(defaultTumor, 'mutations/0/tumors/0', defaultParentReview, uuids, editorReviewMap);
 
-      expect(metaReview.title).toEqual('Melanoma');
+      expect(metaReview.title).toEqual('Cancer Type: Melanoma');
       expect(metaReview.valuePath).toEqual('mutations/0/tumors/0');
       expect(metaReview.historyLocation).toEqual('V600E, Melanoma');
       // Don't expect child because no name change
@@ -329,7 +329,7 @@ describe('Firebase Review Utils', () => {
       const uuids = []; // UUIDs array is empty because no name change
       const metaReview = buildCancerTypeNameReview(defaultTumor, 'mutations/0/tumors/0', defaultParentReview, uuids, editorReviewMap);
 
-      expect(metaReview.title).toEqual('Melanoma {excluding Ocular Melanoma}');
+      expect(metaReview.title).toEqual('Cancer Type: Melanoma {excluding Ocular Melanoma}');
       expect(metaReview.valuePath).toEqual('mutations/0/tumors/0');
       expect(metaReview.historyLocation).toEqual('V600E, Melanoma {excluding Ocular Melanoma}');
       expect(metaReview.hasChildren()).toBeFalsy();

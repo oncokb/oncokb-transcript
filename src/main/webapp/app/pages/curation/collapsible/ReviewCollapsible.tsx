@@ -252,6 +252,9 @@ export const ReviewCollapsible = ({
     if (rootReview.reviewLevelType === ReviewLevelType.META) {
       return <></>;
     } else if (rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE) {
+      if (isCreateReview(rootReview) && isUnderCreationOrDeletion) {
+        return <></>;
+      }
       reviewLevel = rootReview as ReviewLevel;
     } else if (rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) {
       const multiReviewLevel = rootReview as MultiSelectionReviewLevel;
@@ -267,6 +270,13 @@ export const ReviewCollapsible = ({
     const editor = reviewLevel.reviewInfo.review.updatedBy;
     const updatedTime = new Date(reviewLevel.reviewInfo.review.updateTime).toString();
     return getReviewInfo(editor, action, updatedTime);
+  };
+
+  const getBadge = () => {
+    if (isUnderCreationOrDeletion) {
+      return undefined;
+    }
+    return <DefaultBadge color={ReviewCollapsibleBootstrapClass[reviewAction]} text={ReviewActionLabels[reviewAction]} />;
   };
 
   const getReviewableContent = () => {
@@ -387,9 +397,11 @@ export const ReviewCollapsible = ({
   const getColorOptions = () => {
     let colorOptions: CollapsibleColorProps;
     let disableBorder = false;
-    if (isCreateReview(baseReviewLevel)) {
+    if (isUnderCreationOrDeletion) {
+      disableBorder = true;
+    } else if (isCreateReview(baseReviewLevel)) {
       disableBorder = false;
-    } else if (baseReviewLevel.reviewLevelType === ReviewLevelType.META || baseReviewLevel.nestedUnderCreateOrDelete) {
+    } else if (baseReviewLevel.reviewLevelType === ReviewLevelType.META) {
       disableBorder = true;
     }
 
@@ -430,10 +442,11 @@ export const ReviewCollapsible = ({
       displayOptions={{ ...defaultReviewCollapsibleDisplayOptions }}
       isPendingDelete={isDeletion}
       badge={
-        (isCreateReview(baseReviewLevel) ||
-          (baseReviewLevel.reviewLevelType !== ReviewLevelType.META && !baseReviewLevel.nestedUnderCreateOrDelete)) && (
-          <DefaultBadge color={ReviewCollapsibleBootstrapClass[reviewAction]} text={ReviewActionLabels[reviewAction]} />
-        )
+        // (isCreateReview(baseReviewLevel) ||
+        //   (baseReviewLevel.reviewLevelType !== ReviewLevelType.META && !baseReviewLevel.nestedUnderCreateOrDelete)) && (
+        //   <DefaultBadge color={ReviewCollapsibleBootstrapClass[reviewAction]} text={ReviewActionLabels[reviewAction]} />
+        // )
+        getBadge()
       }
     >
       {getCollapsibleBody()}
