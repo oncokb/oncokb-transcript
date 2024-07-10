@@ -11,6 +11,7 @@ import { GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import TherapyCollapsible from '../collapsible/TherapyCollapsible';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
+import { ADD_THERAPY_BUTTON_ID } from 'app/config/constants/html-id';
 
 export interface ITherapiesList extends StoreProps {
   tisPath: string;
@@ -108,7 +109,7 @@ const TherapiesList = ({
         );
       })}
       <Button
-        data-testid="add-therapy"
+        data-testid={ADD_THERAPY_BUTTON_ID}
         className={txObjects.length > 0 ? `mt-2` : null}
         outline
         color="primary"

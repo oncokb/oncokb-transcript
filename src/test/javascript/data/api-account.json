@@ -1,0 +1,15 @@
+{
+  "id": 1,
+  "login": "LOGIN",
+  "firstName": "Test",
+  "lastName": "User",
+  "email": "EMAIL",
+  "imageUrl": null,
+  "activated": true,
+  "langKey": "en",
+  "createdBy": "system",
+  "createdDate": null,
+  "lastModifiedBy": "system",
+  "lastModifiedDate": null,
+  "authorities": ["ROLE_CURATOR", "ROLE_USER", "ROLE_ADMIN"]
+}

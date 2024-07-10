@@ -19,7 +19,7 @@ import AuthStore from '../../stores/authentication.store';
 import { FirebaseRepository } from '../../stores/firebase/firebase-repository';
 import { FirebaseMetaService } from './firebase-meta-service';
 import { ALLELE_STATE, PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
-import { isPromiseOk } from 'app/shared/util/utils';
+import { generateUuid, isPromiseOk } from 'app/shared/util/utils';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { getErrorMessage } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
 import { FirebaseDataStore } from 'app/stores/firebase/firebase-data.store';
@@ -393,8 +393,14 @@ export class FirebaseGeneService {
     initialUpdate?: boolean,
   ) => {
     const { hugoSymbol } = parseFirebaseGenePath(rctPath);
+
+    if (!uuid) {
+      uuid = generateUuid();
+    }
+
     if (initialUpdate) {
       return this.firebaseRepository.create(rctPath, newRelevantCancerTypes).then(() => {
+        this.firebaseRepository.create(`${rctPath}_uuid`, uuid);
         this.firebaseRepository.update(`${rctPath}_review`, new Review(this.authStore.fullName, undefined, undefined, undefined, true));
         this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, isGermline);
         this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, true, isGermline);

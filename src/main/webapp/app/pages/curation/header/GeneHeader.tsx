@@ -17,6 +17,7 @@ import CommentIcon from 'app/shared/icons/CommentIcon';
 import SomaticGermlineToggleButton from '../button/SomaticGermlineToggleButton';
 import { getCbioportalResultsPageMutationTabUrl } from 'app/shared/util/url-utils';
 import { generatePath, useHistory } from 'react-router-dom';
+import { GENE_HEADER_REVIEW_BUTTON_ID, GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID } from 'app/config/constants/html-id';
 
 export interface IGeneHeaderProps extends StoreProps {
   hugoSymbol: string;
@@ -61,13 +62,13 @@ const GeneHeader = ({
     if (geneMetaReviewHasUuids(metaReview)) {
       if (isReviewing || isReviewFinished) {
         button = (
-          <Button color="primary" onClick={handleReviewButtonClick} data-testid="review-complete-button">
+          <Button color="primary" onClick={handleReviewButtonClick} data-testid={GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID}>
             Review Complete
           </Button>
         );
       } else {
         button = (
-          <Button outline color="primary" onClick={handleReviewButtonClick} data-testid="review-button">
+          <Button outline color="primary" onClick={handleReviewButtonClick} data-testid={GENE_HEADER_REVIEW_BUTTON_ID}>
             Review
           </Button>
         );
@@ -75,7 +76,7 @@ const GeneHeader = ({
     } else {
       if (isReviewFinished) {
         button = (
-          <Button color="primary" onClick={handleReviewButtonClick} data-testid="review-complete-button">
+          <Button color="primary" onClick={handleReviewButtonClick} data-testid={GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID}>
             Review Complete
           </Button>
         );

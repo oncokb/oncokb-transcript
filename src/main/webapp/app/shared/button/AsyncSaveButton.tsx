@@ -4,6 +4,7 @@ import React from 'react';
 import { Button, ButtonProps, Spinner } from 'reactstrap';
 
 export interface IAsyncSaveButtonProps extends ButtonProps {
+  id?: string;
   icon?: IconProp;
   isUpdate?: boolean;
   confirmText?: string;

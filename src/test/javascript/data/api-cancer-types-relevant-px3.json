@@ -1,0 +1,59 @@
+[
+  {
+    "id": 810,
+    "code": "MCL",
+    "color": "LimeGreen",
+    "level": 5,
+    "mainType": "Mature B-Cell Neoplasms",
+    "subtype": "Mantle Cell Lymphoma",
+    "tissue": "Lymphoid",
+    "tumorForm": "LIQUID",
+    "children": [
+      {
+        "id": 858,
+        "code": "ISMCL",
+        "color": "LimeGreen",
+        "level": 6,
+        "mainType": "Mature B-Cell Neoplasms",
+        "subtype": "In Situ Mantle Cell Neoplasia",
+        "tissue": "Lymphoid",
+        "tumorForm": "LIQUID"
+      }
+    ],
+    "synonyms": null,
+    "parent": {
+      "id": 681,
+      "code": "MBN",
+      "color": "LimeGreen",
+      "level": 4,
+      "mainType": "Mature B-Cell Neoplasms",
+      "subtype": "Mature B-Cell Neoplasms",
+      "tissue": "Lymphoid",
+      "tumorForm": "LIQUID"
+    },
+    "associations": null
+  },
+  {
+    "id": 858,
+    "code": "ISMCL",
+    "color": "LimeGreen",
+    "level": 6,
+    "mainType": "Mature B-Cell Neoplasms",
+    "subtype": "In Situ Mantle Cell Neoplasia",
+    "tissue": "Lymphoid",
+    "tumorForm": "LIQUID",
+    "children": [],
+    "synonyms": null,
+    "parent": {
+      "id": 810,
+      "code": "MCL",
+      "color": "LimeGreen",
+      "level": 5,
+      "mainType": "Mature B-Cell Neoplasms",
+      "subtype": "Mantle Cell Lymphoma",
+      "tissue": "Lymphoid",
+      "tumorForm": "LIQUID"
+    },
+    "associations": null
+  }
+]
