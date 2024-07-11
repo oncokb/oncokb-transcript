@@ -322,7 +322,7 @@ describe('Firebase Gene Review Service', () => {
           ],
         },
         'Genes/BRAF/mutations/0': expectedMutation,
-        [`Meta/BRAF/${mutation.name_uuid}`]: null,
+        [`Meta/BRAF/review/${mutation.name_uuid}`]: null,
         'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
         'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
       });
