@@ -188,7 +188,7 @@ export class FirebaseGeneReviewService {
     let updateObject = await this.getCreateUpdateObject(hugoSymbol, reviewLevel, isGermline, action);
     updateObject = {
       ...updateObject,
-      ...this.firebaseMetaService.getUpdateObject(action === ActionType.ACCEPT, hugoSymbol, isGermline, reviewLevel.reviewInfo.uuid),
+      ...this.firebaseMetaService.getUpdateObject(false, hugoSymbol, isGermline, reviewLevel.reviewInfo.uuid),
     };
     try {
       await this.firebaseRepository.update('/', updateObject);
@@ -239,7 +239,7 @@ export class FirebaseGeneReviewService {
     const uuids = [];
     getAllNestedReviewUuids(reviewLevel, uuids);
     return uuids.reduce((acc, uuid) => {
-      acc[`${metaGenePath}/${uuid}`] = null;
+      acc[`${metaGenePath}/review/${uuid}`] = null;
       return acc;
     }, {});
   };
