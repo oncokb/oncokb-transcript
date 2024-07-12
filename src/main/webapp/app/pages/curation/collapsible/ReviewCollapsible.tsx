@@ -441,13 +441,7 @@ export const ReviewCollapsible = ({
       action={getReviewActions()}
       displayOptions={{ ...defaultReviewCollapsibleDisplayOptions }}
       isPendingDelete={isDeletion}
-      badge={
-        // (isCreateReview(baseReviewLevel) ||
-        //   (baseReviewLevel.reviewLevelType !== ReviewLevelType.META && !baseReviewLevel.nestedUnderCreateOrDelete)) && (
-        //   <DefaultBadge color={ReviewCollapsibleBootstrapClass[reviewAction]} text={ReviewActionLabels[reviewAction]} />
-        // )
-        getBadge()
-      }
+      badge={getBadge()}
     >
       {getCollapsibleBody()}
     </Collapsible>
