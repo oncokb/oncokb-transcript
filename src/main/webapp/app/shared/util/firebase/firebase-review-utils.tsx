@@ -69,7 +69,7 @@ export class BaseReviewLevel {
   }
 
   childrenCount() {
-    return Object.keys(this.children ?? []).length;
+    return Object.keys(this.children ?? {}).length;
   }
 
   addChild(childReview: BaseReviewLevel) {
@@ -102,7 +102,7 @@ export class MultiSelectionReviewLevel extends BaseReviewLevel {
   }
 
   getReviewLevels() {
-    return Object.values(this.children ?? []) as ReviewLevel[];
+    return Object.values(this.children ?? {}) as ReviewLevel[];
   }
 }
 
@@ -203,7 +203,7 @@ export const joinPathParts = (parentPath: string, ...pathParts: string[]) => {
 };
 
 export const removeLeafNodes = (parentReview: BaseReviewLevel) => {
-  for (const [key, childReview] of Object.entries(parentReview.children ?? [])) {
+  for (const [key, childReview] of Object.entries(parentReview.children ?? {})) {
     if (childReview.hasChildren()) continue;
     let shouldRemove = false;
     if (childReview.reviewLevelType === ReviewLevelType.META) {
@@ -263,7 +263,7 @@ export const getCompactReviewInfo = (review: BaseReviewLevel) => {
   if (numOfChildren > 1) {
     return review;
   }
-  let childReview: BaseReviewLevel | undefined = Object.values(review.children ?? [])[0];
+  let childReview: BaseReviewLevel | undefined = Object.values(review.children ?? {})[0];
   if (childReview.nestedUnderCreateOrDelete) {
     if (isCreateReview(review)) {
       return review;
@@ -849,12 +849,14 @@ export const clearAllNestedReviews = (obj: any) => {
 };
 
 export const clearReview = (review: Review | null | undefined) => {
-  delete review?.lastReviewed;
-  delete review?.added;
-  delete review?.removed;
-  delete review?.demotedToVus;
-  delete review?.promotedToMutation;
-  delete review?.initialUpdate;
+  if (review !== null && review !== undefined) {
+    delete review.lastReviewed;
+    delete review.added;
+    delete review.removed;
+    delete review.demotedToVus;
+    delete review.promotedToMutation;
+    delete review.initialUpdate;
+  }
   return review;
 };
 
@@ -865,7 +867,7 @@ export const getAllNestedReviewUuids = (baseReviewLevel: BaseReviewLevel, uuids:
       uuids.push(reviewLevel.reviewInfo.uuid);
     }
   }
-  for (const childReview of Object.values(baseReviewLevel.children ?? [])) {
+  for (const childReview of Object.values(baseReviewLevel.children ?? {})) {
     getAllNestedReviewUuids(childReview, uuids);
   }
 };

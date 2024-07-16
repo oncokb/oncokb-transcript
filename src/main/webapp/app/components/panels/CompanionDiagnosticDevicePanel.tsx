@@ -33,8 +33,8 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
   const [selectedGeneId, setSelectedGeneId] = useState<string | null>(null);
   const [alterationValue, onAlterationChange] = useState<readonly AlterationSelectOption[] | null>(null);
   const [cancerTypeValue, onCancerTypeChange] = useState<CancerTypeSelectOption | null>(null);
-  const [drugValue, onDrugChange] = useState<readonly DrugSelectOption[]>();
-  const [fdaSubmissionValue, onFdaSubmissionChange] = useState<readonly FdaSubmissionSelectOption[]>();
+  const [drugValue, onDrugChange] = useState<readonly DrugSelectOption[]>([]);
+  const [fdaSubmissionValue, onFdaSubmissionChange] = useState<readonly FdaSubmissionSelectOption[]>([]);
 
   const history = useHistory();
   const location = useLocation();
