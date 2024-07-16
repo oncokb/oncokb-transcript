@@ -99,6 +99,7 @@ function TherapyCollapsible({
   return (
     <>
       <RemovableCollapsible
+        idPrefix={`${mutationName}-${cancerTypeName}-${treatmentNameString}`}
         key={treatmentUuid}
         title={`Therapy: ${treatmentNameString}`}
         colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.THERAPY]] }}

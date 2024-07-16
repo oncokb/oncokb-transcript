@@ -16,7 +16,7 @@ export interface IGenomicIndicatorsHeaderProps extends StoreProps {
 function GenomicIndicatorsHeader({
   genomicIndicatorsPath,
   firebaseDb,
-  addGenomicIndicator,
+  addEmptyGenomicIndicator,
   fetchGenomicIndicators,
 }: IGenomicIndicatorsHeaderProps) {
   const [genomicIndicators, setGenomicIndicators] = useState<GenomicIndicator[]>([]);
@@ -45,7 +45,7 @@ function GenomicIndicatorsHeader({
         title={!isGenomicIndicator ? 'Genomic Indicators' : undefined}
         disabled={isEmptyIndicatorName}
         onClickHandler={async () => {
-          await addGenomicIndicator?.(genomicIndicatorsPath);
+          await addEmptyGenomicIndicator?.(genomicIndicatorsPath);
           await fetchGenomicIndicators?.(genomicIndicatorsPath);
         }}
       />
@@ -72,7 +72,7 @@ function GenomicIndicatorsHeader({
 const mapStoreToProps = ({ firebaseAppStore, authStore, firebaseGeneService, firebaseGenomicIndicatorsStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   authStore,
-  addGenomicIndicator: firebaseGeneService.addGenomicIndicator,
+  addEmptyGenomicIndicator: firebaseGeneService.addEmptyGenomicIndicator,
   fetchGenomicIndicators: firebaseGenomicIndicatorsStore.fetchData,
 });
 

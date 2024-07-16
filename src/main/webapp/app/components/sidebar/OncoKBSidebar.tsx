@@ -7,6 +7,7 @@ import { ONCOKB_SIDEBAR_MIN_WIDTH } from 'app/stores/layout.store';
 import { ONCOKB_BLUE } from 'app/config/colors';
 import ActionIcon from 'app/shared/icons/ActionIcon';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { CLOSE_SIDEBAR_BUTTON_ID, EXPAND_SIDEBAR_BUTTON_ID, OPEN_SIDEBAR_BUTTON_ID } from 'app/config/constants/html-id';
 
 export interface IOncoKBSidebarProps extends StoreProps {
   defaultOpen?: boolean;
@@ -31,7 +32,7 @@ const OncoKBSidebar = ({ showOncoKBSidebar, defaultOpen = false, ...props }: IOn
           onClick={() => {
             props.toggleOncoKBSidebar?.(true);
           }}
-          data-testid="open-sidebar-button"
+          data-testid={OPEN_SIDEBAR_BUTTON_ID}
         />
       </div>
     </div>
@@ -155,6 +156,7 @@ const OncoKBSidebarExpanded = observer(
                 setOncoKBSidebarWidth?.(maxWidth);
                 closeNavigationSidebar?.();
               }}
+              data-testid={EXPAND_SIDEBAR_BUTTON_ID}
             />
           )}
           <ActionIcon
@@ -164,7 +166,7 @@ const OncoKBSidebarExpanded = observer(
               toggleOncoKBSidebar?.(false);
               setOncoKBSidebarWidth?.(ONCOKB_SIDEBAR_MIN_WIDTH);
             }}
-            data-testid="close-sidebar-button"
+            data-testid={CLOSE_SIDEBAR_BUTTON_ID}
           />
         </div>
         <div style={{ marginTop: '2rem', display: 'flex', width: '100%' }}>{children}</div>

@@ -106,6 +106,7 @@ function CancerTypeCollapsible({
   return (
     <>
       <RemovableCollapsible
+        idPrefix={`${mutationName}-${cancerTypeName}`}
         collapsibleClassName="mt-2"
         title={`Cancer Type: ${cancerTypeName}`}
         colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.CANCER_TYPE]] }}
@@ -175,6 +176,7 @@ function CancerTypeCollapsible({
           name="pxSummary"
         />
         <Collapsible
+          idPrefix={`${mutationName}-${cancerTypeName}-tx-implication`}
           defaultOpen
           title="Therapeutic Implications"
           colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.THERAPEUTIC]] }}
@@ -192,6 +194,7 @@ function CancerTypeCollapsible({
           />
         </Collapsible>
         <Collapsible
+          idPrefix={`${mutationName}-${cancerTypeName}-dx-implication`}
           collapsibleClassName={'mt-2'}
           key={`${cancerTypesUuid}_diagnostic`}
           title="Diagnostic Implication"
@@ -220,6 +223,7 @@ function CancerTypeCollapsible({
           />
         </Collapsible>
         <Collapsible
+          idPrefix={`${mutationName}-${cancerTypeName}-px-implication`}
           collapsibleClassName={'mt-2'}
           key={`${cancerTypesUuid}_prognostic`}
           title="Prognostic Implication"

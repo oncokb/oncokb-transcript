@@ -10,6 +10,7 @@ import { useLocation } from 'react-router-dom';
 import { Button, ButtonGroup } from 'reactstrap';
 import * as styles from './styles.module.scss';
 import { GERMLINE_PATH, SOMATIC_GERMLINE_SETTING_KEY, SOMATIC_PATH } from 'app/config/constants/constants';
+import { GERMLINE_TOGGLE_BUTTON_ID, SOMATIC_TOGGLE_BUTTON_ID } from 'app/config/constants/html-id';
 
 const BUTTON_WIDTH = 130;
 
@@ -52,7 +53,7 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
         style={{ width: BUTTON_WIDTH }}
         disabled={isSomatic}
         onClick={handleToggle}
-        data-testid="somatic-button"
+        data-testid={SOMATIC_TOGGLE_BUTTON_ID}
       >
         {isSomatic && <FaCheckCircle className="me-2" style={{ marginBottom: '.1rem' }} />}
         <span>Somatic</span>
@@ -63,7 +64,7 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
         style={{ width: BUTTON_WIDTH }}
         disabled={!isSomatic}
         onClick={handleToggle}
-        data-testid="germline-button"
+        data-testid={GERMLINE_TOGGLE_BUTTON_ID}
       >
         {!isSomatic && <FaCheckCircle className="me-2" style={{ marginBottom: '.1rem' }} />}
         <span>Germline</span>

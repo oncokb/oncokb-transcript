@@ -24,6 +24,7 @@ import FirebaseList from '../list/FirebaseList';
 import * as styles from '../styles.module.scss';
 import MutationName from './MutationName';
 import { extractPositionFromSingleNucleotideAlteration } from 'app/shared/util/utils';
+import { MUTATION_LIST_ID, SINGLE_MUTATION_VIEW_ID } from 'app/config/constants/html-id';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
@@ -84,7 +85,7 @@ function MutationsSection({
       <>
         {!_.isNil(openMutationCollapsibleIndex) && (
           // though a greater minHeight would reduce blinking more, need to choose a minHeight that looks good on the smallest possible mutation
-          <div style={{ transition: 'height 0.5s, opacity 0.5s', minHeight: 400 }} className={'mb-2'} data-testid="single-mutation-view">
+          <div style={{ transition: 'height 0.5s, opacity 0.5s', minHeight: 400 }} className={'mb-2'} data-testid={SINGLE_MUTATION_VIEW_ID}>
             <MutationCollapsible
               open
               mutationPath={`${mutationsPath}/${openMutationCollapsibleIndex}`}
@@ -102,7 +103,7 @@ function MutationsSection({
             visibility: !_.isNil(openMutationCollapsibleIndex) ? 'hidden' : 'inherit',
             maxHeight: !_.isNil(openMutationCollapsibleIndex) ? '0px' : undefined,
           }}
-          data-testid="mutation-list"
+          data-testid={MUTATION_LIST_ID}
         >
           <FirebaseList<Mutation>
             path={mutationsPath}

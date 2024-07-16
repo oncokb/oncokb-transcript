@@ -18,14 +18,15 @@ import { findNestedUuids, getFirebaseGenePath, isSectionRemovableWithoutReview }
 import AuthStore from '../../stores/authentication.store';
 import { FirebaseRepository } from '../../stores/firebase/firebase-repository';
 import { FirebaseMetaService } from './firebase-meta-service';
-import { PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
-import { isPromiseOk } from 'app/shared/util/utils';
+import { ALLELE_STATE, PATHOGENIC_VARIANTS } from 'app/config/constants/firebase';
+import { generateUuid, isPromiseOk } from 'app/shared/util/utils';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { getErrorMessage } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
 import { FirebaseDataStore } from 'app/stores/firebase/firebase-data.store';
 import { getUpdatedReview } from 'app/shared/util/firebase/firebase-review-utils';
 import { SentryError } from 'app/config/sentry-error';
 import { GERMLINE_PATH } from 'app/config/constants/constants';
+import _ from 'lodash';
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {
@@ -405,6 +406,7 @@ export class FirebaseGeneService {
     const { hugoSymbol } = parseFirebaseGenePath(rctPath) ?? {};
     if (initialUpdate && hugoSymbol !== undefined && uuid !== null) {
       return this.firebaseRepository.create(rctPath, newRelevantCancerTypes).then(() => {
+        this.firebaseRepository.create(`${rctPath}_uuid`, uuid);
         this.firebaseRepository.update(`${rctPath}_review`, new Review(this.authStore.fullName, undefined, undefined, undefined, true));
         this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, isGermline);
         this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, true, isGermline);
@@ -421,17 +423,63 @@ export class FirebaseGeneService {
     });
   };
 
-  addGenomicIndicator = async (genomicIndicatorsPath: string) => {
+  addEmptyGenomicIndicator = async (genomicIndicatorsPath: string) => {
+    await this.addGenomicIndicator(false, genomicIndicatorsPath, '');
+  };
+
+  addGenomicIndicator = async (
+    toReview: boolean,
+    genomicIndicatorsPath: string,
+    name: string,
+    description?: string,
+    alleleStates?: ALLELE_STATE[],
+  ) => {
+    const genePath = parseFirebaseGenePath(genomicIndicatorsPath);
     const newGenomicIndicator = new GenomicIndicator();
+    const uuidsToReview: string[] = [];
 
     newGenomicIndicator.associationVariants = [{ name: PATHOGENIC_VARIANTS, uuid: PATHOGENIC_VARIANTS }];
 
     const newReview = new Review(this.authStore.fullName);
     newReview.updateTime = new Date().getTime();
-    newReview.added = true;
-    newGenomicIndicator.name_review = newReview;
 
-    await this.firebaseRepository.pushToArray(genomicIndicatorsPath, [newGenomicIndicator]);
+    newGenomicIndicator.name = name;
+    if (toReview) {
+      newGenomicIndicator.name_review = _.cloneDeep(newReview);
+      newGenomicIndicator.name_review.added = true;
+      uuidsToReview.push(newGenomicIndicator.name_uuid);
+    }
+    if (description) {
+      newGenomicIndicator.description = description;
+      if (toReview) {
+        newGenomicIndicator.description_review = newReview;
+        uuidsToReview.push(newGenomicIndicator.description_uuid);
+      }
+    }
+
+    if (alleleStates) {
+      alleleStates.forEach(alleleState => {
+        const asKey = alleleState.toLowerCase();
+        newGenomicIndicator.allele_state[asKey] = alleleState;
+        if (toReview) {
+          newGenomicIndicator.allele_state[`${asKey}_review`] = newReview;
+          uuidsToReview.push(newGenomicIndicator.allele_state[`${asKey}_uuid`]);
+        }
+      });
+    }
+
+    await this.firebaseRepository.pushToArray(genomicIndicatorsPath, [newGenomicIndicator]).then(() => {
+      if (toReview) {
+        this.firebaseMetaService.updateGeneMetaContent(genePath?.hugoSymbol, true);
+        uuidsToReview.forEach(uuid => {
+          this.firebaseMetaService.updateGeneReviewUuid(genePath?.hugoSymbol, uuid, true, true);
+        });
+      }
+    });
+  };
+
+  getObject = async (path: string) => {
+    return await this.firebaseRepository.get(path);
   };
 
   deleteObject = async (path: string) => {

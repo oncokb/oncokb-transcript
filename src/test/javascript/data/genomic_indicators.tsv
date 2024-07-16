@@ -1,0 +1,4 @@
+hugo_symbol	alteration	description	genomic_indicator	allele_state
+APC		Description for Familial adenomatous polyposis/Attenuated Familial adenomatous polyposis.	Familial adenomatous polyposis/Attenuated Familial adenomatous polyposis	Mosaic
+ATM		Description for ATM-associated cancer risk.	ATM-associated cancer risk	Monoallelic
+ATM		Description for Ataxia telangiectasia.	Ataxia telangiectasia	Biallelic

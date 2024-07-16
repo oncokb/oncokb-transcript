@@ -323,8 +323,8 @@ export const ReviewCollapsible = ({
       return (
         <>
           <div className="mb-2">
-            {showTextArea && <DiffViewer type={'tabs'} new={firebase} old={oldValue} />}
-            {!showTextArea && <DiffViewer type={'stack'} new={newValue} old={oldValue} />}
+            {showTextArea && <DiffViewer type={'tabs'} new={firebase} old={oldValue || ''} />}
+            {!showTextArea && <DiffViewer type={'stack'} new={newValue} old={oldValue || ''} />}
           </div>
         </>
       );
@@ -417,6 +417,7 @@ export const ReviewCollapsible = ({
 
   return (
     <Collapsible
+      idPrefix={baseReviewLevel.title}
       defaultOpen
       collapsibleClassName={'mb-1'}
       title={reformatReviewTitle(baseReviewLevel)}

@@ -3,12 +3,19 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { RemovableCollapsible } from './RemovableCollapsible';
 import { Review } from 'app/shared/model/firebase/firebase.model';
+import { CollapsibleDataTestIdType, getCollapsibleDataTestId } from 'app/shared/util/test-id-utils';
 
 const DEFAULT_TITLE = 'Default Title';
 
 function buildCollapsible(review: Review) {
   return (
-    <RemovableCollapsible title={DEFAULT_TITLE} review={review} info={<div>Info section</div>} action={<div>Action section</div>}>
+    <RemovableCollapsible
+      idPrefix={DEFAULT_TITLE}
+      title={DEFAULT_TITLE}
+      review={review}
+      info={<div>Info section</div>}
+      action={<div>Action section</div>}
+    >
       <div>Default content</div>
     </RemovableCollapsible>
   );
@@ -25,11 +32,11 @@ describe('Removable Collapsible', () => {
     });
 
     it('should hide actions when pending deletion', () => {
-      expect(screen.queryByTestId(`${DEFAULT_TITLE}-collapsible-action`)).toBeNull();
+      expect(screen.queryByTestId(getCollapsibleDataTestId(CollapsibleDataTestIdType.ACTION, DEFAULT_TITLE))).toBeNull();
     });
 
     it('should have info section', () => {
-      expect(screen.getByTestId(`${DEFAULT_TITLE}-collapsible-info`)).toBeInTheDocument();
+      expect(screen.getByTestId(getCollapsibleDataTestId(CollapsibleDataTestIdType.INFO, DEFAULT_TITLE))).toBeInTheDocument();
     });
   });
 
@@ -43,11 +50,11 @@ describe('Removable Collapsible', () => {
     });
 
     it('should hide actions when pending deletion', () => {
-      expect(screen.queryByTestId(`${DEFAULT_TITLE}-collapsible-action`)).toBeNull();
+      expect(screen.queryByTestId(getCollapsibleDataTestId(CollapsibleDataTestIdType.ACTION, DEFAULT_TITLE))).toBeNull();
     });
 
     it('should have info section', () => {
-      expect(screen.getByTestId(`${DEFAULT_TITLE}-collapsible-info`)).toBeInTheDocument();
+      expect(screen.getByTestId(getCollapsibleDataTestId(CollapsibleDataTestIdType.INFO, DEFAULT_TITLE))).toBeInTheDocument();
     });
   });
 
@@ -60,11 +67,11 @@ describe('Removable Collapsible', () => {
     });
 
     it('should have action section', () => {
-      expect(screen.getByTestId(`${DEFAULT_TITLE}-collapsible-action`)).toBeInTheDocument();
+      expect(screen.getByTestId(getCollapsibleDataTestId(CollapsibleDataTestIdType.ACTION, DEFAULT_TITLE))).toBeInTheDocument();
     });
 
     it('should have info section', () => {
-      expect(screen.getByTestId(`${DEFAULT_TITLE}-collapsible-info`)).toBeInTheDocument();
+      expect(screen.getByTestId(getCollapsibleDataTestId(CollapsibleDataTestIdType.INFO, DEFAULT_TITLE))).toBeInTheDocument();
     });
   });
 });

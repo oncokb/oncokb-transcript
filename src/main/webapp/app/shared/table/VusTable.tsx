@@ -32,6 +32,7 @@ import AddVusModal from '../modal/AddVusModal';
 import MutationConvertIcon from '../icons/MutationConvertIcon';
 import AddMutationModal from '../modal/AddMutationModal';
 import { Unsubscribe } from 'firebase/database';
+import { VUS_TABLE_ID } from 'app/config/constants/html-id';
 
 export interface IVusTableProps extends StoreProps {
   hugoSymbol: string | undefined;
@@ -219,7 +220,7 @@ const VusTable = ({
   return (
     <>
       {vusData ? (
-        <div className={'justify-content-between align-items-center mt-5'} data-testid="vus-table">
+        <div className={'justify-content-between align-items-center mt-5'} data-testid={VUS_TABLE_ID}>
           <div className={'d-flex align-items-center mb-2'}>
             <span style={{ fontSize: '1.25rem' }}>Variants of Unknown Significance (Investigated and data not found)</span>
             <AddButton className="ms-2" onClickHandler={() => setShowAddVusModal(true)} />

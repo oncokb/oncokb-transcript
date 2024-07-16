@@ -1,4 +1,4 @@
-import { push, ref, remove, runTransaction, set, update } from 'firebase/database';
+import { push, ref, remove, runTransaction, set, update, get, Database } from 'firebase/database';
 import FirebaseAppStore from './firebase-app.store';
 
 export const throwMissingFirebaseDBError = () => {
@@ -18,6 +18,10 @@ export class FirebaseRepository {
     } else {
       throwMissingFirebaseDBError();
     }
+  };
+
+  get = async (path: string) => {
+    return await get(ref(this.firebaseAppStore.firebaseDb as Database, path));
   };
 
   update = async (path: string, value: any) => {

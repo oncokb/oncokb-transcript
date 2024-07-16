@@ -147,6 +147,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
           <Row>
             <Col>
               <AsyncSaveButton
+                id={'review-page-accept-all-btn'}
                 className="me-2 mb-2"
                 outline
                 color="primary"
@@ -159,8 +160,9 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
                 confirmText="Accept all changes"
                 isSavePending={_.isEqual(allEditors, editorsToAcceptChangesFrom)}
               />
-              {editorReviewMap.getEditorList().map(editor => (
+              {editorReviewMap.getEditorList().map((editor, index) => (
                 <AsyncSaveButton
+                  id={`review-page-accept-all-from-user-${index}-btn`}
                   className="me-2 mb-2"
                   key={editor}
                   outline

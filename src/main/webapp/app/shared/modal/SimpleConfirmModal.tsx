@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from 'reactstrap';
 import { AsyncSaveButton } from '../button/AsyncSaveButton';
+import { SIMPLE_CONFIRM_MODAL_CONTENT_ID } from 'app/config/constants/html-id';
 
 export const SimpleConfirmModal: React.FunctionComponent<{
   title?: string;
@@ -19,14 +20,15 @@ export const SimpleConfirmModal: React.FunctionComponent<{
   onConfirm?: () => void;
   showConfirmLoader?: boolean;
   style?: React.CSSProperties;
+  id?: string;
 }> = props => {
   const onCancel = (event?: any) => {
     if (event) event.preventDefault();
     if (props.onCancel) props.onCancel();
   };
   return (
-    <Modal style={props.style} isOpen={props.show} toggle={() => onCancel()}>
-      <div data-testid="simple-confirm-modal-content">
+    <Modal style={props.style} isOpen={props.show} toggle={() => onCancel()} id={props.id}>
+      <div data-testid={SIMPLE_CONFIRM_MODAL_CONTENT_ID}>
         <ModalHeader toggle={() => onCancel()}>{props.title || 'Please confirm'}</ModalHeader>
         <ModalBody>{props.body ? props.body : 'Are you sure?'}</ModalBody>
         <ModalFooter>

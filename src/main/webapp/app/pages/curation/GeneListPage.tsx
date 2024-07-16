@@ -10,7 +10,7 @@ import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword } from 'app/shared/util/utils';
 import { TextFormat } from 'react-jhipster';
 import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
-import Tabs from 'app/components/tabs/tabs';
+import Tabs, { Tab } from 'app/components/tabs/tabs';
 import GeneListPageToolsTab from 'app/components/tabs/GeneListPageToolsTab';
 import CurationDataValidationTab from 'app/components/tabs/CurationDataValidationTab';
 import { FB_COLLECTION } from 'app/config/constants/firebase';
@@ -20,6 +20,8 @@ import SomaticGermlineToggleButton from './button/SomaticGermlineToggleButton';
 const getCurationPageLink = (hugoSymbol: string, isGermline: boolean) => {
   return generatePath(isGermline ? PAGE_ROUTE.CURATION_GENE_GERMLINE : PAGE_ROUTE.CURATION_GENE_SOMATIC, { hugoSymbol });
 };
+import CurationDataImportTab from 'app/components/tabs/CurationDataImportTab';
+import { DATA_IMPORT_TAB_ID, GENE_LIST_TABLE_ID } from 'app/config/constants/html-id';
 
 type GeneMetaInfo = {
   hugoSymbol: string;
@@ -95,13 +97,18 @@ const GeneListPage = (props: IGeneListPage) => {
         title: 'Tools',
         content: <GeneListPageToolsTab metaData={props.metaData} />,
       },
-    ];
+    ] as Tab[];
     if (!isGermline) {
       tabs.push({
         title: 'Data Validation',
         content: <CurationDataValidationTab />,
       });
     }
+    tabs.push({
+      id: DATA_IMPORT_TAB_ID,
+      title: 'Data Import',
+      content: <CurationDataImportTab />,
+    });
     tabs.push({
       title: 'History',
       content: <ReviewHistoryTab isGermline={isGermline} />,
@@ -120,7 +127,7 @@ const GeneListPage = (props: IGeneListPage) => {
                   <SomaticGermlineToggleButton />
                 </Col>
               </Row>
-              <Row id={'gene-list'}>
+              <Row id={GENE_LIST_TABLE_ID}>
                 <Col>
                   <OncoKBTable
                     data={geneMeta}

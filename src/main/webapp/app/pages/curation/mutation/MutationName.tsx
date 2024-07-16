@@ -3,6 +3,7 @@ import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
+import { MUTATION_NAME_BREADCRUMB_ID } from 'app/config/constants/html-id';
 
 interface IMutationNameProps extends StoreProps {
   mutationPath: string;
@@ -22,7 +23,7 @@ function MutationName({ mutationPath, firebaseDb }: IMutationNameProps) {
     return () => unsubscribe?.();
   }, [mutationPath]);
 
-  return <span data-testid="mutation-breadcrumbs-name">{mutationName}</span>;
+  return <span data-testid={MUTATION_NAME_BREADCRUMB_ID}>{mutationName}</span>;
 }
 
 const mapStoreToProps = ({ firebaseAppStore }: IRootStore) => ({

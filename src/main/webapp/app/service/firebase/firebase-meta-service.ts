@@ -16,7 +16,7 @@ export class FirebaseMetaService {
    * Update the timestamp and author of the most recent edit to the gene.
    * @param hugoSymbol The gene to update the meta information
    */
-  updateGeneMetaContent = (hugoSymbol: string, isGermline: boolean) => {
+  updateGeneMetaContent = (hugoSymbol: string | undefined, isGermline: boolean) => {
     // Update timestamp and author
     return this.firebaseRepository.update(getFirebaseMetaGenePath(isGermline, hugoSymbol), {
       lastModifiedBy: this.authStore.fullName,
@@ -31,7 +31,7 @@ export class FirebaseMetaService {
    * @param uuid The uuid of the field that was updated
    * @param add Whether the field should be reviewed or removed from review view
    */
-  updateGeneReviewUuid = (hugoSymbol: string, uuid: string, add: boolean, isGermline: boolean) => {
+  updateGeneReviewUuid = (hugoSymbol: string | undefined, uuid: string, add: boolean, isGermline: boolean) => {
     // Setting to null in firebase update will remove that key
     const updateObject = {
       [uuid]: add ? true : null,
