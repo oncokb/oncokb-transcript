@@ -404,12 +404,12 @@ export class FirebaseGeneService {
     initialUpdate?: boolean,
   ) => {
     const { hugoSymbol } = parseFirebaseGenePath(rctPath) ?? {};
-    if (initialUpdate && hugoSymbol !== undefined && uuid !== null) {
+    if (initialUpdate) {
       return this.firebaseRepository.create(rctPath, newRelevantCancerTypes).then(() => {
         this.firebaseRepository.create(`${rctPath}_uuid`, uuid);
         this.firebaseRepository.update(`${rctPath}_review`, new Review(this.authStore.fullName, undefined, undefined, undefined, true));
         this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, isGermline);
-        this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, true, isGermline);
+        this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid ?? '', true, isGermline);
       });
     }
     return this.firebaseRepository.create(rctPath, newRelevantCancerTypes).then(() => {

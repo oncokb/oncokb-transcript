@@ -469,7 +469,7 @@ export const findReviewRecursive = (
         continue;
       }
 
-      if (value !== null && typeof value === 'object' && !key.includes('_uuid')) {
+      if (typeof value === 'object' && !key.includes('_uuid')) {
         const newPath = joinPathParts(currValuePath, key);
         let metaReview = buildObjectReview(value, key, parentReview, uuids, editorReviewMap);
         findReviewRecursive(value, newPath, uuids, metaReview, editorReviewMap, drugList);
@@ -754,7 +754,7 @@ export const buildStringReview = (
 };
 
 export const buildObjectReview = (
-  obj: object,
+  obj: object | null,
   key: string,
   parentReview: BaseReviewLevel,
   uuids: string[],
