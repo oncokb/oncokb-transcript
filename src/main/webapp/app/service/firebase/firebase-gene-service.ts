@@ -404,6 +404,11 @@ export class FirebaseGeneService {
     initialUpdate?: boolean,
   ) => {
     const { hugoSymbol } = parseFirebaseGenePath(rctPath) ?? {};
+
+    if (!uuid) {
+      uuid = generateUuid();
+    }
+
     if (initialUpdate) {
       return this.firebaseRepository.create(rctPath, newRelevantCancerTypes).then(() => {
         this.firebaseRepository.create(`${rctPath}_uuid`, uuid);
