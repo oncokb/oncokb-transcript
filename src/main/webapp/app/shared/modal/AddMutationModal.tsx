@@ -302,7 +302,7 @@ function AddMutationModal({
     return {
       type: alteration?.type ?? AlterationTypeEnum.Unknown,
       alteration: alterationName,
-      name: variantName ?? alteration?.name ?? '',
+      name: (variantName || alteration?.name) ?? '',
       consequence: alteration?.consequence?.name ?? '',
       comment,
       excluding,
