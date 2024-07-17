@@ -57,20 +57,20 @@ export class RelevantCancerTypesModalStore {
   }
 
   openModal(
-    pathToRelevantCancerTypes: string,
-    tumor: Tumor,
-    excludedRCTsReview: Review,
-    excludedRCTsUuid: string,
+    pathToRelevantCancerTypes: string | undefined,
+    tumor: Tumor | undefined,
+    excludedRCTsReview: Review | undefined,
+    excludedRCTsUuid: string | undefined,
     level?: TX_LEVELS | DX_LEVELS | PX_LEVELS,
     firebaseExcludedRCTs?: CancerType[],
   ) {
-    this.pathToRelevantCancerTypes = pathToRelevantCancerTypes;
+    this.pathToRelevantCancerTypes = pathToRelevantCancerTypes ?? null;
     this.isOpen = true;
-    this.tumor = tumor;
+    this.tumor = tumor ?? null;
     this.level = level ?? null;
     this.firebaseExcludedRCTs = firebaseExcludedRCTs;
-    this.excludedRCTsReview = excludedRCTsReview;
-    this.excludedRCTsUuid = excludedRCTsUuid;
+    this.excludedRCTsReview = excludedRCTsReview ?? null;
+    this.excludedRCTsUuid = excludedRCTsUuid ?? null;
   }
 
   closeModal() {

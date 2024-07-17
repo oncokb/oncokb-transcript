@@ -37,16 +37,14 @@ function RCTButton({ cancerTypePath, relevantCancerTypesInfoPath, firebaseDb, re
   }, []);
 
   function handleClick() {
-    if (relevantCancerTypesInfo && cancerType && relevantCancerTypesInfo.excludedRCTs_review && relevantCancerTypesInfo.excludedRCTs_uuid) {
-      relevantCancerTypesModalStore?.openModal(
-        `${relevantCancerTypesInfoPath}/excludedRCTs`,
-        cancerType,
-        relevantCancerTypesInfo.excludedRCTs_review,
-        relevantCancerTypesInfo.excludedRCTs_uuid,
-        relevantCancerTypesInfo.level || undefined,
-        relevantCancerTypesInfo.excludedRCTs,
-      );
-    }
+    relevantCancerTypesModalStore?.openModal(
+      `${relevantCancerTypesInfoPath}/excludedRCTs`,
+      cancerType,
+      relevantCancerTypesInfo?.excludedRCTs_review,
+      relevantCancerTypesInfo?.excludedRCTs_uuid,
+      relevantCancerTypesInfo?.level || undefined,
+      relevantCancerTypesInfo?.excludedRCTs,
+    );
   }
 
   let disabled = true;
