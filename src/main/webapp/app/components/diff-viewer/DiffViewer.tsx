@@ -19,7 +19,7 @@ type DiffViewerProps = {
   className?: string;
 };
 
-const getMergedDiff = (newContent: string, oldContent: string | undefined) => {
+const getMergedDiff = (newContent='', oldContent='') => {
   const dmp = new DiffMatchPatch();
   const diff = dmp.diff_main(oldContent, newContent);
   dmp.diff_cleanupSemantic(diff);
