@@ -89,7 +89,7 @@ const MutationCollapsible = ({
 
   useEffect(() => {
     const arr = annotatedAltsCache?.get(hugoSymbol ?? '', [{ name: mutationName, alterations: mutationAlterations }]) ?? [];
-    setRelatedAnnotationResult(arr.filter((x): x is AlterationAnnotationStatus => x !== undefined && x !== null && typeof x !== 'string'));
+    setRelatedAnnotationResult(arr.filter((x): x is AlterationAnnotationStatus => x !== undefined && x !== null));
   }, [annotatedAltsCache?.loading, mutationName, mutationAlterations]);
 
   const exons = useMemo(() => {

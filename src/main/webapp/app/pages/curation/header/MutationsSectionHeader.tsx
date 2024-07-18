@@ -155,7 +155,7 @@ function MutationsSectionHeader({
                 name: mutation.name ?? '',
               },
             ])
-            .map(result => typeof result !== 'string' && result?.annotation?.hotspot?.hotspot);
+            .map(result => result?.annotation?.hotspot?.hotspot);
           isHotspotMatch =
             !!uniqueHotspotStatus &&
             uniqueHotspotStatus.filter(status => {
