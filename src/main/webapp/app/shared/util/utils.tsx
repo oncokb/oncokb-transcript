@@ -238,7 +238,7 @@ export function parseAlterationName(alterationName: string): { alteration: strin
   let regex = new RegExp('\\[(.*)\\]', 'i');
   const nameSection = regex.exec(alterationName);
   let name = '';
-  if (nameSection && nameSection?.length > 1) {
+  if (nameSection && nameSection.length > 1) {
     name = nameSection[1];
   }
 
@@ -352,7 +352,7 @@ export function isEqualIgnoreCase(a: string, b: string) {
   return a.toLowerCase() === b.toLowerCase();
 }
 
-export function getExonRanges(exons: (ProteinExonDTO | undefined)[]) {
+export function getExonRanges(exons: ProteinExonDTO[]) {
   const exonRanges: string[] = [];
   let startExon = 0;
   let endExon = 0;

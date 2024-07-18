@@ -2,20 +2,6 @@ import { inject, useObserver } from 'mobx-react';
 import { IRootStore } from 'app/stores';
 import { MobXProviderContext } from 'mobx-react';
 import React from 'react';
-import { Props as SelectProps } from 'react-select';
-import { IValueMap } from 'mobx-react/dist/types/IValueMap';
-import { IStoresToProps } from 'mobx-react/dist/types/IStoresToProps';
-
-/**
-(storeState: IRootStore) => {
-    getPubMedArticle: () => {
-        pubMedArticle: PubMedDTO | null;
-        error: RequiredError | null;
-        loading: boolean;
-        get: (pmid: any) => Promise<void>;
-    };
-}
-  */
 
 export type InjectProps<T extends S, S extends object> = Omit<T, keyof S>;
 export type InjectedComponent<T extends S, S extends object> = React.FC<InjectProps<T, S>>;
