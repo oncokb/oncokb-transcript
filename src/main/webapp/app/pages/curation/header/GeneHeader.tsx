@@ -115,7 +115,7 @@ const GeneHeader = ({
           {!isReviewing && (
             <>
               <span>
-                {!hideEntrezGeneId && geneEntity !== undefined && (
+                {!hideEntrezGeneId && geneEntity?.entrezGeneId !== undefined && (
                   <span>
                     <span className="fw-bold text-nowrap">Entrez Gene:</span>
                     <span className="ms-1">
