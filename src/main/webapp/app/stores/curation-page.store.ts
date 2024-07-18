@@ -19,8 +19,8 @@ export type AnnotatedAltsCache = {
   loading: boolean;
   error: Error | null;
   cache: { [key: string]: AnnotatedAltsQuery };
-  get: (hugoSymbol: string, mutations: MutationQuery[]) => (string | AlterationAnnotationStatus | null | undefined)[];
-  fetch: (hugoSymbol: string, mutations: MutationQuery[]) => Promise<(string | AlterationAnnotationStatus | null | undefined)[]>;
+  get: (hugoSymbol: string, mutations: MutationQuery[]) => (AlterationAnnotationStatus | null | undefined)[];
+  fetch: (hugoSymbol: string, mutations: MutationQuery[]) => Promise<(AlterationAnnotationStatus | null | undefined)[]>;
 };
 
 const getAltKey = (alt: FirebaseAlt | string) => {
@@ -96,7 +96,10 @@ export class CurationPageStore {
     }
   }
 
-  async fetchAnnotatedAltsCache(hugoSymbol: string, mutations: MutationQuery[]) {
+  async fetchAnnotatedAltsCache(
+    hugoSymbol: string,
+    mutations: MutationQuery[],
+  ): Promise<(AlterationAnnotationStatus | null | undefined)[]> {
     const queries = mutations.reduce((acc, mutation) => {
       acc.push(...createMutationQuery(hugoSymbol, mutation));
       return acc;
@@ -118,7 +121,7 @@ export class CurationPageStore {
     }
     return queries
       .filter(query => query.queryId && this.annotatedAltsCache.cache[query.queryId] && this.annotatedAltsCache.cache[query.queryId].result)
-      .map(query => query.queryId && this.annotatedAltsCache.cache[query.queryId].result);
+      .map(query => (query.queryId !== undefined ? this.annotatedAltsCache.cache[query.queryId].result : undefined));
   }
 
   getAnnotatedAltsCache(hugoSymbol: string, mutations: MutationQuery[]) {
@@ -128,7 +131,7 @@ export class CurationPageStore {
     }, [] as AnnotateAlterationBody[]);
     return queries
       .filter(query => query.queryId && this.annotatedAltsCache.cache[query.queryId] && this.annotatedAltsCache.cache[query.queryId].result)
-      .map(query => query.queryId && this.annotatedAltsCache.cache[query.queryId].result);
+      .map(query => (query.queryId !== undefined ? this.annotatedAltsCache.cache[query.queryId].result : undefined));
   }
 }
 

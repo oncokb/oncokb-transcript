@@ -89,11 +89,11 @@ export class AuthStore extends BaseStore {
     return this.account.firstName + ' ' + this.account.lastName;
   }
 
-  async *logoutGen() {
+  *logoutGen() {
     try {
       this.reset();
       this.rootStore.firebaseAppStore.signOutFromFirebase();
-      const result: AxiosResponse = yield await axios.post('/api/logout', {});
+      const result: AxiosResponse = yield axios.post('/api/logout', {});
       this.logoutUrl = result.data.logoutUrl;
       return result;
     } catch (e) {
@@ -102,14 +102,14 @@ export class AuthStore extends BaseStore {
     }
   }
 
-  async *getSessionGen() {
+  *getSessionGen() {
     if (this.isAuthenticated) {
       return this.account;
     }
     try {
       this.loading = true;
       this.fetchingSession = true;
-      const result: AxiosResponse = yield await axios.get('/api/account');
+      const result: AxiosResponse = yield axios.get('/api/account');
       this.account = result.data;
       this.isAuthenticated = !!result.data;
       this.fetchingSession = false;
