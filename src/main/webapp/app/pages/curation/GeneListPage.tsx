@@ -146,7 +146,7 @@ const GeneListPage = (props: IGeneListPage) => {
                   />
                 </Col>
               </Row>
-              <OncoKBSidebar defaultOpen>
+              <OncoKBSidebar>
                 <Tabs tabs={sidebarTabs} />
               </OncoKBSidebar>
             </>

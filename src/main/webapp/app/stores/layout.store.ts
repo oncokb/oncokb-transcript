@@ -24,6 +24,7 @@ export class LayoutStore {
       toggleOncoKBSidebar: action.bound,
       oncoKBSidebarWidth: observable,
       setOncoKBSidebarWidth: action.bound,
+      oncoKBSidebarMarginTop: computed,
     });
   }
 
@@ -49,6 +50,10 @@ export class LayoutStore {
 
   setOncoKBSidebarWidth(value: number) {
     this.oncoKBSidebarWidth = value;
+  }
+
+  get oncoKBSidebarMarginTop() {
+    return this.rootStore.windowStore.isBeta ? '42px' : '0';
   }
 }
 

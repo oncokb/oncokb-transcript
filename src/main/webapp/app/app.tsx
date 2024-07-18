@@ -14,6 +14,7 @@ import AppRoutes from 'app/routes/routes';
 import NavigationSidebar from 'app/components/sidebar/NavigationSidebar';
 import Layout from './layout';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
+import { BetaSiteMessage } from './shared/userMessage/BetaSiteMessage';
 
 const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
 
@@ -39,6 +40,7 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
             pauseOnHover
             pauseOnFocusLoss
           />
+          <BetaSiteMessage />
           {props.loadingAuth ? (
             <LoadingIndicator isLoading size={LoaderSize.LARGE} center={true} />
           ) : (
