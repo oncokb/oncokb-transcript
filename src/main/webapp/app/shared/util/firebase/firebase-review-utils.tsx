@@ -156,7 +156,7 @@ export class TumorReviewLevel extends ReviewLevel {
   }
 }
 
-export const getReviewAction = (review: Review | undefined, reviewPath: string): ReviewAction => {
+export const getReviewAction = (review: Review, reviewPath: string): ReviewAction => {
   if (review?.demotedToVus) {
     return ReviewAction.DEMOTE_MUTATION;
   }

@@ -191,7 +191,7 @@ export function isNestedObjectEmpty(obj: any, ignoredKeySubstrings: string[] = [
 
 export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
   const path = parseFirebaseGenePath(fullPath)?.pathFromGene;
-  if (sectionValue === undefined) {
+  if (sectionValue === undefined || path === undefined) {
     return true;
   }
 
@@ -206,11 +206,11 @@ export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
   // We skipped the TIs key because TI.name and TI.type always has a value, which will
   // make our function always return isEmpty=False
   const implications: TI[] = [];
-  if (path?.match(/mutations\/\d+$/g)) {
+  if (path.match(/mutations\/\d+$/g)) {
     for (const tumor of (sectionValue as Mutation).tumors || []) {
       implications.push(...tumor.TIs);
     }
-  } else if (path?.match(/tumors\/\d+$/g)) {
+  } else if (path.match(/tumors\/\d+$/g)) {
     implications.push(...(sectionValue as Tumor).TIs);
   }
 
@@ -475,8 +475,8 @@ export function compareMutationsByOncogenicity(mut1: Mutation, mut2: Mutation) {
 }
 
 export function compareMutationsBySingleAlteration(mut1: Mutation, mut2: Mutation) {
-  const mut1AlterationLength = mut1.name?.split(',').length;
-  const mut2AlterationLength = mut2.name?.split(',').length;
+  const mut1AlterationLength = mut1.name.split(',').length;
+  const mut2AlterationLength = mut2.name.split(',').length;
 
   if (mut1AlterationLength === undefined || mut2AlterationLength === undefined) {
     return 0;
@@ -720,7 +720,7 @@ export const getAllLevelSummaryStats = (mutations: Mutation[]) => {
 
 // Todo: The stats need to be refactored
 export const getMutationStats = (
-  mutation?: Mutation,
+  mutation: Mutation,
 ): {
   TT: number;
   oncogenicity: '' | FIREBASE_ONCOGENICITY | undefined;
