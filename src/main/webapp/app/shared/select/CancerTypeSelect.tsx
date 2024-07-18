@@ -39,10 +39,10 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
         .sort()
         .map((cancerType): CancerTypeSelectOption => {
           return {
-            value: cancerType.id ?? 0,
-            label: getCancerTypeName(cancerType) ?? '',
+            value: cancerType.id,
+            label: getCancerTypeName(cancerType),
             code: cancerType.code ?? '',
-            mainType: cancerType.mainType ?? '',
+            mainType: cancerType.mainType,
             subtype: cancerType.subtype ?? '',
           };
         }),
@@ -52,7 +52,7 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
       options: _.sortBy(_.uniq(getAllSubtypes(cancerTypeList)), 'name').map((cancerType): CancerTypeSelectOption => {
         return {
           value: cancerType.id,
-          label: getCancerTypeName(cancerType) ?? '',
+          label: getCancerTypeName(cancerType),
           code: cancerType.code ?? '',
           mainType: cancerType.mainType,
           subtype: cancerType.subtype ?? '',

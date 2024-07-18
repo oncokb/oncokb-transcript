@@ -90,10 +90,10 @@ const ModifyCancerTypeModalContent = observer(
         }
 
         const option: CancerTypeSelectOption = {
-          label: getCancerTypeName(cancerType) ?? '',
-          value: cancerType.id ?? 0,
+          label: getCancerTypeName(cancerType),
+          value: cancerType.id,
           code: cancerType.code ?? '',
-          mainType: cancerType.mainType ?? '',
+          mainType: cancerType.mainType,
           subtype: cancerType.subtype ?? '',
         };
         return [...accumulator, option];
