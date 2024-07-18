@@ -20,6 +20,11 @@ import React from 'react';
 import { makeFirebaseKeysReadable } from './firebase-history-utils';
 import { ICancerType } from 'app/shared/model/cancer-type.model';
 
+export enum ReviewSectionTitlePrefix {
+  CANCER_TYPE = 'Cancer Type',
+  THERAPY = 'Therapy',
+}
+
 export interface ReviewChildren {
   [key: string]: BaseReviewLevel;
 }
@@ -260,9 +265,24 @@ export const getCompactReviewInfo = (review: BaseReviewLevel) => {
     }
   }
   childReview = getCompactReviewInfo(childReview);
-  childReview.title = [review.title, childReview.title].filter(part => part !== '').join('/');
+  let titleParts = [review.title, childReview.title].filter(part => part !== '');
+  if (titleParts.length > 1) {
+    titleParts = titleParts.map(part => removeSectionTitlePrefix(part));
+  }
+  childReview.title = titleParts.join('/');
   childReview.nestedUnderCreateOrDelete = review.nestedUnderCreateOrDelete;
   return childReview;
+};
+
+export const addSectionTitlePrefix = (prefix: ReviewSectionTitlePrefix, title: string) => {
+  return `${prefix}: ${title}`;
+};
+
+export const removeSectionTitlePrefix = (title: string) => {
+  if ([ReviewSectionTitlePrefix.CANCER_TYPE, ReviewSectionTitlePrefix.THERAPY].some(prefix => title.includes(prefix))) {
+    title = title.replace(/^.*?:\s*/, '').trim();
+  }
+  return title;
 };
 
 export const reformatReviewTitle = (baseReviewLevel: BaseReviewLevel) => {
@@ -513,7 +533,7 @@ export const buildNameReview = (
 
   const valuePathParts = [currValuePath, nameKey];
   const valuePath = valuePathParts.join('/');
-  const title = readableName;
+  let title = readableName;
 
   const historyInfo = _.cloneDeep(parentReview.historyInfo) || {};
   if (!drugList && !isGenomicIndiciator) {
@@ -526,6 +546,7 @@ export const buildNameReview = (
       name: readableName,
       uuid: creatableObject.name_uuid,
     };
+    title = addSectionTitlePrefix(ReviewSectionTitlePrefix.THERAPY, title);
   }
 
   const metaReview = new MetaReviewLevel({
@@ -614,7 +635,7 @@ export const buildCancerTypeNameReview = (
   };
 
   const metaReview = new MetaReviewLevel({
-    title: readableName,
+    title: addSectionTitlePrefix(ReviewSectionTitlePrefix.CANCER_TYPE, readableName),
     valuePath: currValuePath,
     historyLocation: buildHistoryLocation(parentReview, readableName),
     nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
