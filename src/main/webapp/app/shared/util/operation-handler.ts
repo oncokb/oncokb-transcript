@@ -12,13 +12,7 @@ export const handleOperation = <R, Args extends unknown[]>(
   async function* (...args: Args) {
     try {
       operationHandler(OperationStatus.IN_PROGRESS);
-      const temp = param.apply(ctx, args);
-      let result: R;
-      if (temp instanceof Promise) {
-        result = yield* await temp;
-      } else {
-        result = yield* temp;
-      }
+      const result: R = yield* param.apply(ctx, args);
       operationHandler(OperationStatus.SUCCESSFUL, result);
       return result;
     } catch (e) {
