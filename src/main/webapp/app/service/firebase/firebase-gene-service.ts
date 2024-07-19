@@ -12,7 +12,7 @@ import {
   Tumor,
 } from 'app/shared/model/firebase/firebase.model';
 import { isTxLevelPresent } from 'app/shared/util/firebase/firebase-level-utils';
-import { extractArrayPath, getImplicationPathFromRCTPath, parseFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
+import { extractArrayPath, parseFirebaseGenePath } from 'app/shared/util/firebase/firebase-path-utils';
 import { FirebaseGeneReviewService } from 'app/service/firebase/firebase-gene-review-service';
 import { findNestedUuids, getFirebaseGenePath, isSectionRemovableWithoutReview } from 'app/shared/util/firebase/firebase-utils';
 import AuthStore from '../../stores/authentication.store';
@@ -395,11 +395,6 @@ export class FirebaseGeneService {
     const { hugoSymbol } = parseFirebaseGenePath(rctPath);
 
     let updateObject = {};
-
-    const implicationPath = getImplicationPathFromRCTPath(rctPath);
-    if (!implicationPath) {
-      throw new SentryError('Failed to update RCT due to unexpected RCT path', { rctPath });
-    }
 
     if (!uuid) {
       // excludedRCTs is a new data point that does not exist for implications created in legacy platform.

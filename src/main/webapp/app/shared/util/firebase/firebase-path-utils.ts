@@ -36,12 +36,3 @@ export const extractArrayPath = (valuePath: string) => {
   const firebaseArrayPath = pathParts.join('/');
   return { firebaseArrayPath, deleteIndex };
 };
-
-export const getImplicationPathFromRCTPath = (rctPath: string) => {
-  if (rctPath.endsWith('excludedRCTs')) {
-    const rctPathParts = rctPath.split('/');
-    rctPathParts.pop();
-    return rctPathParts.join('/');
-  }
-  return null;
-};
