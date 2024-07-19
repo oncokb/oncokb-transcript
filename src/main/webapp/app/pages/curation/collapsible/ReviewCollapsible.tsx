@@ -69,11 +69,11 @@ export interface IReviewCollapsibleProps {
   baseReviewLevel: BaseReviewLevel;
   isGermline: boolean;
   firebase: FirebaseContent;
-  parentDelete?: (reviewLevelId: string, action: ActionType, isPending?: boolean) => void;
+  parentDelete?: (reviewlLevelId: string, action: ActionType, isPending?: boolean) => void;
   rootDelete?: (isPending?: boolean) => void;
-  handleAccept?: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean, isAcceptAll?: boolean) => Promise<void>;
-  handleReject?: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) => Promise<void>;
-  handleCreateAction?: (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean, action: ActionType) => Promise<void>;
+  handleAccept: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean, isAcceptAll?: boolean) => Promise<void>;
+  handleReject: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) => Promise<void>;
+  handleCreateAction: (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean, action: ActionType) => Promise<void>;
   disableActions?: boolean;
   isRoot?: boolean;
   drugList: readonly IDrug[];
@@ -97,10 +97,14 @@ export const ReviewCollapsible = ({
   const [reviewChildren, setReviewChildren] = useState<BaseReviewLevel[]>([]);
 
   useEffect(() => {
-    Object.entries(baseReviewLevel.children ?? {}).forEach(([key, value]) => (baseReviewLevel.children[key] = getCompactReviewInfo(value)));
+    Object.keys(baseReviewLevel.children).forEach(
+      key => (baseReviewLevel.children[key] = getCompactReviewInfo(baseReviewLevel.children[key])),
+    );
     setRootReview(baseReviewLevel);
-    setReviewChildren(Object.values(baseReviewLevel.children ?? {}));
+    setReviewChildren(Object.values(baseReviewLevel.children));
   }, [baseReviewLevel]);
+
+  const isUnderCreationOrDeletion = rootReview.nestedUnderCreateOrDelete;
 
   const reviewAction = useMemo(() => {
     if (rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE) {
@@ -126,7 +130,7 @@ export const ReviewCollapsible = ({
   }, [rootReview]);
 
   /**
-   * Optimistic UI render: we assume that the save is successfully and immediately hide the collapsible when an action is clicked.
+   * Optimistic UI render: we assume that the save is successful and immediately hide the collapsible when an action is clicked.
    * @param reviewLevelId id of review level to hide
    * @param action whether user is accepting/rejecting changes
    */
@@ -166,7 +170,7 @@ export const ReviewCollapsible = ({
         rootDelete?.(false);
       }
       if (isCreateReview(rootReview)) {
-        handleCreateAction?.(hugoSymbol, rootReview as ReviewLevel, isGermline, action);
+        handleCreateAction(hugoSymbol, rootReview as ReviewLevel, isGermline, action);
       }
     } else {
       setReviewChildren(newReviewChildren);
@@ -194,9 +198,9 @@ export const ReviewCollapsible = ({
     // After marking collapsible as pending, it will be removed from the view. Now we need to save to firebase
     try {
       if (action === ActionType.ACCEPT) {
-        await handleAccept?.(hugoSymbol, getReviewLevelsForActions(), isGermline);
+        await handleAccept(hugoSymbol, getReviewLevelsForActions(), isGermline);
       } else if (action === ActionType.REJECT) {
-        await handleReject?.(hugoSymbol, getReviewLevelsForActions(), isGermline);
+        await handleReject(hugoSymbol, getReviewLevelsForActions(), isGermline);
       }
       // After saved to Firebase, remove from state.
       if (parentDelete) {
@@ -248,22 +252,31 @@ export const ReviewCollapsible = ({
     if (rootReview.reviewLevelType === ReviewLevelType.META) {
       return <></>;
     } else if (rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE) {
+      if (isCreateReview(rootReview) && isUnderCreationOrDeletion) {
+        return <></>;
+      }
       reviewLevel = rootReview as ReviewLevel;
     } else if (rootReview.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) {
       const multiReviewLevel = rootReview as MultiSelectionReviewLevel;
       const multiSelectionReviews = multiReviewLevel.getReviewLevels();
-      const numEditors = _.uniq(multiSelectionReviews.map(r => r.reviewInfo.review?.updatedBy)).length;
+      const numEditors = _.uniq(multiSelectionReviews.map(r => r.reviewInfo.review.updatedBy)).length;
       if (numEditors > 1) {
-        return getReviewInfo('multiple users', reviewAction !== undefined ? ReviewTypeTitle[reviewAction] : undefined);
+        return getReviewInfo('multiple users', ReviewTypeTitle[reviewAction ?? '']);
       }
       reviewLevel = multiSelectionReviews[0];
     }
 
-    const action = reviewAction !== undefined ? ReviewTypeTitle[reviewAction] : undefined;
-    const editor = reviewLevel?.reviewInfo.review?.updatedBy;
-    const updatedTime =
-      reviewLevel?.reviewInfo.review?.updateTime !== undefined ? new Date(reviewLevel.reviewInfo.review.updateTime).toString() : undefined;
+    const action = ReviewTypeTitle[reviewAction ?? ''];
+    const editor = reviewLevel?.reviewInfo.review.updatedBy;
+    const updatedTime = reviewLevel !== undefined ? new Date(reviewLevel.reviewInfo.review.updateTime).toString() : undefined;
     return getReviewInfo(editor, action, updatedTime);
+  };
+
+  const getBadge = () => {
+    if (isUnderCreationOrDeletion) {
+      return undefined;
+    }
+    return <DefaultBadge color={ReviewCollapsibleBootstrapClass[reviewAction ?? '']} text={ReviewActionLabels[reviewAction ?? '']} />;
   };
 
   const getReviewableContent = () => {
@@ -355,8 +368,8 @@ export const ReviewCollapsible = ({
 
     if (baseReviewLevel.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) {
       return getMultiSelectionReviewContent();
-    } else if (children !== undefined && children.length > 0) {
-      return Object.values(rootReview.children ?? {})
+    } else if (children?.length > 0) {
+      return Object.values(rootReview.children)
         ?.sort(reviewLevelSortMethod)
         ?.map(childReview => (
           <ReviewCollapsible
@@ -384,9 +397,11 @@ export const ReviewCollapsible = ({
   const getColorOptions = () => {
     let colorOptions: CollapsibleColorProps;
     let disableBorder = false;
-    if (isCreateReview(baseReviewLevel)) {
+    if (isUnderCreationOrDeletion) {
+      disableBorder = true;
+    } else if (isCreateReview(baseReviewLevel)) {
       disableBorder = false;
-    } else if (baseReviewLevel.reviewLevelType === ReviewLevelType.META || baseReviewLevel.nestedUnderCreateOrDelete) {
+    } else if (baseReviewLevel.reviewLevelType === ReviewLevelType.META) {
       disableBorder = true;
     }
 
@@ -426,15 +441,7 @@ export const ReviewCollapsible = ({
       action={getReviewActions()}
       displayOptions={{ ...defaultReviewCollapsibleDisplayOptions }}
       isPendingDelete={isDeletion}
-      badge={
-        isCreateReview(baseReviewLevel) ||
-        (baseReviewLevel.reviewLevelType !== ReviewLevelType.META && !baseReviewLevel.nestedUnderCreateOrDelete) ? (
-          <DefaultBadge
-            color={reviewAction !== undefined ? ReviewCollapsibleBootstrapClass[reviewAction] : reviewAction}
-            text={reviewAction !== undefined ? ReviewActionLabels[reviewAction] : reviewAction}
-          />
-        ) : undefined
-      }
+      badge={getBadge()}
     >
       {getCollapsibleBody()}
     </Collapsible>

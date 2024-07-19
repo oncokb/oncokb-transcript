@@ -16,6 +16,8 @@ import {
   removeLeafNodes,
   getGenePathFromValuePath,
   showAsFirebaseTextArea,
+  ReviewSectionTitlePrefix,
+  addSectionTitlePrefix,
 } from './firebase-review-utils';
 import { Gene, GeneType, Implication, MetaReview, Mutation, Review, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { IDrug } from 'app/shared/model/drug.model';
@@ -296,7 +298,7 @@ describe('Firebase Review Utils', () => {
         drugList as IDrug[],
       );
 
-      expect(treatmentNameReview.title).toEqual('DrugA + DrugB');
+      expect(treatmentNameReview.title).toEqual(addSectionTitlePrefix(ReviewSectionTitlePrefix.THERAPY, 'DrugA + DrugB'));
       expect(treatmentNameReview.historyLocation).toEqual('V600E, Melanoma, DrugA + DrugB');
     });
   });
@@ -317,7 +319,7 @@ describe('Firebase Review Utils', () => {
       const uuids = []; // UUIDs array is empty because no name change
       const metaReview = buildCancerTypeNameReview(defaultTumor, 'mutations/0/tumors/0', defaultParentReview, uuids, editorReviewMap);
 
-      expect(metaReview.title).toEqual('Melanoma');
+      expect(metaReview.title).toEqual(addSectionTitlePrefix(ReviewSectionTitlePrefix.CANCER_TYPE, 'Melanoma'));
       expect(metaReview.valuePath).toEqual('mutations/0/tumors/0');
       expect(metaReview.historyLocation).toEqual('V600E, Melanoma');
       // Don't expect child because no name change
@@ -329,7 +331,7 @@ describe('Firebase Review Utils', () => {
       const uuids = []; // UUIDs array is empty because no name change
       const metaReview = buildCancerTypeNameReview(defaultTumor, 'mutations/0/tumors/0', defaultParentReview, uuids, editorReviewMap);
 
-      expect(metaReview.title).toEqual('Melanoma {excluding Ocular Melanoma}');
+      expect(metaReview.title).toEqual(addSectionTitlePrefix(ReviewSectionTitlePrefix.CANCER_TYPE, 'Melanoma {excluding Ocular Melanoma}'));
       expect(metaReview.valuePath).toEqual('mutations/0/tumors/0');
       expect(metaReview.historyLocation).toEqual('V600E, Melanoma {excluding Ocular Melanoma}');
       expect(metaReview.hasChildren()).toBeFalsy();
