@@ -628,9 +628,13 @@ function AddMutationModal({
         content = getProteinChangeContent(alterationData, alterationIndex, excludingIndex);
         break;
       case AlterationTypeEnum.CopyNumberAlteration:
-      case AlterationTypeEnum.CdnaChange:
-      case AlterationTypeEnum.GenomicChange:
         content = getCopyNumberAlterationContent(alterationData, alterationIndex, excludingIndex);
+        break;
+      case AlterationTypeEnum.CdnaChange:
+        content = getCdnaChangeContent(alterationData, alterationIndex, excludingIndex);
+        break;
+      case AlterationTypeEnum.GenomicChange:
+        content = getGenomicChangeContent(alterationData, alterationIndex, excludingIndex);
         break;
       case AlterationTypeEnum.StructuralVariant:
         content = getStructuralVariantContent(alterationData, alterationIndex, excludingIndex);
@@ -725,6 +729,44 @@ function AddMutationModal({
           options={consequenceOptions}
           menuPlacement="top"
           onChange={newValue => handleFieldChange(newValue?.label, 'consequence', alterationIndex, excludingIndex)}
+        />
+      </div>
+    );
+  }
+
+  function getCdnaChangeContent(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
+    return (
+      <div>
+        <AddMutationModalField
+          label="Name"
+          value={alterationData.name}
+          placeholder="Input name"
+          onChange={newValue => handleFieldChange(newValue, 'name', alterationIndex, excludingIndex)}
+        />
+        <AddMutationModalField
+          label="Protein Change"
+          value={alterationData.proteinChange}
+          placeholder="Input protein change"
+          onChange={newValue => handleFieldChange(newValue, 'proteinChange', alterationIndex, excludingIndex)}
+        />
+      </div>
+    );
+  }
+
+  function getGenomicChangeContent(alterationData: AlterationData, alterationIndex: number, excludingIndex?: number) {
+    return (
+      <div>
+        <AddMutationModalField
+          label="Name"
+          value={alterationData.name}
+          placeholder="Input name"
+          onChange={newValue => handleFieldChange(newValue, 'name', alterationIndex, excludingIndex)}
+        />
+        <AddMutationModalField
+          label="Protein Change"
+          value={alterationData.proteinChange}
+          placeholder="Input protein change"
+          onChange={newValue => handleFieldChange(newValue, 'proteinChange', alterationIndex, excludingIndex)}
         />
       </div>
     );
