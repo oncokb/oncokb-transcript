@@ -71,9 +71,9 @@ export interface IReviewCollapsibleProps {
   firebase: FirebaseContent;
   parentDelete?: (reviewlLevelId: string, action: ActionType, isPending?: boolean) => void;
   rootDelete?: (isPending?: boolean) => void;
-  handleAccept: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean, isAcceptAll?: boolean) => Promise<void>;
-  handleReject: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) => Promise<void>;
-  handleCreateAction: (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean, action: ActionType) => Promise<void>;
+  handleAccept?: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean, isAcceptAll?: boolean) => Promise<void>;
+  handleReject?: (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) => Promise<void>;
+  handleCreateAction?: (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean, action: ActionType) => Promise<void>;
   disableActions?: boolean;
   isRoot?: boolean;
   drugList: readonly IDrug[];
@@ -170,7 +170,7 @@ export const ReviewCollapsible = ({
         rootDelete?.(false);
       }
       if (isCreateReview(rootReview)) {
-        handleCreateAction(hugoSymbol, rootReview as ReviewLevel, isGermline, action);
+        handleCreateAction?.(hugoSymbol, rootReview as ReviewLevel, isGermline, action);
       }
     } else {
       setReviewChildren(newReviewChildren);
@@ -198,9 +198,9 @@ export const ReviewCollapsible = ({
     // After marking collapsible as pending, it will be removed from the view. Now we need to save to firebase
     try {
       if (action === ActionType.ACCEPT) {
-        await handleAccept(hugoSymbol, getReviewLevelsForActions(), isGermline);
+        await handleAccept?.(hugoSymbol, getReviewLevelsForActions(), isGermline);
       } else if (action === ActionType.REJECT) {
-        await handleReject(hugoSymbol, getReviewLevelsForActions(), isGermline);
+        await handleReject?.(hugoSymbol, getReviewLevelsForActions(), isGermline);
       }
       // After saved to Firebase, remove from state.
       if (parentDelete) {
