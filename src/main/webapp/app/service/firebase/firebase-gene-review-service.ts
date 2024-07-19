@@ -85,6 +85,7 @@ export class FirebaseGeneReviewService {
 
     try {
       await this.firebaseRepository.update('/', updateObject);
+      return updateObject;
     } catch (error) {
       throw new SentryError('Failed to update reviewable content', updateObject);
     }
