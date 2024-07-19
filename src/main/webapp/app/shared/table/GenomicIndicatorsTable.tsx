@@ -19,7 +19,6 @@ import { getHexColorWithAlpha } from '../util/utils';
 import { parseFirebaseGenePath } from '../util/firebase/firebase-path-utils';
 import GenomicIndicatorsHeader from 'app/pages/curation/header/GenomicIndicatorsHeader';
 import { SentryError } from 'app/config/sentry-error';
-import _ from 'lodash';
 
 export interface IGenomicIndicatorsTableProps extends StoreProps {
   genomicIndicatorsPath: string;
