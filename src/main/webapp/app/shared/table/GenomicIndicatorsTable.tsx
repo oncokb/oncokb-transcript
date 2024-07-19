@@ -19,6 +19,7 @@ import { getHexColorWithAlpha } from '../util/utils';
 import { parseFirebaseGenePath } from '../util/firebase/firebase-path-utils';
 import GenomicIndicatorsHeader from 'app/pages/curation/header/GenomicIndicatorsHeader';
 import { SentryError } from 'app/config/sentry-error';
+import _ from 'lodash';
 
 export interface IGenomicIndicatorsTableProps extends StoreProps {
   genomicIndicatorsPath: string;
@@ -31,7 +32,6 @@ const GenomicIndicatorsTable = ({
   mutations,
   deleteGenomicIndicators,
   updateReviewableContent,
-  updateGeneMetaContent,
   updateGeneReviewUuid,
   updateMeta,
   fetchGenomicIndicators,
@@ -218,8 +218,8 @@ const GenomicIndicatorsTable = ({
                         return { label: PATHOGENIC_VARIANTS, value: variant.uuid };
                       }
 
-                      const associatedMutation = mutations.find(mutation => mutation.name_uuid === variant.uuid);
-                      return { label: getMutationName(associatedMutation.name, associatedMutation.alterations), value: variant.uuid };
+                      const associatedMutation = mutations?.find(mutation => mutation.name_uuid === variant.uuid);
+                      return { label: getMutationName(associatedMutation?.name, associatedMutation?.alterations), value: variant.uuid };
                     }) || []
                   }
                   options={[
