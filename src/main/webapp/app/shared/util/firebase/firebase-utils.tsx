@@ -51,7 +51,7 @@ export const getAlterationName = (alteration: Alteration) => {
   }
   return '';
 };
-export const getMutationName = (name: string, alterations: Alteration[]) => {
+export const getMutationName = (name: string | undefined, alterations: Alteration[] | null | undefined) => {
   const defaultNoName = '(No Name)';
   if (alterations) {
     return alterations.map(alteration => getAlterationName(alteration)).join(', ');
