@@ -47,6 +47,7 @@ const OncoKBSidebarExpanded = observer(
     setOncoKBSidebarWidth,
     closeNavigationSidebar,
     oncoKBSidebarMarginTop,
+    sidebarHeight,
   }: Omit<IOncoKBSidebarProps, 'showOncoKBSidebar' | 'defaultOpen'>) => {
     const maxWidth = document.body.clientWidth * 0.5;
     const closeNavWidth = document.body.clientWidth * 0.45;
@@ -131,7 +132,11 @@ const OncoKBSidebarExpanded = observer(
     }
 
     return (
-      <div ref={sidebarRef} style={{ width: oncoKBSidebarWidth, marginTop: oncoKBSidebarMarginTop }} className="oncokb-sidebar-expanded">
+      <div
+        ref={sidebarRef}
+        style={{ width: oncoKBSidebarWidth, marginTop: oncoKBSidebarMarginTop, height: sidebarHeight }}
+        className="oncokb-sidebar-expanded"
+      >
         <div
           ref={draggableRef}
           className="draggable"
@@ -175,6 +180,7 @@ const mapStoreToProps = ({ layoutStore }: IRootStore) => ({
   setOncoKBSidebarWidth: layoutStore.setOncoKBSidebarWidth,
   closeNavigationSidebar: layoutStore.closeNavigationSidebar,
   oncoKBSidebarMarginTop: layoutStore.oncoKBSidebarMarginTop,
+  sidebarHeight: layoutStore.sidebarHeight,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
