@@ -59,7 +59,7 @@ export const getGeneNamesStringFromAlterations = (alterations: IAlteration[]) =>
   return getGeneNamesFromAlterations(alterations).join(', ');
 };
 
-export const getTreatmentName = (drugs: IDrug[], rule?: IRule): string | undefined => {
+export const getTreatmentName = (drugs: IDrug[], rule?: IRule): string => {
   if (rule == null) {
     return drugs.map(drug => drug.name).join(', ');
   } else {
@@ -67,15 +67,17 @@ export const getTreatmentName = (drugs: IDrug[], rule?: IRule): string | undefin
       map[next.id.toString()] = next;
       return map;
     }, {});
-    return rule.rule
-      ?.split(',')
-      .map(treatment => {
-        return treatment
-          .split('+')
-          .map(drugId => drugMap[drugId.trim()]?.name)
-          .join(' + ');
-      })
-      .join(', ');
+    return (
+      rule.rule
+        ?.split(',')
+        .map(treatment => {
+          return treatment
+            .split('+')
+            .map(drugId => drugMap[drugId.trim()]?.name)
+            .join(' + ');
+        })
+        .join(', ') ?? ''
+    );
   }
 };
 
