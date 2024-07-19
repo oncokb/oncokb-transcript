@@ -2,6 +2,7 @@ import { Vus } from 'app/shared/model/firebase/firebase.model';
 import { getUserFullName } from 'app/shared/util/utils';
 import { AuthStore } from 'app/stores';
 import { FirebaseRepository } from 'app/stores/firebase/firebase-repository';
+import { push } from 'firebase/database';
 import _ from 'lodash';
 
 export class FirebaseVusService {
@@ -18,6 +19,18 @@ export class FirebaseVusService {
       return new Vus(variant, this.authStore.account.email, this.authStore.fullName);
     });
     await this.firebaseRepository.pushMultiple(path, newVusList);
+  };
+
+  getVusUpdateObject = (path: string, variants: string[]) => {
+    const newVusList = variants.map(variant => {
+      return new Vus(variant, this.authStore.account.email, this.authStore.fullName);
+    });
+    const updateObject = {};
+    newVusList.forEach(vus => {
+      const arrayKey = this.firebaseRepository.getArrayKey(path);
+      updateObject[`${path}/${arrayKey}`] = vus;
+    });
+    return updateObject;
   };
 
   refreshVus = async (path: string, currentVus: Vus) => {

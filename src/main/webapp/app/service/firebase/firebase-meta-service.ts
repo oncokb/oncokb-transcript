@@ -86,4 +86,13 @@ export class FirebaseMetaService {
   deleteMetaGene = async (hugoSymbol: string, isGermline: boolean) => {
     await this.firebaseRepository.delete(getFirebaseMetaGenePath(isGermline, hugoSymbol));
   };
+
+  getUpdateObject = (add: boolean, hugoSymbol: string, isGermline: boolean, uuid: string) => {
+    const metaGenePath = getFirebaseMetaGenePath(isGermline, hugoSymbol);
+    return {
+      [`${metaGenePath}/lastModifiedBy`]: this.authStore.fullName,
+      [`${metaGenePath}/lastModifiedAt`]: new Date().getTime().toString(),
+      [`${metaGenePath}/review/${uuid}`]: add ? true : null,
+    };
+  };
 }
