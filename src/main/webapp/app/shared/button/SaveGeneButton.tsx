@@ -2,7 +2,9 @@ import { observer } from 'mobx-react';
 import { componentInject } from '../util/typed-inject';
 import { IRootStore } from 'app/stores';
 import React, { useCallback, useState } from 'react';
-import { Button, ButtonProps } from 'reactstrap';
+import { ButtonProps } from 'reactstrap';
+import { AsyncSaveButton } from './AsyncSaveButton';
+import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 type ISaveGeneButtonProps = StoreProps & {
   hugoSymbol?: string;
@@ -10,25 +12,37 @@ type ISaveGeneButtonProps = StoreProps & {
   Omit<React.HTMLAttributes<HTMLButtonElement>, 'onClick' | 'disabled'>;
 
 function SaveGeneButton({ hugoSymbol, firebaseGeneService, ...buttonProps }: ISaveGeneButtonProps) {
-  const [disabled, setDisabled] = useState(false);
+  const [isSavePending, setIsSavePending] = useState(false);
+
   const onClickHandler = useCallback(async () => {
-    setDisabled(true);
+    setIsSavePending(true);
     try {
       const isGermline = false;
       if (hugoSymbol === undefined) {
         await firebaseGeneService.saveAllGenes(isGermline);
+        notifySuccess('All genes saved!');
       } else {
         await firebaseGeneService.saveGene(isGermline, hugoSymbol);
+        notifySuccess(`${hugoSymbol} was saved!`);
       }
     } catch (e) {
       console.error(e);
+      notifyError(e);
     }
-    setDisabled(false);
+    setIsSavePending(false);
   }, [hugoSymbol]);
+
+  const confirmText = hugoSymbol === undefined ? 'Save All Genes' : `Save ${hugoSymbol}`;
   return (
-    <Button {...buttonProps} color="primary" outline onClick={onClickHandler} disabled={disabled}>
-      {hugoSymbol === undefined ? 'Save All Genes' : `Save ${hugoSymbol}`}
-    </Button>
+    <AsyncSaveButton
+      {...buttonProps}
+      confirmText={confirmText}
+      isSavePending={isSavePending}
+      disabled={isSavePending}
+      color="primary"
+      outline
+      onClick={onClickHandler}
+    />
   );
 }
 

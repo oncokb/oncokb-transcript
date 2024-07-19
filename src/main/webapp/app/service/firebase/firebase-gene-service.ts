@@ -517,8 +517,6 @@ export class FirebaseGeneService {
         vus: maybeVus == null ? undefined : Object.values(maybeVus),
       };
       const driveAnnotation = getDriveAnnotations(drugLookup, args);
-      // eslint-disable-next-line no-console
-      console.log(driveAnnotation);
       await this.driveAnnotationApi.submitDriveAnnotations(driveAnnotation);
     }
   };
@@ -535,8 +533,6 @@ export class FirebaseGeneService {
       vus: maybeVus == null ? undefined : Object.values(maybeVus),
     };
     const driveAnnotation = getDriveAnnotations(drugLookup, args);
-    // eslint-disable-next-line no-console
-    console.log(driveAnnotation);
     await this.driveAnnotationApi.submitDriveAnnotations(driveAnnotation);
   };
 }
