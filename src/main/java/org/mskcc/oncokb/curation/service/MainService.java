@@ -7,6 +7,9 @@ import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
+import org.genome_nexus.client.TranscriptConsequenceSummary;
+import org.genome_nexus.client.VariantAnnotation;
+import org.genome_nexus.client.VariantAnnotationSummary;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.dto.AnnotationDTO;
 import org.mskcc.oncokb.curation.domain.dto.HotspotDTO;
@@ -117,10 +120,34 @@ public class MainService {
             return alterationWithStatus;
         }
 
+        // get protein change for genomic change variant
+        if (GENOMIC_CHANGE.equals(alterationWithEntityStatus.getEntity().getType())) {
+            try {
+                VariantAnnotation variantAnnotation = genomeNexusService.annotateGenomicChange(
+                    referenceGenome,
+                    alterationWithEntityStatus.getEntity().getAlteration()
+                );
+                Optional<String> proteinChangeOptional = Optional.ofNullable(variantAnnotation)
+                    .map(VariantAnnotation::getAnnotationSummary)
+                    .map(VariantAnnotationSummary::getTranscriptConsequenceSummary)
+                    .map(TranscriptConsequenceSummary::getHgvspShort)
+                    .map(hgvsp -> hgvsp.replace("p.", ""));
+                if (proteinChangeOptional.isPresent()) {
+                    alterationWithEntityStatus.getEntity().setProteinChange(proteinChangeOptional.get());
+                }
+            } catch (ApiException e) {
+                alterationWithStatus.setMessage("Failed to be annotated by GenomeNexus.");
+                alterationWithStatus.setType(EntityStatusType.WARNING);
+            }
+        }
+
+        // update alteration type
         Alteration parsedAlteration = alterationWithEntityStatus.getEntity();
         if (parsedAlteration.getType() != null) {
             alteration.setType(parsedAlteration.getType());
         }
+
+        // update associated genes
         Set<Gene> genes = alteration.getGenes();
         if (parsedAlteration.getType().equals(STRUCTURAL_VARIANT) && !parsedAlteration.getGenes().isEmpty()) {
             genes = parsedAlteration.getGenes();
@@ -151,9 +178,6 @@ public class MainService {
         alteration.setGenes(annotatedGenes);
         alteration.setAlteration(parsedAlteration.getAlteration());
         alteration.setName(parsedAlteration.getName());
-        if (PROTEIN_CHANGE.equals(parsedAlteration.getType())) {
-            alteration.setProteinChange(parsedAlteration.getProteinChange());
-        }
 
         if (!alteration.getGenes().isEmpty() && alteration.getGenes().stream().anyMatch(gene -> gene.getEntrezGeneId() < 0)) {
             alteration.setType(NA);
@@ -171,6 +195,9 @@ public class MainService {
             }
         }
 
+        if (StringUtils.isEmpty(alteration.getProteinChange())) {
+            alteration.setProteinChange(parsedAlteration.getProteinChange());
+        }
         if (alteration.getStart() == null) {
             alteration.setStart(parsedAlteration.getStart());
         }
@@ -339,8 +366,10 @@ public class MainService {
         if (savedCanonicalEnsemblGeneOptional.isEmpty()) {
             List<org.genome_nexus.client.EnsemblGene> ensemblGeneFromGN = new ArrayList<>();
             try {
-                ensemblGeneFromGN =
-                    genomeNexusService.findCanonicalEnsemblGeneTranscript(referenceGenome, Collections.singletonList(entrezGeneId));
+                ensemblGeneFromGN = genomeNexusService.findCanonicalEnsemblGeneTranscript(
+                    referenceGenome,
+                    Collections.singletonList(entrezGeneId)
+                );
                 if (!ensemblGeneFromGN.isEmpty()) {
                     org.genome_nexus.client.EnsemblGene ensemblGene = ensemblGeneFromGN.get(0);
                     if (StringUtils.isNotEmpty(ensemblGene.getGeneId())) {
