@@ -6,7 +6,7 @@ import { IRootStore } from 'app/stores';
 import { componentInject } from '../util/typed-inject';
 import { observer } from 'mobx-react';
 
-export const BetaSiteMessage = (props: StoreProps) => {
+const BetaSiteMessage = (props: StoreProps) => {
   if (!props.isBeta) {
     return <></>;
   }
