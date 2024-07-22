@@ -155,6 +155,7 @@ function handleTi({
   evidenceData.data.treatments = [];
   const treatments = treatment.name.split(',');
   const priorities = getNewPriorities(ti.treatments, [evidenceData.dataUUID]);
+
   for (let i = 0; i < treatments.length; i++) {
     const drugs = treatments[i].split('+');
     const drugList: Drug[] = [];
@@ -171,14 +172,7 @@ function handleTi({
     evidenceData.data.treatments.push({
       approvedIndications: [treatment.indication],
       drugs: drugList,
-      priority:
-        priorities[evidenceData.dataUUID][
-          drugList
-            .map(function (drug) {
-              return drug.drugName;
-            })
-            .join(' + ')
-        ],
+      priority: priorities[evidenceData.dataUUID][drugList.map(x => x.uuid).join(' + ')],
     });
   }
 }

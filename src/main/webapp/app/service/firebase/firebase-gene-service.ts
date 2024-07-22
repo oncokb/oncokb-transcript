@@ -500,21 +500,14 @@ export class FirebaseGeneService {
 
   saveAllGenes = async (isGermlineProp: boolean) => {
     const drugLookup = (await this.firebaseRepository.get(FB_COLLECTION.DRUGS)).val() as Record<string, Drug>;
-    const geneLookup =
-      ((await this.firebaseRepository.get(isGermlineProp ? FB_COLLECTION.GERMLINE_GENES : FB_COLLECTION.GENES)).val() as Record<
-        string,
-        Gene
-      >) ?? {};
+    const geneLookup = ((await this.firebaseRepository.get(getFirebaseGenePath(isGermlineProp))).val() as Record<string, Gene>) ?? {};
     const vusLookup =
-      ((await this.firebaseRepository.get(isGermlineProp ? FB_COLLECTION.GERMLINE_VUS : FB_COLLECTION.VUS)).val() as Record<
-        string,
-        Record<string, Vus>
-      >) ?? {};
+      ((await this.firebaseRepository.get(getFirebaseVusPath(isGermlineProp))).val() as Record<string, Record<string, Vus>>) ?? {};
     for (const [hugoSymbol, gene] of Object.entries(geneLookup)) {
-      const maybeVus: Record<string, Vus> | null = vusLookup[hugoSymbol];
+      const nullableVus: Record<string, Vus> | null = vusLookup[hugoSymbol];
       const args: Parameters<typeof getDriveAnnotations>[1] = {
         gene,
-        vus: maybeVus == null ? undefined : Object.values(maybeVus),
+        vus: nullableVus == null ? undefined : Object.values(nullableVus),
       };
       const driveAnnotation = getDriveAnnotations(drugLookup, args);
       await this.driveAnnotationApi.submitDriveAnnotations(driveAnnotation);
@@ -523,14 +516,14 @@ export class FirebaseGeneService {
 
   saveGene = async (isGermlineProp: boolean, hugoSymbolProp: string) => {
     const drugLookup = (await this.firebaseRepository.get(FB_COLLECTION.DRUGS)).val() as Record<string, Drug>;
-    const maybeGene = (await this.firebaseRepository.get(getFirebaseGenePath(isGermlineProp, hugoSymbolProp))).val() as Gene | null;
-    const maybeVus = (await this.firebaseRepository.get(getFirebaseVusPath(isGermlineProp, hugoSymbolProp))).val() as Record<
+    const nullableGene = (await this.firebaseRepository.get(getFirebaseGenePath(isGermlineProp, hugoSymbolProp))).val() as Gene | null;
+    const nullableVus = (await this.firebaseRepository.get(getFirebaseVusPath(isGermlineProp, hugoSymbolProp))).val() as Record<
       string,
       Vus
     > | null;
     const args: Parameters<typeof getDriveAnnotations>[1] = {
-      gene: maybeGene == null ? undefined : maybeGene,
-      vus: maybeVus == null ? undefined : Object.values(maybeVus),
+      gene: nullableGene == null ? undefined : nullableGene,
+      vus: nullableVus == null ? undefined : Object.values(nullableVus),
     };
     const driveAnnotation = getDriveAnnotations(drugLookup, args);
     await this.driveAnnotationApi.submitDriveAnnotations(driveAnnotation);
