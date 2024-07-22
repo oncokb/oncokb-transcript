@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import { Drug, Gene, Mutation, Review, Treatment, Tumor, Vus, DrugCollection } from '../../model/firebase/firebase.model';
 
-export function getGeneData(geneData: Gene, excludeComments: boolean, onlyReviewedContent: boolean, drugList: DrugCollection): true | Gene {
+export function getGeneData(geneData: Gene, onlyReviewedContent: boolean, drugList: DrugCollection): true | Gene {
   const gene = _.cloneDeep(geneData);
-  processData(gene, ['summary', 'background'], excludeComments, onlyReviewedContent);
-  processData(gene.type, ['tsg', 'ocg'], excludeComments, onlyReviewedContent);
+  processData(gene, ['summary', 'background'], onlyReviewedContent);
+  processData(gene.type, ['tsg', 'ocg'], onlyReviewedContent);
   const tempMutations: Mutation[] = [];
   for (const mutation of gene.mutations ?? []) {
     const tempTumors: Tumor[] = [];
@@ -12,19 +12,19 @@ export function getGeneData(geneData: Gene, excludeComments: boolean, onlyReview
       tempMutations.push(mutation);
       continue;
     }
-    processData(mutation, ['name'], excludeComments, onlyReviewedContent);
-    processData(mutation.mutation_effect, ['oncogenic', 'effect', 'description'], excludeComments, onlyReviewedContent);
+    processData(mutation, ['name'], onlyReviewedContent);
+    processData(mutation.mutation_effect, ['oncogenic', 'effect', 'description'], onlyReviewedContent);
     for (const tumor of mutation.tumors ?? []) {
       if (shouldExclude(onlyReviewedContent, tumor.cancerTypes_review)) {
         tempTumors.push(tumor);
         continue;
       }
       // process tumor cancerTypes
-      processData(tumor, ['summary', 'diagnosticSummary', 'prognosticSummary'], excludeComments, onlyReviewedContent);
-      processData(tumor.diagnostic, ['level', 'description', 'relevantCancerTypes'], excludeComments, onlyReviewedContent);
-      processData(tumor.prognostic, ['level', 'description', 'relevantCancerTypes'], excludeComments, onlyReviewedContent);
+      processData(tumor, ['summary', 'diagnosticSummary', 'prognosticSummary'], onlyReviewedContent);
+      processData(tumor.diagnostic, ['level', 'description', 'relevantCancerTypes'], onlyReviewedContent);
+      processData(tumor.prognostic, ['level', 'description', 'relevantCancerTypes'], onlyReviewedContent);
       for (const ti of tumor.TIs) {
-        processData(ti, ['description'], excludeComments, onlyReviewedContent);
+        processData(ti, ['description'], onlyReviewedContent);
         type TempTreatment = Omit<Treatment, 'name'> & { name: ReturnType<typeof drugUuidToDrug> | string };
         const tempTreatments: TempTreatment[] = [];
         for (const treatment of ti.treatments ?? []) {
@@ -33,12 +33,7 @@ export function getGeneData(geneData: Gene, excludeComments: boolean, onlyReview
             return true;
           }
           (treatment as TempTreatment).name = drugUuidToDrug(treatment.name, drugList);
-          processData(
-            treatment,
-            ['level', 'propagation', 'propagationLiquid', 'indication', 'description'],
-            excludeComments,
-            onlyReviewedContent,
-          );
+          processData(treatment, ['level', 'propagation', 'propagationLiquid', 'indication', 'description'], onlyReviewedContent);
         }
         for (const item of tempTreatments) {
           const index = ti.treatments.indexOf(item as Treatment);
@@ -64,12 +59,10 @@ export function getGeneData(geneData: Gene, excludeComments: boolean, onlyReview
   return gene;
 }
 
-function processData(data: object | undefined, keys: string[], excludeComments: boolean, onlyReviewedContent: boolean) {
+function processData(data: object | undefined, keys: string[], onlyReviewedContent: boolean) {
   if (data !== undefined) {
     for (const key of keys) {
-      if (excludeComments) {
-        delete data[key + '_comments'];
-      }
+      delete data[key + '_comments'];
       const reviewKey = key + '_review';
       const maybeReview = data[reviewKey];
       if (onlyReviewedContent && typeof maybeReview === 'object' && maybeReview !== null && 'lastReviewed' in maybeReview) {
@@ -79,14 +72,11 @@ function processData(data: object | undefined, keys: string[], excludeComments: 
   }
 }
 
-export function getVUSData(vus: Vus[], excludeComments: boolean) {
+export function getVUSData(vus: Vus[]) {
   const vusData = _.cloneDeep(vus);
   const vusDataArray = [];
-  excludeComments = _.isBoolean(excludeComments) ? excludeComments : false;
   for (const vusItem of vusData) {
-    if (excludeComments) {
-      delete vusItem.name_comments;
-    }
+    delete vusItem.name_comments;
     vusDataArray.push(vusItem);
   }
   return vusDataArray;
@@ -127,10 +117,10 @@ export type DriveAnnotation = { gene: string | undefined; vus: string | undefine
 export function getDriveAnnotations(drugList: DrugCollection, { gene, vus }: { gene: Gene; vus: Vus[] }): DriveAnnotation {
   const params: DriveAnnotation = { gene: undefined, vus: undefined };
   if (gene) {
-    params.gene = JSON.stringify(getGeneData(gene, true, true, drugList));
+    params.gene = JSON.stringify(getGeneData(gene, true, drugList));
   }
   if (vus) {
-    params.vus = JSON.stringify(getVUSData(vus, true));
+    params.vus = JSON.stringify(getVUSData(vus));
   }
   return params;
 }
