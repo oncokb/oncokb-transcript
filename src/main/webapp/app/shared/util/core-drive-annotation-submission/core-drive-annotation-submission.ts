@@ -98,7 +98,10 @@ function drugUuidToDrug(key: string | undefined, drugList: DrugCollection): Drug
 function therapyStrToArr(key: string) {
   if (key) {
     return key.split(',').map(function (element) {
-      return element.trim().split(' + ');
+      return element
+        .trim()
+        .split('+')
+        .map(x => x.trim());
     });
   } else {
     return [];
