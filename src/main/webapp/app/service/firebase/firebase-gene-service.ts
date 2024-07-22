@@ -61,6 +61,7 @@ export type MutationLevelSummary = {
 export class FirebaseGeneService {
   firebaseRepository: FirebaseRepository;
   authStore: AuthStore;
+  firebaseMutationListStore: FirebaseDataStore<Mutation[]>;
   firebaseMutationConvertIconStore: FirebaseDataStore<Mutation[]>;
   firebaseMetaService: FirebaseMetaService;
   firebaseGeneReviewService: FirebaseGeneReviewService;
@@ -68,12 +69,14 @@ export class FirebaseGeneService {
   constructor(
     firebaseRepository: FirebaseRepository,
     authStore: AuthStore,
+    firebaseMutationListStore: FirebaseDataStore<Mutation[]>,
     firebaseMutationConvertIconStore: FirebaseDataStore<Mutation[]>,
     firebaseMetaService: FirebaseMetaService,
     firebaseGeneReviewService: FirebaseGeneReviewService,
   ) {
     this.firebaseRepository = firebaseRepository;
     this.authStore = authStore;
+    this.firebaseMutationListStore = firebaseMutationListStore;
     this.firebaseMutationConvertIconStore = firebaseMutationConvertIconStore;
     this.firebaseMetaService = firebaseMetaService;
     this.firebaseGeneReviewService = firebaseGeneReviewService;
@@ -442,8 +445,16 @@ export class FirebaseGeneService {
     const genePath = parseFirebaseGenePath(genomicIndicatorsPath);
     const newGenomicIndicator = new GenomicIndicator();
     const uuidsToReview = [];
+    const mutationList = this.firebaseMutationListStore.data;
+    const pathogenicVariants = mutationList.find(mut => mut.name === PATHOGENIC_VARIANTS);
+    let pathogenicVariantsNameUuid = pathogenicVariants?.name_uuid;
 
-    newGenomicIndicator.associationVariants = [{ name: PATHOGENIC_VARIANTS, uuid: PATHOGENIC_VARIANTS }];
+    if (pathogenicVariantsNameUuid === undefined) {
+      const newMut = new Mutation(PATHOGENIC_VARIANTS);
+      await this.addMutation(`${genePath.genePath}/mutations`, newMut, true, false);
+      pathogenicVariantsNameUuid = newMut.name_uuid;
+    }
+    newGenomicIndicator.associationVariants = [{ name: PATHOGENIC_VARIANTS, uuid: pathogenicVariantsNameUuid }];
 
     const newReview = new Review(this.authStore.fullName);
     newReview.updateTime = new Date().getTime();
