@@ -21,10 +21,9 @@ export function getGeneData(geneData: Gene, onlyReviewedContent: boolean, drugLi
       }
       // process tumor cancerTypes
       processData(tumor, ['summary', 'diagnosticSummary', 'prognosticSummary'], onlyReviewedContent);
-      processData(tumor.diagnostic, ['level', 'description', 'relevantCancerTypes'], onlyReviewedContent);
-      processData(tumor.prognostic, ['level', 'description', 'relevantCancerTypes'], onlyReviewedContent);
+      processData(tumor.diagnostic, ['level', 'description', 'excludedRCTs'], onlyReviewedContent);
+      processData(tumor.prognostic, ['level', 'description', 'excludedRCTs'], onlyReviewedContent);
       for (const ti of tumor.TIs) {
-        processData(ti, ['description'], onlyReviewedContent);
         type TempTreatment = Omit<Treatment, 'name'> & { name: ReturnType<typeof drugUuidToDrug> | string };
         const tempTreatments: TempTreatment[] = [];
         for (const treatment of ti.treatments ?? []) {
@@ -33,7 +32,11 @@ export function getGeneData(geneData: Gene, onlyReviewedContent: boolean, drugLi
             return true;
           }
           (treatment as TempTreatment).name = drugUuidToDrug(treatment.name, drugList);
-          processData(treatment, ['level', 'propagation', 'propagationLiquid', 'indication', 'description'], onlyReviewedContent);
+          processData(
+            treatment,
+            ['level', 'propagation', 'propagationLiquid', 'indication', 'description', 'fdaLevel'],
+            onlyReviewedContent,
+          );
         }
         for (const item of tempTreatments) {
           const index = ti.treatments.indexOf(item as Treatment);
@@ -59,7 +62,7 @@ export function getGeneData(geneData: Gene, onlyReviewedContent: boolean, drugLi
   return gene;
 }
 
-function processData(data: object | undefined, keys: string[], onlyReviewedContent: boolean) {
+function processData<T, K extends keyof T & string>(data: T | undefined, keys: K[], onlyReviewedContent: boolean) {
   if (data !== undefined) {
     for (const key of keys) {
       delete data[key + '_comments'];
