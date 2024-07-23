@@ -20,6 +20,7 @@ import {
 } from '../core-submission-shared/core-submission.mocks';
 import { DrugCollection, FDA_LEVELS, FIREBASE_ONCOGENICITY, TI_TYPE, TX_LEVELS, Vus } from 'app/shared/model/firebase/firebase.model';
 import { getGeneData, getVUSData } from './core-drive-annotation-submission';
+import { MUTATION_EFFECT } from 'app/config/constants/constants';
 
 describe('Drive annotation to submit to core', () => {
   describe('getGeneData', () => {
@@ -122,7 +123,7 @@ const mockGene = createMockGene({
           updatedBy: 'John Doe',
         }),
         description_uuid: 'b020228d-8bbf-4d1f-842f-dda76b4e6630',
-        effect: 'Likely Gain-of-function',
+        effect: MUTATION_EFFECT.LIKELY_GAIN_OF_FUNCTION,
         effect_review: createMockReview({
           updateTime: 1678309000000,
           updatedBy: 'John Doe',
@@ -162,7 +163,7 @@ const mockGene = createMockGene({
         description: 'The class I',
         description_review: createMockReview({ updateTime: 1717770480000, updatedBy: 'John Doe' }),
         description_uuid: '84e58cf7-a4f0-4cd5-ac01-d8397526d0e7',
-        effect: 'Gain-of-function',
+        effect: MUTATION_EFFECT.GAIN_OF_FUNCTION,
         effect_review: createMockReview({
           updateTime: 1678309000000,
           updatedBy: 'John Doe',
