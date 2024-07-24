@@ -3,10 +3,11 @@ import { FB_COLLECTION } from 'app/config/constants/firebase';
 type FirebaseGenePathDetails = {
   fullPath: string;
   hugoSymbol: string;
+  genePath: string;
   pathFromGene: string;
 };
 
-export const parseFirebaseGenePath = (path: string) => {
+export const parseFirebaseGenePath = (path: string): FirebaseGenePathDetails => {
   const pathParts = path.split('/').filter(part => part.length > 0);
   if (pathParts.length < 3) {
     return;
@@ -16,8 +17,9 @@ export const parseFirebaseGenePath = (path: string) => {
   return {
     fullPath: path,
     hugoSymbol,
+    genePath: `${pathParts[0]}/${pathParts[1]}`,
     pathFromGene,
-  } as FirebaseGenePathDetails;
+  };
 };
 
 export const buildFirebaseGenePath = (hugoSymbol: string, fieldKey: string) => {

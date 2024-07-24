@@ -245,6 +245,7 @@ export function createStores(history: History): IRootStore {
   const firebaseGeneService = new FirebaseGeneService(
     firebaseRepository,
     rootStore.authStore,
+    firebaseMutationListStore,
     firebaseMutationConvertIconStore,
     firebaseMetaService,
     firebaseGeneReviewService,
