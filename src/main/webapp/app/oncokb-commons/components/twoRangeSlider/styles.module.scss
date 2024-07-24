@@ -1,0 +1,107 @@
+.wrapper {
+  width: 90%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.range-slider {
+  --_height: 7px;
+  --_thumb-size: calc(var(--_height) * 2.5);
+  position: relative;
+  width: 100%;
+  display: grid;
+  margin-bottom: calc(var(--_thumb-size) * -1);
+
+  .range-labels {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 8px;
+    .range-label {
+      display: inline-flex;
+      font-size: 16px;
+      color: var(black);
+      line-height: 0.8;
+
+      &-start {
+        align-self: flex-start;
+      }
+      &-end {
+        align-self: flex-end;
+      }
+    }
+  }
+
+  .track-wrapper {
+    position: relative;
+    z-index: 1;
+    height: var(--_height);
+    margin-bottom: var(--_thumb-size);
+    display: grid;
+    align-items: center;
+    margin: 0 calc(var(--_thumb-size) / 2);
+
+    .track {
+      position: absolute;
+      z-index: 1;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      border-radius: 5px;
+      background-color: lightgray;
+    }
+
+    .range-between {
+      position: absolute;
+      z-index: 2;
+      left: 0%;
+      right: 0%;
+      top: 0;
+      bottom: 0;
+      border-radius: 5px;
+      background-color: #0968c3;
+    }
+  }
+
+  .control {
+    width: var(--_thumb-size);
+    height: var(--_thumb-size);
+    border-radius: 50%;
+    position: absolute;
+    background-color: #0968c3;
+    top: 50%;
+    margin-left: calc(var(--_thumb-size) / -2);
+    transform: translate3d(0, -50%, 0);
+    z-index: 3;
+  }
+}
+
+input[type='range'] {
+  position: absolute;
+  pointer-events: none;
+  -webkit-appearance: none;
+  z-index: 2;
+  height: var(--_height);
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+  bottom: 0;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  pointer-events: all;
+  width: var(--_thumb-size);
+  height: var(--_thumb-size);
+  border-radius: 0;
+  border: 0 none;
+}
+
+input[type='range']::-moz-range-thumb {
+  pointer-events: all;
+  width: var(--_thumb-size);
+  height: var(--_thumb-size);
+  border-radius: 0;
+  border: 0 none;
+}

@@ -12,6 +12,7 @@ import LoginRedirect from '../pages/login/login-redirect';
 import Entities from 'app/entities';
 import PageContainer from '../components/PageContainer';
 import CurationRoutes from './curation-routes';
+import VariantRecListPage from '../pages/variantRecommendation/VariantRecListPage';
 
 const Account = Loadable({
   loader: () => import(/* webpackChunkName: "account" */ '../pages/account/SettingsPage'),
@@ -44,6 +45,7 @@ const Routes: React.FunctionComponent<IRoutesProps> = (props: IRoutesProps) => {
             <PrivateRoute exact path={PAGE_ROUTE.SEARCH} component={SearchPage} />
             <PrivateRoute path={PAGE_ROUTE.CURATION} component={CurationRoutes} hasAnyAuthorities={[AUTHORITIES.CURATOR]} />
             <PrivateRoute exact path={PAGE_ROUTE.ACCOUNT} component={Account} hasAnyAuthorities={[AUTHORITIES.USER]} />
+            <PrivateRoute exact path={PAGE_ROUTE.VARIANR_REC} component={VariantRecListPage} />
             <PrivateRoute path="/admin" component={Admin} hasAnyAuthorities={[AUTHORITIES.ADMIN]} />
             <PrivateRoute path="/" component={Entities} hasAnyAuthorities={[AUTHORITIES.USER]} />
             <ErrorBoundaryRoute exact component={PageNotFound} />

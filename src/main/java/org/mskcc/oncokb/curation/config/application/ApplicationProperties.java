@@ -19,11 +19,21 @@ public class ApplicationProperties extends org.mskcc.oncokb.meta.model.applicati
 
     private FirebaseProperties firebase;
 
+    private AwsProperties aws;
+
     private String oncokbDataRepoDir;
 
     private OncoKbCoreConfig oncokbCore;
 
     private String nihEutilsToken;
+
+    public AwsProperties getAws() {
+        return aws;
+    }
+
+    public void setAws(AwsProperties aws) {
+        this.aws = aws;
+    }
 
     public OncoKbCoreConfig getOncokbCore() {
         return oncokbCore;

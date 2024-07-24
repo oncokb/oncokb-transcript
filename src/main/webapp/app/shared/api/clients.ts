@@ -10,6 +10,7 @@ import {
   AssociationResourceApi,
   CancerTypeResourceApi,
   ArticleResourceApi,
+  VariantRecommendControllerApi,
 } from './generated/curation/api';
 
 export const fdaSubmissionClient = new FdaSubmissionResourceApi(undefined, '', axiosInstance);
@@ -22,3 +23,4 @@ export const flagClient = new FlagResourceApi(undefined, '', axiosInstance);
 export const associationClient = new AssociationResourceApi(undefined, '', axiosInstance);
 export const cancerTypeClient = new CancerTypeResourceApi(undefined, '', axiosInstance);
 export const articleClient = new ArticleResourceApi(undefined, '', axiosInstance);
+export const variantRecommendClient = new VariantRecommendControllerApi(undefined, '', axiosInstance);

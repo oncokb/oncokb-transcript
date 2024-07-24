@@ -249,6 +249,14 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSi
               />
             )}
             {props.isUser && (
+              <MenuItemCollapsible
+                isCollapsed={isNavSidebarCollapsed}
+                text="Variant Recommendation"
+                icon={<FiFileText size={DEFAULT_NAV_ICON_SIZE} />}
+                nav={<NavLink to={PAGE_ROUTE.VARIANR_REC} />}
+              />
+            )}
+            {props.isUser && (
               <>
                 <MenuItemCollapsible
                   isCollapsed={isNavSidebarCollapsed}
