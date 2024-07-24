@@ -101,6 +101,7 @@ import { FirebaseRepository } from './firebase/firebase-repository';
 import { OpenMutationCollapsibleStore } from './open-mutation-collapsible.store';
 import { CurationPageStore } from 'app/stores/curation-page.store';
 import CategoricalAlterationStore from 'app/entities/categorical-alteration/categorical-alteration.store';
+import { WindowStore } from './window-store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
@@ -111,6 +112,7 @@ export interface IRootStore {
   readonly routerStore: RouterStore;
   readonly layoutStore: LayoutStore;
   readonly curationPageStore: CurationPageStore;
+  readonly windowStore: WindowStore;
 
   readonly categoricalAlterationStore: CategoricalAlterationStore;
   readonly sequenceStore: SequenceStore;
@@ -174,6 +176,7 @@ export function createStores(history: History): IRootStore {
   rootStore.routerStore = new RouterStore(history);
   rootStore.layoutStore = new LayoutStore(rootStore);
   rootStore.curationPageStore = new CurationPageStore(rootStore);
+  rootStore.windowStore = new WindowStore();
 
   /* Entity stores */
   rootStore.categoricalAlterationStore = new CategoricalAlterationStore(rootStore);

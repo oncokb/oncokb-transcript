@@ -8,6 +8,7 @@ import {
   DATA_IMPORT_OPTIONAL_COLUMNS_INFO_ALERT_ID,
   DATA_IMPORT_REQUIRED_COLUMNS_INFO_ALERT_ID,
   DATA_IMPORT_TAB_ID,
+  OPEN_SIDEBAR_BUTTON_ID,
 } from '../../../main/webapp/app/config/constants/html-id.ts';
 import { selectGenomicIndicatorToImport } from '../shared/data-import-utils.ts';
 
@@ -18,6 +19,8 @@ describe('Data Import Tests', () => {
 
   beforeEach(async () => {
     await browser.url(`${BASE_URL}/curation/somatic`);
+    const openSidebarButton = await $(`span[data-testid="${OPEN_SIDEBAR_BUTTON_ID}"]`);
+    await openSidebarButton.click();
     const tabInSomatic = await $(`div[id="${DATA_IMPORT_TAB_ID}"]`);
     await tabInSomatic.click();
   });

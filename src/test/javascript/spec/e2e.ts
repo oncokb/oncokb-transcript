@@ -65,17 +65,15 @@ describe('End to end tests', () => {
 
     let openSidebarButton = await $(`span[data-testid="${OPEN_SIDEBAR_BUTTON_ID}"]`);
     let closeSidebarButton = await $(`span[data-testid="${CLOSE_SIDEBAR_BUTTON_ID}"]`);
-    await closeSidebarButton.waitForDisplayed();
+    expect(await openSidebarButton.isExisting()).toBe(true);
+    expect(await closeSidebarButton.isExisting()).toBe(false);
 
-    expect(await openSidebarButton.isExisting()).toBe(false);
-    expect(closeSidebarButton).toExist();
-
-    await closeSidebarButton.click();
+    await openSidebarButton.click();
 
     openSidebarButton = await $(`span[data-testid="${OPEN_SIDEBAR_BUTTON_ID}"]`);
     closeSidebarButton = await $(`span[data-testid="${CLOSE_SIDEBAR_BUTTON_ID}"]`);
-    expect(openSidebarButton).toExist();
-    expect(await closeSidebarButton.isExisting()).toBe(false);
+    expect(await openSidebarButton.isExisting()).toBe(false);
+    expect(await closeSidebarButton.isExisting()).toBe(true);
   });
 
   it('should show reference tooltip on hover', async () => {

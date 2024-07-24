@@ -7,6 +7,8 @@ export const SIDEBAR_COLLAPSED_WIDTH = 75;
 export const SIDEBAR_EXPANDED_WIDTH = 200;
 export const ONCOKB_SIDEBAR_MIN_WIDTH = 350;
 
+export const BANNER_HEIGHT = 42;
+
 export class LayoutStore {
   public isNavigationSidebarCollapsed = false;
   public navigationSidebarWidth = SIDEBAR_EXPANDED_WIDTH;
@@ -24,6 +26,8 @@ export class LayoutStore {
       toggleOncoKBSidebar: action.bound,
       oncoKBSidebarWidth: observable,
       setOncoKBSidebarWidth: action.bound,
+      oncoKBSidebarMarginTop: computed,
+      sidebarHeight: computed,
     });
   }
 
@@ -49,6 +53,14 @@ export class LayoutStore {
 
   setOncoKBSidebarWidth(value: number) {
     this.oncoKBSidebarWidth = value;
+  }
+
+  get oncoKBSidebarMarginTop() {
+    return this.rootStore.windowStore.isBeta ? `${BANNER_HEIGHT}px` : '0px';
+  }
+
+  get sidebarHeight() {
+    return `calc(100vh - ${this.oncoKBSidebarMarginTop})`;
   }
 }
 
