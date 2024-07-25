@@ -84,10 +84,37 @@ describe('getEvidence to submit to core', () => {
       [{ ...baseExpectedArgs, valuePath: 'mutations/0' }, undefined],
       // gene type change
       [{ ...baseExpectedArgs, valuePath: 'type' }, undefined],
-      // mutation name change
-      [{ ...baseExpectedArgs, valuePath: 'mutations/0/name_review' }, undefined],
-      // tumor name change
-      [{ ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/cancerTypes_review' }, undefined],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/0/name' },
+        {
+          ...baseExpectedArgs,
+          type: 'MUTATION_NAME_CHANGE',
+          mutation,
+          gene,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/cancerTypes' },
+        {
+          ...baseExpectedArgs,
+          type: 'TUMOR_NAME_CHANGE',
+          tumor,
+          mutation,
+          gene,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/TIs/0/treatments/0/name' },
+        {
+          ...baseExpectedArgs,
+          type: 'TREATMENT_NAME_CHANGE',
+          tumor,
+          mutation,
+          gene,
+          ti: tiIs,
+          treatment,
+        },
+      ],
       [
         { ...baseExpectedArgs, valuePath: 'summary' },
         { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.GeneSummary },
@@ -208,6 +235,37 @@ describe('getEvidence to submit to core', () => {
           },
         ];
       }),
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/0/name' },
+        {
+          ...baseExpectedArgs,
+          type: 'MUTATION_NAME_CHANGE',
+          mutation,
+          gene,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/cancerTypes' },
+        {
+          ...baseExpectedArgs,
+          type: 'TUMOR_NAME_CHANGE',
+          tumor,
+          mutation,
+          gene,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/TIs/1/treatments/0/name' },
+        {
+          ...baseExpectedArgs,
+          type: 'TREATMENT_NAME_CHANGE',
+          tumor,
+          mutation,
+          gene,
+          ti: tiIr,
+          treatment,
+        },
+      ],
       ...Object.keys(
         createMockTreatment({
           name: undefined,
@@ -237,8 +295,20 @@ describe('getEvidence to submit to core', () => {
         }),
       ).map((key: keyof ReturnType<typeof createMockTreatment>): ArrayElement => {
         const valuePath = `mutations/0/tumors/0/TIs/1/treatments/0/${key}`;
-        if (key === 'short' || key === 'indication' || key === 'name_review') {
+        if (key === 'short' || key === 'indication') {
           return [{ ...baseExpectedArgs, valuePath }, undefined];
+        } else if (key === 'name') {
+          return [
+            { ...baseExpectedArgs, valuePath },
+            {
+              ...baseExpectedArgs,
+              type: 'TREATMENT_NAME_CHANGE',
+              tumor,
+              mutation,
+              ti: tiIr,
+              treatment,
+            },
+          ];
         }
         return [
           {
@@ -256,7 +326,7 @@ describe('getEvidence to submit to core', () => {
         ];
       }),
       [
-        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/TIs/2/treatments/0' },
+        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/TIs/2/treatments/0/fdaLevel' },
         {
           ...baseExpectedArgs,
           type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
@@ -267,7 +337,7 @@ describe('getEvidence to submit to core', () => {
         },
       ],
       [
-        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/TIs/3/treatments/0' },
+        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/TIs/3/treatments/0/fdaLevel' },
         {
           ...baseExpectedArgs,
           type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
@@ -303,7 +373,7 @@ describe('getEvidence to submit to core', () => {
     };
     const baseEvidence: Evidence = {
       additionalInfo: null,
-      alterations: [],
+      alterations: null,
       articles: null,
       description: null,
       fdaLevel: null,
@@ -311,7 +381,7 @@ describe('getEvidence to submit to core', () => {
       levelOfEvidence: null,
       liquidPropagationLevel: null,
       solidPropagationLevel: null,
-      treatments: [],
+      treatments: null,
       cancerTypes: [],
       excludedCancerTypes: [],
       relevantCancerTypes: [],
@@ -665,7 +735,7 @@ describe('getEvidence to submit to core', () => {
             solidPropagationLevel: EvidenceLevelOfEvidenceEnum.Level2,
             treatments: [
               {
-                approvedIndications: [''],
+                approvedIndications: [],
                 drugs: [
                   createMockDrug({
                     uuid: '76c75f3b-364a-418c-8661-48768fb0742a',
@@ -678,7 +748,7 @@ describe('getEvidence to submit to core', () => {
                 priority: 1,
               },
               {
-                approvedIndications: [''],
+                approvedIndications: [],
                 drugs: [
                   createMockDrug({
                     uuid: '8fbca1dc-0b71-47b1-8511-b5a5b8906616',
@@ -691,7 +761,7 @@ describe('getEvidence to submit to core', () => {
                 priority: 2,
               },
               {
-                approvedIndications: [''],
+                approvedIndications: [],
                 drugs: [
                   createMockDrug({
                     uuid: '20329090-99ab-4769-8932-b93346331f57',

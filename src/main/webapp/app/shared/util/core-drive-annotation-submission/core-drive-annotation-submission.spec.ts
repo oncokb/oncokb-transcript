@@ -26,7 +26,6 @@ describe('Drive annotation to submit to core', () => {
   describe('getGeneData', () => {
     test('include only reviewed content', () => {
       const geneData = getGeneData(mockGene, true, mockDrugList);
-      console.log(JSON.stringify(geneData));
       expect(geneData).toEqual(expectedGeneDataNoCommentsAndReviewed);
     });
     test('include all content', () => {

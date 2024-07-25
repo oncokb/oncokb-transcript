@@ -6,14 +6,14 @@ import {
   getCompactReviewInfo,
   getGenePathFromValuePath,
 } from 'app/shared/util/firebase/firebase-review-utils';
-import { getFirebaseGenePath, getFirebaseMetaGenePath } from 'app/shared/util/firebase/firebase-utils';
+import { getFirebaseGenePath, getFirebaseMetaGenePath, getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { getSectionClassName } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
 import { get, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Col, FormGroup, Input, Label, Row } from 'reactstrap';
+import React, { useEffect, useState } from 'react';
+import { Alert, Col, Row } from 'reactstrap';
 import { RouteComponentProps } from 'react-router-dom';
 import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
 import { GERMLINE_PATH, GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
@@ -25,6 +25,7 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
 import { DrugCollection, Gene, MetaReview } from 'app/shared/model/firebase/firebase.model';
 import { IGene } from 'app/shared/model/gene.model';
+import { FB_COLLECTION } from 'app/config/constants/firebase';
 
 interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {
   geneEntity: IGene;
@@ -50,17 +51,14 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   const [editorReviewMap, setEditorReviewMap] = useState(new EditorReviewMap());
   const [editorsToAcceptChangesFrom, setEditorsToAcceptChangesFrom] = useState<string[]>([]);
   const [isAcceptingAll, setIsAcceptingAll] = useState(false);
-
-  const drugListRef: DrugCollection = useMemo(() => {
-    const group = _.mapValues(_.groupBy(props.drugList, 'uuid'), x => x[0]);
-    return group as DrugCollection;
-  }, [props.drugList]);
+  const [drugListRef, setDrugListRef] = useState<DrugCollection>({});
 
   const fetchFirebaseData = () => {
     // Fetch the data when the user enters review mode. We don't use a listener
     // because there shouldn't be another user editing the gene when it is being reviewed.
     get(ref(props.firebaseDb, firebaseGenePath)).then(snapshot => setGeneData(snapshot.val()));
     get(ref(props.firebaseDb, firebaseMetaReviewPath)).then(snapshot => setMetaReview(snapshot.val()));
+    get(ref(props.firebaseDb, FB_COLLECTION.DRUGS)).then(snapshot => setDrugListRef(snapshot.val()));
   };
 
   useEffect(() => {

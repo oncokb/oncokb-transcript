@@ -1,7 +1,8 @@
 import _ from 'lodash';
 import { GetEvidenceArgs, KnownEffect } from './core-evidence-submission';
-import { mostRecentItem, LEVEL_MAPPING, validateTimeFormat } from './core-evidence-submission-utils';
-import { Evidence } from '../../api/generated/core/api';
+import { mostRecentItem, LEVEL_MAPPING, validateTimeFormat, collectUUIDs } from './core-evidence-submission-utils';
+import { Alteration, Evidence, TumorType } from '../../api/generated/core/api';
+import { Gene, Mutation, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
 
 function handleInvestigationalResistanceToTherapy({ evidenceData }: { evidenceData: InitializeEvidenceDataRtn }) {
   evidenceData.data.knownEffect = 'Resistant';
@@ -90,6 +91,26 @@ function handleGeneSummary({ gene, evidenceData }: Pick<GetEvidenceArgs, 'gene'>
   evidenceData.data.lastEdit = validateTimeFormat(gene.summary_review?.updateTime);
 }
 
+function handleMutationNameChange({
+  evidenceData,
+  gene,
+  mutation,
+}: Pick<GetEvidenceArgs, 'gene' | 'mutation'> & { evidenceData: InitializeEvidenceDataRtn }) {
+  evidenceData.data.alterations = getAlterations(gene.name, mutation);
+}
+
+function handleTumorNameChange({ evidenceData, tumor }: Pick<GetEvidenceArgs, 'tumor'> & { evidenceData: InitializeEvidenceDataRtn }) {
+  evidenceData.data.cancerTypes = tumor.cancerTypes as TumorType[];
+  evidenceData.data.excludedCancerTypes = tumor.excludedCancerTypes as TumorType[];
+}
+
+function handleTreatmentNameChange({
+  evidenceData,
+  treatment,
+}: Pick<GetEvidenceArgs, 'treatment'> & { evidenceData: InitializeEvidenceDataRtn }) {
+  evidenceData.data.excludedCancerTypes = treatment.excludedRCTs as TumorType[];
+}
+
 type InitializeEvidenceDataRtn = {
   data: Evidence;
   dataUUID: string;
@@ -102,9 +123,9 @@ function initializeEvidenceData({
 }: Pick<GetEvidenceArgs, 'gene' | 'entrezGeneId' | 'type'>): InitializeEvidenceDataRtn {
   const data: Evidence = {
     additionalInfo: null,
-    alterations: [],
+    alterations: null,
     description: null,
-    evidenceType: type,
+    evidenceType: type === 'TUMOR_NAME_CHANGE' || type === 'MUTATION_NAME_CHANGE' || type === 'TREATMENT_NAME_CHANGE' ? null : type,
     gene: {
       hugoSymbol: gene.name,
     },
@@ -112,7 +133,7 @@ function initializeEvidenceData({
     lastEdit: null,
     levelOfEvidence: null,
     articles: null,
-    treatments: [],
+    treatments: null,
     solidPropagationLevel: null,
     liquidPropagationLevel: null,
     fdaLevel: null,
@@ -136,7 +157,8 @@ export function resolveTypeSpecificData({
   mutation,
   updateTime,
   entrezGeneId,
-}: Pick<GetEvidenceArgs, 'gene' | 'entrezGeneId' | 'type' | 'tumor' | 'mutation' | 'updateTime'>) {
+  treatment,
+}: Pick<GetEvidenceArgs, 'gene' | 'entrezGeneId' | 'type' | 'tumor' | 'mutation' | 'treatment' | 'updateTime'>) {
   const evidenceData = initializeEvidenceData({ type, gene, entrezGeneId });
   switch (type) {
     case 'GENE_SUMMARY':
@@ -178,8 +200,41 @@ export function resolveTypeSpecificData({
     case 'ONCOGENIC':
       handleOncogenic({ mutation, evidenceData });
       break;
+    case 'MUTATION_NAME_CHANGE':
+      handleMutationNameChange({ evidenceData, gene, mutation });
+      break;
+    case 'TUMOR_NAME_CHANGE':
+      handleTumorNameChange({ evidenceData, tumor });
+      break;
+    case 'TREATMENT_NAME_CHANGE':
+      handleTreatmentNameChange({ evidenceData, treatment });
+      break;
     default:
       throw new Error(`Unknown evidence type "${type}"`);
   }
   return evidenceData;
+}
+
+function getAlterations(geneName: string, mutation: Mutation) {
+  const alterations = mutation.alterations;
+  const altResults: Alteration[] = [];
+  if (mutation.name && (mutation.alterations === undefined || alterations.length === 0)) {
+    altResults.push({
+      alteration: mutation.name.trim(),
+      gene: {
+        hugoSymbol: geneName,
+      },
+    });
+  } else if (alterations !== undefined && alterations.length > 0) {
+    for (const alteration of alterations) {
+      altResults.push({
+        alteration: alteration.name,
+        gene: {
+          hugoSymbol: geneName,
+        },
+      });
+    }
+  }
+
+  return altResults;
 }
