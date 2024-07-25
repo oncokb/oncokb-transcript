@@ -44,6 +44,17 @@ public class AminoAcidConverterUtilsTest {
     }
 
     @Test
+    public void testResolveHgvspShortFromHgvspWithLessDigits() {
+        String input = "Pro42Ile";
+        String expected = "P42I";
+        Assert.assertEquals(
+            "Expected conversion from three-letter to one-letter amino acid codes",
+            expected,
+            AminoAcidConverterUtils.resolveHgvspShortFromHgvsp(input)
+        );
+    }
+
+    @Test
     public void testResolveHgvspShortFromHgvspWithMultipleConversions() {
         String input = "p.Arg143Gln/Val600Glu";
         String expected = "p.R143Q/V600E";
@@ -83,8 +94,56 @@ public class AminoAcidConverterUtilsTest {
     // Input with no digits should return identical string
     @Test
     public void testResolveHgvspShortWithNoDigits() {
-        String input = "p.(GlyTer)";
-        String expected = "p.(GlyTer)";
+        String input = "p.(Promoter)";
+        String expected = "p.(Promoter)";
         Assert.assertEquals("Expected no conversion for no digits", expected, AminoAcidConverterUtils.resolveHgvspShortFromHgvsp(input));
+    }
+
+    // Input with three-letter codes that don't map onto any one-letter code should return identical string
+    @Test
+    public void testResolveHgvspShortWithInvalidThreeLetterCode() {
+        String input = "p.(Vel600Gli)";
+        String expected = "p.(Vel600Gli)";
+        Assert.assertEquals(
+            "Expected no conversion for invalid three-letter codes",
+            expected,
+            AminoAcidConverterUtils.resolveHgvspShortFromHgvsp(input)
+        );
+    }
+
+    // Input with part three-letter codes part one-letter codes should only convert the three-letter codes
+    @Test
+    public void testResolveHgvspShortWithPartialThreeLetterCode() {
+        String input = "p.(Val600E)";
+        String expected = "p.(V600E)";
+        Assert.assertEquals(
+            "Expected conversion only on the three letter code for partial three-letter codes",
+            expected,
+            AminoAcidConverterUtils.resolveHgvspShortFromHgvsp(input)
+        );
+    }
+
+    // Input with no amino acid codes should return the same string
+    @Test
+    public void testResolveHgvspShortFromHgvspWithNoAminoAcidCodes() {
+        String input = "p.123";
+        String expected = "p.123";
+        Assert.assertEquals(
+            "Expected same string for input with no amino acid codes",
+            expected,
+            AminoAcidConverterUtils.resolveHgvspShortFromHgvsp(input)
+        );
+    }
+
+    // Input with an invalid format should return the same string
+    @Test
+    public void testResolveHgvspShortFromHgvspWithInvalidFormat() {
+        String input = "invalidFormat";
+        String expected = "invalidFormat";
+        Assert.assertEquals(
+            "Expected same string for invalid format input",
+            expected,
+            AminoAcidConverterUtils.resolveHgvspShortFromHgvsp(input)
+        );
     }
 }
