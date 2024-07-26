@@ -86,7 +86,11 @@ export function getVUSData(vus: Vus[]) {
 }
 
 function shouldExclude(onlyReviewedContent: boolean, reviewObj: Review | undefined) {
-  return reviewObj && ((onlyReviewedContent && reviewObj.added === true) || (!onlyReviewedContent && reviewObj.removed === true));
+  return (
+    reviewObj &&
+    ((onlyReviewedContent && reviewObj.added === true && reviewObj.promotedToMutation === true && reviewObj.initialUpdate === true) ||
+      (!onlyReviewedContent && reviewObj.removed === true))
+  );
 }
 
 function drugUuidToDrug(key: string | undefined, drugList: DrugCollection): Drug[][] | Record<string, unknown> {
