@@ -13,6 +13,7 @@ import _ from 'lodash';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
 import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
 import { createMockGene, createMockMutation } from 'app/shared/util/core-submission-shared/core-submission.mocks';
+import { GeneTypeApi } from 'app/shared/api/manual/gene-type-api';
 
 describe('Firebase Gene Review Service', () => {
   const DEFAULT_USERNAME = 'Test User';
@@ -23,6 +24,7 @@ describe('Firebase Gene Review Service', () => {
   const mockHistoryService = mock<FirebaseHistoryService>();
   const mockVusService = mock<FirebaseVusService>();
   const mockEvidenceClient = mock<EvidenceApi>();
+  const mockGeneTypeClient = mock<GeneTypeApi>();
   let firebaseGeneReviewService: FirebaseGeneReviewService;
 
   beforeEach(() => {
@@ -38,6 +40,7 @@ describe('Firebase Gene Review Service', () => {
       mockHistoryService,
       mockVusService,
       mockEvidenceClient,
+      mockGeneTypeClient,
     );
     jest.useFakeTimers().setSystemTime(DEFAULT_DATE);
   });

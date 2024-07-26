@@ -13,6 +13,7 @@ import {
 } from './generated/curation/api';
 import { DriveAnnotationApi } from './manual/drive-annotation-api';
 import { EvidenceApi } from './manual/evidence-api';
+import { GeneTypeApi } from './manual/gene-type-api';
 
 export const fdaSubmissionClient = new FdaSubmissionResourceApi(null, '', axiosInstance);
 export const geneClient = new GeneResourceApi(null, '', axiosInstance);
@@ -26,4 +27,5 @@ export const cancerTypeClient = new CancerTypeResourceApi(null, '', axiosInstanc
 export const articleClient = new ArticleResourceApi(null, '', axiosInstance);
 
 export const evidenceClient = new EvidenceApi(null, '', axiosInstance);
+export const geneTypeClient = new GeneTypeApi(null, '', axiosInstance);
 export const driveAnnotationClient = new DriveAnnotationApi(null, '', axiosInstance);

@@ -25,6 +25,8 @@ import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
 import { GERMLINE_PATH } from 'app/config/constants/constants';
 import { getEvidence, pathToGetEvidenceArgs } from 'app/shared/util/core-evidence-submission/core-evidence-submission';
 import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
+import { createGeneTypePayload, isGeneTypeChange } from 'app/shared/util/core-gene-type-submission/core-gene-type-submission';
+import { GeneTypeApi } from 'app/shared/api/manual/gene-type-api';
 
 export class FirebaseGeneReviewService {
   firebaseRepository: FirebaseRepository;
@@ -33,6 +35,7 @@ export class FirebaseGeneReviewService {
   firebaseHistoryService: FirebaseHistoryService;
   firebaseVusService: FirebaseVusService;
   evidenceClient: EvidenceApi;
+  geneTypeClient: GeneTypeApi;
 
   constructor(
     firebaseRepository: FirebaseRepository,
@@ -41,6 +44,7 @@ export class FirebaseGeneReviewService {
     firebaseHistoryService: FirebaseHistoryService,
     firebaseVusService: FirebaseVusService,
     evidenceClient: EvidenceApi,
+    geneTypeClient: GeneTypeApi,
   ) {
     this.firebaseRepository = firebaseRepository;
     this.authStore = authStore;
@@ -48,6 +52,7 @@ export class FirebaseGeneReviewService {
     this.firebaseHistoryService = firebaseHistoryService;
     this.firebaseVusService = firebaseVusService;
     this.evidenceClient = evidenceClient;
+    this.geneTypeClient = geneTypeClient;
   }
 
   updateReviewableContent = async (
@@ -110,27 +115,44 @@ export class FirebaseGeneReviewService {
     const vusFirebasePath = getFirebaseVusPath(isGermline, hugoSymbol);
 
     let evidences: ReturnType<typeof getEvidence> = {};
+    let geneTypePayload: ReturnType<typeof createGeneTypePayload> | undefined = undefined;
     let hasEvidences = false;
     try {
       for (const reviewLevel of reviewLevels) {
         if (!(isCreateReview(reviewLevel) && isAcceptAll)) {
-          const args = pathToGetEvidenceArgs({
-            gene,
-            valuePath: reviewLevel.valuePath,
-            updateTime: new Date().getTime(),
-            drugListRef,
-            entrezGeneId,
-          });
-          if (args) {
-            evidences = {
-              ...getEvidence(args),
-            };
-            hasEvidences = true;
+          if (isGeneTypeChange(reviewLevel.valuePath)) {
+            geneTypePayload = createGeneTypePayload(gene);
+          } else {
+            const args = pathToGetEvidenceArgs({
+              gene,
+              valuePath: reviewLevel.valuePath,
+              updateTime: new Date().getTime(),
+              drugListRef,
+              entrezGeneId,
+            });
+            if (args) {
+              evidences = {
+                ...getEvidence(args),
+              };
+              hasEvidences = true;
+            }
           }
         }
       }
     } catch (error) {
       throw new SentryError('Failed to create evidences when accepting changes in review mode', { hugoSymbol, reviewLevels, isGermline });
+    }
+
+    try {
+      if (geneTypePayload !== undefined) {
+        await this.geneTypeClient.submitGeneTypeToCore(geneTypePayload);
+      }
+    } catch (error) {
+      throw new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
+        hugoSymbol,
+        reviewLevels,
+        isGermline,
+      });
     }
 
     try {
