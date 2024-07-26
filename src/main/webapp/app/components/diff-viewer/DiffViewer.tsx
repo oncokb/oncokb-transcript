@@ -12,13 +12,13 @@ export type FirebaseContent = {
   db: Database;
 };
 type DiffViewerProps = {
-  new: string | FirebaseContent;
-  old: string;
+  new: string | FirebaseContent | undefined;
+  old: string | undefined;
   type: 'tabs' | 'stack' | 'merged';
   className?: string;
 };
 
-const getMergedDiff = (newContent: string, oldContent: string) => {
+const getMergedDiff = (newContent = '', oldContent = '') => {
   const dmp = new DiffMatchPatch();
   const diff = dmp.diff_main(oldContent, newContent);
   dmp.diff_cleanupSemantic(diff);
