@@ -825,7 +825,7 @@ export const getTreatmentStats = (treatment?: Treatment) => {
     dxLevels: {} as { [dxLevel in DX_LEVELS]: number },
     pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
   };
-  if (isTxLevelPresent(treatment.level)) {
+  if (isTxLevelPresent(treatment?.level)) {
     stats.txLevels[treatment.level] = 1;
   }
   return stats;
