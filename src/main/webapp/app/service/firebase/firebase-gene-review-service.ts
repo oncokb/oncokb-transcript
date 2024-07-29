@@ -23,7 +23,11 @@ import { FirebaseVusService } from './firebase-vus-service';
 import { SentryError } from 'app/config/sentry-error';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
 import { GERMLINE_PATH } from 'app/config/constants/constants';
-import { getEvidence, pathToGetEvidenceArgs } from 'app/shared/util/core-evidence-submission/core-evidence-submission';
+import {
+  getEvidence,
+  pathToDeleteEvidenceArgs,
+  pathToGetEvidenceArgs,
+} from 'app/shared/util/core-evidence-submission/core-evidence-submission';
 import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
 import { createGeneTypePayload, isGeneTypeChange } from 'app/shared/util/core-gene-type-submission/core-gene-type-submission';
 import { GeneTypeApi } from 'app/shared/api/manual/gene-type-api';
@@ -120,7 +124,12 @@ export class FirebaseGeneReviewService {
     try {
       for (const reviewLevel of reviewLevels) {
         if (!(isCreateReview(reviewLevel) && isAcceptAll)) {
-          if (isGeneTypeChange(reviewLevel.valuePath)) {
+          if (reviewLevel.reviewInfo.review.removed) {
+            const deleteEvidencesPayload = pathToDeleteEvidenceArgs({ valuePath: reviewLevel.valuePath, gene });
+            if (deleteEvidencesPayload !== undefined) {
+              this.evidenceClient.deleteEvidences(deleteEvidencesPayload);
+            }
+          } else if (isGeneTypeChange(reviewLevel.valuePath)) {
             geneTypePayload = createGeneTypePayload(gene);
           } else {
             const args = pathToGetEvidenceArgs({
