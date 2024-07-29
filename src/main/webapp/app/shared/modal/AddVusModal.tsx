@@ -9,7 +9,7 @@ import { DuplicateMutationInfo, getDuplicateMutations, getFirebaseGenePath } fro
 import { componentInject } from '../util/typed-inject';
 import { observer } from 'mobx-react';
 import { IRootStore } from 'app/stores';
-import { onValue, ref } from 'firebase/database';
+import { onValue, ref, get } from 'firebase/database';
 import { Button, Col, Row } from 'reactstrap';
 
 export interface IAddVusModalProps extends StoreProps {

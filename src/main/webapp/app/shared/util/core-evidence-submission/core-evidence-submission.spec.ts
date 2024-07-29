@@ -1,5 +1,5 @@
 import { DX_LEVELS, FDA_LEVELS, FIREBASE_ONCOGENICITY, PX_LEVELS, TI_TYPE, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
-import { getEvidence, pathToGetEvidenceArgs } from './core-submission';
+import { getEvidence, pathToGetEvidenceArgs } from './core-evidence-submission';
 import { Evidence, EvidenceEvidenceTypeEnum, EvidenceLevelOfEvidenceEnum } from 'app/shared/api/generated/core';
 import { generateUuid } from '../utils';
 import {
@@ -12,7 +12,8 @@ import {
   createMockTi,
   createMockTreatment,
   createMockTumor,
-} from './core-submission.mocks';
+} from '../core-submission-shared/core-submission.mocks';
+import { MUTATION_EFFECT } from 'app/config/constants/constants';
 
 type GetEvidenceArgs = Parameters<typeof getEvidence>[0];
 type GetEvidenceRtn = ReturnType<typeof getEvidence>;
@@ -453,7 +454,7 @@ describe('getEvidence to submit to core', () => {
                   description: 'Mutation Effect',
                   effect_uuid: 'a7046e8d-af62-4284-a14d-fc145134529a',
                   oncogenic: FIREBASE_ONCOGENICITY.LIKELY,
-                  effect: FIREBASE_ONCOGENICITY.RESISTANCE,
+                  effect: MUTATION_EFFECT.NEUTRAL,
                   effect_review: createMockReview({
                     updateTime: getTimeFromDateString('2002-01-01'),
                   }),
@@ -471,7 +472,7 @@ describe('getEvidence to submit to core', () => {
             ...baseEvidence,
             evidenceType: EvidenceEvidenceTypeEnum.MutationEffect,
             description: 'Mutation Effect',
-            knownEffect: FIREBASE_ONCOGENICITY.RESISTANCE,
+            knownEffect: MUTATION_EFFECT.NEUTRAL,
             gene: {
               entrezGeneId: baseArgs.entrezGeneId,
               hugoSymbol,
@@ -493,7 +494,7 @@ describe('getEvidence to submit to core', () => {
                   description: 'Mutation Effect',
                   effect_uuid: 'a7046e8d-af62-4284-a14d-fc145134529a',
                   oncogenic: FIREBASE_ONCOGENICITY.LIKELY,
-                  effect: FIREBASE_ONCOGENICITY.RESISTANCE,
+                  effect: MUTATION_EFFECT.NEUTRAL,
                   effect_review: createMockReview({
                     updateTime: getTimeFromDateString('2002-01-01'),
                   }),
@@ -597,21 +598,21 @@ describe('getEvidence to submit to core', () => {
           valuePath: 'mutations/0/tumors/0/TIs/0/treatments/0',
           updateTime: getTimeFromDateString('2002-01-01'),
           drugListRef: {
-            ['a']: createMockDrug({
+            ['76c75f3b-364a-418c-8661-48768fb0742a']: createMockDrug({
               uuid: '76c75f3b-364a-418c-8661-48768fb0742a',
               drugName: 'a',
               ncitCode: 'ANcitCode',
               ncitName: 'ANcitName',
               priority: 1,
             }),
-            ['b']: createMockDrug({
+            ['8fbca1dc-0b71-47b1-8511-b5a5b8906616']: createMockDrug({
               uuid: '8fbca1dc-0b71-47b1-8511-b5a5b8906616',
               drugName: 'b',
               ncitCode: 'BNcitCode',
               ncitName: 'BNcitName',
               priority: 2,
             }),
-            ['c']: createMockDrug({
+            ['20329090-99ab-4769-8932-b93346331f57']: createMockDrug({
               uuid: '20329090-99ab-4769-8932-b93346331f57',
               drugName: 'c',
               ncitCode: 'CNcitCode',
@@ -631,7 +632,7 @@ describe('getEvidence to submit to core', () => {
                         treatments: [
                           createMockTreatment({
                             name_uuid: '992bb496-7f19-4144-8664-3123756ad520',
-                            name: 'a,b,c',
+                            name: '76c75f3b-364a-418c-8661-48768fb0742a,8fbca1dc-0b71-47b1-8511-b5a5b8906616,20329090-99ab-4769-8932-b93346331f57',
                             description: 'TI IS',
                             fdaLevel: FDA_LEVELS.LEVEL_FDA1,
                             level: TX_LEVELS.LEVEL_1,

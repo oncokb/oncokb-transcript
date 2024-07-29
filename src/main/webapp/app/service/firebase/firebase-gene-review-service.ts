@@ -23,7 +23,7 @@ import { FirebaseVusService } from './firebase-vus-service';
 import { SentryError } from 'app/config/sentry-error';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
 import { GERMLINE_PATH } from 'app/config/constants/constants';
-import { getEvidence, pathToGetEvidenceArgs } from 'app/shared/util/core-submission/core-submission';
+import { getEvidence, pathToGetEvidenceArgs } from 'app/shared/util/core-evidence-submission/core-evidence-submission';
 import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
 
 export class FirebaseGeneReviewService {

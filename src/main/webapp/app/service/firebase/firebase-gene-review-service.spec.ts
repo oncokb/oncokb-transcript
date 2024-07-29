@@ -12,7 +12,7 @@ import { ReviewAction } from 'app/config/constants/firebase';
 import _ from 'lodash';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
 import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
-import { createMockGene, createMockMutation } from 'app/shared/util/core-submission/core-submission.mocks';
+import { createMockGene, createMockMutation } from 'app/shared/util/core-submission-shared/core-submission.mocks';
 
 describe('Firebase Gene Review Service', () => {
   const DEFAULT_USERNAME = 'Test User';

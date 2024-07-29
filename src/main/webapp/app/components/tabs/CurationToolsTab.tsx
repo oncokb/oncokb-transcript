@@ -1,5 +1,5 @@
 import { componentInject } from 'app/shared/util/typed-inject';
-import { IRootStore } from 'app/stores';
+import { IRootStore, hasAnyAuthority } from 'app/stores';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Col, Row } from 'reactstrap';
 import { FaRegCheckCircle } from 'react-icons/fa';
@@ -8,10 +8,11 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import { IGene } from 'app/shared/model/gene.model';
 import _ from 'lodash';
 import { IFlag } from 'app/shared/model/flag.model';
-import { CURRENT_REVIEWER } from 'app/config/constants/constants';
+import { AUTHORITIES, CURRENT_REVIEWER } from 'app/config/constants/constants';
 import { GeneType } from 'app/shared/model/firebase/firebase.model';
 import { onValue, ref } from 'firebase/database';
 import { FB_COLLECTION } from 'app/config/constants/firebase';
+import SaveGeneButton from 'app/shared/button/SaveGeneButton';
 
 export type ReleaseGeneTestData = {
   passed: boolean;
@@ -21,6 +22,8 @@ export type ReleaseGeneTestData = {
 
 export interface ICurationToolsTabProps extends StoreProps {
   genePath: string;
+  isGermline: boolean;
+  hugoSymbol: string;
 }
 
 export function CurationToolsTab({
@@ -32,6 +35,9 @@ export function CurationToolsTab({
   searchGenes,
   updateGene,
   searchFlags,
+  isGermline,
+  hugoSymbol,
+  isDev,
 }: ICurationToolsTabProps) {
   const [geneName, setGeneName] = useState<string>(null);
   const [geneSummary, setGeneSummary] = useState<string>(null);
@@ -152,12 +158,21 @@ export function CurationToolsTab({
 
     if (isReleased) {
       return (
-        <Row>
-          <Col className={'d-flex align-items-center'}>
-            <FaRegCheckCircle className="text-success me-2" />
-            <span>Gene is released</span>
-          </Col>
-        </Row>
+        <>
+          <Row className="mb-3">
+            <Col className={'d-flex align-items-center'}>
+              <FaRegCheckCircle className="text-success me-2" />
+              <span>Gene is released</span>
+            </Col>
+          </Row>
+          {!isGermline && isDev && (
+            <Row className="border-top pt-3">
+              <Col>
+                <SaveGeneButton hugoSymbol={hugoSymbol} />
+              </Col>
+            </Row>
+          )}
+        </>
       );
     }
 
@@ -185,16 +200,18 @@ export function CurationToolsTab({
     }
 
     return (
-      <Button color="primary" onClick={() => setReleaseGeneClicked(clicked => !clicked)}>
-        Release Gene
-      </Button>
+      <div>
+        <Button color="primary" onClick={() => setReleaseGeneClicked(clicked => !clicked)}>
+          Release Gene
+        </Button>
+      </div>
     );
   }
 
   return getContent();
 }
 
-const mapStoreToProps = ({ firebaseAppStore, firebaseMetaStore, geneStore, flagStore }: IRootStore) => ({
+const mapStoreToProps = ({ firebaseAppStore, firebaseMetaStore, geneStore, flagStore, authStore }: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   metaList: firebaseMetaStore.data,
   addMetaListListener: firebaseMetaStore.addListener,
@@ -202,6 +219,7 @@ const mapStoreToProps = ({ firebaseAppStore, firebaseMetaStore, geneStore, flagS
   searchGenes: geneStore.searchEntities,
   updateGene: geneStore.updateEntity,
   searchFlags: flagStore.searchEntities,
+  isDev: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.DEV]),
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
