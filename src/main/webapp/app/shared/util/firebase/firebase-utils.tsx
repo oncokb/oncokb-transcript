@@ -5,6 +5,7 @@ import { IDrug } from 'app/shared/model/drug.model';
 import { CategoricalAlterationType } from 'app/shared/model/enumerations/categorical-alteration-type.model';
 import {
   Alteration,
+  CancerType,
   Comment,
   DX_LEVELS,
   FIREBASE_ONCOGENICITY,
@@ -876,4 +877,23 @@ export function findNestedUuids(obj: any, uuids: string[] = []) {
   }
 
   return uuids;
+}
+
+export function areCancerTypeArraysEqual(a: CancerType[], b: CancerType[]) {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (!areCancerTypePropertiesEqual(a[i].code, b[i].code)) return false;
+    if (!areCancerTypePropertiesEqual(a[i].mainType, b[i].mainType)) return false;
+    if (!areCancerTypePropertiesEqual(a[i].subtype, b[i].subtype)) return false;
+  }
+  return true;
+}
+
+export function areCancerTypePropertiesEqual(a: string | undefined, b: string | undefined) {
+  if (a === b) return true;
+  return isStringEmpty(a) && isStringEmpty(b);
+}
+
+export function isStringEmpty(string: string | undefined | null) {
+  return string === '' || _.isNil(string);
 }
