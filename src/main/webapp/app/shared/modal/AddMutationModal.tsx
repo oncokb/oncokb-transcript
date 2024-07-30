@@ -298,6 +298,7 @@ function AddMutationModal({
       error: entityStatusAlteration.error ? entityStatusAlteration.message : null,
     };
 
+    // if the backend's response is different from the frontend response, set them equal to each other.
     if (alteration?.alteration !== alterationName) {
       alterationData.alteration = alteration?.alteration;
     }
@@ -594,7 +595,6 @@ function AddMutationModal({
       alterationData.excluding.length > 0 ? ` {excluding ${alterationData.excluding.map(ex => ex.alteration).join(' ; ')}}` : '';
     const comment = alterationData.comment ? ` (${alterationData.comment})` : '';
     return `${alterationData.alteration}${variantName}${excluding}${comment}`;
-    // if response different from backend, make alterationData.alteration = alterationData.name
   }
 
   function getTabTitle(tabAlterationData: AlterationData, isExcluding = false) {
