@@ -212,7 +212,12 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSi
   }, []);
 
   return (
-    <Sidebar collapsed={isNavSidebarCollapsed} width={`${SIDEBAR_EXPANDED_WIDTH}px`} collapsedWidth={`${SIDEBAR_COLLAPSED_WIDTH}px`}>
+    <Sidebar
+      collapsed={isNavSidebarCollapsed}
+      width={`${SIDEBAR_EXPANDED_WIDTH}px`}
+      collapsedWidth={`${SIDEBAR_COLLAPSED_WIDTH}px`}
+      style={{ height: props.sidebarHeight }}
+    >
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div style={{ lineHeight: '5rem', display: 'flex', justifyContent: 'center' }}>
           <NavbarBrand tag={NavLink} to={PAGE_ROUTE.HOME} style={{ cursor: 'url(' + CustomCursor + '), auto' }}>
@@ -286,6 +291,7 @@ const mapStoreToProps = ({ layoutStore, authStore }: IRootStore) => ({
   toggleNavigationSidebar: layoutStore.toggleNavigationSidebar,
   isNavSidebarCollapsed: layoutStore.isNavigationSidebarCollapsed,
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,
+  sidebarHeight: layoutStore.sidebarHeight,
   isAuthenticated: authStore.isAuthenticated,
   isAdmin: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.ADMIN]),
   isCurator: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.CURATOR]),
@@ -293,15 +299,6 @@ const mapStoreToProps = ({ layoutStore, authStore }: IRootStore) => ({
   account: authStore.account,
 });
 
-type StoreProps = {
-  toggleNavigationSidebar?: () => void;
-  isNavSidebarCollapsed?: boolean;
-  navigationSidebarWidth?: number;
-  isAuthenticated?: boolean;
-  isAdmin?: boolean;
-  isCurator?: boolean;
-  isUser?: boolean;
-  account?: IUser;
-};
+type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
 
 export default componentInject(mapStoreToProps)(observer(NavigationSidebar));

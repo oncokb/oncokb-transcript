@@ -170,7 +170,7 @@ export const ReviewCollapsible = ({
         rootDelete?.(false);
       }
       if (isCreateReview(rootReview)) {
-        handleCreateAction?.(hugoSymbol, rootReview as ReviewLevel, isGermline, action);
+        handleCreateAction?.(hugoSymbol, rootReview as ReviewLevel, isGermline, ActionType.ACCEPT);
       }
     } else {
       setReviewChildren(newReviewChildren);

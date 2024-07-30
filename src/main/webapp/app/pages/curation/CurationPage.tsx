@@ -232,8 +232,8 @@ export const CurationPage = (props: ICurationPageProps) => {
                 props.relevantCancerTypesModalStore.pathToRelevantCancerTypes ?? '',
                 noneDeleted ? [] : props.relevantCancerTypesModalStore.firebaseExcludedRCTs ?? [],
                 newRCTs,
-                props.relevantCancerTypesModalStore.excludedRCTsReview,
-                props.relevantCancerTypesModalStore.excludedRCTsUuid,
+                props.relevantCancerTypesModalStore.excludedRCTsReview!,
+                props.relevantCancerTypesModalStore.excludedRCTsUuid!,
                 isGermline,
                 props.relevantCancerTypesModalStore.firebaseExcludedRCTs === undefined,
               );

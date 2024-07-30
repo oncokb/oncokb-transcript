@@ -850,7 +850,7 @@ export const getTreatmentStats = (treatment?: Treatment) => {
     pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
   };
   if (isTxLevelPresent(treatment?.level)) {
-    stats.txLevels[treatment?.level] = 1;
+    stats.txLevels[treatment?.level ?? ''] = 1;
   }
   return stats;
 };

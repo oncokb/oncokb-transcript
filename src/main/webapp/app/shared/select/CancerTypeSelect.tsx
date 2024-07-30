@@ -69,7 +69,7 @@ const CancerTypeSelect = <IsMulti extends boolean>(props: ICancerTypeSelectProps
     GroupBase<CancerTypeSelectOption>,
     { page: number; type: SearchOptionType }
   > = async (searchWord, prevOptions, { page, type } = { page: 0, type: SearchOptionType.CDX }) => {
-    let result: Awaited<ReturnType<typeof props.searchCancerTypes>> | undefined = undefined;
+    let result: Awaited<ReturnType<typeof props.getCancerTypes>> | undefined = undefined;
     let options: ReturnType<typeof getAllCancerTypesOptions> = [];
     if (searchWord) {
       result = await props.searchCancerTypes({

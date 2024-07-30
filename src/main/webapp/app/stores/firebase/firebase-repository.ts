@@ -95,4 +95,8 @@ export class FirebaseRepository {
       throwMissingFirebaseDBError();
     }
   };
+
+  getArrayKey = (path: string) => {
+    return push(ref(this.firebaseAppStore.firebaseDb!, path)).key;
+  };
 }

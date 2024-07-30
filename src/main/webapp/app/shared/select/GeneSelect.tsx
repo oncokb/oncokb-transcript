@@ -31,7 +31,7 @@ const GeneSelect = <IsMulti extends boolean>(props: IGeneSelectProps<IsMulti>) =
     _,
     { page, type } = { page: 0, type: SearchOptionType.CDX },
   ) => {
-    let result: Awaited<ReturnType<typeof searchGenes>> | undefined = undefined;
+    let result: Awaited<ReturnType<typeof getGenes>> | undefined = undefined;
     let options: GeneSelectOption[] = [];
     if (searchWord) {
       result = await searchGenes({ query: searchWord, page: page - 1, size: ITEMS_PER_PAGE, sort: [sortParameter] });

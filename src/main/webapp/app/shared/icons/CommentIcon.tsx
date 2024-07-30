@@ -121,7 +121,6 @@ const CommentIcon = observer((props: ICommentIconProps) => {
         visible={props.id === props.commentStore?.openCommentsId}
         overlay={
           <CommentBox
-            // TYPE-ISSUE: should commentStore be null?
             commentStore={props.commentStore!}
             openCommentsId={props.id}
             comments={comments}

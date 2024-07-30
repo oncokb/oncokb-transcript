@@ -61,6 +61,7 @@ export type MutationLevelSummary = {
 export class FirebaseGeneService {
   firebaseRepository: FirebaseRepository;
   authStore: AuthStore;
+  firebaseMutationListStore: FirebaseDataStore<Mutation[]>;
   firebaseMutationConvertIconStore: FirebaseDataStore<Mutation[]>;
   firebaseMetaService: FirebaseMetaService;
   firebaseGeneReviewService: FirebaseGeneReviewService;
@@ -68,12 +69,14 @@ export class FirebaseGeneService {
   constructor(
     firebaseRepository: FirebaseRepository,
     authStore: AuthStore,
+    firebaseMutationListStore: FirebaseDataStore<Mutation[]>,
     firebaseMutationConvertIconStore: FirebaseDataStore<Mutation[]>,
     firebaseMetaService: FirebaseMetaService,
     firebaseGeneReviewService: FirebaseGeneReviewService,
   ) {
     this.firebaseRepository = firebaseRepository;
     this.authStore = authStore;
+    this.firebaseMutationListStore = firebaseMutationListStore;
     this.firebaseMutationConvertIconStore = firebaseMutationConvertIconStore;
     this.firebaseMetaService = firebaseMetaService;
     this.firebaseGeneReviewService = firebaseGeneReviewService;
@@ -398,34 +401,45 @@ export class FirebaseGeneService {
     rctPath: string,
     currentRelevantCancerTypes: CancerType[],
     newRelevantCancerTypes: CancerType[],
-    review: Review | null,
-    uuid: string | null,
+    review: Review,
+    uuid: string | undefined,
     isGermline: boolean,
     initialUpdate?: boolean,
   ) => {
     const { hugoSymbol } = parseFirebaseGenePath(rctPath) ?? {};
 
+    let updateObject = {};
+
     if (!uuid) {
+      // excludedRCTs is a new data point that does not exist for implications created in legacy platform.
+      // We will backfill the uuid
       uuid = generateUuid();
     }
 
     if (initialUpdate) {
-      return this.firebaseRepository.create(rctPath, newRelevantCancerTypes).then(() => {
-        this.firebaseRepository.create(`${rctPath}_uuid`, uuid);
-        this.firebaseRepository.update(`${rctPath}_review`, new Review(this.authStore.fullName, undefined, undefined, undefined, true));
-        this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, isGermline);
-        this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid ?? '', true, isGermline);
-      });
-    }
-    return this.firebaseRepository.create(rctPath, newRelevantCancerTypes).then(() => {
-      this.firebaseGeneReviewService.updateReviewableContent(
+      updateObject[rctPath] = newRelevantCancerTypes;
+      updateObject[`${rctPath}_review`] = new Review(this.authStore.fullName, undefined, undefined, undefined, true);
+      updateObject[`${rctPath}_uuid`] = uuid;
+      const metaUpdateObject = this.firebaseMetaService.getUpdateObject(true, hugoSymbol!, isGermline, uuid);
+      updateObject = { ...updateObject, ...metaUpdateObject };
+    } else {
+      const rctUpdateObject = await this.firebaseGeneReviewService.updateReviewableContent(
         rctPath,
         currentRelevantCancerTypes || [],
         newRelevantCancerTypes,
         review,
         uuid,
+        true,
+        false,
       );
-    });
+      updateObject = { ...updateObject, ...rctUpdateObject };
+    }
+
+    try {
+      await this.firebaseRepository.update('/', updateObject);
+    } catch (error) {
+      throw new SentryError('Failed to update RCT', { rctPath, initialUpdate, updateObject });
+    }
   };
 
   addEmptyGenomicIndicator = async (genomicIndicatorsPath: string) => {
@@ -442,8 +456,16 @@ export class FirebaseGeneService {
     const genePath = parseFirebaseGenePath(genomicIndicatorsPath);
     const newGenomicIndicator = new GenomicIndicator();
     const uuidsToReview: string[] = [];
+    const mutationList = this.firebaseMutationListStore.data;
+    const pathogenicVariants = mutationList?.find(mut => mut.name === PATHOGENIC_VARIANTS);
+    let pathogenicVariantsNameUuid = pathogenicVariants?.name_uuid;
 
-    newGenomicIndicator.associationVariants = [{ name: PATHOGENIC_VARIANTS, uuid: PATHOGENIC_VARIANTS }];
+    if (pathogenicVariantsNameUuid === undefined) {
+      const newMut = new Mutation(PATHOGENIC_VARIANTS);
+      await this.addMutation(`${genePath?.genePath}/mutations`, newMut, true, false);
+      pathogenicVariantsNameUuid = newMut.name_uuid;
+    }
+    newGenomicIndicator.associationVariants = [{ name: PATHOGENIC_VARIANTS, uuid: pathogenicVariantsNameUuid }];
 
     const newReview = new Review(this.authStore.fullName);
     newReview.updateTime = new Date().getTime();
