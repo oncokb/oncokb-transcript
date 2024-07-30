@@ -7,7 +7,6 @@ import {
   getCompactReviewInfo,
   isCreateReview,
   isDeleteReview,
-  reformatReviewTitle,
   reviewLevelSortMethod,
   showAsFirebaseTextArea,
   getGenePathFromValuePath,
@@ -23,6 +22,7 @@ import { getReviewInfo, getTxName } from 'app/shared/util/firebase/firebase-util
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import DiffViewer, { FirebaseContent } from 'app/components/diff-viewer/DiffViewer';
 import { IDrug } from 'app/shared/model/drug.model';
+import { ReviewCollapsibleTitle } from './ReviewCollapsibleTitle';
 
 export enum ReviewType {
   CREATE,
@@ -373,7 +373,7 @@ export const ReviewCollapsible = ({
         ?.sort(reviewLevelSortMethod)
         ?.map(childReview => (
           <ReviewCollapsible
-            key={childReview.title}
+            key={childReview.titleParts.join(' / ')}
             isGermline={isGermline}
             baseReviewLevel={childReview}
             hugoSymbol={hugoSymbol}
@@ -432,10 +432,10 @@ export const ReviewCollapsible = ({
 
   return (
     <Collapsible
-      idPrefix={baseReviewLevel.title}
+      idPrefix={baseReviewLevel.titleParts.join(' / ')}
       defaultOpen
       collapsibleClassName={'mb-1'}
-      title={reformatReviewTitle(baseReviewLevel)}
+      title={<ReviewCollapsibleTitle baseReviewLevel={baseReviewLevel} />}
       colorOptions={getColorOptions()}
       info={getEditorInfo()}
       action={getReviewActions()}

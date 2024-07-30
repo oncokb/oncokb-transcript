@@ -31,7 +31,7 @@ export interface ReviewChildren {
 
 export type BaseReviewLevelParams = {
   reviewLevelType: ReviewLevelType;
-  title: string;
+  titleParts: string[];
   children?: ReviewChildren;
   valuePath: string;
   historyLocation: string;
@@ -42,7 +42,7 @@ export class BaseReviewLevel {
   id: string; // id is used to uniquely identify a review level
   hideLevel: boolean;
   reviewLevelType: ReviewLevelType;
-  title: string;
+  titleParts: string[];
   children?: ReviewChildren;
   valuePath: string;
   historyLocation: string;
@@ -51,7 +51,7 @@ export class BaseReviewLevel {
 
   constructor({
     reviewLevelType,
-    title,
+    titleParts,
     valuePath,
     historyLocation,
     nestedUnderCreateorDelete = false,
@@ -60,7 +60,7 @@ export class BaseReviewLevel {
     this.id = generateUuid();
     this.hideLevel = false;
     this.reviewLevelType = reviewLevelType;
-    this.title = title;
+    this.titleParts = titleParts;
     this.valuePath = valuePath;
     this.historyLocation = historyLocation;
     this.nestedUnderCreateOrDelete = nestedUnderCreateorDelete;
@@ -77,7 +77,7 @@ export class BaseReviewLevel {
   }
 
   addChild(childReview: BaseReviewLevel) {
-    this.children[childReview.title] = childReview;
+    this.children[childReview.id] = childReview;
 
     if (!childReview.historyInfo.mutation && this.historyInfo?.mutation) {
       childReview.historyInfo.mutation = this.historyInfo.mutation;
@@ -215,10 +215,9 @@ export const removeLeafNodes = (parentReview: BaseReviewLevel) => {
     if (childReview.reviewLevelType === ReviewLevelType.REVIEWABLE) {
       const reviewLevel = childReview as ReviewLevel;
 
-      const reviewTitle = reviewLevel.title;
+      const reviewTitleParts = reviewLevel.titleParts;
       let showGenomicIndicatorReview = false;
-      if (reviewTitle.includes(READABLE_FIELD.GENOMIC_INDICATORS)) {
-        const reviewTitleParts = reviewTitle.split('/');
+      if (reviewTitleParts.includes(READABLE_FIELD.GENOMIC_INDICATORS)) {
         if (reviewTitleParts[reviewTitleParts.length - 1]?.trim().length > 0) {
           showGenomicIndicatorReview = true;
         }
@@ -265,11 +264,11 @@ export const getCompactReviewInfo = (review: BaseReviewLevel) => {
     }
   }
   childReview = getCompactReviewInfo(childReview);
-  let titleParts = [review.title, childReview.title].filter(part => part !== '');
+  let titleParts = [...review.titleParts, ...childReview.titleParts].filter(part => part !== '');
   if (titleParts.length > 1) {
     titleParts = titleParts.map(part => removeSectionTitlePrefix(part));
   }
-  childReview.title = titleParts.join('/');
+  childReview.titleParts = titleParts;
   childReview.nestedUnderCreateOrDelete = review.nestedUnderCreateOrDelete;
   return childReview;
 };
@@ -285,22 +284,21 @@ export const removeSectionTitlePrefix = (title: string) => {
   return title;
 };
 
-export const reformatReviewTitle = (baseReviewLevel: BaseReviewLevel) => {
-  const reviewTitle = baseReviewLevel.title;
-  const titleParts = reviewTitle.split('/');
-  const isNonActionableLevel = baseReviewLevel.reviewLevelType === ReviewLevelType.META || baseReviewLevel.nestedUnderCreateOrDelete;
-  if (isNonActionableLevel) {
-    return <span className="fw-normal">{titleParts.join(' / ')}</span>;
-  }
-  const lastTitlePart = titleParts.pop();
-  return (
-    <>
-      <span className="fw-normal">{titleParts.join(' / ')}</span>
-      {titleParts.length > 0 && <span className="fw-normal"> / </span>}
-      <span className="fw-bold">{lastTitlePart}</span>
-    </>
-  );
-};
+// export const reformatReviewTitle = (baseReviewLevel: BaseReviewLevel) => {
+//   const titleParts = baseReviewLevel.titleParts;
+//   const isNonActionableLevel = baseReviewLevel.reviewLevelType === ReviewLevelType.META || baseReviewLevel.nestedUnderCreateOrDelete;
+//   if (isNonActionableLevel) {
+//     return <span className="fw-normal">{titleParts.join(' / ')}</span>;
+//   }
+//   const lastTitlePart = titleParts.pop();
+//   return (
+//     <>
+//       <span className="fw-normal">{titleParts.join(' / ')}</span>
+//       {titleParts.length > 0 && <span className="fw-normal"> / </span>}
+//       <span className="fw-bold">{lastTitlePart}</span>
+//     </>
+//   );
+// };
 
 export const reviewLevelSortMethod = (a: BaseReviewLevel, b: BaseReviewLevel) => {
   const aReviewAction =
@@ -381,7 +379,7 @@ export class EditorReviewMap {
 export const findReviews = (drugList: readonly IDrug[], gene: Gene, uuids: string[], editorReviewMap: EditorReviewMap) => {
   const rootReview: BaseReviewLevel = new BaseReviewLevel({
     reviewLevelType: ReviewLevelType.META,
-    title: '',
+    titleParts: [''],
     valuePath: '',
     historyLocation: '',
     historyInfo: {},
@@ -503,7 +501,7 @@ export const findReviewRecursive = (
 export const convertToMultiSelectionReview = (parentMetaReview: MetaReviewLevel) => {
   if (!parentMetaReview.hasChildren()) return parentMetaReview;
   const multiSelectionReviewLevel = new MultiSelectionReviewLevel({
-    title: parentMetaReview.title,
+    titleParts: parentMetaReview.titleParts,
     valuePath: parentMetaReview.valuePath,
     historyLocation: parentMetaReview.historyLocation,
     nestedUnderCreateorDelete: parentMetaReview.nestedUnderCreateOrDelete,
@@ -550,7 +548,7 @@ export const buildNameReview = (
   }
 
   const metaReview = new MetaReviewLevel({
-    title,
+    titleParts: [title],
     valuePath: currValuePath,
     historyLocation: buildHistoryLocation(parentReview, readableName),
     nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
@@ -585,7 +583,7 @@ export const buildNameReview = (
   }
 
   const nameReviewLevel = new ReviewLevel({
-    title: nameUpdated ? makeFirebaseKeysReadable([nameKey])[0] : '',
+    titleParts: [nameUpdated ? makeFirebaseKeysReadable([nameKey])[0] : ''],
     valuePath,
     historyLocation: buildHistoryLocation(parentReview, readableName),
     currentVal: readableName,
@@ -635,7 +633,7 @@ export const buildCancerTypeNameReview = (
   };
 
   const metaReview = new MetaReviewLevel({
-    title: addSectionTitlePrefix(ReviewSectionTitlePrefix.CANCER_TYPE, readableName),
+    titleParts: [addSectionTitlePrefix(ReviewSectionTitlePrefix.CANCER_TYPE, readableName)],
     valuePath: currValuePath,
     historyLocation: buildHistoryLocation(parentReview, readableName),
     nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
@@ -672,7 +670,7 @@ export const buildCancerTypeNameReview = (
 
   const tumorNameUuid = `${tumor.cancerTypes_uuid}, ${tumor.excludedCancerTypes_uuid}`;
   const nameReviewLevel = new TumorReviewLevel({
-    title: nameUpdated ? title : '',
+    titleParts: [nameUpdated ? title : ''],
     valuePath,
     historyLocation: buildHistoryLocation(parentReview, newTumorName),
     currentVal: newTumorName,
@@ -735,7 +733,7 @@ export const buildStringReview = (
   historyInfo.fields = [...(parentReview.historyInfo.fields || []), readableKey as READABLE_FIELD];
 
   const stringReviewLevel = new ReviewLevel({
-    title: readableKey,
+    titleParts: [readableKey],
     valuePath: joinPathParts(currValuePath, fieldKey),
     currentVal: obj[fieldKey],
     historyLocation: buildHistoryLocation(parentReview, readableKey),
@@ -772,7 +770,7 @@ export const buildObjectReview = (
   historyInfo.fields = [...(parentReview.historyInfo.fields || []), readableKey as READABLE_FIELD];
 
   const metaReview = new MetaReviewLevel({
-    title: readableKey,
+    titleParts: [readableKey],
     valuePath: joinPathParts(parentReview.valuePath, key),
     historyLocation: buildHistoryLocation(parentReview, readableKey),
     nestedUnderCreateorDelete: isNestedUnderCreateOrDelete(parentReview),
@@ -813,7 +811,7 @@ export const buildRCTReview = (
 
   if (isInitialUpdate || hasLastReviewed) {
     const rctReview = new ReviewLevel({
-      title,
+      titleParts: [title],
       valuePath,
       historyLocation: buildHistoryLocation(parentReview, title),
       currentVal: newRCTString,
