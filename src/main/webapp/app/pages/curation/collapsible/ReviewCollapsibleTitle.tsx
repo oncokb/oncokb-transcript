@@ -23,10 +23,10 @@ export const ReviewCollapsibleTitle = ({ baseReviewLevel }: IReviewCollapsibleTi
   return (
     <>
       {titleParts.map((part, index) => (
-        <div key={`${part}-${baseReviewLevel.id}`}>
+        <span key={`${part}-${baseReviewLevel.id}`}>
           <span className="fw-normal">{part}</span>
-          {index < titleParts.length - 1 || (lastTitlePart && titleSeperator)}
-        </div>
+          {(index < titleParts.length - 1 || lastTitlePart) && titleSeperator}
+        </span>
       ))}
       <span className="fw-bold">{lastTitlePart}</span>
     </>
