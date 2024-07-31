@@ -72,7 +72,7 @@ const findAllUuidsFromReview = (baseReviewLevel: BaseReviewLevel, uuids: string[
   if (!reviewLevel.hasChildren()) {
     return;
   }
-  for (const childReview of Object.values(reviewLevel.children)) {
+  for (const childReview of reviewLevel.children) {
     findAllUuidsFromReview(childReview, uuids);
   }
 };

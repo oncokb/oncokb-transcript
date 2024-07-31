@@ -7,7 +7,6 @@ import {
   getCompactReviewInfo,
   isCreateReview,
   isDeleteReview,
-  reformatReviewTitle,
   reviewLevelSortMethod,
   showAsFirebaseTextArea,
   getGenePathFromValuePath,
@@ -23,6 +22,7 @@ import { getReviewInfo, getTxName } from 'app/shared/util/firebase/firebase-util
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import DiffViewer, { FirebaseContent } from 'app/components/diff-viewer/DiffViewer';
 import { IDrug } from 'app/shared/model/drug.model';
+import { ReviewCollapsibleTitle } from './ReviewCollapsibleTitle';
 
 export enum ReviewType {
   CREATE,
@@ -97,11 +97,9 @@ export const ReviewCollapsible = ({
   const [reviewChildren, setReviewChildren] = useState<BaseReviewLevel[]>([]);
 
   useEffect(() => {
-    Object.keys(baseReviewLevel.children).forEach(
-      key => (baseReviewLevel.children[key] = getCompactReviewInfo(baseReviewLevel.children[key])),
-    );
+    baseReviewLevel.children.forEach((value, index) => (baseReviewLevel.children[index] = getCompactReviewInfo(value)));
     setRootReview(baseReviewLevel);
-    setReviewChildren(Object.values(baseReviewLevel.children));
+    setReviewChildren(baseReviewLevel.children);
   }, [baseReviewLevel]);
 
   const isUnderCreationOrDeletion = rootReview.nestedUnderCreateOrDelete;
@@ -364,31 +362,29 @@ export const ReviewCollapsible = ({
   };
 
   const getCollapsibleBody = () => {
-    const children = rootReview.children && Object.values(rootReview.children);
+    const children = rootReview.children;
 
     if (baseReviewLevel.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) {
       return getMultiSelectionReviewContent();
     } else if (children?.length > 0) {
-      return Object.values(rootReview.children)
-        ?.sort(reviewLevelSortMethod)
-        ?.map(childReview => (
-          <ReviewCollapsible
-            key={childReview.title}
-            isGermline={isGermline}
-            baseReviewLevel={childReview}
-            hugoSymbol={hugoSymbol}
-            handleAccept={handleAccept}
-            handleReject={handleReject}
-            handleCreateAction={handleCreateAction}
-            parentDelete={deleteHandlerForChild}
-            disableActions={disableActions}
-            firebase={{
-              path: getGenePathFromValuePath(hugoSymbol, childReview.valuePath, isGermline),
-              db: firebase?.db,
-            }}
-            drugList={drugList}
-          />
-        ));
+      return rootReview.children?.sort(reviewLevelSortMethod)?.map(childReview => (
+        <ReviewCollapsible
+          key={childReview.titleParts.join('/')}
+          isGermline={isGermline}
+          baseReviewLevel={childReview}
+          hugoSymbol={hugoSymbol}
+          handleAccept={handleAccept}
+          handleReject={handleReject}
+          handleCreateAction={handleCreateAction}
+          parentDelete={deleteHandlerForChild}
+          disableActions={disableActions}
+          firebase={{
+            path: getGenePathFromValuePath(hugoSymbol, childReview.valuePath, isGermline),
+            db: firebase?.db,
+          }}
+          drugList={drugList}
+        />
+      ));
     } else {
       return getReviewableContent();
     }
@@ -432,10 +428,10 @@ export const ReviewCollapsible = ({
 
   return (
     <Collapsible
-      idPrefix={baseReviewLevel.title}
+      idPrefix={baseReviewLevel.titleParts.join('/')}
       defaultOpen
       collapsibleClassName={'mb-1'}
-      title={reformatReviewTitle(baseReviewLevel)}
+      title={<ReviewCollapsibleTitle baseReviewLevel={baseReviewLevel} />}
       colorOptions={getColorOptions()}
       info={getEditorInfo()}
       action={getReviewActions()}

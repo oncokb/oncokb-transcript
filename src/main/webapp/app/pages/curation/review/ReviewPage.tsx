@@ -82,7 +82,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     if (geneData && !_.isNil(reviewUuids)) {
       const reviewMap = new EditorReviewMap();
       const reviews = findReviews(props.drugList, geneData, _.clone(reviewUuids), reviewMap);
-      Object.keys(reviews.children).forEach(key => (reviews.children[key] = getCompactReviewInfo(reviews.children[key])));
+      reviews.children.forEach((value, index) => (reviews.children[index] = getCompactReviewInfo(reviews.children[index])));
       setEditorReviewMap(reviewMap);
       setRootReview(reviews);
       setIsReviewFinished(!reviews.hasChildren());
