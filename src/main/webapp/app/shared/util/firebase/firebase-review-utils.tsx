@@ -13,7 +13,7 @@ import {
 } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
 import { generateUuid, getCancerTypesName, getCancerTypesNameWithExclusion } from '../utils';
-import { getMutationName, getTxName } from './firebase-utils';
+import { areCancerTypeArraysEqual, getMutationName, getTxName } from './firebase-utils';
 import { FB_COLLECTION, READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import { makeFirebaseKeysReadable } from './firebase-history-utils';
@@ -856,6 +856,7 @@ export const getUpdatedReview = (
   newValue: any,
   editorName: string,
   updateMetaData: boolean = true,
+  isCancerType: boolean = false,
 ) => {
   if (updateMetaData) {
     if (!oldReview) {
@@ -867,8 +868,15 @@ export const getUpdatedReview = (
 
   // Update Review when value is reverted to original
   let isChangeReverted = false;
+  let shouldSetLastReviewed = true;
   if (!('lastReviewed' in oldReview)) {
-    oldReview.lastReviewed = currentValue;
+    if (isCancerType) {
+      // When just the cancer types ordering is changed, then a review should not be triggered.
+      shouldSetLastReviewed = currentValue && !areCancerTypeArraysEqual(currentValue, newValue);
+    }
+    if (shouldSetLastReviewed) {
+      oldReview.lastReviewed = currentValue;
+    }
     if (oldReview.lastReviewed === undefined) {
       oldReview = clearReview(oldReview);
     }
@@ -879,6 +887,8 @@ export const getUpdatedReview = (
     }
   } else if (_.isEqual(oldReview.lastReviewed, newValue)) {
     isChangeReverted = true;
+  } else if (isCancerType) {
+    isChangeReverted = areCancerTypeArraysEqual(oldReview.lastReviewed as CancerType[], newValue);
   }
 
   if (isChangeReverted && !oldReview.added) {

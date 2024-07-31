@@ -5,6 +5,7 @@ import { IDrug } from 'app/shared/model/drug.model';
 import { CategoricalAlterationType } from 'app/shared/model/enumerations/categorical-alteration-type.model';
 import {
   Alteration,
+  CancerType,
   Comment,
   DX_LEVELS,
   FIREBASE_ONCOGENICITY,
@@ -24,7 +25,7 @@ import _ from 'lodash';
 import React from 'react';
 import { TextFormat } from 'react-jhipster';
 import { replaceUrlParams } from '../url-utils';
-import { extractPositionFromSingleNucleotideAlteration, isUuid, parseAlterationName } from '../utils';
+import { extractPositionFromSingleNucleotideAlteration, getCancerTypeName, isUuid, parseAlterationName } from '../utils';
 import { isTxLevelPresent } from './firebase-level-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { hasReview } from './firebase-review-utils';
@@ -876,4 +877,29 @@ export function findNestedUuids(obj: any, uuids: string[] = []) {
   }
 
   return uuids;
+}
+
+export function areCancerTypeArraysEqual(a: CancerType[], b: CancerType[]) {
+  if (a.length !== b.length) return false;
+  a.sort((ct1, ct2) => {
+    return getCancerTypeName(ct1, false).localeCompare(getCancerTypeName(ct2, false));
+  });
+  b.sort((ct1, ct2) => {
+    return getCancerTypeName(ct1, false).localeCompare(getCancerTypeName(ct2, false));
+  });
+  for (let i = 0; i < a.length; i++) {
+    if (!areCancerTypePropertiesEqual(a[i].code, b[i].code)) return false;
+    if (!areCancerTypePropertiesEqual(a[i].mainType, b[i].mainType)) return false;
+    if (!areCancerTypePropertiesEqual(a[i].subtype, b[i].subtype)) return false;
+  }
+  return true;
+}
+
+export function areCancerTypePropertiesEqual(a: string | undefined, b: string | undefined) {
+  if (a === b) return true;
+  return isStringEmpty(a) && isStringEmpty(b);
+}
+
+export function isStringEmpty(string: string | undefined | null) {
+  return string === '' || _.isNil(string);
 }
