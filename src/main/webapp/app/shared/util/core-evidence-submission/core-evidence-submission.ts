@@ -19,6 +19,19 @@ export type GetEvidenceArgs = {
 
 export type KnownEffect = MutationEffect['oncogenic'] | 'Resistant' | 'Sensitive';
 
+export function pathToDeleteEvidenceArgs({ valuePath, gene }: { valuePath: string; gene: Gene }): string[] | undefined {
+  const { mutation, tumor, treatment } = extractObjsInValuePath(gene, valuePath);
+  if (treatment !== undefined) {
+    return collectUUIDs({ type: 'treatment', obj: treatment, uuidType: 'evidenceOnly' });
+  } else if (tumor !== undefined) {
+    return collectUUIDs({ type: 'tumor', obj: tumor, uuidType: 'evidenceOnly' });
+  } else if (mutation !== undefined) {
+    return collectUUIDs({ type: 'mutation', obj: mutation, uuidType: 'evidenceOnly' });
+  } else {
+    return undefined;
+  }
+}
+
 export function pathToGetEvidenceArgs({
   gene,
   valuePath,
@@ -33,39 +46,8 @@ export function pathToGetEvidenceArgs({
     gene,
     drugListRef,
     entrezGeneId,
+    ...extractObjsInValuePath(gene, valuePath),
   };
-
-  let curObj: unknown = gene;
-  let previousKey = '';
-  for (const key of valuePath.split('/')) {
-    const index = parseInt(key, 10);
-    let propertyName = key;
-    if (_.isObject(curObj) && key in curObj) {
-      curObj = curObj[key];
-    } else if (_.isArray(curObj)) {
-      propertyName = previousKey;
-      curObj = curObj[index];
-      if (curObj === undefined) {
-        throw new Error(`Could not find index "${key}" for the array "${previousKey}" in the value path "${valuePath}"`);
-      }
-    } else {
-      throw new Error(`Could not find property "${key}" in the value path "${valuePath}"`);
-    }
-
-    if (_.isObject(curObj)) {
-      if ('mutation_effect' in curObj) {
-        args.mutation = curObj as Mutation;
-      } else if ('cancerTypes' in curObj) {
-        args.tumor = curObj as Tumor;
-      } else if ('treatments' in curObj) {
-        args.ti = curObj as TI;
-      } else if ('indication' in curObj) {
-        args.treatment = curObj as Treatment;
-      }
-    }
-
-    previousKey = key;
-  }
 
   const tiRegex = /^mutations\/\d+\/tumors\/\d+\/TIs\/\d+\/treatments\/(\d+)(?!\/short$|\/indication$)/;
 
@@ -129,6 +111,42 @@ export function pathToGetEvidenceArgs({
   args.type = type;
 
   return args as GetEvidenceArgs;
+}
+
+function extractObjsInValuePath(gene: Gene, valuePath: string) {
+  const args: Pick<Partial<GetEvidenceArgs>, 'mutation' | 'tumor' | 'ti' | 'treatment'> = {};
+  let curObj: unknown = gene;
+  let previousKey = '';
+  for (const key of valuePath.split('/')) {
+    const index = parseInt(key, 10);
+    let propertyName = key;
+    if (_.isObject(curObj) && key in curObj) {
+      curObj = curObj[key];
+    } else if (_.isArray(curObj)) {
+      propertyName = previousKey;
+      curObj = curObj[index];
+      if (curObj === undefined) {
+        throw new Error(`Could not find index "${key}" for the array "${previousKey}" in the value path "${valuePath}"`);
+      }
+    } else {
+      throw new Error(`Could not find property "${key}" in the value path "${valuePath}"`);
+    }
+
+    if (_.isObject(curObj)) {
+      if ('mutation_effect' in curObj) {
+        args.mutation = curObj as Mutation;
+      } else if ('cancerTypes' in curObj) {
+        args.tumor = curObj as Tumor;
+      } else if ('treatments' in curObj) {
+        args.ti = curObj as TI;
+      } else if ('indication' in curObj) {
+        args.treatment = curObj as Treatment;
+      }
+    }
+
+    previousKey = key;
+  }
+  return args;
 }
 
 export function getEvidence({

@@ -1,5 +1,5 @@
 import { DX_LEVELS, FDA_LEVELS, FIREBASE_ONCOGENICITY, PX_LEVELS, TI_TYPE, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
-import { getEvidence, pathToGetEvidenceArgs } from './core-evidence-submission';
+import { getEvidence, pathToDeleteEvidenceArgs, pathToGetEvidenceArgs } from './core-evidence-submission';
 import {
   Evidence,
   EvidenceEvidenceTypeEnum,
@@ -1443,5 +1443,109 @@ describe('getEvidence to submit to core', () => {
       const args = pathToGetEvidenceArgs(pathArgs);
       expect(getEvidence(args)).toEqual(expected);
     });
+  });
+});
+
+describe('pathToDeleteEvidenceArgs', () => {
+  const gene = createMockGene({
+    mutations: [
+      createMockMutation({
+        mutation_effect: createMockMutationEffect({
+          effect_uuid: '78676de8-1cfb-4865-b1ce-8bf757048f7b',
+          oncogenic_uuid: '4fb196f8-31ed-4834-9226-ccffa8b4fdd3',
+          pathogenic_uuid: 'a375d0bc-9d79-4522-bb12-de6b5545ba79',
+          description_uuid: '6f4e8643-d3db-4e18-bde8-fb75ac29a56b',
+        }),
+        tumors: [
+          createMockTumor({
+            summary_uuid: 'df486ee9-6af3-4cef-9394-e9cbdf4226eb',
+            diagnostic_uuid: 'a8b6f194-6ab4-4702-9977-6b3f534d4ef4u',
+            prognostic_uuid: '00fb8a39-3e87-4c6e-8d81-8c9c64855e13',
+            cancerTypes_uuid: 'd5ff8db6-d0b2-49f3-911a-ba4d934341cf',
+            diagnosticSummary_uuid: 'ab9dae25-cf83-42df-8975-4373e018d941',
+            prognosticSummary_uuid: '798a5092-0294-49aa-b6e9-f12705334fc0',
+            excludedCancerTypes_uuid: '2070f39a-86fa-4953-a2d1-d3ba9298fe7b',
+            diagnostic: createMockImplication({
+              description_uuid: '44d840a1-a132-4a4f-a695-709e1cdf3333',
+              level_uuid: 'ebfbc714-cbb8-4ecd-ad8c-cc38f3b128b2',
+              excludedRCTs_uuid: '0a83cfc3-d7bf-455b-8ef3-a8c8956758ae',
+            }),
+            prognostic: createMockImplication({
+              description_uuid: 'bfa1635e-3880-41b2-979a-aad43ddc06d4',
+              level_uuid: 'e49a683c-e124-410b-a9a4-1ac20843339b',
+              excludedRCTs_uuid: '8d0c2a8d-42e5-4714-b516-f6f282f42eea',
+            }),
+            TIs: [
+              createMockTi({
+                name_uuid: '985d587f-10bc-44a8-a260-5edc57ef0b70',
+                treatments_uuid: '68317e32-66ec-46c1-8f62-046813706031',
+                treatments: [
+                  createMockTreatment({
+                    name_uuid: 'a36ec6af-7a3d-48cf-b841-de7412b88ef5',
+                    level_uuid: 'e46edf6e-ca0f-46ff-ac5c-e679389525e8',
+                    description_uuid: 'd6b9d84e-c940-42b0-bb05-f24472db24d4',
+                    indication_uuid: '82e7a319-c2ec-4001-8736-a39dda6dffd8',
+                    propagation_uuid: 'bebe734a-ca9c-465a-9297-30bb6610f721',
+                    excludedRCTs_uuid: 'f9635be0-900c-45f9-a192-4647e518996e',
+                    fdaLevel_uuid: 'e6126f59-c2bb-49b0-95b2-45577fad6a7b',
+                    propagationLiquid_uuid: '5f73012f-1eb2-4342-b40e-002d4219c3c5',
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      }),
+    ],
+  });
+  const tests: [Parameters<typeof pathToDeleteEvidenceArgs>[0], Required<ReturnType<typeof pathToDeleteEvidenceArgs>>][] = [
+    [
+      {
+        valuePath: 'mutations/0',
+        gene,
+      },
+      [
+        '4fb196f8-31ed-4834-9226-ccffa8b4fdd3',
+        '78676de8-1cfb-4865-b1ce-8bf757048f7b',
+        'df486ee9-6af3-4cef-9394-e9cbdf4226eb',
+        '798a5092-0294-49aa-b6e9-f12705334fc0',
+        'ab9dae25-cf83-42df-8975-4373e018d941',
+        '00fb8a39-3e87-4c6e-8d81-8c9c64855e13',
+        'a8b6f194-6ab4-4702-9977-6b3f534d4ef4u',
+        'a36ec6af-7a3d-48cf-b841-de7412b88ef5',
+      ],
+    ],
+    [
+      {
+        valuePath: 'mutations/0/tumors/0',
+        gene,
+      },
+      [
+        'df486ee9-6af3-4cef-9394-e9cbdf4226eb',
+        '798a5092-0294-49aa-b6e9-f12705334fc0',
+        'ab9dae25-cf83-42df-8975-4373e018d941',
+        '00fb8a39-3e87-4c6e-8d81-8c9c64855e13',
+        'a8b6f194-6ab4-4702-9977-6b3f534d4ef4u',
+        'a36ec6af-7a3d-48cf-b841-de7412b88ef5',
+      ],
+    ],
+    [
+      {
+        valuePath: 'mutations/0/tumors/0/TIs/0/treatments/0',
+        gene,
+      },
+      ['a36ec6af-7a3d-48cf-b841-de7412b88ef5'],
+    ],
+    [
+      {
+        valuePath: 'name',
+        gene,
+      },
+      undefined,
+    ],
+  ];
+
+  test.each(tests)('Should map to payload correctly %j', (args, expected) => {
+    expect(pathToDeleteEvidenceArgs(args)).toEqual(expected);
   });
 });
