@@ -101,7 +101,7 @@ import { FirebaseRepository } from './firebase/firebase-repository';
 import { OpenMutationCollapsibleStore } from './open-mutation-collapsible.store';
 import { CurationPageStore } from 'app/stores/curation-page.store';
 import CategoricalAlterationStore from 'app/entities/categorical-alteration/categorical-alteration.store';
-import { driveAnnotationClient, evidenceClient } from 'app/shared/api/clients';
+import { driveAnnotationClient, evidenceClient, geneTypeClient } from 'app/shared/api/clients';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
 export interface IRootStore {
@@ -243,6 +243,7 @@ export function createStores(history: History): IRootStore {
     firebaseHistoryService,
     firebaseVusService,
     evidenceClient,
+    geneTypeClient,
   );
   const firebaseGeneService = new FirebaseGeneService(
     firebaseRepository,
