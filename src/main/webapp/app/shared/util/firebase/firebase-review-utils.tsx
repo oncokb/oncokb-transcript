@@ -868,10 +868,13 @@ export const getUpdatedReview = (
 
   // Update Review when value is reverted to original
   let isChangeReverted = false;
+  let shouldSetLastReviewed = true;
   if (!('lastReviewed' in oldReview)) {
-    const shouldSetLastReviewed = isCancerType && currentValue && !areCancerTypeArraysEqual(currentValue, newValue);
-    if (shouldSetLastReviewed) {
+    if (isCancerType) {
       // When just the cancer types ordering is changed, then a review should not be triggered.
+      shouldSetLastReviewed = currentValue && !areCancerTypeArraysEqual(currentValue, newValue);
+    }
+    if (shouldSetLastReviewed) {
       oldReview.lastReviewed = currentValue;
     }
     if (oldReview.lastReviewed === undefined) {
