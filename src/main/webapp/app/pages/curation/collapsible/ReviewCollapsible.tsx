@@ -97,11 +97,11 @@ export const ReviewCollapsible = ({
   const [reviewChildren, setReviewChildren] = useState<BaseReviewLevel[]>([]);
 
   useEffect(() => {
-    Object.keys(baseReviewLevel.children).forEach(
-      key => (baseReviewLevel.children[key] = getCompactReviewInfo(baseReviewLevel.children[key])),
+    baseReviewLevel.children.forEach(
+      (value, index) => (baseReviewLevel.children[index] = getCompactReviewInfo(baseReviewLevel.children[index])),
     );
     setRootReview(baseReviewLevel);
-    setReviewChildren(Object.values(baseReviewLevel.children));
+    setReviewChildren(baseReviewLevel.children);
   }, [baseReviewLevel]);
 
   const isUnderCreationOrDeletion = rootReview.nestedUnderCreateOrDelete;
@@ -364,31 +364,29 @@ export const ReviewCollapsible = ({
   };
 
   const getCollapsibleBody = () => {
-    const children = rootReview.children && Object.values(rootReview.children);
+    const children = rootReview.children;
 
     if (baseReviewLevel.reviewLevelType === ReviewLevelType.REVIEWABLE_MULTI) {
       return getMultiSelectionReviewContent();
     } else if (children?.length > 0) {
-      return Object.values(rootReview.children)
-        ?.sort(reviewLevelSortMethod)
-        ?.map(childReview => (
-          <ReviewCollapsible
-            key={childReview.titleParts.join(' / ')}
-            isGermline={isGermline}
-            baseReviewLevel={childReview}
-            hugoSymbol={hugoSymbol}
-            handleAccept={handleAccept}
-            handleReject={handleReject}
-            handleCreateAction={handleCreateAction}
-            parentDelete={deleteHandlerForChild}
-            disableActions={disableActions}
-            firebase={{
-              path: getGenePathFromValuePath(hugoSymbol, childReview.valuePath, isGermline),
-              db: firebase?.db,
-            }}
-            drugList={drugList}
-          />
-        ));
+      return rootReview.children?.sort(reviewLevelSortMethod)?.map(childReview => (
+        <ReviewCollapsible
+          key={childReview.titleParts.join(' / ')}
+          isGermline={isGermline}
+          baseReviewLevel={childReview}
+          hugoSymbol={hugoSymbol}
+          handleAccept={handleAccept}
+          handleReject={handleReject}
+          handleCreateAction={handleCreateAction}
+          parentDelete={deleteHandlerForChild}
+          disableActions={disableActions}
+          firebase={{
+            path: getGenePathFromValuePath(hugoSymbol, childReview.valuePath, isGermline),
+            db: firebase?.db,
+          }}
+          drugList={drugList}
+        />
+      ));
     } else {
       return getReviewableContent();
     }

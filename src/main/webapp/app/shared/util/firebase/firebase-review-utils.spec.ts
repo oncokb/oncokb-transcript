@@ -190,7 +190,7 @@ describe('Firebase Review Utils', () => {
         reviewLevelType: ReviewLevelType.REVIEWABLE,
       };
 
-      const nameReview = metaReview.children[metaReview.id] as ReviewLevel;
+      const nameReview = metaReview.children[0] as ReviewLevel;
       expect(nameReview).toEqual(expect.objectContaining(expectedValues));
     });
 
@@ -236,7 +236,7 @@ describe('Firebase Review Utils', () => {
         historyLocation: 'V600E',
         currentVal: 'V600E',
         hideLevel: false,
-        children: {},
+        children: [],
         id: expect.any(String),
         nestedUnderCreateOrDelete: false,
         reviewInfo: {
@@ -494,8 +494,8 @@ describe('Firebase Review Utils', () => {
           nestedUnderCreateOrDelete: false,
           hideLevel: false,
           id: expect.any(String),
-          children: {
-            Background: {
+          children: [
+            {
               reviewLevelType: 1,
               titleParts: ['Background'],
               valuePath: 'background',
@@ -506,7 +506,7 @@ describe('Firebase Review Utils', () => {
               nestedUnderCreateOrDelete: false,
               hideLevel: false,
               id: expect.any(String),
-              children: {},
+              children: [],
               currentVal: 'new background',
               reviewInfo: {
                 reviewPath: 'background_review',
@@ -517,7 +517,7 @@ describe('Firebase Review Utils', () => {
               },
               historyData: { oldState: 'new background', newState: 'new background' },
             },
-            V600E: {
+            {
               reviewLevelType: 0,
               titleParts: ['V600E'],
               valuePath: 'mutations/0',
@@ -531,8 +531,8 @@ describe('Firebase Review Utils', () => {
               nestedUnderCreateOrDelete: false,
               hideLevel: false,
               id: expect.any(String),
-              children: {
-                'Mutation Effect': {
+              children: [
+                {
                   reviewLevelType: 0,
                   titleParts: ['Mutation Effect'],
                   valuePath: 'mutations/0/mutation_effect',
@@ -547,8 +547,8 @@ describe('Firebase Review Utils', () => {
                   nestedUnderCreateOrDelete: false,
                   hideLevel: false,
                   id: expect.any(String),
-                  children: {
-                    Description: {
+                  children: [
+                    {
                       reviewLevelType: 1,
                       titleParts: ['Description'],
                       valuePath: 'mutations/0/mutation_effect/description',
@@ -563,7 +563,7 @@ describe('Firebase Review Utils', () => {
                       nestedUnderCreateOrDelete: false,
                       hideLevel: false,
                       id: expect.any(String),
-                      children: {},
+                      children: [],
                       currentVal: 'new description',
                       reviewInfo: {
                         reviewPath: 'mutations/0/mutation_effect/description_review',
@@ -574,11 +574,11 @@ describe('Firebase Review Utils', () => {
                       },
                       historyData: { oldState: 'old description', newState: 'new description' },
                     },
-                  },
+                  ],
                 },
-              },
+              ],
             },
-          },
+          ],
         };
 
         expect(parentReview).toEqual(expect.objectContaining(expectedReview));
