@@ -278,22 +278,6 @@ export const removeSectionTitlePrefix = (title: string) => {
   return title;
 };
 
-// export const reformatReviewTitle = (baseReviewLevel: BaseReviewLevel) => {
-//   const titleParts = baseReviewLevel.titleParts;
-//   const isNonActionableLevel = baseReviewLevel.reviewLevelType === ReviewLevelType.META || baseReviewLevel.nestedUnderCreateOrDelete;
-//   if (isNonActionableLevel) {
-//     return <span className="fw-normal">{titleParts.join(' / ')}</span>;
-//   }
-//   const lastTitlePart = titleParts.pop();
-//   return (
-//     <>
-//       <span className="fw-normal">{titleParts.join(' / ')}</span>
-//       {titleParts.length > 0 && <span className="fw-normal"> / </span>}
-//       <span className="fw-bold">{lastTitlePart}</span>
-//     </>
-//   );
-// };
-
 export const reviewLevelSortMethod = (a: BaseReviewLevel, b: BaseReviewLevel) => {
   const aReviewAction =
     a.reviewLevelType === ReviewLevelType.META
@@ -520,7 +504,7 @@ export const buildNameReview = (
   if (drugList) {
     readableName = getTxName(drugList, creatableObject.name);
   } else if (isGenomicIndiciator) {
-    readableName = `${READABLE_FIELD.GENOMIC_INDICATORS} / ${readableName}`;
+    readableName = `${READABLE_FIELD.GENOMIC_INDICATORS}: ${readableName}`;
   }
 
   const valuePathParts = [currValuePath, nameKey];

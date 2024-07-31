@@ -97,9 +97,7 @@ export const ReviewCollapsible = ({
   const [reviewChildren, setReviewChildren] = useState<BaseReviewLevel[]>([]);
 
   useEffect(() => {
-    baseReviewLevel.children.forEach(
-      (value, index) => (baseReviewLevel.children[index] = getCompactReviewInfo(baseReviewLevel.children[index])),
-    );
+    baseReviewLevel.children.forEach((value, index) => (baseReviewLevel.children[index] = getCompactReviewInfo(value)));
     setRootReview(baseReviewLevel);
     setReviewChildren(baseReviewLevel.children);
   }, [baseReviewLevel]);
@@ -371,7 +369,7 @@ export const ReviewCollapsible = ({
     } else if (children?.length > 0) {
       return rootReview.children?.sort(reviewLevelSortMethod)?.map(childReview => (
         <ReviewCollapsible
-          key={childReview.titleParts.join(' / ')}
+          key={childReview.titleParts.join('/')}
           isGermline={isGermline}
           baseReviewLevel={childReview}
           hugoSymbol={hugoSymbol}
@@ -430,7 +428,7 @@ export const ReviewCollapsible = ({
 
   return (
     <Collapsible
-      idPrefix={baseReviewLevel.titleParts.join(' / ')}
+      idPrefix={baseReviewLevel.titleParts.join('/')}
       defaultOpen
       collapsibleClassName={'mb-1'}
       title={<ReviewCollapsibleTitle baseReviewLevel={baseReviewLevel} />}
