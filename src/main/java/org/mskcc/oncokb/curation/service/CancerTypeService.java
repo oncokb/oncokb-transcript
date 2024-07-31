@@ -243,20 +243,26 @@ public class CancerTypeService {
         }
 
         if (CancerTypeUtils.hasSolidTumor(new HashSet<>(mappedCancerTypes))) {
-            Optional<CancerType> allSolidTumors = cancerTypeRepository.findOneByCodeIgnoreCase(SpecialCancerType.ALL_SOLID_TUMORS.name());
+            Optional<CancerType> allSolidTumors = cancerTypeRepository.findOneByMainTypeIgnoreCaseAndCodeIsNull(
+                SpecialCancerType.ALL_SOLID_TUMORS.getTumorType()
+            );
             if (allSolidTumors.isPresent()) {
                 mappedCancerTypes.add(allSolidTumors.get());
             }
         }
 
         if (CancerTypeUtils.hasLiquidTumor(new HashSet<>(mappedCancerTypes))) {
-            Optional<CancerType> allLiquidTumors = cancerTypeRepository.findOneByCodeIgnoreCase(SpecialCancerType.ALL_LIQUID_TUMORS.name());
+            Optional<CancerType> allLiquidTumors = cancerTypeRepository.findOneByMainTypeIgnoreCaseAndCodeIsNull(
+                SpecialCancerType.ALL_LIQUID_TUMORS.getTumorType()
+            );
             if (allLiquidTumors.isPresent()) {
                 mappedCancerTypes.add(allLiquidTumors.get());
             }
         }
 
-        Optional<CancerType> allTumors = cancerTypeRepository.findOneByCodeIgnoreCase(SpecialCancerType.ALL_TUMORS.name());
+        Optional<CancerType> allTumors = cancerTypeRepository.findOneByMainTypeIgnoreCaseAndCodeIsNull(
+            SpecialCancerType.ALL_TUMORS.getTumorType()
+        );
         if (allTumors.isPresent()) {
             mappedCancerTypes.add(allTumors.get());
         }
@@ -317,10 +323,11 @@ public class CancerTypeService {
                         cancerTypeRepository
                             .findAll()
                             .stream()
-                            .filter(cancerType ->
-                                cancerType.getLevel() >= 0 ||
-                                cancerType.getMainType().equals(SpecialCancerType.ALL_SOLID_TUMORS.getTumorType()) ||
-                                cancerType.getMainType().equals(SpecialCancerType.ALL_LIQUID_TUMORS.getTumorType())
+                            .filter(
+                                cancerType ->
+                                    cancerType.getLevel() >= 0 ||
+                                    cancerType.getMainType().equals(SpecialCancerType.ALL_SOLID_TUMORS.getTumorType()) ||
+                                    cancerType.getMainType().equals(SpecialCancerType.ALL_LIQUID_TUMORS.getTumorType())
                             )
                             .collect(Collectors.toSet())
                     );
