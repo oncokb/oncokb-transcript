@@ -557,7 +557,7 @@ const MutationCollapsible = ({
           try {
             await addTumor?.(`${mutationPath}/tumors`, newTumor, isGermline);
           } catch (error) {
-            notifyError(error as Error);
+            notifyError(error);
           }
 
           modifyCancerTypeModalStore?.closeModal();
@@ -575,7 +575,7 @@ const MutationCollapsible = ({
             try {
               await updateMutationName?.(mutationPath, firebaseMutationsPath, mutationName, newMutation);
             } catch (error) {
-              notifyError(error as Error);
+              notifyError(error);
             }
             setIsEditingMutation(false);
           }}

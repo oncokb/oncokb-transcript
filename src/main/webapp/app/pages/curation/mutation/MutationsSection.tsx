@@ -228,7 +228,7 @@ function MutationsSection({
               setShowAddMutationModal(show => !show);
               setOpenMutationCollapsibleIndex?.(newMutationIndex);
             } catch (error) {
-              notifyError(error as Error);
+              notifyError(error);
             }
           }}
           onCancel={() => {

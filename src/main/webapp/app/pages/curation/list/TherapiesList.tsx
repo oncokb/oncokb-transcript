@@ -130,7 +130,7 @@ const TherapiesList = ({
             await getDrugs?.({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
             await addTreatment?.(`${tisPath}/${tisLength - 1}/treatments`, newTreatment, isGermline);
           } catch (error) {
-            notifyError(error as Error);
+            notifyError(error);
           }
 
           modifyTherapyModalStore?.closeModal();

@@ -105,7 +105,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
       await props.acceptReviewChangeHandler?.(hugoSymbol ?? '', reviewLevels, isGermline, true);
       fetchFirebaseData();
     } catch (error) {
-      notifyError(error as Error);
+      notifyError(error);
     } finally {
       setIsAcceptingAll(false);
       setEditorsToAcceptChangesFrom([]);

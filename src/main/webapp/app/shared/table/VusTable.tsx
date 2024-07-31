@@ -114,7 +114,7 @@ const VusTable = ({
         await refreshVus?.(`${firebaseVusPath}/${uuid}`, vusData[uuid]);
       }
     } catch (error) {
-      notifyError(error as Error);
+      notifyError(error);
     }
   }
 
@@ -122,7 +122,7 @@ const VusTable = ({
     try {
       await deleteVus?.(`${firebaseVusPath}/${currentActionVusUuid.current}`);
     } catch (error) {
-      notifyError(error as Error);
+      notifyError(error);
     }
   }
 
@@ -272,7 +272,7 @@ const VusTable = ({
                 notifySuccess(`Promoted ${vusToPromote.name}`, { position: 'top-right' });
               });
             } catch (error) {
-              notifyError(error as Error);
+              notifyError(error);
             } finally {
               setVusToPromote(null);
               currentActionVusUuid.current = null;

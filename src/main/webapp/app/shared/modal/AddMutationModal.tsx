@@ -270,7 +270,7 @@ function AddMutationModal({
       const alts = await flowResult(annotateAlterations?.(request));
       return alts[0];
     } catch (error) {
-      notifyError(error as Error);
+      notifyError(error);
     }
   }
 
@@ -286,7 +286,7 @@ function AddMutationModal({
       }
       return filtered;
     } catch (error) {
-      notifyError(error as Error);
+      notifyError(error);
       return [];
     }
   }

@@ -147,7 +147,7 @@ export function CurationToolsTab({
       await updateGene?.(newGene);
       await searchGenes?.({ query: geneName, exact: true }); // repopulate gene store entities
     } catch (error) {
-      notifyError(error as Error);
+      notifyError(error);
     }
   }
 

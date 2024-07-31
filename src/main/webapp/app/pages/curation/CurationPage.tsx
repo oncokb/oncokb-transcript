@@ -239,7 +239,7 @@ export const CurationPage = (props: ICurationPageProps) => {
               );
               props.relevantCancerTypesModalStore.closeModal();
             } catch (error) {
-              notifyError(error as Error);
+              notifyError(error);
             }
           }}
           onCancel={() => props.relevantCancerTypesModalStore.closeModal()}

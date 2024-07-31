@@ -82,7 +82,7 @@ export class FirebaseAppStore extends BaseStore {
         });
       } catch (error) {
         this.firebaseInitError = error as Error;
-        notifyError(error as Error, 'Encountered issue initializing Firebase app.');
+        notifyError(error, 'Encountered issue initializing Firebase app.');
         this.firebaseInitSuccess = false;
       }
     }

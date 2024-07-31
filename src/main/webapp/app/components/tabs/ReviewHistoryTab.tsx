@@ -66,7 +66,7 @@ function ReviewHistoryTab({ isGermline, firebaseDb, drugList, getDrugs }: IRevie
     try {
       downloadFile('README.md', content.join('\n'));
     } catch (error) {
-      notifyError(error as Error);
+      notifyError(error);
     }
   }
 

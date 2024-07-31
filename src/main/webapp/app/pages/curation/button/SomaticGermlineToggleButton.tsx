@@ -38,7 +38,7 @@ function SomaticGermlineToggleButton({ hugoSymbol, firebaseDb, createGene }: ISo
           await createGene?.(hugoSymbol, !isSomatic);
         }
       } catch (error) {
-        notifyError(error as Error);
+        notifyError(error);
       }
     }
     localStorage.setItem(SOMATIC_GERMLINE_SETTING_KEY, newVariantType);

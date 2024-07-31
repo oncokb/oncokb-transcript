@@ -258,11 +258,11 @@ export class FirebaseGeneService {
       }
     } else if (results[0].ok && !results[1].ok) {
       // createMetaGene failed
-      notifyError(results[1].error as Error);
+      notifyError(results[1].error);
       this.deleteObject(genePath);
     } else if (results[1].ok && !results[0].ok) {
       // createGene failed
-      notifyError(results[0].error as Error);
+      notifyError(results[0].error);
       this.firebaseMetaService.deleteMetaGene(hugoSymbol, isGermline);
     } else {
       // both failed

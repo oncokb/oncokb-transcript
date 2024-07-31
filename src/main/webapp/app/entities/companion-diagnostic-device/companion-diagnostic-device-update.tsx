@@ -50,7 +50,7 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
           const result = await props.createSpecimenType({ type: stv.id, name: stv.id, companionDiagnosticDevices: null });
           updatedSpecimenTypes.push(result.data);
         } catch (error) {
-          notifyError(error as Error, 'Could not create new specimen type');
+          notifyError(error, 'Could not create new specimen type');
         }
       } else {
         const specimenType = props.specimenTypes.find(st => st.id === parseInt(stv.id, 10));

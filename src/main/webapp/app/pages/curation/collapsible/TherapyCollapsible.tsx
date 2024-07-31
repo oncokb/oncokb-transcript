@@ -174,7 +174,7 @@ function TherapyCollapsible({
             await Promise.all(newDrugs.map(drug => createDrug?.(drug)));
             await updateTreatmentName?.(therapyPath, treatmentName, newTreatment, isGermline);
           } catch (error) {
-            notifyError(error as Error);
+            notifyError(error);
           }
 
           modifyTherapyModalStore?.closeModal();

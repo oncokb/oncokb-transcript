@@ -209,7 +209,7 @@ export const ReviewCollapsible = ({
     } catch (error) {
       // Perform a rollback if the save fails. We can show the collapsible again when the core API fails.
       // However for Firebase, we will have tell the user to stop reviewing and a dev needs to fix the data.
-      notifyError(error as Error);
+      notifyError(error);
     }
   };
 

@@ -260,7 +260,7 @@ function CancerTypeCollapsible({
           try {
             await updateTumorName?.(cancerTypePath, cancerTypes, excludedCancerTypes, newTumor, isGermline);
           } catch (error) {
-            notifyError(error as Error);
+            notifyError(error);
           }
 
           modifyCancerTypeModalStore?.closeModal();

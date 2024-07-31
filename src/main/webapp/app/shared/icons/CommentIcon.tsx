@@ -80,7 +80,7 @@ const CommentIcon = observer((props: ICommentIconProps) => {
     try {
       await props.handleFirebasePushToArray?.(props.path, [newComment]);
     } catch (error) {
-      notifyError(error as Error);
+      notifyError(error);
     }
   }
 
@@ -88,7 +88,7 @@ const CommentIcon = observer((props: ICommentIconProps) => {
     try {
       await props.deleteComments?.(props.path, indices);
     } catch (error) {
-      notifyError(error as Error);
+      notifyError(error);
     }
   }
 
@@ -96,7 +96,7 @@ const CommentIcon = observer((props: ICommentIconProps) => {
     try {
       await props.handleFirebaseUpdate?.(`${props.path}/${index}`, { resolved: true });
     } catch (error) {
-      notifyError(error as Error);
+      notifyError(error);
     }
   }
 
@@ -104,7 +104,7 @@ const CommentIcon = observer((props: ICommentIconProps) => {
     try {
       await props.handleFirebaseUpdate?.(`${props.path}/${index}`, { resolved: false });
     } catch (error) {
-      notifyError(error as Error);
+      notifyError(error);
     }
   }
 
