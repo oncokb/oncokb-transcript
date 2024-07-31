@@ -192,7 +192,7 @@ const RelevantCancerTypesModalContent = observer(
     ];
 
     const numberDeletedRcts = relevantCancerTypesModalStore?.relevantCancerTypes.filter(rct => rct.isDeleted).length;
-
+    const pageDefaultSize = 5;
     return (
       <Modal isOpen style={{ maxWidth: '650px' }} id={RCT_MODAL_ID}>
         <ModalHeader>Modify Relevant Cancer Types</ModalHeader>
@@ -205,8 +205,9 @@ const RelevantCancerTypesModalContent = observer(
           )}
           <OncoKBTable
             style={{ minHeight: '400px' }}
+            showPagination={relevantCancerTypesModalStore.relevantCancerTypes.length > pageDefaultSize}
             showPageSizeOptions={false}
-            defaultPageSize={5}
+            defaultPageSize={pageDefaultSize}
             data={relevantCancerTypesModalStore?.relevantCancerTypes ?? []}
             columns={columns}
           />
