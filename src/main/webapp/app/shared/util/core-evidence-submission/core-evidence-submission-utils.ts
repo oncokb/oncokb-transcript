@@ -1,4 +1,4 @@
-import { DX_LEVELS, FDA_LEVELS, PX_LEVELS, TX_LEVELS, Treatment } from 'app/shared/model/firebase/firebase.model';
+import { DX_LEVELS, FDA_LEVELS, Mutation, PX_LEVELS, TI, TX_LEVELS, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
 import { ImplicationLevelOfEvidenceEnum } from '../../api/generated/core/api';
 
@@ -100,4 +100,160 @@ export function getNewPriorities(list: Treatment[], unapprovedUuids: string | st
     }
   });
   return priorities;
+}
+
+type CollectUUIDsArgs = (
+  | {
+      type: 'mutation';
+      obj: Mutation;
+    }
+  | {
+      type: 'tumor';
+      obj: Tumor;
+    }
+  | {
+      type: 'TI';
+      obj: TI;
+    }
+  | {
+      type: 'treatment';
+      obj: Treatment;
+    }
+) & {
+  uuids?: string[];
+  uuidType?: 'insideOnly' | 'evidenceOnly' | 'sectionOnly';
+};
+
+/**
+ * Collects UUIDs from a given object based on its type and specified UUID type.
+ *
+ * @param {CollectUUIDsArgs} args - The arguments for the function.
+ * @param {'mutation'|'tumor'|'TI'|'treatment'} args.type - The type of the object.
+ * @param {Mutation|Tumor|TI|Treatment} args.obj - The object to collect UUIDs from.
+ * @param {string[]} [args.uuids=[]] - The array to collect UUIDs into.
+ * @param {'insideOnly'|'evidenceOnly'|'sectionOnly'} [args.uuidType] - The type of UUIDs to collect.
+ * @returns {string[]} The array of collected UUIDs.
+ */
+export function collectUUIDs({ type, obj, uuids = [], uuidType }: CollectUUIDsArgs): string[] {
+  if (type === 'mutation') {
+    switch (uuidType) {
+      case 'insideOnly':
+        uuids.push(obj.mutation_effect.oncogenic_uuid);
+        uuids.push(obj.mutation_effect.effect_uuid);
+        uuids.push(obj.mutation_effect.description_uuid);
+        break;
+      case 'evidenceOnly':
+        uuids.push(obj.mutation_effect.oncogenic_uuid);
+        uuids.push(obj.mutation_effect.effect_uuid);
+        break;
+      case 'sectionOnly':
+        uuids.push(obj.name_uuid);
+        uuids.push(obj.mutation_effect_uuid);
+        break;
+      default:
+        uuids.push(obj.name_uuid);
+        uuids.push(obj.mutation_effect_uuid);
+        uuids.push(obj.mutation_effect.oncogenic_uuid);
+        uuids.push(obj.mutation_effect.effect_uuid);
+        uuids.push(obj.mutation_effect.description_uuid);
+        break;
+    }
+    _.each(obj.tumors, function (tumor) {
+      collectUUIDs({ type: 'tumor', obj: tumor, uuids, uuidType });
+    });
+  } else if (type === 'tumor') {
+    switch (uuidType) {
+      case 'insideOnly':
+        uuids.push(obj.summary_uuid);
+        uuids.push(obj.prognosticSummary_uuid);
+        uuids.push(obj.diagnosticSummary_uuid);
+        uuids.push(obj.prognostic.level_uuid);
+        uuids.push(obj.prognostic.description_uuid);
+        uuids.push(obj.prognostic.excludedRCTs_uuid);
+        uuids.push(obj.diagnostic.level_uuid);
+        uuids.push(obj.diagnostic.description_uuid);
+        uuids.push(obj.diagnostic.excludedRCTs_uuid);
+        break;
+      case 'evidenceOnly':
+        uuids.push(obj.summary_uuid);
+        uuids.push(obj.prognosticSummary_uuid);
+        uuids.push(obj.diagnosticSummary_uuid);
+        uuids.push(obj.prognostic_uuid);
+        uuids.push(obj.diagnostic_uuid);
+        break;
+      case 'sectionOnly':
+        uuids.push(getTumorUuids(obj));
+        uuids.push(obj.prognostic_uuid);
+        uuids.push(obj.diagnostic_uuid);
+        break;
+      default:
+        uuids.push(getTumorUuids(obj));
+        uuids.push(obj.summary_uuid);
+        uuids.push(obj.prognosticSummary_uuid);
+        uuids.push(obj.diagnosticSummary_uuid);
+        uuids.push(obj.prognostic.level_uuid);
+        uuids.push(obj.prognostic.description_uuid);
+        uuids.push(obj.prognostic.excludedRCTs_uuid);
+        uuids.push(obj.diagnostic.level_uuid);
+        uuids.push(obj.diagnostic.description_uuid);
+        uuids.push(obj.diagnostic.excludedRCTs_uuid);
+        break;
+    }
+    _.each(obj.TIs, function (ti) {
+      collectUUIDs({ type: 'TI', obj: ti, uuids, uuidType });
+    });
+  } else if (type === 'TI') {
+    switch (uuidType) {
+      case 'insideOnly':
+      case 'evidenceOnly':
+        break;
+      case 'sectionOnly':
+        uuids.push(obj.name_uuid);
+        break;
+      default:
+        uuids.push(obj.name_uuid);
+        break;
+    }
+    _.each(obj.treatments, function (treatment) {
+      collectUUIDs({ type: 'treatment', obj: treatment, uuids, uuidType });
+    });
+  } else if (type === 'treatment') {
+    switch (uuidType) {
+      case 'insideOnly':
+        uuids.push(obj.level_uuid);
+        uuids.push(obj.fdaLevel_uuid);
+        uuids.push(obj.propagation_uuid);
+        uuids.push(obj.propagationLiquid_uuid);
+        uuids.push(obj.indication_uuid);
+        uuids.push(obj.description_uuid);
+        break;
+      case 'evidenceOnly':
+        uuids.push(obj.name_uuid);
+        break;
+      case 'sectionOnly':
+        uuids.push(obj.name_uuid);
+        break;
+      default:
+        uuids.push(obj.name_uuid);
+        uuids.push(obj.level_uuid);
+        uuids.push(obj.fdaLevel_uuid);
+        uuids.push(obj.propagation_uuid);
+        uuids.push(obj.propagationLiquid_uuid);
+        uuids.push(obj.indication_uuid);
+        uuids.push(obj.description_uuid);
+        break;
+    }
+  }
+  return uuids;
+}
+
+function getTumorUuids(tumor: Tumor) {
+  const uuids: string[] = [];
+  if (tumor.cancerTypes_uuid) {
+    uuids.push(tumor.cancerTypes_uuid);
+  }
+  if (tumor.excludedCancerTypes_uuid) {
+    uuids.push(tumor.excludedCancerTypes_uuid);
+  }
+  return uuids.join(',');
 }

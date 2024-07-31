@@ -1,11 +1,12 @@
 import _ from 'lodash';
 import { Drug, DrugCollection, Gene, Mutation, MutationEffect, TI, TX_LEVELS, Treatment, Tumor } from '../../model/firebase/firebase.model';
 import { resolveTypeSpecificData } from './type-specific-resolvers';
-import { FDA_LEVEL_MAPPING, LEVEL_MAPPING, getNewPriorities, validateTimeFormat } from './core-evidence-submission-utils';
+import { FDA_LEVEL_MAPPING, LEVEL_MAPPING, collectUUIDs, getNewPriorities, validateTimeFormat } from './core-evidence-submission-utils';
 import { Evidence, EvidenceEvidenceTypeEnum } from '../../api/generated/core/api';
 
 export type GetEvidenceArgs = {
-  type: EvidenceEvidenceTypeEnum;
+  type: EvidenceEvidenceTypeEnum | 'MUTATION_NAME_CHANGE' | 'TUMOR_NAME_CHANGE' | 'TREATMENT_NAME_CHANGE';
+
   mutation: Mutation;
   tumor: Tumor;
   ti: TI;
@@ -65,8 +66,11 @@ export function pathToGetEvidenceArgs({
 
     previousKey = key;
   }
-  const tiRegex = /^mutations\/\d+\/tumors\/\d+\/TIs\/\d+\/treatments\/(\d+)(?!\/short$|\/indication$|\/name_review$)/;
-  let type: EvidenceEvidenceTypeEnum | undefined = undefined;
+
+  const tiRegex = /^mutations\/\d+\/tumors\/\d+\/TIs\/\d+\/treatments\/(\d+)(?!\/short$|\/indication$)/;
+
+  let type: GetEvidenceArgs['type'] | undefined = undefined;
+
   if (valuePath === 'summary') {
     type = EvidenceEvidenceTypeEnum.GeneSummary;
   } else if (/^mutations\/\d+\/tumors\/\d+\/summary/.test(valuePath)) {
@@ -85,6 +89,12 @@ export function pathToGetEvidenceArgs({
     type = EvidenceEvidenceTypeEnum.DiagnosticImplication;
   } else if (/^mutations\/\d+\/mutation_effect\/oncogenic/.test(valuePath)) {
     type = EvidenceEvidenceTypeEnum.Oncogenic;
+  } else if (/^mutations\/\d+\/name/.test(valuePath)) {
+    type = 'MUTATION_NAME_CHANGE';
+  } else if (/^mutations\/\d+\/tumors\/\d+\/(cancerTypes|excludedCancerTypes)/.test(valuePath)) {
+    type = 'TUMOR_NAME_CHANGE';
+  } else if (/^mutations\/\d+\/tumors\/\d+\/TIs\/\d+\/treatments\/\d+\/name$/.test(valuePath)) {
+    type = 'TREATMENT_NAME_CHANGE';
   } else if (tiRegex.test(valuePath)) {
     const treatmentIndex = +tiRegex.exec(valuePath)[1];
     const level = args.ti?.treatments[treatmentIndex]?.level;
@@ -121,15 +131,39 @@ export function pathToGetEvidenceArgs({
   return args as GetEvidenceArgs;
 }
 
-export function getEvidence({ type, mutation, tumor, ti, treatment, gene, drugListRef, updateTime, entrezGeneId }: GetEvidenceArgs) {
-  const evidenceData = resolveTypeSpecificData({ type, entrezGeneId, gene, mutation, tumor, updateTime });
+export function getEvidence({
+  type,
+  mutation,
+  tumor,
+  ti,
+  treatment,
+  gene,
+  drugListRef,
+  updateTime,
+  entrezGeneId,
+}: GetEvidenceArgs): Record<string, Evidence> {
+  const evidenceData = resolveTypeSpecificData({ type, entrezGeneId, gene, mutation, tumor, treatment, updateTime });
 
-  if (TI && treatment) {
+  if (ti && treatment) {
     handleTi({ treatment, evidenceData, ti, drugListRef, updateTime });
   }
+
   const evidences: Record<string, Evidence> = {};
 
-  if (evidenceData.dataUUID) {
+  if (type === 'TREATMENT_NAME_CHANGE' || type === 'MUTATION_NAME_CHANGE' || type === 'TUMOR_NAME_CHANGE') {
+    let uuids: string[];
+    if (type === 'MUTATION_NAME_CHANGE') {
+      uuids = collectUUIDs({ type: 'mutation', obj: mutation, uuidType: 'evidenceOnly' });
+    } else if (type === 'TUMOR_NAME_CHANGE') {
+      uuids = collectUUIDs({ type: 'tumor', obj: tumor, uuidType: 'evidenceOnly' });
+    } else {
+      uuids = collectUUIDs({ type: 'treatment', obj: treatment, uuidType: 'evidenceOnly' });
+    }
+
+    for (const uuid of uuids) {
+      evidences[uuid] = evidenceData.data;
+    }
+  } else if (evidenceData.dataUUID) {
     evidences[evidenceData.dataUUID] = evidenceData.data;
   }
 
@@ -170,7 +204,7 @@ function handleTi({
       }
     }
     evidenceData.data.treatments.push({
-      approvedIndications: [treatment.indication],
+      approvedIndications: treatment.indication ? treatment.indication[treatment.indication] : [],
       drugs: drugList,
       priority: priorities[evidenceData.dataUUID][drugList.map(x => x.uuid).join(' + ')],
     });

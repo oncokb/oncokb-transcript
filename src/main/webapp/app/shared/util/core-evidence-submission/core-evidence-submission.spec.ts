@@ -1,8 +1,17 @@
 import { DX_LEVELS, FDA_LEVELS, FIREBASE_ONCOGENICITY, PX_LEVELS, TI_TYPE, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import { getEvidence, pathToGetEvidenceArgs } from './core-evidence-submission';
-import { Evidence, EvidenceEvidenceTypeEnum, EvidenceLevelOfEvidenceEnum } from 'app/shared/api/generated/core';
+import {
+  Evidence,
+  EvidenceEvidenceTypeEnum,
+  EvidenceFdaLevelEnum,
+  EvidenceLevelOfEvidenceEnum,
+  EvidenceLiquidPropagationLevelEnum,
+  EvidenceSolidPropagationLevelEnum,
+  TumorType,
+} from 'app/shared/api/generated/core';
 import { generateUuid } from '../utils';
 import {
+  createMockCancerType,
   createMockDrug,
   createMockGene,
   createMockImplication,
@@ -84,10 +93,47 @@ describe('getEvidence to submit to core', () => {
       [{ ...baseExpectedArgs, valuePath: 'mutations/0' }, undefined],
       // gene type change
       [{ ...baseExpectedArgs, valuePath: 'type' }, undefined],
-      // mutation name change
-      [{ ...baseExpectedArgs, valuePath: 'mutations/0/name_review' }, undefined],
-      // tumor name change
-      [{ ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/cancerTypes_review' }, undefined],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/0/name' },
+        {
+          ...baseExpectedArgs,
+          type: 'MUTATION_NAME_CHANGE',
+          mutation,
+          gene,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/cancerTypes' },
+        {
+          ...baseExpectedArgs,
+          type: 'TUMOR_NAME_CHANGE',
+          tumor,
+          mutation,
+          gene,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/excludedCancerTypes' },
+        {
+          ...baseExpectedArgs,
+          type: 'TUMOR_NAME_CHANGE',
+          tumor,
+          mutation,
+          gene,
+        },
+      ],
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/TIs/0/treatments/0/name' },
+        {
+          ...baseExpectedArgs,
+          type: 'TREATMENT_NAME_CHANGE',
+          tumor,
+          mutation,
+          gene,
+          ti: tiIs,
+          treatment,
+        },
+      ],
       [
         { ...baseExpectedArgs, valuePath: 'summary' },
         { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.GeneSummary },
@@ -208,6 +254,18 @@ describe('getEvidence to submit to core', () => {
           },
         ];
       }),
+      [
+        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/TIs/1/treatments/0/name' },
+        {
+          ...baseExpectedArgs,
+          type: 'TREATMENT_NAME_CHANGE',
+          tumor,
+          mutation,
+          gene,
+          ti: tiIr,
+          treatment,
+        },
+      ],
       ...Object.keys(
         createMockTreatment({
           name: undefined,
@@ -237,8 +295,20 @@ describe('getEvidence to submit to core', () => {
         }),
       ).map((key: keyof ReturnType<typeof createMockTreatment>): ArrayElement => {
         const valuePath = `mutations/0/tumors/0/TIs/1/treatments/0/${key}`;
-        if (key === 'short' || key === 'indication' || key === 'name_review') {
+        if (key === 'short' || key === 'indication') {
           return [{ ...baseExpectedArgs, valuePath }, undefined];
+        } else if (key === 'name') {
+          return [
+            { ...baseExpectedArgs, valuePath },
+            {
+              ...baseExpectedArgs,
+              type: 'TREATMENT_NAME_CHANGE',
+              tumor,
+              mutation,
+              ti: tiIr,
+              treatment,
+            },
+          ];
         }
         return [
           {
@@ -256,7 +326,7 @@ describe('getEvidence to submit to core', () => {
         ];
       }),
       [
-        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/TIs/2/treatments/0' },
+        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/TIs/2/treatments/0/fdaLevel' },
         {
           ...baseExpectedArgs,
           type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
@@ -267,7 +337,7 @@ describe('getEvidence to submit to core', () => {
         },
       ],
       [
-        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/TIs/3/treatments/0' },
+        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/TIs/3/treatments/0/fdaLevel' },
         {
           ...baseExpectedArgs,
           type: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
@@ -303,7 +373,7 @@ describe('getEvidence to submit to core', () => {
     };
     const baseEvidence: Evidence = {
       additionalInfo: null,
-      alterations: [],
+      alterations: null,
       articles: null,
       description: null,
       fdaLevel: null,
@@ -311,7 +381,7 @@ describe('getEvidence to submit to core', () => {
       levelOfEvidence: null,
       liquidPropagationLevel: null,
       solidPropagationLevel: null,
-      treatments: [],
+      treatments: null,
       cancerTypes: [],
       excludedCancerTypes: [],
       relevantCancerTypes: [],
@@ -665,7 +735,7 @@ describe('getEvidence to submit to core', () => {
             solidPropagationLevel: EvidenceLevelOfEvidenceEnum.Level2,
             treatments: [
               {
-                approvedIndications: [''],
+                approvedIndications: [],
                 drugs: [
                   createMockDrug({
                     uuid: '76c75f3b-364a-418c-8661-48768fb0742a',
@@ -678,7 +748,7 @@ describe('getEvidence to submit to core', () => {
                 priority: 1,
               },
               {
-                approvedIndications: [''],
+                approvedIndications: [],
                 drugs: [
                   createMockDrug({
                     uuid: '8fbca1dc-0b71-47b1-8511-b5a5b8906616',
@@ -691,7 +761,7 @@ describe('getEvidence to submit to core', () => {
                 priority: 2,
               },
               {
-                approvedIndications: [''],
+                approvedIndications: [],
                 drugs: [
                   createMockDrug({
                     uuid: '20329090-99ab-4769-8932-b93346331f57',
@@ -735,6 +805,636 @@ describe('getEvidence to submit to core', () => {
             description: 'Tumor Type Summary',
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
             lastEdit: getTimeFromDateString('2004-01-01').toString(),
+          },
+        },
+      ],
+      [
+        {
+          ...baseArgs,
+          valuePath: 'mutations/0/name',
+          gene: createMockGene({
+            name: hugoSymbol,
+            mutations: [
+              createMockMutation({
+                mutation_effect: createMockMutationEffect({
+                  oncogenic_uuid: 'afd5c3a0-930e-4cce-8bd5-66577ebac0eb',
+                  effect_uuid: 'ceac443e-dc39-4f62-9e05-45b800326e18',
+                }),
+                tumors: [
+                  createMockTumor({
+                    summary: 'Tumor Type Summary',
+                    summary_review: createMockReview({
+                      updateTime: getTimeFromDateString('2004-01-01'),
+                    }),
+                    summary_uuid: 'a264a9d7-69d5-47b2-9734-09a860dd9d9b',
+                    prognosticSummary_uuid: '081d7177-83e9-4dae-96a1-fa869aec4b52',
+                    diagnosticSummary_uuid: '1d36e653-2805-4b23-affc-e4b60f60d24c',
+                    diagnostic_uuid: '7cb9656b-383d-49ef-92eb-35af6803a6f4',
+                    prognostic_uuid: '70d937cc-1bb7-4315-9d4f-9a97cf9d728b',
+                    TIs: [
+                      createMockTi({
+                        name_uuid: 'd8a2f58b-f9f2-462e-98b6-88ea866c636e',
+                        treatments: [
+                          createMockTreatment({
+                            name: '20329090-99ab-4769-8932-b93346331f57',
+                            name_uuid: 'd43e1f83-be01-43c2-bc1a-c020d204fbb1',
+                            name_review: createMockReview({
+                              updateTime: 0,
+                            }),
+                            description: 'Treatment Description',
+                            fdaLevel: FDA_LEVELS.LEVEL_FDA1,
+                            level: TX_LEVELS.LEVEL_4,
+                            propagationLiquid: TX_LEVELS.LEVEL_3A,
+                            propagation: TX_LEVELS.LEVEL_2,
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        },
+        {
+          // Mutation UUID's
+          ['afd5c3a0-930e-4cce-8bd5-66577ebac0eb']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
+            lastEdit: null,
+          },
+          ['ceac443e-dc39-4f62-9e05-45b800326e18']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
+            lastEdit: null,
+          },
+          // tumor UUID's
+          ['081d7177-83e9-4dae-96a1-fa869aec4b52']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
+            lastEdit: null,
+          },
+          ['a264a9d7-69d5-47b2-9734-09a860dd9d9b']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
+            lastEdit: null,
+          },
+          ['1d36e653-2805-4b23-affc-e4b60f60d24c']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
+            lastEdit: null,
+          },
+          ['7cb9656b-383d-49ef-92eb-35af6803a6f4']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
+            lastEdit: null,
+          },
+          ['70d937cc-1bb7-4315-9d4f-9a97cf9d728b']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
+            lastEdit: null,
+          },
+          // Treatment UUID's
+          ['d43e1f83-be01-43c2-bc1a-c020d204fbb1']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
+            lastEdit: null,
+          },
+        },
+      ],
+      [
+        {
+          ...baseArgs,
+          valuePath: 'mutations/0/tumors/0/cancerTypes',
+          gene: createMockGene({
+            name: hugoSymbol,
+            mutations: [
+              createMockMutation({
+                mutation_effect: createMockMutationEffect({
+                  oncogenic_uuid: 'afd5c3a0-930e-4cce-8bd5-66577ebac0eb',
+                  effect_uuid: 'ceac443e-dc39-4f62-9e05-45b800326e18',
+                }),
+                tumors: [
+                  createMockTumor({
+                    summary: 'Tumor Type Summary',
+                    summary_review: createMockReview({
+                      updateTime: getTimeFromDateString('2004-01-01'),
+                    }),
+                    summary_uuid: 'a264a9d7-69d5-47b2-9734-09a860dd9d9b',
+                    prognosticSummary_uuid: '081d7177-83e9-4dae-96a1-fa869aec4b52',
+                    diagnosticSummary_uuid: '1d36e653-2805-4b23-affc-e4b60f60d24c',
+                    diagnostic_uuid: '7cb9656b-383d-49ef-92eb-35af6803a6f4',
+                    prognostic_uuid: '70d937cc-1bb7-4315-9d4f-9a97cf9d728b',
+                    cancerTypes: [
+                      createMockCancerType({
+                        code: 'cancerTypeCode',
+                        subtype: 'cancerTypeSubType',
+                        mainType: 'cancerTypeMainType',
+                      }),
+                    ],
+                    excludedCancerTypes: [
+                      createMockCancerType({
+                        code: 'excludedCancerTypeCode',
+                        subtype: 'excludedCancerTypeSubType',
+                        mainType: 'excludedCancerTypeMainType',
+                      }),
+                    ],
+                    TIs: [
+                      createMockTi({
+                        name_uuid: 'd8a2f58b-f9f2-462e-98b6-88ea866c636e',
+                        treatments: [
+                          createMockTreatment({
+                            name: '20329090-99ab-4769-8932-b93346331f57',
+                            name_uuid: 'd43e1f83-be01-43c2-bc1a-c020d204fbb1',
+                            name_review: createMockReview({
+                              updateTime: 0,
+                            }),
+                            description: 'Treatment Description',
+                            fdaLevel: FDA_LEVELS.LEVEL_FDA1,
+                            level: TX_LEVELS.LEVEL_4,
+                            propagationLiquid: TX_LEVELS.LEVEL_3A,
+                            propagation: TX_LEVELS.LEVEL_2,
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        },
+        {
+          // tumor UUID's
+          ['081d7177-83e9-4dae-96a1-fa869aec4b52']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            lastEdit: null,
+            cancerTypes: [
+              {
+                code: 'cancerTypeCode',
+                subtype: 'cancerTypeSubType',
+                mainType: 'cancerTypeMainType',
+              } as TumorType,
+            ],
+            excludedCancerTypes: [
+              {
+                code: 'excludedCancerTypeCode',
+                subtype: 'excludedCancerTypeSubType',
+                mainType: 'excludedCancerTypeMainType',
+              } as TumorType,
+            ],
+          },
+          ['a264a9d7-69d5-47b2-9734-09a860dd9d9b']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            lastEdit: null,
+            cancerTypes: [
+              {
+                code: 'cancerTypeCode',
+                subtype: 'cancerTypeSubType',
+                mainType: 'cancerTypeMainType',
+              } as TumorType,
+            ],
+            excludedCancerTypes: [
+              {
+                code: 'excludedCancerTypeCode',
+                subtype: 'excludedCancerTypeSubType',
+                mainType: 'excludedCancerTypeMainType',
+              } as TumorType,
+            ],
+          },
+          ['1d36e653-2805-4b23-affc-e4b60f60d24c']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            lastEdit: null,
+            cancerTypes: [
+              {
+                code: 'cancerTypeCode',
+                subtype: 'cancerTypeSubType',
+                mainType: 'cancerTypeMainType',
+              } as TumorType,
+            ],
+            excludedCancerTypes: [
+              {
+                code: 'excludedCancerTypeCode',
+                subtype: 'excludedCancerTypeSubType',
+                mainType: 'excludedCancerTypeMainType',
+              } as TumorType,
+            ],
+          },
+          ['7cb9656b-383d-49ef-92eb-35af6803a6f4']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            lastEdit: null,
+            cancerTypes: [
+              {
+                code: 'cancerTypeCode',
+                subtype: 'cancerTypeSubType',
+                mainType: 'cancerTypeMainType',
+              } as TumorType,
+            ],
+            excludedCancerTypes: [
+              {
+                code: 'excludedCancerTypeCode',
+                subtype: 'excludedCancerTypeSubType',
+                mainType: 'excludedCancerTypeMainType',
+              } as TumorType,
+            ],
+          },
+          ['70d937cc-1bb7-4315-9d4f-9a97cf9d728b']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            lastEdit: null,
+            cancerTypes: [
+              {
+                code: 'cancerTypeCode',
+                subtype: 'cancerTypeSubType',
+                mainType: 'cancerTypeMainType',
+              } as TumorType,
+            ],
+            excludedCancerTypes: [
+              {
+                code: 'excludedCancerTypeCode',
+                subtype: 'excludedCancerTypeSubType',
+                mainType: 'excludedCancerTypeMainType',
+              } as TumorType,
+            ],
+          },
+          // Treatment UUID's
+          ['d43e1f83-be01-43c2-bc1a-c020d204fbb1']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            lastEdit: null,
+            cancerTypes: [
+              {
+                code: 'cancerTypeCode',
+                subtype: 'cancerTypeSubType',
+                mainType: 'cancerTypeMainType',
+              } as TumorType,
+            ],
+            excludedCancerTypes: [
+              {
+                code: 'excludedCancerTypeCode',
+                subtype: 'excludedCancerTypeSubType',
+                mainType: 'excludedCancerTypeMainType',
+              } as TumorType,
+            ],
+          },
+        },
+      ],
+      [
+        {
+          ...baseArgs,
+          valuePath: 'mutations/0/tumors/0/excludedCancerTypes',
+          gene: createMockGene({
+            name: hugoSymbol,
+            mutations: [
+              createMockMutation({
+                mutation_effect: createMockMutationEffect({
+                  oncogenic_uuid: 'afd5c3a0-930e-4cce-8bd5-66577ebac0eb',
+                  effect_uuid: 'ceac443e-dc39-4f62-9e05-45b800326e18',
+                }),
+                tumors: [
+                  createMockTumor({
+                    summary: 'Tumor Type Summary',
+                    summary_review: createMockReview({
+                      updateTime: getTimeFromDateString('2004-01-01'),
+                    }),
+                    summary_uuid: 'a264a9d7-69d5-47b2-9734-09a860dd9d9b',
+                    prognosticSummary_uuid: '081d7177-83e9-4dae-96a1-fa869aec4b52',
+                    diagnosticSummary_uuid: '1d36e653-2805-4b23-affc-e4b60f60d24c',
+                    diagnostic_uuid: '7cb9656b-383d-49ef-92eb-35af6803a6f4',
+                    prognostic_uuid: '70d937cc-1bb7-4315-9d4f-9a97cf9d728b',
+                    cancerTypes: [
+                      createMockCancerType({
+                        code: 'cancerTypeCode',
+                        subtype: 'cancerTypeSubType',
+                        mainType: 'cancerTypeMainType',
+                      }),
+                    ],
+                    excludedCancerTypes: [
+                      createMockCancerType({
+                        code: 'excludedCancerTypeCode',
+                        subtype: 'excludedCancerTypeSubType',
+                        mainType: 'excludedCancerTypeMainType',
+                      }),
+                    ],
+                    TIs: [
+                      createMockTi({
+                        name_uuid: 'd8a2f58b-f9f2-462e-98b6-88ea866c636e',
+                        treatments: [
+                          createMockTreatment({
+                            name: '20329090-99ab-4769-8932-b93346331f57',
+                            name_uuid: 'd43e1f83-be01-43c2-bc1a-c020d204fbb1',
+                            name_review: createMockReview({
+                              updateTime: 0,
+                            }),
+                            description: 'Treatment Description',
+                            fdaLevel: FDA_LEVELS.LEVEL_FDA1,
+                            level: TX_LEVELS.LEVEL_4,
+                            propagationLiquid: TX_LEVELS.LEVEL_3A,
+                            propagation: TX_LEVELS.LEVEL_2,
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        },
+        {
+          // tumor UUID's
+          ['081d7177-83e9-4dae-96a1-fa869aec4b52']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            lastEdit: null,
+            cancerTypes: [
+              {
+                code: 'cancerTypeCode',
+                subtype: 'cancerTypeSubType',
+                mainType: 'cancerTypeMainType',
+              } as TumorType,
+            ],
+            excludedCancerTypes: [
+              {
+                code: 'excludedCancerTypeCode',
+                subtype: 'excludedCancerTypeSubType',
+                mainType: 'excludedCancerTypeMainType',
+              } as TumorType,
+            ],
+          },
+          ['a264a9d7-69d5-47b2-9734-09a860dd9d9b']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            lastEdit: null,
+            cancerTypes: [
+              {
+                code: 'cancerTypeCode',
+                subtype: 'cancerTypeSubType',
+                mainType: 'cancerTypeMainType',
+              } as TumorType,
+            ],
+            excludedCancerTypes: [
+              {
+                code: 'excludedCancerTypeCode',
+                subtype: 'excludedCancerTypeSubType',
+                mainType: 'excludedCancerTypeMainType',
+              } as TumorType,
+            ],
+          },
+          ['1d36e653-2805-4b23-affc-e4b60f60d24c']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            lastEdit: null,
+            cancerTypes: [
+              {
+                code: 'cancerTypeCode',
+                subtype: 'cancerTypeSubType',
+                mainType: 'cancerTypeMainType',
+              } as TumorType,
+            ],
+            excludedCancerTypes: [
+              {
+                code: 'excludedCancerTypeCode',
+                subtype: 'excludedCancerTypeSubType',
+                mainType: 'excludedCancerTypeMainType',
+              } as TumorType,
+            ],
+          },
+          ['7cb9656b-383d-49ef-92eb-35af6803a6f4']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            lastEdit: null,
+            cancerTypes: [
+              {
+                code: 'cancerTypeCode',
+                subtype: 'cancerTypeSubType',
+                mainType: 'cancerTypeMainType',
+              } as TumorType,
+            ],
+            excludedCancerTypes: [
+              {
+                code: 'excludedCancerTypeCode',
+                subtype: 'excludedCancerTypeSubType',
+                mainType: 'excludedCancerTypeMainType',
+              } as TumorType,
+            ],
+          },
+          ['70d937cc-1bb7-4315-9d4f-9a97cf9d728b']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            lastEdit: null,
+            cancerTypes: [
+              {
+                code: 'cancerTypeCode',
+                subtype: 'cancerTypeSubType',
+                mainType: 'cancerTypeMainType',
+              } as TumorType,
+            ],
+            excludedCancerTypes: [
+              {
+                code: 'excludedCancerTypeCode',
+                subtype: 'excludedCancerTypeSubType',
+                mainType: 'excludedCancerTypeMainType',
+              } as TumorType,
+            ],
+          },
+          // Treatment UUID's
+          ['d43e1f83-be01-43c2-bc1a-c020d204fbb1']: {
+            ...baseEvidence,
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: null,
+            lastEdit: null,
+            cancerTypes: [
+              {
+                code: 'cancerTypeCode',
+                subtype: 'cancerTypeSubType',
+                mainType: 'cancerTypeMainType',
+              } as TumorType,
+            ],
+            excludedCancerTypes: [
+              {
+                code: 'excludedCancerTypeCode',
+                subtype: 'excludedCancerTypeSubType',
+                mainType: 'excludedCancerTypeMainType',
+              } as TumorType,
+            ],
+          },
+        },
+      ],
+      [
+        {
+          ...baseArgs,
+          valuePath: 'mutations/0/tumors/0/TIs/0/treatments/0/name',
+          drugListRef: {
+            ['76c75f3b-364a-418c-8661-48768fb0742a']: createMockDrug({
+              uuid: '76c75f3b-364a-418c-8661-48768fb0742a',
+              drugName: 'a',
+              ncitCode: 'ANcitCode',
+              ncitName: 'ANcitName',
+              priority: 1,
+            }),
+            ['8fbca1dc-0b71-47b1-8511-b5a5b8906616']: createMockDrug({
+              uuid: '8fbca1dc-0b71-47b1-8511-b5a5b8906616',
+              drugName: 'b',
+              ncitCode: 'BNcitCode',
+              ncitName: 'BNcitName',
+              priority: 2,
+            }),
+            ['20329090-99ab-4769-8932-b93346331f57']: createMockDrug({
+              uuid: '20329090-99ab-4769-8932-b93346331f57',
+              drugName: 'c',
+              ncitCode: 'CNcitCode',
+              ncitName: 'CNcitName',
+              priority: 3,
+            }),
+          },
+          gene: createMockGene({
+            name: hugoSymbol,
+            mutations: [
+              createMockMutation({
+                tumors: [
+                  createMockTumor({
+                    summary: 'Tumor Type Summary',
+                    summary_review: createMockReview({
+                      updateTime: getTimeFromDateString('2004-01-01'),
+                    }),
+                    TIs: [
+                      createMockTi({
+                        treatments: [
+                          createMockTreatment({
+                            name: '20329090-99ab-4769-8932-b93346331f57',
+                            name_uuid: 'd43e1f83-be01-43c2-bc1a-c020d204fbb1',
+                            name_review: createMockReview({
+                              updateTime: 0,
+                            }),
+                            description: 'Treatment Description',
+                            fdaLevel: FDA_LEVELS.LEVEL_FDA1,
+                            level: TX_LEVELS.LEVEL_4,
+                            propagationLiquid: TX_LEVELS.LEVEL_3A,
+                            propagation: TX_LEVELS.LEVEL_2,
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        },
+        {
+          ['d43e1f83-be01-43c2-bc1a-c020d204fbb1']: {
+            ...baseEvidence,
+            fdaLevel: EvidenceFdaLevelEnum.LevelFda1,
+            evidenceType: null,
+            description: 'Treatment Description',
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            lastEdit: baseArgs.updateTime.toString(),
+            levelOfEvidence: EvidenceLevelOfEvidenceEnum.Level4,
+            liquidPropagationLevel: EvidenceLiquidPropagationLevelEnum.Level3A,
+            solidPropagationLevel: EvidenceSolidPropagationLevelEnum.Level2,
+            treatments: [
+              {
+                approvedIndications: [],
+                drugs: [
+                  createMockDrug({
+                    uuid: '20329090-99ab-4769-8932-b93346331f57',
+                    drugName: 'c',
+                    ncitCode: 'CNcitCode',
+                    ncitName: 'CNcitName',
+                    priority: 1,
+                  }),
+                ],
+                priority: 1,
+              },
+            ],
           },
         },
       ],
