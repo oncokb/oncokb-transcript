@@ -1377,7 +1377,6 @@ describe('getEvidence to submit to core', () => {
           },
           gene: createMockGene({
             name: hugoSymbol,
-            mutations_uuid: 'x',
             mutations: [
               createMockMutation({
                 tumors: [
