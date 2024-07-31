@@ -91,7 +91,7 @@ export function pathToGetEvidenceArgs({
     type = EvidenceEvidenceTypeEnum.Oncogenic;
   } else if (/^mutations\/\d+\/name/.test(valuePath)) {
     type = 'MUTATION_NAME_CHANGE';
-  } else if (/^mutations\/\d+\/tumors\/\d+\/cancerTypes/.test(valuePath)) {
+  } else if (/^mutations\/\d+\/tumors\/\d+\/(cancerTypes|excludedCancerTypes)/.test(valuePath)) {
     type = 'TUMOR_NAME_CHANGE';
   } else if (/^mutations\/\d+\/tumors\/\d+\/TIs\/\d+\/treatments\/\d+\/name$/.test(valuePath)) {
     type = 'TREATMENT_NAME_CHANGE';
