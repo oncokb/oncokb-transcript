@@ -277,12 +277,13 @@ export class FirebaseGeneService {
 
     const tumorNameUuid = `${newTumor.cancerTypes_uuid}, ${newTumor.excludedCancerTypes_uuid}`;
 
-    if (hugoSymbol !== undefined) {
-      return this.firebaseRepository.pushToArray(tumorPath, [newTumor]).then(() => {
-        this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, isGermline);
-        this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, tumorNameUuid, true, isGermline);
-      });
+    if (hugoSymbol === undefined) {
+      throw new SentryError('Could not resolve hugoSymbol', { tumorPath });
     }
+    return this.firebaseRepository.pushToArray(tumorPath, [newTumor]).then(() => {
+      this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, isGermline);
+      this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, tumorNameUuid, true, isGermline);
+    });
   };
 
   updateTumorName = async (
@@ -496,11 +497,14 @@ export class FirebaseGeneService {
     }
 
     await this.firebaseRepository.pushToArray(genomicIndicatorsPath, [newGenomicIndicator]).then(() => {
-      if (toReview) {
-        this.firebaseMetaService.updateGeneMetaContent(genePath?.hugoSymbol, true);
+      const hugoSymbol = genePath?.hugoSymbol;
+      if (toReview && hugoSymbol) {
+        this.firebaseMetaService.updateGeneMetaContent(hugoSymbol, true);
         uuidsToReview.forEach(uuid => {
-          this.firebaseMetaService.updateGeneReviewUuid(genePath?.hugoSymbol, uuid, true, true);
+          this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, true, true);
         });
+      } else {
+        throw new SentryError('Hugo symbol is missing', genePath ?? {});
       }
     });
   };

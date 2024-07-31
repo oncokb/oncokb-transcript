@@ -44,7 +44,7 @@ export class RelevantCancerTypesModalStore {
     if (!a.isDeleted && b.isDeleted) {
       return -1;
     }
-    return (a.level ?? 0) - (b.level ?? 0);
+    return (a.level ?? Number.MAX_VALUE) - (b.level ?? Number.MAX_VALUE);
   }
 
   private isSorted(rcts: RelevantCancerType[]) {

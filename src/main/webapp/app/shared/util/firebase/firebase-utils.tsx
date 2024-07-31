@@ -478,9 +478,7 @@ export function compareMutationsBySingleAlteration(mut1: Mutation, mut2: Mutatio
   const mut1AlterationLength = mut1.name.split(',').length;
   const mut2AlterationLength = mut2.name.split(',').length;
 
-  if (mut1AlterationLength === undefined || mut2AlterationLength === undefined) {
-    return 0;
-  } else if (mut1AlterationLength === 1 && mut2AlterationLength === 1) {
+  if (mut1AlterationLength === 1 && mut2AlterationLength === 1) {
     return 0;
   } else if (mut1AlterationLength > 1 && mut2AlterationLength > 1) {
     return 0;

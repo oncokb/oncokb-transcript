@@ -18,6 +18,8 @@ import SomaticGermlineToggleButton from '../button/SomaticGermlineToggleButton';
 import { getCbioportalResultsPageMutationTabUrl } from 'app/shared/util/url-utils';
 import { generatePath, useHistory } from 'react-router-dom';
 import { GENE_HEADER_REVIEW_BUTTON_ID, GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID } from 'app/config/constants/html-id';
+import { SentryError } from 'app/config/sentry-error';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 export interface IGeneHeaderProps extends StoreProps {
   hugoSymbol: string | undefined;
@@ -56,8 +58,12 @@ const GeneHeader = ({
   }, []);
 
   const handleReviewButtonClick = () => {
-    updateCurrentReviewer?.(hugoSymbol ?? '', isGermline, !isReviewing);
-    history.push(generatePath(isReviewing ? curationPageRoute : reviewPageRoute, { hugoSymbol: hugoSymbol ?? '' }));
+    if (hugoSymbol === undefined) {
+      notifyError(new SentryError('hugoSymbol is undefined', {}));
+      return;
+    }
+    updateCurrentReviewer?.(hugoSymbol, !!isGermline, !isReviewing);
+    history.push(generatePath(isReviewing ? curationPageRoute : reviewPageRoute, { hugoSymbol }));
   };
 
   const getReviewButton = () => {
@@ -148,10 +154,20 @@ const GeneHeader = ({
                 <span className="ms-2">
                   <span className="fw-bold me-2">External Links:</span>
                   <WithSeparator separator={InlineDivider}>
-                    <a href={getCbioportalResultsPageMutationTabUrl(hugoSymbol ?? '')} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={hugoSymbol ? getCbioportalResultsPageMutationTabUrl(hugoSymbol) : undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={hugoSymbol ? { cursor: 'default', pointerEvents: 'none' } : undefined}
+                    >
                       {CBIOPORTAL} <ExternalLinkIcon />
                     </a>
-                    <a href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${hugoSymbol}`} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={hugoSymbol ? `http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${hugoSymbol}` : undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={hugoSymbol ? { cursor: 'default', pointerEvents: 'none' } : undefined}
+                    >
                       {COSMIC} <ExternalLinkIcon />
                     </a>
                   </WithSeparator>

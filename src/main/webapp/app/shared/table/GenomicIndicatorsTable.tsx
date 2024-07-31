@@ -48,6 +48,10 @@ const GenomicIndicatorsTable = ({
 
     const review = new Review(name, undefined, undefined, true);
 
+    if (!hugoSymbol) {
+      throw new SentryError('Missing hugoSymbol in pathDetails', pathDetails ?? {});
+    }
+
     if (removeWithoutReview) {
       const nestedUuids = findNestedUuids(genomicIndicator);
       try {
@@ -67,7 +71,7 @@ const GenomicIndicatorsTable = ({
       await update(ref(firebaseDb, `${getFirebasePath('GERMLINE_GENE', hugoSymbol)}`), {
         [`${pathFromGene}_review`]: review,
       });
-      await updateMeta?.(hugoSymbol!, genomicIndicator.name_uuid, true, true);
+      await updateMeta?.(hugoSymbol, genomicIndicator.name_uuid, true, true);
     } catch (error) {
       throw new SentryError('Failed to mark genomic indicator deletion for review', { genomicIndicator, index });
     }

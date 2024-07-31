@@ -347,10 +347,12 @@ export const ReviewCollapsible = ({
   const getMultiSelectionReviewContent = () => {
     const multiSelectionReviewLevel = baseReviewLevel as MultiSelectionReviewLevel;
     const joinedNewParts: string[] = [];
-    const joinedOldParts: (string | undefined)[] = [];
+    const joinedOldParts: string[] = [];
     for (const reviewLevel of multiSelectionReviewLevel.getReviewLevels()) {
       joinedNewParts.push(reviewLevel.currentVal);
-      joinedOldParts.push(reviewLevel.reviewInfo.lastReviewedString);
+      if (reviewLevel.reviewInfo.lastReviewedString) {
+        joinedOldParts.push(reviewLevel.reviewInfo.lastReviewedString);
+      }
     }
     return (
       <div className="mb-2">

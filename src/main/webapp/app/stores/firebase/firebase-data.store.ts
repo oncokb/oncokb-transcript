@@ -3,7 +3,7 @@ import { action, makeObservable, observable } from 'mobx';
 import FirebaseAppStore from './firebase-app.store';
 
 export class FirebaseDataStore<T> {
-  public data: Readonly<T> | undefined = undefined;
+  public data: Readonly<T> | null = null;
   public firebaseAppStore: FirebaseAppStore;
 
   constructor(firebaseAppStore: FirebaseAppStore) {

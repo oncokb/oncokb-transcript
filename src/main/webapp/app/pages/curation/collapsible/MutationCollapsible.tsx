@@ -101,7 +101,7 @@ const MutationCollapsible = ({
         return acc;
       }, [] as ProteinExonDTO[]),
       'exon',
-    ).sort((a, b) => (a.range?.start ?? 0) - (b.range?.start ?? 0));
+    ).sort((a, b) => (a.range?.start ?? Number.MAX_VALUE) - (b.range?.start ?? Number.MAX_VALUE));
   }, [relatedAnnotationResult]);
 
   const exonRanges = useMemo(() => {

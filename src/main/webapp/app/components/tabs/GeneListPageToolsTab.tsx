@@ -10,7 +10,7 @@ import './curation-tools-tab.scss';
 import { MetaCollection } from 'app/shared/model/firebase/firebase.model';
 
 export interface IGeneListPageToolsTab extends StoreProps {
-  metaData: MetaCollection | undefined;
+  metaData: MetaCollection | null;
 }
 
 function GeneListPageToolsTab({ metaData, createGene }: IGeneListPageToolsTab) {

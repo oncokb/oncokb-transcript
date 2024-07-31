@@ -1,4 +1,6 @@
+import { SentryError } from 'app/config/sentry-error';
 import { ParsedRef } from 'app/oncokb-commons/components/RefComponent';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { Gene, Mutation } from 'app/shared/model/firebase/firebase.model';
 import {
   compareMutationsByCategoricalAlteration,
@@ -67,9 +69,14 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
     if (!gene) {
       return {};
     }
-    const references: ReferenceData = {};
-    findReferences(references, gene);
-    return references;
+    try {
+      const references: ReferenceData = {};
+      findReferences(references, gene);
+      return references;
+    } catch (e) {
+      notifyError(e);
+      return {};
+    }
   }, [gene]);
 
   function findReferences(references: ReferenceData, obj, path = '', depth = 0) {
@@ -102,7 +109,7 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
       mutationIndex = Number(index);
       const maybeMutation = gene?.mutations[mutationIndex];
       if (!maybeMutation) {
-        throw new Error('mutation was not found');
+        throw new SentryError('The mutation data was not found.', { gene, mutationIndex });
       }
       mutation = maybeMutation;
       return getMutationName(mutation.name, mutation.alterations);
@@ -114,7 +121,7 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
         tumorIndex = Number(index);
         const tumor = gene?.mutations[mutationIndex].tumors[tumorIndex];
         if (!tumor) {
-          throw new Error('tumor was not found');
+          throw new SentryError('The tumor data was not found.', { gene, tumorIndex });
         }
         return getCancerTypesNameWithExclusion(tumor.cancerTypes, tumor.excludedCancerTypes || [], true);
       });
