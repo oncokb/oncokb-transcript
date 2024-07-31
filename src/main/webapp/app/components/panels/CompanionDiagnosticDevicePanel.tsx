@@ -30,8 +30,8 @@ export const defaultAdditional = {
 };
 
 const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = props => {
-  const [selectedGeneId, setSelectedGeneId] = useState<string | null>(null);
-  const [alterationValue, onAlterationChange] = useState<readonly AlterationSelectOption[] | null>(null);
+  const [selectedGeneId, setSelectedGeneId] = useState<string>();
+  const [alterationValue, onAlterationChange] = useState<readonly AlterationSelectOption[]>();
   const [cancerTypeValue, onCancerTypeChange] = useState<CancerTypeSelectOption | null>(null);
   const [drugValue, onDrugChange] = useState<readonly DrugSelectOption[]>([]);
   const [fdaSubmissionValue, onFdaSubmissionChange] = useState<readonly FdaSubmissionSelectOption[]>([]);
@@ -99,7 +99,7 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
             <GeneSelect
               onChange={option => {
                 const geneId = option ? option.value : null;
-                setSelectedGeneId(geneId?.toString() ?? null);
+                setSelectedGeneId(geneId?.toString());
               }}
             />
           </SidebarMenuItem>

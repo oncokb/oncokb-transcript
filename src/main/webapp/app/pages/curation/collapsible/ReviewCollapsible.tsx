@@ -267,7 +267,7 @@ export const ReviewCollapsible = ({
     }
 
     const action = ReviewTypeTitle[reviewAction ?? ''];
-    const editor = reviewLevel?.reviewInfo.review.updatedBy;
+    const editor = reviewLevel?.reviewInfo.review.updatedBy ?? '';
     const updatedTime = reviewLevel !== undefined ? new Date(reviewLevel.reviewInfo.review.updateTime).toString() : undefined;
     return getReviewInfo(editor, action, updatedTime);
   };

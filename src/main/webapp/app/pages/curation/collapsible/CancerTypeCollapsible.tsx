@@ -49,11 +49,11 @@ function CancerTypeCollapsible({
   deleteSection,
   isGermline,
 }: ICancerTypeCollapsibleProps) {
-  const [cancerTypes, setCancerTypes] = useState<CancerType[] | null>(null);
-  const [cancerTypesUuid, setCancerTypesUuid] = useState<string | null>(null);
-  const [cancerTypesReview, setCancerTypesReview] = useState<Review | null>(null);
+  const [cancerTypes, setCancerTypes] = useState<CancerType[]>();
+  const [cancerTypesUuid, setCancerTypesUuid] = useState<string>();
+  const [cancerTypesReview, setCancerTypesReview] = useState<Review>();
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
-  const [excludedCancerTypes, setExcludedCancerTypes] = useState<CancerType[] | null>(null);
+  const [excludedCancerTypes, setExcludedCancerTypes] = useState<CancerType[]>();
 
   useEffect(() => {
     if (!firebaseDb) {
@@ -90,7 +90,7 @@ function CancerTypeCollapsible({
   }, [cancerTypePath, firebaseDb]);
 
   async function handleDeleteCancerType() {
-    if (!firebaseDb || cancerTypesUuid === null) {
+    if (!firebaseDb || cancerTypesUuid === undefined) {
       return;
     }
     const snapshot = await get(ref(firebaseDb, cancerTypePath));

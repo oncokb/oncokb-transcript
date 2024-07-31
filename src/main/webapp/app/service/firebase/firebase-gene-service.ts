@@ -288,8 +288,8 @@ export class FirebaseGeneService {
 
   updateTumorName = async (
     tumorPath: string,
-    currentCancerTypes: CancerType[] | null,
-    currentExcludedCancerTypes: CancerType[] | null,
+    currentCancerTypes: CancerType[] | undefined,
+    currentExcludedCancerTypes: CancerType[] | undefined,
     tumor: Tumor,
     isGermline: boolean,
   ) => {

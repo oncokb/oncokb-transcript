@@ -27,7 +27,7 @@ export type LEVELS = ONCOKB_LEVELS | FDA_LEVELS;
 
 export type ONCOKB_LEVELS = TX_LEVELS | PX_LEVELS | DX_LEVELS;
 
-export const isTxLevelPresent = (txLevel: TX_LEVELS | undefined) => {
+export const isTxLevelPresent = (txLevel: TX_LEVELS | undefined): txLevel is TX_LEVELS => {
   return txLevel !== undefined && txLevel !== TX_LEVELS.LEVEL_NO && txLevel !== TX_LEVELS.LEVEL_EMPTY;
 };
 

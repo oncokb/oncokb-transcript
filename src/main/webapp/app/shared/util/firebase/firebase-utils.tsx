@@ -848,12 +848,12 @@ export const getTreatmentStats = (treatment?: Treatment) => {
     pxLevels: {} as { [pxLevel in PX_LEVELS]: number },
   };
   if (isTxLevelPresent(treatment?.level)) {
-    stats.txLevels[treatment?.level ?? ''] = 1;
+    stats.txLevels[treatment.level] = 1;
   }
   return stats;
 };
 
-export const getReviewInfo = (editor: string | undefined, action: string | undefined, updateTime?: string) => {
+export const getReviewInfo = (editor: string, action: string, updateTime?: string) => {
   const baseText = `${action} by ${editor}`;
   let timeComponent: JSX.Element | undefined = undefined;
   if (updateTime) {
