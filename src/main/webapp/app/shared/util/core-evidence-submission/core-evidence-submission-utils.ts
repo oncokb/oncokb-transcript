@@ -123,6 +123,17 @@ type CollectUUIDsArgs = (
   uuids?: string[];
   uuidType?: 'insideOnly' | 'evidenceOnly' | 'sectionOnly';
 };
+
+/**
+ * Collects UUIDs from a given object based on its type and specified UUID type.
+ *
+ * @param {CollectUUIDsArgs} args - The arguments for the function.
+ * @param {'mutation'|'tumor'|'TI'|'treatment'} args.type - The type of the object.
+ * @param {Mutation|Tumor|TI|Treatment} args.obj - The object to collect UUIDs from.
+ * @param {string[]} [args.uuids=[]] - The array to collect UUIDs into.
+ * @param {'insideOnly'|'evidenceOnly'|'sectionOnly'} [args.uuidType] - The type of UUIDs to collect.
+ * @returns {string[]} The array of collected UUIDs.
+ */
 export function collectUUIDs({ type, obj, uuids = [], uuidType }: CollectUUIDsArgs): string[] {
   if (type === 'mutation') {
     switch (uuidType) {
