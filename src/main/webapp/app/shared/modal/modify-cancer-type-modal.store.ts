@@ -78,13 +78,13 @@ export class ModifyCancerTypeModalStore {
   setIncludedCancerTypes(cancerTypes: CancerTypeSelectOption[], allCancerTypes: Tumor[], cancerTypeToEditUuid?: string) {
     this.setIsErrorIncludedAndExcluded(cancerTypes, this.excludedCancerTypes);
     this.setIsErrorDuplicate(cancerTypes, this.excludedCancerTypes, allCancerTypes, cancerTypeToEditUuid);
-    this.includedCancerTypes = cancerTypes.map(removeCancerTypeCode);
+    this.includedCancerTypes = cancerTypes;
   }
 
   setExcludedCancerTypes(cancerTypes: CancerTypeSelectOption[], allCancerTypes: Tumor[], cancerTypeToEditUuid?: string) {
     this.setIsErrorIncludedAndExcluded(this.includedCancerTypes, cancerTypes);
     this.setIsErrorDuplicate(this.includedCancerTypes, cancerTypes, allCancerTypes, cancerTypeToEditUuid);
-    this.excludedCancerTypes = cancerTypes.map(removeCancerTypeCode);
+    this.excludedCancerTypes = cancerTypes;
   }
 
   setIsErrorFetchingICancerTypes(isError: boolean) {
@@ -109,13 +109,3 @@ export class ModifyCancerTypeModalStore {
     this.isRetryButtonClicked = false;
   }
 }
-
-// Once https://github.com/oncokb/oncokb-pipeline/issues/413 is fixed, we can remove this function.
-// Then we should complete this ticket: https://github.com/oncokb/oncokb-pipeline/issues/494 to backfill
-// all place where code == "" in firebase.
-const removeCancerTypeCode = (cancerTypeOption: CancerTypeSelectOption) => {
-  if (cancerTypeOption.level < 0) {
-    cancerTypeOption.code = null;
-  }
-  return cancerTypeOption;
-};

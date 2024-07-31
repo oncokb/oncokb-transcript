@@ -25,7 +25,7 @@ import _ from 'lodash';
 import React from 'react';
 import { TextFormat } from 'react-jhipster';
 import { replaceUrlParams } from '../url-utils';
-import { extractPositionFromSingleNucleotideAlteration, isUuid, parseAlterationName } from '../utils';
+import { extractPositionFromSingleNucleotideAlteration, getCancerTypeName, isUuid, parseAlterationName } from '../utils';
 import { isTxLevelPresent } from './firebase-level-utils';
 import { parseFirebaseGenePath } from './firebase-path-utils';
 import { hasReview } from './firebase-review-utils';
@@ -881,6 +881,12 @@ export function findNestedUuids(obj: any, uuids: string[] = []) {
 
 export function areCancerTypeArraysEqual(a: CancerType[], b: CancerType[]) {
   if (a.length !== b.length) return false;
+  a.sort((ct1, ct2) => {
+    return getCancerTypeName(ct1, false).localeCompare(getCancerTypeName(ct2, false));
+  });
+  b.sort((ct1, ct2) => {
+    return getCancerTypeName(ct1, false).localeCompare(getCancerTypeName(ct2, false));
+  });
   for (let i = 0; i < a.length; i++) {
     if (!areCancerTypePropertiesEqual(a[i].code, b[i].code)) return false;
     if (!areCancerTypePropertiesEqual(a[i].mainType, b[i].mainType)) return false;
