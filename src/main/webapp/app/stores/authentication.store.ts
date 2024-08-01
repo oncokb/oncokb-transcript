@@ -102,7 +102,7 @@ export class AuthStore extends BaseStore {
     }
   }
 
-  *getSessionGen() {
+  async *getSessionGen() {
     if (this.isAuthenticated) {
       return this.account;
     }
