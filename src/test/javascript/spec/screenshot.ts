@@ -260,16 +260,6 @@ describe('Screenshot Tests', () => {
 
     const trashCanIcon = await $("svg[data-icon='trash-can']");
     await trashCanIcon.click();
-    // Capture console logs
-    const logs = await browser.getLogs('browser');
-
-    // Format logs as a string
-    const logString = logs.map(log => `${(log as any).level}: ${(log as any).message}`).join('\n');
-
-    // Save logs to a file
-    fs.writeFileSync(`${methodOptions.actualFolder}/console_logs.txt`, logString, 'utf8');
-    await browser.saveScreenshot(`${methodOptions.actualFolder}/test.png` ?? '');
-    await browser.saveFullPageScreen(`test-test.png` ?? '', methodOptions);
 
     const confirmDeleteBtn = await $('button=Confirm');
     await confirmDeleteBtn.click();
