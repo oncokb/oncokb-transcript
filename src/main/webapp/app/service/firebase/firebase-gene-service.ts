@@ -293,12 +293,21 @@ export class FirebaseGeneService {
     tumor: Tumor,
     isGermline: boolean,
   ) => {
-    const cancerTypesReview = getUpdatedReview(tumor.cancerTypes_review, currentCancerTypes, tumor.cancerTypes, this.authStore.fullName);
+    const cancerTypesReview = getUpdatedReview(
+      tumor.cancerTypes_review,
+      currentCancerTypes,
+      tumor.cancerTypes,
+      this.authStore.fullName,
+      true,
+      true,
+    );
     const excludedCancerTypesReview = getUpdatedReview(
       tumor.excludedCancerTypes_review,
       currentExcludedCancerTypes,
       tumor.excludedCancerTypes,
       this.authStore.fullName,
+      true,
+      true,
     );
 
     tumor.cancerTypes_review = cancerTypesReview.updatedReview ?? undefined;

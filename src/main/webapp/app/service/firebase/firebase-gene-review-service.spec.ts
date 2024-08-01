@@ -151,7 +151,7 @@ describe('Firebase Gene Review Service', () => {
       gene.background = 'test';
       gene.background_review = new Review(mockAuthStore.fullName, '');
       const reviewLevel = new ReviewLevel({
-        title: 'Background',
+        titleParts: ['Background'],
         valuePath: 'background',
         historyLocation: 'Background',
         currentVal: 'test',
@@ -198,7 +198,7 @@ describe('Firebase Gene Review Service', () => {
       const mutation = new Mutation(mutationName);
       mutation.name_review = new Review('User', undefined, undefined, true);
       const reviewLevel = new ReviewLevel({
-        title: 'V600E',
+        titleParts: ['V600E'],
         valuePath: 'mutations/0/name',
         historyLocation: 'V600E',
         currentVal: 'V600E',
@@ -240,7 +240,7 @@ describe('Firebase Gene Review Service', () => {
       mutation.name_review = new Review('User');
       mutation.name_review.demotedToVus = true;
       const reviewLevel = new ReviewLevel({
-        title: 'V600E, V600K',
+        titleParts: ['V600E, V600K'],
         valuePath: 'mutations/0/name',
         historyLocation: 'V600E, V600K',
         currentVal: 'V600E, V600K',
@@ -288,7 +288,7 @@ describe('Firebase Gene Review Service', () => {
       const mutation = new Mutation(mutationName);
       mutation.name_review = new Review('User', undefined, true);
       const reviewLevel = new ReviewLevel({
-        title: 'V600E',
+        titleParts: ['V600E'],
         valuePath: 'mutations/0/name',
         historyLocation: 'V600E',
         currentVal: 'V600E',
@@ -335,7 +335,7 @@ describe('Firebase Gene Review Service', () => {
       gene.background = 'test';
       gene.background_review = new Review('User', '');
       const reviewLevel = new ReviewLevel({
-        title: 'Background',
+        titleParts: ['Background'],
         valuePath: 'background',
         historyLocation: 'Background',
         currentVal: 'test',
@@ -369,7 +369,7 @@ describe('Firebase Gene Review Service', () => {
       const mutation = new Mutation(mutationName);
       mutation.name_review = new Review('User', undefined, undefined, true);
       const reviewLevel = new ReviewLevel({
-        title: 'V600E',
+        titleParts: ['V600E'],
         valuePath: 'mutations/0/name',
         historyLocation: 'V600E',
         currentVal: 'V600E',

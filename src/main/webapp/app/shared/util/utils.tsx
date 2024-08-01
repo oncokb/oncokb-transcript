@@ -20,7 +20,7 @@ import { IQueryParams } from './jhipster-types';
 
 export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
   if (!cancerType) return '';
-  if (!cancerType.subtype) return cancerType.mainType;
+  if (!cancerType.subtype) return cancerType.mainType ?? '';
 
   let name = cancerType.subtype;
   if (!omitCode) name += ` (${cancerType.code})`;

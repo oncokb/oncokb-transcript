@@ -205,7 +205,9 @@ const RelevantCancerTypesModalContent = observer(
           )}
           <OncoKBTable
             style={{ minHeight: '400px' }}
-            showPagination={relevantCancerTypesModalStore.relevantCancerTypes.length > pageDefaultSize}
+            showPagination={
+              relevantCancerTypesModalStore !== undefined && relevantCancerTypesModalStore.relevantCancerTypes.length > pageDefaultSize
+            }
             showPageSizeOptions={false}
             defaultPageSize={pageDefaultSize}
             data={relevantCancerTypesModalStore?.relevantCancerTypes ?? []}

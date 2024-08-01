@@ -336,9 +336,9 @@ export class Implication {
 }
 
 export class CancerType {
-  code = '';
-  mainType = '';
-  subtype?: string;
+  code? = '';
+  mainType? = '';
+  subtype? = '';
 }
 
 export class Drug {

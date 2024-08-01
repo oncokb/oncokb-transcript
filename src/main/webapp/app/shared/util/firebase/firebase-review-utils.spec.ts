@@ -67,7 +67,7 @@ describe('Firebase Review Utils', () => {
 
     beforeEach(() => {
       editorReviewMap = new EditorReviewMap();
-      defaultParentReview = new MetaReviewLevel({ title: '', valuePath: '', historyLocation: '', historyInfo: {} });
+      defaultParentReview = new MetaReviewLevel({ titleParts: [''], valuePath: '', historyLocation: '', historyInfo: {} });
     });
 
     it('should return string review', () => {
@@ -86,7 +86,7 @@ describe('Firebase Review Utils', () => {
       );
 
       const expectedValues = {
-        title: 'Background',
+        titleParts: ['Background'],
         valuePath: 'background',
         historyLocation: 'Background',
         currentVal: 'test',
@@ -139,7 +139,7 @@ describe('Firebase Review Utils', () => {
 
     beforeEach(() => {
       editorReviewMap = new EditorReviewMap();
-      defaultParentReview = new MetaReviewLevel({ title: '', valuePath: '', historyLocation: '', historyInfo: {} });
+      defaultParentReview = new MetaReviewLevel({ titleParts: [''], valuePath: '', historyLocation: '', historyInfo: {} });
       defaultMutation = new Mutation('V600E');
     });
 
@@ -147,7 +147,7 @@ describe('Firebase Review Utils', () => {
       const uuids = []; // UUIDs array is empty because no name change
       const metaReview = buildNameReview(defaultMutation, 'mutations/0', defaultParentReview, uuids, editorReviewMap);
 
-      expect(metaReview.title).toEqual('V600E');
+      expect(metaReview.titleParts).toEqual(['V600E']);
       expect(metaReview.valuePath).toEqual('mutations/0');
       expect(metaReview.historyLocation).toEqual('V600E');
       // Don't expect child because no name change
@@ -163,14 +163,14 @@ describe('Firebase Review Utils', () => {
       const metaReview = buildNameReview(defaultMutation, 'mutations/0', defaultParentReview, uuids, editorReviewMap);
 
       // We expect the mutation meta review level to be created with correct values
-      expect(metaReview.title).toEqual('V600');
+      expect(metaReview.titleParts).toEqual(['V600']);
       expect(metaReview.valuePath).toEqual('mutations/0');
       expect(metaReview.historyLocation).toEqual('V600');
       expect(metaReview.hasChildren()).toBeTruthy();
 
       // We expect the actual mutation name review level to be correct
       const expectedValues = {
-        title: 'Name',
+        titleParts: ['Name'],
         valuePath: 'mutations/0/name',
         historyLocation: 'V600',
         currentVal: 'V600',
@@ -190,7 +190,7 @@ describe('Firebase Review Utils', () => {
         reviewLevelType: ReviewLevelType.REVIEWABLE,
       };
 
-      const nameReview = metaReview.children?.['Name'] as ReviewLevel;
+      const nameReview = metaReview.children?.[0] as ReviewLevel;
       expect(nameReview).toEqual(expect.objectContaining(expectedValues));
     });
 
@@ -201,7 +201,7 @@ describe('Firebase Review Utils', () => {
       const newMutationReview = buildNameReview(defaultMutation, 'mutations/0', defaultParentReview, uuids, editorReviewMap);
 
       const expectedValues = {
-        title: 'V600E',
+        titleParts: ['V600E'],
         valuePath: 'mutations/0/name',
         historyLocation: 'V600E',
         currentVal: 'V600E',
@@ -231,12 +231,12 @@ describe('Firebase Review Utils', () => {
       const newMutationReview = buildNameReview(defaultMutation, 'mutations/0', defaultParentReview, uuids, editorReviewMap);
 
       const expectedValues = {
-        title: 'V600E',
+        titleParts: ['V600E'],
         valuePath: 'mutations/0/name',
         historyLocation: 'V600E',
         currentVal: 'V600E',
         hideLevel: false,
-        children: {},
+        children: [],
         id: expect.any(String),
         nestedUnderCreateOrDelete: false,
         reviewInfo: {
@@ -280,7 +280,7 @@ describe('Firebase Review Utils', () => {
       ];
 
       const parentReview = new MetaReviewLevel({
-        title: 'V600E / Melanoma',
+        titleParts: ['V600E', 'Melanoma'],
         valuePath: 'mutations/0/tumors/0',
         historyLocation: 'V600E, Melanoma',
         historyInfo: {},
@@ -298,7 +298,7 @@ describe('Firebase Review Utils', () => {
         drugList as IDrug[],
       );
 
-      expect(treatmentNameReview.title).toEqual(addSectionTitlePrefix(ReviewSectionTitlePrefix.THERAPY, 'DrugA + DrugB'));
+      expect(treatmentNameReview.titleParts).toEqual([addSectionTitlePrefix(ReviewSectionTitlePrefix.THERAPY, 'DrugA + DrugB')]);
       expect(treatmentNameReview.historyLocation).toEqual('V600E, Melanoma, DrugA + DrugB');
     });
   });
@@ -310,7 +310,12 @@ describe('Firebase Review Utils', () => {
 
     beforeEach(() => {
       editorReviewMap = new EditorReviewMap();
-      defaultParentReview = new MetaReviewLevel({ title: 'V600E', valuePath: 'mutations/0', historyLocation: 'V600E', historyInfo: {} });
+      defaultParentReview = new MetaReviewLevel({
+        titleParts: ['V600E'],
+        valuePath: 'mutations/0',
+        historyLocation: 'V600E',
+        historyInfo: {},
+      });
       defaultTumor = new Tumor();
       defaultTumor.cancerTypes = [{ code: 'MEL', mainType: 'Melanoma', subtype: 'Melanoma' }];
     });
@@ -319,7 +324,7 @@ describe('Firebase Review Utils', () => {
       const uuids = []; // UUIDs array is empty because no name change
       const metaReview = buildCancerTypeNameReview(defaultTumor, 'mutations/0/tumors/0', defaultParentReview, uuids, editorReviewMap);
 
-      expect(metaReview.title).toEqual(addSectionTitlePrefix(ReviewSectionTitlePrefix.CANCER_TYPE, 'Melanoma'));
+      expect(metaReview.titleParts).toEqual([addSectionTitlePrefix(ReviewSectionTitlePrefix.CANCER_TYPE, 'Melanoma')]);
       expect(metaReview.valuePath).toEqual('mutations/0/tumors/0');
       expect(metaReview.historyLocation).toEqual('V600E, Melanoma');
       // Don't expect child because no name change
@@ -331,7 +336,9 @@ describe('Firebase Review Utils', () => {
       const uuids = []; // UUIDs array is empty because no name change
       const metaReview = buildCancerTypeNameReview(defaultTumor, 'mutations/0/tumors/0', defaultParentReview, uuids, editorReviewMap);
 
-      expect(metaReview.title).toEqual(addSectionTitlePrefix(ReviewSectionTitlePrefix.CANCER_TYPE, 'Melanoma {excluding Ocular Melanoma}'));
+      expect(metaReview.titleParts).toEqual([
+        addSectionTitlePrefix(ReviewSectionTitlePrefix.CANCER_TYPE, 'Melanoma {excluding Ocular Melanoma}'),
+      ]);
       expect(metaReview.valuePath).toEqual('mutations/0/tumors/0');
       expect(metaReview.historyLocation).toEqual('V600E, Melanoma {excluding Ocular Melanoma}');
       expect(metaReview.hasChildren()).toBeFalsy();
@@ -347,7 +354,7 @@ describe('Firebase Review Utils', () => {
 
     it('should return undefined when no changes were made', () => {
       const parentReview = new MetaReviewLevel({
-        title: 'Melanoma',
+        titleParts: ['Melanoma'],
         valuePath: 'mutations/0/tumors/0',
         historyLocation: 'V600E, Melanoma',
         historyInfo: {},
@@ -362,7 +369,7 @@ describe('Firebase Review Utils', () => {
 
     it('should return RCT review for initial update', () => {
       const parentReview = new MetaReviewLevel({
-        title: 'Melanoma',
+        titleParts: ['Melanoma'],
         valuePath: 'mutations/0/tumors/0/prognostic',
         historyLocation: 'V600E, Melanoma, Prognostic',
         historyInfo: {},
@@ -377,7 +384,7 @@ describe('Firebase Review Utils', () => {
 
       expect(rctReview).toBeDefined();
       const expectedValues = {
-        title: 'Relevant Cancer Types',
+        titleParts: ['Relevant Cancer Types'],
         valuePath: 'mutations/0/tumors/0/prognostic/excludedRCTs',
         historyLocation: 'V600E, Melanoma, Prognostic, Relevant Cancer Types',
         currentVal: 'Ocular Melanoma',
@@ -402,7 +409,7 @@ describe('Firebase Review Utils', () => {
 
     it('should return RCT review when there are already excluded cancer types', () => {
       const parentReview = new MetaReviewLevel({
-        title: 'Melanoma',
+        titleParts: ['Melanoma'],
         valuePath: 'mutations/0/tumors/0/diagnostic',
         historyLocation: 'V600E, Melanoma, Diagnostic',
         historyInfo: {},
@@ -421,7 +428,7 @@ describe('Firebase Review Utils', () => {
 
       expect(rctReview).toBeDefined();
       const expectedValues = {
-        title: 'Relevant Cancer Types',
+        titleParts: ['Relevant Cancer Types'],
         valuePath: 'mutations/0/tumors/0/diagnostic/excludedRCTs',
         historyLocation: 'V600E, Melanoma, Diagnostic, Relevant Cancer Types',
         currentVal: 'Ocular Melanoma\tUveal Melanoma',
@@ -457,7 +464,7 @@ describe('Firebase Review Utils', () => {
       let drugList: readonly IDrug[];
       beforeEach(() => {
         uuids = [];
-        parentReview = new MetaReviewLevel({ title: '', valuePath: '', historyLocation: '', historyInfo: {} });
+        parentReview = new MetaReviewLevel({ titleParts: [''], valuePath: '', historyLocation: '', historyInfo: {} });
         editorReviewMap = new EditorReviewMap();
         drugList = [];
 
@@ -480,17 +487,17 @@ describe('Firebase Review Utils', () => {
 
         const expectedReview = {
           reviewLevelType: 0,
-          title: '',
+          titleParts: [''],
           valuePath: '',
           historyLocation: '',
           historyInfo: {},
           nestedUnderCreateOrDelete: false,
           hideLevel: false,
           id: expect.any(String),
-          children: {
-            Background: {
+          children: [
+            {
               reviewLevelType: 1,
-              title: 'Background',
+              titleParts: ['Background'],
               valuePath: 'background',
               historyLocation: 'Background',
               historyInfo: {
@@ -499,7 +506,7 @@ describe('Firebase Review Utils', () => {
               nestedUnderCreateOrDelete: false,
               hideLevel: false,
               id: expect.any(String),
-              children: {},
+              children: [],
               currentVal: 'new background',
               reviewInfo: {
                 reviewPath: 'background_review',
@@ -510,9 +517,9 @@ describe('Firebase Review Utils', () => {
               },
               historyData: { oldState: 'new background', newState: 'new background' },
             },
-            V600E: {
+            {
               reviewLevelType: 0,
-              title: 'V600E',
+              titleParts: ['V600E'],
               valuePath: 'mutations/0',
               historyLocation: 'V600E',
               historyInfo: {
@@ -524,10 +531,10 @@ describe('Firebase Review Utils', () => {
               nestedUnderCreateOrDelete: false,
               hideLevel: false,
               id: expect.any(String),
-              children: {
-                'Mutation Effect': {
+              children: [
+                {
                   reviewLevelType: 0,
-                  title: 'Mutation Effect',
+                  titleParts: ['Mutation Effect'],
                   valuePath: 'mutations/0/mutation_effect',
                   historyLocation: 'V600E, Mutation Effect',
                   historyInfo: {
@@ -540,10 +547,10 @@ describe('Firebase Review Utils', () => {
                   nestedUnderCreateOrDelete: false,
                   hideLevel: false,
                   id: expect.any(String),
-                  children: {
-                    Description: {
+                  children: [
+                    {
                       reviewLevelType: 1,
-                      title: 'Description',
+                      titleParts: ['Description'],
                       valuePath: 'mutations/0/mutation_effect/description',
                       historyLocation: 'V600E, Mutation Effect, Description',
                       historyInfo: {
@@ -556,7 +563,7 @@ describe('Firebase Review Utils', () => {
                       nestedUnderCreateOrDelete: false,
                       hideLevel: false,
                       id: expect.any(String),
-                      children: {},
+                      children: [],
                       currentVal: 'new description',
                       reviewInfo: {
                         reviewPath: 'mutations/0/mutation_effect/description_review',
@@ -567,11 +574,11 @@ describe('Firebase Review Utils', () => {
                       },
                       historyData: { oldState: 'old description', newState: 'new description' },
                     },
-                  },
+                  ],
                 },
-              },
+              ],
             },
-          },
+          ],
         };
 
         expect(parentReview).toEqual(expect.objectContaining(expectedReview));
@@ -598,13 +605,13 @@ describe('Firebase Review Utils', () => {
     let parentReview: MetaReviewLevel;
 
     beforeEach(() => {
-      parentReview = new MetaReviewLevel({ title: '', valuePath: '', historyLocation: '', historyInfo: {} });
+      parentReview = new MetaReviewLevel({ titleParts: [''], valuePath: '', historyLocation: '', historyInfo: {} });
     });
 
     it('should keep parentReview unchanged if no children', () => {
       removeLeafNodes(parentReview);
       const expectedReview = {
-        title: '',
+        titleParts: [''],
         valuePath: '',
         historyLocation: '',
       };
@@ -612,7 +619,12 @@ describe('Firebase Review Utils', () => {
     });
 
     it('should remove meta review level with no children', () => {
-      const metaReview = new MetaReviewLevel({ title: 'V600E', valuePath: 'mutations/0', historyLocation: 'V600E', historyInfo: {} });
+      const metaReview = new MetaReviewLevel({
+        titleParts: ['V600E'],
+        valuePath: 'mutations/0',
+        historyLocation: 'V600E',
+        historyInfo: {},
+      });
       parentReview.addChild(metaReview);
       removeLeafNodes(parentReview);
       expect(parentReview.hasChildren()).toBeFalsy;
@@ -620,7 +632,7 @@ describe('Firebase Review Utils', () => {
 
     it('should remove review level if review action is create', () => {
       const reviewLevel = new ReviewLevel({
-        title: 'V600E',
+        titleParts: ['V600E'],
         valuePath: 'mutations/0/name',
         historyLocation: 'V600E',
         currentVal: 'V600E',

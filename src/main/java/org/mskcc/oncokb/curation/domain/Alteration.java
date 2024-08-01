@@ -9,6 +9,7 @@ import javax.validation.constraints.*;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.javers.core.metamodel.annotation.ShallowReference;
 import org.mskcc.oncokb.curation.domain.enumeration.AlterationType;
+import org.mskcc.oncokb.curation.util.AminoAcidConverterUtils;
 
 /**
  * A Alteration.
@@ -160,7 +161,7 @@ public class Alteration implements Serializable {
     }
 
     public void setAlteration(String alteration) {
-        this.alteration = alteration;
+        this.alteration = AminoAcidConverterUtils.resolveHgvspShortFromHgvsp(alteration);
     }
 
     public String getProteinChange() {

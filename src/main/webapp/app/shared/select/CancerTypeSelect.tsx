@@ -3,7 +3,7 @@ import { GroupBase, Props as SelectProps } from 'react-select';
 import _ from 'lodash';
 import { AsyncPaginate, LoadOptions, reduceGroupedOptions } from 'react-select-async-paginate';
 import { defaultAdditional } from 'app/components/panels/CompanionDiagnosticDevicePanel';
-import { DEFAULT_SORT_PARAMETER, SearchOptionType } from 'app/config/constants/constants';
+import { SearchOptionType } from 'app/config/constants/constants';
 import { IRootStore } from 'app/stores/createStore';
 import { InjectProps, connect } from '../util/typed-inject';
 import { ICancerType } from '../model/cancer-type.model';
@@ -20,6 +20,7 @@ export type CancerTypeSelectOption = {
   code: string;
   mainType: string;
   subtype: string;
+  level: number;
   isDisabled?: boolean;
 };
 
@@ -44,6 +45,7 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
             code: cancerType.code ?? '',
             mainType: cancerType.mainType,
             subtype: cancerType.subtype ?? '',
+            level: cancerType.level,
           };
         }),
     },
@@ -56,6 +58,7 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
           code: cancerType.code ?? '',
           mainType: cancerType.mainType,
           subtype: cancerType.subtype ?? '',
+          level: cancerType.level,
         };
       }),
     },

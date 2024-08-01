@@ -299,7 +299,7 @@ function AddMutationModal({
     variantName?: string,
   ): AlterationData {
     const alteration = entityStatusAlteration.entity;
-    return {
+    const alterationData: AlterationData = {
       type: alteration?.type ?? AlterationTypeEnum.Unknown,
       alteration: alterationName,
       name: (variantName || alteration?.name) ?? '',
@@ -315,6 +315,13 @@ function AddMutationModal({
       warning: entityStatusAlteration.warning ? entityStatusAlteration.message : undefined,
       error: entityStatusAlteration.error ? entityStatusAlteration.message : undefined,
     };
+
+    // if the backend's response is different from the frontend response, set them equal to each other.
+    if (alteration?.alteration !== alterationName) {
+      alterationData.alteration = alteration?.alteration ?? '';
+    }
+
+    return alterationData;
   }
 
   async function fetchNormalAlteration(newAlteration: string, alterationIndex: number, alterationData: AlterationData[]) {
