@@ -107,7 +107,7 @@ const alleleStateCheck = async (
 ): Promise<DataImportStatus> => {
   let status = new DataImportStatus();
 
-  const unmappedAlleleStates = [];
+  const unmappedAlleleStates: string[] = [];
   if (alleleStates) {
     // validate allele state is correct
     alleleStates.forEach(alleleState => {
@@ -280,7 +280,7 @@ const saveDataToFirebase: {
 const CurationDataImportTab = observer(({ firebaseGeneService, firebaseGeneReviewService }: ICurationToolsTabProps) => {
   const [isGermline, setIsGermline] = useState(false);
   const [selectedDataTypeOption, setSelectedDateTypeOption] = useState<DataImportTypeSelectOption | null>(null);
-  const [fileHeaders, setFileHeaders] = useState([]);
+  const [fileHeaders, setFileHeaders] = useState<string[]>([]);
   const [fileRows, setFileRows] = useState<DataRow[]>([]);
   const [fileUploadErrorMsg, setFileUploadErrorMsg] = useState('');
   const [importStatus, setImportStatus] = useState<'' | 'uploaded' | 'importing' | 'imported'>('');
@@ -293,7 +293,7 @@ const CurationDataImportTab = observer(({ firebaseGeneService, firebaseGeneRevie
   const fileReader = new FileReader();
   fileReader.onload = event => {
     setFileUploadErrorMsg('');
-    const text = event.target.result as string;
+    const text = (event.target?.result ?? '') as string;
     tsvFileToArray(text);
   };
 
@@ -312,7 +312,7 @@ const CurationDataImportTab = observer(({ firebaseGeneService, firebaseGeneRevie
     setFileRows([]);
 
     if (fileUploadInputRef.current) {
-      fileUploadInputRef.current.value = null;
+      fileUploadInputRef.current.value = null as unknown as string;
     }
   };
 
@@ -382,6 +382,9 @@ const CurationDataImportTab = observer(({ firebaseGeneService, firebaseGeneRevie
   };
 
   const onImportConfirm = async () => {
+    if (!firebaseGeneService || !firebaseGeneReviewService || !selectedDataTypeOption) {
+      return;
+    }
     setImportStatus('importing');
 
     for (let i = 0; i < fileRows.length; i++) {
@@ -458,7 +461,7 @@ const CurationDataImportTab = observer(({ firebaseGeneService, firebaseGeneRevie
               isSearchable={false}
               defaultValue={{ value: 'somatic', label: 'Somatic' }}
               onChange={option => {
-                setIsGermline(option.value === 'germline');
+                setIsGermline(option?.value === 'germline');
                 setSelectedDateTypeOption(null);
               }}
             ></Select>

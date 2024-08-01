@@ -7,7 +7,7 @@ type FirebaseGenePathDetails = {
   pathFromGene: string;
 };
 
-export const parseFirebaseGenePath = (path: string): FirebaseGenePathDetails => {
+export const parseFirebaseGenePath = (path: string): FirebaseGenePathDetails | undefined => {
   const pathParts = path.split('/').filter(part => part.length > 0);
   if (pathParts.length < 3) {
     return;
@@ -34,7 +34,11 @@ export const extractArrayPath = (valuePath: string) => {
   // First pop is to remove the field key that comes with the reviewLevel's valuePath.
   // For instance, valuePath can be 'mutations/0/name'
   pathParts.pop();
-  const deleteIndex = parseInt(pathParts.pop(), 10); // Remove index
+  const deleteIndexString = pathParts.pop();
+  if (!deleteIndexString) {
+    throw new Error('could not find delete index string');
+  }
+  const deleteIndex = parseInt(deleteIndexString, 10); // Remove index
   const firebaseArrayPath = pathParts.join('/');
   return { firebaseArrayPath, deleteIndex };
 };

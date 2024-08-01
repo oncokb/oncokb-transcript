@@ -23,7 +23,9 @@ export const cleanEntity = entity => {
  * @param idList Elements to map.
  * @returns The list of objects with mapped ids.
  */
-export const mapIdList = (idList: ReadonlyArray<any>) => idList.filter((id: any) => id !== '').map((id: any) => ({ id }));
+// TYPE-ISSUE: this function seems to be taking an array of ids and creating an array of { id: string }, but
+// this function instead is being sent a list of objects with id as one of the fields.
+export const mapIdList = (idList: ReadonlyArray<any>): any => idList.filter((id: any) => id !== '').map((id: any) => ({ id }));
 
 /**
  *

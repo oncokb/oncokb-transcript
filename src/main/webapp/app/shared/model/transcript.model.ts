@@ -7,21 +7,17 @@ import { IAlteration } from 'app/shared/model/alteration.model';
 import { ReferenceGenome } from 'app/shared/model/enumerations/reference-genome.model';
 
 export interface ITranscript {
-  id?: number;
-  referenceGenome?: ReferenceGenome | null;
-  ensemblTranscriptId?: string | null;
-  canonical?: boolean;
-  ensemblProteinId?: string | null;
-  referenceSequenceId?: string | null;
-  description?: string | null;
-  sequences?: ISequence[] | null;
-  fragments?: IGenomeFragment[] | null;
-  flags?: IFlag[] | null;
-  ensemblGene?: IEnsemblGene | null;
-  gene?: IGene | null;
-  alterations?: IAlteration[] | null;
+  id: number;
+  referenceGenome: ReferenceGenome | null;
+  ensemblTranscriptId: string | null;
+  canonical: boolean;
+  ensemblProteinId: string | null;
+  referenceSequenceId: string | null;
+  description: string | null;
+  sequences: ISequence[] | null;
+  fragments: IGenomeFragment[] | null;
+  flags: IFlag[] | null;
+  ensemblGene: IEnsemblGene | null;
+  gene: IGene | null;
+  alterations: IAlteration[] | null;
 }
-
-export const defaultValue: Readonly<ITranscript> = {
-  canonical: false,
-};

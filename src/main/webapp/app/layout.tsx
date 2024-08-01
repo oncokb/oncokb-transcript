@@ -17,7 +17,7 @@ const Layout: React.FunctionComponent<ILayoutProps> = props => {
   const history = useHistory();
 
   useEffect(() => {
-    history.listen((location, action) => {
+    history.listen((location: { pathname: string }) => {
       const matchedPath = includedPaths.filter(path => matchPath(location.pathname, { path, exact: true }))[0];
       props.toggleOncoKBSidebar(!!matchedPath);
     });

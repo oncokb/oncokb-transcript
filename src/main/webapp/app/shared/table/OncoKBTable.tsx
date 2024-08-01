@@ -26,7 +26,7 @@ export const OncoKBTable = <T extends object>({ disableSearch = false, showPagin
     return props.data.filter((item: T) => {
       const filterableColumns = props.columns.filter(column => !!column.onFilter);
       if (filterableColumns.length > 0) {
-        return filterableColumns.map(column => column.onFilter(item, searchKeyword)).includes(true);
+        return filterableColumns.map(column => column.onFilter?.(item, searchKeyword)).includes(true);
       } else {
         return true;
       }

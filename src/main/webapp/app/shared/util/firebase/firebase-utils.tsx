@@ -64,23 +64,25 @@ export const getMutationName = (name: string | undefined, alterations: Alteratio
   }
 };
 
-export const getTxName = (drugList: readonly IDrug[], txUuidName: string) => {
-  return txUuidName
-    .split(',')
-    .map(tx => {
-      return tx
-        .split('+')
-        .map(drug => {
-          drug = drug.trim();
-          const drugInList = drugList.find(d => d.uuid === drug);
-          return drugInList ? drugInList.name : drug;
-        })
-        .join(' + ');
-    })
-    .join(', ');
+export const getTxName = (drugList: readonly IDrug[], txUuidName: string | undefined) => {
+  return (
+    txUuidName
+      ?.split(',')
+      .map(tx => {
+        return tx
+          .split('+')
+          .map(drug => {
+            drug = drug.trim();
+            const drugInList = drugList.find(d => d.uuid === drug);
+            return drugInList ? drugInList.name : drug;
+          })
+          .join(' + ');
+      })
+      .join(', ') ?? ''
+  );
 };
 
-export const geneNeedsReview = (meta: Meta | undefined) => {
+export const geneNeedsReview = (meta: Meta | null | undefined) => {
   return geneMetaReviewHasUuids(meta?.review);
 };
 
@@ -90,7 +92,7 @@ export const mutationNeedsReview = (mutation: Mutation, review: MetaReview) => {
 
   let nestedObjects = [mutation];
   while (nestedObjects.length > 0) {
-    const newNestedObjects = [];
+    const newNestedObjects: Mutation[] = [];
 
     for (const nestedObject of nestedObjects) {
       for (const [key, val] of Object.entries(nestedObject)) {
@@ -111,7 +113,7 @@ export const mutationNeedsReview = (mutation: Mutation, review: MetaReview) => {
   return false;
 };
 
-export const geneMetaReviewHasUuids = (metaReview: MetaReview) => {
+export const geneMetaReviewHasUuids = (metaReview: MetaReview | undefined) => {
   let needsReview = false;
   if (metaReview) {
     needsReview = !!Object.keys(metaReview).find(key => isUuid(key));
@@ -119,27 +121,27 @@ export const geneMetaReviewHasUuids = (metaReview: MetaReview) => {
   return needsReview;
 };
 
-export const getFirebasePath = (type: keyof typeof FB_COLLECTION_PATH, ...params: (string | number)[]) => {
+export const getFirebasePath = (type: keyof typeof FB_COLLECTION_PATH, ...params: (string | number | undefined)[]) => {
   return replaceUrlParams(FB_COLLECTION_PATH[type], ...params);
 };
 
-export const getFirebaseGenePath = (isGermline: boolean, hugoSymbol: string) => {
+export const getFirebaseGenePath = (isGermline: boolean | undefined, hugoSymbol: string | undefined) => {
   return getFirebasePath(isGermline ? 'GERMLINE_GENE' : 'GENE', hugoSymbol);
 };
 
-export const getFirebaseMetaGenePath = (isGermline: boolean, hugoSymbol: string) => {
+export const getFirebaseMetaGenePath = (isGermline: boolean | undefined, hugoSymbol: string | undefined) => {
   return getFirebasePath(isGermline ? 'GERMLINE_META_GENE' : 'META_GENE', hugoSymbol);
 };
 
-export const getFirebaseHistoryPath = (isGermline: boolean, hugoSymbol: string) => {
+export const getFirebaseHistoryPath = (isGermline: boolean | undefined, hugoSymbol: string | undefined) => {
   return getFirebasePath(isGermline ? 'GERMLINE_HISTORY' : 'HISTORY', hugoSymbol);
 };
 
-export const getFirebaseVusPath = (isGermline: boolean, hugoSymbol: string) => {
+export const getFirebaseVusPath = (isGermline: boolean | undefined, hugoSymbol: string | undefined) => {
   return getFirebasePath(isGermline ? 'GERMLINE_VUS' : 'VUS', hugoSymbol);
 };
 
-export const getFirebaseMetaGeneReviewPath = (isGermline: boolean, hugoSymbol: string, uuid: string) => {
+export const getFirebaseMetaGeneReviewPath = (isGermline: boolean | undefined, hugoSymbol: string, uuid: string) => {
   return getFirebasePath(isGermline ? 'GERMLINE_META_GENE_REVIEW' : 'META_GENE_REVIEW', hugoSymbol, uuid);
 };
 
@@ -153,7 +155,7 @@ export function getMostRecentComment(comments: Comment[]) {
   return latestComment;
 }
 
-export const isSectionRemovableWithoutReview = (review: Review) => {
+export const isSectionRemovableWithoutReview = (review: Review | null | undefined) => {
   return !!review && !!review.added;
 };
 
@@ -189,8 +191,8 @@ export function isNestedObjectEmpty(obj: any, ignoredKeySubstrings: string[] = [
 }
 
 export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
-  const path = parseFirebaseGenePath(fullPath).pathFromGene;
-  if (sectionValue === undefined) {
+  const path = parseFirebaseGenePath(fullPath)?.pathFromGene;
+  if (sectionValue === undefined || path === undefined) {
     return true;
   }
 
@@ -222,7 +224,7 @@ export const isSectionEmpty = (sectionValue: any, fullPath: string) => {
 };
 
 export const isPendingDelete = (geneData: Gene, nestLevel: RemovableNestLevel, path: string) => {
-  const key = parseFirebaseGenePath(path).pathFromGene;
+  const key = parseFirebaseGenePath(path)?.pathFromGene;
   let reviewKey = key;
   if (nestLevel === NestLevelType.CANCER_TYPE) {
     reviewKey += '/cancerTypes_review';
@@ -337,7 +339,7 @@ export const getDuplicateMutations = (
       ?.filter(mutation => options.excludedMutationUuid !== mutation.name_uuid)
       .map(mutation =>
         mutation.name
-          .split(',')
+          ?.split(',')
           .map(alt => {
             const parsedAlteration = parseAlterationName(alt)[0];
             const variantName = parsedAlteration.name ? ` [${parsedAlteration.name}]` : '';
@@ -420,8 +422,8 @@ export function compareMutationsByDeleted(mut1: Mutation, mut2: Mutation) {
 }
 
 export function compareMutationsByTxLevel(mut1: Mutation, mut2: Mutation) {
-  const mut1Levels = Object.keys(getMutationStats(mut1).txLevels).sort(sortByTxLevel);
-  const mut2Levels = Object.keys(getMutationStats(mut2).txLevels).sort(sortByTxLevel);
+  const mut1Levels = (Object.keys(getMutationStats(mut1).txLevels) as TX_LEVELS[]).sort(sortByTxLevel);
+  const mut2Levels = (Object.keys(getMutationStats(mut2).txLevels) as TX_LEVELS[]).sort(sortByTxLevel);
 
   let index = 0;
   while (mut1Levels[index] || mut2Levels[index]) {
@@ -431,7 +433,7 @@ export function compareMutationsByTxLevel(mut1: Mutation, mut2: Mutation) {
       return -1;
     }
 
-    const order = sortByTxLevel(mut1Levels[index] as TX_LEVELS, mut2Levels[index] as TX_LEVELS);
+    const order = sortByTxLevel(mut1Levels[index], mut2Levels[index]);
     if (order !== 0) {
       return order;
     }
@@ -513,10 +515,10 @@ export function compareMutationsByProteinChangePosition(mut1: Mutation, mut2: Mu
 
 export function compareMutationsByCategoricalAlteration(mut1: Mutation, mut2: Mutation) {
   const mut1IsCategorical = Object.values(CategoricalAlterationType).some(
-    categorical => categorical.toLowerCase() === mut1.name.toLowerCase(),
+    categorical => categorical.toLowerCase() === mut1.name?.toLowerCase(),
   );
   const mut2IsCategorical = Object.values(CategoricalAlterationType).some(
-    categorical => categorical.toLowerCase() === mut2.name.toLowerCase(),
+    categorical => categorical.toLowerCase() === mut2.name?.toLowerCase(),
   );
 
   if ((mut1IsCategorical && mut2IsCategorical) || (!mut1IsCategorical && !mut2IsCategorical)) {
@@ -525,14 +527,16 @@ export function compareMutationsByCategoricalAlteration(mut1: Mutation, mut2: Mu
     return -1;
   } else if (mut2IsCategorical) {
     return 1;
+  } else {
+    return 0;
   }
 }
 
 export function getMutationModifiedTimestamp(mutation: Mutation): number | null {
-  let modifiedTime: number = null;
+  let modifiedTime: number | null = null;
   let nestedObjects = [mutation];
   while (nestedObjects.length > 0) {
-    const newNestedObjects = [];
+    const newNestedObjects: Mutation[] = [];
 
     for (const nestedObject of nestedObjects) {
       for (const [key, val] of Object.entries(nestedObject)) {
@@ -556,11 +560,17 @@ export function getMutationModifiedTimestamp(mutation: Mutation): number | null 
 
 export function compareMutationsByLastModified(mut1: Mutation, mut2: Mutation, order: SortOrder = 'desc') {
   const mutation1LastModified = getMutationModifiedTimestamp(mut1);
-  const mutation2LastModifed = getMutationModifiedTimestamp(mut2);
-  if (order === 'asc') {
-    return mutation1LastModified - mutation2LastModifed;
+  const mutation2LastModified = getMutationModifiedTimestamp(mut2);
+  if (mutation1LastModified == null && mutation2LastModified == null) {
+    return 0;
+  } else if (mutation1LastModified === null) {
+    return order === 'asc' ? -1 : 1;
+  } else if (mutation2LastModified === null) {
+    return order === 'asc' ? 1 : -1;
+  } else if (order === 'asc') {
+    return mutation1LastModified - mutation2LastModified;
   } else {
-    return mutation2LastModifed - mutation1LastModified;
+    return mutation2LastModified - mutation1LastModified;
   }
 }
 
@@ -708,7 +718,19 @@ export const getAllLevelSummaryStats = (mutations: Mutation[]) => {
 };
 
 // Todo: The stats need to be refactored
-export const getMutationStats = (mutation?: Mutation) => {
+export const getMutationStats = (
+  mutation: Mutation,
+): {
+  TT: number;
+  oncogenicity: '' | FIREBASE_ONCOGENICITY | undefined;
+  mutationEffect: string | undefined;
+  TTS: number;
+  DxS: number;
+  PxS: number;
+  txLevels: { [txLevel in TX_LEVELS]: number };
+  dxLevels: { [dxLevel in DX_LEVELS]: number };
+  pxLevels: { [pxLevel in PX_LEVELS]: number };
+} => {
   const stats = {
     TT: 0,
     oncogenicity: mutation?.mutation_effect.oncogenic,
@@ -764,7 +786,7 @@ export const getMutationStats = (mutation?: Mutation) => {
   return stats;
 };
 
-export const getCancerTypeStats = (tumor?: Tumor) => {
+export const getCancerTypeStats = (tumor?: Tumor | null) => {
   const stats = {
     TT: 0,
     TTS: 0,
@@ -834,7 +856,7 @@ export const getTreatmentStats = (treatment?: Treatment) => {
 
 export const getReviewInfo = (editor: string, action: string, updateTime?: string) => {
   const baseText = `${action} by ${editor}`;
-  let timeComponent;
+  let timeComponent: JSX.Element | undefined = undefined;
   if (updateTime) {
     timeComponent = (
       <>

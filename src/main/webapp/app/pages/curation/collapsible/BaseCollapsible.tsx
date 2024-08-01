@@ -12,7 +12,7 @@ import { CollapsibleDataTestIdType, getCollapsibleDataTestId } from 'app/shared/
 
 export type CollapsibleColorProps =
   | { hideLeftBorder: true; backgroundColor?: string }
-  | { hideLeftBorder?: false; borderLeftColor: string; backgroundColor?: string; forceLeftColor?: boolean };
+  | { hideLeftBorder?: false; borderLeftColor?: string; backgroundColor?: string; forceLeftColor?: boolean };
 
 export type CollapsibleDisplayProps = {
   disableCollapsible?: boolean;
@@ -148,7 +148,7 @@ export default function BaseCollapsible({
             {showLoadingSpinner && (
               <span className="ps-2">
                 <Spinner
-                  style={{ color: colorOptions?.hideLeftBorder === true ? colorOptions.backgroundColor : colorOptions.borderLeftColor }}
+                  style={{ color: colorOptions?.hideLeftBorder === true ? colorOptions.backgroundColor : colorOptions?.borderLeftColor }}
                   size="sm"
                 />
               </span>

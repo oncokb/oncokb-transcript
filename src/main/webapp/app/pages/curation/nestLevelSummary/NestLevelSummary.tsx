@@ -44,7 +44,7 @@ function getTooltipText(key: keyof NestLevelSummaryStats, count: number, level?:
     return `${READABLE_SUMMARY_KEY[key]} available`;
   }
   if (levelSummaryKeys.includes(key)) {
-    return `${count} ${READABLE_SUMMARY_KEY[key]} ${level.replace(/\D/g, '')} curated`;
+    return `${count} ${READABLE_SUMMARY_KEY[key]} ${level?.replace(/\D/g, '')} curated`;
   }
   return `${count} ${READABLE_SUMMARY_KEY[key]} curated`;
 }

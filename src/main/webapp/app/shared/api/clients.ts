@@ -12,13 +12,13 @@ import {
   ArticleResourceApi,
 } from './generated/curation/api';
 
-export const fdaSubmissionClient = new FdaSubmissionResourceApi(null, '', axiosInstance);
-export const geneClient = new GeneResourceApi(null, '', axiosInstance);
-export const alterationClient = new AlterationResourceApi(null, '', axiosInstance);
-export const alterationControllerClient = new AlterationControllerApi(null, '', axiosInstance);
-export const ensemblGeneClient = new EnsemblGeneResourceApi(null, '', axiosInstance);
-export const transcriptClient = new TranscriptResourceApi(null, '', axiosInstance);
-export const flagClient = new FlagResourceApi(null, '', axiosInstance);
-export const associationClient = new AssociationResourceApi(null, '', axiosInstance);
-export const cancerTypeClient = new CancerTypeResourceApi(null, '', axiosInstance);
-export const articleClient = new ArticleResourceApi(null, '', axiosInstance);
+export const fdaSubmissionClient = new FdaSubmissionResourceApi(undefined, '', axiosInstance);
+export const geneClient = new GeneResourceApi(undefined, '', axiosInstance);
+export const alterationClient = new AlterationResourceApi(undefined, '', axiosInstance);
+export const alterationControllerClient = new AlterationControllerApi(undefined, '', axiosInstance);
+export const ensemblGeneClient = new EnsemblGeneResourceApi(undefined, '', axiosInstance);
+export const transcriptClient = new TranscriptResourceApi(undefined, '', axiosInstance);
+export const flagClient = new FlagResourceApi(undefined, '', axiosInstance);
+export const associationClient = new AssociationResourceApi(undefined, '', axiosInstance);
+export const cancerTypeClient = new CancerTypeResourceApi(undefined, '', axiosInstance);
+export const articleClient = new ArticleResourceApi(undefined, '', axiosInstance);

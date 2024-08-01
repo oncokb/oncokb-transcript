@@ -249,7 +249,7 @@ describe('FirebaseHistoryUtils', () => {
       const uuid1 = generateUuid();
       const uuid2 = generateUuid();
       const uuid3 = 'Not a real uuid';
-      const drugList: readonly IDrug[] = [
+      const drugList: readonly Partial<IDrug>[] = [
         {
           name: 'Drug1',
           uuid: uuid1,
@@ -266,7 +266,7 @@ describe('FirebaseHistoryUtils', () => {
 
       const location = ['Gene Summary', 'Tumor Type Summary', 'Gene Background', `${uuid1} + ${uuid2}`, uuid3, 'Not a recognized string'];
 
-      const readableLocation = makeHistoryLocationReadable(location, drugList);
+      const readableLocation = makeHistoryLocationReadable(location, drugList as IDrug[]);
       expect(readableLocation).toStrictEqual(['Summary', 'Summary', 'Background', 'Drug1 + Drug2', uuid3, 'Not a recognized string']);
     });
   });

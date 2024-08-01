@@ -5,6 +5,6 @@ export enum CollapsibleDataTestIdType {
   CARD = 'collapsible-card',
   TITLE_WRAPPER = 'collapsible-title-wrapper',
 }
-export function getCollapsibleDataTestId(dataTestid: CollapsibleDataTestIdType, identifier: string) {
+export function getCollapsibleDataTestId(dataTestid: CollapsibleDataTestIdType, identifier: string | undefined) {
   return `${identifier}-${dataTestid}`;
 }

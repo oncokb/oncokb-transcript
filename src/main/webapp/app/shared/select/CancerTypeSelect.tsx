@@ -1,17 +1,17 @@
 import React from 'react';
-import { Props as SelectProps } from 'react-select';
+import { GroupBase, Props as SelectProps } from 'react-select';
 import _ from 'lodash';
-import { AsyncPaginate, reduceGroupedOptions } from 'react-select-async-paginate';
+import { AsyncPaginate, LoadOptions, reduceGroupedOptions } from 'react-select-async-paginate';
 import { defaultAdditional } from 'app/components/panels/CompanionDiagnosticDevicePanel';
 import { SearchOptionType } from 'app/config/constants/constants';
 import { IRootStore } from 'app/stores/createStore';
-import { connect } from '../util/typed-inject';
+import { InjectProps, connect } from '../util/typed-inject';
 import { ICancerType } from '../model/cancer-type.model';
 import { ITEMS_PER_PAGE } from '../util/pagination.constants';
 import { getCancerTypeName } from 'app/shared/util/utils';
 
-interface ICancerTypeSelectProps extends SelectProps, StoreProps {
-  disabledOptions?: CancerTypeSelectOption[];
+interface ICancerTypeSelectProps<IsMulti extends boolean> extends SelectProps<CancerTypeSelectOption, IsMulti>, StoreProps {
+  disabledOptions?: readonly CancerTypeSelectOption[];
 }
 
 export type CancerTypeSelectOption = {
@@ -25,7 +25,7 @@ export type CancerTypeSelectOption = {
 };
 
 const getAllMainTypes = (cancerTypeList: ICancerType[]) => {
-  return _.uniq(cancerTypeList.filter(cancerType => cancerType.level <= 0)).sort();
+  return _.uniq(cancerTypeList.filter(cancerType => cancerType.level && cancerType.level <= 0)).sort();
 };
 
 const getAllSubtypes = (cancerTypeList: ICancerType[]) => {
@@ -36,28 +36,28 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
   return [
     {
       label: 'Cancer Type',
-      options: _.uniq(getAllMainTypes(cancerTypeList).filter(cancerType => !cancerType.mainType.endsWith('NOS')))
+      options: _.uniq(getAllMainTypes(cancerTypeList).filter(cancerType => cancerType.mainType && !cancerType.mainType.endsWith('NOS')))
         .sort()
-        .map<CancerTypeSelectOption>(cancerType => {
+        .map((cancerType): CancerTypeSelectOption => {
           return {
             value: cancerType.id,
             label: getCancerTypeName(cancerType),
-            code: cancerType.code,
+            code: cancerType.code ?? '',
             mainType: cancerType.mainType,
-            subtype: cancerType.subtype,
+            subtype: cancerType.subtype ?? '',
             level: cancerType.level,
           };
         }),
     },
     {
       label: 'Cancer Type Detailed',
-      options: _.sortBy(_.uniq(getAllSubtypes(cancerTypeList)), 'name').map<CancerTypeSelectOption>(cancerType => {
+      options: _.sortBy(_.uniq(getAllSubtypes(cancerTypeList)), 'name').map((cancerType): CancerTypeSelectOption => {
         return {
           value: cancerType.id,
           label: getCancerTypeName(cancerType),
-          code: cancerType.code,
+          code: cancerType.code ?? '',
           mainType: cancerType.mainType,
-          subtype: cancerType.subtype,
+          subtype: cancerType.subtype ?? '',
           level: cancerType.level,
         };
       }),
@@ -65,15 +65,15 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
   ];
 };
 
-const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props => {
+const CancerTypeSelect = <IsMulti extends boolean>(props: ICancerTypeSelectProps<IsMulti>) => {
   const { getCancerTypes, searchCancerTypes, disabledOptions, ...selectProps } = props;
-  const loadCancerTypeOptions = async (
-    searchWord: string,
-    prevOptions: any[],
-    { page, type }: { page: number; type: SearchOptionType },
-  ) => {
-    let result = undefined;
-    let options = [];
+  const loadCancerTypeOptions: LoadOptions<
+    CancerTypeSelectOption,
+    GroupBase<CancerTypeSelectOption>,
+    { page: number; type: SearchOptionType }
+  > = async (searchWord, prevOptions, { page, type } = { page: 0, type: SearchOptionType.CDX }) => {
+    let result: Awaited<ReturnType<typeof props.getCancerTypes>> | undefined = undefined;
+    let options: ReturnType<typeof getAllCancerTypesOptions> = [];
     if (searchWord) {
       result = await props.searchCancerTypes({
         query: searchWord,
@@ -92,8 +92,8 @@ const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props 
     if (searchWord) {
       // Since options are cached by react-select-async-paginate, we only include options that are
       // not present in prevOptions to avoid duplicates.
-      options[0].options = _.differenceBy(options[0].options, prevOptions[0]?.options || [], 'label');
-      options[1].options = _.differenceBy(options[1].options, prevOptions[1]?.options || [], 'label');
+      options[0].options = _.differenceBy(options[0].options, 'options' in prevOptions[0] ? prevOptions[0]?.options ?? [] : [], 'label');
+      options[1].options = _.differenceBy(options[1].options, 'options' in prevOptions[1] ? prevOptions[1]?.options ?? [] : [], 'label');
     }
 
     return {
@@ -112,7 +112,7 @@ const CancerTypeSelect: React.FunctionComponent<ICancerTypeSelectProps> = props 
       additional={{ ...defaultAdditional, type: SearchOptionType.CANCER_TYPE }}
       loadOptions={loadCancerTypeOptions}
       reduceOptions={reduceGroupedOptions}
-      isOptionDisabled={option => disabledOptions?.some(disabled => disabled.value === (option as CancerTypeSelectOption).value) || false}
+      isOptionDisabled={option => disabledOptions?.some(disabled => disabled.value === option.value) || false}
       cacheUniqs={[props.value]}
       placeholder="Select a cancer type..."
       isClearable
@@ -127,4 +127,7 @@ const mapStoreToProps = ({ cancerTypeStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(CancerTypeSelect);
+export default function <IsMulti extends boolean = false>(props: InjectProps<ICancerTypeSelectProps<IsMulti>, StoreProps>) {
+  const InjectedCancerTypeSelect = connect(mapStoreToProps)<ICancerTypeSelectProps<IsMulti>>(CancerTypeSelect);
+  return <InjectedCancerTypeSelect {...props} />;
+}

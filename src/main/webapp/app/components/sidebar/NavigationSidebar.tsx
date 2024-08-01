@@ -170,7 +170,7 @@ const MenuDivider: React.FunctionComponent = () => {
   return <div className="nav-menu-divider"></div>;
 };
 
-export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
+export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSidebarCollapsed = false, ...props }) => {
   const [entityMenuFrequencies, setEntityMenuFrequencies] = useState(getDefaultEntityMenuFrequencies() as EntityMenuFrequency[]);
   const [entityMenuOrder, setEntityMenuOrder] = useState(DEFAULT_ENTITY_MENU_ORDER);
 
@@ -188,12 +188,13 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
   };
 
   useEffect(() => {
-    const frequencies = JSON.parse(localStorage.getItem(entityMenuLocalStorageKey));
+    const localStorageFrequencies = localStorage.getItem(entityMenuLocalStorageKey);
+    const frequencies = localStorageFrequencies ? JSON.parse(localStorageFrequencies) : null;
     let parsedFrequencies = entityMenuFrequencies;
     if (frequencies) {
-      parsedFrequencies = Object.keys(ENTITY_TYPE)
-        .filter((key: ENTITY_TYPE) => DEFAULT_ENTITY_MENU_ORDER.includes(ENTITY_TYPE[key]))
-        .map((key: ENTITY_TYPE) => {
+      parsedFrequencies = (Object.keys(ENTITY_TYPE) as ENTITY_TYPE[])
+        .filter(key => DEFAULT_ENTITY_MENU_ORDER.includes(ENTITY_TYPE[key]))
+        .map(key => {
           let frequency = 0;
           const target = _.find(frequencies, { type: ENTITY_TYPE[key] });
           frequency = target && WHOLE_NUMBER_REGEX.test(target.frequency) ? parseInt(target.frequency, 10) : 0;
@@ -212,7 +213,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
 
   return (
     <Sidebar
-      collapsed={props.isNavSidebarCollapsed}
+      collapsed={isNavSidebarCollapsed}
       width={`${SIDEBAR_EXPANDED_WIDTH}px`}
       collapsedWidth={`${SIDEBAR_COLLAPSED_WIDTH}px`}
       style={{ height: props.sidebarHeight }}
@@ -220,7 +221,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div style={{ lineHeight: '5rem', display: 'flex', justifyContent: 'center' }}>
           <NavbarBrand tag={NavLink} to={PAGE_ROUTE.HOME} style={{ cursor: 'url(' + CustomCursor + '), auto' }}>
-            {props.isNavSidebarCollapsed ? (
+            {isNavSidebarCollapsed ? (
               <OptimizedImage height={30} src={oncokbSmallLogo} alt={'OncoKB'} />
             ) : (
               <OptimizedImage height={30} src={oncokbLogo} alt={'OncoKB'} />
@@ -238,7 +239,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
           <Menu>
             {props.isCurator && (
               <MenuItemCollapsible
-                isCollapsed={props.isNavSidebarCollapsed}
+                isCollapsed={isNavSidebarCollapsed}
                 text="Curation"
                 icon={<FiFileText size={DEFAULT_NAV_ICON_SIZE} />}
                 nav={<NavLink to={PAGE_ROUTE.CURATION} />}
@@ -247,7 +248,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
             {props.isUser && (
               <>
                 <MenuItemCollapsible
-                  isCollapsed={props.isNavSidebarCollapsed}
+                  isCollapsed={isNavSidebarCollapsed}
                   text={'Search'}
                   icon={<BiSearchAlt size={DEFAULT_NAV_ICON_SIZE} />}
                   nav={<NavLink to={PAGE_ROUTE.SEARCH} />}
@@ -261,17 +262,17 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
                 </SubMenu>
               </>
             )}
-            {!props.isCurator && !props.isUser && <NoSidebarAccess isCollapsed={props.isNavSidebarCollapsed} />}
+            {!props.isCurator && !props.isUser && <NoSidebarAccess isCollapsed={isNavSidebarCollapsed} />}
           </Menu>
         </div>
         <MenuDivider />
         <Menu>
-          <SubMenu label={props.account.firstName} icon={<FaUserCircle size={DEFAULT_NAV_ICON_SIZE} />}>
+          <SubMenu label={props.account?.firstName} icon={<FaUserCircle size={DEFAULT_NAV_ICON_SIZE} />}>
             <MenuItem component={<NavLink to={PAGE_ROUTE.ACCOUNT} />}>Account Settings</MenuItem>
             {props.isAdmin && <MenuItem component={<NavLink to={PAGE_ROUTE.USER} />}>User Management</MenuItem>}
           </SubMenu>
           <MenuItemCollapsible
-            isCollapsed={props.isNavSidebarCollapsed}
+            isCollapsed={isNavSidebarCollapsed}
             text={'Sign out'}
             icon={<FaSignOutAlt size={DEFAULT_NAV_ICON_SIZE} />}
             nav={<NavLink to={PAGE_ROUTE.LOGOUT} />}
@@ -279,11 +280,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = props => {
         </Menu>
         <MenuDivider />
         <div style={{ lineHeight: '5rem', display: 'flex', justifyContent: 'center' }}>
-          {props.isNavSidebarCollapsed ? (
-            <MskccLogo className="navbar-brand" size={'sm'} />
-          ) : (
-            <MskccLogo className="navbar-brand" size={'lg'} />
-          )}
+          {isNavSidebarCollapsed ? <MskccLogo className="navbar-brand" size={'sm'} /> : <MskccLogo className="navbar-brand" size={'lg'} />}
         </div>
       </div>
     </Sidebar>
@@ -296,9 +293,9 @@ const mapStoreToProps = ({ layoutStore, authStore }: IRootStore) => ({
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,
   sidebarHeight: layoutStore.sidebarHeight,
   isAuthenticated: authStore.isAuthenticated,
-  isAdmin: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.ADMIN]),
-  isCurator: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.CURATOR]),
-  isUser: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.USER]),
+  isAdmin: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.ADMIN]),
+  isCurator: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.CURATOR]),
+  isUser: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.USER]),
   account: authStore.account,
 });
 

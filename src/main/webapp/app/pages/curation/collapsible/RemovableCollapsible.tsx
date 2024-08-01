@@ -6,13 +6,13 @@ import { ReviewAction } from 'app/config/constants/firebase';
 import { ReviewTypeTitle } from './ReviewCollapsible';
 
 export interface IRemovableCollapsibleProps extends CollapsibleProps {
-  review: Review;
+  review: Review | null | undefined;
 }
 
 export const RemovableCollapsible = ({ review, ...collapsibleProps }: IRemovableCollapsibleProps) => {
   let infoComponent = collapsibleProps.info;
   if (review?.updatedBy) {
-    let reviewAction: ReviewAction;
+    let reviewAction: ReviewAction | undefined = undefined;
     if (review?.removed) reviewAction = ReviewAction.DELETE;
     if (review?.demotedToVus) reviewAction = ReviewAction.DEMOTE_MUTATION;
     if (reviewAction) {

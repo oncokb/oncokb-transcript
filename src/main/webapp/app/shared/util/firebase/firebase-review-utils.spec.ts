@@ -190,7 +190,7 @@ describe('Firebase Review Utils', () => {
         reviewLevelType: ReviewLevelType.REVIEWABLE,
       };
 
-      const nameReview = metaReview.children[0] as ReviewLevel;
+      const nameReview = metaReview.children?.[0] as ReviewLevel;
       expect(nameReview).toEqual(expect.objectContaining(expectedValues));
     });
 
@@ -268,7 +268,7 @@ describe('Firebase Review Utils', () => {
     it('should use therapy name instead of uuid', () => {
       const drugAUuid = '79d0ee95-4482-4d5e-964e-85e2a50fc862';
       const drugBUuid = '335547ab-e985-4e30-8bef-c9009bfafc07';
-      const drugList: readonly IDrug[] = [
+      const drugList: readonly Partial<IDrug>[] = [
         {
           name: 'DrugA',
           uuid: drugAUuid,
@@ -295,7 +295,7 @@ describe('Firebase Review Utils', () => {
         parentReview,
         uuids,
         editorReviewMap,
-        drugList,
+        drugList as IDrug[],
       );
 
       expect(treatmentNameReview.titleParts).toEqual([addSectionTitlePrefix(ReviewSectionTitlePrefix.THERAPY, 'DrugA + DrugB')]);
@@ -378,7 +378,7 @@ describe('Firebase Review Utils', () => {
       const implication = new Implication();
       implication.excludedRCTs_review = new Review('User', undefined, undefined, undefined, true);
       implication.excludedRCTs = [{ code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' }];
-      const uuids = [implication.excludedRCTs_uuid];
+      const uuids = [implication.excludedRCTs_uuid as string];
 
       const rctReview = buildRCTReview(implication, parentReview, uuids, editorReviewMap);
 
@@ -422,7 +422,7 @@ describe('Firebase Review Utils', () => {
       // There is already an excluded CT
       implication.excludedRCTs_review = new Review('User', oldExclusions);
       implication.excludedRCTs = newExclusions;
-      const uuids = [implication.excludedRCTs_uuid];
+      const uuids = [implication.excludedRCTs_uuid as string];
 
       const rctReview = buildRCTReview(implication, parentReview, uuids, editorReviewMap);
 
@@ -658,13 +658,13 @@ describe('Firebase Review Utils', () => {
     describe('when working with string fields', () => {
       it('should set lastReviewed to empty string when content has not been reviewed yet', () => {
         const { updatedReview } = getUpdatedReview(undefined, '', 'New description', editorName);
-        expect(updatedReview.lastReviewed).toEqual('');
+        expect(updatedReview?.lastReviewed).toEqual('');
       });
 
       it('should set lastReviewed to old value when field has been updated', () => {
         const oldReview = new Review('User', 'Old description');
         const { updatedReview } = getUpdatedReview(oldReview, 'Old description', 'New Description', editorName);
-        expect(updatedReview.lastReviewed).toEqual('Old description');
+        expect(updatedReview?.lastReviewed).toEqual('Old description');
       });
 
       it('should detect reverted change', () => {
@@ -678,19 +678,19 @@ describe('Firebase Review Utils', () => {
     describe('when working with relevant cancer types', () => {
       it('should detect reverted excluded RCTs when initialUpdate is true', () => {
         const oldReview = new Review('User', undefined, undefined, undefined, true);
-        const currentValue: ICancerType[] = [{ code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' }];
+        const currentValue: Partial<ICancerType>[] = [{ code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' }];
         const { updatedReview, isChangeReverted } = getUpdatedReview(oldReview, currentValue, [], editorName);
         expect(updatedReview).not.toHaveProperty('lastReviewed');
         expect(isChangeReverted).toBeTruthy();
       });
 
       it('should detect reverted excluded RCTs when RCT is already pending review', () => {
-        const excludedCancerTypes: ICancerType[] = [{ code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' }];
-        const currentValue: ICancerType[] = [
+        const excludedCancerTypes: Partial<ICancerType>[] = [{ code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' }];
+        const currentValue: Partial<ICancerType>[] = [
           { code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' },
           { code: 'MEL', mainType: 'Melanoma', subtype: 'Melanoma' },
         ];
-        const oldReview = new Review('User', excludedCancerTypes);
+        const oldReview = new Review('User', excludedCancerTypes as ICancerType[]);
         const { updatedReview, isChangeReverted } = getUpdatedReview(oldReview, currentValue, excludedCancerTypes, editorName);
         expect(updatedReview).not.toHaveProperty('lastReviewed');
         expect(isChangeReverted).toBeTruthy();
@@ -702,7 +702,7 @@ describe('Firebase Review Utils', () => {
         const oldReview = new Review('User', undefined);
         const currentVal = 'V600E';
         const { updatedReview } = getUpdatedReview(oldReview, currentVal, 'V600K', editorName);
-        expect(updatedReview.lastReviewed).toEqual(currentVal);
+        expect(updatedReview?.lastReviewed).toEqual(currentVal);
       });
 
       it('should detect reverted name', () => {

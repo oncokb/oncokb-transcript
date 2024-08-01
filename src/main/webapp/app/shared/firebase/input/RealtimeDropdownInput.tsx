@@ -1,23 +1,23 @@
 import React from 'react';
-import Select, { GroupBase, OptionsOrGroups, Props as SelectProps } from 'react-select';
+import Select, { GroupBase, MultiValue, OptionsOrGroups, Props as SelectProps } from 'react-select';
 import { RealtimeBasicLabel } from './RealtimeBasicInput';
 
-export type RealtimeDropdownOptions = {
+export type RealtimeDropdownOptions<T> = {
   label: React.ReactElement;
-  value: any;
+  value: T;
 };
 
 export const getDefaultOptions = (values: string[]) => {
   return values.map(value => ({ label: value, value }));
 };
 
-export interface IRealtimeDropdownInput extends SelectProps {
-  options: OptionsOrGroups<any, GroupBase<any>>;
+export interface IRealtimeDropdownInput<Option, IsMulti extends boolean = boolean> extends SelectProps<Option, IsMulti> {
+  options: OptionsOrGroups<Option, GroupBase<Option>>;
   labelClass?: string;
   label?: string;
 }
 
-const RealtimeDropdownInput = (props: IRealtimeDropdownInput) => {
+const RealtimeDropdownInput = <Option, IsMulti extends boolean = boolean>(props: IRealtimeDropdownInput<Option, IsMulti>) => {
   const { options, labelClass, label, onChange, defaultValue, ...selectProps } = props;
 
   return (

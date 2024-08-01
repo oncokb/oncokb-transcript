@@ -3,19 +3,19 @@ import { CancerType, DX_LEVELS, PX_LEVELS, Review, TX_LEVELS, Tumor } from '../m
 import _ from 'lodash';
 
 export class RelevantCancerType extends CancerType {
-  isDeleted: boolean;
-  level: number;
+  isDeleted: boolean | undefined;
+  level: number | undefined;
 }
 export class RelevantCancerTypesModalStore {
   public isOpen = false;
-  public tumor: Tumor = null;
-  public excludedRCTsReview: Review = null;
-  public excludedRCTsUuid: string = null;
+  public tumor: Tumor | null = null;
+  public excludedRCTsReview: Review | null = null;
+  public excludedRCTsUuid: string | null = null;
   public relevantCancerTypes: RelevantCancerType[] = [];
-  public level: TX_LEVELS | DX_LEVELS | PX_LEVELS = null;
-  public firebaseExcludedRCTs: CancerType[];
+  public level: TX_LEVELS | DX_LEVELS | PX_LEVELS | null = null;
+  public firebaseExcludedRCTs: CancerType[] | undefined;
 
-  public pathToRelevantCancerTypes: string = null; // not observable
+  public pathToRelevantCancerTypes: string | null = null; // not observable
 
   constructor() {
     makeObservable(this, {
@@ -44,7 +44,7 @@ export class RelevantCancerTypesModalStore {
     if (!a.isDeleted && b.isDeleted) {
       return -1;
     }
-    return a.level - b.level;
+    return (a.level ?? Number.MAX_VALUE) - (b.level ?? Number.MAX_VALUE);
   }
 
   private isSorted(rcts: RelevantCancerType[]) {
@@ -57,20 +57,20 @@ export class RelevantCancerTypesModalStore {
   }
 
   openModal(
-    pathToRelevantCancerTypes: string,
-    tumor: Tumor,
-    excludedRCTsReview: Review,
-    excludedRCTsUuid: string,
+    pathToRelevantCancerTypes: string | undefined,
+    tumor: Tumor | undefined,
+    excludedRCTsReview: Review | undefined,
+    excludedRCTsUuid: string | undefined,
     level?: TX_LEVELS | DX_LEVELS | PX_LEVELS,
-    firebaseExcludedRCTs?: CancerType[]
+    firebaseExcludedRCTs?: CancerType[],
   ) {
-    this.pathToRelevantCancerTypes = pathToRelevantCancerTypes;
+    this.pathToRelevantCancerTypes = pathToRelevantCancerTypes ?? null;
     this.isOpen = true;
-    this.tumor = tumor;
-    this.level = level;
+    this.tumor = tumor ?? null;
+    this.level = level ?? null;
     this.firebaseExcludedRCTs = firebaseExcludedRCTs;
-    this.excludedRCTsReview = excludedRCTsReview;
-    this.excludedRCTsUuid = excludedRCTsUuid;
+    this.excludedRCTsReview = excludedRCTsReview ?? null;
+    this.excludedRCTsUuid = excludedRCTsUuid ?? null;
   }
 
   closeModal() {

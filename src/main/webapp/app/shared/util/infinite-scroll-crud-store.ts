@@ -5,7 +5,7 @@ import { action, observable, makeObservable } from 'mobx';
 import { loadMoreDataWhenScrolled, parseHeaderForLinks } from 'react-jhipster';
 import { parseSort } from './utils';
 
-export class InfiniteScrollCrudStore<T> extends BaseCrudStore<T> {
+export class InfiniteScrollCrudStore<T extends Record<string, unknown>> extends BaseCrudStore<T> {
   public links: { [key: string]: number } = { last: 0 };
 
   constructor(
@@ -36,6 +36,9 @@ export class InfiniteScrollCrudStore<T> extends BaseCrudStore<T> {
   }
 
   *getAllFromLastUrl() {
+    if (!this.lastUrl) {
+      throw new Error('lastUrl is null');
+    }
     const result: AxiosResponse<T[]> = yield axios.get(this.lastUrl);
     this.links = parseHeaderForLinks(result.headers.link);
     this.entities = loadMoreDataWhenScrolled(this.entities, result.data, this.links);

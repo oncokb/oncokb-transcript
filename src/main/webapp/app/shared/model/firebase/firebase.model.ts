@@ -3,6 +3,7 @@ import { ALLELE_STATE, GENE_TYPE, READABLE_FIELD } from 'app/config/constants/fi
 import { AlterationTypeEnum, Gene as OncoKBGene } from 'app/shared/api/generated/curation';
 import { generateUuid } from 'app/shared/util/utils';
 import _ from 'lodash';
+import { ICancerType } from '../cancer-type.model';
 
 export type MetaCollection = {
   [hugoSymbol: string]: Meta;
@@ -213,7 +214,7 @@ export class Mutation {
   mutation_effect: MutationEffect = new MutationEffect();
   mutation_effect_uuid: string = generateUuid();
   mutation_effect_comments?: Comment[] = []; // used for somatic
-  name = '';
+  name: string = '';
   name_comments?: Comment[] = [];
   name_review?: Review;
   alterations?: Alteration[] = [];
@@ -413,7 +414,7 @@ export class Comment {
 export class Review {
   updateTime: number;
   updatedBy = '';
-  lastReviewed?: string | CancerType[];
+  lastReviewed?: string | ICancerType[] | CancerType[];
   demotedToVus?: boolean;
   promotedToMutation?: boolean;
   // These three properties should not coexist
@@ -421,7 +422,13 @@ export class Review {
   removed?: boolean;
   initialUpdate?: boolean; // Used for excludedRCTs review
 
-  constructor(updatedBy: string, lastReviewed?: string | CancerType[], added?: boolean, removed?: boolean, initialUpdate?: boolean) {
+  constructor(
+    updatedBy: string,
+    lastReviewed?: string | ICancerType[] | CancerType[],
+    added?: boolean,
+    removed?: boolean,
+    initialUpdate?: boolean,
+  ) {
     this.updatedBy = updatedBy;
     this.updateTime = new Date().getTime();
     if (!_.isNil(lastReviewed)) {

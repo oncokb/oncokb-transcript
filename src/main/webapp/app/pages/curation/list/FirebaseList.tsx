@@ -29,7 +29,7 @@ function FirebaseList<T>({
   onInitialRender,
   firebaseDb,
 }: IFirebaseListProps<T>) {
-  const [indices, setIndices] = useState<number[]>(null);
+  const [indices, setIndices] = useState<number[] | null>(null);
   const [numItemsAdded, setNumItemsAdded] = useState(0);
   const [initialRenderComplete, setInitialRenderComplete] = useState(false);
 
@@ -54,6 +54,9 @@ function FirebaseList<T>({
   }, [indices, initialRenderComplete]);
 
   useEffect(() => {
+    if (!firebaseDb) {
+      return;
+    }
     const listRef = ref(firebaseDb, path);
     const unsubscribe = onValue(listRef, snapshot => {
       if (!snapshot.val() || !indices) {
@@ -70,6 +73,9 @@ function FirebaseList<T>({
 
   useEffect(() => {
     async function getItems() {
+      if (!firebaseDb) {
+        return;
+      }
       const items = (await get(ref(firebaseDb, path))).val();
       if (!items && indices?.length !== 0) {
         setIndices([]);
@@ -102,7 +108,7 @@ function FirebaseList<T>({
       addedItemIndices.push(i + indices.length);
     }
 
-    let allItemIndices: number[];
+    let allItemIndices: number[] = [];
     if (pushDirection === 'front') {
       allItemIndices = [...addedItemIndices.reverse(), ...indices];
     } else if (pushDirection === 'back') {
@@ -143,9 +149,9 @@ function FirebaseList<T>({
         <InfiniteScroll
           initialLoad={initialLoad}
           loadMore={() => {
-            setMaxItemsRendered(num => num + scrollOptions.renderCount);
+            setMaxItemsRendered(num => (num ?? 0) + scrollOptions.renderCount);
           }}
-          hasMore={maxItemsRendered < list.length}
+          hasMore={!!maxItemsRendered && maxItemsRendered < list.length}
           useWindow={false}
         >
           {list.slice(0, maxItemsRendered)}

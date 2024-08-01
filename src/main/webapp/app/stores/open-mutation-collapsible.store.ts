@@ -1,7 +1,7 @@
 import { action, makeObservable, observable } from 'mobx';
 
 export class OpenMutationCollapsibleStore {
-  index: number = null;
+  index: number | null = null;
 
   constructor() {
     makeObservable(this, {
@@ -10,7 +10,7 @@ export class OpenMutationCollapsibleStore {
     });
   }
 
-  setOpenMutationCollapsibleIndex(index: number) {
+  setOpenMutationCollapsibleIndex(index: number | null) {
     this.index = index;
   }
 }

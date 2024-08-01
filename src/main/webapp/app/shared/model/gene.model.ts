@@ -6,16 +6,14 @@ import { ISynonym } from 'app/shared/model/synonym.model';
 import { IAlteration } from 'app/shared/model/alteration.model';
 
 export interface IGene {
-  id?: number;
-  entrezGeneId?: number;
-  hugoSymbol?: string;
-  hgncId?: string | null;
-  ensemblGenes?: IEnsemblGene[] | null;
-  evidences?: IEvidence[] | null;
-  transcripts?: ITranscript[] | null;
-  flags?: IFlag[] | null;
-  synonyms?: ISynonym[] | null;
-  alterations?: IAlteration[] | null;
+  id: number;
+  entrezGeneId: number;
+  hugoSymbol: string;
+  hgncId: string | null;
+  ensemblGenes: IEnsemblGene[] | null;
+  evidences: IEvidence[] | null;
+  transcripts: ITranscript[] | null;
+  flags: IFlag[] | null;
+  synonyms: ISynonym[] | null;
+  alterations: IAlteration[] | null;
 }
-
-export const defaultValue: Readonly<IGene> = {};

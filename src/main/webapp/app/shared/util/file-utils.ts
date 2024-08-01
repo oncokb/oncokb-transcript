@@ -11,7 +11,7 @@ export const fileToArray = (fileString: string, separator: string): string[][] =
     return [];
   }
 
-  const result = [];
+  const result: string[][] = [];
   fileString
     .split(/\r\n|\n|\r/)
     .filter(row => !!row)

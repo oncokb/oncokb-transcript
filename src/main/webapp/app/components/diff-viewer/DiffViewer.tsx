@@ -6,6 +6,7 @@ import classnames from 'classnames';
 import * as styles from './style.module.scss';
 import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';
 import { Database, onValue, ref } from 'firebase/database';
+import { Unsubscribe } from 'firebase/database';
 
 export type FirebaseContent = {
   path: string;
@@ -18,7 +19,7 @@ type DiffViewerProps = {
   className?: string;
 };
 
-const getMergedDiff = (newContent = '', oldContent = '') => {
+const getMergedDiff = (newContent='', oldContent='') => {
   const dmp = new DiffMatchPatch();
   const diff = dmp.diff_main(oldContent, newContent);
   dmp.diff_cleanupSemantic(diff);
@@ -28,16 +29,16 @@ const getMergedDiff = (newContent = '', oldContent = '') => {
 const TabsDiff = (props: DiffViewerProps) => {
   const [inputValue, setInputValue] = useState('');
   useEffect(() => {
-    const callbacks = [];
+    const callbacks: Unsubscribe[] = [];
 
-    if (typeof props.new !== 'string') {
+    if (typeof props.new !== 'string' && props.new !== undefined) {
       callbacks.push(
         onValue(ref(props.new.db, props.new.path), snapshot => {
           setInputValue(snapshot.val());
         }),
       );
     } else {
-      setInputValue(props.new);
+      setInputValue(props.new ?? '');
     }
     return () => {
       callbacks.forEach(callback => callback?.());

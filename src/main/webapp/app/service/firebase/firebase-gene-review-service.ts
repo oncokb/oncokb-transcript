@@ -58,8 +58,8 @@ export class FirebaseGeneReviewService {
     firebasePath: string,
     currentValue: any,
     updateValue: any,
-    review: Review,
-    uuid: string,
+    review: Review | null | undefined,
+    uuid: string | null,
     updateMetaData: boolean = true,
     shouldSave: boolean = true,
   ) => {
@@ -73,10 +73,10 @@ export class FirebaseGeneReviewService {
       updateMetaData,
     );
 
-    const { hugoSymbol } = parseFirebaseGenePath(firebasePath);
+    const { hugoSymbol } = parseFirebaseGenePath(firebasePath) ?? {};
 
-    let updateObject = this.getGeneUpdateObject(updateValue, updatedReview, firebasePath, uuid);
-    const metaUpdateObject = this.firebaseMetaService.getUpdateObject(!isChangeReverted, hugoSymbol, isGermline, uuid);
+    let updateObject = this.getGeneUpdateObject(updateValue, updatedReview!, firebasePath, uuid!);
+    const metaUpdateObject = this.firebaseMetaService.getUpdateObject(!isChangeReverted, hugoSymbol!, isGermline, uuid!);
     updateObject = { ...updateObject, ...metaUpdateObject };
 
     if (!shouldSave) {
@@ -109,7 +109,7 @@ export class FirebaseGeneReviewService {
         updateObject[`${geneFirebasePath}/${reviewPath}`] = review;
         if ('excludedCancerTypesReviewInfo' in reviewLevel && 'currentExcludedCancerTypes' in reviewLevel) {
           const tumorReviewLevel = reviewLevel as TumorReviewLevel;
-          const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo.reviewPath;
+          const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo?.reviewPath;
           updateObject[`${geneFirebasePath}/${excludedCtReviewPath}`] = review;
         }
       } else if (isDeleteReview(reviewLevel)) {
@@ -161,10 +161,10 @@ export class FirebaseGeneReviewService {
         updateObject = { ...updateObject, ...reviewLevelUpdateObject };
         if ('excludedCancerTypesReviewInfo' in reviewLevel && 'currentExcludedCancerTypes' in reviewLevel) {
           const tumorReviewLevel = reviewLevel as TumorReviewLevel;
-          const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo.reviewPath;
-          const excludedCtPath = excludedCtReviewPath.replace('_review', '');
+          const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo?.reviewPath;
+          const excludedCtPath = excludedCtReviewPath?.replace('_review', '');
           updateObject[`${firebaseGenePath}/${excludedCtReviewPath}`] = resetReview;
-          updateObject[`${firebaseGenePath}/${excludedCtPath}`] = tumorReviewLevel.excludedCancerTypesReviewInfo.review.lastReviewed;
+          updateObject[`${firebaseGenePath}/${excludedCtPath}`] = tumorReviewLevel.excludedCancerTypesReviewInfo?.review.lastReviewed;
         }
       } else if (isDeleteReview(reviewLevel)) {
         updateObject[`${firebaseGenePath}/${reviewPath}`] = resetReview;
@@ -237,7 +237,7 @@ export class FirebaseGeneReviewService {
 
   getDeletedUuidUpdateObject = (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean) => {
     const metaGenePath = getFirebaseMetaGenePath(isGermline, hugoSymbol);
-    const uuids = [];
+    const uuids: string[] = [];
     getAllNestedReviewUuids(reviewLevel, uuids);
     return uuids.reduce((acc, uuid) => {
       acc[`${metaGenePath}/review/${uuid}`] = null;

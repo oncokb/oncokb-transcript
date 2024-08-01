@@ -8,7 +8,7 @@ import { GREY } from 'app/config/colors';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 
 export interface IGeneHistoryTooltipProps {
-  historyData: Map<string, FlattenedHistory[]>;
+  historyData?: Map<string, FlattenedHistory[]>;
   location: string; // location using names
   locationIdentifier: string; // location using uuids
   groupByDay?: boolean;
@@ -26,7 +26,10 @@ function GeneHistoryTooltip({ location, locationIdentifier, historyData }: IGene
     const locationIdentifierRecords = historyData.get(locationIdentifier) || [];
 
     for (const record of [...locationRecords, ...locationIdentifierRecords]) {
-      parsedData.push(constructTimeSeriesData(record));
+      const data = constructTimeSeriesData(record);
+      if (data !== undefined) {
+        parsedData.push(data);
+      }
     }
     return parsedData;
   }, [historyData, location]);

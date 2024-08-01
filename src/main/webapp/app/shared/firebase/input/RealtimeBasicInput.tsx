@@ -9,6 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { FormFeedback, Input, Label, LabelProps } from 'reactstrap';
 import { InputType } from 'reactstrap/types/lib/Input';
 import * as styles from './styles.module.scss';
+import { Unsubscribe } from 'firebase/database';
 
 export enum RealtimeInputType {
   TEXT = 'text',
@@ -82,7 +83,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   } = props;
 
   const [inputValue, setInputValue] = useState(undefined);
-  const [inputValueReview, setInputValueReview] = useState<Review>(null);
+  const [inputValueReview, setInputValueReview] = useState<Review | null>(null);
   const [inputValueUuid, setInputValueUuid] = useState(null);
 
   const isCheckType = type === RealtimeInputType.CHECKBOX || type === RealtimeInputType.RADIO;
@@ -90,7 +91,10 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   const isTextType = [RealtimeInputType.INLINE_TEXT, RealtimeInputType.TEXT, RealtimeInputType.TEXTAREA].includes(type);
 
   useEffect(() => {
-    const callbacks = [];
+    if (!db) {
+      return;
+    }
+    const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(db, firebasePath), snapshot => {
         setInputValue(snapshot.val());
@@ -115,15 +119,15 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'fw-bold'} />
   );
 
-  const inputChangeHandler = e => {
-    let updateValue;
+  const inputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let updateValue: string;
     if (isCheckType) {
       updateValue = e.target.checked && label !== RADIO_OPTION_NONE ? label : '';
     } else {
       updateValue = e.target.value;
     }
 
-    updateReviewableContent(firebasePath, inputValue, updateValue, inputValueReview, inputValueUuid, updateMetaData);
+    updateReviewableContent?.(firebasePath, inputValue, updateValue, inputValueReview, inputValueUuid, updateMetaData);
 
     if (onChange) {
       onChange(e);
@@ -137,7 +141,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     return label === RADIO_OPTION_NONE;
   }
 
-  const inputStyle = isCheckType ? { marginRight: '0.25rem', ...style } : null;
+  const inputStyle: React.CSSProperties | undefined = isCheckType ? { marginRight: '0.25rem', ...style } : undefined;
   const inputComponent = (
     <>
       <Input

@@ -5,7 +5,6 @@ import { AnnotateAlterationBody } from 'app/shared/api/generated/curation';
 import { alterationClient, alterationControllerClient } from 'app/shared/api/clients';
 import { ENTITY_TYPE } from 'app/config/constants/constants';
 
-/* eslint-disable no-console */
 export class AlterationStore extends PaginationCrudStore<IAlteration> {
   constructor(protected rootStore: IRootStore) {
     super(rootStore, ENTITY_TYPE.ALTERATION);

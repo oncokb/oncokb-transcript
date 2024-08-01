@@ -102,7 +102,7 @@ export const FdaSubmissionDetail = (props: IFdaSubmissionDetailProps) => {
   );
 };
 
-const mapStoreToProps = ({ fdaSubmissionStore, layoutStore }: IRootStore) => ({
+const mapStoreToProps = ({ fdaSubmissionStore }: IRootStore) => ({
   fdaSubmissionEntity: fdaSubmissionStore.entity,
   getEntity: fdaSubmissionStore.getEntity,
 });

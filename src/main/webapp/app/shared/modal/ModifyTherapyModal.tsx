@@ -13,15 +13,15 @@ import { parseNcitUniqId } from '../select/NcitCodeSelect';
 import _ from 'lodash';
 import { Treatment, Tumor } from '../model/firebase/firebase.model';
 import { DEFAULT_ICON_SIZE } from 'app/config/constants/constants';
-import { onValue, ref } from 'firebase/database';
+import { Unsubscribe, onValue, ref } from 'firebase/database';
 
 export interface IModifyTherapyModalProps extends StoreProps {
   treatmentUuid: string;
   treatmentToEditPath?: string;
   drugList: readonly IDrug[];
   cancerTypePath: string;
-  onConfirm: (newTreatment: Treatment, newDrugs: IDrug[]) => Promise<void>;
-  onCancel: () => void;
+  onConfirm: (newTreatment: Treatment, newDrugs: Omit<IDrug, 'id'>[]) => Promise<void>;
+  onCancel: () => void | undefined;
 }
 
 function ModifyTherapyModal({
@@ -34,7 +34,7 @@ function ModifyTherapyModal({
   modifyTherapyModalStore,
   firebaseDb,
 }: IModifyTherapyModalProps) {
-  return modifyTherapyModalStore.openTreatmentUuid === treatmentUuid ? (
+  return modifyTherapyModalStore?.openTreatmentUuid === treatmentUuid ? (
     <ModifyTherapyModalContent
       treatmentUuid={treatmentUuid}
       treatmentToEditPath={treatmentToEditPath}
@@ -62,20 +62,20 @@ const ModifyTherapyModalContent = observer(
     firebaseDb,
   }: IModifyTherapyModalProps) => {
     const [currentTreatments, setCurrentTreatments] = useState<Treatment[]>([]);
-    const [treatmentToEdit, setTreatmentToEdit] = useState<Treatment>(null);
+    const [treatmentToEdit, setTreatmentToEdit] = useState<Treatment | null>(null);
     const [isConfirmPending, setIsConfirmPending] = useState(false);
 
-    const disableDeleteTherapy = modifyTherapyModalStore.selectedTreatments.length < 2;
-    const isEmptyTherapy = modifyTherapyModalStore.selectedTreatments.some(therapy => therapy.length === 0);
+    const disableDeleteTherapy = (modifyTherapyModalStore?.selectedTreatments.length ?? 0) < 2;
+    const isEmptyTherapy = modifyTherapyModalStore?.selectedTreatments.some(therapy => therapy.length === 0);
     const isDuplicate = isDuplicateTreatment();
     const alreadyExists = therapyAlreadyExists();
 
     function isDuplicateTreatment() {
-      for (let i = 0; i < modifyTherapyModalStore.selectedTreatments.length; i++) {
-        for (let j = i + 1; j < modifyTherapyModalStore.selectedTreatments.length; j++) {
-          const firstTreatment = modifyTherapyModalStore.selectedTreatments[i].map(drug => drug.value);
+      for (let i = 0; i < (modifyTherapyModalStore?.selectedTreatments?.length ?? 0); i++) {
+        for (let j = i + 1; j < (modifyTherapyModalStore?.selectedTreatments.length ?? 0); j++) {
+          const firstTreatment = modifyTherapyModalStore?.selectedTreatments[i].map(drug => drug.value) ?? [];
           firstTreatment.sort();
-          const secondTreatment = modifyTherapyModalStore.selectedTreatments[j].map(drug => drug.value);
+          const secondTreatment = modifyTherapyModalStore?.selectedTreatments[j].map(drug => drug.value) ?? [];
           secondTreatment.sort();
 
           if (_.isEqual(firstTreatment, secondTreatment)) {
@@ -88,12 +88,12 @@ const ModifyTherapyModalContent = observer(
 
     function therapyAlreadyExists() {
       const therapyToAdd: string[][] = [];
-      for (const treatment of modifyTherapyModalStore.selectedTreatments) {
+      for (const treatment of modifyTherapyModalStore?.selectedTreatments ?? []) {
         if (treatment.length === 0) {
           continue;
         }
 
-        const drugUuids = [];
+        const drugUuids: string[] = [];
         for (const drug of treatment) {
           if (!drug.uuid) {
             // drug only does not have uuid for drugs not in drug collection, so it can't already exist
@@ -107,13 +107,13 @@ const ModifyTherapyModalContent = observer(
       therapyToAdd.sort();
 
       return currentTreatments.some(treatment => {
-        if (modifyTherapyModalStore.openTreatmentUuid === treatment.name_uuid) {
+        if (modifyTherapyModalStore?.openTreatmentUuid === treatment.name_uuid) {
           return false;
         }
 
         const formattedTreatment: string[][] = [];
         for (const individualTreatment of treatment.name.split(',')) {
-          const drugUuids = [];
+          const drugUuids: string[] = [];
           for (const drugUuid of individualTreatment.split('+')) {
             drugUuids.push(drugUuid.trim());
           }
@@ -133,7 +133,7 @@ const ModifyTherapyModalContent = observer(
     function setSelectedTreatments() {
       if (!treatmentToEdit) {
         // only when creating new therapy
-        modifyTherapyModalStore.setSelectedTreatments([[]]);
+        modifyTherapyModalStore?.setSelectedTreatments([[]]);
         return;
       }
 
@@ -146,16 +146,16 @@ const ModifyTherapyModalContent = observer(
           for (const uuid of list) {
             const drug = getDrugFromTreatmentUuid(uuid);
             selectedOptions.push({
-              label: `${drug.name}${drug.nciThesaurus ? ` (${drug.nciThesaurus.code})` : ''}`,
-              value: drug.id,
-              uuid: drug.uuid,
-              drugName: drug.name,
+              label: `${drug?.name}${drug?.nciThesaurus ? ` (${drug.nciThesaurus.code})` : ''}`,
+              value: drug?.id ?? 0,
+              uuid: drug?.uuid ?? '',
+              drugName: drug?.name ?? '',
             });
           }
           selectedTreatments.push(selectedOptions);
         }
       }
-      modifyTherapyModalStore.setSelectedTreatments(selectedTreatments);
+      modifyTherapyModalStore?.setSelectedTreatments(selectedTreatments);
     }
 
     function getBottomMessage() {
@@ -186,7 +186,7 @@ const ModifyTherapyModalContent = observer(
         return (
           <span>
             The result will be added as{' '}
-            {modifyTherapyModalStore.selectedTreatments
+            {modifyTherapyModalStore?.selectedTreatments
               .map(therapy => therapy.map(drug => (drug.ncit ? drug.ncit.preferredName : drug.drugName || drug.label)).join(' + '))
               .join(', ')}
           </span>
@@ -195,7 +195,10 @@ const ModifyTherapyModalContent = observer(
     }
 
     useEffect(() => {
-      const callbacks = [];
+      if (!firebaseDb) {
+        return;
+      }
+      const callbacks: Unsubscribe[] = [];
       callbacks.push(
         onValue(ref(firebaseDb, cancerTypePath), snapshot => {
           const cancerType = snapshot.val() as Tumor;
@@ -230,29 +233,33 @@ const ModifyTherapyModalContent = observer(
         title={treatmentUuid.startsWith('new_treatment_for') ? 'Add Therapy(s)' : 'Modify Therapy(s)'}
         show={true}
         onConfirm={async () => {
-          const newDrugs: IDrug[] = modifyTherapyModalStore.selectedTreatments.reduce((accumulator: IDrug[], currentTreatment) => {
-            const drugs = currentTreatment
-              .filter(therapy => therapy.ncit && !accumulator.some(treatment => treatment.nciThesaurus.id === therapy.ncit.id))
-              .map<IDrug>(therapy => ({
-                uuid: generateUuid(),
-                name: therapy.ncit.preferredName,
-                nciThesaurus: parseNcitUniqId(therapy.value),
-              }));
-            return accumulator.concat(drugs);
-          }, []);
+          const newDrugs: Omit<IDrug, 'id'>[] =
+            modifyTherapyModalStore?.selectedTreatments.reduce((accumulator: Omit<IDrug, 'id'>[], currentTreatment) => {
+              const drugs = currentTreatment
+                .filter(therapy => therapy.ncit && !accumulator.some(treatment => treatment.nciThesaurus?.id === therapy.ncit?.id))
+                .map<Omit<IDrug, 'id'>>(therapy => ({
+                  uuid: generateUuid(),
+                  name: therapy.ncit?.preferredName ?? '',
+                  nciThesaurus: parseNcitUniqId(therapy.value),
+                  associations: null,
+                  fdaDrugs: null,
+                  flags: null,
+                }));
+              return accumulator.concat(drugs);
+            }, []) ?? [];
 
-          const newTreatmentName = modifyTherapyModalStore.selectedTreatments
+          const newTreatmentName = modifyTherapyModalStore?.selectedTreatments
             .map(therapy =>
               therapy
                 .map(drug =>
-                  drug.uuid ? drug.uuid : newDrugs.find(newDrug => _.isEqual(newDrug.nciThesaurus, parseNcitUniqId(drug.value))).uuid,
+                  drug.uuid ? drug.uuid : newDrugs.find(newDrug => _.isEqual(newDrug.nciThesaurus, parseNcitUniqId(drug.value)))?.uuid,
                 )
                 .join(' + '),
             )
             .join(', ');
 
           const newTreatment = treatmentToEdit ? _.cloneDeep(treatmentToEdit) : new Treatment('');
-          newTreatment.name = newTreatmentName;
+          newTreatment.name = newTreatmentName ?? '';
           setIsConfirmPending(true);
           try {
             await onConfirm(newTreatment, newDrugs);
@@ -266,7 +273,7 @@ const ModifyTherapyModalContent = observer(
         body={
           <div>
             <div className="mb-2">
-              {modifyTherapyModalStore.selectedTreatments.map((therapy, index) => {
+              {modifyTherapyModalStore?.selectedTreatments.map((therapy, index) => {
                 return (
                   <div className={`${index === 0 ? 'mt-2' : 'mt-3'}`} key={generateUuid()}>
                     <h6 className="mb-2">Therapy</h6>
@@ -274,11 +281,12 @@ const ModifyTherapyModalContent = observer(
                       <div className="me-3" style={{ display: 'inline-block', width: '93%' }}>
                         <DrugSelect
                           drugList={drugList}
-                          onChange={options => modifyTherapyModalStore.setTherapy(index, options)}
+                          //  TYPE-ISSUE: options is readonly, but is being modified by setTherapy
+                          onChange={options => modifyTherapyModalStore?.setTherapy(index, options as DrugSelectOption[])}
                           value={therapy}
                           isMulti
                           isOptionDisabled={(option: DrugSelectOption) =>
-                            modifyTherapyModalStore.selectedTreatments[index].some(selected => selected.value === option.value)
+                            modifyTherapyModalStore?.selectedTreatments[index].some(selected => selected.value === option.value)
                           }
                         />
                       </div>
@@ -286,9 +294,9 @@ const ModifyTherapyModalContent = observer(
                         className={`${disableDeleteTherapy ? 'delete-disabled' : 'delete-enabled'}`}
                         onClick={
                           disableDeleteTherapy
-                            ? null
+                            ? undefined
                             : () => {
-                                modifyTherapyModalStore.removeTherapy(index);
+                                modifyTherapyModalStore?.removeTherapy(index);
                               }
                         }
                         size={16}
@@ -299,7 +307,7 @@ const ModifyTherapyModalContent = observer(
               })}
             </div>
             <div>
-              <Button outline size="sm" className="mt-2" color="primary" onClick={modifyTherapyModalStore.addTherapy}>
+              <Button outline size="sm" className="mt-2" color="primary" onClick={modifyTherapyModalStore?.addTherapy}>
                 Add Therapy
               </Button>
             </div>

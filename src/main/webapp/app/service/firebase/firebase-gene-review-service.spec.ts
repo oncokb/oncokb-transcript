@@ -18,7 +18,7 @@ describe('Firebase Gene Review Service', () => {
   const DEFAULT_DATE = new Date('2023-01-01');
   const DEFAULT_DATETIME_STRING = DEFAULT_DATE.getTime().toString();
   const DEFAULT_UUID = generateUuid();
-  let MOCKED_ARRAY_KEYS = [];
+  let MOCKED_ARRAY_KEYS: string[] = [];
   const mockFirebaseRepository = mock<FirebaseRepository>();
   const mockAuthStore = mock<AuthStore>();
   const mockMetaService = mock<FirebaseMetaService>();
@@ -307,7 +307,7 @@ describe('Firebase Gene Review Service', () => {
       // An entity is created once all its changes have been accepted or rejected.
       await firebaseGeneReviewService.handleCreateAction(hugoSymbol, reviewLevel, false, ActionType.ACCEPT);
       const expectedMutation = _.cloneDeep(mutation);
-      delete expectedMutation.name_review.added;
+      delete expectedMutation.name_review?.added;
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
       expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
         [`History/BRAF/api/${MOCKED_ARRAY_KEYS[0]}`]: {

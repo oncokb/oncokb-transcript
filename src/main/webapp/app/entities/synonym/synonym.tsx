@@ -21,7 +21,7 @@ const defaultPaginationState: PaginationState<ISynonym> = {
 export interface ISynonymProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const Synonym = (props: ISynonymProps) => {
-  const columns: Column<IDrug>[] = [
+  const columns: Column<ISynonym>[] = [
     { accessor: 'type', Header: 'Type' },
     { accessor: 'source', Header: 'Source' },
     { accessor: 'code', Header: 'Code' },

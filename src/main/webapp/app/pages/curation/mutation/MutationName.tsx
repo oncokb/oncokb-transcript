@@ -13,6 +13,9 @@ function MutationName({ mutationPath, firebaseDb }: IMutationNameProps) {
   const [mutationName, setMutationName] = useState<string>('');
 
   useEffect(() => {
+    if (!firebaseDb) {
+      return;
+    }
     const unsubscribe = onValue(ref(firebaseDb, `${mutationPath}/name`), snapshot => {
       setMutationName(snapshot.val());
     });

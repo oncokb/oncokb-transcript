@@ -22,6 +22,9 @@ function GenomicIndicatorsHeader({
   const [genomicIndicators, setGenomicIndicators] = useState<GenomicIndicator[]>([]);
 
   useEffect(() => {
+    if (!firebaseDb) {
+      return;
+    }
     const unsubscribe = onValue(ref(firebaseDb, genomicIndicatorsPath), snapshot => {
       setGenomicIndicators(snapshot.val());
     });
@@ -39,11 +42,11 @@ function GenomicIndicatorsHeader({
     const addButton = (
       <AddButton
         className={classNames(isGenomicIndicator ? 'ms-2' : null)}
-        title={!isGenomicIndicator ? 'Genomic Indicators' : null}
+        title={!isGenomicIndicator ? 'Genomic Indicators' : undefined}
         disabled={isEmptyIndicatorName}
         onClickHandler={async () => {
-          await addEmptyGenomicIndicator(genomicIndicatorsPath);
-          await fetchGenomicIndicators(genomicIndicatorsPath);
+          await addEmptyGenomicIndicator?.(genomicIndicatorsPath);
+          await fetchGenomicIndicators?.(genomicIndicatorsPath);
         }}
       />
     );

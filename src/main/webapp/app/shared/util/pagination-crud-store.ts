@@ -25,7 +25,7 @@ export const debouncedSearchWithPagination = _.debounce(
   { leading: true },
 );
 
-export class PaginationCrudStore<T> extends BaseCrudStore<T> {
+export class PaginationCrudStore<T extends object> extends BaseCrudStore<T> {
   searchEntities: ICrudSearchAction<T> = this.updateHandler(this.getSearch);
 
   constructor(
@@ -42,7 +42,9 @@ export class PaginationCrudStore<T> extends BaseCrudStore<T> {
   }
 
   *getAllFromLastUrl() {
-    const result: AxiosResponse<T[]> = yield axios.get(`${this.lastUrl}${this.lastUrl.includes('?') ? '&' : '?'}cacheBuster=${Date.now()}`);
+    const result: AxiosResponse<T[]> = yield axios.get(
+      `${this.lastUrl}${this.lastUrl?.includes('?') ? '&' : '?'}cacheBuster=${Date.now()}`,
+    );
     this.entities = result.data;
     this.totalItems = result.headers['x-total-count'];
     return result;

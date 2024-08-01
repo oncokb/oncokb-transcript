@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ReactSelect, { NoticeProps, OptionProps, Props as SelectProps, components } from 'react-select';
 import { DEFAULT_ENTITY_SORT_FIELD, DEFAULT_SORT_DIRECTION, ENTITY_TYPE, GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
 import { IRootStore } from 'app/stores/createStore';
-import { connect } from '../util/typed-inject';
+import { InjectProps, connect } from '../util/typed-inject';
 import { IDrug } from '../model/drug.model';
 import { getEntityPaginationSortParameter } from '../util/entity-utils';
 import { ISynonym } from '../model/synonym.model';
@@ -14,8 +14,8 @@ import { getOptionFromNcit } from './NcitCodeSelect';
 import AsyncSelect from 'react-select/async';
 import { INciThesaurus } from '../model/nci-thesaurus.model';
 
-interface IDrugSelectProps extends SelectProps, StoreProps {
-  drugList?: IDrug[];
+interface IDrugSelectProps<IsMulti extends boolean> extends SelectProps<DrugSelectOption, IsMulti>, StoreProps {
+  drugList?: readonly IDrug[];
 }
 
 export type DrugSelectOption = {
@@ -27,25 +27,27 @@ export type DrugSelectOption = {
   ncit?: INciThesaurus;
 };
 
-const sortParameter = getEntityPaginationSortParameter(DEFAULT_ENTITY_SORT_FIELD[ENTITY_TYPE.DRUG], DEFAULT_SORT_DIRECTION);
+const sortParameter = getEntityPaginationSortParameter(DEFAULT_ENTITY_SORT_FIELD[ENTITY_TYPE.DRUG] ?? '', DEFAULT_SORT_DIRECTION);
 
-const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
+const DrugSelect = <IsMulti extends boolean>(props: IDrugSelectProps<IsMulti>) => {
   const { getDrugs, onInputChange, searchNciThesaurus, ...selectProps } = props;
 
   const [drugOptions, setDrugOptions] = useState<DrugSelectOption[]>([]);
   const [input, setInput] = useState('');
 
   useEffect(() => {
-    function getDrugSelectOptionsFromDrugs(drugs: IDrug[]): DrugSelectOption[] {
-      return drugs?.map(entity => {
-        return {
-          value: entity.id,
-          label: `${entity.name}${entity.nciThesaurus ? ` (${entity.nciThesaurus.code})` : ''}`,
-          drugName: entity.name,
-          uuid: entity.uuid,
-          synonyms: entity.nciThesaurus?.synonyms,
-        };
-      });
+    function getDrugSelectOptionsFromDrugs(drugs: readonly IDrug[]): DrugSelectOption[] {
+      return (
+        drugs?.map((entity): DrugSelectOption => {
+          return {
+            value: entity.id,
+            label: `${entity.name}${entity.nciThesaurus ? ` (${entity.nciThesaurus.code})` : ''}`,
+            drugName: entity.name,
+            uuid: entity.uuid,
+            synonyms: entity.nciThesaurus?.synonyms ?? undefined,
+          };
+        }) ?? []
+      );
     }
 
     async function fetchAllDrugs() {
@@ -63,8 +65,8 @@ const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
   function Option(optionProps: OptionProps<DrugSelectOption>) {
     const title = optionProps.data.label;
     const synonyms = optionProps.data.synonyms;
-    synonyms?.sort((synonym1, synonym2) => synonym1.name?.length - synonym2.name?.length);
-    const matchingSynonyms = synonyms?.filter(synonynm => synonynm.name?.toLowerCase().includes(input.trim().toLowerCase()));
+    synonyms?.sort((synonym1, synonym2) => synonym1.name.length - synonym2.name.length);
+    const matchingSynonyms = synonyms?.filter(synonym => synonym.name.toLowerCase().includes(input.trim().toLowerCase()));
     const matchingSynonymNames: string[] = [];
     if (matchingSynonyms) {
       for (const synonym of matchingSynonyms) {
@@ -118,7 +120,7 @@ const DrugSelect: React.FunctionComponent<IDrugSelectProps> = props => {
     return false;
   }
 
-  const loadOptions = _.debounce((searchWord: string, callback: (options) => void) => {
+  const loadOptions = _.debounce((searchWord: string, callback: (options: DrugSelectOption[]) => void) => {
     const options = drugOptions.filter(drug => drug.label.toLowerCase().includes(searchWord.toLowerCase()));
     if (options.length > 0) {
       callback(options);
@@ -158,4 +160,7 @@ const mapStoreToProps = ({ drugStore, nciThesaurusStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(DrugSelect);
+export default function <IsMulti extends boolean = false>(props: InjectProps<IDrugSelectProps<IsMulti>, StoreProps>) {
+  const InjectedDrugSelect = connect(mapStoreToProps)<IDrugSelectProps<IsMulti>>(DrugSelect);
+  return <InjectedDrugSelect {...props} />;
+}

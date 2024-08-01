@@ -53,6 +53,11 @@ export class FirebaseAppStore extends BaseStore {
   }
 
   initializeFirebase() {
+    if (!AppConfig.serverConfig.frontend) {
+      throw new Error('No frontend config');
+    } else if (!AppConfig.serverConfig.frontend.firebase) {
+      throw new Error('No firebase config');
+    }
     const { enabled, connectToFirebaseEmulators, ...firebaseOptions } = AppConfig.serverConfig.frontend.firebase;
     this.firebaseEnabled = enabled;
     if (this.firebaseEnabled) {
@@ -76,7 +81,7 @@ export class FirebaseAppStore extends BaseStore {
           }
         });
       } catch (error) {
-        this.firebaseInitError = error;
+        this.firebaseInitError = error as Error;
         notifyError(error, 'Encountered issue initializing Firebase app.');
         this.firebaseInitSuccess = false;
       }

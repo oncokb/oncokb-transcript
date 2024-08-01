@@ -148,7 +148,7 @@ describe('FirebaseUtils', () => {
         } as Mutation;
         expect(getMutationName(mutation.name, mutation.alterations), 'Default mutation name should be used').toEqual('(No Name)');
         mutation = {
-          name: undefined,
+          name: '',
         } as Mutation;
         expect(getMutationName(mutation.name, mutation.alterations), 'Default mutation name should be used').toEqual('(No Name)');
       });
@@ -218,11 +218,17 @@ describe('FirebaseUtils', () => {
 
     it('should return true when meta collection has uuid', () => {
       const uuid = generateUuid();
+      if (!meta.review) {
+        throw new Error('review is not assigned');
+      }
       meta.review[uuid] = true;
       expect(geneNeedsReview(meta)).toBeTruthy();
     });
 
     test.each([['not a uuid'], ['111-111-111-00000']])('should return false when uuid is invalid', uuid => {
+      if (!meta.review) {
+        throw new Error('review is not assigned');
+      }
       meta.review[uuid] = true;
       expect(geneNeedsReview(meta)).toBeFalsy();
     });

@@ -10,11 +10,11 @@ import './curation-tools-tab.scss';
 import { MetaCollection } from 'app/shared/model/firebase/firebase.model';
 
 export interface IGeneListPageToolsTab extends StoreProps {
-  metaData: MetaCollection;
+  metaData: MetaCollection | null;
 }
 
 function GeneListPageToolsTab({ metaData, createGene }: IGeneListPageToolsTab) {
-  const selectedGene = useRef<string>(null);
+  const selectedGene = useRef<string>();
   const [createButtonDisabled, setCreateButtonDisabled] = useState(true);
   const [showGeneExistsWarning, setShowGeneExistsWarning] = useState(false);
 
@@ -25,7 +25,7 @@ function GeneListPageToolsTab({ metaData, createGene }: IGeneListPageToolsTab) {
     if (!gene) {
       setCreateButtonDisabled(true);
       setShowGeneExistsWarning(false);
-    } else if (Object.keys(metaData).includes(gene)) {
+    } else if (metaData && Object.keys(metaData).includes(gene)) {
       setCreateButtonDisabled(true);
       setShowGeneExistsWarning(true);
     } else {
@@ -35,7 +35,9 @@ function GeneListPageToolsTab({ metaData, createGene }: IGeneListPageToolsTab) {
   }
 
   async function handleCreateGene() {
-    await createGene(selectedGene.current, false, `${PAGE_ROUTE.CURATION}/${selectedGene.current}/somatic`);
+    if (selectedGene.current !== undefined) {
+      await createGene?.(selectedGene.current, false, `${PAGE_ROUTE.CURATION}/${selectedGene.current}/somatic`);
+    }
   }
 
   return (

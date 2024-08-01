@@ -3,9 +3,9 @@ import _ from 'lodash';
 import { action, makeObservable, observable } from 'mobx';
 
 export class CommentStore {
-  public openCommentsId: string = null;
+  public openCommentsId: string | null = null;
   public comments: Comment[] = [];
-  public openCommentsScrollPosition: number = null;
+  public openCommentsScrollPosition: number | null = null;
   public commentIndiciesToDelete: number[] = [];
   public commentInputValue = '';
 
@@ -40,7 +40,7 @@ export class CommentStore {
     this.commentIndiciesToDelete = [];
   }
 
-  setOpenCommentsId(id: string) {
+  setOpenCommentsId(id: string | null) {
     this.openCommentsId = id;
   }
 

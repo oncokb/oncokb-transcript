@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
+import { Button, Row, Col } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 
-import { IAssociation } from 'app/shared/model/association.model';
-import { IClinicalTrial } from 'app/shared/model/clinical-trial.model';
-import { IEligibilityCriteria } from 'app/shared/model/eligibility-criteria.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
 
 export interface IEligibilityCriteriaUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
@@ -45,11 +41,12 @@ export const EligibilityCriteriaUpdate = (props: IEligibilityCriteriaUpdateProps
     }
   }, [updateSuccess]);
 
+  // TYPE-ISSUE: don't know values type
   const saveEntity = values => {
     const entity = {
       ...eligibilityCriteriaEntity,
       ...values,
-      associations: mapIdList(values.associations),
+      associations: mapIdList(values.associations ?? []),
       clinicalTrial: clinicalTrials.find(it => it.id.toString() === values.clinicalTrialId.toString()),
     };
 
@@ -64,8 +61,8 @@ export const EligibilityCriteriaUpdate = (props: IEligibilityCriteriaUpdateProps
     isNew
       ? {}
       : {
-          type: 'INCLUSION',
           ...eligibilityCriteriaEntity,
+          type: eligibilityCriteriaEntity.type,
           associations: eligibilityCriteriaEntity?.associations?.map(e => e.id.toString()),
           clinicalTrialId: eligibilityCriteriaEntity?.clinicalTrial?.id,
         };

@@ -23,10 +23,14 @@ export default function Collapsible({
   disableOpen,
   ...baseCollapsibleProps
 }: CollapsibleProps) {
-  const defaultColorOptions: CollapsibleColorProps = {
-    hideLeftBorder: colorOptions?.hideLeftBorder ? colorOptions.hideLeftBorder : false,
-    ...colorOptions,
-  };
+  const defaultColorOptions: CollapsibleColorProps | undefined = colorOptions
+    ? {
+        hideLeftBorder: colorOptions?.hideLeftBorder ? colorOptions.hideLeftBorder : false,
+        ...colorOptions,
+      }
+    : {
+        hideLeftBorder: false,
+      };
 
   const defaultDisplayOptions: CollapsibleDisplayProps = {
     disableCollapsible: displayOptions?.disableCollapsible || false,
@@ -35,9 +39,9 @@ export default function Collapsible({
     hideToggle: displayOptions?.hideToggle || false,
   };
 
-  const displayOptionsOverride = createDisplayOptions(isPendingDelete, defaultDisplayOptions, displayOptions);
+  const displayOptionsOverride = createDisplayOptions(isPendingDelete, defaultDisplayOptions, displayOptions ?? {});
   const colorOptionsOverride = createColorOptions(colorOptions, displayOptionsOverride, defaultColorOptions, isPendingDelete);
-  const disableOpenOverride = shouldDisableOverride(isPendingDelete, displayOptionsOverride, disableOpen);
+  const disableOpenOverride = shouldDisableOverride(isPendingDelete, displayOptionsOverride, disableOpen ?? false);
 
   return (
     <BaseCollapsible
@@ -63,19 +67,19 @@ function shouldDisableOverride(isPendingDelete: boolean, displayOptionsOverride:
 }
 
 function createColorOptions(
-  colorOptions: CollapsibleColorProps,
+  colorOptions: CollapsibleColorProps | undefined,
   displayOptionsOverride: CollapsibleDisplayProps,
-  defaultColorOptions: CollapsibleColorProps,
+  defaultColorOptions: CollapsibleColorProps | undefined,
   isPendingDelete: boolean,
 ) {
   const forceLeftColor = colorOptions?.hideLeftBorder !== true && colorOptions?.forceLeftColor;
   if (displayOptionsOverride.disableCollapsible && !forceLeftColor) {
-    if (defaultColorOptions.hideLeftBorder === false) {
+    if (defaultColorOptions?.hideLeftBorder === false) {
       defaultColorOptions.borderLeftColor = DISABLED_COLLAPSIBLE_COLOR;
     }
   }
   if (isPendingDelete) {
-    if (defaultColorOptions.hideLeftBorder === false) {
+    if (defaultColorOptions?.hideLeftBorder === false) {
       defaultColorOptions.borderLeftColor = DANGER;
     }
   }

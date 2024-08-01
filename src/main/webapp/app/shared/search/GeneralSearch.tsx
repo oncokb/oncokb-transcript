@@ -1,11 +1,10 @@
-import { faInfo, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SearchOptionType } from 'app/config/constants/constants';
 import _ from 'lodash';
 import React, { useState } from 'react';
 import { components } from 'react-select';
 import AsyncSelect from 'react-select/async';
-import { Col, Row } from 'reactstrap';
 import axiosInstance from '../api/axiosInstance';
 import { SearchControllerApi, SearchResultDTO } from '../api/generated/curation';
 import DefaultTooltip from '../tooltip/DefaultTooltip';
@@ -20,11 +19,13 @@ export const SearchResultKeys: { [key in keyof SearchResultDTO]: SearchOptionTyp
   alterations: SearchOptionType.ALTERATION,
 };
 
+type SearchResultOption = { value: unknown[]; type: SearchOptionType | undefined };
+
 const getSearchResults = async (search: string) => {
   if (search) {
-    const searchApiClient = new SearchControllerApi(null, '', axiosInstance);
+    const searchApiClient = new SearchControllerApi(undefined, '', axiosInstance);
     const searchResults: SearchResultDTO = (await searchApiClient.search(search)).data;
-    const searchOptions = [
+    const searchOptions: { label: SearchOptionType; options: SearchResultOption[] }[] = [
       { label: SearchOptionType.GENE, options: [] },
       { label: SearchOptionType.ALTERATION, options: [] },
       { label: SearchOptionType.ARTICLE, options: [] },
@@ -33,7 +34,7 @@ const getSearchResults = async (search: string) => {
       { label: SearchOptionType.FDA_SUBMISSION, options: [] },
     ];
     for (const key of Object.keys(searchResults)) {
-      searchResults[key].slice(0, 5).forEach(result => {
+      searchResults[key].slice(0, 5).forEach((result: unknown[]) => {
         const index = searchOptions.findIndex(o => o.label === SearchResultKeys[key]);
         const type = Object.values(SearchOptionType).find(v => v === SearchResultKeys[key]);
         searchOptions[index].options.push({ value: result, type });
@@ -75,7 +76,7 @@ const SearchInfoIconOverlay: JSX.Element = (
   </>
 );
 
-export const GeneralSearch = props => {
+export const GeneralSearch = () => {
   const [search, setSearch] = useState('');
 
   const Option: React.FunctionComponent<any> = (optionProps: any) => {

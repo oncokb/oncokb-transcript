@@ -3,15 +3,12 @@ import { connect } from 'app/shared/util/typed-inject';
 import { RouteComponentProps } from 'react-router-dom';
 
 import { ICategoricalAlteration } from 'app/shared/model/categorical-alteration.model';
-import { APP_DATE_FORMAT, APP_LOCAL_DATE_FORMAT, ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
+import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
 
 import { IRootStore } from 'app/stores';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { filterByKeyword, getEntityTableActionsColumn } from 'app/shared/util/utils';
-import { ISeqRegion } from 'app/shared/model/seq-region.model';
-import { IGene } from 'app/shared/model/gene.model';
-import GeneFlags from 'app/entities/gene/gene-flags';
 export interface ICategoricalAlterationProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const CategoricalAlteration = (props: ICategoricalAlterationProps) => {
@@ -23,17 +20,17 @@ export const CategoricalAlteration = (props: ICategoricalAlterationProps) => {
     {
       accessor: 'alterationType',
       Header: 'Alteration Type',
-      onFilter: (data: ICategoricalAlteration, keyword) => (data.alterationType ? filterByKeyword(data.alterationType, keyword) : false),
+      onFilter: (data: ICategoricalAlteration, keyword) => filterByKeyword(data.alterationType, keyword),
     },
     {
       accessor: 'type',
       Header: 'Type',
-      onFilter: (data: ICategoricalAlteration, keyword) => (data.type ? filterByKeyword(data.type, keyword) : false),
+      onFilter: (data: ICategoricalAlteration, keyword) => filterByKeyword(data.type, keyword),
     },
     {
       accessor: 'name',
       Header: 'Name',
-      onFilter: (data: ICategoricalAlteration, keyword) => (data.name ? filterByKeyword(data.name, keyword) : false),
+      onFilter: (data: ICategoricalAlteration, keyword) => filterByKeyword(data.name, keyword),
     },
     {
       accessor: 'consequence.term',

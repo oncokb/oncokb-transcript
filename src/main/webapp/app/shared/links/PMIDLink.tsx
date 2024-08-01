@@ -3,13 +3,13 @@ import WithSeparator from 'react-with-separator';
 
 export interface IPMIDLinkProps {
   pmids: string;
-  seperateLinks?: boolean;
-  seperator?: JSX.Element | string;
+  separateLinks?: boolean;
+  separator?: JSX.Element | string;
 }
 
 export const PMIDLink: React.FunctionComponent<IPMIDLinkProps> = props => {
-  if (props.seperateLinks) {
-    <WithSeparator separator={props.seperator}>
+  if (props.separateLinks) {
+    <WithSeparator separator={props.separator ?? ''}>
       {props.pmids.split(',').map(pmid => (
         <span key={pmid}>
           PMID:{' '}

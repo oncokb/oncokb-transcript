@@ -8,10 +8,16 @@ import { ASC, DESC, ITEMS_PER_PAGE, SORT } from 'app/shared/util/pagination.cons
 import { overridePaginationStateWithQueryParams } from 'app/shared/util/entity-utils';
 
 import { IRootStore } from 'app/stores';
-import OncoKBAsyncTable from 'app/shared/table/OncoKBAsyncTable';
+import OncoKBAsyncTable, { PaginationState } from 'app/shared/table/OncoKBAsyncTable';
 import { getEntityTableActionsColumn, getPaginationFromSearchParams } from 'app/shared/util/utils';
 import { Column } from 'react-table';
 import EntityActionButton from 'app/shared/button/EntityActionButton';
+
+const defaultPaginationState: PaginationState<IFlag> = {
+  sort: 'id',
+  order: 'asc',
+  activePage: 1,
+};
 
 export interface IFlagProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
@@ -35,7 +41,7 @@ export const Flag = (props: IFlagProps) => {
             data={props.flagList.concat()}
             columns={columns}
             loading={props.loading}
-            initialPaginationState={getPaginationFromSearchParams(props.location.search)}
+            initialPaginationState={getPaginationFromSearchParams(props.location.search) ?? defaultPaginationState}
             searchEntities={props.searchEntities}
             getEntities={props.getEntities}
             totalItems={props.totalItems}

@@ -26,6 +26,7 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { FlattenedHistory, parseHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
+import { Unsubscribe } from 'firebase/database';
 import { getLocationIdentifier, getTooltipHistoryList } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
 
 export interface ICurationPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
@@ -55,8 +56,11 @@ export const CurationPage = (props: ICurationPageProps) => {
   }, []);
 
   useEffect(() => {
+    if (!props.firebaseDb) {
+      return;
+    }
     if (geneEntity && props.firebaseInitSuccess) {
-      const cleanupCallbacks = [];
+      const cleanupCallbacks: Unsubscribe[] = [];
       cleanupCallbacks.push(props.addHistoryListener(firebaseHistoryPath));
       cleanupCallbacks.push(props.addMutationListListener(mutationsPath));
       return () => {
@@ -213,9 +217,9 @@ export const CurationPage = (props: ICurationPageProps) => {
           <MutationsSection
             mutationsPath={mutationsPath}
             metaGeneReviewPath={firebaseMetaGeneReviewPath}
-            hugoSymbol={hugoSymbol}
+            hugoSymbol={hugoSymbol ?? ''}
             isGermline={isGermline}
-            parsedHistoryList={tooltipHistoryList}
+            parsedHistoryList={tooltipHistoryList ?? new Map()}
             onMutationListRender={() => setMutationListRendered(true)}
           />
         </div>
@@ -225,11 +229,11 @@ export const CurationPage = (props: ICurationPageProps) => {
             try {
               const newRCTs = noneDeleted ? [] : newExcludedRCTs;
               await props.updateRelevantCancerTypes(
-                props.relevantCancerTypesModalStore.pathToRelevantCancerTypes,
-                noneDeleted ? [] : props.relevantCancerTypesModalStore.firebaseExcludedRCTs,
+                props.relevantCancerTypesModalStore.pathToRelevantCancerTypes ?? '',
+                noneDeleted ? [] : props.relevantCancerTypesModalStore.firebaseExcludedRCTs ?? [],
                 newRCTs,
-                props.relevantCancerTypesModalStore.excludedRCTsReview,
-                props.relevantCancerTypesModalStore.excludedRCTsUuid,
+                props.relevantCancerTypesModalStore.excludedRCTsReview!,
+                props.relevantCancerTypesModalStore.excludedRCTsUuid!,
                 isGermline,
                 props.relevantCancerTypesModalStore.firebaseExcludedRCTs === undefined,
               );

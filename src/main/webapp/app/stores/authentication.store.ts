@@ -21,8 +21,8 @@ export const hasAnyAuthority = (authorities: string[], hasAnyAuthorities: string
 export class AuthStore extends BaseStore {
   public isAuthenticated = false;
   public account: IUser = USER_DEFAULT_VALUE;
-  public redirectMessage: string = null;
-  public logoutUrl: string = null;
+  public redirectMessage: string | null = null;
+  public logoutUrl: string | null = null;
   public loginSuccess = false;
   public loginError: OncoKBError | undefined = undefined; // Errors returned from server side
   public fetchingSession = false;
@@ -97,8 +97,8 @@ export class AuthStore extends BaseStore {
       this.logoutUrl = result.data.logoutUrl;
       return result;
     } catch (e) {
-      this.errorMessage = e.message;
-      throw e;
+      this.errorMessage = (e as Error).message;
+      throw e as Error;
     }
   }
 
@@ -118,9 +118,9 @@ export class AuthStore extends BaseStore {
     } catch (e) {
       this.isAuthenticated = false;
       this.fetchingSession = false;
-      this.loginError = e;
+      this.loginError = e as Error;
       this.loading = false;
-      if (!axios.isAxiosError(e) || (e as AxiosError).response.status !== 401) {
+      if (!axios.isAxiosError(e) || (e as AxiosError).response?.status !== 401) {
         throw e;
       }
     }

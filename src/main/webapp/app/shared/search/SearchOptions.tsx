@@ -18,13 +18,13 @@ export const SearchOption: React.FunctionComponent<SearchOptionProps> = props =>
   const searchKeyword = props.search ? props.search : '';
   const getSearchOption = () => {
     let path = `/${props.data.id}`;
-    let title: SelectText = undefined;
+    let title: SelectText | undefined = undefined;
     let subTitles: SelectText[] = [];
     switch (props.type) {
       case SearchOptionType.FDA_SUBMISSION: {
         const data: IFdaSubmission = props.data;
         path = PAGE_ROUTE.FDA_SUBMISSION + path;
-        title = { text: data.deviceName, searchWords: [searchKeyword] };
+        title = { text: data.deviceName ?? '', searchWords: [searchKeyword] };
         const number = data.number + (data.supplementNumber ? '/' + data.supplementNumber : '');
         subTitles = [{ label: 'Number: ', text: number, searchWords: [searchKeyword] }];
         break;
@@ -39,7 +39,7 @@ export const SearchOption: React.FunctionComponent<SearchOptionProps> = props =>
       case SearchOptionType.ARTICLE: {
         const data: IArticle = props.data;
         path = PAGE_ROUTE.ARTICLE + path;
-        title = { label: 'UID: ', text: data.uid, searchWords: [searchKeyword] };
+        title = { label: 'UID: ', text: data.uid ?? '', searchWords: [searchKeyword] };
         break;
       }
       case SearchOptionType.DRUG: {
@@ -60,7 +60,9 @@ export const SearchOption: React.FunctionComponent<SearchOptionProps> = props =>
         const data: IGene = props.data;
         path = PAGE_ROUTE.GENE + path;
         title = { text: `${data.hugoSymbol} (Entrez Gene: ${data.entrezGeneId})`, searchWords: [searchKeyword] };
-        subTitles = [{ label: 'Also known as ', text: data.synonyms?.map(alias => alias.name).join(', '), searchWords: [searchKeyword] }];
+        subTitles = [
+          { label: 'Also known as ', text: data.synonyms?.map(alias => alias.name).join(', ') ?? '', searchWords: [searchKeyword] },
+        ];
         break;
       }
       case SearchOptionType.ALTERATION: {
@@ -72,7 +74,7 @@ export const SearchOption: React.FunctionComponent<SearchOptionProps> = props =>
       default:
         break;
     }
-    return <EntitySelectOption additional={{ isLink: true, path }} title={title} subTitles={subTitles} />;
+    return <EntitySelectOption additional={{ isLink: true, path }} title={title ?? { text: '' }} subTitles={subTitles} />;
   };
   return <div>{getSearchOption()}</div>;
 };

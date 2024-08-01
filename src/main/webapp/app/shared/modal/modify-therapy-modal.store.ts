@@ -2,7 +2,7 @@ import { action, makeObservable, observable } from 'mobx';
 import { DrugSelectOption } from '../select/DrugSelect';
 
 export class ModifyTherapyModalStore {
-  public openTreatmentUuid: string = null;
+  public openTreatmentUuid: string | null = null;
   public selectedTreatments: DrugSelectOption[][] = [];
 
   constructor() {

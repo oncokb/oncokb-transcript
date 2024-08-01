@@ -35,17 +35,15 @@ export const NciThesaurus = (props: INciThesaurusProps) => {
         <EntityActionButton className="ms-2" color="primary" entityType={ENTITY_TYPE.NCI_THESAURUS} entityAction={ENTITY_ACTION.ADD} />
       </h2>
       <div className="table-responsive">
-        {mapStoreToProps && (
-          <OncoKBAsyncTable
-            data={props.nciThesaurusList.concat()}
-            columns={columns}
-            loading={props.loading}
-            initialPaginationState={getPaginationFromSearchParams(props.location.search) || defaultPaginationState}
-            searchEntities={props.searchEntities}
-            getEntities={props.getEntities}
-            totalItems={props.totalItems}
-          />
-        )}
+        <OncoKBAsyncTable
+          data={props.nciThesaurusList.concat()}
+          columns={columns}
+          loading={props.loading}
+          initialPaginationState={getPaginationFromSearchParams(props.location.search) || defaultPaginationState}
+          searchEntities={props.searchEntities}
+          getEntities={props.getEntities}
+          totalItems={props.totalItems}
+        />
       </div>
     </div>
   );

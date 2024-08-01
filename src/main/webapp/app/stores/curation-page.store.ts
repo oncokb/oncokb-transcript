@@ -7,20 +7,20 @@ import { alterationControllerClient } from 'app/shared/api/clients';
 
 export type MutationQuery = {
   name: string;
-  alterations: FirebaseAlt[];
+  alterations: FirebaseAlt[] | null;
 };
 
 export type AnnotatedAltsQuery = {
   query: AnnotateAlterationBody;
-  result: AlterationAnnotationStatus;
+  result: AlterationAnnotationStatus | null;
 };
 
 export type AnnotatedAltsCache = {
   loading: boolean;
-  error: Error;
+  error: Error | null;
   cache: { [key: string]: AnnotatedAltsQuery };
-  get: (hugoSymbol: string, mutations: MutationQuery[]) => AlterationAnnotationStatus[];
-  fetch: (hugoSymbol: string, mutations: MutationQuery[]) => Promise<AlterationAnnotationStatus[]>;
+  get: (hugoSymbol: string, mutations: MutationQuery[]) => (AlterationAnnotationStatus | null | undefined)[];
+  fetch: (hugoSymbol: string, mutations: MutationQuery[]) => Promise<(AlterationAnnotationStatus | null | undefined)[]>;
 };
 
 const getAltKey = (alt: FirebaseAlt | string) => {
@@ -83,34 +83,45 @@ export class CurationPageStore {
       this.annotatedAltsCache.loading = true;
       const result = await alterationControllerClient.annotateAlterations(queries);
       result.data.forEach(queryStatus => {
-        this.annotatedAltsCache.cache[queryStatus.queryId].result = queryStatus;
+        if (queryStatus.queryId) {
+          this.annotatedAltsCache.cache[queryStatus.queryId].result = queryStatus;
+        } else {
+          throw new Error('queryId is missing');
+        }
       });
     } catch (responseError) {
-      this.annotatedAltsCache.error = responseError;
+      this.annotatedAltsCache.error = responseError as Error;
     } finally {
       this.annotatedAltsCache.loading = false;
     }
   }
 
-  async fetchAnnotatedAltsCache(hugoSymbol: string, mutations: MutationQuery[]) {
+  async fetchAnnotatedAltsCache(
+    hugoSymbol: string,
+    mutations: MutationQuery[],
+  ): Promise<(AlterationAnnotationStatus | null | undefined)[]> {
     const queries = mutations.reduce((acc, mutation) => {
       acc.push(...createMutationQuery(hugoSymbol, mutation));
       return acc;
     }, [] as AnnotateAlterationBody[]);
 
-    const unannotatedQueries = queries.filter(query => !this.annotatedAltsCache.cache[query.queryId]);
+    const unannotatedQueries = queries.filter(query => query.queryId && !this.annotatedAltsCache.cache[query.queryId]);
     if (unannotatedQueries.length > 0) {
       unannotatedQueries.forEach(query => {
-        this.annotatedAltsCache.cache[query.queryId] = {
-          query,
-          result: null,
-        };
+        if (query.queryId) {
+          this.annotatedAltsCache.cache[query.queryId] = {
+            query,
+            result: null,
+          };
+        } else {
+          throw new Error('queryId is empty');
+        }
       });
       await this.annotateAlterations(unannotatedQueries);
     }
     return queries
-      .filter(query => this.annotatedAltsCache.cache[query.queryId] && this.annotatedAltsCache.cache[query.queryId].result)
-      .map(query => this.annotatedAltsCache.cache[query.queryId].result);
+      .filter(query => query.queryId && this.annotatedAltsCache.cache[query.queryId] && this.annotatedAltsCache.cache[query.queryId].result)
+      .map(query => (query.queryId !== undefined ? this.annotatedAltsCache.cache[query.queryId].result : undefined));
   }
 
   getAnnotatedAltsCache(hugoSymbol: string, mutations: MutationQuery[]) {
@@ -119,8 +130,8 @@ export class CurationPageStore {
       return acc;
     }, [] as AnnotateAlterationBody[]);
     return queries
-      .filter(query => this.annotatedAltsCache.cache[query.queryId] && this.annotatedAltsCache.cache[query.queryId].result)
-      .map(query => this.annotatedAltsCache.cache[query.queryId].result);
+      .filter(query => query.queryId && this.annotatedAltsCache.cache[query.queryId] && this.annotatedAltsCache.cache[query.queryId].result)
+      .map(query => (query.queryId !== undefined ? this.annotatedAltsCache.cache[query.queryId].result : undefined));
   }
 }
 

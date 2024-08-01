@@ -3,7 +3,7 @@ import { GenomicIndicator, Mutation, Review } from 'app/shared/model/firebase/fi
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
-import { Database, onValue, ref, update } from 'firebase/database';
+import { Database, Unsubscribe, onValue, ref, update } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import { CellInfo } from 'react-table';
@@ -38,24 +38,28 @@ const GenomicIndicatorsTable = ({
   const [genomicIndicatorsLength, setGenomicIndicatorsLength] = useState<number>(0);
 
   async function deleteGenomicIndicator(genomicIndicator: GenomicIndicator, index: number) {
-    const name = authStore.fullName;
+    const name = authStore?.fullName ?? '';
 
     const pathDetails = parseFirebaseGenePath(`${genomicIndicatorsPath}/${index}/name`);
-    const hugoSymbol = pathDetails.hugoSymbol;
-    const pathFromGene = pathDetails.pathFromGene;
+    const hugoSymbol = pathDetails?.hugoSymbol;
+    const pathFromGene = pathDetails?.pathFromGene;
 
     const removeWithoutReview = isSectionRemovableWithoutReview(genomicIndicator.name_review);
 
     const review = new Review(name, undefined, undefined, true);
 
+    if (!hugoSymbol) {
+      throw new SentryError('Missing hugoSymbol in pathDetails', pathDetails ?? {});
+    }
+
     if (removeWithoutReview) {
       const nestedUuids = findNestedUuids(genomicIndicator);
       try {
-        await deleteGenomicIndicators(genomicIndicatorsPath, [index]);
+        await deleteGenomicIndicators?.(genomicIndicatorsPath, [index]);
         for (const id of nestedUuids) {
-          await updateGeneReviewUuid(hugoSymbol, id, false, true);
+          await updateGeneReviewUuid?.(hugoSymbol, id, false, true);
         }
-        return await fetchGenomicIndicators(genomicIndicatorsPath);
+        return await fetchGenomicIndicators?.(genomicIndicatorsPath);
       } catch (error) {
         throw new SentryError('Failed to genomic indicator without review', { genomicIndicator, index });
       }
@@ -63,17 +67,21 @@ const GenomicIndicatorsTable = ({
 
     // Let the deletion be reviewed
     try {
+      if (!firebaseDb) return;
       await update(ref(firebaseDb, `${getFirebasePath('GERMLINE_GENE', hugoSymbol)}`), {
         [`${pathFromGene}_review`]: review,
       });
-      await updateMeta(hugoSymbol, genomicIndicator.name_uuid, true, true);
+      await updateMeta?.(hugoSymbol, genomicIndicator.name_uuid, true, true);
     } catch (error) {
       throw new SentryError('Failed to mark genomic indicator deletion for review', { genomicIndicator, index });
     }
   }
 
   useEffect(() => {
-    const callbacks = [];
+    if (!firebaseDb) {
+      return;
+    }
+    const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(firebaseDb, genomicIndicatorsPath), snapshot => {
         const data = snapshot.val();
@@ -88,7 +96,7 @@ const GenomicIndicatorsTable = ({
       }),
     );
 
-    fetchGenomicIndicators(genomicIndicatorsPath);
+    fetchGenomicIndicators?.(genomicIndicatorsPath);
 
     return () => {
       callbacks.forEach(callback => callback?.());
@@ -105,7 +113,7 @@ const GenomicIndicatorsTable = ({
           <GenomicIndicatorNameCell
             genomicIndicatorsPath={genomicIndicatorsPath}
             firebaseIndex={index}
-            firebaseDb={firebaseDb}
+            firebaseDb={firebaseDb!}
             buildCell={genomicIndicators => {
               const thisCellIndicator = genomicIndicators[index];
 
@@ -120,7 +128,7 @@ const GenomicIndicatorsTable = ({
               return (
                 <>
                   <RealtimeTextAreaInput
-                    style={{ height: '60px', marginBottom: isDuplicateName ? 0 : null }}
+                    style={{ height: '60px', marginBottom: isDuplicateName ? 0 : undefined }}
                     firebasePath={`${genomicIndicatorsPath}/${index}/name`}
                     label=""
                     disabled={thisCellIndicator.name_review?.removed || false}
@@ -144,7 +152,7 @@ const GenomicIndicatorsTable = ({
         return (
           <GenomicIndicatorCell
             genomicIndicatorPath={genomicIndicatorPath}
-            firebaseDb={firebaseDb}
+            firebaseDb={firebaseDb!}
             buildCell={genomicIndicator => {
               return (
                 <div style={{ lineHeight: 2 }}>
@@ -174,7 +182,7 @@ const GenomicIndicatorsTable = ({
         return (
           <GenomicIndicatorCell
             genomicIndicatorPath={genomicIndicatorPath}
-            firebaseDb={firebaseDb}
+            firebaseDb={firebaseDb!}
             buildCell={genomicIndicator => {
               return (
                 <RealtimeTextAreaInput
@@ -197,7 +205,7 @@ const GenomicIndicatorsTable = ({
         return (
           <GenomicIndicatorCell
             genomicIndicatorPath={genomicIndicatorPath}
-            firebaseDb={firebaseDb}
+            firebaseDb={firebaseDb!}
             buildCell={genomicIndicator => {
               return (
                 <RealtimeDropdownInput
@@ -231,8 +239,8 @@ const GenomicIndicatorsTable = ({
                       value: mutation.name_uuid,
                     })) || []),
                   ]}
-                  onChange={async (newValue: { label: string; value: string }[]) => {
-                    await updateReviewableContent(
+                  onChange={async (newValue: readonly { label: string; value: string }[]) => {
+                    await updateReviewableContent?.(
                       `${genomicIndicatorPath}/associationVariants`,
                       genomicIndicator.associationVariants,
                       newValue.map(value => ({
@@ -242,7 +250,7 @@ const GenomicIndicatorsTable = ({
                       genomicIndicator.associationVariants_review,
                       genomicIndicator.associationVariants_uuid,
                     );
-                    await fetchGenomicIndicators(genomicIndicatorsPath);
+                    await fetchGenomicIndicators?.(genomicIndicatorsPath);
                   }}
                   noOptionsMessage={() => 'Please add this mutation in the Mutations List below first'}
                 />
@@ -262,7 +270,7 @@ const GenomicIndicatorsTable = ({
         return (
           <GenomicIndicatorCell
             genomicIndicatorPath={genomicIndicatorPath}
-            firebaseDb={firebaseDb}
+            firebaseDb={firebaseDb!}
             buildCell={genomicIndicator => {
               return genomicIndicator.name_review?.removed ? (
                 <DefaultBadge color="danger" text="Deleted" tooltipOverlay={DELETED_SECTION_TOOLTIP_OVERLAY} />
@@ -334,10 +342,10 @@ interface IGenomicIndicatorCellProps {
 }
 
 function GenomicIndicatorCell({ genomicIndicatorPath, firebaseDb, buildCell }: IGenomicIndicatorCellProps) {
-  const [genomicIndicator, setGenomicIndicator] = useState<GenomicIndicator>(null);
+  const [genomicIndicator, setGenomicIndicator] = useState<GenomicIndicator | null>(null);
 
   useEffect(() => {
-    const callbacks = [];
+    const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(firebaseDb, genomicIndicatorPath), snapshot => {
         setGenomicIndicator(snapshot.val());
@@ -360,7 +368,7 @@ function GenomicIndicatorCell({ genomicIndicatorPath, firebaseDb, buildCell }: I
       style={{
         padding: '7px 5px',
         height: '100%',
-        backgroundColor: genomicIndicator?.name_review?.removed ? getHexColorWithAlpha(DANGER, 0.05) : null,
+        backgroundColor: genomicIndicator?.name_review?.removed ? getHexColorWithAlpha(DANGER, 0.05) : undefined,
       }}
     >
       {getCell()}
@@ -377,7 +385,7 @@ interface IGenomicIndicatorNameCellProps {
 }
 
 function GenomicIndicatorNameCell({ genomicIndicatorsPath, firebaseIndex, firebaseDb, buildCell }: IGenomicIndicatorNameCellProps) {
-  const [genomicIndicators, setGenomicIndicators] = useState<GenomicIndicator[]>(null);
+  const [genomicIndicators, setGenomicIndicators] = useState<GenomicIndicator[] | null>(null);
 
   useEffect(() => {
     const unsubscribe = onValue(ref(firebaseDb, genomicIndicatorsPath), snapshot => {
@@ -400,7 +408,7 @@ function GenomicIndicatorNameCell({ genomicIndicatorsPath, firebaseIndex, fireba
       style={{
         padding: '7px 5px',
         height: '100%',
-        backgroundColor: genomicIndicators?.[firebaseIndex]?.name_review?.removed ? getHexColorWithAlpha(DANGER, 0.05) : null,
+        backgroundColor: genomicIndicators?.[firebaseIndex]?.name_review?.removed ? getHexColorWithAlpha(DANGER, 0.05) : undefined,
       }}
     >
       {getCell()}

@@ -11,14 +11,14 @@ import { ENTITY_TYPE } from 'app/config/constants/constants';
 const apiUrl = getEntityResourcePath(ENTITY_TYPE.TRANSCRIPT);
 
 export interface IGeneTranscriptsProps {
-  ensemblGeneId: number;
+  ensemblGeneId: number | undefined;
   selectedTranscriptIds: number[];
   onToggleTranscript: (transcript: ITranscript) => void;
   disableTranscriptAlignment: boolean;
 }
 
 export const TranscriptTable = (props: IGeneTranscriptsProps) => {
-  const [transcriptList, setTranscriptList] = useState([]);
+  const [transcriptList, setTranscriptList] = useState<ITranscript[]>([]);
   const [loadingTranscripts, setLoadingTranscripts] = useState(false);
 
   useEffect(() => {
@@ -92,7 +92,7 @@ export const TranscriptTable = (props: IGeneTranscriptsProps) => {
               disabled={props.disableTranscriptAlignment}
               onChange={() => props.onToggleTranscript(cell.original)}
             />{' '}
-            {getComparisonOrder(cell.original.id)}
+            {cell.original.id ? getComparisonOrder(cell.original.id) : undefined}
           </div>
         );
       },

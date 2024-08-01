@@ -11,7 +11,7 @@ import { parseAlterationName } from '../util/utils';
 
 export interface IMutationConvertIconProps extends Omit<IActionIcon, 'icon'>, StoreProps {
   mutationName: string;
-  mutationNameReview?: Review;
+  mutationNameReview?: Review | null;
 }
 
 const MutationConvertIcon = ({
@@ -24,7 +24,7 @@ const MutationConvertIcon = ({
   tooltipProps,
   ...actionIconProps
 }: IMutationConvertIconProps) => {
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (mutationList) {
@@ -35,9 +35,9 @@ const MutationConvertIcon = ({
         ?.filter(mutation => mutation.name !== mutationName)
         .some(
           mutation =>
-            parseAlterationName(mutation.name)[0]
+            parseAlterationName(mutation?.name ?? '')[0]
               .alteration.split(', ')
-              .filter(alterationName => newMutationName.some(part => part === alterationName)).length > 0
+              .filter(alterationName => newMutationName.some(part => part === alterationName)).length > 0,
         );
       if (exists) {
         setErrorMessage('Cannot demote to VUS because alteration(s) exists in another mutation');
@@ -53,7 +53,7 @@ const MutationConvertIcon = ({
     }
   }, [mutationList, mutationName, mutationNameReview]);
 
-  if (errorMessage) {
+  if (errorMessage && tooltipProps) {
     tooltipProps.overlay = <div>{errorMessage}</div>;
   }
 
@@ -64,7 +64,7 @@ const MutationConvertIcon = ({
       color={color || PRIMARY}
       onClick={e => {
         if (!errorMessage) {
-          onClick(e);
+          onClick?.(e);
         }
       }}
       tooltipProps={tooltipProps}
