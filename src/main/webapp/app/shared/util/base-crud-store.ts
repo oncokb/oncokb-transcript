@@ -5,14 +5,20 @@ import { IRootStore } from 'app/stores';
 import { cleanEntity } from 'app/shared/util/entity-utils';
 import { BaseReadStore } from 'app/shared/util/base-read-store';
 
-export abstract class BaseCrudStore<T> extends BaseReadStore<T> {
-  createEntity: ICrudPutAction<T> = this.updateHandler(this.create, 'Successfully created entity');
+export abstract class BaseCrudStore<T extends object> extends BaseReadStore<T> {
+  // TYPE-ISSUE: BaseStore needs a generic type
+  createEntity: ICrudPutAction<Omit<T, 'id'>, T> = this.updateHandler(this.create, 'Successfully created entity') as any;
 
-  updateEntity: ICrudPutAction<T> = this.updateHandler(this.update, 'Successfully updated entity');
+  // TYPE-ISSUE: BaseStore needs a generic type
+  updateEntity: ICrudPutAction<T> = this.updateHandler(this.update, 'Successfully updated entity') as any;
 
   deleteEntity: ICrudDeleteAction<T> = this.updateHandler(this.delete, 'Successfully deleted entity');
 
-  constructor(protected rootStore: IRootStore, protected apiUrl: string, protected settings = { clearOnUnobserved: false }) {
+  constructor(
+    protected rootStore: IRootStore,
+    protected apiUrl: string,
+    protected settings = { clearOnUnobserved: false },
+  ) {
     super(rootStore, apiUrl, settings);
 
     makeObservable(this, {

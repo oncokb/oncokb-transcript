@@ -7,7 +7,7 @@ import { ENTITY_TYPE } from 'app/config/constants/constants';
 import { getEntityResourcePath } from 'app/shared/util/RouteUtils';
 
 export class FlagStore extends PaginationCrudStore<IFlag> {
-  public oncokbGeneEntity = null;
+  public oncokbGeneEntity: IFlag | null = null;
   getOncokbEntity = this.readHandler(this.getOncokbGeneFlag);
   constructor(protected rootStore: IRootStore) {
     super(rootStore, ENTITY_TYPE.FLAG);

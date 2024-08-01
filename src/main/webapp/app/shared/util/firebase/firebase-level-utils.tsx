@@ -27,8 +27,8 @@ export type LEVELS = ONCOKB_LEVELS | FDA_LEVELS;
 
 export type ONCOKB_LEVELS = TX_LEVELS | PX_LEVELS | DX_LEVELS;
 
-export const isTxLevelPresent = (txLevel: TX_LEVELS) => {
-  return txLevel !== TX_LEVELS.LEVEL_NO && txLevel !== TX_LEVELS.LEVEL_EMPTY;
+export const isTxLevelPresent = (txLevel: TX_LEVELS | undefined): txLevel is TX_LEVELS => {
+  return txLevel !== undefined && txLevel !== TX_LEVELS.LEVEL_NO && txLevel !== TX_LEVELS.LEVEL_EMPTY;
 };
 
 export const isResistanceLevel = (txLevel: TX_LEVELS) => {
@@ -65,7 +65,7 @@ export const getLevelDropdownOptions = (levels: LEVELS[]) => {
   return levels.map(level => getLevelDropdownOption(level));
 };
 
-export const getLevelDropdownOption = (level: LEVELS): RealtimeDropdownOptions => {
+export const getLevelDropdownOption = (level: LEVELS): RealtimeDropdownOptions<LEVELS> => {
   return { label: <LevelWithDescription level={level} />, value: level };
 };
 
@@ -79,13 +79,13 @@ export const getTxLevelDropdownOptions = () => {
 };
 
 export type PropagatedDropdownLevels = {
-  dropdownOptions: RealtimeDropdownOptions[];
-  defaultPropagation: TX_LEVELS | FDA_LEVELS | '';
+  dropdownOptions: RealtimeDropdownOptions<LEVELS | ''>[];
+  defaultPropagation: LEVELS | '';
 };
 
 export const getFdaPropagationInfo = (txLevel: TX_LEVELS): PropagatedDropdownLevels => {
   let propagationOptions: FDA_LEVELS[] = [];
-  let defaultPropagation = '';
+  let defaultPropagation: FDA_LEVELS;
   if (txLevel === TX_LEVELS.LEVEL_1 || txLevel === TX_LEVELS.LEVEL_2 || txLevel === TX_LEVELS.LEVEL_R1) {
     propagationOptions = [FDA_LEVELS.LEVEL_FDA2, FDA_LEVELS.LEVEL_FDA3, FDA_LEVELS.LEVEL_FDA_NO];
     defaultPropagation = FDA_LEVELS.LEVEL_FDA2;
@@ -95,11 +95,11 @@ export const getFdaPropagationInfo = (txLevel: TX_LEVELS): PropagatedDropdownLev
   }
   return {
     dropdownOptions: getLevelDropdownOptions(propagationOptions),
-    defaultPropagation: defaultPropagation as FDA_LEVELS,
+    defaultPropagation,
   };
 };
 
-export const getPropagatedLevelDropdownOptions = (txLevel: TX_LEVELS): RealtimeDropdownOptions[] => {
+export const getPropagatedLevelDropdownOptions = (txLevel: TX_LEVELS): RealtimeDropdownOptions<LEVELS>[] => {
   let propagationOptions: LEVELS[] = [];
   if (txLevel === TX_LEVELS.LEVEL_1 || txLevel === TX_LEVELS.LEVEL_2 || txLevel === TX_LEVELS.LEVEL_3A) {
     propagationOptions = [TX_LEVELS.LEVEL_3B, TX_LEVELS.LEVEL_4, TX_LEVELS.LEVEL_NO];

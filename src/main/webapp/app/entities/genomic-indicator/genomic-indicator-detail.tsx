@@ -41,7 +41,7 @@ export const GenomicIndicatorDetail = (props: IGenomicIndicatorDetailProps) => {
             <span>
               {genomicIndicatorEntity.associations
                 ?.map(association =>
-                  association.alterations?.map(alt => `${alt.genes?.map(gene => gene.hugoSymbol).join('-')} ${alt.alteration}`).join()
+                  association.alterations?.map(alt => `${alt.genes?.map(gene => gene.hugoSymbol).join('-')} ${alt.alteration}`).join(),
                 )
                 .join() || 'NA'}
             </span>

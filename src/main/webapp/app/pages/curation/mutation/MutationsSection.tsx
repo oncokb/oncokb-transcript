@@ -24,6 +24,7 @@ import FirebaseList from '../list/FirebaseList';
 import * as styles from '../styles.module.scss';
 import MutationName from './MutationName';
 import { extractPositionFromSingleNucleotideAlteration } from 'app/shared/util/utils';
+import { MUTATION_LIST_ID, SINGLE_MUTATION_VIEW_ID } from 'app/config/constants/html-id';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
@@ -55,14 +56,17 @@ function MutationsSection({
   const mutationSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchMutationListForConvertIcon(mutationsPath);
+    fetchMutationListForConvertIcon?.(mutationsPath);
   }, []);
 
   useEffect(() => {
+    if (!firebaseDb) {
+      return firebaseDb;
+    }
     onValue(
       ref(firebaseDb, `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`),
       snapshot => {
-        annotatedAltsCache.fetch(
+        annotatedAltsCache?.fetch(
           hugoSymbol,
           (snapshot.val() || []).map((mut: Mutation) => {
             return {
@@ -81,7 +85,7 @@ function MutationsSection({
       <>
         {!_.isNil(openMutationCollapsibleIndex) && (
           // though a greater minHeight would reduce blinking more, need to choose a minHeight that looks good on the smallest possible mutation
-          <div style={{ transition: 'height 0.5s, opacity 0.5s', minHeight: 400 }} className={'mb-2'} data-testid="single-mutation-view">
+          <div style={{ transition: 'height 0.5s, opacity 0.5s', minHeight: 400 }} className={'mb-2'} data-testid={SINGLE_MUTATION_VIEW_ID}>
             <MutationCollapsible
               open
               mutationPath={`${mutationsPath}/${openMutationCollapsibleIndex}`}
@@ -89,7 +93,7 @@ function MutationsSection({
               isGermline={isGermline}
               parsedHistoryList={parsedHistoryList}
               onToggle={() => {
-                setOpenMutationCollapsibleIndex(null);
+                setOpenMutationCollapsibleIndex?.(null);
               }}
             />
           </div>
@@ -97,9 +101,9 @@ function MutationsSection({
         <div
           style={{
             visibility: !_.isNil(openMutationCollapsibleIndex) ? 'hidden' : 'inherit',
-            maxHeight: !_.isNil(openMutationCollapsibleIndex) ? '0px' : null,
+            maxHeight: !_.isNil(openMutationCollapsibleIndex) ? '0px' : undefined,
           }}
-          data-testid="mutation-list"
+          data-testid={MUTATION_LIST_ID}
         >
           <FirebaseList<Mutation>
             path={mutationsPath}
@@ -141,7 +145,7 @@ function MutationsSection({
           }
           return compareMutationsByProteinChangePosition(mutation1, mutation2);
         default:
-          return;
+          return 0;
       }
     },
     [sortMethod],
@@ -159,8 +163,8 @@ function MutationsSection({
             isGermline={isGermline}
             parsedHistoryList={parsedHistoryList}
             onToggle={() => {
-              setOpenMutationCollapsibleIndex(index);
-              if (mutationSectionRef.current.getBoundingClientRect().top < 0) {
+              setOpenMutationCollapsibleIndex?.(index);
+              if (mutationSectionRef.current !== null && mutationSectionRef.current.getBoundingClientRect().top < 0) {
                 mutationSectionRef.current.scrollIntoView();
               }
             }}
@@ -178,12 +182,12 @@ function MutationsSection({
           className={classNames(!_.isNil(openMutationCollapsibleIndex) ? 'mb-4' : null)}
           style={{
             visibility: !_.isNil(openMutationCollapsibleIndex) ? 'visible' : 'hidden',
-            maxHeight: !_.isNil(openMutationCollapsibleIndex) ? null : '0px',
+            maxHeight: !_.isNil(openMutationCollapsibleIndex) ? undefined : '0px',
           }}
         >
           <Col>
             <div className="mt-4" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              <span className={styles.link} onClick={() => setOpenMutationCollapsibleIndex(null)}>
+              <span className={styles.link} onClick={() => setOpenMutationCollapsibleIndex?.(null)}>
                 Mutations
               </span>
               <span className="px-2" style={{ color: '#6c757d' }}>
@@ -196,7 +200,7 @@ function MutationsSection({
         <Row
           style={{
             visibility: !_.isNil(openMutationCollapsibleIndex) ? 'hidden' : 'inherit',
-            maxHeight: !_.isNil(openMutationCollapsibleIndex) ? '0px' : null,
+            maxHeight: !_.isNil(openMutationCollapsibleIndex) ? '0px' : undefined,
           }}
         >
           <Col>
@@ -220,9 +224,9 @@ function MutationsSection({
           isGermline={isGermline}
           onConfirm={async (newMutation, newMutationIndex) => {
             try {
-              await addMutation(mutationsPath, newMutation, isGermline);
+              await addMutation?.(mutationsPath, newMutation, isGermline);
               setShowAddMutationModal(show => !show);
-              setOpenMutationCollapsibleIndex(newMutationIndex);
+              setOpenMutationCollapsibleIndex?.(newMutationIndex);
             } catch (error) {
               notifyError(error);
             }

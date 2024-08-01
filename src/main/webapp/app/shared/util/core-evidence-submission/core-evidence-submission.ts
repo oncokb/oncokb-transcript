@@ -78,7 +78,7 @@ export function pathToGetEvidenceArgs({
   } else if (/^mutations\/\d+\/tumors\/\d+\/TIs\/\d+\/treatments\/\d+\/name$/.test(valuePath)) {
     type = 'TREATMENT_NAME_CHANGE';
   } else if (tiRegex.test(valuePath)) {
-    const treatmentIndex = +tiRegex.exec(valuePath)[1];
+    const treatmentIndex = +(tiRegex.exec(valuePath)?.[1] ?? 0);
     const level = args.ti?.treatments[treatmentIndex]?.level;
 
     switch (level) {

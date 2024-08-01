@@ -52,7 +52,7 @@ function handleMutationEffect({ mutation, evidenceData }: Pick<GetEvidenceArgs, 
   const tempRecentIndex = mostRecentItem(tempReviewObjArr, true);
   evidenceData.data.knownEffect = MEObj.effect as KnownEffect;
   evidenceData.dataUUID = MEObj.effect_uuid;
-  evidenceData.data.lastEdit = validateTimeFormat(tempReviewObjArr[tempRecentIndex].updateTime);
+  evidenceData.data.lastEdit = validateTimeFormat(tempReviewObjArr[tempRecentIndex]?.updateTime);
   evidenceData.data.description = MEObj.description;
   evidenceData.data.evidenceType = 'MUTATION_EFFECT';
 }
@@ -140,9 +140,11 @@ function initializeEvidenceData({
     cancerTypes: [],
     excludedCancerTypes: [],
     relevantCancerTypes: [],
-  };
+  } as unknown as Evidence;
 
-  data.gene.entrezGeneId = entrezGeneId;
+  if (data.gene !== undefined) {
+    data.gene.entrezGeneId = entrezGeneId;
+  }
 
   return {
     data,
@@ -218,7 +220,7 @@ export function resolveTypeSpecificData({
 function getAlterations(geneName: string, mutation: Mutation) {
   const alterations = mutation.alterations;
   const altResults: Alteration[] = [];
-  if (mutation.name && (mutation.alterations === undefined || alterations.length === 0)) {
+  if (mutation.name && (alterations === undefined || alterations.length === 0)) {
     altResults.push({
       alteration: mutation.name.trim(),
       gene: {

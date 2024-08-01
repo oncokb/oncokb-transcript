@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 
-import { IFdaSubmissionType } from 'app/shared/model/fda-submission-type.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
+import { IFdaSubmissionType } from 'app/shared/model/fda-submission-type.model';
 
 export interface IFdaSubmissionTypeUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -39,7 +36,7 @@ export const FdaSubmissionTypeUpdate = (props: IFdaSubmissionTypeUpdateProps) =>
     }
   }, [updateSuccess]);
 
-  const saveEntity = values => {
+  const saveEntity = (values: Partial<IFdaSubmissionType>) => {
     const entity = {
       ...fdaSubmissionTypeEntity,
       ...values,
@@ -56,8 +53,8 @@ export const FdaSubmissionTypeUpdate = (props: IFdaSubmissionTypeUpdateProps) =>
     isNew
       ? {}
       : {
-          type: 'DEVICE_PMA',
           ...fdaSubmissionTypeEntity,
+          type: fdaSubmissionTypeEntity.type,
         };
 
   return (

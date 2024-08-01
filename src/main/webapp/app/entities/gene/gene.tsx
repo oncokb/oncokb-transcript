@@ -38,7 +38,7 @@ export const Gene = (props: IGeneProps) => {
       accessor: 'flags',
       Header: 'Flags',
       Cell(cell: { original: IGene }) {
-        return <GeneFlags flags={cell.original.flags} />;
+        return <GeneFlags flags={cell.original.flags ?? undefined} />;
       },
       minWidth: 200,
     },

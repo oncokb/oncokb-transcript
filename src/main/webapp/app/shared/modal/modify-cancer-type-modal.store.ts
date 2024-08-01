@@ -6,9 +6,9 @@ import { getCancerTypesName } from '../util/utils';
 import _ from 'lodash';
 
 export class ModifyCancerTypeModalStore {
-  public openCancerTypesUuid: string = null;
-  public includedCancerTypes: CancerTypeSelectOption[] = [];
-  public excludedCancerTypes: CancerTypeSelectOption[] = [];
+  public openCancerTypesUuid: string | null = null;
+  public includedCancerTypes: readonly CancerTypeSelectOption[] = [];
+  public excludedCancerTypes: readonly CancerTypeSelectOption[] = [];
   public isErrorFetchingICancerTypes = false;
   public isErrorIncludedAndExcluded = false;
   public isErrorDuplicate = false;
@@ -31,7 +31,7 @@ export class ModifyCancerTypeModalStore {
     });
   }
 
-  private setIsErrorIncludedAndExcluded(cancerTypes1: CancerTypeSelectOption[], cancerTypes2: CancerTypeSelectOption[]) {
+  private setIsErrorIncludedAndExcluded(cancerTypes1: readonly CancerTypeSelectOption[], cancerTypes2: readonly CancerTypeSelectOption[]) {
     for (const ct1 of cancerTypes1) {
       for (const ct2 of cancerTypes2) {
         if (ct1.value === ct2.value) {
@@ -50,8 +50,8 @@ export class ModifyCancerTypeModalStore {
   }
 
   private setIsErrorDuplicate(
-    included: CancerTypeSelectOption[],
-    excluded: CancerTypeSelectOption[],
+    included: readonly CancerTypeSelectOption[],
+    excluded: readonly CancerTypeSelectOption[],
     allCancerTypes: Tumor[],
     cancerTypeToEditUuid?: string,
   ) {
@@ -75,13 +75,13 @@ export class ModifyCancerTypeModalStore {
     this.isErrorDuplicate = false;
   }
 
-  setIncludedCancerTypes(cancerTypes: CancerTypeSelectOption[], allCancerTypes: Tumor[], cancerTypeToEditUuid?: string) {
+  setIncludedCancerTypes(cancerTypes: readonly CancerTypeSelectOption[], allCancerTypes: Tumor[], cancerTypeToEditUuid?: string) {
     this.setIsErrorIncludedAndExcluded(cancerTypes, this.excludedCancerTypes);
     this.setIsErrorDuplicate(cancerTypes, this.excludedCancerTypes, allCancerTypes, cancerTypeToEditUuid);
     this.includedCancerTypes = cancerTypes;
   }
 
-  setExcludedCancerTypes(cancerTypes: CancerTypeSelectOption[], allCancerTypes: Tumor[], cancerTypeToEditUuid?: string) {
+  setExcludedCancerTypes(cancerTypes: readonly CancerTypeSelectOption[], allCancerTypes: Tumor[], cancerTypeToEditUuid?: string) {
     this.setIsErrorIncludedAndExcluded(this.includedCancerTypes, cancerTypes);
     this.setIsErrorDuplicate(this.includedCancerTypes, cancerTypes, allCancerTypes, cancerTypeToEditUuid);
     this.excludedCancerTypes = cancerTypes;
@@ -95,7 +95,7 @@ export class ModifyCancerTypeModalStore {
     this.isRetryButtonClicked = isClicked;
   }
 
-  openModal(cancerTypesUuid) {
+  openModal(cancerTypesUuid: string | null) {
     this.openCancerTypesUuid = cancerTypesUuid;
   }
 

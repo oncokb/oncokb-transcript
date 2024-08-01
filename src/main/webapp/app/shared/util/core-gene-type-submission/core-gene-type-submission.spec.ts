@@ -13,7 +13,7 @@ describe('getGeneType', () => {
       },
     ],
     [
-      { name: 'name', type: { ocg: undefined, tsg: GENE_TYPE.TUMOR_SUPPRESSOR } },
+      { name: 'name', type: { ocg: '', tsg: GENE_TYPE.TUMOR_SUPPRESSOR } },
       {
         hugoSymbol: 'name',
         tsg: true,
@@ -21,7 +21,7 @@ describe('getGeneType', () => {
       },
     ],
     [
-      { name: 'name', type: { ocg: undefined, tsg: undefined } },
+      { name: 'name', type: { ocg: '', tsg: '' } },
       {
         hugoSymbol: 'name',
         tsg: false,

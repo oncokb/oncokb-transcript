@@ -1,12 +1,12 @@
 id;code;color;level;main_type;subtype;tissue;tumor_form;parent_id
-1;ALL_TUMORS;MIXED;-1;All Tumors;NULL;MIXED;MIXED;NULL
-2;ALL_LIQUID_TUMORS;MIXED;-1;All Liquid Tumors;NULL;MIXED;LIQUID;NULL
-3;ALL_SOLID_TUMORS;MIXED;-1;All Solid Tumors;NULL;MIXED;SOLID;NULL
-4;GERMLINE_DISPOSITION;MIXED;-1;Germline Disposition;NULL;MIXED;MIXED;NULL
-5;OTHER_TUMOR_TYPES;MIXED;-1;Other Tumor Types;NULL;MIXED;MIXED;NULL
-6;OTHER_SOLID_TUMOR_TYPES;MIXED;-1;Other Solid Tumor Types;NULL;MIXED;SOLID;NULL
-7;OTHER_LIQUID_TUMOR_TYPES;MIXED;-1;Other Liquid Tumor Types;NULL;MIXED;LIQUID;NULL
-8;TISSUE;NULL;0;Tissue;Tissue;NULL;MIXED;NULL
+1;;MIXED;-1;All Tumors;NULL;MIXED;MIXED;NULL
+2;;MIXED;-1;All Liquid Tumors;NULL;MIXED;LIQUID;NULL
+3;;MIXED;-1;All Solid Tumors;NULL;MIXED;SOLID;NULL
+4;;MIXED;-1;Germline Disposition;NULL;MIXED;MIXED;NULL
+5;;MIXED;-1;Other Tumor Types;NULL;MIXED;MIXED;NULL
+6;;MIXED;-1;Other Solid Tumor Types;NULL;MIXED;SOLID;NULL
+7;;MIXED;-1;Other Liquid Tumor Types;NULL;MIXED;LIQUID;NULL
+8;;NULL;0;Tissue;Tissue;NULL;MIXED;NULL
 9;ADRENAL_GLAND;Purple;1;Adrenal Gland Cancer, NOS;Adrenal Gland;Adrenal Gland;SOLID;8
 10;CERVIX;Teal;1;Cervical Cancer, NOS;Cervix;Cervix;SOLID;8
 11;AMPULLA_OF_VATER;Purple;1;Ampullary Carcinoma, NOS;Ampulla of Vater;Ampulla of Vater;SOLID;8

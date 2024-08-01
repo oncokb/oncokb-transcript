@@ -14,18 +14,20 @@ import AppRoutes from 'app/routes/routes';
 import NavigationSidebar from 'app/components/sidebar/NavigationSidebar';
 import Layout from './layout';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
+import { Unsubscribe } from 'firebase/database';
+import BetaSiteMessage from './shared/userMessage/BetaSiteMessage';
 
-const baseHref = document.querySelector('base').getAttribute('href').replace(/\/$/, '');
+const baseHref = document.querySelector('base')?.getAttribute('href')?.replace(/\/$/, '');
 
 export type IAppProps = StoreProps;
 
 const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
   useEffect(() => {
-    let authSubscriber = undefined;
+    let authSubscriber: Unsubscribe | undefined = undefined;
     if (props.isCurator) {
       authSubscriber = props.initializeFirebase();
     }
-    return () => authSubscriber && authSubscriber();
+    return () => authSubscriber?.();
   }, [props.isCurator]);
 
   return (
@@ -39,6 +41,7 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
             pauseOnHover
             pauseOnFocusLoss
           />
+          <BetaSiteMessage />
           {props.loadingAuth ? (
             <LoadingIndicator isLoading size={LoaderSize.LARGE} center={true} />
           ) : (
@@ -58,7 +61,7 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
 const mapStoreToProps = ({ authStore, layoutStore, firebaseAppStore }: IRootStore) => ({
   isAuthorized: authStore.isAuthorized,
   authorities: authStore.account.authorities,
-  isCurator: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.CURATOR]),
+  isCurator: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.CURATOR]),
   loadingAuth: authStore.loading,
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,
   toggleNavSidebar: layoutStore.toggleNavigationSidebar,

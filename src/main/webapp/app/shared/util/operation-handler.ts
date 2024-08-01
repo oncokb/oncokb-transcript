@@ -4,12 +4,12 @@ export enum OperationStatus {
   ERROR,
 }
 
-export const handleOperation = <R, Args extends any[]>(
+export const handleOperation = <R, Args extends unknown[]>(
   ctx: any,
-  param: (...args: Args) => Generator<any, R, any> | AsyncGenerator<any, R, any>,
-  operationHandler: (state: OperationStatus, result?, error?) => void
+  param: (...args: Args) => Generator<unknown, R, unknown> | AsyncGenerator<unknown, R, unknown>,
+  operationHandler: (state: OperationStatus, result?, error?) => void,
 ) =>
-  function* (...args: Args) {
+  async function* (...args: Args) {
     try {
       operationHandler(OperationStatus.IN_PROGRESS);
       const result: R = yield* param.apply(ctx, args);

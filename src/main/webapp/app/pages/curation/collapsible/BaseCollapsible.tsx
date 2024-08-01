@@ -7,12 +7,12 @@ import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons
 import { getHexColorWithAlpha } from 'app/shared/util/utils';
 import { IBadgeGroupProps } from '../BadgeGroup';
 import { IDefaultBadgeProps } from 'app/shared/badge/DefaultBadge';
-import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { Spinner } from 'reactstrap';
+import { CollapsibleDataTestIdType, getCollapsibleDataTestId } from 'app/shared/util/test-id-utils';
 
 export type CollapsibleColorProps =
   | { hideLeftBorder: true; backgroundColor?: string }
-  | { hideLeftBorder?: false; borderLeftColor: string; backgroundColor?: string; forceLeftColor?: boolean };
+  | { hideLeftBorder?: false; borderLeftColor?: string; backgroundColor?: string; forceLeftColor?: boolean };
 
 export type CollapsibleDisplayProps = {
   disableCollapsible?: boolean;
@@ -23,6 +23,7 @@ export type CollapsibleDisplayProps = {
 
 export interface BaseCollapsibleProps {
   children: React.ReactNode;
+  idPrefix?: string;
   title: React.ReactNode;
   titleClassName?: string; // classname for title
   collapsibleClassName?: string; // classname for wrapper around collapsible
@@ -37,15 +38,9 @@ export interface BaseCollapsibleProps {
   showLoadingSpinner?: boolean;
 }
 
-function getDataTestid(dataTestid: string, identifier: React.ReactNode) {
-  if (typeof identifier === 'string') {
-    return `${identifier}-${dataTestid}`;
-  }
-  return dataTestid;
-}
-
 export default function BaseCollapsible({
   children,
+  idPrefix,
   title,
   titleClassName,
   collapsibleClassName,
@@ -71,7 +66,7 @@ export default function BaseCollapsible({
   const infoComponent = useMemo(() => {
     if (!displayOptions?.hideInfo) {
       return (
-        <div className="d-flex" data-testid={getDataTestid('collapsible-info', title)}>
+        <div className="d-flex" data-testid={getCollapsibleDataTestId(CollapsibleDataTestIdType.INFO, idPrefix)}>
           {info}
         </div>
       );
@@ -84,7 +79,10 @@ export default function BaseCollapsible({
         return (
           <>
             <div className={classNames(styles.divider)} />
-            <div className={'collapsible-action all-children-margin'} data-testid={getDataTestid('collapsible-action', title)}>
+            <div
+              className={'collapsible-action all-children-margin'}
+              data-testid={getCollapsibleDataTestId(CollapsibleDataTestIdType.ACTION, idPrefix)}
+            >
               {action}
             </div>
           </>
@@ -110,7 +108,10 @@ export default function BaseCollapsible({
   };
 
   return (
-    <div className={classNames('card', collapsibleClassName, styles.main)} data-testid={getDataTestid('collapsible', title)}>
+    <div
+      className={classNames('card', collapsibleClassName, styles.main)}
+      data-testid={getCollapsibleDataTestId(CollapsibleDataTestIdType.COLLAPSIBLE, idPrefix)}
+    >
       <div
         className={classNames(
           'd-flex align-items-center p-1 bg-transparent pe-2',
@@ -118,13 +119,13 @@ export default function BaseCollapsible({
           colorOptions?.hideLeftBorder ? styles.hiddenHeaderLeftBorder : undefined,
         )}
         ref={collapsibleRef}
-        data-testid={getDataTestid('collapsible-card', title)}
+        data-testid={getCollapsibleDataTestId(CollapsibleDataTestIdType.CARD, idPrefix)}
       >
         <div style={{ flexGrow: 1 }} className="d-flex align-items-center">
           <div
             className={classNames(styles.collapsibleTitleWrapper, displayOptions?.disableCollapsible && styles.disabledCollapsible)}
             onClick={handleToggle}
-            data-testid={getDataTestid('collapsible-title-wrapper', title)}
+            data-testid={getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, idPrefix)}
           >
             <button
               disabled={displayOptions?.disableCollapsible || displayOptions?.hideToggle}
@@ -147,7 +148,7 @@ export default function BaseCollapsible({
             {showLoadingSpinner && (
               <span className="ps-2">
                 <Spinner
-                  style={{ color: colorOptions?.hideLeftBorder === true ? colorOptions.backgroundColor : colorOptions.borderLeftColor }}
+                  style={{ color: colorOptions?.hideLeftBorder === true ? colorOptions.backgroundColor : colorOptions?.borderLeftColor }}
                   size="sm"
                 />
               </span>

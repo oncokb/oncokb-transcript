@@ -17,7 +17,7 @@ import {
   isCreateReview,
   isDeleteReview,
 } from '../../shared/util/firebase/firebase-review-utils';
-import { getFirebaseGenePath, getFirebaseVusPath } from '../../shared/util/firebase/firebase-utils';
+import { getFirebaseGenePath, getFirebaseMetaGenePath, getFirebaseVusPath } from '../../shared/util/firebase/firebase-utils';
 import { generateUuid, parseAlterationName } from '../../shared/util/utils';
 import { FirebaseVusService } from './firebase-vus-service';
 import { SentryError } from 'app/config/sentry-error';
@@ -59,13 +59,24 @@ export class FirebaseGeneReviewService {
     this.geneTypeClient = geneTypeClient;
   }
 
+  getGeneUpdateObject = (updateValue: any, updatedReview: Review, firebasePath: string, uuid: string | undefined) => {
+    const updateObject = {
+      [firebasePath]: updateValue,
+      [`${firebasePath}_review`]: updatedReview,
+      [`${firebasePath}_uuid`]: uuid ?? generateUuid(),
+    };
+
+    return updateObject;
+  };
+
   updateReviewableContent = async (
     firebasePath: string,
     currentValue: any,
     updateValue: any,
-    review: Review,
-    uuid: string,
+    review: Review | null | undefined,
+    uuid: string | null,
     updateMetaData: boolean = true,
+    shouldSave: boolean = true,
   ) => {
     const isGermline = firebasePath.toLowerCase().includes('germline');
 
@@ -77,24 +88,21 @@ export class FirebaseGeneReviewService {
       updateMetaData,
     );
 
-    const { hugoSymbol, pathFromGene } = parseFirebaseGenePath(firebasePath);
+    const { hugoSymbol } = parseFirebaseGenePath(firebasePath) ?? {};
 
-    const updateObject = {
-      [pathFromGene]: updateValue,
-      [`${pathFromGene}_review`]: updatedReview,
-    };
+    let updateObject = this.getGeneUpdateObject(updateValue, updatedReview!, firebasePath, uuid!);
+    const metaUpdateObject = this.firebaseMetaService.getUpdateObject(!isChangeReverted, hugoSymbol!, isGermline, uuid!);
+    updateObject = { ...updateObject, ...metaUpdateObject };
 
-    // Make sure that there is a UUID attached
-    if (!uuid) {
-      uuid = generateUuid();
-      updateObject[`${pathFromGene}_uuid`] = uuid;
+    if (!shouldSave) {
+      return updateObject;
     }
 
     try {
-      await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), updateObject);
-      await this.firebaseMetaService.updateMeta(hugoSymbol, uuid, !isChangeReverted, isGermline);
+      await this.firebaseRepository.update('/', updateObject);
+      return updateObject;
     } catch (error) {
-      throw new SentryError('Failed to update reviewable content', { firebasePath, currentValue, updateValue, review, uuid });
+      throw new SentryError('Failed to update reviewable content', updateObject);
     }
   };
 
@@ -176,90 +184,90 @@ export class FirebaseGeneReviewService {
       });
     }
 
+    let updateObject = {};
+
     const reviewHistory = buildHistoryFromReviews(this.authStore.fullName, reviewLevels);
-    try {
-      await this.firebaseHistoryService.addHistory(hugoSymbol, reviewHistory, isGermline);
-    } catch (error) {
-      throw new SentryError('Failed save history when accepting changes in review mode', { hugoSymbol, reviewLevels, isGermline });
-    }
+    const historyUpdateObject = this.firebaseHistoryService.getUpdateObject(reviewHistory, hugoSymbol, isGermline);
+
+    updateObject = { ...updateObject, ...historyUpdateObject };
 
     for (const reviewLevel of reviewLevels) {
       const { uuid, reviewAction, review, reviewPath } = reviewLevel.reviewInfo;
-
       if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
         clearReview(review);
-        const updateObject: any = { [reviewPath]: review };
+        updateObject[`${geneFirebasePath}/${reviewPath}`] = review;
         if ('excludedCancerTypesReviewInfo' in reviewLevel && 'currentExcludedCancerTypes' in reviewLevel) {
           const tumorReviewLevel = reviewLevel as TumorReviewLevel;
-          const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo.reviewPath;
-          updateObject[excludedCtReviewPath] = review;
+          const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo?.reviewPath;
+          updateObject[`${geneFirebasePath}/${excludedCtReviewPath}`] = review;
         }
-        try {
-          await this.firebaseRepository.update(geneFirebasePath, updateObject);
-          await this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, false, isGermline);
-        } catch (error) {
-          throw new SentryError('Failed update when accepting changes in review mode', { hugoSymbol, reviewLevel, isGermline });
-        }
-      }
-
-      if (isDeleteReview(reviewLevel)) {
+      } else if (isDeleteReview(reviewLevel)) {
         const { firebaseArrayPath, deleteIndex } = extractArrayPath(reviewLevel.valuePath);
         const firebasePath = geneFirebasePath + '/' + firebaseArrayPath;
+        if (review.demotedToVus) {
+          const variants = parseAlterationName(reviewLevel.currentVal)[0].alteration.split(', ');
+          updateObject = { ...updateObject, ...this.firebaseVusService.getVusUpdateObject(vusFirebasePath, variants) };
+        }
         try {
+          // Todo: We should use multi-location updates for deletions once all our arrays use firebase auto-generated keys
+          // instead of using sequential number indices.
           await this.firebaseRepository.deleteFromArray(firebasePath, [deleteIndex]);
-          await this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, false, isGermline);
-          // Add the demoted mutation to VUS list
-          if (review.demotedToVus) {
-            const variants = parseAlterationName(reviewLevel.currentVal)[0].alteration.split(', ');
-            await this.firebaseVusService.addVus(vusFirebasePath, variants);
-          }
         } catch (error) {
           throw new SentryError('Failed to accept deletion in review mode', { hugoSymbol, reviewLevel, isGermline });
         }
+      } else if (isCreateReview(reviewLevel) && isAcceptAll) {
+        const createUpdateObject = await this.getCreateUpdateObject(hugoSymbol, reviewLevel, isGermline, ActionType.ACCEPT);
+        updateObject = { ...updateObject, ...createUpdateObject };
+      } else {
+        throw new SentryError('Unexpect accept in review mode', { hugoSymbol, reviewLevel, isGermline, isAcceptAll });
       }
 
-      if (isCreateReview(reviewLevel) && isAcceptAll) {
-        await this.handleCreateAction(hugoSymbol, reviewLevel, isGermline, ActionType.ACCEPT);
-      }
+      const metaUpdateObject = this.firebaseMetaService.getUpdateObject(false, hugoSymbol, isGermline, uuid);
+      updateObject = { ...updateObject, ...metaUpdateObject };
+    }
+
+    try {
+      await this.firebaseRepository.update('/', updateObject);
+    } catch (error) {
+      throw new SentryError('Failed to accept changes in review mode', { hugoSymbol, reviewLevels, isGermline, isAcceptAll, updateObject });
     }
   };
 
   rejectChanges = async (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) => {
+    const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
+    let updateObject = {};
+
     for (const reviewLevel of reviewLevels) {
       const fieldPath = reviewLevel.valuePath;
       const { uuid, review, reviewPath, reviewAction } = reviewLevel.reviewInfo;
 
+      const resetReview = new Review(this.authStore.fullName);
       if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
-        const resetReview = new Review(this.authStore.fullName);
-        const updateObject = {
-          [reviewPath]: resetReview,
-          [fieldPath]: review.lastReviewed,
+        const reviewLevelUpdateObject = {
+          [`${firebaseGenePath}/${reviewPath}`]: resetReview,
+          [`${firebaseGenePath}/${fieldPath}`]: review.lastReviewed,
         };
+        updateObject = { ...updateObject, ...reviewLevelUpdateObject };
         if ('excludedCancerTypesReviewInfo' in reviewLevel && 'currentExcludedCancerTypes' in reviewLevel) {
           const tumorReviewLevel = reviewLevel as TumorReviewLevel;
-          const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo.reviewPath;
-          const excludedCtPath = excludedCtReviewPath.replace('_review', '');
-          updateObject[excludedCtReviewPath] = resetReview;
-          updateObject[excludedCtPath] = tumorReviewLevel.excludedCancerTypesReviewInfo.review.lastReviewed;
+          const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo?.reviewPath;
+          const excludedCtPath = excludedCtReviewPath?.replace('_review', '');
+          updateObject[`${firebaseGenePath}/${excludedCtReviewPath}`] = resetReview;
+          updateObject[`${firebaseGenePath}/${excludedCtPath}`] = tumorReviewLevel.excludedCancerTypesReviewInfo?.review.lastReviewed;
         }
-        try {
-          await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), updateObject);
-          await this.firebaseMetaService.updateMeta(hugoSymbol, uuid, false, isGermline);
-        } catch (error) {
-          throw new SentryError('Failed to reject updates in review mode', { hugoSymbol, reviewLevel, isGermline });
-        }
+      } else if (isDeleteReview(reviewLevel)) {
+        updateObject[`${firebaseGenePath}/${reviewPath}`] = resetReview;
+      } else {
+        throw new SentryError('Unexpected reject in review mode', { hugoSymbol, reviewLevels, isGermline });
       }
 
-      review.updateTime = new Date().getTime();
-      review.updatedBy = this.authStore.fullName;
-      if (isDeleteReview(reviewLevel)) {
-        clearReview(review);
-        try {
-          await this.firebaseRepository.update(getFirebaseGenePath(isGermline, hugoSymbol), { [reviewPath]: review });
-          await this.firebaseMetaService.updateMeta(hugoSymbol, uuid, false, isGermline);
-        } catch (error) {
-          throw new SentryError('Failed to reject deletion in review mode', { hugoSymbol, reviewLevel, isGermline });
-        }
+      const metaUpdateObject = this.firebaseMetaService.getUpdateObject(false, hugoSymbol, isGermline, uuid);
+      updateObject = { ...updateObject, ...metaUpdateObject };
+
+      try {
+        await this.firebaseRepository.update('/', updateObject);
+      } catch (error) {
+        throw new SentryError('Failed to reject changes in review mode', { hugoSymbol, reviewLevels, isGermline, updateObject });
       }
     }
   };
@@ -267,46 +275,62 @@ export class FirebaseGeneReviewService {
   // Creation accepts/rejects are triggered when the Create Collapsible has no more children.
   // It can also be triggered using the accept all button.
   handleCreateAction = async (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean, action: ActionType) => {
+    let updateObject = await this.getCreateUpdateObject(hugoSymbol, reviewLevel, isGermline, action);
+    updateObject = {
+      ...updateObject,
+      ...this.firebaseMetaService.getUpdateObject(false, hugoSymbol, isGermline, reviewLevel.reviewInfo.uuid),
+    };
+    try {
+      await this.firebaseRepository.update('/', updateObject);
+    } catch (error) {
+      throw new SentryError('Failed to save newly created entity', { hugoSymbol, reviewLevel, isGermline, action });
+    }
+  };
+
+  getCreateUpdateObject = async (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean, action: ActionType) => {
     const geneFirebasePath = getFirebaseGenePath(isGermline, hugoSymbol);
     const vusFirebasePath = getFirebaseVusPath(isGermline, hugoSymbol);
+
+    let updateObject = {};
+
     if (action === ActionType.ACCEPT) {
       const reviewHistory = buildHistoryFromReviews(this.authStore.fullName, [reviewLevel]);
-      try {
-        await this.firebaseHistoryService.addHistory(hugoSymbol, reviewHistory, isGermline);
-      } catch (error) {
-        throw new SentryError('Failed save history when accepting changes in review mode', { hugoSymbol, reviewLevel, isGermline });
-      }
+      const historyUpdateObject = this.firebaseHistoryService.getUpdateObject(reviewHistory, hugoSymbol, isGermline);
+      updateObject = { ...updateObject, ...historyUpdateObject };
+
       const pathParts = reviewLevel.valuePath.split('/');
       pathParts.pop(); // Remove name or cancerTypes
       clearAllNestedReviews(reviewLevel.historyData.newState);
-      try {
-        await this.firebaseRepository.update(geneFirebasePath, { [pathParts.join('/')]: reviewLevel.historyData.newState });
-        await this.deleteAllNestedUuids(hugoSymbol, reviewLevel, isGermline);
-      } catch (error) {
-        throw new SentryError('Failed to accept creation in review mode', { hugoSymbol, reviewLevel, isGermline });
-      }
+
+      updateObject[`${geneFirebasePath}/${pathParts.join('/')}`] = reviewLevel.historyData.newState;
+      updateObject = { ...updateObject, ...this.getDeletedUuidUpdateObject(hugoSymbol, reviewLevel, isGermline) };
     } else if (action === ActionType.REJECT) {
       const { firebaseArrayPath, deleteIndex } = extractArrayPath(reviewLevel.valuePath);
       const firebasePath = geneFirebasePath + '/' + firebaseArrayPath;
       try {
+        // Todo: We should use multi-location updates for deletions once all our arrays use firebase auto-generated keys
+        // instead of using sequential number indices.
         await this.firebaseRepository.deleteFromArray(firebasePath, [deleteIndex]);
-        await this.deleteAllNestedUuids(hugoSymbol, reviewLevel, isGermline);
-        if (reviewLevel.reviewInfo.review.promotedToMutation) {
-          const variants = parseAlterationName(reviewLevel.currentVal)[0].alteration.split(', ');
-          await this.firebaseVusService.addVus(vusFirebasePath, variants);
-        }
       } catch (error) {
         throw new SentryError('Failed to reject creation in review mode', { hugoSymbol, reviewLevel, isGermline });
       }
+
+      if (reviewLevel.reviewInfo.review.promotedToMutation) {
+        const variants = parseAlterationName(reviewLevel.currentVal)[0].alteration.split(', ');
+        updateObject = { ...updateObject, ...this.firebaseVusService.getVusUpdateObject(vusFirebasePath, variants) };
+      }
     }
+
+    return updateObject;
   };
 
-  deleteAllNestedUuids = async (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean) => {
-    // Delete all uuids from meta collection
-    const uuids = [];
+  getDeletedUuidUpdateObject = (hugoSymbol: string, reviewLevel: ReviewLevel, isGermline: boolean) => {
+    const metaGenePath = getFirebaseMetaGenePath(isGermline, hugoSymbol);
+    const uuids: string[] = [];
     getAllNestedReviewUuids(reviewLevel, uuids);
-    for (const uuid of uuids) {
-      await this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, false, isGermline);
-    }
+    return uuids.reduce((acc, uuid) => {
+      acc[`${metaGenePath}/review/${uuid}`] = null;
+      return acc;
+    }, {});
   };
 }

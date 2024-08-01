@@ -17,11 +17,14 @@ import CommentIcon from 'app/shared/icons/CommentIcon';
 import SomaticGermlineToggleButton from '../button/SomaticGermlineToggleButton';
 import { getCbioportalResultsPageMutationTabUrl } from 'app/shared/util/url-utils';
 import { generatePath, useHistory } from 'react-router-dom';
+import { GENE_HEADER_REVIEW_BUTTON_ID, GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID } from 'app/config/constants/html-id';
+import { SentryError } from 'app/config/sentry-error';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 
 export interface IGeneHeaderProps extends StoreProps {
-  hugoSymbol: string;
+  hugoSymbol: string | undefined;
   firebaseGenePath: string;
-  geneEntity: IGene;
+  geneEntity: IGene | undefined;
   isReviewing?: boolean;
   isReviewFinished?: boolean;
   isGermline?: boolean;
@@ -39,12 +42,15 @@ const GeneHeader = ({
 }: IGeneHeaderProps) => {
   const history = useHistory();
   const firebaseMetaPath = getFirebaseMetaGenePath(isGermline, hugoSymbol);
-  const [metaReview, setMetaReview] = useState<MetaReview>(undefined);
+  const [metaReview, setMetaReview] = useState<MetaReview>();
 
   const reviewPageRoute = isGermline ? PAGE_ROUTE.CURATION_GENE_GERMLINE_REVIEW : PAGE_ROUTE.CURATION_GENE_SOMATIC_REVIEW;
   const curationPageRoute = isGermline ? PAGE_ROUTE.CURATION_GENE_GERMLINE : PAGE_ROUTE.CURATION_GENE_SOMATIC;
 
   useEffect(() => {
+    if (!firebaseDb) {
+      return;
+    }
     const subscribe = onValue(ref(firebaseDb, `${firebaseMetaPath}/review`), snapshot => {
       setMetaReview(snapshot.val());
     });
@@ -52,22 +58,26 @@ const GeneHeader = ({
   }, []);
 
   const handleReviewButtonClick = () => {
-    updateCurrentReviewer(hugoSymbol, isGermline, !isReviewing);
+    if (hugoSymbol === undefined) {
+      notifyError(new SentryError('hugoSymbol is undefined', {}));
+      return;
+    }
+    updateCurrentReviewer?.(hugoSymbol, !!isGermline, !isReviewing);
     history.push(generatePath(isReviewing ? curationPageRoute : reviewPageRoute, { hugoSymbol }));
   };
 
   const getReviewButton = () => {
-    let button;
+    let button: JSX.Element;
     if (geneMetaReviewHasUuids(metaReview)) {
       if (isReviewing || isReviewFinished) {
         button = (
-          <Button color="primary" onClick={handleReviewButtonClick} data-testid="review-complete-button">
+          <Button color="primary" onClick={handleReviewButtonClick} data-testid={GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID}>
             Review Complete
           </Button>
         );
       } else {
         button = (
-          <Button outline color="primary" onClick={handleReviewButtonClick} data-testid="review-button">
+          <Button outline color="primary" onClick={handleReviewButtonClick} data-testid={GENE_HEADER_REVIEW_BUTTON_ID}>
             Review
           </Button>
         );
@@ -75,7 +85,7 @@ const GeneHeader = ({
     } else {
       if (isReviewFinished) {
         button = (
-          <Button color="primary" onClick={handleReviewButtonClick} data-testid="review-complete-button">
+          <Button color="primary" onClick={handleReviewButtonClick} data-testid={GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID}>
             Review Complete
           </Button>
         );
@@ -111,7 +121,7 @@ const GeneHeader = ({
           {!isReviewing && (
             <>
               <span>
-                {!hideEntrezGeneId && geneEntity?.entrezGeneId && (
+                {!hideEntrezGeneId && geneEntity?.entrezGeneId !== undefined && (
                   <span>
                     <span className="fw-bold text-nowrap">Entrez Gene:</span>
                     <span className="ms-1">
@@ -144,10 +154,20 @@ const GeneHeader = ({
                 <span className="ms-2">
                   <span className="fw-bold me-2">External Links:</span>
                   <WithSeparator separator={InlineDivider}>
-                    <a href={getCbioportalResultsPageMutationTabUrl(hugoSymbol)} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={hugoSymbol ? getCbioportalResultsPageMutationTabUrl(hugoSymbol) : undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={hugoSymbol ? { cursor: 'default', pointerEvents: 'none' } : undefined}
+                    >
                       {CBIOPORTAL} <ExternalLinkIcon />
                     </a>
-                    <a href={`http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${hugoSymbol}`} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={hugoSymbol ? `http://cancer.sanger.ac.uk/cosmic/gene/overview?ln=${hugoSymbol}` : undefined}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={hugoSymbol ? { cursor: 'default', pointerEvents: 'none' } : undefined}
+                    >
                       {COSMIC} <ExternalLinkIcon />
                     </a>
                   </WithSeparator>

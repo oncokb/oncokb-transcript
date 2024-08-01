@@ -13,6 +13,7 @@ import { GeneType } from 'app/shared/model/firebase/firebase.model';
 import { onValue, ref } from 'firebase/database';
 import { FB_COLLECTION } from 'app/config/constants/firebase';
 import SaveGeneButton from 'app/shared/button/SaveGeneButton';
+import { Unsubscribe } from 'firebase/database';
 
 export type ReleaseGeneTestData = {
   passed: boolean;
@@ -39,13 +40,16 @@ export function CurationToolsTab({
   hugoSymbol,
   isDev,
 }: ICurationToolsTabProps) {
-  const [geneName, setGeneName] = useState<string>(null);
-  const [geneSummary, setGeneSummary] = useState<string>(null);
-  const [geneBackground, setGeneBackground] = useState<string>(null);
-  const [geneType, setGeneType] = useState<GeneType>(null);
+  const [geneName, setGeneName] = useState<string>();
+  const [geneSummary, setGeneSummary] = useState<string>();
+  const [geneBackground, setGeneBackground] = useState<string>();
+  const [geneType, setGeneType] = useState<GeneType>();
 
   useEffect(() => {
-    const callbacks = [];
+    if (!firebaseDb) {
+      return;
+    }
+    const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(firebaseDb, `${genePath}/name`), snapshot => {
         setGeneName(snapshot.val());
@@ -70,7 +74,7 @@ export function CurationToolsTab({
     return () => callbacks.forEach(callback => callback?.());
   }, [genePath, firebaseDb]);
 
-  const reviewList = metaList?.[geneName]?.review;
+  const reviewList = geneName ? metaList?.[geneName]?.review ?? {} : {};
 
   const tests: ReleaseGeneTestData[] = [
     {
@@ -97,13 +101,13 @@ export function CurationToolsTab({
 
   const confirmButtonDisabled = tests.some(test => !test.passed && test.type === 'required');
 
-  const [isReleased, setIsReleased] = useState<boolean>(null);
+  const [isReleased, setIsReleased] = useState<boolean>();
   const [releaseGeneClicked, setReleaseGeneClicked] = useState(false);
 
-  const geneToUpdate = useRef<IGene>(null);
+  const geneToUpdate = useRef<IGene>();
 
   useEffect(() => {
-    const callback = addMetaListListener(FB_COLLECTION.META);
+    const callback = addMetaListListener?.(FB_COLLECTION.META);
 
     return () => {
       callback && callback();
@@ -115,7 +119,7 @@ export function CurationToolsTab({
   }
 
   useEffect(() => {
-    const geneData = geneEntities.find(entity => entity.hugoSymbol === geneName);
+    const geneData = geneEntities?.find(entity => entity.hugoSymbol === geneName);
     setIsReleased(geneData?.flags?.some(flag => isReleasedFlag(flag)) || false);
     geneToUpdate.current = geneData;
   }, [geneEntities, geneName]);
@@ -133,7 +137,10 @@ export function CurationToolsTab({
     const newGene = _.cloneDeep(geneToUpdate.current);
 
     try {
-      const newFlag = (await searchFlags({ query: 'OncoKB' }))['data'].find(flag => isReleasedFlag(flag));
+      if (!newGene) {
+        throw new Error('Error retrieving gene');
+      }
+      const newFlag = (await searchFlags?.({ query: 'OncoKB' }))?.['data'].find(flag => isReleasedFlag(flag));
       if (!newFlag) {
         throw new Error('Error retrieving flag');
       }
@@ -143,8 +150,8 @@ export function CurationToolsTab({
       } else {
         newGene.flags = [newFlag];
       }
-      await updateGene(newGene);
-      await searchGenes({ query: geneName, exact: true }); // repopulate gene store entities
+      await updateGene?.(newGene);
+      await searchGenes?.({ query: geneName, exact: true }); // repopulate gene store entities
     } catch (error) {
       notifyError(error);
     }

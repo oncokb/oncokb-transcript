@@ -1,4 +1,4 @@
-export const replaceUrlParams = (url: string, ...params: (string | number)[]) => {
+export const replaceUrlParams = (url: string | undefined, ...params: (string | number | undefined)[]) => {
   if (!url) {
     return '';
   }

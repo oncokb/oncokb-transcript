@@ -1,0 +1,344 @@
+[
+  {
+    "id": 1,
+    "term": "UTR_3_PRIME_VARIANT",
+    "name": "3 Prime UTR Variant",
+    "isGenerallyTruncating": false,
+    "description": "A UTR variant of the 3' UTR",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 2,
+    "term": "UTR_5_PRIME_VARIANT",
+    "name": "5 Prime UTR Variant",
+    "isGenerallyTruncating": false,
+    "description": "A UTR variant of the 5' UTR",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 3,
+    "term": "ANY",
+    "name": "Any",
+    "isGenerallyTruncating": false,
+    "description": "Any variant",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 4,
+    "term": "CODING_SEQUENCE_VARIANT",
+    "name": "Coding Sequence Variant",
+    "isGenerallyTruncating": false,
+    "description": "A sequence variant that changes the coding sequence",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 5,
+    "term": "DOWNSTREAM_GENE_VARIANT",
+    "name": "Downstream Gene Variant",
+    "isGenerallyTruncating": false,
+    "description": "A sequence variant located 3' of a gene",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 6,
+    "term": "FEATURE_ELONGATION",
+    "name": "Feature Elongation",
+    "isGenerallyTruncating": false,
+    "description": "A sequence variant that causes the extension of a genomic feature, with regard to the reference sequence",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 7,
+    "term": "FEATURE_TRUNCATION",
+    "name": "Feature Truncation",
+    "isGenerallyTruncating": true,
+    "description": "A sequence variant that causes the reduction of a genomic feature, with regard to the reference sequence",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 8,
+    "term": "FRAMESHIFT_VARIANT",
+    "name": "Frameshift Variant",
+    "isGenerallyTruncating": true,
+    "description": "A sequence variant which causes a disruption of the translational reading frame, because the number of nucleotides inserted or deleted is not a multiple of three",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 10,
+    "term": "INCOMPLETE_TERMINAL_CODON_VARIANT",
+    "name": "Incomplete Terminal Codon Variant",
+    "isGenerallyTruncating": true,
+    "description": "A sequence variant where at least one base of the final codon of an incompletely annotated transcript is changed",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 11,
+    "term": "INFRAME_DELETION",
+    "name": "Inframe Deletion",
+    "isGenerallyTruncating": false,
+    "description": "An inframe non synonymous variant that deletes bases from the coding sequence",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 12,
+    "term": "INFRAME_INSERTION",
+    "name": "Inframe Insertion",
+    "isGenerallyTruncating": false,
+    "description": "An inframe non synonymous variant that inserts bases into in the coding sequence",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 13,
+    "term": "INTERGENIC_VARIANT",
+    "name": "Intergenic Variant",
+    "isGenerallyTruncating": false,
+    "description": "A sequence variant located in the intergenic region, between genes",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 14,
+    "term": "INTRON_VARIANT",
+    "name": "Intron Variant",
+    "isGenerallyTruncating": false,
+    "description": "A transcript variant occurring within an intron",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 15,
+    "term": "MATURE_MIRNA_VARIANT",
+    "name": "Mature miRNA Variant",
+    "isGenerallyTruncating": false,
+    "description": "A transcript variant located with the sequence of the mature miRNA",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 16,
+    "term": "MISSENSE_VARIANT",
+    "name": "Missense Variant",
+    "isGenerallyTruncating": false,
+    "description": "A sequence variant, that changes one or more bases, resulting in a different amino acid sequence but where the length is preserved",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 17,
+    "term": "NA",
+    "name": "NA",
+    "isGenerallyTruncating": false,
+    "description": "NA",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 18,
+    "term": "NMD_TRANSCRIPT_VARIANT",
+    "name": "NMD Transcript Variant",
+    "isGenerallyTruncating": false,
+    "description": "A variant in a transcript that is the target of NMD",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 19,
+    "term": "NON_CODING_TRANSCRIPT_EXON_VARIANT",
+    "name": "Non Coding Transcript Exon Variant",
+    "isGenerallyTruncating": false,
+    "description": "A sequence variant that changes non-coding exon sequence in a non-coding transcript",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 20,
+    "term": "NON_CODING_TRANSCRIPT_VARIANT",
+    "name": "Non Coding Transcript Variant",
+    "isGenerallyTruncating": false,
+    "description": "A transcript variant of a non coding RNA gene",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 21,
+    "term": "NON_TRUNCATING_VARIANT",
+    "name": "Non Truncating Variant",
+    "isGenerallyTruncating": false,
+    "description": "A change in the DNA that does not truncate or shorten the protein",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 22,
+    "term": "REGULATORY_REGION_ABLATION",
+    "name": "Regulatory Region Ablation",
+    "isGenerallyTruncating": false,
+    "description": "A feature ablation whereby the deleted region includes a regulatory region",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 23,
+    "term": "REGULATORY_REGION_AMPLIFICATION",
+    "name": "Regulatory Region Amplification",
+    "isGenerallyTruncating": false,
+    "description": "A feature amplification of a region containing a regulatory region",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 24,
+    "term": "REGULATORY_REGION_VARIANT",
+    "name": "Regulatory Region Variant",
+    "isGenerallyTruncating": false,
+    "description": "A sequence variant located within a regulatory region",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 25,
+    "term": "SPLICE_ACCEPTOR_VARIANT",
+    "name": "Splice Acceptor Variant",
+    "isGenerallyTruncating": true,
+    "description": "A splice variant that changes the 2 base region at the 3' end of an intron",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 26,
+    "term": "SPLICE_DONOR_VARIANT",
+    "name": "Splice Donor Variant",
+    "isGenerallyTruncating": true,
+    "description": "A splice variant that changes the 2 base region at the 5' end of an intron",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 27,
+    "term": "SPLICE_REGION_VARIANT",
+    "name": "Splice Region Variant",
+    "isGenerallyTruncating": true,
+    "description": "A sequence variant in which a change has occurred within the region of the splice site, either within 1-3 bases of the exon or 3-8 bases of the intron",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 28,
+    "term": "START_LOST",
+    "name": "Start Lost",
+    "isGenerallyTruncating": true,
+    "description": "A codon variant that changes at least one base of the canonical start codo",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 29,
+    "term": "STOP_GAINED",
+    "name": "Stop Gained",
+    "isGenerallyTruncating": true,
+    "description": "A sequence variant whereby at least one base of a codon is changed, resulting in a premature stop codon, leading to a shortened transcript",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 30,
+    "term": "STOP_LOST",
+    "name": "Stop Lost",
+    "isGenerallyTruncating": true,
+    "description": "A sequence variant where at least one base of the terminator codon (stop) is changed, resulting in an elongated transcript",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 31,
+    "term": "STOP_RETAINED_VARIANT",
+    "name": "Stop Retained Variant",
+    "isGenerallyTruncating": false,
+    "description": "A sequence variant where at least one base in the terminator codon is changed, but the terminator remains",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 32,
+    "term": "SYNONYMOUS_VARIANT",
+    "name": "Synonymous Variant",
+    "isGenerallyTruncating": false,
+    "description": "A sequence variant where there is no resulting change to the encoded amino acid",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 33,
+    "term": "TFBS_ABLATION",
+    "name": "TFBS Ablation",
+    "isGenerallyTruncating": true,
+    "description": "A feature ablation whereby the deleted region includes a transcription factor binding site",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 34,
+    "term": "TFBS_AMPLIFICATION",
+    "name": "TFBS Amplification",
+    "isGenerallyTruncating": false,
+    "description": "A feature amplification of a region containing a transcription factor binding site",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 35,
+    "term": "TF_BINDING_SITE_VARIANT",
+    "name": "TF Binding Site Variant",
+    "isGenerallyTruncating": false,
+    "description": "A sequence variant located within a transcription factor binding site",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 36,
+    "term": "TRANSCRIPT_ABLATION",
+    "name": "Transcript Ablation",
+    "isGenerallyTruncating": true,
+    "description": "A feature ablation whereby the deleted region includes a transcript feature",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 37,
+    "term": "TRANSCRIPT_AMPLIFICATION",
+    "name": "Transcript Amplification",
+    "isGenerallyTruncating": false,
+    "description": "A feature amplification of a region containing a transcript",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 38,
+    "term": "UPSTREAM_GENE_VARIANT",
+    "name": "Upstream Gene Variant",
+    "isGenerallyTruncating": false,
+    "description": "A sequence variant located 5' of a gene",
+    "alterations": null,
+    "categoricalAlterations": null
+  },
+  {
+    "id": 39,
+    "term": "UNKNOWN",
+    "name": "Unknown",
+    "isGenerallyTruncating": false,
+    "description": "Unknown status",
+    "alterations": null,
+    "categoricalAlterations": null
+  }
+]

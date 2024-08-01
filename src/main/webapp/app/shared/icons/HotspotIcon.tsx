@@ -47,6 +47,9 @@ const getHotspotDescription = (hotspotType: string) => {
 
 const getHotspotTooltipContent = (associatedHotspots: HotspotDTO[]) => {
   const groupedHotspot = associatedHotspots.reduce((acc, next) => {
+    if (!next.type) {
+      return acc;
+    }
     if (!acc[next.type]) {
       acc[next.type] = [];
     }

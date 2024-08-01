@@ -19,10 +19,10 @@ function SaveGeneButton({ hugoSymbol, firebaseGeneService, ...buttonProps }: ISa
     try {
       const isGermline = false;
       if (hugoSymbol === undefined) {
-        await firebaseGeneService.saveAllGenes(isGermline);
+        await firebaseGeneService?.saveAllGenes(isGermline);
         notifySuccess('All genes saved!');
       } else {
-        await firebaseGeneService.saveGene(isGermline, hugoSymbol);
+        await firebaseGeneService?.saveGene(isGermline, hugoSymbol);
         notifySuccess(`${hugoSymbol} was saved!`);
       }
     } catch (e) {

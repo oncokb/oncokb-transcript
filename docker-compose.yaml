@@ -24,6 +24,7 @@ services:
       - ./src/test/javascript/screenshots:/app/src/test/javascript/screenshots
     environment:
       - DOCKER=true
+      - FIREBASE_DATABASE_EMULATOR_HOST=firebase:9095
     command: yarn run wdio
 
   firebase:

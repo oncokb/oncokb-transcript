@@ -41,6 +41,7 @@ export const CategoricalAlterationUpdate = (props: ICategoricalAlterationUpdateP
     }
   }, [updateSuccess]);
 
+  // TYPE-ISSUE: I don't know what type values is
   const saveEntity = values => {
     const entity = {
       ...categoricalAlterationEntity,
@@ -59,8 +60,8 @@ export const CategoricalAlterationUpdate = (props: ICategoricalAlterationUpdateP
     const val = isNew
       ? {}
       : {
-          alterationType: 'PROTEIN_CHANGE',
           ...categoricalAlterationEntity,
+          alterationType: categoricalAlterationEntity.alterationType,
           consequence: categoricalAlterationEntity.consequence
             ? {
                 label: categoricalAlterationEntity?.consequence.term,

@@ -1,6 +1,7 @@
 import { RealtimeDropdownOptions } from 'app/shared/firebase/input/RealtimeDropdownInput';
 import { FDA_LEVELS, TX_LEVELS } from 'app/shared/model/firebase/firebase.model';
 import {
+  LEVELS,
   getFdaPropagationInfo,
   getPropagatedLevelDropdownOptions,
   getTxLevelDropdownOptions,
@@ -14,6 +15,7 @@ import { componentInject } from 'app/shared/util/typed-inject';
 import { observer } from 'mobx-react';
 import RealtimeLevelDropdownInput, { LevelOfEvidenceType } from 'app/shared/firebase/input/RealtimeLevelDropdownInput';
 import _ from 'lodash';
+import { Unsubscribe } from 'firebase/database';
 
 export enum PropagationType {
   SOLID,
@@ -28,15 +30,18 @@ export interface ITherapyDropdownGroup extends StoreProps {
 const PLACEHOLDER = 'You must select a level';
 
 const TherapyDropdownGroup = ({ firebaseDb, treatmentPath }: ITherapyDropdownGroup) => {
-  const [highestLevel, setHighestLevel] = useState<TX_LEVELS>(null);
-  const [propOptions, setPropOptions] = useState<RealtimeDropdownOptions[]>(null);
-  const [propFdaLevel, setPropFdaLevel] = useState<FDA_LEVELS>(null);
-  const [propFdaOptions, setPropFdaOptions] = useState<RealtimeDropdownOptions[]>(null);
+  const [highestLevel, setHighestLevel] = useState<TX_LEVELS>();
+  const [propOptions, setPropOptions] = useState<RealtimeDropdownOptions<LEVELS>[]>();
+  const [propFdaLevel, setPropFdaLevel] = useState<FDA_LEVELS>();
+  const [propFdaOptions, setPropFdaOptions] = useState<RealtimeDropdownOptions<LEVELS | ''>[]>();
   const [isPropagationLevelsDisabled, setIsPropagationLevelsDisabled] = useState(true);
   const [isFdaPropagationLevelDisabled, setIsFdaPropagationLevelDisabled] = useState(true);
 
   useEffect(() => {
-    const callbacks = [];
+    if (!firebaseDb) {
+      return;
+    }
+    const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(firebaseDb, `${treatmentPath}/level`), snapshot => {
         setHighestLevel(snapshot.val());
@@ -84,7 +89,7 @@ const TherapyDropdownGroup = ({ firebaseDb, treatmentPath }: ITherapyDropdownGro
             firebaseLevelPath={`${treatmentPath}/propagation`}
             label="Level of Evidence in other solid tumor types"
             name="propagationLevel"
-            options={propOptions}
+            options={propOptions ?? []}
             highestLevel={highestLevel}
             placeholder={PLACEHOLDER}
           />
@@ -96,7 +101,7 @@ const TherapyDropdownGroup = ({ firebaseDb, treatmentPath }: ITherapyDropdownGro
             firebaseLevelPath={`${treatmentPath}/propagationLiquid`}
             label="Level of Evidence in other liquid tumor types"
             name="propagationLiquidLevel"
-            options={propOptions}
+            options={propOptions ?? []}
             highestLevel={highestLevel}
             placeholder={PLACEHOLDER}
           />
@@ -111,7 +116,7 @@ const TherapyDropdownGroup = ({ firebaseDb, treatmentPath }: ITherapyDropdownGro
         label="FDA Level of Evidence"
         name="propagationFdaLevel"
         propagatedFdaLevel={propFdaLevel}
-        options={propFdaOptions}
+        options={propFdaOptions ?? []}
         placeholder={PLACEHOLDER}
       />
     </>

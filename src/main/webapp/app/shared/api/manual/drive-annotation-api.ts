@@ -17,7 +17,7 @@ export const DriveAnnotationAxiosParamCreator = function (configuration?: Config
       const localVarPath = `/legacy-api/driveAnnotation`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions: { headers: any };
+      let baseOptions: { headers: any } | undefined = undefined;
       if (configuration) {
         baseOptions = configuration.baseOptions;
       }
@@ -33,7 +33,7 @@ export const DriveAnnotationAxiosParamCreator = function (configuration?: Config
       localVarRequestOptions.headers = { ...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers };
       const bodyFormData = new URLSearchParams();
       for (const [key, value] of Object.entries(driveAnnotation)) {
-        bodyFormData.append(key, value);
+        bodyFormData.append(key, value ?? '');
       }
       localVarRequestOptions.data = bodyFormData;
 

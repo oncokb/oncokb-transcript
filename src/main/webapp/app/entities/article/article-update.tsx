@@ -8,6 +8,7 @@ import { IRootStore } from 'app/stores';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { IArticle } from 'app/shared/model/article.model';
 
 export interface IArticleUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -16,8 +17,6 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
 
   const flags = props.flags;
   const synonyms = props.synonyms;
-  const associations = props.associations;
-  const fdaSubmissions = props.fdaSubmissions;
   const articleEntity = props.articleEntity;
   const loading = props.loading;
   const updating = props.updating;
@@ -46,14 +45,15 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = values => {
-    values.date = convertDateTimeToServer(values.date);
+  const saveEntity = (values: Partial<IArticle>) => {
+    // TYPE-ISSUE is date supposed to be a date object too?
+    values.date = (values.date ? convertDateTimeToServer(values.date) : values.date) as string;
 
     const entity = {
       ...articleEntity,
       ...values,
-      flags: mapIdList(values.flags),
-      synonyms: mapIdList(values.synonyms),
+      flags: mapIdList(values.flags ?? []),
+      synonyms: mapIdList(values.synonyms ?? []),
     };
 
     if (isNew) {
@@ -69,8 +69,8 @@ export const ArticleUpdate = (props: IArticleUpdateProps) => {
           date: displayDefaultDateTime(),
         }
       : {
-          type: 'PUBMED',
           ...articleEntity,
+          type: articleEntity.type,
           date: convertDateTimeFromServer(articleEntity.date),
           flags: articleEntity?.flags?.map(e => e.id.toString()),
           synonyms: articleEntity?.synonyms?.map(e => e.id.toString()),

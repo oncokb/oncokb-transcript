@@ -11,11 +11,13 @@ import { observer } from 'mobx-react';
 import { IRootStore } from 'app/stores';
 import { onValue, ref, get } from 'firebase/database';
 import { Button, Col, Row } from 'reactstrap';
+import { GroupBase } from 'react-select';
+import Select from 'react-select/dist/declarations/src/Select';
 
 export interface IAddVusModalProps extends StoreProps {
-  hugoSymbol: string;
+  hugoSymbol: string | undefined;
   isGermline: boolean;
-  vusList: VusObjList;
+  vusList: VusObjList | null;
   onCancel: () => void;
   onConfirm: (variants: string[]) => Promise<void>;
   convertOptions?: {
@@ -37,7 +39,7 @@ const createOption = (label: string) => ({
 
 const AddVusModal = (props: IAddVusModalProps) => {
   const firebaseMutationPath = `${getFirebaseGenePath(props.isGermline, props.hugoSymbol)}/mutations`;
-  const [mutationList, setMutationList] = useState<Mutation[]>(undefined);
+  const [mutationList, setMutationList] = useState<Mutation[]>();
   const [duplicateAlterations, setDuplicateAlterations] = useState<DuplicateMutationInfo[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [variants, setVariants] = useState<readonly Option[]>([]);
@@ -45,9 +47,12 @@ const AddVusModal = (props: IAddVusModalProps) => {
   // need to focus input once this is fetched
   const [mutationListInitialized, setMutationListInitialized] = useState(false);
 
-  const inputRef = useRef(null);
+  const inputRef = useRef<Select<Option, true, GroupBase<Option>> | null>(null);
 
   useEffect(() => {
+    if (!props.firebaseDb) {
+      return;
+    }
     const subscribe = onValue(ref(props.firebaseDb, firebaseMutationPath), snapshot => {
       setMutationList(snapshot.val());
       if (!mutationListInitialized) {
@@ -62,7 +67,7 @@ const AddVusModal = (props: IAddVusModalProps) => {
       const dupAlts = getDuplicateMutations(
         variants.map(o => o.label),
         mutationList,
-        props.vusList,
+        props.vusList ?? {},
         { useFullAlterationName: false, exact: false, excludedMutationUuid: props.convertOptions?.mutationUuid },
       );
       setDuplicateAlterations(dupAlts);

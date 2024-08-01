@@ -28,6 +28,7 @@ export const UserManagementUpdate = (props: IUserManagementUpdateProps) => {
     props.history.push('/admin/user-management');
   };
 
+  // TYPE-ISSUE: Is values supposed to be IUser?
   const saveUser = values => {
     const entity = {
       ...user,

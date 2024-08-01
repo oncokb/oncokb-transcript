@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText, Label } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col, Label } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 
-import { IFlag } from 'app/shared/model/flag.model';
-import { IEnsemblGene } from 'app/shared/model/ensembl-gene.model';
-import { IGene } from 'app/shared/model/gene.model';
-import { IAlteration } from 'app/shared/model/alteration.model';
-import { ITranscript } from 'app/shared/model/transcript.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
 import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import GeneSelect from 'app/shared/select/GeneSelect';
@@ -20,12 +13,11 @@ export interface ITranscriptUpdateProps extends StoreProps, RouteComponentProps<
 
 export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
-  const [selectedGeneId, setSelectedGeneId] = useState();
+  const [selectedGeneId, setSelectedGeneId] = useState<number>();
 
   const flags = props.flags;
   const ensemblGenes = props.ensemblGenes;
   const genes = props.genes;
-  const alterations = props.alterations;
   const transcriptEntity = props.transcriptEntity;
   const loading = props.loading;
   const updating = props.updating;
@@ -54,13 +46,17 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
     }
   }, [updateSuccess]);
 
+  // TYPE-ISSUE: is values supposed to be ITranscript?
+  // The call setSelectedGeneId is setting as a number
+  // onChange={option => { setSelectedGeneId(option?.value); }}
   const saveEntity = values => {
     const entity = {
       ...transcriptEntity,
       ...values,
       flags: mapIdList(values.flags),
       ensemblGene: ensemblGenes.find(it => it.id.toString() === values.ensemblGeneId.toString()),
-      gene: genes.find(it => it.id.toString() === selectedGeneId),
+      // TYPE-ISSUE: Is selectedGeneId a number or a string?
+      gene: genes.find(it => it.id.toString() === selectedGeneId?.toString()),
     };
 
     if (isNew) {
@@ -74,8 +70,8 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
     isNew
       ? {}
       : {
-          referenceGenome: 'GRCh37',
           ...transcriptEntity,
+          referenceGenome: transcriptEntity.referenceGenome ?? 'GRCh37',
           flags: transcriptEntity?.flags?.map(e => e.id.toString()),
           ensemblGeneId: transcriptEntity?.ensemblGene?.id,
           geneId: transcriptEntity?.gene?.id,
@@ -163,8 +159,9 @@ export const TranscriptUpdate = (props: ITranscriptUpdateProps) => {
                     ? {
                         value: props.transcriptEntity.gene.id,
                         label: props.transcriptEntity.gene.hugoSymbol,
+                        synonyms: props.transcriptEntity.gene.synonyms ?? [],
                       }
-                    : null
+                    : undefined
                 }
               />
               <SaveButton disabled={updating} />

@@ -12,4 +12,12 @@ export class FirebaseHistoryService {
   addHistory = async (hugoSymbol: string, history: History, isGermline: boolean) => {
     return await this.firebaseRepository.push(getFirebaseHistoryPath(isGermline, hugoSymbol), history);
   };
+
+  getUpdateObject = (history: History, hugoSymbol: string, isGermline: boolean) => {
+    const historyGenePath = getFirebaseHistoryPath(isGermline, hugoSymbol);
+    const historyArrayKey = this.firebaseRepository.getArrayKey(historyGenePath);
+    return {
+      [`${historyGenePath}/${historyArrayKey}`]: history,
+    };
+  };
 }

@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { formatDate } from 'app/shared/util/utils';
 
 const getPubMedContent = (pubMedDto: PubMedDTO) => {
-  if (pubMedDto.additionalInfo?.abstractTexts?.length > 1) {
+  if (pubMedDto.additionalInfo?.abstractTexts && pubMedDto.additionalInfo?.abstractTexts?.length > 1) {
     return pubMedDto.additionalInfo.abstractTexts.map(text => (
       <p key={text.label}>
         <b>{_.capitalize(text.label)}</b>: {text.value}
@@ -28,7 +28,7 @@ const PubMedArticleTooltipContent: React.FunctionComponent<IPubMedArticleTooltip
   const getPubMedArticle = props.getPubMedArticle();
 
   useEffect(() => {
-    getPubMedArticle.get(props.pmid);
+    getPubMedArticle.get(+props.pmid);
   }, [props.pmid]);
 
   return useMemo(() => {
@@ -36,17 +36,18 @@ const PubMedArticleTooltipContent: React.FunctionComponent<IPubMedArticleTooltip
       return <LoadingIndicator isLoading />;
     } else {
       if (getPubMedArticle.error) {
-        return <div>Failed to fetch PubMed Article with error {getPubMedArticle.error.content}</div>;
-      } else if (getPubMedArticle.pubMedArticle != null) {
+        // TYPE-ISSUE: Seems like this error type should be a RequiredError which does not have a content field
+        return <div>Failed to fetch PubMed Article with error {(getPubMedArticle.error as any).content}</div>;
+      } else if (getPubMedArticle.pubMedArticle != null && getPubMedArticle.pubMedArticle.date) {
         const pubMedDto: PubMedDTO = getPubMedArticle.pubMedArticle;
-        const date = new Date(pubMedDto.date);
+        const date = new Date(getPubMedArticle.pubMedArticle.date);
         return (
           <div>
             <h5 data-testid={`${props.pmid}-pub-med-title`}>{pubMedDto.title}</h5>
             <p>
-              {pubMedDto.authors}, {pubMedDto.additionalInfo.journal.isoAbbreviation}, on {formatDate(date, true)}
+              {pubMedDto.authors}, {pubMedDto.additionalInfo?.journal?.isoAbbreviation}, on {formatDate(date, true)}
             </p>
-            {pubMedDto.synonyms?.length > 0 && (
+            {pubMedDto.synonyms && pubMedDto.synonyms?.length > 0 && (
               <p>
                 {pubMedDto.synonyms.map(synonym => (
                   <span className={'me-2'} key={`${synonym.type}-${synonym.source}-${synonym.name}`}>
@@ -59,7 +60,7 @@ const PubMedArticleTooltipContent: React.FunctionComponent<IPubMedArticleTooltip
               <b>Abstract</b>
             </p>
             <div>{pubMedDto ? getPubMedContent(pubMedDto) : <i>No abstract available.</i>}</div>
-            {pubMedDto.additionalInfo?.dataBanks?.length > 0 && (
+            {pubMedDto.additionalInfo?.dataBanks && pubMedDto.additionalInfo?.dataBanks?.length > 0 && (
               <>
                 <p>
                   <b>Associated Data</b>
@@ -68,7 +69,7 @@ const PubMedArticleTooltipContent: React.FunctionComponent<IPubMedArticleTooltip
                   <ul>
                     {pubMedDto.additionalInfo.dataBanks.map(dataBank => (
                       <li key={dataBank.name}>
-                        {dataBank.name}: {dataBank.accessionNumbers.join(', ')}
+                        {dataBank.name}: {dataBank.accessionNumbers?.join(', ')}
                       </li>
                     ))}
                   </ul>
@@ -95,6 +96,7 @@ const PubMedArticleTooltip: React.FunctionComponent<IPubMedArticleTooltip> = pro
     </DefaultTooltip>
   );
 };
+
 const mapStoreToProps = (storeState: IRootStore) => ({
   getPubMedArticle: storeState.articleStore.getPubMedArticle,
 });

@@ -14,7 +14,7 @@ export const GeneAxiosParamCreator = function (configuration?: Configuration) {
       const localVarPath = `/legacy-api/gene/update`;
       // use dummy base URL string because the URL constructor only accepts absolute URLs.
       const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-      let baseOptions: { headers: any };
+      let baseOptions: { headers: any } | undefined = undefined;
       if (configuration) {
         baseOptions = configuration.baseOptions;
       }

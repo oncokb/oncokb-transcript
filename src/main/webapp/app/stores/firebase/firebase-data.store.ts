@@ -3,7 +3,7 @@ import { action, makeObservable, observable } from 'mobx';
 import FirebaseAppStore from './firebase-app.store';
 
 export class FirebaseDataStore<T> {
-  public data: Readonly<T> = undefined;
+  public data: Readonly<T> | null = null;
   public firebaseAppStore: FirebaseAppStore;
 
   constructor(firebaseAppStore: FirebaseAppStore) {
@@ -16,12 +16,20 @@ export class FirebaseDataStore<T> {
   }
 
   addListener = (path: string) => {
-    const callback = (snapshot: DataSnapshot) => (this.data = snapshot.val());
-    const unsubscribe = onValue(ref(this.firebaseAppStore.firebaseDb, path), action(callback));
-    return unsubscribe;
+    if (this.firebaseAppStore.firebaseDb) {
+      const callback = (snapshot: DataSnapshot) => (this.data = snapshot.val());
+      const unsubscribe = onValue(ref(this.firebaseAppStore.firebaseDb, path), action(callback));
+      return unsubscribe;
+    } else {
+      throw new Error('No firebaseDb');
+    }
   };
 
   fetchData = async (path: string) => {
-    this.data = (await get(ref(this.firebaseAppStore.firebaseDb, path))).val();
+    if (this.firebaseAppStore.firebaseDb) {
+      this.data = (await get(ref(this.firebaseAppStore.firebaseDb, path))).val();
+    } else {
+      throw new Error('No firebaseDb');
+    }
   };
 }

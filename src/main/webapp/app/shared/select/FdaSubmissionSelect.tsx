@@ -1,24 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { Props as SelectProps } from 'react-select';
+import { ActionMeta, GroupBase, MultiValue, OnChangeValue, OptionsOrGroups, Props as SelectProps, SingleValue } from 'react-select';
 import { IRootStore } from 'app/stores/createStore';
-import { connect } from '../util/typed-inject';
+import { InjectProps, connect } from '../util/typed-inject';
 import { IFdaSubmission } from '../model/fda-submission.model';
 import { getFdaSubmissionNumber } from 'app/entities/companion-diagnostic-device/companion-diagnostic-device';
 import { flow, flowResult } from 'mobx';
 import Select from 'react-select';
 
-export interface IFdaSubmissionSelectProps extends SelectProps, StoreProps {
+export type FdaSubmissionSelectOption = {
+  label: string;
+  // TYPE-ISSUE: not sure what this should be
+  value: any;
+};
+
+export interface IFdaSubmissionSelectProps<IsMulti extends boolean> extends SelectProps<FdaSubmissionSelectOption, IsMulti>, StoreProps {
   cdxId: number;
 }
 
-const FdaSubmissionSelect: React.FunctionComponent<IFdaSubmissionSelectProps> = props => {
+const FdaSubmissionSelect = <IsMulti extends boolean>(props: IFdaSubmissionSelectProps<IsMulti>) => {
   const { getFdaSubmissionsByCdx, cdxId, ...selectProps } = props;
-  const [fdaSubmissionList, setFdaSubmissionList] = useState([]);
-  const [fdaSubmissionValue, setFdaSubmissionValue] = useState(null);
+  const [fdaSubmissionList, setFdaSubmissionList] = useState<
+    OptionsOrGroups<FdaSubmissionSelectOption, GroupBase<FdaSubmissionSelectOption>> | undefined
+  >([]);
+  const [fdaSubmissionValue, setFdaSubmissionValue] = useState<OnChangeValue<FdaSubmissionSelectOption, IsMulti> | null>(null);
 
   useEffect(() => {
     const loadFdaSubmissionOptions = async (id: number) => {
-      let options = [];
+      let options: FdaSubmissionSelectOption[] = [];
       if (id) {
         const fdaSubmissions = await flowResult(getFdaSubmissionsByCdx({ cdxId: id }));
         options = fdaSubmissions?.map((fdaSubmission: IFdaSubmission) => ({
@@ -34,9 +42,12 @@ const FdaSubmissionSelect: React.FunctionComponent<IFdaSubmissionSelectProps> = 
     }
   }, [cdxId]);
 
-  const onFdaSubmissionChange = (option, actionMeta) => {
+  const onFdaSubmissionChange: (
+    newValue: OnChangeValue<FdaSubmissionSelectOption, IsMulti>,
+    actionMeta: ActionMeta<FdaSubmissionSelectOption>,
+  ) => void = (option, actionMeta) => {
     setFdaSubmissionValue(option);
-    props.onChange(option, actionMeta);
+    props.onChange?.(option, actionMeta);
   };
 
   return (
@@ -58,4 +69,7 @@ const mapStoreToProps = ({ fdaSubmissionStore }: IRootStore) => ({
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 
-export default connect(mapStoreToProps)(FdaSubmissionSelect);
+export default function <IsMulti extends boolean = false>(props: InjectProps<IFdaSubmissionSelectProps<IsMulti>, StoreProps>) {
+  const InjectedFdaSubmissionSelect = connect(mapStoreToProps)<IFdaSubmissionSelectProps<IsMulti>>(FdaSubmissionSelect);
+  return <InjectedFdaSubmissionSelect {...props} />;
+}

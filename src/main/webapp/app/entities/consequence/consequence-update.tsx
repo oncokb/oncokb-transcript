@@ -6,6 +6,7 @@ import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 
 import { SaveButton } from 'app/shared/button/SaveButton';
+import { IConsequence } from 'app/shared/model/consequence.model';
 
 export interface IConsequenceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -35,7 +36,7 @@ export const ConsequenceUpdate = (props: IConsequenceUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = values => {
+  const saveEntity = (values: Partial<IConsequence>) => {
     const entity = {
       ...consequenceEntity,
       ...values,

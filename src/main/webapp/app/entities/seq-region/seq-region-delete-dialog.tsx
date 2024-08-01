@@ -6,6 +6,7 @@ import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IRootStore } from 'app/stores';
+
 export interface ISeqRegionDeleteDialogProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const SeqRegionDeleteDialog = (props: ISeqRegionDeleteDialogProps) => {

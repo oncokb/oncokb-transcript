@@ -1,4 +1,4 @@
-import { action, observable, makeObservable } from 'mobx';
+import { action, observable, makeObservable, AnnotationMapEntry } from 'mobx';
 import axios, { AxiosResponse } from 'axios';
 
 import BaseStore from 'app/shared/util/base-store';
@@ -8,7 +8,7 @@ const apiUrl = '/api/account';
 
 export class SettingsStore extends BaseStore {
   public updateFailure = false;
-  public successMessage = null;
+  public successMessage: string | null = null;
   saveAccountSettings = this.updateHandler(this.saveAccountSettingsGen);
 
   constructor(protected rootStore: IRootStore) {
@@ -32,7 +32,7 @@ export class SettingsStore extends BaseStore {
   }
 
   // Actions
-  *saveAccountSettingsGen(account) {
+  *saveAccountSettingsGen(account: AnnotationMapEntry) {
     this.reset();
     const result: AxiosResponse = yield axios.post(apiUrl, account);
     yield this.rootStore.authStore.getSession();

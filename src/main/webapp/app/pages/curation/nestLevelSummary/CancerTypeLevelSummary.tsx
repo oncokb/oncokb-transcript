@@ -5,8 +5,9 @@ import { DataSnapshot, onValue, ref } from 'firebase/database';
 import _ from 'lodash';
 import { observer } from 'mobx-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import NestLevelSummary from './NestLevelSummary';
+import NestLevelSummary, { NestLevelSummaryStats } from './NestLevelSummary';
 import { UPDATE_SUMMARY_STATS_DEBOUNCE_MILLISECONDS } from 'app/config/constants/constants';
+import { Unsubscribe } from 'firebase/database';
 
 export interface CancerTypeLevelSummaryProps extends StoreProps {
   cancerTypePath: string;
@@ -14,7 +15,7 @@ export interface CancerTypeLevelSummaryProps extends StoreProps {
 
 const CancerTypeLevelSummary = ({ cancerTypePath, firebaseDb }: CancerTypeLevelSummaryProps) => {
   const [cancerTypeStatsInitialized, setCancerTypeStatsInitialized] = useState(false);
-  const [cancerTypeStats, setCancerTypeStats] = useState(undefined);
+  const [cancerTypeStats, setCancerTypeStats] = useState<NestLevelSummaryStats>();
 
   const updateCancerTypeStats = useCallback((snapshot: DataSnapshot) => {
     const calcCancerTypeStats = getCancerTypeStats(snapshot.val());
@@ -24,7 +25,10 @@ const CancerTypeLevelSummary = ({ cancerTypePath, firebaseDb }: CancerTypeLevelS
   const updateCancerTypeStatsDebounced = _.debounce(updateCancerTypeStats, UPDATE_SUMMARY_STATS_DEBOUNCE_MILLISECONDS);
 
   useEffect(() => {
-    const callbacks = [];
+    if (!firebaseDb) {
+      return;
+    }
+    const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(firebaseDb, cancerTypePath), snapshot => {
         if (cancerTypeStatsInitialized) {
@@ -33,7 +37,7 @@ const CancerTypeLevelSummary = ({ cancerTypePath, firebaseDb }: CancerTypeLevelS
           updateCancerTypeStats(snapshot);
           setCancerTypeStatsInitialized(true);
         }
-      })
+      }),
     );
     return () => callbacks.forEach(callback => callback?.());
   }, [cancerTypeStatsInitialized]);

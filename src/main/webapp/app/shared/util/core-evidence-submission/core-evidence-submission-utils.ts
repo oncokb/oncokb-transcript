@@ -36,7 +36,7 @@ export function mostRecentItem(reviewObjs: string | any[], include?: boolean) {
       // otherwise, we will only use the reviewObj with updatedBy info.
       if (!reviewObjs[i] || !reviewObjs[i].updatedBy) continue;
     }
-    let currentItemTime: number | Date;
+    let currentItemTime: number | Date | undefined = undefined;
     if (reviewObjs[i] && reviewObjs[i].updateTime) {
       currentItemTime = new Date(reviewObjs[i].updateTime);
     }
@@ -59,8 +59,8 @@ export function mostRecentItem(reviewObjs: string | any[], include?: boolean) {
   return mostRecent;
 }
 
-export function validateTimeFormat(updateTime: string | number | Date): any {
-  let tempTime = new Date(updateTime);
+export function validateTimeFormat(updateTime: string | number | Date | undefined): string {
+  let tempTime = updateTime !== undefined ? new Date(updateTime) : undefined;
   if (tempTime instanceof Date && !isNaN(tempTime.getTime())) {
     updateTime = tempTime.getTime();
   } else {
@@ -169,10 +169,14 @@ export function collectUUIDs({ type, obj, uuids = [], uuidType }: CollectUUIDsAr
         uuids.push(obj.diagnosticSummary_uuid);
         uuids.push(obj.prognostic.level_uuid);
         uuids.push(obj.prognostic.description_uuid);
-        uuids.push(obj.prognostic.excludedRCTs_uuid);
+        if (obj.prognostic.excludedRCTs_uuid) {
+          uuids.push(obj.prognostic.excludedRCTs_uuid);
+        }
         uuids.push(obj.diagnostic.level_uuid);
         uuids.push(obj.diagnostic.description_uuid);
-        uuids.push(obj.diagnostic.excludedRCTs_uuid);
+        if (obj.diagnostic.excludedRCTs_uuid) {
+          uuids.push(obj.diagnostic.excludedRCTs_uuid);
+        }
         break;
       case 'evidenceOnly':
         uuids.push(obj.summary_uuid);
@@ -193,10 +197,14 @@ export function collectUUIDs({ type, obj, uuids = [], uuidType }: CollectUUIDsAr
         uuids.push(obj.diagnosticSummary_uuid);
         uuids.push(obj.prognostic.level_uuid);
         uuids.push(obj.prognostic.description_uuid);
-        uuids.push(obj.prognostic.excludedRCTs_uuid);
+        if (obj.prognostic.excludedRCTs_uuid) {
+          uuids.push(obj.prognostic.excludedRCTs_uuid);
+        }
         uuids.push(obj.diagnostic.level_uuid);
         uuids.push(obj.diagnostic.description_uuid);
-        uuids.push(obj.diagnostic.excludedRCTs_uuid);
+        if (obj.diagnostic.excludedRCTs_uuid) {
+          uuids.push(obj.diagnostic.excludedRCTs_uuid);
+        }
         break;
     }
     _.each(obj.TIs, function (ti) {

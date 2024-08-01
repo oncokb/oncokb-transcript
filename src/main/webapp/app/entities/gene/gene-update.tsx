@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col } from 'reactstrap';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
 import { ValidatedField, ValidatedForm } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IRootStore } from 'app/stores';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import { mapIdList } from 'app/shared/util/entity-utils';
+import { IGene } from 'app/shared/model/gene.model';
 
 export interface IGeneUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -17,7 +17,6 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
   const geneEntity = props.geneEntity;
   const loading = props.loading;
   const updating = props.updating;
-  const updateSuccess = props.updateSuccess;
 
   useEffect(() => {
     if (isNew) {
@@ -29,11 +28,11 @@ export const GeneUpdate = (props: IGeneUpdateProps) => {
     props.getGeneFlags({});
   }, []);
 
-  const saveEntity = values => {
+  const saveEntity = (values: Partial<IGene>) => {
     const entity = {
       ...geneEntity,
       ...values,
-      flags: mapIdList(values.flags),
+      flags: mapIdList(values.flags ?? []),
     };
 
     if (isNew) {

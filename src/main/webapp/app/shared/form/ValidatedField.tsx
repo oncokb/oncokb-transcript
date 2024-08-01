@@ -39,7 +39,6 @@ export const ValidatedField: React.FunctionComponent<IValidatedFieldProps> = ({
       )}
       <Input
         id={id}
-        name={name}
         autoComplete="off"
         innerRef={ref}
         invalid={!!error}
@@ -48,7 +47,7 @@ export const ValidatedField: React.FunctionComponent<IValidatedFieldProps> = ({
           onChange && onChange(e);
         }}
         type={type}
-        style={type === 'checkbox' ? { marginLeft: '0.25rem' } : null}
+        style={type === 'checkbox' ? { marginLeft: '0.25rem' } : undefined}
         {...attributes}
         {...rest}
       >

@@ -1,23 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'app/shared/util/typed-inject';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Row, Col, FormText } from 'reactstrap';
-import { isNumber, ValidatedField, ValidatedForm } from 'react-jhipster';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { RouteComponentProps } from 'react-router-dom';
+import { Row, Col } from 'reactstrap';
+import { ValidatedField, ValidatedForm } from 'react-jhipster';
 import { IRootStore } from 'app/stores';
 
-import { ICompanionDiagnosticDevice } from 'app/shared/model/companion-diagnostic-device.model';
-import { ISpecimenType } from 'app/shared/model/specimen-type.model';
-import { convertDateTimeFromServer, convertDateTimeToServer, displayDefaultDateTime } from 'app/shared/util/date-utils';
-import { mapIdList } from 'app/shared/util/entity-utils';
 import { SaveButton } from 'app/shared/button/SaveButton';
+import { ISpecimenType } from 'app/shared/model/specimen-type.model';
 
 export interface ISpecimenTypeUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
 export const SpecimenTypeUpdate = (props: ISpecimenTypeUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
 
-  const companionDiagnosticDevices = props.companionDiagnosticDevices;
   const specimenTypeEntity = props.specimenTypeEntity;
   const loading = props.loading;
   const updating = props.updating;
@@ -43,7 +38,7 @@ export const SpecimenTypeUpdate = (props: ISpecimenTypeUpdateProps) => {
     }
   }, [updateSuccess]);
 
-  const saveEntity = values => {
+  const saveEntity = (values: Partial<ISpecimenType>) => {
     const entity = {
       ...specimenTypeEntity,
       ...values,

@@ -65,10 +65,16 @@ export function getGeneData(geneData: Gene, onlyReviewedContent: boolean, drugLi
 function processData<T, K extends keyof T & string>(data: T | undefined, keys: K[], onlyReviewedContent: boolean) {
   if (data !== undefined) {
     for (const key of keys) {
-      delete data[key + '_comments'];
+      delete data?.[key + '_comments'];
       const reviewKey = key + '_review';
-      const maybeReview = data[reviewKey];
-      if (onlyReviewedContent && typeof maybeReview === 'object' && maybeReview !== null && 'lastReviewed' in maybeReview) {
+      const maybeReview = data?.[reviewKey];
+      if (
+        data !== null &&
+        onlyReviewedContent &&
+        typeof maybeReview === 'object' &&
+        maybeReview !== null &&
+        'lastReviewed' in maybeReview
+      ) {
         data[key] = maybeReview.lastReviewed;
       }
     }
@@ -77,7 +83,7 @@ function processData<T, K extends keyof T & string>(data: T | undefined, keys: K
 
 export function getVUSData(vus: Vus[]) {
   const vusData = _.cloneDeep(vus);
-  const vusDataArray = [];
+  const vusDataArray: Vus[] = [];
   for (const vusItem of vusData) {
     delete vusItem.name_comments;
     vusDataArray.push(vusItem);
@@ -124,7 +130,10 @@ function getDrugsByUuids(keys: string[][], drugList: DrugCollection): Drug[][] {
 }
 
 export type DriveAnnotation = { gene: string | undefined; vus: string | undefined };
-export function getDriveAnnotations(drugList: DrugCollection, { gene, vus }: { gene: Gene; vus: Vus[] }): DriveAnnotation {
+export function getDriveAnnotations(
+  drugList: DrugCollection,
+  { gene, vus }: { gene: Gene | undefined; vus: Vus[] | undefined },
+): DriveAnnotation {
   const params: DriveAnnotation = { gene: undefined, vus: undefined };
   if (gene) {
     params.gene = JSON.stringify(getGeneData(gene, true, drugList));

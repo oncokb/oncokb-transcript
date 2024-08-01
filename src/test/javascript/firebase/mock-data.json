@@ -2463,7 +2463,7 @@
                       "description_review": {
                         "lastReviewed": "",
                         "updateTime": 1717517911547,
-                        "updatedBy": "undefined undefined"
+                        "updatedBy": "Test User"
                       },
                       "description_uuid": "90026d5f-5111-4372-a61e-5a5e13efab16",
                       "excludedRCTs_uuid": "ddb608a3-56af-4871-b82f-dbb2cb000202",
@@ -2477,7 +2477,7 @@
                       "name_review": {
                         "added": true,
                         "updateTime": 1717517906834,
-                        "updatedBy": "undefined undefined"
+                        "updatedBy": "Test User"
                       },
                       "name_uuid": "69961749-0415-49e3-aa34-54cc77c57b2c",
                       "propagation": "",
@@ -2488,7 +2488,7 @@
                       "short_review": {
                         "lastReviewed": "",
                         "updateTime": 1717517914898,
-                        "updatedBy": "undefined undefined"
+                        "updatedBy": "Test User"
                       },
                       "short_uuid": "a63b6c91-7d3d-43ea-9f73-ddf55faa43d3"
                     }
@@ -9717,7 +9717,7 @@
           "name_review": {
             "removed": true,
             "updateTime": 1717517923181,
-            "updatedBy": "undefined undefined"
+            "updatedBy": "Test User"
           },
           "name_uuid": "3bc4a8fb-7069-498e-8792-79a3fc8a0ebc",
           "tumors_uuid": "db0bffad-cb1e-4615-8f1d-db6c2ef5b4cd"
@@ -9905,7 +9905,7 @@
             "demotedToVus": true,
             "removed": true,
             "updateTime": 1717517928319,
-            "updatedBy": "undefined undefined"
+            "updatedBy": "Test User"
           },
           "name_uuid": "b38c0589-2d24-44fc-af43-eff4e6129b30",
           "tumors_uuid": "7f7cf80f-6b56-4de4-8c14-abc195d48f36"
@@ -10815,7 +10815,7 @@
       "summary_review": {
         "lastReviewed": "BRAF, an intracellular kinase, is frequently mutated in melanoma, thyroid and lung cancers among others.",
         "updateTime": 1717517893267,
-        "updatedBy": "undefined undefined"
+        "updatedBy": "Test User"
       },
       "summary_uuid": "fb828c84-3a02-4f45-8721-01c20b7794d3",
       "type": {
@@ -28270,6 +28270,29 @@
         "tsg_uuid": "9dc33bc9-af8a-4d94-80bc-fc8c97e687ef"
       },
       "type_uuid": "f6122512-16ca-48f4-83a6-cb38796e399c"
+    },
+    "EMPTYGENE": {
+      "background": "Sample gene background",
+      "background_uuid": "49cfad04-4541-4113-9f85-072c32b5c35d",
+      "dmp_refseq_id": "",
+      "dmp_refseq_id_grch38": "",
+      "inheritanceMechanism": "",
+      "inheritanceMechanism_uuid": "d6d3697f-55a6-4950-9912-16fbcf848267",
+      "isoform_override": "",
+      "isoform_override_grch38": "",
+      "mutations_uuid": "9f541241-7fa4-40b7-be67-4c915a48e5fa",
+      "name": "EMPTYGENE",
+      "penetrance": "",
+      "penetrance_uuid": "9a387241-a6ed-4702-91ab-f86be9bfe18a",
+      "summary": "",
+      "summary_uuid": "93e7f92d-5fdf-4a12-86c1-3d094649b5c9",
+      "type": {
+        "ocg": "",
+        "ocg_uuid": "de2e592c-eddc-4cfa-aefa-78672270cc42",
+        "tsg": "",
+        "tsg_uuid": "780878cb-6480-4dc1-8143-979e73daf309"
+      },
+      "type_uuid": "aa20da52-a94f-4f1b-94e9-0e89b3e6b281"
     }
   },
   "Germline_Genes": {
@@ -64377,7 +64400,7 @@
   "Meta": {
     "BRAF": {
       "lastModifiedAt": "1717517928468",
-      "lastModifiedBy": "undefined undefined",
+      "lastModifiedBy": "Test User",
       "lastSavedAt": 1710275384540,
       "lastSavedBy": "User",
       "movingSection": false,
@@ -64404,6 +64427,16 @@
       "lastModifiedAt": 1689113933476,
       "lastModifiedBy": "User",
       "lastSavedAt": 1683664309867,
+      "lastSavedBy": "User",
+      "movingSection": false,
+      "review": {
+        "currentReviewer": ""
+      }
+    },
+    "EMPTYGENE": {
+      "lastModifiedAt": 1689113333476,
+      "lastModifiedBy": "User",
+      "lastSavedAt": 1683664339867,
       "lastSavedBy": "User",
       "movingSection": false,
       "review": {

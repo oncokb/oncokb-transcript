@@ -2,7 +2,7 @@ import { CancerType, Review } from 'app/shared/model/firebase/firebase.model';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { getCancerTypesNameWithExclusion } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
-import { get, onValue, ref } from 'firebase/database';
+import { Unsubscribe, get, onValue, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
 import React, { useEffect, useState } from 'react';
 import GeneHistoryTooltip from 'app/components/geneHistoryTooltip/GeneHistoryTooltip';
@@ -33,7 +33,7 @@ interface ICancerTypeCollapsibleProps extends StoreProps {
   allCancerTypesPath: string;
   mutationName: string;
   mutationUuid: string;
-  parsedHistoryList: Map<string, FlattenedHistory[]>;
+  parsedHistoryList?: Map<string, FlattenedHistory[]>;
   isGermline: boolean;
 }
 
@@ -49,14 +49,17 @@ function CancerTypeCollapsible({
   deleteSection,
   isGermline,
 }: ICancerTypeCollapsibleProps) {
-  const [cancerTypes, setCancerTypes] = useState<CancerType[]>(null);
-  const [cancerTypesUuid, setCancerTypesUuid] = useState<string>(null);
-  const [cancerTypesReview, setCancerTypesReview] = useState<Review>(null);
+  const [cancerTypes, setCancerTypes] = useState<CancerType[]>();
+  const [cancerTypesUuid, setCancerTypesUuid] = useState<string>();
+  const [cancerTypesReview, setCancerTypesReview] = useState<Review>();
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
-  const [excludedCancerTypes, setExcludedCancerTypes] = useState<CancerType[]>(null);
+  const [excludedCancerTypes, setExcludedCancerTypes] = useState<CancerType[]>();
 
   useEffect(() => {
-    const callbacks = [];
+    if (!firebaseDb) {
+      return;
+    }
+    const callbacks: Unsubscribe[] = [];
     callbacks.push(
       onValue(ref(firebaseDb, `${cancerTypePath}/cancerTypes`), snapshot => {
         setCancerTypes(snapshot.val());
@@ -87,8 +90,11 @@ function CancerTypeCollapsible({
   }, [cancerTypePath, firebaseDb]);
 
   async function handleDeleteCancerType() {
+    if (!firebaseDb || cancerTypesUuid === undefined) {
+      return;
+    }
     const snapshot = await get(ref(firebaseDb, cancerTypePath));
-    deleteSection(`${cancerTypePath}/cancerTypes`, snapshot.val(), cancerTypesReview, cancerTypesUuid);
+    deleteSection?.(`${cancerTypePath}/cancerTypes`, snapshot.val(), cancerTypesReview, cancerTypesUuid);
   }
 
   if (!cancerTypes || !cancerTypesUuid) {
@@ -100,6 +106,7 @@ function CancerTypeCollapsible({
   return (
     <>
       <RemovableCollapsible
+        idPrefix={`${mutationName}-${cancerTypeName}`}
         collapsibleClassName="mt-2"
         title={`Cancer Type: ${cancerTypeName}`}
         colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.CANCER_TYPE]] }}
@@ -116,7 +123,7 @@ function CancerTypeCollapsible({
             <CommentIcon id={cancerTypesUuid} path={`${cancerTypePath}/cancerTypes_comments`} />
             <EditIcon
               onClick={() => {
-                modifyCancerTypeModalStore.openModal(cancerTypesUuid);
+                modifyCancerTypeModalStore?.openModal(cancerTypesUuid);
               }}
             />
             <DeleteSectionButton
@@ -169,6 +176,7 @@ function CancerTypeCollapsible({
           name="pxSummary"
         />
         <Collapsible
+          idPrefix={`${mutationName}-${cancerTypeName}-tx-implication`}
           defaultOpen
           title="Therapeutic Implications"
           colorOptions={{ borderLeftColor: NestLevelColor[NestLevelMapping[NestLevelType.THERAPEUTIC]] }}
@@ -186,6 +194,7 @@ function CancerTypeCollapsible({
           />
         </Collapsible>
         <Collapsible
+          idPrefix={`${mutationName}-${cancerTypeName}-dx-implication`}
           collapsibleClassName={'mt-2'}
           key={`${cancerTypesUuid}_diagnostic`}
           title="Diagnostic Implication"
@@ -214,6 +223,7 @@ function CancerTypeCollapsible({
           />
         </Collapsible>
         <Collapsible
+          idPrefix={`${mutationName}-${cancerTypeName}-px-implication`}
           collapsibleClassName={'mt-2'}
           key={`${cancerTypesUuid}_prognostic`}
           title="Prognostic Implication"
@@ -248,15 +258,15 @@ function CancerTypeCollapsible({
         cancerTypesPathToEdit={cancerTypePath}
         onConfirm={async newTumor => {
           try {
-            await updateTumorName(cancerTypePath, cancerTypes, excludedCancerTypes, newTumor, isGermline);
+            await updateTumorName?.(cancerTypePath, cancerTypes, excludedCancerTypes, newTumor, isGermline);
           } catch (error) {
             notifyError(error);
           }
 
-          modifyCancerTypeModalStore.closeModal();
+          modifyCancerTypeModalStore?.closeModal();
         }}
         onCancel={() => {
-          modifyCancerTypeModalStore.closeModal();
+          modifyCancerTypeModalStore?.closeModal();
         }}
       />
     </>

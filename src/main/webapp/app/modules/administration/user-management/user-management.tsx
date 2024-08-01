@@ -53,7 +53,7 @@ export const UserManagement = (props: IUserManagementProps) => {
       Cell(cell: { original: IUser }) {
         return (
           <Button color={cell.original.activated ? 'success' : 'danger'} onClick={toggleActive(cell.original)}>
-            {getStatus(cell.original.activated)}
+            {getStatus(cell.original.activated ?? false)}
           </Button>
         );
       },

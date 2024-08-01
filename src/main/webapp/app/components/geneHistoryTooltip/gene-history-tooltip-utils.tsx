@@ -7,7 +7,9 @@ import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-util
 import DiffViewer from 'app/components/diff-viewer/DiffViewer';
 import { READABLE_FIELD } from 'app/config/constants/firebase';
 
-export default function constructTimeSeriesData(record: FlattenedHistory): RequiredTimeSeriesEventData | ExtraTimeSeriesEventData {
+export default function constructTimeSeriesData(
+  record: FlattenedHistory,
+): RequiredTimeSeriesEventData | ExtraTimeSeriesEventData | undefined {
   let operation: string;
   let bubbleColor: string;
   let content: React.ReactNode;
@@ -152,7 +154,7 @@ export function getTooltipHistoryList(history: FlattenedHistory[]) {
 
       tooltipHistoryList.set(locationIdentifier, [...prevRecords, record]);
     } else {
-      tooltipHistoryList.get(locationIdentifier).push(record);
+      tooltipHistoryList.get(locationIdentifier)?.push(record);
     }
   }
   return tooltipHistoryList;

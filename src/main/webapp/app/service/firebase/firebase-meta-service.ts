@@ -86,4 +86,25 @@ export class FirebaseMetaService {
   deleteMetaGene = async (hugoSymbol: string, isGermline: boolean) => {
     await this.firebaseRepository.delete(getFirebaseMetaGenePath(isGermline, hugoSymbol));
   };
+
+  getUpdateObject = (add: boolean, hugoSymbol: string, isGermline: boolean, uuid: string) => {
+    const metaGenePath = getFirebaseMetaGenePath(isGermline, hugoSymbol);
+    const uuidUpdateValue = add ? true : null;
+    const updateObject: { [key: string]: string | boolean | null } = {
+      [`${metaGenePath}/lastModifiedBy`]: this.authStore.fullName,
+      [`${metaGenePath}/lastModifiedAt`]: new Date().getTime().toString(),
+      [`${metaGenePath}/review/${uuid}`]: uuidUpdateValue,
+    };
+    if (uuid.includes(',')) {
+      // Cancer Type name review may contain only cancerTypes_uuid or BOTH cancerTypes_uuid and excludedCancerTypes_uuid.
+      // We want to remove all uuids in meta collection that contains either uuids.
+      uuid
+        .split(',')
+        .map(uuidPart => uuidPart.trim())
+        .forEach(uuidPart => {
+          updateObject[`${metaGenePath}/review/${uuidPart}`] = uuidUpdateValue;
+        });
+    }
+    return updateObject;
+  };
 }

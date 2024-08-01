@@ -92,11 +92,15 @@ const TimeSeriesInfo = ({ date, children }: ITimeSeriesInfoProps) => {
   const timelineRef = useRef<HTMLDivElement>(null);
   const lastChildRef = useRef<HTMLDivElement>(null);
 
-  const [lineHeight, setLineHeight] = useState(0);
+  const [lineHeight, setLineHeight] = useState<number | null>(0);
 
   useEffect(() => {
     function updateLineHeight() {
-      setLineHeight(timelineRef.current.clientHeight - lastChildRef.current.clientHeight - 10); // 10 is height of margin from react-event-timeline
+      setLineHeight(
+        timelineRef.current !== null && lastChildRef.current !== null
+          ? (timelineRef.current.clientHeight ?? 0) - (lastChildRef.current.clientHeight ?? 0) - 10
+          : null,
+      ); // 10 is height of margin from react-event-timeline
     }
 
     updateLineHeight();
@@ -120,7 +124,7 @@ const TimeSeriesInfo = ({ date, children }: ITimeSeriesInfoProps) => {
         <div ref={timelineRef}>
           <Timeline
             style={{ padding: '0px', width: '100%', fontSize: '100%', fontWeight: 'normal' }}
-            lineStyle={{ height: `${lineHeight}px`, top: '10px', left: '10px' }}
+            lineStyle={lineHeight !== null ? { height: `${lineHeight}px`, top: '10px', left: '10px' } : undefined}
             lineColor="#B0B0B0"
           >
             {React.Children.map(children, (child, index) => {
@@ -160,14 +164,12 @@ const TimeSeriesEvent = ({
         groupByDay ? (
           <div>
             <span className="time-series-event-timestamp">
-              <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />
+              {createdAt && <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />}
             </span>{' '}
             <span>{`${admin} approved ${operation} by ${editBy}`}</span>
           </div>
         ) : (
-          <h5>
-            <TextFormat value={createdAt} type="date" format={APP_HISTORY_FORMAT} />
-          </h5>
+          <h5>{createdAt && <TextFormat value={createdAt} type="date" format={APP_HISTORY_FORMAT} />}</h5>
         )
       }
       subtitle={
@@ -179,7 +181,7 @@ const TimeSeriesEvent = ({
         ) : (
           <div>
             <span className="time-series-event-timestamp">
-              <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />
+              {createdAt && <TextFormat value={createdAt} type="date" format={APP_TIME_FORMAT} />}
             </span>{' '}
             <span>{`${admin} approved ${operation} by ${editBy}`}</span>
           </div>

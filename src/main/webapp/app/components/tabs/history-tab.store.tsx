@@ -4,13 +4,13 @@ import _ from 'lodash';
 export class HistoryTabStore {
   selectedStartDate = '';
   selectedEndDate = '';
-  selectedAuthor: { label: string; value: string } = null;
-  selectedMutation: { label: string; value: string } = null;
+  selectedAuthor: { label: string; value: string } | null = null;
+  selectedMutation: { label: string; value: string } | null = null;
 
   appliedStartDate = '';
   appliedEndDate = '';
-  appliedAuthor: { label: string; value: string } = null;
-  appliedMutation: { label: string; value: string } = null;
+  appliedAuthor: { label: string; value: string } | null = null;
+  appliedMutation: { label: string; value: string } | null = null;
 
   constructor() {
     makeObservable(this, {
@@ -31,11 +31,11 @@ export class HistoryTabStore {
     });
   }
 
-  setSelectedAuthor(author: { label: string; value: string }) {
+  setSelectedAuthor(author: { label: string; value: string } | null) {
     this.selectedAuthor = author;
   }
 
-  setSelectedMutation(mutation: { label: string; value: string }) {
+  setSelectedMutation(mutation: { label: string; value: string } | null) {
     this.selectedMutation = mutation;
   }
 

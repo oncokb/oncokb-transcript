@@ -9,7 +9,7 @@ import { ValidatedField, ValidatedSelect } from 'app/shared/form/ValidatedField'
 import { flow, flowResult } from 'mobx';
 import _ from 'lodash';
 import { SaveButton } from 'app/shared/button/SaveButton';
-import GeneSelect from 'app/shared/select/GeneSelect';
+import GeneSelect, { GeneSelectOption } from 'app/shared/select/GeneSelect';
 import { REFERENCE_GENOME } from 'app/config/constants/constants';
 import { Alteration, Gene } from 'app/shared/api/generated/curation';
 
@@ -19,7 +19,7 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
   const [isNew] = useState(!props.match.params || !props.match.params.id);
   const [proteinChange, setProteinChange] = useState('');
   const [proteinChangeAlteration, setProteinChangeAlteration] = useState(null);
-  const [selectedGenes, setSelectedGenes] = useState([]);
+  const [selectedGenes, setSelectedGenes] = useState<{ label: string | undefined; value: number | undefined }[]>([]);
 
   const consequences = props.consequences;
   const alterationEntity = props.alterationEntity;
@@ -123,7 +123,7 @@ export const AlterationUpdate = (props: IAlterationUpdateProps) => {
                 alteration: proteinChange,
               } as Alteration,
             },
-          ])
+          ]),
         );
         setProteinChangeAlteration(annotationResult[0].entity);
       };

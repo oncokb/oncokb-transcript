@@ -50,7 +50,7 @@ export const EnsemblGene = (props: IEnsemblGeneProps) => {
       accessor: 'seqRegion',
       Header: 'Seg Region',
       Cell(cell: { original: IEnsemblGene }) {
-        return cell.original.seqRegion.name;
+        return cell.original.seqRegion?.name;
       },
     },
     {
@@ -64,7 +64,7 @@ export const EnsemblGene = (props: IEnsemblGeneProps) => {
       id: 'gene',
       Header: 'Gene',
       Cell(cell: { original: IEnsemblGene }) {
-        return <div>{getGeneName(cell.original.gene)}</div>;
+        return <>{cell.original.gene && <div>{getGeneName(cell.original.gene)}</div>}</>;
       },
     },
     getEntityTableActionsColumn(ENTITY_TYPE.ENSEMBL_GENE),

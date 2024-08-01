@@ -87,7 +87,7 @@ describe('getEvidence to submit to core', () => {
       gene,
     };
 
-    type ArrayElement = [Parameters<typeof pathToGetEvidenceArgs>[0] & { valuePath: string }, args: Partial<GetEvidenceArgs>];
+    type ArrayElement = [Parameters<typeof pathToGetEvidenceArgs>[0] & { valuePath: string }, args: Partial<GetEvidenceArgs> | undefined];
 
     const goodTests: ArrayElement[] = [
       [{ ...baseExpectedArgs, valuePath: 'mutations/0' }, undefined],
@@ -293,7 +293,7 @@ describe('getEvidence to submit to core', () => {
           excludedRCTs_review: undefined,
           propagationLiquid_uuid: undefined,
         }),
-      ).map((key: keyof ReturnType<typeof createMockTreatment>): ArrayElement => {
+      ).map((key): ArrayElement => {
         const valuePath = `mutations/0/tumors/0/TIs/1/treatments/0/${key}`;
         if (key === 'short' || key === 'indication') {
           return [{ ...baseExpectedArgs, valuePath }, undefined];
@@ -372,20 +372,20 @@ describe('getEvidence to submit to core', () => {
       updateTime: new Date().getTime(),
     };
     const baseEvidence: Evidence = {
-      additionalInfo: null,
-      alterations: null,
-      articles: null,
-      description: null,
-      fdaLevel: null,
-      knownEffect: null,
-      levelOfEvidence: null,
-      liquidPropagationLevel: null,
-      solidPropagationLevel: null,
-      treatments: null,
+      additionalInfo: null as unknown as undefined,
+      alterations: null as unknown as undefined,
+      articles: null as unknown as undefined,
+      description: null as unknown as undefined,
+      fdaLevel: null as unknown as undefined,
+      knownEffect: null as unknown as undefined,
+      levelOfEvidence: null as unknown as undefined,
+      liquidPropagationLevel: null as unknown as undefined,
+      solidPropagationLevel: null as unknown as undefined,
+      treatments: null as unknown as undefined,
       cancerTypes: [],
       excludedCancerTypes: [],
       relevantCancerTypes: [],
-    };
+    } as unknown as Evidence;
 
     const getTimeFromDateString = (s: string) => new Date(s).getTime();
     const hugoSymbol = 'ABL1';
@@ -861,7 +861,7 @@ describe('getEvidence to submit to core', () => {
           ['afd5c3a0-930e-4cce-8bd5-66577ebac0eb']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
+            evidenceType: null as unknown as undefined,
             alterations: [
               {
                 alteration: 'mutation',
@@ -870,12 +870,12 @@ describe('getEvidence to submit to core', () => {
                 },
               },
             ],
-            lastEdit: null,
+            lastEdit: null as unknown as undefined,
           },
           ['ceac443e-dc39-4f62-9e05-45b800326e18']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
+            evidenceType: null as unknown as undefined,
             alterations: [
               {
                 alteration: 'mutation',
@@ -884,13 +884,13 @@ describe('getEvidence to submit to core', () => {
                 },
               },
             ],
-            lastEdit: null,
+            lastEdit: null as unknown as undefined,
           },
           // tumor UUID's
           ['081d7177-83e9-4dae-96a1-fa869aec4b52']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
+            evidenceType: null as unknown as undefined,
             alterations: [
               {
                 alteration: 'mutation',
@@ -899,12 +899,12 @@ describe('getEvidence to submit to core', () => {
                 },
               },
             ],
-            lastEdit: null,
+            lastEdit: null as unknown as undefined,
           },
           ['a264a9d7-69d5-47b2-9734-09a860dd9d9b']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
+            evidenceType: null as unknown as undefined,
             alterations: [
               {
                 alteration: 'mutation',
@@ -913,12 +913,12 @@ describe('getEvidence to submit to core', () => {
                 },
               },
             ],
-            lastEdit: null,
+            lastEdit: null as unknown as undefined,
           },
           ['1d36e653-2805-4b23-affc-e4b60f60d24c']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
+            evidenceType: null as unknown as undefined,
             alterations: [
               {
                 alteration: 'mutation',
@@ -927,12 +927,12 @@ describe('getEvidence to submit to core', () => {
                 },
               },
             ],
-            lastEdit: null,
+            lastEdit: null as unknown as undefined,
           },
           ['7cb9656b-383d-49ef-92eb-35af6803a6f4']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
+            evidenceType: null as unknown as undefined,
             alterations: [
               {
                 alteration: 'mutation',
@@ -941,12 +941,12 @@ describe('getEvidence to submit to core', () => {
                 },
               },
             ],
-            lastEdit: null,
+            lastEdit: null as unknown as undefined,
           },
           ['70d937cc-1bb7-4315-9d4f-9a97cf9d728b']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
+            evidenceType: null as unknown as undefined,
             alterations: [
               {
                 alteration: 'mutation',
@@ -955,13 +955,13 @@ describe('getEvidence to submit to core', () => {
                 },
               },
             ],
-            lastEdit: null,
+            lastEdit: null as unknown as undefined,
           },
           // Treatment UUID's
           ['d43e1f83-be01-43c2-bc1a-c020d204fbb1']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
+            evidenceType: null as unknown as undefined,
             alterations: [
               {
                 alteration: 'mutation',
@@ -970,7 +970,7 @@ describe('getEvidence to submit to core', () => {
                 },
               },
             ],
-            lastEdit: null,
+            lastEdit: null as unknown as undefined,
           },
         },
       ],
@@ -1041,8 +1041,8 @@ describe('getEvidence to submit to core', () => {
           ['081d7177-83e9-4dae-96a1-fa869aec4b52']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
-            lastEdit: null,
+            evidenceType: null as unknown as undefined,
+            lastEdit: null as unknown as undefined,
             cancerTypes: [
               {
                 code: 'cancerTypeCode',
@@ -1061,8 +1061,8 @@ describe('getEvidence to submit to core', () => {
           ['a264a9d7-69d5-47b2-9734-09a860dd9d9b']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
-            lastEdit: null,
+            evidenceType: null as unknown as undefined,
+            lastEdit: null as unknown as undefined,
             cancerTypes: [
               {
                 code: 'cancerTypeCode',
@@ -1081,8 +1081,8 @@ describe('getEvidence to submit to core', () => {
           ['1d36e653-2805-4b23-affc-e4b60f60d24c']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
-            lastEdit: null,
+            evidenceType: null as unknown as undefined,
+            lastEdit: null as unknown as undefined,
             cancerTypes: [
               {
                 code: 'cancerTypeCode',
@@ -1101,8 +1101,8 @@ describe('getEvidence to submit to core', () => {
           ['7cb9656b-383d-49ef-92eb-35af6803a6f4']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
-            lastEdit: null,
+            evidenceType: null as unknown as undefined,
+            lastEdit: null as unknown as undefined,
             cancerTypes: [
               {
                 code: 'cancerTypeCode',
@@ -1121,8 +1121,8 @@ describe('getEvidence to submit to core', () => {
           ['70d937cc-1bb7-4315-9d4f-9a97cf9d728b']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
-            lastEdit: null,
+            evidenceType: null as unknown as undefined,
+            lastEdit: null as unknown as undefined,
             cancerTypes: [
               {
                 code: 'cancerTypeCode',
@@ -1142,8 +1142,8 @@ describe('getEvidence to submit to core', () => {
           ['d43e1f83-be01-43c2-bc1a-c020d204fbb1']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
-            lastEdit: null,
+            evidenceType: null as unknown as undefined,
+            lastEdit: null as unknown as undefined,
             cancerTypes: [
               {
                 code: 'cancerTypeCode',
@@ -1228,8 +1228,8 @@ describe('getEvidence to submit to core', () => {
           ['081d7177-83e9-4dae-96a1-fa869aec4b52']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
-            lastEdit: null,
+            evidenceType: null as unknown as undefined,
+            lastEdit: null as unknown as undefined,
             cancerTypes: [
               {
                 code: 'cancerTypeCode',
@@ -1248,8 +1248,8 @@ describe('getEvidence to submit to core', () => {
           ['a264a9d7-69d5-47b2-9734-09a860dd9d9b']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
-            lastEdit: null,
+            evidenceType: null as unknown as undefined,
+            lastEdit: null as unknown as undefined,
             cancerTypes: [
               {
                 code: 'cancerTypeCode',
@@ -1268,8 +1268,8 @@ describe('getEvidence to submit to core', () => {
           ['1d36e653-2805-4b23-affc-e4b60f60d24c']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
-            lastEdit: null,
+            evidenceType: null as unknown as undefined,
+            lastEdit: null as unknown as undefined,
             cancerTypes: [
               {
                 code: 'cancerTypeCode',
@@ -1288,8 +1288,8 @@ describe('getEvidence to submit to core', () => {
           ['7cb9656b-383d-49ef-92eb-35af6803a6f4']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
-            lastEdit: null,
+            evidenceType: null as unknown as undefined,
+            lastEdit: null as unknown as undefined,
             cancerTypes: [
               {
                 code: 'cancerTypeCode',
@@ -1308,8 +1308,8 @@ describe('getEvidence to submit to core', () => {
           ['70d937cc-1bb7-4315-9d4f-9a97cf9d728b']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
-            lastEdit: null,
+            evidenceType: null as unknown as undefined,
+            lastEdit: null as unknown as undefined,
             cancerTypes: [
               {
                 code: 'cancerTypeCode',
@@ -1329,8 +1329,8 @@ describe('getEvidence to submit to core', () => {
           ['d43e1f83-be01-43c2-bc1a-c020d204fbb1']: {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
-            evidenceType: null,
-            lastEdit: null,
+            evidenceType: null as unknown as undefined,
+            lastEdit: null as unknown as undefined,
             cancerTypes: [
               {
                 code: 'cancerTypeCode',
@@ -1413,7 +1413,7 @@ describe('getEvidence to submit to core', () => {
           ['d43e1f83-be01-43c2-bc1a-c020d204fbb1']: {
             ...baseEvidence,
             fdaLevel: EvidenceFdaLevelEnum.LevelFda1,
-            evidenceType: null,
+            evidenceType: null as unknown as undefined,
             description: 'Treatment Description',
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
             lastEdit: baseArgs.updateTime.toString(),
@@ -1441,7 +1441,7 @@ describe('getEvidence to submit to core', () => {
     ];
     test.each(goodTests)('Path should map to evidences as expected for path %s', (pathArgs, expected) => {
       const args = pathToGetEvidenceArgs(pathArgs);
-      expect(getEvidence(args)).toEqual(expected);
+      expect(getEvidence(args as GetEvidenceArgs)).toEqual(expected);
     });
   });
 });

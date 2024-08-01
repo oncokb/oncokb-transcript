@@ -8,7 +8,14 @@ import {
   ReviewLevelType,
 } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
-import { History, HistoryCollection, HistoryList, HistoryOperationType, HistoryRecord } from 'app/shared/model/firebase/firebase.model';
+import {
+  History,
+  HistoryCollection,
+  HistoryList,
+  HistoryOperationType,
+  HistoryRecord,
+  HistoryRecordState,
+} from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
 import { getCancerTypesNameWithExclusion, isUuid } from '../utils';
 import { BaseReviewLevel, ReviewLevel } from './firebase-review-utils';
@@ -17,12 +24,15 @@ import { getMutationName, getTxName } from './firebase-utils';
 export const buildHistoryFromReviews = (reviewerName: string, reviewLevels: ReviewLevel[]) => {
   const history = new History(reviewerName);
   for (const reviewLevel of reviewLevels) {
-    const historyOperation = ReviewActionToHistoryOperationMapping[reviewLevel.reviewInfo.reviewAction];
+    const historyOperation =
+      reviewLevel.reviewInfo.reviewAction !== undefined
+        ? ReviewActionToHistoryOperationMapping[reviewLevel.reviewInfo.reviewAction]
+        : undefined;
 
     const historyRecord: HistoryRecord = {
-      lastEditBy: reviewLevel.reviewInfo.review.updatedBy,
+      lastEditBy: reviewLevel.reviewInfo.review?.updatedBy ?? '',
       location: reviewLevel.historyLocation,
-      operation: historyOperation,
+      operation: historyOperation ?? '',
       uuids: getUuidsFromReview(reviewLevel)?.join(','),
       info: reviewLevel.historyInfo,
     };
@@ -48,7 +58,7 @@ export const buildHistoryFromReviews = (reviewerName: string, reviewLevels: Revi
 };
 
 export const getUuidsFromReview = (reviewLevel: ReviewLevel) => {
-  const updatedFieldUuids = []; // Only the fields where data change has occurred should have its uuids added
+  const updatedFieldUuids: string[] = []; // Only the fields where data change has occurred should have its uuids added
   switch (reviewLevel.reviewInfo.reviewAction) {
     case ReviewAction.CREATE:
     case ReviewAction.PROMOTE_VUS:
@@ -58,7 +68,11 @@ export const getUuidsFromReview = (reviewLevel: ReviewLevel) => {
     case ReviewAction.DEMOTE_MUTATION:
       return undefined;
     default:
-      updatedFieldUuids.push(reviewLevel.reviewInfo.uuid);
+      if (reviewLevel.reviewInfo.uuid) {
+        updatedFieldUuids.push(reviewLevel.reviewInfo.uuid);
+      } else {
+        throw new Error('Review Info is missing UUID');
+      }
   }
   return updatedFieldUuids;
 };
@@ -68,11 +82,16 @@ const findAllUuidsFromReview = (baseReviewLevel: BaseReviewLevel, uuids: string[
     return;
   }
   const reviewLevel = baseReviewLevel as ReviewLevel;
+
+  if (!reviewLevel.reviewInfo.uuid) {
+    throw new Error('uuid is missing on review Info');
+  }
+
   uuids.push(reviewLevel.reviewInfo.uuid);
   if (!reviewLevel.hasChildren()) {
     return;
   }
-  for (const childReview of Object.values(reviewLevel.children)) {
+  for (const childReview of reviewLevel.children) {
     findAllUuidsFromReview(childReview, uuids);
   }
 };
@@ -142,7 +161,7 @@ export const parseAddRecord = (record: HistoryRecord, drugList: readonly IDrug[]
 
       for (const entry of updatedEntries) {
         parsedRecords.push({
-          new: entry[1] as string,
+          new: entry[1],
           operation: HistoryOperationType.UPDATE,
           lastEditBy: record.lastEditBy,
           location: `${readableLocation}, ${entry[0]}`,
@@ -219,19 +238,22 @@ export const parseNameChangeRecord = (record: HistoryRecord, drugList: readonly 
  * @param uuids - The list of uuids corresponding to entries to search for
  * @returns The entries (in the format [path, value]) corresponding to the uuids in the same order as the uuids as an array. If any entries cannot be retrieved, `undefined` will be in that field's slot
  */
-export const findEntriesInObjectByUuids = (object: any, uuids: string[], drugList: readonly IDrug[]) => {
-  const fieldValues: [string, unknown][] = Array(uuids.length);
+export const findEntriesInObjectByUuids = (object: HistoryRecordState, uuids: string[], drugList: readonly IDrug[]) => {
+  const fieldValues: [string, string][] = Array(uuids.length);
   let numFound = 0;
 
-  let nestedObjects = [{ object, locationFields: [] }];
+  let nestedObjects: {
+    object: HistoryRecordState;
+    locationFields: string[];
+  }[] = [{ object, locationFields: [] }];
   while (nestedObjects.length > 0) {
-    const newNestedObjects = [];
+    const newNestedObjects: typeof nestedObjects = [];
 
     for (const nestedObject of nestedObjects) {
       const entries = Object.entries(nestedObject.object);
 
       for (const [key, value] of entries) {
-        const index = uuids.indexOf(value as string);
+        const index = uuids.indexOf(value);
         if (index !== -1) {
           const fieldName = key.replace('_uuid', '');
 
@@ -393,7 +415,7 @@ export function getAllGeneHistoryForDateRange(historyCollection: HistoryCollecti
     evidence: [],
   };
 
-  if (end && end < start) {
+  if (start !== undefined && end && end < start) {
     return result;
   }
 
@@ -432,7 +454,7 @@ export function getGeneHistoryForDateRange(
     evidence: [],
   };
 
-  if (end && end < start) {
+  if (start !== undefined && end && end < start) {
     return result;
   }
 
