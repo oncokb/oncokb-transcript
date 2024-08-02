@@ -11,6 +11,9 @@ import { ReviewLevel } from 'app/shared/util/firebase/firebase-review-utils';
 import { ReviewAction } from 'app/config/constants/firebase';
 import _ from 'lodash';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
+import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
+import { createMockGene, createMockMutation } from 'app/shared/util/core-submission-shared/core-submission.mocks';
+import { GeneTypeApi } from 'app/shared/api/manual/gene-type-api';
 import { generateUuid } from 'app/shared/util/utils';
 
 describe('Firebase Gene Review Service', () => {
@@ -24,6 +27,8 @@ describe('Firebase Gene Review Service', () => {
   const mockMetaService = mock<FirebaseMetaService>();
   const mockHistoryService = mock<FirebaseHistoryService>();
   const mockVusService = mock<FirebaseVusService>();
+  const mockEvidenceClient = mock<EvidenceApi>();
+  const mockGeneTypeClient = mock<GeneTypeApi>();
   let firebaseGeneReviewService: FirebaseGeneReviewService;
 
   beforeEach(() => {
@@ -38,6 +43,8 @@ describe('Firebase Gene Review Service', () => {
       mockMetaService,
       mockHistoryService,
       mockVusService,
+      mockEvidenceClient,
+      mockGeneTypeClient,
     );
     jest.useFakeTimers().setSystemTime(DEFAULT_DATE);
 
@@ -168,7 +175,16 @@ describe('Firebase Gene Review Service', () => {
         },
         historyInfo: {},
       });
-      await firebaseGeneReviewService.acceptChanges(hugoSymbol, [reviewLevel], false);
+
+      await firebaseGeneReviewService.acceptChanges({
+        hugoSymbol,
+        reviewLevels: [reviewLevel],
+        isGermline: false,
+        gene,
+        drugListRef: {},
+        entrezGeneId: 0,
+      });
+
       // We expect the lastReviewed to be cleared when accepting changes
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
       expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
@@ -214,7 +230,19 @@ describe('Firebase Gene Review Service', () => {
         },
         historyInfo: {},
       });
-      await firebaseGeneReviewService.acceptChanges(hugoSymbol, [reviewLevel], false);
+
+      await firebaseGeneReviewService.acceptChanges({
+        hugoSymbol,
+        reviewLevels: [reviewLevel],
+        isGermline: false,
+        gene: createMockGene({
+          name: hugoSymbol,
+          mutations: [createMockMutation()],
+        }),
+        drugListRef: {},
+        entrezGeneId: 0,
+      });
+
       expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [0]);
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
       expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
@@ -256,7 +284,19 @@ describe('Firebase Gene Review Service', () => {
         },
         historyInfo: {},
       });
-      await firebaseGeneReviewService.acceptChanges(hugoSymbol, [reviewLevel], false);
+
+      await firebaseGeneReviewService.acceptChanges({
+        hugoSymbol,
+        reviewLevels: [reviewLevel],
+        isGermline: false,
+        gene: createMockGene({
+          name: hugoSymbol,
+          mutations: [createMockMutation()],
+        }),
+        drugListRef: {},
+        entrezGeneId: 0,
+      });
+
       expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [0]);
       // We expect both alterations (V600E and V600K) to be added to VUS list
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');

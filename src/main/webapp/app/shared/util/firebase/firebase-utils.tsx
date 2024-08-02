@@ -125,8 +125,13 @@ export const getFirebasePath = (type: keyof typeof FB_COLLECTION_PATH, ...params
   return replaceUrlParams(FB_COLLECTION_PATH[type], ...params);
 };
 
-export const getFirebaseGenePath = (isGermline: boolean | undefined, hugoSymbol: string | undefined) => {
-  return getFirebasePath(isGermline ? 'GERMLINE_GENE' : 'GENE', hugoSymbol);
+export const getFirebaseGenePath = (isGermline: boolean | undefined, hugoSymbol?: string) => {
+  const basePath = isGermline ? 'GERMLINE_GENE' : 'GENE';
+  if (hugoSymbol !== undefined) {
+    return getFirebasePath(basePath, hugoSymbol);
+  } else {
+    return getFirebasePath(basePath);
+  }
 };
 
 export const getFirebaseMetaGenePath = (isGermline: boolean | undefined, hugoSymbol: string | undefined) => {
@@ -137,8 +142,13 @@ export const getFirebaseHistoryPath = (isGermline: boolean | undefined, hugoSymb
   return getFirebasePath(isGermline ? 'GERMLINE_HISTORY' : 'HISTORY', hugoSymbol);
 };
 
-export const getFirebaseVusPath = (isGermline: boolean | undefined, hugoSymbol: string | undefined) => {
-  return getFirebasePath(isGermline ? 'GERMLINE_VUS' : 'VUS', hugoSymbol);
+export const getFirebaseVusPath = (isGermline: boolean | undefined, hugoSymbol?: string) => {
+  const basePath = isGermline ? 'GERMLINE_VUS' : 'VUS';
+  if (hugoSymbol !== undefined) {
+    return getFirebasePath(basePath, hugoSymbol);
+  } else {
+    return getFirebasePath(basePath);
+  }
 };
 
 export const getFirebaseMetaGeneReviewPath = (isGermline: boolean | undefined, hugoSymbol: string, uuid: string) => {

@@ -249,7 +249,7 @@ export const CurationPage = (props: ICurationPageProps) => {
             tabs={[
               {
                 title: 'Tools',
-                content: <CurationToolsTab genePath={firebaseGenePath} />,
+                content: <CurationToolsTab genePath={firebaseGenePath} isGermline={isGermline} hugoSymbol={hugoSymbol ?? ''} />,
               },
               {
                 title: 'History',

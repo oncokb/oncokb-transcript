@@ -101,6 +101,7 @@ import { FirebaseRepository } from './firebase/firebase-repository';
 import { OpenMutationCollapsibleStore } from './open-mutation-collapsible.store';
 import { CurationPageStore } from 'app/stores/curation-page.store';
 import CategoricalAlterationStore from 'app/entities/categorical-alteration/categorical-alteration.store';
+import { driveAnnotationClient, evidenceClient, geneTypeClient } from 'app/shared/api/clients';
 import { WindowStore } from './window-store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 
@@ -244,6 +245,8 @@ export function createStores(history: History): IRootStore {
     firebaseMetaService,
     firebaseHistoryService,
     firebaseVusService,
+    evidenceClient,
+    geneTypeClient,
   );
   const firebaseGeneService = new FirebaseGeneService(
     firebaseRepository,
@@ -252,6 +255,7 @@ export function createStores(history: History): IRootStore {
     firebaseMutationConvertIconStore,
     firebaseMetaService,
     firebaseGeneReviewService,
+    driveAnnotationClient,
   );
 
   rootStore.firebaseMetaService = firebaseMetaService;
