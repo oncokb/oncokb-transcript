@@ -401,6 +401,7 @@ describe('Firebase Gene Review Service', () => {
       tumor.cancerTypes = [{ code: '', subtype: '', mainType: 'Melanoma' }];
       tumor.diagnostic.excludedRCTs = [{ code: 'TEST', subtype: 'Melanoma Subtype', mainType: 'Melanoma' }];
       tumor.diagnostic.excludedRCTs_review = new Review('User', undefined, false, false, true);
+      tumor.diagnostic.excludedRCTs_uuid = generateUuid();
       mutation.tumors.push(tumor);
 
       const reviewLevel = new ReviewLevel({
