@@ -156,7 +156,8 @@ export class FirebaseGeneReviewService {
       if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
         const reviewLevelUpdateObject = {
           [`${firebaseGenePath}/${reviewPath}`]: resetReview,
-          [`${firebaseGenePath}/${fieldPath}`]: review.lastReviewed,
+          // When user rejects the initial excludedRCTs, then excludedRCTs field should be cleared.
+          [`${firebaseGenePath}/${fieldPath}`]: review.initialUpdate ? null : review.lastReviewed,
         };
         updateObject = { ...updateObject, ...reviewLevelUpdateObject };
         if ('excludedCancerTypesReviewInfo' in reviewLevel && 'currentExcludedCancerTypes' in reviewLevel) {
