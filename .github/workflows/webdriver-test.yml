@@ -10,16 +10,16 @@ jobs:
         - uses: actions/checkout@v2
 
         - name: Build Docker images
-          run: docker-compose build
+          run: docker compose build
 
         - name: Run Docker containers
           run: |
-            docker-compose up -d
-            docker-compose run --rm wdio
-        
+            docker compose up -d
+            docker compose run --rm wdio
+
         - name: Archive screenshots
           if: failure()
           uses: actions/upload-artifact@v2
-          with: 
+          with:
             name: visual-regression-screenshots
             path: ./src/test/javascript/screenshots
