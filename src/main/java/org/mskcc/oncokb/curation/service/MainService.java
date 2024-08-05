@@ -133,7 +133,7 @@ public class MainService {
                     .map(TranscriptConsequenceSummary::getHgvspShort)
                     .map(hgvsp -> hgvsp.replace("p.", ""));
                 if (proteinChangeOptional.isPresent()) {
-                    alterationWithEntityStatus.getEntity().setProteinChange(proteinChangeOptional.get());
+                    alterationWithEntityStatus.getEntity().setProteinChange(proteinChangeOptional.orElseThrow());
                 }
             } catch (ApiException e) {
                 alterationWithStatus.setMessage("Failed to be annotated by GenomeNexus.");
