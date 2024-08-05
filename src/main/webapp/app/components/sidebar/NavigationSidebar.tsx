@@ -214,7 +214,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSi
     setEntityMenuOrder(order);
   }, []);
 
-  props.fetchManagementInfo();
+  props.fetchManagementInfo!();
 
   return (
     <Sidebar
@@ -277,7 +277,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSi
             {props.isAdmin && <MenuItem component={<NavLink to={PAGE_ROUTE.USER} />}>User Management</MenuItem>}
           </SubMenu>
           <MenuItemCollapsible
-            isCollapsed={props.isNavSidebarCollapsed}
+            isCollapsed={isNavSidebarCollapsed}
             text={'API Swagger'}
             icon={<FaExternalLinkAlt size={20} />}
             nav={<Linkout to={`${window.location.origin}${PAGE_ROUTE.SWAGGER}`} />}
