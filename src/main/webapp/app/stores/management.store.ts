@@ -3,13 +3,18 @@ import { IRootStore } from './createStore';
 import axios, { AxiosResponse } from 'axios';
 
 export type ManagementInfo = {
-  git?: GitCommit;
+  git?: Git;
   build?: InfoBuild;
+  activeProfiles: string[];
 };
 
 type GitCommit = {
+  id: { describe: string; abbrev: string };
+};
+
+type Git = {
   branch: string;
-  commit: string;
+  commit: GitCommit;
 };
 
 type InfoBuild = {
@@ -21,7 +26,7 @@ type InfoBuild = {
 };
 
 export class ManagementStore {
-  public commit: string = '';
+  public commit: GitCommit | undefined;
   public version: string = '';
 
   constructor(protected rootStore: IRootStore) {

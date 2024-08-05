@@ -298,7 +298,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSi
             <MenuDivider />
             <div className={'d-flex justify-content-center'}>
               <div>
-                {props.managementVersion} ({props.managementCommit})
+                {props.managementVersion} ({props.managementCommit?.id.abbrev})
               </div>
             </div>
           </>
