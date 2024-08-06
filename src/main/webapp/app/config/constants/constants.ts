@@ -371,6 +371,7 @@ export enum PATHOGENICITY {
   BENIGN = 'Benign',
   LIKELY_BENIGN = 'Likely Benign',
   UNKNOWN = 'Unknown',
+  VUS_WITH_SPECIAL_INTERPRETATION = 'VUS with Special Interpretation',
 }
 
 export enum MUTATION_EFFECT {
