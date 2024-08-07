@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "type": "ALTERATION_CATEGORY",
+    "flag": "TEST_FLAG",
+    "name": "Test Flag",
+    "description": "",
+    "alterations": null,
+    "articles": null,
+    "drugs": null,
+    "genes": null,
+    "transcripts": null
+  },
+  {
+    "id": 1,
+    "type": "ALTERATION_CATEGORY",
+    "flag": "TEST_FLAG_2",
+    "name": "Test Flag 2",
+    "description": "",
+    "alterations": null,
+    "articles": null,
+    "drugs": null,
+    "genes": null,
+    "transcripts": null
+  }
+]

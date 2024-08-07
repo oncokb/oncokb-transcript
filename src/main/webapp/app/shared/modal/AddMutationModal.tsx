@@ -9,7 +9,7 @@ import { FaChevronDown, FaChevronUp, FaExclamationTriangle, FaPlus } from 'react
 import ReactSelect, { GroupBase, MenuPlacement } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import { Alert, Button, Col, Input, Row, Spinner } from 'reactstrap';
-import { Alteration, Mutation, VusObjList } from '../model/firebase/firebase.model';
+import { Alteration, Flag, Mutation, StringMutationInfo, VusObjList } from '../model/firebase/firebase.model';
 import {
   AlterationAnnotationStatus,
   AlterationTypeEnum,
@@ -18,19 +18,21 @@ import {
   Alteration as ApiAlteration,
 } from '../api/generated/curation';
 import { IGene } from '../model/gene.model';
-import { getDuplicateMutations, getFirebaseVusPath } from '../util/firebase/firebase-utils';
+import { getDuplicateMutations, getFirebaseVusPath, isFlagEqualToIFlag } from '../util/firebase/firebase-utils';
 import { componentInject } from '../util/typed-inject';
-import { hasValue, isEqualIgnoreCase, parseAlterationName } from '../util/utils';
+import { hasValue, isEqualIgnoreCase, parseAlterationName, buildAlterationName } from '../util/utils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
 import './add-mutation-modal.scss';
 import classNames from 'classnames';
 import { READABLE_ALTERATION, REFERENCE_GENOME } from 'app/config/constants/constants';
 import { Unsubscribe } from 'firebase/database';
 import Select from 'react-select/dist/declarations/src/Select';
-import DefaultTooltip from '../tooltip/DefaultTooltip';
 import InfoIcon from '../icons/InfoIcon';
+import { FlagTypeEnum } from '../model/enumerations/flag-type.enum.model';
+import { IFlag } from '../model/flag.model';
+import { SentryError } from 'app/config/sentry-error';
 
-type AlterationData = {
+export type AlterationData = {
   type: AlterationTypeEnum;
   alteration: string;
   name: string;
@@ -73,6 +75,8 @@ function AddMutationModal({
   onCancel,
   firebaseDb,
   convertOptions,
+  getFlagsByType,
+  createFlagEntity,
 }: IAddMutationModalProps) {
   const typeOptions: DropdownOption[] = [
     AlterationTypeEnum.ProteinChange,
@@ -95,8 +99,12 @@ function AddMutationModal({
   const [isFetchingAlteration, setIsFetchingAlteration] = useState(false);
   const [isFetchingExcludingAlteration, setIsFetchingExcludingAlteration] = useState(false);
   const [isConfirmPending, setIsConfirmPending] = useState(false);
-
+  const [flags, setFlags] = useState<readonly IFlag[]>([]);
   const [vusList, setVusList] = useState<VusObjList | null>(null);
+
+  const [stringMutationInfo, setStringMutationInfo] = useState<StringMutationInfo | null>(null);
+  const [selectedStringMutationFlags, setSelectedStringMutationFlags] = useState<(IFlag | Omit<IFlag, 'id'>)[]>([]);
+  const [stringMutationComment, setStringMutationComment] = useState<string>('');
 
   const inputRef = useRef<Select<AlterationData, true, GroupBase<AlterationData>> | null>(null);
 
@@ -219,6 +227,7 @@ function AddMutationModal({
 
     if (mutationToEdit) {
       setExistingAlterations();
+      setStringMutationInfo(mutationToEdit?.string_mutation_info ?? null);
     }
   }, [mutationToEdit]);
 
@@ -229,6 +238,39 @@ function AddMutationModal({
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    async function fetchFlags() {
+      const fetchedFlags = await getFlagsByType?.(FlagTypeEnum.ALTERATION_CATEGORY);
+      if (fetchedFlags) {
+        setFlags(fetchedFlags);
+      }
+    }
+
+    fetchFlags();
+  }, []);
+
+  useEffect(() => {
+    if (flags) {
+      setSelectedStringMutationFlags(
+        stringMutationInfo?.flags?.reduce((acc: IFlag[], flag) => {
+          const matchedFlag = flags.find(flagEntity => isFlagEqualToIFlag(flag, flagEntity));
+
+          if (matchedFlag) {
+            acc.push(matchedFlag);
+          }
+
+          return acc;
+        }, []) ?? [],
+      );
+    }
+    setStringMutationComment(stringMutationInfo?.comment ?? '');
+  }, [stringMutationInfo, flags]);
+
+  const flagDropdownOptions = useMemo(() => {
+    if (!flags) return [];
+    return flags.map(flag => ({ label: flag.name, value: flag }));
+  }, [flags]);
 
   const currentMutationNames = useMemo(() => {
     return tabStates.map(state => getFullAlterationName({ ...state, comment: '' }).toLowerCase()).sort();
@@ -537,7 +579,7 @@ function AddMutationModal({
     if (convertOptions?.isConverting) {
       alterationString = convertOptions.alteration;
     }
-    const newParsedAlteration = filterAlterationsAndNotify(parseAlterationName(alterationString), tabStates);
+    const newParsedAlteration = filterAlterationsAndNotify(parseAlterationName(alterationString, true), tabStates);
 
     if (newParsedAlteration.length === 0) {
       return;
@@ -576,7 +618,7 @@ function AddMutationModal({
   };
 
   async function handleAlterationAddedExcluding(alterationIndex: number) {
-    const newParsedAlteration = parseAlterationName(excludingInputValue);
+    const newParsedAlteration = parseAlterationName(excludingInputValue, true);
 
     const currentState = tabStates[alterationIndex];
     const alteration = currentState.alteration.toLowerCase();
@@ -622,11 +664,10 @@ function AddMutationModal({
   };
 
   function getFullAlterationName(alterationData: AlterationData, includeVariantName = true) {
-    const variantName = includeVariantName && alterationData.name !== alterationData.alteration ? ` [${alterationData.name}]` : '';
-    const excluding =
-      alterationData.excluding.length > 0 ? ` {excluding ${alterationData.excluding.map(ex => ex.alteration).join(' ; ')}}` : '';
-    const comment = alterationData.comment ? ` (${alterationData.comment})` : '';
-    return `${alterationData.alteration}${variantName}${excluding}${comment}`;
+    const variantName = includeVariantName && alterationData.name !== alterationData.alteration ? alterationData.name : '';
+    const excluding = alterationData.excluding.length > 0 ? alterationData.excluding.map(ex => ex.alteration) : [];
+    const comment = alterationData.comment ? alterationData.comment : '';
+    return buildAlterationName(alterationData.alteration, variantName, excluding, comment);
   }
 
   function getTabTitle(tabAlterationData: AlterationData, isExcluding = false) {
@@ -979,6 +1020,35 @@ function AddMutationModal({
     );
   }
 
+  function handleMutationFlagAdded(newFlagName: string) {
+    // The flag name entered by user can be converted to flag by remove any non alphanumeric characters
+    const newFlagFlag = newFlagName
+      .replace(/[^a-zA-Z0-9\s]/g, ' ')
+      .replace(/\s+/g, '_')
+      .toUpperCase();
+    const newSelectedFlag: Omit<IFlag, 'id'> = {
+      type: FlagTypeEnum.ALTERATION_CATEGORY,
+      flag: newFlagFlag,
+      name: newFlagName,
+      description: '',
+      alterations: null,
+      articles: null,
+      drugs: null,
+      genes: null,
+      transcripts: null,
+    };
+    setSelectedStringMutationFlags(prevState => [...prevState, newSelectedFlag]);
+  }
+
+  function handleStringMutationInfoField(field: keyof StringMutationInfo, value: unknown) {
+    if (field === 'comment') {
+      setStringMutationComment(value as string);
+    } else if (field === 'flags') {
+      const flagOptions = value as DropdownOption[];
+      setSelectedStringMutationFlags(flagOptions.map(option => option.value));
+    }
+  }
+
   const modalBody = (
     <>
       <Row className="align-items-center mb-3">
@@ -1024,6 +1094,42 @@ function AddMutationModal({
           </>
         ) : undefined}
       </Row>
+      {tabStates.length > 1 && (
+        <>
+          <Row>
+            <Col>
+              <div className="d-flex align-items-center mb-3">
+                <Col className="px-0 col-3 me-3">
+                  <span>Mutation String Name</span>
+                </Col>
+                <Col className="px-0">
+                  <CreatableSelect
+                    inputId="add-mutation-modal-flag-input"
+                    isMulti
+                    options={flagDropdownOptions}
+                    onChange={newFlags => handleStringMutationInfoField('flags', newFlags)}
+                    onCreateOption={handleMutationFlagAdded}
+                    value={selectedStringMutationFlags.map(newFlag => ({ label: newFlag.name, value: newFlag }))}
+                  />
+                </Col>
+              </div>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <AddMutationModalField
+                label={'Comment'}
+                value={stringMutationComment ?? ''}
+                placeholder={'Input comment'}
+                onChange={value => {
+                  handleStringMutationInfoField('comment', value);
+                }}
+                disabled={selectedStringMutationFlags.length === 0}
+              />
+            </Col>
+          </Row>
+        </>
+      )}
       {tabStates.length > 0 && (
         <div className="pe-3" data-testid={'add-mutation-modal-tabs'}>
           <Tabs
@@ -1056,6 +1162,55 @@ function AddMutationModal({
     modalWarningMessage = 'Name differs from original VUS name';
   }
 
+  function convertIFlagToFlag(flagEntity: IFlag | Omit<IFlag, 'id'>): Flag {
+    return {
+      flag: flagEntity.flag,
+      type: flagEntity.type,
+    };
+  }
+
+  async function saveNewFlags() {
+    const [newFlags, oldFlags] = _.partition(selectedStringMutationFlags ?? [], newFlag => {
+      return !flags.some(existingFlag => {
+        return newFlag.type === existingFlag.type && newFlag.flag === existingFlag.flag;
+      });
+    });
+    if (newFlags.length > 0) {
+      for (const newFlag of newFlags) {
+        const savedFlagEntity = await createFlagEntity?.({
+          type: FlagTypeEnum.ALTERATION_CATEGORY,
+          flag: newFlag.flag,
+          name: newFlag.name,
+          description: '',
+          alterations: null,
+          genes: null,
+          transcripts: null,
+          articles: null,
+          drugs: null,
+        });
+        if (savedFlagEntity?.data) {
+          oldFlags.push(savedFlagEntity.data);
+        }
+      }
+    }
+
+    return oldFlags;
+  }
+
+  async function handleStringMutationInfoConfirm() {
+    let newStringMutationInfo: StringMutationInfo | null = new StringMutationInfo();
+    if (stringMutationComment === '' && selectedStringMutationFlags.length === 0) {
+      newStringMutationInfo = null;
+    } else {
+      newStringMutationInfo.comment = stringMutationComment;
+      const finalFlagArray = await saveNewFlags();
+      if (selectedStringMutationFlags.length > 0) {
+        newStringMutationInfo.flags = finalFlagArray.map(flag => convertIFlagToFlag(flag));
+      }
+    }
+    return newStringMutationInfo;
+  }
+
   return (
     <DefaultAddMutationModal
       isUpdate={!!mutationToEdit}
@@ -1084,6 +1239,10 @@ function AddMutationModal({
         const newAlterations = tabStates.map(state => convertAlterationDataToAlteration(state));
         newMutation.name = newAlterations.map(alteration => alteration.name).join(', ');
         newMutation.alterations = newAlterations;
+        const newStringMutationInfo = await handleStringMutationInfoConfirm();
+        if (newStringMutationInfo) {
+          newMutation.string_mutation_info = newStringMutationInfo;
+        }
 
         setErrorMessagesEnabled(false);
         setIsConfirmPending(true);
@@ -1197,6 +1356,7 @@ const mapStoreToProps = ({
   firebaseAppStore,
   firebaseVusStore,
   firebaseMutationListStore,
+  flagStore,
 }: IRootStore) => ({
   annotateAlterations: flow(alterationStore.annotateAlterations),
   geneEntities: geneStore.entities,
@@ -1205,6 +1365,8 @@ const mapStoreToProps = ({
   firebaseDb: firebaseAppStore.firebaseDb,
   vusList: firebaseVusStore.data,
   mutationList: firebaseMutationListStore.data,
+  getFlagsByType: flagStore.getFlagsByType,
+  createFlagEntity: flagStore.createEntity,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

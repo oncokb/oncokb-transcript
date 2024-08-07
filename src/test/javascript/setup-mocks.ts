@@ -11,6 +11,7 @@ const getAlterationMockResponse = (requestBody: string, readFile = true) => {
   let filePath = `${DATA_DIR}api-annotate-alterations-`;
   switch (alterationName) {
     case 'v600e':
+    case 'v600k':
       filePath += alterationName;
       break;
     default:
@@ -108,6 +109,13 @@ export default async function setUpMocks() {
       }
       return 400;
     },
+    fetchResponse: false,
+  });
+
+  const fetchAlterationCategoryFlagsMock = await browser.mock('**/api/flags?type.equals=ALTERATION_CATEGORY');
+  const alterationCategoryFlags = JSON.parse(fs.readFileSync(`${DATA_DIR}api-flags-type-alteration-category.json`).toString());
+  fetchAlterationCategoryFlagsMock.respond(alterationCategoryFlags, {
+    statusCode: 200,
     fetchResponse: false,
   });
 

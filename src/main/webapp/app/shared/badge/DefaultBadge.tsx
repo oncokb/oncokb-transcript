@@ -14,7 +14,7 @@ const DefaultBadge: React.FunctionComponent<IDefaultBadgeProps> = props => {
   const { className, style, color, text, tooltipOverlay } = props;
 
   const badge = (
-    <span className={classNames(`badge rounded-pill text-bg-${color} mx-1`, className)} style={{ fontSize: '0.7rem', ...style }}>
+    <span className={classNames(`badge rounded-pill text-bg-${color} mx-1`, className)} style={{ fontSize: '0.8rem', ...style }}>
       {text}
     </span>
   );
@@ -28,7 +28,7 @@ const DefaultBadge: React.FunctionComponent<IDefaultBadgeProps> = props => {
   }
 
   return (
-    <span className={classNames(`badge rounded-pill text-bg-${color} mx-1`, className)} style={{ fontSize: '0.7rem', ...style }}>
+    <span className={classNames(`badge rounded-pill text-bg-${color} mx-1`, className)} style={{ fontSize: '0.8rem', ...style }}>
       {text}
     </span>
   );

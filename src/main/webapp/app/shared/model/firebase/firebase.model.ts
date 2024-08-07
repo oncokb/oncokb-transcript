@@ -4,6 +4,7 @@ import { AlterationTypeEnum, Gene as OncoKBGene } from 'app/shared/api/generated
 import { generateUuid } from 'app/shared/util/utils';
 import _ from 'lodash';
 import { ICancerType } from '../cancer-type.model';
+import { IFlag } from '../flag.model';
 
 export type MetaCollection = {
   [hugoSymbol: string]: Meta;
@@ -214,6 +215,7 @@ export class Mutation {
   mutation_effect: MutationEffect = new MutationEffect();
   mutation_effect_uuid: string = generateUuid();
   mutation_effect_comments?: Comment[] = []; // used for somatic
+  string_mutation_info?: StringMutationInfo;
   name: string = '';
   name_comments?: Comment[] = [];
   name_review?: Review;
@@ -232,6 +234,16 @@ export class Mutation {
   constructor(name: string) {
     this.name = name;
   }
+}
+
+export type Flag = {
+  type: string;
+  flag: string;
+};
+
+export class StringMutationInfo {
+  flags?: Flag[];
+  comment = '';
 }
 
 export class MutationEffect {

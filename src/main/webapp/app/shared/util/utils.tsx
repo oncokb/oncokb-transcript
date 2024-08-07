@@ -302,6 +302,20 @@ export function parseAlterationName(
   }));
 }
 
+export function buildAlterationName(alteration: string, name = '', excluding = [] as string[], comment = '') {
+  if (name) {
+    name = ` [${name}]`;
+  }
+  let exclusionString = '';
+  if (excluding.length > 0) {
+    exclusionString = ` {excluding ${excluding.join('; ')}}`;
+  }
+  if (comment) {
+    comment = ` (${comment})`;
+  }
+  return `${alteration}${name}${exclusionString}${comment}`;
+}
+
 export function findIndexOfFirstCapital(str: string) {
   for (let i = 0; i < str.length; i++) {
     if (str[i] >= 'A' && str[i] <= 'Z') {
