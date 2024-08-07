@@ -4,6 +4,7 @@ import { IRootStore } from 'app/stores';
 import { componentInject } from '../util/typed-inject';
 import { getMutationName } from '../util/firebase/firebase-utils';
 import { RADIO_OPTION_NONE } from 'app/config/constants/constants';
+import { observer } from 'mobx-react';
 
 const NOT_CURATABLE_TOOLTIP_TEXT = {
   stringMutations: 'Each mutation should have its own mutation effect curated',
@@ -17,8 +18,8 @@ export interface INotCuratableBadgeProps extends StoreProps {
 const NotCuratableBadge: React.FunctionComponent<INotCuratableBadgeProps> = ({ mutationName, mutations }: INotCuratableBadgeProps) => {
   const text = mutationName?.includes(',') ? NOT_CURATABLE_TOOLTIP_TEXT.stringMutations : NOT_CURATABLE_TOOLTIP_TEXT.default;
 
-  const mutationsWithEffect = useMemo(() => {
-    const mutationStrings: string[] = [];
+  const [mutationsWithoutEffect, mutationsWithEffect] = useMemo(() => {
+    const mutationStrings: [string[], string[]] = [[], []];
     for (const name of mutationName.split(',')) {
       const trimmedName = name.trim();
       const foundMutation = mutations?.find(mut => getMutationName(mut.name, mut.alterations) === trimmedName);
@@ -26,10 +27,14 @@ const NotCuratableBadge: React.FunctionComponent<INotCuratableBadgeProps> = ({ m
         continue;
       }
 
-      mutationStrings.push(`${trimmedName} (${foundMutation?.mutation_effect.effect ?? RADIO_OPTION_NONE})`);
+      if (!foundMutation.mutation_effect.effect || foundMutation.mutation_effect.effect === RADIO_OPTION_NONE) {
+        mutationStrings[0].push(trimmedName);
+      } else {
+        mutationStrings[1].push(`${trimmedName} (${foundMutation.mutation_effect.effect})`);
+      }
     }
 
-    return mutationStrings.join(', ');
+    return [mutationStrings[0].join(', '), mutationStrings[1].join(', ')];
   }, [mutations, mutationName, getMutationName, RADIO_OPTION_NONE]);
 
   return (
@@ -41,7 +46,21 @@ const NotCuratableBadge: React.FunctionComponent<INotCuratableBadgeProps> = ({ m
           <span>{text}</span>
           <br />
           <br />
-          <span className="text-warning">{mutationsWithEffect}</span>
+          {mutationsWithoutEffect.length > 1 && (
+            <>
+              <span>
+                <b>Need curation: </b>
+                <span className="text-warning">{mutationsWithoutEffect}</span>
+              </span>
+              <br />
+            </>
+          )}
+          {mutationsWithEffect.length > 1 && (
+            <span>
+              <b>Curated: </b>
+              {mutationsWithEffect}
+            </span>
+          )}
         </div>
       }
     />
@@ -54,4 +73,4 @@ const mapStoreToProps = ({ firebaseMutationListStore }: IRootStore) => ({
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
 
-export default componentInject(mapStoreToProps)(NotCuratableBadge);
+export default componentInject(mapStoreToProps)(observer(NotCuratableBadge));
