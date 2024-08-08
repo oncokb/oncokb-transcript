@@ -101,14 +101,14 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
 
     if (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_SOLID || levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_LIQUID) {
       // When highestLevel changes, the propagated levels should reset to no level
-      if (highestLevel && LOEReview) {
+      if (highestLevel) {
         updateReviewableContent?.(firebaseLevelPath, currentLOE, TX_LEVELS.LEVEL_NO, LOEReview, LOEUuid);
       }
     }
 
     if (levelOfEvidenceType === LevelOfEvidenceType.PROPAGATED_FDA) {
       // When highestLevel changes, the fda propagation should be reset to default
-      if (propagatedFdaLevel && LOEReview) {
+      if (propagatedFdaLevel) {
         updateReviewableContent?.(firebaseLevelPath, currentLOE, propagatedFdaLevel, LOEReview, LOEUuid);
       }
     }
@@ -118,9 +118,7 @@ const RealtimeLevelDropdown = (props: IRealtimeLevelDropdown) => {
     const oldLevel = currentLOE;
     const newLevel: LEVELS | '' = newValue?.value ?? TX_LEVELS.LEVEL_EMPTY;
 
-    if (LOEReview && LOEUuid) {
-      updateReviewableContent?.(firebaseLevelPath, oldLevel, newLevel, LOEReview, LOEUuid);
-    }
+    updateReviewableContent?.(firebaseLevelPath, oldLevel, newLevel, LOEReview, LOEUuid);
 
     props.onChange?.(newValue, actionMeta);
   };

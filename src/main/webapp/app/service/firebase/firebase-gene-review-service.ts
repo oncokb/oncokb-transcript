@@ -59,7 +59,7 @@ export class FirebaseGeneReviewService {
     currentValue: any,
     updateValue: any,
     review: Review | null | undefined,
-    uuid: string | null,
+    uuid: string | null | undefined,
     updateMetaData: boolean = true,
     shouldSave: boolean = true,
   ) => {
