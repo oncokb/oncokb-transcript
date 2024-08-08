@@ -24,14 +24,12 @@ import { GoDatabase } from 'react-icons/go';
 import { BiSearchAlt } from 'react-icons/bi';
 import { FaSignOutAlt, FaUserCircle, FaExclamationTriangle, FaExternalLinkAlt, FaExternalLinkSquareAlt } from 'react-icons/fa';
 import { HiMiniBars3 } from 'react-icons/hi2';
-import { IUser } from 'app/shared/model/user.model';
 import { MskccLogo } from 'app/shared/logo/MskccLogo';
 import { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_EXPANDED_WIDTH } from 'app/stores/layout.store';
 import _ from 'lodash';
 import classNames from 'classnames';
 import { WHOLE_NUMBER_REGEX } from 'app/config/constants/regex';
 import CustomCursor from '../../../content/images/oncogenic-black.svg';
-import { ManagementInfo } from 'app/stores/management.store';
 import { flow } from 'mobx';
 import { Linkout } from 'app/shared/links/Linkout';
 
@@ -298,7 +296,7 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSi
             <MenuDivider />
             <div className={'d-flex justify-content-center'}>
               <div>
-                {props.managementVersion} ({props.managementCommit?.id.abbrev})
+                {props.managementVersion} ({props.managementCommit})
               </div>
             </div>
           </>

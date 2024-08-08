@@ -26,7 +26,7 @@ type InfoBuild = {
 };
 
 export class ManagementStore {
-  public commit: GitCommit | undefined;
+  public commit: string = '';
   public version: string = '';
 
   constructor(protected rootStore: IRootStore) {
@@ -39,7 +39,7 @@ export class ManagementStore {
   *fetchManagementInfo() {
     const result: AxiosResponse<ManagementInfo> = yield axios.get(`/management/info`);
     if (result.data.git?.commit) {
-      this.commit = result.data.git.commit;
+      this.commit = result.data.git.commit.id.abbrev;
     }
     if (result.data.build?.version) {
       this.version = result.data.build.version.startsWith('v') ? result.data.build.version : `v${result.data.build.version}`;
