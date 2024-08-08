@@ -71,7 +71,7 @@ const CancerTypeSelect = <IsMulti extends boolean>(props: ICancerTypeSelectProps
     CancerTypeSelectOption,
     GroupBase<CancerTypeSelectOption>,
     { page: number; type: SearchOptionType }
-  > = async (searchWord, prevOptions, { page, type } = { page: 0, type: SearchOptionType.CDX }) => {
+  > = async (searchWord, prevOptions, { page, type } = { page: 0, type: SearchOptionType.CANCER_TYPE }) => {
     let result: Awaited<ReturnType<typeof props.getCancerTypes>> | undefined = undefined;
     let options: ReturnType<typeof getAllCancerTypesOptions> = [];
     if (searchWord) {
@@ -92,8 +92,16 @@ const CancerTypeSelect = <IsMulti extends boolean>(props: ICancerTypeSelectProps
     if (searchWord) {
       // Since options are cached by react-select-async-paginate, we only include options that are
       // not present in prevOptions to avoid duplicates.
-      options[0].options = _.differenceBy(options[0].options, 'options' in prevOptions[0] ? prevOptions[0]?.options ?? [] : [], 'label');
-      options[1].options = _.differenceBy(options[1].options, 'options' in prevOptions[1] ? prevOptions[1]?.options ?? [] : [], 'label');
+      options[0].options = _.differenceBy(
+        options[0].options,
+        prevOptions[0] !== undefined && 'options' in prevOptions[0] ? prevOptions[0]?.options ?? [] : [],
+        'label',
+      );
+      options[1].options = _.differenceBy(
+        options[1].options,
+        prevOptions[1] !== undefined && 'options' in prevOptions[1] ? prevOptions[1]?.options ?? [] : [],
+        'label',
+      );
     }
 
     return {
