@@ -1,6 +1,7 @@
 import { browser } from '@wdio/globals';
 import { DATABASE_EMULATOR_URL, FIREBASE_AUTH_TOKEN_MOCK, FIREBASE_PROJECT_ID } from './constants';
 import * as fs from 'fs';
+import { ManagementInfo } from '../../main/webapp/app/stores/management.store.ts';
 
 const DATA_DIR = 'src/test/javascript/data/';
 
@@ -50,6 +51,31 @@ export default async function setUpMocks() {
   const authMock = await browser.mock('**/api/account');
   const account = JSON.parse(fs.readFileSync(`${DATA_DIR}api-account.json`).toString());
   authMock.respond(account, {
+    statusCode: 200,
+    fetchResponse: false,
+  });
+
+  const managementInfoMock = await browser.mock('**/management/info');
+  const defaultInfo: ManagementInfo = {
+    git: {
+      branch: 'rc',
+      commit: {
+        id: {
+          describe: 'abc',
+          abbrev: 'abc',
+        },
+      },
+    },
+    build: {
+      artifact: 'oncokb-curation',
+      name: 'OncoKB Curation',
+      time: '2024-07-30',
+      version: '2.0.11',
+      group: 'org.mskcc.oncokb.curation',
+    },
+    activeProfiles: ['dev', 'api-docs'],
+  };
+  managementInfoMock.respond(defaultInfo, {
     statusCode: 200,
     fetchResponse: false,
   });

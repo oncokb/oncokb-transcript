@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.Drug;
 import org.mskcc.oncokb.curation.repository.DrugRepository;
@@ -103,26 +103,22 @@ public class DrugQueryService extends QueryService<Drug> {
                 specification = specification.or(buildStringSpecification(criteria.getUuid(), Drug_.uuid));
             }
             if (criteria.getNcitCode() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getNcitCode(),
-                            root -> root.join(Drug_.nciThesaurus, JoinType.LEFT).get(NciThesaurus_.code)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getNcitCode(), root -> root.join(Drug_.nciThesaurus, JoinType.LEFT).get(NciThesaurus_.code))
+                );
             }
             if (criteria.getFlagId() != null) {
-                specification =
-                    specification.or(buildSpecification(criteria.getFlagId(), root -> root.join(Drug_.flags, JoinType.LEFT).get(Flag_.id)));
+                specification = specification.or(
+                    buildSpecification(criteria.getFlagId(), root -> root.join(Drug_.flags, JoinType.LEFT).get(Flag_.id))
+                );
             }
             if (criteria.getAssociationId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getAssociationId(),
-                            root -> root.join(Drug_.associations, JoinType.LEFT).get(Association_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getAssociationId(),
+                        root -> root.join(Drug_.associations, JoinType.LEFT).get(Association_.id)
+                    )
+                );
             }
         }
         return specification;

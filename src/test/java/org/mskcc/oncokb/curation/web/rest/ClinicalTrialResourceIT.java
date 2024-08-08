@@ -7,11 +7,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -701,7 +701,7 @@ class ClinicalTrialResourceIT {
         int databaseSizeBeforeUpdate = clinicalTrialRepository.findAll().size();
 
         // Update the clinicalTrial
-        ClinicalTrial updatedClinicalTrial = clinicalTrialRepository.findById(clinicalTrial.getId()).get();
+        ClinicalTrial updatedClinicalTrial = clinicalTrialRepository.findById(clinicalTrial.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedClinicalTrial are not directly saved in db
         em.detach(updatedClinicalTrial);
         updatedClinicalTrial.nctId(UPDATED_NCT_ID).briefTitle(UPDATED_BRIEF_TITLE).phase(UPDATED_PHASE).status(UPDATED_STATUS);

@@ -122,7 +122,7 @@ public class GenomicIndicatorService {
         }
         Optional<GenomicIndicator> genomicIndicatorOptional = genomicIndicatorRepository.findByTypeAndName(type.name(), name);
         if (genomicIndicatorOptional.isPresent()) {
-            return genomicIndicatorRepository.findOneWithEagerRelationships(genomicIndicatorOptional.get().getId());
+            return genomicIndicatorRepository.findOneWithEagerRelationships(genomicIndicatorOptional.orElseThrow().getId());
         }
         return Optional.empty();
     }

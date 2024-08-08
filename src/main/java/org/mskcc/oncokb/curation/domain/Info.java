@@ -1,9 +1,9 @@
 package org.mskcc.oncokb.curation.domain;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
-import javax.persistence.*;
-import javax.validation.constraints.*;
 
 /**
  * A Info.

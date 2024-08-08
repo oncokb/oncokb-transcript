@@ -108,6 +108,6 @@ public class CancerTypeServiceIT {
         if (sortAsc) {
             Collections.sort(name);
         }
-        return org.apache.commons.lang3.StringUtils.join(name, ", ");
+        return String.join(", ", name);
     }
 }

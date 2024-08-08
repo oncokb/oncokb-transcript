@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.mskcc.oncokb.curation.repository.FdaSubmissionRepository;
@@ -122,49 +122,38 @@ public class FdaSubmissionQueryService extends QueryService<FdaSubmission> {
                 specification = specification.or(buildSpecification(criteria.getGenetic(), FdaSubmission_.genetic));
             }
             if (criteria.getArticleId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getArticleId(),
-                            root -> root.join(FdaSubmission_.articles, JoinType.LEFT).get(Article_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getArticleId(), root -> root.join(FdaSubmission_.articles, JoinType.LEFT).get(Article_.id))
+                );
             }
             if (criteria.getAssociationId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getAssociationId(),
-                            root -> root.join(FdaSubmission_.associations, JoinType.LEFT).get(Association_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getAssociationId(),
+                        root -> root.join(FdaSubmission_.associations, JoinType.LEFT).get(Association_.id)
+                    )
+                );
             }
             if (criteria.getCompanionDiagnosticDeviceId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getCompanionDiagnosticDeviceId(),
-                            root -> root.join(FdaSubmission_.companionDiagnosticDevice, JoinType.LEFT).get(CompanionDiagnosticDevice_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getCompanionDiagnosticDeviceId(),
+                        root -> root.join(FdaSubmission_.companionDiagnosticDevice, JoinType.LEFT).get(CompanionDiagnosticDevice_.id)
+                    )
+                );
             }
             if (criteria.getFdaDrugId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getFdaDrugId(),
-                            root -> root.join(FdaSubmission_.fdaDrug, JoinType.LEFT).get(FdaDrug_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getFdaDrugId(), root -> root.join(FdaSubmission_.fdaDrug, JoinType.LEFT).get(FdaDrug_.id))
+                );
             }
             if (criteria.getTypeId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getTypeId(),
-                            root -> root.join(FdaSubmission_.type, JoinType.LEFT).get(FdaSubmissionType_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getTypeId(),
+                        root -> root.join(FdaSubmission_.type, JoinType.LEFT).get(FdaSubmissionType_.id)
+                    )
+                );
             }
         }
         return specification;

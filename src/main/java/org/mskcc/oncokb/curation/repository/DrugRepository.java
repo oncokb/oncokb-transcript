@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
- * Spring Data SQL repository for the Drug entity.
+ * Spring Data JPA repository for the Drug entity.
  */
 @JaversSpringDataAuditable
 @Repository
@@ -73,7 +73,7 @@ public interface DrugRepository extends JpaRepository<Drug, Long>, JpaSpecificat
     @Query(
         "select distinct d from Drug d" +
         " left join fetch d.flags " +
-        " where lower(d.name) like lower(concat('%', ?1,'%')) or lower(d.nciThesaurus.code) like lower(concat('%', ?1,'%'))"
+        " where lower(cast(d.name as char ) ) like lower(concat('%', ?1,'%')) or lower(d.nciThesaurus.code) like lower(concat('%', ?1,'%'))"
     )
     List<Drug> searchDrug(String query);
 }

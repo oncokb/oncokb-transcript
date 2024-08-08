@@ -133,11 +133,10 @@ public class Importer {
                 if (grch37TranscriptDtoOptional.isEmpty()) {
                     log.warn("\tNo GRCh37 transcript available");
                 } else {
-                    sequenceGrch37Optional =
-                        sequenceService.findOneByTranscriptAndSequenceType(
-                            transcriptMapper.toEntity(grch37TranscriptDtoOptional.get()),
-                            SequenceType.PROTEIN
-                        );
+                    sequenceGrch37Optional = sequenceService.findOneByTranscriptAndSequenceType(
+                        transcriptMapper.toEntity(grch37TranscriptDtoOptional.orElseThrow()),
+                        SequenceType.PROTEIN
+                    );
                     if (sequenceGrch37Optional.isEmpty()) {
                         log.warn("\t\tNo GRCh37 transcript sequence");
                     }
@@ -145,18 +144,17 @@ public class Importer {
                 if (grch38TranscriptDtoOptional.isEmpty()) {
                     log.warn("\tNo GRCh38 transcript available");
                 } else {
-                    sequenceGrch38Optional =
-                        sequenceService.findOneByTranscriptAndSequenceType(
-                            transcriptMapper.toEntity(grch38TranscriptDtoOptional.get()),
-                            SequenceType.PROTEIN
-                        );
+                    sequenceGrch38Optional = sequenceService.findOneByTranscriptAndSequenceType(
+                        transcriptMapper.toEntity(grch38TranscriptDtoOptional.orElseThrow()),
+                        SequenceType.PROTEIN
+                    );
                     if (sequenceGrch38Optional.isEmpty()) {
                         log.warn("\t\tNo GRCh38 transcript sequence");
                     }
                 }
 
                 if (sequenceGrch37Optional.isPresent() && sequenceGrch38Optional.isPresent()) {
-                    if (sequenceGrch37Optional.get().getSequence().equals(sequenceGrch38Optional.get().getSequence())) {
+                    if (sequenceGrch37Optional.orElseThrow().getSequence().equals(sequenceGrch38Optional.orElseThrow().getSequence())) {
                         log.info("\t\t Sequences match");
                     } else {
                         log.warn("\t\t Sequences do not match");
@@ -164,8 +162,8 @@ public class Importer {
                             "\t\t\t Alignment penalty {}",
                             alignmentService
                                 .calcOptimalAlignment(
-                                    sequenceGrch37Optional.get().getSequence(),
-                                    sequenceGrch38Optional.get().getSequence(),
+                                    sequenceGrch37Optional.orElseThrow().getSequence(),
+                                    sequenceGrch38Optional.orElseThrow().getSequence(),
                                     false
                                 )
                                 .getPenalty()

@@ -53,7 +53,7 @@ public class AssociationService {
                     }
                 });
         }
-        return this.findOne(savedAssociation.getId()).get();
+        return this.findOne(savedAssociation.getId()).orElseThrow();
     }
 
     /**
@@ -134,20 +134,20 @@ public class AssociationService {
         if (associationOptional.isEmpty()) {
             throw new Exception("Association id: " + id + " does not exist");
         }
-        if (associationOptional.get().getFdaSubmissions() != null) {
-            associationOptional.get().getFdaSubmissions().remove(this);
-            Iterator<FdaSubmission> iterator = associationOptional.get().getFdaSubmissions().iterator();
+        if (associationOptional.orElseThrow().getFdaSubmissions() != null) {
+            associationOptional.orElseThrow().getFdaSubmissions().remove(this);
+            Iterator<FdaSubmission> iterator = associationOptional.orElseThrow().getFdaSubmissions().iterator();
             while (iterator.hasNext()) {
                 FdaSubmission fdaSubmission = iterator.next();
                 if (fdaSubmission.getId() != null) {
                     Optional<FdaSubmission> fdaSubmissionOptional = fdaSubmissionService.findOne(fdaSubmission.getId());
                     if (fdaSubmissionOptional.isPresent()) {
-                        fdaSubmissionOptional.get().getAssociations().remove(associationOptional.get());
-                        fdaSubmissionService.save(fdaSubmissionOptional.get());
+                        fdaSubmissionOptional.orElseThrow().getAssociations().remove(associationOptional.orElseThrow());
+                        fdaSubmissionService.save(fdaSubmissionOptional.orElseThrow());
                     }
                 }
             }
         }
-        associationRepository.delete(associationOptional.get());
+        associationRepository.delete(associationOptional.orElseThrow());
     }
 }

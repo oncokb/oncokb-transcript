@@ -1,8 +1,8 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
-import javax.servlet.http.HttpServletRequest;
 import org.mskcc.oncokb.curation.config.application.ApplicationProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;

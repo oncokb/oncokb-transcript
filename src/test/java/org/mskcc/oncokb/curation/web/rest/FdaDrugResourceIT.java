@@ -6,10 +6,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -560,7 +560,7 @@ class FdaDrugResourceIT {
         int databaseSizeBeforeUpdate = fdaDrugRepository.findAll().size();
 
         // Update the fdaDrug
-        FdaDrug updatedFdaDrug = fdaDrugRepository.findById(fdaDrug.getId()).get();
+        FdaDrug updatedFdaDrug = fdaDrugRepository.findById(fdaDrug.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedFdaDrug are not directly saved in db
         em.detach(updatedFdaDrug);
         updatedFdaDrug

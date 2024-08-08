@@ -6,10 +6,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -256,7 +256,9 @@ class CategoricalAlterationResourceIT {
         int databaseSizeBeforeUpdate = categoricalAlterationRepository.findAll().size();
 
         // Update the categoricalAlteration
-        CategoricalAlteration updatedCategoricalAlteration = categoricalAlterationRepository.findById(categoricalAlteration.getId()).get();
+        CategoricalAlteration updatedCategoricalAlteration = categoricalAlterationRepository
+            .findById(categoricalAlteration.getId())
+            .orElseThrow();
         // Disconnect from session so that the updates on updatedCategoricalAlteration are not directly saved in db
         em.detach(updatedCategoricalAlteration);
         updatedCategoricalAlteration.alterationType(UPDATED_ALTERATION_TYPE).type(UPDATED_TYPE).name(UPDATED_NAME);

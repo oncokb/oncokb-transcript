@@ -13,15 +13,12 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 /**
  * Utility class for Spring Security.
  */
 public final class SecurityUtils {
-
-    public static final String CLAIMS_NAMESPACE = "https://www.oncokb.org/";
 
     private SecurityUtils() {}
 
@@ -128,11 +125,12 @@ public final class SecurityUtils {
         logoutUrl.append(clientRegistration.getProviderDetails().getConfigurationMetadata().get("end_session_endpoint").toString());
 
         // Get id token
-        OAuth2AuthenticationToken auth = (OAuth2AuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-        OidcUser oAuth2User = (OidcUser) auth.getPrincipal();
-        String idTokenHint = oAuth2User.getIdToken().getTokenValue();
-
-        logoutUrl.append("?id_token_hint=").append(idTokenHint);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication instanceof OAuth2AuthenticationToken auth) {
+            OidcUser oAuth2User = (OidcUser) auth.getPrincipal();
+            String idTokenHint = oAuth2User.getIdToken().getTokenValue();
+            logoutUrl.append("?id_token_hint=").append(idTokenHint);
+        }
 
         return logoutUrl.toString();
     }

@@ -1,13 +1,13 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.repository.AlterationRepository;
 import org.mskcc.oncokb.curation.service.AlterationQueryService;
@@ -72,8 +72,7 @@ public class AlterationResource {
             throw new BadRequestAlertException("A new alteration cannot already have an ID", ENTITY_NAME, "idexists");
         }
         Alteration result = alterationService.save(alteration);
-        return ResponseEntity
-            .created(new URI("/api/alterations/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/alterations/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -106,8 +105,7 @@ public class AlterationResource {
         }
 
         Alteration result = alterationService.save(alteration);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, alteration.getId().toString()))
             .body(result);
     }
@@ -160,8 +158,7 @@ public class AlterationResource {
         log.debug("REST request to get Alterations by criteria: {}", criteria);
         Page<Alteration> page = alterationQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(headers)
             .body(
                 alterationService.findAllWithEagerRelationshipsByIds(
@@ -205,8 +202,7 @@ public class AlterationResource {
     public ResponseEntity<Void> deleteAlteration(@PathVariable Long id) {
         log.debug("REST request to delete Alteration : {}", id);
         alterationService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }

@@ -1,12 +1,12 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.CancerType;
 import org.mskcc.oncokb.curation.domain.RelevantCancerTypeBody;
 import org.mskcc.oncokb.curation.repository.CancerTypeRepository;
@@ -71,8 +71,7 @@ public class CancerTypeResource {
             throw new BadRequestAlertException("A new cancerType cannot already have an ID", ENTITY_NAME, "idexists");
         }
         CancerType result = cancerTypeService.save(cancerType);
-        return ResponseEntity
-            .created(new URI("/api/cancer-types/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/cancer-types/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -105,8 +104,7 @@ public class CancerTypeResource {
         }
 
         CancerType result = cancerTypeService.save(cancerType);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, cancerType.getId().toString()))
             .body(result);
     }
@@ -197,8 +195,7 @@ public class CancerTypeResource {
     public ResponseEntity<Void> deleteCancerType(@PathVariable Long id) {
         log.debug("REST request to delete CancerType : {}", id);
         cancerTypeService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }

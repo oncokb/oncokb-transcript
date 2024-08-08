@@ -2,9 +2,9 @@ package org.mskcc.oncokb.curation.service;
 
 import static org.mskcc.oncokb.curation.domain.enumeration.AlterationType.*;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
 import org.genome_nexus.client.TranscriptConsequenceSummary;
@@ -81,11 +81,11 @@ public class MainService {
         Optional<EnsemblGene> ensemblGeneOptional = ensemblGeneService.findCanonicalEnsemblGene(entrezGeneId, referenceGenome);
         if (ensemblGeneOptional.isPresent()) {
             Optional<TranscriptDTO> transcriptDTOOptional = transcriptService.findByEnsemblGeneAndCanonicalIsTrue(
-                ensemblGeneOptional.get()
+                ensemblGeneOptional.orElseThrow()
             );
             if (transcriptDTOOptional.isPresent()) {
                 Optional<Sequence> sequenceOptional = sequenceService.findOneByTranscriptAndSequenceType(
-                    transcriptMapper.toEntity(transcriptDTOOptional.get()),
+                    transcriptMapper.toEntity(transcriptDTOOptional.orElseThrow()),
                     sequenceType
                 );
                 if (sequenceOptional.isPresent()) {
@@ -102,7 +102,7 @@ public class MainService {
 
         Optional<CategoricalAlteration> categoricalAlterationOptional = categoricalAlterationService.findOneByAlteration(alteration);
         if (categoricalAlterationOptional.isPresent()) {
-            CategoricalAlteration categoricalAlteration = categoricalAlterationOptional.get();
+            CategoricalAlteration categoricalAlteration = categoricalAlterationOptional.orElseThrow();
             alteration.setAlteration(categoricalAlteration.getName());
             alteration.setName(categoricalAlteration.getName());
             alteration.setType(categoricalAlteration.getAlterationType());
@@ -133,7 +133,7 @@ public class MainService {
                     .map(TranscriptConsequenceSummary::getHgvspShort)
                     .map(hgvsp -> hgvsp.replace("p.", ""));
                 if (proteinChangeOptional.isPresent()) {
-                    alterationWithEntityStatus.getEntity().setProteinChange(proteinChangeOptional.get());
+                    alterationWithEntityStatus.getEntity().setProteinChange(proteinChangeOptional.orElseThrow());
                 }
             } catch (ApiException e) {
                 alterationWithStatus.setMessage("Failed to be annotated by GenomeNexus.");
@@ -190,7 +190,7 @@ public class MainService {
                     consequenceOptional = consequenceService.findByTerm("UNKNOWN");
                 }
                 if (consequenceOptional.isPresent()) {
-                    alteration.setConsequence(consequenceOptional.get());
+                    alteration.setConsequence(consequenceOptional.orElseThrow());
                 }
             }
         }
@@ -218,10 +218,17 @@ public class MainService {
         if (alteration.getGenes().size() > 0 && PROTEIN_CHANGE.equals(alteration.getType())) {
             Gene gene = alteration.getGenes().iterator().next();
             if (alteration.getStart() != null) {
-                Optional<Sequence> canonicalSequence = findSequenceByGene(referenceGenome, gene.getEntrezGeneId(), SequenceType.PROTEIN);
+                Optional<Sequence> canonicalSequenceOptional = findSequenceByGene(
+                    referenceGenome,
+                    gene.getEntrezGeneId(),
+                    SequenceType.PROTEIN
+                );
 
-                if (canonicalSequence.isPresent() && alteration.getStart() < canonicalSequence.get().getSequence().length()) {
-                    String refRe = String.valueOf(canonicalSequence.get().getSequence().charAt(alteration.getStart() - 1));
+                if (
+                    canonicalSequenceOptional.isPresent() &&
+                    alteration.getStart() < canonicalSequenceOptional.orElseThrow().getSequence().length()
+                ) {
+                    String refRe = String.valueOf(canonicalSequenceOptional.orElseThrow().getSequence().charAt(alteration.getStart() - 1));
                     if (!StringUtils.isEmpty(refRe)) {
                         if (StringUtils.isEmpty(alteration.getRefResidues())) {
                             alteration.setRefResidues(refRe);
@@ -284,8 +291,8 @@ public class MainService {
                 referenceGenome
             );
             if (transcriptOptional.isPresent()) {
-                List<GenomeFragment> utrs = transcriptOptional.get().getUtrs();
-                List<GenomeFragment> exons = transcriptOptional.get().getExons();
+                List<GenomeFragment> utrs = transcriptOptional.orElseThrow().getUtrs();
+                List<GenomeFragment> exons = transcriptOptional.orElseThrow().getExons();
                 exons.sort((o1, o2) -> {
                     int diff = o1.getStart() - o2.getStart();
                     if (diff == 0) {
@@ -324,7 +331,7 @@ public class MainService {
                     }
                 });
 
-                if (transcriptOptional.get().getStrand() == -1) {
+                if (transcriptOptional.orElseThrow().getStrand() == -1) {
                     Collections.reverse(codingExons);
                 }
 
@@ -414,18 +421,18 @@ public class MainService {
             );
             Optional<Gene> geneOptional = geneService.findGeneByEntrezGeneId(entrezGeneId);
             if (ensemblGeneOptional.isPresent() && geneOptional.isPresent()) {
-                org.mskcc.oncokb.curation.vm.ensembl.EnsemblTranscript remoteEnsemblGene = ensemblGeneOptional.get();
+                org.mskcc.oncokb.curation.vm.ensembl.EnsemblTranscript remoteEnsemblGene = ensemblGeneOptional.orElseThrow();
                 Optional<SeqRegion> seqRegionOptional = seqRegionService.findByNameOrCreate(remoteEnsemblGene.getSeqRegionName());
                 EnsemblGene ensemblGene = new EnsemblGene();
                 ensemblGene.setReferenceGenome(referenceGenome);
                 ensemblGene.setEnsemblGeneId(remoteEnsemblGene.getId());
                 if (seqRegionOptional.isPresent()) {
-                    ensemblGene.setSeqRegion(seqRegionOptional.get());
+                    ensemblGene.setSeqRegion(seqRegionOptional.orElseThrow());
                 }
                 ensemblGene.setStart(remoteEnsemblGene.getStart());
                 ensemblGene.setEnd(remoteEnsemblGene.getEnd());
                 ensemblGene.setStrand(remoteEnsemblGene.getStrand());
-                ensemblGene.setGene(geneOptional.get());
+                ensemblGene.setGene(geneOptional.orElseThrow());
                 if (isCanonical != null) {
                     ensemblGene.setCanonical(isCanonical);
                 }
@@ -436,7 +443,7 @@ public class MainService {
                     createTranscript(
                         referenceGenome,
                         remoteEnsemblGene.getCanonicalTranscript(),
-                        geneOptional.get().getEntrezGeneId(),
+                        geneOptional.orElseThrow().getEntrezGeneId(),
                         null,
                         null,
                         false,
@@ -444,9 +451,9 @@ public class MainService {
                     );
                 }
             }
-        } else if (isCanonical != null && savedEnsemblGeneOptional.get().getCanonical() != isCanonical) {
-            savedEnsemblGeneOptional.get().setCanonical(isCanonical);
-            savedEnsemblGeneOptional = ensemblGeneService.partialUpdate(savedEnsemblGeneOptional.get());
+        } else if (isCanonical != null && savedEnsemblGeneOptional.orElseThrow().getCanonical() != isCanonical) {
+            savedEnsemblGeneOptional.orElseThrow().setCanonical(isCanonical);
+            savedEnsemblGeneOptional = ensemblGeneService.partialUpdate(savedEnsemblGeneOptional.orElseThrow());
         }
         return savedEnsemblGeneOptional;
     }
@@ -471,14 +478,14 @@ public class MainService {
         if (ensemblTranscriptOptional.isPresent()) {
             Optional<EnsemblGene> savedEnsemblGeneOptional = createEnsemblGene(
                 referenceGenome,
-                ensemblTranscriptOptional.get().getParent(),
+                ensemblTranscriptOptional.orElseThrow().getParent(),
                 entrezGeneId,
                 null
             );
             if (savedEnsemblGeneOptional.isPresent()) {
                 return createTranscript(
-                    savedEnsemblGeneOptional.get(),
-                    ensemblTranscriptOptional.get(),
+                    savedEnsemblGeneOptional.orElseThrow(),
+                    ensemblTranscriptOptional.orElseThrow(),
                     ensemblProteinId,
                     refSeqId,
                     isCanonical,
@@ -488,7 +495,7 @@ public class MainService {
                 log.error(
                     "Failed to create ensembl gene {} {} {} {}",
                     referenceGenome,
-                    ensemblTranscriptOptional.get().getParent(),
+                    ensemblTranscriptOptional.orElseThrow().getParent(),
                     entrezGeneId,
                     isCanonical
                 );
@@ -519,7 +526,9 @@ public class MainService {
                 false
             );
             if (proteinTranscriptOptional.isPresent()) {
-                ensemblProteinId = proteinTranscriptOptional.get().getId() + "." + proteinTranscriptOptional.get().getVersion();
+                ensemblProteinId = proteinTranscriptOptional.orElseThrow().getId() +
+                "." +
+                proteinTranscriptOptional.orElseThrow().getVersion();
             } else {
                 log.error(
                     "Failed to find ensembl protein through Ensembl {} {}",
@@ -529,10 +538,13 @@ public class MainService {
             }
         }
         if (isCanonical != null && isCanonical) {
-            Optional<TranscriptDTO> canonicalTranscript = transcriptService.findByEnsemblGeneAndCanonicalIsTrue(ensemblGene);
-            if (canonicalTranscript.isPresent() && !canonicalTranscript.get().getEnsemblTranscriptId().equals(transcriptId)) {
-                canonicalTranscript.get().setCanonical(false);
-                transcriptService.partialUpdate(canonicalTranscript.get());
+            Optional<TranscriptDTO> canonicalTranscriptOptional = transcriptService.findByEnsemblGeneAndCanonicalIsTrue(ensemblGene);
+            if (
+                canonicalTranscriptOptional.isPresent() &&
+                !canonicalTranscriptOptional.orElseThrow().getEnsemblTranscriptId().equals(transcriptId)
+            ) {
+                canonicalTranscriptOptional.orElseThrow().setCanonical(false);
+                transcriptService.partialUpdate(canonicalTranscriptOptional.orElseThrow());
             }
         }
 
@@ -542,11 +554,11 @@ public class MainService {
         );
         List<Flag> flagList = flagService.findAllByFlagIn(transcriptFlags.stream().map(flag -> flag.name()).collect(Collectors.toList()));
         if (transcriptDTOOptional.isPresent()) {
-            if (isCanonical != null && transcriptDTOOptional.get().getCanonical() != isCanonical) {
-                transcriptDTOOptional.get().setCanonical(isCanonical);
+            if (isCanonical != null && transcriptDTOOptional.orElseThrow().getCanonical() != isCanonical) {
+                transcriptDTOOptional.orElseThrow().setCanonical(isCanonical);
             }
-            transcriptDTOOptional.get().getFlags().addAll(flagList);
-            transcriptDTOOptional = transcriptService.partialUpdate(transcriptDTOOptional.get());
+            transcriptDTOOptional.orElseThrow().getFlags().addAll(flagList);
+            transcriptDTOOptional = transcriptService.partialUpdate(transcriptDTOOptional.orElseThrow());
             return transcriptDTOOptional;
         }
 
@@ -600,7 +612,7 @@ public class MainService {
                         utrFragment.setStart(utr.getStart());
                         utrFragment.setEnd(utr.getEnd());
                         if (seqRegionOptional.isPresent()) {
-                            utrFragment.setSeqRegion(seqRegionOptional.get());
+                            utrFragment.setSeqRegion(seqRegionOptional.orElseThrow());
                         }
                     }
                     return utrFragment;
@@ -623,7 +635,7 @@ public class MainService {
                     Optional<SeqRegion> seqRegionOptional = seqRegionService.findByNameOrCreate(utr.getSeqRegionName());
 
                     if (seqRegionOptional.isPresent()) {
-                        exonFragment.setSeqRegion(seqRegionOptional.get());
+                        exonFragment.setSeqRegion(seqRegionOptional.orElseThrow());
                     }
                     return exonFragment;
                 })

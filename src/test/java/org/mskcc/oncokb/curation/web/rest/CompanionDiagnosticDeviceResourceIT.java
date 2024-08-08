@@ -7,13 +7,13 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -747,7 +747,7 @@ class CompanionDiagnosticDeviceResourceIT {
         // Update the companionDiagnosticDevice
         CompanionDiagnosticDevice updatedCompanionDiagnosticDevice = companionDiagnosticDeviceRepository
             .findById(companionDiagnosticDevice.getId())
-            .get();
+            .orElseThrow();
         // Disconnect from session so that the updates on updatedCompanionDiagnosticDevice are not directly saved in db
         em.detach(updatedCompanionDiagnosticDevice);
         updatedCompanionDiagnosticDevice

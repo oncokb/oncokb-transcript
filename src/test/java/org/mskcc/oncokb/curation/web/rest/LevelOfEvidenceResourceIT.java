@@ -6,10 +6,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -315,7 +315,7 @@ class LevelOfEvidenceResourceIT {
         int databaseSizeBeforeUpdate = levelOfEvidenceRepository.findAll().size();
 
         // Update the levelOfEvidence
-        LevelOfEvidence updatedLevelOfEvidence = levelOfEvidenceRepository.findById(levelOfEvidence.getId()).get();
+        LevelOfEvidence updatedLevelOfEvidence = levelOfEvidenceRepository.findById(levelOfEvidence.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedLevelOfEvidence are not directly saved in db
         em.detach(updatedLevelOfEvidence);
         updatedLevelOfEvidence

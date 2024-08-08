@@ -4,7 +4,6 @@ import static org.mockito.Mockito.mock;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.mskcc.oncokb.curation.config.OAuth2Configuration;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -36,19 +35,18 @@ public class TestSecurityConfiguration {
 
     private ClientRegistration.Builder clientRegistrationBuilder() {
         Map<String, Object> metadata = new HashMap<>();
-        metadata.put("end_session_endpoint", "https://jhipster.org/logout");
+        metadata.put("end_session_endpoint", "https://curation.oncokb.org/logout");
 
-        return ClientRegistration
-            .withRegistrationId("oidc")
+        return ClientRegistration.withRegistrationId("oidc")
             .issuerUri("{baseUrl}")
             .redirectUri("{baseUrl}/{action}/oauth2/code/{registrationId}")
-            .clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
             .scope("read:user")
-            .authorizationUri("https://jhipster.org/login/oauth/authorize")
-            .tokenUri("https://jhipster.org/login/oauth/access_token")
-            .jwkSetUri("https://jhipster.org/oauth/jwk")
-            .userInfoUri("https://api.jhipster.org/user")
+            .authorizationUri("https://curation.oncokb.org/login/oauth/authorize")
+            .tokenUri("https://curation.oncokb.org/login/oauth/access_token")
+            .jwkSetUri("https://curation.oncokb.org/oauth/jwk")
+            .userInfoUri("https://api.curation.oncokb.org/user")
             .providerConfigurationMetadata(metadata)
             .userNameAttributeName("id")
             .clientName("Client Name")

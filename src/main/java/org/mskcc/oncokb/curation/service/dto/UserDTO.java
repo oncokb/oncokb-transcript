@@ -1,9 +1,9 @@
 package org.mskcc.oncokb.curation.service.dto;
 
+import jakarta.validation.constraints.*;
 import java.time.Instant;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.validation.constraints.*;
 import org.mskcc.oncokb.curation.config.Constants;
 import org.mskcc.oncokb.curation.domain.Authority;
 import org.mskcc.oncokb.curation.domain.User;

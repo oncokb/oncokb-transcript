@@ -54,7 +54,7 @@ public class EbiService {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
         map.add("stype", "protein");
         map.add("sequence", sequence);
-        map.add("email", SecurityUtils.getCurrentUserLogin().get());
+        map.add("email", SecurityUtils.getCurrentUserLogin().orElseThrow());
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, httpHeaders);
 
         return runEbiJob(entity, CLUSTAL_O_URL);
@@ -79,7 +79,7 @@ public class EbiService {
         map.add("width", "100");
         map.add("coloring", "identity");
         map.add("colormap", "RED");
-        map.add("email", SecurityUtils.getCurrentUserLogin().get());
+        map.add("email", SecurityUtils.getCurrentUserLogin().orElseThrow());
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, httpHeaders);
         return runEbiJob(entity, MVIEW_URL);
     }

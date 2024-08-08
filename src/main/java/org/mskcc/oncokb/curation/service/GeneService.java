@@ -179,7 +179,7 @@ public class GeneService {
     public Optional<Gene> findGeneBySynonym(String synonym) {
         Optional<Synonym> synonymOptional = synonymRepository.findByTypeAndSourceAndName("GENE", DEFAULT_GENE_SYNONMN_SOURCE, synonym);
         if (synonymOptional.isPresent()) {
-            return Optional.of(synonymOptional.get().getGenes().iterator().next());
+            return Optional.of(synonymOptional.orElseThrow().getGenes().iterator().next());
         } else {
             return Optional.empty();
         }
@@ -187,10 +187,10 @@ public class GeneService {
 
     private void clearGeneCaches() {
         if (this.optionalCacheManager.isPresent()) {
-            for (String cacheKey : this.optionalCacheManager.get().getCacheNames()) {
+            for (String cacheKey : this.optionalCacheManager.orElseThrow().getCacheNames()) {
                 String cacheKeyPrefix = this.cacheNameResolver.getCacheName(CacheCategory.GENE, "");
                 if (cacheKey.startsWith(cacheKeyPrefix)) {
-                    Objects.requireNonNull(this.optionalCacheManager.get().getCache(cacheKey)).clear();
+                    Objects.requireNonNull(this.optionalCacheManager.orElseThrow().getCache(cacheKey)).clear();
                 }
             }
         }

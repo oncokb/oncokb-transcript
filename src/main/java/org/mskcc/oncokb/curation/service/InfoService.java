@@ -109,9 +109,9 @@ public class InfoService {
     public void updateInfo(InfoType infoType, String newValue, Instant newLastUpdated) {
         Optional<Info> infoRecord = this.infoRepository.findOneByType(infoType.name());
         if (infoRecord.isPresent()) {
-            infoRecord.get().setValue(newValue);
-            infoRecord.get().setLastUpdated(newLastUpdated);
-            this.infoRepository.save(infoRecord.get());
+            infoRecord.orElseThrow().setValue(newValue);
+            infoRecord.orElseThrow().setLastUpdated(newLastUpdated);
+            this.infoRepository.save(infoRecord.orElseThrow());
         } else {
             Info info = new Info();
             info.setType(infoType.name());

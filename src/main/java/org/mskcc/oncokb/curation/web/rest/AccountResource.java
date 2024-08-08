@@ -1,9 +1,9 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.Map;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
 import org.mskcc.oncokb.curation.config.Constants;
 import org.mskcc.oncokb.curation.service.UserService;
 import org.mskcc.oncokb.curation.service.dto.UserDTO;
@@ -50,9 +50,9 @@ public class AccountResource {
     @SuppressWarnings("unchecked")
     public UserDTO getAccount(Principal principal) {
         if (principal instanceof AbstractAuthenticationToken) {
-            Optional<UserDTO> user = userService.getUserFromAuthentication((AbstractAuthenticationToken) principal);
-            if (user.isPresent()) {
-                return user.get();
+            Optional<UserDTO> userOptional = userService.getUserFromAuthentication((AbstractAuthenticationToken) principal);
+            if (userOptional.isPresent()) {
+                return userOptional.orElseThrow();
             }
         }
         throw new AccountResourceException("User could not be found");
