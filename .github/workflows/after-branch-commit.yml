@@ -3,6 +3,7 @@ name: After master commit
 on:
   push:
     branches:
+      - rc
       - master
 
 jobs:
@@ -10,7 +11,7 @@ jobs:
     if: github.repository == 'oncokb/oncokb-curation'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: 'Update Version Level'
@@ -39,51 +40,76 @@ jobs:
             git push
           fi
 
-
   update-pom:
     needs: [check-version-level-and-update]
     if: github.repository == 'oncokb/oncokb-curation'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 'Get Previous tag'
-        id: previoustag
-        uses: "WyriHaximus/github-action-get-previous-tag@master"
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Extract branch name
+        id: extract_branch
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+
+      - name: Find previous release
+        id: find_release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = '${{ steps.extract_branch.outputs.branch }}';
+            console.log('Looking for release that is based off branch: ${{ steps.extract_branch.outputs.branch }}');
+
+            const releases = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            const release = releases.data.find(r => r.target_commitish === branch || r.target_commitish === `refs/heads/${branch}`);
+
+            if (release) {
+              core.setOutput('tag', release.tag_name);
+            } else {
+              core.setOutput('tag', '');
+            }
 
       - name: 'Get next semantic versions'
         id: semvers
+        if: ${{ steps.find_release.outputs.tag != '' }}
         uses: "WyriHaximus/github-action-next-semvers@v1"
         with:
-          version: ${{ steps.previoustag.outputs.tag }}
+          version: ${{ steps.find_release.outputs.tag }}
 
       - name: 'Setup Java'
+        if: ${{ success() }}
         uses: actions/setup-java@v1
         with:
           java-version: 8
 
       - name: 'Get Current Version Level'
         id: 'version-level'
+        if: ${{ success() }}
         run: |
           VERSION_LEVEL=$(cat .version-level | tr "[:upper:]" "[:lower:]")
           echo "::set-output name=VERSION_LEVEL::$VERSION_LEVEL"
+
       - name: 'Update Pom'
+        if: ${{ success() }}
         env:
           NEW_VERSION: ${{ steps.version-level.outputs.VERSION_LEVEL == 'minor' && steps.semvers.outputs.minor || steps.semvers.outputs.patch}}
         run: |
-          git pull
-          mvn --batch-mode versions:set -DnewVersion=${NEW_VERSION} -DgenerateBackupPoms=false
-
-          CHANGED=$(git diff --name-only HEAD --)
-          if [ -n "$CHANGED" ]
-          then
-            git config user.name oncokb-bot
-            git config user.email dev.oncokb@gmail.com
-            git add .
-            git commit -m 'Update pom version'
-            git push
-          fi
+          echo "${NEW_VERSION}"
+#          git pull
+#          mvn --batch-mode versions:set -DnewVersion=${NEW_VERSION} -DgenerateBackupPoms=false
+#
+#          CHANGED=$(git diff --name-only HEAD --)
+#          if [ -n "$CHANGED" ]
+#          then
+#            git config user.name oncokb-bot
+#            git config user.email dev.oncokb@gmail.com
+#            git add .
+#            git commit -m 'Update pom version'
+#            git push
+#          fi

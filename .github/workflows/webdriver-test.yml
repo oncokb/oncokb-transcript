@@ -1,7 +1,7 @@
 name: Webdriver Test
 
-on: [push, pull_request]
-
+#on: [push, pull_request]
+on: workflow_dispatch
 jobs:
     build:
       runs-on: ubuntu-latest

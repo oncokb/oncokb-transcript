@@ -5,11 +5,13 @@ on:
     # branches to consider in the event; optional, defaults to all
     branches:
       - master
+      - rc
   workflow_run:
     workflows:
       - "After master commit"
     branches:
       - master
+      - rc
     types:
       - completed
 

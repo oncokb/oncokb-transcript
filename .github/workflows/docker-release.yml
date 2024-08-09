@@ -1,7 +1,8 @@
 name: Build/Push docker image
-on:
-  release:
-    types: [ published ]
+#on:
+#  release:
+#    types: [ published ]
+on: workflow_dispatch
 jobs:
   main:
     if: github.repository == 'oncokb/oncokb-curation'
