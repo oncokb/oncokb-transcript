@@ -3,8 +3,7 @@ name: After master commit
 on:
   push:
     branches:
-      - rc
-      - master
+      - "**"
 
 jobs:
   check-version-level-and-update:
