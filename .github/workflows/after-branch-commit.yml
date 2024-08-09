@@ -1,4 +1,4 @@
-name: After master commit
+name: After branch commit
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   check-version-level-and-update:
-    if: github.repository == 'oncokb/oncokb-curation'
+#    if: github.repository == 'oncokb/oncokb-curation'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
 
   update-pom:
     needs: [check-version-level-and-update]
-    if: github.repository == 'oncokb/oncokb-curation'
+#    if: github.repository == 'oncokb/oncokb-curation'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
