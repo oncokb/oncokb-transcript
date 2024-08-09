@@ -23,11 +23,8 @@ const NotCuratableBadge: React.FunctionComponent<INotCuratableBadgeProps> = ({ m
     for (const name of mutationName.split(',')) {
       const trimmedName = name.trim();
       const foundMutation = mutations?.find(mut => getMutationName(mut.name, mut.alterations) === trimmedName);
-      if (!foundMutation) {
-        continue;
-      }
 
-      if (!foundMutation.mutation_effect.effect || foundMutation.mutation_effect.effect === RADIO_OPTION_NONE) {
+      if (!foundMutation?.mutation_effect.effect || foundMutation.mutation_effect.effect === RADIO_OPTION_NONE) {
         mutationStrings[0].push(trimmedName);
       } else {
         mutationStrings[1].push(`${trimmedName} (${foundMutation.mutation_effect.effect})`);
