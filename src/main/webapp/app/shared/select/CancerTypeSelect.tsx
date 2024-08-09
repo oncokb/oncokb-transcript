@@ -14,15 +14,17 @@ interface ICancerTypeSelectProps<IsMulti extends boolean> extends SelectProps<Ca
   disabledOptions?: readonly CancerTypeSelectOption[];
 }
 
-export type CancerTypeSelectOption = {
-  label: string;
-  value: number;
-  code: string;
-  mainType: string;
-  subtype: string;
-  level: number;
-  isDisabled?: boolean;
-};
+export type CancerTypeSelectOption =
+  | {
+      label: string;
+      value: number;
+      code: string;
+      mainType: string;
+      subtype: string;
+      level: number;
+      isDisabled?: boolean;
+    }
+  | undefined;
 
 const getAllMainTypes = (cancerTypeList: ICancerType[]) => {
   return _.uniq(cancerTypeList.filter(cancerType => cancerType.level && cancerType.level <= 0)).sort();
@@ -120,7 +122,9 @@ const CancerTypeSelect = <IsMulti extends boolean>(props: ICancerTypeSelectProps
       additional={{ ...defaultAdditional, type: SearchOptionType.CANCER_TYPE }}
       loadOptions={loadCancerTypeOptions}
       reduceOptions={reduceGroupedOptions}
-      isOptionDisabled={option => disabledOptions?.some(disabled => disabled.value === option.value) || false}
+      isOptionDisabled={option =>
+        disabledOptions?.some(disabled => disabled !== undefined && option !== undefined && disabled.value === option.value) || false
+      }
       cacheUniqs={[props.value]}
       placeholder="Select a cancer type..."
       isClearable
