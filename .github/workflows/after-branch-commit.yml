@@ -71,7 +71,7 @@ jobs:
             if (release) {
               core.setOutput('tag', release.tag_name);
             } else {
-              core.setOutput('tag', '');
+              core.setFailed("No tag available, fail the action.");
             }
 
       - name: 'Get next semantic versions'
