@@ -23,13 +23,13 @@ export interface IModifyCancerTypeModalProps extends StoreProps {
 
 export function getCancerTypeFromCancerTypeSelectOption(cancerTypeSelectOption: CancerTypeSelectOption) {
   const cancerType = new CancerType();
-  if (!_.isNil(cancerTypeSelectOption.code)) {
+  if (!_.isNil(cancerTypeSelectOption?.code)) {
     cancerType.code = cancerTypeSelectOption.code;
   }
-  if (!_.isNil(cancerTypeSelectOption.mainType)) {
+  if (!_.isNil(cancerTypeSelectOption?.mainType)) {
     cancerType.mainType = cancerTypeSelectOption.mainType;
   }
-  if (!_.isNil(cancerTypeSelectOption.subtype)) {
+  if (!_.isNil(cancerTypeSelectOption?.subtype)) {
     cancerType.subtype = cancerTypeSelectOption.subtype;
   }
   return cancerType;

@@ -34,7 +34,7 @@ export class ModifyCancerTypeModalStore {
   private setIsErrorIncludedAndExcluded(cancerTypes1: readonly CancerTypeSelectOption[], cancerTypes2: readonly CancerTypeSelectOption[]) {
     for (const ct1 of cancerTypes1) {
       for (const ct2 of cancerTypes2) {
-        if (ct1.value === ct2.value) {
+        if (ct1?.value === ct2?.value) {
           this.isErrorIncludedAndExcluded = true;
           return;
         }
