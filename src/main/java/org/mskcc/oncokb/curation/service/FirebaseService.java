@@ -73,11 +73,14 @@ public class FirebaseService {
         }
 
         for (Mutation mutation : gene.getMutations()) {
-            List<Alteration> altList = alterationService.findByNameOrAlterationAndGenesId(mutation.getName(), geneOptional.get().getId());
+            List<Alteration> altList = alterationService.findByNameOrAlterationAndGenesId(
+                mutation.getName(),
+                geneOptional.orElseThrow().getId()
+            );
             if (altList.isEmpty()) {
                 Alteration alteration = new Alteration();
                 alteration.setName(mutation.getName());
-                alteration.setGenes(Collections.singleton(geneOptional.get()));
+                alteration.setGenes(Collections.singleton(geneOptional.orElseThrow()));
                 altList.add(alterationService.save(alteration));
             }
             if (mutation.getMutationEffect() != null) {
@@ -126,15 +129,15 @@ public class FirebaseService {
                                 log.error("Cannot find the NCIT code from drug {} {}", drug.getNcitCode(), drug.getDrugName());
                             } else {
                                 org.mskcc.oncokb.curation.domain.Drug newDrugEntity = new org.mskcc.oncokb.curation.domain.Drug();
-                                newDrugEntity.setNciThesaurus(nciThesaurusOptional.get());
+                                newDrugEntity.setNciThesaurus(nciThesaurusOptional.orElseThrow());
                                 newDrugEntity.setName(drug.getDrugName());
                                 newDrugEntity.setUuid(drug.getUuid());
                                 drugService.save(newDrugEntity);
                                 log.info("Add new drug {} {}", drug.getDrugName(), drug.getNcitCode());
                             }
                         } else {
-                            drugOptional.get().setUuid(drug.getUuid());
-                            drugService.partialUpdate(drugOptional.get());
+                            drugOptional.orElseThrow().setUuid(drug.getUuid());
+                            drugService.partialUpdate(drugOptional.orElseThrow());
                         }
                     }
                 }

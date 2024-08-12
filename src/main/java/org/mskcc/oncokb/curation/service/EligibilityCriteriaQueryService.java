@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.EligibilityCriteria;
 import org.mskcc.oncokb.curation.repository.EligibilityCriteriaRepository;
@@ -92,22 +92,20 @@ public class EligibilityCriteriaQueryService extends QueryService<EligibilityCri
                 specification = specification.or(buildRangeSpecification(criteria.getPriority(), EligibilityCriteria_.priority));
             }
             if (criteria.getAssociationId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getAssociationId(),
-                            root -> root.join(EligibilityCriteria_.associations, JoinType.LEFT).get(Association_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getAssociationId(),
+                        root -> root.join(EligibilityCriteria_.associations, JoinType.LEFT).get(Association_.id)
+                    )
+                );
             }
             if (criteria.getClinicalTrialId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getClinicalTrialId(),
-                            root -> root.join(EligibilityCriteria_.clinicalTrial, JoinType.LEFT).get(ClinicalTrial_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getClinicalTrialId(),
+                        root -> root.join(EligibilityCriteria_.clinicalTrial, JoinType.LEFT).get(ClinicalTrial_.id)
+                    )
+                );
             }
         }
         return specification;

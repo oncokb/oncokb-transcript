@@ -75,22 +75,20 @@ public class GeneImporter {
             Set<Synonym> geneSynonyms = new HashSet<>();
 
             if (line.length > 5) {
-                geneSynonyms =
-                    Arrays
-                        .stream(line[5].split(SYNONYM_SEPARATOR))
-                        .filter(synonym -> StringUtils.isNotEmpty(synonym.trim()))
-                        .map(synonym -> {
-                            Synonym geneSynonym = new Synonym();
-                            geneSynonym.setName(synonym.trim());
-                            geneSynonym.setType(SynonymType.GENE.name());
-                            return geneSynonym;
-                        })
-                        .collect(Collectors.toSet());
+                geneSynonyms = Arrays.stream(line[5].split(SYNONYM_SEPARATOR))
+                    .filter(synonym -> StringUtils.isNotEmpty(synonym.trim()))
+                    .map(synonym -> {
+                        Synonym geneSynonym = new Synonym();
+                        geneSynonym.setName(synonym.trim());
+                        geneSynonym.setType(SynonymType.GENE.name());
+                        return geneSynonym;
+                    })
+                    .collect(Collectors.toSet());
             }
 
             Optional<Gene> geneOptional = this.geneService.findGeneByEntrezGeneId(entrezGeneId);
             if (geneOptional.isPresent()) {
-                Gene gene = geneOptional.get();
+                Gene gene = geneOptional.orElseThrow();
                 gene.setHugoSymbol(hugoSymbol);
                 gene.setSynonyms(geneSynonyms);
                 this.geneService.partialUpdate(gene);
@@ -158,11 +156,11 @@ public class GeneImporter {
             if (geneOptional.isEmpty()) {
                 log.error("Cannot find gene {} {} {}", panel, entrezGeneId, hugoSymbol);
             } else {
-                if (geneOptional.get().getFlags().contains(geneFlagOptional.get())) {
-                    log.error("The gene flag already included {} {}", geneFlagOptional.get().getFlag(), line);
+                if (geneOptional.orElseThrow().getFlags().contains(geneFlagOptional.orElseThrow())) {
+                    log.error("The gene flag already included {} {}", geneFlagOptional.orElseThrow().getFlag(), line);
                 } else {
-                    geneOptional.get().getFlags().add(geneFlagOptional.get());
-                    geneService.partialUpdate(geneOptional.get());
+                    geneOptional.orElseThrow().getFlags().add(geneFlagOptional.orElseThrow());
+                    geneService.partialUpdate(geneOptional.orElseThrow());
                 }
             }
 

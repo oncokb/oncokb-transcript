@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.NciThesaurus;
 import org.mskcc.oncokb.curation.repository.NciThesaurusRepository;
@@ -98,13 +98,9 @@ public class NciThesaurusQueryService extends QueryService<NciThesaurus> {
                 specification = specification.or(buildStringSpecification(criteria.getDisplayName(), NciThesaurus_.displayName));
             }
             if (criteria.getSynonymId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getSynonymId(),
-                            root -> root.join(NciThesaurus_.synonyms, JoinType.LEFT).get(Synonym_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getSynonymId(), root -> root.join(NciThesaurus_.synonyms, JoinType.LEFT).get(Synonym_.id))
+                );
             }
         }
         return specification;

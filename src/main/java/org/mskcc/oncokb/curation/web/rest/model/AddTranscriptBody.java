@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.web.rest.model;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.enumeration.TranscriptFlagEnum;
 
 public class AddTranscriptBody {

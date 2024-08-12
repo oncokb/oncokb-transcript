@@ -31,32 +31,48 @@ management:
       base-path: /management
       exposure:
         include:
-          ['configprops', 'env', 'health', 'info', 'jhimetrics', 'logfile', 'loggers', 'prometheus', 'threaddump', 'caches', 'liquibase']
+          - configprops
+          - env
+          - health
+          - info
+          - jhimetrics
+          - jhiopenapigroups
+          - logfile
+          - loggers
+          - prometheus
+          - threaddump
+          - caches
+          - liquibase
   endpoint:
     health:
-      show-details: WHEN_AUTHORIZED
+      show-details: when_authorized
       roles: 'ROLE_ADMIN'
       probes:
         enabled: true
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db
     jhimetrics:
       enabled: true
   info:
     git:
       mode: full
+    env:
+      enabled: true
   health:
-    group:
-      liveness:
-        include: livenessState
-      readiness:
-        include: readinessState,db
     mail:
       enabled: false # When using the MailService, configure an SMTP server and set this to true
-  metrics:
-    export:
-      # Prometheus is the default metrics backend
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true
         step: 60
+  observations:
+    key-values:
+      application: ${spring.application.name}
+  metrics:
     enable:
       http: true
       jvm: true
@@ -68,13 +84,10 @@ management:
         all: true
       percentiles:
         all: 0, 0.5, 0.75, 0.95, 0.99, 1.0
-    tags:
-      application: ${spring.application.name}
-    web:
-      server:
-        request:
-          autotime:
-            enabled: true
+    data:
+      repository:
+        autotime:
+          enabled: true
 
 spring:
   application:
@@ -83,7 +96,7 @@ spring:
     # The commented value for `active` can be replaced with valid Spring profiles to load.
     # Otherwise, it will be filled in by maven when building the JAR file
     # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
-    active: #spring.profiles.active#
+    active: '@spring.profiles.active@'
     group:
       dev:
         - dev
@@ -100,6 +113,7 @@ spring:
     open-in-view: false
     properties:
       hibernate.jdbc.time_zone: UTC
+      hibernate.timezone.default_storage: NORMALIZE
       hibernate.id.new_generator_mappings: true
       hibernate.connection.provider_disables_autocommit: true
       hibernate.cache.use_second_level_cache: false
@@ -114,12 +128,15 @@ spring:
     hibernate:
       ddl-auto: none
       naming:
-        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
   messages:
     basename: i18n/messages
   main:
     allow-bean-definition-overriding: true
+  mvc:
+    problemdetails:
+      enabled: true
   task:
     execution:
       thread-name-prefix: oncokb-curation-task-
@@ -136,9 +153,6 @@ spring:
   output:
     ansi:
       console-available: true
-  jackson:
-    mapper:
-      accept-case-insensitive-enums: true
   security:
     oauth2:
       client:
@@ -184,12 +198,31 @@ jhipster:
   #   max-age: 1800
   mail:
     from: oncokb-curation@localhost
+  api-docs:
+    default-include-pattern: /api/**
+    management-include-pattern: /management/**
+    title: OncoKB Curation Platform API
+    description: OncoKB Curation Platform API documentation
+    version: 2.0.0
+    terms-of-service-url:
+    contact-name:
+    contact-url:
+    contact-email:
+    license: 'Terms of Use'
+    license-url: 'https://www.oncokb.org/terms'
   security:
-    content-security-policy: "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:"
+    content-security-policy: "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com https://*.firebaseio.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https://*.google.com; font-src 'self' data: https://cdnjs.cloudflare.com; connect-src 'self' ws://*.firebaseio.com https://*;"
     oauth2:
       audience:
         - account
         - api://default
+    authentication:
+      jwt:
+        # This token must be encoded using Base64 and be at least 256 bits long (you can type `openssl rand -base64 64` on your command line to generate a 512 bits one)
+        base64-secret: NGUwNTlhNDNhOWQ2ZGJlMmEzODczOWJjYWM2MWY4NDAwOTM4YTBmNGFjM2UxNjczZDU2YWZjZjc3MjdkNmU4YjVhZmIwYzI1NDhjMDFkZThiYmE5Mjc5MjM0MGVhODU5MGFhMTAyOTE0M2I3ODA1MGUzZWFhYWUwNWY2ZDgyNjQ=
+        # Token is valid 24 hours
+        token-validity-in-seconds: 86400
+        token-validity-in-seconds-for-remember-me: 2592000
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

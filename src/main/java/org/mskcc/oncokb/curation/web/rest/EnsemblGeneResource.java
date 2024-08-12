@@ -1,12 +1,12 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.EnsemblGene;
 import org.mskcc.oncokb.curation.domain.FdaSubmission;
 import org.mskcc.oncokb.curation.repository.EnsemblGeneRepository;
@@ -72,8 +72,7 @@ public class EnsemblGeneResource {
             throw new BadRequestAlertException("A new ensemblGene cannot already have an ID", ENTITY_NAME, "idexists");
         }
         EnsemblGene result = ensemblGeneService.save(ensemblGene);
-        return ResponseEntity
-            .created(new URI("/api/ensembl-genes/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/ensembl-genes/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -106,8 +105,7 @@ public class EnsemblGeneResource {
         }
 
         EnsemblGene result = ensemblGeneService.save(ensemblGene);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, ensemblGene.getId().toString()))
             .body(result);
     }
@@ -198,8 +196,7 @@ public class EnsemblGeneResource {
     public ResponseEntity<Void> deleteEnsemblGene(@PathVariable Long id) {
         log.debug("REST request to delete EnsemblGene : {}", id);
         ensemblGeneService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }

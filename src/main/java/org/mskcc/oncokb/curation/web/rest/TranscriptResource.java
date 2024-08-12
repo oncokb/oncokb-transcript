@@ -1,13 +1,13 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.repository.TranscriptRepository;
 import org.mskcc.oncokb.curation.service.TranscriptQueryService;
 import org.mskcc.oncokb.curation.service.TranscriptService;
@@ -72,8 +72,7 @@ public class TranscriptResource {
             throw new BadRequestAlertException("A new transcript cannot already have an ID", ENTITY_NAME, "idexists");
         }
         TranscriptDTO result = transcriptService.save(transcriptDTO);
-        return ResponseEntity
-            .created(new URI("/api/transcripts/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/transcripts/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -106,8 +105,7 @@ public class TranscriptResource {
         }
 
         TranscriptDTO result = transcriptService.save(transcriptDTO);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, transcriptDTO.getId().toString()))
             .body(result);
     }
@@ -200,8 +198,7 @@ public class TranscriptResource {
     public ResponseEntity<Void> deleteTranscript(@PathVariable Long id) {
         log.debug("REST request to delete Transcript : {}", id);
         transcriptService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }

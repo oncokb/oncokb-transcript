@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.Sequence;
 import org.mskcc.oncokb.curation.repository.SequenceRepository;
@@ -89,13 +89,12 @@ public class SequenceQueryService extends QueryService<Sequence> {
                 specification = specification.or(buildSpecification(criteria.getSequenceType(), Sequence_.sequenceType));
             }
             if (criteria.getTranscriptId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getTranscriptId(),
-                            root -> root.join(Sequence_.transcript, JoinType.LEFT).get(Transcript_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getTranscriptId(),
+                        root -> root.join(Sequence_.transcript, JoinType.LEFT).get(Transcript_.id)
+                    )
+                );
             }
         }
         return specification;

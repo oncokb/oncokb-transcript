@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.ClinicalTrial;
 import org.mskcc.oncokb.curation.repository.ClinicalTrialRepository;
@@ -98,31 +98,28 @@ public class ClinicalTrialQueryService extends QueryService<ClinicalTrial> {
                 specification = specification.or(buildStringSpecification(criteria.getStatus(), ClinicalTrial_.status));
             }
             if (criteria.getClinicalTrialArmId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getClinicalTrialArmId(),
-                            root -> root.join(ClinicalTrial_.clinicalTrialArms, JoinType.LEFT).get(ClinicalTrialArm_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getClinicalTrialArmId(),
+                        root -> root.join(ClinicalTrial_.clinicalTrialArms, JoinType.LEFT).get(ClinicalTrialArm_.id)
+                    )
+                );
             }
             if (criteria.getEligibilityCriteriaId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getEligibilityCriteriaId(),
-                            root -> root.join(ClinicalTrial_.eligibilityCriteria, JoinType.LEFT).get(EligibilityCriteria_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getEligibilityCriteriaId(),
+                        root -> root.join(ClinicalTrial_.eligibilityCriteria, JoinType.LEFT).get(EligibilityCriteria_.id)
+                    )
+                );
             }
             if (criteria.getAssociationId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getAssociationId(),
-                            root -> root.join(ClinicalTrial_.associations, JoinType.LEFT).get(Association_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getAssociationId(),
+                        root -> root.join(ClinicalTrial_.associations, JoinType.LEFT).get(Association_.id)
+                    )
+                );
             }
         }
         return specification;

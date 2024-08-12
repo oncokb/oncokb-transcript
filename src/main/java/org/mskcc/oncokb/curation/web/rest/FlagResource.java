@@ -1,12 +1,12 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.repository.FlagRepository;
@@ -68,8 +68,7 @@ public class FlagResource {
             throw new BadRequestAlertException("A new flag cannot already have an ID", ENTITY_NAME, "idexists");
         }
         Flag result = flagService.save(flag);
-        return ResponseEntity
-            .created(new URI("/api/flags/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/flags/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -100,8 +99,7 @@ public class FlagResource {
         }
 
         Flag result = flagService.save(flag);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, flag.getId().toString()))
             .body(result);
     }
@@ -192,8 +190,7 @@ public class FlagResource {
     public ResponseEntity<Void> deleteFlag(@PathVariable Long id) {
         log.debug("REST request to delete Flag : {}", id);
         flagService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }

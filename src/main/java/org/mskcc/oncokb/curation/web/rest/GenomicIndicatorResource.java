@@ -1,5 +1,7 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -7,8 +9,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.GenomicIndicator;
 import org.mskcc.oncokb.curation.repository.GenomicIndicatorRepository;
 import org.mskcc.oncokb.curation.service.GenomicIndicatorQueryService;
@@ -74,8 +74,7 @@ public class GenomicIndicatorResource {
             throw new BadRequestAlertException("A new genomicIndicator cannot already have an ID", ENTITY_NAME, "idexists");
         }
         GenomicIndicator result = genomicIndicatorService.save(genomicIndicator);
-        return ResponseEntity
-            .created(new URI("/api/genomic-indicators/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/genomic-indicators/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -108,8 +107,7 @@ public class GenomicIndicatorResource {
         }
 
         GenomicIndicator result = genomicIndicatorService.save(genomicIndicator);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, genomicIndicator.getId().toString()))
             .body(result);
     }
@@ -160,8 +158,7 @@ public class GenomicIndicatorResource {
     public ResponseEntity<List<GenomicIndicator>> getAllGenomicIndicators(GenomicIndicatorCriteria criteria) {
         log.debug("REST request to get GenomicIndicators by criteria: {}", criteria);
         List<GenomicIndicator> entityList = genomicIndicatorQueryService.findByCriteria(criteria);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .body(genomicIndicatorService.findByIdIn(entityList.stream().map(GenomicIndicator::getId).collect(Collectors.toList())));
     }
 
@@ -200,8 +197,7 @@ public class GenomicIndicatorResource {
     public ResponseEntity<Void> deleteGenomicIndicator(@PathVariable Long id) {
         log.debug("REST request to delete GenomicIndicator : {}", id);
         genomicIndicatorService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }

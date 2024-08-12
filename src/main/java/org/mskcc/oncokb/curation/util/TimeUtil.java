@@ -16,16 +16,14 @@ import java.util.Locale;
 public class TimeUtil {
 
     public static String toSystemDefaultZoneTime(Instant time) {
-        DateTimeFormatter formatter = DateTimeFormatter
-            .ofLocalizedDateTime(FormatStyle.FULL)
+        DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)
             .withLocale(Locale.US)
             .withZone(ZoneId.systemDefault());
         return formatter.format(time);
     }
 
     public static String toNYZoneTime(Instant time) {
-        DateTimeFormatter formatter = DateTimeFormatter
-            .ofLocalizedDateTime(FormatStyle.FULL)
+        DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)
             .withLocale(Locale.US)
             .withZone(ZoneId.of(NY_ZONE_ID));
         return formatter.format(time);

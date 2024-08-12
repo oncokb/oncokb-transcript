@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.FdaDrug;
 import org.mskcc.oncokb.curation.repository.FdaDrugRepository;
@@ -92,23 +92,22 @@ public class FdaDrugQueryService extends QueryService<FdaDrug> {
                 specification = specification.or(buildStringSpecification(criteria.getSponsorName(), FdaDrug_.sponsorName));
             }
             if (criteria.getOverallMarketingStatus() != null) {
-                specification =
-                    specification.or(buildStringSpecification(criteria.getOverallMarketingStatus(), FdaDrug_.overallMarketingStatus));
+                specification = specification.or(
+                    buildStringSpecification(criteria.getOverallMarketingStatus(), FdaDrug_.overallMarketingStatus)
+                );
             }
             if (criteria.getFdaSubmissionId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getFdaSubmissionId(),
-                            root -> root.join(FdaDrug_.fdaSubmissions, JoinType.LEFT).get(FdaSubmission_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getFdaSubmissionId(),
+                        root -> root.join(FdaDrug_.fdaSubmissions, JoinType.LEFT).get(FdaSubmission_.id)
+                    )
+                );
             }
             if (criteria.getDrugId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getDrugId(), root -> root.join(FdaDrug_.drug, JoinType.LEFT).get(Drug_.id))
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getDrugId(), root -> root.join(FdaDrug_.drug, JoinType.LEFT).get(Drug_.id))
+                );
             }
         }
         return specification;

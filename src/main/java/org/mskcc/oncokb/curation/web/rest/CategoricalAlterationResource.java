@@ -1,12 +1,12 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.CategoricalAlteration;
 import org.mskcc.oncokb.curation.repository.CategoricalAlterationRepository;
 import org.mskcc.oncokb.curation.service.CategoricalAlterationService;
@@ -61,8 +61,7 @@ public class CategoricalAlterationResource {
             throw new BadRequestAlertException("A new categoricalAlteration cannot already have an ID", ENTITY_NAME, "idexists");
         }
         CategoricalAlteration result = categoricalAlterationService.save(categoricalAlteration);
-        return ResponseEntity
-            .created(new URI("/api/categorical-alterations/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/categorical-alterations/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -95,8 +94,7 @@ public class CategoricalAlterationResource {
         }
 
         CategoricalAlteration result = categoricalAlterationService.save(categoricalAlteration);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, categoricalAlteration.getId().toString()))
             .body(result);
     }
@@ -171,8 +169,7 @@ public class CategoricalAlterationResource {
     public ResponseEntity<Void> deleteCategoricalAlteration(@PathVariable Long id) {
         log.debug("REST request to delete CategoricalAlteration : {}", id);
         categoricalAlterationService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }

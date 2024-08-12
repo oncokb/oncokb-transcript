@@ -48,49 +48,57 @@ public class TranscriptController {
         TranscriptComparisonResultVM result = new TranscriptComparisonResultVM();
 
         // Find whether both transcript length are the same
-        Optional<EnsemblTranscript> ensemblA = transcriptService.getEnsemblTranscript(hugoSymbol, transcriptComparisonVM.getTranscriptA());
-        Optional<EnsemblTranscript> ensemblB = transcriptService.getEnsemblTranscript(hugoSymbol, transcriptComparisonVM.getTranscriptB());
+        Optional<EnsemblTranscript> ensemblAOptional = transcriptService.getEnsemblTranscript(
+            hugoSymbol,
+            transcriptComparisonVM.getTranscriptA()
+        );
+        Optional<EnsemblTranscript> ensemblBOptional = transcriptService.getEnsemblTranscript(
+            hugoSymbol,
+            transcriptComparisonVM.getTranscriptB()
+        );
 
-        if (ensemblA.isEmpty()) {
+        if (ensemblAOptional.isEmpty()) {
             return new ResponseEntity("TranscriptA does not exist.", HttpStatus.BAD_REQUEST);
         }
-        if (ensemblB.isEmpty()) {
+        if (ensemblBOptional.isEmpty()) {
             return new ResponseEntity("TranscriptB does not exist.", HttpStatus.BAD_REQUEST);
         }
-        Optional<EnsemblSequence> sequenceA = Optional.of(new EnsemblSequence());
-        if (ensemblA.isPresent()) {
-            sequenceA =
-                ensemblService.getProteinSequence(
-                    transcriptComparisonVM.getTranscriptA().getReferenceGenome(),
-                    ensemblA.get().getProteinId()
-                );
+        Optional<EnsemblSequence> sequenceAOptional = Optional.of(new EnsemblSequence());
+        if (ensemblAOptional.isPresent()) {
+            sequenceAOptional = ensemblService.getProteinSequence(
+                transcriptComparisonVM.getTranscriptA().getReferenceGenome(),
+                ensemblAOptional.orElseThrow().getProteinId()
+            );
         }
 
-        Optional<EnsemblSequence> sequenceB = Optional.of(new EnsemblSequence());
-        if (ensemblB.isPresent()) {
-            sequenceB =
-                ensemblService.getProteinSequence(
-                    transcriptComparisonVM.getTranscriptB().getReferenceGenome(),
-                    ensemblB.get().getProteinId()
-                );
+        Optional<EnsemblSequence> sequenceBOptional = Optional.of(new EnsemblSequence());
+        if (ensemblBOptional.isPresent()) {
+            sequenceBOptional = ensemblService.getProteinSequence(
+                transcriptComparisonVM.getTranscriptB().getReferenceGenome(),
+                ensemblBOptional.orElseThrow().getProteinId()
+            );
         }
         if (transcriptComparisonVM.getAlign()) {
             AlignmentResult alignmentResult = alignmentService.calcOptimalAlignment(
-                sequenceA.get().getSeq(),
-                sequenceB.get().getSeq(),
+                sequenceAOptional.orElseThrow().getSeq(),
+                sequenceBOptional.orElseThrow().getSeq(),
                 false
             );
             result.setSequenceA(alignmentResult.getRefSeq());
             result.setSequenceB(alignmentResult.getTargetSeq());
         } else {
-            result.setSequenceA(sequenceA.get().getSeq());
-            result.setSequenceB(sequenceB.get().getSeq());
+            result.setSequenceA(sequenceAOptional.orElseThrow().getSeq());
+            result.setSequenceB(sequenceBOptional.orElseThrow().getSeq());
         }
 
-        if (ensemblA.isPresent() && ensemblB.isPresent() && ensemblA.get().getProteinLength().equals(ensemblB.get().getProteinLength())) {
+        if (
+            ensemblAOptional.isPresent() &&
+            ensemblBOptional.isPresent() &&
+            ensemblAOptional.orElseThrow().getProteinLength().equals(ensemblBOptional.orElseThrow().getProteinLength())
+        ) {
             // do a quick check whether the protein is the same
-            if (sequenceA.isPresent() && sequenceB.isPresent()) {
-                if (sequenceA.get().getSeq().equals(sequenceB.get().getSeq())) {
+            if (sequenceAOptional.isPresent() && sequenceBOptional.isPresent()) {
+                if (sequenceAOptional.orElseThrow().getSeq().equals(sequenceBOptional.orElseThrow().getSeq())) {
                     result.setMatch(true);
                 }
             }
@@ -184,8 +192,9 @@ public class TranscriptController {
                 if (
                     ensembl37Transcripts
                         .stream()
-                        .filter(ensemblTranscript ->
-                            ensemblTranscript.getTranscriptId().equals(ensemblTranscriptOptional.get().getTranscriptId())
+                        .filter(
+                            ensemblTranscript ->
+                                ensemblTranscript.getTranscriptId().equals(ensemblTranscriptOptional.orElseThrow().getTranscriptId())
                         )
                         .findAny()
                         .isPresent()
@@ -194,7 +203,7 @@ public class TranscriptController {
                 } else {
                     List<EnrichedAlignmentResult> alignmentResults = transcriptService.getAlignmentResult(
                         ReferenceGenome.GRCh37,
-                        ensemblTranscriptOptional.get(),
+                        ensemblTranscriptOptional.orElseThrow(),
                         ReferenceGenome.GRCh37,
                         ensembl37Transcripts
                     );
@@ -240,8 +249,9 @@ public class TranscriptController {
                 if (
                     ensembl38Transcripts
                         .stream()
-                        .filter(ensemblTranscript ->
-                            ensemblTranscript.getTranscriptId().equals(ensemblTranscriptOptional.get().getTranscriptId())
+                        .filter(
+                            ensemblTranscript ->
+                                ensemblTranscript.getTranscriptId().equals(ensemblTranscriptOptional.orElseThrow().getTranscriptId())
                         )
                         .findAny()
                         .isPresent()
@@ -250,7 +260,7 @@ public class TranscriptController {
                 } else {
                     List<EnrichedAlignmentResult> alignmentResults = transcriptService.getAlignmentResult(
                         ReferenceGenome.GRCh38,
-                        ensemblTranscriptOptional.get(),
+                        ensemblTranscriptOptional.orElseThrow(),
                         ReferenceGenome.GRCh38,
                         ensembl38Transcripts
                     );
@@ -301,7 +311,7 @@ public class TranscriptController {
             body.getFlags()
         );
         return new ResponseEntity<>(
-            transcriptDTOOptional.get(),
+            transcriptDTOOptional.orElseThrow(),
             transcriptDTOOptional.isPresent() ? HttpStatus.OK : HttpStatus.BAD_REQUEST
         );
     }

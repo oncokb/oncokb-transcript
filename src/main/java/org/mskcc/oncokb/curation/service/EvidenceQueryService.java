@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.Evidence;
 import org.mskcc.oncokb.curation.repository.EvidenceRepository;
@@ -95,28 +95,25 @@ public class EvidenceQueryService extends QueryService<Evidence> {
                 specification = specification.or(buildStringSpecification(criteria.getKnownEffect(), Evidence_.knownEffect));
             }
             if (criteria.getAssociationId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getAssociationId(),
-                            root -> root.join(Evidence_.association, JoinType.LEFT).get(Association_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getAssociationId(),
+                        root -> root.join(Evidence_.association, JoinType.LEFT).get(Association_.id)
+                    )
+                );
             }
             if (criteria.getLevelOfEvidenceId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getLevelOfEvidenceId(),
-                            root -> root.join(Evidence_.levelOfEvidences, JoinType.LEFT).get(LevelOfEvidence_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getLevelOfEvidenceId(),
+                        root -> root.join(Evidence_.levelOfEvidences, JoinType.LEFT).get(LevelOfEvidence_.id)
+                    )
+                );
             }
             if (criteria.getGeneId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getGeneId(), root -> root.join(Evidence_.gene, JoinType.LEFT).get(Gene_.id))
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getGeneId(), root -> root.join(Evidence_.gene, JoinType.LEFT).get(Gene_.id))
+                );
             }
         }
         return specification;

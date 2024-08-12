@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
 /**
- * Spring Data SQL repository for the Synonym entity.
+ * Spring Data JPA repository for the Synonym entity.
  */
 @Repository
 public interface SynonymRepository extends JpaRepository<Synonym, Long>, JpaSpecificationExecutor<Synonym> {

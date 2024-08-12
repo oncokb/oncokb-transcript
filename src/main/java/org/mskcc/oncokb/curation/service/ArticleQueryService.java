@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.repository.ArticleRepository;
@@ -111,25 +111,22 @@ public class ArticleQueryService extends QueryService<Article> {
                 specification = specification.or(buildRangeSpecification(criteria.getDate(), Article_.date));
             }
             if (criteria.getFlagId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getFlagId(), root -> root.join(Article_.flags, JoinType.LEFT).get(Flag_.id))
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getFlagId(), root -> root.join(Article_.flags, JoinType.LEFT).get(Flag_.id))
+                );
             }
             if (criteria.getSynonymId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getSynonymId(), root -> root.join(Article_.synonyms, JoinType.LEFT).get(Synonym_.id))
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getSynonymId(), root -> root.join(Article_.synonyms, JoinType.LEFT).get(Synonym_.id))
+                );
             }
             if (criteria.getAssociationId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getAssociationId(),
-                            root -> root.join(Article_.associations, JoinType.LEFT).get(Association_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getAssociationId(),
+                        root -> root.join(Article_.associations, JoinType.LEFT).get(Association_.id)
+                    )
+                );
             }
         }
         return specification;

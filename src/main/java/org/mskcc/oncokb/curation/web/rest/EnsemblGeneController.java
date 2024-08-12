@@ -32,6 +32,6 @@ public class EnsemblGeneController {
             body.getEntrezGeneId(),
             body.getCanonical()
         );
-        return new ResponseEntity<>(savedEnsemblGeneOptional.get(), HttpStatus.OK);
+        return new ResponseEntity<>(savedEnsemblGeneOptional.orElseThrow(), HttpStatus.OK);
     }
 }

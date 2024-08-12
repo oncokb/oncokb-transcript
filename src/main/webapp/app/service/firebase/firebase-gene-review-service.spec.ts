@@ -4,7 +4,7 @@ import { AuthStore } from 'app/stores';
 import { FirebaseMetaService } from './firebase-meta-service';
 import { FirebaseHistoryService } from './firebase-history-service';
 import { FirebaseVusService } from './firebase-vus-service';
-import { Gene, HistoryOperationType, Mutation, Review } from 'app/shared/model/firebase/firebase.model';
+import { Gene, HistoryOperationType, Mutation, Review, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { mock, mockReset } from 'jest-mock-extended';
 import { SentryError } from 'app/config/sentry-error';
 import { ReviewLevel } from 'app/shared/util/firebase/firebase-review-utils';
@@ -430,6 +430,50 @@ describe('Firebase Gene Review Service', () => {
       expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
         'Genes/BRAF/mutations/0/name_review': { updateTime: DEFAULT_DATE.getTime(), updatedBy: mockAuthStore.fullName },
         [`Meta/BRAF/review/${mutation.name_uuid}`]: null,
+        'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
+        'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
+      });
+    });
+
+    it('should reject initial excluded RCT', async () => {
+      const mutation = new Mutation('V600E');
+      const tumor = new Tumor();
+      tumor.cancerTypes = [{ code: '', subtype: '', mainType: 'Melanoma' }];
+      tumor.diagnostic.excludedRCTs = [{ code: 'TEST', subtype: 'Melanoma Subtype', mainType: 'Melanoma' }];
+      tumor.diagnostic.excludedRCTs_review = new Review('User', undefined, false, false, true);
+      tumor.diagnostic.excludedRCTs_uuid = generateUuid();
+      mutation.tumors.push(tumor);
+
+      const reviewLevel = new ReviewLevel({
+        titleParts: ['Relevant Cancer Types'],
+        valuePath: 'mutations/0/tumors/0/diagnostic/excludedRCTs',
+        historyLocation: 'V600E, Melanoma, Diagnostic, Relevant Cancer Types',
+        children: [],
+        historyInfo: {},
+        currentVal: 'Melanoma Subtype',
+        reviewInfo: {
+          reviewPath: 'mutations/0/tumors/0/diagnostic/excludedRCTs_review',
+          review: tumor.diagnostic.excludedRCTs_review,
+          lastReviewedString: '',
+          uuid: tumor.diagnostic.excludedRCTs_uuid,
+          reviewAction: ReviewAction.UPDATE,
+        },
+        historyData: {
+          oldState: '',
+          newState: 'Melanoma Subtype',
+        },
+      });
+
+      await firebaseGeneReviewService.rejectChanges('BRAF', [reviewLevel], false);
+      expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
+      expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
+        'Genes/BRAF/mutations/0/tumors/0/diagnostic/excludedRCTs_review': {
+          updateTime: DEFAULT_DATE.getTime(),
+          updatedBy: mockAuthStore.fullName,
+        },
+        // Expect excludedRCTs to be cleared if rejecting initial update
+        'Genes/BRAF/mutations/0/tumors/0/diagnostic/excludedRCTs': null,
+        [`Meta/BRAF/review/${tumor.diagnostic.excludedRCTs_uuid}`]: null,
         'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
         'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
       });

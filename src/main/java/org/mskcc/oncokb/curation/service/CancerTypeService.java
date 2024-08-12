@@ -210,11 +210,11 @@ public class CancerTypeService {
         if (isMainType != Boolean.TRUE) {
             Optional<CancerType> match = cancerTypeRepository.findOneByCodeIgnoreCase(cancerType);
             if (match.isPresent()) {
-                matchedCancerType = match.get();
+                matchedCancerType = match.orElseThrow();
             } else {
                 match = cancerTypeRepository.findOneBySubtypeIgnoreCase(cancerType);
                 if (match.isPresent()) {
-                    matchedCancerType = match.get();
+                    matchedCancerType = match.orElseThrow();
                 }
             }
         }
@@ -227,7 +227,7 @@ public class CancerTypeService {
 
         Optional<CancerType> matchedMainType = cancerTypeRepository.findOneByMainTypeIgnoreCaseAndCodeIsNull(mainTypeName);
         if (matchedMainType.isPresent() && direction.equals(RelevantCancerTypeDirection.UPWARD)) {
-            mappedCancerTypes.add(matchedMainType.get());
+            mappedCancerTypes.add(matchedMainType.orElseThrow());
         }
 
         if (direction.equals(RelevantCancerTypeDirection.UPWARD)) {
@@ -238,7 +238,7 @@ public class CancerTypeService {
             if (matchedCancerType != null) {
                 mappedCancerTypes.addAll(CancerTypeUtils.getChildTumorTypes(matchedCancerType, true));
             } else if (matchedMainType.isPresent()) {
-                mappedCancerTypes.addAll(cancerTypeRepository.findAllByMainTypeIs(matchedMainType.get().getMainType()));
+                mappedCancerTypes.addAll(cancerTypeRepository.findAllByMainTypeIs(matchedMainType.orElseThrow().getMainType()));
             }
         }
 
@@ -247,7 +247,7 @@ public class CancerTypeService {
                 SpecialCancerType.ALL_SOLID_TUMORS.getTumorType()
             );
             if (allSolidTumors.isPresent()) {
-                mappedCancerTypes.add(allSolidTumors.get());
+                mappedCancerTypes.add(allSolidTumors.orElseThrow());
             }
         }
 
@@ -256,7 +256,7 @@ public class CancerTypeService {
                 SpecialCancerType.ALL_LIQUID_TUMORS.getTumorType()
             );
             if (allLiquidTumors.isPresent()) {
-                mappedCancerTypes.add(allLiquidTumors.get());
+                mappedCancerTypes.add(allLiquidTumors.orElseThrow());
             }
         }
 
@@ -264,7 +264,7 @@ public class CancerTypeService {
             SpecialCancerType.ALL_TUMORS.getTumorType()
         );
         if (allTumors.isPresent()) {
-            mappedCancerTypes.add(allTumors.get());
+            mappedCancerTypes.add(allTumors.orElseThrow());
         }
 
         List<CancerType> relevantCancerTypes = new ArrayList<>(new LinkedHashSet<>(mappedCancerTypes));
@@ -283,7 +283,7 @@ public class CancerTypeService {
 
         Optional<CancerType> special = cancerTypeRepository.findOneByCodeIgnoreCase(specialCancerType.name());
         if (special.isPresent()) {
-            relevantCancerTypes.add(special.get());
+            relevantCancerTypes.add(special.orElseThrow());
         }
 
         if (direction.equals(RelevantCancerTypeDirection.UPWARD)) {
@@ -292,7 +292,7 @@ public class CancerTypeService {
                 case ALL_LIQUID_TUMORS:
                     Optional<CancerType> allTumors = cancerTypeRepository.findOneByCodeIgnoreCase(SpecialCancerType.ALL_TUMORS.name());
                     if (allTumors.isPresent()) {
-                        relevantCancerTypes.add(allTumors.get());
+                        relevantCancerTypes.add(allTumors.orElseThrow());
                     }
                     break;
                 default:

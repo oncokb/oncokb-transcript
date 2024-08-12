@@ -1,7 +1,7 @@
 package org.mskcc.oncokb.curation.service;
 
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.mskcc.oncokb.curation.domain.*; // for static metamodels
 import org.mskcc.oncokb.curation.domain.Alteration;
 import org.mskcc.oncokb.curation.repository.AlterationRepository;
@@ -120,43 +120,38 @@ public class AlterationQueryService extends QueryService<Alteration> {
                 specification = specification.or(buildStringSpecification(criteria.getVariantResidues(), Alteration_.variantResidues));
             }
             if (criteria.getFlagId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getFlagId(), root -> root.join(Alteration_.flags, JoinType.LEFT).get(Flag_.id))
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getFlagId(), root -> root.join(Alteration_.flags, JoinType.LEFT).get(Flag_.id))
+                );
             }
             if (criteria.getGeneId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(criteria.getGeneId(), root -> root.join(Alteration_.genes, JoinType.LEFT).get(Gene_.id))
-                    );
+                specification = specification.or(
+                    buildSpecification(criteria.getGeneId(), root -> root.join(Alteration_.genes, JoinType.LEFT).get(Gene_.id))
+                );
             }
             if (criteria.getTranscriptId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getTranscriptId(),
-                            root -> root.join(Alteration_.transcripts, JoinType.LEFT).get(Transcript_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getTranscriptId(),
+                        root -> root.join(Alteration_.transcripts, JoinType.LEFT).get(Transcript_.id)
+                    )
+                );
             }
             if (criteria.getConsequenceId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getConsequenceId(),
-                            root -> root.join(Alteration_.consequence, JoinType.LEFT).get(Consequence_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getConsequenceId(),
+                        root -> root.join(Alteration_.consequence, JoinType.LEFT).get(Consequence_.id)
+                    )
+                );
             }
             if (criteria.getAssociationId() != null) {
-                specification =
-                    specification.or(
-                        buildSpecification(
-                            criteria.getAssociationId(),
-                            root -> root.join(Alteration_.associations, JoinType.LEFT).get(Association_.id)
-                        )
-                    );
+                specification = specification.or(
+                    buildSpecification(
+                        criteria.getAssociationId(),
+                        root -> root.join(Alteration_.associations, JoinType.LEFT).get(Association_.id)
+                    )
+                );
             }
         }
         return specification;

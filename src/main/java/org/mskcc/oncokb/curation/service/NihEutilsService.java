@@ -46,8 +46,7 @@ public class NihEutilsService {
     }
 
     private Instant parseDateByFormat(String year, String month, String day, String format) {
-        return LocalDate
-            .parse(year + "/" + month + "/" + day, DateTimeFormatter.ofPattern(format, Locale.US))
+        return LocalDate.parse(year + "/" + month + "/" + day, DateTimeFormatter.ofPattern(format, Locale.US))
             .atStartOfDay()
             .toInstant(ZoneOffset.UTC);
     }
@@ -77,7 +76,7 @@ public class NihEutilsService {
             synonym.setName(articleId.getvalue());
             return synonymService.save(synonym);
         } else {
-            return synonymOptional.get();
+            return synonymOptional.orElseThrow();
         }
     }
 
@@ -97,7 +96,7 @@ public class NihEutilsService {
             Optional<MedlineCitation> medlineCitationOptional = Optional.ofNullable(pubmedArticle.getMedlineCitation());
             Optional<Article> articleOptional = Optional.ofNullable(pubmedArticle.getMedlineCitation().getArticle());
             if (medlineCitationOptional.isPresent()) {
-                MedlineCitation medlineCitation = medlineCitationOptional.get();
+                MedlineCitation medlineCitation = medlineCitationOptional.orElseThrow();
                 pubMedDTO.setPmid(medlineCitation.getPMID().getvalue());
                 if (medlineCitation.getDateCompleted() != null) {
                     Instant dateCompleted = parseDate(
@@ -119,7 +118,7 @@ public class NihEutilsService {
                 }
             }
             if (articleOptional.isPresent()) {
-                Article article = articleOptional.get();
+                Article article = articleOptional.orElseThrow();
                 if (article.getArticleTitle() != null && article.getArticleTitle().getValue() != null) {
                     pubMedDTO.setTitle(parseListElement(article.getArticleTitle().getValue()));
                 }
@@ -129,9 +128,9 @@ public class NihEutilsService {
                         .getAuthor()
                         .get(0)
                         .getLastNameOrForeNameOrInitialsOrSuffixOrCollectiveName();
-                    Optional<Object> lastName = authorInfo.stream().filter(item -> item instanceof LastName).findFirst();
-                    if (lastName.isPresent()) {
-                        String authorString = ((LastName) lastName.get()).getvalue();
+                    Optional<Object> lastNameOptional = authorInfo.stream().filter(item -> item instanceof LastName).findFirst();
+                    if (lastNameOptional.isPresent()) {
+                        String authorString = ((LastName) lastNameOptional.orElseThrow()).getvalue();
                         if (article.getAuthorList().getAuthor().size() > 1) {
                             authorString += " et al.";
                         }
@@ -219,12 +218,12 @@ public class NihEutilsService {
             Optional<PubmedData> pubmedDataOptional = Optional.ofNullable(pubmedArticle.getPubmedData());
             if (pubmedDataOptional.isPresent()) {
                 if (
-                    pubmedDataOptional.get().getArticleIdList() != null &&
-                    pubmedDataOptional.get().getArticleIdList().getArticleId() != null
+                    pubmedDataOptional.orElseThrow().getArticleIdList() != null &&
+                    pubmedDataOptional.orElseThrow().getArticleIdList().getArticleId() != null
                 ) {
                     pubMedDTO.setSynonyms(
                         pubmedDataOptional
-                            .get()
+                            .orElseThrow()
                             .getArticleIdList()
                             .getArticleId()
                             .stream()
@@ -254,7 +253,7 @@ public class NihEutilsService {
 
             Optional<BookDocument> bookDocumentOptional = Optional.ofNullable(pubmedBookArticle.getBookDocument());
             if (bookDocumentOptional.isPresent()) {
-                BookDocument bookDocument = bookDocumentOptional.get();
+                BookDocument bookDocument = bookDocumentOptional.orElseThrow();
                 pubMedDTO.setPmid(bookDocument.getPMID().getvalue());
 
                 if (bookDocument.getArticleTitle() != null) {
@@ -267,9 +266,9 @@ public class NihEutilsService {
                         .getAuthor()
                         .get(0)
                         .getLastNameOrForeNameOrInitialsOrSuffixOrCollectiveName();
-                    Optional<Object> lastName = authorInfo.stream().filter(item -> item instanceof LastName).findFirst();
-                    if (lastName.isPresent()) {
-                        String authorString = ((LastName) lastName.get()).getvalue();
+                    Optional<Object> lastNameOptional = authorInfo.stream().filter(item -> item instanceof LastName).findFirst();
+                    if (lastNameOptional.isPresent()) {
+                        String authorString = ((LastName) lastNameOptional.orElseThrow()).getvalue();
                         if (bookDocument.getAuthorList().get(0).getAuthor().size() > 1) {
                             authorString += " et al.";
                         }

@@ -1,10 +1,10 @@
 package org.mskcc.oncokb.curation.web.filter;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
@@ -41,11 +41,10 @@ public class OAuth2RefreshTokensWebFilter extends OncePerRequestFilter {
     ) {
         this.clientManager = clientManager;
         this.authorizedClientRepository = authorizedClientRepository;
-        this.authorizationRequestResolver =
-            new DefaultOAuth2AuthorizationRequestResolver(
-                clientRegistrationRepository,
-                OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI
-            );
+        this.authorizationRequestResolver = new DefaultOAuth2AuthorizationRequestResolver(
+            clientRegistrationRepository,
+            OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI
+        );
     }
 
     @Override
@@ -70,8 +69,7 @@ public class OAuth2RefreshTokensWebFilter extends OncePerRequestFilter {
 
     private OAuth2AuthorizedClient authorizedClient(OAuth2AuthenticationToken oauth2Authentication) {
         String clientRegistrationId = oauth2Authentication.getAuthorizedClientRegistrationId();
-        OAuth2AuthorizeRequest request = OAuth2AuthorizeRequest
-            .withClientRegistrationId(clientRegistrationId)
+        OAuth2AuthorizeRequest request = OAuth2AuthorizeRequest.withClientRegistrationId(clientRegistrationId)
             .principal(oauth2Authentication)
             .build();
         if (clientManager == null) {

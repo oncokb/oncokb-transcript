@@ -6,12 +6,12 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -223,7 +223,7 @@ class InfoResourceIT {
         int databaseSizeBeforeUpdate = infoRepository.findAll().size();
 
         // Update the info
-        Info updatedInfo = infoRepository.findById(info.getId()).get();
+        Info updatedInfo = infoRepository.findById(info.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedInfo are not directly saved in db
         em.detach(updatedInfo);
         updatedInfo.type(UPDATED_TYPE).value(UPDATED_VALUE).created(UPDATED_CREATED).lastUpdated(UPDATED_LAST_UPDATED);

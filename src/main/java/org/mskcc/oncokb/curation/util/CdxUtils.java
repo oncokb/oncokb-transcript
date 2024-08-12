@@ -80,8 +80,7 @@ public class CdxUtils {
                 continue;
             }
             cdx.setName(tableCells.get(0));
-            Set<String> submissionCodes = Arrays
-                .asList(tableCells.get(1).split("\\s"))
+            Set<String> submissionCodes = Arrays.asList(tableCells.get(1).split("\\s"))
                 .stream()
                 .map(code -> code.trim().split("/")[0]) // Only get the primary pma
                 .filter(code -> code.length() > 0)
@@ -120,12 +119,10 @@ public class CdxUtils {
                         // Sometimes the PMAs are given as ranges (ie. P990081/S001-S028).
                         Integer start = Integer.valueOf(matcher.group(4).substring(1));
                         Integer end = matcher.group(6) != null ? Integer.valueOf(matcher.group(6).substring(1)) : start;
-                        IntStream
-                            .rangeClosed(start, end)
-                            .forEach(num -> {
-                                String pmaString = String.format("%sS%03d", primaryPma, num);
-                                purifiedSubmissionCodes.add(pmaString);
-                            });
+                        IntStream.rangeClosed(start, end).forEach(num -> {
+                            String pmaString = String.format("%sS%03d", primaryPma, num);
+                            purifiedSubmissionCodes.add(pmaString);
+                        });
                     }
                 }
             }
@@ -189,7 +186,7 @@ public class CdxUtils {
             if (fdaSubmission.getNumber() != null) {
                 Optional<FdaSubmissionType> type = fdaSubmissionTypeService.findOneBySubmissionNumber(fdaSubmission.getNumber());
                 if (type.isPresent()) {
-                    fdaSubmission.setType(type.get());
+                    fdaSubmission.setType(type.orElseThrow());
                 }
             }
             fdaSubmissions.add(fdaSubmission);
@@ -279,8 +276,7 @@ public class CdxUtils {
      * @return true if the description mentions a gene
      */
     private Boolean isGenetic(String description) {
-        Set<String> searchValues = Arrays
-            .asList(description.replaceAll("[^\\w\\s-]", " ").split(" "))
+        Set<String> searchValues = Arrays.asList(description.replaceAll("[^\\w\\s-]", " ").split(" "))
             .stream()
             .map(val -> val.trim().toUpperCase())
             .collect(Collectors.toSet());

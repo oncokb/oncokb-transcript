@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
 /**
- * Spring Data SQL repository for the Sequence entity.
+ * Spring Data JPA repository for the Sequence entity.
  */
 @Repository
 public interface SequenceRepository extends JpaRepository<Sequence, Long>, JpaSpecificationExecutor<Sequence> {

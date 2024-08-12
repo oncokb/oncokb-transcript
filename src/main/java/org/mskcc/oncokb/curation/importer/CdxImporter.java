@@ -107,7 +107,7 @@ public class CdxImporter {
                             for (String val : columnValue.split("and")) {
                                 Optional<FdaSubmission> fdaSubmissionOptional = parseFdaSubmissionColumn(val);
                                 if (fdaSubmissionOptional.isPresent()) {
-                                    fdaSubmissions.add(fdaSubmissionOptional.get());
+                                    fdaSubmissions.add(fdaSubmissionOptional.orElseThrow());
                                 }
                             }
                             break;
@@ -137,14 +137,13 @@ public class CdxImporter {
         Map<Gene, List<Alteration>> geneAlterationMap
     ) {
         CompanionDiagnosticDevice savedCdx = companionDiagnosticDeviceService.save(cdx);
-        fdaSubmissions =
-            fdaSubmissions
-                .stream()
-                .map(pma -> {
-                    pma.setCompanionDiagnosticDevice(savedCdx);
-                    return fdaSubmissionService.save(pma);
-                })
-                .collect(Collectors.toList());
+        fdaSubmissions = fdaSubmissions
+            .stream()
+            .map(pma -> {
+                pma.setCompanionDiagnosticDevice(savedCdx);
+                return fdaSubmissionService.save(pma);
+            })
+            .collect(Collectors.toList());
 
         Association biomarkerAssociation = new Association();
         if (!treatments.isEmpty()) {
@@ -156,8 +155,9 @@ public class CdxImporter {
             rule.setRule(
                 treatments
                     .stream()
-                    .map(treatmentDTO ->
-                        treatmentDTO.getDrugs().stream().map(drug -> drug.getId().toString()).collect(Collectors.joining("+"))
+                    .map(
+                        treatmentDTO ->
+                            treatmentDTO.getDrugs().stream().map(drug -> drug.getId().toString()).collect(Collectors.joining("+"))
                     )
                     .collect(Collectors.joining(","))
             );
@@ -213,8 +213,8 @@ public class CdxImporter {
             if (optionalFdaSubmission.isPresent()) {
                 Instant fdaSubmissionDate = cdxUtils.convertDateToInstant(matcher.group(5));
                 if (fdaSubmissionDate != null) {
-                    optionalFdaSubmission.get().setDecisionDate(fdaSubmissionDate);
-                    optionalFdaSubmission.get().curated(true);
+                    optionalFdaSubmission.orElseThrow().setDecisionDate(fdaSubmissionDate);
+                    optionalFdaSubmission.orElseThrow().curated(true);
                 }
                 return optionalFdaSubmission;
             } else {
@@ -232,11 +232,11 @@ public class CdxImporter {
             cancerType = cancerType.trim();
             Optional<CancerType> optionalCancerType = cancerTypeService.findOneBySubtypeIgnoreCase(cancerType);
             if (optionalCancerType.isPresent()) {
-                cancerTypes.add(optionalCancerType.get());
+                cancerTypes.add(optionalCancerType.orElseThrow());
             } else {
                 optionalCancerType = cancerTypeService.findByMainTypeAndSubtypeIsNull(cancerType);
                 if (optionalCancerType.isPresent()) {
-                    cancerTypes.add(optionalCancerType.get());
+                    cancerTypes.add(optionalCancerType.orElseThrow());
                 } else {
                     throw new IllegalArgumentException();
                 }
@@ -253,7 +253,7 @@ public class CdxImporter {
                 drugString = drugString.trim();
                 Optional<Drug> optionalDrug = drugService.findByName(drugString).stream().findFirst();
                 if (optionalDrug.isPresent()) {
-                    treatment.addDrug(optionalDrug.get());
+                    treatment.addDrug(optionalDrug.orElseThrow());
                 } else {
                     log.error("Could not find drug {}", drugString);
                 }
@@ -272,7 +272,7 @@ public class CdxImporter {
             if (optionalGene.isEmpty()) {
                 log.error("Could not find gene " + geneString);
             } else {
-                genes.add(optionalGene.get());
+                genes.add(optionalGene.orElseThrow());
             }
         }
         return genes;
@@ -311,18 +311,16 @@ public class CdxImporter {
             return;
         }
         columnValue = columnValue.trim();
-        Arrays
-            .stream(columnValue.split(" or "))
-            .forEach(name -> {
-                name = name.trim();
-                Optional<SpecimenType> optionalSpecimenType = specimenTypeService.findOneByName(name);
-                if (optionalSpecimenType.isPresent() && cdx != null) {
-                    cdx.addSpecimenType(optionalSpecimenType.get());
-                } else {
-                    log.error("Cannot find the CDx specimen type {}", name);
-                    throw new IllegalArgumentException();
-                }
-            });
+        Arrays.stream(columnValue.split(" or ")).forEach(name -> {
+            name = name.trim();
+            Optional<SpecimenType> optionalSpecimenType = specimenTypeService.findOneByName(name);
+            if (optionalSpecimenType.isPresent() && cdx != null) {
+                cdx.addSpecimenType(optionalSpecimenType.orElseThrow());
+            } else {
+                log.error("Cannot find the CDx specimen type {}", name);
+                throw new IllegalArgumentException();
+            }
+        });
     }
 
     private List<List<String>> readInitialCdxFile() throws IOException {

@@ -6,10 +6,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -193,7 +193,7 @@ class AlleleStateResourceIT {
         int databaseSizeBeforeUpdate = alleleStateRepository.findAll().size();
 
         // Update the alleleState
-        AlleleState updatedAlleleState = alleleStateRepository.findById(alleleState.getId()).get();
+        AlleleState updatedAlleleState = alleleStateRepository.findById(alleleState.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedAlleleState are not directly saved in db
         em.detach(updatedAlleleState);
         updatedAlleleState.name(UPDATED_NAME);

@@ -60,8 +60,7 @@ public class AssociationResource {
             throw new BadRequestAlertException("A new association cannot already have an ID", ENTITY_NAME, "idexists");
         }
         Association result = associationService.save(association);
-        return ResponseEntity
-            .created(new URI("/api/associations/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/associations/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -109,8 +108,7 @@ public class AssociationResource {
     public ResponseEntity<Void> deleteAssociation(@PathVariable Long id) throws Exception {
         log.debug("REST request to delete Association : {}", id);
         associationService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }

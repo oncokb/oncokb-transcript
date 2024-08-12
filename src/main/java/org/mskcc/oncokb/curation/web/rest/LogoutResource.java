@@ -1,15 +1,12 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 import org.mskcc.oncokb.curation.security.SecurityUtils;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,7 +26,6 @@ public class LogoutResource {
      * {@code POST  /api/logout} : logout the current user.
      *
      * @param request the {@link HttpServletRequest}.
-     * @param idToken the ID token.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and a body with a global logout URL.
      */
     @PostMapping("/api/logout")

@@ -1,12 +1,12 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.Info;
 import org.mskcc.oncokb.curation.repository.InfoRepository;
 import org.mskcc.oncokb.curation.service.InfoService;
@@ -56,8 +56,7 @@ public class InfoResource {
             throw new BadRequestAlertException("A new info cannot already have an ID", ENTITY_NAME, "idexists");
         }
         Info result = infoService.save(info);
-        return ResponseEntity
-            .created(new URI("/api/infos/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/infos/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -88,8 +87,7 @@ public class InfoResource {
         }
 
         Info result = infoService.save(info);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, info.getId().toString()))
             .body(result);
     }
@@ -164,8 +162,7 @@ public class InfoResource {
     public ResponseEntity<Void> deleteInfo(@PathVariable Long id) {
         log.debug("REST request to delete Info : {}", id);
         infoService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }

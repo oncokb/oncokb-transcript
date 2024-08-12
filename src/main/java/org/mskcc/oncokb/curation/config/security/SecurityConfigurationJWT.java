@@ -1,20 +1,26 @@
 package org.mskcc.oncokb.curation.config.security;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import org.mskcc.oncokb.curation.security.jwt.JWTConfigurer;
 import org.mskcc.oncokb.curation.security.jwt.JWTFilter;
 import org.mskcc.oncokb.curation.security.jwt.TokenProvider;
-import org.springframework.context.annotation.Import;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
+import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
-import org.springframework.web.filter.CorsFilter;
-import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 import tech.jhipster.config.JHipsterProperties;
 
 /**
@@ -26,60 +32,52 @@ import tech.jhipster.config.JHipsterProperties;
  */
 
 @Order(1)
+@Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-@Import(SecurityProblemSupport.class)
-public class SecurityConfigurationJWT extends WebSecurityConfigurerAdapter {
+public class SecurityConfigurationJWT {
+
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfigurationJWT.class);
 
     private final JHipsterProperties jHipsterProperties;
-
     private final TokenProvider tokenProvider;
 
-    private final CorsFilter corsFilter;
-    private final SecurityProblemSupport problemSupport;
-
-    public SecurityConfigurationJWT(
-        TokenProvider tokenProvider,
-        CorsFilter corsFilter,
-        JHipsterProperties jHipsterProperties,
-        SecurityProblemSupport problemSupport
-    ) {
+    public SecurityConfigurationJWT(TokenProvider tokenProvider, JHipsterProperties jHipsterProperties) {
         this.tokenProvider = tokenProvider;
-        this.corsFilter = corsFilter;
-        this.problemSupport = problemSupport;
         this.jHipsterProperties = jHipsterProperties;
     }
 
-    @Override
-    public void configure(HttpSecurity http) throws Exception {
-        // @formatter:off
+    @Bean
+    public SecurityFilterChain jwtFilterChain(HttpSecurity http, MvcRequestMatcher.Builder mvc) throws Exception {
         http
-            .requestMatcher(new RequestHeaderRequestMatcher(JWTFilter.AUTHORIZATION_HEADER))
-            .csrf()
-            .disable()
-            .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
-            .exceptionHandling()
-                .authenticationEntryPoint(problemSupport)
-                .accessDeniedHandler(problemSupport)
-        .and()
-            .authorizeRequests()
-            .antMatchers("/api/**").authenticated()
-        .and()
-            .headers()
-            .contentSecurityPolicy(jHipsterProperties.getSecurity().getContentSecurityPolicy())
-        .and()
-            .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
-        .and()
-            .frameOptions()
-            .deny()
-        .and()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
-            .httpBasic()
-        .and()
-            .apply(securityConfigurerAdapter());
-        // @formatter:on
+            .securityMatcher(new RequestHeaderRequestMatcher(JWTFilter.AUTHORIZATION_HEADER))
+            .cors(withDefaults())
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(authz -> authz.requestMatchers(mvc.pattern("/api/**")).authenticated())
+            .headers(
+                headers ->
+                    headers
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(jHipsterProperties.getSecurity().getContentSecurityPolicy()))
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+                        .referrerPolicy(
+                            referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
+                        )
+                        .permissionsPolicy(
+                            permissions ->
+                                permissions.policy(
+                                    "camera=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), sync-xhr=()"
+                                )
+                        )
+            )
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(
+                exceptions ->
+                    exceptions
+                        .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
+                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
+            )
+            .with(securityConfigurerAdapter(), withDefaults());
+        return http.build();
     }
 
     private JWTConfigurer securityConfigurerAdapter() {

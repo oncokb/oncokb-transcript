@@ -1,13 +1,13 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.NciThesaurus;
 import org.mskcc.oncokb.curation.repository.NciThesaurusRepository;
 import org.mskcc.oncokb.curation.service.NciThesaurusQueryService;
@@ -72,8 +72,7 @@ public class NciThesaurusResource {
             throw new BadRequestAlertException("A new nciThesaurus cannot already have an ID", ENTITY_NAME, "idexists");
         }
         NciThesaurus result = nciThesaurusService.save(nciThesaurus);
-        return ResponseEntity
-            .created(new URI("/api/nci-thesauruses/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/nci-thesauruses/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -106,8 +105,7 @@ public class NciThesaurusResource {
         }
 
         NciThesaurus result = nciThesaurusService.save(nciThesaurus);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, nciThesaurus.getId().toString()))
             .body(result);
     }
@@ -160,8 +158,7 @@ public class NciThesaurusResource {
         log.debug("REST request to get NciThesauruses by criteria: {}", criteria);
         Page<NciThesaurus> page = nciThesaurusQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(headers)
             .body(
                 nciThesaurusService.findAllWithEagerRelationships(
@@ -205,8 +202,7 @@ public class NciThesaurusResource {
     public ResponseEntity<Void> deleteNciThesaurus(@PathVariable Long id) {
         log.debug("REST request to delete NciThesaurus : {}", id);
         nciThesaurusService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }

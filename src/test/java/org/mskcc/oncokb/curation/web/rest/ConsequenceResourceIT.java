@@ -6,10 +6,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -665,7 +665,7 @@ class ConsequenceResourceIT {
         int databaseSizeBeforeUpdate = consequenceRepository.findAll().size();
 
         // Update the consequence
-        Consequence updatedConsequence = consequenceRepository.findById(consequence.getId()).get();
+        Consequence updatedConsequence = consequenceRepository.findById(consequence.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedConsequence are not directly saved in db
         em.detach(updatedConsequence);
         updatedConsequence

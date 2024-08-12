@@ -6,10 +6,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -670,7 +670,7 @@ class FlagResourceIT {
         int databaseSizeBeforeUpdate = flagRepository.findAll().size();
 
         // Update the flag
-        Flag updatedFlag = flagRepository.findById(flag.getId()).get();
+        Flag updatedFlag = flagRepository.findById(flag.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedFlag are not directly saved in db
         em.detach(updatedFlag);
         updatedFlag.type(UPDATED_TYPE).flag(UPDATED_FLAG).name(UPDATED_NAME).description(UPDATED_DESCRIPTION);

@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
- * Spring Data SQL repository for the Evidence entity.
+ * Spring Data JPA repository for the Evidence entity.
  */
 @JaversSpringDataAuditable
 @Repository

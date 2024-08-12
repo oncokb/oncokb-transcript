@@ -116,7 +116,7 @@ public class CoreImporter {
             Alteration alteration = new Alteration();
             alteration.setName(line.get(2));
             alteration.setAlteration(line.get(3));
-            alteration.setGenes(Collections.singleton(geneOptional.get()));
+            alteration.setGenes(Collections.singleton(geneOptional.orElseThrow()));
             mainService.annotateAlteration(ReferenceGenome.GRCh37, alteration);
             alterationService.save(alteration);
         });
@@ -135,8 +135,12 @@ public class CoreImporter {
             if (StringUtil.isEmpty(oncokbHugo)) {
                 log.error("Line does not have hugo symbol {}", line);
             } else {
-                if (!oncokbHugo.equals(geneOptional.get().getHugoSymbol())) {
-                    log.error("Hugo Symbol does not match oncokb: {}, cbioportal: {}", oncokbHugo, geneOptional.get().getHugoSymbol());
+                if (!oncokbHugo.equals(geneOptional.orElseThrow().getHugoSymbol())) {
+                    log.error(
+                        "Hugo Symbol does not match oncokb: {}, cbioportal: {}",
+                        oncokbHugo,
+                        geneOptional.orElseThrow().getHugoSymbol()
+                    );
                 }
             }
         });
@@ -171,7 +175,7 @@ public class CoreImporter {
                 nciThesaurusOptional = nciThesaurusService.findByCode(code);
             }
             if (nciThesaurusOptional.isPresent()) {
-                drug.setNciThesaurus(nciThesaurusOptional.get());
+                drug.setNciThesaurus(nciThesaurusOptional.orElseThrow());
             } else {
                 log.warn("The code cannot be found {}", code);
             }

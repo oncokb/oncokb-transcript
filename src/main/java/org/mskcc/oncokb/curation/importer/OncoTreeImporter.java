@@ -40,24 +40,21 @@ public class OncoTreeImporter {
         InputStream is = new FileInputStream(file);
 
         // import special types
-        Arrays
-            .stream(SpecialCancerType.values())
-            .forEach(specialCancerType -> {
-                CancerType cancerType = new CancerType();
-                cancerType.setLevel(-1);
-                cancerType.setCode(specialCancerType.name());
-                cancerType.setMainType(specialCancerType.getTumorType());
-                cancerType.setTumorForm(getTumorForm(specialCancerType));
-                cancerType.setColor(MIXED);
-                cancerType.setTissue(MIXED);
-                cancerTypeService.save(cancerType);
-            });
+        Arrays.stream(SpecialCancerType.values()).forEach(specialCancerType -> {
+            CancerType cancerType = new CancerType();
+            cancerType.setLevel(-1);
+            cancerType.setCode(specialCancerType.name());
+            cancerType.setMainType(specialCancerType.getTumorType());
+            cancerType.setTumorForm(getTumorForm(specialCancerType));
+            cancerType.setColor(MIXED);
+            cancerType.setTissue(MIXED);
+            cancerTypeService.save(cancerType);
+        });
 
         // Import subtypes
         OncotreeCancerType[] oncotreeCancerTypes = gson.fromJson(new BufferedReader(new InputStreamReader(is)), OncotreeCancerType[].class);
         List<CancerType> cancerTypes = new ArrayList<>();
-        Arrays
-            .stream(oncotreeCancerTypes)
+        Arrays.stream(oncotreeCancerTypes)
             .sorted(Comparator.comparing(OncotreeCancerType::getLevel))
             .forEach(oncotreeCancerType -> {
                 CancerType cancerType = new CancerType();
@@ -80,7 +77,7 @@ public class OncoTreeImporter {
                         if (parentNodeOptional.isEmpty()) {
                             log.error("Cannot find the parent node {}", oncotreeCancerType.getParent());
                         } else {
-                            cancerType.setParent(parentNodeOptional.get());
+                            cancerType.setParent(parentNodeOptional.orElseThrow());
                         }
                     }
                     cancerTypes.add(cancerTypeService.save(cancerType));

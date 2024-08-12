@@ -53,7 +53,7 @@ public class AlterationUtils {
 
         Optional<CNAConsequence> cnaConsequenceOptional = getCNAConsequence(alteration);
         if (cnaConsequenceOptional.isPresent()) {
-            cnaTerm = cnaConsequenceOptional.get();
+            cnaTerm = cnaConsequenceOptional.orElseThrow();
         }
 
         Alteration alt = new Alteration();
@@ -279,15 +279,14 @@ public class AlterationUtils {
                                 }
                             }
                             status = EntityStatusType.ERROR;
-                            message =
-                                "The alteration name is invalid, do you mean " +
-                                m.group(1) +
-                                m.group(2) +
-                                "_" +
-                                m.group(3) +
-                                m.group(4) +
-                                termWithGreatestSimilarity +
-                                "?";
+                            message = "The alteration name is invalid, do you mean " +
+                            m.group(1) +
+                            m.group(2) +
+                            "_" +
+                            m.group(3) +
+                            m.group(4) +
+                            termWithGreatestSimilarity +
+                            "?";
                         }
                     } else {
                         p = Pattern.compile("([A-Z\\*])([0-9]+)[A-Z]?fs.*");
@@ -427,10 +426,8 @@ public class AlterationUtils {
             alteration.getRefResidues().length() == 1 &&
             alteration.getVariantResidues() == null &&
             alteration.getConsequence() != null &&
-            (
-                alteration.getConsequence().getTerm().equals(NA.name()) ||
-                alteration.getConsequence().getTerm().equals(MISSENSE_VARIANT.name())
-            )
+            (alteration.getConsequence().getTerm().equals(NA.name()) ||
+                alteration.getConsequence().getTerm().equals(MISSENSE_VARIANT.name()))
         ) isPositionVariant = true;
         return isPositionVariant;
     }

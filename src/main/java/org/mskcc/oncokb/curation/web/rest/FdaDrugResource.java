@@ -1,13 +1,13 @@
 package org.mskcc.oncokb.curation.web.rest;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.mskcc.oncokb.curation.domain.FdaDrug;
 import org.mskcc.oncokb.curation.repository.FdaDrugRepository;
 import org.mskcc.oncokb.curation.service.FdaDrugQueryService;
@@ -68,8 +68,7 @@ public class FdaDrugResource {
             throw new BadRequestAlertException("A new fdaDrug cannot already have an ID", ENTITY_NAME, "idexists");
         }
         FdaDrug result = fdaDrugService.save(fdaDrug);
-        return ResponseEntity
-            .created(new URI("/api/fda-drugs/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/fda-drugs/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
@@ -102,8 +101,7 @@ public class FdaDrugResource {
         }
 
         FdaDrug result = fdaDrugService.save(fdaDrug);
-        return ResponseEntity
-            .ok()
+        return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, fdaDrug.getId().toString()))
             .body(result);
     }
@@ -194,8 +192,7 @@ public class FdaDrugResource {
     public ResponseEntity<Void> deleteFdaDrug(@PathVariable Long id) {
         log.debug("REST request to delete FdaDrug : {}", id);
         fdaDrugService.delete(id);
-        return ResponseEntity
-            .noContent()
+        return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
     }
