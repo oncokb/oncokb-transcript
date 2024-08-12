@@ -239,7 +239,7 @@ export class MutationEffect {
   description = '';
   description_review?: Review;
   description_uuid: string = generateUuid();
-  effect: MUTATION_EFFECT | '' = '';
+  effect: MUTATION_EFFECT | 'None' | '' = '';
   effect_review?: Review;
   effect_uuid: string = generateUuid();
   oncogenic: FIREBASE_ONCOGENICITY | '' = '';
