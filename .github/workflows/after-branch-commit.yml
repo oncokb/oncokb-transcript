@@ -41,6 +41,7 @@ jobs:
           fi
 
   update-draft-release:
+    needs: [check-version-level-and-update]
     if: github.repository == 'oncokb/oncokb-transcript'
     runs-on: ubuntu-latest
     steps:
