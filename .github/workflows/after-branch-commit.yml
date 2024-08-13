@@ -76,7 +76,7 @@ jobs:
               repo: context.repo.repo,
             });
 
-            const release = releases.data.find((r => r.target_commitish === branch || r.target_commitish === `refs/heads/${branch}`) && !r.draft);
+            const release = releases.data.find(r => (r.target_commitish === branch || r.target_commitish === `refs/heads/${branch}`) && !r.draft);
 
             if (release) {
               core.setOutput('tag', release.tag_name);
