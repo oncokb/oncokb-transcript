@@ -17,7 +17,7 @@ jobs:
           distribution: 'adopt'
           java-version: '17'
       - name: Install node.js packages
-        run: npm install
+        run: yarn install
       - name: Package application with Jib
         env:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
