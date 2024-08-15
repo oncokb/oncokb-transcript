@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
+import org.mskcc.oncokb.curation.util.GsonUtils;
 import org.mskcc.oncokb.curation.vm.ensembl.EnsemblArchiveId;
 import org.mskcc.oncokb.curation.vm.ensembl.EnsemblSequence;
 import org.mskcc.oncokb.curation.vm.ensembl.EnsemblTranscript;
@@ -162,7 +163,7 @@ public class EnsemblService {
 
         RestTemplate restTemplate = new RestTemplate();
         String response = restTemplate.postForObject(getArchiveIdPOSTUrl(referenceGenome), entity, String.class);
-        Gson gson = new Gson();
+        Gson gson = GsonUtils.create();
         Type type = new TypeToken<Map<String, EnsemblArchiveId>>() {}.getType();
         Map<String, org.mskcc.oncokb.curation.vm.ensembl.EnsemblArchiveId> archiveMap = gson.fromJson(response, type);
         return archiveMap.values().stream().filter(val -> val != null).collect(Collectors.toList());
@@ -207,9 +208,8 @@ public class EnsemblService {
         try {
             RestTemplate restTemplate = new RestTemplate();
             String response = restTemplate.postForObject(getLookupPOSTUrl(referenceGenome, includeUtr, expand), entity, String.class);
-            Gson gson = new Gson();
             Type type = new TypeToken<Map<String, EnsemblTranscript>>() {}.getType();
-            Map<String, org.mskcc.oncokb.curation.vm.ensembl.EnsemblTranscript> transcriptMap = gson.fromJson(response, type);
+            Map<String, org.mskcc.oncokb.curation.vm.ensembl.EnsemblTranscript> transcriptMap = GsonUtils.create().fromJson(response, type);
             return transcriptMap.values().stream().filter(val -> val != null).collect(Collectors.toList());
         } catch (Exception e) {
             log.error(e.getMessage());
