@@ -5,7 +5,7 @@ import { IRootStore } from 'app/stores';
 import { default as classNames, default as classnames } from 'classnames';
 import { onValue, ref } from 'firebase/database';
 import { inject } from 'mobx-react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FormFeedback, Input, Label, LabelProps } from 'reactstrap';
 import { InputType } from 'reactstrap/types/lib/Input';
 import * as styles from './styles.module.scss';
@@ -86,6 +86,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   const [inputValueReview, setInputValueReview] = useState<Review | null>(null);
   const [inputValueUuid, setInputValueUuid] = useState(null);
 
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
   const isCheckType = type === RealtimeInputType.CHECKBOX || type === RealtimeInputType.RADIO;
   const isInlineInputText = type === RealtimeInputType.INLINE_TEXT;
   const isTextType = [RealtimeInputType.INLINE_TEXT, RealtimeInputType.TEXT, RealtimeInputType.TEXTAREA].includes(type);
@@ -114,6 +115,25 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
       callbacks.forEach(callback => callback?.());
     };
   }, [firebasePath, db]);
+
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!input || type !== RealtimeInputType.TEXTAREA) {
+      return;
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      window.requestAnimationFrame(() => {
+        input.style.height = 'auto';
+        input.style.height = `${input.scrollHeight}px`;
+      });
+    });
+    resizeObserver.observe(input);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  });
 
   const labelComponent = label && (
     <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'fw-bold'} />
@@ -145,12 +165,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   const inputComponent = (
     <>
       <Input
-        innerRef={inputRef => {
-          if (inputRef && type === RealtimeInputType.TEXTAREA) {
-            inputRef.style.height = 'auto';
-            inputRef.style.height = `${inputRef.scrollHeight}px`;
-          }
-        }}
+        innerRef={inputRef}
         className={classNames(inputClass, isCheckType && 'ms-1 position-relative', isTextType && styles.editableTextBox)}
         id={id}
         name={`${id}-${label.toLowerCase()}`}
