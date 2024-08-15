@@ -30,3 +30,26 @@ jobs:
           -Djib.to.image="oncokb/oncokb-curation:${TAG_NAME:1}" \
           -Djib.to.auth.username=$DOCKER_USERNAME \
           -Djib.to.auth.password=$DOCKER_PASSWORD
+
+      - name: Create a Sentry.io release in oncokb-curation-website
+        uses: getsentry/action-release@v1.7.0
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: memorial-sloan-kettering
+          SENTRY_PROJECT: oncokb-curation-website
+        with:
+          version: ${{ github.ref }}
+          environment: production
+          version_prefix: oncokb-curation-website-
+          sourceMapOptions: '{"include": ["target/classes/static/app"]}'
+
+      - name: Create a Sentry.io release in oncokb-curation-backend
+        uses: getsentry/action-release@v1.7.0
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: memorial-sloan-kettering
+          SENTRY_PROJECT: oncokb-curation-backend
+        with:
+          version: ${{ github.ref }}
+          environment: production
+          version_prefix: oncokb-curation-backend-
