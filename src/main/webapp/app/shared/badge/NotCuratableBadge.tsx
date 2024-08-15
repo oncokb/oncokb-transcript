@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import DefaultBadge from './DefaultBadge';
 import { IRootStore } from 'app/stores';
 import { componentInject } from '../util/typed-inject';
-import { getMutationName } from '../util/firebase/firebase-utils';
+import { getMutationName, isMutationEffectCuratable } from '../util/firebase/firebase-utils';
 import { RADIO_OPTION_NONE } from 'app/config/constants/constants';
 import { observer } from 'mobx-react';
 import { CategoricalAlterationType } from '../model/enumerations/categorical-alteration-type.model';
@@ -24,7 +24,7 @@ const NotCuratableBadge: React.FunctionComponent<INotCuratableBadgeProps> = ({ m
     const mutationStrings: [string[], string[]] = [[], []];
     for (const name of mutationName.split(',')) {
       const trimmedName = name.trim();
-      if (Object.values(CategoricalAlterationType).includes(parseAlterationName(trimmedName)[0].alteration as CategoricalAlterationType)) {
+      if (!isMutationEffectCuratable(trimmedName)) {
         continue;
       }
 
