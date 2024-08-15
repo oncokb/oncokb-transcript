@@ -358,6 +358,21 @@
             <artifactId>javers-spring-boot-starter-sql</artifactId>
             <version>${javers.version}</version>
         </dependency>
+
+        <!-- Add back jaxb-api for NihEutilsService. jakarta package is not ready. -->
+        <!-- Proper solution is to migrate to jakarta.xml.bind v4 -->
+        <!-- https://stackoverflow.com/questions/71095913/what-is-the-difference-between-jaxb-impl-and-jaxb-runtime -->
+        <!-- https://stackoverflow.com/a/73205221/1868022 -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.3.6</version>
+        </dependency>
     </dependencies>
 
     <build>
