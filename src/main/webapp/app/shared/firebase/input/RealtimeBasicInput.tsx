@@ -133,7 +133,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     return () => {
       resizeObserver.disconnect();
     };
-  });
+  }, []);
 
   const labelComponent = label && (
     <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'fw-bold'} />
