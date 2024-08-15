@@ -96,14 +96,13 @@ jhipster:
 
 # ===================================================================
 # Sentry specific properties
-# How to configure Sentry Spring Boot: https://docs.sentry.io/clients/java/config/
+# How to configure Sentry Spring Boot: https://docs.sentry.io/platforms/java/guides/spring-boot/
 # Full reference is available at: https://github.com/getsentry/sentry-java/blob/main/sentry-spring-boot-starter/src/main/java/io/sentry/spring/boot/SentryProperties.java
 # ===================================================================
 sentry:
   dsn:
-  stacktrace:
-    app:
-      packages: org.mskcc.oncokb.curation;
+  # send handled exception to sentry as well
+  exception-resolver-order: -2147483647
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

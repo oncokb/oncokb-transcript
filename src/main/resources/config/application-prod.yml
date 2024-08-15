@@ -119,6 +119,16 @@ jhipster:
         # Token is valid 24 hours
         token-validity-in-seconds: 86400
         token-validity-in-seconds-for-remember-me: 2592000
+
+# ===================================================================
+# Sentry specific properties
+# How to configure Sentry Spring Boot: https://docs.sentry.io/platforms/java/guides/spring-boot/
+# Full reference is available at: https://github.com/getsentry/sentry-java/blob/main/sentry-spring-boot-starter/src/main/java/io/sentry/spring/boot/SentryProperties.java
+# ===================================================================
+sentry:
+  dsn:
+  # send handled exception to sentry as well
+  exception-resolver-order: -2147483647
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class
