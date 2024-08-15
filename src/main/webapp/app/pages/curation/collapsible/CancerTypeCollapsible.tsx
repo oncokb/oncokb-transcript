@@ -27,6 +27,7 @@ import BadgeGroup from '../BadgeGroup';
 import { RemovableCollapsible } from './RemovableCollapsible';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import { getLocationIdentifier } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
+import { getTumorNameUuid } from 'app/shared/util/firebase/firebase-review-utils';
 
 interface ICancerTypeCollapsibleProps extends StoreProps {
   cancerTypePath: string;
@@ -54,6 +55,7 @@ function CancerTypeCollapsible({
   const [cancerTypesReview, setCancerTypesReview] = useState<Review>();
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
   const [excludedCancerTypes, setExcludedCancerTypes] = useState<CancerType[]>();
+  const [excludedCancerTypesUuid, setExcludedCancerTypesUuid] = useState<string>();
 
   useEffect(() => {
     if (!firebaseDb) {
@@ -78,23 +80,24 @@ function CancerTypeCollapsible({
       }),
     );
 
-    onValue(
-      ref(firebaseDb, `${cancerTypePath}/cancerTypes_uuid`),
-      snapshot => {
-        setCancerTypesUuid(snapshot.val());
-      },
-      { onlyOnce: true },
-    );
+    get(ref(firebaseDb, `${cancerTypePath}/cancerTypes_uuid`)).then(snapshot => setCancerTypesUuid(snapshot.val()));
+
+    get(ref(firebaseDb, `${cancerTypePath}/excludedCancerTypes_uuid`)).then(snapshot => setExcludedCancerTypesUuid(snapshot.val()));
 
     return () => callbacks.forEach(callback => callback?.());
   }, [cancerTypePath, firebaseDb]);
 
   async function handleDeleteCancerType() {
-    if (!firebaseDb || cancerTypesUuid === undefined) {
+    if (!firebaseDb || cancerTypesUuid === undefined || excludedCancerTypesUuid === undefined) {
       return;
     }
     const snapshot = await get(ref(firebaseDb, cancerTypePath));
-    deleteSection?.(`${cancerTypePath}/cancerTypes`, snapshot.val(), cancerTypesReview, cancerTypesUuid);
+    deleteSection?.(
+      `${cancerTypePath}/cancerTypes`,
+      snapshot.val(),
+      cancerTypesReview,
+      getTumorNameUuid(cancerTypesUuid, excludedCancerTypesUuid),
+    );
   }
 
   if (!cancerTypes || !cancerTypesUuid) {

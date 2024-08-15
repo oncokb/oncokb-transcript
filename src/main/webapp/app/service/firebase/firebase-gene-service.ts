@@ -23,7 +23,7 @@ import { generateUuid, isPromiseOk } from 'app/shared/util/utils';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { getErrorMessage } from 'app/oncokb-commons/components/alert/ErrorAlertUtils';
 import { FirebaseDataStore } from 'app/stores/firebase/firebase-data.store';
-import { getUpdatedReview } from 'app/shared/util/firebase/firebase-review-utils';
+import { getTumorNameUuid, getUpdatedReview } from 'app/shared/util/firebase/firebase-review-utils';
 import { SentryError } from 'app/config/sentry-error';
 import { GERMLINE_PATH } from 'app/config/constants/constants';
 import _ from 'lodash';
@@ -227,7 +227,7 @@ export class FirebaseGeneService {
       const nestedUuids = findNestedUuids(sectionObject);
       try {
         await this.firebaseRepository.deleteFromArray(firebaseArrayPath, [deleteIndex]);
-        for (const id of nestedUuids) {
+        for (const id of [...nestedUuids, uuid]) {
           await this.firebaseMetaService.updateGeneReviewUuid(hugoSymbol, id, false, isGermline);
         }
       } catch (error) {
@@ -275,7 +275,11 @@ export class FirebaseGeneService {
     const name = this.authStore.fullName;
     newTumor.cancerTypes_review = new Review(name, undefined, true, undefined);
 
-    const tumorNameUuid = `${newTumor.cancerTypes_uuid}, ${newTumor.excludedCancerTypes_uuid}`;
+    if (!newTumor.excludedCancerTypes_uuid) {
+      newTumor.excludedCancerTypes_uuid = generateUuid();
+    }
+
+    const tumorNameUuid = getTumorNameUuid(newTumor.cancerTypes_uuid, newTumor.excludedCancerTypes_uuid);
 
     if (hugoSymbol === undefined) {
       throw new SentryError('Could not resolve hugoSymbol', { tumorPath });
@@ -313,10 +317,14 @@ export class FirebaseGeneService {
     tumor.cancerTypes_review = cancerTypesReview.updatedReview ?? undefined;
     tumor.excludedCancerTypes_review = excludedCancerTypesReview.updatedReview ?? undefined;
 
+    if (!tumor.excludedCancerTypes_uuid) {
+      tumor.excludedCancerTypes_uuid = generateUuid();
+    }
+
     const isChangeReverted = cancerTypesReview.isChangeReverted || excludedCancerTypesReview.isChangeReverted;
     // The legacy platform combines the uuid of cancerTypes and excludedCancerTypes in review mode.
     // To maintain compatibility, we will do the same here.
-    const tumorNameUuid = `${tumor.cancerTypes_uuid}, ${tumor.excludedCancerTypes_uuid}`;
+    const tumorNameUuid = getTumorNameUuid(tumor.cancerTypes_uuid, tumor.excludedCancerTypes_uuid);
 
     const { hugoSymbol } = parseFirebaseGenePath(tumorPath) ?? {};
 
