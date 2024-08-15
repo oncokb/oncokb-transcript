@@ -651,11 +651,13 @@ export const buildCancerTypeNameReview = (
     newState = tumor;
   } else if (cancerTypesReview?.removed) {
     oldState = tumor;
-  } else if (cancerTypesReview?.lastReviewed || excludedCTReview?.lastReviewed) {
+  } else if (cancerTypesReview?.lastReviewed || excludedCTReview?.lastReviewed || excludedCTReview?.initialUpdate) {
     nameUpdated = true;
     oldState = oldTumorName = getCancerTypesNameWithExclusion(
-      (cancerTypesReview?.lastReviewed as CancerType[]) || [],
-      (excludedCTReview?.lastReviewed as CancerType[]) || [],
+      (cancerTypesReview?.lastReviewed as CancerType[] | undefined) || tumor.cancerTypes,
+      excludedCTReview?.initialUpdate
+        ? []
+        : (excludedCTReview?.lastReviewed as CancerType[] | undefined) || tumor.excludedCancerTypes || [],
       true,
     );
     newState = newTumorName;

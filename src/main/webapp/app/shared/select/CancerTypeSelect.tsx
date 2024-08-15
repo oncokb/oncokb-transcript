@@ -27,7 +27,7 @@ export type CancerTypeSelectOption =
   | undefined;
 
 const getAllMainTypes = (cancerTypeList: ICancerType[]) => {
-  return _.uniq(cancerTypeList.filter(cancerType => cancerType.level && cancerType.level <= 0)).sort();
+  return _.uniq(cancerTypeList.filter(cancerType => cancerType.level <= 0)).sort();
 };
 
 const getAllSubtypes = (cancerTypeList: ICancerType[]) => {
@@ -38,7 +38,7 @@ const getAllCancerTypesOptions = (cancerTypeList: ICancerType[]) => {
   return [
     {
       label: 'Cancer Type',
-      options: _.uniq(getAllMainTypes(cancerTypeList).filter(cancerType => cancerType.mainType && !cancerType.mainType.endsWith('NOS')))
+      options: _.uniq(getAllMainTypes(cancerTypeList).filter(cancerType => !cancerType.mainType.endsWith('NOS')))
         .sort()
         .map((cancerType): CancerTypeSelectOption => {
           return {

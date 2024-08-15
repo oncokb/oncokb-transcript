@@ -332,6 +332,12 @@ export class FirebaseGeneService {
 
     const { hugoSymbol } = parseFirebaseGenePath(tumorPath) ?? {};
 
+    // Not every tumor name may have excluded tumors. We add initialUpdate flag in this case
+    // so that review mode can pick up.
+    if (_.isNil(currentExcludedCancerTypes) && tumor.excludedCancerTypes_review) {
+      tumor.excludedCancerTypes_review.initialUpdate = true;
+    }
+
     return this.firebaseRepository.update(tumorPath, tumor).then(() => {
       if (cancerTypesReview.isChangeReverted) {
         this.firebaseRepository.delete(`${tumorPath}/cancerTypes_review/lastReviewed`);
