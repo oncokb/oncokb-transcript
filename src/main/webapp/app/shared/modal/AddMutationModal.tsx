@@ -2,7 +2,7 @@ import Tabs from 'app/components/tabs/tabs';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { IRootStore } from 'app/stores';
 import { onValue, ref } from 'firebase/database';
-import _, { isNil, result } from 'lodash';
+import _ from 'lodash';
 import { flow, flowResult } from 'mobx';
 import React, { KeyboardEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FaChevronDown, FaChevronUp, FaExclamationTriangle, FaPlus } from 'react-icons/fa';
@@ -18,7 +18,7 @@ import {
   Alteration as ApiAlteration,
 } from '../api/generated/curation';
 import { IGene } from '../model/gene.model';
-import { getDuplicateMutations, getFirebaseGenePath, getFirebaseVusPath } from '../util/firebase/firebase-utils';
+import { getDuplicateMutations, getFirebaseVusPath } from '../util/firebase/firebase-utils';
 import { componentInject } from '../util/typed-inject';
 import { hasValue, isEqualIgnoreCase, parseAlterationName } from '../util/utils';
 import { DefaultAddMutationModal } from './DefaultAddMutationModal';
@@ -27,6 +27,8 @@ import classNames from 'classnames';
 import { READABLE_ALTERATION, REFERENCE_GENOME } from 'app/config/constants/constants';
 import { Unsubscribe } from 'firebase/database';
 import Select from 'react-select/dist/declarations/src/Select';
+import DefaultTooltip from '../tooltip/DefaultTooltip';
+import InfoIcon from '../icons/InfoIcon';
 
 type AlterationData = {
   type: AlterationTypeEnum;
@@ -1010,11 +1012,16 @@ function AddMutationModal({
           />
         </Col>
         {!convertOptions?.isConverting ? (
-          <Col className="col-auto ps-2">
-            <Button color="primary" disabled={!inputValue} onClick={handleAlterationAdded}>
-              Add
-            </Button>
-          </Col>
+          <>
+            <Col className="col-auto ps-2">
+              <div>
+                <Button color="primary" disabled={!inputValue} onClick={handleAlterationAdded}>
+                  Add
+                </Button>
+                <InfoIcon className="ms-2" overlay={<AddMutationInputOverlay />}></InfoIcon>
+              </div>
+            </Col>
+          </>
         ) : undefined}
       </Row>
       {tabStates.length > 0 && (
@@ -1158,6 +1165,30 @@ function AddMutationModalDropdown({ label, value, options, menuPlacement, onChan
     </div>
   );
 }
+
+const AddMutationInputOverlay = () => {
+  return (
+    <div>
+      <div>
+        Enter alteration(s) in input area, then press <span style={{ fontStyle: 'italic', fontWeight: 'bold' }}>Enter key</span> or click on{' '}
+        <span style={{ fontStyle: 'italic', fontWeight: 'bold' }}>Add button</span> to annotate alteration(s).
+      </div>
+      <div className="mt-2">
+        <div>Examples:</div>
+        <div>
+          <ul style={{ marginBottom: 0 }}>
+            <li>
+              Variant alleles seperated by slash - <span className="text-primary">R132C/H/G/S/L</span>
+            </li>
+            <li>
+              Comma seperated list of alterations - <span className="text-primary">V600E, V600K</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const mapStoreToProps = ({
   alterationStore,

@@ -214,12 +214,16 @@ export async function isPromiseOk(promise: Promise<any>) {
   }
 }
 
-// splits alteration name separated by / into multiple alterations
+// splits alteration name separated by '/' or ',' into multiple alterations
+
 export function expandAlterationName(name: string) {
   const regex = new RegExp('^([A-Z])\\s*([0-9]+)\\s*([A-Z])\\s*((?:/\\s*[A-Z]\\s*)*)$', 'i');
   const parts = regex.exec(name);
 
   if (!parts) {
+    if (name.includes(',')) {
+      return name.split(',').map(part => part.trim());
+    }
     return [name];
   }
 
