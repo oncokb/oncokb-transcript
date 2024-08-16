@@ -72,6 +72,24 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   }, [geneEntity, props.firebaseDb, props.firebaseInitSuccess]);
 
   useEffect(() => {
+    const collection: DrugCollection =
+      props.drugList?.reduce((prev, cur) => {
+        prev[cur.uuid] = {
+          uuid: cur.uuid,
+          drugName: cur.name,
+          ncitCode: cur.nciThesaurus?.code ?? '',
+          priority: 0,
+          description: '',
+          ncitName: cur.nciThesaurus?.displayName ?? '',
+          synonyms: cur.nciThesaurus?.synonyms?.map(x => x?.name).filter((x): x is string => x !== undefined) ?? [],
+        };
+        return prev;
+      }, {} as DrugCollection) ?? {};
+
+    setDrugListRef(collection);
+  }, [props.drugList]);
+
+  useEffect(() => {
     props.getDrugs?.({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
   }, []);
 
