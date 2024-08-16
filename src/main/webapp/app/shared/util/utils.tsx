@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ICancerType } from 'app/shared/model/cancer-type.model';
 import { IAlteration } from '../model/alteration.model';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,7 +9,7 @@ import EntityActionButton from '../button/EntityActionButton';
 import { SORT } from './pagination.constants';
 import { PaginationState } from '../table/OncoKBAsyncTable';
 import { IUser } from '../model/user.model';
-import { CancerType } from '../model/firebase/firebase.model';
+import { CancerType, DrugCollection } from '../model/firebase/firebase.model';
 import _ from 'lodash';
 import { ParsedRef, parseReferences } from 'app/oncokb-commons/components/RefComponent';
 import { IDrug } from 'app/shared/model/drug.model';
@@ -391,3 +391,24 @@ export const parseSort = (sort: IQueryParams['sort']) => {
 export const hasValue = <T,>(value: T | null | undefined): value is T => {
   return value !== null && value !== undefined;
 };
+
+export function useDrugListRef(drugList: readonly IDrug[] | undefined = []): DrugCollection {
+  const [drugListRef, setDrugListRef] = useState<DrugCollection>({});
+  useEffect(() => {
+    const collection: DrugCollection = drugList.reduce((prev, cur) => {
+      prev[cur.uuid] = {
+        uuid: cur.uuid,
+        drugName: cur.name,
+        ncitCode: cur.nciThesaurus?.code ?? '',
+        priority: 0,
+        description: '',
+        ncitName: cur.nciThesaurus?.displayName ?? '',
+        synonyms: cur.nciThesaurus?.synonyms?.map(x => x?.name).filter((x): x is string => x !== undefined) ?? [],
+      };
+      return prev;
+    }, {} as DrugCollection);
+
+    setDrugListRef(collection);
+  }, [drugList]);
+  return drugListRef;
+}

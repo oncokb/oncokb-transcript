@@ -2,6 +2,7 @@ import {
   CancerType,
   DX_LEVELS,
   Drug,
+  DrugCollection,
   FIREBASE_ONCOGENICITY,
   Gene,
   GenomicIndicator,
@@ -556,8 +557,7 @@ export class FirebaseGeneService {
     await this.firebaseRepository.update(path, value);
   };
 
-  saveAllGenes = async (isGermlineProp: boolean) => {
-    const drugLookup = (await this.firebaseRepository.get(FB_COLLECTION.DRUGS)).val() as Record<string, Drug>;
+  saveAllGenes = async (isGermlineProp: boolean, drugLookup: DrugCollection) => {
     const geneLookup = ((await this.firebaseRepository.get(getFirebaseGenePath(isGermlineProp))).val() as Record<string, Gene>) ?? {};
     const vusLookup =
       ((await this.firebaseRepository.get(getFirebaseVusPath(isGermlineProp))).val() as Record<string, Record<string, Vus>>) ?? {};

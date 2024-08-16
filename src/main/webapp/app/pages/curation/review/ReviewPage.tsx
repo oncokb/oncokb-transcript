@@ -8,7 +8,7 @@ import {
 } from 'app/shared/util/firebase/firebase-review-utils';
 import { getFirebaseGenePath, getFirebaseMetaGenePath, getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
-import { getSectionClassName } from 'app/shared/util/utils';
+import { getSectionClassName, useDrugListRef } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
 import { get, ref } from 'firebase/database';
 import { observer } from 'mobx-react';
@@ -52,7 +52,6 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   const [editorReviewMap, setEditorReviewMap] = useState(new EditorReviewMap());
   const [editorsToAcceptChangesFrom, setEditorsToAcceptChangesFrom] = useState<string[]>([]);
   const [isAcceptingAll, setIsAcceptingAll] = useState(false);
-  const [drugListRef, setDrugListRef] = useState<DrugCollection>({});
 
   const fetchFirebaseData = () => {
     if (!props.firebaseDb) {
@@ -62,7 +61,6 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     // because there shouldn't be another user editing the gene when it is being reviewed.
     get(ref(props.firebaseDb, firebaseGenePath)).then(snapshot => setGeneData(snapshot.val()));
     get(ref(props.firebaseDb, firebaseMetaReviewPath)).then(snapshot => setMetaReview(snapshot.val()));
-    get(ref(props.firebaseDb, FB_COLLECTION.DRUGS)).then(snapshot => setDrugListRef(snapshot.val()));
   };
 
   useEffect(() => {
@@ -71,23 +69,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
     }
   }, [geneEntity, props.firebaseDb, props.firebaseInitSuccess]);
 
-  useEffect(() => {
-    const collection: DrugCollection =
-      props.drugList?.reduce((prev, cur) => {
-        prev[cur.uuid] = {
-          uuid: cur.uuid,
-          drugName: cur.name,
-          ncitCode: cur.nciThesaurus?.code ?? '',
-          priority: 0,
-          description: '',
-          ncitName: cur.nciThesaurus?.displayName ?? '',
-          synonyms: cur.nciThesaurus?.synonyms?.map(x => x?.name).filter((x): x is string => x !== undefined) ?? [],
-        };
-        return prev;
-      }, {} as DrugCollection) ?? {};
-
-    setDrugListRef(collection);
-  }, [props.drugList]);
+  const drugListRef = useDrugListRef(props.drugList);
 
   useEffect(() => {
     props.getDrugs?.({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
