@@ -1,4 +1,4 @@
-import { getFirebaseMetaGenePath, getFirebaseMetaGeneReviewPath, getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
+import { getFirebaseMetaGenePath, getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 import AuthStore from '../../stores/authentication.store';
 import { FirebaseRepository } from '../../stores/firebase/firebase-repository';
 import { Meta } from 'app/shared/model/firebase/firebase.model';
@@ -38,10 +38,12 @@ export class FirebaseMetaService {
     const updateObject = {
       [`${metaGenePath}/review/${uuid}`]: uuidUpdateValue,
     };
-    const uuidParts = this.getUuidParts(uuid);
-    uuidParts.forEach(uuidPart => {
-      updateObject[`${metaGenePath}/review/${uuidPart}`] = uuidUpdateValue;
-    });
+    if (!add) {
+      const uuidParts = this.getUuidParts(uuid);
+      uuidParts.forEach(uuidPart => {
+        updateObject[`${metaGenePath}/review/${uuidPart}`] = uuidUpdateValue;
+      });
+    }
     return this.firebaseRepository.update('/', updateObject);
   };
 
@@ -101,20 +103,22 @@ export class FirebaseMetaService {
       [`${metaGenePath}/lastModifiedAt`]: new Date().getTime().toString(),
       [`${metaGenePath}/review/${uuid}`]: uuidUpdateValue,
     };
-    const uuidParts = this.getUuidParts(uuid);
-    uuidParts.forEach(uuidPart => {
-      updateObject[`${metaGenePath}/review/${uuidPart}`] = uuidUpdateValue;
-    });
+    if (!add) {
+      const uuidParts = this.getUuidParts(uuid);
+      uuidParts.forEach(uuidPart => {
+        updateObject[`${metaGenePath}/review/${uuidPart}`] = uuidUpdateValue;
+      });
+    }
 
     return updateObject;
   };
 
   private getUuidParts = (uuid: string) => {
-    const parts: string[] = [];
+    let parts: string[] = [];
     if (uuid.includes(',')) {
       // Cancer Type name review may contain only cancerTypes_uuid or BOTH cancerTypes_uuid and excludedCancerTypes_uuid.
       // We want to remove all uuids in meta collection that contains either uuids.
-      parts.concat(uuid.split(',').map(uuidPart => uuidPart.trim()));
+      parts = parts.concat(uuid.split(',').map(uuidPart => uuidPart.trim()));
     }
     return parts;
   };
