@@ -956,3 +956,7 @@ export const showAsFirebaseTextArea = (hugoSymbol: string, valuePath: string, is
     genePath.endsWith('/prognosticSummary')
   );
 };
+
+export const getTumorNameUuid = (cancerTypesUuid: string, excludedCancerTypesUuid: string) => {
+  return `${cancerTypesUuid}, ${excludedCancerTypesUuid}`;
+};

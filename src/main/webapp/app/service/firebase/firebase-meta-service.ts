@@ -1,4 +1,4 @@
-import { getFirebaseMetaGenePath, getFirebaseMetaGeneReviewPath, getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
+import { getFirebaseMetaGenePath, getFirebasePath } from 'app/shared/util/firebase/firebase-utils';
 import AuthStore from '../../stores/authentication.store';
 import { FirebaseRepository } from '../../stores/firebase/firebase-repository';
 import { Meta } from 'app/shared/model/firebase/firebase.model';
@@ -32,11 +32,19 @@ export class FirebaseMetaService {
    * @param add Whether the field should be reviewed or removed from review view
    */
   updateGeneReviewUuid = (hugoSymbol: string, uuid: string, add: boolean, isGermline: boolean) => {
+    const metaGenePath = getFirebaseMetaGenePath(isGermline, hugoSymbol);
+    const uuidUpdateValue = add ? true : null;
     // Setting to null in firebase update will remove that key
     const updateObject = {
-      [uuid]: add ? true : null,
+      [`${metaGenePath}/review/${uuid}`]: uuidUpdateValue,
     };
-    return this.firebaseRepository.update(`${getFirebaseMetaGenePath(isGermline, hugoSymbol)}/review`, updateObject);
+    if (!add) {
+      const uuidParts = this.getUuidParts(uuid);
+      uuidParts.forEach(uuidPart => {
+        updateObject[`${metaGenePath}/review/${uuidPart}`] = uuidUpdateValue;
+      });
+    }
+    return this.firebaseRepository.update('/', updateObject);
   };
 
   updateMeta = (hugoSymbol: string, uuid: string, add: boolean, isGermline: boolean) => {
@@ -95,16 +103,23 @@ export class FirebaseMetaService {
       [`${metaGenePath}/lastModifiedAt`]: new Date().getTime().toString(),
       [`${metaGenePath}/review/${uuid}`]: uuidUpdateValue,
     };
+    if (!add) {
+      const uuidParts = this.getUuidParts(uuid);
+      uuidParts.forEach(uuidPart => {
+        updateObject[`${metaGenePath}/review/${uuidPart}`] = uuidUpdateValue;
+      });
+    }
+
+    return updateObject;
+  };
+
+  private getUuidParts = (uuid: string) => {
+    let parts: string[] = [];
     if (uuid.includes(',')) {
       // Cancer Type name review may contain only cancerTypes_uuid or BOTH cancerTypes_uuid and excludedCancerTypes_uuid.
       // We want to remove all uuids in meta collection that contains either uuids.
-      uuid
-        .split(',')
-        .map(uuidPart => uuidPart.trim())
-        .forEach(uuidPart => {
-          updateObject[`${metaGenePath}/review/${uuidPart}`] = uuidUpdateValue;
-        });
+      parts = parts.concat(uuid.split(',').map(uuidPart => uuidPart.trim()));
     }
-    return updateObject;
+    return parts;
   };
 }
