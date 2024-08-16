@@ -1,11 +1,11 @@
 package org.mskcc.oncokb.curation.service.mapper;
 
-import com.google.gson.Gson;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.service.dto.pubmed.PubMedDTO;
+import org.mskcc.oncokb.curation.util.GsonUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -42,7 +42,7 @@ public class PubMedMapper {
             article.setLink(pubMedDTO.getLink());
             article.setDate(pubMedDTO.getDate());
             article.setAuthors(pubMedDTO.getAuthors());
-            article.setAdditionalInfo(new Gson().toJson(pubMedDTO.getAdditionalInfo()));
+            article.setAdditionalInfo(GsonUtils.create().toJson(pubMedDTO.getAdditionalInfo()));
             article.setFlags(pubMedDTO.getFlags());
             article.setSynonyms(pubMedDTO.getSynonyms());
             return article;

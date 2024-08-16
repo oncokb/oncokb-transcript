@@ -1,7 +1,6 @@
 package org.mskcc.oncokb.curation.service.dto.pubmed;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.gson.Gson;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
@@ -10,6 +9,7 @@ import org.mskcc.oncokb.curation.domain.Article;
 import org.mskcc.oncokb.curation.domain.Flag;
 import org.mskcc.oncokb.curation.domain.Synonym;
 import org.mskcc.oncokb.curation.domain.enumeration.ArticleType;
+import org.mskcc.oncokb.curation.util.GsonUtils;
 
 public class PubMedDTO implements Serializable {
 
@@ -136,7 +136,7 @@ public class PubMedDTO implements Serializable {
         this.link = article.getLink();
         this.authors = article.getAuthors();
         this.date = article.getDate();
-        this.additionalInfo = new Gson().fromJson(article.getAdditionalInfo(), AdditionalInfoDTO.class);
+        this.additionalInfo = GsonUtils.create().fromJson(article.getAdditionalInfo(), AdditionalInfoDTO.class);
         this.flags = article.getFlags();
         this.synonyms = article.getSynonyms();
     }

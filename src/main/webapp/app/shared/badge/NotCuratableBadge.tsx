@@ -2,9 +2,11 @@ import React, { useMemo } from 'react';
 import DefaultBadge from './DefaultBadge';
 import { IRootStore } from 'app/stores';
 import { componentInject } from '../util/typed-inject';
-import { getMutationName } from '../util/firebase/firebase-utils';
+import { getMutationName, isMutationEffectCuratable } from '../util/firebase/firebase-utils';
 import { RADIO_OPTION_NONE } from 'app/config/constants/constants';
 import { observer } from 'mobx-react';
+import { CategoricalAlterationType } from '../model/enumerations/categorical-alteration-type.model';
+import { parseAlterationName } from '../util/utils';
 
 const NOT_CURATABLE_TOOLTIP_TEXT = {
   stringMutations: 'Each mutation should have its own mutation effect curated',
@@ -22,6 +24,10 @@ const NotCuratableBadge: React.FunctionComponent<INotCuratableBadgeProps> = ({ m
     const mutationStrings: [string[], string[]] = [[], []];
     for (const name of mutationName.split(',')) {
       const trimmedName = name.trim();
+      if (!isMutationEffectCuratable(trimmedName)) {
+        continue;
+      }
+
       const foundMutation = mutations?.find(mut => getMutationName(mut.name, mut.alterations) === trimmedName);
 
       if (!foundMutation?.mutation_effect.effect || foundMutation.mutation_effect.effect === RADIO_OPTION_NONE) {
@@ -41,9 +47,13 @@ const NotCuratableBadge: React.FunctionComponent<INotCuratableBadgeProps> = ({ m
       tooltipOverlay={
         <div>
           <span>{text}</span>
-          <br />
-          <br />
-          {mutationsWithoutEffect.length > 1 && (
+          {(mutationsWithEffect || mutationsWithoutEffect) && (
+            <>
+              <br />
+              <br />
+            </>
+          )}
+          {mutationsWithoutEffect && (
             <>
               <span>
                 <b>Need curation: </b>
@@ -52,7 +62,7 @@ const NotCuratableBadge: React.FunctionComponent<INotCuratableBadgeProps> = ({ m
               <br />
             </>
           )}
-          {mutationsWithEffect.length > 1 && (
+          {mutationsWithEffect && (
             <span>
               <b>Curated: </b>
               {mutationsWithEffect}
