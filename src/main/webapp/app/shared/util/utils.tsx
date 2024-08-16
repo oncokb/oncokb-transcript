@@ -216,12 +216,12 @@ export async function isPromiseOk(promise: Promise<any>) {
 
 // splits alteration name separated by '/' or ',' into multiple alterations
 
-export function expandAlterationName(name: string) {
+export function expandAlterationName(name: string, splitStringMutations = false) {
   const regex = new RegExp('^([A-Z])\\s*([0-9]+)\\s*([A-Z])\\s*((?:/\\s*[A-Z]\\s*)*)$', 'i');
   const parts = regex.exec(name);
 
   if (!parts) {
-    if (name.includes(',')) {
+    if (splitStringMutations && name.includes(',')) {
       return name.split(',').map(part => part.trim());
     }
     return [name];
@@ -240,7 +240,10 @@ export function expandAlterationName(name: string) {
 
 // splits alteration name into alteration, excluding and comment
 // if alteration is separated by /, applies the same excluding and comment to separated alterations
-export function parseAlterationName(alterationName: string): { alteration: string; excluding: string[]; comment: string; name: string }[] {
+export function parseAlterationName(
+  alterationName: string,
+  splitStringMutation = false,
+): { alteration: string; excluding: string[]; comment: string; name: string }[] {
   let regex = new RegExp('\\[(.*)\\]', 'i');
   const nameSection = regex.exec(alterationName);
   let name = '';
@@ -261,7 +264,7 @@ export function parseAlterationName(alterationName: string): { alteration: strin
     excludingSection[1] = excludingSection[1].replace(/excluding/i, '');
     const excludedNames = excludingSection[1].split(';');
     for (const ex of excludedNames) {
-      excluding.push(...expandAlterationName(ex.trim()));
+      excluding.push(...expandAlterationName(ex.trim(), splitStringMutation));
     }
   }
 
@@ -289,7 +292,7 @@ export function parseAlterationName(alterationName: string): { alteration: strin
 
   const parsedAlteration = alterationNameWithoutVariantNameAndExcluding.replace('(' + comment + ')', '');
 
-  const alterationNames = expandAlterationName(parsedAlteration.trim());
+  const alterationNames = expandAlterationName(parsedAlteration.trim(), splitStringMutation);
 
   return alterationNames.map(alteration => ({
     alteration,

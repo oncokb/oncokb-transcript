@@ -33,6 +33,10 @@ describe('Utils', () => {
       expect(JSON.stringify(results)).toEqual(JSON.stringify(expectedOutput));
     });
 
+    it('should expand alterations that are comma seperated', () => {
+      expect(expandAlterationName('V600E, V600G, V600F', true)).toEqual(['V600E', 'V600G', 'V600F']);
+    });
+
     it('should return original alteration when incorrectly formatted', () => {
       const incorrectlyFormattedNames = ['VE600 G', 'V600GF', 'V600E/G/FL'];
       const expectedOutput = [['VE600 G'], ['V600GF'], ['V600E/G/FL']];
