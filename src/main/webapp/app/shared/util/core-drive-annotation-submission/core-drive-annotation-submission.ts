@@ -124,6 +124,9 @@ function therapyStrToArr(key: string) {
 function getDrugsByUuids(keys: string[][], drugList: DrugCollection): Drug[][] {
   return keys.map(function (element) {
     return element.map(function (key) {
+      if (!drugList[key]) {
+        throw new Error(`Cannot find drug for ${key}`);
+      }
       return drugList[key];
     });
   });

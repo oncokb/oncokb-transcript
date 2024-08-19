@@ -14,6 +14,7 @@ import { onValue, ref } from 'firebase/database';
 import { FB_COLLECTION } from 'app/config/constants/firebase';
 import SaveGeneButton from 'app/shared/button/SaveGeneButton';
 import { Unsubscribe } from 'firebase/database';
+import { geneIsReleased } from 'app/shared/util/entity-utils/gene-entity-utils';
 
 export type ReleaseGeneTestData = {
   passed: boolean;
@@ -120,7 +121,7 @@ export function CurationToolsTab({
 
   useEffect(() => {
     const geneData = geneEntities?.find(entity => entity.hugoSymbol === geneName);
-    setIsReleased(geneData?.flags?.some(flag => isReleasedFlag(flag)) || false);
+    setIsReleased(geneData === undefined ? false : geneIsReleased(geneData));
     geneToUpdate.current = geneData;
   }, [geneEntities, geneName]);
 

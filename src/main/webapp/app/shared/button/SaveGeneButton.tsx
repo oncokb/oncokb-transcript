@@ -12,15 +12,14 @@ type ISaveGeneButtonProps = StoreProps & {
 } & ButtonProps &
   Omit<React.HTMLAttributes<HTMLButtonElement>, 'onClick' | 'disabled'>;
 
-function SaveGeneButton({ hugoSymbol, firebaseGeneService, drugList, ...buttonProps }: ISaveGeneButtonProps) {
+function SaveGeneButton({ hugoSymbol, firebaseGeneService, ...buttonProps }: ISaveGeneButtonProps) {
   const [isSavePending, setIsSavePending] = useState(false);
-  const drugListRef = useDrugListRef(drugList);
   const onClickHandler = useCallback(async () => {
     setIsSavePending(true);
     try {
       const isGermline = false;
       if (hugoSymbol === undefined) {
-        await firebaseGeneService?.saveAllGenes(isGermline, drugListRef);
+        await firebaseGeneService?.saveAllGenes(isGermline);
         notifySuccess('All genes saved!');
       } else {
         await firebaseGeneService?.saveGene(isGermline, hugoSymbol);
