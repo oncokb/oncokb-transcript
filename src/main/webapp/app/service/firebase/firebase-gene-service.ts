@@ -574,6 +574,7 @@ export class FirebaseGeneService {
       const args: Parameters<typeof getDriveAnnotations>[1] = {
         gene,
         vus: nullableVus == null ? undefined : Object.values(nullableVus),
+        releaseGene: true,
       };
       const driveAnnotation = getDriveAnnotations(drugLookup, args);
       await this.driveAnnotationApi.submitDriveAnnotations(driveAnnotation);
@@ -590,6 +591,7 @@ export class FirebaseGeneService {
     const args: Parameters<typeof getDriveAnnotations>[1] = {
       gene: nullableGene == null ? undefined : nullableGene,
       vus: nullableVus == null ? undefined : Object.values(nullableVus),
+      releaseGene: true,
     };
     const driveAnnotation = getDriveAnnotations(drugLookup, args);
     await this.driveAnnotationApi.submitDriveAnnotations(driveAnnotation);

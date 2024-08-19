@@ -129,17 +129,20 @@ function getDrugsByUuids(keys: string[][], drugList: DrugCollection): Drug[][] {
   });
 }
 
-export type DriveAnnotation = { gene: string | undefined; vus: string | undefined };
+export type DriveAnnotation = { gene: string | undefined; vus: string | undefined; releaseGene: boolean };
 export function getDriveAnnotations(
   drugList: DrugCollection,
-  { gene, vus }: { gene: Gene | undefined; vus: Vus[] | undefined },
+  { gene, vus, releaseGene }: { gene: Gene | undefined; vus: Vus[] | undefined; releaseGene: boolean },
 ): DriveAnnotation {
-  const params: DriveAnnotation = { gene: undefined, vus: undefined };
+  const params: DriveAnnotation = { gene: undefined, vus: undefined, releaseGene: false };
   if (gene) {
     params.gene = JSON.stringify(getGeneData(gene, true, drugList));
   }
   if (vus) {
     params.vus = JSON.stringify(getVUSData(vus));
+  }
+  if (releaseGene) {
+    params.releaseGene = releaseGene;
   }
   return params;
 }
