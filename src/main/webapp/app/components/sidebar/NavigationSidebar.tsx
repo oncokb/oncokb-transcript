@@ -238,8 +238,8 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSi
         </div>
         <MenuDivider />
 
-        <div style={{ flex: '1 1 0%', overflowY: 'auto', minHeight: '200px' }}>
-          <Menu>
+        <div style={{ flex: '1 1 0%', minHeight: '200px' }} className={'scrollbar-wrapper'}>
+          <Menu className="scrollbar-content">
             {props.isCurator && (
               <MenuItemCollapsible
                 isCollapsed={isNavSidebarCollapsed}

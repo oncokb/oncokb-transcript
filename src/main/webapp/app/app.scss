@@ -429,3 +429,14 @@ a {
 .toastify-toast {
   display: inline-flex;
 }
+
+.scrollbar-wrapper {
+  overflow: auto;
+  visibility: hidden;
+}
+
+.scrollbar-content,
+.scrollbar-wrapper:hover,
+.scrollbar-wrapper:focus {
+  visibility: visible;
+}
