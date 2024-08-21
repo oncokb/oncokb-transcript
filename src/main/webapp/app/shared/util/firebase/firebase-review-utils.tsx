@@ -457,7 +457,7 @@ export const findReviewRecursive = (
             const treatmentPath = joinPathParts(currValuePath, 'TIs', tiIndex.toString(), 'treatments', treatmentIndex.toString());
             const treatmentNameReview = buildNameReview(treatment, treatmentPath, parentReview, uuids, editorReviewMap, drugList);
             parentReview.addChild(treatmentNameReview);
-            const rctReview = buildRCTReview(treatment, treatmentNameReview, uuids, editorReviewMap);
+            const rctReview = buildRCTReview(treatment, treatmentPath, uuids, treatmentNameReview, editorReviewMap);
             if (rctReview) {
               treatmentNameReview.addChild(rctReview);
             }
@@ -775,7 +775,7 @@ export const buildObjectReview = (
     historyInfo,
   });
   if (key === 'prognostic' || key === 'diagnostic') {
-    const rctReview = buildRCTReview(obj as Implication, metaReview, uuids, editorReviewMap);
+    const rctReview = buildRCTReview(obj as Implication, metaReview.valuePath, uuids, metaReview, editorReviewMap);
     if (rctReview) {
       metaReview.addChild(rctReview);
     }
@@ -786,15 +786,16 @@ export const buildObjectReview = (
 
 export const buildRCTReview = (
   implication: Implication | Treatment,
-  parentReview: BaseReviewLevel,
+  currValuePath: string,
   uuids: string[],
+  parentReview: BaseReviewLevel,
   editorReviewMap: EditorReviewMap,
 ) => {
   if (!implication.excludedRCTs && !implication.excludedRCTs_review) return;
 
   const nameKey = 'excludedRCTs';
 
-  const valuePathParts = [parentReview.valuePath, nameKey];
+  const valuePathParts = [currValuePath, nameKey];
   const valuePath = valuePathParts.join('/');
   const title = makeFirebaseKeysReadable([nameKey])[0];
 
