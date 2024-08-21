@@ -3,8 +3,8 @@ import { IRootStore, hasAnyAuthority } from 'app/stores';
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Col, Row } from 'reactstrap';
 import { FaRegCheckCircle } from 'react-icons/fa';
-import { FaRegCircleXmark } from 'react-icons/fa6';
-import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { FaRegCircleXmark, FaArrowRotateLeft } from 'react-icons/fa6';
+import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { IGene } from 'app/shared/model/gene.model';
 import _ from 'lodash';
 import { IFlag } from 'app/shared/model/flag.model';
@@ -15,6 +15,7 @@ import { FB_COLLECTION } from 'app/config/constants/firebase';
 import SaveGeneButton from 'app/shared/button/SaveGeneButton';
 import { Unsubscribe } from 'firebase/database';
 import { geneIsReleased } from 'app/shared/util/entity-utils/gene-entity-utils';
+import Tooltip from 'rc-tooltip';
 
 export type ReleaseGeneTestData = {
   passed: boolean;
@@ -40,6 +41,8 @@ export function CurationToolsTab({
   isGermline,
   hugoSymbol,
   isDev,
+  firebaseGeneService,
+  geneLegacyApi,
 }: ICurationToolsTabProps) {
   const [geneName, setGeneName] = useState<string>();
   const [geneSummary, setGeneSummary] = useState<string>();
@@ -153,6 +156,28 @@ export function CurationToolsTab({
       }
       await updateGene?.(newGene);
       await searchGenes?.({ query: geneName, exact: true }); // repopulate gene store entities
+      await firebaseGeneService?.saveGene(isGermline, hugoSymbol);
+    } catch (error) {
+      notifyError(error);
+    }
+  }
+
+  async function handleUndoReleaseGeneConfirmClick() {
+    const newGene = _.cloneDeep(geneToUpdate.current);
+
+    try {
+      if (!newGene) {
+        throw new Error('Error retrieving gene');
+      }
+
+      if (newGene.flags) {
+        newGene.flags = newGene.flags.filter(flag => !isReleasedFlag(flag));
+      } else {
+        newGene.flags = [];
+      }
+      await updateGene?.(newGene);
+      await searchGenes?.({ query: geneName, exact: true }); // repopulate gene store entities
+      geneLegacyApi!.removeGene(newGene);
     } catch (error) {
       notifyError(error);
     }
@@ -171,6 +196,11 @@ export function CurationToolsTab({
             <Col className={'d-flex align-items-center'}>
               <FaRegCheckCircle className="text-success me-2" />
               <span>Gene is released</span>
+              <Tooltip overlay={'Undo Release'}>
+                <Button size={'sm'} onClick={handleUndoReleaseGeneConfirmClick} className={'ms-2'} color="danger" outline>
+                  <FaArrowRotateLeft />
+                </Button>
+              </Tooltip>
             </Col>
           </Row>
           {!isGermline && isDev && (
@@ -219,7 +249,15 @@ export function CurationToolsTab({
   return getContent();
 }
 
-const mapStoreToProps = ({ firebaseAppStore, firebaseMetaStore, geneStore, flagStore, authStore }: IRootStore) => ({
+const mapStoreToProps = ({
+  firebaseAppStore,
+  firebaseMetaStore,
+  geneStore,
+  flagStore,
+  authStore,
+  firebaseGeneService,
+  geneLegacyApi,
+}: IRootStore) => ({
   firebaseDb: firebaseAppStore.firebaseDb,
   metaList: firebaseMetaStore.data,
   addMetaListListener: firebaseMetaStore.addListener,
@@ -228,6 +266,8 @@ const mapStoreToProps = ({ firebaseAppStore, firebaseMetaStore, geneStore, flagS
   updateGene: geneStore.updateEntity,
   searchFlags: flagStore.searchEntities,
   isDev: hasAnyAuthority(authStore.account.authorities, [AUTHORITIES.DEV]),
+  firebaseGeneService,
+  geneLegacyApi,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
