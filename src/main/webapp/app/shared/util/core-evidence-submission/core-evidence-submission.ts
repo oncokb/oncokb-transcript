@@ -65,9 +65,9 @@ export function pathToGetEvidenceArgs({
     type = EvidenceEvidenceTypeEnum.GeneBackground;
   } else if (/^mutations\/\d+\/mutation_effect\/(effect|description)/.test(valuePath)) {
     type = EvidenceEvidenceTypeEnum.MutationEffect;
-  } else if (/^mutations\/\d+\/tumors\/\d+\/prognostic\/level/.test(valuePath)) {
+  } else if (/^mutations\/\d+\/tumors\/\d+\/prognostic\/.*/.test(valuePath)) {
     type = EvidenceEvidenceTypeEnum.PrognosticImplication;
-  } else if (/^mutations\/\d+\/tumors\/\d+\/diagnostic\/level/.test(valuePath)) {
+  } else if (/^mutations\/\d+\/tumors\/\d+\/diagnostic\/.*/.test(valuePath)) {
     type = EvidenceEvidenceTypeEnum.DiagnosticImplication;
   } else if (/^mutations\/\d+\/mutation_effect\/oncogenic/.test(valuePath)) {
     type = EvidenceEvidenceTypeEnum.Oncogenic;
