@@ -362,7 +362,7 @@ describe('Firebase Review Utils', () => {
 
       const implication = new Implication();
       const uuids = [];
-      const rctReview = buildRCTReview(implication, parentReview, uuids, editorReviewMap);
+      const rctReview = buildRCTReview(implication, parentReview.valuePath, uuids, parentReview, editorReviewMap);
 
       expect(rctReview).toBeUndefined();
     });
@@ -380,7 +380,7 @@ describe('Firebase Review Utils', () => {
       implication.excludedRCTs = [{ code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' }];
       const uuids = [implication.excludedRCTs_uuid as string];
 
-      const rctReview = buildRCTReview(implication, parentReview, uuids, editorReviewMap);
+      const rctReview = buildRCTReview(implication, parentReview.valuePath, uuids, parentReview, editorReviewMap);
 
       expect(rctReview).toBeDefined();
       const expectedValues = {
@@ -424,7 +424,7 @@ describe('Firebase Review Utils', () => {
       implication.excludedRCTs = newExclusions;
       const uuids = [implication.excludedRCTs_uuid as string];
 
-      const rctReview = buildRCTReview(implication, parentReview, uuids, editorReviewMap);
+      const rctReview = buildRCTReview(implication, parentReview.valuePath, uuids, parentReview, editorReviewMap);
 
       expect(rctReview).toBeDefined();
       const expectedValues = {
@@ -684,7 +684,7 @@ describe('Firebase Review Utils', () => {
         expect(isChangeReverted).toBeTruthy();
       });
 
-      it('should detect reverted excluded RCTs when RCT is already pending review', () => {
+      it('should detect reverted excluded cancer types when cancer type is already pending review', () => {
         const excludedCancerTypes: Partial<ICancerType>[] = [{ code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' }];
         const currentValue: Partial<ICancerType>[] = [
           { code: 'OM', mainType: 'Melanoma', subtype: 'Ocular Melanoma' },
