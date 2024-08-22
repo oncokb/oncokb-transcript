@@ -8,7 +8,18 @@ public class InstantTypeAdapter implements JsonSerializer<Instant>, JsonDeserial
 
     @Override
     public Instant deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
-        return Instant.parse(json.getAsString());
+        if (json.isJsonPrimitive()) {
+            // Handle the ISO 8601 string format
+            return Instant.parse(json.getAsString());
+        } else if (json.isJsonObject()) {
+            // Handle the {"seconds":..., "nanos":...} object format
+            JsonObject jsonObject = json.getAsJsonObject();
+            long seconds = jsonObject.get("seconds").getAsLong();
+            int nanos = jsonObject.get("nanos").getAsInt();
+            return Instant.ofEpochSecond(seconds, nanos);
+        } else {
+            throw new JsonParseException("Unexpected JSON type: " + json.getClass().getSimpleName());
+        }
     }
 
     @Override
