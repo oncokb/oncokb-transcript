@@ -7,7 +7,7 @@ import { FirebaseVusService } from './firebase-vus-service';
 import { Gene, HistoryOperationType, Mutation, Review, Tumor } from 'app/shared/model/firebase/firebase.model';
 import { mock, mockReset } from 'jest-mock-extended';
 import { SentryError } from 'app/config/sentry-error';
-import { ReviewLevel } from 'app/shared/util/firebase/firebase-review-utils';
+import { getTumorNameUuid, ReviewLevel, TumorReviewLevel } from 'app/shared/util/firebase/firebase-review-utils';
 import { ReviewAction } from 'app/config/constants/firebase';
 import _ from 'lodash';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
@@ -392,6 +392,65 @@ describe('Firebase Gene Review Service', () => {
         [`Meta/BRAF/review/${mutation.name_uuid}`]: null,
         'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
         'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
+      });
+    });
+
+    it('should reject initial excluded cancer type', async () => {
+      const mutation = new Mutation('V600E');
+      const tumor = new Tumor();
+      tumor.cancerTypes = [{ code: '', subtype: '', mainType: 'Melanoma' }];
+      tumor.cancerTypes_review = new Review('User');
+      tumor.excludedCancerTypes = [{ code: 'OCM', subtype: 'Ocular Melanoma', mainType: 'Melanoma' }];
+      tumor.excludedCancerTypes_review = new Review('User', undefined, false, false, true);
+      tumor.excludedCancerTypes_uuid = generateUuid();
+      mutation.tumors.push(tumor);
+
+      const reviewLevel = new TumorReviewLevel({
+        titleParts: ['Oncogenic Mutations', 'Breast Cancer {excluding Metaplastic Breast Cancer}', 'Name'],
+        valuePath: 'mutations/0/tumors/0/cancerTypes',
+        historyLocation: 'Oncogenic Mutations, Breast Cancer {excluding Metaplastic Breast Cancer}',
+        children: [],
+        historyInfo: {},
+        currentVal: 'Breast Cancer {excluding Metaplastic Breast Cancer}',
+        reviewInfo: {
+          reviewPath: 'mutations/0/tumors/0/cancerTypes_review',
+          review: tumor.cancerTypes_review,
+          lastReviewedString: 'Breast Cancer',
+          uuid: getTumorNameUuid(tumor.cancerTypes_uuid, tumor.excludedCancerTypes_uuid),
+          reviewAction: 3,
+        },
+        historyData: {
+          oldState: 'Breast Cancer',
+          newState: 'Breast Cancer {excluding Metaplastic Breast Cancer}',
+        },
+        excludedCancerTypesReviewInfo: {
+          reviewPath: 'mutations/0/tumors/0/excludedCancerTypes_review',
+          review: tumor.excludedCancerTypes_review,
+          lastReviewedString: undefined,
+          uuid: tumor.excludedCancerTypes_uuid,
+        },
+        currentExcludedCancerTypes: [
+          {
+            code: 'MBC',
+            mainType: 'Breast Cancer',
+            subtype: 'Metaplastic Breast Cancer',
+          },
+        ],
+      });
+
+      await firebaseGeneReviewService.rejectChanges('BRAF', [reviewLevel], false);
+      expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
+      expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
+        'Genes/BRAF/mutations/0/tumors/0/cancerTypes_review': {
+          updateTime: DEFAULT_DATE.getTime(),
+          updatedBy: mockAuthStore.fullName,
+        },
+        'Genes/BRAF/mutations/0/tumors/0/excludedCancerTypes': null,
+        'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
+        'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
+        [`Meta/BRAF/review/${getTumorNameUuid(tumor.cancerTypes_uuid, tumor.excludedCancerTypes_uuid)}`]: null,
+        [`Meta/BRAF/review/${tumor.cancerTypes_uuid}`]: null,
+        [`Meta/BRAF/review/${tumor.excludedCancerTypes_uuid}`]: null,
       });
     });
 
