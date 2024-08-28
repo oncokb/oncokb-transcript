@@ -20,6 +20,15 @@ function handleStandardSensitivityToTherapy({ evidenceData }: { evidenceData: In
   evidenceData.data.knownEffect = 'Sensitive';
 }
 
+function handleTherapyExcludedRCTs({
+  evidenceData,
+  treatment,
+}: Pick<GetEvidenceArgs, 'treatment'> & { evidenceData: InitializeEvidenceDataRtn }) {
+  if (treatment.excludedRCTs) {
+    evidenceData.data.excludedCancerTypes = treatment.excludedRCTs as TumorType[];
+  }
+}
+
 function handlePrognosticSummary({ tumor, evidenceData }: Pick<GetEvidenceArgs, 'tumor'> & { evidenceData: InitializeEvidenceDataRtn }) {
   evidenceData.data.description = tumor.prognosticSummary;
   evidenceData.dataUUID = tumor.prognosticSummary_uuid;
@@ -64,6 +73,9 @@ function handleDiagnosticImplication({
 }: Pick<GetEvidenceArgs, 'tumor' | 'updateTime'> & { evidenceData: InitializeEvidenceDataRtn }) {
   evidenceData.data.description = tumor.diagnostic.description;
   evidenceData.data.levelOfEvidence = LEVEL_MAPPING[tumor.diagnostic.level];
+  if (tumor.diagnostic.excludedRCTs) {
+    evidenceData.data.excludedCancerTypes = tumor.prognostic.excludedRCTs as TumorType[];
+  }
   evidenceData.dataUUID = tumor.diagnostic_uuid;
   evidenceData.data.lastEdit = validateTimeFormat(updateTime);
 }
@@ -75,6 +87,9 @@ function handlePrognosticImplication({
 }: Pick<GetEvidenceArgs, 'tumor' | 'updateTime'> & { evidenceData: InitializeEvidenceDataRtn }) {
   evidenceData.data.description = tumor.prognostic.description;
   evidenceData.data.levelOfEvidence = LEVEL_MAPPING[tumor.prognostic.level];
+  if (tumor.prognostic.excludedRCTs) {
+    evidenceData.data.excludedCancerTypes = tumor.prognostic.excludedRCTs as TumorType[];
+  }
   evidenceData.dataUUID = tumor.prognostic_uuid;
   evidenceData.data.lastEdit = validateTimeFormat(updateTime);
 }
@@ -189,15 +204,19 @@ export function resolveTypeSpecificData({
       break;
     case 'STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_SENSITIVITY':
       handleStandardSensitivityToTherapy({ evidenceData });
+      handleTherapyExcludedRCTs({ evidenceData, treatment });
       break;
     case 'STANDARD_THERAPEUTIC_IMPLICATIONS_FOR_DRUG_RESISTANCE':
       handleStandardResistanceToTherapy({ evidenceData });
+      handleTherapyExcludedRCTs({ evidenceData, treatment });
       break;
     case 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_SENSITIVITY':
       handleInvestigationalSensitivityToTherapy({ evidenceData });
+      handleTherapyExcludedRCTs({ evidenceData, treatment });
       break;
     case 'INVESTIGATIONAL_THERAPEUTIC_IMPLICATIONS_DRUG_RESISTANCE':
       handleInvestigationalResistanceToTherapy({ evidenceData });
+      handleTherapyExcludedRCTs({ evidenceData, treatment });
       break;
     case 'ONCOGENIC':
       handleOncogenic({ mutation, evidenceData });
@@ -213,6 +232,23 @@ export function resolveTypeSpecificData({
       break;
     default:
       throw new Error(`Unknown evidence type "${type}"`);
+  }
+
+  if (evidenceData.data.evidenceType) {
+    // attach alterations when available, so we can create new evidence if it does not exist in server side
+    if (mutation) {
+      if (!evidenceData.data.alterations) {
+        evidenceData.data.alterations = getAlterations(gene.name, mutation);
+      }
+    }
+    if (tumor) {
+      if (!evidenceData.data.cancerTypes) {
+        evidenceData.data.cancerTypes = tumor.cancerTypes as TumorType[];
+      }
+      if (!evidenceData.data.excludedCancerTypes) {
+        evidenceData.data.excludedCancerTypes = tumor.excludedCancerTypes as TumorType[];
+      }
+    }
   }
   return evidenceData;
 }

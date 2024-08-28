@@ -10,6 +10,11 @@ export function createGeneTypePayload(
     tsg: gene.type.tsg ? true : false,
   };
 }
+export function removeGenePayload(gene: Pick<Gene, 'name'>): Required<Pick<GenePayload, 'hugoSymbol'>> {
+  return {
+    hugoSymbol: gene.name,
+  };
+}
 
 export function isGeneTypeChange(path: string): boolean {
   return path.startsWith('type');

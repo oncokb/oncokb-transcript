@@ -140,7 +140,7 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
                 {flags
                   ? flags.map(otherEntity => (
                       <option value={otherEntity.id} key={otherEntity.id}>
-                        {otherEntity.id}
+                        Type: {otherEntity.type}, Flag: {otherEntity.name}
                       </option>
                     ))
                   : null}

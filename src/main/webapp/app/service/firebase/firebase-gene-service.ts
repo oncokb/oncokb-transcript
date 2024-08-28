@@ -33,10 +33,13 @@ import { getErrorMessage } from 'app/oncokb-commons/components/alert/ErrorAlertU
 import { FirebaseDataStore } from 'app/stores/firebase/firebase-data.store';
 import { getTumorNameUuid, getUpdatedReview } from 'app/shared/util/firebase/firebase-review-utils';
 import { SentryError } from 'app/config/sentry-error';
-import { GERMLINE_PATH } from 'app/config/constants/constants';
+import { GERMLINE_PATH, GET_ALL_DRUGS_PAGE_SIZE } from 'app/config/constants/constants';
 import _ from 'lodash';
 import { getDriveAnnotations } from 'app/shared/util/core-drive-annotation-submission/core-drive-annotation-submission';
 import { DriveAnnotationApi } from 'app/shared/api/manual/drive-annotation-api';
+import GeneStore from 'app/entities/gene/gene.store';
+import { geneIsReleased } from 'app/shared/util/entity-utils/gene-entity-utils';
+import DrugStore from 'app/entities/drug/drug.store';
 
 export type AllLevelSummary = {
   [mutationUuid: string]: {
@@ -71,6 +74,8 @@ export type MutationLevelSummary = {
 export class FirebaseGeneService {
   firebaseRepository: FirebaseRepository;
   authStore: AuthStore;
+  geneStore: GeneStore;
+  drugStore: DrugStore;
   firebaseMutationListStore: FirebaseDataStore<Mutation[]>;
   firebaseMutationConvertIconStore: FirebaseDataStore<Mutation[]>;
   firebaseMetaService: FirebaseMetaService;
@@ -80,6 +85,8 @@ export class FirebaseGeneService {
   constructor(
     firebaseRepository: FirebaseRepository,
     authStore: AuthStore,
+    geneStore: GeneStore,
+    drugStore: DrugStore,
     firebaseMutationListStore: FirebaseDataStore<Mutation[]>,
     firebaseMutationConvertIconStore: FirebaseDataStore<Mutation[]>,
     firebaseMetaService: FirebaseMetaService,
@@ -88,6 +95,8 @@ export class FirebaseGeneService {
   ) {
     this.firebaseRepository = firebaseRepository;
     this.authStore = authStore;
+    this.geneStore = geneStore;
+    this.drugStore = drugStore;
     this.firebaseMutationListStore = firebaseMutationListStore;
     this.firebaseMutationConvertIconStore = firebaseMutationConvertIconStore;
     this.firebaseMetaService = firebaseMetaService;
@@ -565,31 +574,60 @@ export class FirebaseGeneService {
     await this.firebaseRepository.update(path, value);
   };
 
-  saveAllGenes = async (isGermlineProp: boolean, drugLookup: DrugCollection) => {
+  getDrugs = async () => {
+    const drugs = await this.drugStore.getEntities({ page: 0, size: GET_ALL_DRUGS_PAGE_SIZE, sort: ['id,asc'] });
+    return (
+      drugs.data.reduce((acc, next) => {
+        acc[next.uuid] = {
+          uuid: next.uuid,
+          description: '',
+          priority: 0,
+          synonyms: next.nciThesaurus?.synonyms?.map(synonym => synonym.name) || [],
+          ncitCode: next.nciThesaurus?.code || '',
+          ncitName: next.nciThesaurus?.displayName || '',
+          drugName: next.name,
+        };
+        return acc;
+      }, {} as DrugCollection) || {}
+    );
+  };
+
+  saveAllGenes = async (isGermlineProp: boolean) => {
+    const drugLookup = await this.getDrugs();
     const geneLookup = ((await this.firebaseRepository.get(getFirebaseGenePath(isGermlineProp))).val() as Record<string, Gene>) ?? {};
     const vusLookup =
       ((await this.firebaseRepository.get(getFirebaseVusPath(isGermlineProp))).val() as Record<string, Record<string, Vus>>) ?? {};
+    let count = 0;
     for (const [hugoSymbol, gene] of Object.entries(geneLookup)) {
+      count++;
+      console.log(`${count} - Saving ${hugoSymbol}...`);
       const nullableVus: Record<string, Vus> | null = vusLookup[hugoSymbol];
-      const args: Parameters<typeof getDriveAnnotations>[1] = {
-        gene,
-        vus: nullableVus == null ? undefined : Object.values(nullableVus),
-      };
-      const driveAnnotation = getDriveAnnotations(drugLookup, args);
-      await this.driveAnnotationApi.submitDriveAnnotations(driveAnnotation);
+      await this.saveGeneWithData(isGermlineProp, hugoSymbol, drugLookup, gene, nullableVus);
+      console.log('\tDone Saving.');
     }
   };
 
   saveGene = async (isGermlineProp: boolean, hugoSymbolProp: string) => {
-    const drugLookup = (await this.firebaseRepository.get(FB_COLLECTION.DRUGS)).val() as Record<string, Drug>;
+    const drugLookup = await this.getDrugs();
     const nullableGene = (await this.firebaseRepository.get(getFirebaseGenePath(isGermlineProp, hugoSymbolProp))).val() as Gene | null;
     const nullableVus = (await this.firebaseRepository.get(getFirebaseVusPath(isGermlineProp, hugoSymbolProp))).val() as Record<
       string,
       Vus
     > | null;
+    await this.saveGeneWithData(isGermlineProp, hugoSymbolProp, drugLookup, nullableGene, nullableVus);
+  };
+  saveGeneWithData = async (
+    isGermlineProp: boolean,
+    hugoSymbolProp: string,
+    drugLookup: DrugCollection,
+    nullableGene: Gene | null,
+    nullableVus: Record<string, Vus> | null,
+  ) => {
+    const searchResponse = await this.geneStore.searchEntities({ query: hugoSymbolProp, exact: true });
     const args: Parameters<typeof getDriveAnnotations>[1] = {
       gene: nullableGene == null ? undefined : nullableGene,
       vus: nullableVus == null ? undefined : Object.values(nullableVus),
+      releaseGene: searchResponse.data.some(gene => geneIsReleased(gene)),
     };
     const driveAnnotation = getDriveAnnotations(drugLookup, args);
     await this.driveAnnotationApi.submitDriveAnnotations(driveAnnotation);
