@@ -3,6 +3,7 @@ import { Drug, DrugCollection, Gene, Mutation, MutationEffect, TI, TX_LEVELS, Tr
 import { resolveTypeSpecificData } from './type-specific-resolvers';
 import { FDA_LEVEL_MAPPING, LEVEL_MAPPING, collectUUIDs, getNewPriorities, validateTimeFormat } from './core-evidence-submission-utils';
 import { Evidence, EvidenceEvidenceTypeEnum } from '../../api/generated/core/api';
+import { useLastReviewedOnly } from '../core-submission-shared/core-submission-utils';
 
 export type GetEvidenceArgs = {
   type: EvidenceEvidenceTypeEnum | 'MUTATION_NAME_CHANGE' | 'TUMOR_NAME_CHANGE' | 'TREATMENT_NAME_CHANGE';
@@ -33,7 +34,7 @@ export function pathToDeleteEvidenceArgs({ valuePath, gene }: { valuePath: strin
 }
 
 export function pathToGetEvidenceArgs({
-  gene,
+  gene: originalGene,
   valuePath,
   updateTime,
   drugListRef,
@@ -41,6 +42,7 @@ export function pathToGetEvidenceArgs({
 }: {
   valuePath: string;
 } & Pick<GetEvidenceArgs, 'gene' | 'updateTime' | 'drugListRef' | 'entrezGeneId'>): GetEvidenceArgs | undefined {
+  const gene = useLastReviewedOnly(originalGene);
   const args: Partial<GetEvidenceArgs> = {
     updateTime,
     gene,

@@ -147,7 +147,10 @@ describe('getEvidence to submit to core', () => {
         { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.Oncogenic, mutation },
       ],
       [
-        { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/summary' },
+        {
+          ...baseExpectedArgs,
+          valuePath: 'mutations/0/tumors/0/summary',
+        },
         { ...baseExpectedArgs, type: EvidenceEvidenceTypeEnum.TumorTypeSummary, tumor, mutation },
       ],
       [
@@ -456,6 +459,7 @@ describe('getEvidence to submit to core', () => {
                     prognosticSummary_uuid: 'd9c991e4-1c13-4251-bd5a-fac0344b3470',
                     prognosticSummary: 'Prognostic Summary',
                     prognosticSummary_review: createMockReview({
+                      lastReviewed: 'Prognostic Summary Last Reviewed',
                       updateTime: getTimeFromDateString('2002-01-01'),
                     }),
                   }),
@@ -467,8 +471,16 @@ describe('getEvidence to submit to core', () => {
         {
           ['d9c991e4-1c13-4251-bd5a-fac0344b3470']: {
             ...baseEvidence,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
             evidenceType: EvidenceEvidenceTypeEnum.PrognosticSummary,
-            description: 'Prognostic Summary',
+            description: 'Prognostic Summary Last Reviewed',
             gene: {
               entrezGeneId: baseArgs.entrezGeneId,
               hugoSymbol,
@@ -501,6 +513,14 @@ describe('getEvidence to submit to core', () => {
         {
           ['a8ba8d36-ee0b-4e9c-ad3b-49137c271a82']: {
             ...baseEvidence,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
             evidenceType: EvidenceEvidenceTypeEnum.DiagnosticSummary,
             description: 'Diagnostic Summary',
             gene: {
@@ -540,6 +560,14 @@ describe('getEvidence to submit to core', () => {
         {
           ['a7046e8d-af62-4284-a14d-fc145134529a']: {
             ...baseEvidence,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
             evidenceType: EvidenceEvidenceTypeEnum.MutationEffect,
             description: 'Mutation Effect',
             knownEffect: MUTATION_EFFECT.NEUTRAL,
@@ -580,6 +608,14 @@ describe('getEvidence to submit to core', () => {
         {
           ['8b076b49-5baa-4a74-90f1-c115a65b19e5']: {
             ...baseEvidence,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
             evidenceType: EvidenceEvidenceTypeEnum.Oncogenic,
             knownEffect: FIREBASE_ONCOGENICITY.LIKELY,
             gene: {
@@ -615,6 +651,14 @@ describe('getEvidence to submit to core', () => {
         {
           ['8947bdb9-b77d-4fe4-a8a1-71dc7c41b1e4']: {
             ...baseEvidence,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
             evidenceType: EvidenceEvidenceTypeEnum.PrognosticImplication,
             gene: {
               entrezGeneId: baseArgs.entrezGeneId,
@@ -651,6 +695,14 @@ describe('getEvidence to submit to core', () => {
         {
           ['732e4ea5-0bf7-4795-a98e-4479ed19ab56']: {
             ...baseEvidence,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
             evidenceType: EvidenceEvidenceTypeEnum.DiagnosticImplication,
             gene: {
               entrezGeneId: baseArgs.entrezGeneId,
@@ -721,6 +773,14 @@ describe('getEvidence to submit to core', () => {
         {
           ['992bb496-7f19-4144-8664-3123756ad520']: {
             ...baseEvidence,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
             evidenceType: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
             description: 'TI IS',
             fdaLevel: EvidenceLevelOfEvidenceEnum.LevelFda1,
@@ -801,6 +861,14 @@ describe('getEvidence to submit to core', () => {
         {
           ['be434f6e-d6e9-4809-9951-b0aa89e7a32c']: {
             ...baseEvidence,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
             evidenceType: EvidenceEvidenceTypeEnum.TumorTypeSummary,
             description: 'Tumor Type Summary',
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },

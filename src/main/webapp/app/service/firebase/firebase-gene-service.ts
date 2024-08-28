@@ -600,9 +600,11 @@ export class FirebaseGeneService {
     let count = 0;
     for (const [hugoSymbol, gene] of Object.entries(geneLookup)) {
       count++;
+      // eslint-disable-next-line no-console
       console.log(`${count} - Saving ${hugoSymbol}...`);
       const nullableVus: Record<string, Vus> | null = vusLookup[hugoSymbol];
       await this.saveGeneWithData(isGermlineProp, hugoSymbol, drugLookup, gene, nullableVus);
+      // eslint-disable-next-line no-console
       console.log('\tDone Saving.');
     }
   };
