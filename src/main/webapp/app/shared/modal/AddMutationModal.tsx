@@ -27,8 +27,8 @@ import classNames from 'classnames';
 import { READABLE_ALTERATION, REFERENCE_GENOME } from 'app/config/constants/constants';
 import { Unsubscribe } from 'firebase/database';
 import Select from 'react-select/dist/declarations/src/Select';
-import DefaultTooltip from '../tooltip/DefaultTooltip';
 import InfoIcon from '../icons/InfoIcon';
+import { Linkout } from '../links/Linkout';
 
 type AlterationData = {
   type: AlterationTypeEnum;
@@ -1174,16 +1174,22 @@ const AddMutationInputOverlay = () => {
         <span style={{ fontStyle: 'italic', fontWeight: 'bold' }}>Add button</span> to annotate alteration(s).
       </div>
       <div className="mt-2">
-        <div>Examples:</div>
+        <div>Supported inputs:</div>
         <div>
           <ul style={{ marginBottom: 0 }}>
             <li>
-              Variant alleles seperated by slash - <span className="text-primary">R132C/H/G/S/L</span>
+              Variant alleles seperated by slash - <span className="text-success">R132C/H/G/S/L</span>
             </li>
             <li>
-              Comma seperated list of alterations - <span className="text-primary">V600E, V600K</span>
+              Comma seperated list of alterations - <span className="text-success">V600E, V600K</span>
             </li>
           </ul>
+        </div>
+        <div className="mt-2">
+          For detailed list, refer to:{' '}
+          <Linkout to={'https://sop.oncokb.org/'}>
+            OncoKB SOP - Chapter 6: Table 3.1: OncoKB alteration nomenclature, style and formatting
+          </Linkout>
         </div>
       </div>
     </div>
