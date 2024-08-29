@@ -3,8 +3,6 @@ package org.mskcc.oncokb.curation.service;
 import static org.mskcc.oncokb.curation.config.Constants.ENSEMBL_POST_THRESHOLD;
 
 import java.util.*;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.genome_nexus.ApiException;
@@ -13,9 +11,11 @@ import org.genome_nexus.client.EnsemblTranscript;
 import org.mskcc.oncokb.curation.config.cache.CacheCategory;
 import org.mskcc.oncokb.curation.config.cache.CacheNameResolver;
 import org.mskcc.oncokb.curation.domain.*;
+import org.mskcc.oncokb.curation.domain.dto.ProteinExonDTO;
 import org.mskcc.oncokb.curation.domain.enumeration.GenomeFragmentType;
 import org.mskcc.oncokb.curation.domain.enumeration.ReferenceGenome;
 import org.mskcc.oncokb.curation.domain.enumeration.SequenceType;
+import org.mskcc.oncokb.curation.model.IntegerRange;
 import org.mskcc.oncokb.curation.repository.TranscriptRepository;
 import org.mskcc.oncokb.curation.service.dto.ClustalOResp;
 import org.mskcc.oncokb.curation.service.dto.TranscriptDTO;
@@ -580,6 +580,77 @@ public class TranscriptService {
         } else {
             return new ArrayList<>();
         }
+    }
+
+    public List<ProteinExonDTO> getExons(Gene gene, ReferenceGenome referenceGenome) {
+        Optional<TranscriptDTO> transcriptOptional = this.findByGeneAndReferenceGenomeAndCanonicalIsTrue(gene, referenceGenome);
+        if (transcriptOptional.isPresent()) {
+            List<GenomeFragment> utrs = transcriptOptional.orElseThrow().getUtrs();
+            List<GenomeFragment> exons = transcriptOptional.orElseThrow().getExons();
+            exons.sort((o1, o2) -> {
+                int diff = o1.getStart() - o2.getStart();
+                if (diff == 0) {
+                    diff = o1.getEnd() - o2.getEnd();
+                }
+                if (diff == 0) {
+                    diff = (int) (o1.getId() - o2.getId());
+                }
+                return diff;
+            });
+
+            List<GenomeFragment> codingExons = new ArrayList<>();
+            exons.forEach(exon -> {
+                Integer start = exon.getStart();
+                Integer end = exon.getEnd();
+                for (GenomeFragment utr : utrs) {
+                    if (utr.getStart().equals(exon.getStart())) {
+                        start = utr.getEnd() + 1;
+                    }
+                    if (utr.getEnd().equals(exon.getEnd())) {
+                        end = utr.getStart() - 1;
+                    }
+                }
+                if (start < end) {
+                    GenomeFragment genomeFragment = new GenomeFragment();
+                    genomeFragment.setType(GenomeFragmentType.EXON);
+                    genomeFragment.setStart(start);
+                    genomeFragment.setEnd(end);
+                    codingExons.add(genomeFragment);
+                } else {
+                    GenomeFragment genomeFragment = new GenomeFragment();
+                    genomeFragment.setType(GenomeFragmentType.EXON);
+                    genomeFragment.setStart(0);
+                    genomeFragment.setEnd(0);
+                    codingExons.add(genomeFragment);
+                }
+            });
+
+            if (transcriptOptional.orElseThrow().getStrand() == -1) {
+                Collections.reverse(codingExons);
+            }
+
+            List<ProteinExonDTO> proteinExons = new ArrayList<>();
+            int startAA = 1;
+            int previousExonCodonResidues = 0;
+            for (int i = 0; i < codingExons.size(); i++) {
+                GenomeFragment genomeFragment = codingExons.get(i);
+                if (genomeFragment.getStart() == 0) {
+                    continue;
+                }
+                int proteinLength = (previousExonCodonResidues + (genomeFragment.getEnd() - genomeFragment.getStart() + 1)) / 3;
+                previousExonCodonResidues = (previousExonCodonResidues + (genomeFragment.getEnd() - genomeFragment.getStart() + 1)) % 3;
+                ProteinExonDTO proteinExonDTO = new ProteinExonDTO();
+                proteinExonDTO.setExon(i + 1);
+                IntegerRange integerRange = new IntegerRange();
+                integerRange.setStart(startAA);
+                integerRange.setEnd(startAA + proteinLength - 1 + (previousExonCodonResidues > 0 ? 1 : 0));
+                proteinExonDTO.setRange(integerRange);
+                proteinExons.add(proteinExonDTO);
+                startAA += proteinLength;
+            }
+            return proteinExons;
+        }
+        return new ArrayList<>();
     }
 
     private Optional<EnsemblTranscript> getEnsemblTranscriptBySequence(

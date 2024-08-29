@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
-import org.checkerframework.checker.regex.qual.Regex;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.*;
 import org.springframework.stereotype.Component;
@@ -21,11 +20,15 @@ public class AlterationUtils {
     private static final String FUSION_REGEX = "\\s*(\\w*)" + FUSION_SEPARATOR + "(\\w*)\\s*(?i)(fusion)?\\s*";
     private static final String FUSION_ALT_REGEX = "\\s*(\\w*)" + FUSION_ALTERNATIVE_SEPARATOR + "(\\w*)\\s+(?i)fusion\\s*";
 
+    private static final String EXON_ALT_REGEX = "(Any\\s+)?Exon\\s+(\\d+)(-(\\d+))?\\s+(Deletion|Insertion|Duplication)";
+
+    private static final String EXON_ALTS_REGEX = "(" + EXON_ALT_REGEX + ")(\\s*\\+\\s*" + EXON_ALT_REGEX + ")*";
+
     private Alteration parseFusion(String alteration) {
         Alteration alt = new Alteration();
 
         Consequence consequence = new Consequence();
-        consequence.setTerm(SVConsequence.FUSION.name());
+        consequence.setTerm(SVConsequence.SV_FUSION.name());
         alt.setType(AlterationType.STRUCTURAL_VARIANT);
         alt.setConsequence(consequence);
 
@@ -49,7 +52,7 @@ public class AlterationUtils {
     }
 
     private Alteration parseCopyNumberAlteration(String alteration) {
-        CNAConsequence cnaTerm = CNAConsequence.UNKNOWN;
+        CNAConsequence cnaTerm = CNAConsequence.CNA_UNKNOWN;
 
         Optional<CNAConsequence> cnaConsequenceOptional = getCNAConsequence(alteration);
         if (cnaConsequenceOptional.isPresent()) {
@@ -90,6 +93,65 @@ public class AlterationUtils {
         return alt;
     }
 
+    private Alteration parseExonAlteration(String alteration) {
+        Alteration alt = new Alteration();
+        Consequence consequence = new Consequence();
+        consequence.setTerm(SVConsequence.SV_UNKNOWN.name());
+        alt.setType(AlterationType.STRUCTURAL_VARIANT);
+        alt.setConsequence(consequence);
+
+        Pattern pattern = Pattern.compile(EXON_ALT_REGEX, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(alteration);
+        List<String> splitResults = new ArrayList<>();
+        Set<String> consequenceTermSet = new HashSet<>();
+
+        while (matcher.find()) {
+            Boolean isAnyExon = "Any".equals(matcher.group(1).trim()); // We use "Any" to denote all possible combinations of exons
+            String startExonStr = matcher.group(2); // The start exon number
+            String endExonStr = matcher.group(4); // The end exon number (if present)
+            String consequenceTerm = matcher.group(5); // consequence term
+
+            switch (consequenceTerm.toLowerCase()) {
+                case "insertion":
+                    consequenceTerm = "Insertion";
+                    consequence.setTerm(SVConsequence.SV_INSERTION.name());
+                    break;
+                case "duplication":
+                    consequenceTerm = "Duplication";
+                    consequence.setTerm(SVConsequence.SV_DUPLICATION.name());
+                    break;
+                case "deletion":
+                    consequenceTerm = "Deletion";
+                    consequence.setTerm(SVConsequence.SV_DELETION.name());
+                    break;
+                default:
+                    break;
+            }
+
+            consequenceTermSet.add(consequenceTerm);
+            if (consequenceTermSet.size() > 1) {
+                consequence.setTerm(SVConsequence.SV_UNKNOWN.name());
+            }
+
+            if (isAnyExon) {
+                splitResults.add(alteration);
+                continue;
+            }
+
+            int startExon = Integer.parseInt(startExonStr);
+            int endExon = (endExonStr != null) ? Integer.parseInt(endExonStr) : startExon;
+
+            for (int exon = startExon; exon <= endExon; exon++) {
+                splitResults.add("Exon " + exon + " " + consequenceTerm);
+            }
+        }
+
+        alt.setAlteration(splitResults.stream().collect(Collectors.joining(" + ")));
+        alt.setName(alteration);
+
+        return alt;
+    }
+
     public EntityStatus<Alteration> parseAlteration(String alteration) {
         EntityStatus<Alteration> entityWithStatus = new EntityStatus<>();
         String message = "";
@@ -124,6 +186,14 @@ public class AlterationUtils {
 
         if (isGenomicChange(alteration)) {
             Alteration alt = parseGenomicChange(alteration);
+            entityWithStatus.setEntity(alt);
+            entityWithStatus.setType(status);
+            entityWithStatus.setMessage(message);
+            return entityWithStatus;
+        }
+
+        if (isExon(alteration)) {
+            Alteration alt = parseExonAlteration(alteration);
             entityWithStatus.setEntity(alt);
             entityWithStatus.setType(status);
             entityWithStatus.setMessage(message);
@@ -472,6 +542,21 @@ public class AlterationUtils {
         Pattern p = Pattern.compile("(([0-9]{1,2}|X|Y|MT):)?g\\..*");
         Matcher m = p.matcher(alteration);
         return m.matches();
+    }
+
+    public static Boolean isExon(String alteration) {
+        Pattern p = Pattern.compile(EXON_ALTS_REGEX, Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(alteration);
+        return m.matches();
+    }
+
+    public static Boolean isAnyExon(String alteration) {
+        Pattern p = Pattern.compile(EXON_ALT_REGEX, Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(alteration);
+        if (m.find()) {
+            return "Any".equals(m.group(1).trim());
+        }
+        return false;
     }
 
     public static String removeExclusionCriteria(String proteinChange) {

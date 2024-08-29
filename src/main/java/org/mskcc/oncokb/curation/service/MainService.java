@@ -16,7 +16,6 @@ import org.mskcc.oncokb.curation.domain.dto.HotspotDTO;
 import org.mskcc.oncokb.curation.domain.dto.HotspotInfoDTO;
 import org.mskcc.oncokb.curation.domain.dto.ProteinExonDTO;
 import org.mskcc.oncokb.curation.domain.enumeration.*;
-import org.mskcc.oncokb.curation.model.IntegerRange;
 import org.mskcc.oncokb.curation.service.dto.TranscriptDTO;
 import org.mskcc.oncokb.curation.service.mapper.TranscriptMapper;
 import org.mskcc.oncokb.curation.util.AlterationUtils;
@@ -280,87 +279,54 @@ public class MainService {
         }
         annotationDTO.setHotspot(hotspotInfoDTO);
 
-        if (
-            annotatedGenes.size() == 1 &&
-            PROTEIN_CHANGE.equals(alteration.getType()) &&
-            alteration.getStart() != null &&
-            alteration.getEnd() != null
-        ) {
-            Optional<TranscriptDTO> transcriptOptional = transcriptService.findByGeneAndReferenceGenomeAndCanonicalIsTrue(
-                annotatedGenes.stream().iterator().next(),
-                referenceGenome
-            );
-            if (transcriptOptional.isPresent()) {
-                List<GenomeFragment> utrs = transcriptOptional.orElseThrow().getUtrs();
-                List<GenomeFragment> exons = transcriptOptional.orElseThrow().getExons();
-                exons.sort((o1, o2) -> {
-                    int diff = o1.getStart() - o2.getStart();
-                    if (diff == 0) {
-                        diff = o1.getEnd() - o2.getEnd();
-                    }
-                    if (diff == 0) {
-                        diff = (int) (o1.getId() - o2.getId());
-                    }
-                    return diff;
-                });
-
-                List<GenomeFragment> codingExons = new ArrayList<>();
-                exons.forEach(exon -> {
-                    Integer start = exon.getStart();
-                    Integer end = exon.getEnd();
-                    for (GenomeFragment utr : utrs) {
-                        if (utr.getStart().equals(exon.getStart())) {
-                            start = utr.getEnd() + 1;
-                        }
-                        if (utr.getEnd().equals(exon.getEnd())) {
-                            end = utr.getStart() - 1;
-                        }
-                    }
-                    if (start < end) {
-                        GenomeFragment genomeFragment = new GenomeFragment();
-                        genomeFragment.setType(GenomeFragmentType.EXON);
-                        genomeFragment.setStart(start);
-                        genomeFragment.setEnd(end);
-                        codingExons.add(genomeFragment);
-                    } else {
-                        GenomeFragment genomeFragment = new GenomeFragment();
-                        genomeFragment.setType(GenomeFragmentType.EXON);
-                        genomeFragment.setStart(0);
-                        genomeFragment.setEnd(0);
-                        codingExons.add(genomeFragment);
-                    }
-                });
-
-                if (transcriptOptional.orElseThrow().getStrand() == -1) {
-                    Collections.reverse(codingExons);
-                }
-
-                List<ProteinExonDTO> proteinExons = new ArrayList<>();
-                int startAA = 1;
-                int previousExonCodonResidues = 0;
-                for (int i = 0; i < codingExons.size(); i++) {
-                    GenomeFragment genomeFragment = codingExons.get(i);
-                    if (genomeFragment.getStart() == 0) {
-                        continue;
-                    }
-                    int proteinLength = (previousExonCodonResidues + (genomeFragment.getEnd() - genomeFragment.getStart() + 1)) / 3;
-                    previousExonCodonResidues = (previousExonCodonResidues + (genomeFragment.getEnd() - genomeFragment.getStart() + 1)) % 3;
-                    ProteinExonDTO proteinExonDTO = new ProteinExonDTO();
-                    proteinExonDTO.setExon(i + 1);
-                    IntegerRange integerRange = new IntegerRange();
-                    integerRange.setStart(startAA);
-                    integerRange.setEnd(startAA + proteinLength - 1 + (previousExonCodonResidues > 0 ? 1 : 0));
-                    proteinExonDTO.setRange(integerRange);
-                    proteinExons.add(proteinExonDTO);
-                    startAA += proteinLength;
-                }
+        if (annotatedGenes.size() == 1) {
+            List<ProteinExonDTO> proteinExons = transcriptService.getExons(annotatedGenes.stream().iterator().next(), referenceGenome);
+            if (PROTEIN_CHANGE.equals(alteration.getType()) && alteration.getStart() != null && alteration.getEnd() != null) {
+                // Filter exons based on alteration range
                 List<ProteinExonDTO> overlap = proteinExons
                     .stream()
                     .filter(exon -> alteration.getStart() <= exon.getRange().getEnd() && alteration.getEnd() >= exon.getRange().getStart())
                     .collect(Collectors.toList());
                 annotationDTO.setExons(overlap);
+            } else if (AlterationUtils.isExon(alteration.getAlteration())) {
+                List<ProteinExonDTO> overlap = new ArrayList<>();
+                List<String> problematicExonAlts = new ArrayList<>();
+                for (String exonAlterationString : Arrays.asList(alteration.getAlteration().split("\\s*\\+\\s*"))) {
+                    if (AlterationUtils.isAnyExon(exonAlterationString)) {
+                        continue;
+                    }
+                    Integer exonNumber = Integer.parseInt(exonAlterationString.replaceAll("\\D*", ""));
+                    if (exonNumber > 0 && exonNumber < proteinExons.size() + 1) {
+                        overlap.add(proteinExons.get(exonNumber - 1));
+                    } else {
+                        problematicExonAlts.add(exonAlterationString);
+                    }
+                }
+                if (problematicExonAlts.isEmpty()) {
+                    overlap.sort(Comparator.comparingInt(ProteinExonDTO::getExon));
+                    Boolean isConsecutiveExonRange =
+                        overlap
+                            .stream()
+                            .map(ProteinExonDTO::getExon)
+                            .reduce((prev, curr) -> (curr - prev == 1) ? curr : Integer.MIN_VALUE)
+                            .orElse(Integer.MIN_VALUE) !=
+                        Integer.MIN_VALUE;
+                    if (isConsecutiveExonRange && overlap.size() > 0) {
+                        alteration.setStart(overlap.get(0).getRange().getStart());
+                        alteration.setEnd(overlap.get(overlap.size() - 1).getRange().getEnd());
+                    }
+
+                    annotationDTO.setExons(overlap);
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("The following exon(s) do not exist: ");
+                    sb.append(problematicExonAlts.stream().collect(Collectors.joining(", ")));
+                    alterationWithStatus.setMessage(sb.toString());
+                    alterationWithStatus.setType(EntityStatusType.ERROR);
+                }
             }
         }
+
         alterationWithStatus.setAnnotation(annotationDTO);
         return alterationWithStatus;
     }

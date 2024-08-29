@@ -9,3 +9,5 @@ export const UUID_REGEX = new RegExp('\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}');
 export const WHOLE_NUMBER_REGEX = new RegExp('^\\d+$');
 
 export const INTEGER_REGEX = /^-?\d+$/;
+
+export const EXON_ALTERATION_REGEX = /^(Any\s+)?(Exon\s+(\d+)(-(\d+))?\s+(Deletion|Insertion|Duplication))(\s*\+\s*(\1))*/i;

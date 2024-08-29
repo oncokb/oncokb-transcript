@@ -1,4 +1,4 @@
-import { REFERENCE_LINK_REGEX, FDA_SUBMISSION_REGEX } from './regex';
+import { REFERENCE_LINK_REGEX, FDA_SUBMISSION_REGEX, EXON_ALTERATION_REGEX } from './regex';
 
 describe('Regex constants test', () => {
   describe('Reference link regex', () => {
@@ -73,6 +73,24 @@ describe('Regex constants test', () => {
       ['', false],
     ])('should match all types of FDA submissions including supplements', (submission, expected) => {
       expect(FDA_SUBMISSION_REGEX.test(submission)).toEqual(expected);
+    });
+  });
+
+  describe('Exon alteration regex', () => {
+    test.each([
+      ['Exon 14 Deletion', true],
+      ['Exon 14 Duplication', true],
+      ['Exon 4 Insertion', true],
+      ['Exon 4-8 Deletion', true],
+      ['Exon 4 InSERTion', true],
+      ['Exon  4 Duplication', true],
+      ['Exon 4 Deletion + Exon 5 Deletion + Exon 6 Deletion', true],
+      ['Exon 4-8 Deletion + Exon 10 Deletion', true],
+      ['Exon 4 Deletion+Exon 5 Deletion', true],
+      ['Exon 14 Del', false],
+      ['Exon 4 8 Insertion', false],
+    ])('should return %b for %s', (alteration, expected) => {
+      expect(EXON_ALTERATION_REGEX.test(alteration)).toEqual(expected);
     });
   });
 });

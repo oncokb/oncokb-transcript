@@ -9,15 +9,17 @@ import EntityActionButton from '../button/EntityActionButton';
 import { SORT } from './pagination.constants';
 import { PaginationState } from '../table/OncoKBAsyncTable';
 import { IUser } from '../model/user.model';
-import { Alteration, CancerType } from '../model/firebase/firebase.model';
+import { Alteration, CancerType, Flag } from '../model/firebase/firebase.model';
 import _ from 'lodash';
 import { ParsedRef, parseReferences } from 'app/oncokb-commons/components/RefComponent';
 import { IDrug } from 'app/shared/model/drug.model';
 import { IRule } from 'app/shared/model/rule.model';
 import { INTEGER_REGEX, REFERENCE_LINK_REGEX, SINGLE_NUCLEOTIDE_POS_REGEX, UUID_REGEX } from 'app/config/constants/regex';
-import { ProteinExonDTO } from 'app/shared/api/generated/curation';
+import { AlterationAnnotationStatus, AlterationTypeEnum, ProteinExonDTO } from 'app/shared/api/generated/curation';
 import { IQueryParams } from './jhipster-types';
 import InfoIcon from '../icons/InfoIcon';
+import { AlterationData } from '../modal/NewAddMutationModal';
+import { IFlag } from '../model/flag.model';
 
 export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
   if (!cancerType) return '';
@@ -301,6 +303,89 @@ export function parseAlterationName(
     comment,
     name,
   }));
+}
+
+export function getFullAlterationName(alterationData: AlterationData, includeVariantName = true) {
+  const variantName = includeVariantName && alterationData.name !== alterationData.alteration ? alterationData.name : '';
+  const excluding = alterationData.excluding.length > 0 ? alterationData.excluding.map(ex => ex.alteration) : [];
+  const comment = alterationData.comment ? alterationData.comment : '';
+  return buildAlterationName(alterationData.alteration, variantName, excluding, comment);
+}
+
+export function convertEntityStatusAlterationToAlterationData(
+  entityStatusAlteration: AlterationAnnotationStatus,
+  alterationName: string,
+  excluding: AlterationData[],
+  comment: string,
+  variantName?: string,
+): AlterationData {
+  const alteration = entityStatusAlteration.entity;
+  const alterationData: AlterationData = {
+    type: alteration?.type ?? AlterationTypeEnum.Unknown,
+    alteration: alterationName,
+    name: (variantName || alteration?.name) ?? '',
+    consequence: alteration?.consequence?.name ?? '',
+    comment,
+    excluding,
+    genes: alteration?.genes,
+    proteinChange: alteration?.proteinChange,
+    proteinStart: alteration?.start,
+    proteinEnd: alteration?.end,
+    refResidues: alteration?.refResidues,
+    varResidues: alteration?.variantResidues,
+    warning: entityStatusAlteration.warning ? entityStatusAlteration.message : undefined,
+    error: entityStatusAlteration.error ? entityStatusAlteration.message : undefined,
+  };
+
+  // if the backend's response is different from the frontend response, set them equal to each other.
+  if (alteration?.alteration !== alterationName) {
+    alterationData.alteration = alteration?.alteration ?? '';
+  }
+
+  return alterationData;
+}
+
+export function convertAlterationDataToAlteration(alterationData: AlterationData) {
+  const alteration = new Alteration();
+  alteration.type = alterationData.type;
+  alteration.alteration = alterationData.alteration;
+  alteration.name = getFullAlterationName(alterationData);
+  alteration.proteinChange = alterationData.proteinChange || '';
+  alteration.proteinStart = alterationData.proteinStart || -1;
+  alteration.proteinEnd = alterationData.proteinEnd || -1;
+  alteration.refResidues = alterationData.refResidues || '';
+  alteration.varResidues = alterationData.varResidues || '';
+  alteration.consequence = alterationData.consequence;
+  alteration.comment = alterationData.comment;
+  alteration.excluding = alterationData.excluding.map(ex => convertAlterationDataToAlteration(ex));
+  alteration.genes = alterationData.genes || [];
+  return alteration;
+}
+
+export function convertAlterationToAlterationData(alteration: Alteration): AlterationData {
+  const { name: variantName } = parseAlterationName(alteration.name)[0];
+
+  return {
+    type: alteration.type,
+    alteration: alteration.alteration,
+    name: variantName || alteration.alteration,
+    consequence: alteration.consequence,
+    comment: alteration.comment,
+    excluding: alteration.excluding?.map(ex => convertAlterationToAlterationData(ex)) || [],
+    genes: alteration?.genes || [],
+    proteinChange: alteration?.proteinChange,
+    proteinStart: alteration?.proteinStart === -1 ? undefined : alteration?.proteinStart,
+    proteinEnd: alteration?.proteinEnd === -1 ? undefined : alteration?.proteinEnd,
+    refResidues: alteration?.refResidues,
+    varResidues: alteration?.varResidues,
+  };
+}
+
+export function convertIFlagToFlag(flagEntity: IFlag | Omit<IFlag, 'id'>): Flag {
+  return {
+    flag: flagEntity.flag,
+    type: flagEntity.type,
+  };
 }
 
 export function buildAlterationName(alteration: string, name = '', excluding = [] as string[], comment = '') {

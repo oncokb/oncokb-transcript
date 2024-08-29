@@ -31,6 +31,12 @@ import InfoIcon from '../icons/InfoIcon';
 import { FlagTypeEnum } from '../model/enumerations/flag-type.enum.model';
 import { IFlag } from '../model/flag.model';
 import { SentryError } from 'app/config/sentry-error';
+import { InputType } from 'reactstrap/types/lib/Input';
+import { useTextareaAutoHeight } from 'app/hooks/useTextareaAutoHeight';
+import AddMutationModalField from './MutationModal/AddMutationModalField';
+import AddMutationModalDropdown, { DropdownOption } from './MutationModal/AddMutationModalDropdown';
+import AddExonForm from './MutationModal/AddExonForm';
+import { useMatchGeneEntity } from 'app/hooks/useMatchGeneEntity';
 
 export type AlterationData = {
   type: AlterationTypeEnum;
@@ -88,6 +94,8 @@ function AddMutationModal({
   ].map(type => ({ label: READABLE_ALTERATION[type], value: type }));
   const consequenceOptions: DropdownOption[] =
     consequences?.map((consequence): DropdownOption => ({ label: consequence.name, value: consequence.id })) ?? [];
+
+  const [isExonCuration, setIsExonCuration] = useState(false);
 
   const [inputValue, setInputValue] = useState('');
   const [tabStates, setTabStates] = useState<AlterationData[]>([]);
@@ -742,6 +750,7 @@ function AddMutationModal({
           onChange={newValue => handleFieldChange(newValue?.value, 'type', alterationIndex, excludingIndex)}
         />
         <AddMutationModalField
+          type={'textarea'}
           label="Alteration"
           value={
             !_.isNil(alterationData.alterationFieldValueWhileFetching)
@@ -1052,7 +1061,7 @@ function AddMutationModal({
   const modalBody = (
     <>
       <Row className="align-items-center mb-3">
-        <Col className={classNames(!convertOptions?.isConverting && 'pe-0')}>
+        <Col>
           <CreatableSelect
             inputId="add-mutation-modal-input"
             ref={inputRef}
@@ -1083,7 +1092,7 @@ function AddMutationModal({
         </Col>
         {!convertOptions?.isConverting ? (
           <>
-            <Col className="col-auto ps-2">
+            <Col className="col-auto">
               <div>
                 <Button color="primary" disabled={!inputValue} onClick={handleAlterationAdded}>
                   Add
@@ -1215,46 +1224,49 @@ function AddMutationModal({
     return newAlterationCategories;
   }
 
+  function convertAlterationDataToAlteration(alterationData: AlterationData) {
+    const alteration = new Alteration();
+    alteration.type = alterationData.type;
+    alteration.alteration = alterationData.alteration;
+    alteration.name = getFullAlterationName(alterationData);
+    alteration.proteinChange = alterationData.proteinChange || '';
+    alteration.proteinStart = alterationData.proteinStart || -1;
+    alteration.proteinEnd = alterationData.proteinEnd || -1;
+    alteration.refResidues = alterationData.refResidues || '';
+    alteration.varResidues = alterationData.varResidues || '';
+    alteration.consequence = alterationData.consequence;
+    alteration.comment = alterationData.comment;
+    alteration.excluding = alterationData.excluding.map(ex => convertAlterationDataToAlteration(ex));
+    alteration.genes = alterationData.genes || [];
+    return alteration;
+  }
+
+  async function handleConfirm() {
+    const newMutation = mutationToEdit ? _.cloneDeep(mutationToEdit) : new Mutation('');
+    const newAlterations = tabStates.map(state => convertAlterationDataToAlteration(state));
+    newMutation.name = newAlterations.map(alteration => alteration.name).join(', ');
+    newMutation.alterations = newAlterations;
+
+    const newAlterationCategories = await handleAlterationCategoriesConfirm();
+    newMutation.alteration_categories = newAlterationCategories;
+
+    setErrorMessagesEnabled(false);
+    setIsConfirmPending(true);
+    try {
+      await onConfirm(newMutation, mutationList?.length || 0);
+    } finally {
+      setErrorMessagesEnabled(true);
+      setIsConfirmPending(false);
+    }
+  }
+
   return (
     <DefaultAddMutationModal
       isUpdate={!!mutationToEdit}
       modalHeader={convertOptions?.isConverting ? <div>Promoting Variant(s) to Mutation</div> : undefined}
-      modalBody={modalBody}
+      modalBody={isExonCuration ? <AddExonForm hugoSymbol={hugoSymbol ?? ''} /> : modalBody}
       onCancel={onCancel}
-      onConfirm={async () => {
-        function convertAlterationDataToAlteration(alterationData: AlterationData) {
-          const alteration = new Alteration();
-          alteration.type = alterationData.type;
-          alteration.alteration = alterationData.alteration;
-          alteration.name = getFullAlterationName(alterationData);
-          alteration.proteinChange = alterationData.proteinChange || '';
-          alteration.proteinStart = alterationData.proteinStart || -1;
-          alteration.proteinEnd = alterationData.proteinEnd || -1;
-          alteration.refResidues = alterationData.refResidues || '';
-          alteration.varResidues = alterationData.varResidues || '';
-          alteration.consequence = alterationData.consequence;
-          alteration.comment = alterationData.comment;
-          alteration.excluding = alterationData.excluding.map(ex => convertAlterationDataToAlteration(ex));
-          alteration.genes = alterationData.genes || [];
-          return alteration;
-        }
-
-        const newMutation = mutationToEdit ? _.cloneDeep(mutationToEdit) : new Mutation('');
-        const newAlterations = tabStates.map(state => convertAlterationDataToAlteration(state));
-        newMutation.name = newAlterations.map(alteration => alteration.name).join(', ');
-        newMutation.alterations = newAlterations;
-        const newAlterationCategories = await handleAlterationCategoriesConfirm();
-        newMutation.alteration_categories = newAlterationCategories;
-
-        setErrorMessagesEnabled(false);
-        setIsConfirmPending(true);
-        try {
-          await onConfirm(newMutation, mutationList?.length || 0);
-        } finally {
-          setErrorMessagesEnabled(true);
-          setIsConfirmPending(false);
-        }
-      }}
+      onConfirm={handleConfirm}
       errorMessages={modalErrorMessage && errorMessagesEnabled ? [modalErrorMessage] : undefined}
       warningMessages={modalWarningMessage ? [modalWarningMessage] : undefined}
       confirmButtonDisabled={
@@ -1270,64 +1282,7 @@ function AddMutationModal({
   );
 }
 
-interface IAddMutationModalFieldProps {
-  label: string;
-  value: string;
-  placeholder: string;
-  onChange: (newValue: string) => void;
-  isLoading?: boolean;
-  disabled?: boolean;
-}
-
-function AddMutationModalField({ label, value: value, placeholder, onChange, isLoading, disabled }: IAddMutationModalFieldProps) {
-  return (
-    <div className="d-flex align-items-center mb-3">
-      <Col className="px-0 col-3 me-3 align-items-center">
-        <div className="d-flex align-items-center">
-          <span className="me-2">{label}</span>
-          {isLoading && <Spinner color="primary" size="sm" />}
-        </div>
-      </Col>
-      <Col className="px-0">
-        <Input
-          disabled={disabled}
-          value={value}
-          onChange={event => {
-            onChange(event.target.value);
-          }}
-          placeholder={placeholder}
-        />
-      </Col>
-    </div>
-  );
-}
-
-type DropdownOption = {
-  label: string;
-  value: any;
-};
-interface IAddMutationModalDropdownProps {
-  label: string;
-  value: DropdownOption;
-  options: DropdownOption[];
-  menuPlacement?: MenuPlacement;
-  onChange: (newValue: DropdownOption | null) => void;
-}
-
-function AddMutationModalDropdown({ label, value, options, menuPlacement, onChange }: IAddMutationModalDropdownProps) {
-  return (
-    <div className="d-flex align-items-center mb-3">
-      <Col className="px-0 col-3 me-3">
-        <span>{label}</span>
-      </Col>
-      <Col className="px-0">
-        <ReactSelect value={value} options={options} onChange={onChange} menuPlacement={menuPlacement} isClearable />
-      </Col>
-    </div>
-  );
-}
-
-const AddMutationInputOverlay = () => {
+export const AddMutationInputOverlay = () => {
   return (
     <div>
       <div>
@@ -1335,7 +1290,7 @@ const AddMutationInputOverlay = () => {
         <span style={{ fontStyle: 'italic', fontWeight: 'bold' }}>Add button</span> to annotate alteration(s).
       </div>
       <div className="mt-2">
-        <div>Examples:</div>
+        <div>String Mutation:</div>
         <div>
           <ul style={{ marginBottom: 0 }}>
             <li>
@@ -1346,6 +1301,15 @@ const AddMutationInputOverlay = () => {
             </li>
           </ul>
         </div>
+        <div>Exon:</div>
+        <ul style={{ marginBottom: 0 }}>
+          <li>
+            Supported consequences are Insertion, Deletion and Duplication - <span className="text-primary">Exon 4 Deletion</span>
+          </li>
+          <li>
+            Exon range - <span className="text-primary">Exon 4-8 Deletion</span>
+          </li>
+        </ul>
       </div>
     </div>
   );

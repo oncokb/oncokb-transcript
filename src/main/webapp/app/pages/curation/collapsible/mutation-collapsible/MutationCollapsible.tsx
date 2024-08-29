@@ -50,6 +50,7 @@ import { RemovableCollapsible } from '../RemovableCollapsible';
 import { Unsubscribe } from 'firebase/database';
 import { getLocationIdentifier } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
 import MutationCollapsibleTitle from './MutationCollapsibleTitle';
+import NewAddMutationModal from 'app/shared/modal/NewAddMutationModal';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
@@ -581,7 +582,7 @@ const MutationCollapsible = ({
         }}
       />
       {isEditingMutation ? (
-        <AddMutationModal
+        <NewAddMutationModal
           hugoSymbol={hugoSymbol}
           isGermline={isGermline}
           mutationToEditPath={isEditingMutation ? mutationPath : null}
