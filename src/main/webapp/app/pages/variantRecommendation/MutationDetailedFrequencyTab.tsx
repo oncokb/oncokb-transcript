@@ -2,8 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { Input } from 'reactstrap';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
 import { DetailedFrequencyData } from 'app/shared/model/variant-frequency.model';
-import formatPercentage from './FormatPercentage';
-import TwoRangeSlider from 'app/oncokb-commons/components/twoRangeSlider/TwoRangeSlider';
+import { formatPercentage } from 'app/shared/util/utils';
+import TwoThumbSlider from 'app/oncokb-commons/components/twoThumbSlider/TwoThumbSlider';
+import { inputFilterMethod, numberFilterMethod, silderFilterMethod } from './variant-recommendation-utils';
 
 function MutationDetailedFrequencyTab(props) {
   const [cancerType, SetCancerType] = useState('');
@@ -77,10 +78,7 @@ function MutationDetailedFrequencyTab(props) {
           </Input>
         );
       },
-      filterMethod(filter, row) {
-        if (!filter.value) return true;
-        return String(row[filter.id]).toLowerCase().includes(filter.value.toLowerCase());
-      },
+      filterMethod: inputFilterMethod,
     },
     {
       accessor: 'CANCER_TYPE_DETAILED',
@@ -103,10 +101,7 @@ function MutationDetailedFrequencyTab(props) {
       Filter({ filter, onChange }) {
         return <Input placeholder="Search" value={filter ? filter.value : ''} onChange={event => onChange(event.target.value)} />;
       },
-      filterMethod(filter, row) {
-        if (!filter.value) return true;
-        return String(row[filter.id]).toLowerCase().includes(filter.value.toLowerCase());
-      },
+      filterMethod: inputFilterMethod,
     },
     {
       accessor: 'Entrez_Gene_Id',
@@ -114,10 +109,7 @@ function MutationDetailedFrequencyTab(props) {
       Filter({ filter, onChange }) {
         return <Input placeholder="Search" value={filter ? filter.value : ''} onChange={event => onChange(event.target.value)} />;
       },
-      filterMethod(filter, row) {
-        if (!filter.value) return true;
-        return String(row[filter.id]).toLowerCase().includes(filter.value.toLowerCase());
-      },
+      filterMethod: inputFilterMethod,
     },
     {
       accessor: 'HGVSp_Short',
@@ -134,31 +126,24 @@ function MutationDetailedFrequencyTab(props) {
       accessor: 'Number',
       Header: 'Number',
       Filter({ filter, onChange }) {
-        const filterValue = filter ? filter.value : ['', ''];
+        const [minValue, maxValue] = filter ? filter.value : ['', ''];
         return (
           <div style={{ display: 'flex', gap: '10px' }}>
-            <Input placeholder="Min" value={filterValue[0]} onChange={event => onChange([event.target.value, filterValue[1]])} />
-            <Input placeholder="Max" value={filterValue[1]} onChange={event => onChange([filterValue[0], event.target.value])} />
+            <Input placeholder="Min" value={minValue} onChange={event => onChange([event.target.value, maxValue])} />
+            <Input placeholder="Max" value={maxValue} onChange={event => onChange([minValue, event.target.value])} />
           </div>
         );
       },
-      filterMethod(filter, row) {
-        if (!filter.value) return true;
-        return (
-          (!filter.value[0] || Number(row[filter.id]) >= filter.value[0]) && (!filter.value[1] || Number(row[filter.id]) <= filter.value[1])
-        );
-      },
+      filterMethod: numberFilterMethod,
     },
     {
       accessor: 'Percentage',
       Header: 'Percentage',
       Cell: ({ value }) => formatPercentage(value),
       Filter({ filter, onChange }) {
-        return <TwoRangeSlider min={0} max={1} range={[0, 1]} step={0.00001} onChange={event => onChange(event)} />;
+        return <TwoThumbSlider min={0} max={1} range={[0, 1]} step={0.00001} onChange={event => onChange(event)} />;
       },
-      filterMethod(filter, row) {
-        return row[filter.id] >= filter.value[0] && row[filter.id] <= filter.value[1];
-      },
+      filterMethod: silderFilterMethod,
     },
   ];
 

@@ -7,7 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.json.simple.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.mskcc.oncokb.curation.config.Constants;
 import org.mskcc.oncokb.curation.service.S3Service;
 import org.mskcc.oncokb.curation.web.rest.errors.BadRequestAlertException;
@@ -35,7 +36,7 @@ public class VariantRecommendController {
     private S3Service s3Service;
 
     @GetMapping("/variant-recommendation/{filename}")
-    public ResponseEntity<List<JSONObject>> requestData(@PathVariable String filename) throws IOException {
+    public ResponseEntity<String> requestData(@PathVariable String filename) throws IOException {
         Optional<ResponseInputStream<GetObjectResponse>> s3object = s3Service.getObject(Constants.ONCOKB_S3_BUCKET, filename);
         if (s3object.isPresent()) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(s3object.orElseThrow(), StandardCharsets.UTF_8));
@@ -44,7 +45,7 @@ public class VariantRecommendController {
                 throw new BadRequestAlertException("File is empty", ENTITY_NAME, "fileempty");
             }
             String[] headers = headerLine.split("\t");
-            List<JSONObject> jsonList = new ArrayList<>();
+            JSONArray jsonArray = new JSONArray();
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split("\t");
@@ -52,10 +53,9 @@ public class VariantRecommendController {
                 for (int i = 0; i < headers.length; i++) {
                     jsonObject.put(headers[i], "n/a".equals(data[i]) ? null : data[i]);
                 }
-                jsonList.add(jsonObject);
+                jsonArray.put(jsonObject);
             }
-
-            return ResponseEntity.ok(jsonList);
+            return ResponseEntity.ok(jsonArray.toString());
         } else {
             throw new ResourceNotFoundException("File not Found", ENTITY_NAME, "nofile");
         }

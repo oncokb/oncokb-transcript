@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import formatPercentage from 'app/pages/variantRecommendation/FormatPercentage';
+import { formatPercentage } from 'app/shared/util/utils';
 import classnames from 'classnames';
 import * as styles from './styles.module.scss';
 
@@ -11,7 +11,7 @@ interface RangeSliderProps {
   onChange: (newRange: [number, number]) => void;
 }
 
-export const TwoRangeSlider = ({ min, max, range, step, onChange }: RangeSliderProps) => {
+export const TwoThumbSlider = ({ min, max, range, step, onChange }: RangeSliderProps) => {
   const [minValue, setMinValue] = useState(range ? range[0] : min);
   const [maxValue, setMaxValue] = useState(range ? range[1] : max);
 
@@ -52,4 +52,4 @@ export const TwoRangeSlider = ({ min, max, range, step, onChange }: RangeSliderP
   );
 };
 
-export default TwoRangeSlider;
+export default TwoThumbSlider;
