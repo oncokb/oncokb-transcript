@@ -1,8 +1,12 @@
 import _ from 'lodash';
 import { Drug, Gene, Mutation, Review, Treatment, Tumor, Vus, DrugCollection } from '../../model/firebase/firebase.model';
+import { useLastReviewedOnly } from '../core-submission-shared/core-submission-utils';
 
 export function getGeneData(geneData: Gene, onlyReviewedContent: boolean, drugList: DrugCollection): true | Gene {
-  const gene = _.cloneDeep(geneData);
+  const gene = onlyReviewedContent ? useLastReviewedOnly(geneData, true) : _.cloneDeep(geneData);
+  if (gene === undefined) {
+    return true;
+  }
   processData(gene, ['summary', 'background'], onlyReviewedContent);
   processData(gene.type, ['tsg', 'ocg'], onlyReviewedContent);
   const tempMutations: Mutation[] = [];

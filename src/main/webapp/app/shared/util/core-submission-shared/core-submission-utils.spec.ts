@@ -9,7 +9,7 @@ type RecursivePartial<T> = {
 };
 
 describe('useLastReviewedOnly', () => {
-  const tests: [RecursivePartial<Gene>, RecursivePartial<Gene>][] = [
+  const tests: [RecursivePartial<Gene>, RecursivePartial<Gene> | undefined][] = [
     [
       {
         summary: 'XXXXXXXXXXX',
@@ -20,13 +20,7 @@ describe('useLastReviewedOnly', () => {
           updatedBy: 'Test User',
         },
       },
-      {
-        summary_review: {
-          added: true,
-          updateTime: 0,
-          updatedBy: 'Test User',
-        },
-      },
+      undefined,
     ],
     [
       {

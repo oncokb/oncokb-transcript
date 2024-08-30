@@ -87,7 +87,7 @@ const mockGene = createMockGene({
   background_review: createMockReview({
     updateTime: 1717770480000,
     updatedBy: 'John Doe',
-    added: true,
+    lastReviewed: 'test',
   }),
   background_uuid: '16acb0f4-a01c-472e-b243-01560f92cf1e',
   dmp_refseq_id: 'NM_000000.0',
@@ -123,6 +123,56 @@ const mockGene = createMockGene({
   }),
   mutations_uuid: '69e454db-db99-4979-a770-482f7937314b',
   mutations: [
+    createMockMutation({
+      tumors_uuid: '8ba291c7-6565-45e8-9dfa-a185657886cc',
+      alterations_uuid: '145c01a5-ac80-4bdd-9169-e51da638b5f8',
+      mutation_effect: createMockMutationEffect({
+        pathogenic_uuid: '23d48fd8-2b0f-4530-b5d9-aadf4ffd9325',
+        description: 'The class II BRAF',
+        description_review: createMockReview({
+          updateTime: 1678309000000,
+          updatedBy: 'John Doe',
+          lastReviewed: 'reviewed description',
+        }),
+        description_uuid: '5ac487cc-8f37-4542-a59c-7aaa31cde0fb',
+        effect: MUTATION_EFFECT.LIKELY_GAIN_OF_FUNCTION,
+        effect_review: createMockReview({
+          updateTime: 1678309000000,
+          updatedBy: 'John Doe',
+          lastReviewed: MUTATION_EFFECT.NEUTRAL,
+        }),
+        effect_uuid: '21371d1e-d93d-492d-b791-616714bcb3c3',
+        oncogenic: FIREBASE_ONCOGENICITY.LIKELY,
+        oncogenic_review: createMockReview({
+          updateTime: 1678309000000,
+          updatedBy: 'John Doe',
+          lastReviewed: FIREBASE_ONCOGENICITY.YES,
+        }),
+        oncogenic_uuid: '78d4f998-b73e-4535-9bb9-68cb72cf08cc',
+        short: '',
+      }),
+      mutation_effect_uuid: '77b1b627-a015-4d0c-8fda-b3eb1fc1ff2a',
+      name: 'L597S',
+      name_review: createMockReview({
+        updateTime: 1678309000000,
+        updatedBy: 'John Doe',
+        added: true,
+      }),
+      mutation_specific_cancer_risk: createMockCancerRisk({
+        biallelic_uuid: 'aa3609a2-378f-4ff5-98f8-e57a032d56da',
+        mosaic_uuid: '50a2a7e4-58ee-4f96-8ad4-f431d2f1efa8',
+        monoallelic_uuid: '29a8eed7-0d6b-48d5-8e20-d73fc2c639f1',
+      }),
+      mutation_specific_inheritance_mechanism: createMockMutationSpecificInheritanceMechanism({
+        description_uuid: '28f7e918-6c1b-45f5-accd-9cb6a7eb6149',
+        inheritanceMechanism_uuid: '59b3e3f9-5339-4bd1-8cc3-d97ca0c2509f',
+      }),
+      mutation_specific_penetrance: createMockMutationSpecificPenetrance({
+        description_uuid: '531dc775-3c64-4605-9830-e00c92401f64',
+        penetrance_uuid: '494467d4-5d02-4bac-b654-ab7f7a88138d',
+      }),
+      name_uuid: 'b01b580f-d159-4c40-bf75-3c03704c2b3b',
+    }),
     createMockMutation({
       tumors_uuid: '9672ea70-bde8-4149-80a5-d1983932b89b',
       alterations_uuid: '724b958c-57c5-40e8-b330-ab0d25539a49',
@@ -466,6 +516,7 @@ const mockDrugList: DrugCollection = {
 const expectedGeneDataNoCommentsAndReviewed = {
   name: 'BRAF',
   name_comments: [],
+  background: 'test',
   background_uuid: '16acb0f4-a01c-472e-b243-01560f92cf1e',
   dmp_refseq_id: 'NM_000000.0',
   isoform_override: 'ENST00000000000',
@@ -775,7 +826,7 @@ const expectedGeneDataNoCommentsAndReviewed = {
   dmp_refseq_id_grch38: 'NM_000000.0',
   isoform_override_grch38: 'ENST00000000000',
   genomic_indicators: [],
-  background_review: { added: true, updatedBy: 'John Doe', updateTime: 1717770480000 },
+  background_review: { updatedBy: 'John Doe', updateTime: 1717770480000, lastReviewed: 'test' },
   summary_review: { updatedBy: 'John Doe', updateTime: 1717770480000, lastReviewed: 'test' },
 };
 
@@ -787,6 +838,67 @@ const expectedGeneDataNoCommentsAndAllContent = {
   dmp_refseq_id: 'NM_000000.0',
   isoform_override: 'ENST00000000000',
   mutations: [
+    {
+      alterations: [],
+      alterations_uuid: '145c01a5-ac80-4bdd-9169-e51da638b5f8',
+      mutation_effect: {
+        description: 'The class II BRAF',
+        description_review: {
+          lastReviewed: 'reviewed description',
+          updateTime: 1678309000000,
+          updatedBy: 'John Doe',
+        },
+        description_uuid: '5ac487cc-8f37-4542-a59c-7aaa31cde0fb',
+        effect: 'Likely Gain-of-function',
+        effect_review: {
+          lastReviewed: 'Neutral',
+          updateTime: 1678309000000,
+          updatedBy: 'John Doe',
+        },
+        effect_uuid: '21371d1e-d93d-492d-b791-616714bcb3c3',
+        oncogenic: 'Likely',
+        oncogenic_review: {
+          lastReviewed: 'Yes',
+          updateTime: 1678309000000,
+          updatedBy: 'John Doe',
+        },
+        oncogenic_uuid: '78d4f998-b73e-4535-9bb9-68cb72cf08cc',
+        pathogenic: '',
+        pathogenic_uuid: '23d48fd8-2b0f-4530-b5d9-aadf4ffd9325',
+        short: '',
+      },
+      mutation_effect_comments: [],
+      mutation_effect_uuid: '77b1b627-a015-4d0c-8fda-b3eb1fc1ff2a',
+      mutation_specific_cancer_risk: {
+        biallelic: '',
+        biallelic_uuid: 'aa3609a2-378f-4ff5-98f8-e57a032d56da',
+        monoallelic: '',
+        monoallelic_uuid: '29a8eed7-0d6b-48d5-8e20-d73fc2c639f1',
+        mosaic: '',
+        mosaic_uuid: '50a2a7e4-58ee-4f96-8ad4-f431d2f1efa8',
+      },
+      mutation_specific_inheritance_mechanism: {
+        description: '',
+        description_uuid: '28f7e918-6c1b-45f5-accd-9cb6a7eb6149',
+        inheritanceMechanism: '',
+        inheritanceMechanism_uuid: '59b3e3f9-5339-4bd1-8cc3-d97ca0c2509f',
+      },
+      mutation_specific_penetrance: {
+        description: '',
+        description_uuid: '531dc775-3c64-4605-9830-e00c92401f64',
+        penetrance: '',
+        penetrance_uuid: '494467d4-5d02-4bac-b654-ab7f7a88138d',
+      },
+      name: 'L597S',
+      name_review: {
+        added: true,
+        updateTime: 1678309000000,
+        updatedBy: 'John Doe',
+      },
+      name_uuid: 'b01b580f-d159-4c40-bf75-3c03704c2b3b',
+      tumors: [],
+      tumors_uuid: '8ba291c7-6565-45e8-9dfa-a185657886cc',
+    },
     {
       mutation_effect: {
         description: 'The class II BRAF',
@@ -1091,6 +1203,6 @@ const expectedGeneDataNoCommentsAndAllContent = {
   dmp_refseq_id_grch38: 'NM_000000.0',
   isoform_override_grch38: 'ENST00000000000',
   genomic_indicators: [],
-  background_review: { added: true, updatedBy: 'John Doe', updateTime: 1717770480000 },
+  background_review: { updatedBy: 'John Doe', updateTime: 1717770480000, lastReviewed: 'test' },
   summary_review: { updatedBy: 'John Doe', updateTime: 1717770480000, lastReviewed: 'test' },
 };
