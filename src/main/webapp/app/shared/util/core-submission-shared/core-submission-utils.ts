@@ -19,7 +19,9 @@ export function useLastReviewedOnly<T>(obj: T): T {
         (newObj as Record<string, unknown>)[key] = useLastReviewedOnlyRec(value as T);
       } else {
         const reviewObj: Review | undefined = curObj[`${key}_review`] as Review;
-        (newObj as Record<string, unknown>)[key] = reviewObj?.lastReviewed !== undefined ? reviewObj.lastReviewed : value;
+        if (!reviewObj?.added) {
+          (newObj as Record<string, unknown>)[key] = reviewObj?.lastReviewed !== undefined ? reviewObj.lastReviewed : value;
+        }
       }
     }
     return newObj;

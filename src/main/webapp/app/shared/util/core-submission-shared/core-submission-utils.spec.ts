@@ -15,6 +15,24 @@ describe('useLastReviewedOnly', () => {
         summary: 'XXXXXXXXXXX',
         summary_review: {
           lastReviewed: 'YYYYYYYYYYY',
+          added: true,
+          updateTime: 0,
+          updatedBy: 'Test User',
+        },
+      },
+      {
+        summary_review: {
+          added: true,
+          updateTime: 0,
+          updatedBy: 'Test User',
+        },
+      },
+    ],
+    [
+      {
+        summary: 'XXXXXXXXXXX',
+        summary_review: {
+          lastReviewed: 'YYYYYYYYYYY',
           updateTime: 0,
           updatedBy: 'Test User',
         },
