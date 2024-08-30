@@ -29,6 +29,7 @@ import { Unsubscribe } from 'firebase/database';
 import Select from 'react-select/dist/declarations/src/Select';
 import InfoIcon from '../icons/InfoIcon';
 import { Linkout } from '../links/Linkout';
+import { SopPageLink } from '../links/SopPageLink';
 
 type AlterationData = {
   type: AlterationTypeEnum;
@@ -1187,9 +1188,7 @@ const AddMutationInputOverlay = () => {
         </div>
         <div className="mt-2">
           For detailed list, refer to:{' '}
-          <Linkout to={'https://sop.oncokb.org/'}>
-            OncoKB SOP - Chapter 6: Table 3.1: OncoKB alteration nomenclature, style and formatting
-          </Linkout>
+          <SopPageLink>OncoKB SOP - Chapter 6: Table 3.1: OncoKB alteration nomenclature, style and formatting</SopPageLink>
         </div>
       </div>
     </div>
