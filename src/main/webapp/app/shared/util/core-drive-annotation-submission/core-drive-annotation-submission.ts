@@ -67,15 +67,13 @@ function processData<T, K extends keyof T & string>(data: T | undefined, keys: K
     for (const key of keys) {
       delete data?.[key + '_comments'];
       const reviewKey = key + '_review';
-      const maybeReview = data?.[reviewKey];
-      if (
-        data !== null &&
-        onlyReviewedContent &&
-        typeof maybeReview === 'object' &&
-        maybeReview !== null &&
-        'lastReviewed' in maybeReview
-      ) {
-        data[key] = maybeReview.lastReviewed;
+      const maybeReview: Review | null | undefined = data?.[reviewKey];
+      if (data !== null && onlyReviewedContent && typeof maybeReview === 'object' && maybeReview !== null) {
+        if (maybeReview.added) {
+          delete data[key];
+        } else if ('lastReviewed' in maybeReview) {
+          data[key] = maybeReview.lastReviewed as (T & object)[K];
+        }
       }
     }
   }

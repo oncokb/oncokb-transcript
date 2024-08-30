@@ -87,7 +87,7 @@ const mockGene = createMockGene({
   background_review: createMockReview({
     updateTime: 1717770480000,
     updatedBy: 'John Doe',
-    lastReviewed: 'test',
+    added: true,
   }),
   background_uuid: '16acb0f4-a01c-472e-b243-01560f92cf1e',
   dmp_refseq_id: 'NM_000000.0',
@@ -466,7 +466,6 @@ const mockDrugList: DrugCollection = {
 const expectedGeneDataNoCommentsAndReviewed = {
   name: 'BRAF',
   name_comments: [],
-  background: 'test',
   background_uuid: '16acb0f4-a01c-472e-b243-01560f92cf1e',
   dmp_refseq_id: 'NM_000000.0',
   isoform_override: 'ENST00000000000',
@@ -776,7 +775,7 @@ const expectedGeneDataNoCommentsAndReviewed = {
   dmp_refseq_id_grch38: 'NM_000000.0',
   isoform_override_grch38: 'ENST00000000000',
   genomic_indicators: [],
-  background_review: { updatedBy: 'John Doe', updateTime: 1717770480000, lastReviewed: 'test' },
+  background_review: { added: true, updatedBy: 'John Doe', updateTime: 1717770480000 },
   summary_review: { updatedBy: 'John Doe', updateTime: 1717770480000, lastReviewed: 'test' },
 };
 
@@ -1092,6 +1091,6 @@ const expectedGeneDataNoCommentsAndAllContent = {
   dmp_refseq_id_grch38: 'NM_000000.0',
   isoform_override_grch38: 'ENST00000000000',
   genomic_indicators: [],
-  background_review: { updatedBy: 'John Doe', updateTime: 1717770480000, lastReviewed: 'test' },
+  background_review: { added: true, updatedBy: 'John Doe', updateTime: 1717770480000 },
   summary_review: { updatedBy: 'John Doe', updateTime: 1717770480000, lastReviewed: 'test' },
 };
