@@ -43,6 +43,9 @@ export function pathToGetEvidenceArgs({
   valuePath: string;
 } & Pick<GetEvidenceArgs, 'gene' | 'updateTime' | 'drugListRef' | 'entrezGeneId'>): GetEvidenceArgs | undefined {
   const gene = useLastReviewedOnly(originalGene);
+  if (gene === undefined) {
+    return undefined;
+  }
   const args: Partial<GetEvidenceArgs> = {
     updateTime,
     gene,

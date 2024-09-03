@@ -7,9 +7,9 @@ export function createGeneTypePayload(
 ): Required<Pick<GenePayload, 'hugoSymbol' | 'oncogene' | 'tsg'>> {
   const gene = useLastReviewedOnly(originalGene);
   return {
-    hugoSymbol: gene.name,
-    oncogene: gene.type.ocg ? true : false,
-    tsg: gene.type.tsg ? true : false,
+    hugoSymbol: gene!.name,
+    oncogene: gene!.type.ocg ? true : false,
+    tsg: gene!.type.tsg ? true : false,
   };
 }
 export function removeGenePayload(gene: Pick<Gene, 'name'>): Required<Pick<GenePayload, 'hugoSymbol'>> {
