@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.json.JSONArray;
@@ -36,7 +35,7 @@ public class VariantRecommendController {
     private S3Service s3Service;
 
     @GetMapping("/variant-recommendation/{filename}")
-    public ResponseEntity<String> requestData(@PathVariable String filename) throws IOException {
+    public ResponseEntity<List<Object>> requestData(@PathVariable String filename) throws IOException {
         Optional<ResponseInputStream<GetObjectResponse>> s3object = s3Service.getObject(Constants.ONCOKB_S3_BUCKET, filename);
         if (s3object.isPresent()) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(s3object.orElseThrow(), StandardCharsets.UTF_8));
@@ -55,7 +54,7 @@ public class VariantRecommendController {
                 }
                 jsonArray.put(jsonObject);
             }
-            return ResponseEntity.ok(jsonArray.toString());
+            return ResponseEntity.ok(jsonArray.toList());
         } else {
             throw new ResourceNotFoundException("File not Found", ENTITY_NAME, "nofile");
         }
