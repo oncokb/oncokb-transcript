@@ -35,8 +35,8 @@ export const DriveAnnotationAxiosParamCreator = function (configuration?: Config
       for (const [key, value] of Object.entries(driveAnnotation)) {
         if (typeof value === 'boolean') {
           bodyFormData.append(key, `${value}`);
-        } else {
-          bodyFormData.append(key, value ?? '');
+        } else if (value !== undefined) {
+          bodyFormData.append(key, value);
         }
       }
       localVarRequestOptions.data = bodyFormData;
