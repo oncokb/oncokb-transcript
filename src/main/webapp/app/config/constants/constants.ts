@@ -108,6 +108,8 @@ export enum FEATURE_PAGE_ROUTE {
   OAUTH = '/oauth2/authorization/oidc',
   SEARCH = '/search',
   SWAGGER = '/swagger-ui/index.html',
+  /* Below are variant recommendation related paths */
+  VARIANR_REC = '/variant-recommendation',
   /* Below are curation related paths */
   CURATION = '/curation',
   CURATION_SOMATIC = '/curation/somatic',
@@ -441,3 +443,7 @@ export const KEYCLOAK_UNAUTHORIZED_PARAM = 'unauthorized';
  */
 export const PRIORITY_ENTITY_MENU_ITEM_KEY = 'oncokbCuration-entityMenuPriorityKey';
 export const SOMATIC_GERMLINE_SETTING_KEY = 'oncokbCuration-somaticGermlineSettingKey';
+/* Files name in S3 bucket */
+export const ALL_FREQUENCY_FILE = 'msk_impact_2017_all_frequency.txt';
+export const TYPE_FREQUENCY_FILE = 'msk_impact_2017_type_frequency.txt';
+export const DETAILED_FREQUENCY_FILE = 'msk_impact_2017_detailed_frequency.txt';

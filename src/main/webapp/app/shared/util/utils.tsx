@@ -398,3 +398,8 @@ export const parseSort = (sort: IQueryParams['sort']) => {
 export const hasValue = <T,>(value: T | null | undefined): value is T => {
   return value !== null && value !== undefined;
 };
+
+export function formatPercentage(value: number) {
+  const formatted = +(value * 100).toFixed(3);
+  return `${formatted}%`;
+}

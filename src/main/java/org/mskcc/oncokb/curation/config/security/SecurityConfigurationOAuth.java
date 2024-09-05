@@ -88,6 +88,7 @@ public class SecurityConfigurationOAuth {
                     .requestMatchers(mvc.pattern("/api/authenticate")).permitAll()
                     .requestMatchers(mvc.pattern("/api/auth-info")).permitAll()
                     .requestMatchers(mvc.pattern("/api/logout")).permitAll()
+                    .requestMatchers("/api/variant-recommendation/**").permitAll()
                     .requestMatchers(mvc.pattern("/api/admin/**")).hasAuthority(AuthoritiesConstants.ADMIN)
                     .requestMatchers(mvc.pattern("/api/audit/**")).hasAuthority(AuthoritiesConstants.ADMIN)
                     .requestMatchers(mvc.pattern("/api/account/firebase-token")).hasAnyAuthority(AuthoritiesConstants.CURATOR, AuthoritiesConstants.USER)
