@@ -26,6 +26,7 @@ import {
   getFirebaseGenePath,
   getFirebaseVusPath,
   getMutationName,
+  hasMultipleMutations,
   isMutationEffectCuratable,
   isSectionRemovableWithoutReview,
 } from 'app/shared/util/firebase/firebase-utils';
@@ -308,6 +309,23 @@ const MutationCollapsible = ({
         }
         isPendingDelete={isMutationPendingDelete}
       >
+        <RealtimeTextAreaInput
+          firebasePath={`${mutationPath}/summary`}
+          inputClass={styles.summaryTextarea}
+          label="Mutation Summary (Optional)"
+          labelIcon={
+            <GeneHistoryTooltip
+              historyData={parsedHistoryList}
+              location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.SUMMARY}`}
+              locationIdentifier={getLocationIdentifier({
+                mutationUuid,
+                fields: [READABLE_FIELD.SUMMARY],
+              })}
+            />
+          }
+          name="summary"
+          parseRefs
+        />
         <Collapsible
           idPrefix={`${mutationName}-mutation-effect`}
           title="Mutation Effect"

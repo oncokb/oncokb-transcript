@@ -58,6 +58,7 @@ export interface IRealtimeBasicInput extends React.InputHTMLAttributes<HTMLInput
   inputClass?: string;
   parseRefs?: boolean;
   updateMetaData?: boolean;
+  disabledMessage?: string;
 }
 
 const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props: IRealtimeBasicInput) => {
@@ -169,7 +170,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     <>
       <Input
         innerRef={inputRef}
-        className={classNames(inputClass, isCheckType && 'ms-1 position-relative', isTextType && styles.editableTextBox)}
+        className={classNames(inputClass, isCheckType && 'ms-1 position-relative', isTextType && !props.disabled && styles.editableTextBox)}
         id={id}
         name={`${id}-${label.toLowerCase()}`}
         autoComplete="off"
