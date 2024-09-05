@@ -25,6 +25,94 @@ describe('useLastReviewedOnly', () => {
     [
       {
         summary: 'XXXXXXXXXXX',
+        mutations: [
+          {
+            name_uuid: '37a65ce9-1165-487a-be98-6975805d7e0f',
+            name_review: {
+              added: true,
+            },
+            name: 'created mutation',
+          },
+        ],
+      },
+      {
+        summary: 'XXXXXXXXXXX',
+        mutations: [],
+      },
+    ],
+    [
+      {
+        summary: 'XXXXXXXXXXX',
+        mutations: [
+          {
+            name: 'created cancer type test',
+            tumors: [
+              {
+                cancerTypes: [
+                  {
+                    code: 'b2f013d0-608c-43a1-abdf-cba892b1f523',
+                  },
+                ],
+                cancerTypes_review: { added: true },
+              },
+            ],
+          },
+        ],
+      },
+      {
+        summary: 'XXXXXXXXXXX',
+        mutations: [
+          {
+            name: 'created cancer type test',
+            tumors: [],
+          },
+        ],
+      },
+    ],
+    [
+      {
+        summary: 'XXXXXXXXXXX',
+        mutations: [
+          {
+            tumors: [
+              {
+                TIs: [
+                  {
+                    name: 'created treatment test',
+                    treatments: [
+                      {
+                        name: 'test',
+                        name_review: { added: true },
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        summary: 'XXXXXXXXXXX',
+        mutations: [
+          {
+            tumors: [
+              {
+                TIs: [
+                  {
+                    name: 'created treatment test',
+                    treatments: [],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    [
+      {
+        summary: 'XXXXXXXXXXX',
         summary_review: {
           lastReviewed: 'YYYYYYYYYYY',
           updateTime: 0,
@@ -34,6 +122,7 @@ describe('useLastReviewedOnly', () => {
       {
         summary: 'YYYYYYYYYYY',
         summary_review: {
+          lastReviewed: 'YYYYYYYYYYY',
           updateTime: 0,
           updatedBy: 'Test User',
         },
@@ -54,6 +143,7 @@ describe('useLastReviewedOnly', () => {
         type: {
           ocg: '',
           ocg_review: {
+            lastReviewed: '',
             updateTime: 0,
             updatedBy: 'Test User',
           },
@@ -95,6 +185,7 @@ describe('useLastReviewedOnly', () => {
           {
             name: 'new mutation name',
             name_review: {
+              lastReviewed: 'new mutation name',
               updateTime: 0,
               updatedBy: 'Test User',
             },

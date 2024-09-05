@@ -2,45 +2,41 @@ import _ from 'lodash';
 import { Drug, Gene, Mutation, Review, Treatment, Tumor, Vus, DrugCollection } from '../../model/firebase/firebase.model';
 import { useLastReviewedOnly } from '../core-submission-shared/core-submission-utils';
 
-export function getGeneData(geneData: Gene, onlyReviewedContent: boolean, drugList: DrugCollection): true | Gene {
-  const gene = onlyReviewedContent ? useLastReviewedOnly(geneData, true) : _.cloneDeep(geneData);
+export function getGeneData(geneData: Gene, drugList: DrugCollection): Gene | undefined {
+  const gene = useLastReviewedOnly(geneData);
   if (gene === undefined) {
-    return true;
+    return undefined;
   }
-  processData(gene, ['summary', 'background'], onlyReviewedContent);
-  processData(gene.type, ['tsg', 'ocg'], onlyReviewedContent);
+  processData(gene, ['summary', 'background']);
+  processData(gene.type, ['tsg', 'ocg']);
   const tempMutations: Mutation[] = [];
   for (const mutation of gene.mutations ?? []) {
     const tempTumors: Tumor[] = [];
-    if (shouldExclude(onlyReviewedContent, mutation.name_review)) {
+    if (shouldExclude(mutation.name_review)) {
       tempMutations.push(mutation);
       continue;
     }
-    processData(mutation, ['name'], onlyReviewedContent);
-    processData(mutation.mutation_effect, ['oncogenic', 'effect', 'description'], onlyReviewedContent);
+    processData(mutation, ['name']);
+    processData(mutation.mutation_effect, ['oncogenic', 'effect', 'description']);
     for (const tumor of mutation.tumors ?? []) {
-      if (shouldExclude(onlyReviewedContent, tumor.cancerTypes_review)) {
+      if (shouldExclude(tumor.cancerTypes_review)) {
         tempTumors.push(tumor);
         continue;
       }
       // process tumor cancerTypes
-      processData(tumor, ['summary', 'diagnosticSummary', 'prognosticSummary'], onlyReviewedContent);
-      processData(tumor.diagnostic, ['level', 'description', 'excludedRCTs'], onlyReviewedContent);
-      processData(tumor.prognostic, ['level', 'description', 'excludedRCTs'], onlyReviewedContent);
+      processData(tumor, ['summary', 'diagnosticSummary', 'prognosticSummary']);
+      processData(tumor.diagnostic, ['level', 'description', 'excludedRCTs']);
+      processData(tumor.prognostic, ['level', 'description', 'excludedRCTs']);
       for (const ti of tumor.TIs) {
         type TempTreatment = Omit<Treatment, 'name'> & { name: ReturnType<typeof drugUuidToDrug> | string };
         const tempTreatments: TempTreatment[] = [];
         for (const treatment of ti.treatments ?? []) {
-          if (shouldExclude(onlyReviewedContent, treatment.name_review)) {
+          if (shouldExclude(treatment.name_review)) {
             tempTreatments.push(treatment);
-            return true;
+            return undefined;
           }
           (treatment as TempTreatment).name = drugUuidToDrug(treatment.name, drugList);
-          processData(
-            treatment,
-            ['level', 'propagation', 'propagationLiquid', 'indication', 'description', 'fdaLevel'],
-            onlyReviewedContent,
-          );
+          processData(treatment, ['level', 'propagation', 'propagationLiquid', 'indication', 'description', 'fdaLevel']);
         }
         for (const item of tempTreatments) {
           const index = ti.treatments.indexOf(item as Treatment);
@@ -66,13 +62,13 @@ export function getGeneData(geneData: Gene, onlyReviewedContent: boolean, drugLi
   return gene;
 }
 
-function processData<T, K extends keyof T & string>(data: T | undefined, keys: K[], onlyReviewedContent: boolean) {
+function processData<T, K extends keyof T & string>(data: T | undefined, keys: K[]) {
   if (data !== undefined) {
     for (const key of keys) {
       delete data?.[key + '_comments'];
       const reviewKey = key + '_review';
       const maybeReview: Review | null | undefined = data?.[reviewKey];
-      if (data !== null && onlyReviewedContent && typeof maybeReview === 'object' && maybeReview !== null) {
+      if (data !== null && typeof maybeReview === 'object' && maybeReview !== null) {
         if (maybeReview.added) {
           delete data[key];
         } else if ('lastReviewed' in maybeReview) {
@@ -93,12 +89,8 @@ export function getVUSData(vus: Vus[]) {
   return vusDataArray;
 }
 
-function shouldExclude(onlyReviewedContent: boolean, reviewObj: Review | undefined) {
-  return (
-    reviewObj &&
-    ((onlyReviewedContent && reviewObj.added === true && reviewObj.promotedToMutation === true && reviewObj.initialUpdate === true) ||
-      (!onlyReviewedContent && reviewObj.removed === true))
-  );
+function shouldExclude(reviewObj: Review | undefined) {
+  return reviewObj && reviewObj.added === true && reviewObj.promotedToMutation === true && reviewObj.initialUpdate === true;
 }
 
 function drugUuidToDrug(key: string | undefined, drugList: DrugCollection): Drug[][] | Record<string, unknown> {
@@ -140,10 +132,13 @@ export function getDriveAnnotations(
   { gene, vus, releaseGene }: { gene: Gene | undefined; vus: Vus[] | undefined; releaseGene: boolean },
 ): DriveAnnotation {
   const params: DriveAnnotation = { gene: undefined, vus: undefined, releaseGene: false };
-  if (gene) {
-    params.gene = JSON.stringify(getGeneData(gene, true, drugList));
+  if (gene !== undefined) {
+    const geneData = getGeneData(gene, drugList);
+    if (geneData !== undefined) {
+      params.gene = JSON.stringify(geneData);
+    }
   }
-  if (vus) {
+  if (vus !== undefined) {
     params.vus = JSON.stringify(getVUSData(vus));
   }
   if (releaseGene) {

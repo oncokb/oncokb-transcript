@@ -598,6 +598,54 @@ describe('getEvidence to submit to core', () => {
                   }),
                   oncogenic_uuid: '8b076b49-5baa-4a74-90f1-c115a65b19e5',
                   oncogenic_review: createMockReview({
+                    lastReviewed: FIREBASE_ONCOGENICITY.YES,
+                    updateTime: getTimeFromDateString('2001-01-01'),
+                  }),
+                }),
+              }),
+            ],
+          }),
+        },
+        {
+          ['8b076b49-5baa-4a74-90f1-c115a65b19e5']: {
+            ...baseEvidence,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
+            evidenceType: EvidenceEvidenceTypeEnum.Oncogenic,
+            knownEffect: FIREBASE_ONCOGENICITY.YES,
+            gene: {
+              entrezGeneId: baseArgs.entrezGeneId,
+              hugoSymbol,
+            },
+            lastEdit: getTimeFromDateString('2001-01-01').toString(),
+          },
+        },
+      ],
+      [
+        {
+          ...baseArgs,
+          valuePath: 'mutations/0/mutation_effect/oncogenic',
+          updateTime: getTimeFromDateString('2000-01-01'),
+          gene: createMockGene({
+            name: hugoSymbol,
+            mutations: [
+              createMockMutation({
+                mutation_effect: createMockMutationEffect({
+                  description: 'Mutation Effect',
+                  effect_uuid: 'a7046e8d-af62-4284-a14d-fc145134529a',
+                  oncogenic: FIREBASE_ONCOGENICITY.LIKELY,
+                  effect: MUTATION_EFFECT.NEUTRAL,
+                  effect_review: createMockReview({
+                    updateTime: getTimeFromDateString('2002-01-01'),
+                  }),
+                  oncogenic_uuid: '8b076b49-5baa-4a74-90f1-c115a65b19e5',
+                  oncogenic_review: createMockReview({
                     updateTime: getTimeFromDateString('2001-01-01'),
                   }),
                 }),
@@ -840,6 +888,94 @@ describe('getEvidence to submit to core', () => {
       [
         {
           ...baseArgs,
+          valuePath: 'mutations/0/tumors/0/TIs/0/treatments/0',
+          updateTime: getTimeFromDateString('2002-01-01'),
+          drugListRef: {
+            ['76c75f3b-364a-418c-8661-48768fb0742a']: createMockDrug({
+              uuid: '76c75f3b-364a-418c-8661-48768fb0742a',
+              drugName: 'a',
+              ncitCode: 'ANcitCode',
+              ncitName: 'ANcitName',
+              priority: 1,
+            }),
+          },
+          gene: createMockGene({
+            name: hugoSymbol,
+            mutations: [
+              createMockMutation({
+                tumors: [
+                  createMockTumor({
+                    TIs: [
+                      createMockTi({
+                        type: TI_TYPE.IS,
+                        treatments: [
+                          createMockTreatment({
+                            name_uuid: '992bb496-7f19-4144-8664-3123756ad520',
+                            name: '76c75f3b-364a-418c-8661-48768fb0742a',
+                            description: 'TI IS',
+                            fdaLevel: FDA_LEVELS.LEVEL_FDA1,
+                            level: TX_LEVELS.LEVEL_1,
+                            level_review: createMockReview({
+                              lastReviewed: TX_LEVELS.LEVEL_2,
+                              updatedBy: 'John Doe',
+                              updateTime: getTimeFromDateString('2001-01-01'),
+                            }),
+                            propagationLiquid: TX_LEVELS.LEVEL_4,
+                            propagation: TX_LEVELS.LEVEL_2,
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        },
+        {
+          ['992bb496-7f19-4144-8664-3123756ad520']: {
+            ...baseEvidence,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
+            evidenceType: EvidenceEvidenceTypeEnum.StandardTherapeuticImplicationsForDrugSensitivity,
+            description: 'TI IS',
+            fdaLevel: EvidenceLevelOfEvidenceEnum.LevelFda1,
+            gene: {
+              entrezGeneId: baseArgs.entrezGeneId,
+              hugoSymbol,
+            },
+            knownEffect: 'Sensitive',
+            lastEdit: getTimeFromDateString('2002-01-01').toString(),
+            levelOfEvidence: EvidenceLevelOfEvidenceEnum.Level2,
+            liquidPropagationLevel: EvidenceLevelOfEvidenceEnum.Level4,
+            solidPropagationLevel: EvidenceLevelOfEvidenceEnum.Level2,
+            treatments: [
+              {
+                approvedIndications: [],
+                drugs: [
+                  createMockDrug({
+                    uuid: '76c75f3b-364a-418c-8661-48768fb0742a',
+                    drugName: 'a',
+                    ncitCode: 'ANcitCode',
+                    ncitName: 'ANcitName',
+                    priority: 1,
+                  }),
+                ],
+                priority: 1,
+              },
+            ],
+          },
+        },
+      ],
+      [
+        {
+          ...baseArgs,
           valuePath: 'mutations/0/tumors/0/summary',
           gene: createMockGene({
             name: hugoSymbol,
@@ -871,6 +1007,46 @@ describe('getEvidence to submit to core', () => {
             ],
             evidenceType: EvidenceEvidenceTypeEnum.TumorTypeSummary,
             description: 'Tumor Type Summary',
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            lastEdit: getTimeFromDateString('2004-01-01').toString(),
+          },
+        },
+      ],
+      [
+        {
+          ...baseArgs,
+          valuePath: 'mutations/0/tumors/0/summary',
+          gene: createMockGene({
+            name: hugoSymbol,
+            mutations: [
+              createMockMutation({
+                tumors: [
+                  createMockTumor({
+                    summary_uuid: 'be434f6e-d6e9-4809-9951-b0aa89e7a32c',
+                    summary: 'Tumor Type Summary',
+                    summary_review: createMockReview({
+                      updateTime: getTimeFromDateString('2004-01-01'),
+                      lastReviewed: 'Tumor Type Summary Old',
+                    }),
+                  }),
+                ],
+              }),
+            ],
+          }),
+        },
+        {
+          ['be434f6e-d6e9-4809-9951-b0aa89e7a32c']: {
+            ...baseEvidence,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
+            evidenceType: EvidenceEvidenceTypeEnum.TumorTypeSummary,
+            description: 'Tumor Type Summary Old',
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
             lastEdit: getTimeFromDateString('2004-01-01').toString(),
           },
