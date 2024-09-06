@@ -80,6 +80,9 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     updateReviewableContent,
     style,
     updateMetaData,
+    placeholder,
+    disabled,
+    disabledMessage,
     ...otherProps
   } = props;
 
@@ -182,6 +185,8 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
         value={inputValue}
         invalid={invalid}
         checked={isCheckType && isChecked()}
+        disabled={disabled}
+        placeholder={placeholder ? placeholder : disabled && disabledMessage ? disabledMessage : ''}
         {...otherProps}
       >
         {children}

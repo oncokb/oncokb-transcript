@@ -87,6 +87,7 @@ const MutationCollapsible = ({
   const [mutationAlterations, setMutationAlterations] = useState<Alteration[] | null>(null);
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
   const [relatedAnnotationResult, setRelatedAnnotationResult] = useState<AlterationAnnotationStatus[]>([]);
+  const [oncogenicity, setOncogenicity] = useState<string>('');
 
   useEffect(() => {
     const arr = annotatedAltsCache?.get(hugoSymbol ?? '', [{ name: mutationName, alterations: mutationAlterations }]) ?? [];
@@ -168,6 +169,11 @@ const MutationCollapsible = ({
         const review = snapshot.val() as Review;
         setMutationNameReview(review);
         setIsRemovableWithoutReview(isSectionRemovableWithoutReview(review));
+      }),
+    );
+    callbacks.push(
+      onValue(ref(firebaseDb, `${mutationPath}/mutation_effect/oncogenic`), snapshot => {
+        setOncogenicity(snapshot.val());
       }),
     );
 
@@ -325,6 +331,8 @@ const MutationCollapsible = ({
           }
           name="summary"
           parseRefs
+          disabled={oncogenicity === ''}
+          disabledMessage={'Not curatable: mutation summary is only curatable when oncogenicity is specified.'}
         />
         <Collapsible
           idPrefix={`${mutationName}-mutation-effect`}
