@@ -90,7 +90,12 @@ export function getVUSData(vus: Vus[]) {
 }
 
 function shouldExclude(reviewObj: Review | undefined) {
-  return reviewObj && reviewObj.added === true && reviewObj.promotedToMutation === true && reviewObj.initialUpdate === true;
+  /* initialUpdate is true when it is the first time updating excludedRCTs field.
+   * Normally for string fields, we set lastReviewed: "" to empty string.
+   * The "lastReviewed" for excludedRCTs is empty array, which cannot be stored
+   * into firebase, so we created this initialUpdate field to denote that.
+   * */
+  return reviewObj && (reviewObj.added === true || reviewObj.promotedToMutation === true || reviewObj.initialUpdate === true);
 }
 
 function drugUuidToDrug(key: string | undefined, drugList: DrugCollection): Drug[][] | Record<string, unknown> {
