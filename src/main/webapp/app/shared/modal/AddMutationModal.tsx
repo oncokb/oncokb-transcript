@@ -9,7 +9,7 @@ import { FaChevronDown, FaChevronUp, FaExclamationTriangle, FaPlus } from 'react
 import ReactSelect, { GroupBase, MenuPlacement } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import { Alert, Button, Col, Input, Row, Spinner } from 'reactstrap';
-import { Alteration, Flag, Mutation, StringMutationInfo, VusObjList } from '../model/firebase/firebase.model';
+import { Alteration, Flag, Mutation, AlterationCategories, VusObjList } from '../model/firebase/firebase.model';
 import {
   AlterationAnnotationStatus,
   AlterationTypeEnum,
@@ -102,7 +102,7 @@ function AddMutationModal({
   const [flags, setFlags] = useState<readonly IFlag[]>([]);
   const [vusList, setVusList] = useState<VusObjList | null>(null);
 
-  const [stringMutationInfo, setStringMutationInfo] = useState<StringMutationInfo | null>(null);
+  const [alterationCategories, setAlterationCategories] = useState<AlterationCategories | null>(null);
   const [selectedStringMutationFlags, setSelectedStringMutationFlags] = useState<(IFlag | Omit<IFlag, 'id'>)[]>([]);
   const [stringMutationComment, setStringMutationComment] = useState<string>('');
 
@@ -227,7 +227,7 @@ function AddMutationModal({
 
     if (mutationToEdit) {
       setExistingAlterations();
-      setStringMutationInfo(mutationToEdit?.string_mutation_info ?? null);
+      setAlterationCategories(mutationToEdit?.alteration_categories ?? null);
     }
   }, [mutationToEdit]);
 
@@ -253,7 +253,7 @@ function AddMutationModal({
   useEffect(() => {
     if (flags) {
       setSelectedStringMutationFlags(
-        stringMutationInfo?.flags?.reduce((acc: IFlag[], flag) => {
+        alterationCategories?.flags?.reduce((acc: IFlag[], flag) => {
           const matchedFlag = flags.find(flagEntity => isFlagEqualToIFlag(flag, flagEntity));
 
           if (matchedFlag) {
@@ -264,8 +264,8 @@ function AddMutationModal({
         }, []) ?? [],
       );
     }
-    setStringMutationComment(stringMutationInfo?.comment ?? '');
-  }, [stringMutationInfo, flags]);
+    setStringMutationComment(alterationCategories?.comment ?? '');
+  }, [alterationCategories, flags]);
 
   const flagDropdownOptions = useMemo(() => {
     if (!flags) return [];
@@ -1040,7 +1040,7 @@ function AddMutationModal({
     setSelectedStringMutationFlags(prevState => [...prevState, newSelectedFlag]);
   }
 
-  function handleStringMutationInfoField(field: keyof StringMutationInfo, value: unknown) {
+  function handleAlterationCategoriesField(field: keyof AlterationCategories, value: unknown) {
     if (field === 'comment') {
       setStringMutationComment(value as string);
     } else if (field === 'flags') {
@@ -1100,14 +1100,14 @@ function AddMutationModal({
             <Col>
               <div className="d-flex align-items-center mb-3">
                 <Col className="px-0 col-3 me-3">
-                  <span>Mutation String Name</span>
+                  <span>String Name</span>
                 </Col>
                 <Col className="px-0">
                   <CreatableSelect
                     inputId="add-mutation-modal-flag-input"
                     isMulti
                     options={flagDropdownOptions}
-                    onChange={newFlags => handleStringMutationInfoField('flags', newFlags)}
+                    onChange={newFlags => handleAlterationCategoriesField('flags', newFlags)}
                     onCreateOption={handleMutationFlagAdded}
                     value={selectedStringMutationFlags.map(newFlag => ({ label: newFlag.name, value: newFlag }))}
                   />
@@ -1122,7 +1122,7 @@ function AddMutationModal({
                 value={stringMutationComment ?? ''}
                 placeholder={'Input comment'}
                 onChange={value => {
-                  handleStringMutationInfoField('comment', value);
+                  handleAlterationCategoriesField('comment', value);
                 }}
                 disabled={selectedStringMutationFlags.length === 0}
               />
@@ -1197,18 +1197,18 @@ function AddMutationModal({
     return oldFlags;
   }
 
-  async function handleStringMutationInfoConfirm() {
-    let newStringMutationInfo: StringMutationInfo | null = new StringMutationInfo();
+  async function handleAlterationCategoriesConfirm() {
+    let newAlterationCategories: AlterationCategories | null = new AlterationCategories();
     if (stringMutationComment === '' && selectedStringMutationFlags.length === 0) {
-      newStringMutationInfo = null;
+      newAlterationCategories = null;
     } else {
-      newStringMutationInfo.comment = stringMutationComment;
+      newAlterationCategories.comment = stringMutationComment;
       const finalFlagArray = await saveNewFlags();
       if (selectedStringMutationFlags.length > 0) {
-        newStringMutationInfo.flags = finalFlagArray.map(flag => convertIFlagToFlag(flag));
+        newAlterationCategories.flags = finalFlagArray.map(flag => convertIFlagToFlag(flag));
       }
     }
-    return newStringMutationInfo;
+    return newAlterationCategories;
   }
 
   return (
@@ -1239,9 +1239,9 @@ function AddMutationModal({
         const newAlterations = tabStates.map(state => convertAlterationDataToAlteration(state));
         newMutation.name = newAlterations.map(alteration => alteration.name).join(', ');
         newMutation.alterations = newAlterations;
-        const newStringMutationInfo = await handleStringMutationInfoConfirm();
-        if (newStringMutationInfo) {
-          newMutation.string_mutation_info = newStringMutationInfo;
+        const newAlterationCategories = await handleAlterationCategoriesConfirm();
+        if (newAlterationCategories) {
+          newMutation.alteration_categories = newAlterationCategories;
         }
 
         setErrorMessagesEnabled(false);

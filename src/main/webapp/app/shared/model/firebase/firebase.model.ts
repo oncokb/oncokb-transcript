@@ -215,7 +215,7 @@ export class Mutation {
   mutation_effect: MutationEffect = new MutationEffect();
   mutation_effect_uuid: string = generateUuid();
   mutation_effect_comments?: Comment[] = []; // used for somatic
-  string_mutation_info?: StringMutationInfo;
+  alteration_categories?: AlterationCategories;
   name: string = '';
   name_comments?: Comment[] = [];
   name_review?: Review;
@@ -241,7 +241,7 @@ export type Flag = {
   flag: string;
 };
 
-export class StringMutationInfo {
+export class AlterationCategories {
   flags?: Flag[];
   comment = '';
 }

@@ -1,34 +1,32 @@
 import DefaultBadge from 'app/shared/badge/DefaultBadge';
 import InfoIcon from 'app/shared/icons/InfoIcon';
-import { Alteration, StringMutationInfo } from 'app/shared/model/firebase/firebase.model';
+import { Alteration, AlterationCategories } from 'app/shared/model/firebase/firebase.model';
 import { getAlterationName, isFlagEqualToIFlag } from 'app/shared/util/firebase/firebase-utils';
 import { componentInject } from 'app/shared/util/typed-inject';
-import { buildAlterationName, parseAlterationName } from 'app/shared/util/utils';
+import { buildAlterationName, getAlterationNameComponent, parseAlterationName } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
 import { observer } from 'mobx-react';
 import React from 'react';
 import * as styles from './styles.module.scss';
 import classNames from 'classnames';
+import WithSeparator from 'react-with-separator';
 
 export interface IMutationCollapsibleTitle extends StoreProps {
   name: string | undefined;
   mutationAlterations: Alteration[] | null | undefined;
-  stringMutationInfo: StringMutationInfo | null;
+  alterationCategories: AlterationCategories | null;
 }
-const MutationCollapsibleTitle = ({ name, mutationAlterations, stringMutationInfo, flags }: IMutationCollapsibleTitle) => {
+const MutationCollapsibleTitle = ({ name, mutationAlterations, alterationCategories, flagEntities }: IMutationCollapsibleTitle) => {
   const defaultName = 'No Name';
   let stringMutationBadges: JSX.Element | undefined;
   const shouldGroupBadges =
-    (stringMutationInfo?.flags?.length || 0) > 1 || (stringMutationInfo?.flags?.length === 1 && stringMutationInfo.comment !== '');
-  if (stringMutationInfo?.flags && flags) {
-    let tooltipOverlay: JSX.Element | undefined = undefined;
+    (alterationCategories?.flags?.length || 0) > 1 || (alterationCategories?.flags?.length === 1 && alterationCategories.comment !== '');
+  if (alterationCategories?.flags && flagEntities) {
+    const tooltipOverlay = alterationCategories.comment ? <span>{alterationCategories.comment}</span> : undefined;
     stringMutationBadges = (
       <div className={classNames(shouldGroupBadges ? styles.flagWrapper : undefined)}>
-        {stringMutationInfo.flags.map(flag => {
-          if (stringMutationInfo.comment) {
-            tooltipOverlay = <span>{stringMutationInfo.comment}</span>;
-          }
-          const matchedFlagEntity = flags.find(flagEntity => isFlagEqualToIFlag(flag, flagEntity));
+        {alterationCategories.flags.map(flag => {
+          const matchedFlagEntity = flagEntities.find(flagEntity => isFlagEqualToIFlag(flag, flagEntity));
           return <DefaultBadge key={matchedFlagEntity?.flag || flag.flag} color={'primary'} text={matchedFlagEntity?.name || flag.flag} />;
         })}
         {tooltipOverlay ? <InfoIcon className="me-1" overlay={tooltipOverlay} /> : undefined}
@@ -38,15 +36,11 @@ const MutationCollapsibleTitle = ({ name, mutationAlterations, stringMutationInf
   if (mutationAlterations) {
     return (
       <>
-        {mutationAlterations.map((alteration, index) => {
-          return (
-            <>
-              <span>{getAlterationName(alteration, true)}</span>
-              {alteration.comment && <InfoIcon className="ms-1" overlay={alteration.comment} />}
-              {index < mutationAlterations.length - 1 && <span>, </span>}
-            </>
-          );
-        })}
+        <WithSeparator separator={', '}>
+          {mutationAlterations.map((alteration, index) =>
+            getAlterationNameComponent(getAlterationName(alteration, true), alteration.comment),
+          )}
+        </WithSeparator>
         {stringMutationBadges}
       </>
     );
@@ -55,15 +49,11 @@ const MutationCollapsibleTitle = ({ name, mutationAlterations, stringMutationInf
     const parsedAlterations = parseAlterationName(name, true);
     return (
       <>
-        {parsedAlterations.map((pAlt, index) => {
-          return (
-            <>
-              <span>{buildAlterationName(pAlt.alteration, pAlt.name, pAlt.excluding)}</span>
-              {pAlt.comment && <InfoIcon className="ms-1" overlay={pAlt.comment} />}
-              {index < parsedAlterations.length - 1 && <span>, </span>}
-            </>
-          );
-        })}
+        <WithSeparator separator={', '}>
+          {parsedAlterations.map(pAlt =>
+            getAlterationNameComponent(buildAlterationName(pAlt.alteration, pAlt.name, pAlt.excluding), pAlt.comment),
+          )}
+        </WithSeparator>
         {stringMutationBadges}
       </>
     );
@@ -72,7 +62,7 @@ const MutationCollapsibleTitle = ({ name, mutationAlterations, stringMutationInf
 };
 
 const mapStoreToProps = ({ flagStore }: IRootStore) => ({
-  flags: flagStore.alterationCategoryFlags,
+  flagEntities: flagStore.alterationCategoryFlags,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

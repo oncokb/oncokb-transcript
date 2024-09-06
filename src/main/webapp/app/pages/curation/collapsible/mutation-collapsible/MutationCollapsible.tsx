@@ -19,11 +19,10 @@ import MutationConvertIcon from 'app/shared/icons/MutationConvertIcon';
 import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import AddVusModal from 'app/shared/modal/AddVusModal';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
-import { Alteration, Mutation, Review, StringMutationInfo } from 'app/shared/model/firebase/firebase.model';
+import { Alteration, Review, AlterationCategories } from 'app/shared/model/firebase/firebase.model';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import { FlattenedHistory } from 'app/shared/util/firebase/firebase-history-utils';
 import {
-  getAlterationName,
   getFirebaseGenePath,
   getFirebaseVusPath,
   getMutationName,
@@ -86,7 +85,7 @@ const MutationCollapsible = ({
   const [mutationName, setMutationName] = useState<string>('');
   const [mutationNameReview, setMutationNameReview] = useState<Review | null>(null);
   const [mutationAlterations, setMutationAlterations] = useState<Alteration[] | null>(null);
-  const [stringMutationInfo, setStringMutationInfo] = useState<StringMutationInfo | null>(null);
+  const [alterationCategories, setAlterationCategories] = useState<AlterationCategories | null>(null);
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
   const [relatedAnnotationResult, setRelatedAnnotationResult] = useState<AlterationAnnotationStatus[]>([]);
 
@@ -173,9 +172,9 @@ const MutationCollapsible = ({
       }),
     );
     callbacks.push(
-      onValue(ref(firebaseDb, `${mutationPath}/string_mutation_info`), snapshot => {
-        const info = snapshot.val() as StringMutationInfo;
-        setStringMutationInfo(info);
+      onValue(ref(firebaseDb, `${mutationPath}/alteration_categories`), snapshot => {
+        const info = snapshot.val() as AlterationCategories;
+        setAlterationCategories(info);
       }),
     );
 
@@ -233,7 +232,11 @@ const MutationCollapsible = ({
       <RemovableCollapsible
         idPrefix={title}
         title={
-          <MutationCollapsibleTitle name={mutationName} mutationAlterations={mutationAlterations} stringMutationInfo={stringMutationInfo} />
+          <MutationCollapsibleTitle
+            name={mutationName}
+            mutationAlterations={mutationAlterations}
+            alterationCategories={alterationCategories}
+          />
         }
         defaultOpen={open}
         collapsibleClassName="mb-1"
