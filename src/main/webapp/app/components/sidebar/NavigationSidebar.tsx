@@ -210,9 +210,9 @@ export const NavigationSidebar: React.FunctionComponent<StoreProps> = ({ isNavSi
       .value();
 
     setEntityMenuOrder(order);
-  }, []);
 
-  props.fetchManagementInfo!();
+    props.getManagementInfo!();
+  }, []);
 
   return (
     <Sidebar
@@ -318,7 +318,7 @@ const mapStoreToProps = ({ layoutStore, authStore, managementStore }: IRootStore
   account: authStore.account,
   managementVersion: managementStore.version,
   managementCommit: managementStore.commit,
-  fetchManagementInfo: flow(managementStore.fetchManagementInfo),
+  getManagementInfo: managementStore.getManagementInfo,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
