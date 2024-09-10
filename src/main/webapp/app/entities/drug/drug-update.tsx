@@ -7,7 +7,7 @@ import { IRootStore } from 'app/stores';
 import { SaveButton } from 'app/shared/button/SaveButton';
 import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
 import { ENTITY_ACTION, ENTITY_TYPE } from 'app/config/constants/constants';
-import NcitCodeSelect, { parseNcitUniqId } from 'app/shared/select/NcitCodeSelect';
+import NcitCodeSelect from 'app/shared/select/NcitCodeSelect';
 import { mapIdList } from 'app/shared/util/entity-utils';
 import { IDrug } from 'app/shared/model/drug.model';
 import { INciThesaurus } from 'app/shared/model/nci-thesaurus.model';
@@ -46,7 +46,6 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
       props.getEntity(props.match.params.id);
     }
 
-    props.getNciThesauruses({});
     props.getFlags({});
     props.getAssociations({});
   }, []);
@@ -148,9 +147,9 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
               <FormGroup>
                 <Label>Code</Label>
                 <NcitCodeSelect
-                  ncit={drugEntity.nciThesaurus}
+                  ncit={drugEntity.nciThesaurus ?? selectedNcit}
                   onChange={selectedOption => {
-                    setSelectedNcit(selectedOption ? parseNcitUniqId(selectedOption.value) : undefined);
+                    setSelectedNcit(selectedOption ? selectedOption.ncit : undefined);
                   }}
                 />
               </FormGroup>
@@ -164,14 +163,12 @@ export const DrugUpdate = (props: IDrugUpdateProps) => {
 };
 
 const mapStoreToProps = (storeState: IRootStore) => ({
-  nciThesauruses: storeState.nciThesaurusStore.entities,
   flags: storeState.flagStore.entities,
   associations: storeState.associationStore.entities,
   drugEntity: storeState.drugStore.entity,
   loading: storeState.drugStore.loading,
   updating: storeState.drugStore.updating,
   updateSuccess: storeState.drugStore.updateSuccess,
-  getNciThesauruses: storeState.nciThesaurusStore.getEntities,
   getFlags: storeState.flagStore.getEntities,
   getAssociations: storeState.associationStore.getEntities,
   getEntity: storeState.drugStore.getEntity,
