@@ -62,6 +62,8 @@
     "updateAPI": "openapi-generator-cli generate -i http://localhost:9090/v3/api-docs -g typescript-axios -o src/main/webapp/app/shared/api/generated/curation --type-mappings set=Array",
     "updateCoreAPI": "curl http://localhost:8000/oncokb/api/v1/v2/api-docs?group=Private%20APIs | jq '.definitions.ResponseEntity.properties.statusCode.enum |= unique' > /tmp/updateCoreAPI.json && openapi-generator-cli generate -i /tmp/updateCoreAPI.json -g typescript-axios -o src/main/webapp/app/shared/api/generated/core --type-mappings List=any",
     "wdio": "cross-env TS_NODE_PROJECT=src/test/javascript/tsconfig.json wdio run ./wdio.conf.ts",
+    "wdio:e2e": "cross-env TS_NODE_PROJECT=src/test/javascript/tsconfig.json wdio run ./wdio.conf.ts --spec ./src/test/javascript/spec/**/*.e2e.ts",
+    "wdio:screenshot": "cross-env TS_NODE_PROJECT=src/test/javascript/tsconfig.json wdio run ./wdio.conf.ts --spec ./src/test/javascript/spec/**/*.screenshot.ts",
     "webapp:build": "yarn run clean-www && yarn run webapp:build:dev --",
     "webapp:build:dev": "webpack --config webpack/webpack.dev.js --env stats=minimal",
     "webapp:build:prod": "webpack --config webpack/webpack.prod.js --progress=profile",

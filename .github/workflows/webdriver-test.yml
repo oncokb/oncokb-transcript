@@ -1,25 +1,65 @@
-name: Webdriver Test
+name: Webdriver Tests
 
 on: [push, pull_request]
 
 jobs:
     build:
       runs-on: ubuntu-latest
+      outputs:
+        DOCKER_IMAGES_FOLDER: ${{ steps.set_env.outputs.DOCKER_IMAGES_FOLDER }}
+        DOCKER_ARTIFACT_NAME: ${{ steps.set_env.outputs.DOCKER_ARTIFACT_NAME }}
 
       steps:
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v4
+
+        - name: Set env
+          id: set_env
+          run: |
+            echo "DOCKER_ARTIFACT_NAME=docker-images" >> "$GITHUB_OUTPUT"
+            echo "DOCKER_IMAGES_FOLDER=docker_images" >> "$GITHUB_OUTPUT"
 
         - name: Build Docker images
           run: docker compose build
 
-        - name: Run Docker containers
+        - name: Save Docker images
           run: |
-            docker compose up -d
-            docker compose run --rm wdio
+            mkdir -p ${{ steps.set_env.outputs.DOCKER_IMAGES_FOLDER }}
 
-        - name: Archive screenshots
-          if: failure()
-          uses: actions/upload-artifact@v2
+            images=$(docker images --format "{{.Repository}}")
+            # Loop through each image ID
+            echo "$images" | while IFS= read -r image; do
+              if [[ $image == oncokb* ]]; then
+                echo "$image"
+
+                # Save the image as a tar file
+                docker save -o "${{ steps.set_env.outputs.DOCKER_IMAGES_FOLDER }}/${image}.tar" $image
+
+                # Gzip the tar file
+                gzip "${{ steps.set_env.outputs.DOCKER_IMAGES_FOLDER }}/${image}.tar"
+
+                echo "Gzipped ${image} to ${{ steps.set_env.outputs.DOCKER_IMAGES_FOLDER }}/${image}.tar.gz"
+              fi
+            done
+          shell: bash
+
+        - name: Upload Docker image artifact
+          uses: actions/upload-artifact@v3
           with:
-            name: visual-regression-screenshots
-            path: ./src/test/javascript/screenshots
+            name: ${{ steps.set_env.outputs.DOCKER_ARTIFACT_NAME }}
+            path: ${{ steps.set_env.outputs.DOCKER_IMAGES_FOLDER }}/*.tar.gz
+
+    e2e-test:
+      uses: ./.github/workflows/webdriver-test-using-docker-artifact.yml
+      needs: build
+      with:
+        artifacts-name: ${{ needs.build.outputs.DOCKER_ARTIFACT_NAME }}
+        artifacts-path: ${{ needs.build.outputs.DOCKER_IMAGES_FOLDER }}
+        wdio-spec: e2e
+
+    screenshot-test:
+      uses: ./.github/workflows/webdriver-test-using-docker-artifact.yml
+      needs: build
+      with:
+        artifacts-name: ${{ needs.build.outputs.DOCKER_ARTIFACT_NAME }}
+        artifacts-path: ${{ needs.build.outputs.DOCKER_IMAGES_FOLDER }}
+        wdio-spec: screenshot

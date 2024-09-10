@@ -1,0 +1,46 @@
+name: 'Import docker artifact'
+on:
+  workflow_call:
+    inputs:
+      artifacts-name:
+        required: true
+        type: string
+      artifacts-path:
+        required: true
+        type: string
+      wdio-spec:
+        required: true
+        type: string
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.artifacts-name }}
+          path: ${{ inputs.artifacts-path }}
+
+      - name: List downloaded files
+        run: ls ${{ inputs.artifacts-path }}
+
+      - name: Load Docker images
+        run: |
+          for file in ${{ inputs.artifacts-path }}/*.tar.gz; do
+            docker load < "$file"
+          done
+
+      - name: Run Docker containers
+        run: |
+          docker compose up -d
+          WDIO_SPEC=${{ inputs.wdio_spec }} docker compose run --rm wdio
+
+      - name: Archive screenshots
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: visual-regression-screenshots
+          path: ./src/test/javascript/screenshots

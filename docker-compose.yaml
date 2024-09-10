@@ -10,7 +10,7 @@ services:
     command: yarn start-tls DOCKER=true
 
   wdio:
-    build: 
+    build:
       context: .
       dockerfile:  ./docker/app/Dockerfile
     depends_on:
@@ -25,7 +25,8 @@ services:
     environment:
       - DOCKER=true
       - FIREBASE_DATABASE_EMULATOR_HOST=firebase:9095
-    command: yarn run wdio
+      - WDIO_SPEC=${WDIO_SPEC}
+    command: yarn run wdio${WDIO_SPEC:+:$WDIO_SPEC}
 
   firebase:
     build:
@@ -38,7 +39,7 @@ services:
       - "4400:4400"
     healthcheck:
       test: ["CMD", "curl", "http://localhost:4400"]
-    command: firebase emulators:start --import firebase --project oncokb-curation-test-54b6c # change config here 
+    command: firebase emulators:start --import firebase --project oncokb-curation-test-54b6c # change config here
 
   chrome:
     image: seleniarm/standalone-chromium # for those with m1 processors
