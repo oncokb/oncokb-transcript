@@ -21,18 +21,27 @@ const MutationCollapsibleTitle = ({ name, mutationAlterations, alterationCategor
   let stringMutationBadges: JSX.Element | undefined;
   const shouldGroupBadges =
     (alterationCategories?.flags?.length || 0) > 1 || (alterationCategories?.flags?.length === 1 && alterationCategories.comment !== '');
+
   if (alterationCategories?.flags && flagEntities) {
     const tooltipOverlay = alterationCategories.comment ? <span>{alterationCategories.comment}</span> : undefined;
     stringMutationBadges = (
       <div className={classNames(shouldGroupBadges ? styles.flagWrapper : undefined)}>
         {alterationCategories.flags.map(flag => {
           const matchedFlagEntity = flagEntities.find(flagEntity => isFlagEqualToIFlag(flag, flagEntity));
-          return <DefaultBadge key={matchedFlagEntity?.flag || flag.flag} color={'primary'} text={matchedFlagEntity?.name || flag.flag} />;
+          return (
+            <DefaultBadge
+              key={matchedFlagEntity?.flag || flag.flag}
+              color={'primary'}
+              text={matchedFlagEntity?.name || flag.flag}
+              tooltipOverlay={matchedFlagEntity?.description ? matchedFlagEntity.description : undefined}
+            />
+          );
         })}
         {tooltipOverlay ? <InfoIcon className="me-1" overlay={tooltipOverlay} /> : undefined}
       </div>
     );
   }
+
   if (mutationAlterations) {
     return (
       <>
@@ -45,6 +54,7 @@ const MutationCollapsibleTitle = ({ name, mutationAlterations, alterationCategor
       </>
     );
   }
+
   if (name) {
     const parsedAlterations = parseAlterationName(name, true);
     return (
@@ -58,6 +68,7 @@ const MutationCollapsibleTitle = ({ name, mutationAlterations, alterationCategor
       </>
     );
   }
+
   return <span>{defaultName}</span>;
 };
 

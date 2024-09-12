@@ -1199,7 +1199,7 @@ function AddMutationModal({
 
   async function handleAlterationCategoriesConfirm() {
     let newAlterationCategories: AlterationCategories | null = new AlterationCategories();
-    if (stringMutationComment === '' && selectedStringMutationFlags.length === 0) {
+    if (selectedStringMutationFlags.length === 0 || tabStates.length === 1) {
       newAlterationCategories = null;
     } else {
       newAlterationCategories.comment = stringMutationComment;
@@ -1208,6 +1208,10 @@ function AddMutationModal({
         newAlterationCategories.flags = finalFlagArray.map(flag => convertIFlagToFlag(flag));
       }
     }
+
+    // Refresh flag entities
+    await getFlagsByType?.(FlagTypeEnum.ALTERATION_CATEGORY);
+
     return newAlterationCategories;
   }
 
@@ -1240,9 +1244,7 @@ function AddMutationModal({
         newMutation.name = newAlterations.map(alteration => alteration.name).join(', ');
         newMutation.alterations = newAlterations;
         const newAlterationCategories = await handleAlterationCategoriesConfirm();
-        if (newAlterationCategories) {
-          newMutation.alteration_categories = newAlterationCategories;
-        }
+        newMutation.alteration_categories = newAlterationCategories;
 
         setErrorMessagesEnabled(false);
         setIsConfirmPending(true);
