@@ -2772,7 +2772,17 @@
             "short": ""
           },
           "mutation_effect_uuid": "45f48fdd-a2fa-44dc-86cb-b3fd8e4bc8c1",
-          "name": "V600E, V600K",
+          "name": "V600E (comment), V600K",
+          "alteration_categories": {
+            "flags": [
+              {
+                "type": "ALTERATION_CATEGORY",
+                "flag": "TEST_FLAG",
+                "name": "Test Flag"
+              }
+            ],
+            "comment": "This is a test flag"
+          },
           "name_review": {
             "updateTime": 1493057315640
           },

@@ -75,10 +75,22 @@ describe('Screenshot Tests', () => {
     assertScreenShotMatch(result);
   });
 
+  it('should compare mutation collapsible with alteration flag', async () => {
+    await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
+
+    const mutationCollapsible = await $(
+      `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.COLLAPSIBLE, 'V600E (comment), V600K')}"]`,
+    );
+    await mutationCollapsible.waitForDisplayed();
+
+    const result = await browser.checkElement(mutationCollapsible, 'mutation-collapsible-with-flag', SCREENSHOT_METHOD_OPTIONS);
+    assertScreenShotMatch(result);
+  });
+
   it('should compare mutation effect not curatable', async () => {
     await browser.url(`${BASE_URL}/curation/BRAF/somatic`);
 
-    const mutation = 'V600E, V600K';
+    const mutation = 'V600E (comment), V600K';
 
     const mutationCollapsibleButton = await $(
       `div[data-testid="${getCollapsibleDataTestId(CollapsibleDataTestIdType.TITLE_WRAPPER, mutation)}"]`,
@@ -180,7 +192,7 @@ describe('Screenshot Tests', () => {
 
     // Add a new mutation
     const mutationNameInput = await $(`input#${ADD_MUTATION_MODAL_INPUT_ID}`);
-    await mutationNameInput.setValue('V600E');
+    await mutationNameInput.setValue('V600E, V600K');
     await browser.keys('Enter');
 
     const addMutationModal = await $(`div[id="${DEFAULT_ADD_MUTATION_MODAL_ID}"]`);

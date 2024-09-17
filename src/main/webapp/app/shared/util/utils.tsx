@@ -9,7 +9,7 @@ import EntityActionButton from '../button/EntityActionButton';
 import { SORT } from './pagination.constants';
 import { PaginationState } from '../table/OncoKBAsyncTable';
 import { IUser } from '../model/user.model';
-import { CancerType } from '../model/firebase/firebase.model';
+import { Alteration, CancerType } from '../model/firebase/firebase.model';
 import _ from 'lodash';
 import { ParsedRef, parseReferences } from 'app/oncokb-commons/components/RefComponent';
 import { IDrug } from 'app/shared/model/drug.model';
@@ -17,6 +17,7 @@ import { IRule } from 'app/shared/model/rule.model';
 import { INTEGER_REGEX, REFERENCE_LINK_REGEX, SINGLE_NUCLEOTIDE_POS_REGEX, UUID_REGEX } from 'app/config/constants/regex';
 import { ProteinExonDTO } from 'app/shared/api/generated/curation';
 import { IQueryParams } from './jhipster-types';
+import InfoIcon from '../icons/InfoIcon';
 
 export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
   if (!cancerType) return '';
@@ -300,6 +301,29 @@ export function parseAlterationName(
     comment,
     name,
   }));
+}
+
+export function buildAlterationName(alteration: string, name = '', excluding = [] as string[], comment = '') {
+  if (name) {
+    name = ` [${name}]`;
+  }
+  let exclusionString = '';
+  if (excluding.length > 0) {
+    exclusionString = ` {excluding ${excluding.join('; ')}}`;
+  }
+  if (comment) {
+    comment = ` (${comment})`;
+  }
+  return `${alteration}${name}${exclusionString}${comment}`;
+}
+
+export function getAlterationNameComponent(alterationName: string, comment?: string) {
+  return (
+    <>
+      <span>{alterationName}</span>
+      {comment && <InfoIcon className="ms-1" overlay={comment} />}
+    </>
+  );
 }
 
 export function findIndexOfFirstCapital(str: string) {

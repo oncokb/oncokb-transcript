@@ -135,10 +135,10 @@ export default function BaseCollapsible({
             >
               {isOpen ? <FontAwesomeIcon icon={faChevronDown} size={'sm'} /> : <FontAwesomeIcon icon={faChevronRight} size={'sm'} />}
             </button>
-            <span className={classNames(titleClassName ? titleClassName : 'fw-bold')}>
+            <div className={classNames(titleClassName ? titleClassName : 'fw-bold d-flex align-items-center')}>
               {title}
               {badge}
-            </span>
+            </div>
           </div>
 
           <div className="me-auto" />
