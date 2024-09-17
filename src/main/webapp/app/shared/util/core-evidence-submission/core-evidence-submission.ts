@@ -42,7 +42,7 @@ export function pathToGetEvidenceArgs({
 }: {
   valuePath: string;
 } & Pick<GetEvidenceArgs, 'gene' | 'updateTime' | 'drugListRef' | 'entrezGeneId'>): GetEvidenceArgs | undefined {
-  const gene = useLastReviewedOnly(originalGene);
+  const gene = useLastReviewedOnly(originalGene, valuePath);
   if (gene === undefined) {
     return undefined;
   }

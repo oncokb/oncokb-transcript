@@ -462,6 +462,11 @@ describe('getEvidence to submit to core', () => {
                       lastReviewed: 'Prognostic Summary Last Reviewed',
                       updateTime: getTimeFromDateString('2002-01-01'),
                     }),
+                    summary: 'Summary',
+                    summary_review: createMockReview({
+                      lastReviewed: 'Summary Last Reviewed',
+                      updateTime: getTimeFromDateString('2002-01-01'),
+                    }),
                   }),
                 ],
               }),
@@ -480,7 +485,7 @@ describe('getEvidence to submit to core', () => {
               },
             ],
             evidenceType: EvidenceEvidenceTypeEnum.PrognosticSummary,
-            description: 'Prognostic Summary Last Reviewed',
+            description: 'Prognostic Summary',
             gene: {
               entrezGeneId: baseArgs.entrezGeneId,
               hugoSymbol,
@@ -618,7 +623,7 @@ describe('getEvidence to submit to core', () => {
               },
             ],
             evidenceType: EvidenceEvidenceTypeEnum.Oncogenic,
-            knownEffect: FIREBASE_ONCOGENICITY.YES,
+            knownEffect: FIREBASE_ONCOGENICITY.LIKELY,
             gene: {
               entrezGeneId: baseArgs.entrezGeneId,
               hugoSymbol,
@@ -914,14 +919,19 @@ describe('getEvidence to submit to core', () => {
                             name: '76c75f3b-364a-418c-8661-48768fb0742a',
                             description: 'TI IS',
                             fdaLevel: FDA_LEVELS.LEVEL_FDA1,
-                            level: TX_LEVELS.LEVEL_1,
+                            level: TX_LEVELS.LEVEL_2,
                             level_review: createMockReview({
-                              lastReviewed: TX_LEVELS.LEVEL_2,
+                              lastReviewed: TX_LEVELS.LEVEL_1,
                               updatedBy: 'John Doe',
                               updateTime: getTimeFromDateString('2001-01-01'),
                             }),
                             propagationLiquid: TX_LEVELS.LEVEL_4,
                             propagation: TX_LEVELS.LEVEL_2,
+                            propagation_review: createMockReview({
+                              lastReviewed: TX_LEVELS.LEVEL_4,
+                              updatedBy: 'John Doe',
+                              updateTime: getTimeFromDateString('2001-01-01'),
+                            }),
                           }),
                         ],
                       }),
@@ -1018,6 +1028,11 @@ describe('getEvidence to submit to core', () => {
           valuePath: 'mutations/0/tumors/0/summary',
           gene: createMockGene({
             name: hugoSymbol,
+            summary: '',
+            summary_review: createMockReview({
+              updateTime: getTimeFromDateString('2004-01-01'),
+              lastReviewed: 'Ignore summary',
+            }),
             mutations: [
               createMockMutation({
                 tumors: [
@@ -1046,7 +1061,7 @@ describe('getEvidence to submit to core', () => {
               },
             ],
             evidenceType: EvidenceEvidenceTypeEnum.TumorTypeSummary,
-            description: 'Tumor Type Summary Old',
+            description: 'Tumor Type Summary',
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
             lastEdit: getTimeFromDateString('2004-01-01').toString(),
           },

@@ -23,14 +23,10 @@ import _ from 'lodash';
 import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
-import { DrugCollection, Gene, MetaReview } from 'app/shared/model/firebase/firebase.model';
-import { IGene } from 'app/shared/model/gene.model';
-import { FB_COLLECTION } from 'app/config/constants/firebase';
+import { Gene, MetaReview } from 'app/shared/model/firebase/firebase.model';
 import { SentryError } from 'app/config/sentry-error';
 
-interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {
-  geneEntity: IGene;
-}
+interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
 const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPageProps) => {
   const pathname = props.location.pathname;
@@ -125,7 +121,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
         isGermline,
         isAcceptAll: true,
         gene: geneData,
-        entrezGeneId: props.geneEntity.entrezGeneId,
+        entrezGeneId: geneEntity?.entrezGeneId as number,
         drugListRef,
       });
       fetchFirebaseData();

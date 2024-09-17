@@ -4,14 +4,16 @@ import { useLastReviewedOnly } from '../core-submission-shared/core-submission-u
 
 export function createGeneTypePayload(
   originalGene: Pick<Gene, 'name'> & { type: Pick<Gene['type'], 'ocg' | 'ocg_review' | 'tsg' | 'tsg_review'> },
+  valuePath: string,
 ): Required<Pick<GenePayload, 'hugoSymbol' | 'oncogene' | 'tsg'>> {
-  const gene = useLastReviewedOnly(originalGene);
+  const gene = useLastReviewedOnly(originalGene, valuePath);
   return {
     hugoSymbol: gene!.name,
     oncogene: gene!.type.ocg ? true : false,
     tsg: gene!.type.tsg ? true : false,
   };
 }
+
 export function removeGenePayload(gene: Pick<Gene, 'name'>): Required<Pick<GenePayload, 'hugoSymbol'>> {
   return {
     hugoSymbol: gene.name,
