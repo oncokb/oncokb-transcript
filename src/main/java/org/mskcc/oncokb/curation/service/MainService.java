@@ -149,7 +149,7 @@ public class MainService {
 
         // update associated genes
         Set<Gene> genes = alteration.getGenes();
-        if (parsedAlteration.getType().equals(STRUCTURAL_VARIANT) && !parsedAlteration.getGenes().isEmpty()) {
+        if (STRUCTURAL_VARIANT.equals(parsedAlteration.getType()) && !parsedAlteration.getGenes().isEmpty()) {
             genes = parsedAlteration.getGenes();
         }
         Set<Gene> annotatedGenes = genes
@@ -230,7 +230,8 @@ public class MainService {
                 ) {
                     String refRe = String.valueOf(canonicalSequenceOptional.orElseThrow().getSequence().charAt(alteration.getStart() - 1));
                     if (!StringUtils.isEmpty(refRe)) {
-                        if (StringUtils.isEmpty(alteration.getRefResidues())) {
+                        // only set the reference AA when the alteration happens on one position
+                        if (StringUtils.isEmpty(alteration.getRefResidues()) && alteration.getStart().equals(alteration.getEnd())) {
                             alteration.setRefResidues(refRe);
                         } else {
                             // If The AA in alteration is differed from the canonical transcript, and it's not X, we give warning
