@@ -40,6 +40,7 @@
 
 .collapsibleTitleWrapper {
   display: flex;
+  word-break: break-word;
   align-items: center;
   :hover {
     cursor: pointer;
