@@ -1,50 +1,85 @@
 import { Review } from 'app/shared/model/firebase/firebase.model';
 
-function shouldProtect(valuePath: string | undefined, path: string) {
-  return valuePath !== undefined && path.length > 0 && (path.startsWith(valuePath) || valuePath.startsWith(path));
+/**
+ * Determines whether the `path` should be protected based on the review path.
+ *
+ * Protection is based on whether the current path or parent path aligns with the `reviewPath`,
+ * meaning that the data was just accepted by a user.
+ *
+ * @param reviewPath - The reference path for review, indicating an accepted field. Undefined when nothing was accepted.
+ * @param path - The path of the current element being evaluated.
+ * @returns - Returns true if the `path` should be protected, false otherwise.
+ */
+function isPathProtected(reviewPath: string | undefined, path: string): boolean {
+  return reviewPath !== undefined && path.length > 0 && (path.includes(reviewPath) || reviewPath.includes(path));
 }
 
-export function useLastReviewedOnly<T>(obj: T, valuePath?: string): T | undefined {
-  function useLastReviewedOnlyRec(curObj: T, parentPath: string): T | undefined {
-    const newObj: T = {} as T;
-    for (const [key, value] of Object.entries(curObj as Record<string, unknown>)) {
-      const currentPath = `${parentPath}${parentPath.length > 0 ? '/' : ''}${key}`;
-      const protectCurrent = shouldProtect(valuePath, currentPath);
-      const protectParent = shouldProtect(valuePath, parentPath);
+/**
+ * Recursively filters the provided object to include only the last reviewed elements
+ * or elements that where just accepted.
+ *
+ * Paths are protected if they match the review path or are part of its hierarchy.
+ * Protected paths retain their original values, while non-protected paths
+ * only use their`lastReviewed` value.
+ *
+ * @param obj - The object to be filtered for last reviewed elements.
+ * @param [reviewPath] - The path used to determine if an element should be protected.
+ * @returns - The filtered object or undefined if no elements are accepted.
+ */
+export function useLastReviewedOnly<T>(obj: T, reviewPath?: string): T | undefined {
+  function processObjectRecursively(currentObj: T, parentPath: string): T | undefined {
+    const resultObj: T = {} as T;
 
+    for (const [key, value] of Object.entries(currentObj as Record<string, unknown>)) {
+      const currentPath = `${parentPath}${parentPath.length > 0 ? '/' : ''}${key}`;
+      const isCurrentPathProtected = isPathProtected(reviewPath, currentPath);
+      const isParentPathProtected = isPathProtected(reviewPath, parentPath);
+
+      // If the key ends with "_review", copy it to the new object
       if (key.endsWith('_review')) {
-        const temp: Review = Object.assign({} as Review, value);
-        (newObj as Record<string, unknown>)[key] = temp;
+        const reviewData: Review = Object.assign({} as Review, value);
+        (resultObj as Record<string, unknown>)[key] = reviewData;
       } else if (Array.isArray(value)) {
-        const reviewObj: Review | undefined = curObj[`${key}_review`] as Review;
-        if (reviewObj?.added && !protectParent) {
+        const reviewData: Review | undefined = currentObj[`${key}_review`] as Review;
+        // If the object is new (indicated by `added`) and the parent path is not protected, exclude it from the result.
+        if (reviewData?.added && !isParentPathProtected) {
           return undefined;
         }
-        const arr: (T | undefined)[] = [];
+        const processedArray: (T | undefined)[] = [];
         let i = 0;
-        for (const arrObj of value) {
-          const temp = useLastReviewedOnlyRec(arrObj, `${currentPath}/${i}`);
-          // keep undefined value in the array so that the index still exists for a path like mutation/11/....
-          if (temp !== undefined || protectParent) {
-            arr.push(temp);
+        for (const arrayElement of value) {
+          const processedElement = processObjectRecursively(arrayElement, `${currentPath}/${i}`);
+          // Preserve undefined values in the array to maintain the correct index structure,
+          // ensuring paths like "mutation/11/..." are still valid even if some elements are omitted.
+          // If the parent path is protected, push the element regardless of whether it's undefined.
+          if (processedElement !== undefined || isParentPathProtected) {
+            processedArray.push(processedElement);
           }
           i++;
         }
-        (newObj as Record<string, unknown>)[key] = arr;
+        (resultObj as Record<string, unknown>)[key] = processedArray;
       } else if (typeof value === 'object') {
-        (newObj as Record<string, unknown>)[key] = useLastReviewedOnlyRec(value as T, currentPath);
+        (resultObj as Record<string, unknown>)[key] = processObjectRecursively(value as T, currentPath);
       } else {
-        const reviewObj: Review | undefined = curObj[`${key}_review`] as Review;
-        if (protectCurrent) {
-          (newObj as Record<string, unknown>)[key] = value;
-        } else if (!reviewObj?.added || protectParent) {
-          (newObj as Record<string, unknown>)[key] = reviewObj?.lastReviewed !== undefined ? reviewObj.lastReviewed : value;
+        const reviewData: Review | undefined = currentObj[`${key}_review`] as Review;
+
+        if (isCurrentPathProtected) {
+          // If the current path is protected, it indicates the current field was accepted,
+          // so we retain its original value.
+          (resultObj as Record<string, unknown>)[key] = value;
+        } else if (!reviewData?.added || isParentPathProtected) {
+          // If the field is not new (i.e., `added` is false) or the parent path is protected,
+          // we use the last reviewed value (if available) or fall back to the original value.
+          (resultObj as Record<string, unknown>)[key] = reviewData?.lastReviewed !== undefined ? reviewData.lastReviewed : value;
         } else {
+          // If the object is new (added) and neither the current path nor parent path is protected,
+          // exclude the whole resultObj from the result.
           return undefined;
         }
       }
     }
-    return newObj;
+    return resultObj;
   }
-  return useLastReviewedOnlyRec(obj, '');
+
+  return processObjectRecursively(obj, '');
 }
