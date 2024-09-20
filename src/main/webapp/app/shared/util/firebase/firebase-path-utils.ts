@@ -42,3 +42,20 @@ export const extractArrayPath = (valuePath: string) => {
   const firebaseArrayPath = pathParts.join('/');
   return { firebaseArrayPath, deleteIndex };
 };
+
+export enum FIREBASE_PATH_TYPE {
+  MUTATION_LIST,
+  TUMOR_LIST,
+  TREATMENT_LIST,
+}
+export const getFirebasePathType = (path: string) => {
+  if (/mutations\/\d+$/i.test(path)) {
+    return FIREBASE_PATH_TYPE.MUTATION_LIST;
+  }
+  if (/tumors\/\d+$/i.test(path)) {
+    return FIREBASE_PATH_TYPE.TUMOR_LIST;
+  }
+  if (/TIs\/\d+\/treatments\/\d+$/i.test(path)) {
+    return FIREBASE_PATH_TYPE.TREATMENT_LIST;
+  }
+};
