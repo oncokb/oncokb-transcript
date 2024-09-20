@@ -46,6 +46,7 @@ export enum SortOptions {
   LAST_MODIFIED = 'Last Modified',
   POSITION_INCREASING = 'Position Increasing',
   POSITION_DECREASING = 'Position Decreasing',
+  FIREBASE = 'Firebase',
 }
 
 const YES = 'Yes';
