@@ -1,5 +1,5 @@
 import 'jest-expect-message';
-import { useLastReviewedOnly } from './core-submission-utils';
+import { findAllChildReviewPaths, useLastReviewedOnly } from './core-submission-utils';
 import { Gene } from 'app/shared/model/firebase/firebase.model';
 import { GENE_TYPE } from 'app/config/constants/firebase';
 import _ from 'lodash';
@@ -202,5 +202,51 @@ describe('useLastReviewedOnly', () => {
     const copy = _.cloneDeep(obj);
     expect(useLastReviewedOnly(obj)).toEqual(expected);
     expect(copy, 'The passed object should be untouched').toEqual(obj);
+  });
+});
+
+describe('findAllChildReviewPaths', () => {
+  const tests: [RecursivePartial<Gene>, string, string[]][] = [
+    [
+      {
+        summary: 'XXXXXXXXXXX',
+        summary_review: {
+          lastReviewed: 'YYYYYYYYYYY',
+          added: true,
+          updateTime: 0,
+          updatedBy: 'Test User',
+        },
+      },
+      'summary',
+      ['summary'],
+    ],
+    [
+      {
+        summary: 'XXXXXXXXXXX',
+        summary_review: {
+          lastReviewed: 'YYYYYYYYYYY',
+          updateTime: 0,
+          updatedBy: 'Test User',
+        },
+        mutations: [
+          {
+            name: '',
+            name_review: {
+              lastReviewed: 'YYYYYYYYYYY',
+              updateTime: 0,
+              updatedBy: 'Test User',
+            },
+          },
+        ],
+      },
+      'mutations/0',
+      ['mutations/0/name'],
+    ],
+  ];
+
+  test.each(tests)('Should find all child review paths in %j for path "%s"', (gene, path, expected) => {
+    const geneCopy = _.cloneDeep(gene);
+    expect(findAllChildReviewPaths(gene as Gene, path)).toEqual(expected);
+    expect(geneCopy, 'The passed gene should be untouched').toEqual(gene);
   });
 });

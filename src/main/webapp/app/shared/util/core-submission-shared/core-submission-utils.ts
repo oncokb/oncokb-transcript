@@ -1,4 +1,4 @@
-import { Review } from 'app/shared/model/firebase/firebase.model';
+import { Gene, Review } from 'app/shared/model/firebase/firebase.model';
 
 /**
  * Determines whether the `path` should be protected based on the review path.
@@ -82,4 +82,50 @@ export function useLastReviewedOnly<T>(obj: T, reviewPath?: string): T | undefin
   }
 
   return processObjectRecursively(obj, '');
+}
+
+export function findAllChildReviewPaths(gene: Gene, reviewPath: string): string[] {
+  const objectKeys = reviewPath.split('/');
+  let pathObject: unknown = gene;
+
+  {
+    let currentPath = '';
+    for (const objectKey of objectKeys) {
+      currentPath += `/${objectKey}`;
+      if (Array.isArray(pathObject) || (typeof pathObject === 'object' && pathObject !== null)) {
+        pathObject = pathObject[objectKey];
+      } else {
+        throw new Error(`${currentPath} is not an object or array in the path "${reviewPath}" "${JSON.stringify(pathObject)}"`);
+      }
+    }
+  }
+
+  if (typeof pathObject !== 'object' || pathObject === null) {
+    return [reviewPath];
+  }
+
+  function findAllChildReviewPathsRecursively(obj: unknown, currentPath: string): string[] {
+    if (currentPath.endsWith('_review')) {
+      return [currentPath.replace('_review', '')];
+    } else if (Array.isArray(obj)) {
+      const arr: string[] = [];
+      let i = 0;
+      for (const element of obj) {
+        const temp = findAllChildReviewPathsRecursively(element, `${currentPath}/${i}`);
+        arr.push(...temp);
+        i++;
+      }
+      return arr;
+    } else if (typeof obj === 'object' && obj !== null) {
+      const arr: string[] = [];
+      for (const [key, value] of Object.entries(obj)) {
+        const temp = findAllChildReviewPathsRecursively(value, `${currentPath}/${key}`);
+        arr.push(...temp);
+      }
+      return arr;
+    } else {
+      return [];
+    }
+  }
+  return findAllChildReviewPathsRecursively(pathObject, reviewPath);
 }
