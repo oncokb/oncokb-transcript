@@ -8,7 +8,7 @@ import { Review } from '../../shared/model/firebase/firebase.model';
 import { buildHistoryFromReviews } from '../../shared/util/firebase/firebase-history-utils';
 import {
   extractArrayPath,
-  FIREBASE_PATH_TYPE,
+  FIREBASE_LIST_PATH_TYPE,
   getFirebasePathType,
   parseFirebaseGenePath,
 } from '../../shared/util/firebase/firebase-path-utils';
@@ -100,10 +100,10 @@ export class FirebaseGeneReviewService {
     const geneFirebasePath = getFirebaseGenePath(isGermline, hugoSymbol);
     const vusFirebasePath = getFirebaseVusPath(isGermline, hugoSymbol);
 
-    const itemsToDelete: { [key in FIREBASE_PATH_TYPE]: { [path in string]: number[] } } = {
-      [FIREBASE_PATH_TYPE.MUTATION_LIST]: {},
-      [FIREBASE_PATH_TYPE.TUMOR_LIST]: {},
-      [FIREBASE_PATH_TYPE.TREATMENT_LIST]: {},
+    const itemsToDelete: { [key in FIREBASE_LIST_PATH_TYPE]: { [path in string]: number[] } } = {
+      [FIREBASE_LIST_PATH_TYPE.MUTATION_LIST]: {},
+      [FIREBASE_LIST_PATH_TYPE.TUMOR_LIST]: {},
+      [FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST]: {},
     };
 
     let updateObject = {};
@@ -162,9 +162,11 @@ export class FirebaseGeneReviewService {
     try {
       // Todo: We should use multi-location updates for deletions once all our arrays use firebase auto-generated keys
       // instead of using sequential number indices.
-      /* eslint-disable no-console */
-      console.log(itemsToDelete);
-      for (const pathType of [FIREBASE_PATH_TYPE.TREATMENT_LIST, FIREBASE_PATH_TYPE.TUMOR_LIST, FIREBASE_PATH_TYPE.MUTATION_LIST]) {
+      for (const pathType of [
+        FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST,
+        FIREBASE_LIST_PATH_TYPE.TUMOR_LIST,
+        FIREBASE_LIST_PATH_TYPE.MUTATION_LIST,
+      ]) {
         for (const [firebasePath, deleteIndices] of Object.entries(itemsToDelete[pathType])) {
           await this.firebaseRepository.deleteFromArray(firebasePath, deleteIndices);
         }

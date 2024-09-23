@@ -2,7 +2,7 @@ import { FB_COLLECTION } from 'app/config/constants/firebase';
 import {
   buildFirebaseGenePath,
   extractArrayPath,
-  FIREBASE_PATH_TYPE,
+  FIREBASE_LIST_PATH_TYPE,
   getFirebasePathType,
   parseFirebaseGenePath,
 } from './firebase-path-utils';
@@ -50,9 +50,9 @@ describe('FirebasePathUtils', () => {
 
   describe('getFirebasePathType', () => {
     test.each([
-      { path: 'mutations/0', pathType: FIREBASE_PATH_TYPE.MUTATION_LIST },
-      { path: 'mutations/0/tumors/0', pathType: FIREBASE_PATH_TYPE.TUMOR_LIST },
-      { path: 'mutations/0/tumors/23/TIs/0/treatments/4', pathType: FIREBASE_PATH_TYPE.TREATMENT_LIST },
+      { path: 'mutations/0', pathType: FIREBASE_LIST_PATH_TYPE.MUTATION_LIST },
+      { path: 'mutations/0/tumors/0', pathType: FIREBASE_LIST_PATH_TYPE.TUMOR_LIST },
+      { path: 'mutations/0/tumors/23/TIs/0/treatments/4', pathType: FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST },
       { path: 'mutations/0/mutation_effect', pathType: undefined },
     ])('should return correct path type', ({ path, pathType }) => {
       expect(getFirebasePathType(path)).toEqual(pathType);
