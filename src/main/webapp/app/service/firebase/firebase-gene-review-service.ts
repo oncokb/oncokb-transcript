@@ -6,7 +6,12 @@ import { FirebaseRepository } from 'app/stores/firebase/firebase-repository';
 import _ from 'lodash';
 import { Review } from '../../shared/model/firebase/firebase.model';
 import { buildHistoryFromReviews } from '../../shared/util/firebase/firebase-history-utils';
-import { extractArrayPath, parseFirebaseGenePath } from '../../shared/util/firebase/firebase-path-utils';
+import {
+  extractArrayPath,
+  FIREBASE_LIST_PATH_TYPE,
+  getFirebasePathType,
+  parseFirebaseGenePath,
+} from '../../shared/util/firebase/firebase-path-utils';
 import {
   ReviewLevel,
   TumorReviewLevel,
@@ -95,6 +100,12 @@ export class FirebaseGeneReviewService {
     const geneFirebasePath = getFirebaseGenePath(isGermline, hugoSymbol);
     const vusFirebasePath = getFirebaseVusPath(isGermline, hugoSymbol);
 
+    const itemsToDelete: { [key in FIREBASE_LIST_PATH_TYPE]: { [path in string]: number[] } } = {
+      [FIREBASE_LIST_PATH_TYPE.MUTATION_LIST]: {},
+      [FIREBASE_LIST_PATH_TYPE.TUMOR_LIST]: {},
+      [FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST]: {},
+    };
+
     let updateObject = {};
 
     const reviewHistory = buildHistoryFromReviews(this.authStore.fullName, reviewLevels);
@@ -115,16 +126,14 @@ export class FirebaseGeneReviewService {
       } else if (isDeleteReview(reviewLevel)) {
         const { firebaseArrayPath, deleteIndex } = extractArrayPath(reviewLevel.valuePath);
         const firebasePath = geneFirebasePath + '/' + firebaseArrayPath;
+        const firebasePathType = getFirebasePathType(firebaseArrayPath + '/' + deleteIndex);
+        if (firebasePathType !== undefined) {
+          const innerMap = itemsToDelete[firebasePathType];
+          innerMap[firebasePath] ? innerMap[firebasePath].push(deleteIndex) : (innerMap[firebasePath] = [deleteIndex]);
+        }
         if (review.demotedToVus) {
           const variants = parseAlterationName(reviewLevel.currentVal)[0].alteration.split(', ');
           updateObject = { ...updateObject, ...this.firebaseVusService.getVusUpdateObject(vusFirebasePath, variants) };
-        }
-        try {
-          // Todo: We should use multi-location updates for deletions once all our arrays use firebase auto-generated keys
-          // instead of using sequential number indices.
-          await this.firebaseRepository.deleteFromArray(firebasePath, [deleteIndex]);
-        } catch (error) {
-          throw new SentryError('Failed to accept deletion in review mode', { hugoSymbol, reviewLevel, isGermline });
         }
       } else if (isCreateReview(reviewLevel) && isAcceptAll) {
         const createUpdateObject = await this.getCreateUpdateObject(hugoSymbol, reviewLevel, isGermline, ActionType.ACCEPT);
@@ -140,7 +149,36 @@ export class FirebaseGeneReviewService {
     try {
       await this.firebaseRepository.update('/', updateObject);
     } catch (error) {
-      throw new SentryError('Failed to accept changes in review mode', { hugoSymbol, reviewLevels, isGermline, isAcceptAll, updateObject });
+      throw new SentryError('Failed to accept changes in review mode', {
+        hugoSymbol,
+        reviewLevels,
+        isGermline,
+        isAcceptAll,
+        updateObject,
+      });
+    }
+
+    // We are deleting last because the indices will change after deleting from array.
+    let hasDeletion = false;
+    try {
+      // Todo: We should use multi-location updates for deletions once all our arrays use firebase auto-generated keys
+      // instead of using sequential number indices.
+      for (const pathType of [
+        FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST,
+        FIREBASE_LIST_PATH_TYPE.TUMOR_LIST,
+        FIREBASE_LIST_PATH_TYPE.MUTATION_LIST,
+      ]) {
+        for (const [firebasePath, deleteIndices] of Object.entries(itemsToDelete[pathType])) {
+          hasDeletion = true;
+          await this.firebaseRepository.deleteFromArray(firebasePath, deleteIndices);
+        }
+      }
+      // If user accepts a deletion individually, we need to refresh the ReviewPage with the latest data to make sure the indices are up to date.
+      if (reviewLevels.length === 1 && hasDeletion) {
+        return { shouldRefresh: true };
+      }
+    } catch (error) {
+      throw new SentryError('Failed to accept deletions in review mode', { hugoSymbol, reviewLevels, isGermline, itemsToDelete });
     }
   };
 
