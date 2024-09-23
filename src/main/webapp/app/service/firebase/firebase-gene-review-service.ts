@@ -31,6 +31,7 @@ import {
 import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
 import { createGeneTypePayload, isGeneTypeChange } from 'app/shared/util/core-gene-type-submission/core-gene-type-submission';
 import { GeneTypeApi } from 'app/shared/api/manual/gene-type-api';
+import { flattenReviewPaths, useLastReviewedOnly } from 'app/shared/util/core-submission-shared/core-submission-utils';
 
 export class FirebaseGeneReviewService {
   firebaseRepository: FirebaseRepository;
@@ -130,8 +131,13 @@ export class FirebaseGeneReviewService {
     let geneTypePayload: ReturnType<typeof createGeneTypePayload> | undefined = undefined;
     let hasEvidences = false;
     try {
-      for (const reviewLevel of reviewLevels) {
-        if (!(isCreateReview(reviewLevel) && isAcceptAll)) {
+      const flattenedReviewLevels = reviewLevels.flatMap(flattenReviewPaths);
+      // Generate a new version of the gene object (`approvedGene`) for the getEvidence payload.
+      // This ensures that if multiple valuePaths modify the same part of the payload,
+      // the changes are applied consistently, preventing any section from being overwritten unintentionally.
+      const approvedGene = useLastReviewedOnly(gene, ...flattenedReviewLevels.map(x => x.valuePath)) as Gene;
+      for (const reviewLevel of flattenedReviewLevels) {
+        if (!isCreateReview(reviewLevel)) {
           if (reviewLevel.reviewInfo.review.removed) {
             const deleteEvidencesPayload = pathToDeleteEvidenceArgs({ valuePath: reviewLevel.valuePath, gene });
             if (deleteEvidencesPayload !== undefined) {
@@ -141,7 +147,7 @@ export class FirebaseGeneReviewService {
             geneTypePayload = createGeneTypePayload(gene, reviewLevel.valuePath);
           } else {
             const args = pathToGetEvidenceArgs({
-              gene,
+              gene: approvedGene,
               valuePath: reviewLevel.valuePath,
               updateTime: new Date().getTime(),
               drugListRef,
