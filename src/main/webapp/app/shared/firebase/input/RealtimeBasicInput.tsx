@@ -5,7 +5,7 @@ import { IRootStore } from 'app/stores';
 import { default as classNames, default as classnames } from 'classnames';
 import { onValue, ref } from 'firebase/database';
 import { inject } from 'mobx-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { MouseEventHandler, useEffect, useRef, useState } from 'react';
 import { FormFeedback, Input, Label, LabelProps } from 'reactstrap';
 import { InputType } from 'reactstrap/types/lib/Input';
 import * as styles from './styles.module.scss';
@@ -51,6 +51,7 @@ export interface IRealtimeBasicInput extends React.InputHTMLAttributes<HTMLInput
   firebasePath: string; // firebase path that component needs to listen to
   type: RealtimeBasicInputType;
   label: string;
+  labelOnClick?: MouseEventHandler<HTMLLabelElement>;
   invalid?: boolean;
   invalidMessage?: string;
   labelClass?: string;
@@ -83,6 +84,8 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     placeholder,
     disabled,
     disabledMessage,
+    onMouseDown,
+    labelOnClick,
     ...otherProps
   } = props;
 
@@ -143,7 +146,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   }, [inputValueLoaded]);
 
   const labelComponent = label && (
-    <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'fw-bold'} />
+    <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'fw-bold'} onClick={labelOnClick} />
   );
 
   const inputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -180,6 +183,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
         onChange={e => {
           inputChangeHandler(e);
         }}
+        onMouseDown={onMouseDown}
         type={props.type as InputType}
         style={inputStyle}
         value={inputValue}
@@ -191,6 +195,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
       >
         {children}
       </Input>
+      {disabled && disabledMessage && inputValue && <div className={'text-danger'}>{disabledMessage}</div>}
       {invalid && <FormFeedback>{invalidMessage || ''}</FormFeedback>}
     </>
   );

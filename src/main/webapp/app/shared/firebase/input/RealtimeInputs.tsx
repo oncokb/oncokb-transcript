@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import RealtimeBasicInput, { IRealtimeBasicInput, RealtimeInputType } from './RealtimeBasicInput';
 
 /**
@@ -40,6 +40,9 @@ export interface IRealtimeCheckedInputGroup {
   inlineHeader?: boolean;
   options: RealtimeCheckedInputOption[];
   disabled?: boolean;
+  onClick?: MouseEventHandler<HTMLInputElement>;
+  onMouseDown?: MouseEventHandler<HTMLInputElement>;
+  labelOnClick?: MouseEventHandler<HTMLLabelElement>;
 }
 
 export const RealtimeCheckedInputGroup = (props: IRealtimeCheckedInputGroup) => {
@@ -54,7 +57,10 @@ export const RealtimeCheckedInputGroup = (props: IRealtimeCheckedInputGroup) => 
               key={option.label}
               firebasePath={option.firebasePath}
               className="me-2"
+              value={option.label}
               label={option.label}
+              onMouseDown={props.onMouseDown}
+              labelOnClick={props.labelOnClick}
               id={`${option.firebasePath}-${option.label}`}
             />
           ) : (
@@ -64,6 +70,8 @@ export const RealtimeCheckedInputGroup = (props: IRealtimeCheckedInputGroup) => 
               firebasePath={option.firebasePath}
               style={{ marginTop: '0.1rem' }}
               className="me-2"
+              onMouseDown={props.onMouseDown}
+              labelOnClick={props.labelOnClick}
               label={option.label}
             />
           );
