@@ -25,7 +25,7 @@ public class ProxyWebSocketHandler implements WebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         try {
-            String incomingUri = session.getUri().toString();
+            String incomingUri = session.getUri().getPath();
             StandardWebSocketClient client = new StandardWebSocketClient();
             OncoCoreWebSocketHandler handler = new OncoCoreWebSocketHandler(session);
             client.doHandshake(handler, this.baseUrl + "/api" + incomingUri);
