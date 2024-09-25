@@ -48,6 +48,12 @@ export function useLastReviewedOnly<T extends object>(obj: T, ...reviewPaths: st
       // If the key ends with "_review", copy it to the new object
       if (key.endsWith('_review')) {
         const reviewData: Review = Object.assign({} as Review, value);
+        if ('added' in reviewData) {
+          delete reviewData.added;
+        }
+        if ('lastReviewed' in reviewData) {
+          delete reviewData.lastReviewed;
+        }
         (resultObj as Record<string, unknown>)[key] = reviewData;
       } else if (Array.isArray(value)) {
         const reviewData: Review | undefined = currentObj[`${key}_review`] as Review;
