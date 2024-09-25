@@ -26,7 +26,6 @@ import {
   getFirebaseGenePath,
   getFirebaseVusPath,
   getMutationName,
-  hasMultipleMutations,
   isMutationEffectCuratable,
   isSectionRemovableWithoutReview,
 } from 'app/shared/util/firebase/firebase-utils';
@@ -368,7 +367,7 @@ const MutationCollapsible = ({
               })}
             />
           }
-          name="summary"
+          name="mutationSummary"
           parseRefs
           disabled={oncogenicity === ''}
           disabledMessage={'Not curatable: mutation summary is only curatable when oncogenicity is specified.'}
