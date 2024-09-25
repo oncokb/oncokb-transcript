@@ -59,7 +59,7 @@ export function useLastReviewedOnly<T>(obj: T, ...reviewPaths: string[]): T | un
           // Preserve undefined values in the array to maintain the correct index structure,
           // ensuring paths like "mutation/11/..." are still valid even if some elements are omitted.
           // If the parent path is protected, push the element regardless of whether it's undefined.
-          if (processedElement !== undefined || isParentPathProtected) {
+          if (processedElement !== undefined || isCurrentPathProtected) {
             processedArray.push(processedElement);
           }
           i++;

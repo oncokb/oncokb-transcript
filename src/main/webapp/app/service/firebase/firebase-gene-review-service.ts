@@ -170,8 +170,9 @@ export class FirebaseGeneReviewService {
               drugListRef,
               entrezGeneId,
             });
-            if (args) {
+            if (args !== undefined) {
               evidences = {
+                ...evidences,
                 ...getEvidence(args),
               };
               hasEvidences = true;
