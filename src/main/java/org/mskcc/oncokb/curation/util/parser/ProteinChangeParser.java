@@ -253,9 +253,7 @@ public class ProteinChangeParser {
             if (mutationConsequence != null) {
                 revisedProteinChange += m.group(1).toUpperCase();
                 revisedProteinChange += m.group(2) + "_";
-                if (m.group(3) != null) {
-                    revisedProteinChange += m.group(3).toUpperCase();
-                }
+                revisedProteinChange += m.group(3).toUpperCase();
                 revisedProteinChange += m.group(4) + variant;
 
                 if (mutationConsequence != null) {

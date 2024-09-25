@@ -69,6 +69,8 @@ A149*,stop_gained,A,*,149,149
 *149*,stop_lost,*,*,149,149
 
 # extension
+M1ext-5,inframe_insertion,,,1,1
+M1_L2insRSTV,inframe_insertion,,,1,2
 *757Kext*36,stop_lost,*,,757,757
 757Kext*36,stop_lost,*,,757,757
 *757ext*36,stop_lost,*,,757,757
