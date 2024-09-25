@@ -33,8 +33,11 @@ function isPathProtected(reviewPaths: string[], path: string): boolean {
  * @param [reviewPaths] - The paths used to determine if an element should be protected.
  * @returns - The filtered object or undefined if no elements are accepted.
  */
-export function useLastReviewedOnly<T>(obj: T, ...reviewPaths: string[]): T | undefined {
-  function processObjectRecursively(currentObj: T, parentPath: string): T | undefined {
+export function useLastReviewedOnly<T extends object>(obj: T, ...reviewPaths: string[]): T | undefined {
+  function processObjectRecursively(currentObj: T | null | undefined, parentPath: string): T | null | undefined {
+    if (currentObj === null || currentObj === undefined) {
+      return currentObj;
+    }
     const resultObj: T = {} as T;
 
     for (const [key, value] of Object.entries(currentObj as Record<string, unknown>)) {
@@ -52,7 +55,7 @@ export function useLastReviewedOnly<T>(obj: T, ...reviewPaths: string[]): T | un
         if (reviewData?.added && !isParentPathProtected) {
           return undefined;
         }
-        const processedArray: (T | undefined)[] = [];
+        const processedArray: (T | null | undefined)[] = [];
         let i = 0;
         for (const arrayElement of value) {
           const processedElement = processObjectRecursively(arrayElement, `${currentPath}/${i}`);
@@ -88,7 +91,7 @@ export function useLastReviewedOnly<T>(obj: T, ...reviewPaths: string[]): T | un
     return resultObj;
   }
 
-  return processObjectRecursively(obj, '');
+  return processObjectRecursively(obj, '') as T | undefined;
 }
 
 export function flattenReviewPaths(reviewLevel: BaseReviewLevel): ReviewLevel[] {

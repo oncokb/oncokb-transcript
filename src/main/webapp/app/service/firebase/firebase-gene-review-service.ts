@@ -185,7 +185,7 @@ export class FirebaseGeneReviewService {
     }
 
     try {
-      if (geneTypePayload !== undefined) {
+      if (geneTypePayload) {
         await this.geneTypeClient.submitGeneTypeToCore(geneTypePayload);
       }
     } catch (error) {
