@@ -10,7 +10,6 @@ import { isSectionRemovableWithoutReview } from 'app/shared/util/firebase/fireba
 import EditIcon from 'app/shared/icons/EditIcon';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import _ from 'lodash';
 import { getLevelDropdownOptions } from 'app/shared/util/firebase/firebase-level-utils';
 import { DIAGNOSTIC_LEVELS_ORDERING, READABLE_FIELD, PROGNOSTIC_LEVELS_ORDERING } from 'app/config/constants/firebase';
 import { RealtimeTextAreaInput } from 'app/shared/firebase/input/RealtimeInputs';

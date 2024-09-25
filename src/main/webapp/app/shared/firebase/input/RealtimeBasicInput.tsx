@@ -5,7 +5,7 @@ import { IRootStore } from 'app/stores';
 import { default as classNames, default as classnames } from 'classnames';
 import { onValue, ref } from 'firebase/database';
 import { inject } from 'mobx-react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { MouseEventHandler, useEffect, useRef, useState } from 'react';
 import { FormFeedback, Input, Label, LabelProps } from 'reactstrap';
 import { InputType } from 'reactstrap/types/lib/Input';
 import * as styles from './styles.module.scss';
@@ -51,6 +51,7 @@ export interface IRealtimeBasicInput extends React.InputHTMLAttributes<HTMLInput
   firebasePath: string; // firebase path that component needs to listen to
   type: RealtimeBasicInputType;
   label: string;
+  labelOnClick?: MouseEventHandler<HTMLLabelElement>;
   invalid?: boolean;
   invalidMessage?: string;
   labelClass?: string;
@@ -58,6 +59,7 @@ export interface IRealtimeBasicInput extends React.InputHTMLAttributes<HTMLInput
   inputClass?: string;
   parseRefs?: boolean;
   updateMetaData?: boolean;
+  disabledMessage?: string;
 }
 
 const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props: IRealtimeBasicInput) => {
@@ -79,6 +81,11 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     updateReviewableContent,
     style,
     updateMetaData,
+    placeholder,
+    disabled,
+    disabledMessage,
+    onMouseDown,
+    labelOnClick,
     ...otherProps
   } = props;
 
@@ -138,7 +145,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   }, [inputValueLoaded]);
 
   const labelComponent = label && (
-    <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'fw-bold'} />
+    <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'fw-bold'} onClick={labelOnClick} />
   );
 
   const inputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,22 +185,26 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     <>
       <Input
         innerRef={inputRef}
-        className={classNames(inputClass, isCheckType && 'ms-1 position-relative', isTextType && styles.editableTextBox)}
+        className={classNames(inputClass, isCheckType && 'ms-1 position-relative', isTextType && !props.disabled && styles.editableTextBox)}
         id={id}
         name={`${id}-${label.toLowerCase()}`}
         autoComplete="off"
         onChange={e => {
           inputChangeHandler(e);
         }}
+        onMouseDown={onMouseDown}
         type={props.type as InputType}
         style={inputStyle}
         value={inputValue}
         invalid={invalid}
         checked={isCheckType && isChecked()}
+        disabled={disabled}
+        placeholder={placeholder ? placeholder : disabled && disabledMessage ? disabledMessage : ''}
         {...otherProps}
       >
         {children}
       </Input>
+      {disabled && disabledMessage && inputValue && <div className={'text-danger'}>{disabledMessage}</div>}
       {invalid && <FormFeedback>{invalidMessage || ''}</FormFeedback>}
     </>
   );

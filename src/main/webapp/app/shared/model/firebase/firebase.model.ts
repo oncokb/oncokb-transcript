@@ -223,6 +223,9 @@ export class Mutation {
   name_uuid: string = generateUuid();
   tumors: Tumor[] = [];
   tumors_uuid: string = generateUuid();
+  summary = '';
+  summary_review?: Review;
+  summary_uuid: string = generateUuid();
 
   // Germline
   mutation_specific_penetrance = new MutationSpecificPenetrance();
