@@ -84,6 +84,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
 
   const [inputValue, setInputValue] = useState(undefined);
   const [inputValueReview, setInputValueReview] = useState<Review | null>(null);
+  const [inputValueLoaded, setInputValueLoaded] = useState(false);
   const [inputValueUuid, setInputValueUuid] = useState(null);
 
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
@@ -99,6 +100,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     callbacks.push(
       onValue(ref(db, firebasePath), snapshot => {
         setInputValue(snapshot.val());
+        setInputValueLoaded(true);
       }),
     );
     callbacks.push(
@@ -117,6 +119,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
   }, [firebasePath, db]);
 
   useEffect(() => {
+    if (!inputValueLoaded) return;
     const input = inputRef.current;
     if (!input || type !== RealtimeInputType.TEXTAREA) {
       return;
@@ -124,8 +127,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
 
     const resizeObserver = new ResizeObserver(() => {
       window.requestAnimationFrame(() => {
-        input.style.height = 'auto';
-        input.style.height = `${input.scrollHeight}px`;
+        resizeTextArea(input);
       });
     });
     resizeObserver.observe(input);
@@ -133,7 +135,7 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     return () => {
       resizeObserver.disconnect();
     };
-  }, []);
+  }, [inputValueLoaded]);
 
   const labelComponent = label && (
     <RealtimeBasicLabel label={label} labelIcon={labelIcon} id={id} labelClass={isCheckType ? 'mb-0' : 'fw-bold'} />
@@ -152,6 +154,11 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
     if (onChange) {
       onChange(e);
     }
+
+    const input = inputRef.current;
+    if (type === RealtimeInputType.TEXTAREA && input) {
+      resizeTextArea(input);
+    }
   };
 
   function isChecked() {
@@ -159,6 +166,11 @@ const RealtimeBasicInput: React.FunctionComponent<IRealtimeBasicInput> = (props:
       return inputValue === label;
     }
     return label === RADIO_OPTION_NONE;
+  }
+
+  function resizeTextArea(textArea: HTMLInputElement | HTMLTextAreaElement) {
+    textArea.style.height = 'auto';
+    textArea.style.height = `${textArea.scrollHeight}px`;
   }
 
   const inputStyle: React.CSSProperties | undefined = isCheckType ? { marginRight: '0.25rem', ...style } : undefined;

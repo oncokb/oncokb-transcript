@@ -2,4 +2,7 @@
 
 .editableTextBox {
   background-color: $text-box-bg !important;
+  min-height: 20px !important;
+  overflow-y: hidden;
+  resize: none;
 }

@@ -42,9 +42,8 @@ const App: React.FunctionComponent<IAppProps> = (props: IAppProps) => {
             pauseOnFocusLoss
           />
           <BetaSiteMessage />
-          {props.loadingAuth ? (
-            <LoadingIndicator isLoading size={LoaderSize.LARGE} center={true} />
-          ) : (
+          {props.loadingAuth && <LoadingIndicator isLoading size={LoaderSize.LARGE} center={true} />}
+          {props.authAccount && (
             <div>
               {props.isAuthorized && <NavigationSidebar />}
               <div className="app-center-content-wrapper" style={{ margin: props.centerContentMargin }}>
@@ -63,6 +62,7 @@ const mapStoreToProps = ({ authStore, layoutStore, firebaseAppStore }: IRootStor
   authorities: authStore.account.authorities,
   isCurator: hasAnyAuthority(authStore.account.authorities ?? [], [AUTHORITIES.CURATOR]),
   loadingAuth: authStore.loading,
+  authAccount: authStore.account,
   navigationSidebarWidth: layoutStore.navigationSidebarWidth,
   toggleNavSidebar: layoutStore.toggleNavigationSidebar,
   centerContentMargin: layoutStore.centerContentMargin,
