@@ -123,7 +123,6 @@ describe('useLastReviewedOnly', () => {
       {
         summary: 'YYYYYYYYYYY',
         summary_review: {
-          lastReviewed: 'YYYYYYYYYYY',
           updateTime: 0,
           updatedBy: 'Test User',
         },
@@ -144,7 +143,6 @@ describe('useLastReviewedOnly', () => {
         type: {
           ocg: '',
           ocg_review: {
-            lastReviewed: '',
             updateTime: 0,
             updatedBy: 'Test User',
           },
@@ -186,7 +184,6 @@ describe('useLastReviewedOnly', () => {
           {
             name: 'new mutation name',
             name_review: {
-              lastReviewed: 'new mutation name',
               updateTime: 0,
               updatedBy: 'Test User',
             },
