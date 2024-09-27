@@ -138,7 +138,7 @@ const DrugSelect = <IsMulti extends boolean>(props: IDrugSelectProps<IsMulti>) =
 
   return (
     <AsyncSelect
-      {...selectProps}
+      placeholder="Select drug"
       components={{
         Option,
       }}
@@ -147,8 +147,8 @@ const DrugSelect = <IsMulti extends boolean>(props: IDrugSelectProps<IsMulti>) =
       onInputChange={setInput}
       loadOptions={loadOptions}
       options={drugOptions}
-      placeholder="Select a drug..."
       isClearable
+      {...selectProps}
     />
   );
 };

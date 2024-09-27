@@ -1,24 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Menu } from 'react-pro-sidebar';
-import { Button, Form } from 'reactstrap';
+import { Button, Container, Form } from 'reactstrap';
 import { ENTITY_ACTION, ENTITY_TYPE, SearchOptionType } from 'app/config/constants/constants';
 import { useHistory, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, width } from '@fortawesome/free-solid-svg-icons/faPlus';
+import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import CancerTypeSelect, { CancerTypeSelectOption } from 'app/shared/select/CancerTypeSelect';
 import { SaveButton } from 'app/shared/button/SaveButton';
-import GeneSelect from 'app/shared/select/GeneSelect';
+import GeneSelect, { GeneSelectOption } from 'app/shared/select/GeneSelect';
 import AlterationSelect, { AlterationSelectOption } from 'app/shared/select/AlterationSelect';
 import DrugSelect, { DrugSelectOption } from 'app/shared/select/DrugSelect';
 import FdaSubmissionSelect, { FdaSubmissionSelectOption } from 'app/shared/select/FdaSubmissionSelect';
-import { connect } from 'app/shared/util/typed-inject';
-import { IRootStore } from 'app/stores';
 import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
 import { Alteration, Association, CancerType, Drug, FdaSubmission } from 'app/shared/api/generated/curation';
 import { associationClient } from 'app/shared/api/clients';
 import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { IFdaSubmission } from 'app/shared/model/fda-submission.model';
+import { IRootStore } from 'app/stores';
+import { connect } from 'app/shared/util/typed-inject';
 
 const SidebarMenuItem: React.FunctionComponent<{ style?: React.CSSProperties; children: React.ReactNode }> = ({ style, children }) => {
   return <div style={{ padding: '0.5rem 1rem', ...style }}>{children}</div>;
@@ -29,8 +28,8 @@ export const defaultAdditional = {
   type: SearchOptionType.GENE,
 };
 
-const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = props => {
-  const [selectedGeneId, setSelectedGeneId] = useState<string>();
+const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ getEntity }: StoreProps) => {
+  const [geneValue, setGeneValue] = useState<GeneSelectOption | null>(null);
   const [alterationValue, onAlterationChange] = useState<readonly AlterationSelectOption[]>();
   const [cancerTypeValue, onCancerTypeChange] = useState<CancerTypeSelectOption | null>(null);
   const [drugValue, onDrugChange] = useState<readonly DrugSelectOption[]>([]);
@@ -39,6 +38,20 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
   const history = useHistory();
   const location = useLocation();
   const id = parseInt(location.pathname.split('/')[2], 10);
+
+  useEffect(() => {
+    if (geneValue === null) {
+      onAlterationChange([]);
+    }
+  }, [geneValue]);
+
+  const resetValues = () => {
+    onAlterationChange([]);
+    setGeneValue(null);
+    onCancerTypeChange(null);
+    onDrugChange([]);
+    onFdaSubmissionChange([]);
+  };
 
   const createBiomarkerAssociation = (e: any) => {
     e.preventDefault();
@@ -76,6 +89,8 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
     associationClient
       .createAssociation(association)
       .then(() => {
+        getEntity(id); // Refresh CDx association table
+        resetValues();
         notifySuccess('Biomarker association added.');
       })
       .catch(error => notifyError(error));
@@ -90,23 +105,23 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
   };
 
   return (
-    <div>
+    <Container>
       <h4 style={{ marginBottom: '2rem', marginLeft: '1rem' }}>Curation Panel</h4>
       <Menu>
         <Form onSubmit={createBiomarkerAssociation}>
           <SidebarMenuItem>Add Biomarker Association</SidebarMenuItem>
           <SidebarMenuItem>
-            <GeneSelect
-              onChange={option => {
-                const geneId = option ? option.value : null;
-                setSelectedGeneId(geneId?.toString());
-              }}
-            />
+            <GeneSelect onChange={setGeneValue} value={geneValue} />
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <div style={{ display: 'flex' }}>
+            <div className="d-flex align-items-start">
               <div style={{ flex: 1 }}>
-                <AlterationSelect isMulti geneId={selectedGeneId ?? ''} onChange={onAlterationChange} />
+                <AlterationSelect
+                  isMulti
+                  geneId={geneValue?.value?.toString() ?? ''}
+                  onChange={onAlterationChange}
+                  value={alterationValue}
+                />
               </div>
               <DefaultTooltip overlay={'Create new alteration'}>
                 <Button className="ms-1" color="primary" onClick={redirectToCreateAlteration}>
@@ -116,17 +131,23 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
             </div>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <CancerTypeSelect onChange={onCancerTypeChange} />
+            <CancerTypeSelect onChange={onCancerTypeChange} value={cancerTypeValue} />
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <DrugSelect isMulti onChange={onDrugChange} />
+            <DrugSelect isMulti onChange={onDrugChange} value={drugValue} placeholder={'Select drug(s)'} />
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <div style={{ display: 'flex' }}>
+            <div className="d-flex align-items-start">
               <div style={{ flex: 1 }}>
-                <FdaSubmissionSelect cdxId={id} isMulti onChange={onFdaSubmissionChange} />
+                <FdaSubmissionSelect
+                  cdxId={id}
+                  isMulti
+                  onChange={onFdaSubmissionChange}
+                  value={fdaSubmissionValue}
+                  placeholder={'Select FDA submission(s)'}
+                />
               </div>
-              <DefaultTooltip overlay={'Create new Fda Submission'}>
+              <DefaultTooltip overlay={'Create new FDA submission'}>
                 <Button className="ms-1" color="primary" onClick={redirectToCreateFdaSubmission}>
                   <FontAwesomeIcon icon={faPlus} size="sm" />
                 </Button>
@@ -138,11 +159,13 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = prop
           </SidebarMenuItem>
         </Form>
       </Menu>
-    </div>
+    </Container>
   );
 };
 
-const mapStoreToProps = ({ associationStore }: IRootStore) => ({});
+const mapStoreToProps = ({ companionDiagnosticDeviceStore }: IRootStore) => ({
+  getEntity: companionDiagnosticDeviceStore.getEntity,
+});
 
 type StoreProps = ReturnType<typeof mapStoreToProps>;
 

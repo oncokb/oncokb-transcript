@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActionMeta, OnChangeValue, Props as SelectProps, SingleValue } from 'react-select';
+import { OnChangeValue, Props as SelectProps } from 'react-select';
 import { IRootStore } from 'app/stores/createStore';
 import { InjectProps, connect } from '../util/typed-inject';
 import { IAlteration } from '../model/alteration.model';
@@ -18,7 +18,6 @@ interface IAlterationSelectProps extends SelectProps<AlterationSelectOption, tru
 const AlterationSelect = (props: IAlterationSelectProps) => {
   const { geneId, getAlterationsByGeneId, ...selectProps } = props;
   const [alterationList, setAlterationList] = useState<OnChangeValue<AlterationSelectOption, true>>([]);
-  const [alterationValue, setAlterationValue] = useState<OnChangeValue<AlterationSelectOption, true> | null>(null);
 
   useEffect(() => {
     const loadAlterationOptions = async (id: string) => {
@@ -36,28 +35,16 @@ const AlterationSelect = (props: IAlterationSelectProps) => {
       }
     };
     loadAlterationOptions(geneId);
-    if (!geneId) {
-      setAlterationValue(null);
-    }
   }, [geneId]);
-
-  const onAlterationChange: (
-    newValue: OnChangeValue<AlterationSelectOption, true>,
-    actionMeta: ActionMeta<AlterationSelectOption>,
-  ) => void = (option, actionMeta) => {
-    setAlterationValue(option);
-    props.onChange?.(option, actionMeta);
-  };
 
   return (
     <Select
       {...selectProps}
       isMulti
       name={'alterations'}
-      value={alterationValue}
       options={alterationList}
-      onChange={onAlterationChange}
-      placeholder="Select an alteration..."
+      onChange={props.onChange}
+      placeholder="Select alteration(s)"
       isDisabled={!geneId}
       isClearable
     />

@@ -126,7 +126,7 @@ const CancerTypeSelect = <IsMulti extends boolean>(props: ICancerTypeSelectProps
         disabledOptions?.some(disabled => disabled !== undefined && option !== undefined && disabled.value === option.value) || false
       }
       cacheUniqs={[props.value]}
-      placeholder="Select a cancer type..."
+      placeholder="Select cancer type"
       isClearable
     />
   );
