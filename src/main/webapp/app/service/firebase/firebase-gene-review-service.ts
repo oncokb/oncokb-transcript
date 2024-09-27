@@ -161,7 +161,7 @@ export class FirebaseGeneReviewService {
               this.evidenceClient.deleteEvidences(deleteEvidencesPayload);
             }
           } else if (isGeneTypeChange(reviewLevel.valuePath)) {
-            geneTypePayload = createGeneTypePayload(gene, reviewLevel.valuePath);
+            geneTypePayload = createGeneTypePayload(approvedGene, reviewLevel.valuePath);
           } else {
             const args = pathToGetEvidenceArgs({
               gene: approvedGene,
