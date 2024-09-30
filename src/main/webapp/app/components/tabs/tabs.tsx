@@ -27,7 +27,7 @@ const Tabs = ({ tabs, isCollapsed = false, defaultOpenTabIndex = 0, className, c
   }, [tabs.length]);
 
   return (
-    <div className={className ? className : 'me-3 ms-2 mt-1 ps-2'} style={{ wordBreak: 'break-word', width: '90%' }}>
+    <div className={className ? className : 'pe-4 ps-2 mt-1'} style={{ wordBreak: 'break-word', width: '100%' }}>
       <Row style={{ overflowX: 'auto', flexWrap: 'nowrap' }} className="border-bottom mb-3">
         {tabs.map((tab, index) => {
           return (
