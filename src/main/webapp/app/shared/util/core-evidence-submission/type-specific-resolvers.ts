@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { GetEvidenceArgs, KnownEffect } from './core-evidence-submission';
 import { mostRecentItem, LEVEL_MAPPING, validateTimeFormat, collectUUIDs } from './core-evidence-submission-utils';
 import { Alteration, Evidence, TumorType } from '../../api/generated/core/api';
-import { Gene, Mutation, Treatment, Tumor } from 'app/shared/model/firebase/firebase.model';
+import { Mutation } from 'app/shared/model/firebase/firebase.model';
 
 function handleInvestigationalResistanceToTherapy({ evidenceData }: { evidenceData: InitializeEvidenceDataRtn }) {
   evidenceData.data.knownEffect = 'Resistant';
@@ -114,6 +114,15 @@ function handleMutationNameChange({
   evidenceData.data.alterations = getAlterations(gene.name, mutation);
 }
 
+function handleMutationSummary({
+  evidenceData,
+  mutation,
+}: Pick<GetEvidenceArgs, 'mutation'> & { evidenceData: InitializeEvidenceDataRtn }) {
+  evidenceData.data.evidenceType = 'MUTATION_SUMMARY';
+  evidenceData.dataUUID = mutation.summary_uuid;
+  evidenceData.data.description = mutation.summary;
+}
+
 function handleTumorNameChange({ evidenceData, tumor }: Pick<GetEvidenceArgs, 'tumor'> & { evidenceData: InitializeEvidenceDataRtn }) {
   evidenceData.data.cancerTypes = tumor.cancerTypes as TumorType[];
   evidenceData.data.excludedCancerTypes = tumor.excludedCancerTypes as TumorType[];
@@ -152,9 +161,9 @@ function initializeEvidenceData({
     solidPropagationLevel: null,
     liquidPropagationLevel: null,
     fdaLevel: null,
-    cancerTypes: [],
-    excludedCancerTypes: [],
-    relevantCancerTypes: [],
+    cancerTypes: null,
+    excludedCancerTypes: null,
+    relevantCancerTypes: null,
   } as unknown as Evidence;
 
   if (data.gene !== undefined) {
@@ -224,6 +233,9 @@ export function resolveTypeSpecificData({
     case 'MUTATION_NAME_CHANGE':
       handleMutationNameChange({ evidenceData, gene, mutation });
       break;
+    case 'MUTATION_SUMMARY':
+      handleMutationSummary({ evidenceData, mutation });
+      break;
     case 'TUMOR_NAME_CHANGE':
       handleTumorNameChange({ evidenceData, tumor });
       break;
@@ -250,6 +262,17 @@ export function resolveTypeSpecificData({
       }
     }
   }
+
+  if (!evidenceData.data.cancerTypes) {
+    evidenceData.data.cancerTypes = [];
+  }
+  if (!evidenceData.data.relevantCancerTypes) {
+    evidenceData.data.relevantCancerTypes = [];
+  }
+  if (!evidenceData.data.excludedCancerTypes) {
+    evidenceData.data.excludedCancerTypes = [];
+  }
+
   return evidenceData;
 }
 

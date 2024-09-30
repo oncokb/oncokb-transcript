@@ -2,11 +2,10 @@ import _ from 'lodash';
 import { Drug, DrugCollection, Gene, Mutation, MutationEffect, TI, TX_LEVELS, Treatment, Tumor } from '../../model/firebase/firebase.model';
 import { resolveTypeSpecificData } from './type-specific-resolvers';
 import { FDA_LEVEL_MAPPING, LEVEL_MAPPING, collectUUIDs, getNewPriorities, validateTimeFormat } from './core-evidence-submission-utils';
-import { Evidence, EvidenceEvidenceTypeEnum } from '../../api/generated/core/api';
+import { Alteration, Evidence, EvidenceEvidenceTypeEnum } from '../../api/generated/core/api';
 
 export type GetEvidenceArgs = {
   type: EvidenceEvidenceTypeEnum | 'MUTATION_NAME_CHANGE' | 'TUMOR_NAME_CHANGE' | 'TREATMENT_NAME_CHANGE';
-
   mutation: Mutation;
   tumor: Tumor;
   ti: TI;
@@ -71,6 +70,8 @@ export function pathToGetEvidenceArgs({
     type = EvidenceEvidenceTypeEnum.DiagnosticImplication;
   } else if (/^mutations\/\d+\/mutation_effect\/oncogenic/.test(valuePath)) {
     type = EvidenceEvidenceTypeEnum.Oncogenic;
+  } else if (/^mutations\/\d+\/summary/.test(valuePath)) {
+    type = EvidenceEvidenceTypeEnum.MutationSummary;
   } else if (/^mutations\/\d+\/name/.test(valuePath)) {
     type = 'MUTATION_NAME_CHANGE';
   } else if (/^mutations\/\d+\/tumors\/\d+\/(cancerTypes|excludedCancerTypes)/.test(valuePath)) {
@@ -102,7 +103,6 @@ export function pathToGetEvidenceArgs({
     }
   } else {
     // skipping
-    // MutationSummary: 'MUTATION_SUMMARY',
     // TumorTypeSummary: 'TUMOR_TYPE_SUMMARY',
     // Vus: 'VUS',
     return undefined;
@@ -167,6 +167,27 @@ export function getEvidence({
   }
 
   const evidences: Record<string, Evidence> = {};
+
+  if (mutation && 'TUMOR_NAME_CHANGE' !== type && 'TREATMENT_NAME_CHANGE' !== type) {
+    if (evidenceData.dataUUID || type === 'MUTATION_NAME_CHANGE') {
+      const alterations = mutation.name
+        .split(',')
+        .map(x => x.trim())
+        .filter(x => !x)
+        .map(part => {
+          return {
+            alteration: part,
+            gene: {
+              hugoSymbol: gene.name,
+            },
+          };
+        });
+
+      if (alterations.length > 0) {
+        evidenceData.data.alterations = alterations;
+      }
+    }
+  }
 
   if (type === 'TREATMENT_NAME_CHANGE' || type === 'MUTATION_NAME_CHANGE' || type === 'TUMOR_NAME_CHANGE') {
     let uuids: string[];

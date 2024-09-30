@@ -103,6 +103,15 @@ describe('getEvidence to submit to core', () => {
         },
       ],
       [
+        { ...baseExpectedArgs, valuePath: 'mutations/0/summary' },
+        {
+          ...baseExpectedArgs,
+          type: 'MUTATION_SUMMARY',
+          mutation,
+          gene,
+        },
+      ],
+      [
         { ...baseExpectedArgs, valuePath: 'mutations/0/tumors/0/cancerTypes' },
         {
           ...baseExpectedArgs,
@@ -1221,6 +1230,75 @@ describe('getEvidence to submit to core', () => {
             ...baseEvidence,
             gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
             evidenceType: null as unknown as undefined,
+            alterations: [
+              {
+                alteration: 'mutation',
+                gene: {
+                  hugoSymbol: 'ABL1',
+                },
+              },
+            ],
+            lastEdit: null as unknown as undefined,
+          },
+        },
+      ],
+      [
+        {
+          ...baseArgs,
+          valuePath: 'mutations/0/summary',
+          gene: createMockGene({
+            name: hugoSymbol,
+            mutations: [
+              createMockMutation({
+                summary: 'summary',
+                summary_uuid: '73821fe9-27c4-46bf-a0c0-05a73cf5cf7b',
+                mutation_effect: createMockMutationEffect({
+                  oncogenic_uuid: 'afd5c3a0-930e-4cce-8bd5-66577ebac0eb',
+                  effect_uuid: 'ceac443e-dc39-4f62-9e05-45b800326e18',
+                }),
+                tumors: [
+                  createMockTumor({
+                    summary: 'Tumor Type Summary',
+                    summary_review: createMockReview({
+                      updateTime: getTimeFromDateString('2004-01-01'),
+                    }),
+                    summary_uuid: 'a264a9d7-69d5-47b2-9734-09a860dd9d9b',
+                    prognosticSummary_uuid: '081d7177-83e9-4dae-96a1-fa869aec4b52',
+                    diagnosticSummary_uuid: '1d36e653-2805-4b23-affc-e4b60f60d24c',
+                    diagnostic_uuid: '7cb9656b-383d-49ef-92eb-35af6803a6f4',
+                    prognostic_uuid: '70d937cc-1bb7-4315-9d4f-9a97cf9d728b',
+                    TIs: [
+                      createMockTi({
+                        name_uuid: 'd8a2f58b-f9f2-462e-98b6-88ea866c636e',
+                        treatments: [
+                          createMockTreatment({
+                            name: '20329090-99ab-4769-8932-b93346331f57',
+                            name_uuid: 'd43e1f83-be01-43c2-bc1a-c020d204fbb1',
+                            name_review: createMockReview({
+                              updateTime: 0,
+                            }),
+                            description: 'Treatment Description',
+                            fdaLevel: FDA_LEVELS.LEVEL_FDA1,
+                            level: TX_LEVELS.LEVEL_4,
+                            propagationLiquid: TX_LEVELS.LEVEL_3A,
+                            propagation: TX_LEVELS.LEVEL_2,
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        },
+        {
+          // Mutation Summary UUID
+          ['73821fe9-27c4-46bf-a0c0-05a73cf5cf7b']: {
+            ...baseEvidence,
+            description: 'summary',
+            gene: { entrezGeneId: baseArgs.entrezGeneId, hugoSymbol },
+            evidenceType: 'MUTATION_SUMMARY',
             alterations: [
               {
                 alteration: 'mutation',
