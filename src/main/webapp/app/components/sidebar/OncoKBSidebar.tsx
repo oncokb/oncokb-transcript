@@ -175,7 +175,7 @@ const OncoKBSidebarExpanded = observer(
             data-testid={CLOSE_SIDEBAR_BUTTON_ID}
           />
         </div>
-        <div className="ps-3" style={{ marginTop: '2rem', display: 'flex', width: '100%', overflow: 'hidden' }}>
+        <div className="ps-3" style={{ marginTop: '2rem', display: 'flex', width: '100%', overflowX: 'hidden' }}>
           {children}
         </div>
       </div>
