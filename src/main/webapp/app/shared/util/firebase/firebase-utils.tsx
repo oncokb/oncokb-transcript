@@ -422,7 +422,7 @@ function areSameAlterationsWithDifferentTranscripts(mutationName: string) {
   const alt1 = alterations[0].trim().toLowerCase();
   const alt2 = alterations[1].trim().toLowerCase();
   const grch37Prefix = 'grch37:';
-  const grch38Prefix = 'grch38';
+  const grch38Prefix = 'grch38:';
 
   if (
     (alt1.startsWith(grch37Prefix) && alt2.startsWith(grch38Prefix)) ||
