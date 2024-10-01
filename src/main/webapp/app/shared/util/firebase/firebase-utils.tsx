@@ -405,14 +405,14 @@ export const hasMultipleMutations = (mutationName: string) => {
 };
 export const isMutationEffectCuratable = (mutationName: string) => {
   const multipleMuts = hasMultipleMutations(mutationName);
-  if (multipleMuts && !areSameAlterationsWithDifferentTranscripts(mutationName)) {
+  if (multipleMuts && !areSameAlterationsWithDifferentReferenceGenomes(mutationName)) {
     return false;
   }
   const excludedMutations = ['Oncogenic Mutations'];
   return excludedMutations.filter(mutation => mutationName.toLowerCase().includes(mutation.toLowerCase())).length === 0;
 };
 
-function areSameAlterationsWithDifferentTranscripts(mutationName: string) {
+function areSameAlterationsWithDifferentReferenceGenomes(mutationName: string) {
   const alterations = mutationName.split(',');
 
   if (alterations.length !== 2) {
