@@ -152,7 +152,7 @@ const OncoKBSidebarExpanded = observer(
           onMouseOut={handleMouseOut}
           onMouseDown={handleMouseDown}
         />
-        <div style={{ marginTop: '2.25rem' }}>
+        <div style={{ marginTop: '2.25rem', display: 'flex', flexDirection: 'column' }}>
           {oncoKBSidebarWidth !== maxWidth && (
             <ActionIcon
               size="lg"
@@ -175,7 +175,9 @@ const OncoKBSidebarExpanded = observer(
             data-testid={CLOSE_SIDEBAR_BUTTON_ID}
           />
         </div>
-        <div style={{ marginTop: '2rem', display: 'flex', width: '100%' }}>{children}</div>
+        <div className="ps-3" style={{ marginTop: '2rem', display: 'flex', width: '100%', overflowX: 'hidden' }}>
+          {children}
+        </div>
       </div>
     );
   },
