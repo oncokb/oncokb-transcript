@@ -36,6 +36,8 @@ import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
 import { createGeneTypePayload, isGeneTypeChange } from 'app/shared/util/core-gene-type-submission/core-gene-type-submission';
 import { GeneTypeApi } from 'app/shared/api/manual/gene-type-api';
 import { flattenReviewPaths, useLastReviewedOnly } from 'app/shared/util/core-submission-shared/core-submission-utils';
+import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
+import { STOP_REVIEW_IF_CORE_SUBMISSION_FAILS } from 'app/shared/feature-flags';
 
 export class FirebaseGeneReviewService {
   firebaseRepository: FirebaseRepository;
@@ -180,7 +182,16 @@ export class FirebaseGeneReviewService {
         }
       }
     } catch (error) {
-      throw new SentryError('Failed to create evidences when accepting changes in review mode', { hugoSymbol, reviewLevels, isGermline });
+      const sentryError = new SentryError('Failed to create evidences when accepting changes in review mode', {
+        hugoSymbol,
+        reviewLevels,
+        isGermline,
+      });
+      if (STOP_REVIEW_IF_CORE_SUBMISSION_FAILS) {
+        throw sentryError;
+      } else {
+        console.error(sentryError);
+      }
     }
 
     try {
@@ -188,11 +199,16 @@ export class FirebaseGeneReviewService {
         await this.geneTypeClient.submitGeneTypeToCore(geneTypePayload);
       }
     } catch (error) {
-      throw new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
+      const sentryError = new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
         hugoSymbol,
         reviewLevels,
         isGermline,
       });
+      if (STOP_REVIEW_IF_CORE_SUBMISSION_FAILS) {
+        throw sentryError;
+      } else {
+        console.error(sentryError);
+      }
     }
 
     try {
@@ -200,11 +216,16 @@ export class FirebaseGeneReviewService {
         await this.evidenceClient.submitEvidences(evidences);
       }
     } catch (error) {
-      throw new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
+      const sentryError = new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
         hugoSymbol,
         reviewLevels,
         isGermline,
       });
+      if (STOP_REVIEW_IF_CORE_SUBMISSION_FAILS) {
+        throw sentryError;
+      } else {
+        console.error(sentryError);
+      }
     }
 
     let updateObject = {};
