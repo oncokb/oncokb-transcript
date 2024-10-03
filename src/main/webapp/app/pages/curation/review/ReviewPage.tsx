@@ -23,14 +23,10 @@ import _ from 'lodash';
 import { ReviewCollapsible } from '../collapsible/ReviewCollapsible';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
-import { DrugCollection, Gene, MetaReview } from 'app/shared/model/firebase/firebase.model';
-import { IGene } from 'app/shared/model/gene.model';
-import { FB_COLLECTION } from 'app/config/constants/firebase';
+import { Gene, MetaReview } from 'app/shared/model/firebase/firebase.model';
 import { SentryError } from 'app/config/sentry-error';
 
-interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {
-  geneEntity: IGene;
-}
+interface IReviewPageProps extends StoreProps, RouteComponentProps<{ hugoSymbol: string }> {}
 
 const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPageProps) => {
   const pathname = props.location.pathname;
@@ -53,14 +49,18 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   const [editorsToAcceptChangesFrom, setEditorsToAcceptChangesFrom] = useState<string[]>([]);
   const [isAcceptingAll, setIsAcceptingAll] = useState(false);
 
-  const fetchFirebaseData = () => {
+  const [isAccepting, setIsAccepting] = useState(false);
+
+  const fetchFirebaseData = async () => {
     if (!props.firebaseDb) {
       return;
     }
     // Fetch the data when the user enters review mode. We don't use a listener
     // because there shouldn't be another user editing the gene when it is being reviewed.
-    get(ref(props.firebaseDb, firebaseGenePath)).then(snapshot => setGeneData(snapshot.val()));
-    get(ref(props.firebaseDb, firebaseMetaReviewPath)).then(snapshot => setMetaReview(snapshot.val()));
+    const geneDataSnapshot = await get(ref(props.firebaseDb, firebaseGenePath));
+    setGeneData(geneDataSnapshot.val());
+    const metaReviewSnapshot = await get(ref(props.firebaseDb, firebaseMetaReviewPath));
+    setMetaReview(metaReviewSnapshot.val());
   };
 
   useEffect(() => {
@@ -125,10 +125,10 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
         isGermline,
         isAcceptAll: true,
         gene: geneData,
-        entrezGeneId: props.geneEntity.entrezGeneId,
+        entrezGeneId: geneEntity?.entrezGeneId as number,
         drugListRef,
       });
-      fetchFirebaseData();
+      await fetchFirebaseData();
     } catch (error) {
       notifyError(error);
     } finally {
@@ -216,10 +216,20 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
               hugoSymbol={hugoSymbol as string}
               isGermline={isGermline}
               baseReviewLevel={rootReview}
-              handleAccept={props.acceptReviewChangeHandler}
+              handleAccept={async args => {
+                setIsAccepting(true);
+                try {
+                  const returnVal = await props.acceptReviewChangeHandler?.(args);
+                  if (returnVal?.shouldRefresh) {
+                    await fetchFirebaseData();
+                  }
+                } finally {
+                  setIsAccepting(false);
+                }
+              }}
               handleReject={props.rejectReviewChangeHandler}
               handleCreateAction={props.createActionHandler}
-              disableActions={isAcceptingAll}
+              disableActions={isAcceptingAll || isAccepting}
               isRoot={true}
               firebase={{
                 path: getGenePathFromValuePath(hugoSymbol ?? '', rootReview.valuePath, isGermline),

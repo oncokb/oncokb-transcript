@@ -410,8 +410,12 @@ const addDuplicateMutationInfo = (duplicates: DuplicateMutationInfo[], mutationN
   }
 };
 
+export const hasMultipleMutations = (mutationName: string) => {
+  return mutationName.includes(',');
+};
 export const isMutationEffectCuratable = (mutationName: string) => {
-  if (mutationName.includes(',')) {
+  const multipleMuts = hasMultipleMutations(mutationName);
+  if (multipleMuts) {
     return false;
   }
   const excludedMutations = ['Oncogenic Mutations'];

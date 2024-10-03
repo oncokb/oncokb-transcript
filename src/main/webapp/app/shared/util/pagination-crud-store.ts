@@ -26,7 +26,7 @@ export const debouncedSearchWithPagination = _.debounce(
 );
 
 export class PaginationCrudStore<T extends object> extends BaseCrudStore<T> {
-  searchEntities: ICrudSearchAction<T> = this.updateHandler(this.getSearch);
+  searchEntities: ICrudSearchAction<T> = this.readHandler(this.getSearch);
 
   constructor(
     protected rootStore: IRootStore,

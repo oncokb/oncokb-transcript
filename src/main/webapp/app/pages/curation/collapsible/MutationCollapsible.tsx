@@ -35,7 +35,7 @@ import { IRootStore } from 'app/stores';
 import { get, onValue, ref } from 'firebase/database';
 import _ from 'lodash';
 import { observer } from 'mobx-react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from 'reactstrap';
 import BadgeGroup from '../BadgeGroup';
 import { DeleteSectionButton } from '../button/DeleteSectionButton';
@@ -49,6 +49,7 @@ import { NestLevelColor, NestLevelMapping, NestLevelType } from './NestLevel';
 import { RemovableCollapsible } from './RemovableCollapsible';
 import { Unsubscribe } from 'firebase/database';
 import { getLocationIdentifier } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
+import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
@@ -77,15 +78,21 @@ const MutationCollapsible = ({
   annotatedAltsCache,
   genomicIndicators,
   showLastModified,
+  handleFirebaseUpdate,
 }: IMutationCollapsibleProps) => {
   const firebaseMutationsPath = `${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`;
 
   const [mutationUuid, setMutationUuid] = useState<string>('');
   const [mutationName, setMutationName] = useState<string>('');
   const [mutationNameReview, setMutationNameReview] = useState<Review | null>(null);
+  const [mutationSummary, setMutationSummary] = useState<string>('');
   const [mutationAlterations, setMutationAlterations] = useState<Alteration[] | null>(null);
   const [isRemovableWithoutReview, setIsRemovableWithoutReview] = useState(false);
   const [relatedAnnotationResult, setRelatedAnnotationResult] = useState<AlterationAnnotationStatus[]>([]);
+  const [oncogenicity, setOncogenicity] = useState<string>('');
+  const [showSimpleConfirmModal, setShowSimpleConfirmModal] = useState<boolean>(false);
+  const [simpleConfirmModalBody, setSimpleConfirmModalBody] = useState<string | undefined>(undefined);
+  const [mutationSummaryRef, setMutationSummaryRef] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     const arr = annotatedAltsCache?.get(hugoSymbol ?? '', [{ name: mutationName, alterations: mutationAlterations }]) ?? [];
@@ -158,6 +165,11 @@ const MutationCollapsible = ({
       }),
     );
     callbacks.push(
+      onValue(ref(firebaseDb, `${mutationPath}/summary`), snapshot => {
+        setMutationSummary(snapshot.val());
+      }),
+    );
+    callbacks.push(
       onValue(ref(firebaseDb, `${mutationPath}/alterations`), snapshot => {
         setMutationAlterations(snapshot.val());
       }),
@@ -167,6 +179,11 @@ const MutationCollapsible = ({
         const review = snapshot.val() as Review;
         setMutationNameReview(review);
         setIsRemovableWithoutReview(isSectionRemovableWithoutReview(review));
+      }),
+    );
+    callbacks.push(
+      onValue(ref(firebaseDb, `${mutationPath}/mutation_effect/oncogenic`), snapshot => {
+        setOncogenicity(snapshot.val());
       }),
     );
 
@@ -196,6 +213,34 @@ const MutationCollapsible = ({
     },
     [mutationPath, mutationName, parsedHistoryList],
   );
+
+  async function simpleConfirmModalOnConfirm() {
+    await handleFirebaseUpdate?.(mutationPath, { summary: '' });
+    if (mutationSummaryRef) {
+      mutationSummaryRef.click();
+    }
+    setShowSimpleConfirmModal(false);
+    setSimpleConfirmModalBody(undefined);
+  }
+
+  function oncogenicityRadioOnClick(
+    event: React.MouseEvent<HTMLInputElement> | React.MouseEvent<HTMLLabelElement> | React.MouseEvent<HTMLDivElement>,
+  ) {
+    if (mutationSummary && event.target) {
+      let newOncogenicityVal;
+      if (event.target instanceof HTMLInputElement) {
+        newOncogenicityVal = event.target.value;
+      } else if (event.target instanceof HTMLDivElement || event.target instanceof HTMLLabelElement) {
+        newOncogenicityVal = event.target.innerText;
+      }
+      if (newOncogenicityVal === RADIO_OPTION_NONE) {
+        event.preventDefault();
+        setMutationSummaryRef(event.target as HTMLElement);
+        setShowSimpleConfirmModal(true);
+        setSimpleConfirmModalBody(`Mutation summary will be removed after removing oncogenicity.`);
+      }
+    }
+  }
 
   async function handleDeleteMutation(toVus = false) {
     if (!firebaseDb) {
@@ -308,6 +353,25 @@ const MutationCollapsible = ({
         }
         isPendingDelete={isMutationPendingDelete}
       >
+        <RealtimeTextAreaInput
+          firebasePath={`${mutationPath}/summary`}
+          inputClass={styles.summaryTextarea}
+          label="Mutation Summary (Optional)"
+          labelIcon={
+            <GeneHistoryTooltip
+              historyData={parsedHistoryList}
+              location={`${getMutationName(mutationName, mutationAlterations)}, ${READABLE_FIELD.SUMMARY}`}
+              locationIdentifier={getLocationIdentifier({
+                mutationUuid,
+                fields: [READABLE_FIELD.SUMMARY],
+              })}
+            />
+          }
+          name="mutationSummary"
+          parseRefs
+          disabled={oncogenicity === ''}
+          disabledMessage={'Not curatable: mutation summary is only curatable when oncogenicity is specified.'}
+        />
         <Collapsible
           idPrefix={`${mutationName}-mutation-effect`}
           title="Mutation Effect"
@@ -369,6 +433,10 @@ const MutationCollapsible = ({
                     }
                   </>
                 }
+                /** Radio a bit tricky. Have to use onMouseDown event to cancel the default event.
+                 * The onclick event does not like to be overwritten **/
+                onMouseDown={oncogenicityRadioOnClick}
+                labelOnClick={oncogenicityRadioOnClick}
                 isRadio
                 options={[...ONCOGENICITY_OPTIONS, RADIO_OPTION_NONE].map(label => ({
                   label,
@@ -598,6 +666,12 @@ const MutationCollapsible = ({
           }}
         />
       ) : undefined}
+      <SimpleConfirmModal
+        show={showSimpleConfirmModal}
+        body={simpleConfirmModalBody}
+        onConfirm={simpleConfirmModalOnConfirm}
+        onCancel={() => setShowSimpleConfirmModal(false)}
+      />
     </>
   );
 };
@@ -623,6 +697,7 @@ const mapStoreToProps = ({
   firebaseDb: firebaseAppStore.firebaseDb,
   annotatedAltsCache: curationPageStore.annotatedAltsCache,
   genomicIndicators: firebaseGenomicIndicatorsStore.data,
+  handleFirebaseUpdate: firebaseGeneService.updateObject,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

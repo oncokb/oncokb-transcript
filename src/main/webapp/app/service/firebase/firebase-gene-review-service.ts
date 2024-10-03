@@ -6,7 +6,12 @@ import { FirebaseRepository } from 'app/stores/firebase/firebase-repository';
 import _ from 'lodash';
 import { DrugCollection, Gene, Review } from '../../shared/model/firebase/firebase.model';
 import { buildHistoryFromReviews } from '../../shared/util/firebase/firebase-history-utils';
-import { extractArrayPath, parseFirebaseGenePath } from '../../shared/util/firebase/firebase-path-utils';
+import {
+  extractArrayPath,
+  FIREBASE_LIST_PATH_TYPE,
+  getFirebasePathType,
+  parseFirebaseGenePath,
+} from '../../shared/util/firebase/firebase-path-utils';
 import {
   ReviewLevel,
   TumorReviewLevel,
@@ -22,7 +27,6 @@ import { generateUuid, parseAlterationName } from '../../shared/util/utils';
 import { FirebaseVusService } from './firebase-vus-service';
 import { SentryError } from 'app/config/sentry-error';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
-import { GERMLINE_PATH } from 'app/config/constants/constants';
 import {
   getEvidence,
   pathToDeleteEvidenceArgs,
@@ -31,6 +35,7 @@ import {
 import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
 import { createGeneTypePayload, isGeneTypeChange } from 'app/shared/util/core-gene-type-submission/core-gene-type-submission';
 import { GeneTypeApi } from 'app/shared/api/manual/gene-type-api';
+import { flattenReviewPaths, useLastReviewedOnly } from 'app/shared/util/core-submission-shared/core-submission-utils';
 
 export class FirebaseGeneReviewService {
   firebaseRepository: FirebaseRepository;
@@ -122,33 +127,51 @@ export class FirebaseGeneReviewService {
     isAcceptAll?: boolean;
     drugListRef: DrugCollection;
     entrezGeneId: number;
-  }) => {
+  }): Promise<
+    | {
+        shouldRefresh: boolean;
+      }
+    | undefined
+    | void
+  > => {
     const geneFirebasePath = getFirebaseGenePath(isGermline, hugoSymbol);
     const vusFirebasePath = getFirebaseVusPath(isGermline, hugoSymbol);
+
+    const itemsToDelete: { [key in FIREBASE_LIST_PATH_TYPE]: { [path in string]: number[] } } = {
+      [FIREBASE_LIST_PATH_TYPE.MUTATION_LIST]: {},
+      [FIREBASE_LIST_PATH_TYPE.TUMOR_LIST]: {},
+      [FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST]: {},
+    };
 
     let evidences: ReturnType<typeof getEvidence> = {};
     let geneTypePayload: ReturnType<typeof createGeneTypePayload> | undefined = undefined;
     let hasEvidences = false;
     try {
-      for (const reviewLevel of reviewLevels) {
-        if (!(isCreateReview(reviewLevel) && isAcceptAll)) {
+      const flattenedReviewLevels = reviewLevels.flatMap(flattenReviewPaths);
+      // Generate a new version of the gene object (`approvedGene`) for the getEvidence payload.
+      // This ensures that if multiple valuePaths modify the same part of the payload,
+      // the changes are applied consistently, preventing any section from being overwritten unintentionally.
+      const approvedGene = useLastReviewedOnly(gene, ...flattenedReviewLevels.map(x => x.valuePath)) as Gene;
+      for (const reviewLevel of flattenedReviewLevels) {
+        if (!isCreateReview(reviewLevel)) {
           if (reviewLevel.reviewInfo.review.removed) {
             const deleteEvidencesPayload = pathToDeleteEvidenceArgs({ valuePath: reviewLevel.valuePath, gene });
             if (deleteEvidencesPayload !== undefined) {
               this.evidenceClient.deleteEvidences(deleteEvidencesPayload);
             }
           } else if (isGeneTypeChange(reviewLevel.valuePath)) {
-            geneTypePayload = createGeneTypePayload(gene);
+            geneTypePayload = createGeneTypePayload(approvedGene);
           } else {
             const args = pathToGetEvidenceArgs({
-              gene,
+              gene: approvedGene,
               valuePath: reviewLevel.valuePath,
               updateTime: new Date().getTime(),
               drugListRef,
               entrezGeneId,
             });
-            if (args) {
+            if (args !== undefined) {
               evidences = {
+                ...evidences,
                 ...getEvidence(args),
               };
               hasEvidences = true;
@@ -161,7 +184,7 @@ export class FirebaseGeneReviewService {
     }
 
     try {
-      if (geneTypePayload !== undefined) {
+      if (geneTypePayload) {
         await this.geneTypeClient.submitGeneTypeToCore(geneTypePayload);
       }
     } catch (error) {
@@ -204,16 +227,14 @@ export class FirebaseGeneReviewService {
       } else if (isDeleteReview(reviewLevel)) {
         const { firebaseArrayPath, deleteIndex } = extractArrayPath(reviewLevel.valuePath);
         const firebasePath = geneFirebasePath + '/' + firebaseArrayPath;
+        const firebasePathType = getFirebasePathType(firebaseArrayPath + '/' + deleteIndex);
+        if (firebasePathType !== undefined) {
+          const innerMap = itemsToDelete[firebasePathType];
+          innerMap[firebasePath] ? innerMap[firebasePath].push(deleteIndex) : (innerMap[firebasePath] = [deleteIndex]);
+        }
         if (review.demotedToVus) {
           const variants = parseAlterationName(reviewLevel.currentVal)[0].alteration.split(', ');
           updateObject = { ...updateObject, ...this.firebaseVusService.getVusUpdateObject(vusFirebasePath, variants) };
-        }
-        try {
-          // Todo: We should use multi-location updates for deletions once all our arrays use firebase auto-generated keys
-          // instead of using sequential number indices.
-          await this.firebaseRepository.deleteFromArray(firebasePath, [deleteIndex]);
-        } catch (error) {
-          throw new SentryError('Failed to accept deletion in review mode', { hugoSymbol, reviewLevel, isGermline });
         }
       } else if (isCreateReview(reviewLevel) && isAcceptAll) {
         const createUpdateObject = await this.getCreateUpdateObject(hugoSymbol, reviewLevel, isGermline, ActionType.ACCEPT);
@@ -229,7 +250,36 @@ export class FirebaseGeneReviewService {
     try {
       await this.firebaseRepository.update('/', updateObject);
     } catch (error) {
-      throw new SentryError('Failed to accept changes in review mode', { hugoSymbol, reviewLevels, isGermline, isAcceptAll, updateObject });
+      throw new SentryError('Failed to accept changes in review mode', {
+        hugoSymbol,
+        reviewLevels,
+        isGermline,
+        isAcceptAll,
+        updateObject,
+      });
+    }
+
+    // We are deleting last because the indices will change after deleting from array.
+    let hasDeletion = false;
+    try {
+      // Todo: We should use multi-location updates for deletions once all our arrays use firebase auto-generated keys
+      // instead of using sequential number indices.
+      for (const pathType of [
+        FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST,
+        FIREBASE_LIST_PATH_TYPE.TUMOR_LIST,
+        FIREBASE_LIST_PATH_TYPE.MUTATION_LIST,
+      ]) {
+        for (const [firebasePath, deleteIndices] of Object.entries(itemsToDelete[pathType])) {
+          hasDeletion = true;
+          await this.firebaseRepository.deleteFromArray(firebasePath, deleteIndices);
+        }
+      }
+      // If user accepts a deletion individually, we need to refresh the ReviewPage with the latest data to make sure the indices are up to date.
+      if (reviewLevels.length === 1 && hasDeletion) {
+        return { shouldRefresh: true };
+      }
+    } catch (error) {
+      throw new SentryError('Failed to accept deletions in review mode', { hugoSymbol, reviewLevels, isGermline, itemsToDelete });
     }
   };
 
@@ -246,7 +296,7 @@ export class FirebaseGeneReviewService {
         const reviewLevelUpdateObject = {
           [`${firebaseGenePath}/${reviewPath}`]: resetReview,
           // When user rejects the initial excludedRCTs, then excludedRCTs field should be cleared.
-          [`${firebaseGenePath}/${fieldPath}`]: review.initialUpdate ? null : review.lastReviewed,
+          [`${firebaseGenePath}/${fieldPath}`]: review.initialUpdate || review.lastReviewed === undefined ? null : review.lastReviewed,
         };
         updateObject = { ...updateObject, ...reviewLevelUpdateObject };
         if ('excludedCancerTypesReviewInfo' in reviewLevel && 'currentExcludedCancerTypes' in reviewLevel) {
@@ -254,7 +304,9 @@ export class FirebaseGeneReviewService {
           const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo?.reviewPath;
           const excludedCtPath = excludedCtReviewPath?.replace('_review', '');
           updateObject[`${firebaseGenePath}/${excludedCtReviewPath}`] = resetReview;
-          updateObject[`${firebaseGenePath}/${excludedCtPath}`] = tumorReviewLevel.excludedCancerTypesReviewInfo?.review.lastReviewed;
+          updateObject[`${firebaseGenePath}/${excludedCtPath}`] = tumorReviewLevel.excludedCancerTypesReviewInfo?.review.initialUpdate
+            ? null
+            : tumorReviewLevel.excludedCancerTypesReviewInfo?.review.lastReviewed;
         }
       } else if (isDeleteReview(reviewLevel)) {
         updateObject[`${firebaseGenePath}/${reviewPath}`] = resetReview;
