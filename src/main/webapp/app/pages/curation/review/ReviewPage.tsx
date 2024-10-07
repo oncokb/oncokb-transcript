@@ -206,6 +206,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
           </Row>
         </>
       )}
+      {(isAcceptingAll || isAccepting) && <LoadingIndicator key={'curation-page-loading'} size={LoaderSize.LARGE} center isLoading />}
       {rootReview ? (
         <Row data-testid="root-review">
           <Col>
