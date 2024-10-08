@@ -60,7 +60,7 @@ describe('Firebase Gene Review Service', () => {
     });
 
     mockVusService.getVusUpdateObject.mockImplementation((path, variants) => {
-      const originalVusService = new FirebaseVusService(mockFirebaseRepository, mockAuthStore);
+      const originalVusService = new FirebaseVusService(mockFirebaseRepository, mockEvidenceClient, mockAuthStore);
       return originalVusService.getVusUpdateObject(path, variants);
     });
 
