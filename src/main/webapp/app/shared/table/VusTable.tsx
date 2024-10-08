@@ -33,6 +33,7 @@ import MutationConvertIcon from '../icons/MutationConvertIcon';
 import AddMutationModal from '../modal/AddMutationModal';
 import { Unsubscribe } from 'firebase/database';
 import { VUS_TABLE_ID } from 'app/config/constants/html-id';
+import { SentryError } from 'app/config/sentry-error';
 
 export interface IVusTableProps extends StoreProps {
   hugoSymbol: string | undefined;
@@ -143,7 +144,8 @@ const VusTable = ({
         await sendVusToCore?.(hugoSymbol, vus);
       }
     } catch (e) {
-      console.error(e);
+      const error = new SentryError('Fail to submit VUS data to core.', { exception: e, hugoSymbol });
+      console.error(error);
     }
   }
 
