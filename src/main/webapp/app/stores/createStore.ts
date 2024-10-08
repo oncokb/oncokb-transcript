@@ -244,7 +244,7 @@ export function createStores(history: History): IRootStore {
   /* Firebase Services */
   const firebaseMetaService = new FirebaseMetaService(firebaseRepository, rootStore.authStore);
   const firebaseHistoryService = new FirebaseHistoryService(firebaseRepository);
-  const firebaseVusService = new FirebaseVusService(firebaseRepository, rootStore.authStore);
+  const firebaseVusService = new FirebaseVusService(firebaseRepository, evidenceClient, rootStore.authStore);
   const firebaseGeneReviewService = new FirebaseGeneReviewService(
     firebaseRepository,
     rootStore.authStore,

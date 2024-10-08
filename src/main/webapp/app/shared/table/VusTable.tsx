@@ -21,7 +21,7 @@ import { observer } from 'mobx-react';
 import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 import classNames from 'classnames';
 import AddButton from 'app/pages/curation/button/AddButton';
-import { onValue, ref } from 'firebase/database';
+import { get, onValue, ref } from 'firebase/database';
 import { downloadFile } from 'app/shared/util/file-utils';
 import { VusRecencyInfoIcon } from 'app/shared/icons/VusRecencyInfoIcon';
 import DefaultBadge from 'app/shared/badge/DefaultBadge';
@@ -56,6 +56,7 @@ const VusTable = ({
   mutationsSectionRef,
   isGermline,
   account,
+  sendVusToCore,
   addVus,
   refreshVus,
   deleteVus,
@@ -112,6 +113,7 @@ const VusTable = ({
     try {
       if (vusData) {
         await refreshVus?.(`${firebaseVusPath}/${uuid}`, vusData[uuid]);
+        syncVusWithCore();
       }
     } catch (error) {
       notifyError(error);
@@ -121,6 +123,7 @@ const VusTable = ({
   async function handleDelete() {
     try {
       await deleteVus?.(`${firebaseVusPath}/${currentActionVusUuid.current}`);
+      syncVusWithCore();
     } catch (error) {
       notifyError(error);
     }
@@ -129,6 +132,19 @@ const VusTable = ({
   async function handleAddVus(variants: string[]) {
     await addVus?.(firebaseVusPath, variants);
     setShowAddVusModal(false);
+    syncVusWithCore();
+  }
+
+  async function syncVusWithCore() {
+    try {
+      if (firebaseDb && hugoSymbol) {
+        const firebaseVus = (await get(ref(firebaseDb, firebaseVusPath))).val() as Record<string, Vus>;
+        const vus = Object.values(firebaseVus);
+        await sendVusToCore?.(hugoSymbol, vus);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   const columns: SearchColumn<VusTableData>[] = [
@@ -306,6 +322,7 @@ const mapStoreToProps = ({
   fullName: authStore.fullName,
   addMutation: firebaseGeneService.addMutation,
   setOpenMutationCollapsibleIndex: openMutationCollapsibleStore.setOpenMutationCollapsibleIndex,
+  sendVusToCore: firebaseVusService.sendVusToCore.bind(firebaseVusService),
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
