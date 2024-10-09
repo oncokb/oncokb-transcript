@@ -70,19 +70,51 @@ describe('Data Import Tests', () => {
   });
 
   it('Pathogenicity check is in place', async () => {
-    await uploadMutationToImport(true, 'invalid_pathogenicity.tsv');
+    await uploadMutationToImport(true, 'data_import_germline_mutations.tsv');
 
     const importButton = await $(`button[id='${DATA_IMPORT_IMPORT_BUTTON_ID}']`);
     expect(importButton).toExist();
     await importButton.click();
 
-    // too complicated to check logics, do a screenshot instead
-    const dataTable = await $(`div[class=${DATA_IMPORT_DATA_TABLE_ID}]`);
+    const dataTable = await $(`div[id=${DATA_IMPORT_DATA_TABLE_ID}]`);
     expect(dataTable).toExist();
 
-    const tableRows = await $$(`div[class=${REACT_TABLE_TR_GROUP_CLASS}]`);
-    expect(tableRows).toHaveLength(1);
-
+    const tableRows = await dataTable.$$(`div[class=${REACT_TABLE_TR_GROUP_CLASS}]`);
+    expect(tableRows).toHaveLength(5); // default page size
     expect(tableRows[0].$$('svg[class=fail]')).toExist();
+    expect(tableRows[1].$$('svg[class=success]')).toExist();
+  });
+
+  it('Oncogenicity check is in place', async () => {
+    await uploadMutationToImport(false, 'data_import_somatic_mutations.tsv');
+
+    const importButton = await $(`button[id='${DATA_IMPORT_IMPORT_BUTTON_ID}']`);
+    expect(importButton).toExist();
+    await importButton.click();
+
+    const dataTable = await $(`div[id=${DATA_IMPORT_DATA_TABLE_ID}]`);
+    expect(dataTable).toExist();
+
+    const tableRows = await dataTable.$$(`div[class=${REACT_TABLE_TR_GROUP_CLASS}]`);
+    expect(tableRows).toHaveLength(5); // default page size
+    expect(tableRows[0].$$('svg[class=fail]')).toExist();
+    expect(tableRows[1].$$('svg[class=success]')).toExist();
+  });
+
+  it('Mutation exists check is in place', async () => {
+    await uploadMutationToImport(false, 'data_import_somatic_mutations.tsv');
+
+    const importButton = await $(`button[id='${DATA_IMPORT_IMPORT_BUTTON_ID}']`);
+    expect(importButton).toExist();
+    await importButton.click();
+
+    const dataTable = await $(`div[id=${DATA_IMPORT_DATA_TABLE_ID}]`);
+    expect(dataTable).toExist();
+
+    const tableRows = await dataTable.$$(`div[class=${REACT_TABLE_TR_GROUP_CLASS}]`);
+    expect(tableRows).toHaveLength(5); // default page size
+    expect(tableRows[0].$$('svg[class=fail]')).toExist();
+    expect(tableRows[2].$$('svg[class=fail]')).toExist();
+    await browser.debug();
   });
 });
