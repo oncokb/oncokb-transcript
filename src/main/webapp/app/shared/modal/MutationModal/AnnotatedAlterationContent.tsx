@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect } from 'react';
 import { AlterationData } from '../NewAddMutationModal';
 import { AlterationTypeEnum } from 'app/shared/api/generated/curation';
 import AddMutationModalField from './AddMutationModalField';
@@ -182,7 +182,7 @@ const AnnotatedAlterationContent = ({
 
   const handleFieldChange = (newValue: string, field: keyof AlterationData) => {
     !_.isNil(excludingIndex)
-      ? handleExcludingFieldChange?.(newValue, field, selectedAlterationStateIndex, excludingIndex)
+      ? handleExcludingFieldChange?.(newValue, field)
       : handleNormalFieldChange?.(newValue, field, selectedAlterationStateIndex);
   };
 

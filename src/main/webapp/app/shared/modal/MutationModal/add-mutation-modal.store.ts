@@ -21,6 +21,7 @@ export class AddMutationModalStore {
   public alterationStates: AlterationData[] = [];
 
   public selectedAlterationStateIndex = -1;
+  public selectedExcludedAlterationIndex = -1;
 
   public showModifyExonForm = false;
 
@@ -38,6 +39,7 @@ export class AddMutationModalStore {
       vusList: observable,
       alterationStates: observable,
       selectedAlterationStateIndex: observable,
+      selectedExcludedAlterationIndex: observable,
       showModifyExonForm: observable,
       isFetchingAlteration: observable,
       isFetchingExcludingAlteration: observable,
@@ -52,9 +54,11 @@ export class AddMutationModalStore {
       setShowModifyExonForm: action.bound,
       setAlterationStates: action.bound,
       setSelectedAlterationStateIndex: action.bound,
+      setSelectedExcludedAlterationIndex: action.bound,
       setSelectedAlterationCategoryFlags: action.bound,
       setAlterationCategoryComment: action.bound,
       handleAlterationChange: action.bound,
+      handleExcludedAlterationChange: action.bound,
       handleExcludingFieldChange: action.bound,
       fetchExcludedAlteration: action.bound,
       handleNormalAlterationChange: action.bound,
@@ -90,6 +94,10 @@ export class AddMutationModalStore {
 
   setSelectedAlterationStateIndex(index: number) {
     this.selectedAlterationStateIndex = index;
+  }
+
+  setSelectedExcludedAlterationIndex(index: number) {
+    this.selectedExcludedAlterationIndex = index;
   }
 
   setSelectedAlterationCategoryFlags(flags: SelectedFlag[]) {
@@ -165,7 +173,9 @@ export class AddMutationModalStore {
       convertEntityStatusAlterationToAlterationData(alt, parsedAlterations[index].alteration, [], newComment, newVariantName),
     );
 
-    this.alterationStates[this.selectedAlterationStateIndex].excluding.push(...newAlterations);
+    const newAlterationStates = _.cloneDeep(this.alterationStates);
+    newAlterationStates[this.selectedAlterationStateIndex].excluding.push(...newAlterations);
+    this.alterationStates = newAlterationStates;
   }
 
   async handleAlterationChange(newValue: string, alterationIndex: number, excludingIndex?: number, isDebounced = true) {
@@ -173,29 +183,31 @@ export class AddMutationModalStore {
       this.isFetchingExcludingAlteration = true;
 
       if (isDebounced) {
-        this.handleExcludingFieldChange(newValue, 'alteration', alterationIndex, excludingIndex);
-        _.debounce(async () => await this.fetchExcludedAlteration(newValue, alterationIndex, excludingIndex), 1000);
+        this.handleExcludedAlterationChange(newValue);
       } else {
-        await this.fetchExcludedAlteration(newValue, alterationIndex, excludingIndex);
+        await this.fetchExcludedAlteration(newValue);
         this.isFetchingExcludingAlteration = false;
       }
     } else {
       this.isFetchingAlteration = true;
-
       if (isDebounced) {
         this.handleNormalAlterationChange(newValue, alterationIndex);
       } else {
         await this.fetchNormalAlteration(newValue, alterationIndex);
+        this.isFetchingAlteration = false;
       }
-      this.isFetchingAlteration = false;
     }
   }
 
-  handleExcludingFieldChange(newValue: string, field: keyof AlterationData, alterationIndex: number, excludingIndex: number) {
-    this.alterationStates[alterationIndex].excluding[excludingIndex][field as string] = newValue;
+  handleExcludingFieldChange(newValue: string, field: keyof AlterationData) {
+    const newAlterationStates = _.cloneDeep(this.alterationStates);
+    newAlterationStates[this.selectedAlterationStateIndex].excluding[this.selectedExcludedAlterationIndex][field as string] = newValue;
+    this.alterationStates = newAlterationStates;
   }
 
-  async fetchExcludedAlteration(newAlteration: string, alterationIndex: number, excludingIndex: number) {
+  async fetchExcludedAlteration(newAlteration: string) {
+    const alterationIndex = this.selectedAlterationStateIndex;
+    const excludingIndex = this.selectedExcludedAlterationIndex;
     const newParsedAlteration = parseAlterationName(newAlteration);
 
     const currentState = this.alterationStates[alterationIndex];
@@ -217,7 +229,9 @@ export class AddMutationModalStore {
       )
     ) {
       notifyError(new Error('Duplicate alteration(s) removed'));
-      this.alterationStates[alterationIndex].excluding.splice(excludingIndex, 1);
+      const newAlterationStates = _.cloneDeep(this.alterationStates);
+      newAlterationStates[alterationIndex].excluding.splice(excludingIndex, 1);
+      this.alterationStates = newAlterationStates;
       return;
     }
 
@@ -248,23 +262,47 @@ export class AddMutationModalStore {
         .filter(hasValue),
     ];
 
-    this.alterationStates[alterationIndex].excluding.splice(excludingIndex, 1, ...newAlterations);
+    const newAlterationStates = _.cloneDeep(this.alterationStates);
+    newAlterationStates[alterationIndex].excluding.splice(excludingIndex, 1, ...newAlterations);
+    this.alterationStates = newAlterationStates;
   }
 
   handleNormalAlterationChange(newValue: string, alterationIndex: number) {
-    this.alterationStates[alterationIndex].alterationFieldValueWhileFetching = newValue;
+    const newAlterationStates = _.cloneDeep(this.alterationStates);
+    newAlterationStates[alterationIndex].alterationFieldValueWhileFetching = newValue;
+    this.alterationStates = newAlterationStates;
 
-    _.debounce(() => this.fetchNormalAlteration(newValue, alterationIndex), 1000);
+    _.debounce(async () => {
+      await this.fetchNormalAlteration(newValue, alterationIndex);
+      this.isFetchingAlteration = false;
+    }, 1000)();
+  }
+
+  handleExcludedAlterationChange(newValue: string) {
+    const newAlterationStates = _.cloneDeep(this.alterationStates);
+    newAlterationStates[this.selectedAlterationStateIndex].excluding[
+      this.selectedExcludedAlterationIndex
+    ].alterationFieldValueWhileFetching = newValue;
+    this.alterationStates = newAlterationStates;
+
+    _.debounce(async () => {
+      await this.fetchExcludedAlteration(newValue);
+      this.isFetchingExcludingAlteration = false;
+    }, 1000)();
   }
 
   handleNormalFieldChange(newValue: string, field: keyof AlterationData, alterationIndex: number) {
-    this.alterationStates[alterationIndex][field as string] = newValue;
+    const newAlterationStates = _.cloneDeep(this.alterationStates);
+    newAlterationStates[alterationIndex][field as string] = newValue;
+    this.alterationStates = newAlterationStates;
   }
 
   async fetchNormalAlteration(newAlteration: string, alterationIndex: number) {
     const newParsedAlteration = this.filterAlterationsAndNotify(parseAlterationName(newAlteration), alterationIndex);
     if (newParsedAlteration.length === 0) {
-      this.alterationStates[alterationIndex].alterationFieldValueWhileFetching = undefined;
+      const newAlterationStates = _.cloneDeep(this.alterationStates);
+      newAlterationStates[alterationIndex].alterationFieldValueWhileFetching = undefined;
+      this.alterationStates = newAlterationStates;
     }
 
     const newComment = newParsedAlteration[0].comment;
@@ -291,10 +329,11 @@ export class AddMutationModalStore {
     if (newParsedAlteration[0].alteration !== this.alterationStates[alterationIndex]?.alteration) {
       alterationPromises.push(this.fetchAlteration(newParsedAlteration[0].alteration));
     } else {
-      this.alterationStates[alterationIndex].excluding = newExcluding;
-      this.alterationStates[alterationIndex].comment = newComment;
-      this.alterationStates[alterationIndex].name = newVariantName || newParsedAlteration[0].alteration;
-      newAlterations.push(this.alterationStates[alterationIndex]);
+      const newAlterationState = _.cloneDeep(this.alterationStates[alterationIndex]);
+      newAlterationState.excluding = newExcluding;
+      newAlterationState.comment = newComment;
+      newAlterationState.name = newVariantName || newParsedAlteration[0].alteration;
+      newAlterations.push(newAlterationState);
     }
 
     for (let i = 1; i < newParsedAlteration.length; i++) {
@@ -317,7 +356,9 @@ export class AddMutationModalStore {
     ];
     newAlterations[0].alterationFieldValueWhileFetching = undefined;
 
-    this.alterationStates.splice(alterationIndex, 1, ...newAlterations);
+    const newAlterationStates = _.cloneDeep(this.alterationStates);
+    newAlterationStates.splice(alterationIndex, 1, ...newAlterations);
+    this.alterationStates = newAlterationStates;
   }
 
   filterAlterationsAndNotify(alterations: ReturnType<typeof parseAlterationName>, alterationIndex?: number) {
@@ -381,6 +422,7 @@ export class AddMutationModalStore {
     this.vusList = null;
     this.alterationStates = [];
     this.selectedAlterationStateIndex = -1;
+    this.selectedExcludedAlterationIndex = -1;
     this.showModifyExonForm = false;
     this.isFetchingAlteration = false;
     this.isFetchingExcludingAlteration = false;

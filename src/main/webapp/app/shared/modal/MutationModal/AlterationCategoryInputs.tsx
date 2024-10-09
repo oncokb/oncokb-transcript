@@ -5,9 +5,9 @@ import { IFlag } from 'app/shared/model/flag.model';
 import { FlagTypeEnum } from 'app/shared/model/enumerations/flag-type.enum.model';
 import { AlterationCategories } from 'app/shared/model/firebase/firebase.model';
 import { isFlagEqualToIFlag } from 'app/shared/util/firebase/firebase-utils';
-import { DropdownOption } from './AddMutationModalDropdown';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { IRootStore } from 'app/stores';
+import { DropdownOption } from './AddMutationModalDropdown';
 
 const AlterationCategoryInputs = ({
   getFlagsByType,

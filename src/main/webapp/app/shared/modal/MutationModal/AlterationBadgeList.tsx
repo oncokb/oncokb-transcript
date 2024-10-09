@@ -1,6 +1,6 @@
 import DefaultTooltip from 'app/shared/tooltip/DefaultTooltip';
 import classNames from 'classnames';
-import React, { useEffect } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import * as styles from './styles.module.scss';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,96 +9,103 @@ import { getFullAlterationName } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { FaExclamationCircle, FaExclamationTriangle } from 'react-icons/fa';
-import { faComment as farComment } from '@fortawesome/free-regular-svg-icons';
-import { faComment as fasComment } from '@fortawesome/free-solid-svg-icons';
-import AlterationCategoryInputs from './AlterationCategoryInputs';
-import { Input } from 'reactstrap';
 import { useOverflowDetector } from 'app/hooks/useOverflowDetector';
+import { BS_BORDER_COLOR } from 'app/config/colors';
+import _ from 'lodash';
+import { DEFAULT_ICON_SIZE } from 'app/config/constants/constants';
+import { FaCircleCheck } from 'react-icons/fa6';
 
 export interface IAlterationBadgeList extends StoreProps {
-  alterationData: AlterationData[];
+  isExclusionList?: boolean;
+  showInput?: boolean;
+  inputValue?: string;
+  onInputChange?: (newValue: string) => void;
+  onKeyDown?: (event: React.KeyboardEvent<Element>) => void;
 }
 
 const AlterationBadgeList = ({
   alterationStates,
-  alterationCategoryComment,
   setAlterationStates,
   selectedAlterationStateIndex,
   setSelectedAlterationStateIndex,
-  setAlterationCategoryComment,
-  selectedAlterationCategoryFlags,
-}: StoreProps) => {
-  useEffect(() => {
-    if (!alterationStates) return;
-    if ((selectedAlterationStateIndex ?? -1) >= alterationStates.length) {
-      setSelectedAlterationStateIndex?.(alterationStates.length - 1);
-    }
-  }, [alterationStates?.length, selectedAlterationStateIndex]);
+  selectedExcludedAlterationIndex,
+  setSelectedExcludedAlterationIndex,
+  onInputChange,
+  inputValue,
+  isExclusionList = false,
+  showInput = false,
+}: IAlterationBadgeList) => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  if (alterationStates === undefined || selectedAlterationStateIndex === undefined) return <></>;
 
-  const showAlterationCategoryDropdown = (alterationStates ?? []).length > 1;
-  const showAlterationCategoryComment = showAlterationCategoryDropdown && (selectedAlterationCategoryFlags ?? []).length > 0;
+  const alterationList = isExclusionList ? alterationStates[selectedAlterationStateIndex].excluding : alterationStates;
+
+  const handleAlterationDelete = (value: AlterationData) => {
+    const filteredAlterationList = alterationList?.filter(
+      alterationState => getFullAlterationName(value) !== getFullAlterationName(alterationState),
+    );
+    if (!isExclusionList) {
+      setAlterationStates?.(filteredAlterationList);
+    } else {
+      const newAlterationStates = _.cloneDeep(alterationStates);
+      newAlterationStates[selectedAlterationStateIndex].excluding = newAlterationStates[selectedAlterationStateIndex].excluding.filter(
+        state => getFullAlterationName(value) !== getFullAlterationName(state),
+      );
+      setAlterationStates?.(newAlterationStates);
+    }
+  };
+
+  const handleAlterationClick = (index: number) => {
+    isExclusionList ? setSelectedExcludedAlterationIndex?.(index) : setSelectedAlterationStateIndex?.(index);
+  };
 
   return (
-    <>
-      <div className="d-flex">
-        <div className="h5">Current Mutation List</div>
-        {showAlterationCategoryComment && (
-          <div className="ms-2">
-            <DefaultTooltip
-              destroyTooltipOnHide
-              overlayInnerStyle={{ minWidth: '400px' }}
-              overlay={
-                <Input
-                  type="textarea"
-                  placeholder={'Input string name comment'}
-                  value={alterationCategoryComment}
-                  onChange={event => setAlterationCategoryComment?.(event.target.value)}
-                />
-              }
-            >
-              <FontAwesomeIcon
-                icon={alterationCategoryComment === '' ? farComment : fasComment}
-                color={alterationCategoryComment === '' ? 'inherit' : 'green'}
-              />
-            </DefaultTooltip>
-          </div>
-        )}
-      </div>
-      <div className="px-2 py-2">
-        {showAlterationCategoryDropdown && <AlterationCategoryInputs />}
-        <div style={{ border: '1px solid #ddd', borderRadius: '5px', padding: '0.25rem', display: 'flex', flexWrap: 'wrap' }}>
-          {alterationStates?.map((value, index) => {
-            const fullAlterationName = getFullAlterationName(value, false);
-            return (
-              <AlterationBadge
-                key={fullAlterationName}
-                alterationData={value}
-                alterationName={fullAlterationName}
-                isSelected={index === selectedAlterationStateIndex}
-                onClick={() => setSelectedAlterationStateIndex?.(index)}
-                onDelete={() => {
-                  setAlterationStates?.(
-                    alterationStates.filter(alterationState => getFullAlterationName(value) !== getFullAlterationName(alterationState)),
-                  );
-                }}
-              />
-            );
-          })}
+    <div
+      style={{
+        border: `1px solid ${BS_BORDER_COLOR}`,
+        borderRadius: '5px',
+        padding: '0.25rem',
+        display: 'flex',
+        flexWrap: 'wrap',
+      }}
+      onClick={() => inputRef?.current?.focus()}
+    >
+      {alterationList?.map((value, index) => {
+        const fullAlterationName = getFullAlterationName(value, false);
+        return (
+          <AlterationBadge
+            key={fullAlterationName}
+            alterationData={value}
+            alterationName={fullAlterationName}
+            isSelected={index === (isExclusionList ? selectedExcludedAlterationIndex : selectedAlterationStateIndex)}
+            onClick={() => handleAlterationClick(index)}
+            onDelete={() => handleAlterationDelete(value)}
+            isExludedAlteration={isExclusionList}
+          />
+        );
+      })}
+      {showInput && (
+        <div className={styles.alterationBadgeListInputWrapper}>
+          <input
+            ref={inputRef}
+            className={styles.alterationBadgeListInput}
+            onChange={event => onInputChange?.(event.target.value)}
+            placeholder={alterationList.length > 0 ? undefined : 'Enter alteration(s)'}
+            value={inputValue}
+          ></input>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 };
 
 const mapStoreToProps = ({ addMutationModalStore }: IRootStore) => ({
   alterationStates: addMutationModalStore.alterationStates,
-  setShowModifyExonForm: addMutationModalStore.setShowModifyExonForm,
-  alterationCategoryComment: addMutationModalStore.alterationCategoryComment,
-  selectedAlterationCategoryFlags: addMutationModalStore.selectedAlterationCategoryFlags,
   setAlterationStates: addMutationModalStore.setAlterationStates,
   selectedAlterationStateIndex: addMutationModalStore.selectedAlterationStateIndex,
   setSelectedAlterationStateIndex: addMutationModalStore.setSelectedAlterationStateIndex,
-  setAlterationCategoryComment: addMutationModalStore.setAlterationCategoryComment,
+  selectedExcludedAlterationIndex: addMutationModalStore.selectedExcludedAlterationIndex,
+  setSelectedExcludedAlterationIndex: addMutationModalStore.setSelectedExcludedAlterationIndex,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
@@ -111,38 +118,56 @@ interface IAlterationBadge {
   isSelected: boolean;
   onClick: () => void;
   onDelete: () => void;
+  isExludedAlteration?: boolean;
 }
 
-const AlterationBadge = ({ alterationData, alterationName, isSelected, onClick, onDelete }: IAlterationBadge) => {
+const AlterationBadge = ({
+  alterationData,
+  alterationName,
+  isSelected,
+  onClick,
+  onDelete,
+  isExludedAlteration = false,
+}: IAlterationBadge) => {
   const { ref, overflow } = useOverflowDetector({ handleHeight: false });
 
-  function getBackgroundColor() {
+  const backgroundColor = useMemo(() => {
     if (alterationData.error) {
       return 'danger';
     }
     if (alterationData.warning) {
       return 'warning';
     }
+    if (isExludedAlteration) {
+      return 'secondary';
+    }
     return 'success';
-  }
+  }, [alterationData, isExludedAlteration]);
 
-  function getStatusIcon() {
+  const statusIcon = useMemo(() => {
+    let icon = <FaCircleCheck size={16} />;
     if (alterationData.error) {
-      return <FaExclamationCircle className="text-danger me-1" />;
+      icon = <FaExclamationCircle size={16} />;
     }
     if (alterationData.warning) {
-      <FaExclamationTriangle className="text-danger me-1" />;
+      icon = <FaExclamationTriangle size={16} />;
     }
-    return <></>;
-  }
+    return <div className="me-1">{icon}</div>;
+  }, [alterationData]);
 
   const badgeComponent = (
     <div
       key={alterationName}
-      className={classNames('badge mx-1 my-1', `badge-outline-${getBackgroundColor()}`, styles.alterationBadge, isSelected && 'active')}
+      className={classNames('badge mx-1 my-1', `badge-outline-${backgroundColor}`, styles.alterationBadge, isSelected && 'active')}
     >
-      <div className={styles.alterationBadgeName} onClick={onClick}>
-        {/* {getStatusIcon()} */}
+      <div
+        className={styles.alterationBadgeName}
+        onClick={event => {
+          event.stopPropagation();
+          onClick();
+        }}
+      >
+        {statusIcon}
         <div
           ref={ref}
           style={{

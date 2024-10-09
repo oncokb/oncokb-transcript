@@ -14,8 +14,7 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import { EXON_ALTERATION_REGEX } from 'app/config/constants/regex';
 import LoadingIndicator from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import classNames from 'classnames';
-
-const ANY_EXON_REGEX = /Any Exon (\d+)(-\d+)? (Deletion|Insertion|Duplication)/i;
+import InfoIcon from 'app/shared/icons/InfoIcon';
 
 export interface IAddExonMutationModalBody extends StoreProps {
   hugoSymbol: string;
@@ -36,9 +35,6 @@ const AddExonForm = ({
   getProteinExons,
   updateAlterationStateAfterAlterationAdded,
   setShowModifyExonForm,
-  setAlterationStates,
-  alterationStates,
-  selectedAlterationStateIndex,
 }: IAddExonMutationModalBody) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [selectedExons, setSelectedExons] = useState<ProteinExonDropdownOption[]>([]);
@@ -95,8 +91,8 @@ const AddExonForm = ({
     getProteinExons?.(hugoSymbol, ReferenceGenome.GRCh37).then(value => setProteinExons(value));
   }, []);
 
-  const standardizeAnyExonInputString = (createValue: string) => {
-    if (ANY_EXON_REGEX.test(createValue)) {
+  const standardizeExonInputString = (createValue: string) => {
+    if (EXON_ALTERATION_REGEX.test(createValue)) {
       return createValue
         .split(' ')
         .map(part => _.capitalize(part))
@@ -106,7 +102,7 @@ const AddExonForm = ({
   };
 
   const onCreateOption = (createInputValue: string) => {
-    const value = standardizeAnyExonInputString(createInputValue);
+    const value = standardizeExonInputString(createInputValue);
     setSelectedExons(prevState => [...prevState, { label: value, value, isSelected: true }]);
   };
 
@@ -149,7 +145,7 @@ const AddExonForm = ({
             hideSelectedOptions={false}
             isClearable
             isValidNewOption={createInputValue => {
-              return ANY_EXON_REGEX.test(createInputValue);
+              return EXON_ALTERATION_REGEX.test(createInputValue);
             }}
             onCreateOption={onCreateOption}
           />
@@ -177,9 +173,33 @@ const AddExonForm = ({
 const NoOptionsMessage = props => {
   return (
     <components.NoOptionsMessage {...props}>
-      <div>No options</div>
-      <div>Create a new option in the correct format:</div>
-      <div className="text-primary">{'Any Exon start-end (Deletion|Insertion|Duplication)'}</div>
+      <div style={{ textAlign: 'left' }}>
+        <div>No options matching text</div>
+        <br></br>
+        <div>You can also create a new option that adheres to one of the formats:</div>
+        <div>
+          <ul>
+            <li className="text-primary">
+              {'Any Exon start-end (Deletion|Insertion|Duplication)'}
+              <InfoIcon
+                className="ms-1"
+                overlay={
+                  'This format refers to any combination of Exons between the range [start, end]. As long as one or more of the specified Exons are present, then the annotation will be pulled.'
+                }
+              />
+            </li>
+            <li className="text-primary">
+              {'Exon start-end (Deletion|Insertion|Duplication)'}
+              <InfoIcon
+                className="ms-1"
+                overlay={
+                  'This format refers to Exons in the range [start, end]. For instance "Exon 2-4 Deletion" is equivalent to "Exon 2 Deletion + Exon 3 Deletion + Exon 4 Deletion"'
+                }
+              />
+            </li>
+          </ul>
+        </div>
+      </div>
     </components.NoOptionsMessage>
   );
 };
@@ -199,9 +219,6 @@ const mapStoreToProps = ({ transcriptStore, addMutationModalStore }: IRootStore)
   getProteinExons: flow(transcriptStore.getProteinExons),
   updateAlterationStateAfterAlterationAdded: addMutationModalStore.updateAlterationStateAfterAlterationAdded,
   setShowModifyExonForm: addMutationModalStore.setShowModifyExonForm,
-  alterationStates: addMutationModalStore.alterationStates,
-  setAlterationStates: addMutationModalStore.setAlterationStates,
-  selectedAlterationStateIndex: addMutationModalStore.selectedAlterationStateIndex,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

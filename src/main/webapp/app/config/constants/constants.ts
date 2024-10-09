@@ -1,5 +1,5 @@
 import { AlterationTypeEnum } from 'app/shared/api/generated/curation';
-import { GREY } from '../colors';
+import { BS_BORDER_COLOR, GREY } from '../colors';
 import { ToastOptions } from 'react-toastify';
 
 export const AUTHORITIES = {
@@ -441,3 +441,14 @@ export const KEYCLOAK_UNAUTHORIZED_PARAM = 'unauthorized';
  */
 export const PRIORITY_ENTITY_MENU_ITEM_KEY = 'oncokbCuration-entityMenuPriorityKey';
 export const SOMATIC_GERMLINE_SETTING_KEY = 'oncokbCuration-somaticGermlineSettingKey';
+
+/**
+ * React select styles based on Bootstrap theme
+ */
+
+export const REACT_SELECT_STYLES = {
+  control: (base, state) => ({
+    ...base,
+    borderColor: BS_BORDER_COLOR,
+  }),
+};

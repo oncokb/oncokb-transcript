@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Mutation, Review, Vus } from 'app/shared/model/firebase/firebase.model';
+import { Vus } from 'app/shared/model/firebase/firebase.model';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
-import { Button, Container, Row } from 'reactstrap';
+import { Button } from 'reactstrap';
 import { SimpleConfirmModal } from 'app/shared/modal/SimpleConfirmModal';
 import {
   getAllCommentsString,
@@ -30,9 +30,9 @@ import { faSync, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { DANGER, PRIMARY } from 'app/config/colors';
 import AddVusModal from '../modal/AddVusModal';
 import MutationConvertIcon from '../icons/MutationConvertIcon';
-import AddMutationModal from '../modal/AddMutationModal';
 import { Unsubscribe } from 'firebase/database';
 import { VUS_TABLE_ID } from 'app/config/constants/html-id';
+import NewAddMutationModal from '../modal/NewAddMutationModal';
 
 export interface IVusTableProps extends StoreProps {
   hugoSymbol: string | undefined;
@@ -261,7 +261,7 @@ const VusTable = ({
         />
       ) : undefined}
       {vusToPromote ? (
-        <AddMutationModal
+        <NewAddMutationModal
           hugoSymbol={hugoSymbol}
           isGermline={isGermline}
           onConfirm={async (newMutation, newMutationFirebaseIndex) => {

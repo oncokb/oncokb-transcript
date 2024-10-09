@@ -1,15 +1,12 @@
 import { IRootStore } from 'app/stores';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { componentInject } from '../../util/typed-inject';
 import { FaChevronDown, FaChevronUp, FaPlus } from 'react-icons/fa';
 import { Button, Col, Row } from 'reactstrap';
-import CreatableSelect from 'react-select/creatable';
-import { getFullAlterationName, parseAlterationName } from '../../util/utils';
-import { AlterationData } from '../NewAddMutationModal';
-import { components, MultiValueGenericProps } from 'react-select';
-import * as styles from './styles.module.scss';
+import { parseAlterationName } from '../../util/utils';
 import AnnotatedAlterationContent from './AnnotatedAlterationContent';
-import { AsyncSaveButton } from 'app/shared/button/AsyncSaveButton';
+import _ from 'lodash';
+import AlterationBadgeList from './AlterationBadgeList';
 
 export interface IExcludedAlterationContent extends StoreProps {}
 
@@ -17,27 +14,15 @@ const ExcludedAlterationContent = ({
   alterationStates,
   selectedAlterationStateIndex,
   updateAlterationStateAfterExcludedAlterationAdded,
-  setAlterationStates,
+  selectedExcludedAlterationIndex,
 }: IExcludedAlterationContent) => {
   const [excludingCollapsed, setExcludingCollapsed] = useState(false);
   const [excludingInputValue, setExcludingInputValue] = useState('');
-  const [isAddExcludedAlterationPending, setIsAddExcludedAlterationPending] = useState(false);
-  const [selectedExcludedAlteration, setSelectedExcludedAlteration] = useState<string | null>(null);
 
   if (alterationStates === undefined || selectedAlterationStateIndex === undefined) return <></>;
 
-  const excludedAlterationIndex = useMemo(() => {
-    const excludingArray = alterationStates[selectedAlterationStateIndex].excluding;
-    return excludingArray.findIndex(ea => ea.alteration === selectedExcludedAlteration);
-  }, [selectedExcludedAlteration]);
-
-  const handleAlterationAddedExcluding = async () => {
-    try {
-      setIsAddExcludedAlterationPending(true);
-      await updateAlterationStateAfterExcludedAlterationAdded?.(parseAlterationName(excludingInputValue));
-    } finally {
-      setIsAddExcludedAlterationPending(false);
-    }
+  const handleAlterationAddedExcluding = () => {
+    updateAlterationStateAfterExcludedAlterationAdded?.(parseAlterationName(excludingInputValue));
     setExcludingInputValue('');
   };
 
@@ -67,30 +52,11 @@ const ExcludedAlterationContent = ({
           )}
         </Col>
         <Col className="px-0">
-          <CreatableSelect
-            components={{
-              DropdownIndicator: null,
-              MultiValueLabel: labelProps => <MultiValueLabel {...labelProps} onClick={label => setSelectedExcludedAlteration(label)} />,
-            }}
-            isMulti
-            menuIsOpen={false}
-            placeholder="Enter alteration(s)"
+          <AlterationBadgeList
+            isExclusionList
+            showInput
             inputValue={excludingInputValue}
-            onInputChange={(newInput, { action }) => {
-              if (action !== 'menu-close' && action !== 'input-blur') {
-                setExcludingInputValue(newInput);
-              }
-            }}
-            value={alterationStates[selectedAlterationStateIndex].excluding.map(state => {
-              const fullAlterationName = getFullAlterationName(state, false);
-              return { label: fullAlterationName, value: fullAlterationName, ...state };
-            })}
-            onChange={(newAlterations: readonly AlterationData[]) => {
-              alterationStates[selectedAlterationStateIndex].excluding = alterationStates[selectedAlterationStateIndex].excluding.filter(
-                state => newAlterations.some(alt => getFullAlterationName(alt) === getFullAlterationName(state)),
-              );
-              setAlterationStates?.(alterationStates);
-            }}
+            onInputChange={newValue => setExcludingInputValue(newValue)}
             onKeyDown={handleKeyDownExcluding}
           />
         </Col>
@@ -100,33 +66,17 @@ const ExcludedAlterationContent = ({
           </Button>
         </Col>
       </div>
-      {!isSectionEmpty && !excludingCollapsed && (
+      {!isSectionEmpty && !excludingCollapsed && selectedExcludedAlterationIndex !== undefined && (
         <Row className="align-items-center">
           <Col>
             <AnnotatedAlterationContent
-              alterationData={alterationStates[selectedAlterationStateIndex].excluding[excludedAlterationIndex]}
-              excludingIndex={excludedAlterationIndex}
+              alterationData={alterationStates[selectedAlterationStateIndex].excluding[selectedExcludedAlterationIndex]}
+              excludingIndex={selectedExcludedAlterationIndex}
             />
           </Col>
         </Row>
       )}
     </>
-  );
-};
-
-interface CustomMultiValueLabelProps extends MultiValueGenericProps<AlterationData> {
-  onClick: (label: string) => void;
-}
-const MultiValueLabel = (props: CustomMultiValueLabelProps) => {
-  return (
-    <div
-      className={styles.excludedAlterationValueContainer}
-      onClick={() => {
-        props.onClick(props.data.label);
-      }}
-    >
-      <components.MultiValueLabel {...props} />
-    </div>
   );
 };
 
@@ -137,6 +87,7 @@ const mapStoreToProps = ({ addMutationModalStore }: IRootStore) => ({
   isFetchingExcludingAlteration: addMutationModalStore.isFetchingExcludingAlteration,
   updateAlterationStateAfterExcludedAlterationAdded: addMutationModalStore.updateAlterationStateAfterExcludedAlterationAdded,
   setAlterationStates: addMutationModalStore.setAlterationStates,
+  selectedExcludedAlterationIndex: addMutationModalStore.selectedExcludedAlterationIndex,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

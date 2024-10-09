@@ -4,10 +4,10 @@ import _ from 'lodash';
 import { flow } from 'mobx';
 import React, { KeyboardEventHandler, useEffect, useState } from 'react';
 import { Button, Col, Input, InputGroup, InputGroupText, Row } from 'reactstrap';
-import { Mutation, AlterationCategories } from '../model/firebase/firebase.model';
-import { AlterationAnnotationStatus, AlterationTypeEnum, Gene } from '../api/generated/curation';
-import { getDuplicateMutations, getFirebaseVusPath } from '../util/firebase/firebase-utils';
-import { componentInject } from '../util/typed-inject';
+import { Mutation, AlterationCategories } from '../../shared/model/firebase/firebase.model';
+import { AlterationAnnotationStatus, AlterationTypeEnum, Gene } from '../../shared/api/generated/curation';
+import { getDuplicateMutations, getFirebaseVusPath } from '../../shared/util/firebase/firebase-utils';
+import { componentInject } from '../../shared/util/typed-inject';
 import {
   isEqualIgnoreCase,
   parseAlterationName,
@@ -15,21 +15,21 @@ import {
   convertAlterationDataToAlteration,
   convertAlterationToAlterationData,
   convertIFlagToFlag,
-} from '../util/utils';
-import { DefaultAddMutationModal } from './DefaultAddMutationModal';
+} from '../../shared/util/utils';
+import { DefaultAddMutationModal } from '../../shared/modal/DefaultAddMutationModal';
 import './add-mutation-modal.scss';
 import { Unsubscribe } from 'firebase/database';
-import InfoIcon from '../icons/InfoIcon';
-import { FlagTypeEnum } from '../model/enumerations/flag-type.enum.model';
+import InfoIcon from '../../shared/icons/InfoIcon';
+import { FlagTypeEnum } from '../../shared/model/enumerations/flag-type.enum.model';
 import AddExonForm from './MutationModal/AddExonForm';
-import AlterationBadgeList from './MutationModal/AlterationBadgeList';
-import { AddMutationInputOverlay } from './AddMutationModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { AsyncSaveButton } from '../button/AsyncSaveButton';
+import { AsyncSaveButton } from '../../shared/button/AsyncSaveButton';
 import AnnotatedAlterationContent from './MutationModal/AnnotatedAlterationContent';
 import ExcludedAlterationContent from './MutationModal/ExcludedAlterationContent';
 import { EXON_ALTERATION_REGEX } from 'app/config/constants/regex';
+import MutationListSection from './MutationModal/MutationListSection';
+import classNames from 'classnames';
 
 function getModalErrorMessage(mutationAlreadyExists: MutationExistsMeta) {
   let modalErrorMessage: string | undefined = undefined;
@@ -329,7 +329,7 @@ function NewAddMutationModal({
     onCancel();
   };
 
-  const mutationModalAlterationInputHeader = (
+  const renderInputSection = () => (
     <Row className="mb-2 d-flex align-items-center justify-content-between">
       <Col className="col-8">
         <InputGroup>
@@ -338,16 +338,16 @@ function NewAddMutationModal({
             onKeyDown={handleKeyDown}
             style={{ borderRight: '0' }}
             value={inputValue}
-            onChange={value => setInputValue(value.target.value)}
+            onChange={e => setInputValue(e.target.value)}
             onClick={() => setShowModifyExonForm?.(false)}
           />
-          <InputGroupText style={{ backgroundColor: 'transparent', borderLeft: '0 solid transaprent' }}>
-            <InfoIcon overlay={<AddMutationInputOverlay />}></InfoIcon>
+          <InputGroupText style={{ backgroundColor: 'transparent', borderLeft: '0' }}>
+            <InfoIcon overlay={<AddMutationInputOverlay />} />
           </InputGroupText>
           <AsyncSaveButton
             isSavePending={isAddAlterationPending}
             onClick={handleAlterationAdded}
-            confirmText={'Add'}
+            confirmText="Add"
             disabled={isAddAlterationPending || !inputValue}
           />
         </InputGroup>
@@ -364,43 +364,62 @@ function NewAddMutationModal({
     </Row>
   );
 
-  const mutationModalBody = (
-    <div>
-      {mutationModalAlterationInputHeader}
-      {showModifyExonForm ? (
+  // Helper function to render exon or mutation list section
+  const renderExonOrMutationListSection = () => {
+    if (showModifyExonForm) {
+      return (
         <>
-          <div className={'border-top my-4'}></div>
+          <div className="border-top my-4"></div>
           <AddExonForm hugoSymbol={hugoSymbol ?? ''} />
         </>
-      ) : alterationStates?.length !== 0 ? (
+      );
+    }
+    if (alterationStates?.length !== 0) {
+      return (
         <>
-          <div className={'border-top my-4'}></div>
+          <div className={classNames(!convertOptions?.isConverting && 'border-top my-4')}></div>
           <Row className="mb-2">
             <Col>
-              <AlterationBadgeList />
+              <MutationListSection />
             </Col>
           </Row>
         </>
-      ) : undefined}
-      {alterationStates !== undefined &&
-        selectedAlterationStateIndex !== undefined &&
-        selectedAlterationStateIndex > -1 &&
-        !_.isNil(alterationStates[selectedAlterationStateIndex]) && (
-          <>
-            <div className={'border-top my-4'}></div>
-            {EXON_ALTERATION_REGEX.test(alterationStates[selectedAlterationStateIndex].alteration) ? (
-              <AddExonForm
-                hugoSymbol={hugoSymbol ?? ''}
-                defaultExonAlterationName={alterationStates[selectedAlterationStateIndex].alteration}
-              />
-            ) : (
-              <>
-                <AnnotatedAlterationContent alterationData={alterationStates[selectedAlterationStateIndex]} />
-                <ExcludedAlterationContent />
-              </>
-            )}
-          </>
-        )}
+      );
+    }
+    return null;
+  };
+
+  // Helper function to render selected alteration state content
+  const renderMutationDetailSection = () => {
+    if (
+      alterationStates !== undefined &&
+      selectedAlterationStateIndex !== undefined &&
+      selectedAlterationStateIndex > -1 &&
+      !_.isNil(alterationStates[selectedAlterationStateIndex])
+    ) {
+      const selectedAlteration = alterationStates[selectedAlterationStateIndex].alteration;
+      return (
+        <>
+          <div className="border-top my-4"></div>
+          {EXON_ALTERATION_REGEX.test(selectedAlteration) ? (
+            <AddExonForm hugoSymbol={hugoSymbol ?? ''} defaultExonAlterationName={selectedAlteration} />
+          ) : (
+            <>
+              <AnnotatedAlterationContent alterationData={alterationStates[selectedAlterationStateIndex]} />
+              <ExcludedAlterationContent />
+            </>
+          )}
+        </>
+      );
+    }
+    return null;
+  };
+
+  const mutationModalBody = (
+    <div>
+      {!convertOptions?.isConverting && renderInputSection()}
+      {renderExonOrMutationListSection()}
+      {renderMutationDetailSection()}
     </div>
   );
 
@@ -476,3 +495,36 @@ const mapStoreToProps = ({
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
 
 export default componentInject(mapStoreToProps)(NewAddMutationModal);
+
+const AddMutationInputOverlay = () => {
+  return (
+    <div>
+      <div>
+        Enter alteration(s) in input area, then press <span style={{ fontStyle: 'italic', fontWeight: 'bold' }}>Enter key</span> or click on{' '}
+        <span style={{ fontStyle: 'italic', fontWeight: 'bold' }}>Add button</span> to annotate alteration(s).
+      </div>
+      <div className="mt-2">
+        <div>String Mutation:</div>
+        <div>
+          <ul style={{ marginBottom: 0 }}>
+            <li>
+              Variant alleles seperated by slash - <span className="text-primary">R132C/H/G/S/L</span>
+            </li>
+            <li>
+              Comma seperated list of alterations - <span className="text-primary">V600E, V600K</span>
+            </li>
+          </ul>
+        </div>
+        <div>Exon:</div>
+        <ul style={{ marginBottom: 0 }}>
+          <li>
+            Supported consequences are Insertion, Deletion and Duplication - <span className="text-primary">Exon 4 Deletion</span>
+          </li>
+          <li>
+            Exon range - <span className="text-primary">Exon 4-8 Deletion</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  );
+};

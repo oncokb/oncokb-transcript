@@ -6,7 +6,7 @@
   padding: 0;
   display: flex;
   align-items: center;
-  max-width: 98%;
+  max-width: 49%;
   width: fit-content;
   overflow: hidden;
   cursor: pointer;
@@ -20,6 +20,7 @@
   padding-right: 5px;
   display: flex;
   padding: 8px;
+  align-items: center;
 }
 
 .actionWrapper {
@@ -27,16 +28,6 @@
   display: flex;
   border-left: 1px dashed;
 }
-
-// .editButton {
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: center;
-//   padding-left: 5px;
-//   margin-left: 5px;
-//   border-left: 1px dashed;
-//   cursor: pointer;
-// }
 
 .deleteButton {
   display: flex;
@@ -46,8 +37,26 @@
   cursor: pointer;
 }
 
-.excludedAlterationValueContainer {
-  &:hover {
-    cursor: pointer;
-  }
+.alterationBadgeListInput {
+  color: inherit;
+  background: 0px center;
+  opacity: 1;
+  width: 100%;
+  grid-area: 1 / 2;
+  font: inherit;
+  min-width: 2px;
+  border: 0px;
+  margin: 0px;
+  outline: 0px;
+  padding: 0rem 0.375rem;
+}
+
+.alterationBadgeListInputWrapper {
+  visibility: visible;
+  display: flex;
+  justify-content: center;
+  flex: 1 1 auto;
+  margin: 2px;
+  padding-bottom: 2px;
+  padding-top: 2px;
 }

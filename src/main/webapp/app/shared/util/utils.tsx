@@ -18,8 +18,8 @@ import { INTEGER_REGEX, REFERENCE_LINK_REGEX, SINGLE_NUCLEOTIDE_POS_REGEX, UUID_
 import { AlterationAnnotationStatus, AlterationTypeEnum, ProteinExonDTO } from 'app/shared/api/generated/curation';
 import { IQueryParams } from './jhipster-types';
 import InfoIcon from '../icons/InfoIcon';
-import { AlterationData } from '../modal/NewAddMutationModal';
 import { IFlag } from '../model/flag.model';
+import { AlterationData } from '../modal/NewAddMutationModal';
 
 export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
   if (!cancerType) return '';
