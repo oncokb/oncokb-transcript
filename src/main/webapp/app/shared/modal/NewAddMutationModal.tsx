@@ -25,7 +25,7 @@ import AddExonForm from './MutationModal/AddExonForm';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { AsyncSaveButton } from '../../shared/button/AsyncSaveButton';
-import AnnotatedAlterationContent from './MutationModal/AnnotatedAlterationContent';
+import MutationDetails from './MutationModal/MutationDetails';
 import ExcludedAlterationContent from './MutationModal/ExcludedAlterationContent';
 import { EXON_ALTERATION_REGEX } from 'app/config/constants/regex';
 import MutationListSection from './MutationModal/MutationListSection';
@@ -405,7 +405,7 @@ function NewAddMutationModal({
             <AddExonForm hugoSymbol={hugoSymbol ?? ''} defaultExonAlterationName={selectedAlteration} />
           ) : (
             <>
-              <AnnotatedAlterationContent alterationData={alterationStates[selectedAlterationStateIndex]} />
+              <MutationDetails alterationData={alterationStates[selectedAlterationStateIndex]} />
               <ExcludedAlterationContent />
             </>
           )}

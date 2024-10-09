@@ -20,12 +20,12 @@ const ALTERATION_TYPE_OPTIONS: DropdownOption[] = [
   AlterationTypeEnum.Any,
 ].map(type => ({ label: READABLE_ALTERATION[type], value: type }));
 
-export interface IAnnotatedAlterationContent extends StoreProps {
+export interface IMutationDetails extends StoreProps {
   alterationData: AlterationData;
   excludingIndex?: number;
 }
 
-const AnnotatedAlterationContent = ({
+const MutationDetails = ({
   alterationData,
   excludingIndex,
   getConsequences,
@@ -36,7 +36,7 @@ const AnnotatedAlterationContent = ({
   isFetchingAlteration,
   isFetchingExcludingAlteration,
   handleAlterationChange,
-}: IAnnotatedAlterationContent) => {
+}: IMutationDetails) => {
   useEffect(() => {
     getConsequences?.({});
   }, []);
@@ -270,4 +270,4 @@ const mapStoreToProps = ({ consequenceStore, addMutationModalStore }: IRootStore
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;
 
-export default componentInject(mapStoreToProps)(AnnotatedAlterationContent);
+export default componentInject(mapStoreToProps)(MutationDetails);

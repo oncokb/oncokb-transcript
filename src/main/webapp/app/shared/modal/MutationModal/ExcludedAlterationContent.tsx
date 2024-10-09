@@ -4,7 +4,7 @@ import { componentInject } from '../../util/typed-inject';
 import { FaChevronDown, FaChevronUp, FaPlus } from 'react-icons/fa';
 import { Button, Col, Row } from 'reactstrap';
 import { parseAlterationName } from '../../util/utils';
-import AnnotatedAlterationContent from './AnnotatedAlterationContent';
+import MutationDetails from './MutationDetails';
 import _ from 'lodash';
 import AlterationBadgeList from './AlterationBadgeList';
 
@@ -69,7 +69,7 @@ const ExcludedAlterationContent = ({
       {!isSectionEmpty && !excludingCollapsed && selectedExcludedAlterationIndex !== undefined && (
         <Row className="align-items-center">
           <Col>
-            <AnnotatedAlterationContent
+            <MutationDetails
               alterationData={alterationStates[selectedAlterationStateIndex].excluding[selectedExcludedAlterationIndex]}
               excludingIndex={selectedExcludedAlterationIndex}
             />
