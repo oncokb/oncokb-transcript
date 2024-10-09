@@ -390,6 +390,17 @@ export class FirebaseGeneService {
     }
   };
 
+  /**
+   * The method is designed to be used only when adding a new mutation with name specified.
+   * You could expect all data be saved, however, only the name uuid will be added into meta collection
+   * and is only subject to be reviewed when other props' uuid within the Mutation model will be added later.
+   *
+   * @param mutationsPath The path to the mutations list
+   * @param newMutation firebase Mutation model
+   * @param isGermline  true/false to be added into Germline_Gene or Gene collections
+   * @param isPromotedToMutation  will be used if the mutation is promoted from the VUS table
+   * @param mutationEffectDescription description under the mutation_effect prop
+   */
   addMutation = async (
     mutationsPath: string,
     newMutation: Mutation,

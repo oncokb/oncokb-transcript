@@ -24,10 +24,37 @@ export const selectGenomicIndicatorToImport = async () => {
   await genomicIndicatorOption.click();
 };
 
+export const selectMutationToImport = async (isGermline: boolean) => {
+  const geneticTypeSelect = await $(`div[id="${DATA_IMPORT_GENETIC_TYPE_SELECT_ID}"]`);
+  const dataTypeSelect = await $(`div[id="${DATA_IMPORT_DATA_TYPE_SELECT_ID}"]`);
+
+  await geneticTypeSelect.click();
+
+  const geneticType = isGermline ? 'Germline' : 'Somatic';
+  const geneticTypeOption = await geneticTypeSelect.$(`aria/${geneticType}`);
+  expect(geneticTypeOption).toExist();
+  await geneticTypeOption.click();
+
+  await dataTypeSelect.click();
+
+  // genomic indicator option has both required and optional columns
+  const mutationOption = await dataTypeSelect.$('aria/Mutation');
+  expect(mutationOption).toExist();
+  await mutationOption.click();
+};
+
 export const uploadGenomicIndicatorToImport = async () => {
   await selectGenomicIndicatorToImport();
 
   const fileToUpload = path.join(process.cwd(), 'src/test/javascript/data/genomic_indicators.tsv');
+  const remoteFilePath = await browser.uploadFile(fileToUpload);
+  await $(`input[id=${DATA_IMPORT_FILE_UPLOAD_INPUT_ID}]`).setValue(remoteFilePath);
+};
+
+export const uploadMutationToImport = async (isGermline: boolean, importDataFileName: string) => {
+  await selectMutationToImport(isGermline);
+
+  const fileToUpload = path.join(process.cwd(), `src/test/javascript/data/${importDataFileName}`);
   const remoteFilePath = await browser.uploadFile(fileToUpload);
   await $(`input[id=${DATA_IMPORT_FILE_UPLOAD_INPUT_ID}]`).setValue(remoteFilePath);
 };

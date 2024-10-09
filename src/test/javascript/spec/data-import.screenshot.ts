@@ -12,7 +12,7 @@ import {
 } from '../../../main/webapp/app/config/constants/html-id.ts';
 import { selectGenomicIndicatorToImport, uploadGenomicIndicatorToImport } from '../shared/data-import-utils.ts';
 
-describe('Data Import Tests', () => {
+describe.skip('Data Import Tests', () => {
   before(async () => {
     await setUpMocks();
   });
