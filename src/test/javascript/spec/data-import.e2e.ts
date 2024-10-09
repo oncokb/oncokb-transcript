@@ -80,7 +80,7 @@ describe('Data Import Tests', () => {
     const dataTable = await $(`div[class=${DATA_IMPORT_DATA_TABLE_ID}]`);
     expect(dataTable).toExist();
 
-    const tableRows = $$(`div[class=${REACT_TABLE_TR_GROUP_CLASS}]`);
+    const tableRows = await $$(`div[class=${REACT_TABLE_TR_GROUP_CLASS}]`);
     expect(tableRows).toHaveLength(1);
 
     expect(tableRows[0].$$('svg[class=fail]')).toExist();
