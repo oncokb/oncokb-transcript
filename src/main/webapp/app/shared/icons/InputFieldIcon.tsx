@@ -6,7 +6,7 @@ import { Input } from 'reactstrap';
 
 export interface IInputFieldIcon {
   icon: IconDefinition;
-  onInputChange: () => {};
+  onInputChange: () => void;
   inputPlaceholder: string;
 }
 
