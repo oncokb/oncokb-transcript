@@ -1,5 +1,5 @@
 import { componentInject } from 'app/shared/util/typed-inject';
-import { AuthStore, IRootStore } from 'app/stores';
+import { IRootStore } from 'app/stores';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Col, Input, InputGroup, Row } from 'reactstrap';
 import Select, { GroupBase, OptionsOrGroups } from 'react-select';
@@ -33,10 +33,11 @@ import {
   SomaticMutationDI,
 } from 'app/components/tabs/curation-data-import-tab/import-methods';
 import _, { groupBy } from 'lodash';
-import { FirebaseVusService } from 'app/service/firebase/firebase-vus-service';
 import { Mutation, VusObjList } from 'app/shared/model/firebase/firebase.model';
 import { getFirebaseGenePath, getFirebaseVusPath } from 'app/shared/util/firebase/firebase-utils';
-import { FirebaseMetaService } from 'app/service/firebase/firebase-meta-service';
+import { Alteration as ApiAlteration, AnnotateAlterationBody, Gene } from 'app/shared/api/generated/curation';
+import { REFERENCE_GENOME } from 'app/config/constants/constants';
+import { flow, flowResult } from 'mobx';
 
 export interface ICurationToolsTabProps extends StoreProps {}
 
@@ -80,7 +81,7 @@ const getSelectOption = (dataImportType: DataImportType): DataImportTypeSelectOp
     label: dataImportTypesLabel[dataImportType],
   };
 };
-const getSelectOptions = (isGermline: boolean): OptionsOrGroups<any, GroupBase<any>> => {
+const getSelectOptions = (isGermline: boolean): OptionsOrGroups<DataImportTypeSelectOption, GroupBase<DataImportTypeSelectOption>> => {
   if (isGermline) {
     return [
       {
@@ -113,80 +114,96 @@ const dataImportTypesLabel: { [key in DataImportType]: string } = {
   [DataImportType.GERMLINE_MUTATION]: 'Mutation',
 };
 
-export type DataImportObj = 'hugo_symbol' & GenomicIndicatorDI & GenericDI & SomaticMutationDI & GermlineMutationDI;
+export type DataImportObj = GenomicIndicatorDI | GenericDI | SomaticMutationDI | GermlineMutationDI;
 
-const getRequiredColumns = (dataType: DataImportType): RequiredKeys<DataImportObj>[] => {
+const getRequiredColumns = <T extends DataImportObj>(dataType: DataImportType): RequiredKeys<T>[] => {
   switch (dataType) {
     case DataImportType.GENE_GENOMIC_INDICATOR:
-      return ['hugo_symbol', 'genomic_indicator'];
+      return ['hugo_symbol', 'genomic_indicator'] as RequiredKeys<T>[];
     case DataImportType.GENE_SUMMARY:
     case DataImportType.GENE_BACKGROUND:
-      return ['hugo_symbol', 'value'];
+      return ['hugo_symbol', 'value'] as RequiredKeys<T>[];
     case DataImportType.SOMATIC_MUTATION:
-      return ['hugo_symbol', 'alteration', 'oncogenicity'];
+      return ['hugo_symbol', 'alteration', 'oncogenicity'] as RequiredKeys<T>[];
     case DataImportType.GERMLINE_MUTATION:
-      return ['hugo_symbol', 'alteration', 'pathogenicity'];
+      return ['hugo_symbol', 'alteration', 'pathogenicity'] as RequiredKeys<T>[];
     default:
       return [];
   }
 };
 
-const getOptionalColumns = (dataType: DataImportType): OptionalKeys<DataImportObj>[] => {
+const getOptionalColumns = <T extends DataImportObj>(dataType: DataImportType): OptionalKeys<T>[] => {
   switch (dataType) {
     case DataImportType.GENE_GENOMIC_INDICATOR:
-      return ['description', 'allele_state'] as OptionalKeys<GenomicIndicatorDI>[];
+      return ['description', 'allele_state'] as OptionalKeys<T>[];
     case DataImportType.SOMATIC_MUTATION:
-      return ['name', 'protein_change', 'mutation_effect', 'description'];
+      return ['name', 'protein_change', 'mutation_effect', 'description'] as OptionalKeys<T>[];
     case DataImportType.GERMLINE_MUTATION:
-      return ['name', 'protein_change', 'description'];
+      return ['name', 'protein_change', 'description'] as OptionalKeys<T>[];
     default:
       return [];
   }
+};
+
+type GenomicIndicatorSaveDataFunc = (
+  firebaseGeneService: FirebaseGeneService,
+  isGermline: boolean,
+  data: DataRow<GenomicIndicatorDI>,
+) => Promise<DataRow<GenomicIndicatorDI>>;
+
+type GenericGeneDataSaveDataFunc = (
+  firebaseGeneService: FirebaseGeneService,
+  firebaseGeneReviewService: FirebaseGeneReviewService,
+  isGermline: boolean,
+  data: DataRow<GenericDI>,
+) => Promise<DataRow<GenericDI>>;
+
+type MutationSaveDataFunc<T> = (
+  authStore,
+  firebaseGeneService,
+  firebaseMetaService,
+  alterationStore,
+  isGermline,
+  data,
+  mutationList: Mutation[],
+  vusList: VusObjList,
+) => Promise<DataRow<T>>;
+
+type DataImportTypeSaveDataFunc = {
+  [DataImportType.GENE_GENOMIC_INDICATOR]: GenomicIndicatorSaveDataFunc;
+  [DataImportType.GENE_SUMMARY]: GenericGeneDataSaveDataFunc;
+  [DataImportType.GENE_BACKGROUND]: GenericGeneDataSaveDataFunc;
+  [DataImportType.GERMLINE_MUTATION]: MutationSaveDataFunc<GermlineMutationDI>;
+  [DataImportType.SOMATIC_MUTATION]: MutationSaveDataFunc<SomaticMutationDI>;
 };
 
 const saveDataToFirebase: {
-  [key in DataImportType]: (
-    authStore: AuthStore,
-    firebaseGeneService: FirebaseGeneService,
-    firebaseGeneReviewService: FirebaseGeneReviewService,
-    firebaseMetaService: FirebaseMetaService,
-    isGermline: boolean,
-    data: DataRow<DataImportObj>,
-    mutationList: Mutation[],
-    vusList: VusObjList,
-  ) => Promise<DataRow<DataImportObj>>;
+  [key in DataImportType]: key extends keyof DataImportTypeSaveDataFunc ? DataImportTypeSaveDataFunc[key] : null;
 } = {
-  async [DataImportType.GENE_GENOMIC_INDICATOR](
-    authStore,
-    firebaseGeneService,
-    firebaseGeneReviewService,
-    firebaseMetaService,
-    isGermline,
-    data,
-  ) {
+  async [DataImportType.GENE_GENOMIC_INDICATOR](firebaseGeneService, isGermline, data) {
     const hugoSymbol = data.data.hugo_symbol.trim();
     return {
       data: data.data,
-      ...(await saveGenomicIndicator(firebaseGeneService, data as DataRow<GenomicIndicatorDI>, hugoSymbol, isGermline)),
+      ...(await saveGenomicIndicator(firebaseGeneService, data, hugoSymbol, isGermline)),
     };
   },
-  async [DataImportType.GENE_SUMMARY](authStore, firebaseGeneService, firebaseGeneReviewService, firebaseMetaService, isGermline, data) {
+  async [DataImportType.GENE_SUMMARY](firebaseGeneService, firebaseGeneReviewService, isGermline, data) {
     return {
       data: data.data,
-      ...(await saveGenericGeneData(firebaseGeneService, firebaseGeneReviewService, isGermline, 'summary', data as DataRow<GenericDI>)),
+      ...(await saveGenericGeneData(firebaseGeneService, firebaseGeneReviewService, isGermline, 'summary', data)),
     };
   },
-  async [DataImportType.GENE_BACKGROUND](authStore, firebaseGeneService, firebaseGeneReviewService, firebaseMetaService, isGermline, data) {
+  async [DataImportType.GENE_BACKGROUND](firebaseGeneService, firebaseGeneReviewService, isGermline, data) {
     return {
       data: data.data,
-      ...(await saveGenericGeneData(firebaseGeneService, firebaseGeneReviewService, isGermline, 'background', data as DataRow<GenericDI>)),
+      ...(await saveGenericGeneData(firebaseGeneService, firebaseGeneReviewService, isGermline, 'background', data)),
     };
   },
   async [DataImportType.SOMATIC_MUTATION](
     authStore,
     firebaseGeneService,
-    firebaseGeneReviewService,
     firebaseMetaService,
+    alterationStore,
     isGermline,
     data,
     mutationList: Mutation[],
@@ -198,6 +215,7 @@ const saveDataToFirebase: {
         authStore,
         firebaseGeneService,
         firebaseMetaService,
+        alterationStore,
         isGermline,
         data as DataRow<GermlineMutationDI>,
         mutationList,
@@ -208,8 +226,8 @@ const saveDataToFirebase: {
   async [DataImportType.GERMLINE_MUTATION](
     authStore,
     firebaseGeneService,
-    firebaseGeneReviewService,
     firebaseMetaService,
+    annotateAlterations,
     isGermline,
     data,
     mutationList: Mutation[],
@@ -221,6 +239,7 @@ const saveDataToFirebase: {
         authStore,
         firebaseGeneService,
         firebaseMetaService,
+        annotateAlterations,
         isGermline,
         data as DataRow<GermlineMutationDI>,
         mutationList,
@@ -231,7 +250,7 @@ const saveDataToFirebase: {
 };
 
 const CurationDataImportTab = observer(
-  ({ authStore, firebaseGeneService, firebaseGeneReviewService, firebaseMetaService }: ICurationToolsTabProps) => {
+  ({ authStore, firebaseGeneService, firebaseGeneReviewService, firebaseMetaService, alterationStore }: ICurationToolsTabProps) => {
     const [isGermline, setIsGermline] = useState(false);
     const [selectedDataTypeOption, setSelectedDateTypeOption] = useState<DataImportTypeSelectOption | null>(null);
     const [fileHeaders, setFileHeaders] = useState<string[]>([]);
@@ -362,16 +381,39 @@ const CurationDataImportTab = observer(
           const vus: VusObjList = (await firebaseGeneService.firebaseRepository.get(getFirebaseVusPath(isGermline, hugoSymbol))).val();
 
           for (let i = 0; i < group.length; i++) {
-            group[i] = await saveDataToFirebase[selectedDataTypeOption.value](
-              authStore,
-              firebaseGeneService,
-              firebaseGeneReviewService,
-              firebaseMetaService,
-              isGermline,
-              group[i],
-              mutations,
-              vus,
-            );
+            switch (selectedDataTypeOption.value) {
+              case DataImportType.GENE_SUMMARY:
+              case DataImportType.GENE_BACKGROUND:
+                group[i] = await saveDataToFirebase[selectedDataTypeOption.value](
+                  firebaseGeneService,
+                  firebaseGeneReviewService,
+                  isGermline,
+                  group[i] as DataRow<GenericDI>,
+                );
+                break;
+              case DataImportType.GENE_GENOMIC_INDICATOR:
+                group[i] = await saveDataToFirebase[DataImportType.GENE_GENOMIC_INDICATOR](
+                  firebaseGeneService,
+                  isGermline,
+                  group[i] as DataRow<GenomicIndicatorDI>,
+                );
+                break;
+              case DataImportType.SOMATIC_MUTATION:
+              case DataImportType.GERMLINE_MUTATION:
+                group[i] = await saveDataToFirebase[selectedDataTypeOption.value](
+                  authStore,
+                  firebaseGeneService,
+                  firebaseMetaService,
+                  alterationStore,
+                  isGermline,
+                  group[i],
+                  mutations,
+                  vus,
+                );
+                break;
+              default:
+                break;
+            }
           }
         } else {
           group.forEach(row => {
@@ -541,11 +583,18 @@ const CurationDataImportTab = observer(
   },
 );
 
-const mapStoreToProps = ({ authStore, firebaseGeneService, firebaseGeneReviewService, firebaseMetaService }: IRootStore) => ({
+const mapStoreToProps = ({
   authStore,
   firebaseGeneService,
   firebaseGeneReviewService,
   firebaseMetaService,
+  alterationStore,
+}: IRootStore) => ({
+  authStore,
+  firebaseGeneService,
+  firebaseGeneReviewService,
+  firebaseMetaService,
+  alterationStore,
 });
 
 type StoreProps = Partial<ReturnType<typeof mapStoreToProps>>;

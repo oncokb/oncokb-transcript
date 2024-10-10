@@ -5,10 +5,19 @@ import { DataImportStatus, DataRow } from 'app/components/tabs/curation-data-imp
 import { ALLELE_STATE } from 'app/config/constants/firebase';
 import { FIREBASE_ONCOGENICITY, GenomicIndicator, Mutation, Review, VusObjList } from 'app/shared/model/firebase/firebase.model';
 import pluralize from 'pluralize';
-import { ONCOGENICITY, PATHOGENICITY } from 'app/config/constants/constants';
+import { ONCOGENICITY, PATHOGENICITY, REFERENCE_GENOME } from 'app/config/constants/constants';
 import { uniq } from 'lodash';
 import { FirebaseMetaService } from 'app/service/firebase/firebase-meta-service';
 import { AuthStore } from 'app/stores';
+import {
+  Alteration,
+  Alteration as ApiAlteration,
+  AlterationTypeEnum,
+  AnnotateAlterationBody,
+  Gene,
+} from 'app/shared/api/generated/curation';
+import { flow, flowResult } from 'mobx';
+import AlterationStore from 'app/entities/alteration/alteration.store';
 
 export type GeneDI = {
   hugo_symbol: string;
@@ -62,7 +71,7 @@ const alleleStateCheck = async (
   } else {
     status = await onValidAlleleStates();
   }
-  return Promise.resolve(status);
+  return status;
 };
 
 const impactStatusCheck = (status: string, allowedStatus: string[]): DataImportStatus => {
@@ -106,7 +115,7 @@ export const geneCheck = async (
     status.status = 'error';
     status.message = 'Gene is missing from data';
   }
-  return Promise.resolve(status);
+  return status;
 };
 
 export const saveGenericGeneData = async (
@@ -138,7 +147,7 @@ export const saveGenericGeneData = async (
       status.status = 'error';
       status.message = `The gene property \`${genePropKey}\`does not exist. Skip importing`;
     }
-    return Promise.resolve(status);
+    return status;
   });
 };
 
@@ -157,23 +166,13 @@ export const saveGenomicIndicator = async (
       .split(',')
       .map(state => state.trim())
       .filter(state => !!state);
-    return Promise.resolve(
-      await alleleStateCheck(alleleStates, async () => {
-        let status = new DataImportStatus();
-        if (giData.exists()) {
-          const genomicIndicators: GenomicIndicator[] = giData.val();
-          if (genomicIndicators.filter(gi => gi.name.toLowerCase() === genomicIndicatorName.toLowerCase()).length > 0) {
-            status.status = 'error';
-            status.message = 'Genomic indicator already exists';
-          } else {
-            status = await saveGenomicIndicatorToFirebase(
-              firebaseGeneService,
-              gipath,
-              genomicIndicatorName,
-              dataRow.data.description,
-              alleleStates as ALLELE_STATE[],
-            );
-          }
+    return await alleleStateCheck(alleleStates, async () => {
+      let status = new DataImportStatus();
+      if (giData.exists()) {
+        const genomicIndicators: GenomicIndicator[] = giData.val();
+        if (genomicIndicators.filter(gi => gi.name.toLowerCase() === genomicIndicatorName.toLowerCase()).length > 0) {
+          status.status = 'error';
+          status.message = 'Genomic indicator already exists';
         } else {
           status = await saveGenomicIndicatorToFirebase(
             firebaseGeneService,
@@ -183,9 +182,17 @@ export const saveGenomicIndicator = async (
             alleleStates as ALLELE_STATE[],
           );
         }
-        return Promise.resolve(status);
-      }),
-    );
+      } else {
+        status = await saveGenomicIndicatorToFirebase(
+          firebaseGeneService,
+          gipath,
+          genomicIndicatorName,
+          dataRow.data.description,
+          alleleStates as ALLELE_STATE[],
+        );
+      }
+      return status;
+    });
   });
 };
 
@@ -197,15 +204,16 @@ const saveGenomicIndicatorToFirebase = async (
   alleleStates?: ALLELE_STATE[],
 ): Promise<DataImportStatus> => {
   await firebaseGeneService.addGenomicIndicator(true, genomicIndicatorsPath, name, description, alleleStates);
-  return Promise.resolve({
+  return {
     status: 'complete',
     message: '',
-  });
+  };
 };
 export const saveMutation = async (
   authStore: AuthStore,
   firebaseGeneService: FirebaseGeneService,
   firebaseMetaService: FirebaseMetaService,
+  alterationStore: AlterationStore,
   isGermline: boolean,
   dataRow: DataRow<GermlineMutationDI | SomaticMutationDI>,
   mutationList: Mutation[],
@@ -213,26 +221,61 @@ export const saveMutation = async (
 ): Promise<DataImportStatus> => {
   // validate duplication
   const hugoSymbol = dataRow.data.hugo_symbol;
-  const mutation = new Mutation(dataRow.data.name || dataRow.data.alteration);
+  const mutation = new Mutation(dataRow.data.alteration);
   let mutationImpactStatusUpdated = false;
 
-  if (isGermline) {
-    const data = dataRow.data as GermlineMutationDI;
+  const request: AnnotateAlterationBody[] = [
+    {
+      referenceGenome: REFERENCE_GENOME.GRCH37,
+      alteration: { alteration: mutation.name, genes: [{ hugoSymbol } as Gene] } as ApiAlteration,
+    },
+  ];
+  try {
+    const annotatedAlterations = await flowResult(flow(alterationStore.annotateAlterations)(request));
+    const annotatedAlteration: Alteration = annotatedAlterations[0].entity;
+    mutation.alterations = [
+      {
+        type: annotatedAlteration.type ?? AlterationTypeEnum.Unknown,
+        alteration: dataRow.data.alteration,
+        name: dataRow.data.name ?? annotatedAlteration.name,
+        consequence: annotatedAlteration.consequence?.name ?? '',
+        comment: '',
+        excluding: [],
+        genes: annotatedAlteration.genes || [],
+        proteinChange: dataRow.data.protein_change ?? annotatedAlteration.proteinChange,
+        proteinStart: annotatedAlteration.start,
+        proteinEnd: annotatedAlteration.end,
+        refResidues: annotatedAlteration.refResidues || '',
+        varResidues: annotatedAlteration.variantResidues || '',
+      },
+    ];
+  } catch (e) {
+    return {
+      status: 'error',
+      message: "We aren't able to annotate the alteration. Please reach out to dev team.",
+    };
+  }
+
+  const isGermlineData = (data: GermlineMutationDI | SomaticMutationDI): data is GermlineMutationDI => {
+    return isGermline;
+  };
+  if (isGermlineData(dataRow.data)) {
+    const data = dataRow.data;
     if (data.pathogenicity) {
       const importStatus: DataImportStatus = pathogenicityCheck(data.pathogenicity);
       if (importStatus.status === 'error') {
-        return Promise.resolve(importStatus);
+        return importStatus;
       }
     }
     mutation.mutation_effect.pathogenic = data.pathogenicity as PATHOGENICITY;
     mutation.mutation_effect.pathogenic_review = new Review(authStore.fullName, '');
     mutationImpactStatusUpdated = true;
   } else {
-    const data = dataRow.data as SomaticMutationDI;
+    const data = dataRow.data;
     if (data.oncogenicity) {
       const importStatus: DataImportStatus = oncogenicityCheck(data.oncogenicity);
       if (importStatus.status === 'error') {
-        return Promise.resolve(importStatus);
+        return importStatus;
       }
     }
     mutation.mutation_effect.oncogenic = data.oncogenicity as FIREBASE_ONCOGENICITY;
@@ -251,10 +294,10 @@ export const saveMutation = async (
       await firebaseGeneService.firebaseRepository.delete(`${getFirebaseVusPath(isGermline, hugoSymbol)}/${mut.duplicate}`);
     } else {
       // if alteration exists in the Mutation list, we return and give error
-      return Promise.resolve({
+      return {
         status: 'error',
         message: 'Mutation exists in gene, we cannot overwrite automatically. Please update manually.',
-      });
+      };
     }
   }
 
@@ -273,14 +316,14 @@ export const saveMutation = async (
           await firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, true, isGermline);
         }
       });
-    return Promise.resolve({
+    return {
       status: 'complete',
       message: '',
-    });
+    };
   } catch (error) {
-    return Promise.resolve({
+    return {
       status: 'error',
       message: 'Failed to add mutation into gene.',
-    });
+    };
   }
 };
