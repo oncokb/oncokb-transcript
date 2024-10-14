@@ -3,6 +3,8 @@ import { IPaginationBaseState } from 'react-jhipster';
 import { ENTITY_TO_TITLE_MAPPING, ENTITY_TYPE, PAGE_ROUTE } from 'app/config/constants/constants';
 import pluralize from 'pluralize';
 import _ from 'lodash';
+import { PaginationState } from '../table/OncoKBAsyncTable';
+import { ASC, DESC } from './pagination.constants';
 
 /**
  * Removes fields with an 'id' field that equals ''.
@@ -36,17 +38,23 @@ export const mapSelectOptionList = (selectedOptions: any[]) => {
   return selectedOptions ? selectedOptions.map(option => ({ id: option.value })) : [];
 };
 
-export const overridePaginationStateWithQueryParams = (paginationBaseState: IPaginationBaseState, locationSearch: string) => {
+export const overridePaginationStateWithQueryParams = <T>(paginationBaseState: PaginationState<T>, locationSearch: string) => {
   const params = new URLSearchParams(locationSearch);
   const page = params.get('page');
   const sort = params.get('sort');
   if (page && sort) {
     const sortSplit = sort.split(',');
     paginationBaseState.activePage = +page;
-    paginationBaseState.sort = sortSplit[0];
-    paginationBaseState.order = sortSplit[1];
+    paginationBaseState.sort = sortSplit[0] as keyof T;
+    if (isSortOrder(sortSplit[1])) {
+      paginationBaseState.order = sortSplit[1];
+    }
   }
   return paginationBaseState;
+};
+
+const isSortOrder = (value: string): value is typeof ASC | typeof DESC => {
+  return value === 'asc' || value === 'desc';
 };
 
 export const getEntityPaginationSortParameter = (field: string, sortDirection: string) => {

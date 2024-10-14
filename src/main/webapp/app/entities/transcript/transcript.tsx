@@ -37,7 +37,13 @@ export const Transcript = (props: ITranscriptProps) => {
       },
     },
     { accessor: 'ensemblTranscriptId', Header: 'Ensembl Transcript ID' },
-    { accessor: 'canonical', Header: 'Is Canonical' },
+    {
+      accessor: 'canonical',
+      Header: 'Is Canonical',
+      Cell(cell: { original }): JSX.Element {
+        return <span>{cell.original.canonical ? 'Yes' : 'No'}</span>;
+      },
+    },
     { accessor: 'ensemblProteinId', Header: 'Ensembl Protein ID' },
     { accessor: 'referenceSequenceId', Header: 'RefSeq' },
     getEntityTableActionsColumn(ENTITY_TYPE.TRANSCRIPT),
