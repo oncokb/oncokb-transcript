@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import ReactTable, { TableProps } from 'react-table';
+import ReactTable, { SortingRule, TableProps } from 'react-table';
 import { Col, Input, Row } from 'reactstrap';
 import { ASC, DESC, ITEMS_PER_PAGE } from 'app/shared/util/pagination.constants';
 import { debouncedSearchWithPagination } from '../util/pagination-crud-store';
 import { IQueryParams, ISearchParams } from '../util/jhipster-types';
+import { overridePaginationStateWithQueryParams } from '../util/entity-utils';
+import { useHistory } from 'react-router-dom';
+import * as H from 'history';
 
 /* eslint-disable @typescript-eslint/ban-types */
 export interface IOncoKBAsyncTableProps<T> extends Partial<TableProps<T>> {
@@ -21,10 +24,23 @@ export type PaginationState<T> = {
   activePage: number;
 };
 
+function paginationToSortingRule<T>(paginationState: PaginationState<T>): SortingRule {
+  return {
+    id: paginationState.sort as string,
+    desc: paginationState.order === 'desc',
+  };
+}
+
 export const OncoKBAsyncTable = <T extends object>(props: IOncoKBAsyncTableProps<T>) => {
+  const history: H.History = useHistory();
   const [searchKeyword, setSearchKeyword] = useState('');
   const [pageSize, setPageSize] = useState(props.defaultPageSize || ITEMS_PER_PAGE);
-  const [paginationState, setPaginationState] = useState(props.initialPaginationState || { sort: 'id', activePage: 0, order: 'asc' });
+  const [paginationState, setPaginationState] = useState(
+    overridePaginationStateWithQueryParams(
+      props.initialPaginationState || { sort: 'id', activePage: 0, order: 'asc', itemsPerPage: 1 },
+      history.location.search,
+    ),
+  );
 
   useEffect(() => {
     if (searchKeyword) {
@@ -48,8 +64,19 @@ export const OncoKBAsyncTable = <T extends object>(props: IOncoKBAsyncTableProps
 
   const handleFetchData = (state: any) => {
     setPageSize(state.pageSize);
-    setPaginationState({ ...paginationState, activePage: state.page + 1 });
+    setPaginationState(oldState => ({ ...oldState, activePage: state.page + 1 }));
   };
+
+  const sortEntities = () => {
+    const endURL = `?page=${paginationState.activePage}&sort=${paginationState.sort as string},${paginationState.order}`;
+    if (history.location.search !== endURL) {
+      history.push(`${history.location.pathname}${endURL}`);
+    }
+  };
+
+  useEffect(() => {
+    sortEntities();
+  }, [paginationState.activePage, paginationState.order, paginationState.sort, searchKeyword]);
 
   return (
     <div>
@@ -71,8 +98,16 @@ export const OncoKBAsyncTable = <T extends object>(props: IOncoKBAsyncTableProps
             manual
             pages={Math.ceil(props.totalItems / pageSize)}
             pageSize={pageSize}
+            sorted={[paginationToSortingRule(paginationState)]}
             onFetchData={handleFetchData}
             className={`-striped -highlight oncokbReactTable ${props.fixedHeight ? 'fixedHeight' : ''} ${props.className}`}
+            onSortedChange={newSorted => {
+              setPaginationState(oldState => ({
+                ...oldState,
+                sort: newSorted[0].id as keyof T,
+                order: newSorted[0].desc ? 'desc' : 'asc',
+              }));
+            }}
           />
         </Col>
       </Row>
