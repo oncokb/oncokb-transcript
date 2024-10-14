@@ -10,9 +10,12 @@ import { SentryError } from 'app/config/sentry-error';
 import { getTumorNameUuid, ReviewLevel, TumorReviewLevel } from 'app/shared/util/firebase/firebase-review-utils';
 import { ReviewAction } from 'app/config/constants/firebase';
 import _ from 'lodash';
-import { generateUuid } from 'app/shared/util/utils';
 import { FIREBASE_LIST_PATH_TYPE } from 'app/shared/util/firebase/firebase-path-utils';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
+import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
+import { createMockGene, createMockMutation, createMockTumor } from 'app/shared/util/core-submission-shared/core-submission.mocks';
+import { GeneTypeApi } from 'app/shared/api/manual/gene-type-api';
+import { generateUuid } from 'app/shared/util/utils';
 
 describe('Firebase Gene Review Service', () => {
   const DEFAULT_USERNAME = 'Test User';
@@ -25,6 +28,8 @@ describe('Firebase Gene Review Service', () => {
   const mockMetaService = mock<FirebaseMetaService>();
   const mockHistoryService = mock<FirebaseHistoryService>();
   const mockVusService = mock<FirebaseVusService>();
+  const mockEvidenceClient = mock<EvidenceApi>();
+  const mockGeneTypeClient = mock<GeneTypeApi>();
   let firebaseGeneReviewService: FirebaseGeneReviewService;
 
   beforeEach(() => {
@@ -39,6 +44,8 @@ describe('Firebase Gene Review Service', () => {
       mockMetaService,
       mockHistoryService,
       mockVusService,
+      mockEvidenceClient,
+      mockGeneTypeClient,
     );
     jest.useFakeTimers().setSystemTime(DEFAULT_DATE);
 
@@ -54,7 +61,7 @@ describe('Firebase Gene Review Service', () => {
     });
 
     mockVusService.getVusUpdateObject.mockImplementation((path, variants) => {
-      const originalVusService = new FirebaseVusService(mockFirebaseRepository, mockAuthStore);
+      const originalVusService = new FirebaseVusService(mockFirebaseRepository, mockEvidenceClient, mockAuthStore);
       return originalVusService.getVusUpdateObject(path, variants);
     });
 
@@ -169,7 +176,16 @@ describe('Firebase Gene Review Service', () => {
         },
         historyInfo: {},
       });
-      await firebaseGeneReviewService.acceptChanges(hugoSymbol, [reviewLevel], false);
+
+      await firebaseGeneReviewService.acceptChanges({
+        hugoSymbol,
+        reviewLevels: [reviewLevel],
+        isGermline: false,
+        gene,
+        drugListRef: {},
+        entrezGeneId: 0,
+      });
+
       // We expect the lastReviewed to be cleared when accepting changes
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
       expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
@@ -215,7 +231,19 @@ describe('Firebase Gene Review Service', () => {
         },
         historyInfo: {},
       });
-      await firebaseGeneReviewService.acceptChanges(hugoSymbol, [reviewLevel], false);
+
+      await firebaseGeneReviewService.acceptChanges({
+        hugoSymbol,
+        reviewLevels: [reviewLevel],
+        isGermline: false,
+        gene: createMockGene({
+          name: hugoSymbol,
+          mutations: [createMockMutation()],
+        }),
+        drugListRef: {},
+        entrezGeneId: 0,
+      });
+
       expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [0]);
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
       expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
@@ -257,7 +285,19 @@ describe('Firebase Gene Review Service', () => {
         },
         historyInfo: {},
       });
-      await firebaseGeneReviewService.acceptChanges(hugoSymbol, [reviewLevel], false);
+
+      await firebaseGeneReviewService.acceptChanges({
+        hugoSymbol,
+        reviewLevels: [reviewLevel],
+        isGermline: false,
+        gene: createMockGene({
+          name: hugoSymbol,
+          mutations: [createMockMutation()],
+        }),
+        drugListRef: {},
+        entrezGeneId: 0,
+      });
+
       expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [0]);
       // We expect both alterations (V600E and V600K) to be added to VUS list
       expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
@@ -391,12 +431,32 @@ describe('Firebase Gene Review Service', () => {
         historyInfo: {},
       });
 
-      await firebaseGeneReviewService.acceptChanges(
+      const mutations: Mutation[] = [];
+      for (let i = 0; i < 23; i++) {
+        const tumors: Tumor[] = [];
+        for (let j = 0; j < 2; j++) {
+          tumors.push(createMockTumor({}));
+        }
+        mutations.push(
+          createMockMutation({
+            tumors,
+          }),
+        );
+      }
+
+      const gene = createMockGene({
+        mutations,
+      });
+
+      await firebaseGeneReviewService.acceptChanges({
         hugoSymbol,
-        [mutationReviewLevel, tumorReviewLevel, tumorSummaryReviewLevel],
-        false,
-        true,
-      );
+        reviewLevels: [mutationReviewLevel, tumorReviewLevel, tumorSummaryReviewLevel],
+        isGermline: false,
+        isAcceptAll: true,
+        gene,
+        drugListRef: {},
+        entrezGeneId: 0,
+      });
 
       // Multi-location updates should happen before deleting from array to ensure that indices are not stale
       expect(mockFirebaseRepository.update.mock.invocationCallOrder[0]).toBeLessThan(
@@ -482,6 +542,65 @@ describe('Firebase Gene Review Service', () => {
         [`Meta/BRAF/review/${mutation.name_uuid}`]: null,
         'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
         'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
+      });
+    });
+
+    it('should reject initial excluded cancer type', async () => {
+      const mutation = new Mutation('V600E');
+      const tumor = new Tumor();
+      tumor.cancerTypes = [{ code: '', subtype: '', mainType: 'Melanoma' }];
+      tumor.cancerTypes_review = new Review('User');
+      tumor.excludedCancerTypes = [{ code: 'OCM', subtype: 'Ocular Melanoma', mainType: 'Melanoma' }];
+      tumor.excludedCancerTypes_review = new Review('User', undefined, false, false, true);
+      tumor.excludedCancerTypes_uuid = generateUuid();
+      mutation.tumors.push(tumor);
+
+      const reviewLevel = new TumorReviewLevel({
+        titleParts: ['Oncogenic Mutations', 'Breast Cancer {excluding Metaplastic Breast Cancer}', 'Name'],
+        valuePath: 'mutations/0/tumors/0/cancerTypes',
+        historyLocation: 'Oncogenic Mutations, Breast Cancer {excluding Metaplastic Breast Cancer}',
+        children: [],
+        historyInfo: {},
+        currentVal: 'Breast Cancer {excluding Metaplastic Breast Cancer}',
+        reviewInfo: {
+          reviewPath: 'mutations/0/tumors/0/cancerTypes_review',
+          review: tumor.cancerTypes_review,
+          lastReviewedString: 'Breast Cancer',
+          uuid: getTumorNameUuid(tumor.cancerTypes_uuid, tumor.excludedCancerTypes_uuid),
+          reviewAction: 3,
+        },
+        historyData: {
+          oldState: 'Breast Cancer',
+          newState: 'Breast Cancer {excluding Metaplastic Breast Cancer}',
+        },
+        excludedCancerTypesReviewInfo: {
+          reviewPath: 'mutations/0/tumors/0/excludedCancerTypes_review',
+          review: tumor.excludedCancerTypes_review,
+          lastReviewedString: undefined,
+          uuid: tumor.excludedCancerTypes_uuid,
+        },
+        currentExcludedCancerTypes: [
+          {
+            code: 'MBC',
+            mainType: 'Breast Cancer',
+            subtype: 'Metaplastic Breast Cancer',
+          },
+        ],
+      });
+
+      await firebaseGeneReviewService.rejectChanges('BRAF', [reviewLevel], false);
+      expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
+      expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
+        'Genes/BRAF/mutations/0/tumors/0/cancerTypes_review': {
+          updateTime: DEFAULT_DATE.getTime(),
+          updatedBy: mockAuthStore.fullName,
+        },
+        'Genes/BRAF/mutations/0/tumors/0/excludedCancerTypes': null,
+        'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
+        'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
+        [`Meta/BRAF/review/${getTumorNameUuid(tumor.cancerTypes_uuid, tumor.excludedCancerTypes_uuid)}`]: null,
+        [`Meta/BRAF/review/${tumor.cancerTypes_uuid}`]: null,
+        [`Meta/BRAF/review/${tumor.excludedCancerTypes_uuid}`]: null,
       });
     });
 

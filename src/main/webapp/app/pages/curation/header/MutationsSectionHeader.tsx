@@ -142,7 +142,7 @@ function MutationsSectionHeader({
         const selectedMutationEffects = mutationEffectFilter.filter(filter => filter.selected);
         const matchesMutationEffect =
           selectedMutationEffects.length === 0 ||
-          selectedMutationEffects.some(mutationEffect => mutationEffect.label === mutation.mutation_effect.effect);
+          selectedMutationEffects.some(mutationEffect => mutationEffect.label === (mutation.mutation_effect.effect as string));
 
         const selectedHotspot = hotspotFilter.filter(filter => filter.selected).map(option => option.label);
 

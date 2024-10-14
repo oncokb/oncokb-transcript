@@ -1,6 +1,7 @@
 type FrontendProperties = {
   firebase?: FirebaseProperties;
   sentryDsn?: string;
+  stopReviewIfCoreSubmissionFails?: boolean;
 };
 
 export type FirebaseProperties = {
