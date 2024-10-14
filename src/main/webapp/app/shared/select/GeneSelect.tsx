@@ -29,7 +29,7 @@ const GeneSelect = <IsMulti extends boolean>(props: IGeneSelectProps<IsMulti>) =
   const loadGeneOptions: LoadOptions<GeneSelectOption, GroupBase<GeneSelectOption>, { page: number; type: SearchOptionType }> = async (
     searchWord,
     _,
-    { page, type } = { page: 0, type: SearchOptionType.CDX },
+    { page, type } = { page: 0, type: SearchOptionType.GENE },
   ) => {
     let result: Awaited<ReturnType<typeof getGenes>> | undefined = undefined;
     let options: GeneSelectOption[] = [];
@@ -92,7 +92,7 @@ const GeneSelect = <IsMulti extends boolean>(props: IGeneSelectProps<IsMulti>) =
       additional={{ ...defaultAdditional, type: SearchOptionType.GENE }}
       loadOptions={loadGeneOptions}
       cacheUniqs={[props.value]}
-      placeholder="Select a gene..."
+      placeholder="Select gene"
       onInputChange={input => setSearchInput(input)}
       isClearable
     />

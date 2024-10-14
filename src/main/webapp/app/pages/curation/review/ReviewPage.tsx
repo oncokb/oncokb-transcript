@@ -139,7 +139,12 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
 
   const allEditors = editorReviewMap.getEditorList();
 
-  return props.firebaseInitSuccess && !props.loadingGenes && props.drugList !== undefined && props.drugList.length > 0 && !!geneEntity ? (
+  return props.firebaseInitSuccess &&
+    !props.loadingGenes &&
+    props.drugList !== undefined &&
+    props.drugList.length > 0 &&
+    !!geneEntity &&
+    !isAcceptingAll ? (
     <div data-testid="review-page">
       <GeneHeader
         hugoSymbol={hugoSymbol}

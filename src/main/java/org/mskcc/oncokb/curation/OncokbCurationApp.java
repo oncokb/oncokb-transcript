@@ -100,7 +100,7 @@ public class OncokbCurationApp {
     @PostConstruct
     public void initFirebase() throws IOException {
         if (applicationProperties.getFirebase().isEnabled()) {
-            String serviceAccountPath = applicationProperties.getFrontend().getFirebase().getServiceAccountCredentialsPath();
+            String serviceAccountPath = applicationProperties.getFirebase().getServiceAccountCredentialsPath();
             if (serviceAccountPath == null) {
                 log.error("application.firebase.service-account-credentials-path is not specified");
                 return;
@@ -113,7 +113,7 @@ public class OncokbCurationApp {
             try {
                 FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccountFileUrl.openStream()))
-                    .setDatabaseUrl(applicationProperties.getFrontend().getFirebase().getDatabaseUrl())
+                    .setDatabaseUrl(applicationProperties.getFirebase().getDatabaseUrl())
                     .build();
 
                 FirebaseApp.initializeApp(options);

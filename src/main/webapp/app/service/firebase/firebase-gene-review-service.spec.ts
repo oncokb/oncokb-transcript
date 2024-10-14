@@ -10,9 +10,10 @@ import { SentryError } from 'app/config/sentry-error';
 import { getTumorNameUuid, ReviewLevel, TumorReviewLevel } from 'app/shared/util/firebase/firebase-review-utils';
 import { ReviewAction } from 'app/config/constants/firebase';
 import _ from 'lodash';
+import { FIREBASE_LIST_PATH_TYPE } from 'app/shared/util/firebase/firebase-path-utils';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
 import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
-import { createMockGene, createMockMutation } from 'app/shared/util/core-submission-shared/core-submission.mocks';
+import { createMockGene, createMockMutation, createMockTumor } from 'app/shared/util/core-submission-shared/core-submission.mocks';
 import { GeneTypeApi } from 'app/shared/api/manual/gene-type-api';
 import { generateUuid } from 'app/shared/util/utils';
 
@@ -367,7 +368,116 @@ describe('Firebase Gene Review Service', () => {
         'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
       });
     });
+
+    it('should delete from array last when accepting changes', async () => {
+      const hugoSymbol = 'BRAF';
+      const mutationName = 'V600E';
+      const mutation = new Mutation(mutationName);
+
+      const tumorReview = new Review('User', undefined, false, true);
+      const tumorReviewLevel = new TumorReviewLevel({
+        titleParts: ['Cancer Type: B-Lymphoblastic Leukemia/Lymphoma'],
+        historyLocation: 'BCR-ABL1 Fusion, B-Lymphoblastic Leukemia, Lymphoma',
+        valuePath: 'mutations/1/tumors/0/cancerTypes',
+        currentVal: 'B-Lymphoblastic Leukemia/Lymphoma',
+        reviewInfo: {
+          reviewPath: 'mutations/0/name_review',
+          review: tumorReview,
+          lastReviewedString: undefined,
+          uuid: 'tumor_uuid',
+          reviewAction: ReviewAction.DELETE,
+        },
+        historyData: {
+          newState: mutation,
+        },
+        historyInfo: {},
+      });
+
+      const tumorSummaryReview = new Review('User', '');
+      const tumorSummaryReviewLevel = new ReviewLevel({
+        titleParts: ['B-Lymphoblastic Leukemia/Lymphoma with t(9;22)(q34.1;q11.2);BCR-ABL1', 'Summary'],
+        historyLocation: 'BCR-ABL1 Fusion, B-Lymphoblastic Leukemia, Lymphoma with t(9;22)(q34.1;q11.2);BCR-ABL1, Summary',
+        valuePath: 'mutations/1/tumors/1/summary',
+        currentVal: 'Test',
+        reviewInfo: {
+          reviewPath: 'mutations/1/tumors/1/summary_review',
+          review: tumorSummaryReview,
+          lastReviewedString: '',
+          uuid: 'tumor_summary_uuid',
+          reviewAction: ReviewAction.UPDATE,
+        },
+        historyData: {
+          newState: mutation,
+        },
+        historyInfo: {},
+      });
+
+      const mutationReview = new Review('User', '', false, true);
+      const mutationReviewLevel = new ReviewLevel({
+        titleParts: ['T315I'],
+        historyLocation: 'T315I',
+        valuePath: 'mutations/22/name',
+        currentVal: 'Test',
+        reviewInfo: {
+          reviewPath: 'mutations/22/name_review',
+          review: mutationReview,
+          lastReviewedString: undefined,
+          uuid: 'tumor_summary_uuid',
+          reviewAction: ReviewAction.DELETE,
+        },
+        historyData: {
+          newState: mutation,
+        },
+        historyInfo: {},
+      });
+
+      const mutations: Mutation[] = [];
+      for (let i = 0; i < 23; i++) {
+        const tumors: Tumor[] = [];
+        for (let j = 0; j < 2; j++) {
+          tumors.push(createMockTumor({}));
+        }
+        mutations.push(
+          createMockMutation({
+            tumors,
+          }),
+        );
+      }
+
+      const gene = createMockGene({
+        mutations,
+      });
+
+      await firebaseGeneReviewService.acceptChanges({
+        hugoSymbol,
+        reviewLevels: [mutationReviewLevel, tumorReviewLevel, tumorSummaryReviewLevel],
+        isGermline: false,
+        isAcceptAll: true,
+        gene,
+        drugListRef: {},
+        entrezGeneId: 0,
+      });
+
+      // Multi-location updates should happen before deleting from array to ensure that indices are not stale
+      expect(mockFirebaseRepository.update.mock.invocationCallOrder[0]).toBeLessThan(
+        mockFirebaseRepository.deleteFromArray.mock.invocationCallOrder[0],
+      );
+    });
   });
+
+  describe('processDeletion', () => {
+    it('should delete items closest to the leaves of the tree first', async () => {
+      await firebaseGeneReviewService.processDeletion(2, {
+        [FIREBASE_LIST_PATH_TYPE.MUTATION_LIST]: { mutations: [0, 1] },
+        [FIREBASE_LIST_PATH_TYPE.TUMOR_LIST]: { 'mutations/3/tumors': [3] },
+        [FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST]: { 'mutations/1/tumors/0/TIs/4/treatment': [0] },
+      });
+      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenNthCalledWith(1, 'mutations/1/tumors/0/TIs/4/treatment', [0]);
+      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenNthCalledWith(2, 'mutations/3/tumors', [3]);
+      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenNthCalledWith(3, 'mutations', [0, 1]);
+    });
+  });
+
   describe('rejectChanges', () => {
     it('should delete lastReviewed and set value back to lastReviewed when rejecting update', async () => {
       const hugoSymbol = 'BRAF';

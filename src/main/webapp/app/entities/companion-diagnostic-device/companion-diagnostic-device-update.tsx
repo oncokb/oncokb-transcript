@@ -14,10 +14,10 @@ import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtil
 import _ from 'lodash';
 import LoadingIndicator, { LoaderSize } from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import { convertDateTimeFromServer, convertDateTimeToServer } from 'app/shared/util/date-utils';
-import GenericSidebar from 'app/components/sidebar/OncoKBSidebar';
 import CompanionDiagnosticDevicePanel from 'app/components/panels/CompanionDiagnosticDevicePanel';
 import { WHOLE_NUMBER_REGEX } from 'app/config/constants/regex';
 import { ISpecimenType } from 'app/shared/model/specimen-type.model';
+import OncoKBSidebar from 'app/components/sidebar/OncoKBSidebar';
 
 export interface ICompanionDiagnosticDeviceUpdateProps extends StoreProps, RouteComponentProps<{ id: string }> {}
 
@@ -185,9 +185,9 @@ export const CompanionDiagnosticDeviceUpdate = (props: ICompanionDiagnosticDevic
           ) : undefined}
         </>
       )}
-      <GenericSidebar>
+      <OncoKBSidebar>
         <CompanionDiagnosticDevicePanel />
-      </GenericSidebar>
+      </OncoKBSidebar>
     </>
   );
 };

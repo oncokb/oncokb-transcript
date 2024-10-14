@@ -22,7 +22,6 @@ const FdaSubmissionSelect = <IsMulti extends boolean>(props: IFdaSubmissionSelec
   const [fdaSubmissionList, setFdaSubmissionList] = useState<
     OptionsOrGroups<FdaSubmissionSelectOption, GroupBase<FdaSubmissionSelectOption>> | undefined
   >([]);
-  const [fdaSubmissionValue, setFdaSubmissionValue] = useState<OnChangeValue<FdaSubmissionSelectOption, IsMulti> | null>(null);
 
   useEffect(() => {
     const loadFdaSubmissionOptions = async (id: number) => {
@@ -37,30 +36,9 @@ const FdaSubmissionSelect = <IsMulti extends boolean>(props: IFdaSubmissionSelec
       }
     };
     loadFdaSubmissionOptions(cdxId);
-    if (!cdxId) {
-      setFdaSubmissionValue(null);
-    }
   }, [cdxId]);
 
-  const onFdaSubmissionChange: (
-    newValue: OnChangeValue<FdaSubmissionSelectOption, IsMulti>,
-    actionMeta: ActionMeta<FdaSubmissionSelectOption>,
-  ) => void = (option, actionMeta) => {
-    setFdaSubmissionValue(option);
-    props.onChange?.(option, actionMeta);
-  };
-
-  return (
-    <Select
-      {...selectProps}
-      name={'fdaSubmissions'}
-      value={fdaSubmissionValue}
-      options={fdaSubmissionList}
-      onChange={onFdaSubmissionChange}
-      placeholder="Select an fda submission..."
-      isClearable
-    />
-  );
+  return <Select placeholder="Select FDA submission" name={'fdaSubmissions'} options={fdaSubmissionList} isClearable {...selectProps} />;
 };
 
 const mapStoreToProps = ({ fdaSubmissionStore }: IRootStore) => ({

@@ -27,6 +27,8 @@ import { generateUuid, parseAlterationName } from '../../shared/util/utils';
 import { FirebaseVusService } from './firebase-vus-service';
 import { SentryError } from 'app/config/sentry-error';
 import { ActionType } from 'app/pages/curation/collapsible/ReviewCollapsible';
+
+export type ItemsToDeleteMap = { [key in FIREBASE_LIST_PATH_TYPE]: { [path in string]: number[] } };
 import {
   getEvidence,
   pathToDeleteEvidenceArgs,
@@ -36,6 +38,7 @@ import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
 import { createGeneTypePayload, isGeneTypeChange } from 'app/shared/util/core-gene-type-submission/core-gene-type-submission';
 import { GeneTypeApi } from 'app/shared/api/manual/gene-type-api';
 import { flattenReviewPaths, useLastReviewedOnly } from 'app/shared/util/core-submission-shared/core-submission-utils';
+import { AppConfig } from 'app/appConfig';
 
 export class FirebaseGeneReviewService {
   firebaseRepository: FirebaseRepository;
@@ -137,7 +140,7 @@ export class FirebaseGeneReviewService {
     const geneFirebasePath = getFirebaseGenePath(isGermline, hugoSymbol);
     const vusFirebasePath = getFirebaseVusPath(isGermline, hugoSymbol);
 
-    const itemsToDelete: { [key in FIREBASE_LIST_PATH_TYPE]: { [path in string]: number[] } } = {
+    const itemsToDelete: ItemsToDeleteMap = {
       [FIREBASE_LIST_PATH_TYPE.MUTATION_LIST]: {},
       [FIREBASE_LIST_PATH_TYPE.TUMOR_LIST]: {},
       [FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST]: {},
@@ -180,7 +183,17 @@ export class FirebaseGeneReviewService {
         }
       }
     } catch (error) {
-      throw new SentryError('Failed to create evidences when accepting changes in review mode', { hugoSymbol, reviewLevels, isGermline });
+      const sentryError = new SentryError('Failed to create evidences when accepting changes in review mode', {
+        hugoSymbol,
+        reviewLevels,
+        isGermline,
+        error,
+      });
+      if (AppConfig.serverConfig.frontend?.stopReviewIfCoreSubmissionFails) {
+        throw sentryError;
+      } else {
+        console.error(sentryError);
+      }
     }
 
     try {
@@ -188,11 +201,17 @@ export class FirebaseGeneReviewService {
         await this.geneTypeClient.submitGeneTypeToCore(geneTypePayload);
       }
     } catch (error) {
-      throw new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
+      const sentryError = new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
         hugoSymbol,
         reviewLevels,
         isGermline,
+        error,
       });
+      if (AppConfig.serverConfig.frontend?.stopReviewIfCoreSubmissionFails) {
+        throw sentryError;
+      } else {
+        console.error(sentryError);
+      }
     }
 
     try {
@@ -200,11 +219,17 @@ export class FirebaseGeneReviewService {
         await this.evidenceClient.submitEvidences(evidences);
       }
     } catch (error) {
-      throw new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
+      const sentryError = new SentryError('Failed to submit evidences to core when accepting changes in review mode', {
         hugoSymbol,
         reviewLevels,
         isGermline,
+        error,
       });
+      if (AppConfig.serverConfig.frontend?.stopReviewIfCoreSubmissionFails) {
+        throw sentryError;
+      } else {
+        console.error(sentryError);
+      }
     }
 
     let updateObject = {};
@@ -281,6 +306,8 @@ export class FirebaseGeneReviewService {
     } catch (error) {
       throw new SentryError('Failed to accept deletions in review mode', { hugoSymbol, reviewLevels, isGermline, itemsToDelete });
     }
+
+    return this.processDeletion(reviewLevels.length, itemsToDelete);
   };
 
   rejectChanges = async (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) => {
@@ -385,5 +412,30 @@ export class FirebaseGeneReviewService {
       acc[`${metaGenePath}/review/${uuid}`] = null;
       return acc;
     }, {});
+  };
+
+  processDeletion = async (reviewLevelLength: number, itemsToDelete: ItemsToDeleteMap) => {
+    // We are deleting last because the indices will change after deleting from array.
+    let hasDeletion = false;
+    try {
+      // Todo: We should use multi-location updates for deletions once all our arrays use firebase auto-generated keys
+      // instead of using sequential number indices.
+      for (const pathType of [
+        FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST,
+        FIREBASE_LIST_PATH_TYPE.TUMOR_LIST,
+        FIREBASE_LIST_PATH_TYPE.MUTATION_LIST,
+      ]) {
+        for (const [firebasePath, deleteIndices] of Object.entries(itemsToDelete[pathType])) {
+          hasDeletion = true;
+          await this.firebaseRepository.deleteFromArray(firebasePath, deleteIndices);
+        }
+      }
+      // If user accepts a deletion individually, we need to refresh the ReviewPage with the latest data to make sure the indices are up to date.
+      if (reviewLevelLength === 1 && hasDeletion) {
+        return { shouldRefresh: true };
+      }
+    } catch (error) {
+      throw new SentryError('Failed to accept deletions in review mode', { itemsToDelete });
+    }
   };
 }
