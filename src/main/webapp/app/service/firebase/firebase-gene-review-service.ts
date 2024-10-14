@@ -36,8 +36,7 @@ import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
 import { createGeneTypePayload, isGeneTypeChange } from 'app/shared/util/core-gene-type-submission/core-gene-type-submission';
 import { GeneTypeApi } from 'app/shared/api/manual/gene-type-api';
 import { flattenReviewPaths, useLastReviewedOnly } from 'app/shared/util/core-submission-shared/core-submission-utils';
-import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
-import { STOP_REVIEW_IF_CORE_SUBMISSION_FAILS } from 'app/shared/feature-flags';
+import { AppConfig } from 'app/appConfig';
 
 export class FirebaseGeneReviewService {
   firebaseRepository: FirebaseRepository;
@@ -187,7 +186,7 @@ export class FirebaseGeneReviewService {
         reviewLevels,
         isGermline,
       });
-      if (STOP_REVIEW_IF_CORE_SUBMISSION_FAILS) {
+      if (AppConfig.serverConfig.frontend?.stopReviewIfCoreSubmissionFails) {
         throw sentryError;
       } else {
         console.error(sentryError);
@@ -204,7 +203,7 @@ export class FirebaseGeneReviewService {
         reviewLevels,
         isGermline,
       });
-      if (STOP_REVIEW_IF_CORE_SUBMISSION_FAILS) {
+      if (AppConfig.serverConfig.frontend?.stopReviewIfCoreSubmissionFails) {
         throw sentryError;
       } else {
         console.error(sentryError);
@@ -221,7 +220,7 @@ export class FirebaseGeneReviewService {
         reviewLevels,
         isGermline,
       });
-      if (STOP_REVIEW_IF_CORE_SUBMISSION_FAILS) {
+      if (AppConfig.serverConfig.frontend?.stopReviewIfCoreSubmissionFails) {
         throw sentryError;
       } else {
         console.error(sentryError);
