@@ -78,9 +78,6 @@ export const OncoKBAsyncTable = <T extends object>(props: IOncoKBAsyncTableProps
     sortEntities();
   }, [paginationState.activePage, paginationState.order, paginationState.sort, searchKeyword]);
 
-  /* eslint-disable no-console */
-  console.log([paginationToSortingRule(paginationState)]);
-
   return (
     <div>
       <Row className="justify-content-end mb-3">
