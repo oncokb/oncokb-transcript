@@ -246,6 +246,7 @@ export const CurationPage = (props: ICurationPageProps) => {
         />
         <OncoKBSidebar>
           <Tabs
+            className="pe-4 ps-2 mt-1"
             tabs={[
               {
                 title: 'Tools',

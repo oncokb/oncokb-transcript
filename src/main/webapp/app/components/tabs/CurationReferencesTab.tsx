@@ -88,11 +88,12 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
           const newReferences = parseTextForReferences(obj[key]);
           newReferences.forEach(newReference => {
             const fullNewReferenceName = getReferenceFullName(newReference);
+            const pathInfo = parseLocationPath(newPath);
 
-            if (references[fullNewReferenceName]) {
-              references[fullNewReferenceName].push({ reference: newReference, pathInfo: parseLocationPath(newPath), depth });
-            } else {
-              references[fullNewReferenceName] = [{ reference: newReference, pathInfo: parseLocationPath(newPath), depth }];
+            if (references[fullNewReferenceName] && pathInfo) {
+              references[fullNewReferenceName].push({ reference: newReference, pathInfo, depth });
+            } else if (pathInfo) {
+              references[fullNewReferenceName] = [{ reference: newReference, pathInfo, depth }];
             }
           });
         } else if (typeof obj[key] === 'object' && key !== 'name_comments' && !key.endsWith('_review')) {
@@ -102,17 +103,13 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
     }
   }
 
-  function parseLocationPath(path: string): PathInfo {
+  function parseLocationPath(path: string): PathInfo | undefined {
     let mutationIndex = -1;
-    let mutation: Mutation | undefined = undefined;
+    let mutation: Mutation | undefined;
     let parsedPath = path.replace(/mutations, (\d+)/g, (match, index: string) => {
       mutationIndex = Number(index);
-      const maybeMutation = gene?.mutations[mutationIndex];
-      if (!maybeMutation) {
-        throw new SentryError('The mutation data was not found.', { gene, mutationIndex });
-      }
-      mutation = maybeMutation;
-      return getMutationName(mutation.name, mutation.alterations);
+      mutation = gene?.mutations[mutationIndex];
+      return getMutationName(mutation?.name, mutation?.alterations);
     });
 
     let tumorIndex = -1;
@@ -120,10 +117,7 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
       parsedPath = parsedPath.replace(/tumors, (\d+)/g, (match, index: string) => {
         tumorIndex = Number(index);
         const tumor = gene?.mutations[mutationIndex].tumors[tumorIndex];
-        if (!tumor) {
-          throw new SentryError('The tumor data was not found.', { gene, tumorIndex });
-        }
-        return getCancerTypesNameWithExclusion(tumor.cancerTypes, tumor.excludedCancerTypes || [], true);
+        return getCancerTypesNameWithExclusion(tumor?.cancerTypes ?? [], tumor?.excludedCancerTypes ?? [], true);
       });
     }
 
@@ -140,7 +134,7 @@ function CurationReferencesTab({ genePath, drugList, firebaseDb }: ICurationAbst
     parsedPath = parsedPath.replace('short', 'Additional Information');
 
     if (!mutation) {
-      throw new Error('mutation was not found');
+      return;
     }
 
     return { path: parsedPath, details: { mutation } };

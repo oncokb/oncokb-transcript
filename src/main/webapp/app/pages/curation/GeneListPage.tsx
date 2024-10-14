@@ -147,7 +147,7 @@ const GeneListPage = (props: IGeneListPage) => {
                 </Col>
               </Row>
               <OncoKBSidebar>
-                <Tabs tabs={sidebarTabs} />
+                <Tabs className="pe-4 ps-2 mt-1" tabs={sidebarTabs} />
               </OncoKBSidebar>
             </>
           ) : (

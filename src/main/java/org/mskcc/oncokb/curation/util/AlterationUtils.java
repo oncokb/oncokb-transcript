@@ -1,16 +1,17 @@
 package org.mskcc.oncokb.curation.util;
 
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static org.mskcc.oncokb.curation.domain.enumeration.MutationConsequence.*;
+import static org.mskcc.oncokb.curation.util.parser.ProteinChangeParser.*;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.similarity.JaroWinklerSimilarity;
-import org.checkerframework.checker.regex.qual.Regex;
 import org.mskcc.oncokb.curation.domain.*;
 import org.mskcc.oncokb.curation.domain.enumeration.*;
+import org.mskcc.oncokb.curation.util.parser.ParsingStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -90,6 +91,119 @@ public class AlterationUtils {
         return alt;
     }
 
+    private static ParsingStatus<Alteration> parseCategoricalAlterations(String proteinChange) {
+        ParsingStatus<Alteration> parsedAlteration = new ParsingStatus<>();
+
+        // truncating
+        if (proteinChange.toLowerCase().matches("truncating mutations?")) {
+            Alteration alteration = new Alteration();
+            Consequence consequence = new Consequence();
+            consequence.setTerm(FEATURE_TRUNCATION.name());
+            alteration.setConsequence(consequence);
+            alteration.setAlteration(proteinChange);
+            alteration.setName(proteinChange);
+            parsedAlteration.setEntity(alteration);
+            parsedAlteration.setStatus(EntityStatusType.OK);
+        }
+        return parsedAlteration;
+    }
+
+    private static ParsingStatus<Alteration> parseProteinChangeWithStatus(String proteinChange, String excludedStr) {
+        ParsingStatus<Alteration> parsedAlteration = parseProteinChangeThroughAllTypes(proteinChange, excludedStr);
+
+        if (parsedAlteration.getEntity() != null) {
+            Alteration alteration = parsedAlteration.getEntity();
+            alteration.setType(AlterationType.PROTEIN_CHANGE);
+            if (StringUtils.isEmpty(alteration.getAlteration())) {
+                alteration.setAlteration(alteration.getProteinChange());
+            }
+            if (StringUtils.isEmpty(alteration.getName())) {
+                alteration.setName(alteration.getProteinChange());
+            }
+            // Change the positional name
+            if (isPositionedAlteration(alteration)) {
+                if (StringUtils.isEmpty(excludedStr)) {
+                    alteration.setName(alteration.getAlteration() + " Missense Mutations");
+                } else {
+                    alteration.setName(proteinChange + " Missense Mutations, excluding " + excludedStr);
+                }
+            }
+            if (alteration.getConsequence() == null) {
+                Consequence consequence = new Consequence();
+                consequence.setTerm(MutationConsequence.UNKNOWN.name());
+                alteration.setConsequence(consequence);
+            }
+        }
+        return parsedAlteration;
+    }
+
+    private static ParsingStatus<Alteration> parseProteinChangeThroughAllTypes(String proteinChange, String excludedStr) {
+        ParsingStatus<Alteration> parsedAlteration = new ParsingStatus<>();
+
+        parsedAlteration = parseInframe(proteinChange);
+        if (parsedAlteration.isParsed()) return parsedAlteration;
+
+        parsedAlteration = parseSplice(proteinChange);
+        if (parsedAlteration.isParsed()) return parsedAlteration;
+
+        parsedAlteration = parseFrameshift(proteinChange);
+        if (parsedAlteration.isParsed()) return parsedAlteration;
+
+        parsedAlteration = parseExtension(proteinChange);
+        if (parsedAlteration.isParsed()) return parsedAlteration;
+
+        parsedAlteration = parseRange(proteinChange);
+        if (parsedAlteration.isParsed()) return parsedAlteration;
+
+        parsedAlteration = parseSynonymous(proteinChange);
+        if (parsedAlteration.isParsed()) return parsedAlteration;
+
+        return parseGeneral(proteinChange);
+    }
+
+    public static void parseProteinChange(EntityStatus<Alteration> alterationEntityStatus, String proteinChange) {
+        if (proteinChange == null) {
+            proteinChange = "";
+        }
+
+        if (proteinChange.startsWith("p.")) {
+            proteinChange = proteinChange.substring(2);
+        }
+
+        if (proteinChange.indexOf("[") != -1) {
+            proteinChange = proteinChange.substring(0, proteinChange.indexOf("["));
+        }
+
+        // we need to deal with the exclusion format so the protein change can properly be interpreted.
+        String excludedStr = "";
+        Matcher exclusionMatch = getExclusionCriteriaMatcher(proteinChange);
+        if (exclusionMatch.matches()) {
+            proteinChange = exclusionMatch.group(1);
+            excludedStr = exclusionMatch.group(3).trim();
+        }
+
+        proteinChange = proteinChange.trim();
+
+        ParsingStatus<Alteration> parsedAlteration;
+
+        parsedAlteration = parseProteinChangeWithStatus(proteinChange, excludedStr);
+        if (!parsedAlteration.isParsed()) parsedAlteration = parseCategoricalAlterations(proteinChange);
+
+        if (!parsedAlteration.isParsed()) {
+            Alteration alteration = new Alteration();
+            alteration.setAlteration(proteinChange);
+            alteration.setName(proteinChange);
+            Consequence consequence = new Consequence();
+            consequence.setTerm(UNKNOWN.name());
+            alteration.setConsequence(consequence);
+            parsedAlteration.setEntity(alteration);
+            parsedAlteration.setStatus(EntityStatusType.OK);
+        }
+        alterationEntityStatus.setEntity(parsedAlteration.getEntity());
+        alterationEntityStatus.setType(parsedAlteration.getStatus());
+        alterationEntityStatus.setMessage(parsedAlteration.getMessage());
+    }
+
     public EntityStatus<Alteration> parseAlteration(String alteration) {
         EntityStatus<Alteration> entityWithStatus = new EntityStatus<>();
         String message = "";
@@ -130,267 +244,8 @@ public class AlterationUtils {
             return entityWithStatus;
         }
 
-        // the following is to parse the alteration as protein change
-        MutationConsequence term = UNKNOWN;
-        String ref = null;
-        String var = null;
-        Integer start = null;
-        Integer end = null;
+        parseProteinChange(entityWithStatus, alteration);
 
-        if (alteration == null) {
-            alteration = "";
-        }
-
-        if (alteration.startsWith("p.")) {
-            alteration = alteration.substring(2);
-        }
-
-        if (alteration.indexOf("[") != -1) {
-            alteration = alteration.substring(0, alteration.indexOf("["));
-        }
-
-        String altStr = alteration;
-
-        // we need to deal with the exclusion format so the protein change can properly be interpreted.
-        String excludedStr = "";
-        Matcher exclusionMatch = getExclusionCriteriaMatcher(alteration);
-        if (exclusionMatch.matches()) {
-            alteration = exclusionMatch.group(1);
-            excludedStr = exclusionMatch.group(3).trim();
-        }
-
-        alteration = alteration.trim();
-
-        Pattern p = Pattern.compile("^([A-Z\\*]+)([0-9]+)([A-Z\\*\\?]*)$");
-        Matcher m = p.matcher(alteration);
-        if (m.matches()) {
-            ref = m.group(1);
-            start = Integer.valueOf(m.group(2));
-            end = start;
-            var = m.group(3);
-
-            Integer refL = ref.length();
-            Integer varL = var.length();
-
-            if (ref.equals("*")) {
-                term = STOP_LOST;
-            } else if (var.equals("*")) {
-                term = STOP_GAINED;
-            } else if (ref.equals(var)) {
-                term = SYNONYMOUS_VARIANT;
-            } else if (start == 1) {
-                term = START_LOST;
-            } else if (var.equals("?")) {
-                term = ANY;
-            } else {
-                end = start + refL - 1;
-                if (refL > 1 || varL > 1) {
-                    // Handle in-frame insertion/deletion event. Exp: IK744K
-                    if (refL > varL) {
-                        term = INFRAME_DELETION;
-                    } else if (refL < varL) {
-                        term = INFRAME_INSERTION;
-                    } else {
-                        term = MISSENSE_VARIANT;
-                    }
-                } else if (refL == 1 && varL == 1) {
-                    term = MISSENSE_VARIANT;
-                } else {
-                    status = EntityStatusType.WARNING;
-                    message = "Unable to determine consequence";
-                    term = NA;
-                }
-            }
-        } else {
-            p = Pattern.compile("([A-Z]?)([0-9]+)(_[A-Z]?([0-9]+))?(delins|ins|del)([A-Z0-9]+)");
-            m = p.matcher(alteration);
-            if (m.matches()) {
-                if (m.group(1) != null && m.group(3) == null) {
-                    // we only want to specify reference when it's one position ins/del
-                    ref = m.group(1);
-                }
-                start = Integer.valueOf(m.group(2));
-                if (m.group(4) != null) {
-                    end = Integer.valueOf(m.group(4));
-                } else {
-                    end = start;
-                }
-                String type = m.group(5);
-                if (type.equals("ins")) {
-                    term = INFRAME_INSERTION;
-                } else if (type.equals("del")) {
-                    term = INFRAME_DELETION;
-                } else {
-                    Integer deletion = end - start + 1;
-                    Integer insertion = m.group(6).length();
-
-                    if (insertion - deletion > 0) {
-                        term = INFRAME_INSERTION;
-                    } else if (insertion - deletion == 0) {
-                        term = MISSENSE_VARIANT;
-                    } else {
-                        term = INFRAME_DELETION;
-                    }
-                }
-            } else {
-                p = Pattern.compile("([A-Z]?)([0-9]+)(_[A-Z]?([0-9]+))?(_)?splice");
-                m = p.matcher(alteration);
-                if (m.matches()) {
-                    if (m.group(1) != null && m.group(3) == null) {
-                        // we only want to specify reference when it's one position splice
-                        ref = m.group(1);
-                    }
-                    start = Integer.valueOf(m.group(2));
-                    if (m.group(4) != null) {
-                        end = Integer.valueOf(m.group(4));
-                    } else {
-                        end = start;
-                    }
-                    term = SPLICE_REGION_VARIANT;
-                } else {
-                    p = Pattern.compile("([A-Z]?)([0-9]+)_([A-Z]?)([0-9]+)(.+)");
-                    m = p.matcher(alteration);
-                    if (m.matches()) {
-                        start = Integer.valueOf(m.group(2));
-                        end = Integer.valueOf(m.group(4));
-                        String v = m.group(5);
-
-                        HashMap<String, MutationConsequence> termsToCheck = new HashMap<>();
-                        termsToCheck.put("mis", MISSENSE_VARIANT);
-                        termsToCheck.put("ins", INFRAME_INSERTION);
-                        termsToCheck.put("del", INFRAME_DELETION);
-                        termsToCheck.put("fs", FEATURE_TRUNCATION);
-                        termsToCheck.put("trunc", FEATURE_TRUNCATION);
-                        termsToCheck.put("dup", INFRAME_INSERTION);
-                        termsToCheck.put("mut", ANY);
-
-                        MutationConsequence consequence = termsToCheck.get(v);
-                        if (consequence != null) {
-                            term = consequence;
-                        } else {
-                            Double greatestSimilarity = -1.0;
-                            String termWithGreatestSimilarity = "";
-                            JaroWinklerSimilarity jw = new JaroWinklerSimilarity();
-                            for (Map.Entry<String, MutationConsequence> entry : termsToCheck.entrySet()) {
-                                double similarity = jw.apply(v, entry.getKey());
-                                if (similarity > greatestSimilarity) {
-                                    greatestSimilarity = similarity;
-                                    termWithGreatestSimilarity = entry.getKey();
-                                }
-                            }
-                            status = EntityStatusType.ERROR;
-                            message = "The alteration name is invalid, do you mean " +
-                            m.group(1) +
-                            m.group(2) +
-                            "_" +
-                            m.group(3) +
-                            m.group(4) +
-                            termWithGreatestSimilarity +
-                            "?";
-                        }
-                    } else {
-                        p = Pattern.compile("([A-Z\\*])([0-9]+)[A-Z]?fs.*");
-                        m = p.matcher(alteration);
-                        if (m.matches()) {
-                            ref = m.group(1);
-                            start = Integer.valueOf(m.group(2));
-                            end = start;
-
-                            term = FRAMESHIFT_VARIANT;
-                        } else {
-                            p = Pattern.compile("([A-Z]+)?([0-9]+)([A-Za-z]]+)");
-                            m = p.matcher(alteration);
-                            if (m.matches()) {
-                                ref = m.group(1);
-                                start = Integer.valueOf(m.group(2));
-                                end = start;
-                                String v = m.group(3);
-                                switch (v) {
-                                    case "ins":
-                                    case "dup":
-                                        term = INFRAME_INSERTION;
-                                        break;
-                                    case "del":
-                                        term = INFRAME_DELETION;
-                                        break;
-                                }
-                            } else {
-                                /**
-                                 * support extension variant (https://varnomen.hgvs.org/recommendations/protein/variant/extension/)
-                                 * the following examples are supported
-                                 * *959Qext*14
-                                 * *110Gext*17
-                                 * *315TextALGT*
-                                 * *327Aext*?
-                                 */
-                                p = Pattern.compile("(\\*)([0-9]+)[A-Z]ext([A-Z]+)?\\*([0-9]+)?(\\?)?");
-                                m = p.matcher(alteration);
-                                if (m.matches()) {
-                                    ref = m.group(1);
-                                    start = Integer.valueOf(m.group(2));
-                                    end = start;
-                                    term = STOP_LOST;
-                                } else {
-                                    p = Pattern.compile("([A-Z\\*])?([0-9]+)=");
-                                    m = p.matcher(alteration);
-                                    if (m.matches()) {
-                                        var = ref = m.group(1);
-                                        start = Integer.valueOf(m.group(2));
-                                        end = start;
-                                        if (ref.equals("*")) {
-                                            term = STOP_RETAINED_VARIANT;
-                                        } else {
-                                            term = SYNONYMOUS_VARIANT;
-                                        }
-                                    } else {
-                                        p = Pattern.compile("([0-9]+)");
-                                        m = p.matcher(alteration);
-                                        if (m.matches()) {
-                                            start = Integer.valueOf(m.group(1));
-                                            end = start;
-                                            term = UNKNOWN;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // truncating
-        if (alteration.toLowerCase().matches("truncating mutations?")) {
-            term = FEATURE_TRUNCATION;
-        }
-
-        Alteration alt = new Alteration();
-        alt.setType(AlterationType.PROTEIN_CHANGE);
-        alt.setRefResidues(ref);
-        alt.setVariantResidues(var);
-        alt.setStart(start);
-        alt.setEnd(end);
-        alt.setAlteration(altStr);
-        alt.setProteinChange(alteration);
-
-        Consequence consequence = new Consequence();
-        consequence.setTerm(Optional.ofNullable(term).orElse(MutationConsequence.UNKNOWN).name());
-        alt.setConsequence(consequence);
-
-        // Change the positional name
-        if (isPositionedAlteration(alt)) {
-            if (StringUtils.isEmpty(excludedStr)) {
-                alt.setName(alt.getAlteration() + " Missense Mutations");
-            } else {
-                alt.setName(alteration + " Missense Mutations, excluding " + excludedStr);
-            }
-        } else {
-            alt.setName(alteration);
-        }
-
-        entityWithStatus.setEntity(alt);
-        entityWithStatus.setType(status);
-        entityWithStatus.setMessage(message);
         return entityWithStatus;
     }
 
@@ -433,7 +288,7 @@ public class AlterationUtils {
     }
 
     private static Matcher getExclusionCriteriaMatcher(String proteinChange) {
-        Pattern exclusionPatter = Pattern.compile("(.*)\\{\\s*(exclude|excluding)(.*)\\}", Pattern.CASE_INSENSITIVE);
+        Pattern exclusionPatter = Pattern.compile("(.*)\\{\\s*(exclude|excluding)(.*)\\}", CASE_INSENSITIVE);
         Matcher exclusionMatch = exclusionPatter.matcher(proteinChange);
         return exclusionMatch;
     }

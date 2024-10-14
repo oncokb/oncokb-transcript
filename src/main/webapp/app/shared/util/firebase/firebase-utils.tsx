@@ -415,12 +415,33 @@ export const hasMultipleMutations = (mutationName: string) => {
 };
 export const isMutationEffectCuratable = (mutationName: string) => {
   const multipleMuts = hasMultipleMutations(mutationName);
-  if (multipleMuts) {
+  if (multipleMuts && !areSameAlterationsWithDifferentReferenceGenomes(mutationName)) {
     return false;
   }
   const excludedMutations = ['Oncogenic Mutations'];
   return excludedMutations.filter(mutation => mutationName.toLowerCase().includes(mutation.toLowerCase())).length === 0;
 };
+
+function areSameAlterationsWithDifferentReferenceGenomes(mutationName: string) {
+  const alterations = mutationName.split(',');
+
+  if (alterations.length !== 2) {
+    return false;
+  }
+
+  const alt1 = alterations[0].trim().toLowerCase();
+  const alt2 = alterations[1].trim().toLowerCase();
+  const grch37Prefix = 'grch37:';
+  const grch38Prefix = 'grch38:';
+
+  if (
+    (alt1.startsWith(grch37Prefix) && alt2.startsWith(grch38Prefix)) ||
+    (alt1.startsWith(grch38Prefix) && alt2.startsWith(grch37Prefix))
+  ) {
+    return true;
+  }
+  return false;
+}
 
 export function compareMutationsByDeleted(mut1: Mutation, mut2: Mutation) {
   const mut1IsDeleted = mut1.name_review?.removed || false;

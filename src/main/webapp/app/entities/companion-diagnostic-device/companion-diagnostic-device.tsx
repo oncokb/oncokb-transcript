@@ -12,7 +12,6 @@ import { TextFormat } from 'react-jhipster';
 import _ from 'lodash';
 import { filterByKeyword, getEntityTableActionsColumn } from 'app/shared/util/utils';
 import OncoKBTable, { SearchColumn } from 'app/shared/table/OncoKBTable';
-import { IDrug } from 'app/shared/model/drug.model';
 export interface ICompanionDiagnosticDeviceProps extends StoreProps, RouteComponentProps<{ url: string }> {}
 
 export const getFdaSubmissionNumber = (primaryNumber: string | undefined, supplementNumber: string | undefined) => {
