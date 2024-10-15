@@ -298,6 +298,7 @@ export const saveMutation = async (
   for (const mut of existingMuts) {
     if (mut.inVusList) {
       mutIsVus = true;
+      await firebaseGeneService.firebaseRepository.delete(`${getFirebaseVusPath(isGermline, hugoSymbol)}/${mut.duplicate}`);
     } else {
       // if alteration exists in the Mutation list, we return and give error
       return {
