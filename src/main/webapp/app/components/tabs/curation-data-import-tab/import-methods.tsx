@@ -74,7 +74,7 @@ const alleleStateCheck = async (
   return status;
 };
 
-const impactStatusCheck = (status: string, allowedStatus: string[]): DataImportStatus => {
+const importStatusCheck = (status: string, allowedStatus: string[]): DataImportStatus => {
   const importStatus = new DataImportStatus();
 
   if (status) {
@@ -87,11 +87,11 @@ const impactStatusCheck = (status: string, allowedStatus: string[]): DataImportS
 };
 
 const oncogenicityCheck = (pathogenicity: string): DataImportStatus => {
-  return impactStatusCheck(pathogenicity, uniq(Object.values(FIREBASE_ONCOGENICITY)));
+  return importStatusCheck(pathogenicity, uniq(Object.values(FIREBASE_ONCOGENICITY)));
 };
 
 const pathogenicityCheck = (pathogenicity: string): DataImportStatus => {
-  return impactStatusCheck(pathogenicity, Object.values(PATHOGENICITY));
+  return importStatusCheck(pathogenicity, Object.values(PATHOGENICITY));
 };
 
 export const geneCheck = async (
@@ -288,10 +288,12 @@ export const saveMutation = async (
     exact: true,
   });
 
+  let mutIsVus = false;
+
   // Delete existing VUS before importing
   for (const mut of existingMuts) {
     if (mut.inVusList) {
-      await firebaseGeneService.firebaseRepository.delete(`${getFirebaseVusPath(isGermline, hugoSymbol)}/${mut.duplicate}`);
+      mutIsVus = true;
     } else {
       // if alteration exists in the Mutation list, we return and give error
       return {
@@ -303,7 +305,7 @@ export const saveMutation = async (
 
   try {
     await firebaseGeneService
-      .addMutation(`${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`, mutation, isGermline, false, dataRow.data.description)
+      .addMutation(`${getFirebaseGenePath(isGermline, hugoSymbol)}/mutations`, mutation, isGermline, mutIsVus, dataRow.data.description)
       .then(async () => {
         if (mutationImpactStatusUpdated) {
           let uuid: string;
@@ -313,7 +315,7 @@ export const saveMutation = async (
             uuid = mutation.mutation_effect.oncogenic_uuid;
           }
           // I can't use updateReviewableContent here due to lacking of the firebase path
-          await firebaseMetaService.updateGeneReviewUuid(hugoSymbol, uuid, true, isGermline);
+          await firebaseMetaService.updateMeta(hugoSymbol, uuid, true, isGermline);
         }
       });
     return {

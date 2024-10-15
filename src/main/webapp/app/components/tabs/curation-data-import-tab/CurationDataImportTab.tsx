@@ -78,7 +78,7 @@ export class DataImportStatus {
 const getSelectOption = (dataImportType: DataImportType): DataImportTypeSelectOption => {
   return {
     value: dataImportType,
-    label: dataImportTypesLabel[dataImportType],
+    label: DATA_IMPORT_TYPES_LABEL[dataImportType],
   };
 };
 const getSelectOptions = (isGermline: boolean): OptionsOrGroups<DataImportTypeSelectOption, GroupBase<DataImportTypeSelectOption>> => {
@@ -106,7 +106,7 @@ const getSelectOptions = (isGermline: boolean): OptionsOrGroups<DataImportTypeSe
     ];
   }
 };
-const dataImportTypesLabel: { [key in DataImportType]: string } = {
+const DATA_IMPORT_TYPES_LABEL: { [key in DataImportType]: string } = {
   [DataImportType.GENE_GENOMIC_INDICATOR]: 'Genomic Indicator',
   [DataImportType.GENE_SUMMARY]: 'Summary',
   [DataImportType.GENE_BACKGROUND]: 'Background',
@@ -287,7 +287,7 @@ const CurationDataImportTab = observer(
       setFileRows([]);
 
       if (fileUploadInputRef.current) {
-        fileUploadInputRef.current.value = null as unknown as string;
+        fileUploadInputRef.current.value = '';
       }
     };
 
