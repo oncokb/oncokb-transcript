@@ -233,6 +233,10 @@ export const saveMutation = async (
   try {
     const annotatedAlterations = await flowResult(flow(alterationStore.annotateAlterations)(request));
     const annotatedAlteration: Alteration = annotatedAlterations[0].entity;
+    let proteinChange = annotatedAlteration.proteinChange;
+    if (dataRow.data.protein_change) {
+      proteinChange = dataRow.data.protein_change.replace('p.', '').trim();
+    }
     mutation.alterations = [
       {
         type: annotatedAlteration.type ?? AlterationTypeEnum.Unknown,
@@ -242,7 +246,7 @@ export const saveMutation = async (
         comment: '',
         excluding: [],
         genes: annotatedAlteration.genes || [],
-        proteinChange: dataRow.data.protein_change ?? annotatedAlteration.proteinChange,
+        proteinChange,
         proteinStart: annotatedAlteration.start,
         proteinEnd: annotatedAlteration.end,
         refResidues: annotatedAlteration.refResidues || '',
