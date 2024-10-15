@@ -296,8 +296,15 @@ public class MainService {
                         continue;
                     }
                     Integer exonNumber = Integer.parseInt(exonAlterationString.replaceAll("\\D*", ""));
-                    if (exonNumber > 0 && exonNumber < proteinExons.size() + 1) {
-                        overlap.add(proteinExons.get(exonNumber - 1));
+
+                    Integer minExon = proteinExons
+                        .stream()
+                        .min(Comparator.comparing(ProteinExonDTO::getExon))
+                        .map(ProteinExonDTO::getExon)
+                        .orElse(0);
+
+                    if (exonNumber >= minExon && exonNumber < minExon + proteinExons.size() + 1) {
+                        overlap.add(proteinExons.get(exonNumber - minExon));
                     } else {
                         problematicExonAlts.add(exonAlterationString);
                     }

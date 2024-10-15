@@ -76,27 +76,6 @@ const AlterationCategoryInputs = ({
     }
   };
 
-  const reactSelectStyles = {
-    container: (provided, state) => ({
-      ...provided,
-      padding: 0,
-      height: 'fit-content',
-    }),
-    control: (provided, state) => ({
-      ...provided,
-      minHeight: 'fit-content',
-      height: 'fit-content',
-    }),
-    indicatorsContainer: (provided, state) => ({
-      ...provided,
-      height: '29px',
-    }),
-    input: (provided, state) => ({
-      ...provided,
-      height: '21px',
-    }),
-  };
-
   return (
     <>
       <Row>
@@ -107,7 +86,6 @@ const AlterationCategoryInputs = ({
             </Col>
             <Col className="px-0">
               <CreatableSelect
-                styles={reactSelectStyles}
                 inputId="add-mutation-modal-flag-input"
                 isMulti
                 options={flagDropdownOptions}

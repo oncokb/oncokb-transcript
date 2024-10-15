@@ -19,7 +19,7 @@ import { AlterationAnnotationStatus, AlterationTypeEnum, ProteinExonDTO } from '
 import { IQueryParams } from './jhipster-types';
 import InfoIcon from '../icons/InfoIcon';
 import { IFlag } from '../model/flag.model';
-import { AlterationData } from '../modal/NewAddMutationModal';
+import { AlterationData } from '../modal/AddMutationModal';
 
 export const getCancerTypeName = (cancerType: ICancerType | CancerType, omitCode = false): string => {
   if (!cancerType) return '';

@@ -4,7 +4,7 @@ import { flow } from 'mobx';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { ReferenceGenome } from 'app/shared/model/enumerations/reference-genome.model';
 import { ProteinExonDTO } from 'app/shared/api/generated/curation';
-import { Col, Row } from 'reactstrap';
+import { Button, Col, Row } from 'reactstrap';
 import { components, OptionProps } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import _ from 'lodash';
@@ -15,6 +15,9 @@ import { EXON_ALTERATION_REGEX } from 'app/config/constants/regex';
 import LoadingIndicator from 'app/oncokb-commons/components/loadingIndicator/LoadingIndicator';
 import classNames from 'classnames';
 import InfoIcon from 'app/shared/icons/InfoIcon';
+import { FaArrowLeft, FaStar } from 'react-icons/fa';
+import { faArrowLeft, faCross, faX } from '@fortawesome/free-solid-svg-icons';
+import ActionIcon from 'app/shared/icons/ActionIcon';
 
 export interface IAddExonMutationModalBody extends StoreProps {
   hugoSymbol: string;
@@ -41,6 +44,7 @@ const AddExonForm = ({
   const [proteinExons, setProteinExons] = useState<ProteinExonDTO[]>([]);
 
   const [isPendingAddAlteration, setIsPendingAddAlteration] = useState(false);
+  const [didRemoveProblematicAlt, setDidRemoveProblematicAlt] = useState(false);
 
   const exonOptions = useMemo(() => {
     const options: ProteinExonDropdownOption[] = EXON_CONSEQUENCES.flatMap(consequence => {
@@ -58,7 +62,7 @@ const AddExonForm = ({
     return exonAltStrings.reduce((acc, exonString) => {
       const match = exonString.match(EXON_ALTERATION_REGEX);
       if (match) {
-        if (match[1].trim() === 'Any') {
+        if (match[1]?.trim() === 'Any') {
           acc.push({ label: exonString, value: exonString, isSelected: true });
           return acc;
         }
@@ -69,15 +73,18 @@ const AddExonForm = ({
         for (let exonNum = startExon; exonNum <= endExon; exonNum++) {
           const targetOption = exonOptions.find(option => option.label === `Exon ${exonNum} ${consequence}`);
           if (!targetOption) {
-            notifyError(`Error parsing alteration: ${defaultExonAlterationName}`);
-            return acc;
+            notifyError(`Removed exon that does not exist: ${defaultExonAlterationName}`);
+            setDidRemoveProblematicAlt(true);
+          } else {
+            acc.push({ ...targetOption, isSelected: true });
           }
-          acc.push(targetOption);
         }
       }
       return acc;
     }, [] as ProteinExonDropdownOption[]);
   }, [defaultExonAlterationName, exonOptions]);
+
+  const isUpdate = defaultSelectedExons.length > 0 || didRemoveProblematicAlt;
 
   useEffect(() => {
     setSelectedExons(defaultSelectedExons ?? []);
@@ -110,7 +117,7 @@ const AddExonForm = ({
     const parsedAlterations = parseAlterationName(finalExonName);
     try {
       setIsPendingAddAlteration(true);
-      await updateAlterationStateAfterAlterationAdded?.(parsedAlterations, (defaultSelectedExons ?? []).length > 0);
+      await updateAlterationStateAfterAlterationAdded?.(parsedAlterations, isUpdate);
     } finally {
       setIsPendingAddAlteration(false);
     }
@@ -123,39 +130,49 @@ const AddExonForm = ({
 
   return (
     <>
-      <Row>
+      <Row className="mb-2">
         <Col>
-          <div className="h5">{(defaultSelectedExons?.length ?? 0) > 0 ? 'Modify Selected Exons' : 'Selected Exons'}</div>
+          <div className="h5">{isUpdate ? 'Modify Selected Exons' : 'Selected Exons'}</div>
+        </Col>
+        <Col className="text-end">
+          <ActionIcon icon={faX} onClick={() => setShowModifyExonForm?.(false)} tooltipProps={{ overlay: 'Cancel' }} />
         </Col>
       </Row>
       <Row className="d-flex align-items-center mb-3">
-        <Col className={classNames(defaultSelectedExons.length > 0 ? 'col-9' : 'col-10')}>
-          <CreatableSelect
-            inputValue={inputValue}
-            onInputChange={newValue => setInputValue(newValue)}
-            options={exonOptions}
-            value={selectedExons}
-            onChange={newOptions => setSelectedExons(newOptions.map(option => ({ ...option, isSelected: true })))}
-            components={{
-              Option: MultiSelectOption,
-              NoOptionsMessage,
-            }}
-            isMulti
-            closeMenuOnSelect={false}
-            hideSelectedOptions={false}
-            isClearable
-            isValidNewOption={createInputValue => {
-              return EXON_ALTERATION_REGEX.test(createInputValue);
-            }}
-            onCreateOption={onCreateOption}
-          />
+        <Col className={classNames(isUpdate ? 'col-9' : 'col-10', 'pe-0')}>
+          <Row>
+            <Col className="col-11">
+              <CreatableSelect
+                inputValue={inputValue}
+                onInputChange={newValue => setInputValue(newValue)}
+                options={exonOptions}
+                value={selectedExons}
+                onChange={newOptions => setSelectedExons(newOptions.map(option => ({ ...option, isSelected: true })))}
+                components={{
+                  Option: MultiSelectOption,
+                  NoOptionsMessage,
+                }}
+                isMulti
+                closeMenuOnSelect={false}
+                hideSelectedOptions={false}
+                isClearable
+                isValidNewOption={createInputValue => {
+                  return EXON_ALTERATION_REGEX.test(createInputValue);
+                }}
+                onCreateOption={onCreateOption}
+              />
+            </Col>
+            <Col className="col-1 d-flex align-items-center p-0">
+              <InfoIcon overlay={EXON_CREATE_INFO} />
+            </Col>
+          </Row>
         </Col>
         <Col className="text-end">
           <AsyncSaveButton
             isSavePending={isPendingAddAlteration}
             onClick={handleAlterationAdded}
-            confirmText={defaultSelectedExons.length > 0 ? 'Update' : 'Add'}
-            disabled={isPendingAddAlteration || selectedExons.length === 0}
+            confirmText={isUpdate ? 'Update' : 'Add'}
+            disabled={isPendingAddAlteration || selectedExons.length === 0 || _.isEqual(defaultSelectedExons, selectedExons)}
           />
         </Col>
       </Row>
@@ -170,35 +187,41 @@ const AddExonForm = ({
   );
 };
 
+const EXON_CREATE_INFO = (
+  <>
+    <div>You can create a new option that adheres to one of the formats:</div>
+    <div>
+      <ul>
+        <li className="text-primary">
+          {'Any Exon start-end (Deletion|Insertion|Duplication)'}
+          <InfoIcon
+            className="ms-1"
+            overlay={
+              'This format refers to any combination of Exons between the range [start, end]. As long as one or more of the specified Exons are present, then the annotation will be pulled.'
+            }
+          />
+        </li>
+        <li className="text-primary">
+          {'Exon start-end (Deletion|Insertion|Duplication)'}
+          <InfoIcon
+            className="ms-1"
+            overlay={
+              'This format refers to Exons in the range [start, end]. For instance "Exon 2-4 Deletion" is equivalent to "Exon 2 Deletion + Exon 3 Deletion + Exon 4 Deletion"'
+            }
+          />
+        </li>
+      </ul>
+    </div>
+  </>
+);
+
 const NoOptionsMessage = props => {
   return (
     <components.NoOptionsMessage {...props}>
       <div style={{ textAlign: 'left' }}>
         <div>No options matching text</div>
         <br></br>
-        <div>You can also create a new option that adheres to one of the formats:</div>
-        <div>
-          <ul>
-            <li className="text-primary">
-              {'Any Exon start-end (Deletion|Insertion|Duplication)'}
-              <InfoIcon
-                className="ms-1"
-                overlay={
-                  'This format refers to any combination of Exons between the range [start, end]. As long as one or more of the specified Exons are present, then the annotation will be pulled.'
-                }
-              />
-            </li>
-            <li className="text-primary">
-              {'Exon start-end (Deletion|Insertion|Duplication)'}
-              <InfoIcon
-                className="ms-1"
-                overlay={
-                  'This format refers to Exons in the range [start, end]. For instance "Exon 2-4 Deletion" is equivalent to "Exon 2 Deletion + Exon 3 Deletion + Exon 4 Deletion"'
-                }
-              />
-            </li>
-          </ul>
-        </div>
+        {EXON_CREATE_INFO}
       </div>
     </components.NoOptionsMessage>
   );

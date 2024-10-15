@@ -1,6 +1,5 @@
 import { Mutation, VusObjList } from 'app/shared/model/firebase/firebase.model';
 import { action, computed, flow, flowResult, makeObservable, observable } from 'mobx';
-import { AlterationData } from '../AddMutationModal';
 import { convertEntityStatusAlterationToAlterationData, getFullAlterationName, hasValue, parseAlterationName } from 'app/shared/util/utils';
 import _ from 'lodash';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
@@ -9,6 +8,7 @@ import { REFERENCE_GENOME } from 'app/config/constants/constants';
 import AlterationStore from 'app/entities/alteration/alteration.store';
 import { IGene } from 'app/shared/model/gene.model';
 import { IFlag } from 'app/shared/model/flag.model';
+import { AlterationData } from '../AddMutationModal';
 
 type SelectedFlag = IFlag | Omit<IFlag, 'id'>;
 
@@ -140,7 +140,9 @@ export class AddMutationModalStore {
     );
 
     if (isUpdate) {
-      this.alterationStates[this.selectedAlterationStateIndex] = newAlterations[0];
+      const newAlterationStates = _.cloneDeep(this.alterationStates);
+      newAlterationStates[this.selectedAlterationStateIndex] = newAlterations[0];
+      this.alterationStates = newAlterationStates;
     } else {
       this.alterationStates = this.alterationStates.concat(newAlterations);
     }

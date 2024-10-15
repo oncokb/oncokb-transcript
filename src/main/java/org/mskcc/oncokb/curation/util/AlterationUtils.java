@@ -106,7 +106,11 @@ public class AlterationUtils {
         Set<String> consequenceTermSet = new HashSet<>();
 
         while (matcher.find()) {
-            Boolean isAnyExon = "Any".equals(matcher.group(1).trim()); // We use "Any" to denote all possible combinations of exons
+            Boolean isAnyExon = false;
+            if (matcher.group(1) != null) {
+                // We use "Any" to denote all possible combinations of exons
+                isAnyExon = "Any".equals(matcher.group(1).trim());
+            }
             String startExonStr = matcher.group(2); // The start exon number
             String endExonStr = matcher.group(4); // The end exon number (if present)
             String consequenceTerm = matcher.group(5); // consequence term
@@ -554,6 +558,9 @@ public class AlterationUtils {
         Pattern p = Pattern.compile(EXON_ALT_REGEX, Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(alteration);
         if (m.find()) {
+            if (m.group(1) == null) {
+                return false;
+            }
             return "Any".equals(m.group(1).trim());
         }
         return false;

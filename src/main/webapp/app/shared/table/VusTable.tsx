@@ -32,7 +32,7 @@ import AddVusModal from '../modal/AddVusModal';
 import MutationConvertIcon from '../icons/MutationConvertIcon';
 import { Unsubscribe } from 'firebase/database';
 import { VUS_TABLE_ID } from 'app/config/constants/html-id';
-import NewAddMutationModal from '../modal/NewAddMutationModal';
+import AddMutationModal from '../modal/AddMutationModal';
 
 export interface IVusTableProps extends StoreProps {
   hugoSymbol: string | undefined;
@@ -261,7 +261,7 @@ const VusTable = ({
         />
       ) : undefined}
       {vusToPromote ? (
-        <NewAddMutationModal
+        <AddMutationModal
           hugoSymbol={hugoSymbol}
           isGermline={isGermline}
           onConfirm={async (newMutation, newMutationFirebaseIndex) => {

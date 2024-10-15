@@ -4,7 +4,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import * as styles from './styles.module.scss';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { AlterationData } from '../NewAddMutationModal';
+import { AlterationData } from '../AddMutationModal';
 import { getFullAlterationName } from 'app/shared/util/utils';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';

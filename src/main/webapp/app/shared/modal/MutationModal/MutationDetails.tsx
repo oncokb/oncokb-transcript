@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { AlterationData } from '../NewAddMutationModal';
+import { AlterationData } from '../AddMutationModal';
 import { AlterationTypeEnum } from 'app/shared/api/generated/curation';
 import AddMutationModalField from './AddMutationModalField';
 import AddMutationModalDropdown, { DropdownOption } from './AddMutationModalDropdown';
@@ -234,7 +234,6 @@ const MutationDetails = ({
         onChange={newValue => handleFieldChange(newValue?.value, 'type')}
       />
       <AddMutationModalField
-        type={'textarea'}
         label="Alteration"
         value={
           !_.isNil(alterationData.alterationFieldValueWhileFetching)

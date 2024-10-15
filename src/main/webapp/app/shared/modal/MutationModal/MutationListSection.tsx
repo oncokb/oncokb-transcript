@@ -36,6 +36,7 @@ const MutationListSection = ({
           <div className="ms-2">
             <DefaultTooltip
               destroyTooltipOnHide
+              mouseLeaveDelay={0.5}
               overlayInnerStyle={{ minWidth: '400px' }}
               overlay={
                 <Input
@@ -54,7 +55,7 @@ const MutationListSection = ({
           </div>
         )}
       </div>
-      <div className="px-2 py-2">
+      <div className="py-2">
         {showAlterationCategoryDropdown && <AlterationCategoryInputs />}
         <AlterationBadgeList />
         <div className="text-muted mt-1">Name preview: {finalMutationName}</div>

@@ -24,7 +24,7 @@ import MutationName from './MutationName';
 import { extractPositionFromSingleNucleotideAlteration } from 'app/shared/util/utils';
 import { MUTATION_LIST_ID, SINGLE_MUTATION_VIEW_ID } from 'app/config/constants/html-id';
 import { FlagTypeEnum } from 'app/shared/model/enumerations/flag-type.enum.model';
-import NewAddMutationModal from 'app/shared/modal/NewAddMutationModal';
+import AddMutationModal from 'app/shared/modal/AddMutationModal';
 
 export interface IMutationsSectionProps extends StoreProps {
   mutationsPath: string;
@@ -224,7 +224,7 @@ function MutationsSection({
         {getMutationCollapsibles()}
       </div>
       {showAddMutationModal && (
-        <NewAddMutationModal
+        <AddMutationModal
           hugoSymbol={hugoSymbol}
           isGermline={isGermline}
           onConfirm={async (newMutation, newMutationIndex) => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlterationData } from '../NewAddMutationModal';
+import { AlterationData } from '../AddMutationModal';
 import { IRootStore } from 'app/stores';
 import { componentInject } from 'app/shared/util/typed-inject';
 import { Alert, Button } from 'reactstrap';
