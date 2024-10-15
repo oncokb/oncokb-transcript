@@ -16,6 +16,7 @@ export const DATA_IMPORT_FILE_UPLOAD_INPUT_ID = 'data-import-file-upload-input';
 export const DATA_IMPORT_DATA_TABLE_ID = 'data-import-data-table';
 export const DATA_IMPORT_IMPORT_BUTTON_ID = 'data-import-import-button';
 
+export const REACT_TABLE_TR_GROUP_CLASS = 'rt-tr-group';
 export const GENE_HEADER_REVIEW_BUTTON_ID = 'review-button';
 export const GENE_HEADER_REVIEW_COMPLETE_BUTTON_ID = 'review-complete-button';
 

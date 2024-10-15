@@ -361,12 +361,13 @@ export const getDuplicateMutations = (
   const duplicates: DuplicateMutationInfo[] = [];
   if (options.exact) {
     const currentMutationsName = currentMutations.join(', ');
+    const lowerCaseCurrentMutations = currentMutations.map(mut => mut.toLowerCase());
 
-    if (mutationNames.some(mutation => _.isEqual(mutation, currentMutations))) {
+    if (mutationNames.some(mutation => _.isEqual(mutation, lowerCaseCurrentMutations))) {
       addDuplicateMutationInfo(duplicates, currentMutationsName, 'mutation');
     }
 
-    if (vusNames.some(vus => _.isEqual(vus, currentMutations))) {
+    if (vusNames.some(vus => _.isEqual(vus, lowerCaseCurrentMutations))) {
       addDuplicateMutationInfo(duplicates, currentMutationsName, 'vus');
     }
   } else {

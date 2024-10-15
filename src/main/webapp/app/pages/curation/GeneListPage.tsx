@@ -20,7 +20,7 @@ import SomaticGermlineToggleButton from './button/SomaticGermlineToggleButton';
 const getCurationPageLink = (hugoSymbol: string, isGermline: boolean) => {
   return generatePath(isGermline ? PAGE_ROUTE.CURATION_GENE_GERMLINE : PAGE_ROUTE.CURATION_GENE_SOMATIC, { hugoSymbol });
 };
-import CurationDataImportTab from 'app/components/tabs/CurationDataImportTab';
+import CurationDataImportTab from 'app/components/tabs/curation-data-import-tab/CurationDataImportTab';
 import { DATA_IMPORT_TAB_ID, GENE_LIST_TABLE_ID } from 'app/config/constants/html-id';
 
 type GeneMetaInfo = {

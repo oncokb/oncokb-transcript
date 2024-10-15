@@ -1,4 +1,3 @@
-import { SentryError } from 'app/config/sentry-error';
 import { ParsedRef } from 'app/oncokb-commons/components/RefComponent';
 import { notifyError } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { Gene, Mutation } from 'app/shared/model/firebase/firebase.model';
