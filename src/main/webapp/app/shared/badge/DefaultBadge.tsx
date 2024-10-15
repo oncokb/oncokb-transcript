@@ -8,13 +8,18 @@ export interface IDefaultBadgeProps {
   tooltipOverlay?: (() => React.ReactNode) | React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  isRoundedPill?: boolean;
+  onDeleteCallback?: () => void;
 }
 
 const DefaultBadge: React.FunctionComponent<IDefaultBadgeProps> = props => {
-  const { className, style, color, text, tooltipOverlay } = props;
+  const { className, style, color, text, tooltipOverlay, isRoundedPill = true } = props;
+
+  const badgeClassNames = ['badge', 'mx-1', `text-bg-${color}`];
+  if (isRoundedPill) badgeClassNames.push('rounded-pill');
 
   const badge = (
-    <span className={classNames(`badge rounded-pill text-bg-${color} mx-1`, className)} style={{ fontSize: '0.8rem', ...style }}>
+    <span className={classNames(badgeClassNames.join(' '), className)} style={{ fontSize: '0.8rem', ...style }}>
       {text}
     </span>
   );
@@ -27,11 +32,7 @@ const DefaultBadge: React.FunctionComponent<IDefaultBadgeProps> = props => {
     );
   }
 
-  return (
-    <span className={classNames(`badge rounded-pill text-bg-${color} mx-1`, className)} style={{ fontSize: '0.8rem', ...style }}>
-      {text}
-    </span>
-  );
+  return badge;
 };
 
 export default DefaultBadge;

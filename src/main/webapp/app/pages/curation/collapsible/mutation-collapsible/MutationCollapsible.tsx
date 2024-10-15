@@ -16,7 +16,6 @@ import CommentIcon from 'app/shared/icons/CommentIcon';
 import EditIcon from 'app/shared/icons/EditIcon';
 import HotspotIcon from 'app/shared/icons/HotspotIcon';
 import MutationConvertIcon from 'app/shared/icons/MutationConvertIcon';
-import AddMutationModal from 'app/shared/modal/AddMutationModal';
 import AddVusModal from 'app/shared/modal/AddVusModal';
 import ModifyCancerTypeModal from 'app/shared/modal/ModifyCancerTypeModal';
 import { Alteration, Review, AlterationCategories } from 'app/shared/model/firebase/firebase.model';
@@ -50,6 +49,7 @@ import { RemovableCollapsible } from '../RemovableCollapsible';
 import { Unsubscribe } from 'firebase/database';
 import { getLocationIdentifier } from 'app/components/geneHistoryTooltip/gene-history-tooltip-utils';
 import MutationCollapsibleTitle from './MutationCollapsibleTitle';
+import AddMutationModal from 'app/shared/modal/AddMutationModal';
 
 export interface IMutationCollapsibleProps extends StoreProps {
   mutationPath: string;
