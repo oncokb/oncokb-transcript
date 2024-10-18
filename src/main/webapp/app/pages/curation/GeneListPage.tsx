@@ -95,7 +95,7 @@ const GeneListPage = (props: IGeneListPage) => {
     const tabs = [
       {
         title: 'Tools',
-        content: <GeneListPageToolsTab metaData={props.metaData} />,
+        content: <GeneListPageToolsTab metaData={props.metaData} isGermline={isGermline} />,
       },
     ] as Tab[];
     if (!isGermline) {

@@ -4,6 +4,7 @@ import { ToastOptions } from 'react-toastify';
 
 export const AUTHORITIES = {
   ADMIN: 'ROLE_ADMIN',
+  DEV: 'ROLE_DEV',
   USER: 'ROLE_USER',
   CURATOR: 'ROLE_CURATOR',
 };
@@ -336,6 +337,7 @@ export enum SearchOptionType {
 export enum USER_AUTHORITY {
   ROLE_USER = 'ROLE_USER',
   ROLE_ADMIN = 'ROLE_ADMIN',
+  ROLE_DEV = 'ROLE_DEV',
   ROLE_CURATOR = 'ROLE_CURATOR',
 }
 

@@ -1,16 +1,18 @@
+import { EvidenceApi } from 'app/shared/api/manual/evidence-api';
 import { Vus } from 'app/shared/model/firebase/firebase.model';
 import { getUserFullName } from 'app/shared/util/utils';
 import { AuthStore } from 'app/stores';
 import { FirebaseRepository } from 'app/stores/firebase/firebase-repository';
-import { push } from 'firebase/database';
 import _ from 'lodash';
 
 export class FirebaseVusService {
   firebaseRepository: FirebaseRepository;
+  evidenceClient: EvidenceApi;
   authStore: AuthStore;
 
-  constructor(firebaseRepository: FirebaseRepository, authStore: AuthStore) {
+  constructor(firebaseRepository: FirebaseRepository, evidenceClient: EvidenceApi, authStore: AuthStore) {
     this.firebaseRepository = firebaseRepository;
+    this.evidenceClient = evidenceClient;
     this.authStore = authStore;
   }
 
@@ -45,4 +47,8 @@ export class FirebaseVusService {
   deleteVus = async (path: string) => {
     await this.firebaseRepository.delete(path);
   };
+
+  async sendVusToCore(hugoSymbol: string, vus: Vus[]) {
+    await this.evidenceClient.updateVus(hugoSymbol, vus);
+  }
 }
