@@ -339,6 +339,11 @@ export enum USER_AUTHORITY {
   ROLE_CURATOR = 'ROLE_CURATOR',
 }
 
+export enum RULE_ENTITY {
+  DRUG = 'DRUG',
+  CANCER_TYPE = 'CANCER_TYPE',
+}
+
 export const DEFAULT_SORT_PARAMETER = 'id,ASC';
 
 export const DEFAULT_SORT_DIRECTION = 'ASC';
