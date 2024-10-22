@@ -60,11 +60,18 @@ export const FdaSubmissionUpdate = (props: IFdaSubmissionUpdateProps) => {
     }
   };
 
-  const defaultCompanionDiagnosticDevice = {
-    label: fdaSubmissionEntity?.companionDiagnosticDevice?.name,
-    value: fdaSubmissionEntity?.companionDiagnosticDevice?.id,
-  };
-  const defaultType = { label: fdaSubmissionEntity?.type?.shortName, value: fdaSubmissionEntity?.type?.id };
+  const defaultCompanionDiagnosticDevice = fdaSubmissionEntity?.companionDiagnosticDevice?.id
+    ? {
+        label: fdaSubmissionEntity.companionDiagnosticDevice.name,
+        value: fdaSubmissionEntity.companionDiagnosticDevice.id,
+      }
+    : undefined;
+  const defaultType = fdaSubmissionEntity?.type?.id
+    ? {
+        label: fdaSubmissionEntity.type.shortName,
+        value: fdaSubmissionEntity.type.id,
+      }
+    : undefined;
 
   const defaultValues = () =>
     isNew
