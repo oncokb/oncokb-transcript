@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Menu } from 'react-pro-sidebar';
 import { Button, Container, Form } from 'reactstrap';
-import { ENTITY_ACTION, ENTITY_TYPE, SearchOptionType } from 'app/config/constants/constants';
+import { ENTITY_ACTION, ENTITY_TYPE, RULE_ENTITY, SearchOptionType } from 'app/config/constants/constants';
 import { useHistory, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
@@ -13,7 +13,7 @@ import AlterationSelect, { AlterationSelectOption } from 'app/shared/select/Alte
 import DrugSelect, { DrugSelectOption } from 'app/shared/select/DrugSelect';
 import FdaSubmissionSelect, { FdaSubmissionSelectOption } from 'app/shared/select/FdaSubmissionSelect';
 import { getEntityActionRoute } from 'app/shared/util/RouteUtils';
-import { Alteration, Association, CancerType, Drug, FdaSubmission } from 'app/shared/api/generated/curation';
+import { Alteration, Association, CancerType, Drug, FdaSubmission, Rule } from 'app/shared/api/generated/curation';
 import { associationClient } from 'app/shared/api/clients';
 import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { IRootStore } from 'app/stores';
@@ -82,6 +82,14 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
         };
       }),
     };
+
+    if (association.drugs) {
+      const rule: Rule = {
+        entity: RULE_ENTITY.DRUG,
+        rule: association.drugs.map(drug => drug.id).join('+'),
+      };
+      association.rules = [rule];
+    }
 
     if (cancerTypeValue) {
       association.cancerTypes = [{ id: cancerTypeValue.value } as CancerType];
