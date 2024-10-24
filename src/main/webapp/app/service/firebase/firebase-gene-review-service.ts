@@ -292,7 +292,17 @@ export class FirebaseGeneReviewService {
     return this.processDeletion(reviewLevels.length, itemsToDelete);
   };
 
-  rejectChanges = async (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) => {
+  rejectChanges = async (
+    hugoSymbol: string,
+    reviewLevels: ReviewLevel[],
+    isGermline: boolean,
+  ): Promise<
+    | {
+        shouldRefresh: boolean;
+      }
+    | undefined
+    | void
+  > => {
     const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
     const firebaseVusPath = getFirebaseVusPath(isGermline, hugoSymbol);
 
