@@ -10,7 +10,7 @@
     "removeComments": false,
     "suppressImplicitAnyIndexErrors": true,
     "outDir": "target/classes/static/app",
-    "lib": ["dom", "es2015", "es2016", "es2017", "es2018"],
+    "lib": ["dom", "es2015", "es2016", "es2017", "es2018", "ES2021.String"],
     "types": ["jest", "webpack-env"],
     "allowJs": true,
     "checkJs": false,

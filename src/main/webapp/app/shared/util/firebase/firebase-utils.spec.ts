@@ -33,6 +33,7 @@ import {
 } from 'app/shared/model/firebase/firebase.model';
 import { generateUuid } from '../utils';
 import { IDrug } from 'app/shared/model/drug.model';
+import { MUTATION_EFFECT } from 'app/config/constants/constants';
 
 describe('FirebaseUtils', () => {
   describe('getValueByNestedKey', () => {
@@ -609,14 +610,14 @@ describe('FirebaseUtils', () => {
       it('should get the mutation stats', () => {
         const mutation = new Mutation('');
         mutation.mutation_effect.oncogenic = FIREBASE_ONCOGENICITY.LIKELY;
-        mutation.mutation_effect.effect = 'effect';
+        mutation.mutation_effect.effect = MUTATION_EFFECT.NEUTRAL;
 
         mutation.tumors = [tumor1, tumor2];
 
         const expected = {
           TT: 2,
           oncogenicity: FIREBASE_ONCOGENICITY.LIKELY,
-          mutationEffect: 'effect',
+          mutationEffect: MUTATION_EFFECT.NEUTRAL,
           TTS: 1,
           DxS: 1,
           PxS: 2,

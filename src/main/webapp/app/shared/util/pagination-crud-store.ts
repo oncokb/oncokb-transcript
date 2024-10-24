@@ -50,7 +50,7 @@ export class PaginationCrudStore<T extends object> extends BaseCrudStore<T> {
     return result;
   }
 
-  *getSearch({ query, exact, page, size, sort }: ISearchParams) {
+  *getSearch({ query, exact, page, size, sort, noState }: ISearchParams) {
     let url = `${this.apiUrl}/search?query=${query}${page ? `&page=${page}` : ''}${size ? `&size=${size}` : ''}${
       sort ? parseSort(sort) : ''
     }`;
@@ -58,8 +58,10 @@ export class PaginationCrudStore<T extends object> extends BaseCrudStore<T> {
       url = `${url}&exact=${exact}`;
     }
     const result = yield axios.get<T[]>(url);
-    this.entities = result.data;
-    this.totalItems = result.data.length;
+    if (!noState) {
+      this.entities = result.data;
+      this.totalItems = result.data.length;
+    }
     return result;
   }
 }

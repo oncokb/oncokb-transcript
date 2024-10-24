@@ -401,7 +401,7 @@ export const isIgnoredKey = (key: string) => {
 };
 
 export const findReviewRecursive = (
-  currObj: any,
+  currObj: Gene | GenomicIndicator | Mutation | Tumor | Treatment,
   currValuePath: string,
   uuids: string[],
   parentReview: BaseReviewLevel,

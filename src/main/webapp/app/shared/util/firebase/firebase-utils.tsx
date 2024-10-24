@@ -1,5 +1,5 @@
 import { APP_EXPANDED_DATETIME_FORMAT, CURRENT_REVIEWER } from 'app/config/constants/constants';
-import { FB_COLLECTION_PATH } from 'app/config/constants/firebase';
+import { FB_COLLECTION, FB_COLLECTION_PATH } from 'app/config/constants/firebase';
 import { NestLevelType, RemovableNestLevel } from 'app/pages/curation/collapsible/NestLevel';
 import { IDrug } from 'app/shared/model/drug.model';
 import { CategoricalAlterationType } from 'app/shared/model/enumerations/categorical-alteration-type.model';
@@ -16,9 +16,9 @@ import {
   PX_LEVELS,
   Review,
   TI,
-  TX_LEVELS,
   Treatment,
   Tumor,
+  TX_LEVELS,
   VusObjList,
 } from 'app/shared/model/firebase/firebase.model';
 import _ from 'lodash';
@@ -125,8 +125,13 @@ export const getFirebasePath = (type: keyof typeof FB_COLLECTION_PATH, ...params
   return replaceUrlParams(FB_COLLECTION_PATH[type], ...params);
 };
 
-export const getFirebaseGenePath = (isGermline: boolean | undefined, hugoSymbol: string | undefined) => {
-  return getFirebasePath(isGermline ? 'GERMLINE_GENE' : 'GENE', hugoSymbol);
+export const getFirebaseGenePath = (isGermline: boolean | undefined, hugoSymbol?: string) => {
+  if (hugoSymbol !== undefined) {
+    const basePath = isGermline ? 'GERMLINE_GENE' : 'GENE';
+    return getFirebasePath(basePath, hugoSymbol);
+  } else {
+    return isGermline ? FB_COLLECTION.GERMLINE_GENES : FB_COLLECTION.GENES;
+  }
 };
 
 export const getFirebaseMetaGenePath = (isGermline: boolean | undefined, hugoSymbol: string | undefined) => {
@@ -137,8 +142,13 @@ export const getFirebaseHistoryPath = (isGermline: boolean | undefined, hugoSymb
   return getFirebasePath(isGermline ? 'GERMLINE_HISTORY' : 'HISTORY', hugoSymbol);
 };
 
-export const getFirebaseVusPath = (isGermline: boolean | undefined, hugoSymbol: string | undefined) => {
-  return getFirebasePath(isGermline ? 'GERMLINE_VUS' : 'VUS', hugoSymbol);
+export const getFirebaseVusPath = (isGermline: boolean | undefined, hugoSymbol?: string) => {
+  if (hugoSymbol !== undefined) {
+    const basePath = isGermline ? 'GERMLINE_VUS' : 'VUS';
+    return getFirebasePath(basePath, hugoSymbol);
+  } else {
+    return isGermline ? FB_COLLECTION.GERMLINE_VUS : FB_COLLECTION.VUS;
+  }
 };
 
 export const getFirebaseMetaGeneReviewPath = (isGermline: boolean | undefined, hugoSymbol: string, uuid: string) => {

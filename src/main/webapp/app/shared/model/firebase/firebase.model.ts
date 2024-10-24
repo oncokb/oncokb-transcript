@@ -1,4 +1,4 @@
-import { GERMLINE_INHERITANCE_MECHANISM, PATHOGENICITY, PENETRANCE } from 'app/config/constants/constants';
+import { GERMLINE_INHERITANCE_MECHANISM, MUTATION_EFFECT, PATHOGENICITY, PENETRANCE } from 'app/config/constants/constants';
 import { ALLELE_STATE, GENE_TYPE, READABLE_FIELD } from 'app/config/constants/firebase';
 import { AlterationTypeEnum, Gene as OncoKBGene } from 'app/shared/api/generated/curation';
 import { generateUuid } from 'app/shared/util/utils';
@@ -97,6 +97,7 @@ export class Treatment {
   description_review?: Review;
   description_uuid: string = generateUuid();
   indication = '';
+  indication_review?: Review;
   indication_uuid: string = generateUuid();
   level: TX_LEVELS = TX_LEVELS.LEVEL_EMPTY;
   level_review?: Review;
@@ -241,7 +242,7 @@ export class MutationEffect {
   description = '';
   description_review?: Review;
   description_uuid: string = generateUuid();
-  effect = '';
+  effect: MUTATION_EFFECT | 'None' | '' = '';
   effect_review?: Review;
   effect_uuid: string = generateUuid();
   oncogenic: FIREBASE_ONCOGENICITY | '' = '';

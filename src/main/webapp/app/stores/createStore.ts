@@ -101,9 +101,11 @@ import { FirebaseRepository } from './firebase/firebase-repository';
 import { OpenMutationCollapsibleStore } from './open-mutation-collapsible.store';
 import { CurationPageStore } from 'app/stores/curation-page.store';
 import CategoricalAlterationStore from 'app/entities/categorical-alteration/categorical-alteration.store';
+import { driveAnnotationClient, evidenceClient, geneTypeClient, geneLegacyApi } from 'app/shared/api/clients';
 import { WindowStore } from './window-store';
 /* jhipster-needle-add-store-import - JHipster will add store here */
 import ManagementStore from 'app/stores/management.store';
+import { GeneApi } from 'app/shared/api/manual/gene-api';
 
 export interface IRootStore {
   readonly loadingStore: LoadingBarStore;
@@ -165,6 +167,9 @@ export interface IRootStore {
   readonly firebaseMetaService: FirebaseMetaService;
   readonly firebaseHistoryService: FirebaseHistoryService;
   readonly firebaseVusService: FirebaseVusService;
+
+  /* oncokb-core clients */
+  readonly geneLegacyApi: GeneApi;
 }
 
 export function createStores(history: History): IRootStore {
@@ -239,21 +244,26 @@ export function createStores(history: History): IRootStore {
   /* Firebase Services */
   const firebaseMetaService = new FirebaseMetaService(firebaseRepository, rootStore.authStore);
   const firebaseHistoryService = new FirebaseHistoryService(firebaseRepository);
-  const firebaseVusService = new FirebaseVusService(firebaseRepository, rootStore.authStore);
+  const firebaseVusService = new FirebaseVusService(firebaseRepository, evidenceClient, rootStore.authStore);
   const firebaseGeneReviewService = new FirebaseGeneReviewService(
     firebaseRepository,
     rootStore.authStore,
     firebaseMetaService,
     firebaseHistoryService,
     firebaseVusService,
+    evidenceClient,
+    geneTypeClient,
   );
   const firebaseGeneService = new FirebaseGeneService(
     firebaseRepository,
     rootStore.authStore,
+    rootStore.geneStore,
+    rootStore.drugStore,
     firebaseMutationListStore,
     firebaseMutationConvertIconStore,
     firebaseMetaService,
     firebaseGeneReviewService,
+    driveAnnotationClient,
   );
 
   rootStore.firebaseMetaService = firebaseMetaService;
@@ -261,6 +271,9 @@ export function createStores(history: History): IRootStore {
   rootStore.firebaseGeneReviewService = firebaseGeneReviewService;
   rootStore.firebaseGeneService = firebaseGeneService;
   rootStore.firebaseVusService = firebaseVusService;
+
+  /* oncokb-core clients */
+  rootStore.geneLegacyApi = geneLegacyApi;
 
   /* jhipster-needle-add-store-init - JHipster will add store here */
   return rootStore;
