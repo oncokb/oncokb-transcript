@@ -17,8 +17,8 @@ import { areCancerTypeArraysEqual, getMutationName, getTxName } from './firebase
 import { FB_COLLECTION, READABLE_FIELD, ReviewAction, ReviewLevelType } from 'app/config/constants/firebase';
 import { IDrug } from 'app/shared/model/drug.model';
 import { makeFirebaseKeysReadable } from './firebase-history-utils';
-import { ICancerType } from 'app/shared/model/cancer-type.model';
-import { TumorForm } from 'app/shared/model/enumerations/tumor-form.model';
+import { ItemsToDeleteMap } from 'app/service/firebase/firebase-gene-review-service';
+import { extractArrayPath, getFirebasePathType } from './firebase-path-utils';
 
 export enum ReviewSectionTitlePrefix {
   CANCER_TYPE = 'Cancer Type',
@@ -960,4 +960,15 @@ export const showAsFirebaseTextArea = (hugoSymbol: string, valuePath: string, is
 
 export const getTumorNameUuid = (cancerTypesUuid: string, excludedCancerTypesUuid: string) => {
   return `${cancerTypesUuid}, ${excludedCancerTypesUuid}`;
+};
+
+export const updateItemsToDeleteMap = (itemsToDelete: ItemsToDeleteMap, reviewLevel: BaseReviewLevel, geneFirebasePath: string) => {
+  const { firebaseArrayPath, deleteIndex } = extractArrayPath(reviewLevel.valuePath);
+  const firebasePath = geneFirebasePath + '/' + firebaseArrayPath;
+  const firebasePathType = getFirebasePathType(firebaseArrayPath + '/' + deleteIndex);
+  if (firebasePathType !== undefined) {
+    const innerMap = itemsToDelete[firebasePathType];
+    innerMap[firebasePath] ? innerMap[firebasePath].push(deleteIndex) : (innerMap[firebasePath] = [deleteIndex]);
+  }
+  return itemsToDelete;
 };

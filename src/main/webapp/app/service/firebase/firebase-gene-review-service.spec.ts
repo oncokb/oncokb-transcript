@@ -322,6 +322,11 @@ describe('Firebase Gene Review Service', () => {
           name: 'V600K',
         },
       });
+
+      // Multi-location updates should happen before deleting from array to ensure that indices are not stale
+      expect(mockFirebaseRepository.update.mock.invocationCallOrder[0]).toBeLessThan(
+        mockFirebaseRepository.deleteFromArray.mock.invocationCallOrder[0],
+      );
     });
     it('should accept newly created entity', async () => {
       const hugoSymbol = 'BRAF';
@@ -707,36 +712,50 @@ describe('Firebase Gene Review Service', () => {
       });
     });
 
-    // With the change to move action buttons to individual collapsibles under a CREATED collapsible,
-    // there is no longer a way to reject it. Once we bring back that feature, we should re-enable this test.
-    // it('should add alterations back to VUS list if promotion to mutation is rejected', async () => {
-    //   const hugoSymbol = 'BRAF';
-    //   const mutationName = 'V600E, V600K';
-    //   const mutation = new Mutation(mutationName);
-    //   mutation.name_review = new Review('User');
-    //   mutation.name_review.promotedToMutation = true;
-    //   const reviewLevel = new ReviewLevel({
-    //     title: 'V600E, V600K',
-    //     valuePath: 'mutations/12/name',
-    //     historyLocation: 'V600E, V600K',
-    //     currentVal: 'V600E, V600K',
-    //     reviewInfo: {
-    //       reviewPath: 'mutations/0/name_review',
-    //       review: mutation.name_review,
-    //       lastReviewedString: undefined,
-    //       uuid: mutation.name_uuid,
-    //       reviewAction: ReviewAction.PROMOTE_VUS,
-    //     },
-    //     historyData: {
-    //       oldState: mutation,
-    //     },
-    //     historyInfo: {},
-    //   });
-    //   await firebaseGeneReviewService.handleCreateAction(hugoSymbol, reviewLevel, false, ActionType.REJECT);
+    it('should add alterations back to VUS list if promotion to mutation is rejected', async () => {
+      const hugoSymbol = 'BRAF';
+      const mutationName = 'V600E, V600K';
+      const mutation = new Mutation(mutationName);
+      mutation.name_review = new Review('User');
+      mutation.name_review.promotedToMutation = true;
+      const reviewLevel = new ReviewLevel({
+        titleParts: ['V600E, V600K'],
+        valuePath: 'mutations/12/name',
+        historyLocation: 'V600E, V600K',
+        currentVal: 'V600E, V600K',
+        reviewInfo: {
+          reviewPath: 'mutations/0/name_review',
+          review: mutation.name_review,
+          lastReviewedString: undefined,
+          uuid: mutation.name_uuid,
+          reviewAction: ReviewAction.PROMOTE_VUS,
+        },
+        historyData: {
+          oldState: mutation,
+        },
+        historyInfo: {},
+      });
+      await firebaseGeneReviewService.rejectChanges(hugoSymbol, [reviewLevel], false);
 
-    //   expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [12]);
-    //   // We expect both alterations (V600E and V600K) to be added back to VUS list
-    //   expect(mockVusService.addVus).toHaveBeenCalledWith('VUS/BRAF', ['V600E', 'V600K']);
-    // });
+      expect(mockFirebaseRepository.deleteFromArray).toHaveBeenCalledWith('Genes/BRAF/mutations', [12]);
+      // We expect both alterations (V600E and V600K) to be added to VUS list
+      expect(mockFirebaseRepository.update.mock.calls[0][0]).toEqual('/');
+      expect(mockFirebaseRepository.update.mock.calls[0][1]).toMatchObject({
+        'Meta/BRAF/lastModifiedAt': DEFAULT_DATETIME_STRING,
+        'Meta/BRAF/lastModifiedBy': mockAuthStore.fullName,
+        [`Meta/BRAF/review/${mutation.name_uuid}`]: null,
+        [`VUS/BRAF/${MOCKED_ARRAY_KEYS[0]}`]: {
+          name: 'V600E',
+        },
+        [`VUS/BRAF/${MOCKED_ARRAY_KEYS[1]}`]: {
+          name: 'V600K',
+        },
+      });
+
+      // Multi-location updates should happen before deleting from array to ensure that indices are not stale
+      expect(mockFirebaseRepository.update.mock.invocationCallOrder[0]).toBeLessThan(
+        mockFirebaseRepository.deleteFromArray.mock.invocationCallOrder[0],
+      );
+    });
   });
 });
