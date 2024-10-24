@@ -50,6 +50,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   const [isAcceptingAll, setIsAcceptingAll] = useState(false);
 
   const [isAccepting, setIsAccepting] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
 
   const fetchFirebaseData = async () => {
     if (!props.firebaseDb) {
@@ -232,9 +233,19 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
                   setIsAccepting(false);
                 }
               }}
-              handleReject={props.rejectReviewChangeHandler}
+              handleReject={async (hugoArg, reviewLevelsArg, isGermlineArg) => {
+                setIsRejecting(true);
+                try {
+                  const returnVal = await props.rejectReviewChangeHandler?.(hugoArg, reviewLevelsArg, isGermlineArg);
+                  if (returnVal?.shouldRefresh) {
+                    await fetchFirebaseData();
+                  }
+                } finally {
+                  setIsRejecting(false);
+                }
+              }}
               handleCreateAction={props.createActionHandler}
-              disableActions={isAcceptingAll || isAccepting}
+              disableActions={isAcceptingAll || isAccepting || isRejecting}
               isRoot={true}
               firebase={{
                 path: getGenePathFromValuePath(hugoSymbol ?? '', rootReview.valuePath, isGermline),
