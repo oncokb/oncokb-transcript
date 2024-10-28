@@ -401,14 +401,16 @@ export class FirebaseGeneReviewService {
 
   processDeletion = async (reviewLevelLength: number, itemsToDelete: ItemsToDeleteMap) => {
     // We are deleting last because the indices will change after deleting from array.
+    // Be VERY careful, this order is important
+    const orderedPathTypesToDelete = [
+      FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST,
+      FIREBASE_LIST_PATH_TYPE.TUMOR_LIST,
+      FIREBASE_LIST_PATH_TYPE.MUTATION_LIST,
+    ];
+
     let hasDeletion = false;
     try {
-      for (const pathType of [
-        FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST,
-        FIREBASE_LIST_PATH_TYPE.TUMOR_LIST,
-        FIREBASE_LIST_PATH_TYPE.MUTATION_LIST,
-        FIREBASE_LIST_PATH_TYPE.GENOMIC_INDICATOR_LIST,
-      ]) {
+      for (const pathType of [...orderedPathTypesToDelete, FIREBASE_LIST_PATH_TYPE.GENOMIC_INDICATOR_LIST]) {
         for (const [firebasePath, deleteIndices] of Object.entries(itemsToDelete[pathType])) {
           hasDeletion = true;
           await this.firebaseRepository.deleteFromArray(firebasePath, deleteIndices);
