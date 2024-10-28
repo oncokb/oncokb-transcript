@@ -47,6 +47,7 @@ export enum FIREBASE_LIST_PATH_TYPE {
   MUTATION_LIST,
   TUMOR_LIST,
   TREATMENT_LIST,
+  GENOMIC_INDICATOR_LIST,
 }
 export const getFirebasePathType = (path: string) => {
   if (/mutations\/\d+$/i.test(path)) {
@@ -57,5 +58,8 @@ export const getFirebasePathType = (path: string) => {
   }
   if (/TIs\/\d+\/treatments\/\d+$/i.test(path)) {
     return FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST;
+  }
+  if (/genomic_indicators\/\d+$/i.test(path)) {
+    return FIREBASE_LIST_PATH_TYPE.GENOMIC_INDICATOR_LIST;
   }
 };

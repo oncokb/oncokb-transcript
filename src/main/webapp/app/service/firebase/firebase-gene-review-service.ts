@@ -144,6 +144,7 @@ export class FirebaseGeneReviewService {
       [FIREBASE_LIST_PATH_TYPE.MUTATION_LIST]: {},
       [FIREBASE_LIST_PATH_TYPE.TUMOR_LIST]: {},
       [FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST]: {},
+      [FIREBASE_LIST_PATH_TYPE.GENOMIC_INDICATOR_LIST]: {},
     };
 
     let evidences: ReturnType<typeof getEvidence> = {};
@@ -267,7 +268,6 @@ export class FirebaseGeneReviewService {
       } else {
         throw new SentryError('Unexpect accept in review mode', { hugoSymbol, reviewLevel, isGermline, isAcceptAll });
       }
-
       const metaUpdateObject = this.firebaseMetaService.getUpdateObject(false, hugoSymbol, isGermline, uuid);
       updateObject = { ...updateObject, ...metaUpdateObject };
     }
@@ -284,25 +284,10 @@ export class FirebaseGeneReviewService {
       });
     }
 
-    // We are deleting last because the indices will change after deleting from array.
-    let hasDeletion = false;
     try {
       // Todo: We should use multi-location updates for deletions once all our arrays use firebase auto-generated keys
       // instead of using sequential number indices.
-      for (const pathType of [
-        FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST,
-        FIREBASE_LIST_PATH_TYPE.TUMOR_LIST,
-        FIREBASE_LIST_PATH_TYPE.MUTATION_LIST,
-      ]) {
-        for (const [firebasePath, deleteIndices] of Object.entries(itemsToDelete[pathType])) {
-          hasDeletion = true;
-          await this.firebaseRepository.deleteFromArray(firebasePath, deleteIndices);
-        }
-      }
-      // If user accepts a deletion individually, we need to refresh the ReviewPage with the latest data to make sure the indices are up to date.
-      if (reviewLevels.length === 1 && hasDeletion) {
-        return { shouldRefresh: true };
-      }
+      this.processDeletion(reviewLevels.length, itemsToDelete);
     } catch (error) {
       throw new SentryError('Failed to accept deletions in review mode', { hugoSymbol, reviewLevels, isGermline, itemsToDelete });
     }
@@ -416,15 +401,16 @@ export class FirebaseGeneReviewService {
 
   processDeletion = async (reviewLevelLength: number, itemsToDelete: ItemsToDeleteMap) => {
     // We are deleting last because the indices will change after deleting from array.
+    // Be VERY careful, this order is important
+    const orderedPathTypesToDelete = [
+      FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST,
+      FIREBASE_LIST_PATH_TYPE.TUMOR_LIST,
+      FIREBASE_LIST_PATH_TYPE.MUTATION_LIST,
+    ];
+
     let hasDeletion = false;
     try {
-      // Todo: We should use multi-location updates for deletions once all our arrays use firebase auto-generated keys
-      // instead of using sequential number indices.
-      for (const pathType of [
-        FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST,
-        FIREBASE_LIST_PATH_TYPE.TUMOR_LIST,
-        FIREBASE_LIST_PATH_TYPE.MUTATION_LIST,
-      ]) {
+      for (const pathType of [...orderedPathTypesToDelete, FIREBASE_LIST_PATH_TYPE.GENOMIC_INDICATOR_LIST]) {
         for (const [firebasePath, deleteIndices] of Object.entries(itemsToDelete[pathType])) {
           hasDeletion = true;
           await this.firebaseRepository.deleteFromArray(firebasePath, deleteIndices);
