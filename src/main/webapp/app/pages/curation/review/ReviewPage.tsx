@@ -48,9 +48,7 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
   const [editorReviewMap, setEditorReviewMap] = useState(new EditorReviewMap());
   const [editorsToAcceptChangesFrom, setEditorsToAcceptChangesFrom] = useState<string[]>([]);
   const [isAcceptingAll, setIsAcceptingAll] = useState(false);
-
-  const [isAccepting, setIsAccepting] = useState(false);
-  const [isRejecting, setIsRejecting] = useState(false);
+  const [isProcessingAction, setIsProcessingAction] = useState(false);
 
   const fetchFirebaseData = async () => {
     if (!props.firebaseDb) {
@@ -223,29 +221,29 @@ const ReviewPage: React.FunctionComponent<IReviewPageProps> = (props: IReviewPag
               isGermline={isGermline}
               baseReviewLevel={rootReview}
               handleAccept={async args => {
-                setIsAccepting(true);
+                setIsProcessingAction(true);
                 try {
                   const returnVal = await props.acceptReviewChangeHandler?.(args);
                   if (returnVal?.shouldRefresh) {
                     await fetchFirebaseData();
                   }
                 } finally {
-                  setIsAccepting(false);
+                  setIsProcessingAction(false);
                 }
               }}
               handleReject={async (hugoArg, reviewLevelsArg, isGermlineArg) => {
-                setIsRejecting(true);
+                setIsProcessingAction(true);
                 try {
                   const returnVal = await props.rejectReviewChangeHandler?.(hugoArg, reviewLevelsArg, isGermlineArg);
                   if (returnVal?.shouldRefresh) {
                     await fetchFirebaseData();
                   }
                 } finally {
-                  setIsRejecting(false);
+                  setIsProcessingAction(false);
                 }
               }}
               handleCreateAction={props.createActionHandler}
-              disableActions={isAcceptingAll || isAccepting || isRejecting}
+              disableActions={isAcceptingAll || isProcessingAction}
               isRoot={true}
               firebase={{
                 path: getGenePathFromValuePath(hugoSymbol ?? '', rootReview.valuePath, isGermline),
