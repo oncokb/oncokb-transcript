@@ -101,6 +101,10 @@ Generic styles
   margin-right: 0.5rem;
 }
 
+.error-message > svg {
+  flex-shrink: 0;
+}
+
 .warning-message {
   display: flex;
   align-items: center;
