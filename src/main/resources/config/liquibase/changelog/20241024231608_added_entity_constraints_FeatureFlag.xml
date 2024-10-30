@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <!--
+        Added the constraints for entity FeatureFlag.
+    -->
+    <changeSet id="20241024231608-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="feature_flag_id"
+                                 baseTableName="rel_feature_flag__user"
+                                 constraintName="fk_rel_feature_flag__user__feature_flag_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="feature_flag"/>
+
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="rel_feature_flag__user"
+                                 constraintName="fk_rel_feature_flag__user__user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="user"/>
+    </changeSet>
+</databaseChangeLog>
