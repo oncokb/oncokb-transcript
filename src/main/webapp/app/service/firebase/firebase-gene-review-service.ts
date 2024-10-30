@@ -310,6 +310,7 @@ export class FirebaseGeneReviewService {
       [FIREBASE_LIST_PATH_TYPE.MUTATION_LIST]: {},
       [FIREBASE_LIST_PATH_TYPE.TUMOR_LIST]: {},
       [FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST]: {},
+      [FIREBASE_LIST_PATH_TYPE.GENOMIC_INDICATOR_LIST]: {},
     };
 
     let updateObject = {};
