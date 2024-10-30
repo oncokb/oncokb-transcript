@@ -123,8 +123,6 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
   };
 
   const onTreatmentChange = (drugOptions: DrugSelectOption[], index: number) => {
-    /* eslint-disable no-console */
-    console.log(drugOptions);
     setSelectedTreatments(prevItems => prevItems.map((item, i) => (i === index ? drugOptions : item)));
   };
 
