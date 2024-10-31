@@ -239,21 +239,29 @@ export const ReviewCollapsible = ({
     if (rootReview.reviewLevelType === ReviewLevelType.META) {
       return undefined;
     }
+    const deletionAction = (
+      <ActionIcon
+        icon={faTimes}
+        color={DANGER}
+        onClick={() => {
+          handleActionClick(ActionType.REJECT);
+        }}
+        disabled={disableActions}
+      />
+    );
     if (isCreateReview(rootReview)) {
-      // Reviewable content should be reviewed individually under a create event
-      return undefined;
+      if (rootReview.nestedUnderCreateOrDelete) {
+        return undefined;
+      }
+      // Reviewable content should be reviewed individually under a create event. Once fully reviewed
+      // then the entity will be created.
+      // We do allow the user to reject the create.
+      return deletionAction;
     }
     return (
       <>
         <ActionIcon icon={faCheck} color={SUCCESS} onClick={() => handleActionClick(ActionType.ACCEPT)} disabled={disableActions} />
-        <ActionIcon
-          icon={faTimes}
-          color={DANGER}
-          onClick={() => {
-            handleActionClick(ActionType.REJECT);
-          }}
-          disabled={disableActions}
-        />
+        {deletionAction}
       </>
     );
   };

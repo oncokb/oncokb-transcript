@@ -21,6 +21,7 @@ import {
   getUpdatedReview,
   isCreateReview,
   isDeleteReview,
+  updateItemsToDeleteMap,
 } from '../../shared/util/firebase/firebase-review-utils';
 import { getFirebaseGenePath, getFirebaseMetaGenePath, getFirebaseVusPath } from '../../shared/util/firebase/firebase-utils';
 import { generateUuid, parseAlterationName } from '../../shared/util/utils';
@@ -137,10 +138,10 @@ export class FirebaseGeneReviewService {
     | undefined
     | void
   > => {
-    const geneFirebasePath = getFirebaseGenePath(isGermline, hugoSymbol);
-    const vusFirebasePath = getFirebaseVusPath(isGermline, hugoSymbol);
+    const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
+    const firebaseVusPath = getFirebaseVusPath(isGermline, hugoSymbol);
 
-    const itemsToDelete: ItemsToDeleteMap = {
+    let itemsToDelete: ItemsToDeleteMap = {
       [FIREBASE_LIST_PATH_TYPE.MUTATION_LIST]: {},
       [FIREBASE_LIST_PATH_TYPE.TUMOR_LIST]: {},
       [FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST]: {},
@@ -244,23 +245,19 @@ export class FirebaseGeneReviewService {
       const { uuid, reviewAction, review, reviewPath } = reviewLevel.reviewInfo;
       if (reviewAction === ReviewAction.UPDATE || reviewAction === ReviewAction.NAME_CHANGE) {
         clearReview(review);
-        updateObject[`${geneFirebasePath}/${reviewPath}`] = review;
+        updateObject[`${firebaseGenePath}/${reviewPath}`] = review;
         if ('excludedCancerTypesReviewInfo' in reviewLevel && 'currentExcludedCancerTypes' in reviewLevel) {
           const tumorReviewLevel = reviewLevel as TumorReviewLevel;
           const excludedCtReviewPath = tumorReviewLevel.excludedCancerTypesReviewInfo?.reviewPath;
-          updateObject[`${geneFirebasePath}/${excludedCtReviewPath}`] = review;
+          updateObject[`${firebaseGenePath}/${excludedCtReviewPath}`] = review;
         }
       } else if (isDeleteReview(reviewLevel)) {
-        const { firebaseArrayPath, deleteIndex } = extractArrayPath(reviewLevel.valuePath);
-        const firebasePath = geneFirebasePath + '/' + firebaseArrayPath;
-        const firebasePathType = getFirebasePathType(firebaseArrayPath + '/' + deleteIndex);
-        if (firebasePathType !== undefined) {
-          const innerMap = itemsToDelete[firebasePathType];
-          innerMap[firebasePath] ? innerMap[firebasePath].push(deleteIndex) : (innerMap[firebasePath] = [deleteIndex]);
-        }
+        itemsToDelete = updateItemsToDeleteMap(itemsToDelete, reviewLevel, firebaseGenePath);
         if (review.demotedToVus) {
-          const variants = parseAlterationName(reviewLevel.currentVal)[0].alteration.split(', ');
-          updateObject = { ...updateObject, ...this.firebaseVusService.getVusUpdateObject(vusFirebasePath, variants) };
+          const variants = parseAlterationName(reviewLevel.currentVal)[0]
+            .alteration.split(',')
+            .map(alt => alt.trim());
+          updateObject = { ...updateObject, ...this.firebaseVusService.getVusUpdateObject(firebaseVusPath, variants) };
         }
       } else if (isCreateReview(reviewLevel) && isAcceptAll) {
         const createUpdateObject = await this.getCreateUpdateObject(hugoSymbol, reviewLevel, isGermline, ActionType.ACCEPT);
@@ -295,8 +292,27 @@ export class FirebaseGeneReviewService {
     return this.processDeletion(reviewLevels.length, itemsToDelete);
   };
 
-  rejectChanges = async (hugoSymbol: string, reviewLevels: ReviewLevel[], isGermline: boolean) => {
+  rejectChanges = async (
+    hugoSymbol: string,
+    reviewLevels: ReviewLevel[],
+    isGermline: boolean,
+  ): Promise<
+    | {
+        shouldRefresh: boolean;
+      }
+    | undefined
+    | void
+  > => {
     const firebaseGenePath = getFirebaseGenePath(isGermline, hugoSymbol);
+    const firebaseVusPath = getFirebaseVusPath(isGermline, hugoSymbol);
+
+    let itemsToDelete: ItemsToDeleteMap = {
+      [FIREBASE_LIST_PATH_TYPE.MUTATION_LIST]: {},
+      [FIREBASE_LIST_PATH_TYPE.TUMOR_LIST]: {},
+      [FIREBASE_LIST_PATH_TYPE.TREATMENT_LIST]: {},
+      [FIREBASE_LIST_PATH_TYPE.GENOMIC_INDICATOR_LIST]: {},
+    };
+
     let updateObject = {};
 
     for (const reviewLevel of reviewLevels) {
@@ -322,6 +338,14 @@ export class FirebaseGeneReviewService {
         }
       } else if (isDeleteReview(reviewLevel)) {
         updateObject[`${firebaseGenePath}/${reviewPath}`] = resetReview;
+      } else if (isCreateReview(reviewLevel)) {
+        itemsToDelete = updateItemsToDeleteMap(itemsToDelete, reviewLevel, firebaseGenePath);
+        if (review.promotedToMutation) {
+          const variants = parseAlterationName(reviewLevel.currentVal)[0]
+            .alteration.split(',')
+            .map(alt => alt.trim());
+          updateObject = { ...updateObject, ...this.firebaseVusService.getVusUpdateObject(firebaseVusPath, variants) };
+        }
       } else {
         throw new SentryError('Unexpected reject in review mode', { hugoSymbol, reviewLevels, isGermline });
       }
@@ -335,6 +359,8 @@ export class FirebaseGeneReviewService {
         throw new SentryError('Failed to reject changes in review mode', { hugoSymbol, reviewLevels, isGermline, updateObject });
       }
     }
+
+    return this.processDeletion(reviewLevels.length, itemsToDelete);
   };
 
   // Creation accepts/rejects are triggered when the Create Collapsible has no more children.
