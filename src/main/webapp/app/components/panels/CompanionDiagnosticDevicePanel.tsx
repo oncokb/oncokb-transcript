@@ -1,7 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Menu } from 'react-pro-sidebar';
 import { Button, Container, Form } from 'reactstrap';
-import { ENTITY_ACTION, ENTITY_TYPE, RULE_ENTITY, SearchOptionType } from 'app/config/constants/constants';
+import {
+  DUPLICATE_THERAPY_ERROR_MESSAGE,
+  EMPTY_THERAPY_ERROR_MESSAGE,
+  ENTITY_ACTION,
+  ENTITY_TYPE,
+  RULE_ENTITY,
+  SearchOptionType,
+} from 'app/config/constants/constants';
 import { useHistory, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
@@ -21,7 +28,7 @@ import { connect } from 'app/shared/util/typed-inject';
 import classNames from 'classnames';
 import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import _ from 'lodash';
-import { DUPLICATE_THERAPY_ERROR_MESSAGE, EMPTY_THERAPY_ERROR_MESSAGE } from 'app/shared/modal/ModifyTherapyModal';
+import { ErrorMessage } from 'app/shared/error/ErrorMessage';
 
 const SidebarMenuItem: React.FunctionComponent<{ style?: React.CSSProperties; children: React.ReactNode; className?: string }> = ({
   className,
@@ -206,9 +213,9 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
             >
               Add Therapy
             </Button>
-            <div>
-              {selectedTreatments.length > 1 && isEmptyTreatments && EMPTY_THERAPY_ERROR_MESSAGE}
-              {hasDuplicateTreatments && DUPLICATE_THERAPY_ERROR_MESSAGE}
+            <div className="mt-1">
+              {selectedTreatments.length > 1 && isEmptyTreatments && <ErrorMessage message={EMPTY_THERAPY_ERROR_MESSAGE} />}
+              {hasDuplicateTreatments && <ErrorMessage message={DUPLICATE_THERAPY_ERROR_MESSAGE} />}
             </div>
           </SidebarMenuItem>
           <SidebarMenuItem className="border-top py-2">
