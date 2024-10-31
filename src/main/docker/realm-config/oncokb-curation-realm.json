@@ -1339,7 +1339,7 @@
       "linkOnly": false,
       "firstBrokerLoginFlowAlias": "first broker login",
       "config": {
-        "syncMode": "IMPORT",
+        "syncMode": "FORCE",
         "clientSecret": "GOOGLE_CLIENT_SECRET",
         "clientId": "GOOGLE_CLIENT_ID",
         "useJwksUrl": "true"
