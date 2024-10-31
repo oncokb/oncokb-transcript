@@ -1,7 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Menu } from 'react-pro-sidebar';
 import { Button, Container, Form } from 'reactstrap';
-import { ENTITY_ACTION, ENTITY_TYPE, RULE_ENTITY, SearchOptionType } from 'app/config/constants/constants';
+import {
+  DUPLICATE_THERAPY_ERROR_MESSAGE,
+  EMPTY_THERAPY_ERROR_MESSAGE,
+  ENTITY_ACTION,
+  ENTITY_TYPE,
+  RULE_ENTITY,
+  SearchOptionType,
+} from 'app/config/constants/constants';
 import { useHistory, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
@@ -18,9 +25,21 @@ import { associationClient } from 'app/shared/api/clients';
 import { notifyError, notifySuccess } from 'app/oncokb-commons/components/util/NotificationUtils';
 import { IRootStore } from 'app/stores';
 import { connect } from 'app/shared/util/typed-inject';
+import classNames from 'classnames';
+import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import _ from 'lodash';
+import { ErrorMessage } from 'app/shared/error/ErrorMessage';
 
-const SidebarMenuItem: React.FunctionComponent<{ style?: React.CSSProperties; children: React.ReactNode }> = ({ style, children }) => {
-  return <div style={{ padding: '0.5rem 1rem', ...style }}>{children}</div>;
+const SidebarMenuItem: React.FunctionComponent<{ style?: React.CSSProperties; children: React.ReactNode; className?: string }> = ({
+  className,
+  children,
+  ...props
+}) => {
+  return (
+    <div className={classNames('py-2 px-1', className)} {...props}>
+      {children}
+    </div>
+  );
 };
 
 export const defaultAdditional = {
@@ -30,10 +49,10 @@ export const defaultAdditional = {
 
 const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ getEntity }: StoreProps) => {
   const [geneValue, setGeneValue] = useState<GeneSelectOption | null>(null);
-  const [alterationValue, onAlterationChange] = useState<readonly AlterationSelectOption[]>();
-  const [cancerTypeValue, onCancerTypeChange] = useState<CancerTypeSelectOption | null>(null);
-  const [drugValue, onDrugChange] = useState<readonly DrugSelectOption[]>([]);
-  const [fdaSubmissionValue, onFdaSubmissionChange] = useState<readonly FdaSubmissionSelectOption[]>([]);
+  const [alterationValue, setAlterationValue] = useState<readonly AlterationSelectOption[]>();
+  const [cancerTypeValue, setCancerTypeValue] = useState<CancerTypeSelectOption | null>(null);
+  const [selectedTreatments, setSelectedTreatments] = useState<DrugSelectOption[][]>([[]]);
+  const [fdaSubmissionValue, setFdaSubmissionValue] = useState<readonly FdaSubmissionSelectOption[]>([]);
 
   const history = useHistory();
   const location = useLocation();
@@ -41,16 +60,16 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
 
   useEffect(() => {
     if (geneValue === null) {
-      onAlterationChange([]);
+      setAlterationValue([]);
     }
   }, [geneValue]);
 
   const resetValues = () => {
-    onAlterationChange([]);
+    setAlterationValue([]);
     setGeneValue(null);
-    onCancerTypeChange(null);
-    onDrugChange([]);
-    onFdaSubmissionChange([]);
+    setCancerTypeValue(null);
+    setSelectedTreatments([[]]);
+    setFdaSubmissionValue([]);
   };
 
   const createBiomarkerAssociation = (e: any) => {
@@ -75,18 +94,16 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
           proteinChange: '',
         };
       }),
-      drugs: drugValue?.map((drug): Drug => {
-        return {
-          id: drug.value,
-          uuid: '',
-        };
-      }),
+      drugs: _.uniqBy(
+        selectedTreatments.flat().map(option => ({ id: option.value, uuid: '' })),
+        'id',
+      ),
     };
 
-    if (association.drugs) {
+    if (!_.isEmpty(association.drugs)) {
       const rule: Rule = {
         entity: RULE_ENTITY.DRUG,
-        rule: association.drugs.map(drug => drug.id).join('+'),
+        rule: selectedTreatments.map(innerArray => innerArray.map(option => option.value).join('+')).join(','),
       };
       association.rules = [rule];
     }
@@ -112,12 +129,27 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
     history.push(getEntityActionRoute(ENTITY_TYPE.FDA_SUBMISSION, ENTITY_ACTION.ADD));
   };
 
+  const onTreatmentChange = (drugOptions: DrugSelectOption[], index: number) => {
+    setSelectedTreatments(prevItems => prevItems.map((item, i) => (i === index ? drugOptions : item)));
+  };
+
+  const isEmptyTreatments = selectedTreatments.some(drugs => drugs.length === 0);
+  const hasDuplicateTreatments = useMemo(() => {
+    return selectedTreatments.some((item, index) => selectedTreatments.slice(index + 1).some(otherItem => _.isEqual(item, otherItem)));
+  }, [selectedTreatments]);
+
+  const isSaveButtonDisabled =
+    isEmptyTreatments ||
+    hasDuplicateTreatments ||
+    [geneValue, alterationValue, cancerTypeValue, fdaSubmissionValue].some(v => _.isEmpty(v));
+
   return (
-    <Container>
-      <h4 style={{ marginBottom: '2rem', marginLeft: '1rem' }}>Curation Panel</h4>
+    <Container className="ps-0">
+      <h4 style={{ marginBottom: '1rem' }}>Curation Panel</h4>
+      <div className="border-top py-3"></div>
       <Menu>
         <Form onSubmit={createBiomarkerAssociation}>
-          <SidebarMenuItem>Add Biomarker Association</SidebarMenuItem>
+          <h5 className="ms-1">Add Biomarker Association</h5>
           <SidebarMenuItem>
             <GeneSelect onChange={setGeneValue} value={geneValue} />
           </SidebarMenuItem>
@@ -127,43 +159,85 @@ const CompanionDiagnosticDevicePanel: React.FunctionComponent<StoreProps> = ({ g
                 <AlterationSelect
                   isMulti
                   geneId={geneValue?.value?.toString() ?? ''}
-                  onChange={onAlterationChange}
+                  onChange={setAlterationValue}
                   value={alterationValue}
                 />
               </div>
               <DefaultTooltip overlay={'Create new alteration'}>
-                <Button className="ms-1" color="primary" onClick={redirectToCreateAlteration}>
+                <Button className="ms-1" color="primary" onClick={redirectToCreateAlteration} outline>
                   <FontAwesomeIcon icon={faPlus} size="sm" />
                 </Button>
               </DefaultTooltip>
             </div>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <CancerTypeSelect onChange={onCancerTypeChange} value={cancerTypeValue} />
+            <CancerTypeSelect onChange={setCancerTypeValue} value={cancerTypeValue} />
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <DrugSelect isMulti onChange={onDrugChange} value={drugValue} placeholder={'Select drug(s)'} />
+          <SidebarMenuItem className="border-top py-2">
+            <h6>Input Therapies</h6>
+            <>
+              {selectedTreatments.map((drugOptions, index) => {
+                return (
+                  <div key={`cdx-drug-add-${index}`} className={classNames(index > 0 ? 'mt-2' : undefined, 'd-flex align-items-start')}>
+                    <DrugSelect
+                      className={'flex-grow-1'}
+                      isMulti
+                      onChange={options => onTreatmentChange(options as DrugSelectOption[], index)}
+                      value={drugOptions}
+                      placeholder={'Select drug(s)'}
+                    />
+                    <Button
+                      className="ms-1"
+                      color="danger"
+                      onClick={() => {
+                        setSelectedTreatments(prevItems => prevItems.filter((val, i) => i !== index));
+                      }}
+                      outline
+                      disabled={selectedTreatments.length === 1}
+                    >
+                      <FontAwesomeIcon icon={faTrashCan} size="sm" />
+                    </Button>
+                  </div>
+                );
+              })}
+            </>
+            <Button
+              outline
+              size="sm"
+              className="mt-2"
+              color="primary"
+              onClick={() => {
+                setSelectedTreatments(prevState => [...prevState, []]);
+              }}
+              disabled={isEmptyTreatments || hasDuplicateTreatments}
+            >
+              Add Therapy
+            </Button>
+            <div className="mt-1">
+              {selectedTreatments.length > 1 && isEmptyTreatments && <ErrorMessage message={EMPTY_THERAPY_ERROR_MESSAGE} />}
+              {hasDuplicateTreatments && <ErrorMessage message={DUPLICATE_THERAPY_ERROR_MESSAGE} />}
+            </div>
           </SidebarMenuItem>
-          <SidebarMenuItem>
+          <SidebarMenuItem className="border-top py-2">
             <div className="d-flex align-items-start">
               <div style={{ flex: 1 }}>
                 <FdaSubmissionSelect
                   cdxId={id}
                   isMulti
-                  onChange={onFdaSubmissionChange}
+                  onChange={setFdaSubmissionValue}
                   value={fdaSubmissionValue}
                   placeholder={'Select FDA submission(s)'}
                 />
               </div>
               <DefaultTooltip overlay={'Create new FDA submission'}>
-                <Button className="ms-1" color="primary" onClick={redirectToCreateFdaSubmission}>
+                <Button className="ms-1" color="primary" onClick={redirectToCreateFdaSubmission} outline>
                   <FontAwesomeIcon icon={faPlus} size="sm" />
                 </Button>
               </DefaultTooltip>
             </div>
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SaveButton />
+          <SidebarMenuItem style={{ display: 'flex', justifyContent: 'end' }}>
+            <SaveButton disabled={isSaveButtonDisabled} />
           </SidebarMenuItem>
         </Form>
       </Menu>

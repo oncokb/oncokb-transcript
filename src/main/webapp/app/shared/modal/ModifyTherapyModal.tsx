@@ -5,15 +5,20 @@ import { IRootStore } from 'app/stores';
 import { componentInject } from '../util/typed-inject';
 import { observer } from 'mobx-react';
 import { IDrug } from '../model/drug.model';
-import { FaExclamationCircle, FaRegTrashAlt } from 'react-icons/fa';
+import { FaRegTrashAlt } from 'react-icons/fa';
 import './modify-therapy-modal.scss';
 import { Button } from 'reactstrap';
 import { generateUuid } from '../util/utils';
 import { parseNcitUniqId } from '../select/NcitCodeSelect';
 import _ from 'lodash';
 import { Treatment, Tumor } from '../model/firebase/firebase.model';
-import { DEFAULT_ICON_SIZE } from 'app/config/constants/constants';
 import { Unsubscribe, onValue, ref } from 'firebase/database';
+import {
+  DUPLICATE_THERAPY_ERROR_MESSAGE,
+  EMPTY_THERAPY_ERROR_MESSAGE,
+  THERAPY_ALREADY_EXISTS_ERROR_MESSAGE,
+} from 'app/config/constants/constants';
+import { ErrorMessage } from '../error/ErrorMessage';
 
 export interface IModifyTherapyModalProps extends StoreProps {
   treatmentUuid: string;
@@ -162,24 +167,9 @@ const ModifyTherapyModalContent = observer(
       if (isEmptyTherapy || isDuplicate || alreadyExists) {
         return (
           <div>
-            {isDuplicate && (
-              <div className="error-message">
-                <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
-                <span>Each therapy must be unique</span>
-              </div>
-            )}
-            {isEmptyTherapy && (
-              <div className="error-message">
-                <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
-                <span>You must include at least one drug for each therapy</span>
-              </div>
-            )}
-            {alreadyExists && (
-              <div className="error-message">
-                <FaExclamationCircle className="me-2" size={DEFAULT_ICON_SIZE} />
-                <span>Therapy already exists</span>
-              </div>
-            )}
+            {isDuplicate && <ErrorMessage message={DUPLICATE_THERAPY_ERROR_MESSAGE} />}
+            {isEmptyTherapy && <ErrorMessage message={EMPTY_THERAPY_ERROR_MESSAGE} />}
+            {alreadyExists && <ErrorMessage message={THERAPY_ALREADY_EXISTS_ERROR_MESSAGE} />}
           </div>
         );
       } else {
